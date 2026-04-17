@@ -1,0 +1,3 @@
+[2026-04-02T12:03:54.996Z] [INFO] Starting claudefn session=f37e9340-6727-40db-9668-9b1885e6c1ec
+[2026-04-02T12:03:54.996Z] [INFO] Timeout=600000ms (activity-based idle timeout)
+[2026-04-02T12:03:54.997Z] [PROMPT] Say hello

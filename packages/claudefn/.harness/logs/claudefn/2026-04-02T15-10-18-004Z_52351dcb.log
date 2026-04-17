@@ -1,0 +1,18 @@
+[2026-04-02T15:10:18.004Z] [INFO] Starting claudefn session=52351dcb-fe3d-483b-a40b-2bd54e197652
+[2026-04-02T15:10:18.004Z] [INFO] Timeout=60000ms (activity-based idle timeout)
+[2026-04-02T15:10:18.005Z] [CMD] claude --dangerously-skip-permissions -p --no-session-persistence
+[2026-04-02T15:10:18.005Z] [PROMPT] List the first 3 MCP tools available starting with "mcp__stitch"
+[2026-04-02T15:10:18.006Z] [DEBUG] Process spawned PID=41701
+[2026-04-02T15:10:18.006Z] [DEBUG] stdin.end() called
+[2026-04-02T15:10:29.470Z] [STDOUT] Let me search for MCP tools that start with "mcp__stitch".
+
+Based on the available tools, here are the first 3 MCP tools starting with "mcp__stitch":
+
+1. **mcp__stitch__create_project** - Creates a new Stitch project. A project is a container for UI designs and frontend code.
+
+2. **mcp__stitch__get_project** - Retrieves the details of a specific Stitch project using its project name.
+
+3. **mcp__stitch__list_projects** - Lists all Stitch projects accessible to the user. By default, it lists projects owned by the user.
+
+These tools appear to be part of a Stitch MCP server integration that provides UI/UX design and screen generation capabilities.
+[2026-04-02T15:10:29.492Z] [EXIT] code=0 (success)

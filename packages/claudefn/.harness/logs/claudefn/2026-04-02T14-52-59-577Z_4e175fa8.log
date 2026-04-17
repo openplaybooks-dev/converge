@@ -1,0 +1,8 @@
+[2026-04-02T14:52:59.580Z] [INFO] Starting claudefn session=4e175fa8-5daa-4579-873c-e7f355a8911f
+[2026-04-02T14:52:59.581Z] [INFO] Timeout=60000ms (activity-based idle timeout)
+[2026-04-02T14:52:59.581Z] [CMD] claude --dangerously-skip-permissions -p --no-session-persistence
+[2026-04-02T14:52:59.581Z] [PROMPT] What is 2+2? Answer with just the number.
+[2026-04-02T14:52:59.584Z] [DEBUG] Process spawned PID=7089
+[2026-04-02T14:52:59.584Z] [DEBUG] stdin.end() called
+[2026-04-02T14:53:07.092Z] [STDOUT] 4
+[2026-04-02T14:53:07.100Z] [EXIT] code=0 (success)

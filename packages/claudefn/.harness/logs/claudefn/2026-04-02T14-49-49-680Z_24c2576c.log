@@ -1,0 +1,8 @@
+[2026-04-02T14:49:49.680Z] [INFO] Starting claudefn session=24c2576c-16c6-4a6a-9ff1-3e6a7c9fbe4d
+[2026-04-02T14:49:49.680Z] [INFO] Timeout=30000ms (activity-based idle timeout)
+[2026-04-02T14:49:49.680Z] [CMD] claude --dangerously-skip-permissions -p --no-session-persistence
+[2026-04-02T14:49:49.680Z] [PROMPT] Say hello to World in one short sentence
+[2026-04-02T14:49:49.682Z] [DEBUG] Process spawned PID=1753
+[2026-04-02T14:49:49.682Z] [DEBUG] stdin.end() called
+[2026-04-02T14:49:56.671Z] [STDOUT] Hello, World!
+[2026-04-02T14:49:56.679Z] [EXIT] code=0 (success)

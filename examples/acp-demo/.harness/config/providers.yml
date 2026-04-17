@@ -1,0 +1,75 @@
+# Provider Configuration
+# Defines how to map different LLM providers to the underlying implementation
+
+# Default provider to use when not specified
+default: claude
+
+# Provider definitions
+providers:
+  # Standard Claude CLI (Anthropic)
+  claude:
+    type: claudefn
+    description: Claude Code CLI with Anthropic API
+    env:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+    
+  # Claude CLI with Kimi API (API-compatible mode)
+  # Since Kimi API is Claude-compatible, we can use claudefn with Kimi's endpoint
+  kimi-compat:
+    type: claudefn
+    description: Claude CLI using Kimi API endpoint
+    env:
+      # Override Anthropic API key with Kimi key
+      ANTHROPIC_API_KEY: ${KIMI_API_KEY}
+      # Override API base URL to point to Kimi
+      ANTHROPIC_BASE_URL: https://api.moonshot.cn/v1
+      # Or use OpenAI-compatible endpoint
+      OPENAI_API_KEY: ${KIMI_API_KEY}
+      OPENAI_BASE_URL: https://api.moonshot.cn/v1
+    cliFlags:
+      # Add any Kimi-specific CLI flags
+      - --model
+      - kimi-k1.5
+    
+  # Native Kimi CLI (kimifn)
+  kimi-native:
+    type: kimifn
+    description: Native Kimi CLI
+    env:
+      MOONSHOT_API_KEY: ${KIMI_API_KEY}
+
+  # ACP (Agent SDK) with Claude
+  acp:
+    type: scpfn
+    description: Agent SDK with Claude
+    env:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+
+# Environment variable mappings
+# These allow playbook.yml to reference ${KIMI_API_KEY} etc.
+envMappings:
+  KIMI_API_KEY: 
+    description: Kimi/Moonshot API Key
+    required: false
+    default: sk-e8Ti33rX28HLFeFeuUug4f3Tg0vL2j15wat9A0c0chXvWmBem4
+  ANTHROPIC_API_KEY:
+    description: Anthropic API Key
+    required: false
+  OPENAI_API_KEY:
+    description: OpenAI API Key (fallback)
+    required: false
+
+# Model mappings for each provider
+models:
+  kimi-compat:
+    default: kimi-k1.5
+    available:
+      - kimi-k1.5
+      - kimi-k1.5-long
+      - kimi-k1
+  claude:
+    default: claude-sonnet-4-6
+    available:
+      - claude-opus-4-6
+      - claude-sonnet-4-6
+      - claude-haiku-4

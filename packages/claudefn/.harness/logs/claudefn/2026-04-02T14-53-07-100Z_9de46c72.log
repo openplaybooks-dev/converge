@@ -1,0 +1,8 @@
+[2026-04-02T14:53:07.100Z] [INFO] Starting claudefn session=9de46c72-54b1-4daa-ac61-0e5b13eac850
+[2026-04-02T14:53:07.101Z] [INFO] Timeout=60000ms (activity-based idle timeout)
+[2026-04-02T14:53:07.101Z] [CMD] claude --dangerously-skip-permissions -p --no-session-persistence
+[2026-04-02T14:53:07.101Z] [PROMPT] Write a one-sentence description of TypeScript. Keep it under 20 words.
+[2026-04-02T14:53:07.102Z] [DEBUG] Process spawned PID=7276
+[2026-04-02T14:53:07.102Z] [DEBUG] stdin.end() called
+[2026-04-02T14:53:15.734Z] [STDOUT] TypeScript is a strongly-typed superset of JavaScript that adds static type checking and compiles to plain JavaScript.
+[2026-04-02T14:53:15.743Z] [EXIT] code=0 (success)

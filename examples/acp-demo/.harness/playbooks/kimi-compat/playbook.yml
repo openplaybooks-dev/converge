@@ -1,0 +1,137 @@
+# Kimi API via Claude CLI Playbook
+# 
+# This playbook demonstrates using Claude CLI (claudefn) with Kimi's API
+# since Kimi's API is Claude-compatible.
+#
+# Benefits:
+# - Use Claude CLI's powerful features (tools, sandbox, etc.)
+# - Get Kimi's pricing and availability
+# - No changes needed to existing Claude workflows
+
+name: kimi-compat
+description: Use Claude CLI with Kimi API endpoint
+
+# Default settings for all steps
+defaults:
+  provider: claude  # Use Claude CLI
+  timeout: 120000
+  logDir: ./.harness/logs
+
+# Environment configuration
+# Set these before running or in .env file
+env:
+  # Kimi API key (will be mapped to Anthropic env vars)
+  KIMI_API_KEY: ${KIMI_API_KEY:-sk-e8Ti33rX28HLFeFeuUug4f3Tg0vL2j15wat9A0c0chXvWmBem4}
+  
+  # Override Anthropic endpoint to use Kimi
+  ANTHROPIC_API_KEY: ${KIMI_API_KEY}
+  ANTHROPIC_BASE_URL: https://api.moonshot.cn/v1
+  
+  # OpenAI-compatible endpoint (alternative)
+  OPENAI_API_KEY: ${KIMI_API_KEY}
+  OPENAI_BASE_URL: https://api.moonshot.cn/v1
+
+# Model configuration
+models:
+  default: kimi-k1.5
+  fast: kimi-k1
+  long: kimi-k1.5-long
+
+# Playbook steps
+steps:
+  - name: test-kimi-connection
+    description: Test basic connectivity to Kimi API via Claude CLI
+    task:
+      type: agent
+      provider: claude
+      model: kimi-k1.5
+      prompt: |
+        Say exactly "Kimi API is working via Claude CLI!" and nothing else.
+      timeout: 30000
+
+  - name: analyze-code
+    description: Analyze code using Kimi API
+    task:
+      type: agent
+      provider: claude
+      model: kimi-k1.5
+      prompt: |
+        Analyze this code for issues:
+        
+        ```typescript
+        {{input.code}}
+        ```
+      schema:
+        type: object
+        properties:
+          issues:
+            type: array
+            items:
+              type: object
+              properties:
+                severity:
+                  type: string
+                  enum: [low, medium, high]
+                description:
+                  type: string
+          summary:
+            type: string
+        required: [issues, summary]
+
+  - name: generate-tests
+    description: Generate tests using Kimi's long context model
+    task:
+      type: agent
+      provider: claude
+      model: kimi-k1.5-long
+      prompt: |
+        Generate comprehensive unit tests for:
+        
+        ```typescript
+        {{input.code}}
+        ```
+      schema:
+        type: object
+        properties:
+          tests:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                code:
+                  type: string
+        required: [tests]
+
+  - name: quick-answer
+    description: Quick answer using fast model
+    task:
+      type: agent
+      provider: claude
+      model: kimi-k1
+      prompt: "{{input.question}}"
+      timeout: 60000
+
+# Provider comparison notes
+# 
+# kimi-compat (Claude CLI + Kimi API):
+#   - Uses: claudefn
+#   - Tools: Full Claude CLI tool support
+#   - Sandbox: Yes
+#   - Session: Yes (via --resume)
+#   - Best for: Complex tasks needing tools
+#
+# kimi-native (kimifn):
+#   - Uses: kimifn
+#   - Tools: Limited
+#   - Sandbox: No
+#   - Session: No
+#   - Best for: Simple text generation
+#
+# acp (Agent SDK):
+#   - Uses: scpfn
+#   - Tools: Built-in + MCP
+#   - Sandbox: Yes
+#   - Session: Yes (native)
+#   - Best for: Advanced SDK features

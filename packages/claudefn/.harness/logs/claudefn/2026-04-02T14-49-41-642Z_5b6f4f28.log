@@ -1,0 +1,8 @@
+[2026-04-02T14:49:41.653Z] [INFO] Starting claudefn session=5b6f4f28-e3b4-4863-b98c-1e3d18a8ccfd
+[2026-04-02T14:49:41.653Z] [INFO] Timeout=30000ms (activity-based idle timeout)
+[2026-04-02T14:49:41.653Z] [CMD] claude --dangerously-skip-permissions -p --no-session-persistence
+[2026-04-02T14:49:41.653Z] [PROMPT] Say "test successful" and nothing else
+[2026-04-02T14:49:41.658Z] [DEBUG] Process spawned PID=1526
+[2026-04-02T14:49:41.658Z] [DEBUG] stdin.end() called
+[2026-04-02T14:49:49.671Z] [STDOUT] test successful
+[2026-04-02T14:49:49.679Z] [EXIT] code=0 (success)

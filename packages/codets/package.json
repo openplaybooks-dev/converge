@@ -1,0 +1,55 @@
+{
+  "name": "codets",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Fluent, indentation-aware source code emitter — structured builders for generating TypeScript/JSX files",
+  "license": "MIT",
+  "author": "Crew Framework Contributors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/myanlabs/converge.git",
+    "directory": "packages/codets"
+  },
+  "bugs": {
+    "url": "https://github.com/myanlabs/converge/issues"
+  },
+  "homepage": "https://github.com/myanlabs/converge/tree/main/packages/codets#readme",
+  "keywords": [
+    "codegen",
+    "code-generation",
+    "typescript",
+    "jsx",
+    "react",
+    "builder",
+    "fluent-api",
+    "ast",
+    "source-code",
+    "scaffold",
+    "generator"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src",
+    "test",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.13",
+    "typescript": "^5.7.0",
+    "vitest": "^4.0.18"
+  }
+}

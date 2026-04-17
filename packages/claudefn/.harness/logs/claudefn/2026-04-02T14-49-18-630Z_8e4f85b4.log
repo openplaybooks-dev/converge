@@ -1,0 +1,5 @@
+[2026-04-02T14:49:18.630Z] [INFO] Starting claudefn session=8e4f85b4-acab-4554-8101-bd2aa2cf2f88
+[2026-04-02T14:49:18.630Z] [INFO] Timeout=600000ms (activity-based idle timeout)
+[2026-04-02T14:49:18.631Z] [CMD] claude --dangerously-skip-permissions -p --no-session-persistence
+[2026-04-02T14:49:18.631Z] [PROMPT] test
+[2026-04-02T14:49:18.631Z] [DEBUG] Process spawned PID=undefined

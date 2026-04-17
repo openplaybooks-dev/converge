@@ -1,0 +1,205 @@
+# ACP (Agent SDK) Provider Demo Playbook
+# This playbook demonstrates using scpfn via the agentfn unified interface
+
+name: acp-demo
+version: "1.0"
+description: Demonstrates Claude Agent SDK provider (acpfn/scpfn) usage
+
+# Default configuration for all steps
+defaults:
+  provider: acp  # Use the ACP (Agent SDK) provider
+  model: claude-sonnet-4-6  # Optional: specify model
+  timeout: 300000  # 5 minutes
+  logDir: ./.harness/logs
+
+# Define skills that will be available to the agent
+skills:
+  root: ./skills  # Root directory for skills
+  autoLoad: true  # Automatically load all skills from the root
+
+# Playbook steps
+steps:
+  - name: analyze-code
+    description: Analyze code for issues using ACP provider
+    task:
+      type: agent
+      provider: acp  # Explicitly use ACP (Agent SDK) provider
+      prompt: |
+        Analyze the following code for potential issues:
+        
+        ```typescript
+        {{input.code}}
+        ```
+        
+        Provide a detailed analysis including:
+        1. Potential bugs
+        2. Performance issues
+        3. Security concerns
+        4. Best practice violations
+      schema:
+        type: object
+        properties:
+          issues:
+            type: array
+            items:
+              type: object
+              properties:
+                severity:
+                  type: string
+                  enum: [low, medium, high, critical]
+                category:
+                  type: string
+                  enum: [bug, performance, security, style]
+                description:
+                  type: string
+                line:
+                  type: number
+          summary:
+            type: string
+        required: [issues, summary]
+
+  - name: generate-tests
+    description: Generate unit tests using ACP provider
+    task:
+      type: agent
+      provider: acp
+      prompt: |
+        Generate comprehensive unit tests for this function:
+        
+        ```typescript
+        {{input.code}}
+        ```
+      schema:
+        type: object
+        properties:
+          tests:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                code:
+                  type: string
+                description:
+                  type: string
+          imports:
+            type: array
+            items:
+              type: string
+        required: [tests]
+
+  - name: refactor-code
+    description: Refactor code for better quality
+    task:
+      type: agent
+      provider: acp
+      prompt: |
+        Refactor this code to improve readability and maintainability:
+        
+        ```typescript
+        {{input.code}}
+        ```
+        
+        Requirements:
+        - Use modern TypeScript features
+        - Add proper error handling
+        - Improve naming where needed
+        - Keep the same functionality
+      allowedTools:
+        - Read
+        - Edit
+        - Bash
+      schema:
+        type: object
+        properties:
+          refactoredCode:
+            type: string
+          changes:
+            type: array
+            items:
+              type: object
+              properties:
+                type:
+                  type: string
+                description:
+                  type: string
+          explanation:
+            type: string
+        required: [refactoredCode, changes, explanation]
+
+  # Example with tool composition
+  - name: complex-analysis
+    description: Multi-step analysis using composed tools
+    task:
+      type: compose
+      provider: acp
+      composeMode: code
+      prompt: |
+        Perform a comprehensive analysis of {{input.module}}:
+        1. First read the main file
+        2. Find all dependencies
+        3. Analyze code complexity
+        4. Generate a report
+      tools:
+        readFile:
+          description: Read a file from the codebase
+          fn: "{{steps.read-file}}"
+        findDependencies:
+          description: Find all imports and dependencies
+          fn: "{{steps.find-deps}}"
+        analyzeComplexity:
+          description: Calculate cyclomatic complexity
+          fn: "{{steps.analyze-complexity}}"
+
+# MCP server configuration (ACP provider only)
+mcpServers:
+  # Example MCP server configuration
+  filesystem:
+    command: npx
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-filesystem"
+      - "./src"
+
+# Provider-specific configuration
+providers:
+  acp:
+    # ACP (Agent SDK) specific options
+    maxTurns: 50
+    effort: high
+    thinking:
+      type: adaptive
+    # Sandbox configuration
+    sandbox:
+      enabled: false
+    # Additional SDK options
+    sdkOptions:
+      includePartialMessages: true
+      promptSuggestions: true
+
+  claude:
+    # CLI-based Claude options
+    cliFlags:
+      - --verbose
+
+# Execution hooks
+hooks:
+  beforeStep:
+    - name: log-start
+      action: log
+      message: "Starting step: {{step.name}}"
+  
+  afterStep:
+    - name: log-complete
+      action: log
+      message: "Completed step: {{step.name}} in {{duration}}ms"
+    - name: save-output
+      action: save
+      path: "./.harness/outputs/{{step.name}}.json"
+
+# Output configuration
+output:
+  format: json
+  directory: ./.harness/outputs
+  saveLogs: true

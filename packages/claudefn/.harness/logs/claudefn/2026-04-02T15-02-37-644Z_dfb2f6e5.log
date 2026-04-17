@@ -1,0 +1,7 @@
+[2026-04-02T15:02:37.654Z] [INFO] Starting claudefn session=dfb2f6e5-a207-4b8e-892f-a51daecfb526
+[2026-04-02T15:02:37.655Z] [INFO] Timeout=30000ms (activity-based idle timeout)
+[2026-04-02T15:02:37.655Z] [CMD] claude --dangerously-skip-permissions -p --no-session-persistence --strict-mcp-config --mcp-config {}
+[2026-04-02T15:02:37.655Z] [PROMPT] Say "MCP bypass works" and nothing else
+[2026-04-02T15:02:37.658Z] [DEBUG] Process spawned PID=26003
+[2026-04-02T15:02:37.658Z] [DEBUG] stdin.end() called
+[2026-04-02T15:02:38.990Z] [EXIT] code=0 (success)
