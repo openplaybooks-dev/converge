@@ -1,0 +1,20 @@
+name: standardize
+description: Standardize the Converge framework for public open-source release — brand consolidation, documentation, developer experience, OSS readiness, positioning, and quality gates.
+
+run:
+  mode: autonomous
+  maxIterations: 50
+  maxTaskAttempts: 3
+  maxDuration: 60m
+  resume: true
+
+checks:
+  - id: no-harness-refs
+    cmd: "! grep -ri 'harness' --include='*.ts' --include='*.md' --include='*.json' --include='*.yml' packages/ docs/ README.md CONTRIBUTING.md 2>/dev/null | grep -v node_modules | grep -v CHANGELOG | grep -v '.converge/' | grep -v 'auto-verify' | head -1"
+    description: No stale 'harness' references in source, docs, or config
+  - id: no-crew-refs
+    cmd: "! grep -ri 'crew\\|crewadd\\|sheetsrun' --include='*.ts' --include='*.md' --include='*.json' packages/ docs/ README.md 2>/dev/null | grep -v node_modules | grep -v CHANGELOG | grep -v '.converge/' | head -1"
+    description: No stale 'crew/crewadd/sheetsrun' references
+  - id: readme-exists
+    cmd: "test -f README.md && head -1 README.md | grep -qi converge"
+    description: Root README.md exists and mentions Converge

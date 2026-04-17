@@ -6,7 +6,7 @@
  * and the kimifn package (Kimi provider) via the agentfn unified interface.
  */
 
-import { agentfn, setDefaultProvider, compose } from "@crew/agentfn";
+import { agentfn, setDefaultProvider, compose } from "@converge/agentfn";
 import { z } from "zod";
 
 // Set ACP as the default provider (can be overridden per-function)
@@ -19,7 +19,7 @@ async function simpleExample() {
   const analyzeCode = agentfn({
     provider: "acp",  // Explicitly use ACP provider
     prompt: "Analyze this code for issues: {{input}}",
-    logDir: "./.harness/logs",
+    logDir: "./.converge/logs",
     schema: z.object({
       issues: z.array(z.object({
         severity: z.enum(["low", "medium", "high", "critical"]),
@@ -54,7 +54,7 @@ async function streamingExample() {
   const generateDocs = agentfn({
     provider: "acp",
     prompt: "Generate JSDoc documentation for: {{input}}",
-    logDir: "./.harness/logs",
+    logDir: "./.converge/logs",
     hooks: {
       before: ({ prompt }) => {
         console.log("Starting generation...");
@@ -84,19 +84,19 @@ async function composeExample() {
     provider: "acp",
     prompt: "Read and summarize the file: {{input}}",
     allowedTools: ["Read"],
-    logDir: "./.harness/logs",
+    logDir: "./.converge/logs",
   });
 
   const findBugs = agentfn({
     provider: "acp",
     prompt: "Find bugs in this code: {{input}}",
-    logDir: "./.harness/logs",
+    logDir: "./.converge/logs",
   });
 
   const suggestFixes = agentfn({
     provider: "acp",
     prompt: "Suggest fixes for these issues: {{input}}",
-    logDir: "./.harness/logs",
+    logDir: "./.converge/logs",
   });
 
   // Compose them together
@@ -136,7 +136,7 @@ async function mcpExample() {
   const queryDatabase = agentfn({
     provider: "acp",
     prompt: "Query the database for: {{input}}",
-    logDir: "./.harness/logs",
+    logDir: "./.converge/logs",
     // These options are passed through to the Agent SDK
     mcpServers: {
       postgres: {
@@ -157,7 +157,7 @@ async function kimiExample() {
   const kimiAssistant = agentfn({
     provider: "kimi",  // Use Kimi provider
     prompt: "{{input}}",
-    logDir: "./.harness/logs",
+    logDir: "./.converge/logs",
     // Kimi-specific options
     timeoutMs: 120000,
     maxRetries: 2,
@@ -176,7 +176,7 @@ async function sessionExample() {
   const assistant = agentfn({
     provider: "acp",
     prompt: "{{input}}",
-    logDir: "./.harness/logs",
+    logDir: "./.converge/logs",
   });
 
   // First interaction
@@ -188,7 +188,7 @@ async function sessionExample() {
   const followUp = agentfn({
     provider: "acp",
     prompt: "{{input}}",
-    logDir: "./.harness/logs",
+    logDir: "./.converge/logs",
     resume: result1.sessionId,  // Continue the conversation
   });
 

@@ -462,7 +462,7 @@ builder.fn('greet', 'name: string', b => {
 
 ## Contributing
 
-Contributions welcome! This package is part of the [crew framework](https://github.com/harness-framework/crew) monorepo.
+Contributions welcome! This package is part of the [Converge framework](https://github.com/useconverge/converge) monorepo.
 
 ## License
 
@@ -470,4 +470,4 @@ MIT
 
 ---
 
-**Part of the [crew](https://github.com/harness-framework/crew) framework** — Reactive agentic project orchestration for AI-powered development.
+**Part of the [Converge](https://github.com/useconverge/converge) framework** — Reactive agentic project orchestration for AI-powered development.

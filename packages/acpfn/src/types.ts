@@ -91,7 +91,7 @@ export interface AcpFnOptions<T = string> {
 
   /**
    * Hook called immediately after the query is initialized.
-   * Used by harness to register the query with AgentManager.
+   * Used by converge to register the query with AgentManager.
    * @param query The SDK Query object
    * @param logPath Path to the log file for this process
    */

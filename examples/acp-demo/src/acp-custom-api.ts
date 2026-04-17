@@ -10,8 +10,8 @@
  * directly with Kimi's endpoint instead of Anthropic's.
  */
 
-import { agentfn } from "@crew/agentfn";
-import { scpfn, sendFeedback } from "@crew/scpfn";
+import { agentfn } from "@converge/agentfn";
+import { scpfn, sendFeedback } from "@converge/scpfn";
 import { z } from "zod";
 
 // Configuration for Kimi API
@@ -28,7 +28,7 @@ async function directScpfnExample() {
   
   const kimi = scpfn({
     prompt: "Say 'Hello from Kimi via Agent SDK!'",
-    logDir: "./.harness/logs",
+    logDir: "./.converge/logs",
     timeoutMs: 60000,
     // Custom API configuration
     apiKey: KIMI_API_KEY,
@@ -55,7 +55,7 @@ async function agentfnAcpExample() {
   const kimi = agentfn({
     provider: "acp",  // Use ACP (Agent SDK) provider
     prompt: "Explain TypeScript generics in one sentence",
-    logDir: "./.harness/logs",
+    logDir: "./.converge/logs",
     timeoutMs: 60000,
     // Pass custom API config via sdkOptions
     apiKey: KIMI_API_KEY,
@@ -80,7 +80,7 @@ async function schemaExample() {
   
   const analyzeCode = scpfn({
     prompt: "Analyze this function and return JSON: function add(a, b) { return a + b; }",
-    logDir: "./.harness/logs",
+    logDir: "./.converge/logs",
     timeoutMs: 60000,
     apiKey: KIMI_API_KEY,
     baseUrl: KIMI_BASE_URL,
@@ -107,7 +107,7 @@ async function sessionExample() {
   
   const assistant = scpfn({
     prompt: "{{input}}",
-    logDir: "./.harness/logs",
+    logDir: "./.converge/logs",
     timeoutMs: 60000,
     apiKey: KIMI_API_KEY,
     baseUrl: KIMI_BASE_URL,
@@ -126,7 +126,7 @@ async function sessionExample() {
       const followUp = await sendFeedback({
         sessionId: result1.sessionId,
         prompt: "Show me a practical example",
-        logDir: "./.harness/logs",
+        logDir: "./.converge/logs",
         timeoutMs: 60000,
         apiKey: KIMI_API_KEY,  // Must use same API config
         baseUrl: KIMI_BASE_URL,
@@ -155,7 +155,7 @@ async function modelComparison() {
     
     const fn = scpfn({
       prompt: "Count from 1 to 3",
-      logDir: "./.harness/logs",
+      logDir: "./.converge/logs",
       timeoutMs: 30000,
       apiKey: KIMI_API_KEY,
       baseUrl: KIMI_BASE_URL,
@@ -182,7 +182,7 @@ async function streamingExample() {
   
   const kimi = scpfn({
     prompt: "Write a short poem about coding",
-    logDir: "./.harness/logs",
+    logDir: "./.converge/logs",
     timeoutMs: 60000,
     apiKey: KIMI_API_KEY,
     baseUrl: KIMI_BASE_URL,

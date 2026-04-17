@@ -1,10 +1,10 @@
 {
-  "name": "@crew/agentfn",
+  "name": "@converge/agentfn",
   "version": "0.1.0",
   "private": false,
   "description": "Unified agent function — switch between Claude, Kimi, Qwen, and Gemini providers in a single interface",
   "license": "MIT",
-  "author": "Crew Framework Contributors",
+  "author": "Converge Framework Contributors",
   "repository": {
     "type": "git",
     "url": "https://github.com/myanlabs/converge.git",
@@ -37,12 +37,12 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@crew/claudefn": "workspace:*",
-    "@crew/kimifn": "workspace:*",
-    "@crew/qwenfn": "workspace:*",
-    "@crew/geminifn": "workspace:*",
-    "@crew/acpfn": "workspace:*",
-    "@crew/openfn": "workspace:*",
+    "@converge/claudefn": "workspace:*",
+    "@converge/kimifn": "workspace:*",
+    "@converge/qwenfn": "workspace:*",
+    "@converge/geminifn": "workspace:*",
+    "@converge/acpfn": "workspace:*",
+    "@converge/openfn": "workspace:*",
     "zod": "^3.24.0"
   },
   "devDependencies": {

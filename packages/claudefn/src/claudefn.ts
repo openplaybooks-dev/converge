@@ -131,8 +131,8 @@ export function claudefn<T = string>(
     let lastError: Error | undefined;
 
     // Crash retry: disabled because spawn-runner.ts handles crash retries with proper
-    // journal logging. If claudefn is used standalone (outside harness), crashes will
-    // fail immediately without retry. For harness usage, spawn-runner provides 3 retries.
+    // journal logging. If claudefn is used standalone (outside converge), crashes will
+    // fail immediately without retry. For converge usage, spawn-runner provides 3 retries.
     const crashRetryLimit = 0;
     let crashRetries = 0;
 

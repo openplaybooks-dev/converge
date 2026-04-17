@@ -4,7 +4,7 @@
   "private": false,
   "description": "Fluent, indentation-aware source code emitter — structured builders for generating TypeScript/JSX files",
   "license": "MIT",
-  "author": "Crew Framework Contributors",
+  "author": "Converge Framework Contributors",
   "repository": {
     "type": "git",
     "url": "https://github.com/myanlabs/converge.git",

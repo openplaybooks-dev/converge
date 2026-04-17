@@ -91,7 +91,7 @@ export interface OpenFnOptions<T = string> {
   logDir?: string;
   /**
    * Hook called immediately after the process is spawned.
-   * Used by harness to register the process with AgentManager.
+   * Used by converge to register the process with AgentManager.
    * @param proc The spawned ChildProcess
    * @param logPath Path to the log file for this process
    */

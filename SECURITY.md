@@ -20,7 +20,7 @@ Please **do not** open a public GitHub issue if the bug is a security vulnerabil
 
 Instead, please report security vulnerabilities via:
 
-- **GitHub Security Advisories**: Use the [Security tab](https://github.com/harness-framework/crew/security/advisories/new) to report vulnerabilities privately
+- **GitHub Security Advisories**: Use the [Security tab](https://github.com/converge-framework/converge/security/advisories/new) to report vulnerabilities privately
 - **Email**: [Add your security email here]
 
 ### 3. What to Include

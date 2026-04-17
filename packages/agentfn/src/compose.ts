@@ -1,16 +1,16 @@
-import { compose as claudeCompose } from "@crew/claudefn";
-import { compose as kimiCompose } from "@crew/kimifn";
-import { compose as qwenCompose } from "@crew/qwenfn";
-import { compose as geminiCompose } from "@crew/geminifn";
+import { compose as claudeCompose } from "@converge/claudefn";
+import { compose as kimiCompose } from "@converge/kimifn";
+import { compose as qwenCompose } from "@converge/qwenfn";
+import { compose as geminiCompose } from "@converge/geminifn";
 import type {
   ComposeOptions,
   AgentFnResult,
   Provider,
 } from "./types.js";
-import type { ComposeOptions as ClaudeComposeOptions } from "@crew/claudefn";
-import type { ComposeOptions as KimiComposeOptions } from "@crew/kimifn";
-import type { ComposeOptions as QwenComposeOptions } from "@crew/qwenfn";
-import type { ComposeOptions as GeminiComposeOptions } from "@crew/geminifn";
+import type { ComposeOptions as ClaudeComposeOptions } from "@converge/claudefn";
+import type { ComposeOptions as KimiComposeOptions } from "@converge/kimifn";
+import type { ComposeOptions as QwenComposeOptions } from "@converge/qwenfn";
+import type { ComposeOptions as GeminiComposeOptions } from "@converge/geminifn";
 import { getDefaultProvider } from "./provider.js";
 import { enhancePrompt } from "./prompting.js";
 import { ensureSkillSymlinks, cleanupSkillSymlinks } from "./skills.js";
@@ -19,19 +19,19 @@ import { existsSync } from "node:fs";
 
 /**
  * Walk up from startDir to find the project root.
- * Prefers a directory with .claude (Claude Code project), then .harness (harness project root).
+ * Prefers a directory with .claude (Claude Code project), then .converge (converge project root).
  */
 function findProjectRoot(startDir: string): string | null {
   let dir = resolve(startDir);
-  let harnessRoot: string | null = null;
+  let convergeRoot: string | null = null;
   while (true) {
     if (existsSync(join(dir, ".claude"))) return dir;
-    if (!harnessRoot && existsSync(join(dir, ".harness"))) harnessRoot = dir;
+    if (!convergeRoot && existsSync(join(dir, ".converge"))) convergeRoot = dir;
     const parent = join(dir, "..");
     if (parent === dir) break;
     dir = parent;
   }
-  return harnessRoot;
+  return convergeRoot;
 }
 
 /**

@@ -1,10 +1,10 @@
 {
-  "name": "@crew/kimifn",
+  "name": "@converge/kimifn",
   "version": "0.1.0",
   "private": false,
   "description": "Kimi as a function — call Kimi CLI programmatically with types, composition, and agentic loops",
   "license": "MIT",
-  "author": "Crew Framework Contributors",
+  "author": "Converge Framework Contributors",
   "repository": {
     "type": "git",
     "url": "https://github.com/myanlabs/converge.git",
