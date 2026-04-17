@@ -1,10 +1,10 @@
 {
-  "name": "@crew/openfn",
+  "name": "@converge/openfn",
   "version": "0.1.0",
   "private": false,
   "description": "Opencode AI as a function — call Opencode AI client programmatically with types and composition",
   "license": "MIT",
-  "author": "Crew Framework Contributors",
+  "author": "Converge Framework Contributors",
   "repository": {
     "type": "git",
     "url": "https://github.com/myanlabs/converge.git",

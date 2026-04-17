@@ -70,19 +70,19 @@ const fn = compose({
 
 ### `skills.ts`
 
-Loads skills and agents from the `.crew` folder.
+Loads skills and agents from the `.converge` folder.
 
 **Discovery:**
 - `findProjectRoot(cwd?)` — walks up looking for `pnpm-workspace.yaml` or `package.json`
-- `getCrewDir(cwd?)` — resolves `.crew` path (respects `CREW_PATH` env var)
+- `getCrewDir(cwd?)` — resolves `.converge` path (respects `CONVERGE_PATH` env var)
 
 **Listing:**
 - `listSkills(cwd?)` — folders containing `SKILL.md`
 - `listAgents(cwd?)` — folders containing `AGENT.md` or `*.md`
 
 **Resolution:**
-- `getSkillPath(name, cwd?)` — `.harness/{name}/SKILL.md`
-- `getAgentPath(name, cwd?)` — `.harness/{name}/AGENT.md` or `.harness/{name}.md`
+- `getSkillPath(name, cwd?)` — `.converge/{name}/SKILL.md`
+- `getAgentPath(name, cwd?)` — `.converge/{name}/AGENT.md` or `.converge/{name}.md`
 
 **Metadata:**
 - `getSkillMeta(path)` / `getAgentMeta(path)` — parse YAML frontmatter (`name`, `description`, etc.)
@@ -97,7 +97,7 @@ Prompt enhancement with skill/agent injection.
 
 ```
 <!-- REFERENCED SKILLS/AGENTS -->
-[^skill:web2next]: **web2next** — Generate Next.js projects [Load: .harness/web2next/SKILL.md]
+[^skill:web2next]: **web2next** — Generate Next.js projects [Load: .converge/web2next/SKILL.md]
 
 <!-- USER PROMPT -->
 Follow /web2next workflow

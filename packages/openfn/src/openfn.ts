@@ -247,7 +247,7 @@ export async function executeViaSDK<T>(
     throw err;
   }
 
-  // Fire onProcessSpawned hook (for harness AgentManager integration)
+  // Fire onProcessSpawned hook (for converge AgentManager integration)
   if (onProcessSpawned) {
     onProcessSpawned({ sessionId: createdSessionId }, logPath);
   }

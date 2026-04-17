@@ -2,7 +2,7 @@
 
 ## Overview
 
-The skill-based task framework transforms the harness so that **every task can be a folder** containing skills, resources, and optional configuration. This enables:
+The skill-based task framework transforms Converge so that **every task can be a folder** containing skills, resources, and optional configuration. This enables:
 
 - ✅ **Dead simple tasks**: Just create `SKILL.md` - no code required
 - ✅ **Self-contained**: All task resources in one folder
@@ -17,7 +17,7 @@ The skill-based task framework transforms the harness so that **every task can b
 The simplest form - just create a folder with `SKILL.md`:
 
 ```
-.harness/epics/01-data-analysis/001-analyze-data/
+.converge/epics/01-data-analysis/001-analyze-data/
 └── SKILL.md
 ```
 
@@ -60,14 +60,14 @@ You are a senior data analyst.
 For tasks needing explicit configuration:
 
 ```
-.harness/epics/01-data-analysis/002-generate-report/
+.converge/epics/01-data-analysis/002-generate-report/
 ├── SKILL.md
 └── task.ts
 ```
 
 **task.ts:**
 ```typescript
-import { taskDef } from 'harness';
+import { taskDef } from '@converge/core';
 
 export default taskDef()
   .id('002-generate-report')
@@ -84,7 +84,7 @@ export default taskDef()
 Complete task with all resources:
 
 ```
-.harness/epics/02-ui-design/001-design-screens/
+.converge/epics/02-ui-design/001-design-screens/
 ├── task.ts
 ├── SKILL.md
 ├── examples/
@@ -105,13 +105,13 @@ The scanner discovers tasks in three ways:
 
 ```typescript
 // Flat tasks (existing)
-.harness/epics/**/*.ts
+.converge/epics/**/*.ts
 
 // Nested tasks with task.ts
-.harness/epics/**/*/task.ts
+.converge/epics/**/*/task.ts
 
 // Nested tasks with SKILL.md only
-.harness/epics/**/*/SKILL.md
+.converge/epics/**/*/SKILL.md
 ```
 
 For SKILL.md-only tasks, the scanner:
@@ -125,7 +125,7 @@ When a skill task runs:
 
 ```typescript
 // 1. Create symlink
-~/.claude/skills/001-analyze-data → .harness/epics/.../001-analyze-data/
+~/.claude/skills/001-analyze-data → .converge/epics/.../001-analyze-data/
 
 // 2. Execute with claudefn
 // claudefn auto-discovers skills from ~/.claude/skills/
@@ -180,11 +180,11 @@ async executeAsSkill(ctx, config, taskFolder, options) {
 
 ```
 # Before: Need task.ts + separate skill
-.harness/epics/01-epic/001-task.ts
-.harness/skills/some-skill/SKILL.md
+.converge/epics/01-epic/001-task.ts
+.converge/skills/some-skill/SKILL.md
 
 # After: Just one folder
-.harness/epics/01-epic/001-task/
+.converge/epics/01-epic/001-task/
 └── SKILL.md
 ```
 
@@ -212,7 +212,7 @@ taskDef()
 
 ```bash
 # List all skills (including task skills)
-crew list skills
+converge list skills
 
 # Output:
 # - analyze-data (from 001-analyze-data task)
@@ -228,10 +228,10 @@ Both old and new structures work:
 
 ```
 # Old (still works)
-.harness/epics/01-epic/001-task.ts
+.converge/epics/01-epic/001-task.ts
 
 # New (also works)
-.harness/epics/01-epic/001-task/
+.converge/epics/01-epic/001-task/
 └── SKILL.md
 ```
 
@@ -241,13 +241,13 @@ Migrate tasks one at a time:
 
 ```bash
 # 1. Create folder
-mkdir .harness/epics/01-epic/001-task/
+mkdir .converge/epics/01-epic/001-task/
 
 # 2. Move task.ts (optional)
-mv .harness/epics/01-epic/001-task.ts .harness/epics/01-epic/001-task/task.ts
+mv .converge/epics/01-epic/001-task.ts .converge/epics/01-epic/001-task/task.ts
 
 # 3. Create SKILL.md
-cat > .harness/epics/01-epic/001-task/SKILL.md << 'EOF'
+cat > .converge/epics/01-epic/001-task/SKILL.md << 'EOF'
 ---
 name: task-name
 description: What this task does
@@ -265,19 +265,19 @@ Enhance tasks over time:
 
 ```bash
 # Add examples
-mkdir .harness/epics/01-epic/001-task/examples/
-cp example-output.md .harness/epics/01-epic/001-task/examples/
+mkdir .converge/epics/01-epic/001-task/examples/
+cp example-output.md .converge/epics/01-epic/001-task/examples/
 
 # Add resources
-mkdir .harness/epics/01-epic/001-task/resources/
-cp template.md .harness/epics/01-epic/001-task/resources/
+mkdir .converge/epics/01-epic/001-task/resources/
+cp template.md .converge/epics/01-epic/001-task/resources/
 ```
 
 ## Examples
 
 See the example tasks in:
-- `.harness/epics/01-example/001-analyze-data/` - SKILL.md only
-- `.harness/epics/01-example/002-generate-report/` - SKILL.md + task.ts
+- `.converge/epics/01-example/001-analyze-data/` - SKILL.md only
+- `.converge/epics/01-example/002-generate-report/` - SKILL.md + task.ts
 
 ## Implementation Status
 
@@ -333,15 +333,15 @@ taskDef()
 
 ```bash
 # Run discovery scan
-cd artifacts/claude-reactjs/harness/packages/harness
+cd packages/core
 npm run test:discovery
 
 # Run executor tests
 npm run test:executor
 
-# Run full harness
+# Run full converge
 cd ../../workspace
-npm run crew -- run --epic 01-example
+npm run converge -- run --epic 01-example
 ```
 
 ## Troubleshooting
@@ -349,20 +349,20 @@ npm run crew -- run --epic 01-example
 ### Task not discovered
 
 Check:
-1. Is SKILL.md in correct location? `.harness/epics/**/**/SKILL.md`
+1. Is SKILL.md in correct location? `.converge/epics/**/**/SKILL.md`
 2. Does frontmatter parse correctly? (valid YAML)
-3. Run with debug: `DEBUG=harness:* npm run crew -- run`
+3. Run with debug: `DEBUG=converge:* npm run converge -- run`
 
 ### Skill not loaded
 
 Check:
 1. Does `~/.claude/skills/` exist?
 2. Are symlink permissions correct?
-3. Check logs: `cat .harness/journal/events.jsonl | grep SKILL`
+3. Check logs: `cat .converge/journal/events.jsonl | grep SKILL`
 
 ### Outputs not validated
 
 Check:
 1. Are output paths relative to project root?
 2. Do output directories exist?
-3. Check task logs: `.harness/journal/{epic}/{task}.log.md`
+3. Check task logs: `.converge/journal/{epic}/{task}.log.md`

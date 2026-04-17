@@ -11,8 +11,8 @@
 Universal Unit Architecture: One class, infinite nesting, data-driven convergence.
 
 <p>
-  <a href="#"><img src="https://img.shields.io/npm/v/harness?style=flat&colorA=000000&colorB=000000" alt="npm version"></a>
-  <a href="#"><img src="https://img.shields.io/npm/dm/harness?style=flat&colorA=000000&colorB=000000" alt="npm downloads"></a>
+  <a href="#"><img src="https://img.shields.io/npm/v/@converge/core?style=flat&colorA=000000&colorB=000000" alt="npm version"></a>
+  <a href="#"><img src="https://img.shields.io/npm/dm/@converge/core?style=flat&colorA=000000&colorB=000000" alt="npm downloads"></a>
   <a href="#"><img src="https://img.shields.io/badge/license-MIT-000000.svg?style=flat&colorA=000000&colorB=000000" alt="License"></a>
   <a href="#"><img src="https://img.shields.io/badge/coverage-92%25-success?style=flat&colorA=000000&colorB=000000" alt="Coverage"></a>
 </p>
@@ -35,10 +35,10 @@ Define tasks in TypeScript — AI converges on completion through self-correctin
 
 ```bash
 # Install
-npm install harness
+npm install @converge/core
 
 # Run a task
-harness run .harness/epics/01-data-analysis/001-task.ts
+converge run .converge/epics/01-data-analysis/001-task.ts
 
 # Test
 npm test
@@ -52,7 +52,7 @@ npm test
 
 ```typescript
 // Load any task file (Epic/Task/Subtask/...)
-const unit = await Unit.fromPath('.harness/epics/01-epic/001-task.ts');
+const unit = await Unit.fromPath('.converge/epics/01-epic/001-task.ts');
 
 // Run convergence loop (same for ALL levels!)
 await unit.run();
@@ -96,18 +96,18 @@ export default taskDef()
   .id('generate-screens')
   .yields({
     plan: 'Create one task per screen',
-    outputDir: '.harness/epics/02-ux/003-screens',
+    outputDir: '.converge/epics/02-ux/003-screens',
     template: '000-screen-{slug}.ts.tpl',
   })
   .inputs(['.stitch/SITE.md'])
-  .outputs(['.harness/epics/02-ux/003-screens/**/*.ts'])
+  .outputs(['.converge/epics/02-ux/003-screens/**/*.ts'])
   .build();
 ```
 
 ## Directory Structure
 
 ```
-.harness/
+.converge/
 ├── epics/
 │   ├── 01-data-analysis.ts              # Parent
 │   ├── 01-data-analysis/
@@ -124,7 +124,7 @@ export default taskDef()
 │           ├── 002-screen-about.ts
 │           └── 003-screen-contact.ts
 │
-└── project.ts
+└── converge.ts
 ```
 
 ## Documentation
@@ -141,20 +141,20 @@ export default taskDef()
 ### Reference
 - **[Complete Summary](./docs/V2_COMPLETE_SUMMARY.md)** - Full overview
 - **[File Index](./docs/V2_FILES_INDEX.md)** - All files
-- **[Test Guide](./packages/harness/tests/README.md)** - Testing
+- **[Test Guide](./packages/core/tests/README.md)** - Testing
 
 ## Examples
 
 ### Run a Task
 
 ```bash
-harness run .harness/epics/01-epic/001-task.ts
+converge run .converge/epics/01-epic/001-task.ts
 ```
 
 ### Create a New Task
 
 ```typescript
-import { taskDef } from 'harness';
+import { taskDef } from '@converge/core';
 
 export default taskDef()
   .id('new-task')
@@ -174,12 +174,12 @@ export default taskDef()
   .id('parent-task')
   .yields({
     plan: 'Generate one child per item in config',
-    outputDir: '.harness/epics/02/003-parent',
+    outputDir: '.converge/epics/02/003-parent',
     template: '000-child-{name}.ts.tpl',
     maxTasks: 10,
   })
   .inputs(['config/items.json'])
-  .outputs(['.harness/epics/02/003-parent/**/*.ts'])
+  .outputs(['.converge/epics/02/003-parent/**/*.ts'])
   .build();
 ```
 

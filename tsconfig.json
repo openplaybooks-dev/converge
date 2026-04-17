@@ -10,7 +10,7 @@
     "resolveJsonModule": true
   },
   "references": [
-    { "path": "packages/crew" },
+    { "path": "packages/core" },
     { "path": "packages/agentfn" },
     { "path": "packages/claudefn" },
     { "path": "packages/kimifn" },

@@ -10,9 +10,9 @@
  * - Kimi's API pricing and availability
  */
 
-import { claudefn } from "@crew/claudefn";
-import { agentfn } from "@crew/agentfn";
-import type { ClaudeFnOptions } from "@crew/claudefn";
+import { claudefn } from "@converge/claudefn";
+import { agentfn } from "@converge/agentfn";
+import type { ClaudeFnOptions } from "@converge/claudefn";
 import { z } from "zod";
 
 // Kimi API Configuration
@@ -89,7 +89,7 @@ export function agentWithKimi<T = string>(
     prompt: options?.prompt,
     schema: options?.schema,
     timeoutMs: options?.timeoutMs || 120000,
-    logDir: options?.logDir || "./.harness/logs",
+    logDir: options?.logDir || "./.converge/logs",
     // Use env option if agentfn supports it
     ...(options?.model && { model: options.model }),
   });
@@ -123,7 +123,7 @@ async function examples() {
   console.log("\n1. Simple call with Kimi API:");
   const simple = claudeWithKimi({
     prompt: "Say 'Hello from Kimi via Claude CLI!'",
-    logDir: "./.harness/logs",
+    logDir: "./.converge/logs",
   });
   
   try {
@@ -140,7 +140,7 @@ async function examples() {
   console.log("\n2. With schema validation:");
   const withSchema = claudeWithKimi({
     prompt: "Return a JSON object with name='test' and value=42",
-    logDir: "./.harness/logs",
+    logDir: "./.converge/logs",
     schema: z.object({
       name: z.string(),
       value: z.number(),

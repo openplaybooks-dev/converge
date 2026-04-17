@@ -5,7 +5,7 @@
  * Usage: npx tsx src/quick-test-kimi.ts
  */
 
-import { agentfn } from "@crew/agentfn";
+import { agentfn } from "@converge/agentfn";
 
 async function quickTest() {
   console.log("Testing Kimi backend...\n");

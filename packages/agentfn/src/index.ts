@@ -49,14 +49,14 @@ export {
 export type { SkillInfo, SkillContent, SymlinkOptions } from "./skills.js";
 
 // ─── Utilities (re-exported from claudefn) ──────────────────
-export { extractJson, resolvePrompt } from "@crew/claudefn";
+export { extractJson, resolvePrompt } from "@converge/claudefn";
 export {
   parseToolCalls,
   buildToolPreamble,
   buildCodePreamble,
   extractCode,
   executeCode,
-} from "@crew/claudefn";
+} from "@converge/claudefn";
 
 // ─── Utilities (re-exported from acpfn) ─────────────────────
 export {
@@ -65,7 +65,7 @@ export {
   buildCodePreamble as acpBuildCodePreamble,
   extractCode as acpExtractCode,
   executeCode as acpExecuteCode,
-} from "@crew/acpfn";
+} from "@converge/acpfn";
 
 // ─── Utilities (re-exported from openfn) ─────────────────────
 export {
@@ -75,14 +75,14 @@ export {
   extractCode as openfnExtractCode,
   executeCode as openfnExecuteCode,
   sendFeedback as openfnSendFeedback,
-} from "@crew/openfn";
+} from "@converge/openfn";
 
 // ─── Queue (re-exported from claudefn) ──────────────────────
 export {
   GlobalQueue,
   getDefaultQueue,
   setDefaultQueue,
-} from "@crew/claudefn";
+} from "@converge/claudefn";
 
 // ─── Types ──────────────────────────────────────────────────
 export type {

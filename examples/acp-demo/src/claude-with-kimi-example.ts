@@ -6,7 +6,7 @@
  * but configure it to use Kimi's endpoint instead of Anthropic's.
  */
 
-import { agentfn, setDefaultProvider } from "@crew/agentfn";
+import { agentfn, setDefaultProvider } from "@converge/agentfn";
 import { z } from "zod";
 
 // Configure environment to use Kimi API
@@ -27,7 +27,7 @@ async function simpleExample() {
   const kimi = agentfn({
     provider: "claude",  // Use Claude CLI
     prompt: "Explain TypeScript generics in simple terms",
-    logDir: "./.harness/logs",
+    logDir: "./.converge/logs",
     timeoutMs: 60000,
     // Pass Kimi model via cliFlags
     cliFlags: ["--model", "kimi-k1.5"],
@@ -50,7 +50,7 @@ async function schemaExample() {
   const analyzeCode = agentfn({
     provider: "claude",
     prompt: "Analyze this function and return JSON: function add(a, b) { return a + b; }",
-    logDir: "./.harness/logs",
+    logDir: "./.converge/logs",
     timeoutMs: 60000,
     cliFlags: ["--model", "kimi-k1.5"],
     schema: z.object({
@@ -75,7 +75,7 @@ async function toolsExample() {
   const fileAnalyzer = agentfn({
     provider: "claude",
     prompt: "Read ./package.json and tell me the project name and dependencies",
-    logDir: "./.harness/logs",
+    logDir: "./.converge/logs",
     timeoutMs: 120000,
     cliFlags: ["--model", "kimi-k1.5"],
     allowedTools: ["Read", "Glob", "Bash"],  // Claude CLI tools
@@ -106,7 +106,7 @@ async function modelComparison() {
     const fn = agentfn({
       provider: "claude",
       prompt: "Count from 1 to 3",
-      logDir: "./.harness/logs",
+      logDir: "./.converge/logs",
       timeoutMs: 30000,
       cliFlags: ["--model", model.name],
     });
@@ -131,7 +131,7 @@ async function sessionExample() {
   const assistant1 = agentfn({
     provider: "claude",
     prompt: "{{input}}",
-    logDir: "./.harness/logs",
+    logDir: "./.converge/logs",
     cliFlags: ["--model", "kimi-k1.5"],
   });
   
@@ -145,7 +145,7 @@ async function sessionExample() {
       const assistant2 = agentfn({
         provider: "claude",
         prompt: "{{input}}",
-        logDir: "./.harness/logs",
+        logDir: "./.converge/logs",
         cliFlags: ["--model", "kimi-k1.5"],
         resume: result1.sessionId,  // Continue conversation
       });

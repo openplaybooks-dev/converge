@@ -9,7 +9,7 @@
  * Run with: tsx examples/context-chain-demo.ts
  */
 
-import { Unit } from '../packages/harness/src/unit/unit.ts';
+import { Unit } from '../packages/core/src/unit/unit.ts';
 import { mkdir, writeFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { existsSync } from 'node:fs';
@@ -23,7 +23,7 @@ async function demo() {
   try {
     // Setup: Create task hierarchy
     console.log('1. Creating task hierarchy...');
-    const epicPath = path.join(projectDir, '.harness/epics/demo-epic');
+    const epicPath = path.join(projectDir, '.converge/epics/demo-epic');
     const parentPath = path.join(epicPath, '001-parent-task');
     const childPath = path.join(parentPath, 'tasks/001-001-child-task');
     const grandchildPath = path.join(childPath, 'tasks/001-001-001-grandchild');
@@ -114,7 +114,7 @@ async function demo() {
     console.log('7. Parent facts access:');
     const parentJournalPath = path.join(
       projectDir,
-      '.harness/journal/epics/demo-epic/001-parent-task/attempts/wip/logs'
+      '.converge/journal/epics/demo-epic/001-parent-task/attempts/wip/logs'
     );
     await mkdir(parentJournalPath, { recursive: true });
     await writeFile(

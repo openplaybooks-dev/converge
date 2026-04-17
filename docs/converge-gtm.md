@@ -188,7 +188,7 @@ After 30 days of being public, evaluate these signals to decide next steps:
 
 | Package/Directory | Include | Notes |
 |-------------------|---------|-------|
-| `packages/harness/` | Yes | Core framework — renamed to `@converge/core` |
+| `packages/core/` | Yes | Core framework — renamed to `@converge/core` |
 | `packages/agentfn/` | Yes | Multi-provider LLM abstraction — renamed to `@converge/agentfn` |
 | `packages/claudefn/` | Yes | Claude provider |
 | `packages/kimifn/` | Yes | Kimi provider |
@@ -197,7 +197,7 @@ After 30 days of being public, evaluate these signals to decide next steps:
 | Tests | Yes | 92% coverage is a selling point |
 | Examples | Yes | Create 3-5 standalone examples targeting business use cases |
 | Skills | Yes | Example SKILL.md files |
-| CLI (`harness` command) | Yes | Renamed to `converge` |
+| CLI (`converge` command) | Yes | Renamed to `converge` |
 | Docs | Yes | README, architecture docs, API reference |
 
 ### What to Exclude
@@ -214,19 +214,19 @@ After 30 days of being public, evaluate these signals to decide next steps:
 
 ### Pre-OSS Cleanup Checklist
 
-**Code Rename (harness → converge)**
-- [ ] Rename `packages/harness/` → `packages/core/`
-- [ ] Update `package.json`: name `harness` → `@converge/core`
-- [ ] Update `package.json`: bin `harness` → `converge`
-- [ ] Rename `@crew/agentfn` → `@converge/agentfn`
-- [ ] Rename `@crew/claudefn` → `@converge/claudefn` (and all providers)
-- [ ] Update all import paths: `from 'harness'` → `from '@converge/core'`
-- [ ] Update all import paths: `from '@crew/*'` → `from '@converge/*'`
-- [ ] Rename `defineHarness()` → `defineConverge()` (keep `defineHarness` as deprecated alias)
-- [ ] Rename `.harness/` convention → `.converge/` (keep `.harness/` as fallback)
-- [ ] Update CLI commands: `harness run` → `converge run`
+**Code Rename (completed)**
+- [ ] Rename `packages/core/` → `packages/core/`
+- [x] Update `package.json`: name `harness` → `@converge/core`
+- [x] Update `package.json`: bin `harness` → `converge`
+- [ ] Rename `@converge/agentfn` → `@converge/agentfn`
+- [ ] Rename `@converge/claudefn` → `@converge/claudefn` (and all providers)
+- [x] Update all import paths: `from '@converge/core'` → `from '@converge/core'`
+- [ ] Update all import paths: `from '@converge/*'` → `from '@converge/*'`
+- [x] Rename `defineConverge()` → `defineConverge()` (keep `defineConverge` as deprecated alias)
+- [x] Rename `.converge/` convention → `.converge/` (keep `.converge/` as fallback)
+- [x] Update CLI commands: `converge run` → `converge run`
 - [ ] Update all README references
-- [ ] Update `harness.ts` config filename → `converge.ts`
+- [x] Update `converge.ts` config filename → `converge.ts`
 
 **Repository Setup**
 - [ ] Create new GitHub repo under chosen org
@@ -237,7 +237,7 @@ After 30 days of being public, evaluate these signals to decide next steps:
 - [ ] Set up branch protection on `main`
 
 **Documentation**
-- [ ] Write root `README.md` (adapt from existing `packages/harness/README.md` — already near-publication quality)
+- [ ] Write root `README.md` (adapt from existing `packages/core/README.md` — already near-publication quality)
 - [ ] Write `CONTRIBUTING.md` — keep minimal, don't over-invest before validation
 - [ ] Create `LICENSE` file (MIT)
 - [ ] Write `CHANGELOG.md` starting from v0.1.0
@@ -1027,10 +1027,10 @@ Stars, downloads, and Discord members are inputs, not outcomes. The metrics that
 
 | Asset | Location | Status |
 |-------|----------|--------|
-| Package README | `packages/harness/README.md` | Near-publication-ready, includes comparison table, architecture, API reference |
-| Core Unit class | `packages/harness/src/unit/unit.ts` | 270 lines, 92% coverage |
-| Public API surface | `packages/harness/src/index.ts` | 666 lines of exports — audit for rename consistency |
-| Package metadata | `packages/harness/package.json` | Update for `@converge` scope |
+| Package README | `packages/core/README.md` | Near-publication-ready, includes comparison table, architecture, API reference |
+| Core Unit class | `packages/core/src/unit/unit.ts` | 270 lines, 92% coverage |
+| Public API surface | `packages/core/src/index.ts` | 666 lines of exports — audit for rename consistency |
+| Package metadata | `packages/core/package.json` | Update for `@converge` scope |
 | Multi-provider abstraction | `packages/agentfn/` | Claude, Gemini, Kimi, Qwen support |
 | Root README | `README.md` | V2 architecture overview, needs rename |
 

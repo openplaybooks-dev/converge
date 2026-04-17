@@ -275,7 +275,7 @@ export ANTHROPIC_BASE_URL=https://api.moonshot.cn/v1
 ### Playbook Configuration
 
 ```yaml
-# .harness/playbooks/my-playbook/playbook.yml
+# .converge/playbooks/my-playbook/playbook.yml
 
 # Use claude+kimi
 env:

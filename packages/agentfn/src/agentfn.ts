@@ -1,21 +1,21 @@
-import { claudefn } from "@crew/claudefn";
-import { kimifn } from "@crew/kimifn";
-import { qwenfn } from "@crew/qwenfn";
-import { geminifn } from "@crew/geminifn";
-import { acpfn } from "@crew/acpfn";
-import { openfn } from "@crew/openfn";
+import { claudefn } from "@converge/claudefn";
+import { kimifn } from "@converge/kimifn";
+import { qwenfn } from "@converge/qwenfn";
+import { geminifn } from "@converge/geminifn";
+import { acpfn } from "@converge/acpfn";
+import { openfn } from "@converge/openfn";
 import type {
   AgentFnOptions,
   AgentFnResult,
   AgentFn,
   Provider,
 } from "./types.js";
-import type { ClaudeFnOptions } from "@crew/claudefn";
-import type { KimiFnOptions } from "@crew/kimifn";
-import type { QwenFnOptions } from "@crew/qwenfn";
-import type { GeminiFnOptions } from "@crew/geminifn";
-import type { AcpFnOptions } from "@crew/acpfn";
-import type { OpenFnOptions } from "@crew/openfn";
+import type { ClaudeFnOptions } from "@converge/claudefn";
+import type { KimiFnOptions } from "@converge/kimifn";
+import type { QwenFnOptions } from "@converge/qwenfn";
+import type { GeminiFnOptions } from "@converge/geminifn";
+import type { AcpFnOptions } from "@converge/acpfn";
+import type { OpenFnOptions } from "@converge/openfn";
 import { getDefaultProvider } from "./provider.js";
 import { enhancePrompt } from "./prompting.js";
 import { ensureSkillSymlinks, cleanupSkillSymlinks } from "./skills.js";
@@ -24,20 +24,20 @@ import { existsSync } from "node:fs";
 
 /**
  * Walk up from startDir to find the project root.
- * Prefers a directory with .claude (Claude Code project), then .harness (harness project root).
+ * Prefers a directory with .claude (Claude Code project), then .converge (converge project root).
  * Falls back to null if neither found.
  */
 function findProjectRoot(startDir: string): string | null {
   let dir = resolve(startDir);
-  let harnessRoot: string | null = null;
+  let convergeRoot: string | null = null;
   while (true) {
     if (existsSync(join(dir, ".claude"))) return dir;
-    if (!harnessRoot && existsSync(join(dir, ".harness"))) harnessRoot = dir;
+    if (!convergeRoot && existsSync(join(dir, ".converge"))) convergeRoot = dir;
     const parent = join(dir, "..");
     if (parent === dir) break;
     dir = parent;
   }
-  return harnessRoot; // fall back to .harness root if no .claude found
+  return convergeRoot; // fall back to .converge root if no .claude found
 }
 
 /**

@@ -4,12 +4,12 @@
 
 ### Breaking: Removed Default Log Directory
 
-**Change**: `logDir` is now required - claudefn no longer creates logs in `.harness/logs/claudefn/` by default.
+**Change**: `logDir` is now required - claudefn no longer creates logs in `.converge/logs/claudefn/` by default.
 
-**Reason**: The centralized log directory was redundant. The harness already writes task-specific logs to `.harness/journal/epics/{epic}/tasks/{task}/claudefn-logs/`.
+**Reason**: The centralized log directory was redundant. Converge already writes task-specific logs to `.converge/journal/epics/{epic}/tasks/{task}/claudefn-logs/`.
 
 **Migration**:
-- **Harness users**: ✅ No action needed - logs automatically go to journal
+- **Converge users**: ✅ No action needed - logs automatically go to journal
 - **Standalone users**: ⚠️ Must now provide `logDir` parameter
 
 See `BREAKING_CHANGES.md` for full migration guide.

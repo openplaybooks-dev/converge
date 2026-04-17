@@ -4,7 +4,7 @@
 
 ### Source Code
 ```
-packages/harness/src/
+packages/core/src/
 ├── unit.ts                                 (400 lines) - Universal Unit class
 └── cli/
     └── autonomous-run-v2.ts                (50 lines)  - CLI entry point
@@ -14,7 +14,7 @@ packages/harness/src/
 
 ### Architecture & Design
 ```
-packages/harness/docs/
+packages/core/docs/
 ├── V2_ARCHITECTURE.md                      (360 lines) - Core architecture guide
 ├── V2_COMPARISON.md                        (350 lines) - V1 vs V2 comparison
 ├── V2_IMPLEMENTATION_SUMMARY.md            (400 lines) - Implementation details
@@ -23,7 +23,7 @@ packages/harness/docs/
 
 ### Project Root
 ```
-packages/harness/
+packages/core/
 ├── TESTING_CLEANUP_SUMMARY.md              (380 lines) - Test cleanup summary
 ├── V2_COMPLETE_SUMMARY.md                  (520 lines) - Overall summary
 └── V2_FILES_INDEX.md                       (this file) - File index
@@ -33,7 +33,7 @@ packages/harness/
 
 ### Test Files
 ```
-packages/harness/tests/
+packages/core/tests/
 ├── README.md                               (380 lines) - Test documentation
 ├── unit/
 │   ├── unit.test.ts                        (495 lines) - V2 unit tests
@@ -47,9 +47,9 @@ packages/harness/tests/
 ## Complete File Tree
 
 ```
-artifacts/claude-reactjs/harness/
+artifacts/claude-reactjs/converge/
 │
-├── packages/harness/
+├── packages/core/
 │   │
 │   ├── src/
 │   │   ├── unit.ts                         ✅ NEW (400 lines)
@@ -201,31 +201,31 @@ artifacts/claude-reactjs/harness/
 ### Git Status
 ```bash
 # New files (created)
-git add packages/harness/src/unit.ts
-git add packages/harness/src/cli/autonomous-run-v2.ts
-git add packages/harness/docs/V2_*.md
-git add packages/harness/tests/integration/v2-convergence.test.ts
-git add packages/harness/tests/README.md
+git add packages/core/src/unit.ts
+git add packages/core/src/cli/autonomous-run-v2.ts
+git add packages/core/docs/V2_*.md
+git add packages/core/tests/integration/v2-convergence.test.ts
+git add packages/core/tests/README.md
 git add TESTING_CLEANUP_SUMMARY.md
 git add V2_COMPLETE_SUMMARY.md
 git add V2_FILES_INDEX.md
 
 # Modified files
-git add packages/harness/tests/unit/unit.test.ts
+git add packages/core/tests/unit/unit.test.ts
 
 # Removed files
-git rm -r packages/harness/tests/unit/context
-git rm -r packages/harness/tests/unit/subtasks
-git rm -r packages/harness/tests/unit/gap
-git rm -r packages/harness/tests/unit/functions
-git rm -r packages/harness/tests/unit/executor
-git rm -r packages/harness/tests/integration/journal
-git rm -r packages/harness/tests/integration/gap-driven
-git rm -r packages/harness/tests/integration/goal-driven
-git rm -r packages/harness/tests/integration/cli
-git rm -r packages/harness/tests/integration/convergence
-git rm -r packages/harness/tests/integration/subtasks
-git rm -r packages/harness/tests/e2e
+git rm -r packages/core/tests/unit/context
+git rm -r packages/core/tests/unit/subtasks
+git rm -r packages/core/tests/unit/gap
+git rm -r packages/core/tests/unit/functions
+git rm -r packages/core/tests/unit/executor
+git rm -r packages/core/tests/integration/journal
+git rm -r packages/core/tests/integration/gap-driven
+git rm -r packages/core/tests/integration/goal-driven
+git rm -r packages/core/tests/integration/cli
+git rm -r packages/core/tests/integration/convergence
+git rm -r packages/core/tests/integration/subtasks
+git rm -r packages/core/tests/e2e
 ```
 
 ### Commit Message Template

@@ -1,6 +1,6 @@
 # ACP (Agent SDK) Provider Demo
 
-This example demonstrates how to use the `@crew/scpfn` package via the `@crew/agentfn` unified interface with the `"acp"` provider.
+This example demonstrates how to use the `@converge/scpfn` package via the `@converge/agentfn` unified interface with the `"acp"` provider.
 
 ## Overview
 
@@ -34,7 +34,7 @@ npx tsx src/example.ts
 ### Basic Usage
 
 ```typescript
-import { agentfn, setDefaultProvider } from "@crew/agentfn";
+import { agentfn, setDefaultProvider } from "@converge/agentfn";
 import { z } from "zod";
 
 // Set ACP as the default provider
@@ -73,7 +73,7 @@ const queryDb = agentfn({
 The ACP provider supports custom API endpoints that are Claude-compatible:
 
 ```typescript
-import { scpfn } from "@crew/scpfn";
+import { scpfn } from "@converge/scpfn";
 
 // Use Kimi API via Agent SDK
 const kimi = scpfn({
@@ -104,7 +104,7 @@ const result = await kimi("some code");
 #### Option 1: Native Kimi CLI (kimifn)
 
 ```typescript
-import { agentfn } from "@crew/agentfn";
+import { agentfn } from "@converge/agentfn";
 
 const kimiAssistant = agentfn({
   provider: "kimi",  // Use Kimi provider
@@ -122,7 +122,7 @@ console.log(result.provider);  // "kimi"
 Since Kimi's API is Claude-compatible, you can use `claudefn` (Claude CLI) with Kimi's API endpoint. This gives you Claude CLI's powerful features (tools, sandbox, sessions) with Kimi's pricing.
 
 ```typescript
-import { agentfn } from "@crew/agentfn";
+import { agentfn } from "@converge/agentfn";
 
 // Configure environment to use Kimi API
 process.env.ANTHROPIC_API_KEY = "sk-e8Ti33rX28HLFeFeuUug4f3Tg0vL2j15wat9A0c0chXvWmBem4";
@@ -154,7 +154,7 @@ export ANTHROPIC_BASE_URL=https://api.moonshot.cn/v1
 
 Or use the playbook configuration:
 ```yaml
-# .harness/playbooks/kimi-compat/playbook.yml
+# .converge/playbooks/kimi-compat/playbook.yml
 env:
   ANTHROPIC_API_KEY: ${KIMI_API_KEY}
   ANTHROPIC_BASE_URL: https://api.moonshot.cn/v1
@@ -192,7 +192,7 @@ const result2 = await followUp("Follow-up question");
 
 ## Playbook Configuration
 
-The `playbook.yml` file shows how to configure ACP provider in harness playbooks:
+The `playbook.yml` file shows how to configure ACP provider in Converge playbooks:
 
 ```yaml
 defaults:
@@ -232,7 +232,7 @@ steps:
 
 ```
 acp-demo/
-├── .harness/
+├── .converge/
 │   ├── config/
 │   │   └── providers.yml       # Provider configuration
 │   └── playbooks/

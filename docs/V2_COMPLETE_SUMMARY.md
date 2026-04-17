@@ -2,7 +2,7 @@
 
 ## Overview
 
-Successfully implemented the **V2 Universal Unit Architecture** - a radical simplification of the harness autonomous execution system from 3,800 lines to 450 lines (88% reduction) while maintaining full functionality.
+Successfully implemented the **V2 Universal Unit Architecture** - a radical simplification of the Converge autonomous execution system from 3,800 lines to 450 lines (88% reduction) while maintaining full functionality.
 
 ## What Was Built
 
@@ -116,7 +116,7 @@ Successfully implemented the **V2 Universal Unit Architecture** - a radical simp
 
 **Pattern**:
 ```
-.harness/epics/
+.converge/epics/
 ├── 01-epic.ts              → Parent unit
 └── 01-epic/                → Subdirectory
     ├── 001-task.ts         → Child unit
@@ -133,7 +133,7 @@ Successfully implemented the **V2 Universal Unit Architecture** - a radical simp
 taskDef()
   .yields({
     plan: 'Create one screen task per page',
-    outputDir: '.harness/epics/02-ux/003-screens',
+    outputDir: '.converge/epics/02-ux/003-screens',
     template: '000-screen-{slug}.ts.tpl',
   })
 ```
@@ -196,12 +196,12 @@ taskDef()
 
 ```bash
 # Run any task file
-harness run --v2 .harness/epics/01-epic/001-task.ts
+converge run --v2 .converge/epics/01-epic/001-task.ts
 
 # Works at any level
-harness run --v2 .harness/epics/01-epic.ts                    # Parent
-harness run --v2 .harness/epics/01-epic/001-task.ts          # Child
-harness run --v2 .harness/epics/02-ux/003/001-screen.ts      # Grandchild
+converge run --v2 .converge/epics/01-epic.ts                    # Parent
+converge run --v2 .converge/epics/01-epic/001-task.ts          # Child
+converge run --v2 .converge/epics/02-ux/003/001-screen.ts      # Grandchild
 ```
 
 ### Task Definition
@@ -223,11 +223,11 @@ export default taskDef()
   .id('generate-screens')
   .yields({
     plan: 'Create one task per screen',
-    outputDir: '.harness/epics/02-ux/003-screens',
+    outputDir: '.converge/epics/02-ux/003-screens',
     template: '000-screen-{slug}.ts.tpl',
   })
   .inputs(['.stitch/SITE.md'])
-  .outputs(['.harness/epics/02-ux/003-screens/**/*.ts'])
+  .outputs(['.converge/epics/02-ux/003-screens/**/*.ts'])
   .build();
 ```
 
@@ -292,7 +292,7 @@ export default taskDef()
 ## Next Steps
 
 ### Week 1: Integration
-- [ ] Add CLI flag: `harness run --v2 <task-file>`
+- [ ] Add CLI flag: `converge run --v2 <task-file>`
 - [ ] Wire up `Unit` loader in main CLI
 - [ ] Test with existing workspace
 - [ ] Fix any integration issues
@@ -310,7 +310,7 @@ export default taskDef()
 - [ ] Video walkthrough
 
 ### Week 4: Rollout
-- [ ] Feature flag: `HARNESS_V2=1`
+- [ ] Feature flag: `CONVERGE_V2=1`
 - [ ] Beta testing with users
 - [ ] Gather feedback
 - [ ] Make V2 default

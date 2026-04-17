@@ -8,7 +8,7 @@ import type {
   ClaudeFnOptions,
   ClaudeFnResult,
   ClaudeFn,
-} from "@crew/claudefn";
+} from "@converge/claudefn";
 
 // ─── Re-export shared types from claudefn ───────────────────
 
@@ -18,7 +18,7 @@ export type {
   ClaudeFnOptions,
   ClaudeFnResult,
   ClaudeFn,
-} from "@crew/claudefn";
+} from "@converge/claudefn";
 
 // ─── Stub types for removed SDK backend ─────────────────────
 
@@ -49,33 +49,33 @@ export type {
   KimiFnOptions,
   KimiFnResult,
   KimiFn,
-} from "@crew/kimifn";
+} from "@converge/kimifn";
 
 export type {
   QwenFnOptions,
   QwenFnResult,
   QwenFn,
-} from "@crew/qwenfn";
+} from "@converge/qwenfn";
 
 export type {
   GeminiFnOptions,
   GeminiFnResult,
   GeminiFn,
-} from "@crew/geminifn";
+} from "@converge/geminifn";
 
 export type {
   AcpFnOptions,
   AcpFnResult,
   AcpFn,
-} from "@crew/acpfn";
+} from "@converge/acpfn";
 
 export type {
   OpenFnOptions,
   OpenFnResult,
   OpenFn,
-} from "@crew/openfn";
+} from "@converge/openfn";
 
-export type { GlobalQueue, GlobalQueueOptions, SendFeedbackOptions } from "@crew/claudefn";
+export type { GlobalQueue, GlobalQueueOptions, SendFeedbackOptions } from "@converge/claudefn";
 
 // ─── Skills/Agents ──────────────────────────────────────────
 
@@ -159,14 +159,14 @@ export interface AgentFnOptions<T = string> {
   /** Working directory for the process */
   cwd?: string;
   /** Global queue for rate limiting */
-  queue?: import("@crew/claudefn").GlobalQueue | import("@crew/claudefn").GlobalQueueOptions | boolean;
+  queue?: import("@converge/claudefn").GlobalQueue | import("@converge/claudefn").GlobalQueueOptions | boolean;
   /** Extra CLI flags */
   cliFlags?: string[];
 
   // ── Claude-only options ─────────────────────────────
 
   /** Execution mode — "call" (default) or "stream" (Claude only) */
-  mode?: import("@crew/claudefn").ExecutionMode;
+  mode?: import("@converge/claudefn").ExecutionMode;
   /** Backend — "cli" only (sdk backend removed) */
   backend?: Backend;
   /** Restrict available tools */
@@ -307,7 +307,7 @@ export interface ComposeOptions<T = string> {
   /** Working directory */
   cwd?: string;
   /** Global queue for rate limiting */
-  queue?: import("@crew/claudefn").GlobalQueue | import("@crew/claudefn").GlobalQueueOptions | boolean;
+  queue?: import("@converge/claudefn").GlobalQueue | import("@converge/claudefn").GlobalQueueOptions | boolean;
   /** Extra CLI flags */
   cliFlags?: string[];
 

@@ -5,7 +5,7 @@
  * conversation and request structured output (status, summary, errors, etc.).
  */
 
-import { sendFeedback as claudeSendFeedback } from "@crew/claudefn";
+import { sendFeedback as claudeSendFeedback } from "@converge/claudefn";
 import type { AgentFnResult, Provider } from "./types.js";
 
 export interface AgentFeedbackOptions {

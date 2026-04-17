@@ -38,7 +38,7 @@ Includes **tool-specific parameter summaries** for quick understanding:
 
 #### Bash Tool
 ```json
-{"ts":"2026-04-03T01:17:30.789Z","type":"tool","event":"call","data":{"tool":"Bash","id":"toolu_01JKL","input":{"cmd":"cd workspace && pnpm harness run --step"}}}
+{"ts":"2026-04-03T01:17:30.789Z","type":"tool","event":"call","data":{"tool":"Bash","id":"toolu_01JKL","input":{"cmd":"cd workspace && pnpm converge run --step"}}}
 ```
 
 #### Grep Tool
