@@ -1,0 +1,53 @@
+{
+  "name": "@crew/agentfn",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Unified agent function — switch between Claude, Kimi, Qwen, and Gemini providers in a single interface",
+  "license": "MIT",
+  "author": "Crew Framework Contributors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/myanlabs/converge.git",
+    "directory": "packages/agentfn"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./skills": {
+      "types": "./dist/skills.d.ts",
+      "import": "./dist/skills.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@crew/claudefn": "workspace:*",
+    "@crew/kimifn": "workspace:*",
+    "@crew/qwenfn": "workspace:*",
+    "@crew/geminifn": "workspace:*",
+    "@crew/acpfn": "workspace:*",
+    "@crew/openfn": "workspace:*",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0",
+    "vitest": "^3.1.0",
+    "@types/node": "^22.0.0"
+  }
+}

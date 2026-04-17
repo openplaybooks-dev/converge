@@ -1,0 +1,208 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" shape-rendering="crispEdges">
+  <!-- Background gradient layers -->
+  <defs>
+    <!-- Subtle gradient for sky -->
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#5B9BD5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#87CEEB;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Grass gradient -->
+    <linearGradient id="grassGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#6FA860;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4A7C59;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Sun glow -->
+    <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#FFF8DC;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#FFD700;stop-opacity:0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Sky with gradient -->
+  <rect x="0" y="0" width="800" height="220" fill="url(#skyGrad)"/>
+
+  <!-- Sun with glow effect -->
+  <circle cx="720" cy="60" r="40" fill="url(#sunGlow)"/>
+  <circle cx="720" cy="60" r="24" fill="#FFD700"/>
+
+  <!-- Clouds (pixel style) -->
+  <g fill="#FFFFFF" opacity="0.7">
+    <!-- Cloud 1 -->
+    <rect x="80" y="30" width="12" height="12"/>
+    <rect x="68" y="42" width="12" height="12"/>
+    <rect x="80" y="42" width="12" height="12"/>
+    <rect x="92" y="42" width="12" height="12"/>
+    <rect x="104" y="42" width="12" height="12"/>
+    <rect x="92" y="30" width="12" height="12"/>
+
+    <!-- Cloud 2 -->
+    <rect x="600" y="80" width="10" height="10"/>
+    <rect x="590" y="90" width="10" height="10"/>
+    <rect x="600" y="90" width="10" height="10"/>
+    <rect x="610" y="90" width="10" height="10"/>
+    <rect x="620" y="90" width="10" height="10"/>
+    <rect x="610" y="80" width="10" height="10"/>
+  </g>
+
+  <!-- Grass with gradient -->
+  <rect x="0" y="220" width="800" height="100" fill="url(#grassGrad)"/>
+
+  <!-- Grass tufts (pixel details) -->
+  <g fill="#7CB872" opacity="0.6">
+    <rect x="50" y="220" width="8" height="8"/>
+    <rect x="150" y="224" width="8" height="8"/>
+    <rect x="280" y="222" width="8" height="8"/>
+    <rect x="420" y="226" width="8" height="8"/>
+    <rect x="580" y="223" width="8" height="8"/>
+    <rect x="700" y="225" width="8" height="8"/>
+  </g>
+
+  <!-- Title with shadow effect -->
+  <text x="32" y="52" font-family="monospace" font-size="48" font-weight="bold" fill="#000000" opacity="0.2">
+    HARNESS
+  </text>
+  <text x="30" y="50" font-family="monospace" font-size="48" font-weight="bold" fill="#1a1a1a">
+    HARNESS
+  </text>
+
+  <!-- Tagline with shadow -->
+  <text x="32" y="84" font-family="monospace" font-size="14" fill="#000000" opacity="0.2">
+    Gap-driven build system for AI agents
+  </text>
+  <text x="30" y="82" font-family="monospace" font-size="14" fill="#2c3e50">
+    Gap-driven build system for AI agents
+  </text>
+
+  <!-- Person (improved pixel art) -->
+  <g transform="translate(90,142)">
+    <!-- Head with shading -->
+    <rect x="8" y="0" width="24" height="24" fill="#FFD1A4"/>
+    <rect x="10" y="2" width="4" height="4" fill="#FFC794"/>
+    <rect x="26" y="2" width="4" height="4" fill="#FFC794"/>
+
+    <!-- Hair (detailed) -->
+    <rect x="4" y="0" width="32" height="8" fill="#3E2723"/>
+    <rect x="4" y="8" width="4" height="8" fill="#3E2723"/>
+    <rect x="32" y="8" width="4" height="8" fill="#3E2723"/>
+
+    <!-- Eyes -->
+    <rect x="12" y="12" width="4" height="4" fill="#000000"/>
+    <rect x="24" y="12" width="4" height="4" fill="#000000"/>
+
+    <!-- Smile -->
+    <rect x="14" y="20" width="12" height="2" fill="#3E2723"/>
+
+    <!-- Body (shirt) -->
+    <rect x="8" y="24" width="24" height="28" fill="#5C6BC0"/>
+    <rect x="10" y="26" width="4" height="4" fill="#7986CB"/>
+
+    <!-- Left arm (raised, holding harness) -->
+    <rect x="0" y="24" width="8" height="4" fill="#FFD1A4"/>
+    <rect x="-4" y="24" width="4" height="4" fill="#FFD1A4"/>
+    <rect x="-4" y="28" width="4" height="4" fill="#FFD1A4"/>
+    <rect x="-4" y="32" width="4" height="4" fill="#FFC794"/> <!-- hand gripping -->
+    <rect x="-8" y="32" width="4" height="4" fill="#FFC794"/> <!-- fingers -->
+
+    <!-- Right arm (down, relaxed) -->
+    <rect x="32" y="28" width="8" height="16" fill="#FFD1A4"/>
+    <rect x="32" y="44" width="8" height="8" fill="#FFC794"/>
+
+    <!-- Legs (pants) -->
+    <rect x="10" y="52" width="8" height="20" fill="#37474F"/>
+    <rect x="22" y="52" width="8" height="20" fill="#37474F"/>
+
+    <!-- Shoes -->
+    <rect x="8" y="72" width="10" height="6" fill="#212121"/>
+    <rect x="22" y="72" width="10" height="6" fill="#212121"/>
+  </g>
+
+  <!-- Leash/Harness lines from the LEFT HAND -->
+  <g stroke="#2c3e50" stroke-width="3" stroke-linecap="round">
+    <!-- Hand position: translate(90,142) + hand at (-6, 34) = (84, 176) -->
+    <line x1="84" y1="176" x2="220" y2="207"/>
+    <line x1="84" y1="176" x2="400" y2="212"/>
+    <line x1="84" y1="176" x2="580" y2="217"/>
+  </g>
+
+  <!-- Harness handle at hand -->
+  <g fill="#c0392b">
+    <rect x="80" y="174" width="8" height="8" rx="1"/>
+  </g>
+
+  <!-- Harness connectors at collars -->
+  <g fill="#c0392b">
+    <rect x="218" y="205" width="6" height="6"/>
+    <rect x="398" y="210" width="6" height="6"/>
+    <rect x="578" y="215" width="6" height="6"/>
+  </g>
+
+  <!-- AI Agent Definitions -->
+  <defs>
+    <!-- Claude Agent (Orange dog with label inside) -->
+    <g id="claudeAgent">
+      <g transform="translate(12, 0) scale(3)">
+        <path d="M20.998 10.949H24v3.102h-3v3.028h-1.487V20H18v-2.921h-1.487V20H15v-2.921H9V20H7.488v-2.921H6V20H4.487v-2.921H3V14.05H0V10.95h3V5h17.998v5.949zM6 10.949h1.488V8.102H6v2.847zm10.51 0H18V8.102h-1.49v2.847z"
+              fill="#D97757"
+              fill-rule="evenodd"
+              clip-rule="evenodd"/>
+      </g>
+      <!-- Collar -->
+      <rect x="20" y="20" width="56" height="6" fill="#c0392b"/>
+      <rect x="46" y="20" width="6" height="6" fill="#FFD700"/>
+      <!-- Label inside dog body (torso area: y=33-51 at scale 3) -->
+      <text x="48" y="44" font-family="monospace" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle" shape-rendering="geometricPrecision">Claude</text>
+    </g>
+
+    <!-- Codex Agent (Blue dog with label inside) -->
+    <g id="codexAgent">
+      <g transform="translate(12, 0) scale(3)">
+        <path d="M20.998 10.949H24v3.102h-3v3.028h-1.487V20H18v-2.921h-1.487V20H15v-2.921H9V20H7.488v-2.921H6V20H4.487v-2.921H3V14.05H0V10.95h3V5h17.998v5.949zM6 10.949h1.488V8.102H6v2.847zm10.51 0H18V8.102h-1.49v2.847z"
+              fill="#3498db"
+              fill-rule="evenodd"
+              clip-rule="evenodd"/>
+      </g>
+      <!-- Collar -->
+      <rect x="20" y="20" width="56" height="6" fill="#c0392b"/>
+      <rect x="46" y="20" width="6" height="6" fill="#FFD700"/>
+      <!-- Label inside dog body (torso area) -->
+      <text x="48" y="44" font-family="monospace" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle" shape-rendering="geometricPrecision">Codex</text>
+    </g>
+
+    <!-- Gemini Agent (Purple dog with label inside) -->
+    <g id="geminiAgent">
+      <g transform="translate(12, 0) scale(3)">
+        <path d="M20.998 10.949H24v3.102h-3v3.028h-1.487V20H18v-2.921h-1.487V20H15v-2.921H9V20H7.488v-2.921H6V20H4.487v-2.921H3V14.05H0V10.95h3V5h17.998v5.949zM6 10.949h1.488V8.102H6v2.847zm10.51 0H18V8.102h-1.49v2.847z"
+              fill="#9b59b6"
+              fill-rule="evenodd"
+              clip-rule="evenodd"/>
+      </g>
+      <!-- Collar -->
+      <rect x="20" y="20" width="56" height="6" fill="#c0392b"/>
+      <rect x="46" y="20" width="6" height="6" fill="#FFD700"/>
+      <!-- Label inside dog body (torso area) -->
+      <text x="48" y="44" font-family="monospace" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle" shape-rendering="geometricPrecision">Gemini</text>
+    </g>
+  </defs>
+
+  <!-- Three AI Agents -->
+  <use href="#claudeAgent" transform="translate(160,187)"/>
+  <use href="#codexAgent" transform="translate(340,192)"/>
+  <use href="#geminiAgent" transform="translate(520,197)"/>
+
+  <!-- Labels with pixel-style badges -->
+  <g>
+    <!-- AI Agents badge -->
+    <rect x="640" y="30" width="140" height="32" fill="#2c3e50" rx="4"/>
+    <rect x="642" y="32" width="136" height="28" fill="#34495e" rx="3"/>
+    <text x="650" y="52" font-family="monospace" font-size="14" font-weight="bold" fill="#ecf0f1">
+      AI AGENTS ⚡
+    </text>
+  </g>
+
+  <!-- Footer tagline -->
+  <text x="400" y="310" font-family="monospace" font-size="10" fill="#7f8c8d" text-anchor="middle">
+    Detect gaps • Generate work • Execute • Verify • Converge
+  </text>
+</svg>

@@ -1,0 +1,99 @@
+{
+  "name": "harness",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "A build system for AI agents — Plan. Execute. Verify. Fix. Ship.",
+  "license": "MIT",
+  "author": "Harness Framework Contributors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/myanlabs/converge.git",
+    "directory": "packages/harness"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "ai-agent",
+    "orchestrator",
+    "orchestration",
+    "automation",
+    "build-system",
+    "cli",
+    "framework",
+    "typescript",
+    "reactive",
+    "agentic",
+    "code-generation",
+    "testing",
+    "verification",
+    "quality-gates",
+    "resumable",
+    "crash-safe",
+    "hierarchical",
+    "multi-agent",
+    "autonomous-agents",
+    "task-planning",
+    "task-automation",
+    "task-execution",
+    "workflow",
+    "autonomous",
+    "agent-driven-development",
+    "codegen",
+    "ai-coding",
+    "llm",
+    "llm-orchestration"
+  ],
+  "bin": {
+    "harness": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./planner": {
+      "import": "./dist/planner.js",
+      "types": "./dist/planner.d.ts"
+    },
+    "./client": {
+      "import": "./dist/client.js",
+      "types": "./dist/client.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "prepublishOnly": "pnpm build && pnpm typecheck",
+    "harness": "tsx src/cli/main.ts",
+    "crew": "tsx src/cli/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/*.test.ts",
+    "test:integration": "vitest run tests/integration/*.test.ts",
+    "test:watch": "vitest watch",
+    "test:all": "vitest run"
+  },
+  "dependencies": {
+    "@crew/agentfn": "workspace:*",
+    "glob": "^11.0.0",
+    "minimatch": "^10.2.5",
+    "tsx": "^4.21.0",
+    "uuid": "^11.0.3",
+    "yaml": "^2.7.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.7.0",
+    "vitest": "^4.0.18"
+  }
+}

@@ -1,0 +1,3 @@
+[2026-04-02T12:03:54.999Z] [INFO] Starting claudefn session=7b3754c6-8ea2-4241-b66e-5d49420d08b7
+[2026-04-02T12:03:54.999Z] [INFO] Timeout=600000ms (activity-based idle timeout)
+[2026-04-02T12:03:54.999Z] [PROMPT] Translate hello to French

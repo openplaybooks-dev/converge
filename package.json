@@ -1,0 +1,36 @@
+{
+  "name": "converge-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A build system for AI agents — Plan. Execute. Verify. Fix. Ship.",
+  "author": "Harness Framework Contributors",
+  "license": "MIT",
+  "homepage": "https://github.com/myanlabs/converge#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/myanlabs/converge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/myanlabs/converge/issues"
+  },
+  "packageManager": "pnpm@10.29.3",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm -r dev",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r --parallel typecheck",
+    "clean": "pnpm -r clean",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.8.1"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  }
+}

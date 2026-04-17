@@ -1,0 +1,15 @@
+src
+tests
+docs
+*.test.ts
+*.spec.ts
+tsconfig.json
+tsup.config.ts
+vitest.config.ts
+.DS_Store
+*.log
+node_modules
+.env
+.env.*
+test-*.ts
+test-*.mjs

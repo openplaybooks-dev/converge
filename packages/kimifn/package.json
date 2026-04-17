@@ -1,0 +1,43 @@
+{
+  "name": "@crew/kimifn",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Kimi as a function — call Kimi CLI programmatically with types, composition, and agentic loops",
+  "license": "MIT",
+  "author": "Crew Framework Contributors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/myanlabs/converge.git",
+    "directory": "packages/kimifn"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0",
+    "vitest": "^3.1.0",
+    "@types/node": "^22.0.0"
+  }
+}

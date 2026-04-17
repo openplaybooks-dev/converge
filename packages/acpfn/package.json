@@ -1,0 +1,45 @@
+{
+  "name": "@crew/acpfn",
+  "version": "0.1.0",
+  "private": false,
+  "description": "ACP (Anthropic Client Protocol) as a function — call Claude Agent SDK programmatically with types and composition",
+  "license": "MIT",
+  "author": "Crew Framework Contributors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/myanlabs/converge.git",
+    "directory": "packages/acpfn"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.2.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.1.0"
+  }
+}

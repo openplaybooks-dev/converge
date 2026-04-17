@@ -1,0 +1,21 @@
+name: plan
+description: Generate a harness playbook from a prompt and project scan
+
+inputs:
+  prompt:
+    required: true
+    description: What the user wants to build or accomplish
+  name:
+    required: false
+    description: Name for the generated playbook (default — derived from prompt)
+  update:
+    required: false
+    description: If true, update an existing playbook instead of creating new
+
+key: name
+
+run:
+  mode: autonomous
+  maxTaskAttempts: 3
+  maxDuration: 15m
+  resume: true
