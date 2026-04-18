@@ -1,0 +1,16 @@
+name: llm-training-evolve
+description: Evolutionary optimization for LLM training — evolve architectures, hyperparameters, and data strategies by generating diverse training configurations, evaluating against benchmarks, selecting winners, and crossing over to produce better configurations each generation.
+key: trainingGoal
+inputs:
+  trainingGoal: { required: true, description: "The LLM training objective (e.g. 'Train a 7B parameter model for code generation with strong HumanEval performance')" }
+  modelScale: { default: "7B", description: "Target model scale (e.g. 1B, 7B, 13B, 70B)" }
+  populationSize: { default: "5", description: Number of training configurations per generation }
+  topK: { default: "2", description: Number of top configurations to select as parents }
+  fitnessThreshold: { default: "0.9", description: Target fitness score (0-1) for convergence }
+
+run:
+  mode: converge
+  maxIterations: 30
+  maxTaskAttempts: 5
+  maxGoals: 100
+  resume: true
