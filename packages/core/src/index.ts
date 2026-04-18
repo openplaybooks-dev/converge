@@ -249,6 +249,10 @@ export type {
   McpServerNeed,
   RawMarkdown,
   TemplateRef,
+  ExecutorFn,
+  ExecutorContext,
+  WbsFn,
+  WbsContext,
 } from "./config/task-definition.ts";
 
 export {
@@ -262,6 +266,19 @@ export {
 
 export { autonomousRun as v2AutonomousRun } from "./cli/autonomous-run.ts";
 export type { AutonomousRunConfig as V2AutonomousRunConfig } from "./cli/autonomous-run.ts";
+
+/* ────────────────────────────────────────────────────────────────── */
+/*  Metrics                                                            */
+/* ────────────────────────────────────────────────────────────────── */
+
+export type {
+  BenchmarkResult,
+  SessionMetrics,
+  AggregateMetrics,
+  CheckpointSummary,
+  ConvergenceData,
+} from "./metrics/types.ts";
+export { exportBenchmarkResults } from "./metrics/extract.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Context                                                            */

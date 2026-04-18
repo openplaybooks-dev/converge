@@ -53,14 +53,26 @@ export interface RepairMetadata {
  * If task definition was repaired programmatically, generates a minimal LEARN.md
  * that focuses on task execution without distracting technical repair details.
  */
+export interface LearnOptions {
+  /** When true, write an empty LEARN.md instead of failure analysis (control group for ablation benchmarks) */
+  disableLearnMd?: boolean;
+}
+
 export async function generateLearnMd(
   wipDir: string,
   projectDir: string,
   attemptNumber: number,
   repairMetadata?: RepairMetadata,
   traceLogger?: ExecutionTraceLogger,
+  options?: LearnOptions,
 ): Promise<void> {
   const learnPath = join(wipDir, "LEARN.md");
+
+  // Ablation control group: write empty LEARN.md so the next attempt gets no guidance
+  if (options?.disableLearnMd) {
+    await writeFile(learnPath, "");
+    return;
+  }
 
   // AI already wrote LEARN.md during its fail-fast protocol — respect it
   // OR repair strategy already wrote it for next attempt — respect it

@@ -16,8 +16,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "paths": {
-      "@converge/core": ["./src/index.ts"],
-      "@converge/swebench": ["../swebench/src/index.ts"]
+      "@converge/core": ["../core/src/index.ts"]
     }
   },
   "include": ["src"]
