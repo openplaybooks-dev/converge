@@ -30,7 +30,7 @@ context:
       4. Missing `import { taskDef } from '@converge/core'`
       5. WBS function that never calls `ctx.spawn()`
       6. TypeScript compilation errors
-      
+
       For each issue: state what's wrong, the line number, and the exact code fix.
     label: issue-analysis
     tools: [Read]
@@ -52,6 +52,7 @@ Fix structural issues in a task.ts definition file.
 ## Step 2: Fix Issues
 
 Create a backup first:
+
 ```bash
 cp "{unitPath}" "{unitPath}.backup"
 ```
@@ -59,7 +60,9 @@ cp "{unitPath}" "{unitPath}.backup"
 Then apply fixes based on the analysis:
 
 ### WBS object → function
+
 If the file has `.wbs({type: 'dynamic', items: [...]})`, convert to:
+
 ```typescript
 .wbs(async (ctx) => {
   await ctx.spawn(taskDef().id('item-1').title('...').build());
@@ -68,15 +71,19 @@ If the file has `.wbs({type: 'dynamic', items: [...]})`, convert to:
 ```
 
 ### Missing .build()
+
 Append `.build()` at the end of the taskDef chain.
 
 ### Empty checks
+
 Replace `.checks([])` with at least one meaningful check.
 
 ### Missing import
+
 Add `import { taskDef } from '@converge/core';` at the top.
 
 ### TypeScript errors
+
 Read `repair-context/typescript-errors.txt` and fix each error.
 
 ## Step 3: Verify

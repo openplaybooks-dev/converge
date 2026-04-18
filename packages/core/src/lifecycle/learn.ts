@@ -10,12 +10,12 @@
  * this is a no-op — the AI's analysis takes priority.
  */
 
-import { writeFile, readFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
-import { ExecutionTraceLogger } from '../journal/execution-trace.ts';
+import { writeFile, readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
+import { ExecutionTraceLogger } from "../journal/execution-trace.ts";
 
 const execAsync = promisify(exec);
 
@@ -41,7 +41,7 @@ interface CheckResult extends CheckEntry {
 
 export interface RepairMetadata {
   wasRepaired: boolean;
-  repairType?: 'programmatic' | 'ai-driven';
+  repairType?: "programmatic" | "ai-driven";
   repairedChecks?: string[];
   reason?: string;
 }
@@ -60,7 +60,7 @@ export async function generateLearnMd(
   repairMetadata?: RepairMetadata,
   traceLogger?: ExecutionTraceLogger,
 ): Promise<void> {
-  const learnPath = join(wipDir, 'LEARN.md');
+  const learnPath = join(wipDir, "LEARN.md");
 
   // AI already wrote LEARN.md during its fail-fast protocol — respect it
   // OR repair strategy already wrote it for next attempt — respect it
@@ -69,10 +69,10 @@ export async function generateLearnMd(
     return;
   }
 
-  const checkMdPath = join(wipDir, 'CHECK.md');
+  const checkMdPath = join(wipDir, "CHECK.md");
   if (!existsSync(checkMdPath)) return;
 
-  const checkMd = await readFile(checkMdPath, 'utf-8');
+  const checkMd = await readFile(checkMdPath, "utf-8");
   const checks = parseCheckMd(checkMd);
   if (checks.length === 0) return;
 
@@ -94,11 +94,17 @@ export async function generateLearnMd(
       });
       // Log to execution trace (Meta-Converge: capture full diagnostic context)
       if (traceLogger) {
-        await traceLogger.logCheck(check.id, check.cmd, true, output, Date.now() - checkStart);
+        await traceLogger.logCheck(
+          check.id,
+          check.cmd,
+          true,
+          output,
+          Date.now() - checkStart,
+        );
       }
     } catch (err: any) {
-      const output = ((err.stdout ?? '') + (err.stderr ?? '')).trim();
-      const exitCode = typeof err.code === 'number' ? err.code : 1;
+      const output = ((err.stdout ?? "") + (err.stderr ?? "")).trim();
+      const exitCode = typeof err.code === "number" ? err.code : 1;
       results.push({
         ...check,
         passed: false,
@@ -107,13 +113,19 @@ export async function generateLearnMd(
       });
       // Log failure to execution trace
       if (traceLogger) {
-        await traceLogger.logCheck(check.id, check.cmd, false, output, Date.now() - checkStart);
+        await traceLogger.logCheck(
+          check.id,
+          check.cmd,
+          false,
+          output,
+          Date.now() - checkStart,
+        );
       }
     }
   }
 
-  const failed = results.filter(r => !r.passed);
-  const passed  = results.filter(r => r.passed);
+  const failed = results.filter((r) => !r.passed);
+  const passed = results.filter((r) => r.passed);
 
   // Format LEARN.md based on repair context
   const lines = formatLearnMd({
@@ -123,8 +135,10 @@ export async function generateLearnMd(
     repairMetadata,
   });
 
-  await writeFile(learnPath, lines.join('\n'));
-  console.log(`   📘 LEARN.md generated (${failed.length} failed check(s) documented)`);
+  await writeFile(learnPath, lines.join("\n"));
+  console.log(
+    `   📘 LEARN.md generated (${failed.length} failed check(s) documented)`,
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -142,7 +156,10 @@ function formatLearnMd(opts: FormatOptions): string[] {
   const { attemptNumber, failed, passed, repairMetadata } = opts;
 
   // When task definition was fixed programmatically — keep LEARN.md minimal
-  if (repairMetadata?.wasRepaired && repairMetadata.repairType === 'programmatic') {
+  if (
+    repairMetadata?.wasRepaired &&
+    repairMetadata.repairType === "programmatic"
+  ) {
     return [
       `> **Task definition was updated after attempt ${attemptNumber - 1}.**`,
       `>`,
@@ -153,14 +170,14 @@ function formatLearnMd(opts: FormatOptions): string[] {
   // Task execution failed — provide focused guidance
   const lines = [
     `# Attempt ${attemptNumber} Failed`,
-    '',
+    "",
     `**${failed.length}** of **${failed.length + passed.length}** checks did not pass.`,
-    '',
+    "",
   ];
 
   // Show what failed (focused, minimal)
   if (failed.length > 0) {
-    lines.push('## What Failed', '');
+    lines.push("## What Failed", "");
     for (const r of failed) {
       lines.push(
         `### ${r.id}`,
@@ -168,19 +185,19 @@ function formatLearnMd(opts: FormatOptions): string[] {
         `Exit code: ${r.exitCode}`,
       );
       if (r.output && r.output.trim()) {
-        lines.push('```', r.output.trim(), '```');
+        lines.push("```", r.output.trim(), "```");
       }
-      lines.push('');
+      lines.push("");
     }
   }
 
   // Show what passed (brief)
   if (passed.length > 0) {
-    lines.push('## Passed', '');
+    lines.push("## Passed", "");
     for (const r of passed) {
       lines.push(`- ✓ ${r.id}`);
     }
-    lines.push('');
+    lines.push("");
   }
 
   return lines;
@@ -203,63 +220,70 @@ export async function generateInterruptedMd(
   existingOutputs: string[],
   missingOutputs: string[],
 ): Promise<void> {
-  const interruptedPath = join(wipDir, 'INTERRUPTED.md');
+  const interruptedPath = join(wipDir, "INTERRUPTED.md");
   if (existsSync(interruptedPath)) return;
 
   const lines: string[] = [
     `# Interrupted — Attempt ${attemptNumber}`,
-    '',
-    'This task was interrupted mid-execution. Partial progress exists in this directory.',
-    '',
+    "",
+    "This task was interrupted mid-execution. Partial progress exists in this directory.",
+    "",
   ];
 
   if (existingOutputs.length > 0) {
-    lines.push('## Existing Outputs', '');
+    lines.push("## Existing Outputs", "");
     for (const o of existingOutputs) lines.push(`- ✓ ${o}`);
-    lines.push('');
+    lines.push("");
   }
 
   if (missingOutputs.length > 0) {
-    lines.push('## Missing Outputs', '');
+    lines.push("## Missing Outputs", "");
     for (const o of missingOutputs) lines.push(`- ✗ ${o}`);
-    lines.push('');
+    lines.push("");
   }
 
   // Run checks if CHECK.md exists
-  const checkMdPath = join(wipDir, 'CHECK.md');
+  const checkMdPath = join(wipDir, "CHECK.md");
   if (existsSync(checkMdPath)) {
-    const checkMd = await readFile(checkMdPath, 'utf-8');
+    const checkMd = await readFile(checkMdPath, "utf-8");
     const checks = parseCheckMd(checkMd);
 
     if (checks.length > 0) {
-      lines.push('## Check Results', '');
+      lines.push("## Check Results", "");
       for (const check of checks) {
         try {
           await execAsync(check.cmd, { cwd: projectDir, timeout: 15_000 });
-          lines.push(`### ${check.id}`, '**PASSED** ✓', '');
+          lines.push(`### ${check.id}`, "**PASSED** ✓", "");
         } catch (err: any) {
-          const output = ((err.stdout ?? '') + (err.stderr ?? '')).trim();
-          const exitCode = typeof err.code === 'number' ? err.code : 1;
-          lines.push(`### ${check.id}`, '**FAILED**', `Command: \`${check.cmd}\``, `Exit code: ${exitCode}`);
-          if (output) lines.push('```', output, '```');
-          lines.push('');
+          const output = ((err.stdout ?? "") + (err.stderr ?? "")).trim();
+          const exitCode = typeof err.code === "number" ? err.code : 1;
+          lines.push(
+            `### ${check.id}`,
+            "**FAILED**",
+            `Command: \`${check.cmd}\``,
+            `Exit code: ${exitCode}`,
+          );
+          if (output) lines.push("```", output, "```");
+          lines.push("");
         }
       }
     }
   }
 
   lines.push(
-    '## Instructions',
-    '',
-    '**Continue from where the previous attempt left off.**',
-    '- Do NOT recreate files that already exist and are listed above',
-    '- Focus on producing the missing outputs',
-    '- Run all checks in CHECK.md when done',
-    '',
+    "## Instructions",
+    "",
+    "**Continue from where the previous attempt left off.**",
+    "- Do NOT recreate files that already exist and are listed above",
+    "- Focus on producing the missing outputs",
+    "- Run all checks in CHECK.md when done",
+    "",
   );
 
-  await writeFile(interruptedPath, lines.join('\n'));
-  console.log(`   📘 INTERRUPTED.md generated (resume context for attempt ${attemptNumber})`);
+  await writeFile(interruptedPath, lines.join("\n"));
+  console.log(
+    `   📘 INTERRUPTED.md generated (resume context for attempt ${attemptNumber})`,
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -272,18 +296,18 @@ function parseCheckMd(content: string): CheckEntry[] {
   const sections = content.split(/^## /m).slice(1);
 
   for (const section of sections) {
-    const lines = section.split('\n');
-    const id = lines[0]?.trim() ?? '';
+    const lines = section.split("\n");
+    const id = lines[0]?.trim() ?? "";
     if (!id) continue;
 
     let description = id;
-    let cmd = '';
+    let cmd = "";
 
     for (const line of lines.slice(1)) {
       const descMatch = line.match(/^\*\*Description\*\*:\s*(.+)/);
-      const cmdMatch  = line.match(/^\*\*Command\*\*:\s*`([^`]+)`/);
+      const cmdMatch = line.match(/^\*\*Command\*\*:\s*`([^`]+)`/);
       if (descMatch) description = descMatch[1].trim();
-      if (cmdMatch)  cmd = cmdMatch[1].trim();
+      if (cmdMatch) cmd = cmdMatch[1].trim();
     }
 
     if (cmd) checks.push({ id, description, cmd });

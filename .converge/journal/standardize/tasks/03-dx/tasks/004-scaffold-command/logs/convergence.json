@@ -1,0 +1,253 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-dx/004-scaffold-command-missing-output-docs/scaffolding.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-dx/004-scaffold-command",
+            "severity": "high",
+            "description": "[03-dx/004-scaffold-command] Task output not created: docs/scaffolding.md",
+            "source": "unit",
+            "detected": "2026-04-17T23:53:15.267Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/standardize/tasks/03-dx/tasks/004-scaffold-command",
+              "taskId": "03-dx/004-scaffold-command",
+              "taskTitle": "Document Scaffold Workflow",
+              "taskPrompt": "Document the playbook scaffolding workflow for new users.\n\n**Context**: Users need a clear guide for creating new playbooks from\nscratch or from templates. This may involve a CLI command (`converge init`)\nor manual file creation.\n\n**Process**:\n1. Check if `converge init` or similar scaffold command exists in the CLI\n2. If it exists: document its usage, options, and output\n3. If it doesn't exist: document the manual scaffolding process\n\n**Document structure** (`docs/scaffolding.md`):\n1. **Quick scaffold** — fastest way to create a new playbook\n2. **Playbook anatomy** — what each file does (playbook.yml, TASK.md, wbs.js, GOAL.md)\n3. **Templates** — common playbook patterns:\n   - Simple sequential (like hello-world)\n   - Keyed/parameterized (like fix-issue)\n   - WBS-driven (like continuous-app)\n   - Planning pipeline (like plan)\n4. **Customization** — how to add checks, goals, skills, inputs\n5. **Validation** — how to verify a playbook is well-formed before running\n\n**Reference**: Use `packages/core/examples/` as the source of truth for\nfile formats and patterns.",
+              "factId": "file-exists:test -f \"docs/scaffolding.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-dx/004-scaffold-command-check-failed-scaffold-doc-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-dx/004-scaffold-command",
+            "severity": "high",
+            "description": "[03-dx/004-scaffold-command] Check failed: Scaffolding documentation exists",
+            "source": "unit",
+            "detected": "2026-04-17T23:53:15.269Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "scaffold-doc-exists",
+              "checkCmd": "test -f docs/scaffolding.md",
+              "checkDescription": "Scaffolding documentation exists",
+              "checkOutput": "Command failed: test -f docs/scaffolding.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Document the playbook scaffolding workflow for new users.\n\n**Context**: Users need a clear guide for creating new playbooks from\nscratch or from templates. This may involve a CLI command (`converge init`)\nor manual file creation.\n\n**Process**:\n1. Check if `converge init` or similar scaffold command exists in the CLI\n2. If it exists: document its usage, options, and output\n3. If it doesn't exist: document the manual scaffolding process\n\n**Document structure** (`docs/scaffolding.md`):\n1. **Quick scaffold** — fastest way to create a new playbook\n2. **Playbook anatomy** — what each file does (playbook.yml, TASK.md, wbs.js, GOAL.md)\n3. **Templates** — common playbook patterns:\n   - Simple sequential (like hello-world)\n   - Keyed/parameterized (like fix-issue)\n   - WBS-driven (like continuous-app)\n   - Planning pipeline (like plan)\n4. **Customization** — how to add checks, goals, skills, inputs\n5. **Validation** — how to verify a playbook is well-formed before running\n\n**Reference**: Use `packages/core/examples/` as the source of truth for\nfile formats and patterns.",
+              "taskId": "03-dx/004-scaffold-command",
+              "taskTitle": "Document Scaffold Workflow",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/standardize/tasks/03-dx/tasks/004-scaffold-command",
+              "factId": "check:scaffold-doc-exists"
+            }
+          }
+        ],
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "resolve-blockers",
+      "handler": "resolve-blockers",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 80,
+        "applicable": "hasBlockerAndIsFirst"
+      }
+    },
+    {
+      "id": "bail-blockers",
+      "handler": "bail-blockers",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 79,
+        "applicable": "hasBlockerAndNotFirst"
+      }
+    },
+    {
+      "id": "strategy-user-question-resume",
+      "handler": "strategy-user-question-resume",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 60,
+        "applicable": "hasUserQ"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65,
+        "applicable": "isFirst"
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55,
+        "applicable": "hasRepairableGap"
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 11
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#24",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 262885
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-17T23:53:15.263Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-17T23:53:15.264Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-17T23:53:15.270Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-17T23:53:15.271Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-17T23:53:15.277Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#24",
+      "iteration": 1,
+      "ts": "2026-04-17T23:57:38.162Z"
+    },
+    {
+      "from": "run-strategy:task-run#24",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-17T23:57:38.174Z"
+    }
+  ]
+}

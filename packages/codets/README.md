@@ -5,20 +5,26 @@
 **codets** is a layered, extensible code generation library that lets you programmatically emit clean, properly-indented TypeScript, JSX, and React code. Perfect for scaffolding tools, AI code generators, AST transformers, and build tooling.
 
 ```typescript
-import { TypeScriptBuilder } from 'codets';
+import { TypeScriptBuilder } from "codets";
 
 const code = new TypeScriptBuilder()
-  .import('React', 'react')
+  .import("React", "react")
   .blank()
-  .fn('greet', 'name: string', b => {
-    b.line('console.log(`Hello, ${name}!`);');
-  }, { exported: true })
+  .fn(
+    "greet",
+    "name: string",
+    (b) => {
+      b.line("console.log(`Hello, ${name}!`);");
+    },
+    { exported: true },
+  )
   .toString();
 ```
 
 **Output:**
+
 ```typescript
-import React from 'react';
+import React from "react";
 
 export function greet(name: string) {
   console.log(`Hello, ${name}!`);
@@ -27,14 +33,14 @@ export function greet(name: string) {
 
 ## Why codets?
 
-| Problem | Solution |
-|---------|----------|
-| **Manual string concatenation** | Fluent builder API with automatic indentation |
-| **Indentation hell** | `.indent()` / `.dedent()` handle nesting automatically |
-| **Import management** | `ImportRegistry` tracks and deduplicates imports |
-| **Type-unsafe code generation** | TypeScript-first API with full type safety |
-| **Complex AST libraries** | Simple, readable builders without AST overhead |
-| **Mixed concerns** | Layered architecture — extend only what you need |
+| Problem                         | Solution                                               |
+| ------------------------------- | ------------------------------------------------------ |
+| **Manual string concatenation** | Fluent builder API with automatic indentation          |
+| **Indentation hell**            | `.indent()` / `.dedent()` handle nesting automatically |
+| **Import management**           | `ImportRegistry` tracks and deduplicates imports       |
+| **Type-unsafe code generation** | TypeScript-first API with full type safety             |
+| **Complex AST libraries**       | Simple, readable builders without AST overhead         |
+| **Mixed concerns**              | Layered architecture — extend only what you need       |
 
 ## Quick Start
 
@@ -43,41 +49,44 @@ npm install codets
 ```
 
 ```typescript
-import { ReactBuilder } from 'codets';
+import { ReactBuilder } from "codets";
 
 const component = new ReactBuilder()
   .useClient()
-  .import('{ useState }', 'react')
+  .import("{ useState }", "react")
   .blank()
-  .fn('Counter', '', b => {
-    b.line('const [count, setCount] = useState(0);')
-     .blank()
-     .returnJsx(jsx => {
-       jsx.line('<button onClick={() => setCount(count + 1)}>')
-          .indent()
-          .line('Count: {count}')
-          .dedent()
-          .line('</button>');
-     });
-  }, { exported: true })
+  .fn(
+    "Counter",
+    "",
+    (b) => {
+      b.line("const [count, setCount] = useState(0);")
+        .blank()
+        .returnJsx((jsx) => {
+          jsx
+            .line("<button onClick={() => setCount(count + 1)}>")
+            .indent()
+            .line("Count: {count}")
+            .dedent()
+            .line("</button>");
+        });
+    },
+    { exported: true },
+  )
   .toString();
 
 console.log(component);
 ```
 
 **Output:**
+
 ```tsx
-'use client';
-import { useState } from 'react';
+"use client";
+import { useState } from "react";
 
 export function Counter() {
   const [count, setCount] = useState(0);
 
-  return (
-    <button onClick={() => setCount(count + 1)}>
-      Count: {count}
-    </button>
-  );
+  return <button onClick={() => setCount(count + 1)}>Count: {count}</button>;
 }
 ```
 
@@ -101,18 +110,19 @@ Each layer adds specialized methods while inheriting all parent capabilities.
 Language-agnostic text emission with indentation tracking.
 
 ```typescript
-import { CoreBuilder } from 'codets';
+import { CoreBuilder } from "codets";
 
 const code = new CoreBuilder()
-  .line('if (condition) {')
+  .line("if (condition) {")
   .indent()
-  .line('doSomething();')
+  .line("doSomething();")
   .dedent()
-  .line('}')
+  .line("}")
   .toString();
 ```
 
 **Methods:**
+
 - `.line(text)` — Emit a line at current indentation
 - `.blank()` — Emit a blank line
 - `.indent()` / `.dedent()` — Adjust indentation level
@@ -127,18 +137,19 @@ const code = new CoreBuilder()
 ES module imports and directives.
 
 ```typescript
-import { ModuleBuilder } from 'codets';
+import { ModuleBuilder } from "codets";
 
 const code = new ModuleBuilder()
   .directive("'use strict';")
-  .import('fs', 'node:fs')
-  .import('{ join }', 'node:path')
+  .import("fs", "node:fs")
+  .import("{ join }", "node:path")
   .blank()
   .line('const file = fs.readFileSync(join(__dirname, "data.txt"));')
   .toString();
 ```
 
 **Methods:**
+
 - `.import(what, from)` — Add ES import
 - `.importDefault(name, from)` — Default import
 - `.importStar(name, from)` — Namespace import
@@ -150,22 +161,26 @@ const code = new ModuleBuilder()
 TypeScript declarations and patterns.
 
 ```typescript
-import { TypeScriptBuilder } from 'codets';
+import { TypeScriptBuilder } from "codets";
 
 const code = new TypeScriptBuilder()
-  .iface('User', b => {
-    b.line('id: string;')
-     .line('name: string;')
-     .line('email: string;');
+  .iface("User", (b) => {
+    b.line("id: string;").line("name: string;").line("email: string;");
   })
   .blank()
-  .fn('createUser', 'data: Partial<User>', b => {
-    b.line('return { ...data, id: crypto.randomUUID() };');
-  }, { exported: true, returnType: 'User' })
+  .fn(
+    "createUser",
+    "data: Partial<User>",
+    (b) => {
+      b.line("return { ...data, id: crypto.randomUUID() };");
+    },
+    { exported: true, returnType: "User" },
+  )
   .toString();
 ```
 
 **Methods:**
+
 - `.fn(name, params, body, opts)` — Function declaration
 - `.arrow(name, params, body, opts)` — Arrow function
 - `.iface(name, body)` — Interface declaration
@@ -179,25 +194,32 @@ const code = new TypeScriptBuilder()
 React/JSX-specific helpers.
 
 ```typescript
-import { ReactBuilder } from 'codets';
+import { ReactBuilder } from "codets";
 
 const code = new ReactBuilder()
   .useClient()
-  .import('React', 'react')
+  .import("React", "react")
   .blank()
-  .fn('App', '', b => {
-    b.returnJsx(jsx => {
-      jsx.line('<div className="app">')
-         .indent()
-         .line('<h1>Hello World</h1>')
-         .dedent()
-         .line('</div>');
-    });
-  }, { exported: true })
+  .fn(
+    "App",
+    "",
+    (b) => {
+      b.returnJsx((jsx) => {
+        jsx
+          .line('<div className="app">')
+          .indent()
+          .line("<h1>Hello World</h1>")
+          .dedent()
+          .line("</div>");
+      });
+    },
+    { exported: true },
+  )
   .toString();
 ```
 
 **Methods:**
+
 - `.useClient()` — Add `'use client'` directive
 - `.useServer()` — Add `'use server'` directive
 - `.returnJsx(body)` — JSX return block with parens
@@ -209,12 +231,12 @@ const code = new ReactBuilder()
 Automatic import deduplication and organization.
 
 ```typescript
-import { ImportRegistry } from 'codets';
+import { ImportRegistry } from "codets";
 
 const imports = new ImportRegistry();
-imports.add('useState', 'react');
-imports.add('useEffect', 'react');
-imports.add('fs', 'node:fs');
+imports.add("useState", "react");
+imports.add("useEffect", "react");
+imports.add("fs", "node:fs");
 
 console.log(imports.emit());
 // import { useState, useEffect } from 'react';
@@ -226,24 +248,27 @@ console.log(imports.emit());
 Manage multiple files in a virtual file tree.
 
 ```typescript
-import { ProjectBuilder, TypeScriptBuilder } from 'codets';
+import { ProjectBuilder, TypeScriptBuilder } from "codets";
 
 const project = new ProjectBuilder(TypeScriptBuilder);
 
 project
-  .file('src/index.ts', b => {
-    b.import('{ greet }', './greet.js')
-     .blank()
-     .line('greet("World");');
+  .file("src/index.ts", (b) => {
+    b.import("{ greet }", "./greet.js").blank().line('greet("World");');
   })
-  .file('src/greet.ts', b => {
-    b.fn('greet', 'name: string', body => {
-      body.line('console.log(`Hello, ${name}!`);');
-    }, { exported: true });
+  .file("src/greet.ts", (b) => {
+    b.fn(
+      "greet",
+      "name: string",
+      (body) => {
+        body.line("console.log(`Hello, ${name}!`);");
+      },
+      { exported: true },
+    );
   });
 
 // Write all files to disk
-await project.flush('/path/to/output');
+await project.flush("/path/to/output");
 ```
 
 ### SemanticBuilder (v2)
@@ -251,16 +276,16 @@ await project.flush('/path/to/output');
 AST-like semantic code generation (experimental).
 
 ```typescript
-import { SemanticBuilder } from 'codets';
+import { SemanticBuilder } from "codets";
 
 const code = new SemanticBuilder()
-  .import(['useState'], 'react')
-  .exportConst('Counter', 'arrow', [], b => {
-    b.const('count', 'useState(0)');
-    b.return('jsx', jsx => {
-      jsx.raw('<button onClick={() => setCount(count + 1)}>');
-      jsx.raw('  Count: {count}');
-      jsx.raw('</button>');
+  .import(["useState"], "react")
+  .exportConst("Counter", "arrow", [], (b) => {
+    b.const("count", "useState(0)");
+    b.return("jsx", (jsx) => {
+      jsx.raw("<button onClick={() => setCount(count + 1)}>");
+      jsx.raw("  Count: {count}");
+      jsx.raw("</button>");
     });
   })
   .toString();
@@ -271,45 +296,55 @@ const code = new SemanticBuilder()
 ### Generate a TypeScript Config File
 
 ```typescript
-import { TypeScriptBuilder } from 'codets';
+import { TypeScriptBuilder } from "codets";
 
 const tsconfig = new TypeScriptBuilder()
-  .constObject('config', b => {
-    b.line('compilerOptions: {')
-     .indent()
-     .line('target: "ES2022",')
-     .line('module: "NodeNext",')
-     .line('strict: true,')
-     .dedent()
-     .line('},')
-     .line('include: ["src/**/*"],');
-  }, { exported: true })
+  .constObject(
+    "config",
+    (b) => {
+      b.line("compilerOptions: {")
+        .indent()
+        .line('target: "ES2022",')
+        .line('module: "NodeNext",')
+        .line("strict: true,")
+        .dedent()
+        .line("},")
+        .line('include: ["src/**/*"],');
+    },
+    { exported: true },
+  )
   .toString();
 ```
 
 ### Create a Next.js API Route
 
 ```typescript
-import { ReactBuilder } from 'codets';
+import { ReactBuilder } from "codets";
 
 const route = new ReactBuilder()
-  .import('{ NextRequest, NextResponse }', 'next/server')
+  .import("{ NextRequest, NextResponse }", "next/server")
   .blank()
-  .fn('GET', 'req: NextRequest', b => {
-    b.line('const data = { message: "Hello from API" };')
-     .line('return NextResponse.json(data);');
-  }, { exported: true, async: true })
+  .fn(
+    "GET",
+    "req: NextRequest",
+    (b) => {
+      b.line('const data = { message: "Hello from API" };').line(
+        "return NextResponse.json(data);",
+      );
+    },
+    { exported: true, async: true },
+  )
   .toString();
 ```
 
 ### Generate a Test Suite
 
 ```typescript
-import { TypeScriptBuilder } from 'codets';
+import { TypeScriptBuilder } from "codets";
 
 const test = new TypeScriptBuilder()
-  .import('{ describe, it, expect }', 'vitest')
-  .import('{ greet }', './greet.js')
+  .import("{ describe, it, expect }", "vitest")
+  .import("{ greet }", "./greet.js")
   .blank()
   .line("describe('greet', () => {")
   .indent()
@@ -317,115 +352,119 @@ const test = new TypeScriptBuilder()
   .indent()
   .line("expect(greet('World')).toBe('Hello, World!');")
   .dedent()
-  .line('});')
+  .line("});")
   .dedent()
-  .line('});')
+  .line("});")
   .toString();
 ```
 
 ### Scaffold a Component Library
 
 ```typescript
-import { ProjectBuilder, ReactBuilder } from 'codets';
+import { ProjectBuilder, ReactBuilder } from "codets";
 
 const project = new ProjectBuilder(ReactBuilder);
 
-const components = ['Button', 'Input', 'Card'];
+const components = ["Button", "Input", "Card"];
 
-components.forEach(name => {
-  project.file(`src/components/${name}.tsx`, b => {
+components.forEach((name) => {
+  project.file(`src/components/${name}.tsx`, (b) => {
     b.useClient()
-     .import('React', 'react')
-     .blank()
-     .iface(`${name}Props`, props => {
-       props.line('children?: React.ReactNode;')
-            .line('className?: string;');
-     })
-     .blank()
-     .fn(name, `props: ${name}Props`, body => {
-       body.returnJsx(jsx => {
-         jsx.line(`<div className={props.className}>`);
-         jsx.indent().line('{props.children}').dedent();
-         jsx.line('</div>');
-       });
-     }, { exported: true });
+      .import("React", "react")
+      .blank()
+      .iface(`${name}Props`, (props) => {
+        props.line("children?: React.ReactNode;").line("className?: string;");
+      })
+      .blank()
+      .fn(
+        name,
+        `props: ${name}Props`,
+        (body) => {
+          body.returnJsx((jsx) => {
+            jsx.line(`<div className={props.className}>`);
+            jsx.indent().line("{props.children}").dedent();
+            jsx.line("</div>");
+          });
+        },
+        { exported: true },
+      );
   });
 });
 
-project.file('src/index.ts', b => {
-  components.forEach(name => {
+project.file("src/index.ts", (b) => {
+  components.forEach((name) => {
     b.line(`export { ${name} } from './components/${name}.js';`);
   });
 });
 
-await project.flush('./output');
+await project.flush("./output");
 ```
 
 ## API Reference
 
 ### CoreBuilder
 
-| Method | Description |
-|--------|-------------|
-| `line(text?)` | Emit indented line |
-| `blank()` | Blank line |
-| `lines(texts)` | Multiple lines |
-| `indent()` | Increase indent |
-| `dedent()` | Decrease indent |
+| Method                     | Description         |
+| -------------------------- | ------------------- |
+| `line(text?)`              | Emit indented line  |
+| `blank()`                  | Blank line          |
+| `lines(texts)`             | Multiple lines      |
+| `indent()`                 | Increase indent     |
+| `dedent()`                 | Decrease indent     |
 | `block(open, close, body)` | Auto-indented block |
-| `comment(text)` | `// comment` |
-| `docComment(lines)` | JSDoc block |
-| `snippet(code)` | Pre-formatted code |
-| `raw(text)` | Unindented text |
-| `toString()` | Final output |
+| `comment(text)`            | `// comment`        |
+| `docComment(lines)`        | JSDoc block         |
+| `snippet(code)`            | Pre-formatted code  |
+| `raw(text)`                | Unindented text     |
+| `toString()`               | Final output        |
 
 ### ModuleBuilder
 
 Extends `CoreBuilder`
 
-| Method | Description |
-|--------|-------------|
-| `import(what, from)` | Named import |
-| `importDefault(name, from)` | Default import |
-| `importStar(name, from)` | Namespace import |
-| `directive(text)` | Top-level directive |
-| `banner(text)` | File header comment |
+| Method                      | Description         |
+| --------------------------- | ------------------- |
+| `import(what, from)`        | Named import        |
+| `importDefault(name, from)` | Default import      |
+| `importStar(name, from)`    | Namespace import    |
+| `directive(text)`           | Top-level directive |
+| `banner(text)`              | File header comment |
 
 ### TypeScriptBuilder
 
 Extends `ModuleBuilder`
 
-| Method | Description |
-|--------|-------------|
-| `fn(name, params, body, opts?)` | Function declaration |
-| `arrow(name, params, body, opts?)` | Arrow function |
-| `iface(name, body, exported?)` | Interface |
-| `typeAlias(name, value, exported?)` | Type alias |
-| `enumDecl(name, body, exported?)` | Enum |
-| `constObject(name, body, opts?)` | Const object |
-| `constArray(name, body, opts?)` | Const array |
+| Method                              | Description          |
+| ----------------------------------- | -------------------- |
+| `fn(name, params, body, opts?)`     | Function declaration |
+| `arrow(name, params, body, opts?)`  | Arrow function       |
+| `iface(name, body, exported?)`      | Interface            |
+| `typeAlias(name, value, exported?)` | Type alias           |
+| `enumDecl(name, body, exported?)`   | Enum                 |
+| `constObject(name, body, opts?)`    | Const object         |
+| `constArray(name, body, opts?)`     | Const array          |
 
 ### ReactBuilder
 
 Extends `TypeScriptBuilder`
 
-| Method | Description |
-|--------|-------------|
-| `useClient()` | `'use client'` directive |
-| `useServer()` | `'use server'` directive |
-| `returnJsx(body)` | JSX return block |
+| Method            | Description              |
+| ----------------- | ------------------------ |
+| `useClient()`     | `'use client'` directive |
+| `useServer()`     | `'use server'` directive |
+| `returnJsx(body)` | JSX return block         |
 
 ## TypeScript Support
 
 Full TypeScript support with type inference:
 
 ```typescript
-import { TypeScriptBuilder } from 'codets';
+import { TypeScriptBuilder } from "codets";
 
 const builder = new TypeScriptBuilder();
-builder.fn('greet', 'name: string', b => {
+builder.fn("greet", "name: string", (b) => {
   // b is typed as TypeScriptBuilder
-  b.line('console.log(name);');
+  b.line("console.log(name);");
 });
 ```
 
@@ -450,15 +489,15 @@ builder.fn('greet', 'name: string', b => {
 
 ## Comparison
 
-| Feature | codets | Template Strings | AST Libraries |
-|---------|--------|------------------|---------------|
-| **Indentation** | Automatic | Manual | Automatic |
-| **Type Safety** | Full | None | Partial |
-| **Readability** | High | Medium | Low |
-| **Complexity** | Low | Low | High |
-| **Learning Curve** | Gentle | None | Steep |
-| **Dependencies** | 0 | 0 | Many |
-| **Extensibility** | High | Low | High |
+| Feature            | codets    | Template Strings | AST Libraries |
+| ------------------ | --------- | ---------------- | ------------- |
+| **Indentation**    | Automatic | Manual           | Automatic     |
+| **Type Safety**    | Full      | None             | Partial       |
+| **Readability**    | High      | Medium           | Low           |
+| **Complexity**     | Low       | Low              | High          |
+| **Learning Curve** | Gentle    | None             | Steep         |
+| **Dependencies**   | 0         | 0                | Many          |
+| **Extensibility**  | High      | Low              | High          |
 
 ## Contributing
 

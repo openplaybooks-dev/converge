@@ -19,17 +19,21 @@
  *   - Task state + stuck detection: handled by autonomousRun.
  */
 
-import { TaskTree } from '../tree/index.ts';
-import { UnitCheckpointManager } from '../checkpoint/unit-checkpoint.ts';
-import { findGaps } from '../unit/find-gaps.ts';
-import { collectBacklogGaps } from './backlog-bridge.ts';
-import { appendLedgerEntry, formatTrendTable, closeOrphanedRuns } from './gap-ledger.ts';
-import { evaluateGoals, planFromGoals } from './goal-planner.ts';
-import { totalScore, scoreByKind, sortByWeight, gapWeight } from './weights.ts';
-import { autonomousRun } from '../cli/autonomous-run.ts';
-import type { Gap } from '../gap/types.ts';
-import type { ConvergeConfig } from '../config/types.ts';
-import type { HookRegistry } from '../hooks/registry.ts';
+import { TaskTree } from "../tree/index.ts";
+import { UnitCheckpointManager } from "../checkpoint/unit-checkpoint.ts";
+import { findGaps } from "../unit/find-gaps.ts";
+import { collectBacklogGaps } from "./backlog-bridge.ts";
+import {
+  appendLedgerEntry,
+  formatTrendTable,
+  closeOrphanedRuns,
+} from "./gap-ledger.ts";
+import { evaluateGoals, planFromGoals } from "./goal-planner.ts";
+import { totalScore, scoreByKind, sortByWeight, gapWeight } from "./weights.ts";
+import { autonomousRun } from "../cli/autonomous-run.ts";
+import type { Gap } from "../gap/types.ts";
+import type { ConvergeConfig } from "../config/types.ts";
+import type { HookRegistry } from "../hooks/registry.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Config                                                             */
@@ -72,22 +76,22 @@ export interface ConvergeResult {
 /*  Main                                                               */
 /* ------------------------------------------------------------------ */
 
-export async function convergeRun(config: ConvergeRunConfig): Promise<ConvergeResult> {
-  const {
-    projectDir,
-    convergeConfig,
-    verbose,
-  } = config;
+export async function convergeRun(
+  config: ConvergeRunConfig,
+): Promise<ConvergeResult> {
+  const { projectDir, convergeConfig, verbose } = config;
 
   const maxWaves = config.maxIterations ?? 20;
   const maxGoals = config.maxGoals ?? 100;
 
-  console.log('🔄 Starting converge run (wave-based convergence mode)\n');
+  console.log("🔄 Starting converge run (wave-based convergence mode)\n");
 
   // ── 1. Close orphaned ledger entries from crashed runs ─────────
   const orphansClosed = closeOrphanedRuns(projectDir);
   if (orphansClosed > 0) {
-    console.log(`⚡ Closed ${orphansClosed} orphaned ledger entry(s) from crashed run(s)\n`);
+    console.log(
+      `⚡ Closed ${orphansClosed} orphaned ledger entry(s) from crashed run(s)\n`,
+    );
   }
 
   // ── 2. Initial gap snapshot ────────────────────────────────────
@@ -96,16 +100,20 @@ export async function convergeRun(config: ConvergeRunConfig): Promise<ConvergeRe
   const startScore = totalScore(initialGaps);
 
   const runId = `converge-${Date.now().toString(36)}`;
-  appendLedgerEntry(projectDir, runId, 'start', initialGaps);
+  appendLedgerEntry(projectDir, runId, "start", initialGaps);
 
-  console.log(`📊 Initial state: ${initialGaps.length} gaps, weighted score: ${startScore}`);
+  console.log(
+    `📊 Initial state: ${initialGaps.length} gaps, weighted score: ${startScore}`,
+  );
   if (verbose) {
     const byKind = scoreByKind(initialGaps);
-    for (const [kind, score] of Object.entries(byKind).sort((a, b) => b[1] - a[1])) {
+    for (const [kind, score] of Object.entries(byKind).sort(
+      (a, b) => b[1] - a[1],
+    )) {
       console.log(`   ${kind}: ${score}`);
     }
   }
-  console.log('');
+  console.log("");
 
   // ── 3. Wave loop ───────────────────────────────────────────────
   let wave = 0;
@@ -117,28 +125,41 @@ export async function convergeRun(config: ConvergeRunConfig): Promise<ConvergeRe
 
   while (wave < maxWaves) {
     wave++;
-    console.log(`═══ Wave ${wave}/${maxWaves} ═══════════════════════════════════════\n`);
+    console.log(
+      `═══ Wave ${wave}/${maxWaves} ═══════════════════════════════════════\n`,
+    );
 
     // RED: evaluate goals
     const evalResult = await evaluateGoals(projectDir);
 
     if (evalResult.results.length > 0) {
-      console.log(`🎯 Goals: ${evalResult.satisfied}/${evalResult.results.length} satisfied`);
+      console.log(
+        `🎯 Goals: ${evalResult.satisfied}/${evalResult.results.length} satisfied`,
+      );
       if (evalResult.totalGoals) {
-        console.log(`   ${evalResult.totalGoals} total goals (including sub-goals)`);
+        console.log(
+          `   ${evalResult.totalGoals} total goals (including sub-goals)`,
+        );
       }
       if (evalResult.blocked > 0) {
-        console.log(`   ${evalResult.blocked} blocked (waiting on dependencies)`);
+        console.log(
+          `   ${evalResult.blocked} blocked (waiting on dependencies)`,
+        );
       }
       if (evalResult.totalGoals && evalResult.totalGoals >= maxGoals) {
-        console.log(`⚠️  Goal budget reached: ${evalResult.totalGoals} goals >= maxGoals (${maxGoals}). No further goals will be spawned.`);
+        console.log(
+          `⚠️  Goal budget reached: ${evalResult.totalGoals} goals >= maxGoals (${maxGoals}). No further goals will be spawned.`,
+        );
       }
-      console.log('');
+      console.log("");
     }
 
     // Check: all goals satisfied?
-    if (evalResult.results.length > 0 && evalResult.satisfied === evalResult.results.length) {
-      console.log('✅ All goals satisfied — converged.\n');
+    if (
+      evalResult.results.length > 0 &&
+      evalResult.satisfied === evalResult.results.length
+    ) {
+      console.log("✅ All goals satisfied — converged.\n");
       converged = true;
       break;
     }
@@ -149,7 +170,9 @@ export async function convergeRun(config: ConvergeRunConfig): Promise<ConvergeRe
     // Plan-only mode: stop after RED + YELLOW (no task execution)
     if (config.planOnly) {
       if (planResult.tasksGenerated > 0) {
-        console.log(`📋 Plan-only mode: ${planResult.tasksGenerated} task(s) generated in epic ${planResult.epicId}. Skipping execution.\n`);
+        console.log(
+          `📋 Plan-only mode: ${planResult.tasksGenerated} task(s) generated in epic ${planResult.epicId}. Skipping execution.\n`,
+        );
       } else {
         console.log(`📋 Plan-only mode: no new tasks generated.\n`);
       }
@@ -188,12 +211,16 @@ export async function convergeRun(config: ConvergeRunConfig): Promise<ConvergeRe
     const postGaps = await collectAllGaps(postTree, projectDir);
     const postScore = totalScore(postGaps);
 
-    console.log(`\n📊 Wave ${wave} result: score ${lastScore} → ${postScore} (${postScore <= lastScore ? postScore < lastScore ? 'improving' : 'flat' : 'regressing'})\n`);
+    console.log(
+      `\n📊 Wave ${wave} result: score ${lastScore} → ${postScore} (${postScore <= lastScore ? (postScore < lastScore ? "improving" : "flat") : "regressing"})\n`,
+    );
 
     if (postScore >= lastScore) {
       consecutiveStalls++;
       if (consecutiveStalls >= 2) {
-        console.log('⛔ Stalled: 2 consecutive waves with no score improvement. Stopping.\n');
+        console.log(
+          "⛔ Stalled: 2 consecutive waves with no score improvement. Stopping.\n",
+        );
         break;
       }
     } else {
@@ -203,8 +230,8 @@ export async function convergeRun(config: ConvergeRunConfig): Promise<ConvergeRe
     lastScore = postScore;
 
     // If autonomousRun stopped due to timeout or consecutive failures, stop the converge loop too
-    if (runResult.stoppedReason === 'timeout') {
-      console.log('⛔ autonomousRun hit timeout. Stopping converge loop.\n');
+    if (runResult.stoppedReason === "timeout") {
+      console.log("⛔ autonomousRun hit timeout. Stopping converge loop.\n");
       break;
     }
   }
@@ -215,36 +242,38 @@ export async function convergeRun(config: ConvergeRunConfig): Promise<ConvergeRe
   const endScore = totalScore(finalGaps);
   const delta = endScore - startScore;
 
-  const endEntry = appendLedgerEntry(projectDir, runId, 'end', finalGaps);
+  const endEntry = appendLedgerEntry(projectDir, runId, "end", finalGaps);
 
   if (!converged) {
     converged = finalGaps.length === 0;
   }
 
-  console.log('═══════════════════════════════════════════════════════');
-  console.log('  CONVERGE SUMMARY');
-  console.log('═══════════════════════════════════════════════════════');
+  console.log("═══════════════════════════════════════════════════════");
+  console.log("  CONVERGE SUMMARY");
+  console.log("═══════════════════════════════════════════════════════");
   console.log(`  Waves:           ${wave}`);
   console.log(`  Tasks completed: ${totalTasksCompleted}`);
   console.log(`  Tasks failed:    ${totalTasksFailed}`);
-  console.log(`  Score:           ${startScore} → ${endScore} (${delta >= 0 ? '+' : ''}${delta})`);
+  console.log(
+    `  Score:           ${startScore} → ${endScore} (${delta >= 0 ? "+" : ""}${delta})`,
+  );
   console.log(`  Trend:           ${endEntry.trend}`);
-  console.log(`  Converged:       ${converged ? '✅ YES' : '❌ NO'}`);
-  console.log('');
+  console.log(`  Converged:       ${converged ? "✅ YES" : "❌ NO"}`);
+  console.log("");
 
   if (verbose || !converged) {
     const top = sortByWeight(finalGaps).slice(0, 5);
     if (top.length > 0) {
-      console.log('  Top remaining gaps:');
+      console.log("  Top remaining gaps:");
       for (const g of top) {
         console.log(`    [${gapWeight(g)}] ${g.description}`);
       }
-      console.log('');
+      console.log("");
     }
   }
 
   console.log(formatTrendTable(projectDir));
-  console.log('');
+  console.log("");
 
   return {
     converged,
@@ -266,17 +295,25 @@ export async function convergeRun(config: ConvergeRunConfig): Promise<ConvergeRe
  * Collect all gaps across ALL pending/partial tasks in the tree.
  * Includes backlog gaps when tasks declare backlogs.
  */
-async function collectAllGaps(tree: TaskTree, projectDir: string): Promise<Gap[]> {
+async function collectAllGaps(
+  tree: TaskTree,
+  projectDir: string,
+): Promise<Gap[]> {
   const allGaps: Gap[] = [];
   const nodes = tree.getAllNodes();
 
   for (const node of nodes) {
     if (!node.unit) continue;
 
-    const epicId = node.epicId || 'unknown';
-    const unitCkpt = new UnitCheckpointManager(projectDir, 'task', epicId, node.id);
+    const epicId = node.epicId || "unknown";
+    const unitCkpt = new UnitCheckpointManager(
+      projectDir,
+      "task",
+      epicId,
+      node.id,
+    );
     const ckpt = await unitCkpt.load();
-    if (ckpt?.status === 'complete' || ckpt?.status === 'seeded') continue;
+    if (ckpt?.status === "complete" || ckpt?.status === "seeded") continue;
 
     try {
       const gaps = await findGaps(node.unit);

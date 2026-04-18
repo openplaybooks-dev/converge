@@ -40,6 +40,7 @@ npm test -- --watch
 ### Unit Tests (`tests/unit/unit.test.ts`)
 
 **What's tested:**
+
 - ✅ Unit constructor with task definitions
 - ✅ Parent-child relationships
 - ✅ Getter properties (inputs, outputs, checks)
@@ -51,6 +52,7 @@ npm test -- --watch
 - ✅ Task file loading
 
 **Coverage:**
+
 - `Unit` class: ~90%
 - Gap detection: 100%
 - Child discovery: 100%
@@ -58,6 +60,7 @@ npm test -- --watch
 ### Integration Tests (`tests/integration/v2-convergence.test.ts`)
 
 **What's tested:**
+
 - ✅ Full convergence loop
 - ✅ Gap fixing with AI
 - ✅ Stall detection
@@ -66,6 +69,7 @@ npm test -- --watch
 - ✅ Yields pattern for dynamic subtask generation
 
 **Scenarios:**
+
 1. **Happy path**: All inputs/outputs exist → immediate convergence
 2. **Gap fixing**: Missing outputs → AI fixes → convergence
 3. **Stall detection**: Unfixable gaps → stall detected
@@ -76,6 +80,7 @@ npm test -- --watch
 ### Journal Tests (`tests/unit/journal/`)
 
 **What's tested:**
+
 - ✅ Journal API (event logging, reading)
 - ✅ Journal writer (gap snapshots, status updates)
 
@@ -86,18 +91,18 @@ npm test -- --watch
 ### Unit Test Template
 
 ```typescript
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { Unit } from '../../src/unit.ts';
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { Unit } from "../../src/unit.ts";
 
-describe('Feature Name', () => {
+describe("Feature Name", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('should do something', async () => {
+  it("should do something", async () => {
     // Arrange
     const taskDef = {
-      id: 'test',
+      id: "test",
       inputs: [],
       outputs: [],
       vars: {},
@@ -105,9 +110,9 @@ describe('Feature Name', () => {
 
     const unit = new Unit({
       parent: null,
-      path: '/test.ts',
+      path: "/test.ts",
       taskDef,
-      config: { maxIterations: 100, taskDef, path: '/test.ts' },
+      config: { maxIterations: 100, taskDef, path: "/test.ts" },
     });
 
     // Act
@@ -122,28 +127,28 @@ describe('Feature Name', () => {
 ### Integration Test Template
 
 ```typescript
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { Unit } from '../../src/unit.ts';
-import { existsSync } from 'node:fs';
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { Unit } from "../../src/unit.ts";
+import { existsSync } from "node:fs";
 
-vi.mock('node:fs', () => ({
+vi.mock("node:fs", () => ({
   existsSync: vi.fn(),
 }));
 
-describe('Integration Scenario', () => {
+describe("Integration Scenario", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('should handle complex scenario', async () => {
+  it("should handle complex scenario", async () => {
     // Mock filesystem state
     vi.mocked(existsSync).mockReturnValue(true);
 
     // Create units
-    const unit = await Unit.fromPath('/path/to/task.ts');
+    const unit = await Unit.fromPath("/path/to/task.ts");
 
     // Suppress console output
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
     // Run convergence
     const success = await unit.run();
@@ -180,7 +185,7 @@ vi.mocked(readdir).mockResolvedValue([...]);
 ### GapFixer Mock
 
 ```typescript
-vi.mock('../../src/executor/gap-fixer.ts', () => ({
+vi.mock("../../src/executor/gap-fixer.ts", () => ({
   GapFixer: vi.fn().mockImplementation(() => ({
     fixGap: vi.fn().mockResolvedValue(true),
   })),
@@ -190,7 +195,7 @@ vi.mock('../../src/executor/gap-fixer.ts', () => ({
 ### Console Output Suppression
 
 ```typescript
-const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 // ... run test ...
 consoleSpy.mockRestore();
 ```
@@ -201,10 +206,10 @@ consoleSpy.mockRestore();
 
 ```typescript
 const taskDef: TaskDefinition = {
-  id: 'test-task',
-  title: 'Test Task',
-  inputs: ['data/input.json'],
-  outputs: ['dist/output.json'],
+  id: "test-task",
+  title: "Test Task",
+  inputs: ["data/input.json"],
+  outputs: ["dist/output.json"],
   vars: {},
 };
 ```
@@ -213,15 +218,15 @@ const taskDef: TaskDefinition = {
 
 ```typescript
 const parentTaskDef: TaskDefinition = {
-  id: 'generate-screens',
-  title: 'Generate All Screens',
-  inputs: ['.stitch/SITE.md'],
-  outputs: ['.converge/epics/02-ux/003-screens/**/*.ts'],
+  id: "generate-screens",
+  title: "Generate All Screens",
+  inputs: [".stitch/SITE.md"],
+  outputs: [".converge/epics/02-ux/003-screens/**/*.ts"],
   vars: {
     yields: {
-      plan: 'Create one screen task per page',
-      outputDir: '.converge/epics/02-ux/003-screens',
-      template: '000-screen-{slug}.ts.tpl',
+      plan: "Create one screen task per page",
+      outputDir: ".converge/epics/02-ux/003-screens",
+      template: "000-screen-{slug}.ts.tpl",
       maxTasks: 20,
     },
   },
@@ -232,13 +237,13 @@ const parentTaskDef: TaskDefinition = {
 
 ```typescript
 const childTaskDef: TaskDefinition = {
-  id: 'screen-home',
-  title: 'Home Screen',
-  inputs: ['.stitch/DESIGN.md'],
-  outputs: ['src/pages/Home.tsx'],
+  id: "screen-home",
+  title: "Home Screen",
+  inputs: [".stitch/DESIGN.md"],
+  outputs: ["src/pages/Home.tsx"],
   vars: {
-    agent: 'ui-developer',
-    prompt: 'Generate Home.tsx component',
+    agent: "ui-developer",
+    prompt: "Generate Home.tsx component",
   },
 };
 ```
@@ -246,6 +251,7 @@ const childTaskDef: TaskDefinition = {
 ## CI/CD Integration
 
 Tests run automatically on:
+
 - ✅ Pre-commit (via git hooks)
 - ✅ Pull requests (via GitHub Actions)
 - ✅ Main branch commits
@@ -264,7 +270,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: "18"
       - run: npm ci
       - run: npm test
 ```
@@ -278,6 +284,7 @@ npm test -- --coverage
 ```
 
 **Coverage targets:**
+
 - Unit tests: >90%
 - Integration tests: >80%
 - Overall: >85%
@@ -314,6 +321,7 @@ Add to `.vscode/launch.json`:
 ## Legacy Tests (Removed)
 
 The following V1 test directories have been removed:
+
 - ❌ `tests/unit/context/` - V1 context hierarchy
 - ❌ `tests/unit/subtasks/` - V1 subtask processing
 - ❌ `tests/unit/gap/` - V1 gap detection
@@ -340,6 +348,7 @@ All V1 functionality is now covered by the simpler V2 tests.
 ## Questions?
 
 See the main documentation:
+
 - [V2 Architecture](../docs/V2_ARCHITECTURE.md)
 - [V2 Comparison](../docs/V2_COMPARISON.md)
 - [V2 Example Walkthrough](../docs/V2_EXAMPLE_WALKTHROUGH.md)

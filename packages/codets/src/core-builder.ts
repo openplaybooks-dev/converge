@@ -18,21 +18,21 @@ export class CoreBuilder {
   private depth = 0;
   private indentStr: string;
 
-  constructor(indent = '  ') {
+  constructor(indent = "  ") {
     this.indentStr = indent;
   }
 
   // ── Core emission ─────────────────────────────────────────────
 
   /** Emit a line at the current indentation depth. Empty string → blank line. */
-  line(text = ''): this {
-    this._lines.push(text === '' ? '' : this.prefix() + text);
+  line(text = ""): this {
+    this._lines.push(text === "" ? "" : this.prefix() + text);
     return this;
   }
 
   /** Emit a blank line (no indentation). */
   blank(): this {
-    this._lines.push('');
+    this._lines.push("");
     return this;
   }
 
@@ -49,11 +49,11 @@ export class CoreBuilder {
 
   /** Emit a JSDoc-style block comment. */
   docComment(lines: string[]): this {
-    this.line('/**');
+    this.line("/**");
     for (const l of lines) {
       this.line(` * ${l}`);
     }
-    this.line(' */');
+    this.line(" */");
     return this;
   }
 
@@ -65,7 +65,7 @@ export class CoreBuilder {
 
   /** Emit a multi-line raw block (splits on newlines). */
   rawBlock(text: string): this {
-    for (const line of text.split('\n')) {
+    for (const line of text.split("\n")) {
       this._lines.push(line);
     }
     return this;
@@ -78,16 +78,20 @@ export class CoreBuilder {
    * line to the builder's current depth. Blank lines are preserved as-is.
    */
   snippet(code: string): this {
-    const rawLines = code.split('\n');
+    const rawLines = code.split("\n");
 
-    while (rawLines.length > 0 && rawLines[0].trim() === '') rawLines.shift();
-    while (rawLines.length > 0 && rawLines[rawLines.length - 1].trim() === '') rawLines.pop();
+    while (rawLines.length > 0 && rawLines[0].trim() === "") rawLines.shift();
+    while (rawLines.length > 0 && rawLines[rawLines.length - 1].trim() === "")
+      rawLines.pop();
 
     if (rawLines.length === 0) return this;
 
     const minIndent = rawLines
-      .filter(l => l.trim().length > 0)
-      .reduce((min, l) => Math.min(min, l.match(/^\s*/)?.[0].length ?? 0), Infinity);
+      .filter((l) => l.trim().length > 0)
+      .reduce(
+        (min, l) => Math.min(min, l.match(/^\s*/)?.[0].length ?? 0),
+        Infinity,
+      );
 
     for (const line of rawLines) {
       if (line.trim().length === 0) {
@@ -106,7 +110,7 @@ export class CoreBuilder {
   section(name: string): this {
     const pad = Math.max(0, 55 - name.length);
     this.blank();
-    this.comment(`── ${name} ${'─'.repeat(pad)}`);
+    this.comment(`── ${name} ${"─".repeat(pad)}`);
     this.blank();
     return this;
   }
@@ -153,8 +157,8 @@ export class CoreBuilder {
 
   /** Build the final source string. */
   toString(): string {
-    const result = this._lines.join('\n');
-    return result.endsWith('\n') ? result : result + '\n';
+    const result = this._lines.join("\n");
+    return result.endsWith("\n") ? result : result + "\n";
   }
 
   // ── Internals ─────────────────────────────────────────────────

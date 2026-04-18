@@ -15,7 +15,7 @@ import type {
   HookRegistration,
   AnyHookFn,
   ConvergeHooks,
-} from './types.ts';
+} from "./types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Hook Registry                                                      */
@@ -43,7 +43,7 @@ export class HookRegistry {
   register<E extends HookEvent>(
     event: E,
     fn: HookFn<E>,
-    options: { priority?: number; source?: 'user' | 'plugin' } = {}
+    options: { priority?: number; source?: "user" | "plugin" } = {},
   ): void {
     if (!this.registrations.has(event)) {
       this.registrations.set(event, []);
@@ -53,7 +53,7 @@ export class HookRegistry {
       event,
       fn: fn as AnyHookFn,
       priority: options.priority ?? 100,
-      source: options.source ?? 'user',
+      source: options.source ?? "user",
     };
 
     const list = this.registrations.get(event)!;
@@ -66,7 +66,7 @@ export class HookRegistry {
    * Register all hooks from a `ConvergeHooks` map at once.
    * Used internally by the CLI when loading `converge.ts`.
    */
-  registerAll(hooks: ConvergeHooks, source: 'user' | 'plugin' = 'user'): void {
+  registerAll(hooks: ConvergeHooks, source: "user" | "plugin" = "user"): void {
     for (const [event, fn] of Object.entries(hooks) as [HookEvent, HookFn][]) {
       if (fn) {
         this.register(event, fn, { source });
@@ -87,7 +87,10 @@ export class HookRegistry {
    * @example
    * await registry.fire('task:complete', { ctx, result });
    */
-  async fire<E extends HookEvent>(event: E, payload: HookPayloads[E]): Promise<void> {
+  async fire<E extends HookEvent>(
+    event: E,
+    payload: HookPayloads[E],
+  ): Promise<void> {
     const list = this.registrations.get(event);
     if (!list || list.length === 0) return;
 
@@ -97,7 +100,9 @@ export class HookRegistry {
       } catch (err: any) {
         // Hook errors must not propagate — log and continue
         const msg = err?.message ?? String(err);
-        console.warn(`[HookRegistry] Hook error in '${event}' (source: ${reg.source}): ${msg}`);
+        console.warn(
+          `[HookRegistry] Hook error in '${event}' (source: ${reg.source}): ${msg}`,
+        );
       }
     }
   }
@@ -132,7 +137,7 @@ export class HookRegistry {
    */
   importFromPluginState(
     // Accept any string-keyed Map with function arrays for broad compatibility
-    pluginHooks: Map<string, Array<(...args: any[]) => void | Promise<void>>>
+    pluginHooks: Map<string, Array<(...args: any[]) => void | Promise<void>>>,
   ): void {
     for (const [event, fns] of pluginHooks) {
       for (const fn of fns) {
@@ -146,7 +151,7 @@ export class HookRegistry {
           event: event as HookEvent,
           fn: wrapped,
           priority: 200,
-          source: 'plugin',
+          source: "plugin",
         };
 
         if (!this.registrations.has(event as HookEvent)) {

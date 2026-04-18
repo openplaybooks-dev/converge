@@ -16,17 +16,17 @@
  *   ...
  */
 
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { readFileSync } from "fs";
+import { join } from "path";
 
 export async function run(ctx) {
-  const name = ctx.vars?.name || 'default';
+  const name = ctx.vars?.name || "default";
   const stateDir = `.converge/plan-state/${name}`;
-  const planPath = join(ctx.projectDir, stateDir, 'plan.json');
+  const planPath = join(ctx.projectDir, stateDir, "plan.json");
 
   let plan;
   try {
-    plan = JSON.parse(readFileSync(planPath, 'utf-8'));
+    plan = JSON.parse(readFileSync(planPath, "utf-8"));
   } catch (err) {
     throw new Error(`Cannot read plan: ${planPath} — ${err.message}`);
   }
@@ -44,7 +44,7 @@ export async function run(ctx) {
 
   for (let i = 0; i < toDeepen.length; i++) {
     const item = toDeepen[i];
-    const padded = String(i + 1).padStart(3, '0');
+    const padded = String(i + 1).padStart(3, "0");
     const taskId = `003-d-${padded}-${item.epicId}-${item.taskId}`;
     const outputPath = `${stateDir}/deepened/${item.epicId}-${item.taskId}.json`;
 
@@ -54,10 +54,18 @@ export async function run(ctx) {
       dependencies: prevId ? [prevId] : [],
       inputs: [`${stateDir}/plan.json`],
       outputs: [outputPath],
-      skills: ['converge-planning'],
+      skills: ["converge-planning"],
       checks: [
-        { id: `deep-${padded}-exists`, cmd: `test -f ${outputPath}`, description: `Deepened plan for ${item.taskId} created` },
-        { id: `deep-${padded}-valid`, cmd: `node -e "JSON.parse(require('fs').readFileSync('${outputPath}','utf-8'))"`, description: 'Valid JSON' },
+        {
+          id: `deep-${padded}-exists`,
+          cmd: `test -f ${outputPath}`,
+          description: `Deepened plan for ${item.taskId} created`,
+        },
+        {
+          id: `deep-${padded}-valid`,
+          cmd: `node -e "JSON.parse(require('fs').readFileSync('${outputPath}','utf-8'))"`,
+          description: "Valid JSON",
+        },
       ],
       body: `Sub-decompose an oversized task into smaller subtasks.
 

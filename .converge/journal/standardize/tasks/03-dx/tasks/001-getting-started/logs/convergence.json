@@ -1,0 +1,253 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-dx/001-getting-started-missing-output-docs/getting-started.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-dx/001-getting-started",
+            "severity": "high",
+            "description": "[03-dx/001-getting-started] Task output not created: docs/getting-started.md",
+            "source": "unit",
+            "detected": "2026-04-17T23:46:45.168Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/standardize/tasks/03-dx/tasks/001-getting-started",
+              "taskId": "03-dx/001-getting-started",
+              "taskTitle": "Create Getting Started Guide",
+              "taskPrompt": "Create a comprehensive getting-started guide for new Converge users.\n\n**Target audience**: Developer who has never used Converge, wants to\ncreate and run their first playbook in under 10 minutes.\n\n**Structure**:\n\n1. **Prerequisites** — Node.js 18+, npm/pnpm, basic terminal knowledge\n2. **Installation** — `npm install -g @converge/core` (or local install)\n3. **Your First Playbook** — step-by-step:\n   - Create `.converge/playbooks/hello/playbook.yml`\n   - Create a simple task with checks\n   - Run `converge run --playbook=hello`\n   - Observe the convergence loop\n4. **Understanding the Output** — what the logs mean, how to read task status\n5. **Adding a Second Task** — dependencies, sequential execution\n6. **Adding a Goal** — define \"done\" with a GOAL.md\n7. **Adding Checks** — deterministic verification\n8. **Next Steps** — links to examples, core README, WBS guide\n\n**Reference**: Read existing examples in `packages/core/examples/` for\naccurate CLI commands and file formats.\n\n**Voice**: Tutorial style — \"you will\" not \"one should\". Direct, practical.",
+              "factId": "file-exists:test -f \"docs/getting-started.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-dx/001-getting-started-check-failed-guide-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-dx/001-getting-started",
+            "severity": "high",
+            "description": "[03-dx/001-getting-started] Check failed: Getting started guide exists",
+            "source": "unit",
+            "detected": "2026-04-17T23:46:45.170Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "guide-exists",
+              "checkCmd": "test -f docs/getting-started.md",
+              "checkDescription": "Getting started guide exists",
+              "checkOutput": "Command failed: test -f docs/getting-started.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Create a comprehensive getting-started guide for new Converge users.\n\n**Target audience**: Developer who has never used Converge, wants to\ncreate and run their first playbook in under 10 minutes.\n\n**Structure**:\n\n1. **Prerequisites** — Node.js 18+, npm/pnpm, basic terminal knowledge\n2. **Installation** — `npm install -g @converge/core` (or local install)\n3. **Your First Playbook** — step-by-step:\n   - Create `.converge/playbooks/hello/playbook.yml`\n   - Create a simple task with checks\n   - Run `converge run --playbook=hello`\n   - Observe the convergence loop\n4. **Understanding the Output** — what the logs mean, how to read task status\n5. **Adding a Second Task** — dependencies, sequential execution\n6. **Adding a Goal** — define \"done\" with a GOAL.md\n7. **Adding Checks** — deterministic verification\n8. **Next Steps** — links to examples, core README, WBS guide\n\n**Reference**: Read existing examples in `packages/core/examples/` for\naccurate CLI commands and file formats.\n\n**Voice**: Tutorial style — \"you will\" not \"one should\". Direct, practical.",
+              "taskId": "03-dx/001-getting-started",
+              "taskTitle": "Create Getting Started Guide",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/standardize/tasks/03-dx/tasks/001-getting-started",
+              "factId": "check:guide-exists"
+            }
+          }
+        ],
+        "durationMs": 11
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "resolve-blockers",
+      "handler": "resolve-blockers",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 80,
+        "applicable": "hasBlockerAndIsFirst"
+      }
+    },
+    {
+      "id": "bail-blockers",
+      "handler": "bail-blockers",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 79,
+        "applicable": "hasBlockerAndNotFirst"
+      }
+    },
+    {
+      "id": "strategy-user-question-resume",
+      "handler": "strategy-user-question-resume",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 60,
+        "applicable": "hasUserQ"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65,
+        "applicable": "isFirst"
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55,
+        "applicable": "hasRepairableGap"
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 10
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 23
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#21",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 135016
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-17T23:46:45.165Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-17T23:46:45.165Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-17T23:46:45.176Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-17T23:46:45.178Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-17T23:46:45.188Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#21",
+      "iteration": 1,
+      "ts": "2026-04-17T23:49:00.205Z"
+    },
+    {
+      "from": "run-strategy:task-run#21",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-17T23:49:00.228Z"
+    }
+  ]
+}

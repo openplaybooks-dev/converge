@@ -1,0 +1,19 @@
+name: default
+description: Sequential data pipeline with task dependencies
+
+run:
+  mode: autonomous
+  maxTaskAttempts: 3
+
+tasks:
+  - id: fetch-data
+  - id: transform
+    depends_on:
+      - fetch-data
+  - id: validate
+    depends_on:
+      - transform
+
+checks:
+  - id: pipeline-complete
+    cmd: test -f data/validated.json

@@ -1,4 +1,13 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync, unlinkSync, readdirSync, statSync, rmdirSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+  unlinkSync,
+  readdirSync,
+  statSync,
+  rmdirSync,
+} from "node:fs";
 import { join } from "node:path";
 import { homedir } from "node:os";
 
@@ -222,9 +231,19 @@ export class GlobalQueue {
   /**
    * Get the current queue status (for monitoring/debugging).
    */
-  status(): { activeSlots: number; recentRequests: number; maxConcurrent: number; maxPerMinute: number } {
+  status(): {
+    activeSlots: number;
+    recentRequests: number;
+    maxConcurrent: number;
+    maxPerMinute: number;
+  } {
     if (!acquireFileLock(this.lockPath, 2_000)) {
-      return { activeSlots: -1, recentRequests: -1, maxConcurrent: this.maxConcurrent, maxPerMinute: this.maxPerMinute };
+      return {
+        activeSlots: -1,
+        recentRequests: -1,
+        maxConcurrent: this.maxConcurrent,
+        maxPerMinute: this.maxPerMinute,
+      };
     }
 
     try {
@@ -245,7 +264,10 @@ export class GlobalQueue {
 
   // ─── Private ────────────────────────────────────────────────
 
-  private tryAcquire(slotId: string): { acquired: boolean; retryAfterMs?: number } {
+  private tryAcquire(slotId: string): {
+    acquired: boolean;
+    retryAfterMs?: number;
+  } {
     if (!acquireFileLock(this.lockPath, 5_000)) {
       return { acquired: false, retryAfterMs: 100 };
     }

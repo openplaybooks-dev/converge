@@ -17,18 +17,18 @@
  * - Named `*.plan.ts`            → plan
  */
 
-import { pathToFileURL } from 'node:url';
-import { readFileSync, existsSync } from 'node:fs';
-import { glob } from 'glob';
-import path from 'node:path';
-import { HookRegistry } from '../hooks/registry.ts';
-import type { DiscoveryConfig } from '../config/types.ts';
+import { pathToFileURL } from "node:url";
+import { readFileSync, existsSync } from "node:fs";
+import { glob } from "glob";
+import path from "node:path";
+import { HookRegistry } from "../hooks/registry.ts";
+import type { DiscoveryConfig } from "../config/types.ts";
 import type {
   DiscoveredFile,
   DiscoveryResult,
   DiscoveredFileType,
-} from './types.ts';
-import { SkillDependencyGraph, type SkillNode } from './skill-graph.ts';
+} from "./types.ts";
+import { SkillDependencyGraph, type SkillNode } from "./skill-graph.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Default Patterns                                                   */
@@ -39,22 +39,18 @@ const DEFAULT_TASK_PATTERNS: string[] = [];
 const DEFAULT_EPIC_PATTERNS: string[] = [];
 
 const DEFAULT_CHECK_PATTERNS = [
-  '.converge/checks/**/*.ts',
-  '.converge/checks/**/*.check.ts',
+  ".converge/checks/**/*.ts",
+  ".converge/checks/**/*.check.ts",
 ];
 
 const DEFAULT_PLAN_PATTERNS = [
-  '.converge/plans/**/*.ts',
-  '.converge/plans/**/*.plan.ts',
+  ".converge/plans/**/*.ts",
+  ".converge/plans/**/*.plan.ts",
 ];
 
-const DEFAULT_SKILL_PATTERNS = [
-  '.converge/skills/**/SKILL.md',
-];
+const DEFAULT_SKILL_PATTERNS = [".converge/skills/**/SKILL.md"];
 
-const DEFAULT_AGENT_PATTERNS = [
-  '.converge/agents/**/*.md',
-];
+const DEFAULT_AGENT_PATTERNS = [".converge/agents/**/*.md"];
 
 /* ------------------------------------------------------------------ */
 /*  Scanner                                                            */
@@ -68,7 +64,7 @@ export class DiscoveryScanner {
   constructor(
     config: DiscoveryConfig,
     projectDir: string,
-    hooks?: HookRegistry
+    hooks?: HookRegistry,
   ) {
     this.config = config;
     this.projectDir = projectDir;
@@ -93,24 +89,26 @@ export class DiscoveryScanner {
       patterns: string[];
       type: DiscoveredFileType;
     }> = [
-      { patterns: this.config.tasks ?? DEFAULT_TASK_PATTERNS, type: 'task' },
-      { patterns: this.config.epics ?? DEFAULT_EPIC_PATTERNS, type: 'epic' },
-      { patterns: this.config.checks ?? DEFAULT_CHECK_PATTERNS, type: 'check' },
-      { patterns: this.config.plans ?? DEFAULT_PLAN_PATTERNS, type: 'plan' },
-      { patterns: this.config.skills ?? DEFAULT_SKILL_PATTERNS, type: 'skill' },
-      { patterns: this.config.agents ?? DEFAULT_AGENT_PATTERNS, type: 'agent' },
+      { patterns: this.config.tasks ?? DEFAULT_TASK_PATTERNS, type: "task" },
+      { patterns: this.config.epics ?? DEFAULT_EPIC_PATTERNS, type: "epic" },
+      { patterns: this.config.checks ?? DEFAULT_CHECK_PATTERNS, type: "check" },
+      { patterns: this.config.plans ?? DEFAULT_PLAN_PATTERNS, type: "plan" },
+      { patterns: this.config.skills ?? DEFAULT_SKILL_PATTERNS, type: "skill" },
+      { patterns: this.config.agents ?? DEFAULT_AGENT_PATTERNS, type: "agent" },
     ];
 
     for (const { patterns, type } of patternGroups) {
       // Filter out undefined/null patterns
-      const validPatterns = patterns.filter(p => p != null && typeof p === 'string');
+      const validPatterns = patterns.filter(
+        (p) => p != null && typeof p === "string",
+      );
       allPatterns.push(...validPatterns);
 
       for (const pattern of validPatterns) {
         const files = await glob(pattern, {
           cwd: this.projectDir,
           absolute: true,
-          ignore: ['**/node_modules/**', '**/*.d.ts', '**/*.js'],
+          ignore: ["**/node_modules/**", "**/*.d.ts", "**/*.js"],
         });
 
         for (const filePath of files) {
@@ -129,7 +127,7 @@ export class DiscoveryScanner {
 
     // Build skill dependency graph
     let skillGraph: SkillDependencyGraph | undefined;
-    const skillFiles = allFiles.filter(f => f.type === 'skill');
+    const skillFiles = allFiles.filter((f) => f.type === "skill");
     if (skillFiles.length > 0) {
       skillGraph = this.buildSkillGraph(skillFiles);
     }
@@ -150,7 +148,7 @@ export class DiscoveryScanner {
         byType.get(f.type)!.push(f.filePath);
       }
       for (const [type, files] of byType) {
-        await this.hooks.fire('discovery:found', { files, type });
+        await this.hooks.fire("discovery:found", { files, type });
       }
     }
 
@@ -162,7 +160,7 @@ export class DiscoveryScanner {
    */
   async scanFile(
     filePath: string,
-    hintType?: DiscoveredFileType
+    hintType?: DiscoveredFileType,
   ): Promise<DiscoveredFile | null> {
     const type = hintType ?? inferTypeFromPath(filePath);
     if (!type) return null;
@@ -177,16 +175,20 @@ export class DiscoveryScanner {
 
   private async loadFile(
     filePath: string,
-    hintType: DiscoveredFileType
+    hintType: DiscoveredFileType,
   ): Promise<
-    | { ok: true; file: DiscoveredFile }
-    | { ok: false; error: string }
+    { ok: true; file: DiscoveredFile } | { ok: false; error: string }
   > {
     try {
       // Handle markdown files (skills, agents, TASK.md, and any .md file).
       // These are loaded via readFileSync — never via dynamic import().
-      if (hintType === 'skill' || hintType === 'agent' || filePath.endsWith('.md') || filePath.endsWith('.MD')) {
-        const content = readFileSync(filePath, 'utf-8');
+      if (
+        hintType === "skill" ||
+        hintType === "agent" ||
+        filePath.endsWith(".md") ||
+        filePath.endsWith(".MD")
+      ) {
+        const content = readFileSync(filePath, "utf-8");
         const metadata = this.parseFrontmatter(content);
 
         return {
@@ -203,7 +205,7 @@ export class DiscoveryScanner {
       // Handle TypeScript files
       const fileUrl = pathToFileURL(filePath);
       // Cache-busting ensures watch mode re-imports get fresh content
-      fileUrl.searchParams.set('t', String(Date.now()));
+      fileUrl.searchParams.set("t", String(Date.now()));
 
       const mod = await import(fileUrl.href);
       const exports: Record<string, unknown> = { ...mod };
@@ -236,7 +238,7 @@ export class DiscoveryScanner {
     const metadata: Record<string, any> = {};
 
     // Simple YAML parser for our needs
-    const lines = yamlContent.split('\n');
+    const lines = yamlContent.split("\n");
     let currentKey: string | null = null;
     let currentArray: any[] = [];
 
@@ -245,7 +247,7 @@ export class DiscoveryScanner {
       if (!trimmed) continue;
 
       // Array item
-      if (trimmed.startsWith('- ')) {
+      if (trimmed.startsWith("- ")) {
         if (currentKey) {
           const value = trimmed.substring(2).trim();
           currentArray.push(value);
@@ -254,7 +256,7 @@ export class DiscoveryScanner {
       }
 
       // Key-value pair
-      const colonIndex = trimmed.indexOf(':');
+      const colonIndex = trimmed.indexOf(":");
       if (colonIndex > 0) {
         // Save previous array if exists
         if (currentKey && currentArray.length > 0) {
@@ -264,12 +266,13 @@ export class DiscoveryScanner {
         currentKey = trimmed.substring(0, colonIndex).trim();
         const value = trimmed.substring(colonIndex + 1).trim();
 
-        if (value.startsWith('[') && value.endsWith(']')) {
+        if (value.startsWith("[") && value.endsWith("]")) {
           // Inline array: [item1, item2]
-          const items = value.substring(1, value.length - 1)
-            .split(',')
-            .map(s => s.trim())
-            .filter(s => s.length > 0);
+          const items = value
+            .substring(1, value.length - 1)
+            .split(",")
+            .map((s) => s.trim())
+            .filter((s) => s.length > 0);
           metadata[currentKey] = items;
           currentKey = null;
           currentArray = [];
@@ -299,14 +302,14 @@ export class DiscoveryScanner {
    */
   private async scanMarkdownTasks(
     allFiles: DiscoveredFile[],
-    allErrors: Array<{ file: string; error: string }>
+    allErrors: Array<{ file: string; error: string }>,
   ): Promise<void> {
     // Find all TASK.md files in epic folders and playbook task folders
     const mdPatterns = [
-      '.converge/epics/**/*/TASK.md',            // Direct task folders
-      '.converge/epics/**/*/tasks/**/TASK.md',   // Subtasks in tasks/ folder
+      ".converge/epics/**/*/TASK.md", // Direct task folders
+      ".converge/epics/**/*/tasks/**/TASK.md", // Subtasks in tasks/ folder
       // Playbook API: tasks live under playbooks/{name}/tasks/
-      '.converge/playbooks/*/tasks/**/TASK.md',
+      ".converge/playbooks/*/tasks/**/TASK.md",
     ];
 
     const mdFiles: string[] = [];
@@ -315,13 +318,13 @@ export class DiscoveryScanner {
         cwd: this.projectDir,
         absolute: true,
         ignore: [
-          '**/node_modules/**',
-          '**/templates/**',
-          '**/wbs/**',          // WBS template trees (mirror real task structure)
-          '**/subtask/**',      // WBS subtask templates (contain {{placeholders}})
-          '**/examples/**',     // Exclude materials directories
-          '**/scripts/**',      // Exclude materials directories
-          '**/materials/**',    // Exclude materials directories
+          "**/node_modules/**",
+          "**/templates/**",
+          "**/wbs/**", // WBS template trees (mirror real task structure)
+          "**/subtask/**", // WBS subtask templates (contain {{placeholders}})
+          "**/examples/**", // Exclude materials directories
+          "**/scripts/**", // Exclude materials directories
+          "**/materials/**", // Exclude materials directories
         ],
       });
       mdFiles.push(...matches);
@@ -331,14 +334,14 @@ export class DiscoveryScanner {
       const folder = path.dirname(mdPath);
 
       // Check if already loaded
-      const alreadyLoaded = allFiles.some(f => f.filePath === mdPath);
+      const alreadyLoaded = allFiles.some((f) => f.filePath === mdPath);
       if (alreadyLoaded) {
         continue;
       }
 
       try {
         // Read markdown and parse frontmatter
-        const content = readFileSync(mdPath, 'utf-8');
+        const content = readFileSync(mdPath, "utf-8");
         const frontmatter = this.parseFrontmatter(content);
 
         // Skip unresolved templates — files whose PATH or frontmatter ID still
@@ -346,7 +349,8 @@ export class DiscoveryScanner {
         // runnable tasks. We deliberately do NOT check the markdown body:
         // legitimate task docs can mention the placeholder syntax in prose
         // (e.g., describing how a WBS renders children) without being templates.
-        const idField = typeof frontmatter.id === 'string' ? frontmatter.id : '';
+        const idField =
+          typeof frontmatter.id === "string" ? frontmatter.id : "";
         const hasPlaceholder = /\{\{[^}]+\}\}/;
         if (hasPlaceholder.test(mdPath) || hasPlaceholder.test(idField)) {
           continue;
@@ -355,14 +359,18 @@ export class DiscoveryScanner {
         // Create default TaskConfig from frontmatter
         const taskId = path.basename(folder);
         const title = frontmatter.title || taskId;
-        const inputs = Array.isArray(frontmatter.inputs) ? frontmatter.inputs : [];
-        const outputs = Array.isArray(frontmatter.outputs) ? frontmatter.outputs : [];
+        const inputs = Array.isArray(frontmatter.inputs)
+          ? frontmatter.inputs
+          : [];
+        const outputs = Array.isArray(frontmatter.outputs)
+          ? frontmatter.outputs
+          : [];
         const checks = Array.isArray(frontmatter.checks)
           ? frontmatter.checks
           : outputs.map((o: string) => `check-${o}`);
 
         // Create a DiscoveredFile with TaskConfig as exports
-        const fileType = inferTypeFromPath(mdPath) ?? 'task';
+        const fileType = inferTypeFromPath(mdPath) ?? "task";
         allFiles.push({
           filePath: mdPath,
           type: fileType,
@@ -373,7 +381,7 @@ export class DiscoveryScanner {
               inputs,
               outputs,
               checks,
-              type: 'task-md',
+              type: "task-md",
               metadata: {
                 filePath: mdPath,
                 isTaskMd: true,
@@ -399,9 +407,9 @@ export class DiscoveryScanner {
 
     for (const file of skillFiles) {
       const metadata = file.exports as Record<string, any>;
-      const name = metadata.name || '';
-      const dependencies = Array.isArray(metadata['dependencies'])
-        ? metadata['dependencies']
+      const name = metadata.name || "";
+      const dependencies = Array.isArray(metadata["dependencies"])
+        ? metadata["dependencies"]
         : [];
 
       if (name) {
@@ -427,22 +435,22 @@ export class DiscoveryScanner {
  */
 function inferType(
   filePath: string,
-  exports: Record<string, unknown>
+  exports: Record<string, unknown>,
 ): DiscoveredFileType | null {
   // 1. Filename convention takes priority
   const byName = inferTypeFromPath(filePath);
   if (byName) return byName;
 
   // 2. Export shape heuristics on the default export
-  const def = exports['default'];
-  if (!def || typeof def !== 'object') return null;
+  const def = exports["default"];
+  if (!def || typeof def !== "object") return null;
 
   const d = def as Record<string, unknown>;
 
-  if (typeof d['run'] === 'function' && !d['goals']) return 'task';
-  if (Array.isArray(d['goals'])) return 'epic';
-  if (Array.isArray(d['handles'])) return 'plan';
-  if (typeof d['run'] === 'function' && d['check']) return 'check';
+  if (typeof d["run"] === "function" && !d["goals"]) return "task";
+  if (Array.isArray(d["goals"])) return "epic";
+  if (Array.isArray(d["handles"])) return "plan";
+  if (typeof d["run"] === "function" && d["check"]) return "check";
 
   return null;
 }
@@ -452,9 +460,9 @@ function inferType(
  * `*.check.ts`, `*.plan.ts`, `/TASK.md`
  */
 function inferTypeFromPath(filePath: string): DiscoveredFileType | null {
-  if (filePath.endsWith('.check.ts')) return 'check';
-  if (filePath.endsWith('.plan.ts')) return 'plan';
-  if (filePath.endsWith('/TASK.md')) return 'task';
+  if (filePath.endsWith(".check.ts")) return "check";
+  if (filePath.endsWith(".plan.ts")) return "plan";
+  if (filePath.endsWith("/TASK.md")) return "task";
   return null;
 }
 
@@ -469,7 +477,7 @@ function inferTypeFromPath(filePath: string): DiscoveredFileType | null {
 export function createDiscoveryScanner(
   config: DiscoveryConfig,
   projectDir: string,
-  hooks?: HookRegistry
+  hooks?: HookRegistry,
 ): DiscoveryScanner {
   return new DiscoveryScanner(config, projectDir, hooks);
 }

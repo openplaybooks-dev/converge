@@ -58,9 +58,7 @@ export interface QwenFnResult<T = string> {
 }
 
 /** A callable function created by qwenfn() */
-export type QwenFn<T = string> = (
-  input?: string,
-) => Promise<QwenFnResult<T>>;
+export type QwenFn<T = string> = (input?: string) => Promise<QwenFnResult<T>>;
 
 // ─── Composition Types ─────────────────────────────────────
 

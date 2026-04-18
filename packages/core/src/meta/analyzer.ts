@@ -20,10 +20,10 @@
  * framework improvements instead of ad-hoc strategy additions.
  */
 
-import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { getJournalStructure, getEpicsDir } from '../journal/structure.ts';
+import { readFile, writeFile, mkdir, readdir } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { getJournalStructure, getEpicsDir } from "../journal/structure.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -40,7 +40,7 @@ export interface TaskJournalEntry {
   /** Number of attempts made */
   attempts: number;
   /** Final outcome: completed, failed, stalled */
-  outcome: 'completed' | 'failed' | 'stalled' | 'unknown';
+  outcome: "completed" | "failed" | "stalled" | "unknown";
   /** Strategies that were tried (from attempts.jsonl) */
   strategiesUsed: Array<{
     name: string;
@@ -65,13 +65,16 @@ export interface MetaAnalysisStats {
   /** Tasks that failed */
   failedTasks: number;
   /** Per-strategy success rates */
-  strategyStats: Record<string, {
-    attempted: number;
-    succeeded: number;
-    failed: number;
-    avgDurationMs: number;
-    successRate: number;
-  }>;
+  strategyStats: Record<
+    string,
+    {
+      attempted: number;
+      succeeded: number;
+      failed: number;
+      avgDurationMs: number;
+      successRate: number;
+    }
+  >;
   /** Most common gap kinds */
   gapKindCounts: Record<string, number>;
   /** Most common failure reasons */
@@ -101,9 +104,9 @@ export interface ImprovementProposal {
     /** Which file(s) to modify */
     affectedFiles: string[];
     /** Expected improvement */
-    expectedImpact: 'high' | 'medium' | 'low';
+    expectedImpact: "high" | "medium" | "low";
     /** Implementation difficulty */
-    effort: 'low' | 'medium' | 'high';
+    effort: "low" | "medium" | "high";
   }>;
   /** Raw statistics for reference */
   stats: MetaAnalysisStats;
@@ -125,7 +128,7 @@ export interface MetaAnalyzerConfig {
 const DEFAULT_CONFIG: MetaAnalyzerConfig = {
   taskInterval: 10,
   maxTasksToAnalyze: 20,
-  proposalsDir: '.converge/meta/proposals',
+  proposalsDir: ".converge/meta/proposals",
 };
 
 /* ------------------------------------------------------------------ */
@@ -147,7 +150,10 @@ export class MetaAnalyzer {
    * Notify the analyzer that a task completed.
    * Runs analysis if the task interval threshold is reached.
    */
-  async onTaskCompleted(taskId: string, outcome: 'completed' | 'failed'): Promise<void> {
+  async onTaskCompleted(
+    taskId: string,
+    outcome: "completed" | "failed",
+  ): Promise<void> {
     this.tasksSinceLastAnalysis++;
 
     if (this.tasksSinceLastAnalysis >= this.config.taskInterval) {
@@ -170,7 +176,9 @@ export class MetaAnalyzer {
     // 1. Scan task journals
     const entries = await this.scanTaskJournals();
     if (entries.length < 3) {
-      console.log(`   ℹ️  Not enough tasks to analyze (${entries.length} found, need 3+)`);
+      console.log(
+        `   ℹ️  Not enough tasks to analyze (${entries.length} found, need 3+)`,
+      );
       return null;
     }
 
@@ -183,7 +191,9 @@ export class MetaAnalyzer {
     // 4. Write proposal to disk
     await this.writeProposal(proposal);
 
-    console.log(`   ✅ Meta-analysis complete: ${proposal.proposals.length} proposal(s) written`);
+    console.log(
+      `   ✅ Meta-analysis complete: ${proposal.proposals.length} proposal(s) written`,
+    );
     console.log(`   📂 ${join(this.projectDir, this.config.proposalsDir)}`);
 
     return proposal;
@@ -201,7 +211,7 @@ export class MetaAnalyzer {
       const epicDirs = await readdir(journalBase);
 
       for (const epicId of epicDirs) {
-        const tasksDir = join(journalBase, epicId, 'tasks');
+        const tasksDir = join(journalBase, epicId, "tasks");
         if (!existsSync(tasksDir)) continue;
 
         const taskDirs = await readdir(tasksDir);
@@ -218,18 +228,21 @@ export class MetaAnalyzer {
     return entries.slice(-this.config.maxTasksToAnalyze);
   }
 
-  private async readTaskJournal(epicId: string, taskId: string): Promise<TaskJournalEntry | null> {
+  private async readTaskJournal(
+    epicId: string,
+    taskId: string,
+  ): Promise<TaskJournalEntry | null> {
     const structure = getJournalStructure(this.projectDir, epicId, taskId);
     if (!structure.task || !existsSync(structure.task)) return null;
 
-    const attemptsPath = join(structure.task, 'attempts.jsonl');
-    const historyPath = join(structure.task, 'history.json');
+    const attemptsPath = join(structure.task, "attempts.jsonl");
+    const historyPath = join(structure.task, "history.json");
 
     const entry: TaskJournalEntry = {
       taskId: `${epicId}/${taskId}`,
       epicId,
       attempts: 0,
-      outcome: 'unknown',
+      outcome: "unknown",
       strategiesUsed: [],
       failedChecks: [],
       gapKinds: [],
@@ -238,10 +251,17 @@ export class MetaAnalyzer {
     // Read attempts.jsonl
     if (existsSync(attemptsPath)) {
       try {
-        const raw = await readFile(attemptsPath, 'utf-8');
-        const records = raw.split('\n')
-          .filter(l => l.trim())
-          .map(l => { try { return JSON.parse(l); } catch { return null; } })
+        const raw = await readFile(attemptsPath, "utf-8");
+        const records = raw
+          .split("\n")
+          .filter((l) => l.trim())
+          .map((l) => {
+            try {
+              return JSON.parse(l);
+            } catch {
+              return null;
+            }
+          })
           .filter(Boolean);
 
         entry.attempts = records.length;
@@ -250,36 +270,45 @@ export class MetaAnalyzer {
           entry.strategiesUsed.push({
             name: r.strategyName,
             success: r.outcome?.success ?? false,
-            reason: r.outcome?.reason ?? '',
+            reason: r.outcome?.reason ?? "",
             durationMs: r.durationMs ?? 0,
           });
 
           // Extract gap kinds from gap IDs
           if (r.gapId) {
-            const kindMatch = r.gapId.match(/-(?:missing-output|check-failed|missing-input|corrupted|plan|wbs)-/);
-            if (kindMatch) entry.gapKinds.push(kindMatch[0].replace(/-/g, '').trim());
+            const kindMatch = r.gapId.match(
+              /-(?:missing-output|check-failed|missing-input|corrupted|plan|wbs)-/,
+            );
+            if (kindMatch)
+              entry.gapKinds.push(kindMatch[0].replace(/-/g, "").trim());
           }
         }
-      } catch { /* skip unreadable files */ }
+      } catch {
+        /* skip unreadable files */
+      }
     }
 
     // Read history.json for final outcome
     if (existsSync(historyPath)) {
       try {
-        const history = JSON.parse(await readFile(historyPath, 'utf-8'));
-        entry.outcome = history.successfulApproach ? 'completed' : 'failed';
-      } catch { /* skip */ }
+        const history = JSON.parse(await readFile(historyPath, "utf-8"));
+        entry.outcome = history.successfulApproach ? "completed" : "failed";
+      } catch {
+        /* skip */
+      }
     }
 
     // Determine outcome from checkpoint if history doesn't have it
-    if (entry.outcome === 'unknown') {
-      const checkpointPath = join(structure.task, 'checkpoint.json');
+    if (entry.outcome === "unknown") {
+      const checkpointPath = join(structure.task, "checkpoint.json");
       if (existsSync(checkpointPath)) {
         try {
-          const cp = JSON.parse(await readFile(checkpointPath, 'utf-8'));
-          if (cp.status === 'complete') entry.outcome = 'completed';
-          else if (cp.status === 'failed') entry.outcome = 'failed';
-        } catch { /* skip */ }
+          const cp = JSON.parse(await readFile(checkpointPath, "utf-8"));
+          if (cp.status === "complete") entry.outcome = "completed";
+          else if (cp.status === "failed") entry.outcome = "failed";
+        } catch {
+          /* skip */
+        }
       }
     }
 
@@ -289,7 +318,7 @@ export class MetaAnalyzer {
   /* ── Statistics aggregation ──────────────────────────────────────── */
 
   private aggregateStats(entries: TaskJournalEntry[]): MetaAnalysisStats {
-    const strategyStats: MetaAnalysisStats['strategyStats'] = {};
+    const strategyStats: MetaAnalysisStats["strategyStats"] = {};
     const gapKindCounts: Record<string, number> = {};
     const failureReasons: Record<string, number> = {};
 
@@ -306,7 +335,13 @@ export class MetaAnalyzer {
       // Aggregate strategy stats
       for (const s of entry.strategiesUsed) {
         if (!strategyStats[s.name]) {
-          strategyStats[s.name] = { attempted: 0, succeeded: 0, failed: 0, avgDurationMs: 0, successRate: 0 };
+          strategyStats[s.name] = {
+            attempted: 0,
+            succeeded: 0,
+            failed: 0,
+            avgDurationMs: 0,
+            successRate: 0,
+          };
         }
         const stats = strategyStats[s.name];
         stats.attempted++;
@@ -317,7 +352,9 @@ export class MetaAnalyzer {
           const reason = s.reason.slice(0, 100);
           failureReasons[reason] = (failureReasons[reason] || 0) + 1;
         }
-        stats.avgDurationMs = ((stats.avgDurationMs * (stats.attempted - 1)) + s.durationMs) / stats.attempted;
+        stats.avgDurationMs =
+          (stats.avgDurationMs * (stats.attempted - 1) + s.durationMs) /
+          stats.attempted;
       }
 
       // Aggregate gap kinds
@@ -328,7 +365,8 @@ export class MetaAnalyzer {
 
     // Calculate success rates
     for (const stats of Object.values(strategyStats)) {
-      stats.successRate = stats.attempted > 0 ? stats.succeeded / stats.attempted : 0;
+      stats.successRate =
+        stats.attempted > 0 ? stats.succeeded / stats.attempted : 0;
     }
 
     // Sort failure reasons by count
@@ -339,8 +377,8 @@ export class MetaAnalyzer {
 
     return {
       totalTasks: entries.length,
-      completedTasks: entries.filter(e => e.outcome === 'completed').length,
-      failedTasks: entries.filter(e => e.outcome === 'failed').length,
+      completedTasks: entries.filter((e) => e.outcome === "completed").length,
+      failedTasks: entries.filter((e) => e.outcome === "failed").length,
       strategyStats,
       gapKindCounts,
       topFailureReasons,
@@ -351,20 +389,31 @@ export class MetaAnalyzer {
 
   /* ── Proposal generation ─────────────────────────────────────────── */
 
-  private generateProposals(stats: MetaAnalysisStats, entries: TaskJournalEntry[]): ImprovementProposal {
-    const proposals: ImprovementProposal['proposals'] = [];
+  private generateProposals(
+    stats: MetaAnalysisStats,
+    entries: TaskJournalEntry[],
+  ): ImprovementProposal {
+    const proposals: ImprovementProposal["proposals"] = [];
 
     // Rule 1: Strategies with <20% success rate that have been tried 5+ times
     for (const [name, s] of Object.entries(stats.strategyStats)) {
       if (s.attempted >= 5 && s.successRate < 0.2) {
         proposals.push({
           title: `Deprioritize or fix "${name}" strategy`,
-          rationale: `Strategy "${name}" has a ${(s.successRate * 100).toFixed(0)}% success rate across ${s.attempted} attempts. ` +
+          rationale:
+            `Strategy "${name}" has a ${(s.successRate * 100).toFixed(0)}% success rate across ${s.attempted} attempts. ` +
             `It wastes ~${Math.round(s.avgDurationMs / 1000)}s per attempt. ` +
             `Consider lowering its priority or adding canHandle() guards to skip cases it can't fix.`,
-          affectedFiles: ['repair/strategy-catalog.ts', `repair/strategies/${name.replace(/Strategy$/, '').replace(/([A-Z])/g, '-$1').toLowerCase().replace(/^-/, '')}.ts`],
-          expectedImpact: 'high',
-          effort: 'low',
+          affectedFiles: [
+            "repair/strategy-catalog.ts",
+            `repair/strategies/${name
+              .replace(/Strategy$/, "")
+              .replace(/([A-Z])/g, "-$1")
+              .toLowerCase()
+              .replace(/^-/, "")}.ts`,
+          ],
+          expectedImpact: "high",
+          effort: "low",
         });
       }
     }
@@ -372,15 +421,16 @@ export class MetaAnalyzer {
     // Rule 2: Tasks with 3+ attempts suggest the convergence loop isn't learning
     if (stats.highAttemptTasks.length > entries.length * 0.3) {
       proposals.push({
-        title: 'Improve cross-attempt learning',
-        rationale: `${stats.highAttemptTasks.length} of ${stats.totalTasks} tasks required 3+ attempts. ` +
+        title: "Improve cross-attempt learning",
+        rationale:
+          `${stats.highAttemptTasks.length} of ${stats.totalTasks} tasks required 3+ attempts. ` +
           `The LEARN.md feedback may not be specific enough. Consider: ` +
           `(1) Include failing command output in LEARN.md, ` +
           `(2) Pass previous attempt diff to next attempt, ` +
           `(3) Use history.json to guide strategy selection.`,
-        affectedFiles: ['lifecycle/learn.ts', 'repair/pipeline.ts'],
-        expectedImpact: 'high',
-        effort: 'medium',
+        affectedFiles: ["lifecycle/learn.ts", "repair/pipeline.ts"],
+        expectedImpact: "high",
+        effort: "medium",
       });
     }
 
@@ -389,40 +439,47 @@ export class MetaAnalyzer {
       if (count >= 3) {
         proposals.push({
           title: `Add strategy for repeated failure: "${reason.slice(0, 60)}"`,
-          rationale: `The failure "${reason}" occurred ${count} times across different tasks. ` +
+          rationale:
+            `The failure "${reason}" occurred ${count} times across different tasks. ` +
             `No existing strategy handles this pattern. Consider adding a targeted FixStrategy.`,
-          affectedFiles: ['repair/strategies/'],
-          expectedImpact: 'medium',
-          effort: 'medium',
+          affectedFiles: ["repair/strategies/"],
+          expectedImpact: "medium",
+          effort: "medium",
         });
       }
     }
 
     // Rule 4: If a strategy is never tried but should be, suggest better canHandle()
-    const unusedStrategies = Object.entries(stats.strategyStats)
-      .filter(([, s]) => s.attempted === 0);
+    const unusedStrategies = Object.entries(stats.strategyStats).filter(
+      ([, s]) => s.attempted === 0,
+    );
     if (unusedStrategies.length > 0 && stats.failedTasks > 0) {
       proposals.push({
-        title: `Review canHandle() for unused strategies: ${unusedStrategies.map(([n]) => n).join(', ')}`,
-        rationale: `These strategies were never tried despite ${stats.failedTasks} failed tasks. ` +
+        title: `Review canHandle() for unused strategies: ${unusedStrategies.map(([n]) => n).join(", ")}`,
+        rationale:
+          `These strategies were never tried despite ${stats.failedTasks} failed tasks. ` +
           `Their canHandle() may be too restrictive, or they're not registered in the pipeline.`,
-        affectedFiles: unusedStrategies.map(([n]) => `repair/strategies/${n}.ts`),
-        expectedImpact: 'medium',
-        effort: 'low',
+        affectedFiles: unusedStrategies.map(
+          ([n]) => `repair/strategies/${n}.ts`,
+        ),
+        expectedImpact: "medium",
+        effort: "low",
       });
     }
 
     // Rule 5: High overall failure rate suggests framework-level issues
-    const overallSuccessRate = stats.totalTasks > 0 ? stats.completedTasks / stats.totalTasks : 0;
+    const overallSuccessRate =
+      stats.totalTasks > 0 ? stats.completedTasks / stats.totalTasks : 0;
     if (overallSuccessRate < 0.5 && stats.totalTasks >= 5) {
       proposals.push({
-        title: 'Review task definitions for systemic issues',
-        rationale: `Only ${(overallSuccessRate * 100).toFixed(0)}% of tasks completed (${stats.completedTasks}/${stats.totalTasks}). ` +
+        title: "Review task definitions for systemic issues",
+        rationale:
+          `Only ${(overallSuccessRate * 100).toFixed(0)}% of tasks completed (${stats.completedTasks}/${stats.totalTasks}). ` +
           `This suggests task definitions may have systemic problems: ` +
           `missing inputs, unreachable outputs, or checks that can't pass in the environment.`,
-        affectedFiles: ['config/task-definition.ts', 'unit/find-gaps.ts'],
-        expectedImpact: 'high',
-        effort: 'high',
+        affectedFiles: ["config/task-definition.ts", "unit/find-gaps.ts"],
+        expectedImpact: "high",
+        effort: "high",
       });
     }
 
@@ -438,14 +495,14 @@ export class MetaAnalyzer {
 
     if (bestStrategy) {
       summaryParts.push(
-        `Best strategy: ${bestStrategy[0]} (${(bestStrategy[1].successRate * 100).toFixed(0)}% success rate).`
+        `Best strategy: ${bestStrategy[0]} (${(bestStrategy[1].successRate * 100).toFixed(0)}% success rate).`,
       );
     }
 
     return {
       generatedAt: new Date().toISOString(),
       tasksAnalyzed: stats.totalTasks,
-      summary: summaryParts.join(' '),
+      summary: summaryParts.join(" "),
       proposals,
       stats,
     };
@@ -457,7 +514,10 @@ export class MetaAnalyzer {
     const proposalsDir = join(this.projectDir, this.config.proposalsDir);
     await mkdir(proposalsDir, { recursive: true });
 
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    const timestamp = new Date()
+      .toISOString()
+      .replace(/[:.]/g, "-")
+      .slice(0, 19);
     const mdPath = join(proposalsDir, `${timestamp}-proposal.md`);
     const jsonPath = join(proposalsDir, `${timestamp}-proposal.json`);
 
@@ -495,22 +555,31 @@ export class MetaAnalyzer {
           ``,
           p.rationale,
           ``,
-          `**Files**: ${p.affectedFiles.join(', ')}`,
+          `**Files**: ${p.affectedFiles.join(", ")}`,
           ``,
         );
       }
     } else {
-      lines.push(`## No Proposals`, ``, `All strategies are performing well. No improvements needed.`, ``);
+      lines.push(
+        `## No Proposals`,
+        ``,
+        `All strategies are performing well. No improvements needed.`,
+        ``,
+      );
     }
 
     // Strategy performance table
     lines.push(`## Strategy Performance`, ``);
-    lines.push(`| Strategy | Attempted | Succeeded | Failed | Success Rate | Avg Duration |`);
-    lines.push(`|----------|-----------|-----------|--------|--------------|--------------|`);
+    lines.push(
+      `| Strategy | Attempted | Succeeded | Failed | Success Rate | Avg Duration |`,
+    );
+    lines.push(
+      `|----------|-----------|-----------|--------|--------------|--------------|`,
+    );
 
     for (const [name, s] of Object.entries(proposal.stats.strategyStats)) {
       lines.push(
-        `| ${name} | ${s.attempted} | ${s.succeeded} | ${s.failed} | ${(s.successRate * 100).toFixed(0)}% | ${Math.round(s.avgDurationMs / 1000)}s |`
+        `| ${name} | ${s.attempted} | ${s.succeeded} | ${s.failed} | ${(s.successRate * 100).toFixed(0)}% | ${Math.round(s.avgDurationMs / 1000)}s |`,
       );
     }
     lines.push(``);
@@ -533,6 +602,6 @@ export class MetaAnalyzer {
       lines.push(``);
     }
 
-    return lines.join('\n');
+    return lines.join("\n");
   }
 }

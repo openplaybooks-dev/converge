@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "01-brand/005-cli-rename",
+  "status": "pending",
+  "lastUpdated": "2026-04-18T05:02:39.566Z",
+  "createdAt": "2026-04-17T23:34:17.483Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-17T23:34:17.483Z",
+      "completedAt": "2026-04-17T23:35:46.384Z",
+      "outcome": "success",
+      "durationMs": 88901
+    }
+  ],
+  "currentAttempt": 1
+}

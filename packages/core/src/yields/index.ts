@@ -9,19 +9,13 @@
  * - Cross-epic spawning
  */
 
-export * from './processor.ts';
-export * from './spawner.ts';
-export * from './types.ts';
+export * from "./processor.ts";
+export * from "./spawner.ts";
+export * from "./types.ts";
 
-export {
-  createYieldsProcessor,
-  YieldsProcessor,
-} from './processor.ts';
+export { createYieldsProcessor, YieldsProcessor } from "./processor.ts";
 
-export {
-  createYieldsSpawner,
-  YieldsSpawner,
-} from './spawner.ts';
+export { createYieldsSpawner, YieldsSpawner } from "./spawner.ts";
 
 export type {
   YieldsContext,
@@ -31,4 +25,4 @@ export type {
   YieldsConfig,
   YieldsDeclarative,
   YieldsStatic,
-} from './types.ts';
+} from "./types.ts";

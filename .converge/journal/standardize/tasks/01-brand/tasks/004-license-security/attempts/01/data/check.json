@@ -1,0 +1,10 @@
+{
+  "taskId": "01-brand/004-license-security",
+  "checks": [
+    {
+      "id": "no-harness-in-legal",
+      "description": "No harness references in legal files",
+      "cmd": "test -z \"$(grep -i 'harness' SECURITY.md LICENSE 2>/dev/null | grep -v '.converge/')\""
+    }
+  ]
+}

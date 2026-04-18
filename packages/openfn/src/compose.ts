@@ -10,9 +10,7 @@ import { resolvePrompt, extractJson } from "./utils.js";
 import { openfn } from "./openfn.js";
 
 /** Resolve the queue option to a GlobalQueue instance or null */
-function resolveQueue(
-  option: ComposeOptions["queue"],
-): GlobalQueue | null {
+function resolveQueue(option: ComposeOptions["queue"]): GlobalQueue | null {
   if (!option) return null;
   if (option === true) return getDefaultQueue();
   if (option instanceof GlobalQueue) return option;
@@ -90,7 +88,7 @@ export function buildCodePreamble(
   if (entries.length === 0) {
     return [
       "Write a Node.js async function body that accomplishes the user's request.",
-      'Use `return` to produce your final result. Wrap your code in a ```js code fence.',
+      "Use `return` to produce your final result. Wrap your code in a ```js code fence.",
     ].join("\n");
   }
 
@@ -123,11 +121,10 @@ export async function executeCode(
   const toolNames = Object.keys(tools);
   const toolFns = Object.values(tools);
 
-  const AsyncFunction = Object.getPrototypeOf(
-    async function () {},
-  ).constructor as new (...args: string[]) => (
-    ...args: unknown[]
-  ) => Promise<unknown>;
+  const AsyncFunction = Object.getPrototypeOf(async function () {})
+    .constructor as new (
+    ...args: string[]
+  ) => (...args: unknown[]) => Promise<unknown>;
 
   const fn = new AsyncFunction(...toolNames, code);
   return fn(...toolFns);
@@ -173,9 +170,7 @@ export function compose<T = string>(
       attempt++;
       try {
         const executor =
-          composeMode === "code"
-            ? executeComposeCode
-            : executeComposeToolCall;
+          composeMode === "code" ? executeComposeCode : executeComposeToolCall;
         return await executor(
           promptTemplate,
           input,
@@ -294,9 +289,9 @@ async function executeComposeCode<T>(
           typeof result === "string" ? JSON.parse(result) : result;
         data = schema.parse(toValidate);
       } else {
-        data = (
-          typeof result === "string" ? result : JSON.stringify(result)
-        ) as unknown as T;
+        data = (typeof result === "string"
+          ? result
+          : JSON.stringify(result)) as unknown as T;
       }
 
       if (hooks?.after) {

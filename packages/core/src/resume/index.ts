@@ -7,6 +7,6 @@
 export {
   ResumabilityManager,
   createResumabilityManager,
-} from './resumability.ts';
+} from "./resumability.ts";
 
-export type { ResumePoint } from './resumability.ts';
+export type { ResumePoint } from "./resumability.ts";

@@ -9,27 +9,32 @@ The Agent Manager is a framework-internal component that provides automatic trac
 ## Features
 
 ### Dual-Index Tracking
+
 - **PID-based access**: System-level operations (kill, liveness check)
 - **SessionId-based access**: Logical operations (resume session, track retries)
 
 ### Process Lifecycle Management
+
 - Automatic registration via `onProcessSpawned` hook
 - Exit event tracking (exit code, signal)
 - Graceful and forced cleanup (SIGTERM → SIGKILL)
 
 ### Health Monitoring
+
 - Activity-based hang detection (5-minute idle threshold)
 - Orphan detection (parent process died)
 - Leak detection (accumulated stuck processes)
 - Periodic health checks (30-second intervals)
 
 ### Converge Integration
+
 - Track converge metadata: `taskId`, `epicId`, `phase`, `strategyType`
 - Query processes by task/epic/phase
 - Task/epic-aware cleanup
 - Journal event logging
 
 ### Diagnostics
+
 - Exit code decoding (including Windows STATUS codes)
 - Process state classification (healthy, idle, hung, crashed, leaked)
 - Diagnostic reports with recommendations
@@ -52,7 +57,7 @@ Converge automatically registers processes via the `onProcessSpawned` hook:
 
 ```typescript
 // In agent-runner.ts
-import { AgentManager } from '../agent-manager/index.js';
+import { AgentManager } from "../agent-manager/index.js";
 
 const agentManager = AgentManager.getInstance();
 
@@ -66,10 +71,10 @@ const executor = agentfn({
       logPath,
       convergeMetadata: {
         projectDir,
-        epicId: 'epic-1',
-        taskId: 'task-1',
-        phase: 'execution',
-        strategyType: 'task-run',
+        epicId: "epic-1",
+        taskId: "task-1",
+        phase: "execution",
+        strategyType: "task-run",
       },
     });
   },
@@ -85,7 +90,7 @@ const manager = AgentManager.getInstance();
 const process = manager.getProcess(12345);
 
 // Get by sessionId
-const process = manager.getProcessBySession('session-abc');
+const process = manager.getProcessBySession("session-abc");
 
 // Get all processes
 const allProcesses = manager.getAllProcesses();
@@ -97,16 +102,16 @@ const hungProcesses = manager.getHungProcesses();
 const leakedProcesses = manager.getLeakedProcesses();
 
 // Get by task
-const taskProcesses = manager.getProcessesByTask('task-1');
+const taskProcesses = manager.getProcessesByTask("task-1");
 
 // Get by epic
-const epicProcesses = manager.getProcessesByEpic('epic-1');
+const epicProcesses = manager.getProcessesByEpic("epic-1");
 ```
 
 ### Cleanup Operations
 
 ```typescript
-import { AgentCleanup } from '../agent-manager/index.js';
+import { AgentCleanup } from "../agent-manager/index.js";
 
 // Graceful shutdown (SIGTERM → wait → SIGKILL)
 await AgentCleanup.shutdownAll();
@@ -118,10 +123,10 @@ const orphanCount = await AgentCleanup.cleanupOrphans();
 const hungCount = await AgentCleanup.cleanupHungProcesses();
 
 // Clean up by task
-await AgentCleanup.cleanupTask('task-1');
+await AgentCleanup.cleanupTask("task-1");
 
 // Clean up by session
-await AgentCleanup.cleanupSession('session-abc');
+await AgentCleanup.cleanupSession("session-abc");
 
 // Full cleanup (orphans + hung + dead)
 const stats = await AgentCleanup.fullCleanup();
@@ -130,7 +135,7 @@ const stats = await AgentCleanup.fullCleanup();
 ### Diagnostics
 
 ```typescript
-import { AgentDiagnostics } from '../agent-manager/index.js';
+import { AgentDiagnostics } from "../agent-manager/index.js";
 
 // Generate diagnostic report for a process
 const report = await AgentDiagnostics.generateReport(12345);
@@ -162,7 +167,7 @@ console.log(metrics.byStrategy);
 console.log(metrics.successRate);
 
 // Get task-specific metrics
-const taskMetrics = manager.getMetricsByTask('task-1');
+const taskMetrics = manager.getMetricsByTask("task-1");
 ```
 
 ## Cleanup Handlers
@@ -171,12 +176,13 @@ Cleanup handlers are automatically registered at Converge startup:
 
 ```typescript
 // In cli/main.ts
-import { registerCleanupHandlers } from '../agent-manager/index.js';
+import { registerCleanupHandlers } from "../agent-manager/index.js";
 
 registerCleanupHandlers();
 ```
 
 This registers handlers for:
+
 - `SIGINT` (Ctrl+C): Graceful shutdown with 5-second timeout
 - `SIGTERM`: Graceful shutdown with 5-second timeout
 - `beforeExit`: Cleanup orphans before Node exits
@@ -218,6 +224,7 @@ Process state is persisted to `~/.converge/agent-registry.json`:
 ## Health Monitoring
 
 The health monitor runs every 30 seconds and:
+
 1. Checks for hung processes (idle > 5 minutes)
 2. Checks for dead processes (PID no longer exists)
 3. Updates process status
@@ -229,6 +236,7 @@ The health monitor runs every 30 seconds and:
 The Agent Manager decodes exit codes to provide actionable diagnostics:
 
 ### Standard Unix Exit Codes
+
 - `0`: SUCCESS
 - `1`: GENERAL_ERROR (retryable)
 - `2`: MISUSE (not retryable)
@@ -239,6 +247,7 @@ The Agent Manager decodes exit codes to provide actionable diagnostics:
 - `143`: SIGTERM
 
 ### Windows STATUS Codes
+
 - `0xC0000005`: ACCESS_VIOLATION (segfault)
 - `0xC00000FD`: STACK_OVERFLOW
 - `0xC0000374`: HEAP_CORRUPTION
@@ -248,12 +257,14 @@ The Agent Manager decodes exit codes to provide actionable diagnostics:
 ## Testing
 
 Run tests:
+
 ```bash
 cd packages/core
 pnpm test src/agent-manager
 ```
 
 Unit tests cover:
+
 - Process registration and tracking
 - Dual-index lookups (PID and sessionId)
 - Hang detection

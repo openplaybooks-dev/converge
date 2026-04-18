@@ -3,6 +3,7 @@
 ## Overview
 
 I've designed a **file-first event logging system** where:
+
 1. ✅ **All events written to `.jsonl` files FIRST**
 2. ✅ **Console output reads FROM files** (not writes to console directly)
 3. ✅ **Files are source of truth** (console is just a view)
@@ -22,6 +23,7 @@ Event Source → EventWriter → events.jsonl → ConsoleFormatter → Console D
 **Purpose**: ONLY component that writes events to journal
 
 **Key Features**:
+
 - Writes to `events.jsonl` in JSONL format (one JSON per line)
 - Buffered writes (flushes every 100ms or 10 events)
 - Comprehensive event types (task lifecycle, tools, files, validation, AI, gaps)
@@ -29,26 +31,28 @@ Event Source → EventWriter → events.jsonl → ConsoleFormatter → Console D
 - Convenience methods for common events
 
 **Example**:
+
 ```typescript
 const writer = new TaskEventWriter(eventsFile);
 
 // Write events (immediately flushed to file)
 writer.taskStart({
-  taskId: '003-001-design-home-lesson-tree',
-  taskName: 'Generate Design: Home Lesson Tree',
+  taskId: "003-001-design-home-lesson-tree",
+  taskName: "Generate Design: Home Lesson Tree",
   attempt: 1,
-  inputs: ['.stitch/prompts/home-lesson-tree.md'],
-  outputs: ['.stitch/designs/home-lesson-tree.html'],
+  inputs: [".stitch/prompts/home-lesson-tree.md"],
+  outputs: [".stitch/designs/home-lesson-tree.html"],
 });
 
-writer.toolUseComplete('Read', true, { size: 4234, lines: 150 });
-writer.fileCreated('.stitch/designs/home-lesson-tree.html', 43234, 847, true);
-writer.taskComplete('003-001...', 171234, ['home-lesson-tree.html']);
+writer.toolUseComplete("Read", true, { size: 4234, lines: 150 });
+writer.fileCreated(".stitch/designs/home-lesson-tree.html", 43234, 847, true);
+writer.taskComplete("003-001...", 171234, ["home-lesson-tree.html"]);
 
 writer.close(); // Flush and close
 ```
 
 **events.jsonl output**:
+
 ```jsonl
 {"timestamp":"2026-04-04T15:27:13.576Z","type":"task_start","level":"critical","taskId":"003-001-design-home-lesson-tree",...}
 {"timestamp":"2026-04-04T15:27:14.876Z","type":"tool_use_complete","level":"info","toolName":"Read","success":true,...}
@@ -61,6 +65,7 @@ writer.close(); // Flush and close
 **Purpose**: Reads `events.jsonl` and displays formatted output
 
 **Key Features**:
+
 - Tails events file in real-time (watches for changes)
 - Formats events for human consumption
 - Configurable (min level, colors, icons, timestamps)
@@ -68,11 +73,12 @@ writer.close(); // Flush and close
 - Never writes to event file (read-only)
 
 **Example**:
+
 ```typescript
 const formatter = new ConsoleFormatter(eventsFile, {
-  minLevel: 'info',     // Hide debug events
-  useColor: true,       // Enable colors
-  useIcons: true,       // Enable emoji icons
+  minLevel: "info", // Hide debug events
+  useColor: true, // Enable colors
+  useIcons: true, // Enable emoji icons
 });
 
 await formatter.start(); // Starts tailing
@@ -109,6 +115,7 @@ The new event system **extends** the existing journal system:
 ```
 
 **Migration Strategy**:
+
 1. Add `events.jsonl` alongside existing logs
 2. Keep old logs during transition
 3. Eventually deprecate legacy logging
@@ -116,39 +123,46 @@ The new event system **extends** the existing journal system:
 ## Event Types
 
 ### Lifecycle Events
+
 - `TASK_START`, `TASK_COMPLETE`, `TASK_FAILED`, `RETRY_START`
 
 ### Tool Usage Events
+
 - `TOOL_USE_START`, `TOOL_USE_COMPLETE`, `TOOL_USE_ERROR`
 
 ### File Operations
+
 - `FILE_CREATED`, `FILE_MODIFIED`, `FILE_DELETED`, `FILE_VERIFIED`
 
 ### Validation Events
+
 - `VALIDATION_START`, `VALIDATION_RESULT`, `CHECK_PASSED`, `CHECK_FAILED`
 
 ### AI Events
+
 - `AI_REASONING`, `AI_PLANNING`, `AI_THINKING`, `AI_ERROR`
 
 ### Gap Resolution Events
+
 - `GAP_DETECTED`, `GAP_RESOLVED`, `STRATEGY_APPLIED`, `STRATEGY_FAILED`
 
 ### Internal Events (debug only)
+
 - `INTERNAL_STATE`, `STREAM_CHUNK`
 
 ## Benefits Over Current Time-Based Logging
 
-| Current (Timer) | New (Event-Driven) |
-|----------------|-------------------|
-| ⏰ Logs every 60s | 📊 Logs on important events |
-| 📋 Shows JSON dumps | 💬 Human-readable summaries |
-| ❓ "Last activity 1m ago" | ✅ "Created file.html (42 KB)" |
-| 🔁 Repeats same info | 🎯 Only new information |
-| 📊 50+ lines/minute | 📊 ~4 lines per event |
-| ❌ Misses events between ticks | ✅ Captures everything |
-| ⏱️ User waits 60s | ⏱️ Instant feedback |
-| 🚫 Lost if crashed | ✅ Persisted to file |
-| ❌ No replay | ✅ Can replay from file |
+| Current (Timer)                | New (Event-Driven)             |
+| ------------------------------ | ------------------------------ |
+| ⏰ Logs every 60s              | 📊 Logs on important events    |
+| 📋 Shows JSON dumps            | 💬 Human-readable summaries    |
+| ❓ "Last activity 1m ago"      | ✅ "Created file.html (42 KB)" |
+| 🔁 Repeats same info           | 🎯 Only new information        |
+| 📊 50+ lines/minute            | 📊 ~4 lines per event          |
+| ❌ Misses events between ticks | ✅ Captures everything         |
+| ⏱️ User waits 60s              | ⏱️ Instant feedback            |
+| 🚫 Lost if crashed             | ✅ Persisted to file           |
+| ❌ No replay                   | ✅ Can replay from file        |
 
 ## Example: Full Task Execution
 
@@ -197,7 +211,7 @@ The new event system **extends** the existing journal system:
 ```typescript
 // Replay previous run from events file
 const formatter = new ConsoleFormatter(
-  '.converge/journal/epics/02-prepare-designs/tasks/003-001.../attempts/01/events.jsonl'
+  ".converge/journal/epics/02-prepare-designs/tasks/003-001.../attempts/01/events.jsonl",
 );
 await formatter.start(); // Reads all events and displays
 ```
@@ -234,7 +248,7 @@ const console = new ConsoleFormatter(eventsFile);
 await console.start();
 
 // Debug logger (verbose)
-const debug = new ConsoleFormatter(eventsFile, { minLevel: 'debug' });
+const debug = new ConsoleFormatter(eventsFile, { minLevel: "debug" });
 await debug.start();
 
 // Web dashboard (future)
@@ -245,27 +259,32 @@ web.streamToClients();
 ## Next Steps
 
 ### Phase 1: Add Event Writer to Task Runner ✅
+
 - [x] Create `TaskEventWriter` class
 - [x] Create `ConsoleFormatter` class
 - [x] Define event types and schemas
 
 ### Phase 2: Integrate with Existing Code
+
 - [ ] Add event writer to `task-runner.ts`
 - [ ] Hook into AI agent callbacks
 - [ ] Log tool uses, reasoning, file operations
 - [ ] Log validation results
 
 ### Phase 3: Replace Timer-Based Logging
+
 - [ ] Remove `⏳ 1m 0s` timer ticks
 - [ ] Remove JSON dump logging
 - [ ] Keep only event-driven output
 
 ### Phase 4: Extend to Retry Logic
+
 - [ ] Log retry context with diagnosis
 - [ ] Show what changed between attempts
 - [ ] Pattern detection for recurring failures
 
 ### Phase 5: Polish
+
 - [ ] Add progress bars for long operations
 - [ ] Collapsible sections for verbose data
 - [ ] Better concurrent task display

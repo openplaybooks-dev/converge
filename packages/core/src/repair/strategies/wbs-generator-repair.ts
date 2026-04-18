@@ -16,15 +16,19 @@
  *   4. Apply fix and regenerate affected tasks
  */
 
-import { z } from 'zod';
-import { readFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
-import type { Gap } from '../../gap/types.ts';
-import type { FixStrategy, StrategyContext, StrategyOutcome } from '../types.ts';
-import { createAIContext } from '../../ai/context.ts';
-import { createFilesystemHelper } from '../helpers/filesystem.ts';
-import { logTaskEvent } from '../../journal/writer.ts';
+import { z } from "zod";
+import { readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import type { Gap } from "../../gap/types.ts";
+import type {
+  FixStrategy,
+  StrategyContext,
+  StrategyOutcome,
+} from "../types.ts";
+import { createAIContext } from "../../ai/context.ts";
+import { createFilesystemHelper } from "../helpers/filesystem.ts";
+import { logTaskEvent } from "../../journal/writer.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Schemas                                                           */
@@ -32,11 +36,11 @@ import { logTaskEvent } from '../../journal/writer.ts';
 
 const GeneratorDiagnosisSchema = z.object({
   isGeneratorBug: z.boolean(),
-  confidence: z.enum(['high', 'medium', 'low']),
+  confidence: z.enum(["high", "medium", "low"]),
   reasoning: z.string(),
-  bugLocation: z.string().describe('Line number or code section in generator'),
-  suggestedFix: z.string().describe('Code changes needed'),
-  affectedTasks: z.array(z.string()).describe('Task IDs that will be fixed'),
+  bugLocation: z.string().describe("Line number or code section in generator"),
+  suggestedFix: z.string().describe("Code changes needed"),
+  affectedTasks: z.array(z.string()).describe("Task IDs that will be fixed"),
 });
 
 type GeneratorDiagnosis = z.infer<typeof GeneratorDiagnosisSchema>;
@@ -46,8 +50,9 @@ type GeneratorDiagnosis = z.infer<typeof GeneratorDiagnosisSchema>;
 /* ------------------------------------------------------------------ */
 
 export class WBSGeneratorRepairStrategy implements FixStrategy {
-  readonly name = 'wbs-generator-repair';
-  readonly description = 'Fixes WBS generators that spawn tasks with incorrect definitions';
+  readonly name = "wbs-generator-repair";
+  readonly description =
+    "Fixes WBS generators that spawn tasks with incorrect definitions";
   readonly priority = 10; // High priority - fixes root cause
 
   canHandle(gap: Gap): boolean {
@@ -70,7 +75,7 @@ export class WBSGeneratorRepairStrategy implements FixStrategy {
       if (!generatorPath) {
         return {
           success: false,
-          reason: 'No WBS generator path in gap metadata',
+          reason: "No WBS generator path in gap metadata",
           shouldRetry: false,
         };
       }
@@ -97,7 +102,7 @@ export class WBSGeneratorRepairStrategy implements FixStrategy {
         generatorCode,
         generatorPath,
         relatedGaps,
-        ai
+        ai,
       );
 
       if (!diagnosis.isGeneratorBug) {
@@ -109,7 +114,7 @@ export class WBSGeneratorRepairStrategy implements FixStrategy {
         };
       }
 
-      if (diagnosis.confidence === 'low') {
+      if (diagnosis.confidence === "low") {
         console.log(`   ⚠️  Low confidence diagnosis, skipping for safety`);
         return {
           success: false,
@@ -124,7 +129,7 @@ export class WBSGeneratorRepairStrategy implements FixStrategy {
         generatorCode,
         generatorPath,
         diagnosis,
-        ai
+        ai,
       );
 
       // Clean up the code - remove any explanatory text before the first import
@@ -138,35 +143,41 @@ export class WBSGeneratorRepairStrategy implements FixStrategy {
       await filesystem.writeFile(fullGeneratorPath, fixedCode);
 
       // PHASE 4: Regenerate affected tasks
-      console.log(`   🔄 Regenerating ${diagnosis.affectedTasks.length} affected tasks...`);
-      await this.regenerateAffectedTasks(diagnosis.affectedTasks, ctx, filesystem);
+      console.log(
+        `   🔄 Regenerating ${diagnosis.affectedTasks.length} affected tasks...`,
+      );
+      await this.regenerateAffectedTasks(
+        diagnosis.affectedTasks,
+        ctx,
+        filesystem,
+      );
 
       // Log success
       await logTaskEvent(
         projectDir,
         journalCtx.epicId,
         journalCtx.taskId,
-        'WBS_GENERATOR_FIXED',
+        "WBS_GENERATOR_FIXED",
         `Fixed WBS generator and regenerated ${diagnosis.affectedTasks.length} tasks`,
         {
           strategyName: this.name,
           generatorPath,
           bugLocation: diagnosis.bugLocation,
           affectedTasks: diagnosis.affectedTasks,
-        }
+        },
       );
 
       // Extract parent task ID from generator path
       // Path is like: .converge/epics/03-implement-app/002-generate-react-pages/task.ts
       // We want: 002-generate-react-pages
-      const pathParts = generatorPath.split('/');
+      const pathParts = generatorPath.split("/");
       const parentTaskId = pathParts[pathParts.length - 2]; // Get directory before task.ts
 
       return {
         success: true,
         reason: `Fixed WBS generator and regenerated ${diagnosis.affectedTasks.length} tasks`,
         retryMode: {
-          type: 'backoff',
+          type: "backoff",
           runFirst: [parentTaskId],
           reason: `Parent WBS task ${parentTaskId} needs to rerun to regenerate child tasks with fixed code`,
         },
@@ -195,7 +206,7 @@ export class WBSGeneratorRepairStrategy implements FixStrategy {
     generatorCode: string,
     generatorPath: string,
     relatedGaps: any[],
-    ai: ReturnType<typeof createAIContext>
+    ai: ReturnType<typeof createAIContext>,
   ): Promise<GeneratorDiagnosis> {
     const prompt = `You are analyzing a WBS generator for potential bugs.
 
@@ -203,7 +214,7 @@ export class WBSGeneratorRepairStrategy implements FixStrategy {
 ${JSON.stringify(gap, null, 2)}
 
 **Related Tasks:** (all spawned by same WBS generator)
-${relatedGaps.map(g => `- ${g.taskId}: ${g.description}`).join('\n')}
+${relatedGaps.map((g) => `- ${g.taskId}: ${g.description}`).join("\n")}
 
 **WBS Generator Code:**
 \`\`\`typescript
@@ -236,10 +247,10 @@ Focus on identifying systemic issues that affect multiple tasks, not isolated fa
       prompt,
       GeneratorDiagnosisSchema,
       {
-        phase: 'diagnose',
-        label: 'WBS Generator Diagnosis',
+        phase: "diagnose",
+        label: "WBS Generator Diagnosis",
         timeoutMs: 180_000,
-      }
+      },
     );
   }
 
@@ -251,7 +262,7 @@ Focus on identifying systemic issues that affect multiple tasks, not isolated fa
     generatorCode: string,
     generatorPath: string,
     diagnosis: GeneratorDiagnosis,
-    ai: ReturnType<typeof createAIContext>
+    ai: ReturnType<typeof createAIContext>,
   ): Promise<string> {
     const prompt = `You are fixing a WBS generator bug.
 
@@ -283,8 +294,8 @@ Return ONLY the corrected TypeScript code, no explanation.
 Do NOT wrap it in markdown code blocks.`;
 
     const response = await ai.ask(prompt, {
-      phase: 'fix',
-      label: 'Generate Fixed Code',
+      phase: "fix",
+      label: "Generate Fixed Code",
       timeoutMs: 180_000,
     });
 
@@ -298,21 +309,21 @@ Do NOT wrap it in markdown code blocks.`;
   private async regenerateAffectedTasks(
     taskIds: string[],
     ctx: StrategyContext,
-    filesystem: ReturnType<typeof createFilesystemHelper>
+    filesystem: ReturnType<typeof createFilesystemHelper>,
   ): Promise<void> {
     for (const taskId of taskIds) {
       try {
         // Delete WIP attempt directory for each task
         const wipPath = join(
           ctx.projectDir,
-          '.converge',
-          'journal',
-          'epics',
+          ".converge",
+          "journal",
+          "epics",
           ctx.journalCtx.epicId,
-          'tasks',
+          "tasks",
           taskId,
-          'attempts',
-          'wip'
+          "attempts",
+          "wip",
         );
 
         await filesystem.removeDirectory(wipPath);
@@ -321,36 +332,41 @@ Do NOT wrap it in markdown code blocks.`;
         // Pattern: .converge/epics/{epicId}/{parentTaskId}/task/{childTaskId}/task.ts
         const taskFilePath = join(
           ctx.projectDir,
-          '.converge',
-          'journal',
-          'epics',
+          ".converge",
+          "journal",
+          "epics",
           ctx.journalCtx.epicId,
-          'tasks',
-          taskId.replace(/^.*-(\d+-\w+)$/, '$1') // Get child task part
+          "tasks",
+          taskId.replace(/^.*-(\d+-\w+)$/, "$1"), // Get child task part
         );
 
         // Try to find and delete the generated task.ts file
         // This is usually in .converge/epics/.../task/{taskId}/task.ts
         const generatedTaskPath = join(
           ctx.projectDir,
-          '.converge',
-          'epics',
+          ".converge",
+          "epics",
           ctx.journalCtx.epicId,
           ctx.journalCtx.taskId, // parent task
-          'task',
+          "task",
           taskId,
-          'task.ts'
+          "task.ts",
         );
 
         try {
           await filesystem.removeFile(generatedTaskPath);
-          console.log(`   ✓ Regenerated task: ${taskId} (deleted generated file for regeneration)`);
+          console.log(
+            `   ✓ Regenerated task: ${taskId} (deleted generated file for regeneration)`,
+          );
         } catch {
           // File might not exist or different path structure
           console.log(`   ✓ Regenerated task: ${taskId} (WIP cleared)`);
         }
       } catch (err: any) {
-        console.warn(`   ⚠️  Failed to regenerate task ${taskId}:`, err.message);
+        console.warn(
+          `   ⚠️  Failed to regenerate task ${taskId}:`,
+          err.message,
+        );
       }
     }
   }

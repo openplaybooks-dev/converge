@@ -4,9 +4,9 @@
  * Fluent API for creating goals with checks, tasks, and sub-goals.
  */
 
-import type { Goal, GoalBuilder } from './types.ts';
-import type { CheckFnMeta } from '../functions/types.ts';
-import type { TaskConfig } from '../storage/types.ts';
+import type { Goal, GoalBuilder } from "./types.ts";
+import type { CheckFnMeta } from "../functions/types.ts";
+import type { TaskConfig } from "../storage/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Goal Builder Implementation                                       */
@@ -67,11 +67,11 @@ class GoalBuilderImpl implements GoalBuilder {
 
   build(): Goal {
     if (!this._id) {
-      throw new Error('Goal ID is required');
+      throw new Error("Goal ID is required");
     }
 
     if (!this._description) {
-      throw new Error('Goal description is required');
+      throw new Error("Goal description is required");
     }
 
     const goal: Goal = {
@@ -118,9 +118,7 @@ export function defineGoal(config: {
   goals?: Goal[];
   metadata?: Record<string, unknown>;
 }): Goal {
-  const builder = goal()
-    .id(config.id)
-    .description(config.description);
+  const builder = goal().id(config.id).description(config.description);
 
   if (config.checks) {
     builder.checks(config.checks);

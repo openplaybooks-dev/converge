@@ -9,12 +9,12 @@
  * Also supports merging skills from multiple sources.
  */
 
-import { existsSync } from 'node:fs';
-import { join, dirname, parse } from 'node:path';
+import { existsSync } from "node:fs";
+import { join, dirname, parse } from "node:path";
 
 export interface SkillSource {
   root: string;
-  type: 'project' | 'global' | 'legacy';
+  type: "project" | "global" | "legacy";
 }
 
 /**
@@ -25,22 +25,22 @@ export function findSkillSources(projectDir: string): SkillSource[] {
   const sources: SkillSource[] = [];
 
   // 1. Project-local .skill/ folder (highest priority)
-  const projectSkillDir = join(projectDir, '.skill');
+  const projectSkillDir = join(projectDir, ".skill");
   if (existsSync(projectSkillDir)) {
-    sources.push({ root: projectSkillDir, type: 'project' });
+    sources.push({ root: projectSkillDir, type: "project" });
   }
 
   // 2. Global .claude/skills/ folder
   // Search upward from project dir for .claude/skills
   const globalSkillDir = findGlobalSkillsDir(projectDir);
   if (globalSkillDir) {
-    sources.push({ root: globalSkillDir, type: 'global' });
+    sources.push({ root: globalSkillDir, type: "global" });
   }
 
   // 3. Legacy .converge/skills/ folder
-  const legacySkillDir = join(projectDir, '.converge', 'skills');
+  const legacySkillDir = join(projectDir, ".converge", "skills");
   if (existsSync(legacySkillDir)) {
-    sources.push({ root: legacySkillDir, type: 'legacy' });
+    sources.push({ root: legacySkillDir, type: "legacy" });
   }
 
   return sources;
@@ -54,7 +54,7 @@ export function resolveSkillsRoot(projectDir: string): string {
   const sources = findSkillSources(projectDir);
   if (sources.length === 0) {
     // Fallback to legacy location if nothing exists
-    return join(projectDir, '.converge', 'skills');
+    return join(projectDir, ".converge", "skills");
   }
   return sources[0].root;
 }
@@ -64,7 +64,7 @@ export function resolveSkillsRoot(projectDir: string): string {
  * Skills in higher-priority sources shadow lower-priority ones.
  */
 export function resolveAllSkillRoots(projectDir: string): string[] {
-  return findSkillSources(projectDir).map(s => s.root);
+  return findSkillSources(projectDir).map((s) => s.root);
 }
 
 /**
@@ -75,7 +75,7 @@ function findGlobalSkillsDir(startDir: string): string | null {
   const { root } = parse(startDir);
 
   while (currentDir !== root) {
-    const skillsDir = join(currentDir, '.claude', 'skills');
+    const skillsDir = join(currentDir, ".claude", "skills");
     if (existsSync(skillsDir)) {
       return skillsDir;
     }
@@ -105,7 +105,10 @@ export function skillExists(skillName: string, projectDir: string): boolean {
  * Get the full path to a specific skill's directory.
  * Returns null if skill not found in any source.
  */
-export function resolveSkillPath(skillName: string, projectDir: string): string | null {
+export function resolveSkillPath(
+  skillName: string,
+  projectDir: string,
+): string | null {
   const sources = findSkillSources(projectDir);
   for (const source of sources) {
     const skillPath = join(source.root, skillName);
@@ -122,13 +125,14 @@ export function resolveSkillPath(skillName: string, projectDir: string): string 
 export function logSkillSources(projectDir: string): void {
   const sources = findSkillSources(projectDir);
   if (sources.length === 0) {
-    console.log('   ⚠️  No skill directories found');
+    console.log("   ⚠️  No skill directories found");
     return;
   }
 
   console.log(`   📚 Skill sources (${sources.length}):`);
   for (const source of sources) {
-    const icon = source.type === 'project' ? '📁' : source.type === 'global' ? '🌐' : '📂';
+    const icon =
+      source.type === "project" ? "📁" : source.type === "global" ? "🌐" : "📂";
     console.log(`      ${icon} ${source.type}: ${source.root}`);
   }
 }

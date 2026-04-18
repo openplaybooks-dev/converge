@@ -19,14 +19,14 @@ The enhanced checkpoint system implements hierarchical position tracking for tas
 
 ```typescript
 interface Cursor {
-  path: string[];              // ["epic-01", "task-003", "subtask-002"]
+  path: string[]; // ["epic-01", "task-003", "subtask-002"]
   breadcrumbs: ExecutionLevel[]; // Full metadata for reconciliation
-  depth: number;                 // Current nesting depth
+  depth: number; // Current nesting depth
 }
 
 interface ExecutionLevel {
   id: string;
-  type: 'epic' | 'task' | 'subtask';
+  type: "epic" | "task" | "subtask";
   filePath: string;
   depth: number;
 }
@@ -37,10 +37,12 @@ interface ExecutionLevel {
 ### Phase 1: Schema & Types ✅
 
 **Files Modified:**
+
 - `src/storage/types.ts` - Added v2 checkpoint schema with cursor, completionTree, treeSnapshot
 - `src/context/types.ts` - Added executionStack to TaskContext and EpicContext
 
 **New Types:**
+
 - `ExecutionLevel` - Single level in execution stack
 - `Cursor` - Hierarchical position in tree
 - `CompletionNode` - Node in completion tree
@@ -50,16 +52,19 @@ interface ExecutionLevel {
 ### Phase 2: Cursor Building ✅
 
 **Files Created:**
+
 - `src/checkpoint/tree-utils.ts` - Tree discovery, hashing, and path analysis utilities
 - `src/checkpoint/migration.ts` - V1→V2 checkpoint migration
 - `src/checkpoint/resumability.ts` - Resume with cursor reconciliation
 - `src/checkpoint/index.ts` - Module exports
 
 **Files Modified:**
+
 - `src/orchestrator/convergence.ts` - Enhanced createCheckpoint() to build cursor
 - `src/cli/commands-run.ts` - Added buildExecutionStack() helper
 
 **Key Functions:**
+
 - `buildCursorFromContext()` - Build cursor from execution stack
 - `buildCompletionTree()` - Create hierarchical completion tree
 - `snapshotTaskTree()` - Snapshot tree structure with hash
@@ -71,6 +76,7 @@ interface ExecutionLevel {
 **File:** `src/checkpoint/resumability.ts`
 
 **Resume Strategies:**
+
 1. **exact-restore** - Tree unchanged → restore cursor exactly
 2. **reconciled** - Tree changed but all nodes exist → validate and restore
 3. **parent-fallback** - Current node deleted → resume at parent level
@@ -78,6 +84,7 @@ interface ExecutionLevel {
 5. **legacy** - V1 checkpoint → migrate and use inferred cursor
 
 **Reconciliation Flow:**
+
 ```
 resumeFromCheckpoint()
   ↓
@@ -100,12 +107,14 @@ Compare hashes
 **File:** `src/checkpoint/migration.ts`
 
 **V1→V2 Migration:**
+
 - Detects checkpoint version from `version` field
 - Infers cursor from `currentEpic` and `currentTask` fields
 - Builds minimal completion tree from flat `completed` arrays
 - Creates empty tree snapshot (forces reconciliation on resume)
 
 **Validation:**
+
 - Checks cursor path/breadcrumbs consistency
 - Validates depth calculation
 - Returns detailed error messages
@@ -115,6 +124,7 @@ Compare hashes
 **File:** `tests/unit/checkpoint/checkpoint-cursor.test.ts`
 
 **Test Coverage:**
+
 - Tree hashing (deterministic, order-independent)
 - Task ID extraction from paths
 - Depth calculation
@@ -204,95 +214,95 @@ tests/
 ```yaml
 version: 2
 id: checkpoint-epic-01-iteration-3
-timestamp: '2024-01-15T10:30:00Z'
+timestamp: "2024-01-15T10:30:00Z"
 iteration: 3
 
 state:
-  currentEpic: '01-data-analysis'
+  currentEpic: "01-data-analysis"
   phase: execute
 
 cursor:
   path:
-    - '01-data-analysis'
-    - '003-generate-all-screens'
-    - '002-screen-invoice-detail'
+    - "01-data-analysis"
+    - "003-generate-all-screens"
+    - "002-screen-invoice-detail"
   breadcrumbs:
-    - id: '01-data-analysis'
+    - id: "01-data-analysis"
       type: epic
-      filePath: '.converge/epics/01-data-analysis/epic.ts'
+      filePath: ".converge/epics/01-data-analysis/epic.ts"
       depth: 0
-    - id: '003-generate-all-screens'
+    - id: "003-generate-all-screens"
       type: task
-      filePath: '.converge/epics/01-data-analysis/003-generate-all-screens/SKILL.md'
+      filePath: ".converge/epics/01-data-analysis/003-generate-all-screens/SKILL.md"
       depth: 1
-    - id: '002-screen-invoice-detail'
+    - id: "002-screen-invoice-detail"
       type: subtask
-      filePath: '.converge/epics/01-data-analysis/003-generate-all-screens/tasks/002-screen-invoice-detail/SKILL.md'
+      filePath: ".converge/epics/01-data-analysis/003-generate-all-screens/tasks/002-screen-invoice-detail/SKILL.md"
       depth: 2
   depth: 2
 
 completionTree:
   nodes:
-    '01-data-analysis':
-      id: '01-data-analysis'
+    "01-data-analysis":
+      id: "01-data-analysis"
       status: active
       childIds:
-        - '001-analyze-data'
-        - '002-generate-design-system'
-        - '003-generate-all-screens'
-    '001-analyze-data':
-      id: '001-analyze-data'
+        - "001-analyze-data"
+        - "002-generate-design-system"
+        - "003-generate-all-screens"
+    "001-analyze-data":
+      id: "001-analyze-data"
       status: completed
-      parentId: '01-data-analysis'
-      completedAt: '2024-01-15T09:00:00Z'
+      parentId: "01-data-analysis"
+      completedAt: "2024-01-15T09:00:00Z"
       childIds: []
-    '002-generate-design-system':
-      id: '002-generate-design-system'
+    "002-generate-design-system":
+      id: "002-generate-design-system"
       status: completed
-      parentId: '01-data-analysis'
-      completedAt: '2024-01-15T10:00:00Z'
+      parentId: "01-data-analysis"
+      completedAt: "2024-01-15T10:00:00Z"
       childIds: []
-    '003-generate-all-screens':
-      id: '003-generate-all-screens'
+    "003-generate-all-screens":
+      id: "003-generate-all-screens"
       status: active
-      parentId: '01-data-analysis'
+      parentId: "01-data-analysis"
       childIds:
-        - '001-screen-dashboard'
-        - '002-screen-invoice-detail'
-        - '003-screen-history'
-    '001-screen-dashboard':
-      id: '001-screen-dashboard'
+        - "001-screen-dashboard"
+        - "002-screen-invoice-detail"
+        - "003-screen-history"
+    "001-screen-dashboard":
+      id: "001-screen-dashboard"
       status: completed
-      parentId: '003-generate-all-screens'
-      completedAt: '2024-01-15T10:20:00Z'
+      parentId: "003-generate-all-screens"
+      completedAt: "2024-01-15T10:20:00Z"
       childIds: []
-    '002-screen-invoice-detail':
-      id: '002-screen-invoice-detail'
+    "002-screen-invoice-detail":
+      id: "002-screen-invoice-detail"
       status: active
-      parentId: '003-generate-all-screens'
+      parentId: "003-generate-all-screens"
       childIds: []
 
 treeSnapshot:
-  structureHash: 'a7f3e9c2'
+  structureHash: "a7f3e9c2"
   taskPaths:
-    - '.converge/epics/01-data-analysis/001-analyze-data/SKILL.md'
-    - '.converge/epics/01-data-analysis/002-generate-design-system/SKILL.md'
-    - '.converge/epics/01-data-analysis/003-generate-all-screens/SKILL.md'
-    - '.converge/epics/01-data-analysis/003-generate-all-screens/tasks/001-screen-dashboard/SKILL.md'
-    - '.converge/epics/01-data-analysis/003-generate-all-screens/tasks/002-screen-invoice-detail/SKILL.md'
-    - '.converge/epics/01-data-analysis/003-generate-all-screens/tasks/003-screen-history/SKILL.md'
+    - ".converge/epics/01-data-analysis/001-analyze-data/SKILL.md"
+    - ".converge/epics/01-data-analysis/002-generate-design-system/SKILL.md"
+    - ".converge/epics/01-data-analysis/003-generate-all-screens/SKILL.md"
+    - ".converge/epics/01-data-analysis/003-generate-all-screens/tasks/001-screen-dashboard/SKILL.md"
+    - ".converge/epics/01-data-analysis/003-generate-all-screens/tasks/002-screen-invoice-detail/SKILL.md"
+    - ".converge/epics/01-data-analysis/003-generate-all-screens/tasks/003-screen-history/SKILL.md"
 
 gaps: []
 completed:
   epics: []
   tasks:
-    - '001-analyze-data'
-    - '002-generate-design-system'
-    - '001-screen-dashboard'
+    - "001-analyze-data"
+    - "002-generate-design-system"
+    - "001-screen-dashboard"
 
 metadata:
-  created: '2024-01-15T10:30:00Z'
-  machine: 'dev-machine-1'
+  created: "2024-01-15T10:30:00Z"
+  machine: "dev-machine-1"
 ```
 
 ## Next Steps
@@ -305,7 +315,7 @@ metadata:
 
 ## References
 
-- Plan: `/Users/minh/Documents/sheetsrun/CHECKPOINT_CURSOR_PLAN.md`
+- Plan: `CHECKPOINT_CURSOR_PLAN.md`
 - Storage Types: `src/storage/types.ts:290-430`
 - Context Types: `src/context/types.ts:128-152`
 - Convergence: `src/orchestrator/convergence.ts:578-609`

@@ -1,0 +1,9 @@
+{
+  "taskId": "05-positioning/004-launch-blog",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "docs/blog/launch-post.md"
+  ],
+  "blocked": false
+}

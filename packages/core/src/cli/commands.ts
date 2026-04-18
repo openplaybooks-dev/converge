@@ -4,9 +4,9 @@
  * Gap-driven CLI commands that use the new orchestration system.
  */
 
-import { existsSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { getEpicsDir } from '../journal/structure.ts';
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { resolve, join } from "node:path";
+import { getEpicsDir } from "../journal/structure.ts";
 import {
   createFilesystemStorage,
   createStatusManager,
@@ -20,8 +20,8 @@ import {
   type ProjectConfig,
   type EpicConfig,
   type ConvergenceConfig,
-} from '../index.ts';
-import { autonomousRun, type AutonomousRunConfig } from './autonomous-run.ts';
+} from "../index.ts";
+import { autonomousRun, type AutonomousRunConfig } from "./autonomous-run.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Command Options                                                    */
@@ -54,12 +54,7 @@ export interface InitOptions extends CommonOptions {
   name: string;
   /** Project description */
   description?: string;
-  /** Plugins to include */
-  plugins?: string[];
-  /** Use gap-driven model */
-  gapDriven?: boolean;
 }
-
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Command: init                                                      */
@@ -70,65 +65,63 @@ export interface InitOptions extends CommonOptions {
  */
 export async function initCommand(options: InitOptions): Promise<void> {
   const projectDir = resolve(options.dir || process.cwd());
-  const convergeDir = `${projectDir}/.converge`;
-
-  console.log('🚀 Initializing Converge V2 project...\n');
+  const convergeDir = join(projectDir, ".converge");
 
   // Check if already initialized
   if (existsSync(convergeDir)) {
-    console.error('❌ Error: Project already initialized (.converge/ exists)');
+    console.error("❌ Error: Project already initialized (.converge/ exists)");
     process.exit(1);
   }
 
-  // Create storage
-  const storage = createFilesystemStorage(convergeDir);
-  storage.init();
+  // Create playbook-based directory structure
+  const tasksDir = join(convergeDir, "playbooks", "default", "tasks");
+  mkdirSync(tasksDir, { recursive: true });
 
-  console.log('✅ Created .converge/ directory structure');
+  // Write minimal project.yaml
+  const projectYaml = [
+    `name: ${options.name}`,
+    options.description ? `description: ${options.description}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n")
+    + "\n";
+  writeFileSync(join(convergeDir, "project.yaml"), projectYaml, "utf8");
 
-  // Create project config
-  const projectConfig: ProjectConfig = {
-    version: 2,
-    name: options.name,
-    description: options.description,
-    goals: [],
-    variables: {},
-    plugins: options.plugins || ['typescript', 'git'],
-    epics: [],
-    metadata: {
-      created: new Date().toISOString(),
-      updated: new Date().toISOString(),
-    },
-  };
+  // Write default playbook.yml
+  const playbookYml = [
+    "name: default",
+    `description: ${options.description || options.name}`,
+    "",
+    "run:",
+    "  mode: autonomous",
+    "  maxIterations: 50",
+    "  maxTaskAttempts: 3",
+    "  resume: true",
+  ].join("\n") + "\n";
+  writeFileSync(
+    join(convergeDir, "playbooks", "default", "playbook.yml"),
+    playbookYml,
+    "utf8",
+  );
 
-  storage.writeProject(projectConfig);
-  console.log(`✅ Created project.yaml: ${options.name}`);
+  // Write .gitignore for runtime files
+  writeFileSync(
+    join(convergeDir, ".gitignore"),
+    "journal/\n",
+    "utf8",
+  );
 
-  // Create initial epic
-  const foundationEpic: EpicConfig = {
-    id: '00-foundation',
-    title: 'Foundation',
-    description: 'Set up project foundation',
-    goals: [],
-    tasks: [],
-    metadata: {
-      created: new Date().toISOString(),
-      updated: new Date().toISOString(),
-    },
-  };
-
-  storage.writeEpicConfig(foundationEpic);
-  console.log('✅ Created epic: 00-foundation');
-
-  // Update project with epic
-  projectConfig.epics = ['00-foundation'];
-  storage.writeProject(projectConfig);
-
-  console.log('\n🎉 Project initialized successfully!');
-  console.log('\nNext steps:');
-  console.log('  1. Define goals in .converge/project.yaml');
-  console.log('  2. Register check/eval/plan/task functions');
-  console.log('  3. Run: crew run');
+  console.log("\n🎉 Project initialized!\n");
+  console.log("Next steps:");
+  console.log("  1. Generate a playbook from a prompt:");
+  console.log('     converge plan "describe what you want to build"');
+  console.log("");
+  console.log("  2. Or create tasks manually:");
+  console.log("     mkdir .converge/playbooks/default/tasks/01-my-task");
+  console.log("     # then write TASK.md in that directory");
+  console.log("");
+  console.log("  3. Run:");
+  console.log("     converge run");
 }
 
 /* ────────────────────────────────────────────────────────────────── */
@@ -142,18 +135,18 @@ export async function runCommand(options: RunOptions = {}): Promise<void> {
   const projectDir = resolve(options.dir || process.cwd());
   const convergeDir = `${projectDir}/.converge`;
 
-  console.log('🚀 Running Converge V2 convergence loop...\n');
+  console.log("🚀 Running Converge V2 convergence loop...\n");
 
   // Check if initialized
   if (!existsSync(convergeDir)) {
-    console.error('❌ Error: Project not initialized. Run: crew init');
+    console.error("❌ Error: Project not initialized. Run: converge init");
     process.exit(1);
   }
 
   // Create storage
   const storage = createFilesystemStorage(convergeDir);
   if (!storage.isInitialized()) {
-    console.error('❌ Error: Invalid .converge/ directory');
+    console.error("❌ Error: Invalid .converge/ directory");
     process.exit(1);
   }
 
@@ -164,7 +157,7 @@ export async function runCommand(options: RunOptions = {}): Promise<void> {
   console.log(`📦 Epics: ${projectConfig.epics.length}\n`);
 
   // Load plugins
-  console.log('🔌 Loading plugins...');
+  console.log("🔌 Loading plugins...");
   const pluginState = await loadPluginsV2(projectConfig.plugins, projectDir);
   console.log(`✅ Loaded ${pluginState.loaded.length} plugins\n`);
 
@@ -179,7 +172,7 @@ export async function runCommand(options: RunOptions = {}): Promise<void> {
     projectDir,
     projectConfig,
     storage,
-    pluginState.loaded
+    pluginState.loaded,
   );
 
   // Create orchestrator
@@ -187,14 +180,19 @@ export async function runCommand(options: RunOptions = {}): Promise<void> {
 
   // Build convergence config
   const convergenceConfig: ConvergenceConfig = {
-    maxIterations: options.maxIterations || DEFAULT_CONVERGENCE_CONFIG.maxIterations,
-    maxStallCount: options.maxStalls || DEFAULT_CONVERGENCE_CONFIG.maxStallCount,
-    enableCheckpoints: options.checkpoints ?? DEFAULT_CONVERGENCE_CONFIG.enableCheckpoints,
-    parallelExecution: options.parallel ?? DEFAULT_CONVERGENCE_CONFIG.parallelExecution,
-    maxParallelTasks: options.maxParallel || DEFAULT_CONVERGENCE_CONFIG.maxParallelTasks,
+    maxIterations:
+      options.maxIterations || DEFAULT_CONVERGENCE_CONFIG.maxIterations,
+    maxStallCount:
+      options.maxStalls || DEFAULT_CONVERGENCE_CONFIG.maxStallCount,
+    enableCheckpoints:
+      options.checkpoints ?? DEFAULT_CONVERGENCE_CONFIG.enableCheckpoints,
+    parallelExecution:
+      options.parallel ?? DEFAULT_CONVERGENCE_CONFIG.parallelExecution,
+    maxParallelTasks:
+      options.maxParallel || DEFAULT_CONVERGENCE_CONFIG.maxParallelTasks,
   };
 
-  console.log('⚙️  Convergence config:');
+  console.log("⚙️  Convergence config:");
   console.log(`   Max iterations: ${convergenceConfig.maxIterations}`);
   console.log(`   Max stalls: ${convergenceConfig.maxStallCount}`);
   console.log(`   Parallel execution: ${convergenceConfig.parallelExecution}`);
@@ -206,34 +204,38 @@ export async function runCommand(options: RunOptions = {}): Promise<void> {
   const duration = (Date.now() - startTime) / 1000;
 
   // Display results
-  console.log('\n' + '═'.repeat(60));
-  console.log('📊 CONVERGENCE RESULTS');
-  console.log('═'.repeat(60));
+  console.log("\n" + "═".repeat(60));
+  console.log("📊 CONVERGENCE RESULTS");
+  console.log("═".repeat(60));
   console.log();
-  console.log(`Status: ${result.converged ? '✅ CONVERGED' : '❌ NOT CONVERGED'}`);
+  console.log(
+    `Status: ${result.converged ? "✅ CONVERGED" : "❌ NOT CONVERGED"}`,
+  );
   console.log(`Reason: ${result.terminationReason}`);
   console.log();
-  console.log('Metrics:');
+  console.log("Metrics:");
   console.log(`  Iterations: ${result.summary.totalIterations}`);
   console.log(`  Gaps Resolved: ${result.summary.totalGapsResolved}`);
   console.log(`  Tasks Executed: ${result.summary.totalTasksExecuted}`);
-  console.log(`  Tasks Succeeded: ${result.summary.totalTasksExecuted - result.summary.totalTasksExecuted}`);
+  console.log(
+    `  Tasks Succeeded: ${result.summary.totalTasksExecuted - result.summary.totalTasksExecuted}`,
+  );
   console.log(`  Duration: ${duration.toFixed(2)}s`);
   console.log();
-  console.log('Epics:');
+  console.log("Epics:");
   console.log(`  Total: ${result.summary.totalEpics}`);
   console.log(`  Completed: ${result.summary.completedEpics}`);
   console.log(`  Failed: ${result.summary.failedEpics}`);
   console.log();
 
   if (result.error) {
-    console.log('Error Details:');
+    console.log("Error Details:");
     console.log(`  Epic: ${result.error.epicId}`);
     console.log(`  Message: ${result.error.message}`);
     console.log();
   }
 
-  console.log('═'.repeat(60));
+  console.log("═".repeat(60));
 
   process.exit(result.converged ? 0 : 1);
 }
@@ -245,15 +247,17 @@ export async function runCommand(options: RunOptions = {}): Promise<void> {
 /**
  * Resume from checkpoint
  */
-export async function resumeCommand(options: CommonOptions = {}): Promise<void> {
+export async function resumeCommand(
+  options: CommonOptions = {},
+): Promise<void> {
   const projectDir = resolve(options.dir || process.cwd());
   const convergeDir = `${projectDir}/.converge`;
 
-  console.log('🔄 Resuming from checkpoint...\n');
+  console.log("🔄 Resuming from checkpoint...\n");
 
   // Check if initialized
   if (!existsSync(convergeDir)) {
-    console.error('❌ Error: Project not initialized. Run: crew init');
+    console.error("❌ Error: Project not initialized. Run: converge init");
     process.exit(1);
   }
 
@@ -264,7 +268,7 @@ export async function resumeCommand(options: CommonOptions = {}): Promise<void> 
 
   // Check if can resume
   if (!resumability.canResume()) {
-    console.log('ℹ️  No checkpoint found, starting fresh...\n');
+    console.log("ℹ️  No checkpoint found, starting fresh...\n");
     return runCommand(options as RunOptions);
   }
 
@@ -279,26 +283,26 @@ export async function resumeCommand(options: CommonOptions = {}): Promise<void> 
     projectDir,
     projectConfig,
     storage,
-    pluginState.loaded
+    pluginState.loaded,
   );
 
   // Get resume point
   const resumePoint = await resumability.getResumePoint(projectCtx);
   if (!resumePoint) {
-    console.error('❌ Error: Failed to load resume point');
+    console.error("❌ Error: Failed to load resume point");
     process.exit(1);
   }
 
-  console.log('📍 Resume Point:');
+  console.log("📍 Resume Point:");
   console.log(`   Checkpoint: ${resumePoint.checkpointId}`);
   console.log(`   Iteration: ${resumePoint.iteration}`);
   console.log(`   Epic: ${resumePoint.epicId}`);
   console.log(`   Phase: ${resumePoint.phase}`);
   console.log();
-  console.log('📊 State Comparison:');
+  console.log("📊 State Comparison:");
   console.log(`   Checkpoint gaps: ${resumePoint.checkpointGaps.length}`);
   console.log(`   Current gaps: ${resumePoint.currentGaps.length}`);
-  console.log(`   Changed: ${resumePoint.gapsChanged ? 'Yes' : 'No'}`);
+  console.log(`   Changed: ${resumePoint.gapsChanged ? "Yes" : "No"}`);
   console.log();
 
   // Create orchestrator and resume
@@ -306,11 +310,13 @@ export async function resumeCommand(options: CommonOptions = {}): Promise<void> 
   const result = await orchestrator.resume(projectCtx);
 
   // Display results (same as run command)
-  console.log('\n' + '═'.repeat(60));
-  console.log('📊 RESUME RESULTS');
-  console.log('═'.repeat(60));
+  console.log("\n" + "═".repeat(60));
+  console.log("📊 RESUME RESULTS");
+  console.log("═".repeat(60));
   console.log();
-  console.log(`Status: ${result.converged ? '✅ CONVERGED' : '❌ NOT CONVERGED'}`);
+  console.log(
+    `Status: ${result.converged ? "✅ CONVERGED" : "❌ NOT CONVERGED"}`,
+  );
   console.log(`Reason: ${result.terminationReason}`);
   console.log(`Total Iterations: ${result.summary.totalIterations}`);
   console.log(`Gaps Resolved: ${result.summary.totalGapsResolved}`);
@@ -326,13 +332,15 @@ export async function resumeCommand(options: CommonOptions = {}): Promise<void> 
 /**
  * Show project status
  */
-export async function statusCommand(options: CommonOptions = {}): Promise<void> {
+export async function statusCommand(
+  options: CommonOptions = {},
+): Promise<void> {
   const projectDir = resolve(options.dir || process.cwd());
   const convergeDir = `${projectDir}/.converge`;
 
   // Check if initialized
   if (!existsSync(convergeDir)) {
-    console.error('❌ Error: Project not initialized');
+    console.error("❌ Error: Project not initialized");
     process.exit(1);
   }
 
@@ -340,22 +348,29 @@ export async function statusCommand(options: CommonOptions = {}): Promise<void> 
   const projectYamlPath = `${convergeDir}/project.yaml`;
   if (!existsSync(projectYamlPath)) {
     // Playbook-based project — show status from task tree
-    const { TaskTree } = await import('../tree/index.ts');
-    const { treeNodesToTaskNodes, getTaskStates } = await import('./next-task.ts');
-    const { resolveConvergeConfig } = await import('../config/loader.ts');
+    const { TaskTree } = await import("../tree/index.ts");
+    const { treeNodesToTaskNodes, getTaskStates } =
+      await import("./next-task.ts");
+    const { resolveConvergeConfig } = await import("../config/loader.ts");
 
     const resolved = await resolveConvergeConfig(projectDir);
-    const config = resolved?.config ?? { name: 'project', dir: projectDir };
+    const config = resolved?.config ?? { name: "project", dir: projectDir };
     const taskTree = await TaskTree.load(projectDir, config);
     const tree = treeNodesToTaskNodes(taskTree, projectDir);
     const states = await getTaskStates(projectDir, tree);
 
-    const completed = tree.filter(n => states.completed.has(n.journalTaskId)).length;
-    const failed = tree.filter(n => states.failed.has(n.journalTaskId)).length;
-    const blocked = tree.filter(n => states.blocked.has(n.journalTaskId)).length;
+    const completed = tree.filter((n) =>
+      states.completed.has(n.journalTaskId),
+    ).length;
+    const failed = tree.filter((n) =>
+      states.failed.has(n.journalTaskId),
+    ).length;
+    const blocked = tree.filter((n) =>
+      states.blocked.has(n.journalTaskId),
+    ).length;
     const pending = tree.length - completed - failed;
 
-    console.log('📊 Project Status\n');
+    console.log("📊 Project Status\n");
     console.log(`Tasks: ${tree.length}`);
     console.log(`  ✅ Completed: ${completed}`);
     console.log(`  ❌ Failed: ${failed}`);
@@ -369,23 +384,27 @@ export async function statusCommand(options: CommonOptions = {}): Promise<void> 
   const statusManager = createStatusManager(storage);
   const projectConfig = storage.readProject();
 
-  console.log('📊 Project Status\n');
+  console.log("📊 Project Status\n");
   console.log(`Name: ${projectConfig.name}`);
   console.log(`Version: ${projectConfig.version}`);
   console.log();
-  console.log('Goals:');
+  console.log("Goals:");
   for (const goal of projectConfig.goals) {
     console.log(`  • ${goal}`);
   }
   console.log();
-  console.log('Epics:');
+  console.log("Epics:");
   for (const epicId of projectConfig.epics) {
     const epicConfig = storage.readEpicConfig(epicId);
     const epicStatus = statusManager.getEpicStatus(epicId);
     const tasks = storage.listTasks(epicId);
-    const completed = tasks.filter(t => statusManager.isTaskCompleted(epicId, t)).length;
+    const completed = tasks.filter((t) =>
+      statusManager.isTaskCompleted(epicId, t),
+    ).length;
 
-    console.log(`  ${epicStatus.status === 'completed' ? '✅' : '⏳'} ${epicConfig.title}`);
+    console.log(
+      `  ${epicStatus.status === "completed" ? "✅" : "⏳"} ${epicConfig.title}`,
+    );
     console.log(`     Status: ${epicStatus.status}`);
     console.log(`     Tasks: ${completed}/${tasks.length} completed`);
     if (epicStatus.currentGaps.length > 0) {
@@ -409,12 +428,15 @@ export async function statusCommand(options: CommonOptions = {}): Promise<void> 
 /**
  * Add a goal dynamically
  */
-export async function addGoalCommand(goal: string, options: CommonOptions = {}): Promise<void> {
+export async function addGoalCommand(
+  goal: string,
+  options: CommonOptions = {},
+): Promise<void> {
   const projectDir = resolve(options.dir || process.cwd());
   const convergeDir = `${projectDir}/.converge`;
 
   if (!existsSync(convergeDir)) {
-    console.error('❌ Error: Project not initialized');
+    console.error("❌ Error: Project not initialized");
     process.exit(1);
   }
 
@@ -423,7 +445,7 @@ export async function addGoalCommand(goal: string, options: CommonOptions = {}):
   const projectConfig = storage.readProject();
 
   if (projectConfig.goals.includes(goal)) {
-    console.log('ℹ️  Goal already exists');
+    console.log("ℹ️  Goal already exists");
     return;
   }
 
@@ -445,12 +467,15 @@ export async function addGoalCommand(goal: string, options: CommonOptions = {}):
 /**
  * Remove a goal dynamically
  */
-export async function removeGoalCommand(goal: string, options: CommonOptions = {}): Promise<void> {
+export async function removeGoalCommand(
+  goal: string,
+  options: CommonOptions = {},
+): Promise<void> {
   const projectDir = resolve(options.dir || process.cwd());
   const convergeDir = `${projectDir}/.converge`;
 
   if (!existsSync(convergeDir)) {
-    console.error('❌ Error: Project not initialized');
+    console.error("❌ Error: Project not initialized");
     process.exit(1);
   }
 
@@ -460,7 +485,7 @@ export async function removeGoalCommand(goal: string, options: CommonOptions = {
 
   const index = projectConfig.goals.indexOf(goal);
   if (index === -1) {
-    console.log('ℹ️  Goal not found');
+    console.log("ℹ️  Goal not found");
     return;
   }
 
@@ -486,30 +511,33 @@ export async function removeGoalCommand(goal: string, options: CommonOptions = {
  * with data from the task's status.json (phase, yields files, checklist)
  * so you can see exactly what was done and what still needs to run.
  */
-export async function checkpointCommand(options: CommonOptions = {}): Promise<void> {
+export async function checkpointCommand(
+  options: CommonOptions = {},
+): Promise<void> {
   const projectDir = resolve(options.dir || process.cwd());
-  const { CheckpointManager } = await import('../checkpoint/manager.ts');
-  const { readdir, readFile } = await import('node:fs/promises');
-  const { join } = await import('node:path');
-  const { existsSync } = await import('node:fs');
+  const { CheckpointManager } = await import("../checkpoint/manager.ts");
+  const { readdir, readFile } = await import("node:fs/promises");
+  const { join } = await import("node:path");
+  const { existsSync } = await import("node:fs");
   const checkpointMgr = new CheckpointManager(projectDir);
   const checkpoint = await checkpointMgr.load();
 
   if (!checkpoint) {
-    console.log('ℹ️  No checkpoint found — project has not been run yet.');
-    console.log('   Run: converge run --step');
+    console.log("ℹ️  No checkpoint found — project has not been run yet.");
+    console.log("   Run: converge run --step");
     return;
   }
 
   // ── header ────────────────────────────────────────────────────────
   const age = Date.now() - new Date(checkpoint.timestamp).getTime();
-  const ageStr = age < 60000
-    ? `${Math.round(age / 1000)}s ago`
-    : age < 3600000
-    ? `${Math.round(age / 60000)}m ago`
-    : `${Math.round(age / 3600000)}h ago`;
+  const ageStr =
+    age < 60000
+      ? `${Math.round(age / 1000)}s ago`
+      : age < 3600000
+        ? `${Math.round(age / 60000)}m ago`
+        : `${Math.round(age / 3600000)}h ago`;
 
-  console.log('📍 Converge Checkpoint\n');
+  console.log("📍 Converge Checkpoint\n");
   console.log(`   Saved:         ${checkpoint.timestamp} (${ageStr})`);
   console.log(`   Iteration:     ${checkpoint.iteration}`);
   console.log(`   Gaps Resolved: ${checkpoint.totalGapsResolved}`);
@@ -523,13 +551,28 @@ export async function checkpointCommand(options: CommonOptions = {}): Promise<vo
   // Build a map: taskId → TaskStatus (any depth) so we can enrich
   // the flat checkpoint task list with full hierarchical detail.
   type TaskStatusAny = {
-    taskId: string; epicId: string; focusPath: string;
-    status: string; title?: string; agent?: string;
-    isYieldsOnly?: boolean; startedAt?: string; completedAt?: string;
-    durationMs?: number; attempt: number;
-    gapsResolved: number; gapsFailed: number;
+    taskId: string;
+    epicId: string;
+    focusPath: string;
+    status: string;
+    title?: string;
+    agent?: string;
+    isYieldsOnly?: boolean;
+    startedAt?: string;
+    completedAt?: string;
+    durationMs?: number;
+    attempt: number;
+    gapsResolved: number;
+    gapsFailed: number;
     yieldsCreated?: string[];
-    checklist: Array<{ id: string; type: string; description: string; details?: string; done: boolean; doneAt?: string }>;
+    checklist: Array<{
+      id: string;
+      type: string;
+      description: string;
+      details?: string;
+      done: boolean;
+      doneAt?: string;
+    }>;
   };
   const statusMap = new Map<string, TaskStatusAny>();
 
@@ -538,23 +581,28 @@ export async function checkpointCommand(options: CommonOptions = {}): Promise<vo
     // Walk: epics/{epicId}/tasks/{taskId…}/status.json (any depth)
     async function scanForStatus(dir: string): Promise<void> {
       let entries;
-      try { entries = await readdir(dir, { withFileTypes: true }); }
-      catch { return; }
+      try {
+        entries = await readdir(dir, { withFileTypes: true });
+      } catch {
+        return;
+      }
       for (const entry of entries) {
         const entryPath = join(dir, entry.name);
         if (entry.isDirectory()) {
           await scanForStatus(entryPath);
-        } else if (entry.name === 'status.json') {
+        } else if (entry.name === "status.json") {
           try {
-            const raw = await readFile(entryPath, 'utf-8');
+            const raw = await readFile(entryPath, "utf-8");
             const s = JSON.parse(raw) as TaskStatusAny;
             // Index by leaf taskId and by full focusPath (e.g. "epicId/taskId")
             statusMap.set(s.taskId, s);
             statusMap.set(s.focusPath, s);
             // Also index by leaf segment of focusPath for partial matches
-            const leaf = s.taskId.split('/').pop();
+            const leaf = s.taskId.split("/").pop();
             if (leaf) statusMap.set(leaf, s);
-          } catch { /* corrupt status.json — skip */ }
+          } catch {
+            /* corrupt status.json — skip */
+          }
         }
       }
     }
@@ -562,8 +610,9 @@ export async function checkpointCommand(options: CommonOptions = {}): Promise<vo
   }
 
   // ── helper: render a single task block ───────────────────────────
-  function renderTask(taskId: string, prefix = '   '): void {
-    const status = statusMap.get(taskId) ?? statusMap.get(taskId.split('/').pop() ?? taskId);
+  function renderTask(taskId: string, prefix = "   "): void {
+    const status =
+      statusMap.get(taskId) ?? statusMap.get(taskId.split("/").pop() ?? taskId);
 
     if (!status) {
       // No status.json — show flat entry
@@ -571,21 +620,37 @@ export async function checkpointCommand(options: CommonOptions = {}): Promise<vo
       return;
     }
 
-    const stateIcon = status.status === 'complete' ? '✅' :
-                      status.status === 'running'  ? '🔄' :
-                      status.status === 'failed'   ? '❌' : '⏳';
-    const phase = status.isYieldsOnly ? 'yields' : 'task';
-    const titleSuffix = status.title && status.title !== taskId ? ` — ${status.title}` : '';
+    const stateIcon =
+      status.status === "complete"
+        ? "✅"
+        : status.status === "running"
+          ? "🔄"
+          : status.status === "failed"
+            ? "❌"
+            : "⏳";
+    const phase = status.isYieldsOnly ? "yields" : "task";
+    const titleSuffix =
+      status.title && status.title !== taskId ? ` — ${status.title}` : "";
     console.log(`${prefix}• ${status.focusPath}${titleSuffix}`);
 
-    const detail: string[] = [`${stateIcon} ${status.status}`, `phase: ${phase}`];
+    const detail: string[] = [
+      `${stateIcon} ${status.status}`,
+      `phase: ${phase}`,
+    ];
     if (status.agent) detail.push(`agent: ${status.agent}`);
-    if (status.durationMs) detail.push(`${(status.durationMs / 1000).toFixed(1)}s`);
-    console.log(`${prefix}  ${detail.join('  |  ')}`);
+    if (status.durationMs)
+      detail.push(`${(status.durationMs / 1000).toFixed(1)}s`);
+    console.log(`${prefix}  ${detail.join("  |  ")}`);
 
     // Yields: show created files
-    if (status.isYieldsOnly && status.yieldsCreated && status.yieldsCreated.length > 0) {
-      console.log(`${prefix}  Yields created (${status.yieldsCreated.length}):`);
+    if (
+      status.isYieldsOnly &&
+      status.yieldsCreated &&
+      status.yieldsCreated.length > 0
+    ) {
+      console.log(
+        `${prefix}  Yields created (${status.yieldsCreated.length}):`,
+      );
       for (const f of status.yieldsCreated) {
         console.log(`${prefix}    📄 ${f}`);
       }
@@ -593,27 +658,31 @@ export async function checkpointCommand(options: CommonOptions = {}): Promise<vo
 
     // Checklist
     if (status.checklist && status.checklist.length > 0) {
-      const subtasks  = status.checklist.filter(i => i.type === 'subtask');
-      const outputs   = status.checklist.filter(i => i.type === 'output');
-      const checks    = status.checklist.filter(i => i.type === 'check');
+      const subtasks = status.checklist.filter((i) => i.type === "subtask");
+      const outputs = status.checklist.filter((i) => i.type === "output");
+      const checks = status.checklist.filter((i) => i.type === "check");
 
       if (subtasks.length > 0) {
-        const doneCount = subtasks.filter(i => i.done).length;
-        console.log(`${prefix}  Subtasks (${doneCount}/${subtasks.length} complete):`);
+        const doneCount = subtasks.filter((i) => i.done).length;
+        console.log(
+          `${prefix}  Subtasks (${doneCount}/${subtasks.length} complete):`,
+        );
         for (const item of subtasks) {
-          const icon = item.done ? '✅' : '⏳';
+          const icon = item.done ? "✅" : "⏳";
           // Try to load sub-status for richer detail
-          const subStatus = statusMap.get(item.id.replace('subtask:', ''));
-          const subTitle  = subStatus?.title ?? item.description;
-          const subPhase  = subStatus?.isYieldsOnly ? ' [yields]' : '';
-          console.log(`${prefix}    ${icon} ${item.description}${subTitle !== item.description ? ` — ${subTitle}` : ''}${subPhase}`);
+          const subStatus = statusMap.get(item.id.replace("subtask:", ""));
+          const subTitle = subStatus?.title ?? item.description;
+          const subPhase = subStatus?.isYieldsOnly ? " [yields]" : "";
+          console.log(
+            `${prefix}    ${icon} ${item.description}${subTitle !== item.description ? ` — ${subTitle}` : ""}${subPhase}`,
+          );
         }
       }
 
       if (outputs.length > 0) {
         console.log(`${prefix}  Outputs:`);
         for (const item of outputs) {
-          const icon = item.done ? '✅' : '⏳';
+          const icon = item.done ? "✅" : "⏳";
           console.log(`${prefix}    ${icon} ${item.description}`);
         }
       }
@@ -621,8 +690,8 @@ export async function checkpointCommand(options: CommonOptions = {}): Promise<vo
       if (checks.length > 0) {
         console.log(`${prefix}  Checks:`);
         for (const item of checks) {
-          const icon = item.done ? '✅' : '⏳';
-          const cmd = item.details ? `  \`${item.details}\`` : '';
+          const icon = item.done ? "✅" : "⏳";
+          const cmd = item.details ? `  \`${item.details}\`` : "";
           console.log(`${prefix}    ${icon} ${item.description}${cmd}`);
         }
       }
@@ -649,11 +718,11 @@ export async function checkpointCommand(options: CommonOptions = {}): Promise<vo
     console.log(`   ✅ Completed Tasks (${completedTasks.length}):`);
     console.log();
     for (const t of completedTasks) {
-      renderTask(t, '   ');
+      renderTask(t, "   ");
       console.log();
     }
   } else {
-    console.log('   ✅ Completed Tasks: none\n');
+    console.log("   ✅ Completed Tasks: none\n");
   }
 
   // ── failed tasks ──────────────────────────────────────────────────
@@ -661,14 +730,14 @@ export async function checkpointCommand(options: CommonOptions = {}): Promise<vo
     console.log(`   ❌ Failed Tasks (${failedTasks.length}):`);
     console.log();
     for (const t of failedTasks) {
-      renderTask(t, '   ');
+      renderTask(t, "   ");
       console.log();
     }
   }
 
   // ── pending (locked but not completed or failed) ──────────────────
   const pendingLocked = lockedTasks.filter(
-    t => !completedTasks.includes(t) && !failedTasks.includes(t)
+    (t) => !completedTasks.includes(t) && !failedTasks.includes(t),
   );
   if (pendingLocked.length > 0) {
     console.log(`   🔒 Additionally Locked (${pendingLocked.length}):`);
@@ -678,7 +747,7 @@ export async function checkpointCommand(options: CommonOptions = {}): Promise<vo
     console.log();
   }
 
-  console.log('   💡 To reset failed tasks: converge reset <task-id>');
+  console.log("   💡 To reset failed tasks: converge reset <task-id>");
 }
 
 /* ────────────────────────────────────────────────────────────────── */
@@ -702,32 +771,35 @@ export async function checkpointCommand(options: CommonOptions = {}): Promise<vo
  */
 export async function resetCommand(
   taskIds: string[],
-  options: CommonOptions & { outputs?: boolean } = {}
+  options: CommonOptions & { outputs?: boolean } = {},
 ): Promise<void> {
   if (taskIds.length === 0) {
-    console.error('❌ Usage: converge reset <taskId> [taskId...] [--outputs]');
-    console.error('   Example: converge reset 003-generate-all-screens');
+    console.error("❌ Usage: converge reset <taskId> [taskId...] [--outputs]");
+    console.error("   Example: converge reset 003-generate-all-screens");
     process.exit(1);
   }
 
   const projectDir = resolve(options.dir || process.cwd());
-  const { CheckpointManager } = await import('../checkpoint/manager.ts');
-  const { readdir, readFile, rm, writeFile, mkdir } = await import('node:fs/promises');
-  const { join, dirname } = await import('node:path');
-  const { existsSync } = await import('node:fs');
+  const { CheckpointManager } = await import("../checkpoint/manager.ts");
+  const { readdir, readFile, rm, writeFile, mkdir } =
+    await import("node:fs/promises");
+  const { join, dirname } = await import("node:path");
+  const { existsSync } = await import("node:fs");
 
   const checkpointMgr = new CheckpointManager(projectDir);
   const checkpoint = await checkpointMgr.load();
 
   if (!checkpoint) {
-    console.log('ℹ️  No checkpoint found — nothing to reset.');
+    console.log("ℹ️  No checkpoint found — nothing to reset.");
     return;
   }
 
   // ── resolve full status for each requested task ID ─────────────────
   // Walk the journal to find status.json files matching any of the IDs.
   type StatusEntry = {
-    taskId: string; epicId: string; focusPath: string;
+    taskId: string;
+    epicId: string;
+    focusPath: string;
     yieldsCreated?: string[];
     checklist: Array<{ id: string; type: string; details?: string }>;
   };
@@ -737,16 +809,22 @@ export async function resetCommand(
   if (existsSync(journalEpicsDir)) {
     async function scanStatus(dir: string): Promise<void> {
       let entries;
-      try { entries = await readdir(dir, { withFileTypes: true }); }
-      catch { return; }
+      try {
+        entries = await readdir(dir, { withFileTypes: true });
+      } catch {
+        return;
+      }
       for (const entry of entries) {
         const p = join(dir, entry.name);
-        if (entry.isDirectory()) { await scanStatus(p); }
-        else if (entry.name === 'status.json') {
+        if (entry.isDirectory()) {
+          await scanStatus(p);
+        } else if (entry.name === "status.json") {
           try {
-            const s = JSON.parse(await readFile(p, 'utf-8')) as StatusEntry;
+            const s = JSON.parse(await readFile(p, "utf-8")) as StatusEntry;
             statusFiles.push({ filePath: p, status: s });
-          } catch { /* skip */ }
+          } catch {
+            /* skip */
+          }
         }
       }
     }
@@ -757,15 +835,24 @@ export async function resetCommand(
   // A match is: exact taskId, exact focusPath, or leaf segment of focusPath.
   const toReset: Array<{ filePath: string; status: StatusEntry }> = [];
   for (const requested of taskIds) {
-    const matches = statusFiles.filter(({ status }) =>
-      status.taskId === requested ||
-      status.focusPath === requested ||
-      status.taskId.split('/').pop() === requested ||
-      status.focusPath.split('/').pop() === requested
+    const matches = statusFiles.filter(
+      ({ status }) =>
+        status.taskId === requested ||
+        status.focusPath === requested ||
+        status.taskId.split("/").pop() === requested ||
+        status.focusPath.split("/").pop() === requested,
     );
     if (matches.length === 0) {
       // No status.json found — still reset by ID alone (checkpoint + gaps)
-      toReset.push({ filePath: '', status: { taskId: requested, epicId: '', focusPath: requested, checklist: [] } });
+      toReset.push({
+        filePath: "",
+        status: {
+          taskId: requested,
+          epicId: "",
+          focusPath: requested,
+          checklist: [],
+        },
+      });
     } else {
       toReset.push(...matches);
     }
@@ -780,22 +867,22 @@ export async function resetCommand(
 
     // 1. Remove from checkpoint
     const leafId = status.taskId;
-    const fullId = status.focusPath.replace('/', '.');  // epicId.taskId scope format
+    const fullId = status.focusPath.replace("/", "."); // epicId.taskId scope format
 
     if (checkpoint.version === 1) {
       // V1 - modify arrays directly
       const before = checkpoint.completedTasks.length;
       checkpoint.completedTasks = checkpoint.completedTasks.filter(
-        t => t !== leafId && t !== status.focusPath && t !== fullId
+        (t) => t !== leafId && t !== status.focusPath && t !== fullId,
       );
       checkpoint.lockedTasks = checkpoint.lockedTasks.filter(
-        t => t !== leafId && t !== status.focusPath && t !== fullId
+        (t) => t !== leafId && t !== status.focusPath && t !== fullId,
       );
       if (checkpoint.completedTasks.length < before) {
-        console.log('   ✅ Removed from checkpoint');
+        console.log("   ✅ Removed from checkpoint");
         checkpointModified = true;
       } else {
-        console.log('   ℹ️  Not found in checkpoint (already unlocked)');
+        console.log("   ℹ️  Not found in checkpoint (already unlocked)");
         checkpointModified = true; // save anyway to be safe
       }
     } else if (checkpoint.version === 2) {
@@ -806,7 +893,10 @@ export async function resetCommand(
 
       for (const taskId of taskIdsToRemove) {
         try {
-          await checkpointMgr.removeFromCompleted(taskId, status.epicId || undefined);
+          await checkpointMgr.removeFromCompleted(
+            taskId,
+            status.epicId || undefined,
+          );
           removed = true;
         } catch {
           // Task might not exist in this format, try next
@@ -814,9 +904,9 @@ export async function resetCommand(
       }
 
       if (removed) {
-        console.log('   ✅ Removed from checkpoint');
+        console.log("   ✅ Removed from checkpoint");
       } else {
-        console.log('   ℹ️  Not found in checkpoint (already unlocked)');
+        console.log("   ℹ️  Not found in checkpoint (already unlocked)");
       }
       checkpointModified = true;
     }
@@ -824,23 +914,23 @@ export async function resetCommand(
     // 2. Delete status.json
     if (filePath && existsSync(filePath)) {
       await rm(filePath);
-      console.log('   ✅ Deleted status.json');
+      console.log("   ✅ Deleted status.json");
     }
 
     // 3. Clear gaps.yml (write empty) so gap detection starts fresh
     if (status.epicId) {
-      const { writeGaps } = await import('../journal/writer.ts');
+      const { writeGaps } = await import("../journal/writer.ts");
       const scope = `${status.epicId}.${status.taskId}`;
-      await writeGaps(projectDir, 'task', scope, []);
-      console.log('   ✅ Cleared gaps.yml');
+      await writeGaps(projectDir, "task", scope, []);
+      console.log("   ✅ Cleared gaps.yml");
     }
 
     // 4. Optionally delete output files
     if (options.outputs) {
       // Delete yields output directory (contains generated subtask files)
       const yieldsOutputDirs = status.checklist
-        .filter(i => i.type === 'subtask' && i.details)
-        .map(i => dirname(join(projectDir, /* relative */ i.details ?? '')));
+        .filter((i) => i.type === "subtask" && i.details)
+        .map((i) => dirname(join(projectDir, /* relative */ i.details ?? "")));
       const uniqueDirs = [...new Set(yieldsOutputDirs)];
       for (const dir of uniqueDirs) {
         if (existsSync(dir)) {
@@ -853,7 +943,7 @@ export async function resetCommand(
       if (status.yieldsCreated) {
         // yieldsCreated paths are relative to the yieldsOutputDir configured
         // in the task. We resolve them relative to the epics dir.
-        const epicsDir = join(projectDir, '.converge', 'epics');
+        const epicsDir = join(projectDir, ".converge", "epics");
         for (const f of status.yieldsCreated) {
           // Try both relative-to-project and relative-to-epics
           for (const base of [projectDir, epicsDir]) {
@@ -868,11 +958,13 @@ export async function resetCommand(
       }
 
       // Delete declared output globs (for non-yields leaf tasks)
-      const outputItems = status.checklist.filter(i => i.type === 'output' && i.details);
+      const outputItems = status.checklist.filter(
+        (i) => i.type === "output" && i.details,
+      );
       for (const item of outputItems) {
         const pattern = item.details!;
-        if (pattern.includes('*') || pattern.includes('?')) {
-          const { glob } = await import('glob');
+        if (pattern.includes("*") || pattern.includes("?")) {
+          const { glob } = await import("glob");
           const matches = await glob(pattern, { cwd: projectDir });
           for (const m of matches) {
             const abs = join(projectDir, m);
@@ -898,14 +990,18 @@ export async function resetCommand(
   if (checkpointModified) {
     checkpoint.timestamp = new Date().toISOString();
     await checkpointMgr.save(checkpoint);
-    console.log('\n✅ Checkpoint updated');
+    console.log("\n✅ Checkpoint updated");
   }
 
   if (options.outputs) {
-    console.log('\n💡 Output files deleted. Task will regenerate from scratch.');
+    console.log(
+      "\n💡 Output files deleted. Task will regenerate from scratch.",
+    );
   } else {
-    console.log('\n💡 Run: converge run --step   to re-execute the reset task(s)');
-    console.log('   Add --outputs to also delete generated output files.');
+    console.log(
+      "\n💡 Run: converge run --step   to re-execute the reset task(s)",
+    );
+    console.log("   Add --outputs to also delete generated output files.");
   }
 }
 
@@ -916,19 +1012,21 @@ export async function resetCommand(
 /**
  * List loaded plugins
  */
-export async function pluginsCommand(options: CommonOptions = {}): Promise<void> {
+export async function pluginsCommand(
+  options: CommonOptions = {},
+): Promise<void> {
   const projectDir = resolve(options.dir || process.cwd());
   const convergeDir = `${projectDir}/.converge`;
 
   if (!existsSync(convergeDir)) {
-    console.error('❌ Error: Project not initialized');
+    console.error("❌ Error: Project not initialized");
     process.exit(1);
   }
 
   const storage = createFilesystemStorage(convergeDir);
   const projectConfig = storage.readProject();
 
-  console.log('🔌 Loading plugins...\n');
+  console.log("🔌 Loading plugins...\n");
   const pluginState = await loadPluginsV2(projectConfig.plugins, projectDir);
 
   console.log(formatPluginListV2(pluginState));

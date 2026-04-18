@@ -4,7 +4,11 @@
  * Types for the AutoConverge system that synthesizes executable validation code.
  */
 
-import type { AutoConvergeConfig, ConvergeIssue, ConvergeResult } from '../functions/types.ts';
+import type {
+  AutoConvergeConfig,
+  ConvergeIssue,
+  ConvergeResult,
+} from "../functions/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Converge Metadata                                                  */
@@ -21,7 +25,7 @@ export interface ConvergeMetadata {
   synthesizedAt: string;
 
   /** Source that generated the converge */
-  source: 'task-prompt' | 'inputs' | 'outputs' | 'description' | 'custom';
+  source: "task-prompt" | "inputs" | "outputs" | "description" | "custom";
 
   /** Converge configuration used */
   config: AutoConvergeConfig;
@@ -154,8 +158,4 @@ export interface RefinementResult {
   needsMoreRefinement: boolean;
 }
 
-export {
-  AutoConvergeConfig,
-  ConvergeIssue,
-  ConvergeResult,
-};
+export { AutoConvergeConfig, ConvergeIssue, ConvergeResult };

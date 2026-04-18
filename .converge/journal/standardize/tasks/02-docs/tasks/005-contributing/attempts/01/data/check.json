@@ -1,0 +1,10 @@
+{
+  "taskId": "02-docs/005-contributing",
+  "checks": [
+    {
+      "id": "contributing-exists",
+      "description": "CONTRIBUTING.md exists",
+      "cmd": "test -f CONTRIBUTING.md"
+    }
+  ]
+}

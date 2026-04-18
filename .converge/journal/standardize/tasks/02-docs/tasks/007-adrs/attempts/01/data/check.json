@@ -1,0 +1,15 @@
+{
+  "taskId": "02-docs/007-adrs",
+  "checks": [
+    {
+      "id": "adr-dir-exists",
+      "description": "ADR directory exists",
+      "cmd": "test -d docs/adr"
+    },
+    {
+      "id": "adr-index-exists",
+      "description": "ADR index exists",
+      "cmd": "test -f docs/adr/README.md"
+    }
+  ]
+}

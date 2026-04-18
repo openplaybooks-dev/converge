@@ -5,18 +5,18 @@
  * Displays hierarchical task structure with status indicators.
  */
 
-import { resolve } from 'node:path';
-import path from 'node:path';
-import { TaskTree, JournalTree } from '../tree/index.ts';
-import type { TaskNode } from './next-task.ts';
-import { treeNodesToTaskNodes } from './next-task.ts';
-import { printTaskTree } from './tree-display.ts';
-import { calculateExecutionPlan, getTaskStates } from './next-task.ts';
-import type { ExecutionSpan } from './next-task.ts';
-import { resolveConvergeConfig } from '../config/loader.ts';
-import { validateConvergeConfig } from '../config/validator.ts';
-import { reconcile } from './reconcile.ts';
-import type { JournalNode } from '../tree/journal-tree.ts';
+import { resolve } from "node:path";
+import path from "node:path";
+import { TaskTree, JournalTree } from "../tree/index.ts";
+import type { TaskNode } from "./next-task.ts";
+import { treeNodesToTaskNodes } from "./next-task.ts";
+import { printTaskTree } from "./tree-display.ts";
+import { calculateExecutionPlan, getTaskStates } from "./next-task.ts";
+import type { ExecutionSpan } from "./next-task.ts";
+import { resolveConvergeConfig } from "../config/loader.ts";
+import { validateConvergeConfig } from "../config/validator.ts";
+import { reconcile } from "./reconcile.ts";
+import type { JournalNode } from "../tree/journal-tree.ts";
 
 export interface TreeCommandOptions {
   /** Override project directory (defaults to cwd) */
@@ -34,7 +34,9 @@ export interface TreeCommandOptions {
   detail?: boolean;
 }
 
-export async function treeCommand(options: TreeCommandOptions = {}): Promise<void> {
+export async function treeCommand(
+  options: TreeCommandOptions = {},
+): Promise<void> {
   try {
     const projectDir = resolve(options.root || process.cwd());
     // Resolve converge config (provides discovery patterns)
@@ -42,27 +44,33 @@ export async function treeCommand(options: TreeCommandOptions = {}): Promise<voi
     const resolved = await resolveConvergeConfig(projectDir);
     const convergeConfig = resolved
       ? validateConvergeConfig(resolved.config, resolved.configPath)
-      : { name: path.basename(projectDir) } as import('../config/types.ts').ConvergeConfig;
+      : ({
+          name: path.basename(projectDir),
+        } as import("../config/types.ts").ConvergeConfig);
 
     // Run discovery once and reuse for both error checking and tree loading
-    const { createDiscoveryScanner } = await import('../discovery/scanner.ts');
+    const { createDiscoveryScanner } = await import("../discovery/scanner.ts");
     const scanner = createDiscoveryScanner(
       convergeConfig.discovery || { epics: [], tasks: [] },
-      projectDir
+      projectDir,
     );
     const discoveryResult = await scanner.scan();
 
     if (discoveryResult.errors.length > 0) {
-      console.error('\n❌ Discovery errors:');
+      console.error("\n❌ Discovery errors:");
       for (const { file, error } of discoveryResult.errors) {
         console.error(`  - ${file}: ${error}`);
       }
-      console.error('\n💡 Fix these errors before viewing the task tree.\n');
+      console.error("\n💡 Fix these errors before viewing the task tree.\n");
       process.exit(1);
     }
 
     // 1. Load TaskTree (definitions) — pass pre-scanned discovery to avoid double scan
-    const taskTree = await TaskTree.load(projectDir, convergeConfig, discoveryResult);
+    const taskTree = await TaskTree.load(
+      projectDir,
+      convergeConfig,
+      discoveryResult,
+    );
 
     // 2. Load JournalTree (execution history)
     const journalTree = await JournalTree.load(projectDir);
@@ -72,24 +80,26 @@ export async function treeCommand(options: TreeCommandOptions = {}): Promise<voi
 
     // Augment each node with journal status/attempts/journalNode
     for (const node of tree) {
-      const journalPath = node.filePath.replace('/epics/', '/journal/tasks/');
+      const journalPath = node.filePath.replace("/epics/", "/journal/tasks/");
       const journalNode = journalTree.getNodeByPath(journalPath);
 
       node.journalPath = journalPath;
 
-      if (journalNode && journalNode.type === 'task') {
-        node.status = journalNode.status === 'interrupted' ? 'failed' : journalNode.status;
+      if (journalNode && journalNode.type === "task") {
+        node.status =
+          journalNode.status === "interrupted" ? "failed" : journalNode.status;
         node.attempts = journalNode.task?.totalAttempts || 0;
         node.journalNode = journalNode;
       }
     }
 
     // Calculate states — skip expensive auto-complete checks for read-only tree display
-    const states = await getTaskStates(projectDir, tree, { skipAutoComplete: true });
-
+    const states = await getTaskStates(projectDir, tree, {
+      skipAutoComplete: true,
+    });
 
     if (tree.length === 0) {
-      console.log('No tasks found. Run `converge init` to create a project.');
+      console.log("No tasks found. Run `converge init` to create a project.");
       return;
     }
 
@@ -98,21 +108,28 @@ export async function treeCommand(options: TreeCommandOptions = {}): Promise<voi
     if (options.filter) {
       filteredTree = filterTaskTree(tree, options.filter);
       if (filteredTree.length === 0) {
-        console.log(`\n⚠️  No tasks found matching filter: "${options.filter}"\n`);
-        console.log('Available task IDs:');
-        const uniqueTaskIds = [...new Set(tree.map(n => n.taskId).filter(Boolean))].sort();
-        uniqueTaskIds.forEach(id => console.log(`  - ${id}`));
-        console.log('\nAvailable epic IDs:');
-        const uniqueEpicIds = [...new Set(tree.map(n => n.epicId).filter(Boolean))].sort();
-        uniqueEpicIds.forEach(id => console.log(`  - ${id}`));
+        console.log(
+          `\n⚠️  No tasks found matching filter: "${options.filter}"\n`,
+        );
+        console.log("Available task IDs:");
+        const uniqueTaskIds = [
+          ...new Set(tree.map((n) => n.taskId).filter(Boolean)),
+        ].sort();
+        uniqueTaskIds.forEach((id) => console.log(`  - ${id}`));
+        console.log("\nAvailable epic IDs:");
+        const uniqueEpicIds = [
+          ...new Set(tree.map((n) => n.epicId).filter(Boolean)),
+        ].sort();
+        uniqueEpicIds.forEach((id) => console.log(`  - ${id}`));
         return;
       }
     }
 
-    const totalCount     = filteredTree.length;
+    const totalCount = filteredTree.length;
 
     // Count running tasks using cached filesystem status (single scan)
-    const { FilesystemTaskStatus } = await import('../checkpoint/filesystem-status.ts');
+    const { FilesystemTaskStatus } =
+      await import("../checkpoint/filesystem-status.ts");
     const fsStatus = new FilesystemTaskStatus(projectDir);
     const statusMap = fsStatus.getStatusMap();
 
@@ -130,23 +147,29 @@ export async function treeCommand(options: TreeCommandOptions = {}): Promise<voi
         failedCount++;
       } else if (states.failureBlocked.has(jid)) {
         blockedCount++;
-      } else if (statusMap.get(qualifiedId) === 'running' || statusMap.get(jid) === 'running') {
+      } else if (
+        statusMap.get(qualifiedId) === "running" ||
+        statusMap.get(jid) === "running"
+      ) {
         runningCount++;
       }
     }
-    const pendingCount = totalCount - completedCount - failedCount - blockedCount - runningCount;
+    const pendingCount =
+      totalCount - completedCount - failedCount - blockedCount - runningCount;
 
-    const parts = [`📊 Tasks: ${totalCount}  Completed: ${completedCount}  Running: ${runningCount}  Failed: ${failedCount}`];
+    const parts = [
+      `📊 Tasks: ${totalCount}  Completed: ${completedCount}  Running: ${runningCount}  Failed: ${failedCount}`,
+    ];
     if (pendingCount > 0) parts.push(`Pending: ${pendingCount}`);
     if (blockedCount > 0) parts.push(`Blocked: ${blockedCount}`);
-    console.log(parts.join('  ') + '\n');
+    console.log(parts.join("  ") + "\n");
 
     // Find currently running task using cached status map
     const runningNode = findRunningTaskFromStatusMap(filteredTree, statusMap);
 
     // Find next pending task (same logic as run --step)
     // Skip tasks that are completed, failed, blocked, OR currently running
-    const nextNode = filteredTree.find(n => {
+    const nextNode = filteredTree.find((n) => {
       if (states.completed.has(n.journalTaskId)) return false;
       if (states.failed.has(n.journalTaskId)) return false;
       if (states.blocked.has(n.journalTaskId)) return false;
@@ -156,36 +179,55 @@ export async function treeCommand(options: TreeCommandOptions = {}): Promise<voi
         if (progress && progress.spawnCount > 0) return false;
       }
       // Skip if this task is the currently running parent (WBS tasks stay "running" while children execute)
-      if (runningNode && n.journalTaskId === runningNode.journalTaskId) return false;
+      if (runningNode && n.journalTaskId === runningNode.journalTaskId)
+        return false;
       return true;
     });
 
     const { plan } = calculateExecutionPlan(filteredTree);
-    printTaskTree(filteredTree, states, nextNode?.journalTaskId ?? '', runningNode?.journalTaskId, plan, options.detail);
+    printTaskTree(
+      filteredTree,
+      states,
+      nextNode?.journalTaskId ?? "",
+      runningNode?.journalTaskId,
+      plan,
+      options.detail,
+    );
 
     if (runningNode && runningNode.taskId === nextNode?.taskId) {
       // Running task is also the next pending task (common case)
-      console.log(`\n⟳  Currently executing: ${formatNextLabel(nextNode, plan, filteredTree)}`);
+      console.log(
+        `\n⟳  Currently executing: ${formatNextLabel(nextNode, plan, filteredTree)}`,
+      );
     } else if (runningNode) {
       // Running task is a parent WBS task, show both parent and next child
-      console.log(`\n⟳  Parent task executing: ${formatNextLabel(runningNode, plan, filteredTree)}`);
+      console.log(
+        `\n⟳  Parent task executing: ${formatNextLabel(runningNode, plan, filteredTree)}`,
+      );
       if (nextNode) {
-        console.log(`   Next subtask: ${formatNextLabel(nextNode, plan, filteredTree)}  ▶`);
+        console.log(
+          `   Next subtask: ${formatNextLabel(nextNode, plan, filteredTree)}  ▶`,
+        );
       }
     } else if (nextNode) {
-      console.log(`\nNext pending: ${formatNextLabel(nextNode, plan, filteredTree)}  ▶`);
+      console.log(
+        `\nNext pending: ${formatNextLabel(nextNode, plan, filteredTree)}  ▶`,
+      );
     } else if (states.failed.size > 0) {
-      console.log(`\n⚠️  No runnable tasks — ${states.failed.size} task(s) failed. Run --unblock to attempt repair.`);
+      console.log(
+        `\n⚠️  No runnable tasks — ${states.failed.size} task(s) failed. Run --unblock to attempt repair.`,
+      );
     } else if (states.blocked.size > 0) {
-      console.log(`\n⚠️  No runnable tasks — ${states.blocked.size} task(s) blocked.`);
+      console.log(
+        `\n⚠️  No runnable tasks — ${states.blocked.size} task(s) blocked.`,
+      );
     } else {
-      console.log('\n✅ All tasks complete.');
+      console.log("\n✅ All tasks complete.");
     }
-
   } catch (error: any) {
     console.error(`\n❌ Tree command failed: ${error.message}`);
     if (process.env.CONVERGE_DEBUG || process.env.CONVERGE_DEBUG_DEPS) {
-      console.error('Stack trace:', error.stack);
+      console.error("Stack trace:", error.stack);
     }
     process.exit(1);
   }
@@ -195,18 +237,24 @@ export async function treeCommand(options: TreeCommandOptions = {}): Promise<voi
  * Format a human-friendly label for the "Next pending" / "Currently executing" lines.
  * Shows execution index range and parent/child task IDs instead of raw file paths.
  */
-function formatNextLabel(node: TaskNode, plan: Map<string, ExecutionSpan>, tree: TaskNode[]): string {
+function formatNextLabel(
+  node: TaskNode,
+  plan: Map<string, ExecutionSpan>,
+  tree: TaskNode[],
+): string {
   const span = plan.get(node.journalTaskId);
   const indexLabel = span
-    ? (span.startIndex === span.endIndex
-        ? `${span.startIndex}.`
-        : `${span.startIndex}-${span.endIndex}.`)
-    : '';
+    ? span.startIndex === span.endIndex
+      ? `${span.startIndex}.`
+      : `${span.startIndex}-${span.endIndex}.`
+    : "";
 
   let label: string;
   if (node.parentTaskId) {
-    const parentNode = tree.find(n => n.journalTaskId === node.parentTaskId);
-    const parentLabel = parentNode ? parentNode.taskId : node.parentTaskId.split('/').pop()!;
+    const parentNode = tree.find((n) => n.journalTaskId === node.parentTaskId);
+    const parentLabel = parentNode
+      ? parentNode.taskId
+      : node.parentTaskId.split("/").pop()!;
     label = `${parentLabel} / ${node.taskId}`;
   } else {
     label = node.taskId;
@@ -242,7 +290,10 @@ function filterTaskTree(tree: TaskNode[], filter: string): TaskNode[] {
     // Check if this task's path is nested under any matched task's directory
     for (const matchedPath of matchedFilePaths) {
       const matchedDir = path.dirname(matchedPath);
-      if (node.filePath.startsWith(matchedDir + path.sep) && node.filePath !== matchedPath) {
+      if (
+        node.filePath.startsWith(matchedDir + path.sep) &&
+        node.filePath !== matchedPath
+      ) {
         matchedTaskIds.add(node.taskId);
         break;
       }
@@ -254,7 +305,7 @@ function filterTaskTree(tree: TaskNode[], filter: string): TaskNode[] {
     }
   }
 
-  return tree.filter(n => matchedTaskIds.has(n.taskId));
+  return tree.filter((n) => matchedTaskIds.has(n.taskId));
 }
 
 /**
@@ -263,11 +314,14 @@ function filterTaskTree(tree: TaskNode[], filter: string): TaskNode[] {
  */
 function findRunningTaskFromStatusMap(
   tree: TaskNode[],
-  statusMap: Map<string, string>
+  statusMap: Map<string, string>,
 ): TaskNode | null {
   for (const node of tree) {
     const qualifiedId = `${node.epicId}/${node.journalTaskId}`;
-    if (statusMap.get(qualifiedId) === 'running' || statusMap.get(node.journalTaskId) === 'running') {
+    if (
+      statusMap.get(qualifiedId) === "running" ||
+      statusMap.get(node.journalTaskId) === "running"
+    ) {
       return node;
     }
   }

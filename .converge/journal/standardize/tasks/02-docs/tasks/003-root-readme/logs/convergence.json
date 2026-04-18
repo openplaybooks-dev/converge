@@ -1,0 +1,232 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "02-docs/003-root-readme-check-failed-readme-has-banner-ref",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-docs/003-root-readme",
+            "severity": "high",
+            "description": "[02-docs/003-root-readme] Check failed: README references banner.svg",
+            "source": "unit",
+            "detected": "2026-04-17T23:39:07.164Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "readme-has-banner-ref",
+              "checkCmd": "grep -q 'banner.svg' README.md",
+              "checkDescription": "README references banner.svg",
+              "checkOutput": "Command failed: grep -q 'banner.svg' README.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Enhance the root README.md (moved from packages/core in task 001) for public release.\n\n**The README already has good content** from the move. This task adds/verifies:\n\n**Reference**: Read `docs/converge-gtm.md` for positioning, messaging, and comparison data.\n\n**Verify/add these sections**:\n1. **Banner** — `![Converge](./banner.svg)` (generated in task 002)\n2. **Tagline** — \"Define done. Converge gets there.\"\n3. **Badges** — npm version, license, build status, test coverage\n4. **One-paragraph description** — gap-driven convergence framework for AI agent orchestration\n5. **Why Converge** — 3-4 bullet points from GTM positioning\n6. **Quick Start** — install, create playbook, run (< 5 minutes)\n7. **How It Works** — brief explanation of the convergence loop\n8. **Comparison Table** — vs LangChain, CrewAI, AutoGen, Mastra (from GTM doc)\n9. **Packages** — monorepo package list with descriptions\n10. **Documentation Links** — link to core package, contributing, examples\n11. **License** — Apache 2.0\n\n**Fix any relative paths** that broke during the move from packages/core/.\n\n**Voice**: Professional, concise, technically precise. No hype words.\nDraw messaging from `docs/converge-gtm.md` sections 1 (Product Positioning)\nand 11 (Differentiation Messaging).",
+              "taskId": "02-docs/003-root-readme",
+              "taskTitle": "Enhance root README.md",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/standardize/tasks/02-docs/tasks/003-root-readme",
+              "factId": "check:readme-has-banner-ref"
+            }
+          }
+        ],
+        "durationMs": 21
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "resolve-blockers",
+      "handler": "resolve-blockers",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 80,
+        "applicable": "hasBlockerAndIsFirst"
+      }
+    },
+    {
+      "id": "bail-blockers",
+      "handler": "bail-blockers",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 79,
+        "applicable": "hasBlockerAndNotFirst"
+      }
+    },
+    {
+      "id": "strategy-user-question-resume",
+      "handler": "strategy-user-question-resume",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 60,
+        "applicable": "hasUserQ"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65,
+        "applicable": "isFirst"
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55,
+        "applicable": "hasRepairableGap"
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 21
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 34
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#16",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 36387
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-17T23:39:07.143Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-17T23:39:07.143Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-17T23:39:07.164Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-17T23:39:07.166Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-17T23:39:07.187Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#16",
+      "iteration": 1,
+      "ts": "2026-04-17T23:39:43.575Z"
+    },
+    {
+      "from": "run-strategy:task-run#16",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-17T23:39:43.610Z"
+    }
+  ]
+}

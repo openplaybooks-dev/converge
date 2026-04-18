@@ -20,11 +20,11 @@ export type {
   PlanAPI,
   CheckAPI,
   PluginAPI,
-} from './types.ts';
+} from "./types.ts";
 
 // Artifacts
-export type { ArtifactAPI, ArtifactManifest, ArtifactEntry } from '../artifacts/index.ts';
-export { ArtifactStore } from '../artifacts/index.ts';
+export type { ArtifactAPI } from "../artifacts/index.ts";
+export { ArtifactStore } from "../artifacts/index.ts";
 
 // Base implementations
 export {
@@ -32,20 +32,11 @@ export {
   ShellAPIImpl,
   GitAPIImpl,
   LoggerAPIImpl,
-} from './base.ts';
+} from "./base.ts";
 
 // Context implementations
-export {
-  ProjectContextImpl,
-  createProjectContext,
-} from './project-context.ts';
+export { ProjectContextImpl, createProjectContext } from "./project-context.ts";
 
-export {
-  EpicContextImpl,
-  createEpicContext,
-} from './epic-context.ts';
+export { EpicContextImpl, createEpicContext } from "./epic-context.ts";
 
-export {
-  TaskContextImpl,
-  createTaskContext,
-} from './task-context.ts';
+export { TaskContextImpl, createTaskContext } from "./task-context.ts";

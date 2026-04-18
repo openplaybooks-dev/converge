@@ -7,6 +7,7 @@ Events appeared **exactly twice** in console output, even though they were writt
 ## Root Cause
 
 In `ConsoleFormatter.start()`, we were calling BOTH:
+
 1. `readExisting()` - reads all events from file
 2. `startWatching()` - watches for new file changes
 
@@ -41,6 +42,7 @@ async start(): Promise<void> {
 Actually, the real issue is simpler:
 
 **Timeline:**
+
 - T0: `start()` called, empty file created
 - T1: `readExisting()` awaited, returns (file empty, `lastPosition = 0`)
 - T2: `startWatching()` starts watching
@@ -56,12 +58,14 @@ WAIT - that's not duplication! Let me re-analyze...
 ## Actual Root Cause (After Debugging)
 
 Looking at the file:
+
 ```bash
 $ grep "ai_reasoning" events.jsonl | wc -l
 1  # Only ONE ai_reasoning event in file
 ```
 
 Looking at console:
+
 ```
 💭 Starting convergence loop...  ← First appearance
 💭 Starting convergence loop...  ← Second appearance (DUPLICATE!)

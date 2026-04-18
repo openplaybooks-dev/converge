@@ -2,11 +2,11 @@
  * Utility helpers — getProjectRoot, getEpicId, hasStalled, exists.
  */
 
-import { existsSync } from 'node:fs';
-import * as path from 'node:path';
-import type { Gap } from '../gap/types.ts';
-import type { Unit } from './unit.ts';
-import { createTaskContext } from './task-context.ts';
+import { existsSync } from "node:fs";
+import * as path from "node:path";
+import type { Gap } from "../gap/types.ts";
+import type { Unit } from "./unit.ts";
+import { createTaskContext } from "./task-context.ts";
 
 /**
  * Get project root directory (workspace root).
@@ -14,13 +14,13 @@ import { createTaskContext } from './task-context.ts';
  */
 export function getProjectRoot(unit: Unit): string {
   // Virtual paths (inline spawns) delegate to parent
-  if (unit.path.startsWith('<virtual:') && unit.parent) {
+  if (unit.path.startsWith("<virtual:") && unit.parent) {
     return getProjectRoot(unit.parent);
   }
   // Walk up from task path to find .converge directory
   let current = path.dirname(unit.path);
   while (current !== path.dirname(current)) {
-    if (path.basename(current) === '.converge') {
+    if (path.basename(current) === ".converge") {
       return path.dirname(current);
     }
     current = path.dirname(current);
@@ -49,7 +49,7 @@ export function getEpicId(unit: Unit): string {
       current = current.parent;
     }
 
-    return 'unknown-epic';
+    return "unknown-epic";
   }
 }
 
@@ -84,14 +84,17 @@ export function hasStalled(current: Gap[], previous: Gap[]): boolean {
   // Secondary: check if all gaps are check-failed with identical error output.
   // This catches cases where descriptions vary but the underlying shell error
   // is the same (e.g. broken check command producing identical stderr each time).
-  if (current.length > 0 && current.every((g, i) => {
-    const prev = previous[i];
-    if (!prev) return false;
-    if (g.id !== prev.id) return false;
-    const curOutput = (g.metadata?.checkOutput as string) ?? '';
-    const prevOutput = (prev.metadata?.checkOutput as string) ?? '';
-    return curOutput !== '' && curOutput === prevOutput;
-  })) {
+  if (
+    current.length > 0 &&
+    current.every((g, i) => {
+      const prev = previous[i];
+      if (!prev) return false;
+      if (g.id !== prev.id) return false;
+      const curOutput = (g.metadata?.checkOutput as string) ?? "";
+      const prevOutput = (prev.metadata?.checkOutput as string) ?? "";
+      return curOutput !== "" && curOutput === prevOutput;
+    })
+  ) {
     return true;
   }
 
@@ -101,10 +104,13 @@ export function hasStalled(current: Gap[], previous: Gap[]): boolean {
 /**
  * Check if a path exists (handles globs).
  */
-export async function pathExists(baseDir: string, pathOrPattern: string): Promise<boolean> {
+export async function pathExists(
+  baseDir: string,
+  pathOrPattern: string,
+): Promise<boolean> {
   const hasGlobChars = /[*?{]/.test(pathOrPattern);
   if (hasGlobChars) {
-    const { glob } = await import('glob');
+    const { glob } = await import("glob");
     const matches = await glob(pathOrPattern, { cwd: baseDir });
     return matches.length > 0;
   }

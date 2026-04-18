@@ -8,14 +8,14 @@
  * - No manual ID tracking required
  */
 
-import * as path from 'node:path';
+import * as path from "node:path";
 import {
   extractJournalTaskId,
   extractEpicId,
   extractLeafTaskId,
   extractParentTaskId,
   constructJournalPath,
-} from './path-utils.ts';
+} from "./path-utils.ts";
 
 /**
  * Hierarchical task context with path-based ID derivation.
@@ -105,7 +105,7 @@ export interface TaskContext {
  */
 export function createTaskContext(
   taskPath: string,
-  parent?: TaskContext
+  parent?: TaskContext,
 ): TaskContext {
   // Use shared utilities for consistent path parsing
   const epicId = extractEpicId(taskPath);
@@ -132,8 +132,10 @@ export function createTaskContext(
  * @param contextOrPath - TaskContext or path string
  * @returns Epic ID
  */
-export function getEpicIdFromContext(contextOrPath: TaskContext | string): string {
-  if (typeof contextOrPath === 'string') {
+export function getEpicIdFromContext(
+  contextOrPath: TaskContext | string,
+): string {
+  if (typeof contextOrPath === "string") {
     return createTaskContext(contextOrPath).epicId;
   }
   return contextOrPath.epicId;
@@ -146,8 +148,10 @@ export function getEpicIdFromContext(contextOrPath: TaskContext | string): strin
  * @param contextOrPath - TaskContext or path string
  * @returns Task ID
  */
-export function getTaskIdFromContext(contextOrPath: TaskContext | string): string {
-  if (typeof contextOrPath === 'string') {
+export function getTaskIdFromContext(
+  contextOrPath: TaskContext | string,
+): string {
+  if (typeof contextOrPath === "string") {
     return createTaskContext(contextOrPath).taskId;
   }
   return contextOrPath.taskId;
@@ -167,8 +171,8 @@ export function getTaskIdFromContext(contextOrPath: TaskContext | string): strin
  */
 export function createChildContext(
   parent: TaskContext,
-  childId: string
+  childId: string,
 ): TaskContext {
-  const childPath = path.join(parent.path, 'tasks', childId);
+  const childPath = path.join(parent.path, "tasks", childId);
   return createTaskContext(childPath, parent);
 }

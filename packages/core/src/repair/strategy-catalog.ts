@@ -37,15 +37,20 @@
  * declaratively in their descriptor.
  */
 
-import type { Gap } from '../gap/types.ts';
-import { toCompactGap } from '../gap/types.ts';
-import type { FixStrategy, StrategyContext, StrategyOutcome, JournalContext } from './types.ts';
-import { HistoryIndexBuilder } from './history-index.ts';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-import { check as shellCheck } from '../facts/api.ts';
-import { parseTaskMd } from '../config/task-md-definition.ts';
+import type { Gap } from "../gap/types.ts";
+import { toCompactGap } from "../gap/types.ts";
+import type {
+  FixStrategy,
+  StrategyContext,
+  StrategyOutcome,
+  JournalContext,
+} from "./types.ts";
+import { HistoryIndexBuilder } from "./history-index.ts";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+import { check as shellCheck } from "../facts/api.ts";
+import { parseTaskMd } from "../config/task-md-definition.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Context Provider — how a strategy gathers its context              */
@@ -56,12 +61,37 @@ import { parseTaskMd } from '../config/task-md-definition.ts';
  * Strategies compose multiple steps to build their context.
  */
 export type ContextStep =
-  | { type: 'gap'; /** Extract fields from gap.metadata */ fields: string[] }
-  | { type: 'cmd'; /** Shell command to run */ cmd: string; /** Label for the output */ label: string }
-  | { type: 'file'; /** File path (relative to project) */ path: string; label: string; optional?: boolean }
-  | { type: 'files'; /** Glob pattern */ pattern: string; label: string; maxFiles?: number }
-  | { type: 'prompt'; /** Sub-question to ask AI */ question: string; label: string }
-  | { type: 'custom'; /** Arbitrary async function */ fn: (gap: Gap, projectDir: string) => Promise<string>; label: string };
+  | { type: "gap"; /** Extract fields from gap.metadata */ fields: string[] }
+  | {
+      type: "cmd";
+      /** Shell command to run */ cmd: string;
+      /** Label for the output */ label: string;
+    }
+  | {
+      type: "file";
+      /** File path (relative to project) */ path: string;
+      label: string;
+      optional?: boolean;
+    }
+  | {
+      type: "files";
+      /** Glob pattern */ pattern: string;
+      label: string;
+      maxFiles?: number;
+    }
+  | {
+      type: "prompt";
+      /** Sub-question to ask AI */ question: string;
+      label: string;
+    }
+  | {
+      type: "custom";
+      /** Arbitrary async function */ fn: (
+        gap: Gap,
+        projectDir: string,
+      ) => Promise<string>;
+      label: string;
+    };
 
 /**
  * Gathered context from running all context steps.
@@ -93,7 +123,7 @@ export interface StrategyDescriptor {
   /** How this strategy gathers its context before execution */
   contextSteps: ContextStep[];
   /** Whether this is a TS class strategy or a TASK.md strategy */
-  type: 'builtin' | 'skill';
+  type: "builtin" | "skill";
   /** Reference to the TS FixStrategy (if builtin) */
   strategy?: FixStrategy;
   /** Path to TASK.md (if skill-based) */
@@ -114,10 +144,13 @@ export class UnifiedStrategyRegistry {
   /**
    * Register a builtin TS strategy with its descriptor.
    */
-  registerBuiltin(strategy: FixStrategy, descriptor: Omit<StrategyDescriptor, 'type' | 'strategy'>): void {
+  registerBuiltin(
+    strategy: FixStrategy,
+    descriptor: Omit<StrategyDescriptor, "type" | "strategy">,
+  ): void {
     this.descriptors.set(descriptor.name, {
       ...descriptor,
-      type: 'builtin',
+      type: "builtin",
       strategy,
     });
   }
@@ -133,9 +166,11 @@ export class UnifiedStrategyRegistry {
       if (!parsed) return;
 
       const name = parsed.def.title ?? skillPath;
-      const description = parsed.def.description ?? `Repair skill at ${skillPath}`;
-      const gapKinds = (parsed.def.tags as string[])?.filter(t => t.startsWith('gap:'))
-        .map(t => t.replace('gap:', '')) ?? ['output', 'check-failed'];
+      const description =
+        parsed.def.description ?? `Repair skill at ${skillPath}`;
+      const gapKinds = (parsed.def.tags as string[])
+        ?.filter((t) => t.startsWith("gap:"))
+        .map((t) => t.replace("gap:", "")) ?? ["output", "check-failed"];
 
       this.descriptors.set(name, {
         name,
@@ -143,9 +178,18 @@ export class UnifiedStrategyRegistry {
         gapKinds,
         contextSteps: [
           // Skills always get gap context as a file
-          { type: 'gap', fields: ['gapKind', 'checkCmd', 'checkOutput', 'taskTitle', 'inputPattern'] },
+          {
+            type: "gap",
+            fields: [
+              "gapKind",
+              "checkCmd",
+              "checkOutput",
+              "taskTitle",
+              "inputPattern",
+            ],
+          },
         ],
-        type: 'skill',
+        type: "skill",
         skillPath,
       });
     } catch {
@@ -162,7 +206,7 @@ export class UnifiedStrategyRegistry {
     let count = 0;
     for (const d of readdirSync(repairSkillsDir, { withFileTypes: true })) {
       if (!d.isDirectory()) continue;
-      const skillMd = join(repairSkillsDir, d.name, 'TASK.md');
+      const skillMd = join(repairSkillsDir, d.name, "TASK.md");
       if (existsSync(skillMd)) {
         await this.registerSkill(skillMd);
         count++;
@@ -176,8 +220,9 @@ export class UnifiedStrategyRegistry {
    * Deterministic strategies first, then by priority.
    */
   getEligible(gapKind: string): StrategyDescriptor[] {
-    const all = Array.from(this.descriptors.values())
-      .filter(d => d.gapKinds.includes(gapKind) || d.gapKinds.includes('*'));
+    const all = Array.from(this.descriptors.values()).filter(
+      (d) => d.gapKinds.includes(gapKind) || d.gapKinds.includes("*"),
+    );
 
     // Sort: deterministic first, then by priority descending
     return all.sort((a, b) => {
@@ -207,10 +252,14 @@ export class UnifiedStrategyRegistry {
    */
   formatCatalogForAI(eligible: StrategyDescriptor[]): string {
     const lines = eligible.map((d, i) => {
-      const typeTag = d.deterministic ? ' [deterministic]' : d.type === 'skill' ? ' [skill]' : '';
-      return `${i + 1}. **${d.name}**${typeTag}\n   ${d.description}\n   Handles: ${d.gapKinds.join(', ')}`;
+      const typeTag = d.deterministic
+        ? " [deterministic]"
+        : d.type === "skill"
+          ? " [skill]"
+          : "";
+      return `${i + 1}. **${d.name}**${typeTag}\n   ${d.description}\n   Handles: ${d.gapKinds.join(", ")}`;
     });
-    return lines.join('\n\n');
+    return lines.join("\n\n");
   }
 }
 
@@ -228,58 +277,64 @@ export async function gatherContext(
   for (const step of steps) {
     try {
       switch (step.type) {
-        case 'gap': {
+        case "gap": {
           const parts: string[] = [];
           for (const field of step.fields) {
             const value = gap.metadata?.[field];
             if (value !== undefined) {
-              parts.push(`${field}: ${typeof value === 'string' ? value : JSON.stringify(value)}`);
+              parts.push(
+                `${field}: ${typeof value === "string" ? value : JSON.stringify(value)}`,
+              );
             }
           }
           if (parts.length > 0) {
-            sections['gap-metadata'] = parts.join('\n');
+            sections["gap-metadata"] = parts.join("\n");
           }
           break;
         }
 
-        case 'cmd': {
+        case "cmd": {
           const result = await shellCheck(step.cmd, projectDir, 10_000);
           sections[step.label] = result.output || `(exit ${result.exitCode})`;
           break;
         }
 
-        case 'file': {
+        case "file": {
           const fullPath = join(projectDir, step.path);
           if (existsSync(fullPath)) {
-            const content = await readFile(fullPath, 'utf-8');
+            const content = await readFile(fullPath, "utf-8");
             // Truncate large files
-            sections[step.label] = content.length > 2000
-              ? content.slice(0, 2000) + '\n...[truncated]'
-              : content;
+            sections[step.label] =
+              content.length > 2000
+                ? content.slice(0, 2000) + "\n...[truncated]"
+                : content;
           } else if (!step.optional) {
             sections[step.label] = `(file not found: ${step.path})`;
           }
           break;
         }
 
-        case 'files': {
-          const { glob } = await import('glob');
+        case "files": {
+          const { glob } = await import("glob");
           const matches = await glob(step.pattern, { cwd: projectDir });
           const maxFiles = step.maxFiles ?? 5;
           const shown = matches.slice(0, maxFiles);
-          const listing = shown.map(f => `- ${f}`).join('\n');
-          const extra = matches.length > maxFiles ? `\n... and ${matches.length - maxFiles} more` : '';
-          sections[step.label] = listing + extra || '(no files matched)';
+          const listing = shown.map((f) => `- ${f}`).join("\n");
+          const extra =
+            matches.length > maxFiles
+              ? `\n... and ${matches.length - maxFiles} more`
+              : "";
+          sections[step.label] = listing + extra || "(no files matched)";
           break;
         }
 
-        case 'prompt': {
+        case "prompt": {
           // Sub-AI question — deferred for now (would need AIContext)
           sections[step.label] = `(AI sub-question: ${step.question})`;
           break;
         }
 
-        case 'custom': {
+        case "custom": {
           sections[step.label] = await step.fn(gap, projectDir);
           break;
         }
@@ -294,7 +349,7 @@ export async function gatherContext(
     asPromptSection() {
       return Object.entries(sections)
         .map(([label, content]) => `### ${label}\n${content}`)
-        .join('\n\n');
+        .join("\n\n");
     },
   };
 }
@@ -326,9 +381,10 @@ export function buildSelectionPrompt(
   triedStrategies: string[],
 ): string {
   const compact = toCompactGap(gap);
-  const triedList = triedStrategies.length > 0
-    ? `\n\n## Already Tried (DO NOT select these)\n${triedStrategies.map(s => `- ${s}`).join('\n')}`
-    : '';
+  const triedList =
+    triedStrategies.length > 0
+      ? `\n\n## Already Tried (DO NOT select these)\n${triedStrategies.map((s) => `- ${s}`).join("\n")}`
+      : "";
 
   return `Select the best repair strategy for this gap.
 
@@ -368,12 +424,14 @@ export function buildPlanningPrompt(
   maxDepth: number = 3,
 ): string {
   const compact = toCompactGap(gap);
-  const triedList = triedStrategies.length > 0
-    ? `\n\n## Already Tried (exclude from plan)\n${triedStrategies.map(s => `- ${s}`).join('\n')}`
-    : '';
-  const filesSection = contextFiles.length > 0
-    ? `\n\n## Context Files (read only if relevant to your decision)\n${contextFiles.map(f => `- \`${f}\``).join('\n')}`
-    : '';
+  const triedList =
+    triedStrategies.length > 0
+      ? `\n\n## Already Tried (exclude from plan)\n${triedStrategies.map((s) => `- ${s}`).join("\n")}`
+      : "";
+  const filesSection =
+    contextFiles.length > 0
+      ? `\n\n## Context Files (read only if relevant to your decision)\n${contextFiles.map((f) => `- \`${f}\``).join("\n")}`
+      : "";
 
   return `Generate a repair plan graph for this gap.
 
@@ -384,7 +442,7 @@ export function buildPlanningPrompt(
 - Description: ${gap.description}
 
 ## Strategy History
-${historySection || '(no history — first attempt)'}
+${historySection || "(no history — first attempt)"}
 ${triedList}
 ${filesSection}
 
@@ -392,7 +450,7 @@ ${filesSection}
 ${catalog}
 
 ## Available Predicates
-${predicates.map(p => `- \`${p}\``).join('\n')}
+${predicates.map((p) => `- \`${p}\``).join("\n")}
 
 ## Instructions
 
@@ -428,95 +486,142 @@ Return JSON only:`;
  * Create descriptors for all builtin strategies.
  * Call this to register them with the UnifiedStrategyRegistry.
  */
-export function getBuiltinDescriptors(): Array<{ descriptor: Omit<StrategyDescriptor, 'type' | 'strategy'>; strategyClass: string }> {
+export function getBuiltinDescriptors(): Array<{
+  descriptor: Omit<StrategyDescriptor, "type" | "strategy">;
+  strategyClass: string;
+}> {
   return [
     {
-      strategyClass: 'UserQuestionResumeStrategy',
+      strategyClass: "UserQuestionResumeStrategy",
       descriptor: {
-        name: 'user-question-resume',
-        description: 'Handles tasks waiting for user input. Creates RESUME.md with the answer so the task can continue without re-asking.',
-        gapKinds: ['user-question', 'output'],
-        contextSteps: [{ type: 'gap', fields: ['awaitingUserInput', 'userQuestion', 'userQuestionOptions'] }],
+        name: "user-question-resume",
+        description:
+          "Handles tasks waiting for user input. Creates RESUME.md with the answer so the task can continue without re-asking.",
+        gapKinds: ["user-question", "output"],
+        contextSteps: [
+          {
+            type: "gap",
+            fields: [
+              "awaitingUserInput",
+              "userQuestion",
+              "userQuestionOptions",
+            ],
+          },
+        ],
         deterministic: true,
         priority: 10,
       },
     },
     {
-      strategyClass: 'WBSGeneratorRepairStrategy',
+      strategyClass: "WBSGeneratorRepairStrategy",
       descriptor: {
-        name: 'wbs-generator-repair',
-        description: 'Fixes systemic bugs in WBS task generator code. Runs 4-phase repair: diagnose generator → fix code → apply → regenerate subtasks. Use when multiple subtasks fail with the same pattern.',
-        gapKinds: ['wbs'],
+        name: "wbs-generator-repair",
+        description:
+          "Fixes systemic bugs in WBS task generator code. Runs 4-phase repair: diagnose generator → fix code → apply → regenerate subtasks. Use when multiple subtasks fail with the same pattern.",
+        gapKinds: ["wbs"],
         contextSteps: [
-          { type: 'gap', fields: ['isSystemicIssue', 'generatorPath'] },
-          { type: 'file', path: '', label: 'generator-code', optional: true },
+          { type: "gap", fields: ["isSystemicIssue", "generatorPath"] },
+          { type: "file", path: "", label: "generator-code", optional: true },
         ],
         deterministic: false,
         priority: 10,
       },
     },
     {
-      strategyClass: 'DependencyBackoffStrategy',
+      strategyClass: "DependencyBackoffStrategy",
       descriptor: {
-        name: 'dependency-backoff',
-        description: 'Resolves missing input dependencies by finding the upstream producer task and scheduling it to run first. Generates DEPS.md dependency map, uses AI to identify the correct producer, injects LEARN.md with hints.',
-        gapKinds: ['blocker', 'input', 'missing-intermediate'],
+        name: "dependency-backoff",
+        description:
+          "Resolves missing input dependencies by finding the upstream producer task and scheduling it to run first. Generates DEPS.md dependency map, uses AI to identify the correct producer, injects LEARN.md with hints.",
+        gapKinds: ["blocker", "input", "missing-intermediate"],
         contextSteps: [
-          { type: 'gap', fields: ['inputPattern', 'missingInputs'] },
-          { type: 'cmd', cmd: 'find .converge/epics -name "TASK.md" -exec grep -l "outputs:" {} \\; 2>/dev/null | head -20', label: 'producer-candidates' },
+          { type: "gap", fields: ["inputPattern", "missingInputs"] },
+          {
+            type: "cmd",
+            cmd: 'find .converge/epics -name "TASK.md" -exec grep -l "outputs:" {} \\; 2>/dev/null | head -20',
+            label: "producer-candidates",
+          },
         ],
         deterministic: false,
         priority: 9,
       },
     },
     {
-      strategyClass: 'MissingInputPatternRepairStrategy',
+      strategyClass: "MissingInputPatternRepairStrategy",
       descriptor: {
-        name: 'missing-input-pattern',
-        description: 'Fixes glob pattern mismatches where files exist but at a different path. Tests pattern variations (recursive, extra directory level, case changes) against the filesystem.',
-        gapKinds: ['blocker', 'input'],
+        name: "missing-input-pattern",
+        description:
+          "Fixes glob pattern mismatches where files exist but at a different path. Tests pattern variations (recursive, extra directory level, case changes) against the filesystem.",
+        gapKinds: ["blocker", "input"],
         contextSteps: [
-          { type: 'gap', fields: ['inputPattern'] },
-          { type: 'cmd', cmd: 'find . -maxdepth 4 -type f | head -50', label: 'filesystem-sample' },
+          { type: "gap", fields: ["inputPattern"] },
+          {
+            type: "cmd",
+            cmd: "find . -maxdepth 4 -type f | head -50",
+            label: "filesystem-sample",
+          },
         ],
         deterministic: true,
         priority: 8.5,
       },
     },
     {
-      strategyClass: 'ToolEnvironmentRepairStrategy',
+      strategyClass: "ToolEnvironmentRepairStrategy",
       descriptor: {
-        name: 'tool-environment-repair',
-        description: 'Fixes external tool/environment issues when a task completed but outputs are wrong. Detects missing tools (command not found), version mismatches, format changes, and missing env vars.',
-        gapKinds: ['output', 'check-failed'],
+        name: "tool-environment-repair",
+        description:
+          "Fixes external tool/environment issues when a task completed but outputs are wrong. Detects missing tools (command not found), version mismatches, format changes, and missing env vars.",
+        gapKinds: ["output", "check-failed"],
         contextSteps: [
-          { type: 'gap', fields: ['taskCompletedSuccessfully', 'checkOutput'] },
+          { type: "gap", fields: ["taskCompletedSuccessfully", "checkOutput"] },
         ],
         deterministic: false,
         priority: 8,
       },
     },
     {
-      strategyClass: 'SkillBasedRepairStrategy',
+      strategyClass: "SkillBasedRepairStrategy",
       descriptor: {
-        name: 'skill-based-repair',
-        description: 'Context-aware repair via TASK.md repair skills. Each skill declares what context it needs (files, commands, gap metadata) in its frontmatter. The strategy gathers that context from the environment, writes it to the filesystem, and invokes the skill. Handles all gap types via specialized repair skills.',
-        gapKinds: ['check-failed', 'output', 'corrupted', 'blocker', 'input', 'missing-intermediate'],
+        name: "skill-based-repair",
+        description:
+          "Context-aware repair via TASK.md repair skills. Each skill declares what context it needs (files, commands, gap metadata) in its frontmatter. The strategy gathers that context from the environment, writes it to the filesystem, and invokes the skill. Handles all gap types via specialized repair skills.",
+        gapKinds: [
+          "check-failed",
+          "output",
+          "corrupted",
+          "blocker",
+          "input",
+          "missing-intermediate",
+        ],
         contextSteps: [
-          { type: 'gap', fields: ['gapKind', 'checkCmd', 'checkOutput', 'taskTitle', 'allMissingItems', 'inputPattern'] },
+          {
+            type: "gap",
+            fields: [
+              "gapKind",
+              "checkCmd",
+              "checkOutput",
+              "taskTitle",
+              "allMissingItems",
+              "inputPattern",
+            ],
+          },
         ],
         deterministic: false,
         priority: 6,
       },
     },
     {
-      strategyClass: 'TaskRunStrategy',
+      strategyClass: "TaskRunStrategy",
       descriptor: {
-        name: 'task-run',
-        description: 'Last resort — re-executes the full task with TASK.md + CHECK.md + LEARN.md context. Handles all gap types but is expensive (full AI execution). Use only when targeted strategies have failed.',
-        gapKinds: ['output', 'check-failed', 'corrupted'],
+        name: "task-run",
+        description:
+          "Last resort — re-executes the full task with TASK.md + CHECK.md + LEARN.md context. Handles all gap types but is expensive (full AI execution). Use only when targeted strategies have failed.",
+        gapKinds: ["output", "check-failed", "corrupted"],
         contextSteps: [
-          { type: 'gap', fields: ['taskTitle', 'taskPrompt', 'taskAgent', 'taskSkill'] },
+          {
+            type: "gap",
+            fields: ["taskTitle", "taskPrompt", "taskAgent", "taskSkill"],
+          },
         ],
         deterministic: false,
         priority: 5,

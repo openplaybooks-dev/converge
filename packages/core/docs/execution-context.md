@@ -25,6 +25,7 @@ ProjectContext (root)
 ## Context Levels
 
 ### 1. Project Context (Root)
+
 - **Level**: `project`
 - **Scope**: Entire workspace
 - **Contains**:
@@ -36,6 +37,7 @@ ProjectContext (root)
 - **Usage**: Top-level orchestration and global state management
 
 ### 2. Epic Context (Middle Layer)
+
 - **Level**: `epic`
 - **Scope**: Epic-specific goals and task orchestration
 - **Contains**:
@@ -46,6 +48,7 @@ ProjectContext (root)
 - **Usage**: Goal-based task orchestration and convergence tracking
 
 ### 3. Task Context (Leaf Node)
+
 - **Level**: `task`
 - **Scope**: Single executable work unit
 - **Contains**:
@@ -64,11 +67,12 @@ pnpm converge run --step --dry
 ```
 
 **Output Example**:
+
 ```
 📋 Execution Context (Nested Hierarchy):
 
 ┌─ Project Context
-│  Name: SheetsRun Workspace Generator
+│  Name: My Project
 │  Description: Transforms Google Sheets data...
 │  Project Dir: /path/to/workspace
 │  Converge Dir: /path/to/workspace/.converge
@@ -106,16 +110,16 @@ All contexts are **read-only** and **immutable**:
 
 ## API Access by Level
 
-| API | Project | Epic | Task |
-|-----|---------|------|------|
-| `fs` (filesystem) | ✅ | ✅ | ✅ |
-| `shell` (command exec) | ✅ | ✅ | ✅ |
-| `git` (git operations) | ✅ | ✅ | ✅ |
-| `log` (logging) | ✅ | ✅ | ✅ |
-| `eval` (gap detection) | ✅ | ✅ | ❌ |
-| `plan` (task generation) | ✅ | ✅ | ❌ |
-| `plugins` (plugin mgmt) | ✅ | ❌ | ❌ |
-| `check` (validation) | ✅ | ✅ | ✅ |
+| API                      | Project | Epic | Task |
+| ------------------------ | ------- | ---- | ---- |
+| `fs` (filesystem)        | ✅      | ✅   | ✅   |
+| `shell` (command exec)   | ✅      | ✅   | ✅   |
+| `git` (git operations)   | ✅      | ✅   | ✅   |
+| `log` (logging)          | ✅      | ✅   | ✅   |
+| `eval` (gap detection)   | ✅      | ✅   | ❌   |
+| `plan` (task generation) | ✅      | ✅   | ❌   |
+| `plugins` (plugin mgmt)  | ✅      | ❌   | ❌   |
+| `check` (validation)     | ✅      | ✅   | ✅   |
 
 ## Executable Work Units
 
@@ -130,16 +134,18 @@ Only **Task Context** is executable. Epic and Project contexts are organizationa
 ## Task Types
 
 ### 1. Function-Based Tasks (`task.ts`)
+
 ```typescript
 export default defineTask({
-  id: '001-example',
-  title: 'Example Task',
-  fn: 'my-function',  // References a Claude function
-  type: 'coding',
+  id: "001-example",
+  title: "Example Task",
+  fn: "my-function", // References a Claude function
+  type: "coding",
 });
 ```
 
 ### 2. Skill-Based Tasks (`SKILL.md`)
+
 ```yaml
 ---
 id: 001-example
@@ -147,7 +153,6 @@ title: Example Skill Task
 type: skill-task
 skill: stitch-design
 ---
-
 Task instructions in markdown...
 ```
 
@@ -156,16 +161,19 @@ Both types are discovered and executed as **Task Context** (leaf nodes).
 ## Discovery vs Execution
 
 **Discovery** (`--dry`):
+
 - Scans glob patterns for task/epic/skill files
 - Builds the context hierarchy
 - Does NOT execute anything
 
 **Execution** (`--step` without `--dry`):
+
 - Walks the context hierarchy
 - Executes tasks sequentially or in parallel
 - Tracks gaps and convergence
 
 **Step Dry** (`--step --dry`):
+
 - Shows the full execution context hierarchy
 - Useful for debugging and understanding structure
 - No execution, no side effects

@@ -46,14 +46,15 @@ converge run --v2 .converge/epics/02-ux-design/003-generate-screens.ts
 
 ```typescript
 // V2 loads task definition
-const taskModule = await import('.converge/epics/02-ux-design/003-generate-screens.ts');
+const taskModule =
+  await import(".converge/epics/02-ux-design/003-generate-screens.ts");
 const taskDef = taskModule.default;
 
 const unit = new Unit({
   parent: null,
-  path: '.converge/epics/02-ux-design/003-generate-screens.ts',
+  path: ".converge/epics/02-ux-design/003-generate-screens.ts",
   taskDef,
-  config: { maxIterations: 100, taskDef, path: '...' }
+  config: { maxIterations: 100, taskDef, path: "..." },
 });
 ```
 
@@ -72,6 +73,7 @@ Found 1 gap(s):
 ```
 
 **What happened:**
+
 1. `unit.findGaps()` checked:
    - ✅ Inputs exist: `.stitch/SITE.md`, `.stitch/DESIGN.md`
    - ❌ Outputs missing: `.converge/epics/02-ux-design/003-generate-screens/**/*.ts`
@@ -84,17 +86,18 @@ Found 1 gap(s):
 // - No children discovered yet (subdirectory doesn't exist)
 // - Leaf mode: Use AI
 
-GapFixer.fixGap(gap)
-  // Gap has yields metadata
-  // AI executes yields-only task:
-  // 1. Read .stitch/SITE.md (finds 5 pages)
-  // 2. Read template: 000-screen-{slug}.ts.tpl
-  // 3. For each page:
-  //    - Instantiate template
-  //    - Write: 001-screen-home.ts, 002-screen-about.ts, etc.
+GapFixer.fixGap(gap);
+// Gap has yields metadata
+// AI executes yields-only task:
+// 1. Read .stitch/SITE.md (finds 5 pages)
+// 2. Read template: 000-screen-{slug}.ts.tpl
+// 3. For each page:
+//    - Instantiate template
+//    - Write: 001-screen-home.ts, 002-screen-about.ts, etc.
 ```
 
 **AI Output:**
+
 ```
 Using AI to fix gaps...
    📝 Creating missing files...
@@ -104,6 +107,7 @@ Resolved 1/1 gap(s)
 ```
 
 **Files created:**
+
 ```
 .converge/epics/02-ux-design/003-generate-screens/
 ├── 001-screen-home.ts
@@ -127,6 +131,7 @@ Found 5 gap(s):
 ```
 
 **What happened:**
+
 1. Parent task re-checks gaps
 2. Now: `outputs` exist (subtask .ts files)
 3. But: Final screen files (`src/pages/*.tsx`) don't exist
@@ -169,6 +174,7 @@ Found 0 gap(s).
 ```
 
 **What happened:**
+
 1. All children completed successfully
 2. Parent re-checks:
    - ✅ Subtask files exist
@@ -192,12 +198,12 @@ Process exit: 0
 ```typescript
 // .converge/epics/02-ux-design/003-generate-screens.ts
 
-import { taskDef } from '@converge/core';
+import { taskDef } from "@converge/core";
 
 export default taskDef()
-  .id('generate-all-screens')
-  .title('Generate All Screens')
-  .agent('ui-developer')
+  .id("generate-all-screens")
+  .title("Generate All Screens")
+  .agent("ui-developer")
   .yields({
     plan: `
       Read .stitch/SITE.md sitemap.
@@ -206,12 +212,13 @@ export default taskDef()
       2. Replace {slug} with page slug (e.g., "home", "about")
       3. Write as 001-screen-home.ts, 002-screen-about.ts, etc.
     `,
-    outputDir: '.converge/epics/02-ux-design/003-generate-screens',
-    template: '.converge/epics/02-ux-design/003-generate-screens/000-screen-{slug}.ts.tpl',
+    outputDir: ".converge/epics/02-ux-design/003-generate-screens",
+    template:
+      ".converge/epics/02-ux-design/003-generate-screens/000-screen-{slug}.ts.tpl",
     maxTasks: 20,
   })
-  .inputs(['.stitch/SITE.md', '.stitch/DESIGN.md'])
-  .outputs(['.converge/epics/02-ux-design/003-generate-screens/**/*.ts'])
+  .inputs([".stitch/SITE.md", ".stitch/DESIGN.md"])
+  .outputs([".converge/epics/02-ux-design/003-generate-screens/**/*.ts"])
   .build();
 ```
 
@@ -220,31 +227,33 @@ export default taskDef()
 ```typescript
 // 000-screen-{slug}.ts.tpl
 
-import { taskDef } from '@converge/core';
+import { taskDef } from "@converge/core";
 
 export default taskDef()
-  .id('screen-{slug}')
-  .title('{Title} Screen')
-  .agent('ui-developer')
-  .prompt(`
+  .id("screen-{slug}")
+  .title("{Title} Screen")
+  .agent("ui-developer")
+  .prompt(
+    `
     Generate src/pages/{Title}.tsx:
     - React functional component
     - Use design tokens from .stitch/DESIGN.md Section 6
     - Implement page content for {Title} page
     - Use Tailwind CSS with semantic colors
     - Include proper TypeScript types
-  `)
-  .inputs(['.stitch/DESIGN.md'])
-  .outputs(['src/pages/{Title}.tsx'])
+  `,
+  )
+  .inputs([".stitch/DESIGN.md"])
+  .outputs(["src/pages/{Title}.tsx"])
   .check({
-    id: 'tsx-exists',
-    cmd: 'test -f src/pages/{Title}.tsx',
-    description: '{Title}.tsx exists',
+    id: "tsx-exists",
+    cmd: "test -f src/pages/{Title}.tsx",
+    description: "{Title}.tsx exists",
   })
   .check({
-    id: 'tsx-compiles',
-    cmd: 'npx tsc --noEmit',
-    description: 'TypeScript compiles',
+    id: "tsx-compiles",
+    cmd: "npx tsc --noEmit",
+    description: "TypeScript compiles",
   })
   .build();
 ```
@@ -254,31 +263,33 @@ export default taskDef()
 ```typescript
 // 001-screen-home.ts (AI-generated from template)
 
-import { taskDef } from '@converge/core';
+import { taskDef } from "@converge/core";
 
 export default taskDef()
-  .id('screen-home')
-  .title('Home Screen')
-  .agent('ui-developer')
-  .prompt(`
+  .id("screen-home")
+  .title("Home Screen")
+  .agent("ui-developer")
+  .prompt(
+    `
     Generate src/pages/Home.tsx:
     - React functional component
     - Use design tokens from .stitch/DESIGN.md Section 6
     - Implement page content for Home page
     - Use Tailwind CSS with semantic colors
     - Include proper TypeScript types
-  `)
-  .inputs(['.stitch/DESIGN.md'])
-  .outputs(['src/pages/Home.tsx'])
+  `,
+  )
+  .inputs([".stitch/DESIGN.md"])
+  .outputs(["src/pages/Home.tsx"])
   .check({
-    id: 'tsx-exists',
-    cmd: 'test -f src/pages/Home.tsx',
-    description: 'Home.tsx exists',
+    id: "tsx-exists",
+    cmd: "test -f src/pages/Home.tsx",
+    description: "Home.tsx exists",
   })
   .check({
-    id: 'tsx-compiles',
-    cmd: 'npx tsc --noEmit',
-    description: 'TypeScript compiles',
+    id: "tsx-compiles",
+    cmd: "npx tsc --noEmit",
+    description: "TypeScript compiles",
   })
   .build();
 ```
@@ -321,12 +332,14 @@ autonomousRunV2()
 ### 1. No Type Switching
 
 Same `Unit` class for parent and children:
+
 - Parent: Has children → delegates
 - Child: No children → uses AI
 
 ### 2. Data-Driven Behavior
 
 Parent's `.yields()` tells AI how to generate children:
+
 ```typescript
 yields: {
   plan: 'Create one task per page',
@@ -337,6 +350,7 @@ yields: {
 ### 3. Automatic Child Discovery
 
 Parent doesn't manually create children. V2 automatically:
+
 1. Looks for subdirectory: `003-generate-screens/`
 2. Scans for `*.ts` files
 3. Loads each as a `Unit`
@@ -344,6 +358,7 @@ Parent doesn't manually create children. V2 automatically:
 ### 4. Gap Metadata Flows Through
 
 Child tasks inherit context from parent gap:
+
 ```typescript
 {
   gapKind: 'output',
@@ -358,22 +373,28 @@ Child tasks inherit context from parent gap:
 ### 5. Convergence Loop Works at All Levels
 
 Same loop for parent and children:
+
 ```typescript
 while (iteration < maxIterations) {
-  gaps = findGaps()
-  if (gaps.length === 0) return true  // ✅ Converged
-  fixGaps(gaps)
+  gaps = findGaps();
+  if (gaps.length === 0) return true; // ✅ Converged
+  fixGaps(gaps);
 }
 ```
 
 ## Comparison to V1
 
 ### V1 (Complex)
+
 ```typescript
 // Manual type switching
-if (level === 'project') { /* ... */ }
-else if (level === 'epic') { /* ... */ }
-else if (level === 'task') { /* ... */ }
+if (level === "project") {
+  /* ... */
+} else if (level === "epic") {
+  /* ... */
+} else if (level === "task") {
+  /* ... */
+}
 
 // Manual context passing
 const epicContext = createEpicContext(projectContext, epicId);
@@ -388,6 +409,7 @@ const taskGaps = await detectTaskGaps(epicId, taskId);
 ```
 
 ### V2 (Simple)
+
 ```typescript
 // Universal unit
 const unit = await Unit.fromPath(taskPath);

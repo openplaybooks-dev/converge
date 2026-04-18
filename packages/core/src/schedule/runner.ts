@@ -5,8 +5,8 @@
  * Supports skipIfBusy (no overlap) and runImmediately.
  */
 
-import type { ScheduleConfig, ScheduleRunnerState } from './types.ts';
-import type { ExecutorFn } from '../config/task-definition.ts';
+import type { ScheduleConfig, ScheduleRunnerState } from "./types.ts";
+import type { ExecutorFn } from "../config/task-definition.ts";
 
 export class ScheduleRunner {
   private runners = new Map<string, ScheduleRunnerState>();
@@ -23,7 +23,7 @@ export class ScheduleRunner {
     taskId: string,
     config: ScheduleConfig,
     executeFn: ExecutorFn,
-    buildCtx: () => any
+    buildCtx: () => any,
   ): void {
     if (this.runners.has(taskId)) {
       throw new Error(`Schedule '${taskId}' already running`);
@@ -54,7 +54,9 @@ export class ScheduleRunner {
         const ctx = buildCtx();
         await executeFn(ctx);
       } catch (err: any) {
-        console.warn(`[ScheduleRunner] Error in scheduled task '${taskId}': ${err?.message ?? err}`);
+        console.warn(
+          `[ScheduleRunner] Error in scheduled task '${taskId}': ${err?.message ?? err}`,
+        );
       } finally {
         state.running = false;
       }

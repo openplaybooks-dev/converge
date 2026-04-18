@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "01-brand/004-license-security",
+  "status": "pending",
+  "lastUpdated": "2026-04-18T05:02:39.566Z",
+  "createdAt": "2026-04-17T23:30:02.511Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-17T23:30:02.511Z",
+      "completedAt": "2026-04-17T23:31:34.084Z",
+      "outcome": "success",
+      "durationMs": 91573
+    }
+  ],
+  "currentAttempt": 1
+}

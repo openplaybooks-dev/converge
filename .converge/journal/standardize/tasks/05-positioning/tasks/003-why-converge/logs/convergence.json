@@ -1,0 +1,221 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "05-positioning/003-why-converge-missing-output-docs/why-converge.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-positioning/003-why-converge",
+            "severity": "high",
+            "description": "[05-positioning/003-why-converge] Task output not created: docs/why-converge.md",
+            "source": "unit",
+            "detected": "2026-04-18T00:32:39.884Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/standardize/tasks/05-positioning/tasks/003-why-converge",
+              "taskId": "05-positioning/003-why-converge",
+              "taskTitle": "Create \"Why Converge\" Content",
+              "taskPrompt": "Create \"Why Converge\" landing page content — the persuasive case\nfor choosing Converge over alternatives.\n\n**Reference**: Read `docs/converge-gtm.md` sections 1, 3, and 11.\nRead `docs/brand-messaging.md` for voice and key messages.\n\n**Structure** (`docs/why-converge.md`):\n\n1. **The Problem** — AI agent frameworks today:\n   - Force you to define execution graphs (LangChain)\n   - Assign roles and hope agents collaborate (CrewAI)\n   - Let agents chat until they figure it out (AutoGen)\n   - All require you to specify HOW, not just WHAT\n\n2. **The Converge Approach** — gap-driven convergence:\n   - Define target state (\"done looks like this\")\n   - Converge measures the gap between current and target\n   - Self-correcting: failures produce LEARN.md, fed into next attempt\n   - Hierarchical: Project > Epic > Task > Subtask (infinite depth)\n\n3. **Key Advantages**:\n   - Filesystem-first: `ls` is your dashboard, `cat` is your debugger\n   - Deterministic checks: grep-based verification, no AI judgment needed\n   - WBS decomposition: dynamic task generation based on project state\n   - 270 lines of core logic: simple enough to read in one sitting\n   - Multi-provider: Claude, Gemini, Kimi, Qwen via agentfn\n\n4. **Who It's For**:\n   - Solo entrepreneurs automating business workflows\n   - Small teams standardizing delivery\n   - Companies needing auditable AI workflows\n\n5. **Getting Started** — link to docs/getting-started.md\n\n**Tone**: Persuasive but honest. Lead with the problem, not the solution.\nSpecific claims, not superlatives.",
+              "factId": "file-exists:test -f \"docs/why-converge.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "05-positioning/003-why-converge-check-failed-why-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-positioning/003-why-converge",
+            "severity": "high",
+            "description": "[05-positioning/003-why-converge] Check failed: Why Converge document exists",
+            "source": "unit",
+            "detected": "2026-04-18T00:32:39.886Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "why-exists",
+              "checkCmd": "test -f docs/why-converge.md",
+              "checkDescription": "Why Converge document exists",
+              "checkOutput": "Command failed: test -f docs/why-converge.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Create \"Why Converge\" landing page content — the persuasive case\nfor choosing Converge over alternatives.\n\n**Reference**: Read `docs/converge-gtm.md` sections 1, 3, and 11.\nRead `docs/brand-messaging.md` for voice and key messages.\n\n**Structure** (`docs/why-converge.md`):\n\n1. **The Problem** — AI agent frameworks today:\n   - Force you to define execution graphs (LangChain)\n   - Assign roles and hope agents collaborate (CrewAI)\n   - Let agents chat until they figure it out (AutoGen)\n   - All require you to specify HOW, not just WHAT\n\n2. **The Converge Approach** — gap-driven convergence:\n   - Define target state (\"done looks like this\")\n   - Converge measures the gap between current and target\n   - Self-correcting: failures produce LEARN.md, fed into next attempt\n   - Hierarchical: Project > Epic > Task > Subtask (infinite depth)\n\n3. **Key Advantages**:\n   - Filesystem-first: `ls` is your dashboard, `cat` is your debugger\n   - Deterministic checks: grep-based verification, no AI judgment needed\n   - WBS decomposition: dynamic task generation based on project state\n   - 270 lines of core logic: simple enough to read in one sitting\n   - Multi-provider: Claude, Gemini, Kimi, Qwen via agentfn\n\n4. **Who It's For**:\n   - Solo entrepreneurs automating business workflows\n   - Small teams standardizing delivery\n   - Companies needing auditable AI workflows\n\n5. **Getting Started** — link to docs/getting-started.md\n\n**Tone**: Persuasive but honest. Lead with the problem, not the solution.\nSpecific claims, not superlatives.",
+              "taskId": "05-positioning/003-why-converge",
+              "taskTitle": "Create \"Why Converge\" Content",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/standardize/tasks/05-positioning/tasks/003-why-converge",
+              "factId": "check:why-exists"
+            }
+          }
+        ],
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 12
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#3",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 69442
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-18T00:32:39.880Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-18T00:32:39.881Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-18T00:32:39.887Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-18T00:32:39.888Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-18T00:32:39.894Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#3",
+      "iteration": 1,
+      "ts": "2026-04-18T00:33:49.336Z"
+    },
+    {
+      "from": "run-strategy:task-run#3",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-18T00:33:49.349Z"
+    }
+  ]
+}

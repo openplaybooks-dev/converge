@@ -1,0 +1,10 @@
+{
+  "taskId": "05-positioning/003-why-converge",
+  "checks": [
+    {
+      "id": "why-exists",
+      "description": "Why Converge document exists",
+      "cmd": "test -f docs/why-converge.md"
+    }
+  ]
+}

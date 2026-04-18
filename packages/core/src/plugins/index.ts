@@ -14,21 +14,21 @@ export type {
   PluginEntry,
   PluginStateV2,
   PluginManifestV2,
-} from './types.ts';
+} from "./types.ts";
 
 // API Implementation
-export { PluginAPIImplV2 } from './api.ts';
+export { PluginAPIImplV2 } from "./api.ts";
 
 // Loader
 export {
   loadPluginsV2,
   formatPluginListV2,
   listBuiltinPluginsV2,
-} from './loader.ts';
+} from "./loader.ts";
 
 // Legacy aliases for backward compatibility
 export {
   loadPluginsV2 as loadPlugins,
   formatPluginListV2 as formatPluginList,
   listBuiltinPluginsV2 as listBuiltinPlugins,
-} from './loader.ts';
+} from "./loader.ts";

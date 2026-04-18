@@ -5,18 +5,22 @@
  * Prevents re-execution of completed work.
  */
 
-import { writeFile, readFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
-import { FilesystemTaskStatus } from './filesystem-status.ts';
-import { UnitCheckpointManager } from './unit-checkpoint.ts';
+import { writeFile, readFile, mkdir } from "fs/promises";
+import { existsSync } from "fs";
+import path from "path";
+import { FilesystemTaskStatus } from "./filesystem-status.ts";
+import { UnitCheckpointManager } from "./unit-checkpoint.ts";
 
 /**
  * Task metadata for tracking completion details
  */
 export interface TaskMetadata {
   /** How the task was completed */
-  completedBy?: 'user' | 'repair-strategy' | 'wbs-completion' | 'normal-execution';
+  completedBy?:
+    | "user"
+    | "repair-strategy"
+    | "wbs-completion"
+    | "normal-execution";
   /** When the task was completed */
   completedAt?: string;
   /** Skip output revalidation in reconciliation */
@@ -108,7 +112,10 @@ export class CheckpointManager {
 
   constructor(projectDir: string) {
     this.projectDir = projectDir;
-    this.checkpointFile = path.join(projectDir, '.converge/journal/.checkpoint.json');
+    this.checkpointFile = path.join(
+      projectDir,
+      ".converge/journal/.checkpoint.json",
+    );
     this.fsStatus = new FilesystemTaskStatus(projectDir);
   }
 
@@ -142,7 +149,7 @@ export class CheckpointManager {
     await writeFile(
       this.checkpointFile,
       JSON.stringify(checkpoint, null, 2),
-      'utf-8'
+      "utf-8",
     );
   }
 
@@ -156,27 +163,31 @@ export class CheckpointManager {
     }
 
     try {
-      const content = await readFile(this.checkpointFile, 'utf-8');
+      const content = await readFile(this.checkpointFile, "utf-8");
       const checkpoint = JSON.parse(content) as Checkpoint;
 
       // Auto-migrate V1 to V2
       if (checkpoint.version === 1) {
-        console.log('🔄 Migrating checkpoint from V1 to V2...');
+        console.log("🔄 Migrating checkpoint from V1 to V2...");
         const v2 = await this.migrateV1ToV2(checkpoint);
         await this.save(v2);
-        console.log('✅ Checkpoint migrated to V2');
+        console.log("✅ Checkpoint migrated to V2");
         return v2;
       }
 
       // Validate checkpoint version (defensive check for unknown formats on disk)
       if ((checkpoint as any).version !== 2) {
-        console.warn(`⚠️  Unknown checkpoint version: ${(checkpoint as any).version}`);
+        console.warn(
+          `⚠️  Unknown checkpoint version: ${(checkpoint as any).version}`,
+        );
         return null;
       }
 
       return checkpoint;
     } catch (error) {
-      console.warn(`⚠️  Failed to load checkpoint: ${(error as Error).message}`);
+      console.warn(
+        `⚠️  Failed to load checkpoint: ${(error as Error).message}`,
+      );
       return null;
     }
   }
@@ -194,19 +205,24 @@ export class CheckpointManager {
     ];
 
     for (const taskId of tasks) {
-      const parts = taskId.split('/');
+      const parts = taskId.split("/");
       if (parts.length < 2) continue;
 
       const epicId = parts[0];
-      const taskPath = parts.slice(1).join('/');
+      const taskPath = parts.slice(1).join("/");
 
       // Determine status
-      let status: 'complete' | 'failed' | 'seeded' = 'complete';
-      if (v1.failedTasks?.includes(taskId)) status = 'failed';
-      if (v1.seededTasks?.includes(taskId)) status = 'seeded';
+      let status: "complete" | "failed" | "seeded" = "complete";
+      if (v1.failedTasks?.includes(taskId)) status = "failed";
+      if (v1.seededTasks?.includes(taskId)) status = "seeded";
 
       // Create/update per-task checkpoint
-      const manager = new UnitCheckpointManager(this.projectDir, 'task', epicId, taskPath);
+      const manager = new UnitCheckpointManager(
+        this.projectDir,
+        "task",
+        epicId,
+        taskPath,
+      );
       let taskCheckpoint = await manager.load();
 
       if (!taskCheckpoint) {
@@ -245,31 +261,40 @@ export class CheckpointManager {
    * Mark a task as completed (successfully finished)
    * Updates per-task checkpoint only (V2)
    */
-  async markTaskCompleted(taskId: string, metadataOrEpicId?: TaskMetadata | string, epicIdArg?: string): Promise<void> {
+  async markTaskCompleted(
+    taskId: string,
+    metadataOrEpicId?: TaskMetadata | string,
+    epicIdArg?: string,
+  ): Promise<void> {
     // Support both (taskId, metadata?, epicId?) and (taskId, epicId?) signatures
     let metadata: TaskMetadata | undefined;
     let explicitEpicId: string | undefined;
-    if (typeof metadataOrEpicId === 'string') {
+    if (typeof metadataOrEpicId === "string") {
       explicitEpicId = metadataOrEpicId;
     } else {
       metadata = metadataOrEpicId;
       explicitEpicId = epicIdArg;
     }
 
-    const checkpoint = await this.load() || this.createDefault();
+    const checkpoint = (await this.load()) || this.createDefault();
 
     // Parse task ID to get epic and task path
     const { epicId, taskPath } = this.parseTaskId(taskId, explicitEpicId);
 
     // Update per-task checkpoint
-    const manager = new UnitCheckpointManager(this.projectDir, 'task', epicId, taskPath);
+    const manager = new UnitCheckpointManager(
+      this.projectDir,
+      "task",
+      epicId,
+      taskPath,
+    );
     let taskCheckpoint = await manager.load();
 
     if (!taskCheckpoint) {
       taskCheckpoint = manager.createDefault();
     }
 
-    taskCheckpoint.status = 'complete';
+    taskCheckpoint.status = "complete";
     await manager.save(taskCheckpoint);
 
     // Update global checkpoint metadata
@@ -290,13 +315,18 @@ export class CheckpointManager {
    * Updates per-task checkpoint only (V2)
    */
   async markTaskSeeded(taskId: string, explicitEpicId?: string): Promise<void> {
-    const checkpoint = await this.load() || this.createDefault();
+    const checkpoint = (await this.load()) || this.createDefault();
 
     // Parse task ID
     const { epicId, taskPath } = this.parseTaskId(taskId, explicitEpicId);
 
     // Update per-task checkpoint
-    const manager = new UnitCheckpointManager(this.projectDir, 'task', epicId, taskPath);
+    const manager = new UnitCheckpointManager(
+      this.projectDir,
+      "task",
+      epicId,
+      taskPath,
+    );
     await manager.markSeeded();
 
     checkpoint.timestamp = new Date().toISOString();
@@ -309,13 +339,18 @@ export class CheckpointManager {
    * Updates per-task checkpoint only (V2)
    */
   async markTaskFailed(taskId: string, explicitEpicId?: string): Promise<void> {
-    const checkpoint = await this.load() || this.createDefault();
+    const checkpoint = (await this.load()) || this.createDefault();
 
     // Parse task ID
     const { epicId, taskPath } = this.parseTaskId(taskId, explicitEpicId);
 
     // Update per-task checkpoint
-    const manager = new UnitCheckpointManager(this.projectDir, 'task', epicId, taskPath);
+    const manager = new UnitCheckpointManager(
+      this.projectDir,
+      "task",
+      epicId,
+      taskPath,
+    );
     await manager.markFailed();
 
     checkpoint.timestamp = new Date().toISOString();
@@ -334,12 +369,21 @@ export class CheckpointManager {
    * Mark a task as partial (converge mode: stalled but made progress).
    * Records remaining gap IDs for the next run to resume from.
    */
-  async markTaskPartial(taskId: string, remainingGapIds: string[], explicitEpicId?: string): Promise<void> {
-    const checkpoint = await this.load() || this.createDefault();
+  async markTaskPartial(
+    taskId: string,
+    remainingGapIds: string[],
+    explicitEpicId?: string,
+  ): Promise<void> {
+    const checkpoint = (await this.load()) || this.createDefault();
 
     const { epicId, taskPath } = this.parseTaskId(taskId, explicitEpicId);
 
-    const manager = new UnitCheckpointManager(this.projectDir, 'task', epicId, taskPath);
+    const manager = new UnitCheckpointManager(
+      this.projectDir,
+      "task",
+      epicId,
+      taskPath,
+    );
     await manager.markPartial(remainingGapIds);
 
     checkpoint.timestamp = new Date().toISOString();
@@ -351,7 +395,10 @@ export class CheckpointManager {
    * Remove a task from completed status (when outputs are missing or validation fails).
    * This reverts the task to a runnable state.
    */
-  async removeFromCompleted(taskId: string, explicitEpicId?: string): Promise<void> {
+  async removeFromCompleted(
+    taskId: string,
+    explicitEpicId?: string,
+  ): Promise<void> {
     const checkpoint = await this.load();
     if (!checkpoint) return;
 
@@ -359,11 +406,16 @@ export class CheckpointManager {
     const { epicId, taskPath } = this.parseTaskId(taskId, explicitEpicId);
 
     // Update per-task checkpoint to pending
-    const manager = new UnitCheckpointManager(this.projectDir, 'task', epicId, taskPath);
+    const manager = new UnitCheckpointManager(
+      this.projectDir,
+      "task",
+      epicId,
+      taskPath,
+    );
     let taskCheckpoint = await manager.load();
 
     if (taskCheckpoint) {
-      taskCheckpoint.status = 'pending';
+      taskCheckpoint.status = "pending";
       await manager.save(taskCheckpoint);
     }
 
@@ -376,7 +428,10 @@ export class CheckpointManager {
    * Check if a task is locked (completed, failed, or seeded - shouldn't be re-run)
    * Uses filesystem-based status in V2
    */
-  async isTaskLocked(taskId: string, explicitEpicId?: string): Promise<boolean> {
+  async isTaskLocked(
+    taskId: string,
+    explicitEpicId?: string,
+  ): Promise<boolean> {
     const { epicId } = this.parseTaskId(taskId, explicitEpicId);
     return this.fsStatus.isTaskLocked(epicId, taskId);
   }
@@ -412,27 +467,36 @@ export class CheckpointManager {
    * Check if a task failed
    * Uses filesystem-based status in V2
    */
-  async isTaskFailed(taskId: string, explicitEpicId?: string): Promise<boolean> {
+  async isTaskFailed(
+    taskId: string,
+    explicitEpicId?: string,
+  ): Promise<boolean> {
     const { epicId } = this.parseTaskId(taskId, explicitEpicId);
     const status = await this.fsStatus.getTaskStatus(epicId, taskId);
-    return status.status === 'failed';
+    return status.status === "failed";
   }
 
   /**
    * Check if a task is seeded (WBS parent that spawned children).
    * Uses filesystem-based status in V2.
    */
-  async isTaskSeeded(taskId: string, explicitEpicId?: string): Promise<boolean> {
+  async isTaskSeeded(
+    taskId: string,
+    explicitEpicId?: string,
+  ): Promise<boolean> {
     const { epicId } = this.parseTaskId(taskId, explicitEpicId);
     const status = await this.fsStatus.getTaskStatus(epicId, taskId);
-    return status.status === 'seeded';
+    return status.status === "seeded";
   }
 
   /**
    * Get the current attempt count for a task (0 if never attempted)
    * Reads from per-task checkpoint in V2
    */
-  async getTaskAttemptCount(taskId: string, explicitEpicId?: string): Promise<number> {
+  async getTaskAttemptCount(
+    taskId: string,
+    explicitEpicId?: string,
+  ): Promise<number> {
     const { epicId } = this.parseTaskId(taskId, explicitEpicId);
     const status = await this.fsStatus.getTaskStatus(epicId, taskId);
     return status.attempts;
@@ -443,7 +507,10 @@ export class CheckpointManager {
    * This is the attempt number that should be used for journal folder naming.
    * Uses per-task checkpoint in V2
    */
-  async incrementTaskAttempt(taskId: string, explicitEpicId?: string): Promise<number> {
+  async incrementTaskAttempt(
+    taskId: string,
+    explicitEpicId?: string,
+  ): Promise<number> {
     const { epicId } = this.parseTaskId(taskId, explicitEpicId);
 
     // Get current attempt from per-task checkpoint
@@ -451,7 +518,7 @@ export class CheckpointManager {
     const next = status.attempts + 1;
 
     // Update global checkpoint timestamp
-    const checkpoint = await this.load() || this.createDefault();
+    const checkpoint = (await this.load()) || this.createDefault();
     checkpoint.timestamp = new Date().toISOString();
     await this.save(checkpoint);
 
@@ -462,15 +529,23 @@ export class CheckpointManager {
    * Remove a task from the failed list (used for checkpoint reconciliation)
    * Uses per-task checkpoint in V2
    */
-  async removeFromFailed(taskId: string, explicitEpicId?: string): Promise<void> {
+  async removeFromFailed(
+    taskId: string,
+    explicitEpicId?: string,
+  ): Promise<void> {
     const { epicId, taskPath } = this.parseTaskId(taskId, explicitEpicId);
 
     // Update per-task checkpoint to pending
-    const manager = new UnitCheckpointManager(this.projectDir, 'task', epicId, taskPath);
+    const manager = new UnitCheckpointManager(
+      this.projectDir,
+      "task",
+      epicId,
+      taskPath,
+    );
     const taskCheckpoint = await manager.load();
 
-    if (taskCheckpoint && taskCheckpoint.status === 'failed') {
-      taskCheckpoint.status = 'pending';
+    if (taskCheckpoint && taskCheckpoint.status === "failed") {
+      taskCheckpoint.status = "pending";
       await manager.save(taskCheckpoint);
       this.fsStatus.invalidate();
     }
@@ -484,7 +559,11 @@ export class CheckpointManager {
    * @param taskId - The task ID to reconcile
    * @param reason - Human-readable reason for reconciliation (for logging)
    */
-  async reconcileTask(taskId: string, reason: string, explicitEpicId?: string): Promise<void> {
+  async reconcileTask(
+    taskId: string,
+    reason: string,
+    explicitEpicId?: string,
+  ): Promise<void> {
     const { epicId, taskPath } = this.parseTaskId(taskId, explicitEpicId);
 
     // Find ALL checkpoint files for this task — duplicates may exist across
@@ -494,25 +573,38 @@ export class CheckpointManager {
     const allPaths = this.fsStatus.getAllCheckpointPaths(epicId, taskId);
     let updated = 0;
     if (allPaths.length > 0) {
-      const { readFileSync, writeFileSync } = await import('fs');
+      const { readFileSync, writeFileSync } = await import("fs");
       for (const ckptPath of allPaths) {
         try {
-          const checkpoint = JSON.parse(readFileSync(ckptPath, 'utf-8')) as import('./unit-checkpoint.ts').UnitCheckpoint;
-          if (checkpoint.status === 'failed') {
-            checkpoint.status = 'complete';
+          const checkpoint = JSON.parse(
+            readFileSync(ckptPath, "utf-8"),
+          ) as import("./unit-checkpoint.ts").UnitCheckpoint;
+          if (checkpoint.status === "failed") {
+            checkpoint.status = "complete";
             checkpoint.lastUpdated = new Date().toISOString();
-            writeFileSync(ckptPath, JSON.stringify(checkpoint, null, 2), 'utf-8');
+            writeFileSync(
+              ckptPath,
+              JSON.stringify(checkpoint, null, 2),
+              "utf-8",
+            );
             updated++;
           }
-        } catch { /* skip unreadable files */ }
+        } catch {
+          /* skip unreadable files */
+        }
       }
     }
     if (updated === 0) {
       // No files found or none were failed — try computed path as fallback
-      const manager = new UnitCheckpointManager(this.projectDir, 'task', epicId, taskPath);
+      const manager = new UnitCheckpointManager(
+        this.projectDir,
+        "task",
+        epicId,
+        taskPath,
+      );
       const existing = await manager.load();
-      if (existing && existing.status === 'failed') {
-        existing.status = 'complete';
+      if (existing && existing.status === "failed") {
+        existing.status = "complete";
         existing.lastUpdated = new Date().toISOString();
         await manager.save(existing);
         updated++;
@@ -520,7 +612,9 @@ export class CheckpointManager {
     }
     if (updated > 0) {
       this.fsStatus.invalidate();
-      console.warn(`   ✓ Changed ${taskId} from failed to complete (${updated} file(s))`);
+      console.warn(
+        `   ✓ Changed ${taskId} from failed to complete (${updated} file(s))`,
+      );
     }
   }
 
@@ -529,7 +623,7 @@ export class CheckpointManager {
    */
   async clear(): Promise<void> {
     if (existsSync(this.checkpointFile)) {
-      const { unlink } = await import('fs/promises');
+      const { unlink } = await import("fs/promises");
       await unlink(this.checkpointFile);
     }
   }
@@ -540,20 +634,26 @@ export class CheckpointManager {
    * This fixes the bug where bare task IDs (no '/') were incorrectly treated
    * as both epicId and taskPath, creating orphaned checkpoint directories.
    */
-  private parseTaskId(taskId: string, explicitEpicId?: string): { epicId: string; taskPath: string } {
+  private parseTaskId(
+    taskId: string,
+    explicitEpicId?: string,
+  ): { epicId: string; taskPath: string } {
     if (explicitEpicId) {
       // Caller provided the correct epicId — strip it from taskId if present as prefix
-      if (taskId.startsWith(explicitEpicId + '/')) {
-        return { epicId: explicitEpicId, taskPath: taskId.slice(explicitEpicId.length + 1) };
+      if (taskId.startsWith(explicitEpicId + "/")) {
+        return {
+          epicId: explicitEpicId,
+          taskPath: taskId.slice(explicitEpicId.length + 1),
+        };
       }
       // taskId doesn't start with epicId — it's an epic-level task (taskPath = taskId itself)
       return { epicId: explicitEpicId, taskPath: taskId };
     }
 
     // Legacy: parse from taskId (works correctly only when taskId contains '/')
-    const parts = taskId.split('/');
+    const parts = taskId.split("/");
     if (parts.length >= 2) {
-      return { epicId: parts[0], taskPath: parts.slice(1).join('/') };
+      return { epicId: parts[0], taskPath: parts.slice(1).join("/") };
     }
     // Bare taskId with no epicId — assume it's an epic-level task where taskId IS the epicId
     return { epicId: parts[0], taskPath: parts[0] };

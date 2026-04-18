@@ -44,10 +44,10 @@ Please include the following information in your report:
 
 ## Security Best Practices
 
-When using crew in production:
+When using Converge in production:
 
 - Keep dependencies up to date
-- Use the latest version of crew
+- Use the latest version of Converge
 - Review generated code before execution
 - Use environment variables for sensitive data
 - Follow the principle of least privilege for AI agents
@@ -55,7 +55,7 @@ When using crew in production:
 
 ## Security Measures
 
-crew implements several security measures:
+Converge implements several security measures:
 
 - **Input Validation**: All inputs are validated before processing
 - **Sandboxing**: Agent execution can be sandboxed

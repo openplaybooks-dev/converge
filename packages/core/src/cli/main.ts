@@ -11,23 +11,27 @@
  */
 
 // Force UTF-8 encoding for Python subprocesses (fixes Windows codec errors)
-process.env.PYTHONIOENCODING = 'utf-8';
-process.env.PYTHONUTF8 = '1';
+process.env.PYTHONIOENCODING = "utf-8";
+process.env.PYTHONUTF8 = "1";
 
-import { resolve, join } from 'node:path';
-import { existsSync } from 'node:fs';
-import { runAutonomousCommand } from './commands-run.ts';
-import { metricsCommand } from './commands-metrics.ts';
-import { treeCommand } from './commands-tree.ts';
-import { resetCommand } from './commands-reset.ts';
-import { ganttCommand } from './commands-gantt.ts';
-import { graphCommand } from './commands-graph.ts';
-import { backlogCommand } from './commands-backlog.ts';
-import { evaluateCommand } from './commands-goals.ts';
-import { verifyCommand as verifyFullCommand } from './commands-validate.ts';
-import { inspectCommand, timelineCommand, type InspectOptions } from './commands-inspect.ts';
-import { journalCommand } from './commands-journal.ts';
-import { JournalCleanup } from '../checkpoint/cleanup.ts';
+import { resolve, join } from "node:path";
+import { existsSync } from "node:fs";
+import { runAutonomousCommand } from "./commands-run.ts";
+import { metricsCommand } from "./commands-metrics.ts";
+import { treeCommand } from "./commands-tree.ts";
+import { resetCommand } from "./commands-reset.ts";
+import { ganttCommand } from "./commands-gantt.ts";
+import { graphCommand } from "./commands-graph.ts";
+import { backlogCommand } from "./commands-backlog.ts";
+import { evaluateCommand } from "./commands-goals.ts";
+import { verifyCommand as verifyFullCommand } from "./commands-validate.ts";
+import {
+  inspectCommand,
+  timelineCommand,
+  type InspectOptions,
+} from "./commands-inspect.ts";
+import { journalCommand } from "./commands-journal.ts";
+import { JournalCleanup } from "../checkpoint/cleanup.ts";
 import {
   initCommand,
   runCommand,
@@ -37,35 +41,36 @@ import {
   type InitOptions,
   type RunOptions,
   type CommonOptions,
-} from './commands.ts';
+} from "./commands.ts";
 import {
   skillsListCommand,
   skillsInstallCommand,
   type SkillsInstallOptions,
   type SkillsListOptions,
-} from './commands-skills.ts';
+} from "./commands-skills.ts";
 import {
   playbookListCommand,
   playbookInfoCommand,
   playbookHistoryCommand,
-} from './commands-playbook.ts';
+} from "./commands-playbook.ts";
 import {
   loadPlaybook,
   validatePlaybook,
   resolvePlaybook,
   parseDuration,
-} from '../playbook/loader.ts';
-import { generateEpicFromPlaybook, mergeRunConfig } from '../playbook/executor.ts';
+  discoverPlaybooks,
+} from "../playbook/loader.ts";
 import {
-  initPlaybookJournal,
-  appendTrend,
-} from '../playbook/journal.ts';
-import type { PlaybookRunConfig } from '../playbook/types.ts';
-import { resolveConvergeConfig } from '../config/loader.ts';
-import { validateConvergeConfig } from '../config/validator.ts';
-import { HookRegistry } from '../hooks/registry.ts';
-import type { HookEvent } from '../hooks/types.ts';
-import { registerCleanupHandlers } from '../agent-manager/index.js';
+  generateEpicFromPlaybook,
+  mergeRunConfig,
+} from "../playbook/executor.ts";
+import { initPlaybookJournal, appendTrend } from "../playbook/journal.ts";
+import type { PlaybookRunConfig } from "../playbook/types.ts";
+import { resolveConvergeConfig } from "../config/loader.ts";
+import { validateConvergeConfig } from "../config/validator.ts";
+import { HookRegistry } from "../hooks/registry.ts";
+import type { HookEvent } from "../hooks/types.ts";
+import { registerCleanupHandlers } from "../agent-manager/index.js";
 
 /* ------------------------------------------------------------------ */
 /*  Argument Parser                                                   */
@@ -76,15 +81,15 @@ function parseArgs(args: string[]): {
   options: Record<string, any>;
   positional: string[];
 } {
-  const command = args[0] || 'help';
+  const command = args[0] || "help";
   const positional: string[] = [];
   const options: Record<string, any> = {};
 
   for (let i = 1; i < args.length; i++) {
     const arg = args[i];
 
-    if (arg.startsWith('--')) {
-      const eqIndex = arg.indexOf('=');
+    if (arg.startsWith("--")) {
+      const eqIndex = arg.indexOf("=");
       let key: string;
       let value: string | boolean;
 
@@ -96,7 +101,7 @@ function parseArgs(args: string[]): {
         key = arg.slice(2);
         // Peek at next arg: if it exists and doesn't start with -, treat as value
         const next = args[i + 1];
-        if (next !== undefined && !next.startsWith('-')) {
+        if (next !== undefined && !next.startsWith("-")) {
           value = next;
           i++; // consume next arg
         } else {
@@ -105,16 +110,20 @@ function parseArgs(args: string[]): {
       }
 
       // Parse boolean/number values
-      if (value === 'true') {
+      if (value === "true") {
         options[key] = true;
-      } else if (value === 'false') {
+      } else if (value === "false") {
         options[key] = false;
-      } else if (typeof value === 'string' && !isNaN(Number(value)) && value.trim() !== '') {
+      } else if (
+        typeof value === "string" &&
+        !isNaN(Number(value)) &&
+        value.trim() !== ""
+      ) {
         options[key] = Number(value);
       } else {
         options[key] = value;
       }
-    } else if (arg.startsWith('-')) {
+    } else if (arg.startsWith("-")) {
       // Short flags
       const flag = arg.slice(1);
       options[flag] = true;
@@ -197,8 +206,6 @@ GLOBAL OPTIONS:
 OPTIONS (for 'init' command):
   --name=NAME           Project name (required)
   --description=DESC    Project description
-  --plugins=P1,P2       Plugins to include
-  --gap-driven          Use gap-driven model (default: true)
 
 OPTIONS (for 'skills install' command):
   --target=PATH         Target directory (default: .claude/skills)
@@ -447,7 +454,7 @@ function setupGracefulShutdown(): void {
 
     const waitForCleanup = async () => {
       while (Date.now() < deadline) {
-        await new Promise(resolve => setTimeout(resolve, 250));
+        await new Promise((resolve) => setTimeout(resolve, 250));
       }
     };
 
@@ -455,8 +462,8 @@ function setupGracefulShutdown(): void {
     process.exit(0);
   };
 
-  process.on('SIGINT', () => handler('SIGINT'));
-  process.on('SIGTERM', () => handler('SIGTERM'));
+  process.on("SIGINT", () => handler("SIGINT"));
+  process.on("SIGTERM", () => handler("SIGTERM"));
 }
 
 /* ------------------------------------------------------------------ */
@@ -475,7 +482,7 @@ async function main(): Promise<void> {
   // When --playbook is set on ANY command, set CONVERGE_PLAYBOOK so
   // journal paths route through journal/{playbook}/tasks/.
   // For 'run', the playbook also generates an epic from template.
-  if (options.playbook && command !== 'run' && command !== 'plan') {
+  if (options.playbook && command !== "run" && command !== "plan") {
     process.env.CONVERGE_PLAYBOOK = String(options.playbook);
   }
 
@@ -488,7 +495,7 @@ async function main(): Promise<void> {
     // Strategy 1: No project.yaml — try loading 'default' playbook
     const autoResolved = await resolveConvergeConfig(autoSearchDir);
     if (!autoResolved) {
-      const autoPbName = 'default';
+      const autoPbName = "default";
       const autoPb = await loadPlaybook(autoPbName, autoSearchDir);
       if (autoPb) {
         process.env.CONVERGE_PLAYBOOK = autoPbName;
@@ -499,15 +506,16 @@ async function main(): Promise<void> {
     // When a previous playbook run created journal/{name}/tasks/, we need to
     // set CONVERGE_PLAYBOOK so path resolution matches the existing structure.
     if (!process.env.CONVERGE_PLAYBOOK) {
-      const { existsSync, readdirSync, statSync } = await import('node:fs');
-      const { join } = await import('node:path');
-      const journalDir = join(autoSearchDir, '.converge', 'journal');
+      const { existsSync, readdirSync, statSync } = await import("node:fs");
+      const { join } = await import("node:path");
+      const journalDir = join(autoSearchDir, ".converge", "journal");
       if (existsSync(journalDir)) {
         for (const entry of readdirSync(journalDir)) {
-          if (entry === 'epics' || entry === 'project' || entry === 'default') continue;
+          if (entry === "epics" || entry === "project" || entry === "default")
+            continue;
           const pbDir = join(journalDir, entry);
           if (!statSync(pbDir).isDirectory()) continue;
-          const tasksDir = join(pbDir, 'tasks');
+          const tasksDir = join(pbDir, "tasks");
           if (existsSync(tasksDir) && statSync(tasksDir).isDirectory()) {
             process.env.CONVERGE_PLAYBOOK = entry;
             break;
@@ -515,11 +523,20 @@ async function main(): Promise<void> {
         }
       }
     }
+
+    // Strategy 3: Discover from .converge/playbooks/ — auto-select sole playbook
+    // When there's exactly one playbook on disk, use it without requiring --playbook.
+    if (!process.env.CONVERGE_PLAYBOOK) {
+      const discovered = await discoverPlaybooks(autoSearchDir);
+      if (discovered.length === 1) {
+        process.env.CONVERGE_PLAYBOOK = discovered[0].def.name;
+      }
+    }
   }
 
   try {
     switch (command) {
-      case 'run': {
+      case "run": {
         // Auto-discover PROJECT.md from the target directory (or cwd)
         const searchDir = resolve(options.dir || process.cwd());
         const resolved = await resolveConvergeConfig(searchDir);
@@ -538,13 +555,23 @@ async function main(): Promise<void> {
           // Build HookRegistry from user hooks
           hookRegistry = new HookRegistry();
           if (validated.hooks) {
-            hookRegistry.registerAll(validated.hooks, 'user');
+            hookRegistry.registerAll(validated.hooks, "user");
           }
           activeRegistry = hookRegistry;
         } else {
-          // No PROJECT.md — try synthesizing config from the default playbook
-          const pbName = options.playbook ? String(options.playbook) : 'default';
-          const pb = await loadPlaybook(pbName, searchDir);
+          // No PROJECT.md — try synthesizing config from playbook
+          let pbName = options.playbook
+            ? String(options.playbook)
+            : process.env.CONVERGE_PLAYBOOK || "default";
+          let pb = await loadPlaybook(pbName, searchDir);
+          // If 'default' not found, auto-select sole playbook
+          if (!pb && pbName === "default") {
+            const discovered = await discoverPlaybooks(searchDir);
+            if (discovered.length === 1) {
+              pbName = discovered[0].def.name;
+              pb = discovered[0];
+            }
+          }
           if (pb) {
             convergeConfig = {
               name: pb.def.name || pbName,
@@ -555,9 +582,11 @@ async function main(): Promise<void> {
                 maxIterations: pb.def.run?.maxIterations,
                 milestone: (pb.def.run as any)?.milestone,
               },
-              skills: typeof pb.def.skills === 'object' && !Array.isArray(pb.def.skills)
-                ? pb.def.skills as Record<string, string>
-                : undefined,
+              skills:
+                typeof pb.def.skills === "object" &&
+                !Array.isArray(pb.def.skills)
+                  ? (pb.def.skills as Record<string, string>)
+                  : undefined,
             };
             console.log(`\n📋 Loaded config from playbook: ${pbName}`);
             // Set CONVERGE_PLAYBOOK so journal paths route correctly
@@ -579,7 +608,9 @@ async function main(): Promise<void> {
           const pb = await loadPlaybook(playbookName, searchDir);
           if (!pb) {
             console.error(`\n   Playbook "${playbookName}" not found.`);
-            console.error('   Run "converge playbook list" to see available playbooks.\n');
+            console.error(
+              '   Run "converge playbook list" to see available playbooks.\n',
+            );
             process.exit(1);
           }
 
@@ -592,15 +623,33 @@ async function main(): Promise<void> {
 
           // Extract playbook input variables from CLI options
           const cliKeys = new Set([
-            'dir', 'verbose', 'v', 'dry', 'plan', 'playbook',
-            'step', 'force', 'resume', 'restart', 'converge',
-            'unblock', 'wbs', 'inc', 'preflight', 'analyze',
-            'max-iterations', 'maxIterations',
-            'max-duration', 'maxDuration',
-            'check-interval', 'checkInterval',
-            'auto-fix', 'autoFix',
-            'self-plan', 'selfPlan',
-            'mode',
+            "dir",
+            "verbose",
+            "v",
+            "dry",
+            "plan",
+            "playbook",
+            "step",
+            "force",
+            "resume",
+            "restart",
+            "converge",
+            "unblock",
+            "wbs",
+            "inc",
+            "preflight",
+            "analyze",
+            "max-iterations",
+            "maxIterations",
+            "max-duration",
+            "maxDuration",
+            "check-interval",
+            "checkInterval",
+            "auto-fix",
+            "autoFix",
+            "self-plan",
+            "selfPlan",
+            "mode",
           ]);
           const vars: Record<string, string> = {};
           for (const [key, value] of Object.entries(options)) {
@@ -624,17 +673,20 @@ async function main(): Promise<void> {
 
           // Merge playbook run config with CLI overrides
           const cliOverrides: Partial<PlaybookRunConfig> = {};
-          if (options.mode) cliOverrides.mode = options.mode as PlaybookRunConfig['mode'];
-          if (options.converge) cliOverrides.mode = 'converge';
-          if (options.step) cliOverrides.mode = 'step';
-          const durOpt = options['max-duration'] || options.maxDuration;
+          if (options.mode)
+            cliOverrides.mode = options.mode as PlaybookRunConfig["mode"];
+          if (options.converge) cliOverrides.mode = "converge";
+          if (options.step) cliOverrides.mode = "step";
+          const durOpt = options["max-duration"] || options.maxDuration;
           if (durOpt !== undefined) {
             const dur = parseDuration(durOpt);
             if (dur !== undefined) cliOverrides.maxDuration = dur;
           }
-          const iterOpt = options['max-iterations'] || options.maxIterations;
-          if (iterOpt !== undefined) cliOverrides.maxIterations = Number(iterOpt);
-          if (options.resume !== undefined) cliOverrides.resume = Boolean(options.resume);
+          const iterOpt = options["max-iterations"] || options.maxIterations;
+          if (iterOpt !== undefined)
+            cliOverrides.maxIterations = Number(iterOpt);
+          if (options.resume !== undefined)
+            cliOverrides.resume = Boolean(options.resume);
 
           playbookRunCfg = mergeRunConfig(pb.def.run, cliOverrides);
 
@@ -656,18 +708,26 @@ async function main(): Promise<void> {
             force: options.force || false,
             resume: options.resume || playbookRunCfg?.resume || false,
             restart: options.restart || false,
-            step: options.step || playbookRunCfg?.mode === 'step' || false,
+            step: options.step || playbookRunCfg?.mode === "step" || false,
             dry: isDry,
             analyze: options.preflight || options.analyze || false,
             unblock: options.unblock || false,
-            converge: options.converge || playbookRunCfg?.mode === 'converge' || false,
+            converge:
+              options.converge || playbookRunCfg?.mode === "converge" || false,
             wbs: options.wbs || false,
             inc: options.inc || false,
-            maxIterations: options['max-iterations'] || options.maxIterations || playbookRunCfg?.maxIterations || convergeConfig?.runtime?.maxIterations,
-            maxDuration: options['max-duration'] || options.maxDuration || playbookRunCfg?.maxDuration,
-            checkInterval: options['check-interval'] || options.checkInterval,
-            autoFix: options['auto-fix'] ?? options.autoFix ?? true,
-            selfPlan: options['self-plan'] ?? options.selfPlan ?? true,
+            maxIterations:
+              options["max-iterations"] ||
+              options.maxIterations ||
+              playbookRunCfg?.maxIterations ||
+              convergeConfig?.runtime?.maxIterations,
+            maxDuration:
+              options["max-duration"] ||
+              options.maxDuration ||
+              playbookRunCfg?.maxDuration,
+            checkInterval: options["check-interval"] || options.checkInterval,
+            autoFix: options["auto-fix"] ?? options.autoFix ?? true,
+            selfPlan: options["self-plan"] ?? options.selfPlan ?? true,
             verbose: options.verbose || options.v,
             convergeConfig,
             hookRegistry,
@@ -704,9 +764,9 @@ async function main(): Promise<void> {
         break;
       }
 
-      case 'init': {
+      case "init": {
         if (!options.name && positional.length === 0) {
-          console.error('❌ Error: Project name required');
+          console.error("❌ Error: Project name required");
           console.error('Usage: converge init --name="Project Name"');
           process.exit(1);
         }
@@ -714,16 +774,19 @@ async function main(): Promise<void> {
         await initCommand({
           name: options.name || positional[0],
           description: options.description,
-          plugins: options.plugins ? options.plugins.split(',') : undefined,
-          gapDriven: options['gap-driven'] ?? options.gapDriven ?? true,
           dir: options.dir,
           verbose: options.verbose || options.v,
         });
         break;
       }
 
-      case 'verify': {
-        const taskArg = typeof options.task === 'string' ? options.task : (options.task ? positional[0] : undefined);
+      case "verify": {
+        const taskArg =
+          typeof options.task === "string"
+            ? options.task
+            : options.task
+              ? positional[0]
+              : undefined;
         await verifyFullCommand({
           dir: options.dir,
           fix: options.fix || false,
@@ -733,7 +796,7 @@ async function main(): Promise<void> {
         break;
       }
 
-      case 'status': {
+      case "status": {
         await statusCommand({
           dir: options.dir,
           verbose: options.verbose || options.v,
@@ -741,7 +804,7 @@ async function main(): Promise<void> {
         break;
       }
 
-      case 'checkpoint': {
+      case "checkpoint": {
         await checkpointCommand({
           dir: options.dir,
           verbose: options.verbose || options.v,
@@ -749,11 +812,17 @@ async function main(): Promise<void> {
         break;
       }
 
-      case 'reset': {
+      case "reset": {
         if (!options.all && positional.length === 0) {
-          console.error('❌ Usage: converge reset <taskId> [taskId...] [--outputs] [--wbs] [--all]');
-          console.error('   Example: converge reset 003-generate-html-designs --all');
-          console.error('   Example: converge reset --all  # reset entire project');
+          console.error(
+            "❌ Usage: converge reset <taskId> [taskId...] [--outputs] [--wbs] [--all]",
+          );
+          console.error(
+            "   Example: converge reset 003-generate-html-designs --all",
+          );
+          console.error(
+            "   Example: converge reset --all  # reset entire project",
+          );
           process.exit(1);
         }
         await resetCommand(positional, {
@@ -766,7 +835,7 @@ async function main(): Promise<void> {
         break;
       }
 
-      case 'plugins': {
+      case "plugins": {
         await pluginsCommand({
           dir: options.dir,
           verbose: options.verbose || options.v,
@@ -774,30 +843,33 @@ async function main(): Promise<void> {
         break;
       }
 
-      case 'tree': {
+      case "tree": {
         await treeCommand({
           root: options.dir || options.root,
           filter: positional[0] || options.filter,
-          showPaths: options['show-paths'] || options.showPaths,
-          showDescriptions: options['show-descriptions'] || options.showDescriptions,
-          onlyIncomplete: options['only-incomplete'] || options.onlyIncomplete,
-          maxDepth: options['max-depth'] ? Number(options['max-depth']) : undefined,
-          showCursor: options['show-cursor'] || options.showCursor,
+          showPaths: options["show-paths"] || options.showPaths,
+          showDescriptions:
+            options["show-descriptions"] || options.showDescriptions,
+          onlyIncomplete: options["only-incomplete"] || options.onlyIncomplete,
+          maxDepth: options["max-depth"]
+            ? Number(options["max-depth"])
+            : undefined,
+          showCursor: options["show-cursor"] || options.showCursor,
           detail: options.detail || false,
         });
         break;
       }
 
-      case 'gantt': {
+      case "gantt": {
         await ganttCommand({
           dir: options.dir,
-          onlyBlocked: options['only-blocked'] || options.onlyBlocked,
-          onlyReady: options['only-ready'] || options.onlyReady,
+          onlyBlocked: options["only-blocked"] || options.onlyBlocked,
+          onlyReady: options["only-ready"] || options.onlyReady,
         });
         break;
       }
 
-      case 'graph': {
+      case "graph": {
         await graphCommand({
           dir: options.dir,
           detail: options.detail || false,
@@ -806,16 +878,16 @@ async function main(): Promise<void> {
         break;
       }
 
-      case 'journal': {
+      case "journal": {
         await journalCommand({
           root: options.dir || options.root,
           epic: positional[0] || options.epic,
-          onlyRetries: options['only-retries'] || options.onlyRetries,
+          onlyRetries: options["only-retries"] || options.onlyRetries,
         });
         break;
       }
 
-      case 'backlog': {
+      case "backlog": {
         await backlogCommand({
           dir: options.dir,
           epic: positional[0] || options.epic,
@@ -825,14 +897,14 @@ async function main(): Promise<void> {
         break;
       }
 
-      case 'trend': {
-        const { formatTrendTable } = await import('../converge/gap-ledger.ts');
+      case "trend": {
+        const { formatTrendTable } = await import("../converge/gap-ledger.ts");
         const trendProjectDir = resolve(options.dir || process.cwd());
-        console.log('\n' + formatTrendTable(trendProjectDir) + '\n');
+        console.log("\n" + formatTrendTable(trendProjectDir) + "\n");
         break;
       }
 
-      case 'goals': {
+      case "goals": {
         await evaluateCommand({
           dir: options.dir,
           verbose: options.verbose || options.v,
@@ -843,34 +915,44 @@ async function main(): Promise<void> {
         break;
       }
 
-      case 'cleanup': {
+      case "cleanup": {
         const projectDir = resolve(options.dir || process.cwd());
-        console.log('🧹 Cleaning up orphaned journals...\n');
+        console.log("🧹 Cleaning up orphaned journals...\n");
 
         const cleanup = new JournalCleanup(projectDir);
         const result = await cleanup.run(options.verbose || options.v);
 
         if (result.removed === 0) {
-          console.log('✓ No orphaned journals found - everything is clean!');
+          console.log("✓ No orphaned journals found - everything is clean!");
         } else {
-          console.log(`\n✅ Cleanup complete - removed ${result.removed} orphaned journal(s)`);
+          console.log(
+            `\n✅ Cleanup complete - removed ${result.removed} orphaned journal(s)`,
+          );
         }
         break;
       }
 
-      case 'plan': {
-        const { mkdir: mkdirFs, writeFile: writeFileFs } = await import('node:fs/promises');
+      case "plan": {
+        const { mkdir: mkdirFs, writeFile: writeFileFs } =
+          await import("node:fs/promises");
 
         const prompt = options.prompt || positional[0];
         if (!prompt) {
-          console.error('\n   ❌ Missing required --prompt');
-          console.error('   Usage: converge plan --prompt "Your plan description"');
+          console.error("\n   ❌ Missing required --prompt");
+          console.error(
+            '   Usage: converge plan --prompt "Your plan description"',
+          );
           console.error('      or: converge plan "Your plan description"\n');
           process.exit(1);
         }
 
-        const planName = (options.name as string)
-          || String(prompt).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50);
+        const planName =
+          (options.name as string) ||
+          String(prompt)
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-|-$/g, "")
+            .slice(0, 50);
 
         const planSearchDir = resolve(options.dir || process.cwd());
         const planResolved = await resolveConvergeConfig(planSearchDir);
@@ -885,14 +967,14 @@ async function main(): Promise<void> {
           planConvergeConfig = validated;
           planHookRegistry = new HookRegistry();
           if (validated.hooks) {
-            planHookRegistry.registerAll(validated.hooks, 'user');
+            planHookRegistry.registerAll(validated.hooks, "user");
           }
           activeRegistry = planHookRegistry;
         }
 
         if (!planConvergeConfig) {
           planConvergeConfig = {
-            name: 'plan',
+            name: "plan",
             description: `Generate playbook: ${prompt}`,
             dir: planSearchDir,
             runtime: { maxIterations: 10 },
@@ -901,27 +983,47 @@ async function main(): Promise<void> {
         }
 
         // Write inline TASK.md — no playbook template needed
-        const planTaskDir = join(planSearchDir, '.converge', 'playbooks', 'plan', 'tasks', '001-plan');
-        const planPlaybookDir = join(planSearchDir, '.converge', 'playbooks', 'plan');
+        const planTaskDir = join(
+          planSearchDir,
+          ".converge",
+          "playbooks",
+          "plan",
+          "tasks",
+          "001-plan",
+        );
+        const planPlaybookDir = join(
+          planSearchDir,
+          ".converge",
+          "playbooks",
+          "plan",
+        );
         if (!existsSync(planTaskDir)) {
           await mkdirFs(planTaskDir, { recursive: true });
 
-          await writeFileFs(join(planPlaybookDir, 'playbook.yml'), [
-            'name: plan',
-            `description: "Generate playbook: ${prompt}"`,
-            '',
-            'run:',
-            '  mode: autonomous',
-            '  maxIterations: 10',
-            '  maxTaskAttempts: 3',
-            '  resume: true',
-          ].join('\n'), 'utf8');
+          await writeFileFs(
+            join(planPlaybookDir, "playbook.yml"),
+            [
+              "name: plan",
+              `description: "Generate playbook: ${prompt}"`,
+              "",
+              "run:",
+              "  mode: autonomous",
+              "  maxIterations: 10",
+              "  maxTaskAttempts: 3",
+              "  resume: true",
+            ].join("\n"),
+            "utf8",
+          );
 
-          await writeFileFs(join(planTaskDir, 'TASK.md'), buildPlanTaskMd(prompt, planName, !!options.update), 'utf8');
+          await writeFileFs(
+            join(planTaskDir, "TASK.md"),
+            buildPlanTaskMd(prompt, planName, !!options.update),
+            "utf8",
+          );
         }
 
         // Init journal + run
-        const planPlaybookName = 'plan';
+        const planPlaybookName = "plan";
         await initPlaybookJournal(planSearchDir, planPlaybookName);
         process.env.CONVERGE_PLAYBOOK = planPlaybookName;
         console.log(`   Mode: autonomous\n`);
@@ -930,7 +1032,7 @@ async function main(): Promise<void> {
         try {
           await runAutonomousCommand({
             dir: planConvergeConfig?.dir || options.dir,
-            filter: '001-plan',
+            filter: "001-plan",
             force: options.force || false,
             resume: options.resume || false,
             restart: options.restart || false,
@@ -942,8 +1044,8 @@ async function main(): Promise<void> {
             wbs: false,
             inc: false,
             maxIterations: 10,
-            maxDuration: options['max-duration'] || options.maxDuration,
-            checkInterval: options['check-interval'] || options.checkInterval,
+            maxDuration: options["max-duration"] || options.maxDuration,
+            checkInterval: options["check-interval"] || options.checkInterval,
             autoFix: true,
             selfPlan: false,
             verbose: options.verbose || options.v,
@@ -954,15 +1056,24 @@ async function main(): Promise<void> {
           await appendTrend(planSearchDir, planPlaybookName, {
             sessionId: `run-${new Date().toISOString()}`,
             timestamp: new Date().toISOString(),
-            tasksTotal: 1, tasksComplete: 1, tasksFailed: 0,
+            tasksTotal: 1,
+            tasksComplete: 1,
+            tasksFailed: 0,
             totalAttempts: 1,
             durationMs: Date.now() - planRunStartTime,
           });
 
           // Show next steps
-          const generatedDir = join(planSearchDir, '.converge', 'playbooks', planName);
+          const generatedDir = join(
+            planSearchDir,
+            ".converge",
+            "playbooks",
+            planName,
+          );
           if (existsSync(generatedDir)) {
-            console.log(`\n✅ Playbook generated: .converge/playbooks/${planName}/`);
+            console.log(
+              `\n✅ Playbook generated: .converge/playbooks/${planName}/`,
+            );
             console.log(`\n   To run it:`);
             console.log(`   converge run --playbook=${planName}\n`);
           }
@@ -970,7 +1081,9 @@ async function main(): Promise<void> {
           await appendTrend(planSearchDir, planPlaybookName, {
             sessionId: `run-${new Date().toISOString()}`,
             timestamp: new Date().toISOString(),
-            tasksTotal: 1, tasksComplete: 0, tasksFailed: 1,
+            tasksTotal: 1,
+            tasksComplete: 0,
+            tasksFailed: 1,
             totalAttempts: 1,
             durationMs: Date.now() - planRunStartTime,
           });
@@ -981,18 +1094,18 @@ async function main(): Promise<void> {
         break;
       }
 
-      case 'skills': {
-        const subcommand = positional[0] || 'list';
+      case "skills": {
+        const subcommand = positional[0] || "list";
 
         switch (subcommand) {
-          case 'list': {
+          case "list": {
             await skillsListCommand({
               verbose: options.verbose || options.v,
             });
             break;
           }
 
-          case 'install': {
+          case "install": {
             await skillsInstallCommand({
               target: options.target,
               skill: options.skill,
@@ -1004,18 +1117,18 @@ async function main(): Promise<void> {
 
           default: {
             console.error(`❌ Unknown skills subcommand: ${subcommand}`);
-            console.error('Usage: converge skills <list|install> [options]');
+            console.error("Usage: converge skills <list|install> [options]");
             process.exit(1);
           }
         }
         break;
       }
 
-      case 'playbook': {
-        const subcommand = positional[0] || 'list';
+      case "playbook": {
+        const subcommand = positional[0] || "list";
 
         switch (subcommand) {
-          case 'list': {
+          case "list": {
             await playbookListCommand({
               dir: options.dir,
               verbose: options.verbose || options.v,
@@ -1023,10 +1136,10 @@ async function main(): Promise<void> {
             break;
           }
 
-          case 'info': {
+          case "info": {
             const playbookInfoName = positional[1];
             if (!playbookInfoName) {
-              console.error('   Usage: converge playbook info <name>');
+              console.error("   Usage: converge playbook info <name>");
               process.exit(1);
             }
             await playbookInfoCommand(playbookInfoName, {
@@ -1035,10 +1148,10 @@ async function main(): Promise<void> {
             break;
           }
 
-          case 'history': {
+          case "history": {
             const playbookHistName = positional[1];
             if (!playbookHistName) {
-              console.error('   Usage: converge playbook history <name>');
+              console.error("   Usage: converge playbook history <name>");
               process.exit(1);
             }
             await playbookHistoryCommand(playbookHistName, {
@@ -1050,19 +1163,21 @@ async function main(): Promise<void> {
 
           default: {
             console.error(`   Unknown playbook subcommand: ${subcommand}`);
-            console.error('   Usage: converge playbook <list|info|history> [options]');
+            console.error(
+              "   Usage: converge playbook <list|info|history> [options]",
+            );
             process.exit(1);
           }
         }
         break;
       }
 
-      case 'inspect': {
+      case "inspect": {
         await inspectCommand({
           dir: options.dir,
-          session: options.session || positional[0],  // Support both --session=<id> and positional arg
+          session: options.session || positional[0], // Support both --session=<id> and positional arg
           last: options.last ? Number(options.last) : undefined,
-          lastSession: options['last-session'] as boolean,
+          lastSession: options["last-session"] as boolean,
           task: options.task as string,
           attempt: options.attempt ? Number(options.attempt) : undefined,
           phase: options.phase as string,
@@ -1081,7 +1196,7 @@ async function main(): Promise<void> {
         break;
       }
 
-      case 'timeline': {
+      case "timeline": {
         // Deprecated: redirect to inspect
         await timelineCommand({
           dir: options.dir,
@@ -1098,32 +1213,35 @@ async function main(): Promise<void> {
         break;
       }
 
-      case 'shims': {
+      case "shims": {
         const shimName = positional[0];
         if (!shimName) {
-          console.error('❌ Usage: converge shims <name> [args...]');
-          console.error('   Available shims: grep, wc, jq, find');
-          console.error('   Example: converge shims grep -q "export default" src/App.tsx');
+          console.error("❌ Usage: converge shims <name> [args...]");
+          console.error("   Available shims: grep, wc, jq, find");
+          console.error(
+            '   Example: converge shims grep -q "export default" src/App.tsx',
+          );
           process.exit(1);
         }
 
-        const { dirname: shimDirname, join: shimJoin } = await import('node:path');
-        const { fileURLToPath: shimFileURLToPath } = await import('node:url');
-        const { existsSync: shimExists } = await import('node:fs');
-        const { execSync: shimExec } = await import('node:child_process');
+        const { dirname: shimDirname, join: shimJoin } =
+          await import("node:path");
+        const { fileURLToPath: shimFileURLToPath } = await import("node:url");
+        const { existsSync: shimExists } = await import("node:fs");
+        const { execSync: shimExec } = await import("node:child_process");
 
         const shimThisDir = shimDirname(shimFileURLToPath(import.meta.url));
-        const shimsDir = shimJoin(shimThisDir, '..', 'shims');
-        const jsPath = shimJoin(shimsDir, shimName + '.js');
-        const tsPath = shimJoin(shimsDir, shimName + '.ts');
+        const shimsDir = shimJoin(shimThisDir, "..", "shims");
+        const jsPath = shimJoin(shimsDir, shimName + ".js");
+        const tsPath = shimJoin(shimsDir, shimName + ".ts");
 
         let runner: string;
         let shimPath: string;
         if (shimExists(jsPath)) {
-          runner = 'node';
+          runner = "node";
           shimPath = jsPath;
         } else if (shimExists(tsPath)) {
-          runner = 'tsx';
+          runner = "tsx";
           shimPath = tsPath;
         } else {
           console.error(`❌ Shim not found: ${shimName}`);
@@ -1134,8 +1252,12 @@ async function main(): Promise<void> {
         // Pass raw args after shim name — bypass parsed options to preserve flags like -q
         const rawArgs = process.argv.slice(2);
         const shimNameIdx = rawArgs.indexOf(shimName);
-        const rawShimArgs = rawArgs.slice(shimNameIdx + 1).filter(a => a !== '--');
-        const shimArgs = rawShimArgs.map(a => a.includes(' ') ? `"${a}"` : a).join(' ');
+        const rawShimArgs = rawArgs
+          .slice(shimNameIdx + 1)
+          .filter((a) => a !== "--");
+        const shimArgs = rawShimArgs
+          .map((a) => (a.includes(" ") ? `"${a}"` : a))
+          .join(" ");
         const shimCmd = `${runner} "${shimPath}" ${shimArgs}`.trim();
 
         console.log(`🔧 Shim: ${shimName}`);
@@ -1147,7 +1269,11 @@ async function main(): Promise<void> {
           console.log(`\n   Executing...\n`);
           try {
             const projectDir = resolve(options.dir || process.cwd());
-            const output = shimExec(shimCmd, { cwd: projectDir, stdio: 'pipe', encoding: 'utf-8' });
+            const output = shimExec(shimCmd, {
+              cwd: projectDir,
+              stdio: "pipe",
+              encoding: "utf-8",
+            });
             if (output) console.log(output);
             console.log(`   ✅ Exit code: 0`);
           } catch (err: any) {
@@ -1160,12 +1286,12 @@ async function main(): Promise<void> {
         break;
       }
 
-      case 'metrics': {
+      case "metrics": {
         await metricsCommand({
           dir: options.dir,
-          byEpic: options['by-epic'] || options.byEpic,
-          byTask: options['by-task'] || options.byTask,
-          byModel: options['by-model'] || options.byModel,
+          byEpic: options["by-epic"] || options.byEpic,
+          byTask: options["by-task"] || options.byTask,
+          byModel: options["by-model"] || options.byModel,
           top: options.top ? Number(options.top) : undefined,
           json: options.json as boolean,
           save: options.save as boolean,
@@ -1173,9 +1299,9 @@ async function main(): Promise<void> {
         break;
       }
 
-      case 'help':
-      case '--help':
-      case '-h':
+      case "help":
+      case "--help":
+      case "-h":
       default: {
         showHelp();
         process.exit(0);
@@ -1186,7 +1312,7 @@ async function main(): Promise<void> {
   } catch (error: any) {
     console.error(`\n❌ Error: ${error.message}`);
     if (options.verbose || options.v) {
-      console.error('\nStack trace:');
+      console.error("\nStack trace:");
       console.error(error.stack);
     }
     process.exit(1);
@@ -1197,9 +1323,13 @@ async function main(): Promise<void> {
 /*  Plan prompt builder                                                */
 /* ------------------------------------------------------------------ */
 
-function buildPlanTaskMd(prompt: string, name: string, isUpdate = false): string {
-  const guide = isUpdate ? 'plan-existing-playbook' : 'plan-new-playbook';
-  const verb = isUpdate ? 'Update' : 'Generate';
+function buildPlanTaskMd(
+  prompt: string,
+  name: string,
+  isUpdate = false,
+): string {
+  const guide = isUpdate ? "plan-existing-playbook" : "plan-new-playbook";
+  const verb = isUpdate ? "Update" : "Generate";
 
   return `---
 title: "${verb} Playbook — ${prompt}"
@@ -1221,13 +1351,13 @@ checks:
 
 # ${verb} Playbook: ${prompt}
 
-You are ${isUpdate ? 'updating an existing' : 'generating a new'} converge playbook from a user's prompt.
+You are ${isUpdate ? "updating an existing" : "generating a new"} converge playbook from a user's prompt.
 
 ## Inputs
 
 - **Prompt:** "${prompt}"
 - **Playbook name:** "${name}"
-- **Mode:** ${isUpdate ? 'Update existing playbook' : 'Create new playbook'}
+- **Mode:** ${isUpdate ? "Update existing playbook" : "Create new playbook"}
 
 ## Instructions
 
@@ -1239,13 +1369,19 @@ You are ${isUpdate ? 'updating an existing' : 'generating a new'} converge playb
 }
 
 // Run if executed directly (cross-platform: handles symlinks and Windows path format differences)
-import { pathToFileURL } from 'node:url';
-import { realpathSync } from 'node:fs';
-const _resolvedArgv = (() => { try { return realpathSync(process.argv[1]); } catch { return process.argv[1]; } })();
-const _isMain = _resolvedArgv && (
-  import.meta.url === `file://${_resolvedArgv}` ||
-  import.meta.url === pathToFileURL(_resolvedArgv).href
-);
+import { pathToFileURL } from "node:url";
+import { realpathSync } from "node:fs";
+const _resolvedArgv = (() => {
+  try {
+    return realpathSync(process.argv[1]);
+  } catch {
+    return process.argv[1];
+  }
+})();
+const _isMain =
+  _resolvedArgv &&
+  (import.meta.url === `file://${_resolvedArgv}` ||
+    import.meta.url === pathToFileURL(_resolvedArgv).href);
 if (_isMain) main();
 
 export { main };

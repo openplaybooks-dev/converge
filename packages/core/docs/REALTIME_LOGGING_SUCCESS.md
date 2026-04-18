@@ -30,16 +30,18 @@ Real-time log streaming is now fully functional. You can see exactly what the AI
 ## What You See
 
 ### Tool Calls
+
 - 📖 **Read** - File reading operations
-- ✍️  **Write** - File writing operations
-- ✏️  **Edit** - File editing operations
-- ⚙️  **Bash** - Shell commands (truncated to 60 chars)
-- 🛠️  **Skill** - Skill invocations
+- ✍️ **Write** - File writing operations
+- ✏️ **Edit** - File editing operations
+- ⚙️ **Bash** - Shell commands (truncated to 60 chars)
+- 🛠️ **Skill** - Skill invocations
 - 🔍 **WebSearch** - Web searches
 - 🌐 **WebFetch** - URL fetching
 - 🔧 **Other** - Other tools
 
 ### Status Indicators
+
 - 📡 **Streaming logs from** - Shows which log file is being tailed
 - ✅ **Task completed** - Final result messages
 - ❌ **Error** - Error messages
@@ -47,23 +49,27 @@ Real-time log streaming is now fully functional. You can see exactly what the AI
 ## The Fix
 
 ### Problem
+
 The `LogStreamer` was tailing `log.log` (summary file) instead of the actual execution logs.
 
 ### Solution
+
 Modified `SimpleLogTailer` to:
+
 1. **Exclude** `log.log` from tailing
 2. **Find** timestamped log files (`2026-04-04T17-04-00-829Z_*.log`)
 3. **Sort** by most recent
 4. **Tail** the active execution log
 
 ### Code Change
+
 ```typescript
 // Before: Tailed first log file found (often log.log - empty)
-const logFiles = files.filter(f => f.endsWith('.log'));
+const logFiles = files.filter((f) => f.endsWith(".log"));
 
 // After: Tail timestamped execution logs only
 const logFiles = files
-  .filter(f => f.endsWith('.log') && f !== 'log.log')
+  .filter((f) => f.endsWith(".log") && f !== "log.log")
   .sort()
   .reverse(); // Most recent first
 ```
@@ -71,9 +77,11 @@ const logFiles = files
 ## Implementation
 
 ### SimpleLogTailer Class
+
 **Location**: `src/journal/simple-log-tailer.ts`
 
 **How it Works**:
+
 1. **Polling**: Checks every 1 second for log files to appear
 2. **Discovery**: Finds timestamped `.log` files (excludes `log.log`)
 3. **Tailing**: Spawns `tail -f -n 0 <logfile>` process
@@ -82,6 +90,7 @@ const logFiles = files
 6. **Cleanup**: Kills tail process when task completes
 
 **Key Methods**:
+
 - `start()` - Begin polling for log files
 - `stop()` - Kill tail process and stop polling
 - `checkAndStartTail()` - Poll for log file creation
@@ -94,6 +103,7 @@ const logFiles = files
 ### Recognized Patterns
 
 **[TOOL_USE] Format**:
+
 ```
 [2026-04-04T17:04:15.123Z] [TOOL_USE] Tool: Bash
 Input: {
@@ -102,16 +112,19 @@ Input: {
 ```
 
 **[STDOUT] Format**:
+
 ```
 [2026-04-04T17:04:15.456Z] [STDOUT] {"type":"assistant","message":{"content":[{"type":"tool_use","name":"Read","input":{"file_path":"file.txt"}}]}}
 ```
 
 **[TEXT_BLOCK] Format** (AI thinking - disabled by default):
+
 ```
 [2026-04-04T17:04:15.789Z] [TEXT_BLOCK] I'll check if the file exists first...
 ```
 
 **[FINAL_RESULT] Format**:
+
 ```
 [2026-04-04T17:04:16.012Z] [FINAL_RESULT] Task completed successfully
 ```
@@ -119,19 +132,21 @@ Input: {
 ## Configuration
 
 Default settings in `agent-runner.ts`:
+
 ```typescript
 const logTailer = new SimpleLogTailer(logDir, {
-  showToolCalls: true,      // Show tool usage
-  showReasoning: false,     // Hide AI thinking (too verbose)
-  showResults: true,        // Show completion messages
+  showToolCalls: true, // Show tool usage
+  showReasoning: false, // Hide AI thinking (too verbose)
+  showResults: true, // Show completion messages
 });
 ```
 
 To enable AI thinking (verbose):
+
 ```typescript
 const logTailer = new SimpleLogTailer(logDir, {
   showToolCalls: true,
-  showReasoning: true,      // ← Enable AI thinking
+  showReasoning: true, // ← Enable AI thinking
   showResults: true,
 });
 ```
@@ -139,12 +154,14 @@ const logTailer = new SimpleLogTailer(logDir, {
 ## Performance
 
 ### Resource Usage
+
 - **CPU**: Minimal (~1% for tail process)
 - **Memory**: ~5MB per tail process
 - **I/O**: Reads only new log lines (incremental)
 - **Network**: None
 
 ### Latency
+
 - **Polling**: 1 second to detect log file
 - **Streaming**: < 50ms from log write to console display
 - **Cleanup**: Immediate on task completion
@@ -152,7 +169,9 @@ const logTailer = new SimpleLogTailer(logDir, {
 ## Debugging
 
 ### Check if Tailer Started
+
 Look for this message:
+
 ```
 📡 Streaming logs from: /path/to/logfile.log
 ```
@@ -160,17 +179,20 @@ Look for this message:
 ### No Logs Appearing?
 
 **Check 1**: Verify log files exist
+
 ```bash
 ls -la .converge/journal/epics/*/tasks/*/attempts/wip/logs/*.log
 ```
 
 **Check 2**: Manually tail the log
+
 ```bash
 tail -f .converge/journal/epics/*/tasks/*/attempts/wip/logs/2026*.log
 ```
 
 **Check 3**: Check for errors
 Look for warnings like:
+
 ```
 ⚠️  tail process error: ...
 ⚠️  tail stderr: ...
@@ -179,9 +201,10 @@ Look for warnings like:
 ### Too Verbose?
 
 Disable tool calls:
+
 ```typescript
 const logTailer = new SimpleLogTailer(logDir, {
-  showToolCalls: false,  // ← Disable
+  showToolCalls: false, // ← Disable
   showResults: true,
 });
 ```
@@ -189,6 +212,7 @@ const logTailer = new SimpleLogTailer(logDir, {
 ## Comparison
 
 ### Before (Silent Execution)
+
 ```
 🤖 Running AI
    Task  : Generate Design
@@ -203,6 +227,7 @@ const logTailer = new SimpleLogTailer(logDir, {
 **User Experience**: 😰 "Is it stuck? What's happening?"
 
 ### After (Real-time Streaming)
+
 ```
 🤖 Running AI
    Task  : Generate Design
@@ -224,14 +249,14 @@ const logTailer = new SimpleLogTailer(logDir, {
 
 ## All Issues Resolved
 
-| Issue | Status |
-|-------|--------|
-| Event duplication | ✅ Fixed |
-| No internal logging | ✅ Fixed |
+| Issue                 | Status     |
+| --------------------- | ---------- |
+| Event duplication     | ✅ Fixed   |
+| No internal logging   | ✅ Fixed   |
 | Timer-based heartbeat | ✅ Removed |
-| Duplicate gap logging | ✅ Fixed |
-| Silent AI execution | ✅ Fixed |
-| Real-time streaming | ✅ Working |
+| Duplicate gap logging | ✅ Fixed   |
+| Silent AI execution   | ✅ Fixed   |
+| Real-time streaming   | ✅ Working |
 
 ## Build Status
 
@@ -240,15 +265,18 @@ const logTailer = new SimpleLogTailer(logDir, {
 ## Files Modified
 
 ### New Files
+
 1. `src/journal/simple-log-tailer.ts` - Tail-based log streaming
 
 ### Modified Files
+
 1. `src/repair/agent-runner.ts` - Integrated SimpleLogTailer
 2. `src/journal/console-formatter.ts` - Fixed event duplication
 3. `src/repair/pipeline.ts` - Removed duplicate gap logging
 4. `src/unit/run.ts` - Removed duplicate console logs
 
 ### Documentation
+
 1. `REALTIME_LOG_STREAMING.md` - Original implementation docs
 2. `REALTIME_LOGGING_SUCCESS.md` - This document
 3. `ALL_LOGGING_FIXES_SUMMARY.md` - Complete summary
@@ -258,6 +286,7 @@ const logTailer = new SimpleLogTailer(logDir, {
 ## Next Steps
 
 ### Completed ✅
+
 - [x] Event-driven logging (Layer 2)
 - [x] Console formatting with icons
 - [x] Real-time log streaming
@@ -265,6 +294,7 @@ const logTailer = new SimpleLogTailer(logDir, {
 - [x] Timer-based logging removal
 
 ### Future Enhancements 🔮
+
 - [ ] Progress bars for long operations
 - [ ] Token usage / cost display
 - [ ] Color coding by tool type

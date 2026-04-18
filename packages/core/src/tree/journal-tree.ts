@@ -10,10 +10,13 @@
  * - JournalTree = what was executed (from .converge/journal/)
  */
 
-import { readdir, readFile } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
-import type { UnitCheckpoint, AttemptRecord } from '../checkpoint/unit-checkpoint.ts';
+import { readdir, readFile } from "fs/promises";
+import { existsSync } from "fs";
+import path from "path";
+import type {
+  UnitCheckpoint,
+  AttemptRecord,
+} from "../checkpoint/unit-checkpoint.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -28,7 +31,7 @@ import type { UnitCheckpoint, AttemptRecord } from '../checkpoint/unit-checkpoin
  */
 export interface JournalNode {
   /** Node type */
-  type: 'task' | 'attempt';
+  type: "task" | "attempt";
 
   /** Task ID (e.g., "001-implement-design-system") */
   id: string;
@@ -40,7 +43,14 @@ export interface JournalNode {
   parentId?: string;
 
   /** Execution status (for task nodes: aggregate, for attempts: specific) */
-  status: 'pending' | 'running' | 'complete' | 'failed' | 'seeded' | 'interrupted' | 'partial';
+  status:
+    | "pending"
+    | "running"
+    | "complete"
+    | "failed"
+    | "seeded"
+    | "interrupted"
+    | "partial";
 
   /** Child nodes (for task nodes: attempts + WBS children, for attempts: empty) */
   children: JournalNode[];
@@ -50,9 +60,9 @@ export interface JournalNode {
     attemptNumber: number;
     startedAt: string;
     completedAt?: string;
-    outcome?: 'success' | 'failed' | 'interrupted';
+    outcome?: "success" | "failed" | "interrupted";
     durationMs?: number;
-    journalPath: string;  // Path to attempt directory
+    journalPath: string; // Path to attempt directory
   };
 
   /** Task-specific data (only for task nodes) */
@@ -61,7 +71,7 @@ export interface JournalNode {
     currentAttempt?: number;
     createdAt: string;
     lastUpdated: string;
-    journalPath: string;  // Path to task directory
+    journalPath: string; // Path to task directory
     progress?: {
       totalChildren: number;
       completedChildren: number;
@@ -103,7 +113,7 @@ export class JournalTree {
 
       if (entry.isDirectory()) {
         // Skip directories we don't need to scan for checkpoints
-        const skipDirs = ['sessions', 'logs', 'attempts', 'project'];
+        const skipDirs = ["sessions", "logs", "attempts", "project"];
         if (skipDirs.includes(entry.name)) {
           continue;
         }
@@ -111,7 +121,7 @@ export class JournalTree {
         // Recursively search subdirectories
         const subCheckpoints = await this.findCheckpoints(fullPath);
         results.push(...subCheckpoints);
-      } else if (entry.name === 'checkpoint.json') {
+      } else if (entry.name === "checkpoint.json") {
         results.push(fullPath);
       }
     }
@@ -123,15 +133,15 @@ export class JournalTree {
    * Load journal tree from project directory
    */
   static async load(projectDir: string): Promise<JournalTree> {
-    const journalRoot = path.join(projectDir, '.converge', 'journal');
+    const journalRoot = path.join(projectDir, ".converge", "journal");
 
     if (!existsSync(journalRoot)) {
       // No journal yet - return empty tree
       const emptyRoot: JournalNode = {
-        type: 'task',
-        id: '__root__',
-        epicId: '__root__',
-        status: 'pending',
+        type: "task",
+        id: "__root__",
+        epicId: "__root__",
+        status: "pending",
         children: [],
         task: {
           totalAttempts: 0,
@@ -145,10 +155,10 @@ export class JournalTree {
 
     const nodes = new Map<string, JournalNode>();
     const root: JournalNode = {
-      type: 'task',
-      id: '__root__',
-      epicId: '__root__',
-      status: 'pending',
+      type: "task",
+      id: "__root__",
+      epicId: "__root__",
+      status: "pending",
       children: [],
       task: {
         totalAttempts: 0,
@@ -159,7 +169,7 @@ export class JournalTree {
     };
 
     // Load all epics (journal mirrors epics folder structure exactly)
-    const epicsDir = path.join(journalRoot, 'epics');
+    const epicsDir = path.join(journalRoot, "epics");
     if (existsSync(epicsDir)) {
       // Recursively find all checkpoint.json files in epics directory
       // This is more efficient than scanning each epic separately
@@ -180,75 +190,80 @@ export class JournalTree {
         // Remove epic ID and 'tasks' segments to get task ID
         let taskIdParts: string[] = [];
         for (let i = 1; i < pathParts.length; i++) {
-          if (pathParts[i] !== 'tasks') {
+          if (pathParts[i] !== "tasks") {
             taskIdParts.push(pathParts[i]);
           }
         }
-        const taskId = taskIdParts.join('/') || epicId;
+        const taskId = taskIdParts.join("/") || epicId;
 
         if (!existsSync(checkpointPath)) continue;
 
-          try {
-            const checkpoint = JSON.parse(
-              await readFile(checkpointPath, 'utf-8')
-            ) as UnitCheckpoint;
+        try {
+          const checkpoint = JSON.parse(
+            await readFile(checkpointPath, "utf-8"),
+          ) as UnitCheckpoint;
 
-            // Parse journalTaskId to detect parent-child relationship
-            // Format: "parentId/childId" for subtasks, "taskId" for top-level
-            const parts = taskId.split('/');
-            const parentId = parts.length > 1 ? parts[0] : undefined;
+          // Parse journalTaskId to detect parent-child relationship
+          // Format: "parentId/childId" for subtasks, "taskId" for top-level
+          const parts = taskId.split("/");
+          const parentId = parts.length > 1 ? parts[0] : undefined;
 
-            // Create task node (aggregates all attempts)
-            const taskNode: JournalNode = {
-              type: 'task',
-              id: taskId,
-              epicId,
-              parentId,
-              status: checkpoint.status,
-              children: [],
-              task: {
-                totalAttempts: checkpoint.attempts?.length || 0,
-                currentAttempt: checkpoint.currentAttempt,
-                createdAt: checkpoint.createdAt,
-                lastUpdated: checkpoint.lastUpdated,
-                journalPath: taskJournalPath,
-                progress: checkpoint.progress
-                  ? {
-                      totalChildren: checkpoint.progress.totalChildren,
-                      completedChildren: checkpoint.progress.completedChildren,
-                      failedChildren: checkpoint.progress.failedChildren,
-                    }
-                  : undefined,
-              },
-            };
+          // Create task node (aggregates all attempts)
+          const taskNode: JournalNode = {
+            type: "task",
+            id: taskId,
+            epicId,
+            parentId,
+            status: checkpoint.status,
+            children: [],
+            task: {
+              totalAttempts: checkpoint.attempts?.length || 0,
+              currentAttempt: checkpoint.currentAttempt,
+              createdAt: checkpoint.createdAt,
+              lastUpdated: checkpoint.lastUpdated,
+              journalPath: taskJournalPath,
+              progress: checkpoint.progress
+                ? {
+                    totalChildren: checkpoint.progress.totalChildren,
+                    completedChildren: checkpoint.progress.completedChildren,
+                    failedChildren: checkpoint.progress.failedChildren,
+                  }
+                : undefined,
+            },
+          };
 
-            nodes.set(taskId, taskNode);
+          nodes.set(taskId, taskNode);
 
-            // Create attempt nodes (each retry is a separate node)
-            if (checkpoint.attempts && checkpoint.attempts.length > 0) {
-              for (const attemptRecord of checkpoint.attempts) {
-                const attemptId = `${taskId}#attempt-${attemptRecord.attempt}`;
-                const attemptNode: JournalNode = {
-                  type: 'attempt',
-                  id: attemptId,
-                  epicId,
-                  parentId: taskId,  // Parent is the task node
-                  status: attemptRecord.outcome === 'success' ? 'complete' : 'failed',
-                  children: [],
-                  attempt: {
-                    attemptNumber: attemptRecord.attempt,
-                    startedAt: attemptRecord.startedAt,
-                    completedAt: attemptRecord.completedAt,
-                    outcome: attemptRecord.outcome,
-                    durationMs: attemptRecord.durationMs,
-                    journalPath: path.join(taskJournalPath, 'attempts', String(attemptRecord.attempt).padStart(2, '0')),
-                  },
-                };
+          // Create attempt nodes (each retry is a separate node)
+          if (checkpoint.attempts && checkpoint.attempts.length > 0) {
+            for (const attemptRecord of checkpoint.attempts) {
+              const attemptId = `${taskId}#attempt-${attemptRecord.attempt}`;
+              const attemptNode: JournalNode = {
+                type: "attempt",
+                id: attemptId,
+                epicId,
+                parentId: taskId, // Parent is the task node
+                status:
+                  attemptRecord.outcome === "success" ? "complete" : "failed",
+                children: [],
+                attempt: {
+                  attemptNumber: attemptRecord.attempt,
+                  startedAt: attemptRecord.startedAt,
+                  completedAt: attemptRecord.completedAt,
+                  outcome: attemptRecord.outcome,
+                  durationMs: attemptRecord.durationMs,
+                  journalPath: path.join(
+                    taskJournalPath,
+                    "attempts",
+                    String(attemptRecord.attempt).padStart(2, "0"),
+                  ),
+                },
+              };
 
-                nodes.set(attemptId, attemptNode);
-                taskNode.children.push(attemptNode);
-              }
+              nodes.set(attemptId, attemptNode);
+              taskNode.children.push(attemptNode);
             }
+          }
         } catch (err) {
           console.warn(`Failed to load checkpoint for ${taskId}:`, err);
         }
@@ -259,7 +274,7 @@ export class JournalTree {
     // Attempts are already added to their task nodes above
     for (const node of nodes.values()) {
       // Skip attempt nodes - they're already attached to task nodes
-      if (node.type === 'attempt') continue;
+      if (node.type === "attempt") continue;
 
       if (node.parentId) {
         const parent = nodes.get(node.parentId);
@@ -278,8 +293,8 @@ export class JournalTree {
     // Sort task children by numeric prefix, but keep attempts in chronological order
     const sortChildren = (node: JournalNode) => {
       // Separate task children from attempt children
-      const taskChildren = node.children.filter(c => c.type === 'task');
-      const attemptChildren = node.children.filter(c => c.type === 'attempt');
+      const taskChildren = node.children.filter((c) => c.type === "task");
+      const attemptChildren = node.children.filter((c) => c.type === "attempt");
 
       // Sort task children by numeric prefix
       const sortByNumericPrefix = (a: JournalNode, b: JournalNode): number => {
@@ -341,18 +356,18 @@ export class JournalTree {
   getNodeByPath(journalPath: string): JournalNode | undefined {
     // Try exact match first
     for (const node of this.nodes.values()) {
-      if (node.type === 'task' && node.task?.journalPath === journalPath) {
+      if (node.type === "task" && node.task?.journalPath === journalPath) {
         return node;
       }
     }
 
     // Try matching by task ID (backward compat - old structure has /tasks/ subdirectory)
     // Extract task ID from journal path and match by ID instead
-    const pathParts = journalPath.split('/');
+    const pathParts = journalPath.split("/");
     const taskId = pathParts[pathParts.length - 1];
 
     for (const node of this.nodes.values()) {
-      if (node.type === 'task' && node.id === taskId) {
+      if (node.type === "task" && node.id === taskId) {
         return node;
       }
     }
@@ -381,7 +396,7 @@ export class JournalTree {
    * Get nodes by epic ID
    */
   getEpicNodes(epicId: string): JournalNode[] {
-    return this.getAllNodes().filter(n => n.epicId === epicId);
+    return this.getAllNodes().filter((n) => n.epicId === epicId);
   }
 
   /**
@@ -395,14 +410,14 @@ export class JournalTree {
     pending: number;
     totalAttempts: number;
   } {
-    const taskNodes = this.getAllNodes().filter(n => n.type === 'task');
-    const attemptNodes = this.getAllNodes().filter(n => n.type === 'attempt');
+    const taskNodes = this.getAllNodes().filter((n) => n.type === "task");
+    const attemptNodes = this.getAllNodes().filter((n) => n.type === "attempt");
     return {
       total: taskNodes.length,
-      completed: taskNodes.filter(n => n.status === 'complete').length,
-      failed: taskNodes.filter(n => n.status === 'failed').length,
-      running: taskNodes.filter(n => n.status === 'running').length,
-      pending: taskNodes.filter(n => n.status === 'pending').length,
+      completed: taskNodes.filter((n) => n.status === "complete").length,
+      failed: taskNodes.filter((n) => n.status === "failed").length,
+      running: taskNodes.filter((n) => n.status === "running").length,
+      pending: taskNodes.filter((n) => n.status === "pending").length,
       totalAttempts: attemptNodes.length,
     };
   }
@@ -411,7 +426,9 @@ export class JournalTree {
    * Get tasks with multiple attempts (had failures/retries)
    */
   getTasksWithRetries(): JournalNode[] {
-    return this.getAllNodes().filter(n => n.type === 'task' && (n.task?.totalAttempts || 0) > 1);
+    return this.getAllNodes().filter(
+      (n) => n.type === "task" && (n.task?.totalAttempts || 0) > 1,
+    );
   }
 
   /**
@@ -420,7 +437,7 @@ export class JournalTree {
   getTotalExecutionTime(): number {
     let totalMs = 0;
     for (const node of this.getAllNodes()) {
-      if (node.type === 'attempt' && node.attempt?.durationMs) {
+      if (node.type === "attempt" && node.attempt?.durationMs) {
         totalMs += node.attempt.durationMs;
       }
     }

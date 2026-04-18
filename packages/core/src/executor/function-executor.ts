@@ -5,14 +5,14 @@
  * Replaces the old store-driven executor with pure function execution.
  */
 
-import type { TaskContext } from '../context/types.ts';
-import type { TaskConfig } from '../storage/types.ts';
-import type { TaskResult, TaskFnMeta } from '../functions/types.ts';
-import { globalRegistry } from '../functions/registry.ts';
-import { logTaskEvent, reEvaluateAfterTask } from '../journal/index.ts';
-import path from 'node:path';
-import { existsSync } from 'node:fs';
-import fs from 'node:fs/promises';
+import type { TaskContext } from "../context/types.ts";
+import type { TaskConfig } from "../storage/types.ts";
+import type { TaskResult, TaskFnMeta } from "../functions/types.ts";
+import { globalRegistry } from "../functions/registry.ts";
+import { logTaskEvent, reEvaluateAfterTask } from "../journal/index.ts";
+import path from "node:path";
+import { existsSync } from "node:fs";
+import fs from "node:fs/promises";
 
 /* ------------------------------------------------------------------ */
 /*  Execution Options                                                 */
@@ -26,7 +26,7 @@ export interface ExecutionOptions {
   maxRetries?: number;
 
   /** Retry backoff strategy */
-  retryBackoff?: 'linear' | 'exponential';
+  retryBackoff?: "linear" | "exponential";
 
   /** Initial retry delay (ms) */
   retryDelay?: number;
@@ -41,7 +41,7 @@ export interface ExecutionOptions {
 export const DEFAULT_EXECUTION_OPTIONS: ExecutionOptions = {
   timeout: 300000, // 5 minutes
   maxRetries: 3,
-  retryBackoff: 'exponential',
+  retryBackoff: "exponential",
   retryDelay: 1000,
   runChecks: true,
   continueOnCheckFailure: false,
@@ -93,11 +93,11 @@ export class FunctionExecutor {
   async execute(
     ctx: TaskContext,
     config: TaskConfig,
-    options: ExecutionOptions = DEFAULT_EXECUTION_OPTIONS
+    options: ExecutionOptions = DEFAULT_EXECUTION_OPTIONS,
   ): Promise<ExecutionResult> {
     const startTime = Date.now();
     const taskId = ctx.taskId;
-    const taskType = config.type || 'default';
+    const taskType = config.type || "default";
     const epicId = ctx.epic.epicId;
     const projectDir = ctx.projectDir;
 
@@ -108,20 +108,26 @@ export class FunctionExecutor {
       projectDir,
       epicId,
       taskId,
-      'TASK_START',
+      "TASK_START",
       `Starting task: ${config.title}`,
-      { taskType, attempt: 1 }
+      { taskType, attempt: 1 },
     );
 
     // Check if task has SKILL.md and should execute as skill
     const taskFolder = (config.metadata as any)?.filePath
       ? path.dirname((config.metadata as any).filePath)
       : null;
-    const isSkillTask = (config.metadata as any)?.isSkillOnly === true || taskType === 'skill-task';
+    const isSkillTask =
+      (config.metadata as any)?.isSkillOnly === true ||
+      taskType === "skill-task";
 
     let result: ExecutionResult;
 
-    if (isSkillTask && taskFolder && existsSync(path.join(taskFolder, 'SKILL.md'))) {
+    if (
+      isSkillTask &&
+      taskFolder &&
+      existsSync(path.join(taskFolder, "SKILL.md"))
+    ) {
       // Execute as skill task
       ctx.log.info(`Executing as skill task from folder: ${taskFolder}`);
       result = await this.executeAsSkill(ctx, config, taskFolder, options);
@@ -130,7 +136,7 @@ export class FunctionExecutor {
       const taskMeta = this.getTaskFunction(taskType);
       if (!taskMeta) {
         const errorMsg = `Task type "${taskType}" not found in registry`;
-        await logTaskEvent(projectDir, epicId, taskId, 'ERROR', errorMsg);
+        await logTaskEvent(projectDir, epicId, taskId, "ERROR", errorMsg);
         return this.createErrorResult(taskId, taskType, 0, startTime, errorMsg);
       }
 
@@ -139,9 +145,9 @@ export class FunctionExecutor {
         ctx,
         taskMeta,
         options.maxRetries || 1,
-        options.retryBackoff || 'exponential',
+        options.retryBackoff || "exponential",
         options.retryDelay || 1000,
-        options.timeout
+        options.timeout,
       );
     }
 
@@ -169,9 +175,9 @@ export class FunctionExecutor {
         projectDir,
         epicId,
         taskId,
-        'TASK_COMPLETE',
+        "TASK_COMPLETE",
         `Task completed: ${config.title}`,
-        { duration: Date.now() - startTime, attempts: result.attempts }
+        { duration: Date.now() - startTime, attempts: result.attempts },
       );
 
       // Trigger automatic re-evaluation
@@ -185,9 +191,9 @@ export class FunctionExecutor {
         projectDir,
         epicId,
         taskId,
-        'TASK_FAILED',
-        `Task failed: ${result.message || 'Unknown error'}`,
-        { attempts: result.attempts, error: result.error?.message }
+        "TASK_FAILED",
+        `Task failed: ${result.message || "Unknown error"}`,
+        { attempts: result.attempts, error: result.error?.message },
       );
     }
 
@@ -207,12 +213,16 @@ export class FunctionExecutor {
     ctx: TaskContext,
     taskMeta: TaskFnMeta,
     maxRetries: number,
-    backoff: 'linear' | 'exponential',
+    backoff: "linear" | "exponential",
     baseDelay: number,
-    timeout?: number
+    timeout?: number,
   ): Promise<ExecutionResult> {
     let attempts = 0;
-    const retryHistory: Array<{ attempt: number; error: string; timestamp: string }> = [];
+    const retryHistory: Array<{
+      attempt: number;
+      error: string;
+      timestamp: string;
+    }> = [];
     const epicId = ctx.epic.epicId;
     const taskId = ctx.taskId;
     const projectDir = ctx.projectDir;
@@ -241,7 +251,7 @@ export class FunctionExecutor {
         }
 
         // Record failure
-        const errorMsg = result.error?.message || 'Unknown error';
+        const errorMsg = result.error?.message || "Unknown error";
         retryHistory.push({
           attempt: attempts,
           error: errorMsg,
@@ -249,18 +259,16 @@ export class FunctionExecutor {
         });
 
         // Journal: Log error
-        await logTaskEvent(
-          projectDir,
-          epicId,
-          taskId,
-          'ERROR',
-          errorMsg,
-          { attempt: attempts, recoverable: result.error?.recoverable }
-        );
+        await logTaskEvent(projectDir, epicId, taskId, "ERROR", errorMsg, {
+          attempt: attempts,
+          recoverable: result.error?.recoverable,
+        });
 
         // Check if error is recoverable
         if (result.error && !result.error.recoverable) {
-          ctx.log.error(`Non-recoverable error, not retrying: ${result.error.message}`);
+          ctx.log.error(
+            `Non-recoverable error, not retrying: ${result.error.message}`,
+          );
           return {
             ...result,
             taskId: ctx.taskId,
@@ -282,9 +290,9 @@ export class FunctionExecutor {
             projectDir,
             epicId,
             taskId,
-            'RETRY',
+            "RETRY",
             `Retrying after ${delay}ms (attempt ${attempts + 1}/${maxRetries})`,
-            { attempt: attempts + 1, delay }
+            { attempt: attempts + 1, delay },
           );
 
           await this.sleep(delay);
@@ -299,14 +307,10 @@ export class FunctionExecutor {
         });
 
         // Journal: Log error
-        await logTaskEvent(
-          projectDir,
-          epicId,
-          taskId,
-          'ERROR',
-          error.message,
-          { attempt: attempts, stack: error.stack }
-        );
+        await logTaskEvent(projectDir, epicId, taskId, "ERROR", error.message, {
+          attempt: attempts,
+          stack: error.stack,
+        });
 
         // Last attempt - return error
         if (attempts >= maxRetries) {
@@ -336,9 +340,9 @@ export class FunctionExecutor {
           projectDir,
           epicId,
           taskId,
-          'RETRY',
+          "RETRY",
           `Retrying after ${delay}ms (attempt ${attempts + 1}/${maxRetries})`,
-          { attempt: attempts + 1, delay }
+          { attempt: attempts + 1, delay },
         );
 
         await this.sleep(delay);
@@ -364,12 +368,15 @@ export class FunctionExecutor {
   private async executeWithTimeout(
     ctx: TaskContext,
     taskMeta: TaskFnMeta,
-    timeout: number
+    timeout: number,
   ): Promise<TaskResult> {
     return Promise.race([
       taskMeta.fn(ctx),
       new Promise<TaskResult>((_, reject) =>
-        setTimeout(() => reject(new Error(`Task timed out after ${timeout}ms`)), timeout)
+        setTimeout(
+          () => reject(new Error(`Task timed out after ${timeout}ms`)),
+          timeout,
+        ),
       ),
     ]);
   }
@@ -381,7 +388,7 @@ export class FunctionExecutor {
     ctx: TaskContext,
     config: TaskConfig,
     taskFolder: string,
-    options: ExecutionOptions
+    options: ExecutionOptions,
   ): Promise<ExecutionResult> {
     const startTime = Date.now();
     const taskId = path.basename(taskFolder);
@@ -413,7 +420,7 @@ export class FunctionExecutor {
         message: validated.message,
         filesModified: validated.filesModified,
         taskId: ctx.taskId,
-        taskType: config.type || 'skill-task',
+        taskType: config.type || "skill-task",
         attempts: 1,
         duration: Date.now() - startTime,
         retried: false,
@@ -425,9 +432,9 @@ export class FunctionExecutor {
         projectDir,
         epicId,
         ctx.taskId,
-        'ERROR',
+        "ERROR",
         `Skill execution failed: ${error.message}`,
-        { stack: error.stack }
+        { stack: error.stack },
       );
 
       return {
@@ -439,7 +446,7 @@ export class FunctionExecutor {
           recoverable: false,
         },
         taskId: ctx.taskId,
-        taskType: config.type || 'skill-task',
+        taskType: config.type || "skill-task",
         attempts: 1,
         duration: Date.now() - startTime,
         retried: false,
@@ -456,14 +463,14 @@ export class FunctionExecutor {
   private async loadSkillToClaudeSkills(
     taskId: string,
     taskFolder: string,
-    ctx: TaskContext
+    ctx: TaskContext,
   ): Promise<void> {
     const homeDir = process.env.HOME || process.env.USERPROFILE;
     if (!homeDir) {
-      throw new Error('Cannot determine home directory');
+      throw new Error("Cannot determine home directory");
     }
 
-    const claudeSkillsDir = path.join(homeDir, '.claude', 'skills');
+    const claudeSkillsDir = path.join(homeDir, ".claude", "skills");
     const skillLink = path.join(claudeSkillsDir, taskId);
 
     // Ensure ~/.claude/skills/ exists
@@ -475,7 +482,7 @@ export class FunctionExecutor {
     }
 
     // Create symlink: ~/.claude/skills/{taskId} → task folder
-    await fs.symlink(taskFolder, skillLink, 'dir');
+    await fs.symlink(taskFolder, skillLink, "dir");
     ctx.log.info(`📚 Loaded skill: ${taskId} → ${skillLink}`);
   }
 
@@ -484,12 +491,12 @@ export class FunctionExecutor {
    */
   private async unloadSkillFromClaudeSkills(
     taskId: string,
-    ctx: TaskContext
+    ctx: TaskContext,
   ): Promise<void> {
     const homeDir = process.env.HOME || process.env.USERPROFILE;
     if (!homeDir) return;
 
-    const claudeSkillsDir = path.join(homeDir, '.claude', 'skills');
+    const claudeSkillsDir = path.join(homeDir, ".claude", "skills");
     const skillLink = path.join(claudeSkillsDir, taskId);
 
     if (existsSync(skillLink)) {
@@ -512,15 +519,15 @@ export class FunctionExecutor {
 
     if (config.inputs && config.inputs.length > 0) {
       parts.push(`\n## Input Files`);
-      parts.push(config.inputs.map(i => `- ${i}`).join('\n'));
+      parts.push(config.inputs.map((i) => `- ${i}`).join("\n"));
     }
 
     if (config.outputs && config.outputs.length > 0) {
       parts.push(`\n## Expected Outputs`);
-      parts.push(config.outputs.map(o => `- ${o}`).join('\n'));
+      parts.push(config.outputs.map((o) => `- ${o}`).join("\n"));
     }
 
-    return parts.join('\n');
+    return parts.join("\n");
   }
 
   /**
@@ -528,9 +535,11 @@ export class FunctionExecutor {
    */
   private async simulateSkillExecution(
     ctx: TaskContext,
-    config: TaskConfig
+    config: TaskConfig,
   ): Promise<void> {
-    ctx.log.info('⚠️  Skill execution simulation mode (claudefn integration pending)');
+    ctx.log.info(
+      "⚠️  Skill execution simulation mode (claudefn integration pending)",
+    );
 
     // Create dummy output files if specified
     if (config.outputs && config.outputs.length > 0) {
@@ -545,7 +554,7 @@ export class FunctionExecutor {
         await fs.writeFile(
           outputPath,
           `# ${config.title}\n\nThis is a placeholder output generated by skill task simulation.\n`,
-          'utf-8'
+          "utf-8",
         );
         ctx.log.info(`Created output: ${output}`);
       }
@@ -557,7 +566,7 @@ export class FunctionExecutor {
    */
   private async validateOutputs(
     ctx: TaskContext,
-    config: TaskConfig
+    config: TaskConfig,
   ): Promise<{
     passed: boolean;
     message: string;
@@ -580,7 +589,7 @@ export class FunctionExecutor {
       passed: missing.length === 0,
       message:
         missing.length > 0
-          ? `Missing outputs: ${missing.join(', ')}`
+          ? `Missing outputs: ${missing.join(", ")}`
           : `All ${outputs.length} outputs created successfully`,
       filesModified: found,
     };
@@ -592,7 +601,7 @@ export class FunctionExecutor {
   private async runChecks(
     ctx: TaskContext,
     config: TaskConfig,
-    options: ExecutionOptions
+    options: ExecutionOptions,
   ): Promise<Array<{ check: string; passed: boolean; message?: string }>> {
     const checks = config.checks || [];
     if (checks.length === 0) {
@@ -601,7 +610,8 @@ export class FunctionExecutor {
 
     ctx.log.info(`Running ${checks.length} checks...`);
 
-    const results: Array<{ check: string; passed: boolean; message?: string }> = [];
+    const results: Array<{ check: string; passed: boolean; message?: string }> =
+      [];
 
     for (const checkName of checks) {
       try {
@@ -615,7 +625,9 @@ export class FunctionExecutor {
         if (checkResult.passed) {
           ctx.log.info(`✅ Check passed: ${checkName}`);
         } else {
-          ctx.log.error(`❌ Check failed: ${checkName} - ${checkResult.message}`);
+          ctx.log.error(
+            `❌ Check failed: ${checkName} - ${checkResult.message}`,
+          );
         }
       } catch (error: any) {
         ctx.log.error(`Check execution error: ${checkName} - ${error.message}`);
@@ -643,9 +655,9 @@ export class FunctionExecutor {
   private calculateDelay(
     attempt: number,
     baseDelay: number,
-    backoff: 'linear' | 'exponential'
+    backoff: "linear" | "exponential",
   ): number {
-    if (backoff === 'exponential') {
+    if (backoff === "exponential") {
       return baseDelay * Math.pow(2, attempt - 1);
     } else {
       return baseDelay * attempt;
@@ -667,7 +679,7 @@ export class FunctionExecutor {
     taskType: string,
     attempts: number,
     startTime: number,
-    errorMessage: string
+    errorMessage: string,
   ): ExecutionResult {
     return {
       success: false,
@@ -706,10 +718,10 @@ export class BatchExecutor {
     contexts: TaskContext[],
     configs: TaskConfig[],
     maxConcurrency: number = 5,
-    options: ExecutionOptions = DEFAULT_EXECUTION_OPTIONS
+    options: ExecutionOptions = DEFAULT_EXECUTION_OPTIONS,
   ): Promise<ExecutionResult[]> {
     if (contexts.length !== configs.length) {
-      throw new Error('Contexts and configs arrays must have same length');
+      throw new Error("Contexts and configs arrays must have same length");
     }
 
     const results: ExecutionResult[] = [];
@@ -740,16 +752,20 @@ export class BatchExecutor {
   async executeSequential(
     contexts: TaskContext[],
     configs: TaskConfig[],
-    options: ExecutionOptions = DEFAULT_EXECUTION_OPTIONS
+    options: ExecutionOptions = DEFAULT_EXECUTION_OPTIONS,
   ): Promise<ExecutionResult[]> {
     if (contexts.length !== configs.length) {
-      throw new Error('Contexts and configs arrays must have same length');
+      throw new Error("Contexts and configs arrays must have same length");
     }
 
     const results: ExecutionResult[] = [];
 
     for (let i = 0; i < contexts.length; i++) {
-      const result = await this.executor.execute(contexts[i], configs[i], options);
+      const result = await this.executor.execute(
+        contexts[i],
+        configs[i],
+        options,
+      );
       results.push(result);
 
       // Stop on first failure if requested

@@ -5,31 +5,31 @@
  * or recalculate for verification.
  */
 
-import type { ModelPricing, SubscriptionConfig } from '../storage/types.ts';
+import type { ModelPricing, SubscriptionConfig } from "../storage/types.ts";
 
 /**
  * Default Claude pricing (MiniMax-M2.7 as approximation of Claude pricing)
  * Prices per 1M tokens
  */
 export const DEFAULT_PRICING: Record<string, ModelPricing> = {
-  'MiniMax-M2.7': {
-    inputPer1M: 0.50,
-    outputPer1M: 1.50,
+  "MiniMax-M2.7": {
+    inputPer1M: 0.5,
+    outputPer1M: 1.5,
   },
-  'claude-opus-4-5': {
+  "claude-opus-4-5": {
     inputPer1M: 15.0,
     outputPer1M: 75.0,
   },
-  'claude-sonnet-4-5': {
+  "claude-sonnet-4-5": {
     inputPer1M: 3.0,
     outputPer1M: 15.0,
   },
-  'claude-haiku-3-5': {
+  "claude-haiku-3-5": {
     inputPer1M: 0.8,
     outputPer1M: 4.0,
   },
   // Fallback
-  'default': {
+  default: {
     inputPer1M: 1.0,
     outputPer1M: 3.0,
   },
@@ -59,14 +59,14 @@ export function calculateCostWithModel(
 ): number {
   // Try custom pricing first
   if (customPricing) {
-    const pricing = customPricing[model] ?? customPricing['default'];
+    const pricing = customPricing[model] ?? customPricing["default"];
     if (pricing) {
       return calculateCost(inputTokens, outputTokens, pricing);
     }
   }
 
   // Fall back to default pricing
-  const pricing = DEFAULT_PRICING[model] ?? DEFAULT_PRICING['default'];
+  const pricing = DEFAULT_PRICING[model] ?? DEFAULT_PRICING["default"];
   return calculateCost(inputTokens, outputTokens, pricing);
 }
 
@@ -79,7 +79,8 @@ export function calculateSubscriptionCost(
   subscription: SubscriptionConfig,
 ): number {
   if (!subscription.enabled) return 0;
-  const effective = (sessionCount / subscription.requestsIncluded) * subscription.flatFee;
+  const effective =
+    (sessionCount / subscription.requestsIncluded) * subscription.flatFee;
   return Math.min(effective, subscription.flatFee); // Cap at flat fee
 }
 
@@ -87,19 +88,21 @@ export function calculateSubscriptionCost(
  * Extract model name from events.jsonl metadata
  * The model info is stored in the task metadata
  */
-export function extractModelFromMetadata(metadata: Record<string, unknown>): string {
+export function extractModelFromMetadata(
+  metadata: Record<string, unknown>,
+): string {
   // Check various fields where model might be stored
-  if (typeof metadata.model === 'string') {
+  if (typeof metadata.model === "string") {
     return metadata.model;
   }
-  if (typeof metadata.modelId === 'string') {
+  if (typeof metadata.modelId === "string") {
     return metadata.modelId;
   }
-  if (typeof metadata.ai === 'object' && metadata.ai !== null) {
+  if (typeof metadata.ai === "object" && metadata.ai !== null) {
     const ai = metadata.ai as Record<string, unknown>;
-    if (typeof ai.model === 'string') {
+    if (typeof ai.model === "string") {
       return ai.model;
     }
   }
-  return 'MiniMax-M2.7'; // Default fallback
+  return "MiniMax-M2.7"; // Default fallback
 }

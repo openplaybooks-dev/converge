@@ -2,11 +2,7 @@ import { compose as claudeCompose } from "@converge/claudefn";
 import { compose as kimiCompose } from "@converge/kimifn";
 import { compose as qwenCompose } from "@converge/qwenfn";
 import { compose as geminiCompose } from "@converge/geminifn";
-import type {
-  ComposeOptions,
-  AgentFnResult,
-  Provider,
-} from "./types.js";
+import type { ComposeOptions, AgentFnResult, Provider } from "./types.js";
 import type { ComposeOptions as ClaudeComposeOptions } from "@converge/claudefn";
 import type { ComposeOptions as KimiComposeOptions } from "@converge/kimifn";
 import type { ComposeOptions as QwenComposeOptions } from "@converge/qwenfn";
@@ -152,7 +148,9 @@ function toClaudeComposeOptions<T>(
     // Deprecated SDK-only options — passed through for backward compat
     ...(opts.backend && { backend: opts.backend }),
     ...(opts.model && { model: opts.model }),
-    ...(opts.permissionMode !== undefined && { permissionMode: opts.permissionMode }),
+    ...(opts.permissionMode !== undefined && {
+      permissionMode: opts.permissionMode,
+    }),
   } as ClaudeComposeOptions<T>;
 }
 

@@ -5,8 +5,8 @@
  * Provides higher-level APIs for status transitions and state queries.
  */
 
-import { FilesystemStorage } from './filesystem.ts';
-import type { EpicStatus, TaskStatus } from './types.ts';
+import { FilesystemStorage } from "./filesystem.ts";
+import type { EpicStatus, TaskStatus } from "./types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Status Manager                                                    */
@@ -29,7 +29,7 @@ export class StatusManager {
     // Create default status
     const defaultStatus: EpicStatus = {
       id: epicId,
-      status: 'planned',
+      status: "planned",
       currentGaps: [],
       attempts: 0,
       metadata: {
@@ -45,7 +45,7 @@ export class StatusManager {
    */
   updateEpicStatus(
     epicId: string,
-    updates: Partial<Omit<EpicStatus, 'id'>>
+    updates: Partial<Omit<EpicStatus, "id">>,
   ): EpicStatus {
     const current = this.getEpicStatus(epicId);
     const updated: EpicStatus = {
@@ -67,8 +67,8 @@ export class StatusManager {
    */
   transitionEpic(
     epicId: string,
-    newStatus: EpicStatus['status'],
-    reason?: string
+    newStatus: EpicStatus["status"],
+    reason?: string,
   ): EpicStatus {
     const current = this.getEpicStatus(epicId);
 
@@ -81,10 +81,10 @@ export class StatusManager {
       metadata: {
         ...current.metadata,
         lastUpdated: new Date().toISOString(),
-        ...(newStatus === 'active' && !current.metadata?.started
+        ...(newStatus === "active" && !current.metadata?.started
           ? { started: new Date().toISOString() }
           : {}),
-        ...(newStatus === 'completed'
+        ...(newStatus === "completed"
           ? { completed: new Date().toISOString() }
           : {}),
       },
@@ -110,9 +110,10 @@ export class StatusManager {
       lastEvaluation: new Date().toISOString(),
     });
 
-    const message = gaps.length > 0
-      ? `Gaps detected: ${gaps.length}\n${gaps.map(g => `- ${g}`).join('\n')}`
-      : 'No gaps detected';
+    const message =
+      gaps.length > 0
+        ? `Gaps detected: ${gaps.length}\n${gaps.map((g) => `- ${g}`).join("\n")}`
+        : "No gaps detected";
     this.storage.appendEpicLog(epicId, message);
   }
 
@@ -140,7 +141,7 @@ export class StatusManager {
     // Create default status
     const defaultStatus: TaskStatus = {
       id: taskId,
-      status: 'pending',
+      status: "pending",
       currentGaps: [],
       attempts: 0,
       metadata: {
@@ -157,7 +158,7 @@ export class StatusManager {
   updateTaskStatus(
     epicId: string,
     taskId: string,
-    updates: Partial<Omit<TaskStatus, 'id'>>
+    updates: Partial<Omit<TaskStatus, "id">>,
   ): TaskStatus {
     const current = this.getTaskStatus(epicId, taskId);
     const updated: TaskStatus = {
@@ -180,8 +181,8 @@ export class StatusManager {
   transitionTask(
     epicId: string,
     taskId: string,
-    newStatus: TaskStatus['status'],
-    reason?: string
+    newStatus: TaskStatus["status"],
+    reason?: string,
   ): TaskStatus {
     const current = this.getTaskStatus(epicId, taskId);
 
@@ -194,10 +195,10 @@ export class StatusManager {
       metadata: {
         ...current.metadata,
         lastUpdated: new Date().toISOString(),
-        ...(newStatus === 'active' && !current.metadata?.started
+        ...(newStatus === "active" && !current.metadata?.started
           ? { started: new Date().toISOString() }
           : {}),
-        ...(newStatus === 'completed' || newStatus === 'failed'
+        ...(newStatus === "completed" || newStatus === "failed"
           ? { completed: new Date().toISOString() }
           : {}),
       },
@@ -223,9 +224,10 @@ export class StatusManager {
       lastEvaluation: new Date().toISOString(),
     });
 
-    const message = gaps.length > 0
-      ? `Gaps detected: ${gaps.length}\n${gaps.map(g => `- ${g}`).join('\n')}`
-      : 'No gaps detected';
+    const message =
+      gaps.length > 0
+        ? `Gaps detected: ${gaps.length}\n${gaps.map((g) => `- ${g}`).join("\n")}`
+        : "No gaps detected";
     this.storage.appendTaskLog(epicId, taskId, message);
   }
 
@@ -239,7 +241,7 @@ export class StatusManager {
       number: number;
       success: boolean;
       error?: string;
-    }
+    },
   ): void {
     const current = this.getTaskStatus(epicId, taskId);
     const started = current.lastAttempt?.started || new Date().toISOString();
@@ -257,14 +259,18 @@ export class StatusManager {
 
     const message = attempt.success
       ? `Attempt ${attempt.number} succeeded`
-      : `Attempt ${attempt.number} failed: ${attempt.error || 'unknown error'}`;
+      : `Attempt ${attempt.number} failed: ${attempt.error || "unknown error"}`;
     this.storage.appendTaskLog(epicId, taskId, message);
   }
 
   /**
    * Start task attempt
    */
-  startTaskAttempt(epicId: string, taskId: string, attemptNumber: number): void {
+  startTaskAttempt(
+    epicId: string,
+    taskId: string,
+    attemptNumber: number,
+  ): void {
     const current = this.getTaskStatus(epicId, taskId);
 
     this.updateTaskStatus(epicId, taskId, {
@@ -274,7 +280,11 @@ export class StatusManager {
       },
     });
 
-    this.storage.appendTaskLog(epicId, taskId, `Starting attempt ${attemptNumber}`);
+    this.storage.appendTaskLog(
+      epicId,
+      taskId,
+      `Starting attempt ${attemptNumber}`,
+    );
   }
 
   /* ────────────────────────────────────────────────────────────── */
@@ -286,7 +296,7 @@ export class StatusManager {
    */
   isEpicCompleted(epicId: string): boolean {
     const status = this.getEpicStatus(epicId);
-    return status.status === 'completed';
+    return status.status === "completed";
   }
 
   /**
@@ -294,7 +304,7 @@ export class StatusManager {
    */
   isTaskCompleted(epicId: string, taskId: string): boolean {
     const status = this.getTaskStatus(epicId, taskId);
-    return status.status === 'completed' || status.status === 'skipped';
+    return status.status === "completed" || status.status === "skipped";
   }
 
   /**
@@ -302,15 +312,15 @@ export class StatusManager {
    */
   canTaskStart(epicId: string, taskId: string): boolean {
     const status = this.getTaskStatus(epicId, taskId);
-    return status.status === 'pending' || status.status === 'blocked';
+    return status.status === "pending" || status.status === "blocked";
   }
 
   /**
    * Get all tasks with a specific status in an epic
    */
-  getTasksByStatus(epicId: string, status: TaskStatus['status']): string[] {
+  getTasksByStatus(epicId: string, status: TaskStatus["status"]): string[] {
     const taskIds = this.storage.listTasks(epicId);
-    return taskIds.filter(taskId => {
+    return taskIds.filter((taskId) => {
       const taskStatus = this.getTaskStatus(epicId, taskId);
       return taskStatus.status === status;
     });
@@ -324,15 +334,18 @@ export class StatusManager {
    * Validate epic status transition
    */
   private validateEpicTransition(
-    from: EpicStatus['status'],
-    to: EpicStatus['status']
+    from: EpicStatus["status"],
+    to: EpicStatus["status"],
   ): void {
-    const validTransitions: Record<EpicStatus['status'], EpicStatus['status'][]> = {
-      planned: ['active', 'completed'],
-      active: ['completed', 'blocked', 'failed'],
+    const validTransitions: Record<
+      EpicStatus["status"],
+      EpicStatus["status"][]
+    > = {
+      planned: ["active", "completed"],
+      active: ["completed", "blocked", "failed"],
       completed: [], // Terminal state
-      blocked: ['active', 'failed'],
-      failed: ['active', 'completed'],
+      blocked: ["active", "failed"],
+      failed: ["active", "completed"],
     };
 
     if (!validTransitions[from].includes(to)) {
@@ -344,15 +357,18 @@ export class StatusManager {
    * Validate task status transition
    */
   private validateTaskTransition(
-    from: TaskStatus['status'],
-    to: TaskStatus['status']
+    from: TaskStatus["status"],
+    to: TaskStatus["status"],
   ): void {
-    const validTransitions: Record<TaskStatus['status'], TaskStatus['status'][]> = {
-      pending: ['active', 'blocked', 'skipped'],
-      active: ['completed', 'failed', 'blocked'],
+    const validTransitions: Record<
+      TaskStatus["status"],
+      TaskStatus["status"][]
+    > = {
+      pending: ["active", "blocked", "skipped"],
+      active: ["completed", "failed", "blocked"],
       completed: [], // Terminal state
-      blocked: ['pending', 'active'],
-      failed: ['pending', 'active', 'skipped'],
+      blocked: ["pending", "active"],
+      failed: ["pending", "active", "skipped"],
       skipped: [], // Terminal state
     };
 

@@ -9,23 +9,30 @@
  * Extracted from GapFixer.executeTaskRun() and GapFixer.fixGap() in gap-fixer.ts.
  */
 
-import { existsSync, readdirSync } from 'node:fs';
-import { join, dirname, basename, relative } from 'node:path';
-import type { Gap } from '../../gap/types.ts';
-import type { FixStrategy, StrategyContext, StrategyOutcome } from '../types.ts';
-import { PromptBuilder } from '../system-prompts.ts';
-import { runAgent, getAgentLogDir } from '../agent-runner.ts';
-import { parseTaskMd } from '../../config/task-md-definition.ts';
-import { writeContextSnapshot } from '../../lifecycle/context-snapshot.ts';
-import { writeResultSnapshot } from '../../lifecycle/result-snapshot.ts';
-import { resolveSkillsRoot, resolveSkillPath } from '../../config/skill-path-resolver.ts';
+import { existsSync, readdirSync } from "node:fs";
+import { join, dirname, basename, relative } from "node:path";
+import type { Gap } from "../../gap/types.ts";
+import type {
+  FixStrategy,
+  StrategyContext,
+  StrategyOutcome,
+} from "../types.ts";
+import { PromptBuilder } from "../system-prompts.ts";
+import { runAgent, getAgentLogDir } from "../agent-runner.ts";
+import { parseTaskMd } from "../../config/task-md-definition.ts";
+import { writeContextSnapshot } from "../../lifecycle/context-snapshot.ts";
+import { writeResultSnapshot } from "../../lifecycle/result-snapshot.ts";
+import {
+  resolveSkillsRoot,
+  resolveSkillPath,
+} from "../../config/skill-path-resolver.ts";
 
 export class TaskRunStrategy implements FixStrategy {
-  readonly name = 'task-run';
+  readonly name = "task-run";
 
   canHandle(gap: Gap): boolean {
     const kind = gap.metadata?.gapKind as string | undefined;
-    return kind === 'output' || kind === 'check-failed' || kind === 'corrupted';
+    return kind === "output" || kind === "check-failed" || kind === "corrupted";
   }
 
   async tryFix(gap: Gap, ctx: StrategyContext): Promise<StrategyOutcome> {
@@ -35,12 +42,12 @@ export class TaskRunStrategy implements FixStrategy {
     const unitPath = gap.metadata?.unitPath as string | undefined;
     let skillDirs: Record<string, string> | undefined;
     let skillName: string | undefined;
-    let allowedTools: string[] = ['Read', 'Write', 'Edit', 'Bash', 'Glob']; // default
+    let allowedTools: string[] = ["Read", "Write", "Edit", "Bash", "Glob"]; // default
 
     // Resolve skills using the skill path resolver (supports .skill/, .claude/skills/, .converge/skills/)
     const skillsRoot = resolveSkillsRoot(projectDir);
-    
-    if (unitPath && basename(unitPath) === 'SKILL.md') {
+
+    if (unitPath && basename(unitPath) === "SKILL.md") {
       // SKILL.md task: mount shared skills so the AI can invoke them.
       // The task's own SKILL.md is NOT mounted — its content is already in attempts/wip/TASK.md.
       skillDirs = {};
@@ -49,9 +56,10 @@ export class TaskRunStrategy implements FixStrategy {
       if (existsSync(skillsRoot)) {
         for (const d of readdirSync(skillsRoot, { withFileTypes: true })) {
           if (!d.isDirectory()) continue;
-          const skillMd = join(skillsRoot, d.name, 'SKILL.md');
+          const skillMd = join(skillsRoot, d.name, "SKILL.md");
           // Use relative path from projectDir for agentfn compatibility
-          if (existsSync(skillMd)) skillDirs[d.name] = relative(projectDir, join(skillsRoot, d.name));
+          if (existsSync(skillMd))
+            skillDirs[d.name] = relative(projectDir, join(skillsRoot, d.name));
         }
       }
 
@@ -59,8 +67,11 @@ export class TaskRunStrategy implements FixStrategy {
       if (unitPath && existsSync(unitPath)) {
         try {
           const parsed = await parseTaskMd(unitPath);
-          if (parsed?.def['allowed-tools'] && parsed.def['allowed-tools'].length > 0) {
-            allowedTools = parsed.def['allowed-tools'];
+          if (
+            parsed?.def["allowed-tools"] &&
+            parsed.def["allowed-tools"].length > 0
+          ) {
+            allowedTools = parsed.def["allowed-tools"];
           }
         } catch {
           // If parsing fails, use defaults
@@ -68,7 +79,10 @@ export class TaskRunStrategy implements FixStrategy {
       }
     } else {
       // task.ts: look up declared skill by name using skill resolver
-      const taskSkill = gap.metadata?.taskSkill as string | string[] | undefined;
+      const taskSkill = gap.metadata?.taskSkill as
+        | string
+        | string[]
+        | undefined;
       const primarySkill = Array.isArray(taskSkill) ? taskSkill[0] : taskSkill;
       if (primarySkill) {
         const skillDir = resolveSkillPath(primarySkill, projectDir);
@@ -78,21 +92,26 @@ export class TaskRunStrategy implements FixStrategy {
           skillDirs = { [primarySkill]: relative(projectDir, skillDir) };
 
           // Parse allowed-tools from the skill's SKILL.md
-          const taskMdPath = join(skillDir, 'TASK.md');
-          const legacySkillPath = join(skillDir, 'SKILL.md');
+          const taskMdPath = join(skillDir, "TASK.md");
+          const legacySkillPath = join(skillDir, "SKILL.md");
           const defPath = existsSync(taskMdPath) ? taskMdPath : legacySkillPath;
           if (existsSync(defPath)) {
             try {
               const parsed = await parseTaskMd(defPath);
-              if (parsed?.def['allowed-tools'] && parsed.def['allowed-tools'].length > 0) {
-                allowedTools = parsed.def['allowed-tools'];
+              if (
+                parsed?.def["allowed-tools"] &&
+                parsed.def["allowed-tools"].length > 0
+              ) {
+                allowedTools = parsed.def["allowed-tools"];
               }
             } catch {
               // If parsing fails, use defaults
             }
           }
         } else {
-          console.log(`   ⚠️  Skill not found: ${primarySkill} (searched in .skill/, .claude/skills/, .converge/skills/)`);
+          console.log(
+            `   ⚠️  Skill not found: ${primarySkill} (searched in .skill/, .claude/skills/, .converge/skills/)`,
+          );
         }
       }
     }
@@ -104,21 +123,29 @@ export class TaskRunStrategy implements FixStrategy {
     let snapshotPaths: any;
 
     if (attemptDir) {
-      const needsMdPath     = join(attemptDir, 'NEEDS.md');
-      const taskMdPath      = join(attemptDir, 'TASK.md');
-      const checkMdPath     = join(attemptDir, 'CHECK.md');
-      const needsResultMdPath = join(attemptDir, 'NEEDS.result.md');
-      const filesExist = existsSync(needsMdPath) && existsSync(taskMdPath) && existsSync(checkMdPath);
+      const needsMdPath = join(attemptDir, "NEEDS.md");
+      const taskMdPath = join(attemptDir, "TASK.md");
+      const checkMdPath = join(attemptDir, "CHECK.md");
+      const needsResultMdPath = join(attemptDir, "NEEDS.result.md");
+      const filesExist =
+        existsSync(needsMdPath) &&
+        existsSync(taskMdPath) &&
+        existsSync(checkMdPath);
 
       if (!filesExist) {
-        console.log(`   ⚠️  Context snapshot files missing — creating them now (fallback mode)`);
-        const parsed = unitPath && existsSync(unitPath) ? await parseTaskMd(unitPath) : null;
-        const checks = gap.metadata?.checks as Array<{ id: string; description?: string; cmd?: string }> | undefined;
-        const attemptNumber = Number(process.env.CONVERGE_TASK_ATTEMPT ?? '1');
+        console.log(
+          `   ⚠️  Context snapshot files missing — creating them now (fallback mode)`,
+        );
+        const parsed =
+          unitPath && existsSync(unitPath) ? await parseTaskMd(unitPath) : null;
+        const checks = gap.metadata?.checks as
+          | Array<{ id: string; description?: string; cmd?: string }>
+          | undefined;
+        const attemptNumber = Number(process.env.CONVERGE_TASK_ATTEMPT ?? "1");
         snapshotPaths = await writeContextSnapshot({
           projectDir,
-          epicId: journalCtx?.epicId ?? '',
-          taskId: taskId ?? '',
+          epicId: journalCtx?.epicId ?? "",
+          taskId: taskId ?? "",
           attemptDir,
           description: parsed?.def.description,
           inputs: parsed?.def.inputs,
@@ -128,26 +155,32 @@ export class TaskRunStrategy implements FixStrategy {
           attemptNumber,
         });
       } else {
-        const { readFile } = await import('node:fs/promises');
-        const needsResultContent = existsSync(needsResultMdPath) ? await readFile(needsResultMdPath, 'utf-8') : '';
-        const blocked = needsResultContent.includes('⛔ **BLOCKED');
-        const blockedReason = blocked ? 'Needs not met (see NEEDS.result.md)' : undefined;
-        const hasLearn       = existsSync(join(attemptDir, 'LEARN.md'));
-        const errorContextMd   = existsSync(join(attemptDir, 'CHECK.result.md')) ? join(attemptDir, 'CHECK.result.md')
-                               : existsSync(join(attemptDir, 'FEEDBACK.md')) ? join(attemptDir, 'FEEDBACK.md')
-                               : null;
-        const hasErrorContext  = errorContextMd !== null;
-        const hasInterrupted = existsSync(join(attemptDir, 'INTERRUPTED.md'));
-        const { relative } = await import('node:path');
-        const relDir = relative(projectDir, attemptDir).replace(/\\/g, '/');
+        const { readFile } = await import("node:fs/promises");
+        const needsResultContent = existsSync(needsResultMdPath)
+          ? await readFile(needsResultMdPath, "utf-8")
+          : "";
+        const blocked = needsResultContent.includes("⛔ **BLOCKED");
+        const blockedReason = blocked
+          ? "Needs not met (see NEEDS.result.md)"
+          : undefined;
+        const hasLearn = existsSync(join(attemptDir, "LEARN.md"));
+        const errorContextMd = existsSync(join(attemptDir, "CHECK.result.md"))
+          ? join(attemptDir, "CHECK.result.md")
+          : existsSync(join(attemptDir, "FEEDBACK.md"))
+            ? join(attemptDir, "FEEDBACK.md")
+            : null;
+        const hasErrorContext = errorContextMd !== null;
+        const hasInterrupted = existsSync(join(attemptDir, "INTERRUPTED.md"));
+        const { relative } = await import("node:path");
+        const relDir = relative(projectDir, attemptDir).replace(/\\/g, "/");
         snapshotPaths = {
           needsMd: needsMdPath,
           needsResultMd: needsResultMdPath,
           taskMd: taskMdPath,
           checkMd: checkMdPath,
-          needsJson: join(attemptDir, 'data', 'needs.json'),
-          checkJson: join(attemptDir, 'data', 'check.json'),
-          learnMd:        hasLearn        ? join(attemptDir, 'LEARN.md') : undefined,
+          needsJson: join(attemptDir, "data", "needs.json"),
+          checkJson: join(attemptDir, "data", "check.json"),
+          learnMd: hasLearn ? join(attemptDir, "LEARN.md") : undefined,
           errorContextMd: errorContextMd ?? undefined,
           relDir,
           hasLearn,
@@ -160,10 +193,18 @@ export class TaskRunStrategy implements FixStrategy {
       }
 
       if (snapshotPaths.blocked) {
-        const attemptNumber = Number(process.env.CONVERGE_TASK_ATTEMPT ?? '1');
+        const attemptNumber = Number(process.env.CONVERGE_TASK_ATTEMPT ?? "1");
         console.log(`   ⛔ Needs not met: ${snapshotPaths.blockedReason}`);
-        console.log(`      Check ${snapshotPaths.relDir}/NEEDS.result.md for details`);
-        await writeResultSnapshot(attemptDir, projectDir, 'blocked', 0, attemptNumber);
+        console.log(
+          `      Check ${snapshotPaths.relDir}/NEEDS.result.md for details`,
+        );
+        await writeResultSnapshot(
+          attemptDir,
+          projectDir,
+          "blocked",
+          0,
+          attemptNumber,
+        );
         return { success: false, reason: snapshotPaths.blockedReason };
       }
     }
@@ -171,48 +212,60 @@ export class TaskRunStrategy implements FixStrategy {
     // ── Prompt building ─────────────────────────────────────────────────────
     let prompt: string;
     if (attemptDir && snapshotPaths) {
-      const attemptNumber = Number(process.env.CONVERGE_TASK_ATTEMPT ?? '1');
-      const phaseLabel = snapshotPaths.hasLearn ? 'learn → req → execute → check' : 'req → execute → check';
-      console.log(`   📋 Context snapshot → ${snapshotPaths.relDir}/  [${phaseLabel}]`);
-      prompt = PromptBuilder.buildFileBasedTaskRunPrompt(gap, projectDir, snapshotPaths, attemptNumber);
+      const attemptNumber = Number(process.env.CONVERGE_TASK_ATTEMPT ?? "1");
+      const phaseLabel = snapshotPaths.hasLearn
+        ? "learn → req → execute → check"
+        : "req → execute → check";
+      console.log(
+        `   📋 Context snapshot → ${snapshotPaths.relDir}/  [${phaseLabel}]`,
+      );
+      prompt = PromptBuilder.buildFileBasedTaskRunPrompt(
+        gap,
+        projectDir,
+        snapshotPaths,
+        attemptNumber,
+      );
     } else {
       prompt = PromptBuilder.buildTaskRunPrompt(gap, projectDir, skillName);
     }
     prompt = PromptBuilder.injectPlan(prompt, projectDir, journalCtx);
 
-    const taskTitle = (gap.metadata?.taskTitle as string | undefined) ?? gap.description;
-    const taskAgent = (gap.metadata?.taskAgent as string | undefined) ?? 'Converge';
+    const taskTitle =
+      (gap.metadata?.taskTitle as string | undefined) ?? gap.description;
+    const taskAgent =
+      (gap.metadata?.taskAgent as string | undefined) ?? "Converge";
 
     try {
       await runAgent({
-        phase: 'run_task',
+        phase: "run_task",
         prompt,
         agentOptions: {
           // skillDirs DISABLED - causes hang with kimi provider
           // ...(skillDirs ? { skillDirs } : {}),
           timeoutMs: 300_000, // 5 minutes
-          maxRetries: 2,      // retry on crash (STATUS_DLL_INIT_FAILED, etc.)
-          allowedTools,       // Use parsed allowed-tools from skill
+          maxRetries: 2, // retry on crash (STATUS_DLL_INIT_FAILED, etc.)
+          allowedTools, // Use parsed allowed-tools from skill
         },
         projectDir,
         journalCtx,
         label: taskTitle,
         skillName,
-        agentName: taskAgent !== 'Converge' ? taskAgent : undefined,
+        agentName: taskAgent !== "Converge" ? taskAgent : undefined,
       });
-      return { success: true, reason: 'Task execution completed successfully' };
+      return { success: true, reason: "Task execution completed successfully" };
     } catch (err: any) {
       // Check if this is a retryable error (crash/timeout) or a logical error (should not retry)
-      const { classifyAgentError } = await import('../agent-runner.js');
+      const { classifyAgentError } = await import("../agent-runner.js");
       const diagnosis = classifyAgentError(err);
-      const isRetryable = diagnosis.type === 'crash' || diagnosis.type === 'timeout';
+      const isRetryable =
+        diagnosis.type === "crash" || diagnosis.type === "timeout";
 
       console.log(`   ❌ task-run failed: ${err.message}`);
 
       // Don't show log path for config/MCP errors (they fail before/during execution setup)
-      if (diagnosis.type !== 'config-error' && diagnosis.type !== 'mcp-error') {
+      if (diagnosis.type !== "config-error" && diagnosis.type !== "mcp-error") {
         console.log(`   See logs: ${getAgentLogDir(projectDir, journalCtx)}`);
-      } else if (diagnosis.type === 'mcp-error') {
+      } else if (diagnosis.type === "mcp-error") {
         // For MCP errors, show hint immediately
         console.log(`   💡 ${diagnosis.hint}`);
       }
@@ -222,19 +275,26 @@ export class TaskRunStrategy implements FixStrategy {
       return {
         success: false,
         reason: err.message,
-        shouldRetry: isRetryable  // Retry only crashes and timeouts
+        shouldRetry: isRetryable, // Retry only crashes and timeouts
       };
     }
   }
 
-  async preTask(_gap: Gap, _ctx: StrategyContext, _prevAttemptDirs: string[]): Promise<void> {
+  async preTask(
+    _gap: Gap,
+    _ctx: StrategyContext,
+    _prevAttemptDirs: string[],
+  ): Promise<void> {
     const attemptDir = process.env.CONVERGE_TASK_ATTEMPT_DIR;
     if (!attemptDir) return;
 
-    const { mkdir, rm } = await import('node:fs/promises');
+    const { mkdir, rm } = await import("node:fs/promises");
 
-    const isResume  = process.env.CONVERGE_RESUME  === '1' || process.argv.includes('--resume');
-    const isRestart = process.env.CONVERGE_RESTART === '1' || process.argv.includes('--restart');
+    const isResume =
+      process.env.CONVERGE_RESUME === "1" || process.argv.includes("--resume");
+    const isRestart =
+      process.env.CONVERGE_RESTART === "1" ||
+      process.argv.includes("--restart");
 
     if (isResume) {
       console.log(`   ⏩ --resume: using existing attempt dir as-is`);

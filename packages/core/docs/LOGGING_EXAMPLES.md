@@ -326,16 +326,16 @@ Resolved 2/2 gap(s) in 68.6s
 
 ## Summary Comparison
 
-| Metric | Time-Based (Before) | Event-Driven (After) |
-|--------|---------------------|----------------------|
-| **Lines per task** | ~50 lines | ~15 lines |
-| **Information density** | Low (JSON dumps) | High (human summaries) |
-| **Debugging clarity** | Poor (no context) | Excellent (diagnosis) |
-| **User anxiety** | High (minute waits) | Low (instant feedback) |
-| **Pattern detection** | None | Automatic |
-| **Retry explanation** | None | Full context |
-| **Concurrent tasks** | Confusing | Clear prefixes |
-| **Success indicators** | Unclear | Crystal clear |
+| Metric                  | Time-Based (Before) | Event-Driven (After)   |
+| ----------------------- | ------------------- | ---------------------- |
+| **Lines per task**      | ~50 lines           | ~15 lines              |
+| **Information density** | Low (JSON dumps)    | High (human summaries) |
+| **Debugging clarity**   | Poor (no context)   | Excellent (diagnosis)  |
+| **User anxiety**        | High (minute waits) | Low (instant feedback) |
+| **Pattern detection**   | None                | Automatic              |
+| **Retry explanation**   | None                | Full context           |
+| **Concurrent tasks**    | Confusing           | Clear prefixes         |
+| **Success indicators**  | Unclear             | Crystal clear          |
 
 ## Key Improvements
 

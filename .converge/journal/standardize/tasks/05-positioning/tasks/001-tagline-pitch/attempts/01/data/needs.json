@@ -1,0 +1,9 @@
+{
+  "taskId": "05-positioning/001-tagline-pitch",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "docs/brand-messaging.md"
+  ],
+  "blocked": false
+}

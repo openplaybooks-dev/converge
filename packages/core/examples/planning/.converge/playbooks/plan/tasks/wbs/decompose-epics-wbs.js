@@ -12,30 +12,30 @@
  *   ...
  */
 
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { readFileSync } from "fs";
+import { join } from "path";
 
 export async function run(ctx) {
-  const name = ctx.vars?.name || 'default';
+  const name = ctx.vars?.name || "default";
   const stateDir = `.converge/plan-state/${name}`;
-  const outlinePath = join(ctx.projectDir, stateDir, 'outline.json');
+  const outlinePath = join(ctx.projectDir, stateDir, "outline.json");
 
   let outline;
   try {
-    outline = JSON.parse(readFileSync(outlinePath, 'utf-8'));
+    outline = JSON.parse(readFileSync(outlinePath, "utf-8"));
   } catch (err) {
     throw new Error(`Cannot read outline: ${outlinePath} — ${err.message}`);
   }
 
   if (!outline.epics || outline.epics.length === 0) {
-    throw new Error('Outline has no epics — nothing to decompose');
+    throw new Error("Outline has no epics — nothing to decompose");
   }
 
   let prevId = null;
 
   for (let i = 0; i < outline.epics.length; i++) {
     const epic = outline.epics[i];
-    const padded = String(i + 1).padStart(3, '0');
+    const padded = String(i + 1).padStart(3, "0");
     const taskId = `003-${padded}-${epic.id}`;
     const epicOutputPath = `${stateDir}/epics/${epic.id}.json`;
 
@@ -43,12 +43,24 @@ export async function run(ctx) {
       id: taskId,
       title: `Decompose epic: ${epic.title}`,
       dependencies: prevId ? [prevId] : [],
-      inputs: [`${stateDir}/outline.json`, `${stateDir}/requirements.json`, `${stateDir}/analysis.json`],
+      inputs: [
+        `${stateDir}/outline.json`,
+        `${stateDir}/requirements.json`,
+        `${stateDir}/analysis.json`,
+      ],
       outputs: [epicOutputPath],
-      skills: ['converge-planning'],
+      skills: ["converge-planning"],
       checks: [
-        { id: `${epic.id}-exists`, cmd: `test -f ${epicOutputPath}`, description: `${epic.id}.json created` },
-        { id: `${epic.id}-valid`, cmd: `node -e "const e=JSON.parse(require('fs').readFileSync('${epicOutputPath}','utf-8'));if(!e.tasks||!e.tasks.length)throw new Error('no tasks')"`, description: `${epic.id} has tasks` },
+        {
+          id: `${epic.id}-exists`,
+          cmd: `test -f ${epicOutputPath}`,
+          description: `${epic.id}.json created`,
+        },
+        {
+          id: `${epic.id}-valid`,
+          cmd: `node -e "const e=JSON.parse(require('fs').readFileSync('${epicOutputPath}','utf-8'));if(!e.tasks||!e.tasks.length)throw new Error('no tasks')"`,
+          description: `${epic.id} has tasks`,
+        },
       ],
       body: `Detail-decompose epic "${epic.title}" (${epic.id}) into individual tasks.
 
@@ -61,9 +73,9 @@ Reference: load the converge-planning skill, then read:
 - Title: ${epic.title}
 - Description: ${epic.description}
 - Features covered: ${JSON.stringify(epic.features || [])}
-- Complexity: ${epic.complexity || 'medium'}
+- Complexity: ${epic.complexity || "medium"}
 - Dependencies on other epics: ${JSON.stringify(epic.dependencies || [])}
-${epic.needsWbs ? '- This epic is a WBS candidate — identify items to spawn subtasks for' : ''}
+${epic.needsWbs ? "- This epic is a WBS candidate — identify items to spawn subtasks for" : ""}
 
 Read \`${stateDir}/requirements.json\` for feature details and \`${stateDir}/analysis.json\` for project context.
 

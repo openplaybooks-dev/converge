@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-positioning/005-social-kit",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T00:38:25.645Z",
+  "createdAt": "2026-04-18T00:36:44.287Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T00:36:44.287Z",
+      "completedAt": "2026-04-18T00:38:25.641Z",
+      "outcome": "success",
+      "durationMs": 101354
+    }
+  ],
+  "currentAttempt": 1
+}

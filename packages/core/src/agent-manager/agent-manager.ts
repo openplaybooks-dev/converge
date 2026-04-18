@@ -1,7 +1,7 @@
-import { ChildProcess } from 'node:child_process';
-import { homedir } from 'node:os';
-import { join } from 'node:path';
-import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'node:fs';
+import { ChildProcess } from "node:child_process";
+import { homedir } from "node:os";
+import { join } from "node:path";
+import { writeFileSync, readFileSync, existsSync, mkdirSync } from "node:fs";
 
 export interface ProcessInfo {
   pid: number;
@@ -11,7 +11,7 @@ export interface ProcessInfo {
   cwd: string;
   startedAt: number;
   lastActivityAt: number;
-  status: 'starting' | 'running' | 'idle' | 'hung' | 'exiting' | 'dead';
+  status: "starting" | "running" | "idle" | "hung" | "exiting" | "dead";
   logPath: string;
   parentPid: number;
   exitCode?: number | null;
@@ -23,7 +23,7 @@ export interface ProcessInfo {
     projectDir: string;
     epicId?: string;
     taskId?: string;
-    phase?: 'analysis' | 'execution' | 'verification';
+    phase?: "analysis" | "execution" | "verification";
     strategyType?: string;
   };
 
@@ -45,14 +45,14 @@ export interface ProcessMetrics {
   successRate: number;
 }
 
-export type NodeSignals = 'SIGTERM' | 'SIGKILL' | 'SIGINT';
+export type NodeSignals = "SIGTERM" | "SIGKILL" | "SIGINT";
 
 export class AgentManager {
   // Dual-index: track by both PID and sessionId
   private agentsByPid = new Map<number, ProcessInfo>();
   private agentsBySession = new Map<string, ProcessInfo>();
 
-  private stateFilePath = join(homedir(), '.converge', 'agent-registry.json');
+  private stateFilePath = join(homedir(), ".converge", "agent-registry.json");
   private healthCheckInterval?: NodeJS.Timeout;
   private healthCheckIntervalMs = 30000; // 30 seconds
   private hangThresholdMs = 5 * 60 * 1000; // 5 minutes
@@ -76,20 +76,20 @@ export class AgentManager {
   // Core API - register process
   register(proc: ChildProcess, metadata: Partial<ProcessInfo>): void {
     if (!proc.pid) {
-      console.warn('⚠️  Cannot register process without PID');
+      console.warn("⚠️  Cannot register process without PID");
       return;
     }
 
     const info: ProcessInfo = {
       pid: proc.pid,
       sessionId: metadata.sessionId ?? `session-${proc.pid}`,
-      command: metadata.command ?? 'claude',
+      command: metadata.command ?? "claude",
       args: metadata.args ?? [],
       cwd: metadata.cwd ?? process.cwd(),
       startedAt: Date.now(),
       lastActivityAt: Date.now(),
-      status: 'starting',
-      logPath: metadata.logPath ?? '',
+      status: "starting",
+      logPath: metadata.logPath ?? "",
       parentPid: process.pid,
       retryCount: metadata.retryCount ?? 0,
       convergeMetadata: metadata.convergeMetadata ?? {
@@ -102,10 +102,12 @@ export class AgentManager {
     this.agentsByPid.set(info.pid, info);
     this.agentsBySession.set(info.sessionId, info);
 
-    console.log(`✅ Registered agent PID=${info.pid} sessionId=${info.sessionId}`);
+    console.log(
+      `✅ Registered agent PID=${info.pid} sessionId=${info.sessionId}`,
+    );
 
     // Attach exit handler
-    proc.on('exit', (code, signal) => {
+    proc.on("exit", (code, signal) => {
       this.handleExit(info.pid, code, signal ?? undefined);
     });
 
@@ -118,7 +120,9 @@ export class AgentManager {
     if (info) {
       this.agentsByPid.delete(pid);
       this.agentsBySession.delete(info.sessionId);
-      console.log(`🗑️  Unregistered agent PID=${pid} sessionId=${info.sessionId}`);
+      console.log(
+        `🗑️  Unregistered agent PID=${pid} sessionId=${info.sessionId}`,
+      );
       this.saveState();
     }
   }
@@ -129,7 +133,9 @@ export class AgentManager {
     if (info) {
       this.agentsByPid.delete(info.pid);
       this.agentsBySession.delete(sessionId);
-      console.log(`🗑️  Unregistered agent sessionId=${sessionId} PID=${info.pid}`);
+      console.log(
+        `🗑️  Unregistered agent sessionId=${sessionId} PID=${info.pid}`,
+      );
       this.saveState();
     }
   }
@@ -139,8 +145,8 @@ export class AgentManager {
     const info = this.agentsByPid.get(pid);
     if (info) {
       info.lastActivityAt = Date.now();
-      if (info.status === 'idle' || info.status === 'hung') {
-        info.status = 'running';
+      if (info.status === "idle" || info.status === "hung") {
+        info.status = "running";
       }
     }
   }
@@ -149,14 +155,14 @@ export class AgentManager {
     const info = this.agentsBySession.get(sessionId);
     if (info) {
       info.lastActivityAt = Date.now();
-      if (info.status === 'idle' || info.status === 'hung') {
-        info.status = 'running';
+      if (info.status === "idle" || info.status === "hung") {
+        info.status = "running";
       }
     }
   }
 
   // Update status
-  updateStatus(pid: number, status: ProcessInfo['status']): void {
+  updateStatus(pid: number, status: ProcessInfo["status"]): void {
     const info = this.agentsByPid.get(pid);
     if (info) {
       info.status = status;
@@ -164,7 +170,10 @@ export class AgentManager {
     }
   }
 
-  updateStatusBySession(sessionId: string, status: ProcessInfo['status']): void {
+  updateStatusBySession(
+    sessionId: string,
+    status: ProcessInfo["status"],
+  ): void {
     const info = this.agentsBySession.get(sessionId);
     if (info) {
       info.status = status;
@@ -187,16 +196,16 @@ export class AgentManager {
 
   getHungProcesses(): ProcessInfo[] {
     const now = Date.now();
-    return this.getAllProcesses().filter(p => {
+    return this.getAllProcesses().filter((p) => {
       const idleMs = now - p.lastActivityAt;
-      return p.status !== 'dead' && idleMs > this.hangThresholdMs;
+      return p.status !== "dead" && idleMs > this.hangThresholdMs;
     });
   }
 
   getLeakedProcesses(): ProcessInfo[] {
-    return this.getAllProcesses().filter(p => {
+    return this.getAllProcesses().filter((p) => {
       // Leaked = parent no longer running but process still alive
-      if (p.status === 'dead') return false;
+      if (p.status === "dead") return false;
 
       // Check if parent process exists
       try {
@@ -212,24 +221,27 @@ export class AgentManager {
   // Converge-specific queries
   getProcessesByTask(taskId: string): ProcessInfo[] {
     return this.getAllProcesses().filter(
-      p => p.convergeMetadata.taskId === taskId
+      (p) => p.convergeMetadata.taskId === taskId,
     );
   }
 
   getProcessesByEpic(epicId: string): ProcessInfo[] {
     return this.getAllProcesses().filter(
-      p => p.convergeMetadata.epicId === epicId
+      (p) => p.convergeMetadata.epicId === epicId,
     );
   }
 
   getProcessesByPhase(phase: string): ProcessInfo[] {
     return this.getAllProcesses().filter(
-      p => p.convergeMetadata.phase === phase
+      (p) => p.convergeMetadata.phase === phase,
     );
   }
 
   // Cleanup - kill by PID or sessionId
-  async killProcess(pid: number, signal: NodeSignals = 'SIGTERM'): Promise<void> {
+  async killProcess(
+    pid: number,
+    signal: NodeSignals = "SIGTERM",
+  ): Promise<void> {
     const info = this.agentsByPid.get(pid);
     if (!info) {
       console.warn(`⚠️  Cannot kill PID=${pid}: not found in registry`);
@@ -237,42 +249,47 @@ export class AgentManager {
     }
 
     if (!this.isProcessAlive(pid)) {
-      this.updateStatus(pid, 'dead');
+      this.updateStatus(pid, "dead");
       return;
     }
 
     try {
       process.kill(pid, signal);
       console.log(`🔪 Sent ${signal} to PID=${pid}`);
-      this.updateStatus(pid, 'exiting');
+      this.updateStatus(pid, "exiting");
     } catch (error: any) {
-      if (error.code === 'ESRCH') {
+      if (error.code === "ESRCH") {
         // Process not found - already dead
-        this.updateStatus(pid, 'dead');
+        this.updateStatus(pid, "dead");
       } else {
         console.error(`❌ Failed to kill PID=${pid}:`, error.message);
       }
     }
   }
 
-  async killSession(sessionId: string, signal: NodeSignals = 'SIGTERM'): Promise<void> {
+  async killSession(
+    sessionId: string,
+    signal: NodeSignals = "SIGTERM",
+  ): Promise<void> {
     const info = this.agentsBySession.get(sessionId);
     if (!info) {
-      console.warn(`⚠️  Cannot kill sessionId=${sessionId}: not found in registry`);
+      console.warn(
+        `⚠️  Cannot kill sessionId=${sessionId}: not found in registry`,
+      );
       return;
     }
     await this.killProcess(info.pid, signal);
   }
 
   async killAll(): Promise<void> {
-    const processes = this.getAllProcesses().filter(p => p.status !== 'dead');
+    const processes = this.getAllProcesses().filter((p) => p.status !== "dead");
     console.log(`🔪 Killing ${processes.length} processes...`);
-    await Promise.all(processes.map(p => this.killProcess(p.pid, 'SIGTERM')));
+    await Promise.all(processes.map((p) => this.killProcess(p.pid, "SIGTERM")));
   }
 
   cleanupDeadProcesses(): void {
-    const deadProcesses = this.getAllProcesses().filter(p => {
-      return p.status === 'dead' || !this.isProcessAlive(p.pid);
+    const deadProcesses = this.getAllProcesses().filter((p) => {
+      return p.status === "dead" || !this.isProcessAlive(p.pid);
     });
 
     for (const proc of deadProcesses) {
@@ -287,19 +304,23 @@ export class AgentManager {
   // Task-aware cleanup
   async cleanupTask(taskId: string): Promise<void> {
     const processes = this.getProcessesByTask(taskId);
-    console.log(`🗑️  Cleaning up ${processes.length} processes for task ${taskId}`);
-    await Promise.all(processes.map(p => this.killProcess(p.pid)));
+    console.log(
+      `🗑️  Cleaning up ${processes.length} processes for task ${taskId}`,
+    );
+    await Promise.all(processes.map((p) => this.killProcess(p.pid)));
   }
 
   async cleanupEpic(epicId: string): Promise<void> {
     const processes = this.getProcessesByEpic(epicId);
-    console.log(`🗑️  Cleaning up ${processes.length} processes for epic ${epicId}`);
-    await Promise.all(processes.map(p => this.killProcess(p.pid)));
+    console.log(
+      `🗑️  Cleaning up ${processes.length} processes for epic ${epicId}`,
+    );
+    await Promise.all(processes.map((p) => this.killProcess(p.pid)));
   }
 
   // Persistence
   private ensureStateDir(): void {
-    const dir = join(homedir(), '.converge');
+    const dir = join(homedir(), ".converge");
     if (!existsSync(dir)) {
       mkdirSync(dir, { recursive: true });
     }
@@ -312,9 +333,13 @@ export class AgentManager {
         timestamp: Date.now(),
         processes: Array.from(this.agentsByPid.values()),
       };
-      writeFileSync(this.stateFilePath, JSON.stringify(state, null, 2), 'utf-8');
+      writeFileSync(
+        this.stateFilePath,
+        JSON.stringify(state, null, 2),
+        "utf-8",
+      );
     } catch (error: any) {
-      console.error('❌ Failed to save agent state:', error.message);
+      console.error("❌ Failed to save agent state:", error.message);
     }
   }
 
@@ -324,7 +349,7 @@ export class AgentManager {
         return;
       }
 
-      const content = readFileSync(this.stateFilePath, 'utf-8');
+      const content = readFileSync(this.stateFilePath, "utf-8");
       const state = JSON.parse(content);
 
       for (const proc of state.processes || []) {
@@ -335,9 +360,11 @@ export class AgentManager {
         }
       }
 
-      console.log(`📥 Loaded ${this.agentsByPid.size} active agents from state file`);
+      console.log(
+        `📥 Loaded ${this.agentsByPid.size} active agents from state file`,
+      );
     } catch (error: any) {
-      console.error('❌ Failed to load agent state:', error.message);
+      console.error("❌ Failed to load agent state:", error.message);
     }
   }
 
@@ -353,24 +380,26 @@ export class AgentManager {
 
     // Check for hung processes
     for (const proc of this.getAllProcesses()) {
-      if (proc.status === 'dead') continue;
+      if (proc.status === "dead") continue;
 
       const idleMs = now - proc.lastActivityAt;
 
       // Update status based on idle time
       if (idleMs > this.hangThresholdMs) {
-        if (proc.status !== 'hung') {
-          console.warn(`⚠️  Process PID=${proc.pid} appears hung (idle for ${Math.round(idleMs / 1000)}s)`);
-          this.updateStatus(proc.pid, 'hung');
+        if (proc.status !== "hung") {
+          console.warn(
+            `⚠️  Process PID=${proc.pid} appears hung (idle for ${Math.round(idleMs / 1000)}s)`,
+          );
+          this.updateStatus(proc.pid, "hung");
         }
-      } else if (idleMs > 60000 && proc.status === 'running') {
+      } else if (idleMs > 60000 && proc.status === "running") {
         // Idle for > 1 minute but not hung yet
-        this.updateStatus(proc.pid, 'idle');
+        this.updateStatus(proc.pid, "idle");
       }
 
       // Check if process is actually alive
       if (!this.isProcessAlive(proc.pid)) {
-        this.updateStatus(proc.pid, 'dead');
+        this.updateStatus(proc.pid, "dead");
       }
     }
 
@@ -383,35 +412,38 @@ export class AgentManager {
     const processes = this.getAllProcesses();
     const now = Date.now();
 
-    const running = processes.filter(p => p.status !== 'dead');
+    const running = processes.filter((p) => p.status !== "dead");
     const hung = this.getHungProcesses();
     const leaked = this.getLeakedProcesses();
 
     const lifetimes = processes
-      .filter(p => p.exitCode !== undefined)
-      .map(p => (p.lastActivityAt || now) - p.startedAt);
-    const avgLifetimeMs = lifetimes.length > 0
-      ? lifetimes.reduce((a, b) => a + b, 0) / lifetimes.length
-      : 0;
+      .filter((p) => p.exitCode !== undefined)
+      .map((p) => (p.lastActivityAt || now) - p.startedAt);
+    const avgLifetimeMs =
+      lifetimes.length > 0
+        ? lifetimes.reduce((a, b) => a + b, 0) / lifetimes.length
+        : 0;
 
-    const idleDurations = running.map(p => now - p.lastActivityAt);
-    const avgIdleMs = idleDurations.length > 0
-      ? idleDurations.reduce((a, b) => a + b, 0) / idleDurations.length
-      : 0;
+    const idleDurations = running.map((p) => now - p.lastActivityAt);
+    const avgIdleMs =
+      idleDurations.length > 0
+        ? idleDurations.reduce((a, b) => a + b, 0) / idleDurations.length
+        : 0;
 
     const byPhase: Record<string, number> = {};
     const byStrategy: Record<string, number> = {};
 
     for (const proc of processes) {
-      const phase = proc.convergeMetadata.phase ?? 'unknown';
-      const strategy = proc.convergeMetadata.strategyType ?? 'unknown';
+      const phase = proc.convergeMetadata.phase ?? "unknown";
+      const strategy = proc.convergeMetadata.strategyType ?? "unknown";
 
       byPhase[phase] = (byPhase[phase] || 0) + 1;
       byStrategy[strategy] = (byStrategy[strategy] || 0) + 1;
     }
 
-    const successful = processes.filter(p => p.exitCode === 0).length;
-    const successRate = processes.length > 0 ? successful / processes.length : 0;
+    const successful = processes.filter((p) => p.exitCode === 0).length;
+    const successRate =
+      processes.length > 0 ? successful / processes.length : 0;
 
     return {
       totalSpawned: processes.length,
@@ -430,37 +462,40 @@ export class AgentManager {
     const processes = this.getProcessesByTask(taskId);
     const now = Date.now();
 
-    const running = processes.filter(p => p.status !== 'dead');
-    const hung = processes.filter(p => {
+    const running = processes.filter((p) => p.status !== "dead");
+    const hung = processes.filter((p) => {
       const idleMs = now - p.lastActivityAt;
-      return p.status !== 'dead' && idleMs > this.hangThresholdMs;
+      return p.status !== "dead" && idleMs > this.hangThresholdMs;
     });
 
     const lifetimes = processes
-      .filter(p => p.exitCode !== undefined)
-      .map(p => (p.lastActivityAt || now) - p.startedAt);
-    const avgLifetimeMs = lifetimes.length > 0
-      ? lifetimes.reduce((a, b) => a + b, 0) / lifetimes.length
-      : 0;
+      .filter((p) => p.exitCode !== undefined)
+      .map((p) => (p.lastActivityAt || now) - p.startedAt);
+    const avgLifetimeMs =
+      lifetimes.length > 0
+        ? lifetimes.reduce((a, b) => a + b, 0) / lifetimes.length
+        : 0;
 
-    const idleDurations = running.map(p => now - p.lastActivityAt);
-    const avgIdleMs = idleDurations.length > 0
-      ? idleDurations.reduce((a, b) => a + b, 0) / idleDurations.length
-      : 0;
+    const idleDurations = running.map((p) => now - p.lastActivityAt);
+    const avgIdleMs =
+      idleDurations.length > 0
+        ? idleDurations.reduce((a, b) => a + b, 0) / idleDurations.length
+        : 0;
 
     const byPhase: Record<string, number> = {};
     const byStrategy: Record<string, number> = {};
 
     for (const proc of processes) {
-      const phase = proc.convergeMetadata.phase ?? 'unknown';
-      const strategy = proc.convergeMetadata.strategyType ?? 'unknown';
+      const phase = proc.convergeMetadata.phase ?? "unknown";
+      const strategy = proc.convergeMetadata.strategyType ?? "unknown";
 
       byPhase[phase] = (byPhase[phase] || 0) + 1;
       byStrategy[strategy] = (byStrategy[strategy] || 0) + 1;
     }
 
-    const successful = processes.filter(p => p.exitCode === 0).length;
-    const successRate = processes.length > 0 ? successful / processes.length : 0;
+    const successful = processes.filter((p) => p.exitCode === 0).length;
+    const successRate =
+      processes.length > 0 ? successful / processes.length : 0;
 
     return {
       totalSpawned: processes.length,
@@ -492,9 +527,11 @@ export class AgentManager {
 
     info.exitCode = code;
     info.signal = signal;
-    info.status = 'dead';
+    info.status = "dead";
 
-    console.log(`💀 Agent PID=${pid} exited with code=${code} signal=${signal}`);
+    console.log(
+      `💀 Agent PID=${pid} exited with code=${code} signal=${signal}`,
+    );
 
     this.saveState();
   }

@@ -63,11 +63,13 @@ Unit {
 ## Key Design Principles
 
 ### 1. Tree is the Data Model
+
 - Files are persistence only, not the data model
 - All operations use tree traversal, not file scanning
 - Nodes wrap Units (tasks) with edges for relationships
 
 ### 2. Hierarchical Traversal (Depth 1)
+
 `findNextTask()` is **NOT** a deep recursive search. Each level returns its immediate child:
 
 ```
@@ -91,21 +93,24 @@ subtask001.findNextTask() → returns null (leaf node, no children)
 This touches the **full branch**: Root → Epic1 → Task002 → Subtask001, not just finding a leaf.
 
 ### 3. Checkpoint is Shadow Tree
+
 - Checkpoint maintains 1:1 mapping with TreeNodes
 - Internal only - consumers never access checkpoint directly
 - All state queries go through TreeNode methods
 
 ### 4. Tree Shake on Every Iteration
+
 ```typescript
 // Autonomous run loop
 while (true) {
   const next = await tree.findNextTask();
   await executeTask(next);
-  await tree.reload();  // Tree shake - rebuild from filesystem
+  await tree.reload(); // Tree shake - rebuild from filesystem
 }
 ```
 
 Tree changes on every step:
+
 - WBS seeding adds new nodes
 - File-based task creation
 - Tree is rebuilt to maintain consistency
@@ -113,6 +118,7 @@ Tree changes on every step:
 ## API
 
 ### Construction
+
 ```typescript
 // Load tree (loads Units from filesystem, wraps in TreeNodes)
 const tree = await TaskTree.load(projectDir, convergeConfig);
@@ -122,6 +128,7 @@ await tree.reload();
 ```
 
 ### Accessing Unit vs TreeNode
+
 ```typescript
 // Get TreeNode (tree structure)
 const treeNode = tree.getNode(taskId);
@@ -140,11 +147,12 @@ const isComplete = await treeNode.isComplete();
 const parentUnit = unit.parent;
 
 // Access children via TreeNode
-const childNodes = treeNode.children;  // TreeNode[]
-const childUnits = childNodes.map(n => n.unit);  // Unit[]
+const childNodes = treeNode.children; // TreeNode[]
+const childUnits = childNodes.map((n) => n.unit); // Unit[]
 ```
 
 ### Hierarchical Traversal
+
 ```typescript
 // Get next epic (depth 1 from root)
 const result = await tree.findNextTask();
@@ -158,6 +166,7 @@ const subtask = await task.findNextTask();
 ```
 
 ### State Queries
+
 ```typescript
 // Node-level queries
 const isComplete = await node.isComplete();
@@ -173,6 +182,7 @@ const progress = await tree.getProgress();
 ```
 
 ### State Mutations
+
 ```typescript
 // Mark task complete (propagates auto-completion)
 await tree.markCompleted(node);
@@ -185,14 +195,15 @@ await tree.markSeeded(node, childIds);
 ```
 
 ### Generic Traversal
+
 ```typescript
 // Pre-order DFS
-await tree.traverse(node => {
+await tree.traverse((node) => {
   console.log(node.id);
-}, 'pre');
+}, "pre");
 
 // Filter nodes
-const blockedTasks = await tree.filter(async n => await n.isBlocked());
+const blockedTasks = await tree.filter(async (n) => await n.isBlocked());
 ```
 
 ## Blocking Logic
@@ -225,15 +236,18 @@ async isBlocked(): boolean {
 ## Migration Path
 
 ### Phase 1: Parallel Implementation (Current)
+
 - Tree module exists alongside old code
 - `autonomous-run.ts` uses TaskTree
 - `next-task.ts` remains as legacy fallback
 
 ### Phase 2: Gradual Migration
+
 - Update other consumers (repair strategies, etc.)
 - Migrate from file scanning to tree queries
 
 ### Phase 3: Cleanup
+
 - Remove old file-scanning code
 - Remove `next-task.ts` or make it a thin wrapper
 
@@ -248,6 +262,7 @@ async isBlocked(): boolean {
 ## Testing
 
 See `__tests__/task-tree.test.ts` for:
+
 - Tree building from files
 - Parent-child edges (WBS)
 - Dependency edges (direct and tag-based)
@@ -259,15 +274,16 @@ See `__tests__/task-tree.test.ts` for:
 ## Example: Before vs After
 
 ### BEFORE (Array Iteration)
+
 ```typescript
 // Re-scan filesystem
 const snap = await snapTree();
 const tasks = snap.tasks;
 
 // Linear search
-const next = tasks.find(t =>
-  !checkpoint.completedTasks.has(t.id) &&
-  !checkpoint.failedTasks.has(t.id)
+const next = tasks.find(
+  (t) =>
+    !checkpoint.completedTasks.has(t.id) && !checkpoint.failedTasks.has(t.id),
 );
 
 // Direct checkpoint write
@@ -276,6 +292,7 @@ await checkpoint.save();
 ```
 
 ### AFTER (Tree Traversal)
+
 ```typescript
 // Load tree once
 const tree = await TaskTree.load(projectDir, config);
@@ -287,7 +304,7 @@ const subtask = await task?.findNextTask();
 
 // Tree mutation with propagation
 const node = tree.getNode(taskId);
-await tree.markCompleted(node);  // Auto-completes parent if all children done
+await tree.markCompleted(node); // Auto-completes parent if all children done
 
 // Tree shake
 await tree.reload();

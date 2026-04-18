@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "02-docs/006-comparisons",
+  "status": "complete",
+  "lastUpdated": "2026-04-17T23:42:20.733Z",
+  "createdAt": "2026-04-17T23:40:29.426Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-17T23:40:29.426Z",
+      "completedAt": "2026-04-17T23:42:20.727Z",
+      "outcome": "success",
+      "durationMs": 111301
+    }
+  ],
+  "currentAttempt": 1
+}

@@ -5,7 +5,7 @@ import { z } from "zod";
 // We mock child_process.spawn so no real CLI is invoked.
 // The mock emits controlled stdout/stderr/exit events.
 vi.mock("node:child_process", async (importOriginal) => {
-  const actual = await importOriginal() as any;
+  const actual = (await importOriginal()) as any;
   const { EventEmitter } = require("node:events");
   const { Readable } = require("node:stream");
 
@@ -37,10 +37,7 @@ vi.mock("node:child_process", async (importOriginal) => {
     proc.kill = vi.fn(() => {
       proc.emit("close", 1);
     });
-    setTimeout(
-      () => proc.emit("close", _nextExitCode),
-      _nextDelay + 5
-    );
+    setTimeout(() => proc.emit("close", _nextExitCode), _nextDelay + 5);
     return proc;
   });
 
@@ -62,7 +59,7 @@ vi.mock("node:child_process", async (importOriginal) => {
   };
 });
 
-const mockCp = await import("node:child_process") as any;
+const mockCp = (await import("node:child_process")) as any;
 
 beforeEach(() => {
   mockCp.__setNext({});
@@ -268,7 +265,7 @@ describe("qwenfn — hooks", () => {
       expect.objectContaining({
         result: "some output",
         durationMs: expect.any(Number),
-      })
+      }),
     );
   });
 
@@ -332,7 +329,10 @@ describe("qwenfn — error handling", () => {
       const stdout = new Readable({ read() {} });
       const stderr = new Readable({ read() {} });
       if (succeed) {
-        setTimeout(() => { stdout.push("success"); stdout.push(null); }, 0);
+        setTimeout(() => {
+          stdout.push("success");
+          stdout.push(null);
+        }, 0);
       } else {
         setTimeout(() => stdout.push(null), 0);
       }

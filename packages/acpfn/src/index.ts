@@ -13,11 +13,7 @@ export {
 } from "./compose.js";
 
 // ─── Queue ──────────────────────────────────────────────────
-export {
-  GlobalQueue,
-  getDefaultQueue,
-  setDefaultQueue,
-} from "./queue.js";
+export { GlobalQueue, getDefaultQueue, setDefaultQueue } from "./queue.js";
 export type { GlobalQueueOptions } from "./queue.js";
 
 // ─── Types ──────────────────────────────────────────────────

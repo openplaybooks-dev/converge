@@ -1,0 +1,9 @@
+{
+  "taskId": "03-dx/003-cli-help",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    ".converge/standardize-state/dx/cli-help-audit.json"
+  ],
+  "blocked": false
+}

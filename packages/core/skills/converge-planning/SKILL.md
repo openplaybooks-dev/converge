@@ -31,6 +31,7 @@ Planning is **convergence** — you start with a vague prompt and a large gap be
 ```
 
 Each artifact doesn't just "feed the next" — it **enriches** the cumulative understanding:
+
 - `analysis.json` establishes ground truth: what exists right now
 - `requirements.json` cross-references the prompt against that ground truth, identifying gaps between current state and desired state
 - `outline.json` maps those gaps to work packages (epics)
@@ -46,6 +47,7 @@ The plan is ready when the gap between "what we know" and "what we need" is zero
 A `.converge/playbooks/{name}/` directory containing `playbook.yml`, `TASK.md` files, and `wbs.js` scripts. The result is a playbook you run with `converge run --playbook={name}`.
 
 Every task in the playbook has:
+
 - **inputs** — what information it consumes (closing which knowledge gap)
 - **outputs** — what information it produces (specific file paths)
 - **checks** — deterministic proof the gap is closed (shell commands, exit 0 = done)
@@ -122,6 +124,7 @@ prompt ─────────────┐
 These constraints are non-negotiable. Every plan must follow them.
 
 ### The I/O Chain (Information Contract)
+
 - Every task MUST have `inputs` — what knowledge it consumes (which gap it reads)
 - Every task MUST have `outputs` — what knowledge it produces (specific file paths, not globs)
 - Every task MUST have `checks` — postcondition proof that the output exists and is correct (run after execution)
@@ -137,6 +140,7 @@ These constraints are non-negotiable. Every plan must follow them.
 - `needs` prevents wasted execution: if a precondition fails, the task blocks immediately instead of running and failing. Use `needs` for every task that depends on upstream file outputs.
 
 ### Dependencies (Gap Ordering)
+
 - Dependencies encode the order in which gaps must be closed
 - Same-epic: reference by task id (`001-setup`)
 - Cross-epic: use `epic-id.task-id` format (`01-foundation.001-setup`)
@@ -145,11 +149,13 @@ These constraints are non-negotiable. Every plan must follow them.
 - If task B needs information that task A produces, B depends on A. Period.
 
 ### Structure
+
 - 3-7 epics per plan, 3-7 tasks per epic
 - Directory naming: `NN-kebab-case` for epics (01-foundation), `NNN-kebab-case` for tasks (001-setup)
 - Each task gets its own directory with a `TASK.md` file
 
 ### WBS (Systematic Decomposition)
+
 - A task that is too coarse to execute is a **gap in specificity** — WBS closes it by interpolating between the coarse description and executable steps
 - When a task contains N similar items (entities, endpoints, pages), spawn one subtask per item via `ctx.spawn()` in a `wbs.js` script — this is **data-driven decomposition**
 - When a task is too complex but items aren't uniform, decompose into heterogeneous subtasks — this is **structural decomposition**
@@ -159,6 +165,7 @@ These constraints are non-negotiable. Every plan must follow them.
 - The WBS script reads prior artifacts to determine WHAT to decompose, then spawns tasks that produce new artifacts for subsequent phases
 
 ### Interpolation Rules
+
 - Each phase must read ALL relevant prior artifacts — not just the immediate predecessor. This is interpolation: you need all known data points to fill the gaps between them.
 - Cross-reference systematically: requirements against analysis, outline against requirements, tasks against outline AND requirements AND analysis
 - Identify gaps explicitly: what's missing, what's ambiguous, what's too coarse — each gap becomes a task or a deepening candidate
@@ -166,6 +173,7 @@ These constraints are non-negotiable. Every plan must follow them.
 - The interpolation is complete when `validation.json` confirms: every requirement has a task, every task has outputs, every output has checks, every input traces to a prior output
 
 ### Planning Behavior
+
 - No user interaction during planning — infer everything from the prompt and codebase
 - If something is ambiguous, list it in `openQuestions` in `requirements.json`
 - Do not over-engineer — if a task is simple, keep it simple
@@ -189,10 +197,10 @@ The scan phase should diff against the existing playbook's state, not start from
 
 Load these on demand — not all at once.
 
-| File | When to load |
-|------|-------------|
-| `task-format.md` | When writing TASK.md or playbook.yml files |
-| `pipeline.md` | When implementing the planning pipeline phases |
-| `wbs-guide.md` | When writing WBS scripts that spawn subtasks |
+| File             | When to load                                   |
+| ---------------- | ---------------------------------------------- |
+| `task-format.md` | When writing TASK.md or playbook.yml files     |
+| `pipeline.md`    | When implementing the planning pipeline phases |
+| `wbs-guide.md`   | When writing WBS scripts that spawn subtasks   |
 
 **Progressive disclosure:** Load `SKILL.md` first (this file). Load reference files only when you need the detail they contain. Return here between phases.

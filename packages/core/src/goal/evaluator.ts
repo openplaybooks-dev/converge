@@ -10,9 +10,9 @@ import type {
   GoalStatus,
   GoalEvaluator,
   GoalEvaluationContext,
-} from './types.ts';
-import type { Gap, CheckResult } from '../gap/types.ts';
-import type { CheckFnMeta } from '../functions/types.ts';
+} from "./types.ts";
+import type { Gap, CheckResult } from "../gap/types.ts";
+import type { CheckFnMeta } from "../functions/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Goal Evaluator Implementation                                     */
@@ -23,7 +23,9 @@ export class GoalEvaluatorImpl implements GoalEvaluator {
    * Evaluate a single goal by running its checks
    */
   async evaluate(goal: Goal, ctx: GoalEvaluationContext): Promise<GoalStatus> {
-    ctx.log.debug(`Evaluating goal: ${goal.id}`, { description: goal.description });
+    ctx.log.debug(`Evaluating goal: ${goal.id}`, {
+      description: goal.description,
+    });
 
     // Run all checks for this goal
     const checkResults: CheckResult[] = [];
@@ -45,8 +47,8 @@ export class GoalEvaluatorImpl implements GoalEvaluator {
         // Create a gap for check execution failure
         const failureGap: Gap = {
           id: `check-failure-${check.name}`,
-          type: 'quality',
-          level: 'epic', // Goals are typically epic-level
+          type: "quality",
+          level: "epic", // Goals are typically epic-level
           scope: goal.id,
           description: `Check "${check.name}" failed to execute: ${error}`,
           detected: new Date().toISOString(),
@@ -68,9 +70,10 @@ export class GoalEvaluatorImpl implements GoalEvaluator {
     const satisfied = checkResults.every((r) => r.passed);
 
     // Calculate progress: (passed checks / total checks)
-    const progress = goal.checks.length > 0
-      ? checkResults.filter((r) => r.passed).length / goal.checks.length
-      : 1.0;
+    const progress =
+      goal.checks.length > 0
+        ? checkResults.filter((r) => r.passed).length / goal.checks.length
+        : 1.0;
 
     const status: GoalStatus = {
       goalId: goal.id,
@@ -83,8 +86,10 @@ export class GoalEvaluatorImpl implements GoalEvaluator {
     };
 
     ctx.log.info(
-      satisfied ? `✅ Goal satisfied: ${goal.id}` : `❌ Goal unsatisfied: ${goal.id}`,
-      { progress, gapsCount: gaps.length }
+      satisfied
+        ? `✅ Goal satisfied: ${goal.id}`
+        : `❌ Goal unsatisfied: ${goal.id}`,
+      { progress, gapsCount: gaps.length },
     );
 
     return status;
@@ -93,7 +98,10 @@ export class GoalEvaluatorImpl implements GoalEvaluator {
   /**
    * Evaluate goal hierarchy (goal + all sub-goals recursively)
    */
-  async evaluateHierarchy(goal: Goal, ctx: GoalEvaluationContext): Promise<GoalStatus> {
+  async evaluateHierarchy(
+    goal: Goal,
+    ctx: GoalEvaluationContext,
+  ): Promise<GoalStatus> {
     ctx.log.debug(`Evaluating goal hierarchy: ${goal.id}`);
 
     // Evaluate this goal
@@ -118,7 +126,9 @@ export class GoalEvaluatorImpl implements GoalEvaluator {
 
       // Recalculate progress including sub-goals
       // Progress = (this goal progress + average sub-goal progress) / 2
-      const avgSubgoalProgress = subgoalStatuses.reduce((sum, s) => sum + s.progress, 0) / subgoalStatuses.length;
+      const avgSubgoalProgress =
+        subgoalStatuses.reduce((sum, s) => sum + s.progress, 0) /
+        subgoalStatuses.length;
       status.progress = (status.progress + avgSubgoalProgress) / 2;
 
       // Aggregate gaps from sub-goals
@@ -142,12 +152,12 @@ export class GoalEvaluatorImpl implements GoalEvaluator {
    */
   private async executeCheck(
     check: CheckFnMeta,
-    ctx: GoalEvaluationContext
+    ctx: GoalEvaluationContext,
   ): Promise<CheckResult> {
     // Map GoalEvaluationContext to a context the check function can use
     const checkCtx = {
       projectDir: ctx.projectDir,
-      crewDir: ctx.crewDir,
+      convergeDir: ctx.convergeDir,
       vars: ctx.vars,
       fs: ctx.fs,
       log: ctx.log,
@@ -165,7 +175,9 @@ export class GoalEvaluatorImpl implements GoalEvaluator {
 /**
  * Extract tasks from unsatisfied goals
  */
-export function extractTasksFromUnsatisfiedGoals(goalStatuses: GoalStatus[]): any[] {
+export function extractTasksFromUnsatisfiedGoals(
+  goalStatuses: GoalStatus[],
+): any[] {
   const tasks: any[] = [];
 
   for (const status of goalStatuses) {

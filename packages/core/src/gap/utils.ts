@@ -4,8 +4,8 @@
  * Helper functions for working with gaps.
  */
 
-import type { Gap, GapPriority, PrioritizationStrategy } from './types.ts';
-import { v4 as uuidv4 } from 'uuid';
+import type { Gap, GapPriority, PrioritizationStrategy } from "./types.ts";
+import { v4 as uuidv4 } from "uuid";
 
 /* ------------------------------------------------------------------ */
 /*  Gap Creation Helpers                                              */
@@ -14,7 +14,9 @@ import { v4 as uuidv4 } from 'uuid';
 /**
  * Create a new gap with generated ID
  */
-export function createGap(params: Omit<Gap, 'id' | 'detected' | 'resolved'>): Gap {
+export function createGap(
+  params: Omit<Gap, "id" | "detected" | "resolved">,
+): Gap {
   return {
     id: uuidv4(),
     detected: new Date().toISOString(),
@@ -41,21 +43,24 @@ export function resolveGap(gap: Gap): Gap {
 /**
  * Filter gaps by type
  */
-export function filterByType(gaps: Gap[], type: Gap['type']): Gap[] {
+export function filterByType(gaps: Gap[], type: Gap["type"]): Gap[] {
   return gaps.filter((g) => g.type === type);
 }
 
 /**
  * Filter gaps by level
  */
-export function filterByLevel(gaps: Gap[], level: Gap['level']): Gap[] {
+export function filterByLevel(gaps: Gap[], level: Gap["level"]): Gap[] {
   return gaps.filter((g) => g.level === level);
 }
 
 /**
  * Filter gaps by severity
  */
-export function filterBySeverity(gaps: Gap[], severity: Gap['severity']): Gap[] {
+export function filterBySeverity(
+  gaps: Gap[],
+  severity: Gap["severity"],
+): Gap[] {
   return gaps.filter((g) => g.severity === severity);
 }
 
@@ -83,8 +88,8 @@ export function prioritizeBySeverity(gaps: Gap[]): GapPriority[] {
 
   return gaps.map((gap) => ({
     gap,
-    score: severityScores[gap.severity || 'medium'] || 50,
-    reason: `Severity: ${gap.severity || 'medium'}`,
+    score: severityScores[gap.severity || "medium"] || 50,
+    reason: `Severity: ${gap.severity || "medium"}`,
   }));
 }
 
@@ -93,13 +98,13 @@ export function prioritizeBySeverity(gaps: Gap[]): GapPriority[] {
  */
 export function prioritizeGaps(
   gaps: Gap[],
-  strategy: PrioritizationStrategy = 'severity'
+  strategy: PrioritizationStrategy = "severity",
 ): GapPriority[] {
   switch (strategy) {
-    case 'severity':
+    case "severity":
       return prioritizeBySeverity(gaps);
 
-    case 'cost':
+    case "cost":
       // Cheaper gaps first (heuristic: structural < semantic < quality)
       const costScores: Record<string, number> = {
         structural: 90, // Easy to fix
@@ -115,7 +120,7 @@ export function prioritizeGaps(
         }))
         .sort((a, b) => b.score - a.score);
 
-    case 'impact':
+    case "impact":
       // Higher impact first (heuristic: project > epic > task)
       const impactScores: Record<string, number> = {
         project: 100,
@@ -130,16 +135,16 @@ export function prioritizeGaps(
         }))
         .sort((a, b) => b.score - a.score);
 
-    case 'dependencies':
+    case "dependencies":
       // Blocking gaps first (heuristic: gaps at higher levels block lower levels)
-      return prioritizeGaps(gaps, 'impact');
+      return prioritizeGaps(gaps, "impact");
 
-    case 'custom':
+    case "custom":
       // Return as-is, user will provide custom scoring
       return gaps.map((gap) => ({
         gap,
         score: 50,
-        reason: 'Custom prioritization',
+        reason: "Custom prioritization",
       }));
 
     default:
@@ -227,7 +232,7 @@ export function calculateGapStats(gaps: Gap[]): {
  * Format gap statistics as string
  */
 export function formatGapStats(
-  stats: ReturnType<typeof calculateGapStats>
+  stats: ReturnType<typeof calculateGapStats>,
 ): string {
   const lines: string[] = [
     `Gap Statistics`,
@@ -258,5 +263,5 @@ export function formatGapStats(
     }
   }
 
-  return lines.join('\n');
+  return lines.join("\n");
 }

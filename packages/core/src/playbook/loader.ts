@@ -5,11 +5,11 @@
  * Each playbook is a directory containing playbook.yml + task dirs.
  */
 
-import { readFile, readdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { resolve, join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { parse as parseYaml } from 'yaml';
+import { readFile, readdir } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { resolve, join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import { parse as parseYaml } from "yaml";
 import type {
   PlaybookDef,
   PlaybookInput,
@@ -18,14 +18,14 @@ import type {
   PlaybookTask,
   PlaybookSource,
   ResolvedPlaybook,
-} from './types.ts';
+} from "./types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Directory Resolution                                               */
 /* ------------------------------------------------------------------ */
 
 function getProjectPlaybooksDir(projectDir: string): string {
-  return join(projectDir, '.converge', 'playbooks');
+  return join(projectDir, ".converge", "playbooks");
 }
 
 /* ------------------------------------------------------------------ */
@@ -38,11 +38,11 @@ function getProjectPlaybooksDir(projectDir: string): string {
  */
 export function parseDuration(value: unknown): number | undefined {
   if (value === undefined || value === null) return undefined;
-  if (typeof value === 'number') return value;
-  if (typeof value !== 'string') return undefined;
+  if (typeof value === "number") return value;
+  if (typeof value !== "string") return undefined;
 
   const s = value.trim().toLowerCase();
-  if (s === 'infinite' || s === 'infinity') return Infinity;
+  if (s === "infinite" || s === "infinity") return Infinity;
 
   // Try as raw number (ms)
   const num = Number(s);
@@ -57,10 +57,18 @@ export function parseDuration(value: unknown): number | undefined {
     matched = true;
     const n = parseInt(match[1], 10);
     switch (match[2]) {
-      case 'h': totalMs += n * 3600000; break;
-      case 'm': totalMs += n * 60000; break;
-      case 's': totalMs += n * 1000; break;
-      case 'ms': totalMs += n; break;
+      case "h":
+        totalMs += n * 3600000;
+        break;
+      case "m":
+        totalMs += n * 60000;
+        break;
+      case "s":
+        totalMs += n * 1000;
+        break;
+      case "ms":
+        totalMs += n;
+        break;
     }
   }
 
@@ -72,14 +80,14 @@ export function parseDuration(value: unknown): number | undefined {
 /* ------------------------------------------------------------------ */
 
 function parseInputs(raw: unknown): Record<string, PlaybookInput> | undefined {
-  if (!raw || typeof raw !== 'object') return undefined;
+  if (!raw || typeof raw !== "object") return undefined;
   const result: Record<string, PlaybookInput> = {};
   for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
-    if (value && typeof value === 'object') {
+    if (value && typeof value === "object") {
       const obj = value as Record<string, unknown>;
       result[key] = {
         description: obj.description ? String(obj.description) : undefined,
-        required: typeof obj.required === 'boolean' ? obj.required : undefined,
+        required: typeof obj.required === "boolean" ? obj.required : undefined,
         default: obj.default !== undefined ? String(obj.default) : undefined,
       };
     } else {
@@ -90,19 +98,21 @@ function parseInputs(raw: unknown): Record<string, PlaybookInput> | undefined {
 }
 
 function parseRunConfig(raw: unknown): PlaybookRunConfig | undefined {
-  if (!raw || typeof raw !== 'object') return undefined;
+  if (!raw || typeof raw !== "object") return undefined;
   const obj = raw as Record<string, unknown>;
   const config: PlaybookRunConfig = {};
 
-  if (obj.mode && typeof obj.mode === 'string') {
-    if (['autonomous', 'converge', 'step'].includes(obj.mode)) {
-      config.mode = obj.mode as PlaybookRunConfig['mode'];
+  if (obj.mode && typeof obj.mode === "string") {
+    if (["autonomous", "converge", "step"].includes(obj.mode)) {
+      config.mode = obj.mode as PlaybookRunConfig["mode"];
     }
   }
-  if (obj.maxIterations !== undefined) config.maxIterations = Number(obj.maxIterations);
-  if (obj.maxTaskAttempts !== undefined) config.maxTaskAttempts = Number(obj.maxTaskAttempts);
+  if (obj.maxIterations !== undefined)
+    config.maxIterations = Number(obj.maxIterations);
+  if (obj.maxTaskAttempts !== undefined)
+    config.maxTaskAttempts = Number(obj.maxTaskAttempts);
   if (obj.maxGoals !== undefined) config.maxGoals = Number(obj.maxGoals);
-  if (typeof obj.resume === 'boolean') config.resume = obj.resume;
+  if (typeof obj.resume === "boolean") config.resume = obj.resume;
 
   const duration = parseDuration(obj.maxDuration);
   if (duration !== undefined) config.maxDuration = duration;
@@ -114,7 +124,7 @@ function parseChecks(raw: unknown): PlaybookCheck[] | undefined {
   if (!Array.isArray(raw)) return undefined;
   const checks: PlaybookCheck[] = [];
   for (const item of raw) {
-    if (!item || typeof item !== 'object') continue;
+    if (!item || typeof item !== "object") continue;
     const obj = item as Record<string, unknown>;
     if (obj.id && obj.cmd) {
       checks.push({ id: String(obj.id), cmd: String(obj.cmd) });
@@ -127,7 +137,7 @@ function parseTasks(raw: unknown): PlaybookTask[] {
   if (!Array.isArray(raw)) return [];
   const tasks: PlaybookTask[] = [];
   for (const item of raw) {
-    if (!item || typeof item !== 'object') continue;
+    if (!item || typeof item !== "object") continue;
     const obj = item as Record<string, unknown>;
     const task: PlaybookTask = {};
     if (obj.id) task.id = String(obj.id);
@@ -135,9 +145,11 @@ function parseTasks(raw: unknown): PlaybookTask[] {
     if (obj.depends_on && Array.isArray(obj.depends_on)) {
       task.depends_on = obj.depends_on.map(String);
     }
-    if (obj.with && typeof obj.with === 'object') {
+    if (obj.with && typeof obj.with === "object") {
       task.with = {};
-      for (const [k, v] of Object.entries(obj.with as Record<string, unknown>)) {
+      for (const [k, v] of Object.entries(
+        obj.with as Record<string, unknown>,
+      )) {
         task.with[k] = String(v);
       }
     }
@@ -149,24 +161,28 @@ function parseTasks(raw: unknown): PlaybookTask[] {
 /**
  * Parse playbook.yml from a template directory.
  */
-export async function parsePlaybookYml(templateDir: string): Promise<PlaybookDef> {
-  const ymlPath = join(templateDir, 'playbook.yml');
+export async function parsePlaybookYml(
+  templateDir: string,
+): Promise<PlaybookDef> {
+  const ymlPath = join(templateDir, "playbook.yml");
 
   if (!existsSync(ymlPath)) {
     throw new Error(`No playbook.yml found in ${templateDir}`);
   }
 
-  const raw = await readFile(ymlPath, 'utf8');
+  const raw = await readFile(ymlPath, "utf8");
   const parsed = parseYaml(raw) as Record<string, unknown>;
 
-  if (!parsed || typeof parsed !== 'object') {
+  if (!parsed || typeof parsed !== "object") {
     throw new Error(`Invalid playbook definition: ${ymlPath}`);
   }
 
-  const name = parsed.name ? String(parsed.name) : dirname(templateDir).split('/').pop() || 'unknown';
+  const name = parsed.name
+    ? String(parsed.name)
+    : dirname(templateDir).split("/").pop() || "unknown";
 
   // Every playbook needs a tasks/ directory — that's where TASK.md files live
-  if (!existsSync(join(templateDir, 'tasks'))) {
+  if (!existsSync(join(templateDir, "tasks"))) {
     throw new Error(`Playbook "${name}" has no tasks/ directory`);
   }
 
@@ -188,18 +204,26 @@ export async function parsePlaybookYml(templateDir: string): Promise<PlaybookDef
 /**
  * Validate a playbook definition for structural correctness.
  */
-export function validatePlaybook(def: PlaybookDef, templateDir: string): string[] {
+export function validatePlaybook(
+  def: PlaybookDef,
+  templateDir: string,
+): string[] {
   const errors: string[] = [];
 
   // tasks/ directory must exist
-  const tasksDir = join(templateDir, 'tasks');
+  const tasksDir = join(templateDir, "tasks");
   if (!existsSync(tasksDir)) {
     errors.push(`No tasks/ directory found at ${tasksDir}`);
   }
 
   // Validate run config
-  if (def.run?.mode && !['autonomous', 'converge', 'step'].includes(def.run.mode)) {
-    errors.push(`Invalid run mode: "${def.run.mode}" (expected: autonomous, converge, step)`);
+  if (
+    def.run?.mode &&
+    !["autonomous", "converge", "step"].includes(def.run.mode)
+  ) {
+    errors.push(
+      `Invalid run mode: "${def.run.mode}" (expected: autonomous, converge, step)`,
+    );
   }
 
   return errors;
@@ -209,7 +233,10 @@ export function validatePlaybook(def: PlaybookDef, templateDir: string): string[
 /*  Discovery                                                          */
 /* ------------------------------------------------------------------ */
 
-async function discoverFromDir(dir: string, builtin: boolean): Promise<PlaybookSource[]> {
+async function discoverFromDir(
+  dir: string,
+  builtin: boolean,
+): Promise<PlaybookSource[]> {
   if (!existsSync(dir)) return [];
 
   const entries = await readdir(dir, { withFileTypes: true });
@@ -219,13 +246,15 @@ async function discoverFromDir(dir: string, builtin: boolean): Promise<PlaybookS
     if (!entry.isDirectory()) continue;
 
     const templateDir = join(dir, entry.name);
-    if (!existsSync(join(templateDir, 'playbook.yml'))) continue;
+    if (!existsSync(join(templateDir, "playbook.yml"))) continue;
 
     try {
       const def = await parsePlaybookYml(templateDir);
       sources.push({ def, templateDir, builtin });
     } catch (err: any) {
-      console.warn(`   Warning: Failed to load playbook ${templateDir}: ${err.message}`);
+      console.warn(
+        `   Warning: Failed to load playbook ${templateDir}: ${err.message}`,
+      );
     }
   }
 
@@ -242,11 +271,11 @@ function getConvergeSkillsDir(): string {
 
   // If we're in dist/ (built), go up 1 level to package root
   // If we're in src/playbook/ (development), go up 2 levels to package root
-  const packageRoot = currentDir.includes('/dist')
-    ? resolve(currentDir, '..')
-    : resolve(currentDir, '../..');
+  const packageRoot = currentDir.includes("/dist")
+    ? resolve(currentDir, "..")
+    : resolve(currentDir, "../..");
 
-  return join(packageRoot, 'skills');
+  return join(packageRoot, "skills");
 }
 
 /**
@@ -262,7 +291,7 @@ async function discoverFromSkills(): Promise<PlaybookSource[]> {
 
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
-    const playbooksDir = join(skillsDir, entry.name, 'playbooks');
+    const playbooksDir = join(skillsDir, entry.name, "playbooks");
     const found = await discoverFromDir(playbooksDir, true);
     sources.push(...found);
   }
@@ -275,7 +304,9 @@ async function discoverFromSkills(): Promise<PlaybookSource[]> {
  * Searches skill playbooks (builtins) and .converge/playbooks/ (project).
  * Project playbooks override builtins by name.
  */
-export async function discoverPlaybooks(projectDir: string): Promise<PlaybookSource[]> {
+export async function discoverPlaybooks(
+  projectDir: string,
+): Promise<PlaybookSource[]> {
   const dirs = await Promise.all([
     discoverFromSkills(),
     discoverFromDir(getProjectPlaybooksDir(projectDir), false),
@@ -295,9 +326,12 @@ export async function discoverPlaybooks(projectDir: string): Promise<PlaybookSou
 /**
  * Load a specific playbook by name.
  */
-export async function loadPlaybook(name: string, projectDir: string): Promise<PlaybookSource | null> {
+export async function loadPlaybook(
+  name: string,
+  projectDir: string,
+): Promise<PlaybookSource | null> {
   const all = await discoverPlaybooks(projectDir);
-  return all.find(p => p.def.name === name) || null;
+  return all.find((p) => p.def.name === name) || null;
 }
 
 /* ------------------------------------------------------------------ */
@@ -307,7 +341,10 @@ export async function loadPlaybook(name: string, projectDir: string): Promise<Pl
 /**
  * Substitute ${varName} placeholders in a string.
  */
-export function substituteVars(template: string, vars: Record<string, string>): string {
+export function substituteVars(
+  template: string,
+  vars: Record<string, string>,
+): string {
   return template.replace(/\$\{(\w+)\}/g, (match, key) => {
     return vars[key] !== undefined ? vars[key] : match;
   });
@@ -332,7 +369,9 @@ export function resolvePlaybook(
       } else if (input.default !== undefined) {
         vars[key] = input.default;
       } else if (input.required) {
-        throw new Error(`Required input "${key}" not provided for playbook "${def.name}"`);
+        throw new Error(
+          `Required input "${key}" not provided for playbook "${def.name}"`,
+        );
       }
     }
   }
@@ -348,17 +387,22 @@ export function resolvePlaybook(
   }
 
   // Derive epicId from playbook name + key input value
-  const keyInput = def.key
-    || (def.inputs && Object.entries(def.inputs).find(([, v]) => v.required)?.[0])
-    || undefined;
+  const keyInput =
+    def.key ||
+    (def.inputs &&
+      Object.entries(def.inputs).find(([, v]) => v.required)?.[0]) ||
+    undefined;
   const keyValue = keyInput ? vars[keyInput] : undefined;
 
   let epicId: string;
   if (keyValue) {
-    const slug = keyValue.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const slug = keyValue
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
     epicId = `${def.name}-${slug}`;
   } else {
-    const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
     epicId = `${def.name}-${ts}`;
   }
 

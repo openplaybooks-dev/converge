@@ -13,27 +13,32 @@
  */
 
 // ── Builder layers ──────────────────────────────────────────────
-export { CoreBuilder } from './core-builder.ts';
-export { ModuleBuilder } from './module-builder.ts';
-export { TypeScriptBuilder } from './ts-builder.ts';
-export { ReactBuilder } from './react-builder.ts';
+export { CoreBuilder } from "./core-builder.ts";
+export { ModuleBuilder } from "./module-builder.ts";
+export { TypeScriptBuilder } from "./ts-builder.ts";
+export { ReactBuilder } from "./react-builder.ts";
 
 // ── Backward-compat alias ───────────────────────────────────────
-export { CodeBuilder } from './builder.ts';
+export { CodeBuilder } from "./builder.ts";
 
 // ── Project management ──────────────────────────────────────────
-export { ProjectBuilder } from './project-builder.ts';
-export type { FlushOptions, FlushResult } from './project-builder.ts';
+export { ProjectBuilder } from "./project-builder.ts";
+export type { FlushOptions, FlushResult } from "./project-builder.ts";
 
 // ── Supporting classes ──────────────────────────────────────────
-export { ImportRegistry } from './import-registry.ts';
-export { MdBuilder } from './md-builder.ts';
+export { ImportRegistry } from "./import-registry.ts";
+export { MdBuilder } from "./md-builder.ts";
 
 // ── Semantic Emitter (v2) ──────────────────────────────────────
-export { SemanticBuilder } from './semantic/index.ts';
-export { ExprHelper, ObjectBuilder, ArrayBuilder, FnBody } from './semantic/index.ts';
-export { formatFile, DEFAULT_FORMAT } from './semantic/index.ts';
-export type { FormatOptions, ExprNode, StmtNode } from './semantic/index.ts';
+export { SemanticBuilder } from "./semantic/index.ts";
+export {
+  ExprHelper,
+  ObjectBuilder,
+  ArrayBuilder,
+  FnBody,
+} from "./semantic/index.ts";
+export { formatFile, DEFAULT_FORMAT } from "./semantic/index.ts";
+export type { FormatOptions, ExprNode, StmtNode } from "./semantic/index.ts";
 
 // ── Types ───────────────────────────────────────────────────────
-export type { ImportSpec, FnOptions } from './types.ts';
+export type { ImportSpec, FnOptions } from "./types.ts";

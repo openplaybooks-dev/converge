@@ -1,0 +1,253 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-brand/006-verification-audit-missing-output-.converge/standardize-state/brand/006-audit.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-brand/006-verification-audit",
+            "severity": "high",
+            "description": "[01-brand/006-verification-audit] Task output not created: .converge/standardize-state/brand/006-audit.json",
+            "source": "unit",
+            "detected": "2026-04-17T23:35:46.408Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/standardize/tasks/01-brand/tasks/006-verification-audit",
+              "taskId": "01-brand/006-verification-audit",
+              "taskTitle": "Final brand verification audit",
+              "taskPrompt": "Run a comprehensive grep audit across the entire codebase to verify\nzero stale brand references remain.\n\n**Full scan**:\n```bash\n# Scan everything (excluding node_modules, .git, CHANGELOG, .converge/, auto-verify)\ngrep -ri 'harness' --include='*.ts' --include='*.md' --include='*.json' --include='*.yml' --include='*.yaml' . | grep -v node_modules | grep -v '.git/' | grep -v CHANGELOG | grep -v '.converge/' | grep -v auto-verify\ngrep -ri 'crew\\|crewadd\\|sheetsrun' --include='*.ts' --include='*.md' --include='*.json' . | grep -v node_modules | grep -v '.git/' | grep -v CHANGELOG | grep -v '.converge/'\n```\n\n**Write audit report** to `.converge/standardize-state/brand/006-audit.json`:\n```json\n{\n  \"timestamp\": \"ISO-8601\",\n  \"staleReferences\": 0,\n  \"scannedFiles\": 500,\n  \"patterns\": [\"harness\", \"crew\", \"crewadd\", \"sheetsrun\"],\n  \"exceptions\": [\n    { \"file\": \"path\", \"reason\": \"auto-verify internal module\" }\n  ],\n  \"remaining\": []\n}\n```\n\nIf any stale references are found, fix them before writing the audit report.\nThe audit must report `staleReferences: 0` to pass.",
+              "factId": "file-exists:test -f \".converge/standardize-state/brand/006-audit.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "01-brand/006-verification-audit-check-failed-audit-clean",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-brand/006-verification-audit",
+            "severity": "high",
+            "description": "[01-brand/006-verification-audit] Check failed: Audit confirms zero stale references",
+            "source": "unit",
+            "detected": "2026-04-17T23:35:46.432Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "audit-clean",
+              "checkCmd": "node -e \"const a=JSON.parse(require('fs').readFileSync('.converge/standardize-state/brand/006-audit.json','utf-8'));if(a.staleReferences>0)throw new Error(a.staleReferences+' stale refs remain')\"",
+              "checkDescription": "Audit confirms zero stale references",
+              "checkOutput": "node:fs:441\n    return binding.readFileUtf8(path, stringToFlags(options.flag));\n                   ^\n\nError: ENOENT: no such file or directory, open '.converge/standardize-state/brand/006-audit.json'\n    at Object.readFileSync (node:fs:441:20)\n    at [eval]:1:34\n    at runScriptInThisContext (node:internal/vm:209:10)\n    at node:internal/process/execution:446:12\n    at [eval]-wrapper:6:24\n    at runScriptInContext (node:internal/process/execution:444:60)\n    at evalFunction (node:internal/process/execution:279:30)\n    at evalTypeScript (node:internal/process/execution:291:3)\n    at node:internal/main/eval_string:74:3 {\n  errno: -2,\n  code: 'ENOENT',\n  syscall: 'open',\n  path: '.converge/standardize-state/brand/006-audit.json'\n}\n\nNode.js v22.19.0",
+              "checkExitCode": 1,
+              "taskPrompt": "Run a comprehensive grep audit across the entire codebase to verify\nzero stale brand references remain.\n\n**Full scan**:\n```bash\n# Scan everything (excluding node_modules, .git, CHANGELOG, .converge/, auto-verify)\ngrep -ri 'harness' --include='*.ts' --include='*.md' --include='*.json' --include='*.yml' --include='*.yaml' . | grep -v node_modules | grep -v '.git/' | grep -v CHANGELOG | grep -v '.converge/' | grep -v auto-verify\ngrep -ri 'crew\\|crewadd\\|sheetsrun' --include='*.ts' --include='*.md' --include='*.json' . | grep -v node_modules | grep -v '.git/' | grep -v CHANGELOG | grep -v '.converge/'\n```\n\n**Write audit report** to `.converge/standardize-state/brand/006-audit.json`:\n```json\n{\n  \"timestamp\": \"ISO-8601\",\n  \"staleReferences\": 0,\n  \"scannedFiles\": 500,\n  \"patterns\": [\"harness\", \"crew\", \"crewadd\", \"sheetsrun\"],\n  \"exceptions\": [\n    { \"file\": \"path\", \"reason\": \"auto-verify internal module\" }\n  ],\n  \"remaining\": []\n}\n```\n\nIf any stale references are found, fix them before writing the audit report.\nThe audit must report `staleReferences: 0` to pass.",
+              "taskId": "01-brand/006-verification-audit",
+              "taskTitle": "Final brand verification audit",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/standardize/tasks/01-brand/tasks/006-verification-audit",
+              "factId": "check:audit-clean"
+            }
+          }
+        ],
+        "durationMs": 27
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "resolve-blockers",
+      "handler": "resolve-blockers",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 80,
+        "applicable": "hasBlockerAndIsFirst"
+      }
+    },
+    {
+      "id": "bail-blockers",
+      "handler": "bail-blockers",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 79,
+        "applicable": "hasBlockerAndNotFirst"
+      }
+    },
+    {
+      "id": "strategy-user-question-resume",
+      "handler": "strategy-user-question-resume",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 60,
+        "applicable": "hasUserQ"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65,
+        "applicable": "isFirst"
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55,
+        "applicable": "hasRepairableGap"
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 29
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 103
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#14",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 94656
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-17T23:35:46.404Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-17T23:35:46.405Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-17T23:35:46.433Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-17T23:35:46.434Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-17T23:35:46.463Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#14",
+      "iteration": 1,
+      "ts": "2026-04-17T23:37:21.119Z"
+    },
+    {
+      "from": "run-strategy:task-run#14",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-17T23:37:21.222Z"
+    }
+  ]
+}

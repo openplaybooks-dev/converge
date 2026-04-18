@@ -13,11 +13,11 @@
  *   CHECK.result.md — how they ran
  */
 
-import { writeFile, readFile, stat } from 'node:fs/promises';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
+import { writeFile, readFile, stat } from "node:fs/promises";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
 
 const execAsync = promisify(exec);
 
@@ -25,7 +25,7 @@ const execAsync = promisify(exec);
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
-type Outcome = 'success' | 'failed' | 'blocked';
+type Outcome = "success" | "failed" | "blocked";
 
 interface NeedsManifest {
   taskId: string;
@@ -71,22 +71,28 @@ export async function writeResultSnapshot(
   durationMs: number,
   attemptNumber: number,
 ): Promise<void> {
-  const needsJsonPath = join(wipDir, 'data', 'needs.json');
-  if (!existsSync(needsJsonPath)) return;  // no snapshot context — skip
+  const needsJsonPath = join(wipDir, "data", "needs.json");
+  if (!existsSync(needsJsonPath)) return; // no snapshot context — skip
 
   let manifest: NeedsManifest;
   try {
-    manifest = JSON.parse(await readFile(needsJsonPath, 'utf-8')) as NeedsManifest;
+    manifest = JSON.parse(
+      await readFile(needsJsonPath, "utf-8"),
+    ) as NeedsManifest;
   } catch {
     return;
   }
 
-  const checkJsonPath = join(wipDir, 'data', 'check.json');
+  const checkJsonPath = join(wipDir, "data", "check.json");
   let checkManifest: CheckManifest = { taskId: manifest.taskId, checks: [] };
   if (existsSync(checkJsonPath)) {
     try {
-      checkManifest = JSON.parse(await readFile(checkJsonPath, 'utf-8')) as CheckManifest;
-    } catch { /* use empty checks */ }
+      checkManifest = JSON.parse(
+        await readFile(checkJsonPath, "utf-8"),
+      ) as CheckManifest;
+    } catch {
+      /* use empty checks */
+    }
   }
 
   // ── Re-check each expected output ────────────────────────────────
@@ -101,14 +107,16 @@ export async function writeResultSnapshot(
         const s = await stat(absPath);
         sizeBytes = s.size;
         sizeHuman = formatBytes(s.size);
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     }
     outputResults.push({ path: outputPath, exists, sizeBytes, sizeHuman });
   }
 
   // ── Run each check command ────────────────────────────────────────
   const checkResults: CheckResult[] = [];
-  if (outcome !== 'blocked') {
+  if (outcome !== "blocked") {
     for (const check of checkManifest.checks) {
       if (!check.cmd) continue;
       try {
@@ -117,69 +125,74 @@ export async function writeResultSnapshot(
           timeout: 15_000,
         });
         checkResults.push({
-          ...check, passed: true, exitCode: 0,
+          ...check,
+          passed: true,
+          exitCode: 0,
           output: (stdout + stderr).trim(),
         });
       } catch (err: any) {
         checkResults.push({
-          ...check, passed: false,
-          exitCode: typeof err.code === 'number' ? err.code : 1,
-          output: ((err.stdout ?? '') + (err.stderr ?? '')).trim(),
+          ...check,
+          passed: false,
+          exitCode: typeof err.code === "number" ? err.code : 1,
+          output: ((err.stdout ?? "") + (err.stderr ?? "")).trim(),
         });
       }
     }
   }
 
   // ── Build RESULT.md ───────────────────────────────────────────────
-  const lines: string[] = [
-    `# RESULT.md — Attempt ${attemptNumber}`,
-    '',
-  ];
+  const lines: string[] = [`# RESULT.md — Attempt ${attemptNumber}`, ""];
 
   // Header
   const outcomeLabel =
-    outcome === 'success' ? '✅ SUCCESS' :
-    outcome === 'blocked' ? '⛔ BLOCKED' :
-    '❌ FAILED';
+    outcome === "success"
+      ? "✅ SUCCESS"
+      : outcome === "blocked"
+        ? "⛔ BLOCKED"
+        : "❌ FAILED";
   lines.push(
     `**Outcome**: ${outcomeLabel}`,
     `**Duration**: ${formatDuration(durationMs)}`,
     `**Completed**: ${new Date().toISOString()}`,
-    '',
+    "",
   );
 
   // Blocked reason
-  if (outcome === 'blocked' && manifest.blockedReason) {
-    lines.push('## Blocked Reason', '', manifest.blockedReason, '');
+  if (outcome === "blocked" && manifest.blockedReason) {
+    lines.push("## Blocked Reason", "", manifest.blockedReason, "");
   }
 
   // Output state
   if (outputResults.length > 0) {
-    lines.push('## Outputs', '');
+    lines.push("## Outputs", "");
     for (const r of outputResults) {
       const status = r.exists
-        ? `✓ produced${r.sizeHuman ? ` (${r.sizeHuman})` : ''}`
-        : '✗ missing';
+        ? `✓ produced${r.sizeHuman ? ` (${r.sizeHuman})` : ""}`
+        : "✗ missing";
       lines.push(`- \`${r.path}\` — ${status}`);
     }
-    lines.push('');
+    lines.push("");
   }
 
   // Check results
   if (checkResults.length > 0) {
-    const allPassed = checkResults.every(r => r.passed);
-    lines.push(`## Check Results — ${allPassed ? '✅ all passed' : '❌ some failed'}`, '');
+    const allPassed = checkResults.every((r) => r.passed);
+    lines.push(
+      `## Check Results — ${allPassed ? "✅ all passed" : "❌ some failed"}`,
+      "",
+    );
 
     // Summary table
     for (const r of checkResults) {
-      lines.push(`- ${r.passed ? '✓' : '✗'} **${r.id}**: ${r.description}`);
+      lines.push(`- ${r.passed ? "✓" : "✗"} **${r.id}**: ${r.description}`);
     }
-    lines.push('');
+    lines.push("");
 
     // Details for failures
-    const failed = checkResults.filter(r => !r.passed);
+    const failed = checkResults.filter((r) => !r.passed);
     if (failed.length > 0) {
-      lines.push('## Failed Check Details', '');
+      lines.push("## Failed Check Details", "");
       for (const r of failed) {
         lines.push(
           `### ${r.id} — ❌ FAILED`,
@@ -187,16 +200,16 @@ export async function writeResultSnapshot(
           `**Exit code**: ${r.exitCode}`,
         );
         if (r.output) {
-          lines.push('**Output**:', '```', r.output, '```');
+          lines.push("**Output**:", "```", r.output, "```");
         } else {
-          lines.push('**Output**: *(none)*');
+          lines.push("**Output**: *(none)*");
         }
-        lines.push('');
+        lines.push("");
       }
     }
   }
 
-  await writeFile(join(wipDir, 'CHECK.result.md'), lines.join('\n'));
+  await writeFile(join(wipDir, "CHECK.result.md"), lines.join("\n"));
 
   await writeTaskResultMd(wipDir, attemptNumber);
 }
@@ -205,39 +218,57 @@ export async function writeResultSnapshot(
 /*  TASK.result.md — agent output summary                             */
 /* ------------------------------------------------------------------ */
 
-async function writeTaskResultMd(wipDir: string, attemptNumber: number): Promise<void> {
-  const logsDir = join(wipDir, 'logs');
-  const outPath = join(wipDir, 'TASK.result.md');
+async function writeTaskResultMd(
+  wipDir: string,
+  attemptNumber: number,
+): Promise<void> {
+  const logsDir = join(wipDir, "logs");
+  const outPath = join(wipDir, "TASK.result.md");
 
   const header = `# TASK.result.md — Attempt ${attemptNumber}\n\n`;
 
   if (!existsSync(logsDir)) {
-    await writeFile(outPath, header + '_(no agent logs — task was blocked or skipped)_\n');
+    await writeFile(
+      outPath,
+      header + "_(no agent logs — task was blocked or skipped)_\n",
+    );
     return;
   }
 
   const jsonlFiles = readdirSync(logsDir)
-    .filter(f => f.endsWith('.index.jsonl'))
+    .filter((f) => f.endsWith(".index.jsonl"))
     .sort();
 
   if (jsonlFiles.length === 0) {
-    await writeFile(outPath, header + '_(no agent log files found)_\n');
+    await writeFile(outPath, header + "_(no agent log files found)_\n");
     return;
   }
 
   // Latest session = last by name (ISO timestamp prefix sorts lexicographically)
   const latestFile = join(logsDir, jsonlFiles.at(-1)!);
-  const lines = readFileSync(latestFile, 'utf-8').split('\n').filter(Boolean);
+  const lines = readFileSync(latestFile, "utf-8").split("\n").filter(Boolean);
 
   const textBlocks: string[] = [];
-  let sessionCompleted: { ts: string; duration_ms: number; tool_calls: number; thinking_blocks: number; text_blocks: number } | undefined;
+  let sessionCompleted:
+    | {
+        ts: string;
+        duration_ms: number;
+        tool_calls: number;
+        thinking_blocks: number;
+        text_blocks: number;
+      }
+    | undefined;
 
   for (const line of lines) {
     try {
       const entry = JSON.parse(line);
-      if (entry.type === 'output' && entry.event === 'text' && entry.data?.text) {
+      if (
+        entry.type === "output" &&
+        entry.event === "text" &&
+        entry.data?.text
+      ) {
         textBlocks.push(entry.data.text);
-      } else if (entry.type === 'session' && entry.event === 'completed') {
+      } else if (entry.type === "session" && entry.event === "completed") {
         sessionCompleted = {
           ts: entry.ts,
           duration_ms: entry.duration_ms ?? 0,
@@ -255,25 +286,26 @@ async function writeTaskResultMd(wipDir: string, attemptNumber: number): Promise
 
   if (sessionCompleted) {
     mdLines.push(
-      '',
+      "",
       `**Completed**: ${sessionCompleted.ts}`,
       `**Duration**: ${formatDuration(sessionCompleted.duration_ms)}  |  **Tool calls**: ${sessionCompleted.tool_calls}  |  **Thinking blocks**: ${sessionCompleted.thinking_blocks}  |  **Text blocks**: ${sessionCompleted.text_blocks}`,
     );
   }
 
   if (textBlocks.length === 0) {
-    mdLines.push('', '_(no text output recorded)_');
+    mdLines.push("", "_(no text output recorded)_");
   } else {
-    mdLines.push('', '## Agent Output', '');
+    mdLines.push("", "## Agent Output", "");
     for (let i = 0; i < textBlocks.length; i++) {
-      const label = i === textBlocks.length - 1
-        ? `### Block ${i + 1} (final)`
-        : `### Block ${i + 1}`;
-      mdLines.push(label, '', textBlocks[i].trimEnd(), '');
+      const label =
+        i === textBlocks.length - 1
+          ? `### Block ${i + 1} (final)`
+          : `### Block ${i + 1}`;
+      mdLines.push(label, "", textBlocks[i].trimEnd(), "");
     }
   }
 
-  await writeFile(outPath, mdLines.join('\n'));
+  await writeFile(outPath, mdLines.join("\n"));
 }
 
 /* ------------------------------------------------------------------ */

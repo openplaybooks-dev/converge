@@ -33,17 +33,20 @@ function appendLog(logPath: string, prefix: string, data: string): void {
   }
 }
 
-function appendIndexLog(logPath: string, entry: {
-  ts: string;
-  type: string;
-  event: string;
-  data?: unknown;
-  duration_ms?: number;
-}): void {
+function appendIndexLog(
+  logPath: string,
+  entry: {
+    ts: string;
+    type: string;
+    event: string;
+    data?: unknown;
+    duration_ms?: number;
+  },
+): void {
   if (!logPath) return;
   try {
-    const indexPath = logPath.replace('.log', '.index.jsonl');
-    appendFileSync(indexPath, JSON.stringify(entry) + '\n');
+    const indexPath = logPath.replace(".log", ".index.jsonl");
+    appendFileSync(indexPath, JSON.stringify(entry) + "\n");
   } catch {
     // Best-effort logging
   }
@@ -51,9 +54,7 @@ function appendIndexLog(logPath: string, entry: {
 
 // ─── Queue Resolution ──────────────────────────────────────
 
-function resolveQueue(
-  option: OpenFnOptions["queue"],
-): GlobalQueue | null {
+function resolveQueue(option: OpenFnOptions["queue"]): GlobalQueue | null {
   if (!option) return null;
   if (option === true) return getDefaultQueue();
   if (option instanceof GlobalQueue) return option;
@@ -74,9 +75,7 @@ function resolveQueue(
  * const { data } = await fn("hello");
  * ```
  */
-export function openfn<T = string>(
-  options?: OpenFnOptions<T>,
-): OpenFn<T> {
+export function openfn<T = string>(options?: OpenFnOptions<T>): OpenFn<T> {
   const opts = options ?? ({} as OpenFnOptions<T>);
 
   const {
@@ -186,14 +185,19 @@ export async function executeViaSDK<T>(
     ts: new Date().toISOString(),
     type: "session",
     event: "started",
-    data: { session_id: sessionId, timeout_ms: timeoutMs, base_url: baseUrl, model }
+    data: {
+      session_id: sessionId,
+      timeout_ms: timeoutMs,
+      base_url: baseUrl,
+      model,
+    },
   });
 
   // Create Opencode client
   const client = createOpencodeClient({ baseUrl });
 
   // Extract providerID from model string (e.g., "minimax" from "minimax/m2.5")
-  const modelParts = model.split('/');
+  const modelParts = model.split("/");
   const providerID = modelParts[0] || "minimax";
 
   // Look up API key for this provider
@@ -209,10 +213,18 @@ export async function executeViaSDK<T>(
         path: { id: providerID },
         body: { type: "api", key: providerApiKey },
       });
-      appendLog(logPath, "AUTH", `Configured credentials for provider: ${providerID}\n`);
+      appendLog(
+        logPath,
+        "AUTH",
+        `Configured credentials for provider: ${providerID}\n`,
+      );
     } catch (err) {
       const error = err as Error;
-      appendLog(logPath, "WARN", `Failed to configure auth: ${error.message}\n`);
+      appendLog(
+        logPath,
+        "WARN",
+        `Failed to configure auth: ${error.message}\n`,
+      );
       // Continue anyway - auth might not be needed for all providers
     }
   }
@@ -233,7 +245,7 @@ export async function executeViaSDK<T>(
       ts: new Date().toISOString(),
       type: "session",
       event: "session_created",
-      data: { session_id: createdSessionId }
+      data: { session_id: createdSessionId },
     });
   } catch (err) {
     const error = err as Error;
@@ -242,7 +254,7 @@ export async function executeViaSDK<T>(
       ts: new Date().toISOString(),
       type: "error",
       event: "session_create_failed",
-      data: { error: error.message }
+      data: { error: error.message },
     });
     throw err;
   }
@@ -292,7 +304,7 @@ export async function executeViaSDK<T>(
         body: promptBody,
       }),
       timeoutMs,
-      "prompt"
+      "prompt",
     );
 
     // Extract response data from the result
@@ -320,7 +332,7 @@ export async function executeViaSDK<T>(
       type: "error",
       event: "prompt_failed",
       duration_ms: Date.now() - promptStart,
-      data: { error: error.message }
+      data: { error: error.message },
     });
     throw err;
   }
@@ -337,7 +349,7 @@ export async function executeViaSDK<T>(
     type: "session",
     event: "completed",
     duration_ms: durationMs,
-    data: { session_id: createdSessionId }
+    data: { session_id: createdSessionId },
   });
 
   // Use structured output if available, otherwise use text response
@@ -371,7 +383,11 @@ function extractTextFromResponse(data: unknown): string {
 
 // ─── Timeout wrapper ────────────────────────────────────────
 
-async function withTimeout<T>(promise: Promise<T>, ms: number, operation: string): Promise<T> {
+async function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+  operation: string,
+): Promise<T> {
   let timeoutId: ReturnType<typeof setTimeout>;
   const timeoutPromise = new Promise<never>((_, reject) => {
     timeoutId = setTimeout(() => {
@@ -391,7 +407,13 @@ async function withTimeout<T>(promise: Promise<T>, ms: number, operation: string
 function zodToJsonSchema(schema: unknown): Record<string, unknown> {
   // Extract the JSON schema from a Zod schema
   // Zod schemas have an _def property that contains the schema definition
-  const zodSchema = schema as { _def?: { shape?: () => Record<string, unknown>; typeName?: string; description?: string } };
+  const zodSchema = schema as {
+    _def?: {
+      shape?: () => Record<string, unknown>;
+      typeName?: string;
+      description?: string;
+    };
+  };
 
   if (!zodSchema._def) {
     return { type: "object" };
@@ -407,7 +429,9 @@ function zodToJsonSchema(schema: unknown): Record<string, unknown> {
   const required: string[] = [];
 
   for (const [key, field] of Object.entries(shape)) {
-    const zodField = field as { _def?: { typeName?: string; description?: string } };
+    const zodField = field as {
+      _def?: { typeName?: string; description?: string };
+    };
     const typeName = zodField._def?.typeName;
     const description = zodField._def?.description;
 
@@ -496,7 +520,7 @@ export async function sendFeedback(
   const client = createOpencodeClient({ baseUrl });
 
   // Extract providerID from model string
-  const modelParts = model.split('/');
+  const modelParts = model.split("/");
   const providerID = modelParts[0] || "minimax";
   const modelID = modelParts[1] || model;
 
@@ -513,10 +537,18 @@ export async function sendFeedback(
         path: { id: providerID },
         body: { type: "api", key: providerApiKey },
       });
-      appendLog(logPath, "AUTH", `Configured credentials for provider: ${providerID}\n`);
+      appendLog(
+        logPath,
+        "AUTH",
+        `Configured credentials for provider: ${providerID}\n`,
+      );
     } catch (err) {
       const error = err as Error;
-      appendLog(logPath, "WARN", `Failed to configure auth: ${error.message}\n`);
+      appendLog(
+        logPath,
+        "WARN",
+        `Failed to configure auth: ${error.message}\n`,
+      );
     }
   }
 
@@ -530,7 +562,7 @@ export async function sendFeedback(
         },
       }),
       timeoutMs,
-      "feedback"
+      "feedback",
     );
 
     const raw = JSON.stringify(result.data);

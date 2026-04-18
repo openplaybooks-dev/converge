@@ -6,17 +6,22 @@
  * for execution state, history, and crash-safe checkpointing.
  */
 
-import type { Gap } from '../../gap/types.ts';
-import type { Unit } from '../../unit/unit.ts';
-import type { RetryMode } from '../types.ts';
-import type { TaskContext } from './task-context.ts';
+import type { Gap } from "../../gap/types.ts";
+import type { Unit } from "../../unit/unit.ts";
+import type { RetryMode } from "../types.ts";
+import type { TaskContext } from "./task-context.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Node lifecycle                                                     */
 /* ------------------------------------------------------------------ */
 
-export type NodeStatus = 'buffered' | 'executing' | 'done' | 'failed' | 'skipped';
-export type NodeOrigin = 'initial' | 'planned' | 'reactive';
+export type NodeStatus =
+  | "buffered"
+  | "executing"
+  | "done"
+  | "failed"
+  | "skipped";
+export type NodeOrigin = "initial" | "planned" | "reactive";
 
 /* ------------------------------------------------------------------ */
 /*  Snapshot (immutable input to every action)                         */
@@ -50,7 +55,7 @@ export interface GraphNode {
   origin: NodeOrigin;
   /** Result after execution */
   result?: {
-    action: 'continue' | 'done' | 'bail' | 'delegate';
+    action: "continue" | "done" | "bail" | "delegate";
     success?: boolean;
     reason?: string;
     gaps?: Gap[];
@@ -95,7 +100,7 @@ export interface Graph {
 /* ------------------------------------------------------------------ */
 
 export interface WalkResult {
-  action: 'continue' | 'done' | 'bail' | 'delegate';
+  action: "continue" | "done" | "bail" | "delegate";
   success?: boolean;
   reason?: string;
   retryMode?: RetryMode;

@@ -1,0 +1,10 @@
+{
+  "taskId": "03-dx/004-scaffold-command",
+  "checks": [
+    {
+      "id": "scaffold-doc-exists",
+      "description": "Scaffolding documentation exists",
+      "cmd": "test -f docs/scaffolding.md"
+    }
+  ]
+}

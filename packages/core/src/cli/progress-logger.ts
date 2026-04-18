@@ -5,12 +5,17 @@
  * Shows plan, queue, execution status, and overall progress.
  */
 
-import type { Gap } from '../gap/types.ts';
+import type { Gap } from "../gap/types.ts";
 
 /**
  * Task execution status
  */
-export type TaskStatus = 'pending' | 'executing' | 'completed' | 'failed' | 'skipped';
+export type TaskStatus =
+  | "pending"
+  | "executing"
+  | "completed"
+  | "failed"
+  | "skipped";
 
 /**
  * Task in the execution queue
@@ -46,13 +51,13 @@ export class ProgressLogger {
    * Show the execution plan
    */
   logPlan(plan: ExecutionPlan): void {
-    console.log('\n' + '='.repeat(60));
+    console.log("\n" + "=".repeat(60));
     console.log(`📋 EXECUTION PLAN: ${plan.name}`);
-    console.log('='.repeat(60));
+    console.log("=".repeat(60));
     console.log(`   Strategy: ${plan.strategy}`);
     console.log(`   Total Gaps: ${plan.totalGaps}`);
     console.log(`   Tasks: ${plan.tasks.length}`);
-    console.log('');
+    console.log("");
 
     this.currentPlan = plan;
   }
@@ -63,8 +68,8 @@ export class ProgressLogger {
   logQueue(): void {
     if (!this.currentPlan) return;
 
-    console.log('📊 TASK QUEUE:');
-    console.log('');
+    console.log("📊 TASK QUEUE:");
+    console.log("");
 
     for (let i = 0; i < this.currentPlan.tasks.length; i++) {
       const task = this.currentPlan.tasks[i];
@@ -75,15 +80,17 @@ export class ProgressLogger {
       console.log(`       Status: ${task.status}`);
       console.log(`       Gaps: ${task.gaps.length}`);
 
-      if (task.status === 'executing') {
+      if (task.status === "executing") {
         console.log(`       ⏳ In progress...`);
-      } else if (task.status === 'completed' && task.completedAt) {
-        console.log(`       ✅ Completed at ${new Date(task.completedAt).toLocaleTimeString()}`);
-      } else if (task.status === 'failed') {
+      } else if (task.status === "completed" && task.completedAt) {
+        console.log(
+          `       ✅ Completed at ${new Date(task.completedAt).toLocaleTimeString()}`,
+        );
+      } else if (task.status === "failed") {
         console.log(`       ❌ Failed`);
       }
 
-      console.log('');
+      console.log("");
     }
   }
 
@@ -92,42 +99,46 @@ export class ProgressLogger {
    */
   logTaskStart(task: QueuedTask): void {
     this.currentTask = task;
-    task.status = 'executing';
+    task.status = "executing";
     task.startedAt = new Date().toISOString();
 
-    console.log('\n' + '─'.repeat(60));
+    console.log("\n" + "─".repeat(60));
     console.log(`▶️  ${task.title}`);
-    console.log('─'.repeat(60));
+    console.log("─".repeat(60));
 
     // Show what each gap needs to produce (the missing output path)
     for (const gap of task.gaps) {
-      const outputMatch = gap.description.match(/Task output not created: (.+)$/);
-      const blockerMatch = gap.description.match(/Missing required input: (.+)$/);
+      const outputMatch = gap.description.match(
+        /Task output not created: (.+)$/,
+      );
+      const blockerMatch = gap.description.match(
+        /Missing required input: (.+)$/,
+      );
       if (outputMatch) {
         console.log(`   → produce: ${outputMatch[1]}`);
       } else if (blockerMatch) {
         console.log(`   ⛔ blocked: ${blockerMatch[1]} not yet available`);
       } else {
-        console.log(`   • ${gap.description.replace(/^\[.*?\]\s*/, '')}`);
+        console.log(`   • ${gap.description.replace(/^\[.*?\]\s*/, "")}`);
       }
     }
-    console.log('');
+    console.log("");
   }
 
   /**
    * Log task completion
    */
   logTaskComplete(task: QueuedTask, success: boolean): void {
-    task.status = success ? 'completed' : 'failed';
+    task.status = success ? "completed" : "failed";
     task.completedAt = new Date().toISOString();
 
-    const icon = success ? '✅' : '❌';
-    const status = success ? 'COMPLETED' : 'FAILED';
+    const icon = success ? "✅" : "❌";
+    const status = success ? "COMPLETED" : "FAILED";
     const progress = this.getProgress();
 
-    console.log('\n' + '─'.repeat(60));
+    console.log("\n" + "─".repeat(60));
     console.log(`${icon} TASK ${status} [${progress}]`);
-    console.log('─'.repeat(60));
+    console.log("─".repeat(60));
     console.log(`   Task: ${task.title}`);
 
     if (success) {
@@ -136,7 +147,7 @@ export class ProgressLogger {
       console.log(`   Gaps Remaining: ${task.gaps.length}`);
     }
 
-    console.log('');
+    console.log("");
   }
 
   /**
@@ -152,32 +163,42 @@ export class ProgressLogger {
   logProgress(): void {
     if (!this.currentPlan) return;
 
-    const completed = this.currentPlan.tasks.filter(t => t.status === 'completed').length;
-    const failed = this.currentPlan.tasks.filter(t => t.status === 'failed').length;
-    const pending = this.currentPlan.tasks.filter(t => t.status === 'pending').length;
-    const executing = this.currentPlan.tasks.filter(t => t.status === 'executing').length;
+    const completed = this.currentPlan.tasks.filter(
+      (t) => t.status === "completed",
+    ).length;
+    const failed = this.currentPlan.tasks.filter(
+      (t) => t.status === "failed",
+    ).length;
+    const pending = this.currentPlan.tasks.filter(
+      (t) => t.status === "pending",
+    ).length;
+    const executing = this.currentPlan.tasks.filter(
+      (t) => t.status === "executing",
+    ).length;
 
-    const percentage = Math.round((completed / this.currentPlan.tasks.length) * 100);
+    const percentage = Math.round(
+      (completed / this.currentPlan.tasks.length) * 100,
+    );
 
-    console.log('\n' + '='.repeat(60));
-    console.log('📈 OVERALL PROGRESS');
-    console.log('='.repeat(60));
+    console.log("\n" + "=".repeat(60));
+    console.log("📈 OVERALL PROGRESS");
+    console.log("=".repeat(60));
     console.log(`   Completion: ${percentage}%`);
     console.log(`   Completed: ${completed}/${this.currentPlan.tasks.length}`);
     console.log(`   Executing: ${executing}`);
     console.log(`   Pending: ${pending}`);
     console.log(`   Failed: ${failed}`);
-    console.log('');
+    console.log("");
   }
 
   /**
    * Get progress string (e.g., "2/5")
    */
   private getProgress(): string {
-    if (!this.currentPlan) return '?/?';
+    if (!this.currentPlan) return "?/?";
 
     const completed = this.currentPlan.tasks.filter(
-      t => t.status === 'completed' || t.status === 'executing'
+      (t) => t.status === "completed" || t.status === "executing",
     ).length;
 
     return `${completed}/${this.currentPlan.tasks.length}`;
@@ -188,24 +209,34 @@ export class ProgressLogger {
    */
   private getStatusIcon(status: TaskStatus): string {
     switch (status) {
-      case 'pending': return '⏸️';
-      case 'executing': return '▶️';
-      case 'completed': return '✅';
-      case 'failed': return '❌';
-      case 'skipped': return '⏭️';
-      default: return '❓';
+      case "pending":
+        return "⏸️";
+      case "executing":
+        return "▶️";
+      case "completed":
+        return "✅";
+      case "failed":
+        return "❌";
+      case "skipped":
+        return "⏭️";
+      default:
+        return "❓";
     }
   }
 
   /**
    * Show iteration summary
    */
-  logIterationSummary(iteration: number, gapsResolved: number, errors: number): void {
-    console.log('\n' + '='.repeat(60));
+  logIterationSummary(
+    iteration: number,
+    gapsResolved: number,
+    errors: number,
+  ): void {
+    console.log("\n" + "=".repeat(60));
     console.log(`✅ ITERATION ${iteration} COMPLETE`);
-    console.log('='.repeat(60));
+    console.log("=".repeat(60));
     console.log(`   Gaps Resolved: ${gapsResolved}`);
     console.log(`   Errors: ${errors}`);
-    console.log('');
+    console.log("");
   }
 }

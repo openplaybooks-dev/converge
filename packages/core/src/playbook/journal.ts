@@ -13,20 +13,20 @@
  * trends.jsonl aggregates across sessions for cross-run comparison.
  */
 
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
-import type {
-  PlaybookTrendEntry,
-  PlaybookContext,
-} from './types.ts';
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import type { PlaybookTrendEntry, PlaybookContext } from "./types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Path Helpers                                                       */
 /* ------------------------------------------------------------------ */
 
-export function getPlaybookJournalDir(projectDir: string, playbook: string): string {
-  return join(projectDir, '.converge', 'journal', playbook);
+export function getPlaybookJournalDir(
+  projectDir: string,
+  playbook: string,
+): string {
+  return join(projectDir, ".converge", "journal", playbook);
 }
 
 /* ------------------------------------------------------------------ */
@@ -44,12 +44,16 @@ export async function initPlaybookJournal(
   const pbDir = getPlaybookJournalDir(projectDir, playbook);
   await mkdir(pbDir, { recursive: true });
 
-  const playbookJsonPath = join(pbDir, 'playbook.json');
+  const playbookJsonPath = join(pbDir, "playbook.json");
   if (!existsSync(playbookJsonPath)) {
     await writeFile(
       playbookJsonPath,
-      JSON.stringify({ name: playbook, created: new Date().toISOString() }, null, 2),
-      'utf8',
+      JSON.stringify(
+        { name: playbook, created: new Date().toISOString() },
+        null,
+        2,
+      ),
+      "utf8",
     );
   }
 
@@ -66,15 +70,19 @@ export async function appendTrend(
   entry: PlaybookTrendEntry,
 ): Promise<void> {
   const pbDir = getPlaybookJournalDir(projectDir, playbook);
-  await appendJsonl(join(pbDir, 'trends.jsonl'), entry);
+  await appendJsonl(join(pbDir, "trends.jsonl"), entry);
 
   // Update playbook.json lastRun
-  const playbookJsonPath = join(pbDir, 'playbook.json');
+  const playbookJsonPath = join(pbDir, "playbook.json");
   try {
-    const playbookJson = JSON.parse(await readFile(playbookJsonPath, 'utf8'));
+    const playbookJson = JSON.parse(await readFile(playbookJsonPath, "utf8"));
     playbookJson.lastRun = entry.timestamp;
     playbookJson.totalRuns = (playbookJson.totalRuns || 0) + 1;
-    await writeFile(playbookJsonPath, JSON.stringify(playbookJson, null, 2), 'utf8');
+    await writeFile(
+      playbookJsonPath,
+      JSON.stringify(playbookJson, null, 2),
+      "utf8",
+    );
   } catch {
     // Best effort
   }
@@ -105,29 +113,29 @@ export async function listExecutions(
   playbook: string,
 ): Promise<ExecutionSummary[]> {
   const pbDir = getPlaybookJournalDir(projectDir, playbook);
-  const sessionsDir = join(pbDir, 'sessions');
+  const sessionsDir = join(pbDir, "sessions");
 
   // Try reading session metadata files first
   if (existsSync(sessionsDir)) {
-    const { readdir } = await import('node:fs/promises');
+    const { readdir } = await import("node:fs/promises");
     try {
       const entries = await readdir(sessionsDir, { withFileTypes: true });
       const summaries: ExecutionSummary[] = [];
 
       for (const entry of entries) {
         if (!entry.isDirectory()) continue;
-        const metadataPath = join(sessionsDir, entry.name, 'metadata.json');
+        const metadataPath = join(sessionsDir, entry.name, "metadata.json");
         if (!existsSync(metadataPath)) continue;
 
         try {
-          const raw = JSON.parse(await readFile(metadataPath, 'utf8'));
+          const raw = JSON.parse(await readFile(metadataPath, "utf8"));
           summaries.push({
             executionId: raw.sessionId || entry.name,
-            status: raw.status || 'unknown',
+            status: raw.status || "unknown",
             durationMs: raw.duration,
             tasksCompleted: raw.outcomes?.tasksCompleted ?? 0,
             tasksTotal: raw.outcomes?.tasksCompleted
-              ? (raw.outcomes.tasksCompleted + (raw.outcomes.tasksFailed ?? 0))
+              ? raw.outcomes.tasksCompleted + (raw.outcomes.tasksFailed ?? 0)
               : 0,
             tasksFailed: raw.outcomes?.tasksFailed ?? 0,
           });
@@ -148,14 +156,16 @@ export async function listExecutions(
 
   // Fall back to trends.jsonl
   const trends = await readTrends(projectDir, playbook);
-  return trends.map(t => ({
-    executionId: t.sessionId,
-    status: t.tasksFailed > 0 ? 'failed' : 'complete',
-    durationMs: t.durationMs,
-    tasksCompleted: t.tasksComplete,
-    tasksTotal: t.tasksTotal,
-    tasksFailed: t.tasksFailed,
-  })).reverse();
+  return trends
+    .map((t) => ({
+      executionId: t.sessionId,
+      status: t.tasksFailed > 0 ? "failed" : "complete",
+      durationMs: t.durationMs,
+      tasksCompleted: t.tasksComplete,
+      tasksTotal: t.tasksTotal,
+      tasksFailed: t.tasksFailed,
+    }))
+    .reverse();
 }
 
 /**
@@ -165,15 +175,18 @@ export async function readTrends(
   projectDir: string,
   playbook: string,
 ): Promise<PlaybookTrendEntry[]> {
-  const trendsPath = join(getPlaybookJournalDir(projectDir, playbook), 'trends.jsonl');
+  const trendsPath = join(
+    getPlaybookJournalDir(projectDir, playbook),
+    "trends.jsonl",
+  );
   if (!existsSync(trendsPath)) return [];
 
-  const content = await readFile(trendsPath, 'utf8');
+  const content = await readFile(trendsPath, "utf8");
   return content
     .trim()
-    .split('\n')
+    .split("\n")
     .filter(Boolean)
-    .map(line => JSON.parse(line));
+    .map((line) => JSON.parse(line));
 }
 
 /* ------------------------------------------------------------------ */
@@ -181,9 +194,9 @@ export async function readTrends(
 /* ------------------------------------------------------------------ */
 
 async function appendJsonl(path: string, data: unknown): Promise<void> {
-  const line = JSON.stringify(data) + '\n';
-  const { appendFile } = await import('node:fs/promises');
-  const { dirname } = await import('node:path');
+  const line = JSON.stringify(data) + "\n";
+  const { appendFile } = await import("node:fs/promises");
+  const { dirname } = await import("node:path");
   await mkdir(dirname(path), { recursive: true });
-  await appendFile(path, line, 'utf8');
+  await appendFile(path, line, "utf8");
 }

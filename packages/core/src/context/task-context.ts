@@ -9,15 +9,20 @@ import type {
   EpicContext,
   ProjectContext,
   CheckAPI,
-} from './types.ts';
-import type { TaskConfig, TaskStatus } from '../storage/types.ts';
-import type { CheckResult } from '../gap/types.ts';
-import type { JournalAPI } from '../journal/types.ts';
-import { FileSystemAPIImpl, ShellAPIImpl, GitAPIImpl, LoggerAPIImpl } from './base.ts';
-import { ArtifactStore } from '../artifacts/index.ts';
-import { FilesystemStorage } from '../storage/filesystem.ts';
-import { globalRegistry } from '../functions/registry.ts';
-import { createTaskJournalAPI } from '../journal/api.ts';
+} from "./types.ts";
+import type { TaskConfig, TaskStatus } from "../storage/types.ts";
+import type { CheckResult } from "../gap/types.ts";
+import type { JournalAPI } from "../journal/types.ts";
+import {
+  FileSystemAPIImpl,
+  ShellAPIImpl,
+  GitAPIImpl,
+  LoggerAPIImpl,
+} from "./base.ts";
+import { ArtifactStore } from "../artifacts/index.ts";
+import { FilesystemStorage } from "../storage/filesystem.ts";
+import { globalRegistry } from "../functions/registry.ts";
+import { createTaskJournalAPI } from "../journal/api.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Check API Implementation (Task Level)                             */
@@ -26,7 +31,7 @@ import { createTaskJournalAPI } from '../journal/api.ts';
 class TaskCheckAPI implements CheckAPI {
   constructor(
     private ctx: TaskContextImpl,
-    private storage: FilesystemStorage
+    private storage: FilesystemStorage,
   ) {}
 
   async run(checkName: string): Promise<CheckResult> {
@@ -74,29 +79,29 @@ class TaskCheckAPI implements CheckAPI {
 
     if (missingOutputs.length > 0) {
       return {
-        check: 'validate-outputs',
+        check: "validate-outputs",
         passed: false,
         gaps: [
           {
             id: `missing-outputs-${this.ctx.taskId}`,
-            type: 'structural',
-            level: 'task',
+            type: "structural",
+            level: "task",
             scope: this.ctx.taskId,
-            description: `Missing expected outputs: ${missingOutputs.join(', ')}`,
+            description: `Missing expected outputs: ${missingOutputs.join(", ")}`,
             detected: new Date().toISOString(),
             resolved: false,
-            checks: ['validate-outputs'],
+            checks: ["validate-outputs"],
           },
         ],
-        message: `Missing expected outputs: ${missingOutputs.join(', ')}`,
+        message: `Missing expected outputs: ${missingOutputs.join(", ")}`,
       };
     }
 
     return {
-      check: 'validate-outputs',
+      check: "validate-outputs",
       passed: true,
       gaps: [],
-      message: 'All expected outputs present',
+      message: "All expected outputs present",
     };
   }
 }
@@ -106,7 +111,7 @@ class TaskCheckAPI implements CheckAPI {
 /* ------------------------------------------------------------------ */
 
 export class TaskContextImpl implements TaskContext {
-  readonly level = 'task' as const;
+  readonly level = "task" as const;
   readonly projectDir: string;
   readonly convergeDir: string;
   readonly taskId: string;
@@ -129,7 +134,7 @@ export class TaskContextImpl implements TaskContext {
     config: TaskConfig,
     status: TaskStatus,
     epicContext: EpicContext,
-    storage: FilesystemStorage
+    storage: FilesystemStorage,
   ) {
     this.taskId = taskId;
     this.projectDir = epicContext.projectDir;
@@ -153,7 +158,11 @@ export class TaskContextImpl implements TaskContext {
     this.log = new LoggerAPIImpl(`task:${taskId}`);
     this.artifact = new ArtifactStore(this.projectDir);
     this.check = new TaskCheckAPI(this, storage);
-    this.journal = createTaskJournalAPI(this.projectDir, epicContext.epicId, taskId);
+    this.journal = createTaskJournalAPI(
+      this.projectDir,
+      epicContext.epicId,
+      taskId,
+    );
   }
 }
 
@@ -169,7 +178,7 @@ export function createTaskContext(
   config: TaskConfig,
   status: TaskStatus,
   epicContext: EpicContext,
-  storage: FilesystemStorage
+  storage: FilesystemStorage,
 ): TaskContext {
   return new TaskContextImpl(taskId, config, status, epicContext, storage);
 }

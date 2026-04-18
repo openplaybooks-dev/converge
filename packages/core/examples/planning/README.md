@@ -61,17 +61,17 @@ converge plan --prompt "Add offline support" --name my-app --update
 1. `wbs.js` spawns the full pipeline
 2. `000-setup-skills` installs converge-planning skill into `.converge/skills/`
 3. `001-scan` reads your project files, detects stack, maps structure
-3. `002-research` parses your prompt into features, constraints, facts
-4. `003-outline` identifies 3-7 epics with complexity estimates
-5. `003-decompose` reads the outline and spawns one subtask per epic:
+4. `002-research` parses your prompt into features, constraints, facts
+5. `003-outline` identifies 3-7 epics with complexity estimates
+6. `003-decompose` reads the outline and spawns one subtask per epic:
    - Each subtask detail-decomposes its epic into 3-7 tasks
    - If a task is too complex, the subtask flags it for deepening
-6. `003-merge` combines all per-epic plans into a single plan.json
-7. `003-deepen` checks if any tasks were flagged — if yes, spawns
+7. `003-merge` combines all per-epic plans into a single plan.json
+8. `003-deepen` checks if any tasks were flagged — if yes, spawns
    sub-decomposition subtasks (one per oversized task). If no, skips.
-8. `003-finalize` merges deepening results back into plan.json
-9. `004-validate` checks completeness, no broken deps, full coverage
-10. `005-emit` writes the playbook to `.converge/playbooks/<name>/`
+9. `003-finalize` merges deepening results back into plan.json
+10. `004-validate` checks completeness, no broken deps, full coverage
+11. `005-emit` writes the playbook to `.converge/playbooks/<name>/`
 
 After completion:
 

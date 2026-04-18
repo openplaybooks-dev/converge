@@ -6,8 +6,8 @@
  * work to close them.
  */
 
-import { z } from 'zod';
-import type { GapType } from '../storage/types.ts';
+import { z } from "zod";
+import type { GapType } from "../storage/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Gap Kind — single source of truth for metadata.gapKind values     */
@@ -18,18 +18,18 @@ import type { GapType } from '../storage/types.ts';
  * Use GapKind.X instead of raw string literals so TypeScript catches mismatches.
  */
 export const GapKind = {
-  plan:         'plan',
-  wbs:          'wbs',
-  wbsScript:    'wbs-script',
-  blocker:      'blocker',
-  output:       'output',
-  checkFailed:  'check-failed',
-  corrupted:    'corrupted',
-  systemic:     'systemic',
-  userQuestion: 'user-question',
+  plan: "plan",
+  wbs: "wbs",
+  wbsScript: "wbs-script",
+  blocker: "blocker",
+  output: "output",
+  checkFailed: "check-failed",
+  corrupted: "corrupted",
+  systemic: "systemic",
+  userQuestion: "user-question",
 } as const;
 
-export type GapKindValue = typeof GapKind[keyof typeof GapKind];
+export type GapKindValue = (typeof GapKind)[keyof typeof GapKind];
 
 /* ------------------------------------------------------------------ */
 /*  Gap Definition                                                    */
@@ -47,7 +47,7 @@ export interface Gap {
   type: GapType;
 
   /** Scope level */
-  level: 'project' | 'epic' | 'task';
+  level: "project" | "epic" | "task";
 
   /** Scope identifier (project/epic/task ID) */
   scope: string;
@@ -74,7 +74,7 @@ export interface Gap {
   metadata?: Record<string, unknown>;
 
   /** Severity/priority (optional) */
-  severity?: 'critical' | 'high' | 'medium' | 'low';
+  severity?: "critical" | "high" | "medium" | "low";
 
   /** Suggested fix (optional) */
   suggestedFix?: string;
@@ -188,7 +188,7 @@ export interface GapDetectionConfig {
   maxGaps?: number;
 
   /** Severity threshold (ignore gaps below this) */
-  severityThreshold?: Gap['severity'];
+  severityThreshold?: Gap["severity"];
 
   /** Enable parallel check execution */
   parallel?: boolean;
@@ -214,11 +214,11 @@ export interface GapPriority {
  * Prioritization strategy
  */
 export type PrioritizationStrategy =
-  | 'severity' // Sort by severity
-  | 'dependencies' // Resolve blocking gaps first
-  | 'cost' // Cheapest gaps first
-  | 'impact' // Highest impact gaps first
-  | 'custom'; // Custom scoring function
+  | "severity" // Sort by severity
+  | "dependencies" // Resolve blocking gaps first
+  | "cost" // Cheapest gaps first
+  | "impact" // Highest impact gaps first
+  | "custom"; // Custom scoring function
 
 /* ------------------------------------------------------------------ */
 /*  Zod Schemas for Runtime Validation                                */
@@ -226,8 +226,14 @@ export type PrioritizationStrategy =
 
 export const GapSchema = z.object({
   id: z.string(),
-  type: z.enum(['structural', 'semantic', 'quality', 'integration', 'missing-intermediate']),
-  level: z.enum(['project', 'epic', 'task']),
+  type: z.enum([
+    "structural",
+    "semantic",
+    "quality",
+    "integration",
+    "missing-intermediate",
+  ]),
+  level: z.enum(["project", "epic", "task"]),
   scope: z.string(),
   description: z.string(),
   detected: z.string(),
@@ -235,7 +241,7 @@ export const GapSchema = z.object({
   resolvedAt: z.string().optional(),
   checks: z.array(z.string()),
   metadata: z.record(z.unknown()).optional(),
-  severity: z.enum(['critical', 'high', 'medium', 'low']).optional(),
+  severity: z.enum(["critical", "high", "medium", "low"]).optional(),
   suggestedFix: z.string().optional(),
 });
 
@@ -300,13 +306,21 @@ export interface CompactGap {
   /** Gap ID for cross-referencing */
   id: string;
   /** Classification: what kind of problem */
-  kind: 'output' | 'check' | 'input' | 'plan' | 'wbs' | 'structural' | 'corrupted' | 'user-question';
+  kind:
+    | "output"
+    | "check"
+    | "input"
+    | "plan"
+    | "wbs"
+    | "structural"
+    | "corrupted"
+    | "user-question";
   /** Target path or check command */
   target: string;
   /** Brief status string: "missing", "failed: exit 1", "corrupted", "blocked" */
   status: string;
   /** Severity for prioritization */
-  severity?: 'critical' | 'high' | 'medium' | 'low';
+  severity?: "critical" | "high" | "medium" | "low";
 }
 
 /**
@@ -317,55 +331,55 @@ export function toCompactGap(gap: Gap): CompactGap {
   const gapKind = (gap.metadata?.gapKind as string) ?? gap.type;
 
   // Map to compact kind
-  let kind: CompactGap['kind'];
+  let kind: CompactGap["kind"];
   switch (gapKind) {
-    case 'output':
-      kind = 'output';
+    case "output":
+      kind = "output";
       break;
-    case 'check':
-    case 'check-failed':
-      kind = 'check';
+    case "check":
+    case "check-failed":
+      kind = "check";
       break;
-    case 'blocker':
-    case 'missing-input':
-      kind = 'input';
+    case "blocker":
+    case "missing-input":
+      kind = "input";
       break;
-    case 'plan':
-      kind = 'plan';
+    case "plan":
+      kind = "plan";
       break;
-    case 'wbs':
-      kind = 'wbs';
+    case "wbs":
+      kind = "wbs";
       break;
-    case 'corrupted':
-      kind = 'corrupted';
+    case "corrupted":
+      kind = "corrupted";
       break;
-    case 'user-question':
-      kind = 'user-question';
+    case "user-question":
+      kind = "user-question";
       break;
     default:
-      kind = 'structural';
+      kind = "structural";
   }
 
   // Extract target: file path from metadata or description
   const target =
-    (gap.metadata?.inputPattern as string)
-    ?? (gap.metadata?.outputPath as string)
-    ?? (gap.metadata?.checkCmd as string)
-    ?? extractTargetFromDescription(gap.description);
+    (gap.metadata?.inputPattern as string) ??
+    (gap.metadata?.outputPath as string) ??
+    (gap.metadata?.checkCmd as string) ??
+    extractTargetFromDescription(gap.description);
 
   // Build compact status
   let status: string;
-  if (kind === 'output') {
-    status = 'missing';
-  } else if (kind === 'check') {
+  if (kind === "output") {
+    status = "missing";
+  } else if (kind === "check") {
     const exitCode = gap.metadata?.exitCode;
-    status = exitCode !== undefined ? `failed: exit ${exitCode}` : 'failed';
-  } else if (kind === 'input') {
-    status = 'blocked';
-  } else if (kind === 'corrupted') {
-    status = 'corrupted';
+    status = exitCode !== undefined ? `failed: exit ${exitCode}` : "failed";
+  } else if (kind === "input") {
+    status = "blocked";
+  } else if (kind === "corrupted") {
+    status = "corrupted";
   } else {
-    status = gap.resolved ? 'resolved' : 'open';
+    status = gap.resolved ? "resolved" : "open";
   }
 
   return {
@@ -382,15 +396,15 @@ export function toCompactGap(gap: Gap): CompactGap {
  * Returns a concise string suitable for AI prompts.
  */
 export function formatCompactGaps(gaps: Gap[]): string {
-  if (gaps.length === 0) return 'No gaps detected.';
+  if (gaps.length === 0) return "No gaps detected.";
 
   const compact = gaps.map(toCompactGap);
-  const lines = compact.map(g => {
-    const sev = g.severity ? ` [${g.severity}]` : '';
+  const lines = compact.map((g) => {
+    const sev = g.severity ? ` [${g.severity}]` : "";
     return `- [${g.kind}] ${g.target}: ${g.status}${sev}`;
   });
 
-  return `## Current Gaps (${gaps.length})\n${lines.join('\n')}`;
+  return `## Current Gaps (${gaps.length})\n${lines.join("\n")}`;
 }
 
 /** Extract a meaningful target string from gap description */
@@ -400,7 +414,7 @@ function extractTargetFromDescription(description: string): string {
     /Required input missing:\s*(.+)/i,
     /Missing (?:output|file):\s*(.+)/i,
     /Check failed:\s*(.+)/i,
-    /`([^`]+)`/,  // backtick-wrapped path
+    /`([^`]+)`/, // backtick-wrapped path
   ];
 
   for (const pat of patterns) {
@@ -417,7 +431,7 @@ function extractTargetFromDescription(description: string): string {
 /* ------------------------------------------------------------------ */
 
 export interface MissingIntermediateGap extends Gap {
-  type: 'missing-intermediate';
+  type: "missing-intermediate";
   metadata: {
     missingOutputs: string[];
     requiredByTask: string;

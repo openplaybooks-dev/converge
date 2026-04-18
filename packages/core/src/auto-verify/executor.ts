@@ -5,14 +5,11 @@
  * Provides limited APIs (file, shell) and collects validation issues.
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import { glob } from 'glob';
-import type {
-  ConvergeSandboxAPI,
-  ConvergeIssue,
-} from './types.ts';
-import type { ConvergeResult, AutoConvergeConfig } from '../functions/types.ts';
+import * as fs from "fs";
+import * as path from "path";
+import { glob } from "glob";
+import type { ConvergeSandboxAPI, ConvergeIssue } from "./types.ts";
+import type { ConvergeResult, AutoConvergeConfig } from "../functions/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Converge Executor                                                  */
@@ -30,7 +27,7 @@ export class ConvergeExecutor {
    */
   async execute(
     verificationCode: string,
-    config: AutoConvergeConfig
+    config: AutoConvergeConfig,
   ): Promise<ConvergeResult> {
     console.log(`[ConvergeExecutor] Executing verification`);
 
@@ -47,7 +44,7 @@ export class ConvergeExecutor {
       const duration = Date.now() - startTime;
 
       return {
-        passed: issues.filter((i) => i.severity === 'error').length === 0,
+        passed: issues.filter((i) => i.severity === "error").length === 0,
         issues,
         duration,
       };
@@ -59,7 +56,7 @@ export class ConvergeExecutor {
         issues: [
           {
             message: `Verification execution failed: ${error.message}`,
-            severity: 'error',
+            severity: "error",
           },
           ...issues,
         ],
@@ -73,7 +70,7 @@ export class ConvergeExecutor {
    */
   private createSandboxAPI(
     issues: ConvergeIssue[],
-    sandboxLevel: AutoConvergeConfig['sandbox'] = 'strict'
+    sandboxLevel: AutoConvergeConfig["sandbox"] = "strict",
   ): ConvergeSandboxAPI {
     return {
       file: {
@@ -85,7 +82,7 @@ export class ConvergeExecutor {
             throw new Error(`Access denied: ${filePath}`);
           }
 
-          return fs.readFileSync(fullPath, 'utf-8');
+          return fs.readFileSync(fullPath, "utf-8");
         },
 
         exists: async (filePath: string) => {
@@ -109,16 +106,20 @@ export class ConvergeExecutor {
 
       shell: {
         run: async (cmd: string) => {
-          if (sandboxLevel === 'strict') {
-            throw new Error('Shell commands not allowed in strict sandbox mode');
+          if (sandboxLevel === "strict") {
+            throw new Error(
+              "Shell commands not allowed in strict sandbox mode",
+            );
           }
 
           // In real impl, would execute with proper sandboxing
-          console.log(`[ConvergeExecutor] Shell command blocked (not implemented): ${cmd}`);
+          console.log(
+            `[ConvergeExecutor] Shell command blocked (not implemented): ${cmd}`,
+          );
 
           return {
-            stdout: '',
-            stderr: 'Not implemented',
+            stdout: "",
+            stderr: "Not implemented",
             exitCode: 1,
           };
         },
@@ -133,7 +134,7 @@ export class ConvergeExecutor {
    */
   private async executeInSandbox(
     verificationCode: string,
-    sandbox: ConvergeSandboxAPI
+    sandbox: ConvergeSandboxAPI,
   ): Promise<void> {
     // In real implementation, would use vm module or worker_threads for proper isolation
     // For now, use Function constructor (which is safe since we validate the code)
@@ -156,7 +157,7 @@ export class ConvergeExecutor {
     } catch (error: any) {
       sandbox.issues.push({
         message: `Validation error: ${error.message}`,
-        severity: 'error',
+        severity: "error",
       });
     }
   }

@@ -8,11 +8,11 @@
  * 4. The tree command bottom text correctly shows "Parent task executing" + "Next subtask"
  */
 
-import { describe, it, expect } from 'vitest';
-import type { TaskNode, TaskStates } from '../../src/cli/next-task.ts';
+import { describe, it, expect } from "vitest";
+import type { TaskNode, TaskStates } from "../../src/cli/next-task.ts";
 
-describe('Tree Display - Running Task Indicators', () => {
-  it('should mark running parent, epic, and next subtask with ▶ indicator', () => {
+describe("Tree Display - Running Task Indicators", () => {
+  it("should mark running parent, epic, and next subtask with ▶ indicator", () => {
     // Setup: Create a task tree with:
     // - Epic 01-prepare-requirements
     //   - 001-gather-idea-generate-ux (running, parent task)
@@ -21,31 +21,37 @@ describe('Tree Display - Running Task Indicators', () => {
 
     const tree: TaskNode[] = [
       {
-        epicId: '01-prepare-requirements',
-        taskId: '001-gather-idea-generate-ux',
-        filePath: '.converge/epics/01-prepare-requirements/001-gather-idea-generate-ux/TASK.md',
-        relPath: '.converge/epics/01-prepare-requirements/001-gather-idea-generate-ux/TASK.md',
-        journalTaskId: '001-gather-idea-generate-ux',
+        epicId: "01-prepare-requirements",
+        taskId: "001-gather-idea-generate-ux",
+        filePath:
+          ".converge/epics/01-prepare-requirements/001-gather-idea-generate-ux/TASK.md",
+        relPath:
+          ".converge/epics/01-prepare-requirements/001-gather-idea-generate-ux/TASK.md",
+        journalTaskId: "001-gather-idea-generate-ux",
         blocking: true,
-        status: 'running',
+        status: "running",
       },
       {
-        epicId: '02-prepare-designs',
-        taskId: '001-breakdown-ux-to-screens',
-        filePath: '.converge/epics/02-prepare-designs/001-breakdown-ux-to-screens/TASK.md',
-        relPath: '.converge/epics/02-prepare-designs/001-breakdown-ux-to-screens/TASK.md',
-        journalTaskId: '001-breakdown-ux-to-screens',
+        epicId: "02-prepare-designs",
+        taskId: "001-breakdown-ux-to-screens",
+        filePath:
+          ".converge/epics/02-prepare-designs/001-breakdown-ux-to-screens/TASK.md",
+        relPath:
+          ".converge/epics/02-prepare-designs/001-breakdown-ux-to-screens/TASK.md",
+        journalTaskId: "001-breakdown-ux-to-screens",
         blocking: true,
-        status: 'pending',
+        status: "pending",
       },
       {
-        epicId: '02-prepare-designs',
-        taskId: '002-generate-design-system',
-        filePath: '.converge/epics/02-prepare-designs/002-generate-design-system/TASK.md',
-        relPath: '.converge/epics/02-prepare-designs/002-generate-design-system/TASK.md',
-        journalTaskId: '002-generate-design-system',
+        epicId: "02-prepare-designs",
+        taskId: "002-generate-design-system",
+        filePath:
+          ".converge/epics/02-prepare-designs/002-generate-design-system/TASK.md",
+        relPath:
+          ".converge/epics/02-prepare-designs/002-generate-design-system/TASK.md",
+        journalTaskId: "002-generate-design-system",
         blocking: true,
-        status: 'pending',
+        status: "pending",
       },
     ];
 
@@ -61,9 +67,9 @@ describe('Tree Display - Running Task Indicators', () => {
     };
 
     // Test case 1: Running task identification
-    const runningTask = tree.find(n => n.status === 'running');
+    const runningTask = tree.find((n) => n.status === "running");
     expect(runningTask).toBeDefined();
-    expect(runningTask?.journalTaskId).toBe('001-gather-idea-generate-ux');
+    expect(runningTask?.journalTaskId).toBe("001-gather-idea-generate-ux");
 
     // Test case 2: Next task identification (should NOT skip the running task's subtasks)
     // When finding the next task, we should:
@@ -72,18 +78,19 @@ describe('Tree Display - Running Task Indicators', () => {
     // 3. Skip blocked tasks
     // 4. Skip the running parent task itself
     // 5. BUT include the next pending task (even if in a different epic)
-    const nextTask = tree.find(n => {
+    const nextTask = tree.find((n) => {
       if (states.completed.has(n.journalTaskId)) return false;
       if (states.failed.has(n.journalTaskId)) return false;
       if (states.blocked.has(n.journalTaskId)) return false;
       // Skip if this task is the currently running parent
-      if (runningTask && n.journalTaskId === runningTask.journalTaskId) return false;
+      if (runningTask && n.journalTaskId === runningTask.journalTaskId)
+        return false;
       return true;
     });
 
     expect(nextTask).toBeDefined();
-    expect(nextTask?.journalTaskId).toBe('001-breakdown-ux-to-screens');
-    expect(nextTask?.epicId).toBe('02-prepare-designs');
+    expect(nextTask?.journalTaskId).toBe("001-breakdown-ux-to-screens");
+    expect(nextTask?.epicId).toBe("02-prepare-designs");
 
     // Test case 3: Epic indicators
     // Both epics should get ▶ indicator:
@@ -99,8 +106,8 @@ describe('Tree Display - Running Task Indicators', () => {
       epicIdsWithIndicator.add(nextTask.epicId);
     }
 
-    expect(epicIdsWithIndicator.has('01-prepare-requirements')).toBe(true);
-    expect(epicIdsWithIndicator.has('02-prepare-designs')).toBe(true);
+    expect(epicIdsWithIndicator.has("01-prepare-requirements")).toBe(true);
+    expect(epicIdsWithIndicator.has("02-prepare-designs")).toBe(true);
 
     // Test case 4: Task indicators in tree display
     // The tree display should show:
@@ -114,17 +121,19 @@ describe('Tree Display - Running Task Indicators', () => {
     for (const node of tree) {
       const isRunning = runningTask?.journalTaskId === node.journalTaskId;
       const isNext = nextTask?.journalTaskId === node.journalTaskId;
-      const isPending = !states.completed.has(node.journalTaskId) &&
-                        !states.failed.has(node.journalTaskId) &&
-                        !isRunning && !isNext;
+      const isPending =
+        !states.completed.has(node.journalTaskId) &&
+        !states.failed.has(node.journalTaskId) &&
+        !isRunning &&
+        !isNext;
 
-      if (node.journalTaskId === '001-gather-idea-generate-ux') {
+      if (node.journalTaskId === "001-gather-idea-generate-ux") {
         expect(isRunning).toBe(true);
         expect(isNext).toBe(false);
-      } else if (node.journalTaskId === '001-breakdown-ux-to-screens') {
+      } else if (node.journalTaskId === "001-breakdown-ux-to-screens") {
         expect(isRunning).toBe(false);
         expect(isNext).toBe(true);
-      } else if (node.journalTaskId === '002-generate-design-system') {
+      } else if (node.journalTaskId === "002-generate-design-system") {
         expect(isRunning).toBe(false);
         expect(isNext).toBe(false);
         expect(isPending).toBe(true);
@@ -132,63 +141,73 @@ describe('Tree Display - Running Task Indicators', () => {
     }
   });
 
-  it('should handle WBS parent-child relationship correctly', () => {
+  it("should handle WBS parent-child relationship correctly", () => {
     // When a parent WBS task is running and has subtasks,
     // the next subtask should get ▶ indicator
 
     const tree: TaskNode[] = [
       {
-        epicId: '01-prepare-designs',
-        taskId: '003-generate-screens',
-        filePath: '.converge/epics/01-prepare-designs/003-generate-screens/TASK.md',
-        relPath: '.converge/epics/01-prepare-designs/003-generate-screens/TASK.md',
-        journalTaskId: '003-generate-screens',
+        epicId: "01-prepare-designs",
+        taskId: "003-generate-screens",
+        filePath:
+          ".converge/epics/01-prepare-designs/003-generate-screens/TASK.md",
+        relPath:
+          ".converge/epics/01-prepare-designs/003-generate-screens/TASK.md",
+        journalTaskId: "003-generate-screens",
         blocking: true,
-        status: 'running', // Parent WBS task is running
+        status: "running", // Parent WBS task is running
       },
       {
-        epicId: '01-prepare-designs',
-        taskId: '003-001-generate-home-screen',
-        filePath: '.converge/epics/01-prepare-designs/003-generate-screens/tasks/003-001-generate-home-screen/TASK.md',
-        relPath: '.converge/epics/01-prepare-designs/003-generate-screens/tasks/003-001-generate-home-screen/TASK.md',
-        journalTaskId: '003-generate-screens/003-001-generate-home-screen',
-        parentTaskId: '003-generate-screens',
+        epicId: "01-prepare-designs",
+        taskId: "003-001-generate-home-screen",
+        filePath:
+          ".converge/epics/01-prepare-designs/003-generate-screens/tasks/003-001-generate-home-screen/TASK.md",
+        relPath:
+          ".converge/epics/01-prepare-designs/003-generate-screens/tasks/003-001-generate-home-screen/TASK.md",
+        journalTaskId: "003-generate-screens/003-001-generate-home-screen",
+        parentTaskId: "003-generate-screens",
         blocking: true,
-        status: 'pending',
+        status: "pending",
       },
     ];
 
     const states: TaskStates = {
       completed: new Set<string>(),
       failed: new Set<string>(),
-      seeded: new Set(['003-generate-screens']), // Parent is seeded
+      seeded: new Set(["003-generate-screens"]), // Parent is seeded
       locked: new Set<string>(),
       wbsProgress: new Map([
-        ['003-generate-screens', {
-          seeded: true,
-          spawnCount: 1,
-          completedSubtasks: 0,
-          failedSubtasks: 0,
-          subtaskIds: ['003-001-generate-home-screen'],
-        }],
+        [
+          "003-generate-screens",
+          {
+            seeded: true,
+            spawnCount: 1,
+            completedSubtasks: 0,
+            failedSubtasks: 0,
+            subtaskIds: ["003-001-generate-home-screen"],
+          },
+        ],
       ]),
       blocked: new Set<string>(),
       blockingFailures: new Set<string>(),
       failureBlocked: new Set<string>(),
     };
 
-    const runningTask = tree.find(n => n.status === 'running');
-    expect(runningTask?.journalTaskId).toBe('003-generate-screens');
+    const runningTask = tree.find((n) => n.status === "running");
+    expect(runningTask?.journalTaskId).toBe("003-generate-screens");
 
-    const nextTask = tree.find(n => {
+    const nextTask = tree.find((n) => {
       if (states.completed.has(n.journalTaskId)) return false;
       if (states.failed.has(n.journalTaskId)) return false;
       if (states.blocked.has(n.journalTaskId)) return false;
-      if (runningTask && n.journalTaskId === runningTask.journalTaskId) return false;
+      if (runningTask && n.journalTaskId === runningTask.journalTaskId)
+        return false;
       return true;
     });
 
-    expect(nextTask?.journalTaskId).toBe('003-generate-screens/003-001-generate-home-screen');
-    expect(nextTask?.parentTaskId).toBe('003-generate-screens');
+    expect(nextTask?.journalTaskId).toBe(
+      "003-generate-screens/003-001-generate-home-screen",
+    );
+    expect(nextTask?.parentTaskId).toBe("003-generate-screens");
   });
 });

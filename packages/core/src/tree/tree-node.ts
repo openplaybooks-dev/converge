@@ -11,8 +11,8 @@
  * - TreeNode delegates properties to unit (no duplication)
  */
 
-import type { Unit } from '../unit/unit.ts';
-import type { CheckpointManager } from '../checkpoint/manager.ts';
+import type { Unit } from "../unit/unit.ts";
+import type { CheckpointManager } from "../checkpoint/manager.ts";
 
 /**
  * A node in the task tree that wraps a Unit.
@@ -66,7 +66,7 @@ export class TreeNode {
 
   /** Whether this task is blocking (delegates to unit) */
   get blocking(): boolean {
-    return this.unit.blocking !== false;  // Default true
+    return this.unit.blocking !== false; // Default true
   }
 
   /** Tags for dependency matching (delegates to unit) */
@@ -104,8 +104,10 @@ export class TreeNode {
     // Fast path: use injected status cache
     if (this._statusCache) {
       const qualifiedId = this.epicId ? `${this.epicId}/${this.id}` : this.id;
-      return this._statusCache.get(this.id) === 'complete' ||
-             this._statusCache.get(qualifiedId) === 'complete';
+      return (
+        this._statusCache.get(this.id) === "complete" ||
+        this._statusCache.get(qualifiedId) === "complete"
+      );
     }
 
     const completedTasks = await this.checkpoint.getCompletedTasks();
@@ -114,7 +116,9 @@ export class TreeNode {
     // Check both formats for compatibility
     const qualifiedId = this.epicId ? `${this.epicId}/${this.id}` : this.id;
 
-    return completedTasks.includes(this.id) || completedTasks.includes(qualifiedId);
+    return (
+      completedTasks.includes(this.id) || completedTasks.includes(qualifiedId)
+    );
   }
 
   /**
@@ -124,8 +128,10 @@ export class TreeNode {
     // Fast path: use injected status cache
     if (this._statusCache) {
       const qualifiedId = this.epicId ? `${this.epicId}/${this.id}` : this.id;
-      return this._statusCache.get(this.id) === 'failed' ||
-             this._statusCache.get(qualifiedId) === 'failed';
+      return (
+        this._statusCache.get(this.id) === "failed" ||
+        this._statusCache.get(qualifiedId) === "failed"
+      );
     }
 
     return await this.checkpoint.isTaskFailed(this.id);

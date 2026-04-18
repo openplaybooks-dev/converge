@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-dx/001-getting-started",
+  "status": "complete",
+  "lastUpdated": "2026-04-17T23:49:00.258Z",
+  "createdAt": "2026-04-17T23:46:45.163Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-17T23:46:45.163Z",
+      "completedAt": "2026-04-17T23:49:00.255Z",
+      "outcome": "success",
+      "durationMs": 135092
+    }
+  ],
+  "currentAttempt": 1
+}

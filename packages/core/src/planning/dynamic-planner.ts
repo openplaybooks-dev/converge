@@ -5,22 +5,22 @@
  * Plans are generated on-demand and not stored in YAML.
  */
 
-import type { EpicContext } from '../context/types.ts';
-import type { Gap } from '../gap/types.ts';
-import type { TaskConfig } from '../storage/types.ts';
-import type { PlanFnMeta } from '../functions/types.ts';
-import { globalRegistry } from '../functions/registry.ts';
-import { prioritizeGaps, sortByPriority } from '../gap/utils.ts';
+import type { EpicContext } from "../context/types.ts";
+import type { Gap } from "../gap/types.ts";
+import type { TaskConfig } from "../storage/types.ts";
+import type { PlanFnMeta } from "../functions/types.ts";
+import { globalRegistry } from "../functions/registry.ts";
+import { prioritizeGaps, sortByPriority } from "../gap/utils.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Planning Strategy                                                 */
 /* ------------------------------------------------------------------ */
 
 export type PlanningStrategy =
-  | 'priority' // Use gap priority
-  | 'type' // Group by gap type
-  | 'dependency' // Resolve dependencies first
-  | 'cost'; // Cheapest first
+  | "priority" // Use gap priority
+  | "type" // Group by gap type
+  | "dependency" // Resolve dependencies first
+  | "cost"; // Cheapest first
 
 /* ------------------------------------------------------------------ */
 /*  Dynamic Planner                                                   */
@@ -33,18 +33,22 @@ export class DynamicPlanner {
   async planFromGaps(
     ctx: EpicContext,
     gaps: Gap[],
-    strategy: PlanningStrategy = 'priority'
+    strategy: PlanningStrategy = "priority",
   ): Promise<TaskConfig[]> {
     if (gaps.length === 0) {
-      ctx.log.debug('No gaps to plan for');
+      ctx.log.debug("No gaps to plan for");
       return [];
     }
 
-    ctx.log.info(`Planning tasks from ${gaps.length} gaps using strategy: ${strategy}`);
+    ctx.log.info(
+      `Planning tasks from ${gaps.length} gaps using strategy: ${strategy}`,
+    );
 
     // Prioritize gaps
     const prioritized = this.prioritizeGaps(gaps, strategy);
-    ctx.log.debug(`Prioritized gaps: ${prioritized.map((p) => `${p.gap.id} (${p.score})`).join(', ')}`);
+    ctx.log.debug(
+      `Prioritized gaps: ${prioritized.map((p) => `${p.gap.id} (${p.score})`).join(", ")}`,
+    );
 
     // Get all plan functions
     const planFns = this.getPlanFunctions();
@@ -56,19 +60,25 @@ export class DynamicPlanner {
     for (const planMeta of planFns) {
       // Filter gaps this planner can handle
       const relevantGaps = planMeta.gapTypes
-        ? prioritized.filter((p) => planMeta.gapTypes!.includes(p.gap.type)).map((p) => p.gap)
+        ? prioritized
+            .filter((p) => planMeta.gapTypes!.includes(p.gap.type))
+            .map((p) => p.gap)
         : prioritized.map((p) => p.gap);
 
       if (relevantGaps.length === 0) {
-        ctx.log.debug(`Planner "${planMeta.name}" has no relevant gaps, skipping`);
+        ctx.log.debug(
+          `Planner "${planMeta.name}" has no relevant gaps, skipping`,
+        );
         continue;
       }
 
       try {
-        ctx.log.debug(`Running planner "${planMeta.name}" for ${relevantGaps.length} gaps`);
+        ctx.log.debug(
+          `Running planner "${planMeta.name}" for ${relevantGaps.length} gaps`,
+        );
         const tasks = await planMeta.fn(ctx, relevantGaps);
         ctx.log.info(
-          `Planner "${planMeta.name}" generated ${tasks.length} tasks from ${relevantGaps.length} gaps`
+          `Planner "${planMeta.name}" generated ${tasks.length} tasks from ${relevantGaps.length} gaps`,
         );
         allTasks.push(...tasks);
       } catch (error: any) {
@@ -78,7 +88,9 @@ export class DynamicPlanner {
 
     // Deduplicate tasks by ID
     const uniqueTasks = this.deduplicateTasks(allTasks);
-    ctx.log.info(`Generated ${uniqueTasks.length} unique tasks from ${gaps.length} gaps`);
+    ctx.log.info(
+      `Generated ${uniqueTasks.length} unique tasks from ${gaps.length} gaps`,
+    );
 
     return uniqueTasks;
   }
@@ -123,25 +135,25 @@ export class DynamicPlanner {
    */
   private prioritizeGaps(
     gaps: Gap[],
-    strategy: PlanningStrategy
+    strategy: PlanningStrategy,
   ): Array<{ gap: Gap; score: number; reason: string }> {
     switch (strategy) {
-      case 'priority':
-        return sortByPriority(prioritizeGaps(gaps, 'severity'));
+      case "priority":
+        return sortByPriority(prioritizeGaps(gaps, "severity"));
 
-      case 'type':
+      case "type":
         // Group by type, prioritize structural > semantic > quality
-        return sortByPriority(prioritizeGaps(gaps, 'cost'));
+        return sortByPriority(prioritizeGaps(gaps, "cost"));
 
-      case 'dependency':
+      case "dependency":
         // Project > Epic > Task
-        return sortByPriority(prioritizeGaps(gaps, 'impact'));
+        return sortByPriority(prioritizeGaps(gaps, "impact"));
 
-      case 'cost':
-        return sortByPriority(prioritizeGaps(gaps, 'cost'));
+      case "cost":
+        return sortByPriority(prioritizeGaps(gaps, "cost"));
 
       default:
-        return sortByPriority(prioritizeGaps(gaps, 'severity'));
+        return sortByPriority(prioritizeGaps(gaps, "severity"));
     }
   }
 
@@ -194,7 +206,7 @@ export class AdaptivePlanner extends DynamicPlanner {
     const strategy = this.selectStrategy(successRate);
 
     ctx.log.info(
-      `Adaptive planning: success rate ${(successRate * 100).toFixed(1)}%, using ${strategy} strategy`
+      `Adaptive planning: success rate ${(successRate * 100).toFixed(1)}%, using ${strategy} strategy`,
     );
 
     const tasks = await this.planFromGaps(ctx, gaps, strategy);
@@ -242,13 +254,13 @@ export class AdaptivePlanner extends DynamicPlanner {
   private selectStrategy(successRate: number): PlanningStrategy {
     if (successRate < 0.3) {
       // Low success rate - try cheaper tasks first
-      return 'cost';
+      return "cost";
     } else if (successRate < 0.6) {
       // Medium success rate - focus on dependencies
-      return 'dependency';
+      return "dependency";
     } else {
       // High success rate - stick with priority
-      return 'priority';
+      return "priority";
     }
   }
 }

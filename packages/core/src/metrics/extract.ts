@@ -1,70 +1,92 @@
-import { readFileSync, existsSync } from 'node:fs';
-import { join, sep } from 'node:path';
-import { glob } from 'glob';
-import type { SessionMetrics, AggregateMetrics, ToolCallSummary, ModelUsage, CheckpointMetrics, CheckpointSummary } from './types.ts';
+import { readFileSync, existsSync } from "node:fs";
+import { join, sep } from "node:path";
+import { glob } from "glob";
+import type {
+  SessionMetrics,
+  AggregateMetrics,
+  ToolCallSummary,
+  ModelUsage,
+  CheckpointMetrics,
+  CheckpointSummary,
+} from "./types.ts";
 
 /** Derive epic/task/attempt from a log file path (supports both old epics and new tasks formats) */
-export function parseLogPath(logFile: string): { epic: string; task: string; attempt: number } {
+export function parseLogPath(logFile: string): {
+  epic: string;
+  task: string;
+  attempt: number;
+} {
   const parts = logFile.split(sep);
 
   // Try old epics format: epics/<epic>/[tasks/<task>/...]/attempts/<N>/logs/<file>.log
-  let epicsIdx = parts.indexOf('epics');
+  let epicsIdx = parts.indexOf("epics");
   if (epicsIdx !== -1) {
-    const epicName = parts[epicsIdx + 1] ?? '';
-    const attemptsIdx = parts.indexOf('attempts', epicsIdx);
+    const epicName = parts[epicsIdx + 1] ?? "";
+    const attemptsIdx = parts.indexOf("attempts", epicsIdx);
     const taskParts: string[] = [];
     for (let i = epicsIdx + 2; i < attemptsIdx; i++) {
-      if (parts[i] !== 'tasks') taskParts.push(parts[i]);
+      if (parts[i] !== "tasks") taskParts.push(parts[i]);
     }
-    const taskName = taskParts.join('/');
-    const attemptNum = parseInt(parts[attemptsIdx + 1] ?? '0', 10);
+    const taskName = taskParts.join("/");
+    const attemptNum = parseInt(parts[attemptsIdx + 1] ?? "0", 10);
     return { epic: epicName, task: taskName, attempt: attemptNum };
   }
 
   // Try new tasks format: tasks/<epic>/[tasks/<task>/...]/attempts/<N>/logs/<file>.log
-  const tasksIdx = parts.indexOf('tasks');
+  const tasksIdx = parts.indexOf("tasks");
   if (tasksIdx !== -1) {
     // First segment after 'tasks' is the epic
-    const epicName = parts[tasksIdx + 1] ?? 'default';
+    const epicName = parts[tasksIdx + 1] ?? "default";
     // Find 'attempts' and collect everything between 'tasks' and 'attempts' as task path
-    const attemptsIdx = parts.indexOf('attempts', tasksIdx);
+    const attemptsIdx = parts.indexOf("attempts", tasksIdx);
     const taskParts: string[] = [];
     for (let i = tasksIdx + 2; i < attemptsIdx; i++) {
-      if (parts[i] !== 'tasks') taskParts.push(parts[i]);
+      if (parts[i] !== "tasks") taskParts.push(parts[i]);
     }
-    const taskName = taskParts.join('/');
-    const attemptNum = parseInt(parts[attemptsIdx + 1] ?? '0', 10);
+    const taskName = taskParts.join("/");
+    const attemptNum = parseInt(parts[attemptsIdx + 1] ?? "0", 10);
     return { epic: epicName, task: taskName, attempt: attemptNum };
   }
 
-  return { epic: '', task: '', attempt: 0 };
+  return { epic: "", task: "", attempt: 0 };
 }
 
 /** Extract tool call stats from an .index.jsonl file */
 export function extractToolCalls(indexFile: string): ToolCallSummary[] {
   if (!existsSync(indexFile)) return [];
 
-  const content = readFileSync(indexFile, 'utf-8');
-  const lines = content.trim().split('\n').filter(Boolean);
+  const content = readFileSync(indexFile, "utf-8");
+  const lines = content.trim().split("\n").filter(Boolean);
 
-  const calls = new Map<string, { count: number; successCount: number; failCount: number }>();
+  const calls = new Map<
+    string,
+    { count: number; successCount: number; failCount: number }
+  >();
   // Track tool name by tool_use_id for matching results back
   const idToTool = new Map<string, string>();
 
   for (const line of lines) {
     let event: any;
-    try { event = JSON.parse(line); } catch { continue; }
-    if (event.type !== 'tool') continue;
+    try {
+      event = JSON.parse(line);
+    } catch {
+      continue;
+    }
+    if (event.type !== "tool") continue;
 
-    if (event.event === 'call') {
+    if (event.event === "call") {
       const tool = event.data?.tool;
       if (!tool) continue;
       const id = event.data?.id;
       if (id) idToTool.set(id, tool);
-      const entry = calls.get(tool) ?? { count: 0, successCount: 0, failCount: 0 };
+      const entry = calls.get(tool) ?? {
+        count: 0,
+        successCount: 0,
+        failCount: 0,
+      };
       entry.count++;
       calls.set(tool, entry);
-    } else if (event.event === 'result') {
+    } else if (event.event === "result") {
       const toolUseId = event.data?.tool_use_id;
       const tool = toolUseId ? idToTool.get(toolUseId) : undefined;
       if (!tool) continue;
@@ -78,12 +100,18 @@ export function extractToolCalls(indexFile: string): ToolCallSummary[] {
     }
   }
 
-  return Array.from(calls.entries()).map(([tool, stats]) => ({ tool, ...stats }));
+  return Array.from(calls.entries()).map(([tool, stats]) => ({
+    tool,
+    ...stats,
+  }));
 }
 
 /** Extract session metrics from a single .log file */
-export function extractSessionMetrics(logFile: string, indexFile?: string): SessionMetrics | null {
-  const content = readFileSync(logFile, 'utf-8');
+export function extractSessionMetrics(
+  logFile: string,
+  indexFile?: string,
+): SessionMetrics | null {
+  const content = readFileSync(logFile, "utf-8");
 
   // Find the first [STDOUT] {"type":"result",...} line
   const resultLineRegex = /^\[([^\]]+)\] \[STDOUT\] (\{"type":"result".+)$/m;
@@ -92,22 +120,29 @@ export function extractSessionMetrics(logFile: string, indexFile?: string): Sess
 
   const timestamp = match[1];
   let result: any;
-  try { result = JSON.parse(match[2]); } catch { return null; }
+  try {
+    result = JSON.parse(match[2]);
+  } catch {
+    return null;
+  }
 
   const { epic, task, attempt } = parseLogPath(logFile);
 
   const usage = result.usage ?? {};
   const modelUsage = result.modelUsage ?? {};
 
-  const models: ModelUsage[] = Object.entries(modelUsage).map(([model, data]: [string, any]) => ({
-    model,
-    inputTokens: data.inputTokens ?? 0,
-    outputTokens: data.outputTokens ?? 0,
-    costUSD: data.costUSD ?? 0,
-  }));
+  const models: ModelUsage[] = Object.entries(modelUsage).map(
+    ([model, data]: [string, any]) => ({
+      model,
+      inputTokens: data.inputTokens ?? 0,
+      outputTokens: data.outputTokens ?? 0,
+      costUSD: data.costUSD ?? 0,
+    }),
+  );
 
   // Determine index file path if not provided
-  const resolvedIndexFile = indexFile ?? logFile.replace(/\.log$/, '.index.jsonl');
+  const resolvedIndexFile =
+    indexFile ?? logFile.replace(/\.log$/, ".index.jsonl");
   const toolCalls = extractToolCalls(resolvedIndexFile);
   const totalToolCalls = toolCalls.reduce((sum, t) => sum + t.count, 0);
 
@@ -116,8 +151,8 @@ export function extractSessionMetrics(logFile: string, indexFile?: string): Sess
     epic,
     task,
     attempt,
-    timestamp: timestamp ?? '',
-    success: result.subtype === 'success' && !result.is_error,
+    timestamp: timestamp ?? "",
+    success: result.subtype === "success" && !result.is_error,
     totalCostUsd: result.total_cost_usd ?? 0,
     inputTokens: usage.input_tokens ?? 0,
     outputTokens: usage.output_tokens ?? 0,
@@ -145,21 +180,25 @@ interface SessionEventData {
 function extractSessionEventsData(eventsPath: string): SessionEventData[] {
   if (!existsSync(eventsPath)) return [];
 
-  const content = readFileSync(eventsPath, 'utf-8');
-  const lines = content.trim().split('\n').filter(Boolean);
+  const content = readFileSync(eventsPath, "utf-8");
+  const lines = content.trim().split("\n").filter(Boolean);
 
   const sessions: SessionEventData[] = [];
 
   for (const line of lines) {
     let event: any;
-    try { event = JSON.parse(line); } catch { continue; }
+    try {
+      event = JSON.parse(line);
+    } catch {
+      continue;
+    }
 
-    if (event.eventType === 'TASK_ATTEMPT_COMPLETE') {
+    if (event.eventType === "TASK_ATTEMPT_COMPLETE") {
       const meta = event.metadata ?? {};
-      const taskId = meta.taskId ?? '';
-      const segments = taskId.split('/');
-      const epic = meta.epicId ?? segments[0] ?? 'default';
-      const task = segments.length > 1 ? segments.slice(1).join('/') : taskId;
+      const taskId = meta.taskId ?? "";
+      const segments = taskId.split("/");
+      const epic = meta.epicId ?? segments[0] ?? "default";
+      const task = segments.length > 1 ? segments.slice(1).join("/") : taskId;
 
       sessions.push({
         epic,
@@ -167,7 +206,7 @@ function extractSessionEventsData(eventsPath: string): SessionEventData[] {
         attempt: meta.attempt ?? 0,
         success: meta.success ?? false,
         durationMs: meta.duration ?? 0,
-        timestamp: event.timestamp ?? '',
+        timestamp: event.timestamp ?? "",
       });
     }
   }
@@ -176,14 +215,20 @@ function extractSessionEventsData(eventsPath: string): SessionEventData[] {
 }
 
 /** Extract all session metrics from sessions directory (new playbook format) */
-async function extractAllSessionsFromDir(sessionsDir: string): Promise<SessionMetrics[]> {
+async function extractAllSessionsFromDir(
+  sessionsDir: string,
+): Promise<SessionMetrics[]> {
   if (!existsSync(sessionsDir)) return [];
 
-  const entries = await glob('*', { cwd: sessionsDir, absolute: true, onlyDirectories: true });
+  const entries = await glob("*", {
+    cwd: sessionsDir,
+    absolute: true,
+    onlyDirectories: true,
+  });
   const sessions: SessionMetrics[] = [];
 
   for (const sessionPath of entries) {
-    const eventsPath = join(sessionPath, 'events.jsonl');
+    const eventsPath = join(sessionPath, "events.jsonl");
     if (!existsSync(eventsPath)) continue;
 
     const taskAttempts = extractSessionEventsData(eventsPath);
@@ -214,27 +259,35 @@ async function extractAllSessionsFromDir(sessionsDir: string): Promise<SessionMe
 }
 
 /** Extract all session metrics from a journal directory */
-export async function extractAll(journalDir: string): Promise<SessionMetrics[]> {
+export async function extractAll(
+  journalDir: string,
+): Promise<SessionMetrics[]> {
   const sessions: SessionMetrics[] = [];
 
   // Try old epics format: journalDir/epics/{epic}/{task}/attempts/*/logs/*_*.log
-  const epicsPattern = 'epics/**/attempts/*/logs/*_*.log';
-  const epicsLogFiles = await glob(epicsPattern, { cwd: journalDir, absolute: true });
+  const epicsPattern = "epics/**/attempts/*/logs/*_*.log";
+  const epicsLogFiles = await glob(epicsPattern, {
+    cwd: journalDir,
+    absolute: true,
+  });
   for (const logFile of epicsLogFiles) {
     const metrics = extractSessionMetrics(logFile);
     if (metrics) sessions.push(metrics);
   }
 
   // Try tasks format (new playbook structure): journalDir/tasks/{epic}/{task}/attempts/*/logs/*_*.log
-  const tasksPattern = 'tasks/**/attempts/*/logs/*_*.log';
-  const tasksLogFiles = await glob(tasksPattern, { cwd: journalDir, absolute: true });
+  const tasksPattern = "tasks/**/attempts/*/logs/*_*.log";
+  const tasksLogFiles = await glob(tasksPattern, {
+    cwd: journalDir,
+    absolute: true,
+  });
   for (const logFile of tasksLogFiles) {
     const metrics = extractSessionMetrics(logFile);
     if (metrics) sessions.push(metrics);
   }
 
   // Also try new playbook/sessions format: journalDir/sessions/{sessionId}/events.jsonl
-  const sessionsDir = join(journalDir, 'sessions');
+  const sessionsDir = join(journalDir, "sessions");
   if (existsSync(sessionsDir)) {
     const pbSessions = await extractAllSessionsFromDir(sessionsDir);
     sessions.push(...pbSessions);
@@ -248,25 +301,40 @@ export async function extractAll(journalDir: string): Promise<SessionMetrics[]> 
 /** Aggregate an array of session metrics */
 export function aggregate(sessions: SessionMetrics[]): AggregateMetrics {
   const sessionCount = sessions.length;
-  const successCount = sessions.filter(s => s.success).length;
+  const successCount = sessions.filter((s) => s.success).length;
   const failCount = sessionCount - successCount;
 
   const totalCostUsd = sessions.reduce((sum, s) => sum + s.totalCostUsd, 0);
   const totalInputTokens = sessions.reduce((sum, s) => sum + s.inputTokens, 0);
-  const totalOutputTokens = sessions.reduce((sum, s) => sum + s.outputTokens, 0);
-  const totalCacheReadTokens = sessions.reduce((sum, s) => sum + s.cacheReadTokens, 0);
-  const totalCacheCreationTokens = sessions.reduce((sum, s) => sum + s.cacheCreationTokens, 0);
+  const totalOutputTokens = sessions.reduce(
+    (sum, s) => sum + s.outputTokens,
+    0,
+  );
+  const totalCacheReadTokens = sessions.reduce(
+    (sum, s) => sum + s.cacheReadTokens,
+    0,
+  );
+  const totalCacheCreationTokens = sessions.reduce(
+    (sum, s) => sum + s.cacheCreationTokens,
+    0,
+  );
   const totalDurationMs = sessions.reduce((sum, s) => sum + s.durationMs, 0);
   const totalTurns = sessions.reduce((sum, s) => sum + s.numTurns, 0);
 
-  const totalCacheRelated = totalCacheReadTokens + totalInputTokens + totalCacheCreationTokens;
-  const cacheHitRate = totalCacheRelated > 0 ? totalCacheReadTokens / totalCacheRelated : 0;
+  const totalCacheRelated =
+    totalCacheReadTokens + totalInputTokens + totalCacheCreationTokens;
+  const cacheHitRate =
+    totalCacheRelated > 0 ? totalCacheReadTokens / totalCacheRelated : 0;
 
   // Tool breakdown
-  const toolBreakdown: AggregateMetrics['toolBreakdown'] = {};
+  const toolBreakdown: AggregateMetrics["toolBreakdown"] = {};
   for (const s of sessions) {
     for (const tc of s.toolCalls) {
-      const entry = toolBreakdown[tc.tool] ?? { calls: 0, successes: 0, failures: 0 };
+      const entry = toolBreakdown[tc.tool] ?? {
+        calls: 0,
+        successes: 0,
+        failures: 0,
+      };
       entry.calls += tc.count;
       entry.successes += tc.successCount;
       entry.failures += tc.failCount;
@@ -275,10 +343,15 @@ export function aggregate(sessions: SessionMetrics[]): AggregateMetrics {
   }
 
   // Model breakdown
-  const modelBreakdown: AggregateMetrics['modelBreakdown'] = {};
+  const modelBreakdown: AggregateMetrics["modelBreakdown"] = {};
   for (const s of sessions) {
     for (const m of s.models) {
-      const entry = modelBreakdown[m.model] ?? { sessions: 0, costUSD: 0, inputTokens: 0, outputTokens: 0 };
+      const entry = modelBreakdown[m.model] ?? {
+        sessions: 0,
+        costUSD: 0,
+        inputTokens: 0,
+        outputTokens: 0,
+      };
       entry.sessions++;
       entry.costUSD += m.costUSD;
       entry.inputTokens += m.inputTokens;
@@ -332,37 +405,49 @@ export function groupBy(
 /* ------------------------------------------------------------------ */
 
 /** Parse checkpoint.json path to derive epic/task and level (supports both old epics and new tasks formats) */
-function parseCheckpointPath(filePath: string): { epic: string; task: string; level: 'epic' | 'task' } {
+function parseCheckpointPath(filePath: string): {
+  epic: string;
+  task: string;
+  level: "epic" | "task";
+} {
   const parts = filePath.split(sep);
 
   // Try old epics format first
-  const epicsIdx = parts.indexOf('epics');
+  const epicsIdx = parts.indexOf("epics");
   if (epicsIdx !== -1) {
-    const epicName = parts[epicsIdx + 1] ?? '';
-    const afterEpic = parts.slice(epicsIdx + 2).filter(p => p !== 'checkpoint.json');
-    const taskParts = afterEpic.filter(p => p !== 'tasks');
+    const epicName = parts[epicsIdx + 1] ?? "";
+    const afterEpic = parts
+      .slice(epicsIdx + 2)
+      .filter((p) => p !== "checkpoint.json");
+    const taskParts = afterEpic.filter((p) => p !== "tasks");
     if (taskParts.length === 0) {
-      return { epic: epicName, task: '', level: 'epic' };
+      return { epic: epicName, task: "", level: "epic" };
     }
-    return { epic: epicName, task: taskParts.join('/'), level: 'task' };
+    return { epic: epicName, task: taskParts.join("/"), level: "task" };
   }
 
   // Try new tasks format (playbook structure)
-  const tasksIdx = parts.indexOf('tasks');
+  const tasksIdx = parts.indexOf("tasks");
   if (tasksIdx !== -1) {
-    const afterTasks = parts.slice(tasksIdx + 1).filter(p => p !== 'checkpoint.json');
+    const afterTasks = parts
+      .slice(tasksIdx + 1)
+      .filter((p) => p !== "checkpoint.json");
     if (afterTasks.length === 0) {
-      return { epic: '', task: '', level: 'task' };
+      return { epic: "", task: "", level: "task" };
     }
     if (afterTasks.length === 1) {
-      return { epic: afterTasks[0], task: '', level: 'epic' };
+      return { epic: afterTasks[0], task: "", level: "epic" };
     }
     const epic = afterTasks[0];
-    const taskParts = afterTasks.slice(1).filter(p => p !== 'tasks');
-    return { epic, task: taskParts.join('/'), level: taskParts.length > 0 ? 'task' : 'epic' };
+    const taskParts = afterTasks.slice(1).filter((p) => p !== "tasks");
+    return {
+      epic,
+      task: taskParts.join("/"),
+      level: taskParts.length > 0 ? "task" : "epic",
+    };
   }
 
-  return { epic: '', task: '', level: 'task' };
+  return { epic: "", task: "", level: "task" };
 }
 
 /** Extract metrics from a single checkpoint.json */
@@ -370,21 +455,28 @@ export function extractCheckpoint(filePath: string): CheckpointMetrics | null {
   if (!existsSync(filePath)) return null;
 
   let data: any;
-  try { data = JSON.parse(readFileSync(filePath, 'utf-8')); } catch { return null; }
+  try {
+    data = JSON.parse(readFileSync(filePath, "utf-8"));
+  } catch {
+    return null;
+  }
 
   const { epic, task, level } = parseCheckpointPath(filePath);
   const attempts = (data.attempts ?? []).map((a: any) => ({
     attempt: a.attempt ?? 0,
-    outcome: a.outcome ?? 'unknown',
+    outcome: a.outcome ?? "unknown",
     durationMs: a.durationMs ?? 0,
   }));
 
   const totalAttempts = attempts.length;
-  const durationMs = attempts.reduce((sum: number, a: any) => sum + (a.durationMs ?? 0), 0);
+  const durationMs = attempts.reduce(
+    (sum: number, a: any) => sum + (a.durationMs ?? 0),
+    0,
+  );
 
   return {
-    id: data.id ?? '',
-    status: data.status ?? 'unknown',
+    id: data.id ?? "",
+    status: data.status ?? "unknown",
     level,
     epic,
     task,
@@ -399,20 +491,28 @@ export function extractCheckpoint(filePath: string): CheckpointMetrics | null {
 }
 
 /** Extract all checkpoints from a journal directory (supports both old epics and new tasks formats) */
-export async function extractAllCheckpoints(journalDir: string): Promise<CheckpointMetrics[]> {
+export async function extractAllCheckpoints(
+  journalDir: string,
+): Promise<CheckpointMetrics[]> {
   const checkpoints: CheckpointMetrics[] = [];
 
   // Try old epics format
-  const epicsPattern = 'epics/**/checkpoint.json';
-  const epicsFiles = await glob(epicsPattern, { cwd: journalDir, absolute: true });
+  const epicsPattern = "epics/**/checkpoint.json";
+  const epicsFiles = await glob(epicsPattern, {
+    cwd: journalDir,
+    absolute: true,
+  });
   for (const file of epicsFiles) {
     const cp = extractCheckpoint(file);
     if (cp) checkpoints.push(cp);
   }
 
   // Try new tasks format (playbook structure)
-  const tasksPattern = 'tasks/**/checkpoint.json';
-  const tasksFiles = await glob(tasksPattern, { cwd: journalDir, absolute: true });
+  const tasksPattern = "tasks/**/checkpoint.json";
+  const tasksFiles = await glob(tasksPattern, {
+    cwd: journalDir,
+    absolute: true,
+  });
   for (const file of tasksFiles) {
     const cp = extractCheckpoint(file);
     if (cp) checkpoints.push(cp);
@@ -422,20 +522,22 @@ export async function extractAllCheckpoints(journalDir: string): Promise<Checkpo
 }
 
 /** Summarize checkpoint metrics */
-export function summarizeCheckpoints(checkpoints: CheckpointMetrics[]): CheckpointSummary {
-  const epics = checkpoints.filter(c => c.level === 'epic');
-  const tasks = checkpoints.filter(c => c.level === 'task');
+export function summarizeCheckpoints(
+  checkpoints: CheckpointMetrics[],
+): CheckpointSummary {
+  const epics = checkpoints.filter((c) => c.level === "epic");
+  const tasks = checkpoints.filter((c) => c.level === "task");
 
-  const completedTasks = tasks.filter(t => t.status === 'complete').length;
-  const failedTasks = tasks.filter(t => t.status === 'failed').length;
-  const pendingTasks = tasks.filter(t => t.status === 'pending').length;
-  const interruptedTasks = tasks.filter(t =>
-    t.attempts.some(a => a.outcome === 'interrupted')
+  const completedTasks = tasks.filter((t) => t.status === "complete").length;
+  const failedTasks = tasks.filter((t) => t.status === "failed").length;
+  const pendingTasks = tasks.filter((t) => t.status === "pending").length;
+  const interruptedTasks = tasks.filter((t) =>
+    t.attempts.some((a) => a.outcome === "interrupted"),
   ).length;
 
   const totalAttempts = tasks.reduce((sum, t) => sum + t.totalAttempts, 0);
   const totalRetries = tasks.reduce((sum, t) => sum + t.retries, 0);
-  const tasksWithRetries = tasks.filter(t => t.retries > 0).length;
+  const tasksWithRetries = tasks.filter((t) => t.retries > 0).length;
 
   const totalDurationMs = tasks.reduce((sum, t) => sum + t.durationMs, 0);
 

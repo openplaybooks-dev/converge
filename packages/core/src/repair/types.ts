@@ -9,8 +9,8 @@
  * in priority order until one succeeds or all are exhausted.
  */
 
-import type { Gap } from '../gap/types.ts';
-import type { ExecutionTimeline } from './timeline.ts';
+import type { Gap } from "../gap/types.ts";
+import type { ExecutionTimeline } from "./timeline.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Journal context                                                    */
@@ -33,14 +33,15 @@ export interface JournalContext {
  * Retry mode for successful repairs - controls what happens after fix
  */
 export type RetryMode =
-  | 'full'       // Full task re-execution (new attempt) - DEFAULT
-  | 'validate'   // Just rerun validation checks (no new attempt)
-  | 'none'       // No retry needed (fix is self-sufficient)
-  | 'rerun'      // Re-execute the task (e.g., after user answer received)
-  | {            // Backoff: Run dependencies first, then retry current task
-      type: 'backoff';
-      runFirst: string[];     // Task IDs that must run before retrying current task
-      reason: string;         // Human-readable explanation
+  | "full" // Full task re-execution (new attempt) - DEFAULT
+  | "validate" // Just rerun validation checks (no new attempt)
+  | "none" // No retry needed (fix is self-sufficient)
+  | "rerun" // Re-execute the task (e.g., after user answer received)
+  | {
+      // Backoff: Run dependencies first, then retry current task
+      type: "backoff";
+      runFirst: string[]; // Task IDs that must run before retrying current task
+      reason: string; // Human-readable explanation
     };
 
 /**
@@ -50,13 +51,13 @@ export type StrategyOutcome =
   | {
       success: true;
       reason: string;
-      retryMode?: RetryMode;  // Defaults to 'full' if omitted
+      retryMode?: RetryMode; // Defaults to 'full' if omitted
       metadata?: Record<string, unknown>;
     }
   | {
       success: false;
       reason: string;
-      shouldRetry?: boolean;  // Controls retry within same strategy
+      shouldRetry?: boolean; // Controls retry within same strategy
       metadata?: Record<string, unknown>;
     };
 
@@ -71,7 +72,7 @@ export interface StrategyContext {
   /** 1-based attempt number across all strategies in this resolution call */
   attempt: number;
   /** AI context for running agents (lazy-initialized) */
-  ai?: () => import('../ai/context.ts').AIContext;
+  ai?: () => import("../ai/context.ts").AIContext;
   /** Filesystem helpers (lazy-initialized) */
   filesystem?: () => FilesystemHelper;
   /** Task metadata access (lazy-initialized) */
@@ -155,13 +156,21 @@ export interface FixStrategy {
    * Use to read previous attempt archives and inject failure context into the new wip.
    * @param prevAttemptDirs Sorted list of archived attempt dirs (01/, 02/, etc.)
    */
-  preTask?(gap: Gap, ctx: StrategyContext, prevAttemptDirs: string[]): Promise<void>;
+  preTask?(
+    gap: Gap,
+    ctx: StrategyContext,
+    prevAttemptDirs: string[],
+  ): Promise<void>;
 
   /**
    * Called AFTER tryFix returns.
    * Use to write LEARN.md or other feedback files for the next attempt.
    */
-  postTask?(gap: Gap, ctx: StrategyContext, outcome: StrategyOutcome): Promise<void>;
+  postTask?(
+    gap: Gap,
+    ctx: StrategyContext,
+    outcome: StrategyOutcome,
+  ): Promise<void>;
 }
 
 /* ------------------------------------------------------------------ */

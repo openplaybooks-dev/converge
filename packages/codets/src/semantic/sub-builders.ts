@@ -7,9 +7,12 @@
  */
 
 import type {
-  ExprNode, PropEntry, StmtNode,
-  ObjectExpr, ArrayExpr,
-} from './nodes.ts';
+  ExprNode,
+  PropEntry,
+  StmtNode,
+  ObjectExpr,
+  ArrayExpr,
+} from "./nodes.ts";
 
 // ── Identifier validation ────────────────────────────────────────────
 
@@ -30,29 +33,43 @@ function validateIdentifier(name: string): string {
  */
 export class ExprHelper {
   /** String literal with automatic escaping at render time. */
-  str(value: string): ExprNode { return { kind: 'string', value }; }
+  str(value: string): ExprNode {
+    return { kind: "string", value };
+  }
 
   /** Numeric literal. */
-  num(value: number): ExprNode { return { kind: 'number', value }; }
+  num(value: number): ExprNode {
+    return { kind: "number", value };
+  }
 
   /** Boolean literal. */
-  bool(value: boolean): ExprNode { return { kind: 'boolean', value }; }
+  bool(value: boolean): ExprNode {
+    return { kind: "boolean", value };
+  }
 
   /** null literal. */
-  null(): ExprNode { return { kind: 'null' }; }
+  null(): ExprNode {
+    return { kind: "null" };
+  }
 
   /** undefined literal. */
-  undefined(): ExprNode { return { kind: 'undefined' }; }
+  undefined(): ExprNode {
+    return { kind: "undefined" };
+  }
 
   /** Identifier reference (validated). */
-  id(name: string): ExprNode { return { kind: 'identifier', name: validateIdentifier(name) }; }
+  id(name: string): ExprNode {
+    return { kind: "identifier", name: validateIdentifier(name) };
+  }
 
   /** Raw expression (escape hatch — no validation). */
-  raw(code: string): ExprNode { return { kind: 'raw', code }; }
+  raw(code: string): ExprNode {
+    return { kind: "raw", code };
+  }
 
   /** Function call expression. */
   call(callee: string, ...args: ExprNode[]): ExprNode {
-    return { kind: 'call', callee, args };
+    return { kind: "call", callee, args };
   }
 
   /** Object literal via builder callback. */
@@ -109,7 +126,7 @@ export class ObjectBuilder extends ExprHelper {
 
   /** @internal Build the ObjectExpr node. */
   _build(): ObjectExpr {
-    return { kind: 'object', props: [...this._props] };
+    return { kind: "object", props: [...this._props] };
   }
 }
 
@@ -147,7 +164,7 @@ export class ArrayBuilder extends ExprHelper {
 
   /** @internal Build the ArrayExpr node. */
   _build(): ArrayExpr {
-    return { kind: 'array', items: [...this._items] };
+    return { kind: "array", items: [...this._items] };
   }
 }
 
@@ -231,7 +248,7 @@ export class ConstBuilder extends ExprHelper {
 
   private _finalize(expr: ExprNode): ConstResult {
     this._commit({
-      kind: 'const',
+      kind: "const",
       name: this._name,
       type: this._type,
       value: expr,
@@ -256,8 +273,8 @@ export class ConstResult {
   /** Emit export default <name>; after the const. */
   exportDefault(): void {
     this._commit({
-      kind: 'exportDefault',
-      value: { kind: 'identifier', name: this._name },
+      kind: "exportDefault",
+      value: { kind: "identifier", name: this._name },
     });
   }
 }
@@ -273,14 +290,14 @@ export class FnBody extends ExprHelper {
 
   /** Return an expression. */
   return(expr: ExprNode): this {
-    this._stmts.push({ kind: 'return', value: expr });
+    this._stmts.push({ kind: "return", value: expr });
     return this;
   }
 
   /** Declare a local const. */
   declareConst(name: string, value: ExprNode, opts?: { type?: string }): this {
     this._stmts.push({
-      kind: 'localConst',
+      kind: "localConst",
       name,
       type: opts?.type,
       value,
@@ -290,13 +307,13 @@ export class FnBody extends ExprHelper {
 
   /** Expression statement (e.g., function call). */
   statement(expr: ExprNode): this {
-    this._stmts.push({ kind: 'expression', expr });
+    this._stmts.push({ kind: "expression", expr });
     return this;
   }
 
   /** Raw statement (escape hatch). */
   rawStatement(code: string): this {
-    this._stmts.push({ kind: 'rawStmt', code });
+    this._stmts.push({ kind: "rawStmt", code });
     return this;
   }
 
@@ -307,7 +324,11 @@ export class FnBody extends ExprHelper {
   }
 
   /** If/else statement. */
-  if(condition: string, body: (b: FnBody) => void, elseBody?: (b: FnBody) => void): this {
+  if(
+    condition: string,
+    body: (b: FnBody) => void,
+    elseBody?: (b: FnBody) => void,
+  ): this {
     const ifBody = new FnBody();
     body(ifBody);
     let elseBranch: StmtNode[] | undefined;
@@ -317,7 +338,7 @@ export class FnBody extends ExprHelper {
       elseBranch = eb._build();
     }
     this._stmts.push({
-      kind: 'if',
+      kind: "if",
       condition,
       body: ifBody._build(),
       elseBody: elseBranch,

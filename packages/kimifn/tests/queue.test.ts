@@ -257,13 +257,7 @@ describe("GlobalQueue — wrap()", () => {
     };
 
     // Run 5 tasks concurrently — only 2 should run at a time
-    await Promise.all([
-      task(50),
-      task(50),
-      task(50),
-      task(50),
-      task(50),
-    ]);
+    await Promise.all([task(50), task(50), task(50), task(50), task(50)]);
 
     expect(peakConcurrency).toBeLessThanOrEqual(2);
   });

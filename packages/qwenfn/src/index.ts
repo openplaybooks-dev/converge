@@ -3,10 +3,7 @@ export { qwenfn } from "./qwenfn.js";
 export { extractJson, resolvePrompt } from "./utils.js";
 
 // ─── Skills ─────────────────────────────────────────────────
-export {
-  enhancePrompt,
-  listSkills,
-} from "./skills.js";
+export { enhancePrompt, listSkills } from "./skills.js";
 
 // ─── Compose ────────────────────────────────────────────────
 export {
@@ -19,11 +16,7 @@ export {
 } from "./compose.js";
 
 // ─── Queue ──────────────────────────────────────────────────
-export {
-  GlobalQueue,
-  getDefaultQueue,
-  setDefaultQueue,
-} from "./queue.js";
+export { GlobalQueue, getDefaultQueue, setDefaultQueue } from "./queue.js";
 export type { GlobalQueueOptions } from "./queue.js";
 
 // ─── Types ──────────────────────────────────────────────────

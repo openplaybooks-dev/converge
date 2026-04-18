@@ -1,0 +1,9 @@
+{
+  "taskId": "06-quality/002-build-verify",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    ".converge/standardize-state/quality/build-report.json"
+  ],
+  "blocked": false
+}

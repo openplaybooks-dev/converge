@@ -1,0 +1,10 @@
+{
+  "taskId": "02-docs/006-comparisons",
+  "checks": [
+    {
+      "id": "comparisons-exists",
+      "description": "Comparisons doc exists",
+      "cmd": "test -f docs/comparisons.md"
+    }
+  ]
+}

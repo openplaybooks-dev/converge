@@ -47,33 +47,33 @@ const { data } = await analyze("const x = 1");
 
 Create a callable async function backed by the Claude Agent SDK.
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `prompt` | `string \| (input?) => string` | — | Template with `{{input}}` placeholder |
-| `schema` | `ZodType<T>` | — | Validate & parse JSON output |
-| `hooks` | `AcpFnHooks` | — | `before`, `after`, `onStream` |
-| `timeoutMs` | `number` | 600_000 | Abort after timeout |
-| `maxRetries` | `number` | 0 | Retry on failure |
-| `cwd` | `string` | — | Working directory |
-| `allowedTools` | `string[]` | — | Restrict available tools |
-| `queue` | `GlobalQueue \| boolean` | — | Rate limiting |
-| `logDir` | `string` | **required** | Directory for log files |
-| `model` | `string` | — | Model to use |
-| `maxTurns` | `number` | — | Max agentic turns |
-| `sdkOptions` | `Partial<Options>` | — | Additional SDK options |
+| Option         | Type                           | Default      | Description                           |
+| -------------- | ------------------------------ | ------------ | ------------------------------------- |
+| `prompt`       | `string \| (input?) => string` | —            | Template with `{{input}}` placeholder |
+| `schema`       | `ZodType<T>`                   | —            | Validate & parse JSON output          |
+| `hooks`        | `AcpFnHooks`                   | —            | `before`, `after`, `onStream`         |
+| `timeoutMs`    | `number`                       | 600_000      | Abort after timeout                   |
+| `maxRetries`   | `number`                       | 0            | Retry on failure                      |
+| `cwd`          | `string`                       | —            | Working directory                     |
+| `allowedTools` | `string[]`                     | —            | Restrict available tools              |
+| `queue`        | `GlobalQueue \| boolean`       | —            | Rate limiting                         |
+| `logDir`       | `string`                       | **required** | Directory for log files               |
+| `model`        | `string`                       | —            | Model to use                          |
+| `maxTurns`     | `number`                       | —            | Max agentic turns                     |
+| `sdkOptions`   | `Partial<Options>`             | —            | Additional SDK options                |
 
 ### `compose<T>(options): (input?) => Promise<AcpFnResult<T>>`
 
 Compose multiple `acpfn` functions as tools.
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `prompt` | `string \| (input?) => string` | **required** | User request |
-| `tools` | `Record<string, ToolDef>` | **required** | `{ name: { fn, description } }` |
-| `composeMode` | `"code" \| "tool_call"` | `"code"` | How Claude invokes tools |
-| `schema` | `ZodType<T>` | — | Validate final output |
-| `hooks` | `ComposeHooks` | — | Extended with `onToolCall` |
-| `maxIterations` | `number` | 10 | Max tool-call rounds |
+| Option          | Type                           | Default      | Description                     |
+| --------------- | ------------------------------ | ------------ | ------------------------------- |
+| `prompt`        | `string \| (input?) => string` | **required** | User request                    |
+| `tools`         | `Record<string, ToolDef>`      | **required** | `{ name: { fn, description } }` |
+| `composeMode`   | `"code" \| "tool_call"`        | `"code"`     | How Claude invokes tools        |
+| `schema`        | `ZodType<T>`                   | —            | Validate final output           |
+| `hooks`         | `ComposeHooks`                 | —            | Extended with `onToolCall`      |
+| `maxIterations` | `number`                       | 10           | Max tool-call rounds            |
 
 ### `GlobalQueue`
 
@@ -112,14 +112,14 @@ npm run typecheck     # tsc --noEmit
 
 ## Differences from @converge/claudefn
 
-| Feature | @converge/claudefn | @converge/acpfn |
-|---------|---------------|-------------|
-| Backend | Spawns `claude` CLI | Uses `@anthropic-ai/claude-agent-sdk` |
-| Process management | Manual spawn/kill | SDK-managed |
-| Streaming | `--output-format stream-json` | Native SDK streaming |
-| Session resume | `--resume` flag | SDK `resume` option |
-| Permissions | `--dangerously-skip-permissions` | `allowDangerouslySkipPermissions` option |
-| MCP servers | `--mcp-config` flag | `mcpServers` option |
+| Feature            | @converge/claudefn               | @converge/acpfn                          |
+| ------------------ | -------------------------------- | ---------------------------------------- |
+| Backend            | Spawns `claude` CLI              | Uses `@anthropic-ai/claude-agent-sdk`    |
+| Process management | Manual spawn/kill                | SDK-managed                              |
+| Streaming          | `--output-format stream-json`    | Native SDK streaming                     |
+| Session resume     | `--resume` flag                  | SDK `resume` option                      |
+| Permissions        | `--dangerously-skip-permissions` | `allowDangerouslySkipPermissions` option |
+| MCP servers        | `--mcp-config` flag              | `mcpServers` option                      |
 
 ## License
 

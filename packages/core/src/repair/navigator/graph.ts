@@ -6,7 +6,7 @@
  * Serializable to disk for crash-safe checkpointing.
  */
 
-import type { Graph, GraphNode, GraphEdge, NodeStatus } from './types.ts';
+import type { Graph, GraphNode, GraphEdge, NodeStatus } from "./types.ts";
 
 export class NavigatorGraph implements Graph {
   nodes: GraphNode[] = [];
@@ -22,11 +22,11 @@ export class NavigatorGraph implements Graph {
   }
 
   hasNode(id: string): boolean {
-    return this.nodes.some(n => n.id === id);
+    return this.nodes.some((n) => n.id === id);
   }
 
   getNode(id: string): GraphNode | undefined {
-    return this.nodes.find(n => n.id === id);
+    return this.nodes.find((n) => n.id === id);
   }
 
   /* ---------------------------------------------------------------- */
@@ -47,15 +47,15 @@ export class NavigatorGraph implements Graph {
   /* ---------------------------------------------------------------- */
 
   getBufferedNodes(): GraphNode[] {
-    return this.nodes.filter(n => n.status === 'buffered');
+    return this.nodes.filter((n) => n.status === "buffered");
   }
 
   getNodesByHandler(handler: string): GraphNode[] {
-    return this.nodes.filter(n => n.handler === handler);
+    return this.nodes.filter((n) => n.handler === handler);
   }
 
   getNodesByStatus(status: NodeStatus): GraphNode[] {
-    return this.nodes.filter(n => n.status === status);
+    return this.nodes.filter((n) => n.status === status);
   }
 
   /** Last node that completed execution, by edge order */
@@ -92,7 +92,7 @@ export class NavigatorGraph implements Graph {
     }
 
     return this.nodes
-      .filter(n => n.status === 'done' || n.status === 'failed')
+      .filter((n) => n.status === "done" || n.status === "failed")
       .sort((a, b) => (orderMap.get(a.id) ?? -1) - (orderMap.get(b.id) ?? -1));
   }
 
@@ -102,18 +102,23 @@ export class NavigatorGraph implements Graph {
 
   toJSON(): { nodes: GraphNode[]; edges: GraphEdge[] } {
     return {
-      nodes: this.nodes.map(n => ({
+      nodes: this.nodes.map((n) => ({
         ...n,
         // Strip function values from data (not serializable)
-        data: n.data ? Object.fromEntries(
-          Object.entries(n.data).filter(([, v]) => typeof v !== 'function'),
-        ) : undefined,
+        data: n.data
+          ? Object.fromEntries(
+              Object.entries(n.data).filter(([, v]) => typeof v !== "function"),
+            )
+          : undefined,
       })),
       edges: [...this.edges],
     };
   }
 
-  static fromJSON(data: { nodes: GraphNode[]; edges: GraphEdge[] }): NavigatorGraph {
+  static fromJSON(data: {
+    nodes: GraphNode[];
+    edges: GraphEdge[];
+  }): NavigatorGraph {
     const g = new NavigatorGraph();
     g.nodes = data.nodes ?? [];
     g.edges = data.edges ?? [];

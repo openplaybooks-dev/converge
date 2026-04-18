@@ -1,0 +1,10 @@
+{
+  "taskId": "01-brand/002-docs-rename",
+  "checks": [
+    {
+      "id": "no-harness-in-md",
+      "description": "No harness references in .md documentation files",
+      "cmd": "test -z \"$(grep -ri 'harness' --include='*.md' packages/ docs/ README.md 2>/dev/null | grep -v node_modules | grep -v CHANGELOG | grep -v '.converge/' | grep -v auto-verify | head -1)\""
+    }
+  ]
+}

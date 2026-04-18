@@ -5,15 +5,15 @@
  * The folder structure IS the plan - each file is a self-describing, executable task.
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from "fs";
+import * as path from "path";
 import type {
   PlanGenerationConfig,
   PlanGenerationResult,
   GapFillContext,
   GapFillResult,
-} from './types.ts';
-import type { Gap } from '../gap/types.ts';
+} from "./types.ts";
+import type { Gap } from "../gap/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Task File Generator                                               */
@@ -43,7 +43,7 @@ export class TaskFileGenerator {
    */
   async generateTaskFiles(
     goal: string,
-    config: PlanGenerationConfig
+    config: PlanGenerationConfig,
   ): Promise<PlanGenerationResult> {
     console.log(`[TaskFileGenerator] Generating plan for goal: ${goal}`);
 
@@ -72,10 +72,7 @@ export class TaskFileGenerator {
   /**
    * Fill gaps by creating new task files
    */
-  async fillGaps(
-    gaps: Gap[],
-    context: GapFillContext
-  ): Promise<GapFillResult> {
+  async fillGaps(gaps: Gap[], context: GapFillContext): Promise<GapFillResult> {
     console.log(`[TaskFileGenerator] Filling ${gaps.length} gaps`);
 
     // In real impl, LLM would analyze gaps and generate appropriate tasks
@@ -87,7 +84,9 @@ export class TaskFileGenerator {
 
     // Write new task files
     const created: string[] = [];
-    const startPriority = insertAfter ? this.extractPriorityFromPath(insertAfter) + 1 : 1;
+    const startPriority = insertAfter
+      ? this.extractPriorityFromPath(insertAfter) + 1
+      : 1;
 
     for (let i = 0; i < newTasks.length; i++) {
       const priority = startPriority + i;
@@ -111,7 +110,7 @@ export class TaskFileGenerator {
       projectGoal: string;
       existingTasks: string[];
       gaps?: Gap[];
-    }
+    },
   ): Promise<{
     filePath: string;
     taskId: string;
@@ -151,29 +150,31 @@ export class TaskFileGenerator {
    */
   private async planFromGoal(
     goal: string,
-    config: PlanGenerationConfig
-  ): Promise<Array<{ id: string; title: string; description: string; type?: string }>> {
+    config: PlanGenerationConfig,
+  ): Promise<
+    Array<{ id: string; title: string; description: string; type?: string }>
+  > {
     // In real implementation, this would call Claude API to generate tasks
     // For now, return mock tasks based on common patterns
 
     const tasks = [
       {
-        id: 'setup-project',
-        title: 'Set up project structure',
-        description: 'Initialize project with necessary configuration',
-        type: 'setup',
+        id: "setup-project",
+        title: "Set up project structure",
+        description: "Initialize project with necessary configuration",
+        type: "setup",
       },
       {
-        id: 'implement-core',
-        title: 'Implement core functionality',
+        id: "implement-core",
+        title: "Implement core functionality",
         description: `Implement the main features for: ${goal}`,
-        type: 'implementation',
+        type: "implementation",
       },
       {
-        id: 'add-tests',
-        title: 'Add tests',
-        description: 'Write tests for core functionality',
-        type: 'testing',
+        id: "add-tests",
+        title: "Add tests",
+        description: "Write tests for core functionality",
+        type: "testing",
       },
     ];
 
@@ -185,7 +186,7 @@ export class TaskFileGenerator {
    */
   private async generateGapFillingTasks(
     gaps: Gap[],
-    context: GapFillContext
+    context: GapFillContext,
   ): Promise<Array<{ id: string; title: string; description: string }>> {
     // In real impl, LLM would analyze gaps and generate appropriate tasks
     return gaps.map((gap) => ({
@@ -204,13 +205,13 @@ export class TaskFileGenerator {
       projectGoal: string;
       existingTasks: string[];
       gaps?: Gap[];
-    }
+    },
   ): Promise<{ id: string; title: string; description: string }> {
     // In real impl, LLM would generate task details
     const id = description
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '');
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
 
     return {
       id,
@@ -224,15 +225,15 @@ export class TaskFileGenerator {
    */
   private async writeTaskFile(
     priority: number,
-    task: { id: string; title: string; description: string; type?: string }
+    task: { id: string; title: string; description: string; type?: string },
   ): Promise<string> {
-    const paddedPriority = priority.toString().padStart(3, '0');
+    const paddedPriority = priority.toString().padStart(3, "0");
     const fileName = `${paddedPriority}-${task.id}.ts`;
     const filePath = path.join(this.tasksDir, fileName);
 
     const content = this.generateTaskFileContent(task);
 
-    fs.writeFileSync(filePath, content, 'utf-8');
+    fs.writeFileSync(filePath, content, "utf-8");
 
     console.log(`[TaskFileGenerator] Created: ${filePath}`);
 
@@ -260,7 +261,7 @@ export default taskDef()
   .id('${task.id}')
   .title('${task.title}')
   .description('${task.description}')
-  ${task.type ? `.type('${task.type}')` : ''}
+  ${task.type ? `.type('${task.type}')` : ""}
   .run(async (ctx) => {
     // TODO: Implement task logic
     ctx.log.info('Executing: ${task.title}');
@@ -284,7 +285,7 @@ export default taskDef()
 
     return fs
       .readdirSync(this.tasksDir)
-      .filter((file) => file.endsWith('.ts'))
+      .filter((file) => file.endsWith(".ts"))
       .map((file) => path.join(this.tasksDir, file));
   }
 
@@ -292,7 +293,7 @@ export default taskDef()
    * Extract priority number from file path
    */
   private extractPriorityFromPath(filePath: string): number {
-    const fileName = path.basename(filePath, '.ts');
+    const fileName = path.basename(filePath, ".ts");
     const match = fileName.match(/^(\d+)/);
     return match ? parseInt(match[1], 10) : 0;
   }
@@ -300,16 +301,23 @@ export default taskDef()
   /**
    * Find where to insert new gap-filling tasks
    */
-  private findInsertionPoint(gaps: Gap[], existingFiles: string[]): string | null {
+  private findInsertionPoint(
+    gaps: Gap[],
+    existingFiles: string[],
+  ): string | null {
     // In real impl, would analyze gaps to determine best insertion point
     // For now, insert at end
-    return existingFiles.length > 0 ? existingFiles[existingFiles.length - 1] : null;
+    return existingFiles.length > 0
+      ? existingFiles[existingFiles.length - 1]
+      : null;
   }
 
   /**
    * Estimate complexity of tasks
    */
-  private estimateComplexity(tasks: Array<{ id: string; title: string; description: string }>): number {
+  private estimateComplexity(
+    tasks: Array<{ id: string; title: string; description: string }>,
+  ): number {
     // Simple heuristic: complexity based on number of tasks
     return Math.min(100, tasks.length * 10);
   }

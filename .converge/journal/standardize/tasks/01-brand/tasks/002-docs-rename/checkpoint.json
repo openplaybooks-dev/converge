@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "01-brand/002-docs-rename",
+  "status": "pending",
+  "lastUpdated": "2026-04-18T05:02:39.566Z",
+  "createdAt": "2026-04-17T22:59:05.800Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-17T22:59:05.800Z",
+      "completedAt": "2026-04-17T23:04:23.085Z",
+      "outcome": "failed",
+      "durationMs": 317285
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-17T23:04:23.106Z",
+      "completedAt": "2026-04-17T23:10:22.388Z",
+      "outcome": "success",
+      "durationMs": 359282
+    }
+  ],
+  "currentAttempt": 2
+}

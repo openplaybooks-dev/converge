@@ -1,0 +1,278 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "02-docs/007-adrs-missing-output-docs/adr/",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-docs/007-adrs",
+            "severity": "high",
+            "description": "[02-docs/007-adrs] Task output not created: docs/adr/",
+            "source": "unit",
+            "detected": "2026-04-17T23:42:20.764Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/standardize/tasks/02-docs/tasks/007-adrs",
+              "taskId": "02-docs/007-adrs",
+              "taskTitle": "Create Architecture Decision Records",
+              "taskPrompt": "Create Architecture Decision Records for key design decisions.\n\n**Create** `docs/adr/README.md` (index) and individual ADR files.\n\n**ADRs to document** (read codebase to understand each decision):\n1. `001-filesystem-first.md` — Why state lives on the filesystem, not a database\n2. `002-gap-driven-convergence.md` — Why convergence loop over graph/DAG execution\n3. `003-wbs-decomposition.md` — Why WBS scripts for dynamic task generation\n4. `004-playbook-format.md` — Why YAML + Markdown over pure code or pure config\n5. `005-monorepo-structure.md` — Why monorepo with separate packages\n\n**ADR format** (standard template):\n```markdown\n# ADR-NNN: Title\n\n**Status**: Accepted\n**Date**: 2026-04-18\n\n## Context\nWhat is the issue that we're seeing that motivates this decision?\n\n## Decision\nWhat is the change that we're proposing and/or doing?\n\n## Consequences\nWhat becomes easier or more difficult to do because of this change?\n```",
+              "factId": "file-exists:test -f \"docs/adr/\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-docs/007-adrs-check-failed-adr-dir-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-docs/007-adrs",
+            "severity": "high",
+            "description": "[02-docs/007-adrs] Check failed: ADR directory exists",
+            "source": "unit",
+            "detected": "2026-04-17T23:42:20.766Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "adr-dir-exists",
+              "checkCmd": "test -d docs/adr",
+              "checkDescription": "ADR directory exists",
+              "checkOutput": "Command failed: test -d docs/adr\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Create Architecture Decision Records for key design decisions.\n\n**Create** `docs/adr/README.md` (index) and individual ADR files.\n\n**ADRs to document** (read codebase to understand each decision):\n1. `001-filesystem-first.md` — Why state lives on the filesystem, not a database\n2. `002-gap-driven-convergence.md` — Why convergence loop over graph/DAG execution\n3. `003-wbs-decomposition.md` — Why WBS scripts for dynamic task generation\n4. `004-playbook-format.md` — Why YAML + Markdown over pure code or pure config\n5. `005-monorepo-structure.md` — Why monorepo with separate packages\n\n**ADR format** (standard template):\n```markdown\n# ADR-NNN: Title\n\n**Status**: Accepted\n**Date**: 2026-04-18\n\n## Context\nWhat is the issue that we're seeing that motivates this decision?\n\n## Decision\nWhat is the change that we're proposing and/or doing?\n\n## Consequences\nWhat becomes easier or more difficult to do because of this change?\n```",
+              "taskId": "02-docs/007-adrs",
+              "taskTitle": "Create Architecture Decision Records",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/standardize/tasks/02-docs/tasks/007-adrs",
+              "factId": "check:adr-dir-exists"
+            }
+          },
+          {
+            "id": "02-docs/007-adrs-check-failed-adr-index-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-docs/007-adrs",
+            "severity": "high",
+            "description": "[02-docs/007-adrs] Check failed: ADR index exists",
+            "source": "unit",
+            "detected": "2026-04-17T23:42:20.768Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "adr-index-exists",
+              "checkCmd": "test -f docs/adr/README.md",
+              "checkDescription": "ADR index exists",
+              "checkOutput": "Command failed: test -f docs/adr/README.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Create Architecture Decision Records for key design decisions.\n\n**Create** `docs/adr/README.md` (index) and individual ADR files.\n\n**ADRs to document** (read codebase to understand each decision):\n1. `001-filesystem-first.md` — Why state lives on the filesystem, not a database\n2. `002-gap-driven-convergence.md` — Why convergence loop over graph/DAG execution\n3. `003-wbs-decomposition.md` — Why WBS scripts for dynamic task generation\n4. `004-playbook-format.md` — Why YAML + Markdown over pure code or pure config\n5. `005-monorepo-structure.md` — Why monorepo with separate packages\n\n**ADR format** (standard template):\n```markdown\n# ADR-NNN: Title\n\n**Status**: Accepted\n**Date**: 2026-04-18\n\n## Context\nWhat is the issue that we're seeing that motivates this decision?\n\n## Decision\nWhat is the change that we're proposing and/or doing?\n\n## Consequences\nWhat becomes easier or more difficult to do because of this change?\n```",
+              "taskId": "02-docs/007-adrs",
+              "taskTitle": "Create Architecture Decision Records",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/standardize/tasks/02-docs/tasks/007-adrs",
+              "factId": "check:adr-index-exists"
+            }
+          }
+        ],
+        "durationMs": 8
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "resolve-blockers",
+      "handler": "resolve-blockers",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 80,
+        "applicable": "hasBlockerAndIsFirst"
+      }
+    },
+    {
+      "id": "bail-blockers",
+      "handler": "bail-blockers",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 79,
+        "applicable": "hasBlockerAndNotFirst"
+      }
+    },
+    {
+      "id": "strategy-user-question-resume",
+      "handler": "strategy-user-question-resume",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 60,
+        "applicable": "hasUserQ"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65,
+        "applicable": "isFirst"
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55,
+        "applicable": "hasRepairableGap"
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 14
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 13
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#19",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 235676
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-17T23:42:20.760Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-17T23:42:20.760Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-17T23:42:20.769Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-17T23:42:20.770Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-17T23:42:20.784Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#19",
+      "iteration": 1,
+      "ts": "2026-04-17T23:46:16.462Z"
+    },
+    {
+      "from": "run-strategy:task-run#19",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-17T23:46:16.476Z"
+    }
+  ]
+}

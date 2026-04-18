@@ -7,9 +7,12 @@
  */
 
 import type {
-  ExprNode, PropEntry, StmtNode,
-  ImportStmt, CallExpr,
-} from './nodes.ts';
+  ExprNode,
+  PropEntry,
+  StmtNode,
+  ImportStmt,
+  CallExpr,
+} from "./nodes.ts";
 
 // ── Format options ───────────────────────────────────────────────────
 
@@ -17,44 +20,44 @@ export interface FormatOptions {
   /** Indentation string per level. */
   indent: string;
   /** Quote style for string literals. */
-  quote: 'single' | 'double';
+  quote: "single" | "double";
   /** Append semicolons to statements. */
   semi: boolean;
   /** Trailing comma policy in objects, arrays, function params. */
-  trailingComma: 'all' | 'none';
+  trailingComma: "all" | "none";
   /** When true, type-only imports use `import type { ... }` syntax. */
-  importTypeStyle: 'inline' | 'importType';
+  importTypeStyle: "inline" | "importType";
   /** Sort imports by module name within each group. */
   sortImports: boolean;
 }
 
 export const DEFAULT_FORMAT: FormatOptions = {
-  indent: '  ',
-  quote: 'single',
+  indent: "  ",
+  quote: "single",
   semi: true,
-  trailingComma: 'all',
-  importTypeStyle: 'importType',
+  trailingComma: "all",
+  importTypeStyle: "importType",
   sortImports: true,
 };
 
 // ── String escaping ──────────────────────────────────────────────────
 
 function escapeString(value: string, quoteChar: string): string {
-  let result = '';
+  let result = "";
   for (const ch of value) {
     if (ch === quoteChar) result += `\\${quoteChar}`;
-    else if (ch === '\\') result += '\\\\';
-    else if (ch === '\n') result += '\\n';
-    else if (ch === '\r') result += '\\r';
-    else if (ch === '\t') result += '\\t';
-    else if (ch === '\0') result += '\\0';
+    else if (ch === "\\") result += "\\\\";
+    else if (ch === "\n") result += "\\n";
+    else if (ch === "\r") result += "\\r";
+    else if (ch === "\t") result += "\\t";
+    else if (ch === "\0") result += "\\0";
     else result += ch;
   }
   return result;
 }
 
 function quoteStr(value: string, opts: FormatOptions): string {
-  const q = opts.quote === 'single' ? "'" : '"';
+  const q = opts.quote === "single" ? "'" : '"';
   return `${q}${escapeString(value, q)}${q}`;
 }
 
@@ -66,18 +69,32 @@ function quoteStr(value: string, opts: FormatOptions): string {
  * with proper indentation. The first line is NOT indented — the caller
  * controls placement.
  */
-export function renderExpr(expr: ExprNode, opts: FormatOptions, depth: number): string {
+export function renderExpr(
+  expr: ExprNode,
+  opts: FormatOptions,
+  depth: number,
+): string {
   switch (expr.kind) {
-    case 'string': return quoteStr(expr.value, opts);
-    case 'number': return String(expr.value);
-    case 'boolean': return String(expr.value);
-    case 'null': return 'null';
-    case 'undefined': return 'undefined';
-    case 'identifier': return expr.name;
-    case 'raw': return expr.code;
-    case 'call': return renderCall(expr, opts, depth);
-    case 'object': return renderObject(expr.props, opts, depth);
-    case 'array': return renderArray(expr.items, opts, depth);
+    case "string":
+      return quoteStr(expr.value, opts);
+    case "number":
+      return String(expr.value);
+    case "boolean":
+      return String(expr.value);
+    case "null":
+      return "null";
+    case "undefined":
+      return "undefined";
+    case "identifier":
+      return expr.name;
+    case "raw":
+      return expr.code;
+    case "call":
+      return renderCall(expr, opts, depth);
+    case "object":
+      return renderObject(expr.props, opts, depth);
+    case "array":
+      return renderArray(expr.items, opts, depth);
   }
 }
 
@@ -100,11 +117,11 @@ function renderList(
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
-    const needsComma = i < items.length - 1 || opts.trailingComma === 'all';
-    const comma = needsComma ? ',' : '';
+    const needsComma = i < items.length - 1 || opts.trailingComma === "all";
+    const comma = needsComma ? "," : "";
 
-    if (item.includes('\n')) {
-      const itemLines = item.split('\n');
+    if (item.includes("\n")) {
+      const itemLines = item.split("\n");
       lines.push(`${pre(depth + 1)}${itemLines[0]}`);
       for (let j = 1; j < itemLines.length; j++) {
         lines.push(itemLines[j]);
@@ -117,33 +134,45 @@ function renderList(
   }
 
   lines.push(`${pre(depth)}${close}`);
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
-function renderObject(props: PropEntry[], opts: FormatOptions, depth: number): string {
-  if (props.length === 0) return '{}';
+function renderObject(
+  props: PropEntry[],
+  opts: FormatOptions,
+  depth: number,
+): string {
+  if (props.length === 0) return "{}";
 
-  const items = props.map(p => {
+  const items = props.map((p) => {
     const key = p.computed ? `[${p.key}]` : p.key;
     const val = renderExpr(p.value, opts, depth + 1);
     return `${key}: ${val}`;
   });
 
-  return renderList(items, '{', '}', opts, depth);
+  return renderList(items, "{", "}", opts, depth);
 }
 
-function renderArray(items: ExprNode[], opts: FormatOptions, depth: number): string {
-  if (items.length === 0) return '[]';
-  const rendered = items.map(item => renderExpr(item, opts, depth + 1));
-  return renderList(rendered, '[', ']', opts, depth);
+function renderArray(
+  items: ExprNode[],
+  opts: FormatOptions,
+  depth: number,
+): string {
+  if (items.length === 0) return "[]";
+  const rendered = items.map((item) => renderExpr(item, opts, depth + 1));
+  return renderList(rendered, "[", "]", opts, depth);
 }
 
-function renderCall(expr: CallExpr, opts: FormatOptions, depth: number): string {
+function renderCall(
+  expr: CallExpr,
+  opts: FormatOptions,
+  depth: number,
+): string {
   if (expr.args.length === 0) return `${expr.callee}()`;
 
-  const args = expr.args.map(a => renderExpr(a, opts, depth));
-  const hasMultiLine = args.some(a => a.includes('\n'));
-  const inlineStr = `${expr.callee}(${args.join(', ')})`;
+  const args = expr.args.map((a) => renderExpr(a, opts, depth));
+  const hasMultiLine = args.some((a) => a.includes("\n"));
+  const inlineStr = `${expr.callee}(${args.join(", ")})`;
 
   // Try inline if short and no multi-line args
   if (!hasMultiLine && inlineStr.length < 80) {
@@ -156,7 +185,7 @@ function renderCall(expr: CallExpr, opts: FormatOptions, depth: number): string 
   }
 
   // Multi-line args
-  return renderList(args, `${expr.callee}(`, ')', opts, depth);
+  return renderList(args, `${expr.callee}(`, ")", opts, depth);
 }
 
 // ── Statement rendering ──────────────────────────────────────────────
@@ -165,30 +194,37 @@ function renderCall(expr: CallExpr, opts: FormatOptions, depth: number): string 
  * Render a single statement to an array of output lines.
  * Each line includes its indent prefix. Blank lines are empty strings.
  */
-function renderStmt(stmt: StmtNode, opts: FormatOptions, depth: number): string[] {
+function renderStmt(
+  stmt: StmtNode,
+  opts: FormatOptions,
+  depth: number,
+): string[] {
   const pre = opts.indent.repeat(depth);
-  const semi = opts.semi ? ';' : '';
+  const semi = opts.semi ? ";" : "";
 
   switch (stmt.kind) {
-    case 'import':
+    case "import":
       return renderImportStmt(stmt, opts);
 
-    case 'const': {
-      const prefix = stmt.exported ? 'export const' : 'const';
-      const type = stmt.type ? `: ${stmt.type}` : '';
+    case "const": {
+      const prefix = stmt.exported ? "export const" : "const";
+      const type = stmt.type ? `: ${stmt.type}` : "";
       const val = renderExpr(stmt.value, opts, depth);
-      return splitRendered(`${pre}${prefix} ${stmt.name}${type} = ${val}${semi}`, pre);
+      return splitRendered(
+        `${pre}${prefix} ${stmt.name}${type} = ${val}${semi}`,
+        pre,
+      );
     }
 
-    case 'function': {
+    case "function": {
       const parts: string[] = [];
-      if (stmt.exported) parts.push('export');
-      if (stmt.isDefault) parts.push('default');
-      if (stmt.isAsync) parts.push('async');
-      parts.push('function');
+      if (stmt.exported) parts.push("export");
+      if (stmt.isDefault) parts.push("default");
+      if (stmt.isAsync) parts.push("async");
+      parts.push("function");
       parts.push(stmt.name);
-      const sig = `${parts.join(' ')}(${stmt.params})`;
-      const retType = stmt.returnType ? `: ${stmt.returnType}` : '';
+      const sig = `${parts.join(" ")}(${stmt.params})`;
+      const retType = stmt.returnType ? `: ${stmt.returnType}` : "";
 
       const lines: string[] = [];
       lines.push(`${pre}${sig}${retType} {`);
@@ -199,28 +235,31 @@ function renderStmt(stmt: StmtNode, opts: FormatOptions, depth: number): string[
       return lines;
     }
 
-    case 'exportDefault': {
+    case "exportDefault": {
       const val = renderExpr(stmt.value, opts, depth);
       return splitRendered(`${pre}export default ${val}${semi}`, pre);
     }
 
-    case 'return': {
+    case "return": {
       const val = renderExpr(stmt.value, opts, depth);
       return splitRendered(`${pre}return ${val}${semi}`, pre);
     }
 
-    case 'expression': {
+    case "expression": {
       const val = renderExpr(stmt.expr, opts, depth);
       return splitRendered(`${pre}${val}${semi}`, pre);
     }
 
-    case 'localConst': {
-      const type = stmt.type ? `: ${stmt.type}` : '';
+    case "localConst": {
+      const type = stmt.type ? `: ${stmt.type}` : "";
       const val = renderExpr(stmt.value, opts, depth);
-      return splitRendered(`${pre}const ${stmt.name}${type} = ${val}${semi}`, pre);
+      return splitRendered(
+        `${pre}const ${stmt.name}${type} = ${val}${semi}`,
+        pre,
+      );
     }
 
-    case 'if': {
+    case "if": {
       const lines: string[] = [];
       lines.push(`${pre}if (${stmt.condition}) {`);
       for (const s of stmt.body) {
@@ -236,16 +275,16 @@ function renderStmt(stmt: StmtNode, opts: FormatOptions, depth: number): string[
       return lines;
     }
 
-    case 'rawStmt':
-      return stmt.code.split('\n').map(line => `${pre}${line}`);
+    case "rawStmt":
+      return stmt.code.split("\n").map((line) => `${pre}${line}`);
 
-    case 'blank':
-      return [''];
+    case "blank":
+      return [""];
 
-    case 'banner':
-      return stmt.lines.map(line => `// ${line}`);
+    case "banner":
+      return stmt.lines.map((line) => `// ${line}`);
 
-    case 'jsdoc': {
+    case "jsdoc": {
       if (stmt.lines.length === 1) {
         return [`${pre}/** ${stmt.lines[0]} */`];
       }
@@ -257,7 +296,7 @@ function renderStmt(stmt: StmtNode, opts: FormatOptions, depth: number): string[
       return lines;
     }
 
-    case 'directive':
+    case "directive":
       return [`${stmt.value}${semi}`];
   }
 }
@@ -269,15 +308,15 @@ function renderStmt(stmt: StmtNode, opts: FormatOptions, depth: number): string[
  * the expression are already indented by renderExpr.
  */
 function splitRendered(combined: string, _prefix: string): string[] {
-  if (!combined.includes('\n')) return [combined];
-  return combined.split('\n');
+  if (!combined.includes("\n")) return [combined];
+  return combined.split("\n");
 }
 
 // ── Import rendering ─────────────────────────────────────────────────
 
 function renderImportStmt(stmt: ImportStmt, opts: FormatOptions): string[] {
-  const q = opts.quote === 'single' ? "'" : '"';
-  const semi = opts.semi ? ';' : '';
+  const q = opts.quote === "single" ? "'" : '"';
+  const semi = opts.semi ? ";" : "";
   const from = `${q}${stmt.from}${q}`;
 
   // Side-effect import
@@ -289,7 +328,7 @@ function renderImportStmt(stmt: ImportStmt, opts: FormatOptions): string[] {
   const hasValues = !!stmt.defaultName || stmt.named.length > 0;
   if (!hasValues && stmt.types.length > 0) {
     const types = [...new Set(stmt.types)].sort();
-    return [`import type { ${types.join(', ')} } from ${from}${semi}`];
+    return [`import type { ${types.join(", ")} } from ${from}${semi}`];
   }
 
   const parts: string[] = [];
@@ -306,22 +345,26 @@ function renderImportStmt(stmt: ImportStmt, opts: FormatOptions): string[] {
   }
 
   // Inline type imports (import { type Foo, bar } style)
-  if (opts.importTypeStyle === 'inline' && stmt.types.length > 0) {
+  if (opts.importTypeStyle === "inline" && stmt.types.length > 0) {
     for (const t of [...new Set(stmt.types)].sort()) {
       namedSpecifiers.push(`type ${t}`);
     }
   }
 
   if (namedSpecifiers.length > 0) {
-    parts.push(`{ ${namedSpecifiers.join(', ')} }`);
+    parts.push(`{ ${namedSpecifiers.join(", ")} }`);
   }
 
-  const result = [`import ${parts.join(', ')} from ${from}${semi}`];
+  const result = [`import ${parts.join(", ")} from ${from}${semi}`];
 
   // Separate type-only import line when using importType style
-  if (opts.importTypeStyle === 'importType' && stmt.types.length > 0 && hasValues) {
+  if (
+    opts.importTypeStyle === "importType" &&
+    stmt.types.length > 0 &&
+    hasValues
+  ) {
     const types = [...new Set(stmt.types)].sort();
-    result.push(`import type { ${types.join(', ')} } from ${from}${semi}`);
+    result.push(`import type { ${types.join(", ")} } from ${from}${semi}`);
   }
 
   return result;
@@ -330,14 +373,17 @@ function renderImportStmt(stmt: ImportStmt, opts: FormatOptions): string[] {
 // ── Import grouping ──────────────────────────────────────────────────
 
 function isLocalImport(from: string): boolean {
-  return from.startsWith('.') || from.startsWith('@/');
+  return from.startsWith(".") || from.startsWith("@/");
 }
 
 /**
  * Group and sort import statements.
  * Groups: external value → external type → local value → local type → side-effect.
  */
-function groupImports(imports: ImportStmt[], opts: FormatOptions): ImportStmt[][] {
+function groupImports(
+  imports: ImportStmt[],
+  opts: FormatOptions,
+): ImportStmt[][] {
   const externalValue: ImportStmt[] = [];
   const externalType: ImportStmt[] = [];
   const localValue: ImportStmt[] = [];
@@ -362,12 +408,18 @@ function groupImports(imports: ImportStmt[], opts: FormatOptions): ImportStmt[][
     ? (a: ImportStmt, b: ImportStmt) => a.from.localeCompare(b.from)
     : undefined;
 
-  const groups = [externalValue, externalType, localValue, localType, sideEffect];
+  const groups = [
+    externalValue,
+    externalType,
+    localValue,
+    localType,
+    sideEffect,
+  ];
   if (sortFn) {
     for (const g of groups) g.sort(sortFn);
   }
 
-  return groups.filter(g => g.length > 0);
+  return groups.filter((g) => g.length > 0);
 }
 
 // ── Top-level file rendering ─────────────────────────────────────────
@@ -377,7 +429,10 @@ function groupImports(imports: ImportStmt[], opts: FormatOptions): ImportStmt[][
  * Handles import grouping, automatic blank-line spacing between
  * top-level declarations, and trailing newline.
  */
-export function formatFile(stmts: StmtNode[], opts: FormatOptions = DEFAULT_FORMAT): string {
+export function formatFile(
+  stmts: StmtNode[],
+  opts: FormatOptions = DEFAULT_FORMAT,
+): string {
   const lines: string[] = [];
 
   // Separate directives, banner, imports, and body statements
@@ -388,10 +443,18 @@ export function formatFile(stmts: StmtNode[], opts: FormatOptions = DEFAULT_FORM
 
   for (const stmt of stmts) {
     switch (stmt.kind) {
-      case 'directive': directives.push(stmt); break;
-      case 'banner': banners.push(stmt); break;
-      case 'import': imports.push(stmt); break;
-      default: body.push(stmt); break;
+      case "directive":
+        directives.push(stmt);
+        break;
+      case "banner":
+        banners.push(stmt);
+        break;
+      case "import":
+        imports.push(stmt);
+        break;
+      default:
+        body.push(stmt);
+        break;
     }
   }
 
@@ -399,8 +462,11 @@ export function formatFile(stmts: StmtNode[], opts: FormatOptions = DEFAULT_FORM
   for (const stmt of banners) {
     lines.push(...renderStmt(stmt, opts, 0));
   }
-  if (banners.length > 0 && (directives.length > 0 || imports.length > 0 || body.length > 0)) {
-    lines.push('');
+  if (
+    banners.length > 0 &&
+    (directives.length > 0 || imports.length > 0 || body.length > 0)
+  ) {
+    lines.push("");
   }
 
   // 2. Directives
@@ -408,7 +474,7 @@ export function formatFile(stmts: StmtNode[], opts: FormatOptions = DEFAULT_FORM
     lines.push(...renderStmt(stmt, opts, 0));
   }
   if (directives.length > 0 && (imports.length > 0 || body.length > 0)) {
-    lines.push('');
+    lines.push("");
   }
 
   // 3. Imports (grouped with blank lines between groups)
@@ -418,28 +484,27 @@ export function formatFile(stmts: StmtNode[], opts: FormatOptions = DEFAULT_FORM
       lines.push(...renderImportStmt(imp, opts));
     }
     if (gi < importGroups.length - 1) {
-      lines.push('');
+      lines.push("");
     }
   }
   if (importGroups.length > 0 && body.length > 0) {
-    lines.push('');
+    lines.push("");
   }
 
   // 4. Body statements (auto blank lines between top-level declarations)
   let prevKind: string | undefined;
   for (const stmt of body) {
     // Add blank line between different declaration types
-    if (prevKind && stmt.kind !== 'blank') {
+    if (prevKind && stmt.kind !== "blank") {
       const needsBlank =
-        prevKind !== 'blank' && (
-          stmt.kind === 'function' ||
-          stmt.kind === 'const' ||
-          stmt.kind === 'exportDefault' ||
-          stmt.kind === 'jsdoc' ||
-          prevKind === 'function'
-        );
+        prevKind !== "blank" &&
+        (stmt.kind === "function" ||
+          stmt.kind === "const" ||
+          stmt.kind === "exportDefault" ||
+          stmt.kind === "jsdoc" ||
+          prevKind === "function");
       if (needsBlank) {
-        lines.push('');
+        lines.push("");
       }
     }
     lines.push(...renderStmt(stmt, opts, 0));
@@ -447,6 +512,6 @@ export function formatFile(stmts: StmtNode[], opts: FormatOptions = DEFAULT_FORM
   }
 
   // Ensure trailing newline
-  const result = lines.join('\n');
-  return result.endsWith('\n') ? result : result + '\n';
+  const result = lines.join("\n");
+  return result.endsWith("\n") ? result : result + "\n";
 }

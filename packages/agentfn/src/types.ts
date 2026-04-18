@@ -37,25 +37,24 @@ export type Session = never;
 /** @deprecated SDK backend removed */
 export type StreamCallOptions = never;
 /** @deprecated SDK backend removed */
-export type AgentResult<T = string> = { data: T; raw: string; durationMs: number; sessionId?: string };
+export type AgentResult<T = string> = {
+  data: T;
+  raw: string;
+  durationMs: number;
+  sessionId?: string;
+};
 /** @deprecated SDK backend removed */
 export type AgentHooks = never;
 /** @deprecated SDK backend removed */
-export type ClaudeAgentOptions<T = string> = Record<string, unknown> & { schema?: unknown };
+export type ClaudeAgentOptions<T = string> = Record<string, unknown> & {
+  schema?: unknown;
+};
 /** @deprecated SDK backend removed */
 export type StreamFn = never;
 
-export type {
-  KimiFnOptions,
-  KimiFnResult,
-  KimiFn,
-} from "@converge/kimifn";
+export type { KimiFnOptions, KimiFnResult, KimiFn } from "@converge/kimifn";
 
-export type {
-  QwenFnOptions,
-  QwenFnResult,
-  QwenFn,
-} from "@converge/qwenfn";
+export type { QwenFnOptions, QwenFnResult, QwenFn } from "@converge/qwenfn";
 
 export type {
   GeminiFnOptions,
@@ -63,19 +62,15 @@ export type {
   GeminiFn,
 } from "@converge/geminifn";
 
-export type {
-  AcpFnOptions,
-  AcpFnResult,
-  AcpFn,
-} from "@converge/acpfn";
+export type { AcpFnOptions, AcpFnResult, AcpFn } from "@converge/acpfn";
+
+export type { OpenFnOptions, OpenFnResult, OpenFn } from "@converge/openfn";
 
 export type {
-  OpenFnOptions,
-  OpenFnResult,
-  OpenFn,
-} from "@converge/openfn";
-
-export type { GlobalQueue, GlobalQueueOptions, SendFeedbackOptions } from "@converge/claudefn";
+  GlobalQueue,
+  GlobalQueueOptions,
+  SendFeedbackOptions,
+} from "@converge/claudefn";
 
 // ─── Skills/Agents ──────────────────────────────────────────
 
@@ -133,9 +128,7 @@ export interface AgentFnResult<T = string> {
 // ─── Unified Callable ───────────────────────────────────────
 
 /** A callable function created by agentfn() */
-export type AgentFn<T = string> = (
-  input?: string,
-) => Promise<AgentFnResult<T>>;
+export type AgentFn<T = string> = (input?: string) => Promise<AgentFnResult<T>>;
 
 // ─── Unified Options ────────────────────────────────────────
 
@@ -159,7 +152,10 @@ export interface AgentFnOptions<T = string> {
   /** Working directory for the process */
   cwd?: string;
   /** Global queue for rate limiting */
-  queue?: import("@converge/claudefn").GlobalQueue | import("@converge/claudefn").GlobalQueueOptions | boolean;
+  queue?:
+    | import("@converge/claudefn").GlobalQueue
+    | import("@converge/claudefn").GlobalQueueOptions
+    | boolean;
   /** Extra CLI flags */
   cliFlags?: string[];
 
@@ -201,7 +197,7 @@ export interface AgentFnOptions<T = string> {
 
   // ── ACP (Agent SDK) options ─────────────────────────
 
-  /** 
+  /**
    * Custom API key for ACP provider.
    * Use this to connect to Claude-compatible APIs (e.g., Kimi).
    */
@@ -236,7 +232,7 @@ export interface AgentFnOptions<T = string> {
   enableSkills?: boolean;
 
   /**
-   * Absolute path to the skills directory (e.g. "/project/.crew/skills").
+   * Absolute path to the skills directory (e.g. "/project/.converge/skills").
    * When set, agentfn will create .claude/skills/ symlinks for Claude provider
    * and clean them up after execution.
    */
@@ -307,7 +303,10 @@ export interface ComposeOptions<T = string> {
   /** Working directory */
   cwd?: string;
   /** Global queue for rate limiting */
-  queue?: import("@converge/claudefn").GlobalQueue | import("@converge/claudefn").GlobalQueueOptions | boolean;
+  queue?:
+    | import("@converge/claudefn").GlobalQueue
+    | import("@converge/claudefn").GlobalQueueOptions
+    | boolean;
   /** Extra CLI flags */
   cliFlags?: string[];
 

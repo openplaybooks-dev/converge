@@ -4,7 +4,7 @@
  * Types for the `.sidecar()` modifier — hooks into other tasks' lifecycle events.
  */
 
-import type { HookPayloads } from '../hooks/types.ts';
+import type { HookPayloads } from "../hooks/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Sidecar Hook Events                                               */
@@ -15,15 +15,15 @@ import type { HookPayloads } from '../hooks/types.ts';
  * Subset of HookEvent relevant to task-level lifecycle.
  */
 export type SidecarHookEvent =
-  | 'task:start'
-  | 'task:complete'
-  | 'task:fail'
-  | 'task:retry'
-  | 'gap:detected'
-  | 'gap:resolved'
-  | 'epic:start'
-  | 'epic:complete'
-  | 'convergence:stalled';
+  | "task:start"
+  | "task:complete"
+  | "task:fail"
+  | "task:retry"
+  | "gap:detected"
+  | "gap:resolved"
+  | "epic:start"
+  | "epic:complete"
+  | "convergence:stalled";
 
 /* ------------------------------------------------------------------ */
 /*  Sidecar Hook Callback                                             */
@@ -35,7 +35,7 @@ export type SidecarHookEvent =
  */
 export type SidecarHookFn<E extends SidecarHookEvent = SidecarHookEvent> = (
   payload: HookPayloads[E],
-  ctx: SidecarContext
+  ctx: SidecarContext,
 ) => void | Promise<void>;
 
 /**
@@ -71,7 +71,7 @@ export interface ShellResult {
 }
 
 export interface ReactiveGapInput {
-  severity: 'critical' | 'high' | 'medium' | 'low';
+  severity: "critical" | "high" | "medium" | "low";
   description: string;
   tags?: string[];
   output?: string;

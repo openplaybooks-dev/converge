@@ -5,19 +5,19 @@
  * Handles epic sequencing, dependency resolution, and project-level convergence.
  */
 
-import type { ProjectContext } from '../context/types.ts';
-import type { EpicConfig, EpicStatus } from '../storage/types.ts';
-import type { Gap } from '../gap/types.ts';
+import type { ProjectContext } from "../context/types.ts";
+import type { EpicConfig, EpicStatus } from "../storage/types.ts";
+import type { Gap } from "../gap/types.ts";
 import {
   ConvergenceOrchestrator,
   ConvergenceConfig,
   ConvergenceResult,
   DEFAULT_CONVERGENCE_CONFIG,
-} from './convergence.ts';
-import { FilesystemStorage } from '../storage/filesystem.ts';
-import { StatusManager } from '../storage/status.ts';
-import { createEpicContext } from '../context/epic-context.ts';
-import type { HookRegistry } from '../hooks/registry.ts';
+} from "./convergence.ts";
+import { FilesystemStorage } from "../storage/filesystem.ts";
+import { StatusManager } from "../storage/status.ts";
+import { createEpicContext } from "../context/epic-context.ts";
+import type { HookRegistry } from "../hooks/registry.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Project Orchestration Result                                      */
@@ -42,7 +42,7 @@ export interface ProjectOrchestrationResult {
   };
 
   /** Termination reason */
-  terminationReason: 'converged' | 'epic-failed' | 'stalled' | 'error';
+  terminationReason: "converged" | "epic-failed" | "stalled" | "error";
 
   /** Error details if any */
   error?: {
@@ -64,12 +64,16 @@ export class ProjectOrchestratorV2 {
   constructor(
     storage: FilesystemStorage,
     statusManager: StatusManager,
-    hooks?: HookRegistry
+    hooks?: HookRegistry,
   ) {
     this.storage = storage;
     this.statusManager = statusManager;
     this.hooks = hooks;
-    this.convergenceOrch = new ConvergenceOrchestrator(storage, statusManager, hooks);
+    this.convergenceOrch = new ConvergenceOrchestrator(
+      storage,
+      statusManager,
+      hooks,
+    );
   }
 
   /** Request graceful stop (passed through to convergence orchestrator) */
@@ -82,7 +86,7 @@ export class ProjectOrchestratorV2 {
    */
   async run(
     ctx: ProjectContext,
-    config: ConvergenceConfig = DEFAULT_CONVERGENCE_CONFIG
+    config: ConvergenceConfig = DEFAULT_CONVERGENCE_CONFIG,
   ): Promise<ProjectOrchestrationResult> {
     const startTime = Date.now();
     const epicResults = new Map<string, ConvergenceResult>();
@@ -90,7 +94,7 @@ export class ProjectOrchestratorV2 {
     ctx.log.info(`Starting project orchestration: ${ctx.config.name}`);
 
     // Fire project:start hook
-    await this.hooks?.fire('project:start', { ctx });
+    await this.hooks?.fire("project:start", { ctx });
 
     let totalIterations = 0;
     let totalGapsResolved = 0;
@@ -101,32 +105,50 @@ export class ProjectOrchestratorV2 {
     try {
       // Get epic execution order (respecting dependencies)
       const epicOrder = this.resolveEpicOrder(ctx);
-      ctx.log.info(`Epic execution order: ${epicOrder.join(' → ')}`);
+      ctx.log.info(`Epic execution order: ${epicOrder.join(" → ")}`);
 
       // Execute epics in order
       for (const epicId of epicOrder) {
-        ctx.log.info(`\n${'='.repeat(60)}`);
+        ctx.log.info(`\n${"=".repeat(60)}`);
         ctx.log.info(`Starting epic: ${epicId}`);
-        ctx.log.info(`${'='.repeat(60)}\n`);
+        ctx.log.info(`${"=".repeat(60)}\n`);
 
         // Load epic config and status
         const epicConfig = this.storage.readEpicConfig(epicId);
         const epicStatus = this.statusManager.getEpicStatus(epicId);
 
         // Skip if already completed
-        if (epicStatus.status === 'completed') {
+        if (epicStatus.status === "completed") {
           ctx.log.info(`Epic ${epicId} already completed, skipping`);
           completedEpics++;
-          const epicCtxForSkip = createEpicContext(epicId, epicConfig, epicStatus, ctx, this.storage);
-          await this.hooks?.fire('epic:skip', { ctx: epicCtxForSkip, reason: 'already completed' });
+          const epicCtxForSkip = createEpicContext(
+            epicId,
+            epicConfig,
+            epicStatus,
+            ctx,
+            this.storage,
+          );
+          await this.hooks?.fire("epic:skip", {
+            ctx: epicCtxForSkip,
+            reason: "already completed",
+          });
           continue;
         }
 
         // Create epic context
-        const epicCtx = createEpicContext(epicId, epicConfig, epicStatus, ctx, this.storage);
+        const epicCtx = createEpicContext(
+          epicId,
+          epicConfig,
+          epicStatus,
+          ctx,
+          this.storage,
+        );
 
         // Run epic convergence
-        const result = await this.convergenceOrch.runEpicConvergence(epicCtx, config);
+        const result = await this.convergenceOrch.runEpicConvergence(
+          epicCtx,
+          config,
+        );
         epicResults.set(epicId, result);
 
         // Update counters
@@ -140,13 +162,15 @@ export class ProjectOrchestratorV2 {
         } else {
           failedEpics++;
           ctx.log.error(
-            `❌ Epic ${epicId} failed to converge: ${result.terminationReason}`
+            `❌ Epic ${epicId} failed to converge: ${result.terminationReason}`,
           );
 
           // Decide whether to continue or stop
           if (epicConfig.constraints?.sequential !== false) {
             // Sequential mode: stop on first failure
-            ctx.log.error(`Stopping project due to epic failure (sequential mode)`);
+            ctx.log.error(
+              `Stopping project due to epic failure (sequential mode)`,
+            );
             return {
               converged: false,
               epicResults,
@@ -159,7 +183,7 @@ export class ProjectOrchestratorV2 {
                 totalTasksExecuted,
                 duration: Date.now() - startTime,
               },
-              terminationReason: 'epic-failed',
+              terminationReason: "epic-failed",
               error: {
                 message: `Epic ${epicId} failed to converge`,
                 epicId,
@@ -175,17 +199,19 @@ export class ProjectOrchestratorV2 {
       // Check overall convergence
       const projectConverged = failedEpics === 0;
 
-      ctx.log.info(`\n${'='.repeat(60)}`);
+      ctx.log.info(`\n${"=".repeat(60)}`);
       ctx.log.info(`Project Orchestration Complete`);
-      ctx.log.info(`${'='.repeat(60)}`);
+      ctx.log.info(`${"=".repeat(60)}`);
       ctx.log.info(`Total Epics: ${epicOrder.length}`);
       ctx.log.info(`Completed: ${completedEpics}`);
       ctx.log.info(`Failed: ${failedEpics}`);
       ctx.log.info(`Total Iterations: ${totalIterations}`);
       ctx.log.info(`Total Gaps Resolved: ${totalGapsResolved}`);
       ctx.log.info(`Total Tasks Executed: ${totalTasksExecuted}`);
-      ctx.log.info(`Duration: ${((Date.now() - startTime) / 1000).toFixed(2)}s`);
-      ctx.log.info(`${'='.repeat(60)}\n`);
+      ctx.log.info(
+        `Duration: ${((Date.now() - startTime) / 1000).toFixed(2)}s`,
+      );
+      ctx.log.info(`${"=".repeat(60)}\n`);
 
       const projectResult: ProjectOrchestrationResult = {
         converged: projectConverged,
@@ -199,13 +225,16 @@ export class ProjectOrchestratorV2 {
           totalTasksExecuted,
           duration: Date.now() - startTime,
         },
-        terminationReason: projectConverged ? 'converged' : 'epic-failed',
+        terminationReason: projectConverged ? "converged" : "epic-failed",
       };
 
       if (projectConverged) {
-        await this.hooks?.fire('project:complete', { ctx, result: projectResult });
+        await this.hooks?.fire("project:complete", {
+          ctx,
+          result: projectResult,
+        });
       } else {
-        await this.hooks?.fire('project:fail', {
+        await this.hooks?.fire("project:fail", {
           ctx,
           error: new Error(`${failedEpics} epic(s) failed to converge`),
         });
@@ -227,14 +256,14 @@ export class ProjectOrchestratorV2 {
           totalTasksExecuted,
           duration: Date.now() - startTime,
         },
-        terminationReason: 'error',
+        terminationReason: "error",
         error: {
           message: error.message,
-          epicId: 'unknown',
+          epicId: "unknown",
         },
       };
 
-      await this.hooks?.fire('project:fail', { ctx, error });
+      await this.hooks?.fire("project:fail", { ctx, error });
 
       return errorResult;
     }
@@ -269,7 +298,7 @@ export class ProjectOrchestratorV2 {
 
       if (visiting.has(epicId)) {
         throw new Error(
-          `Circular epic dependency detected: ${[...path, epicId].join(' → ')}`
+          `Circular epic dependency detected: ${[...path, epicId].join(" → ")}`,
         );
       }
 
@@ -300,44 +329,49 @@ export class ProjectOrchestratorV2 {
    */
   async resume(
     ctx: ProjectContext,
-    config: ConvergenceConfig = DEFAULT_CONVERGENCE_CONFIG
+    config: ConvergenceConfig = DEFAULT_CONVERGENCE_CONFIG,
   ): Promise<ProjectOrchestrationResult> {
-    ctx.log.info('Resuming from checkpoint...');
+    ctx.log.info("Resuming from checkpoint...");
 
     // Load latest checkpoint
     const checkpoint = this.storage.readLatestCheckpoint();
     if (!checkpoint) {
-      ctx.log.warn('No checkpoint found, starting fresh');
+      ctx.log.warn("No checkpoint found, starting fresh");
       return this.run(ctx, config);
     }
 
     ctx.log.info(
       `Resuming from checkpoint: iteration ${checkpoint.iteration ?? 0}, ` +
-        `epic ${checkpoint.state?.currentEpic || 'unknown'}`
+        `epic ${checkpoint.state?.currentEpic || "unknown"}`,
     );
 
-    await this.hooks?.fire('checkpoint:restored', {
+    await this.hooks?.fire("checkpoint:restored", {
       checkpointId: checkpoint.id,
       iteration: checkpoint.iteration ?? 0,
     });
 
     // Re-evaluate gaps (trust codebase, not stale status)
     if (checkpoint.state?.currentEpic) {
-      const epicConfig = this.storage.readEpicConfig(checkpoint.state.currentEpic);
-      const epicStatus = this.statusManager.getEpicStatus(checkpoint.state.currentEpic);
+      const epicConfig = this.storage.readEpicConfig(
+        checkpoint.state.currentEpic,
+      );
+      const epicStatus = this.statusManager.getEpicStatus(
+        checkpoint.state.currentEpic,
+      );
       const epicCtx = createEpicContext(
         checkpoint.state.currentEpic,
         epicConfig,
         epicStatus,
         ctx,
-        this.storage
+        this.storage,
       );
 
-      ctx.log.info('Re-evaluating gaps from checkpoint...');
-      const freshGaps = await this.convergenceOrch['detector'].detectEpicGaps(epicCtx);
+      ctx.log.info("Re-evaluating gaps from checkpoint...");
+      const freshGaps =
+        await this.convergenceOrch["detector"].detectEpicGaps(epicCtx);
       ctx.log.info(
         `Fresh evaluation: ${freshGaps.gaps.length} gaps ` +
-          `(checkpoint had ${checkpoint.gaps?.length ?? 0})`
+          `(checkpoint had ${checkpoint.gaps?.length ?? 0})`,
       );
     }
 
@@ -356,7 +390,7 @@ export class ProjectOrchestratorV2 {
 export function createProjectOrchestratorV2(
   storage: FilesystemStorage,
   statusManager: StatusManager,
-  hooks?: HookRegistry
+  hooks?: HookRegistry,
 ): ProjectOrchestratorV2 {
   return new ProjectOrchestratorV2(storage, statusManager, hooks);
 }

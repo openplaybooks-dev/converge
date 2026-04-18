@@ -14,14 +14,14 @@ Barrel export. Re-exports everything from the other modules plus shared utilitie
 
 Unified type definitions across all providers.
 
-| Type | Description |
-|------|-------------|
-| `Provider` | `"claude" \| "kimi" \| "qwen" \| "gemini"` |
-| `AgentFnResult<T>` | `{ data, raw, durationMs, provider, sessionId?, costUsd?, numTurns? }` |
+| Type                | Description                                                                                                                                                                             |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Provider`          | `"claude" \| "kimi" \| "qwen" \| "gemini"`                                                                                                                                              |
+| `AgentFnResult<T>`  | `{ data, raw, durationMs, provider, sessionId?, costUsd?, numTurns? }`                                                                                                                  |
 | `AgentFnOptions<T>` | Shared options (`prompt`, `schema`, `hooks`, `timeoutMs`, `maxRetries`, `cwd`, `queue`, `cliFlags`, `enableSkills`) plus Claude-specific extras (`mode`, `allowedTools`, `model`, etc.) |
-| `AgentFnHooks` | `{ before?, after?, onStream?, onMessage?, onFeedback? }` |
-| `ToolDef` | `{ fn: AgentFn, description: string }` — tool for composition |
-| `ComposeOptions<T>` | Extends `AgentFnOptions` with `tools`, `composeMode`, `maxIterations` |
+| `AgentFnHooks`      | `{ before?, after?, onStream?, onMessage?, onFeedback? }`                                                                                                                               |
+| `ToolDef`           | `{ fn: AgentFn, description: string }` — tool for composition                                                                                                                           |
+| `ComposeOptions<T>` | Extends `AgentFnOptions` with `tools`, `composeMode`, `maxIterations`                                                                                                                   |
 
 Also re-exports shared types from `claudefn` (`PromptInput`, `ExecutionMode`, `ClaudeFnOptions`, etc.).
 
@@ -73,18 +73,22 @@ const fn = compose({
 Loads skills and agents from the `.converge` folder.
 
 **Discovery:**
+
 - `findProjectRoot(cwd?)` — walks up looking for `pnpm-workspace.yaml` or `package.json`
-- `getCrewDir(cwd?)` — resolves `.converge` path (respects `CONVERGE_PATH` env var)
+- `getConvergeDir(cwd?)` — resolves `.converge` path (respects `CONVERGE_PATH` env var)
 
 **Listing:**
+
 - `listSkills(cwd?)` — folders containing `SKILL.md`
 - `listAgents(cwd?)` — folders containing `AGENT.md` or `*.md`
 
 **Resolution:**
+
 - `getSkillPath(name, cwd?)` — `.converge/{name}/SKILL.md`
 - `getAgentPath(name, cwd?)` — `.converge/{name}/AGENT.md` or `.converge/{name}.md`
 
 **Metadata:**
+
 - `getSkillMeta(path)` / `getAgentMeta(path)` — parse YAML frontmatter (`name`, `description`, etc.)
 
 ### `prompting.ts`

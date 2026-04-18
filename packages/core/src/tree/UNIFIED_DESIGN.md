@@ -60,13 +60,15 @@ TreeNode (Epic)
 ## Key Insights
 
 ### 1. Unit Already Has Parent Chain
+
 ```typescript
 // Unit.ts (current)
 class Unit {
-  parent: Unit | null;           // ✅ Already exists
-  context: TaskContext;          // ✅ Has parent chain
+  parent: Unit | null; // ✅ Already exists
+  context: TaskContext; // ✅ Has parent chain
 
-  *walkAncestorContexts() {      // ✅ Tree traversal
+  *walkAncestorContexts() {
+    // ✅ Tree traversal
     let current = this.context?.parent;
     while (current) {
       yield current;
@@ -77,6 +79,7 @@ class Unit {
 ```
 
 ### 2. TreeNode Wraps Unit
+
 ```typescript
 // tree-node.ts (refactored)
 class TreeNode {
@@ -102,6 +105,7 @@ class TreeNode {
 ```
 
 ### 3. TaskTree Builds TreeNodes
+
 ```typescript
 // task-tree.ts (refactored)
 class TaskTree {
@@ -142,6 +146,7 @@ class TaskTree {
 ## Division of Responsibilities
 
 ### Unit Responsibilities
+
 - **Task Definition**: id, title, inputs, outputs, vars, tags
 - **Execution**: run(), resolveChecks(), resolvePrompt()
 - **Parent Reference**: parent: Unit (single upward link)
@@ -149,12 +154,14 @@ class TaskTree {
 - **Convergence Loop**: while (hasGaps) { fixGaps }
 
 ### TreeNode Responsibilities
+
 - **Tree Structure**: children: TreeNode[], dependencies, dependents
 - **Tree Traversal**: findNextTask(), getChildren(), getAncestors()
 - **State Queries**: isComplete(), isFailed(), isBlocked()
 - **Blocking Logic**: Traverse dependencies + siblings + parent
 
 ### TaskTree Responsibilities
+
 - **Tree Construction**: Load Units, wrap in TreeNodes, build edges
 - **Fast Lookup**: nodes Map for O(1) access
 - **Tree Shake**: reload() after WBS seeding
@@ -164,16 +171,21 @@ class TaskTree {
 ## Migration Strategy
 
 ### Step 1: Refactor TreeNode to Wrap Unit ✅
+
 ```typescript
 class TreeNode {
   constructor(
     public readonly unit: Unit,
-    private checkpoint: CheckpointManager
+    private checkpoint: CheckpointManager,
   ) {}
 
   // Convenience accessors
-  get id() { return this.unit.id; }
-  get parent() { return this.unit.parent; }
+  get id() {
+    return this.unit.id;
+  }
+  get parent() {
+    return this.unit.parent;
+  }
 
   // Tree structure
   children: TreeNode[] = [];
@@ -183,6 +195,7 @@ class TreeNode {
 ```
 
 ### Step 2: Update TaskTree to Load Units ✅
+
 ```typescript
 static async load(projectDir, config) {
   // Load Units via existing factories
@@ -204,7 +217,9 @@ static async load(projectDir, config) {
 ```
 
 ### Step 3: Remove Duplication
+
 **BEFORE (Duplicated)**:
+
 ```typescript
 // TreeNode had its own copies
 class TreeNode {
@@ -212,20 +227,29 @@ class TreeNode {
   epicId: string;
   blocking: boolean;
   tags: string[];
-  unit: Unit;  // Also stored the unit
+  unit: Unit; // Also stored the unit
 }
 ```
 
 **AFTER (Delegates)**:
+
 ```typescript
 // TreeNode delegates to unit
 class TreeNode {
   readonly unit: Unit;
 
-  get id() { return this.unit.id; }
-  get epicId() { return this.unit.context?.epicId; }
-  get blocking() { return this.unit.blocking; }
-  get tags() { return this.unit.tags; }
+  get id() {
+    return this.unit.id;
+  }
+  get epicId() {
+    return this.unit.context?.epicId;
+  }
+  get blocking() {
+    return this.unit.blocking;
+  }
+  get tags() {
+    return this.unit.tags;
+  }
 }
 ```
 
@@ -246,28 +270,29 @@ const tree = await TaskTree.load(projectDir, config);
 
 // Get next task (hierarchical traversal)
 const result = await tree.findNextTask();
-const nextNode = result.node;  // TreeNode
+const nextNode = result.node; // TreeNode
 
 // Access Unit for execution
 const unit = nextNode.unit;
-await unit.run();  // Execute convergence loop
+await unit.run(); // Execute convergence loop
 
 // Access parent via Unit
 const parentUnit = unit.parent;
 const parentContext = unit.context?.parent;
 
 // Access children via TreeNode
-const childNodes = nextNode.children;  // TreeNode[]
-const childUnits = childNodes.map(n => n.unit);  // Unit[]
+const childNodes = nextNode.children; // TreeNode[]
+const childUnits = childNodes.map((n) => n.unit); // Unit[]
 
 // Query state via TreeNode
-const isBlocked = await nextNode.isBlocked();  // Uses dependencies
-const isComplete = await nextNode.isComplete();  // Uses checkpoint
+const isBlocked = await nextNode.isBlocked(); // Uses dependencies
+const isComplete = await nextNode.isComplete(); // Uses checkpoint
 ```
 
 ## API Comparison
 
 ### BEFORE (Duplicated)
+
 ```typescript
 // Had to keep Unit and TreeNode in sync
 const unit = await Unit.fromPath(taskPath);
@@ -283,15 +308,16 @@ const node = new TreeNode(nodeData, checkpoint);
 ```
 
 ### AFTER (Unified)
+
 ```typescript
 // TreeNode wraps Unit directly
 const unit = await Unit.fromPath(taskPath);
 const node = new TreeNode(unit, checkpoint);
 
 // TreeNode delegates to unit
-console.log(node.id);        // unit.id
-console.log(node.blocking);  // unit.blocking
-console.log(node.parent);    // unit.parent
+console.log(node.id); // unit.id
+console.log(node.blocking); // unit.blocking
+console.log(node.parent); // unit.parent
 ```
 
 ## Decision: Unit.children vs TreeNode.children
@@ -301,6 +327,7 @@ console.log(node.parent);    // unit.parent
 **Answer**: Only TreeNode.children
 
 **Reasoning**:
+
 1. Unit already has parent chain via `parent: Unit`
 2. Children are discovered **after** Units are loaded (WBS spawning)
 3. TreeNode owns tree structure (children, dependencies)
@@ -308,13 +335,14 @@ console.log(node.parent);    // unit.parent
 5. Avoids duplication between Unit.children and TreeNode.children
 
 **Exception**: Unit can have virtual children during WBS execution
+
 ```typescript
 // In WBS function (temporary, not persisted)
 const childUnit = Unit.fromDefinition(childDef, parentUnit);
-parentUnit.children = [childUnit];  // Temporary
+parentUnit.children = [childUnit]; // Temporary
 
 // After WBS completes, these become TreeNode.children
-await tree.reload();  // Picks up new Units as TreeNodes
+await tree.reload(); // Picks up new Units as TreeNodes
 ```
 
 ## Final Architecture

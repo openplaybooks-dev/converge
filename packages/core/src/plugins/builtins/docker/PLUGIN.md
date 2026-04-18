@@ -19,8 +19,8 @@ Adds Docker build and run verification checks and a `deploy` task type.
 
 ## Options
 
-| Option       | Default        | Description                |
-|--------------|----------------|----------------------------|
-| `dockerfile` | `"Dockerfile"` | Path to Dockerfile         |
-| `registry`   | —              | Container registry URL     |
-| `imageName`  | `"app"`        | Image name for tagging     |
+| Option       | Default        | Description            |
+| ------------ | -------------- | ---------------------- |
+| `dockerfile` | `"Dockerfile"` | Path to Dockerfile     |
+| `registry`   | —              | Container registry URL |
+| `imageName`  | `"app"`        | Image name for tagging |

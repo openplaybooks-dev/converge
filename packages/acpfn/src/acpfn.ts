@@ -1,13 +1,23 @@
 import { randomUUID } from "node:crypto";
-import { writeFileSync, unlinkSync, mkdirSync, appendFileSync, existsSync, readFileSync } from "node:fs";
+import {
+  writeFileSync,
+  unlinkSync,
+  mkdirSync,
+  appendFileSync,
+  existsSync,
+  readFileSync,
+} from "node:fs";
 import { join } from "node:path";
-import { query, type Options, type Query, type SDKMessage, type SDKResultMessage, type SDKResultSuccess, type SDKAssistantMessage } from "@anthropic-ai/claude-agent-sdk";
-import type {
-  AcpFnOptions,
-  AcpFnResult,
-  AcpFn,
-  PromptInput,
-} from "./types.js";
+import {
+  query,
+  type Options,
+  type Query,
+  type SDKMessage,
+  type SDKResultMessage,
+  type SDKResultSuccess,
+  type SDKAssistantMessage,
+} from "@anthropic-ai/claude-agent-sdk";
+import type { AcpFnOptions, AcpFnResult, AcpFn, PromptInput } from "./types.js";
 import { GlobalQueue, getDefaultQueue } from "./queue.js";
 import type { GlobalQueueOptions } from "./queue.js";
 import { extractJson, resolvePrompt } from "./utils.js";
@@ -15,9 +25,15 @@ import { extractJson, resolvePrompt } from "./utils.js";
 // ─── Log File Helpers ──────────────────────────────────────────
 
 /** Resolve (and create) the log directory, return the log file path */
-function createLogFile(cwd: string | undefined, sessionId: string, logDir?: string): string {
+function createLogFile(
+  cwd: string | undefined,
+  sessionId: string,
+  logDir?: string,
+): string {
   if (!logDir) {
-    throw new Error("logDir is required - acpfn no longer uses a default log directory");
+    throw new Error(
+      "logDir is required - acpfn no longer uses a default log directory",
+    );
   }
   mkdirSync(logDir, { recursive: true });
   const ts = new Date().toISOString().replace(/[:.]/g, "-");
@@ -34,27 +50,28 @@ function appendLog(logPath: string, prefix: string, data: string): void {
 }
 
 /** Append a compact JSONL index entry for high-level progress tracking */
-function appendIndexLog(logPath: string, entry: {
-  ts: string;
-  type: string;
-  event: string;
-  data?: any;
-  duration_ms?: number;
-  line_start?: number;
-  line_end?: number;
-}): void {
+function appendIndexLog(
+  logPath: string,
+  entry: {
+    ts: string;
+    type: string;
+    event: string;
+    data?: any;
+    duration_ms?: number;
+    line_start?: number;
+    line_end?: number;
+  },
+): void {
   try {
-    const indexPath = logPath.replace('.log', '.index.jsonl');
-    appendFileSync(indexPath, JSON.stringify(entry) + '\n');
+    const indexPath = logPath.replace(".log", ".index.jsonl");
+    appendFileSync(indexPath, JSON.stringify(entry) + "\n");
   } catch {
     // Best-effort logging
   }
 }
 
 /** Resolve the queue option to a GlobalQueue instance or null */
-function resolveQueue(
-  option: AcpFnOptions["queue"],
-): GlobalQueue | null {
+function resolveQueue(option: AcpFnOptions["queue"]): GlobalQueue | null {
   if (!option) return null;
   if (option === true) return getDefaultQueue();
   if (option instanceof GlobalQueue) return option;
@@ -88,7 +105,10 @@ function extractTextFromMessage(message: SDKMessage): string {
 
 /** Check if message is a successful result */
 function isResultSuccess(message: SDKMessage): message is SDKResultSuccess {
-  return message.type === "result" && (message as SDKResultMessage).subtype === "success";
+  return (
+    message.type === "result" &&
+    (message as SDKResultMessage).subtype === "success"
+  );
 }
 
 /** Process SDK messages and extract streaming content */
@@ -96,10 +116,14 @@ function processMessage(
   message: SDKMessage,
   logPath: string,
   onStream?: (chunk: string) => void,
-  counters?: { toolUseCount: number; thinkingBlockCount: number; textBlockCount: number }
+  counters?: {
+    toolUseCount: number;
+    thinkingBlockCount: number;
+    textBlockCount: number;
+  },
 ): string {
   const text = extractTextFromMessage(message);
-  
+
   // Log the raw message
   appendLog(logPath, "SDK_MESSAGE", JSON.stringify(message) + "\n");
 
@@ -120,8 +144,8 @@ function processMessage(
             event: "text",
             data: {
               text: block.text.slice(0, 200),
-              size: block.text.length
-            }
+              size: block.text.length,
+            },
           });
         } else if (block.type === "thinking" && block.thinking) {
           appendLog(logPath, "THINKING", block.thinking + "\n");
@@ -134,13 +158,17 @@ function processMessage(
             event: "reasoning",
             data: {
               text: block.thinking.slice(0, 200),
-              size: block.thinking.length
-            }
+              size: block.thinking.length,
+            },
           });
         } else if (block.type === "tool_use") {
           const input = (block.input ?? {}) as Record<string, any>;
           const inputStr = JSON.stringify(input, null, 2);
-          appendLog(logPath, "TOOL_USE", `Tool: ${block.name}\nInput: ${inputStr}\n`);
+          appendLog(
+            logPath,
+            "TOOL_USE",
+            `Tool: ${block.name}\nInput: ${inputStr}\n`,
+          );
           const inputPreview = inputStr.slice(0, 120);
           onStream?.(`\n[tool:${block.name}] ${inputPreview}\n`);
           if (counters) counters.toolUseCount++;
@@ -181,8 +209,8 @@ function processMessage(
             data: {
               tool: block.name,
               id: block.id,
-              input: inputSummary
-            }
+              input: inputSummary,
+            },
           });
         }
       }
@@ -207,9 +235,7 @@ function processMessage(
  * const { data } = await fn("hello");
  * ```
  */
-export function acpfn<T = string>(
-  options?: AcpFnOptions<T>,
-): AcpFn<T> {
+export function acpfn<T = string>(options?: AcpFnOptions<T>): AcpFn<T> {
   const opts = options ?? ({} as AcpFnOptions<T>);
 
   const {
@@ -323,25 +349,25 @@ async function executeViaSdk<T>(
 
   // If schema is provided, append JSON output instructions to the prompt
   if (schema) {
-    let schemaStructure = '';
+    let schemaStructure = "";
     try {
       const schemaShape = (schema as any)._def?.shape?.();
       if (schemaShape) {
         const fields = Object.keys(schemaShape);
         schemaStructure = JSON.stringify(
           Object.fromEntries(
-            fields.map(key => {
+            fields.map((key) => {
               const field = schemaShape[key];
               const typeName = field._def?.typeName;
-              let value = `<${typeName || 'value'}>`;
+              let value = `<${typeName || "value"}>`;
               if (field._def?.description) {
                 value = field._def.description;
               }
               return [key, value];
-            })
+            }),
           ),
           null,
-          2
+          2,
         );
       }
     } catch {
@@ -374,7 +400,7 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
 
   // Handle system prompt file
   let resolvedSystemPrompt = systemPrompt;
-  
+
   if (systemPromptFile) {
     try {
       resolvedSystemPrompt = readFileSync(systemPromptFile, "utf-8");
@@ -392,19 +418,25 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
 
   appendLog(logPath, "INFO", `Starting acpfn session=${sessionId}\n`);
   appendLog(logPath, "INFO", `Timeout=${timeoutMs}ms\n`);
-  appendLog(logPath, "PROMPT", `${prompt.slice(0, 500)}${prompt.length > 500 ? "...[truncated]" : ""}\n`);
+  appendLog(
+    logPath,
+    "PROMPT",
+    `${prompt.slice(0, 500)}${prompt.length > 500 ? "...[truncated]" : ""}\n`,
+  );
 
   appendIndexLog(logPath, {
     ts: new Date().toISOString(),
     type: "session",
     event: "started",
-    data: { session_id: sessionId, timeout_ms: timeoutMs }
+    data: { session_id: sessionId, timeout_ms: timeoutMs },
   });
 
   // Build SDK options
   const abortController = new AbortController();
   if (signal) {
-    signal.addEventListener('abort', () => abortController.abort(), { once: true });
+    signal.addEventListener("abort", () => abortController.abort(), {
+      once: true,
+    });
   }
 
   // Handle system prompt options
@@ -446,7 +478,7 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
     ts: new Date().toISOString(),
     type: "sdk",
     event: "query_initialized",
-    data: { session_id: sessionId }
+    data: { session_id: sessionId },
   });
 
   // Call onQueryInitialized hook if provided
@@ -454,7 +486,11 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
     onQueryInitialized(sdkQuery, logPath);
   }
 
-  const counters = { toolUseCount: 0, thinkingBlockCount: 0, textBlockCount: 0 };
+  const counters = {
+    toolUseCount: 0,
+    thinkingBlockCount: 0,
+    textBlockCount: 0,
+  };
   let finalResult = "";
   let settled = false;
 
@@ -469,7 +505,7 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
         type: "error",
         event: "timeout",
         duration_ms: Date.now() - startTime,
-        data: { message: timeoutMsg, timeout_ms: timeoutMs }
+        data: { message: timeoutMsg, timeout_ms: timeoutMs },
       });
       abortController.abort();
     }
@@ -480,7 +516,7 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
       if (settled) break;
 
       processMessage(message, logPath, hooks?.onStream, counters);
-      
+
       if (isResultSuccess(message)) {
         finalResult = message.result || "";
         settled = true;
@@ -489,7 +525,7 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
     }
   } catch (err: any) {
     if (signal?.aborted) {
-      throw new Error('acpfn aborted via signal');
+      throw new Error("acpfn aborted via signal");
     }
     if (abortController.signal.aborted) {
       throw new Error(`acpfn timed out after ${timeoutMs}ms`);
@@ -497,7 +533,7 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
     throw err;
   } finally {
     clearTimeout(timeoutTimer);
-    
+
     // Close the query to clean up resources
     try {
       sdkQuery.close();
@@ -517,8 +553,8 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
     data: {
       tool_calls: counters.toolUseCount,
       thinking_blocks: counters.thinkingBlockCount,
-      text_blocks: counters.textBlockCount
-    }
+      text_blocks: counters.textBlockCount,
+    },
   });
 
   appendLog(logPath, "EXIT", `success (duration=${durationMs}ms)\n`);
@@ -531,7 +567,15 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
   // Schema parsing
   let data: T;
   if (schema) {
-    data = await parseWithRepair<T>(finalResult, schema, sessionId, cwd, timeoutMs, logDir, sdkOptions);
+    data = await parseWithRepair<T>(
+      finalResult,
+      schema,
+      sessionId,
+      cwd,
+      timeoutMs,
+      logDir,
+      sdkOptions,
+    );
   } else {
     data = finalResult as unknown as T;
   }
@@ -559,9 +603,10 @@ async function parseWithRepair<T>(
     const parsed = JSON.parse(jsonStr);
     return schema!.parse(parsed);
   } catch (firstError: any) {
-    const snippet = jsonStr.length > 800
-      ? jsonStr.slice(0, 400) + '\n...[truncated]...\n' + jsonStr.slice(-400)
-      : jsonStr;
+    const snippet =
+      jsonStr.length > 800
+        ? jsonStr.slice(0, 400) + "\n...[truncated]...\n" + jsonStr.slice(-400)
+        : jsonStr;
 
     const repairPrompt = `Your previous response contained invalid JSON that failed to parse:
 
@@ -598,8 +643,8 @@ Do NOT add any text outside the code fence.`;
       console.warn(`   ❌ AI repair also failed: ${repairError.message}`);
       throw new Error(
         `JSON parse failed and AI self-repair failed.\n` +
-        `Original: ${firstError.message}\n` +
-        `Repair: ${repairError.message}`
+          `Original: ${firstError.message}\n` +
+          `Repair: ${repairError.message}`,
       );
     }
   }
@@ -681,14 +726,18 @@ export async function sendFeedback(
   };
 
   const sdkQuery = query({ prompt, options });
-  
+
   let finalResult = "";
   let settled = false;
 
   const timeoutTimer = setTimeout(() => {
     if (!settled) {
       settled = true;
-      appendLog(logPath, "TIMEOUT", `sendFeedback timed out after ${timeoutMs}ms\n`);
+      appendLog(
+        logPath,
+        "TIMEOUT",
+        `sendFeedback timed out after ${timeoutMs}ms\n`,
+      );
       abortController.abort();
     }
   }, timeoutMs);
@@ -696,7 +745,7 @@ export async function sendFeedback(
   try {
     for await (const message of sdkQuery) {
       if (settled) break;
-      
+
       if (isResultSuccess(message)) {
         finalResult = message.result || "";
         settled = true;
@@ -715,5 +764,11 @@ export async function sendFeedback(
   const durationMs = Date.now() - start;
   appendLog(logPath, "EXIT", `success (duration=${durationMs}ms)\n`);
 
-  return { data: finalResult, raw: finalResult, durationMs, sessionId, logPath };
+  return {
+    data: finalResult,
+    raw: finalResult,
+    durationMs,
+    sessionId,
+    logPath,
+  };
 }

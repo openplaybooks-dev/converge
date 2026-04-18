@@ -7,21 +7,24 @@ This document explains how the Converge framework discovers and handles skills v
 The framework distinguishes between three types of markdown files:
 
 ### 1. Shared Skills (Discovered as Skills)
+
 - **Pattern**: `.converge/skills/**/SKILL.md`
 - **Purpose**: Reusable AI capabilities shared across tasks
 - **Count**: One per skill (e.g., stitch-design, sheets-modeling)
 - **Example**: `.converge/skills/stitch-design/SKILL.md`
 
 ### 2. Task Metadata (Discovered as Tasks)
+
 - **Pattern**: `.converge/epics/**/*/SKILL.md` (handled by scanSkillOnlyTasks)
 - **Purpose**: Task-specific instructions and configuration
 - **Example**: `.converge/epics/02-ux-ui/001-create-ux-overview/SKILL.md`
 - **Note**: Converted to TaskConfig if no task.ts exists
 
 ### 3. Supporting Documentation (Not Discovered)
-- **Examples**: README.md, references/*.md, workflows/*.md, examples/*.md
+
+- **Examples**: README.md, references/_.md, workflows/_.md, examples/\*.md
 - **Purpose**: Human-readable documentation for skills
-- **Discovery**: Explicitly excluded by using SKILL.md pattern instead of *.md
+- **Discovery**: Explicitly excluded by using SKILL.md pattern instead of \*.md
 
 ## Configuration
 
@@ -33,12 +36,12 @@ NOT `.converge/skills/**/*.md`, to avoid discovering documentation files as skil
 ```typescript
 export default defineConverge({
   discovery: {
-    tasks:  ['.converge/tasks/**/*.ts', '.converge/epics/**/*.ts'],
-    checks: ['.converge/checks/**/*.ts'],
-    agents: ['.converge/agents/**/*.md'],
-    skills: ['.converge/skills/**/SKILL.md'], // ✓ Only match SKILL.md files
-    watch:  false,
-    spawn:  'subtasks-only',
+    tasks: [".converge/tasks/**/*.ts", ".converge/epics/**/*.ts"],
+    checks: [".converge/checks/**/*.ts"],
+    agents: [".converge/agents/**/*.md"],
+    skills: [".converge/skills/**/SKILL.md"], // ✓ Only match SKILL.md files
+    watch: false,
+    spawn: "subtasks-only",
   },
 });
 ```
@@ -49,7 +52,7 @@ export default defineConverge({
 export default defineConverge({
   discovery: {
     // ... other patterns ...
-    skills: ['.converge/skills/**/*.md'], // ✗ Matches ALL markdown files including docs
+    skills: [".converge/skills/**/*.md"], // ✗ Matches ALL markdown files including docs
   },
 });
 ```
@@ -90,6 +93,7 @@ export default defineConverge({
 ## Expected Counts
 
 For a typical workspace:
+
 - **Skills**: 7-10 (one SKILL.md per skill directory)
 - **Tasks**: 5-8 (including skill-based tasks from epics)
 - **Epics**: 2-3 (epic.ts files)

@@ -17,7 +17,7 @@
  * Exit code: always 0 on success.
  */
 
-import { readFileSync } from 'node:fs';
+import { readFileSync } from "node:fs";
 
 const argv = process.argv.slice(2);
 
@@ -28,25 +28,41 @@ let countChars = false;
 const files: string[] = [];
 
 for (const arg of argv) {
-  if (!arg.startsWith('-') || arg === '-') {
+  if (!arg.startsWith("-") || arg === "-") {
     files.push(arg);
     continue;
   }
-  if (arg.startsWith('--')) {
+  if (arg.startsWith("--")) {
     switch (arg) {
-      case '--lines': countLines = true; break;
-      case '--bytes': countBytes = true; break;
-      case '--words': countWords = true; break;
-      case '--chars': countChars = true; break;
+      case "--lines":
+        countLines = true;
+        break;
+      case "--bytes":
+        countBytes = true;
+        break;
+      case "--words":
+        countWords = true;
+        break;
+      case "--chars":
+        countChars = true;
+        break;
     }
     continue;
   }
   for (const ch of arg.slice(1)) {
     switch (ch) {
-      case 'l': countLines = true; break;
-      case 'c': countBytes = true; break;
-      case 'w': countWords = true; break;
-      case 'm': countChars = true; break;
+      case "l":
+        countLines = true;
+        break;
+      case "c":
+        countBytes = true;
+        break;
+      case "w":
+        countWords = true;
+        break;
+      case "m":
+        countChars = true;
+        break;
       default:
         process.stderr.write(`wc: invalid option -- '${ch}'\n`);
     }
@@ -60,7 +76,12 @@ if (!countLines && !countBytes && !countWords && !countChars) {
   countBytes = true;
 }
 
-interface Counts { lines: number; words: number; bytes: number; chars: number }
+interface Counts {
+  lines: number;
+  words: number;
+  bytes: number;
+  chars: number;
+}
 
 function countContent(content: string, rawBuf: Buffer): Counts {
   const lines = (content.match(/\n/g) ?? []).length;
@@ -74,22 +95,22 @@ function formatCounts(c: Counts, name?: string): string {
   if (countWords) parts.push(String(c.words).padStart(7));
   if (countBytes) parts.push(String(c.bytes).padStart(7));
   if (countChars) parts.push(String(c.chars).padStart(7));
-  return parts.join('') + (name ? ` ${name}` : '') + '\n';
+  return parts.join("") + (name ? ` ${name}` : "") + "\n";
 }
 
 function readStdin(): Promise<Buffer> {
   return new Promise((resolve) => {
     const chunks: Buffer[] = [];
-    process.stdin.on('data', (chunk: Buffer) => chunks.push(chunk));
-    process.stdin.on('end', () => resolve(Buffer.concat(chunks)));
+    process.stdin.on("data", (chunk: Buffer) => chunks.push(chunk));
+    process.stdin.on("end", () => resolve(Buffer.concat(chunks)));
   });
 }
 
 async function main() {
-  if (files.length === 0 || (files.length === 1 && files[0] === '-')) {
+  if (files.length === 0 || (files.length === 1 && files[0] === "-")) {
     // Read from stdin
     const buf = await readStdin();
-    const text = buf.toString('utf8');
+    const text = buf.toString("utf8");
     const c = countContent(text, buf);
     process.stdout.write(formatCounts(c));
     return;
@@ -105,7 +126,7 @@ async function main() {
       process.stderr.write(`wc: ${file}: ${err.message}\n`);
       continue;
     }
-    const text = buf.toString('utf8');
+    const text = buf.toString("utf8");
     const c = countContent(text, buf);
     totals.lines += c.lines;
     totals.words += c.words;
@@ -115,7 +136,7 @@ async function main() {
   }
 
   if (files.length > 1) {
-    process.stdout.write(formatCounts(totals, 'total'));
+    process.stdout.write(formatCounts(totals, "total"));
   }
 }
 

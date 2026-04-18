@@ -11,22 +11,27 @@
  *   3. Predictive gap detection (future)
  */
 
-import { z } from 'zod';
-import type { HookFn } from '../hooks/types.ts';
-import type { TaskContext } from '../context/types.ts';
-import type { TaskResult } from '../functions/types.ts';
-import { createAIContext } from '../ai/context.ts';
-import { createFilesystemHelper } from './helpers/filesystem.ts';
-import { createTaskHelper } from './helpers/task.ts';
-import { logTaskEvent } from '../journal/writer.ts';
+import { z } from "zod";
+import type { HookFn } from "../hooks/types.ts";
+import type { TaskContext } from "../context/types.ts";
+import type { TaskResult } from "../functions/types.ts";
+import { createAIContext } from "../ai/context.ts";
+import { createFilesystemHelper } from "./helpers/filesystem.ts";
+import { createTaskHelper } from "./helpers/task.ts";
+import { logTaskEvent } from "../journal/writer.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Schemas                                                           */
 /* ------------------------------------------------------------------ */
 
 const HealthIssueSchema = z.object({
-  type: z.enum(['output-mismatch', 'deprecated-format', 'tool-change', 'suspicious-warning']),
-  severity: z.enum(['low', 'medium', 'high', 'critical']),
+  type: z.enum([
+    "output-mismatch",
+    "deprecated-format",
+    "tool-change",
+    "suspicious-warning",
+  ]),
+  severity: z.enum(["low", "medium", "high", "critical"]),
   description: z.string(),
   suggestedFix: z.string(),
 });
@@ -35,19 +40,21 @@ const HealthCheckResultSchema = z.object({
   healthy: z.boolean(),
   issues: z.array(HealthIssueSchema),
   shouldTriggerRepair: z.boolean(),
-  confidence: z.enum(['high', 'medium', 'low']),
+  confidence: z.enum(["high", "medium", "low"]),
 });
 
 type HealthCheckResult = z.infer<typeof HealthCheckResultSchema>;
 
 const WBSReviewResultSchema = z.object({
   allCorrect: z.boolean(),
-  issues: z.array(z.object({
-    affectedTasks: z.array(z.string()),
-    problem: z.string(),
-    suggestedFix: z.string(),
-    severity: z.enum(['low', 'medium', 'high', 'critical']),
-  })),
+  issues: z.array(
+    z.object({
+      affectedTasks: z.array(z.string()),
+      problem: z.string(),
+      suggestedFix: z.string(),
+      severity: z.enum(["low", "medium", "high", "critical"]),
+    }),
+  ),
   shouldBlockSpawn: z.boolean(),
 });
 
@@ -63,7 +70,10 @@ type WBSReviewResult = z.infer<typeof WBSReviewResultSchema>;
  * Analyzes completed tasks for potential issues that might cause
  * downstream failures or indicate stale definitions.
  */
-export const taskCompletionHealthCheck: HookFn<'task:complete'> = async ({ ctx, result }) => {
+export const taskCompletionHealthCheck: HookFn<"task:complete"> = async ({
+  ctx,
+  result,
+}) => {
   // Skip health check if task failed or was skipped
   if (!result.success) return;
 
@@ -86,7 +96,7 @@ export const taskCompletionHealthCheck: HookFn<'task:complete'> = async ({ ctx, 
 
     let filesCreated: string[] = [];
     try {
-      const outputDir = outputs[0].split('/').slice(0, -1).join('/') || '.';
+      const outputDir = outputs[0].split("/").slice(0, -1).join("/") || ".";
       filesCreated = await filesystem.listDirectory(outputDir);
     } catch {
       // Output directory doesn't exist yet
@@ -98,12 +108,12 @@ export const taskCompletionHealthCheck: HookFn<'task:complete'> = async ({ ctx, 
       outputs,
       filesCreated,
       taskLogs,
-      ai
+      ai,
     );
 
     if (!healthCheck.healthy) {
       console.warn(`⚠️  Task ${taskId} health check found issues:`);
-      healthCheck.issues.forEach(issue => {
+      healthCheck.issues.forEach((issue) => {
         console.warn(`   [${issue.severity}] ${issue.description}`);
         if (issue.suggestedFix) {
           console.warn(`   💡 Suggested fix: ${issue.suggestedFix}`);
@@ -115,13 +125,13 @@ export const taskCompletionHealthCheck: HookFn<'task:complete'> = async ({ ctx, 
         projectDir,
         epicId,
         taskId,
-        'HEALTH_CHECK_ISSUES',
+        "HEALTH_CHECK_ISSUES",
         `Health check detected ${healthCheck.issues.length} issues`,
         {
           healthy: false,
           issues: healthCheck.issues,
           shouldTriggerRepair: healthCheck.shouldTriggerRepair,
-        }
+        },
       );
 
       // TODO: Trigger self-healing via gap resolution pipeline
@@ -131,7 +141,10 @@ export const taskCompletionHealthCheck: HookFn<'task:complete'> = async ({ ctx, 
     }
   } catch (err: any) {
     // Health check errors should not block task completion
-    console.warn(`⚠️  Health check failed for task ${ctx.taskId}:`, err.message);
+    console.warn(
+      `⚠️  Health check failed for task ${ctx.taskId}:`,
+      err.message,
+    );
   }
 };
 
@@ -140,16 +153,16 @@ async function performHealthCheck(
   expectedOutputs: string[],
   actualFiles: string[],
   taskLogs: string[],
-  ai: ReturnType<typeof createAIContext>
+  ai: ReturnType<typeof createAIContext>,
 ): Promise<HealthCheckResult> {
   const prompt = `You are analyzing a completed task for potential issues.
 
 **Task:** ${taskId}
-**Expected Outputs:** ${expectedOutputs.join(', ')}
-**Actual Files Created:** ${actualFiles.join(', ')}
+**Expected Outputs:** ${expectedOutputs.join(", ")}
+**Actual Files Created:** ${actualFiles.join(", ")}
 **Task Log (last 50 lines):**
 \`\`\`
-${taskLogs.join('\n')}
+${taskLogs.join("\n")}
 \`\`\`
 
 **Question:**
@@ -191,15 +204,11 @@ Or if issues found:
 
 Only flag issues that could cause downstream failures or indicate stale definitions.`;
 
-  return await ai.askJson<HealthCheckResult>(
-    prompt,
-    HealthCheckResultSchema,
-    {
-      phase: 'health-check',
-      label: 'Task Health Check',
-      timeoutMs: 90_000,
-    }
-  );
+  return await ai.askJson<HealthCheckResult>(prompt, HealthCheckResultSchema, {
+    phase: "health-check",
+    label: "Task Health Check",
+    timeoutMs: 90_000,
+  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -232,11 +241,7 @@ export async function wbsSpawnReview(payload: {
     const ai = createAIContext(projectDir, { epicId, taskId: parentTaskId });
 
     // AI review of spawned tasks
-    const review = await performWBSReview(
-      parentTaskId,
-      childTasks,
-      ai
-    );
+    const review = await performWBSReview(parentTaskId, childTasks, ai);
 
     if (!review.allCorrect) {
       if (review.shouldBlockSpawn) {
@@ -248,19 +253,21 @@ export async function wbsSpawnReview(payload: {
           projectDir,
           epicId,
           parentTaskId,
-          'WBS_SPAWN_BLOCKED',
+          "WBS_SPAWN_BLOCKED",
           errorMsg,
-          { issues: review.issues }
+          { issues: review.issues },
         );
 
         throw new Error(errorMsg);
       }
 
       // Non-critical issues - warn but allow spawn
-      console.warn(`⚠️  WBS spawned tasks with potential issues (will auto-repair):`);
-      review.issues.forEach(issue => {
+      console.warn(
+        `⚠️  WBS spawned tasks with potential issues (will auto-repair):`,
+      );
+      review.issues.forEach((issue) => {
         console.warn(`   [${issue.severity}] ${issue.problem}`);
-        console.warn(`   Affected: ${issue.affectedTasks.join(', ')}`);
+        console.warn(`   Affected: ${issue.affectedTasks.join(", ")}`);
         console.warn(`   Suggested fix: ${issue.suggestedFix}`);
       });
 
@@ -268,14 +275,14 @@ export async function wbsSpawnReview(payload: {
         projectDir,
         epicId,
         parentTaskId,
-        'WBS_SPAWN_ISSUES',
+        "WBS_SPAWN_ISSUES",
         `WBS spawned ${childTasks.length} tasks with ${review.issues.length} potential issues`,
-        { issues: review.issues }
+        { issues: review.issues },
       );
     }
   } catch (err: any) {
     // If it's a blocking error, re-throw
-    if (err.message.includes('WBS spawn blocked')) {
+    if (err.message.includes("WBS spawn blocked")) {
       throw err;
     }
 
@@ -287,17 +294,21 @@ export async function wbsSpawnReview(payload: {
 async function performWBSReview(
   parentTaskId: string,
   childTasks: Array<{ id: string; outputs: string[]; checks: any[] }>,
-  ai: ReturnType<typeof createAIContext>
+  ai: ReturnType<typeof createAIContext>,
 ): Promise<WBSReviewResult> {
   const prompt = `You are reviewing ${childTasks.length} tasks spawned by WBS generator.
 
 **Parent Task:** ${parentTaskId}
 **Child Task Definitions:**
-${childTasks.map(t => `
+${childTasks
+  .map(
+    (t) => `
 Task: ${t.id}
-Outputs: ${t.outputs.join(', ')}
-Checks: ${t.checks.map(c => c.cmd).join('; ')}
-`).join('\n')}
+Outputs: ${t.outputs.join(", ")}
+Checks: ${t.checks.map((c) => c.cmd).join("; ")}
+`,
+  )
+  .join("\n")}
 
 **Question:**
 Do these task definitions look correct? Are there any systemic issues?
@@ -336,15 +347,11 @@ Or if issues found:
 
 Only block spawn for critical issues that will definitely cause failures.`;
 
-  return await ai.askJson<WBSReviewResult>(
-    prompt,
-    WBSReviewResultSchema,
-    {
-      phase: 'wbs-review',
-      label: 'WBS Spawn Review',
-      timeoutMs: 120_000,
-    }
-  );
+  return await ai.askJson<WBSReviewResult>(prompt, WBSReviewResultSchema, {
+    phase: "wbs-review",
+    label: "WBS Spawn Review",
+    timeoutMs: 120_000,
+  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -367,7 +374,7 @@ Only block spawn for critical issues that will definitely cause failures.`;
  */
 export function registerHealthCheckHooks() {
   return {
-    'task:complete': taskCompletionHealthCheck,
+    "task:complete": taskCompletionHealthCheck,
     // Note: wbs:spawned is a custom event - need to add to HookEvent type
     // For now, call wbsSpawnReview() directly from WBS context
   };

@@ -1,7 +1,7 @@
 /**
  * Skill and agent loading utilities.
  *
- * All functions take explicit paths — no hardcoded .crew/ or project root detection.
+ * All functions take explicit paths — no hardcoded .converge/ or project root detection.
  * The caller decides where skills live and which ones to activate.
  *
  * Handles:
@@ -10,7 +10,16 @@
  * - Creating/cleaning symlinks for Claude Code's native skill discovery
  */
 
-import { existsSync, readdirSync, readFileSync, mkdirSync, symlinkSync, lstatSync, unlinkSync, rmdirSync } from "node:fs";
+import {
+  existsSync,
+  readdirSync,
+  readFileSync,
+  mkdirSync,
+  symlinkSync,
+  lstatSync,
+  unlinkSync,
+  rmdirSync,
+} from "node:fs";
 import { join, resolve, relative } from "node:path";
 import { platform } from "node:os";
 
@@ -57,8 +66,10 @@ export function parseFrontmatter(content: string): Record<string, string> {
       const key = line.slice(0, colonIndex).trim();
       let value = line.slice(colonIndex + 1).trim();
       // Strip surrounding quotes
-      if ((value.startsWith('"') && value.endsWith('"')) ||
-          (value.startsWith("'") && value.endsWith("'"))) {
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
         value = value.slice(1, -1);
       }
       result[key] = value;
@@ -80,7 +91,7 @@ export function stripFrontmatter(content: string): string {
  * Discover skills in a directory.
  * Scans for subdirectories containing SKILL.md.
  *
- * @param skillsRoot - Absolute path to the skills directory (e.g. "/project/.crew/skills")
+ * @param skillsRoot - Absolute path to the skills directory (e.g. "/project/.converge/skills")
  */
 export function discoverSkills(skillsRoot: string): SkillInfo[] {
   if (!existsSync(skillsRoot)) return [];
@@ -104,7 +115,9 @@ export function discoverSkills(skillsRoot: string): SkillInfo[] {
         path: skillFile,
       });
     }
-  } catch { /* directory read failed */ }
+  } catch {
+    /* directory read failed */
+  }
 
   return results;
 }
@@ -115,7 +128,10 @@ export function discoverSkills(skillsRoot: string): SkillInfo[] {
  * @param skillsRoot - Absolute path to the skills directory
  * @param name - Skill name (directory name)
  */
-export function loadSkill(skillsRoot: string, name: string): SkillContent | null {
+export function loadSkill(
+  skillsRoot: string,
+  name: string,
+): SkillContent | null {
   const skillFile = join(skillsRoot, name, "SKILL.md");
   if (!existsSync(skillFile)) return null;
 
@@ -137,7 +153,10 @@ export function loadSkill(skillsRoot: string, name: string): SkillContent | null
  * @param roots - Array of absolute paths to search
  * @param name - Skill name (directory name)
  */
-export function loadSkillFromRoots(roots: string[], name: string): SkillContent | null {
+export function loadSkillFromRoots(
+  roots: string[],
+  name: string,
+): SkillContent | null {
   for (const root of roots) {
     const result = loadSkill(root, name);
     if (result) return result;
@@ -244,7 +263,10 @@ export interface SymlinkOptions {
  * @param opts - Options for filtering and target directory
  * @returns Array of symlink names created (for cleanup)
  */
-export function ensureSkillSymlinks(skillsRoot: string, opts?: SymlinkOptions): string[] {
+export function ensureSkillSymlinks(
+  skillsRoot: string,
+  opts?: SymlinkOptions,
+): string[] {
   if (!existsSync(skillsRoot)) return [];
   if (!opts?.targetRoot) return [];
 
@@ -263,7 +285,9 @@ export function ensureSkillSymlinks(skillsRoot: string, opts?: SymlinkOptions): 
       try {
         lstatSync(linkPath);
         continue;
-      } catch { /* doesn't exist, create it */ }
+      } catch {
+        /* doesn't exist, create it */
+      }
 
       mkdirSync(targetRoot, { recursive: true });
       const absTarget = resolve(join(skillsRoot, d.name));
@@ -274,7 +298,9 @@ export function ensureSkillSymlinks(skillsRoot: string, opts?: SymlinkOptions): 
       }
       created.push(d.name);
     }
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 
   return created;
 }
@@ -286,7 +312,10 @@ export function ensureSkillSymlinks(skillsRoot: string, opts?: SymlinkOptions): 
  * @param names - Symlink names to remove
  * @param targetRoot - Directory containing the symlinks
  */
-export function cleanupSkillSymlinks(names: string[], targetRoot: string): void {
+export function cleanupSkillSymlinks(
+  names: string[],
+  targetRoot: string,
+): void {
   if (names.length === 0) return;
 
   for (const name of names) {
@@ -295,16 +324,26 @@ export function cleanupSkillSymlinks(names: string[], targetRoot: string): void 
       if (lstatSync(linkPath).isSymbolicLink()) {
         if (platform() === "win32") {
           // Windows junctions are reported as symlinks but must be removed with rmdirSync
-          try { rmdirSync(linkPath); } catch { unlinkSync(linkPath); }
+          try {
+            rmdirSync(linkPath);
+          } catch {
+            unlinkSync(linkPath);
+          }
         } else {
           unlinkSync(linkPath);
         }
       }
-    } catch { /* already gone */ }
+    } catch {
+      /* already gone */
+    }
   }
 
   // Remove dir if empty
-  try { rmdirSync(targetRoot); } catch { /* not empty */ }
+  try {
+    rmdirSync(targetRoot);
+  } catch {
+    /* not empty */
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -313,7 +352,7 @@ export function cleanupSkillSymlinks(names: string[], targetRoot: string): void 
 
 /**
  * @deprecated Use discoverSkills(skillsRoot) instead.
- * Lists skills by auto-detecting .claude/skills and .crew/ directories.
+ * Lists skills by auto-detecting .claude/skills and .converge/ directories.
  */
 export function listSkills(cwd?: string): string[] {
   const skills = new Set<string>();
@@ -325,10 +364,10 @@ export function listSkills(cwd?: string): string[] {
     skills.add(info.dirName);
   }
 
-  // .crew/ root (legacy)
-  const crewDir = _getCrewDir(cwd);
-  if (crewDir) {
-    for (const info of discoverSkills(crewDir)) {
+  // .converge/ root (legacy)
+  const convergeDir = _getConvergeDir(cwd);
+  if (convergeDir) {
+    for (const info of discoverSkills(convergeDir)) {
       skills.add(info.dirName);
     }
   }
@@ -340,9 +379,9 @@ export function listSkills(cwd?: string): string[] {
  * @deprecated Use discoverAgents(agentsRoot) instead.
  */
 export function listAgents(cwd?: string): string[] {
-  const crewDir = _getCrewDir(cwd);
-  if (!crewDir) return [];
-  return discoverAgents(crewDir);
+  const convergeDir = _getConvergeDir(cwd);
+  if (!convergeDir) return [];
+  return discoverAgents(convergeDir);
 }
 
 /**
@@ -354,8 +393,8 @@ export function legacyGetSkillPath(name: string, cwd?: string): string | null {
   if (!root) return null;
 
   const roots = [join(root, ".claude", "skills")];
-  const crewDir = _getCrewDir(cwd);
-  if (crewDir) roots.push(crewDir);
+  const convergeDir = _getConvergeDir(cwd);
+  if (convergeDir) roots.push(convergeDir);
 
   return getSkillPath(roots, name);
 }
@@ -365,9 +404,9 @@ export function legacyGetSkillPath(name: string, cwd?: string): string | null {
  * Legacy single-arg version that auto-detects project root.
  */
 export function legacyGetAgentPath(name: string, cwd?: string): string | null {
-  const crewDir = _getCrewDir(cwd);
-  if (!crewDir) return null;
-  return getAgentPath(crewDir, name);
+  const convergeDir = _getConvergeDir(cwd);
+  if (!convergeDir) return null;
+  return getAgentPath(convergeDir, name);
 }
 
 /* ------------------------------------------------------------------ */
@@ -375,7 +414,9 @@ export function legacyGetAgentPath(name: string, cwd?: string): string | null {
 /* ------------------------------------------------------------------ */
 
 /** @internal */
-export function _findProjectRoot(startDir: string = process.cwd()): string | null {
+export function _findProjectRoot(
+  startDir: string = process.cwd(),
+): string | null {
   let dir = resolve(startDir);
   while (dir !== "/") {
     if (existsSync(join(dir, "pnpm-workspace.yaml"))) return dir;
@@ -388,10 +429,10 @@ export function _findProjectRoot(startDir: string = process.cwd()): string | nul
 }
 
 /** @internal */
-export function _getCrewDir(cwd?: string): string | null {
-  if (process.env.CREW_PATH) return process.env.CREW_PATH;
+export function _getConvergeDir(cwd?: string): string | null {
+  if (process.env.CONVERGE_PATH) return process.env.CONVERGE_PATH;
   const root = _findProjectRoot(cwd);
   if (!root) return null;
-  const crewDir = join(root, ".crew");
-  return existsSync(crewDir) ? crewDir : null;
+  const convergeDir = join(root, ".converge");
+  return existsSync(convergeDir) ? convergeDir : null;
 }

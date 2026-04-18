@@ -1,0 +1,9 @@
+{
+  "taskId": "02-docs/005-contributing",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "CONTRIBUTING.md"
+  ],
+  "blocked": false
+}

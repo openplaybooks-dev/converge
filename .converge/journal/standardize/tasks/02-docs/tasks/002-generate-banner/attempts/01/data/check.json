@@ -1,0 +1,20 @@
+{
+  "taskId": "02-docs/002-generate-banner",
+  "checks": [
+    {
+      "id": "banner-exists",
+      "description": "banner.svg exists at root",
+      "cmd": "test -f banner.svg"
+    },
+    {
+      "id": "banner-says-converge",
+      "description": "Banner SVG contains Converge text",
+      "cmd": "grep -q 'CONVERGE\\|Converge' banner.svg"
+    },
+    {
+      "id": "banner-no-harness",
+      "description": "Banner SVG has no HARNESS text",
+      "cmd": "! grep -qi 'HARNESS' banner.svg"
+    }
+  ]
+}

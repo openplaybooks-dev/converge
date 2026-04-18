@@ -1,0 +1,10 @@
+{
+  "taskId": "05-positioning/004-launch-blog",
+  "checks": [
+    {
+      "id": "blog-exists",
+      "description": "Launch blog post draft exists",
+      "cmd": "test -f docs/blog/launch-post.md"
+    }
+  ]
+}

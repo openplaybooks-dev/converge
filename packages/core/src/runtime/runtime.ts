@@ -4,17 +4,23 @@
  * Main runtime interface that provides access to goal, task, epic, and project operations.
  */
 
-import type { Runtime, GoalManager, TaskManager, EpicManager, ProjectManager } from './types.ts';
-import type { ProjectConfig } from '../storage/types.ts';
-import type { EpicDefinition } from '../functions/types.ts';
-import type { ConvergenceConfig } from '../orchestrator/convergence.ts';
-import type { ProjectOrchestrationResult } from '../orchestrator/project-orchestrator.ts';
-import type { GoalEvaluationContext } from '../goal/types.ts';
+import type {
+  Runtime,
+  GoalManager,
+  TaskManager,
+  EpicManager,
+  ProjectManager,
+} from "./types.ts";
+import type { ProjectConfig } from "../storage/types.ts";
+import type { EpicDefinition } from "../functions/types.ts";
+import type { ConvergenceConfig } from "../orchestrator/convergence.ts";
+import type { ProjectOrchestrationResult } from "../orchestrator/project-orchestrator.ts";
+import type { GoalEvaluationContext } from "../goal/types.ts";
 
-import { GoalManagerImpl } from './goal-manager.ts';
-import { TaskManagerImpl } from './task-manager.ts';
-import { EpicManagerImpl } from './epic-manager.ts';
-import { ProjectManagerImpl } from './project-manager.ts';
+import { GoalManagerImpl } from "./goal-manager.ts";
+import { TaskManagerImpl } from "./task-manager.ts";
+import { EpicManagerImpl } from "./epic-manager.ts";
+import { ProjectManagerImpl } from "./project-manager.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Runtime Implementation                                            */
@@ -34,7 +40,7 @@ export class RuntimeImpl implements Runtime {
     config: ProjectConfig,
     epics: EpicDefinition[],
     workspaceDir: string,
-    ctx: GoalEvaluationContext
+    ctx: GoalEvaluationContext,
   ) {
     this.config = config;
     this.epicDefinitions = epics;
@@ -50,10 +56,12 @@ export class RuntimeImpl implements Runtime {
   /**
    * Run full convergence (all epics, all goals)
    */
-  async run(config?: Partial<ConvergenceConfig>): Promise<ProjectOrchestrationResult> {
+  async run(
+    config?: Partial<ConvergenceConfig>,
+  ): Promise<ProjectOrchestrationResult> {
     // TODO: Implement full convergence orchestration
     // This would integrate with the ProjectOrchestratorV2
-    throw new Error('Runtime.run() not yet fully implemented');
+    throw new Error("Runtime.run() not yet fully implemented");
   }
 
   /**
@@ -61,7 +69,7 @@ export class RuntimeImpl implements Runtime {
    */
   async checkpoint(id?: string): Promise<void> {
     // TODO: Implement checkpointing
-    throw new Error('Runtime.checkpoint() not yet implemented');
+    throw new Error("Runtime.checkpoint() not yet implemented");
   }
 
   /**
@@ -69,7 +77,7 @@ export class RuntimeImpl implements Runtime {
    */
   async resume(checkpointId?: string): Promise<ProjectOrchestrationResult> {
     // TODO: Implement resume
-    throw new Error('Runtime.resume() not yet implemented');
+    throw new Error("Runtime.resume() not yet implemented");
   }
 }
 
@@ -83,25 +91,25 @@ export class RuntimeImpl implements Runtime {
 export function createRuntime(
   config: ProjectConfig,
   epics: EpicDefinition[],
-  workspaceDir: string
+  workspaceDir: string,
 ): Runtime {
   // Create evaluation context
   const ctx: GoalEvaluationContext = {
     projectDir: workspaceDir,
-    crewDir: `${workspaceDir}/.crew`,
+    convergeDir: `${workspaceDir}/.converge`,
     vars: config.variables || {},
     fs: {
       async read(path: string): Promise<string> {
         // TODO: Implement file read
-        throw new Error('fs.read not implemented');
+        throw new Error("fs.read not implemented");
       },
       async exists(path: string): Promise<boolean> {
         // TODO: Implement file exists check
-        throw new Error('fs.exists not implemented');
+        throw new Error("fs.exists not implemented");
       },
       async list(path: string, pattern?: string): Promise<string[]> {
         // TODO: Implement file list
-        throw new Error('fs.list not implemented');
+        throw new Error("fs.list not implemented");
       },
     },
     log: {

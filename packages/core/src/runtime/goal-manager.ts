@@ -4,7 +4,7 @@
  * Provides goal-centric operations for the runtime.
  */
 
-import type { GoalManager } from './types.ts';
+import type { GoalManager } from "./types.ts";
 import type {
   Goal,
   GoalStatus,
@@ -12,9 +12,9 @@ import type {
   GoalNode,
   GoalConvergenceConfig,
   GoalEvaluationContext,
-} from '../goal/types.ts';
-import type { EpicDefinition } from '../functions/types.ts';
-import { GoalEvaluatorImpl, findGoalById } from '../goal/evaluator.ts';
+} from "../goal/types.ts";
+import type { EpicDefinition } from "../functions/types.ts";
+import { GoalEvaluatorImpl, findGoalById } from "../goal/evaluator.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Goal Manager Implementation                                       */
@@ -62,7 +62,7 @@ export class GoalManagerImpl implements GoalManager {
    */
   async satisfy(
     goalId: string,
-    config?: Partial<GoalConvergenceConfig>
+    config?: Partial<GoalConvergenceConfig>,
   ): Promise<GoalStatus> {
     const goal = this.findGoal(goalId);
 

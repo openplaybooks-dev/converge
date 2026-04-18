@@ -8,14 +8,14 @@
  * `injectPlan()` prepends a task's plan.md when it exists.
  */
 
-import { existsSync, readFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
-import { getJournalStructure } from '../journal/structure.ts';
-import type { Gap } from '../gap/types.ts';
-import type { JournalContext } from './types.ts';
-import type { ContextSnapshotPaths } from '../lifecycle/context-snapshot.ts';
-import type { ContextWriterResult } from './context-writer.ts';
-import { buildFilesystemRepairPrompt } from './context-writer.ts';
+import { existsSync, readFileSync } from "node:fs";
+import { join, relative } from "node:path";
+import { getJournalStructure } from "../journal/structure.ts";
+import type { Gap } from "../gap/types.ts";
+import type { JournalContext } from "./types.ts";
+import type { ContextSnapshotPaths } from "../lifecycle/context-snapshot.ts";
+import type { ContextWriterResult } from "./context-writer.ts";
+import { buildFilesystemRepairPrompt } from "./context-writer.ts";
 
 /**
  * Extract missing file path from gap description
@@ -47,7 +47,6 @@ export interface GapFixPlan {
 /* ------------------------------------------------------------------ */
 
 export class PromptBuilder {
-
   /* ── Task execution prompt ──────────────────────────────────────── */
 
   /**
@@ -59,16 +58,22 @@ export class PromptBuilder {
     projectDir: string,
     skillName?: string,
   ): string {
-    const taskTitle = (gap.metadata?.taskTitle as string | undefined) ?? gap.description;
-    const taskAgent = (gap.metadata?.taskAgent as string | undefined) ?? 'Converge';
-    const allMissingItems = gap.metadata?.allMissingItems as string[] | undefined;
+    const taskTitle =
+      (gap.metadata?.taskTitle as string | undefined) ?? gap.description;
+    const taskAgent =
+      (gap.metadata?.taskAgent as string | undefined) ?? "Converge";
+    const allMissingItems = gap.metadata?.allMissingItems as
+      | string[]
+      | undefined;
     const taskPrompt = gap.metadata?.taskPrompt as string | undefined;
-    const taskYields = gap.metadata?.taskYields as {
-      plan?: string;
-      outputDir?: string;
-      template?: string;
-      maxTasks?: number;
-    } | undefined;
+    const taskYields = gap.metadata?.taskYields as
+      | {
+          plan?: string;
+          outputDir?: string;
+          template?: string;
+          maxTasks?: number;
+        }
+      | undefined;
     const taskInputs = gap.metadata?.taskInputs as string[] | undefined;
 
     // Case 1: yields-only task (no prompt, just spawn subtask files)
@@ -79,11 +84,11 @@ PROJECT DIRECTORY: ${projectDir}
 
 TASK: ${taskTitle}
 
-PLAN: ${taskYields.plan ?? 'Instantiate the template for each item found in the inputs.'}
+PLAN: ${taskYields.plan ?? "Instantiate the template for each item found in the inputs."}
 
-${taskYields.template ? `TEMPLATE FILE (read this): ${taskYields.template}` : ''}
-${taskYields.outputDir ? `OUTPUT DIRECTORY (write files here): ${taskYields.outputDir}` : ''}
-${(taskInputs ?? []).length > 0 ? `INPUT FILES (read these to discover items):\n${(taskInputs ?? []).join('\n')}` : ''}
+${taskYields.template ? `TEMPLATE FILE (read this): ${taskYields.template}` : ""}
+${taskYields.outputDir ? `OUTPUT DIRECTORY (write files here): ${taskYields.outputDir}` : ""}
+${(taskInputs ?? []).length > 0 ? `INPUT FILES (read these to discover items):\n${(taskInputs ?? []).join("\n")}` : ""}
 
 RULES:
 - Read the template, read the inputs, create one .ts file per item in the output directory
@@ -137,7 +142,7 @@ IMPORTANT:
 PROJECT DIRECTORY: ${projectDir}
 
 OUTPUTS TO PRODUCE:
-${(allMissingItems ?? [gap.description]).map(d => `- ${d}`).join('\n')}
+${(allMissingItems ?? [gap.description]).map((d) => `- ${d}`).join("\n")}
 
 Execute the steps above to generate the missing outputs.
 
@@ -166,7 +171,7 @@ IMPORTANT:
     attemptNumber: number = 1,
   ): string {
     const d = snapshot.relDir;
-    const attemptDir = snapshot.taskMd.replace('/TASK.md', '');
+    const attemptDir = snapshot.taskMd.replace("/TASK.md", "");
 
     // Check for RESUME.md (task resuming after user input)
     const resumePath = `${attemptDir}/RESUME.md`;
@@ -215,9 +220,11 @@ If stuck, update ${d}/LEARN.md and stop.`;
     // just before this prompt) over CHECK.result.md (from result-snapshot, can be stale)
     const feedbackMd = `${attemptDir}/FEEDBACK.md`;
     const checkResultMd = `${attemptDir}/CHECK.result.md`;
-    const errorFile = existsSync(feedbackMd) ? 'FEEDBACK.md'
-                    : existsSync(checkResultMd) ? 'CHECK.result.md'
-                    : null;
+    const errorFile = existsSync(feedbackMd)
+      ? "FEEDBACK.md"
+      : existsSync(checkResultMd)
+        ? "CHECK.result.md"
+        : null;
     if (errorFile) {
       return `Fixing check failure (attempt ${attemptNumber}).
 
@@ -238,7 +245,7 @@ If stuck, update ${d}/LEARN.md and stop.`;
 
     // Retry with LEARN.md guidance (if exists - even on attempt 1 for incremental repairs)
     if (snapshot.hasLearn) {
-      return `${attemptNumber > 1 ? 'Retrying' : 'Executing'} task (attempt ${attemptNumber}).
+      return `${attemptNumber > 1 ? "Retrying" : "Executing"} task (attempt ${attemptNumber}).
 
 ## Read
 
@@ -292,7 +299,7 @@ Read \`${depsMapPath}\` to understand which tasks produce which outputs and thei
 ## Step 2 — Identify the problem
 
 Task \`${blockedTaskId}\` cannot run because these inputs are missing:
-${missingInputs.map(i => `- \`${i}\``).join('\n')}
+${missingInputs.map((i) => `- \`${i}\``).join("\n")}
 
 ## Step 3 — Choose a repair strategy
 
@@ -324,15 +331,16 @@ Return a JSON object with no surrounding text:
     dependentTaskId: string,
     learnHints: string[] = [],
   ): string {
-    const hintsSection = learnHints.length > 0
-      ? `\n## Hints from Repair Analysis\n\n${learnHints.map(h => `- ${h}`).join('\n')}`
-      : '';
+    const hintsSection =
+      learnHints.length > 0
+        ? `\n## Hints from Repair Analysis\n\n${learnHints.map((h) => `- ${h}`).join("\n")}`
+        : "";
 
     return `# Previous Attempt Did Not Produce All Required Outputs
 
 Task \`${dependentTaskId}\` is blocked and waiting for these files before it can run:
 
-${missingOutputs.map(o => `- \`${o}\``).join('\n')}
+${missingOutputs.map((o) => `- \`${o}\``).join("\n")}
 ${hintsSection}
 
 ## What To Do This Attempt
@@ -385,14 +393,18 @@ Do NOT stop until each missing file is verified to exist on disk.`;
   ): string {
     if (!journalCtx) return prompt;
 
-    const structure = getJournalStructure(projectDir, journalCtx.epicId, journalCtx.taskId);
+    const structure = getJournalStructure(
+      projectDir,
+      journalCtx.epicId,
+      journalCtx.taskId,
+    );
     if (!structure.task) return prompt;
 
-    const planPath = join(structure.task, 'plan.md');
+    const planPath = join(structure.task, "plan.md");
     if (!existsSync(planPath)) return prompt;
 
     try {
-      const planContent = readFileSync(planPath, 'utf-8');
+      const planContent = readFileSync(planPath, "utf-8");
       console.log(`   📋 Plan injected from: ${planPath}`);
       return `## Implementation Plan\n\nA plan has already been created for this task. **Follow this plan step-by-step.** Do NOT re-discover or re-explore what has already been analyzed — go straight to implementation.\n\n${planContent}\n\n---\n\n${prompt}`;
     } catch {

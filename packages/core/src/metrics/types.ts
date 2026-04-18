@@ -42,16 +42,16 @@ export interface ModelUsage {
 export interface CheckpointMetrics {
   id: string;
   status: string;
-  level: 'epic' | 'task';
+  level: "epic" | "task";
   epic: string;
   task: string;
   attempts: AttemptMetrics[];
   totalAttempts: number;
-  retries: number;          // attempts beyond the first
+  retries: number; // attempts beyond the first
   totalChildren: number;
   completedChildren: number;
   failedChildren: number;
-  durationMs: number;       // sum of all attempt durations
+  durationMs: number; // sum of all attempt durations
 }
 
 export interface AttemptMetrics {
@@ -95,7 +95,18 @@ export interface AggregateMetrics {
   avgDurationMs: number;
   totalTurns: number;
   // Tool use
-  toolBreakdown: Record<string, { calls: number; successes: number; failures: number }>;
+  toolBreakdown: Record<
+    string,
+    { calls: number; successes: number; failures: number }
+  >;
   // Model breakdown
-  modelBreakdown: Record<string, { sessions: number; costUSD: number; inputTokens: number; outputTokens: number }>;
+  modelBreakdown: Record<
+    string,
+    {
+      sessions: number;
+      costUSD: number;
+      inputTokens: number;
+      outputTokens: number;
+    }
+  >;
 }

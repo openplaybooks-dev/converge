@@ -13,8 +13,8 @@
  * ---
  */
 
-import type { PluginEntry } from '../plugins/types.ts';
-import type { ConvergeHooks } from '../hooks/types.ts';
+import type { PluginEntry } from "../plugins/types.ts";
+import type { ConvergeHooks } from "../hooks/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Discovery Config                                                   */
@@ -83,7 +83,7 @@ export interface DiscoveryConfig {
    *
    * Default: `'subtasks-only'`
    */
-  spawn?: 'subtasks-only' | 'unrestricted';
+  spawn?: "subtasks-only" | "unrestricted";
 }
 
 /* ------------------------------------------------------------------ */
@@ -119,7 +119,7 @@ export interface RuntimeConfig {
   maxParallelTasks?: number;
 
   /**
-   * Save checkpoints after each iteration (enables `crew resume`).
+   * Save checkpoints after each iteration (enables `converge resume`).
    * Default: true
    */
   enableCheckpoints?: boolean;
@@ -128,7 +128,7 @@ export interface RuntimeConfig {
    * Minimum log level to display.
    * Default: 'info'
    */
-  logLevel?: 'debug' | 'info' | 'warn' | 'error';
+  logLevel?: "debug" | "info" | "warn" | "error";
 
   /**
    * Output logs as newline-delimited JSON (for CI/log aggregation).
@@ -302,11 +302,11 @@ export interface ConvergeConfig {
  * The provider type is determined by the key in the providers map.
  */
 export interface AIConfig {
-  /** 
+  /**
    * Provider type - only needed for single-provider config.
    * In multi-provider config, the key IS the provider type.
    */
-  provider?: 'claude' | 'acp' | 'kimi' | 'qwen' | 'gemini';
+  provider?: "claude" | "acp" | "kimi" | "qwen" | "gemini";
 
   /** API key for the AI provider */
   apiKey?: string;
@@ -329,7 +329,7 @@ export interface AIConfig {
  * Uses Anthropic's Claude CLI - no custom API settings needed.
  */
 export interface ClaudeProviderConfig extends AIConfig {
-  provider?: 'claude';
+  provider?: "claude";
 }
 
 /**
@@ -337,7 +337,7 @@ export interface ClaudeProviderConfig extends AIConfig {
  * Supports custom APIs like Kimi, OpenAI-compatible endpoints.
  */
 export interface ACPProviderConfig extends AIConfig {
-  provider?: 'acp';
+  provider?: "acp";
   /** API key for custom endpoint */
   apiKey: string;
   /** Base URL for custom API */
@@ -349,7 +349,7 @@ export interface ACPProviderConfig extends AIConfig {
  * Kimi direct API provider configuration (via kimifn).
  */
 export interface KimiProviderConfig extends AIConfig {
-  provider?: 'kimi';
+  provider?: "kimi";
   apiKey?: string;
 }
 
@@ -361,7 +361,7 @@ export interface AIMultiProviderConfig {
   /** Name of the default provider to use (must match a key in providers) */
   default: string;
 
-  /** 
+  /**
    * Map of provider name to configuration.
    * Key is the provider type: 'claude', 'acp', 'kimi', 'qwen', 'gemini'
    */
@@ -371,6 +371,6 @@ export interface AIMultiProviderConfig {
     kimi?: KimiProviderConfig;
     qwen?: AIConfig;
     gemini?: AIConfig;
-    [key: string]: AIConfig | undefined;  // Allow custom named providers
+    [key: string]: AIConfig | undefined; // Allow custom named providers
   };
 }

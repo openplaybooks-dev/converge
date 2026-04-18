@@ -1,0 +1,278 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "02-docs/002-generate-banner-missing-output-banner.svg",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-docs/002-generate-banner",
+            "severity": "high",
+            "description": "[02-docs/002-generate-banner] Task output not created: banner.svg",
+            "source": "unit",
+            "detected": "2026-04-17T23:37:21.355Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/standardize/tasks/02-docs/tasks/002-generate-banner",
+              "taskId": "02-docs/002-generate-banner",
+              "taskTitle": "Generate Converge banner SVG",
+              "taskPrompt": "Generate a new banner SVG for the root README with Converge branding.\n\n**Context**: `packages/core/banner.svg` exists with the old HARNESS branding —\npixel-art style with a person walking AI agent dogs (Claude, Codex, Gemini) on\nleashes. The concept is good but the text says \"HARNESS\" and the tagline is stale.\n\n**Process**:\n1. Read `packages/core/banner.svg` as the starting template\n2. Create a new `./banner.svg` (at repository root) with these changes:\n   - Replace title text \"HARNESS\" → \"CONVERGE\" (lines with font-size=\"48\")\n   - Update tagline \"Gap-driven build system for AI agents\" →\n     \"Define done. Converge gets there.\" or\n     \"Gap-driven convergence framework for AI agent orchestration\"\n   - Keep the pixel-art illustration (person + AI agent dogs) — it's distinctive\n   - Keep the footer tagline \"Detect gaps • Generate work • Execute • Verify • Converge\"\n   - Keep all colors, gradients, and styling\n   - Ensure the viewBox and dimensions work well as a GitHub README banner\n     (800x320 is good — matches current)\n3. Copy `./banner.svg` to `packages/core/banner.svg` as well (keep in sync)\n4. Verify the root README.md references `./banner.svg` correctly\n\n**Output**: A clean SVG file that renders well on GitHub's light and dark themes.\nThe SVG should be self-contained (no external font dependencies) and use\nmonospace font-family for the pixel-art aesthetic.",
+              "factId": "file-exists:test -f \"banner.svg\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-docs/002-generate-banner-check-failed-banner-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-docs/002-generate-banner",
+            "severity": "high",
+            "description": "[02-docs/002-generate-banner] Check failed: banner.svg exists at root",
+            "source": "unit",
+            "detected": "2026-04-17T23:37:21.357Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "banner-exists",
+              "checkCmd": "test -f banner.svg",
+              "checkDescription": "banner.svg exists at root",
+              "checkOutput": "Command failed: test -f banner.svg\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Generate a new banner SVG for the root README with Converge branding.\n\n**Context**: `packages/core/banner.svg` exists with the old HARNESS branding —\npixel-art style with a person walking AI agent dogs (Claude, Codex, Gemini) on\nleashes. The concept is good but the text says \"HARNESS\" and the tagline is stale.\n\n**Process**:\n1. Read `packages/core/banner.svg` as the starting template\n2. Create a new `./banner.svg` (at repository root) with these changes:\n   - Replace title text \"HARNESS\" → \"CONVERGE\" (lines with font-size=\"48\")\n   - Update tagline \"Gap-driven build system for AI agents\" →\n     \"Define done. Converge gets there.\" or\n     \"Gap-driven convergence framework for AI agent orchestration\"\n   - Keep the pixel-art illustration (person + AI agent dogs) — it's distinctive\n   - Keep the footer tagline \"Detect gaps • Generate work • Execute • Verify • Converge\"\n   - Keep all colors, gradients, and styling\n   - Ensure the viewBox and dimensions work well as a GitHub README banner\n     (800x320 is good — matches current)\n3. Copy `./banner.svg` to `packages/core/banner.svg` as well (keep in sync)\n4. Verify the root README.md references `./banner.svg` correctly\n\n**Output**: A clean SVG file that renders well on GitHub's light and dark themes.\nThe SVG should be self-contained (no external font dependencies) and use\nmonospace font-family for the pixel-art aesthetic.",
+              "taskId": "02-docs/002-generate-banner",
+              "taskTitle": "Generate Converge banner SVG",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/standardize/tasks/02-docs/tasks/002-generate-banner",
+              "factId": "check:banner-exists"
+            }
+          },
+          {
+            "id": "02-docs/002-generate-banner-check-failed-banner-says-converge",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-docs/002-generate-banner",
+            "severity": "high",
+            "description": "[02-docs/002-generate-banner] Check failed: Banner SVG contains Converge text",
+            "source": "unit",
+            "detected": "2026-04-17T23:37:21.360Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "banner-says-converge",
+              "checkCmd": "grep -q 'CONVERGE\\|Converge' banner.svg",
+              "checkDescription": "Banner SVG contains Converge text",
+              "checkOutput": "grep: banner.svg: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "Generate a new banner SVG for the root README with Converge branding.\n\n**Context**: `packages/core/banner.svg` exists with the old HARNESS branding —\npixel-art style with a person walking AI agent dogs (Claude, Codex, Gemini) on\nleashes. The concept is good but the text says \"HARNESS\" and the tagline is stale.\n\n**Process**:\n1. Read `packages/core/banner.svg` as the starting template\n2. Create a new `./banner.svg` (at repository root) with these changes:\n   - Replace title text \"HARNESS\" → \"CONVERGE\" (lines with font-size=\"48\")\n   - Update tagline \"Gap-driven build system for AI agents\" →\n     \"Define done. Converge gets there.\" or\n     \"Gap-driven convergence framework for AI agent orchestration\"\n   - Keep the pixel-art illustration (person + AI agent dogs) — it's distinctive\n   - Keep the footer tagline \"Detect gaps • Generate work • Execute • Verify • Converge\"\n   - Keep all colors, gradients, and styling\n   - Ensure the viewBox and dimensions work well as a GitHub README banner\n     (800x320 is good — matches current)\n3. Copy `./banner.svg` to `packages/core/banner.svg` as well (keep in sync)\n4. Verify the root README.md references `./banner.svg` correctly\n\n**Output**: A clean SVG file that renders well on GitHub's light and dark themes.\nThe SVG should be self-contained (no external font dependencies) and use\nmonospace font-family for the pixel-art aesthetic.",
+              "taskId": "02-docs/002-generate-banner",
+              "taskTitle": "Generate Converge banner SVG",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/standardize/tasks/02-docs/tasks/002-generate-banner",
+              "factId": "check:banner-says-converge"
+            }
+          }
+        ],
+        "durationMs": 12
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "resolve-blockers",
+      "handler": "resolve-blockers",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 80,
+        "applicable": "hasBlockerAndIsFirst"
+      }
+    },
+    {
+      "id": "bail-blockers",
+      "handler": "bail-blockers",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 79,
+        "applicable": "hasBlockerAndNotFirst"
+      }
+    },
+    {
+      "id": "strategy-user-question-resume",
+      "handler": "strategy-user-question-resume",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 60,
+        "applicable": "hasUserQ"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65,
+        "applicable": "isFirst"
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55,
+        "applicable": "hasRepairableGap"
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 23
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 24
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#15",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 105672
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-17T23:37:21.352Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-17T23:37:21.352Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-17T23:37:21.364Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-17T23:37:21.365Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-17T23:37:21.389Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#15",
+      "iteration": 1,
+      "ts": "2026-04-17T23:39:07.061Z"
+    },
+    {
+      "from": "run-strategy:task-run#15",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-17T23:39:07.087Z"
+    }
+  ]
+}

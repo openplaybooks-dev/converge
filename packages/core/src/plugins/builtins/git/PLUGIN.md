@@ -19,7 +19,7 @@ check to verify the working tree is clean.
 
 ## Options
 
-| Option         | Default  | Description                           |
-|----------------|----------|---------------------------------------|
-| `autoCommit`   | `true`   | Commit changes after each task        |
-| `commitPrefix` | `"crew"` | Prefix for auto-generated commit messages |
+| Option         | Default      | Description                               |
+| -------------- | ------------ | ----------------------------------------- |
+| `autoCommit`   | `true`       | Commit changes after each task            |
+| `commitPrefix` | `"converge"` | Prefix for auto-generated commit messages |

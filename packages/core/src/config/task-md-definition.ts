@@ -11,21 +11,29 @@
  * Format priority: task.ts > SKILL.md > TASK.md
  */
 
-import { readFile, writeFile } from 'node:fs/promises';
-import { existsSync, statSync } from 'node:fs';
-import { join as pathJoin } from 'node:path';
-import { parse as parseYaml } from 'yaml';
-import type { DiagnosisHint } from '../lifecycle/diagnose.ts';
-import type { CheckDef } from '../lifecycle/after.ts';
-import type { TaskDefinition, Check, PlanConfig, WbsFn } from './task-definition.ts';
-import type { BacklogDef } from '../scan/types.ts';
-import type { AutoConvergePolicy, SkillContextStep } from './skill-definition.ts';
+import { readFile, writeFile } from "node:fs/promises";
+import { existsSync, statSync } from "node:fs";
+import { join as pathJoin } from "node:path";
+import { parse as parseYaml } from "yaml";
+import type { DiagnosisHint } from "../lifecycle/diagnose.ts";
+import type { CheckDef } from "../lifecycle/after.ts";
+import type {
+  TaskDefinition,
+  Check,
+  PlanConfig,
+  WbsFn,
+} from "./task-definition.ts";
+import type { BacklogDef } from "../scan/types.ts";
+import type {
+  AutoConvergePolicy,
+  SkillContextStep,
+} from "./skill-definition.ts";
 import {
   parseChecks,
   parseAutoConverge,
   parseDiagnosisHints,
   parseContextSteps,
-} from './skill-definition.ts';
+} from "./skill-definition.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Goal definition (produced by a task)                               */
@@ -44,11 +52,11 @@ export interface GoalDef {
     cmd?: string;
     script?: string;
     target: number;
-    direction: 'min' | 'max';
+    direction: "min" | "max";
   };
   requirements?: string;
   plan?: {
-    strategy: 'split' | 'single' | 'custom' | 'wbs';
+    strategy: "split" | "single" | "custom" | "wbs";
   };
   tags?: string[];
   body?: string;
@@ -63,7 +71,7 @@ export interface GoalDef {
 /* ------------------------------------------------------------------ */
 
 export interface TaskMdExecutor {
-  type: 'ai' | 'script' | 'function';
+  type: "ai" | "script" | "function";
   path?: string;
   args?: string[];
   env?: Record<string, string>;
@@ -74,7 +82,7 @@ export interface TaskMdExecutor {
 /* ------------------------------------------------------------------ */
 
 export interface TaskMdWbs {
-  type: 'nodejs' | 'shell' | 'ai';
+  type: "nodejs" | "shell" | "ai";
   /** Script path — required for nodejs/shell, unused for ai */
   path?: string;
   /** AI prompt — required for type: ai, describes what subtasks to generate */
@@ -119,11 +127,11 @@ export interface TaskMdDef {
   goals?: string[];
   plan?: TaskMdPlan;
   materials?: string[];
-  'allowed-tools'?: string[];
-  'diagnosis-hints'?: DiagnosisHint[];
-  'correction-budget'?: number;
-  'context-depth'?: number;
-  'auto-converge'?: boolean | AutoConvergePolicy;
+  "allowed-tools"?: string[];
+  "diagnosis-hints"?: DiagnosisHint[];
+  "correction-budget"?: number;
+  "context-depth"?: number;
+  "auto-converge"?: boolean | AutoConvergePolicy;
   context?: SkillContextStep[];
   backlogs?: BacklogDef[];
   vars?: Record<string, unknown>;
@@ -158,9 +166,9 @@ export interface TaskMdShape {
   tags?: string[];
   materials?: string[];
   vars?: Record<string, unknown>;
-  'diagnosis-hints'?: DiagnosisHint[];
-  'correction-budget'?: number;
-  'auto-converge'?: boolean | AutoConvergePolicy;
+  "diagnosis-hints"?: DiagnosisHint[];
+  "correction-budget"?: number;
+  "auto-converge"?: boolean | AutoConvergePolicy;
   context?: SkillContextStep[];
   backlogs?: BacklogDef[];
   /**
@@ -182,35 +190,35 @@ export interface TaskMdShape {
 /* ------------------------------------------------------------------ */
 
 const RESERVED_KEYS = new Set([
-  'id',
-  'name',
-  'title',
-  'description',
-  'skills',
-  'executor',
-  'wbs',
-  'blocking',
-  'dependencies',
-  'requires',
-  'tags',
-  'inputs',
-  'outputs',
-  'checks',
-  'needs',
-  'agent',
-  'goals',
-  'plan',
-  'materials',
-  'allowed-tools',
-  'diagnosis-hints',
-  'correction-budget',
-  'context-depth',
-  'auto-converge',
-  'context',
-  'backlogs',
-  'goalDefs',
-  'goal-defs',
-  'vars',
+  "id",
+  "name",
+  "title",
+  "description",
+  "skills",
+  "executor",
+  "wbs",
+  "blocking",
+  "dependencies",
+  "requires",
+  "tags",
+  "inputs",
+  "outputs",
+  "checks",
+  "needs",
+  "agent",
+  "goals",
+  "plan",
+  "materials",
+  "allowed-tools",
+  "diagnosis-hints",
+  "correction-budget",
+  "context-depth",
+  "auto-converge",
+  "context",
+  "backlogs",
+  "goalDefs",
+  "goal-defs",
+  "vars",
 ]);
 
 /* ------------------------------------------------------------------ */
@@ -229,15 +237,15 @@ export async function parseTaskMd(taskMdPath: string): Promise<{
 
   // If given a directory, resolve to SKILL.md or TASK.md inside it
   if (statSync(taskMdPath).isDirectory()) {
-    const skill = pathJoin(taskMdPath, 'SKILL.md');
-    const task  = pathJoin(taskMdPath, 'TASK.md');
+    const skill = pathJoin(taskMdPath, "SKILL.md");
+    const task = pathJoin(taskMdPath, "TASK.md");
     if (existsSync(skill)) taskMdPath = skill;
     else if (existsSync(task)) taskMdPath = task;
     else return null;
   }
 
   try {
-    const raw = await readFile(taskMdPath, 'utf8');
+    const raw = await readFile(taskMdPath, "utf8");
     const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
     if (!match) {
       // TASK.md with no frontmatter — treat entire content as body
@@ -245,10 +253,10 @@ export async function parseTaskMd(taskMdPath: string): Promise<{
     }
 
     const frontmatter = match[1];
-    const body = match[2] ?? '';
+    const body = match[2] ?? "";
 
     const parsed = parseYaml(frontmatter) as Record<string, unknown>;
-    if (!parsed || typeof parsed !== 'object') {
+    if (!parsed || typeof parsed !== "object") {
       return { def: {}, body: body.trim() };
     }
 
@@ -263,7 +271,7 @@ export async function parseTaskMd(taskMdPath: string): Promise<{
     }
 
     // Merge explicit `vars` from frontmatter with extra keys
-    if (parsed.vars && typeof parsed.vars === 'object') {
+    if (parsed.vars && typeof parsed.vars === "object") {
       Object.assign(extraVars, parsed.vars);
     }
 
@@ -275,17 +283,17 @@ export async function parseTaskMd(taskMdPath: string): Promise<{
   } catch (err: any) {
     // Attempt to auto-repair YAML frontmatter (e.g. unquoted values with colons)
     try {
-      const raw = await readFile(taskMdPath, 'utf8');
+      const raw = await readFile(taskMdPath, "utf8");
       const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
       if (match) {
         const repaired = repairYamlFrontmatter(match[1]);
         if (repaired !== match[1]) {
           const repairedParsed = parseYaml(repaired) as Record<string, unknown>;
-          if (repairedParsed && typeof repairedParsed === 'object') {
+          if (repairedParsed && typeof repairedParsed === "object") {
             // Write the repaired file back
-            const lineEnding = raw.includes('\r\n') ? '\r\n' : '\n';
+            const lineEnding = raw.includes("\r\n") ? "\r\n" : "\n";
             const repairedRaw = `---${lineEnding}${repaired}${lineEnding}---${lineEnding}${match[2]}`;
-            await writeFile(taskMdPath, repairedRaw, 'utf8');
+            await writeFile(taskMdPath, repairedRaw, "utf8");
             console.warn(`   🔧 Auto-repaired YAML in: ${taskMdPath}`);
 
             const def = parseFrontmatterToTaskMdDef(repairedParsed);
@@ -295,13 +303,16 @@ export async function parseTaskMd(taskMdPath: string): Promise<{
                 extraVars[key] = value;
               }
             }
-            if (repairedParsed.vars && typeof repairedParsed.vars === 'object') {
+            if (
+              repairedParsed.vars &&
+              typeof repairedParsed.vars === "object"
+            ) {
               Object.assign(extraVars, repairedParsed.vars);
             }
             if (Object.keys(extraVars).length > 0) {
               def.vars = extraVars;
             }
-            return { def, body: (match[2] ?? '').trim() };
+            return { def, body: (match[2] ?? "").trim() };
           }
         }
       }
@@ -330,29 +341,33 @@ export async function parseTaskMd(taskMdPath: string): Promise<{
  * (escaping any existing double quotes inside it).
  */
 function repairYamlFrontmatter(yaml: string): string {
-  return yaml.split('\n').map(line => {
-    // Skip blank lines, comments, array items, already-quoted values, and lines
-    // where the value is a block scalar indicator (| or >).
-    const trimmed = line.trimStart();
-    if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('-')) return line;
+  return yaml
+    .split("\n")
+    .map((line) => {
+      // Skip blank lines, comments, array items, already-quoted values, and lines
+      // where the value is a block scalar indicator (| or >).
+      const trimmed = line.trimStart();
+      if (!trimmed || trimmed.startsWith("#") || trimmed.startsWith("-"))
+        return line;
 
-    // Match "key: value" — indent + key + colon + space + value
-    const m = line.match(/^(\s*)([\w.@\-/]+):\s(.+)$/);
-    if (!m) return line;
+      // Match "key: value" — indent + key + colon + space + value
+      const m = line.match(/^(\s*)([\w.@\-/]+):\s(.+)$/);
+      if (!m) return line;
 
-    const [, indent, key, value] = m;
+      const [, indent, key, value] = m;
 
-    // Already quoted or block scalar
-    if (/^['"]/.test(value) || /^[|>]/.test(value)) return line;
+      // Already quoted or block scalar
+      if (/^['"]/.test(value) || /^[|>]/.test(value)) return line;
 
-    // Value contains an extra colon → needs quoting
-    if (value.includes(':')) {
-      const escaped = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-      return `${indent}${key}: "${escaped}"`;
-    }
+      // Value contains an extra colon → needs quoting
+      if (value.includes(":")) {
+        const escaped = value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+        return `${indent}${key}: "${escaped}"`;
+      }
 
-    return line;
-  }).join('\n');
+      return line;
+    })
+    .join("\n");
 }
 
 /* ------------------------------------------------------------------ */
@@ -391,30 +406,32 @@ export async function mapTaskMdToTaskDefinition(
   // Map WBS config to wbsFn via script executor (nodejs/shell) or AI executor
   let wbsFn: WbsFn | undefined;
   if (def.wbs && taskDir) {
-    if (def.wbs.type === 'ai') {
-      const { createAiWbsFn } = await import('../executor/script-wbs-executor.ts');
+    if (def.wbs.type === "ai") {
+      const { createAiWbsFn } =
+        await import("../executor/script-wbs-executor.ts");
       wbsFn = createAiWbsFn(def.wbs, taskDir);
     } else {
-      const { createScriptWbsFn } = await import('../executor/script-wbs-executor.ts');
+      const { createScriptWbsFn } =
+        await import("../executor/script-wbs-executor.ts");
       wbsFn = createScriptWbsFn(def.wbs, taskDir);
     }
   }
 
   // Map checks from CheckDef[] to Check[]
-  const checks: Check[] | undefined = def.checks?.map(c => ({
+  const checks: Check[] | undefined = def.checks?.map((c) => ({
     id: c.id,
     cmd: c.cmd,
     description: c.description,
   }));
 
   const taskDef: TaskDefinition = {
-    id: taskId,  // Always from directory name
+    id: taskId, // Always from directory name
     title: def.title ?? taskId,
     description: def.description,
     inputs: def.inputs,
     outputs: def.outputs,
     agent: def.agent,
-    skill: def.skills,  // TASK.md `skills` array → TaskDefinition `skill` field
+    skill: def.skills, // TASK.md `skills` array → TaskDefinition `skill` field
     checks,
     goals: def.goals,
     dependencies: def.dependencies,
@@ -439,21 +456,22 @@ function parseStringArray(raw: unknown): string[] | undefined {
     // Filter out objects (e.g. YAML-parsed {{placeholder}} flow mappings)
     // and only keep actual string values
     const strings = raw
-      .filter(item => typeof item === 'string' || typeof item === 'number')
+      .filter((item) => typeof item === "string" || typeof item === "number")
       .map(String);
     return strings.length > 0 ? strings : undefined;
   }
-  if (typeof raw === 'string') {
+  if (typeof raw === "string") {
     return [raw];
   }
   return undefined;
 }
 
 function parseExecutor(raw: unknown): TaskMdExecutor | undefined {
-  if (!raw || typeof raw !== 'object') return undefined;
+  if (!raw || typeof raw !== "object") return undefined;
   const obj = raw as Record<string, unknown>;
   const type = obj.type;
-  if (type !== 'ai' && type !== 'script' && type !== 'function') return undefined;
+  if (type !== "ai" && type !== "script" && type !== "function")
+    return undefined;
   return {
     type,
     path: obj.path ? String(obj.path) : undefined,
@@ -463,21 +481,22 @@ function parseExecutor(raw: unknown): TaskMdExecutor | undefined {
 }
 
 function parseWbs(raw: unknown): TaskMdWbs | undefined {
-  if (!raw || typeof raw !== 'object') return undefined;
+  if (!raw || typeof raw !== "object") return undefined;
   const obj = raw as Record<string, unknown>;
   const type = obj.type;
-  if (type === 'ai') {
-    if (!obj.prompt || typeof obj.prompt !== 'string') return undefined;
+  if (type === "ai") {
+    if (!obj.prompt || typeof obj.prompt !== "string") return undefined;
     return {
-      type: 'ai',
+      type: "ai",
       prompt: obj.prompt,
-      maxAttempts: typeof obj.maxAttempts === 'number' ? obj.maxAttempts : undefined,
+      maxAttempts:
+        typeof obj.maxAttempts === "number" ? obj.maxAttempts : undefined,
       args: parseStringArray(obj.args),
       env: parseStringRecord(obj.env),
     };
   }
-  if (type !== 'nodejs' && type !== 'shell') return undefined;
-  if (!obj.path || typeof obj.path !== 'string') return undefined;
+  if (type !== "nodejs" && type !== "shell") return undefined;
+  if (!obj.path || typeof obj.path !== "string") return undefined;
   return {
     type,
     path: obj.path,
@@ -489,7 +508,7 @@ function parseWbs(raw: unknown): TaskMdWbs | undefined {
 function parsePlan(raw: unknown): TaskMdPlan | undefined {
   if (raw === undefined || raw === null || raw === false) return undefined;
   if (raw === true) return {};
-  if (typeof raw !== 'object') return undefined;
+  if (typeof raw !== "object") return undefined;
   const obj = raw as Record<string, unknown>;
   return {
     prompt: obj.prompt ? String(obj.prompt) : undefined,
@@ -502,15 +521,15 @@ function parseBacklogs(raw: unknown): BacklogDef[] | undefined {
   if (!Array.isArray(raw)) return undefined;
   const results: BacklogDef[] = [];
   for (const item of raw) {
-    if (item && typeof item === 'object') {
+    if (item && typeof item === "object") {
       const obj = item as Record<string, unknown>;
-      if (typeof obj.id === 'string' && typeof obj.cmd === 'string') {
+      if (typeof obj.id === "string" && typeof obj.cmd === "string") {
         results.push({
           id: obj.id,
           cmd: obj.cmd,
           description: obj.description ? String(obj.description) : undefined,
-          severity: ['low', 'medium', 'high'].includes(obj.severity as string)
-            ? (obj.severity as 'low' | 'medium' | 'high')
+          severity: ["low", "medium", "high"].includes(obj.severity as string)
+            ? (obj.severity as "low" | "medium" | "high")
             : undefined,
         });
       }
@@ -520,7 +539,7 @@ function parseBacklogs(raw: unknown): BacklogDef[] | undefined {
 }
 
 function parseStringRecord(raw: unknown): Record<string, string> | undefined {
-  if (!raw || typeof raw !== 'object') return undefined;
+  if (!raw || typeof raw !== "object") return undefined;
   const result: Record<string, string> = {};
   for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
     result[key] = String(value);
@@ -543,15 +562,15 @@ export function parseTaskMdString(raw: string): TaskMdShape {
   const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
   if (!match) {
     // No frontmatter — treat entire content as body, require id via other means
-    return { id: '', body: raw.trim() };
+    return { id: "", body: raw.trim() };
   }
 
   const frontmatter = match[1];
-  const body = (match[2] ?? '').trim();
+  const body = (match[2] ?? "").trim();
 
   const parsed = parseYaml(frontmatter) as Record<string, unknown>;
-  if (!parsed || typeof parsed !== 'object') {
-    return { id: '', body };
+  if (!parsed || typeof parsed !== "object") {
+    return { id: "", body };
   }
 
   const def = parseFrontmatterToTaskMdDef(parsed);
@@ -563,12 +582,12 @@ export function parseTaskMdString(raw: string): TaskMdShape {
       extraVars[key] = value;
     }
   }
-  if (parsed.vars && typeof parsed.vars === 'object') {
+  if (parsed.vars && typeof parsed.vars === "object") {
     Object.assign(extraVars, parsed.vars);
   }
 
   return {
-    id: def.id ?? '',
+    id: def.id ?? "",
     title: def.title,
     description: def.description,
     skills: def.skills,
@@ -586,9 +605,9 @@ export function parseTaskMdString(raw: string): TaskMdShape {
     tags: def.tags,
     materials: def.materials,
     vars: Object.keys(extraVars).length > 0 ? extraVars : def.vars,
-    'diagnosis-hints': def['diagnosis-hints'],
-    'correction-budget': def['correction-budget'],
-    'auto-converge': def['auto-converge'],
+    "diagnosis-hints": def["diagnosis-hints"],
+    "correction-budget": def["correction-budget"],
+    "auto-converge": def["auto-converge"],
     context: def.context,
     backlogs: def.backlogs,
     body: body || undefined,
@@ -599,7 +618,9 @@ export function parseTaskMdString(raw: string): TaskMdShape {
  * Shared helper: parse a raw YAML object into TaskMdDef.
  * Used by both parseTaskMd() and parseTaskMdString().
  */
-function parseFrontmatterToTaskMdDef(parsed: Record<string, unknown>): TaskMdDef {
+function parseFrontmatterToTaskMdDef(
+  parsed: Record<string, unknown>,
+): TaskMdDef {
   return {
     id: parsed.id ? String(parsed.id) : undefined,
     name: parsed.name ? String(parsed.name) : undefined,
@@ -608,7 +629,8 @@ function parseFrontmatterToTaskMdDef(parsed: Record<string, unknown>): TaskMdDef
     skills: parseStringArray(parsed.skills),
     executor: parseExecutor(parsed.executor),
     wbs: parseWbs(parsed.wbs),
-    blocking: typeof parsed.blocking === 'boolean' ? parsed.blocking : undefined,
+    blocking:
+      typeof parsed.blocking === "boolean" ? parsed.blocking : undefined,
     dependencies: parseStringArray(parsed.dependencies),
     requires: parseStringArray(parsed.requires),
     tags: parseStringArray(parsed.tags),
@@ -620,13 +642,22 @@ function parseFrontmatterToTaskMdDef(parsed: Record<string, unknown>): TaskMdDef
     goals: parseStringArray(parsed.goals),
     plan: parsePlan(parsed.plan ?? parsed.planning),
     materials: parseStringArray(parsed.materials),
-    'allowed-tools': parseStringArray(parsed['allowed-tools']),
-    'diagnosis-hints': parseDiagnosisHints(parsed['diagnosis-hints']),
-    'correction-budget': typeof parsed['correction-budget'] === 'number' ? parsed['correction-budget'] : undefined,
-    'context-depth': typeof parsed['context-depth'] === 'number' ? parsed['context-depth'] : undefined,
-    'auto-converge': parseAutoConverge(parsed['auto-converge']),
+    "allowed-tools": parseStringArray(parsed["allowed-tools"]),
+    "diagnosis-hints": parseDiagnosisHints(parsed["diagnosis-hints"]),
+    "correction-budget":
+      typeof parsed["correction-budget"] === "number"
+        ? parsed["correction-budget"]
+        : undefined,
+    "context-depth":
+      typeof parsed["context-depth"] === "number"
+        ? parsed["context-depth"]
+        : undefined,
+    "auto-converge": parseAutoConverge(parsed["auto-converge"]),
     context: parseContextSteps(parsed.context),
     backlogs: parseBacklogs(parsed.backlogs),
-    vars: parsed.vars && typeof parsed.vars === 'object' ? parsed.vars as Record<string, unknown> : undefined,
+    vars:
+      parsed.vars && typeof parsed.vars === "object"
+        ? (parsed.vars as Record<string, unknown>)
+        : undefined,
   };
 }

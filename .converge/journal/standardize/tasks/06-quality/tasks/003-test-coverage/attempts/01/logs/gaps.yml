@@ -1,0 +1,29 @@
+total: 2
+byType:
+  structural: 1
+  semantic: 1
+bySeverity:
+  high: 1
+  medium: 1
+updated: 2026-04-18T00:44:40.461Z
+gaps:
+  - id: gap-001
+    type: structural
+    level: task
+    scope: 01-api.setup-db
+    description: Database not initialized
+    detected: 2025-01-15T10:00:00.000Z
+    resolved: false
+    checks:
+      - check-db
+    severity: high
+  - id: gap-002
+    type: semantic
+    level: task
+    scope: 01-api.setup-db
+    description: Missing error handling
+    detected: 2025-01-15T10:05:00.000Z
+    resolved: false
+    checks:
+      - check-error-handling
+    severity: medium

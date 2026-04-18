@@ -12,7 +12,7 @@ import { tmpdir } from "node:os";
 
 // Mock the @opencode-ai/sdk for all tests
 vi.mock("@opencode-ai/sdk", async () => {
-  const actual = await import("@opencode-ai/sdk") as any;
+  const actual = (await import("@opencode-ai/sdk")) as any;
 
   let _queue: Array<unknown> = [];
   let _callIndex = 0;
@@ -30,12 +30,15 @@ vi.mock("@opencode-ai/sdk", async () => {
     // The SDK wraps responses in { data: { info: {...} } }
     // When using structured output, it returns { info: { structured_output: {...} } }
     // When using text, it returns { info: { text: "..." } }
-    const resp = _queue[_callIndex] ?? _queue[_queue.length - 1] ?? { text: "default" };
+    const resp = _queue[_callIndex] ??
+      _queue[_queue.length - 1] ?? { text: "default" };
     _callIndex++;
 
     // Check if this is a structured output response
     if ((resp as any).structured_output) {
-      return { data: { info: { structured_output: (resp as any).structured_output } } };
+      return {
+        data: { info: { structured_output: (resp as any).structured_output } },
+      };
     }
     // Check if this has an info property (already SDK format)
     if ((resp as any).info) {
@@ -43,7 +46,11 @@ vi.mock("@opencode-ai/sdk", async () => {
     }
     // For text responses, the SDK returns { info: { text: "..." } }
     // where the text is the raw text from the model
-    return { data: { info: { text: typeof resp === 'string' ? resp : JSON.stringify(resp) } } };
+    return {
+      data: {
+        info: { text: typeof resp === "string" ? resp : JSON.stringify(resp) },
+      },
+    };
   });
 
   const MockClient = vi.fn().mockImplementation(() => ({
@@ -79,12 +86,12 @@ describe("extractCode", () => {
   });
 
   it("extracts from ```javascript fence", () => {
-    const text = '```javascript\nconst x = 1;\nreturn x;\n```';
+    const text = "```javascript\nconst x = 1;\nreturn x;\n```";
     expect(extractCode(text)).toBe("const x = 1;\nreturn x;");
   });
 
   it("extracts from ```ts fence", () => {
-    const text = '```ts\nreturn 42;\n```';
+    const text = "```ts\nreturn 42;\n```";
     expect(extractCode(text)).toBe("return 42;");
   });
 
@@ -162,9 +169,9 @@ describe("executeCode", () => {
   });
 
   it("throws when code has a runtime error", async () => {
-    await expect(
-      executeCode("throw new Error('boom');", {}),
-    ).rejects.toThrow("boom");
+    await expect(executeCode("throw new Error('boom');", {})).rejects.toThrow(
+      "boom",
+    );
   });
 });
 
@@ -250,8 +257,12 @@ describe("compose — code mode (default)", () => {
   });
 
   it.skip("executes code and returns the result", async () => {
-    const sdk = await import("@opencode-ai/sdk") as any;
-    sdk.__setQueue([{ text: '```js\nconst { data } = await translate("hello");\nreturn data;\n```' }]);
+    const sdk = (await import("@opencode-ai/sdk")) as any;
+    sdk.__setQueue([
+      {
+        text: '```js\nconst { data } = await translate("hello");\nreturn data;\n```',
+      },
+    ]);
 
     const translateFn = vi.fn(async (input?: string) => ({
       data: `Translated: ${input}`,
@@ -276,7 +287,7 @@ describe("compose — code mode (default)", () => {
   });
 
   it.skip("returns raw text when no code block found", async () => {
-    const sdk = await import("@opencode-ai/sdk") as any;
+    const sdk = (await import("@opencode-ai/sdk")) as any;
     sdk.__setQueue([{ text: "Just a plain text response" }]);
 
     const fn = compose({ prompt: "Say hello", tools: {}, logDir: tmpdir() });
@@ -285,7 +296,7 @@ describe("compose — code mode (default)", () => {
   });
 
   it.skip("validates schema on final result", async () => {
-    const sdk = await import("@opencode-ai/sdk") as any;
+    const sdk = (await import("@opencode-ai/sdk")) as any;
     sdk.__setQueue([{ text: '```js\nreturn {name: "Alice", age: 30};\n```' }]);
 
     const fn = compose({
@@ -303,9 +314,11 @@ describe("compose — code mode (default)", () => {
 
 describe("compose — tool_call mode", () => {
   it.skip("parses tool_call blocks and invokes tools", async () => {
-    const sdk = await import("@opencode-ai/sdk") as any;
+    const sdk = (await import("@opencode-ai/sdk")) as any;
     sdk.__setQueue([
-      { text: 'I will translate that.\n<tool_call>\n{"name": "translate", "input": "hello"}\n</tool_call>' },
+      {
+        text: 'I will translate that.\n<tool_call>\n{"name": "translate", "input": "hello"}\n</tool_call>',
+      },
       { text: "Translated: hello" },
     ]);
 
@@ -333,14 +346,24 @@ describe("compose — tool_call mode", () => {
   });
 
   it.skip("handles multiple tool calls in sequence", async () => {
-    const sdk = await import("@opencode-ai/sdk") as any;
+    const sdk = (await import("@opencode-ai/sdk")) as any;
     sdk.__setQueue([
-      { text: '<tool_call>{"name": "a", "input": "x"}</tool_call>\n<tool_call>{"name": "b", "input": "y"}</tool_call>' },
+      {
+        text: '<tool_call>{"name": "a", "input": "x"}</tool_call>\n<tool_call>{"name": "b", "input": "y"}</tool_call>',
+      },
       { text: "Done with both" },
     ]);
 
-    const aFn = vi.fn(async (input?: string) => ({ data: `a:${input}`, raw: "", durationMs: 0 }));
-    const bFn = vi.fn(async (input?: string) => ({ data: `b:${input}`, raw: "", durationMs: 0 }));
+    const aFn = vi.fn(async (input?: string) => ({
+      data: `a:${input}`,
+      raw: "",
+      durationMs: 0,
+    }));
+    const bFn = vi.fn(async (input?: string) => ({
+      data: `b:${input}`,
+      raw: "",
+      durationMs: 0,
+    }));
 
     const fn = compose({
       prompt: "Do a then b",
@@ -358,13 +381,17 @@ describe("compose — tool_call mode", () => {
   });
 
   it("handles unknown tool gracefully", async () => {
-    const sdk = await import("@opencode-ai/sdk") as any;
+    const sdk = (await import("@opencode-ai/sdk")) as any;
     sdk.__setQueue([
       { text: '<tool_call>{"name": "unknown_tool", "input": "x"}</tool_call>' },
       { text: "Got error response" },
     ]);
 
-    const knownFn = vi.fn(async () => ({ data: "known", raw: "", durationMs: 0 }));
+    const knownFn = vi.fn(async () => ({
+      data: "known",
+      raw: "",
+      durationMs: 0,
+    }));
 
     const fn = compose({
       prompt: "Do something",
@@ -381,7 +408,7 @@ describe("compose — tool_call mode", () => {
   });
 
   it.skip("respects maxIterations", async () => {
-    const sdk = await import("@opencode-ai/sdk") as any;
+    const sdk = (await import("@opencode-ai/sdk")) as any;
     sdk.__setQueue([
       { text: '<tool_call>{"name": "t", "input": "x"}</tool_call>' },
       { text: '<tool_call>{"name": "t", "input": "y"}</tool_call>' },
@@ -389,7 +416,11 @@ describe("compose — tool_call mode", () => {
       { text: "max iterations reached" },
     ]);
 
-    const toolFn = vi.fn(async () => ({ data: "done", raw: "", durationMs: 0 }));
+    const toolFn = vi.fn(async () => ({
+      data: "done",
+      raw: "",
+      durationMs: 0,
+    }));
 
     const fn = compose({
       prompt: "Loop",
@@ -409,9 +440,11 @@ describe("compose — tool_call mode", () => {
 
 describe("compose — hooks", () => {
   it.skip("calls onToolCall hook after each tool invocation", async () => {
-    const sdk = await import("@opencode-ai/sdk") as any;
+    const sdk = (await import("@opencode-ai/sdk")) as any;
     sdk.__setQueue([
-      { text: '<tool_call>{"name": "translate", "input": "hello"}</tool_call>' },
+      {
+        text: '<tool_call>{"name": "translate", "input": "hello"}</tool_call>',
+      },
       { text: "Done" },
     ]);
 
@@ -442,7 +475,7 @@ describe("compose — hooks", () => {
   });
 
   it.skip("calls before hook to modify prompt", async () => {
-    const sdk = await import("@opencode-ai/sdk") as any;
+    const sdk = (await import("@opencode-ai/sdk")) as any;
     sdk.__setQueue([{ text: '```js\nreturn "ok";\n```' }]);
 
     const beforeSpy = vi.fn(({ prompt }) => `MODIFIED: ${prompt}`);
@@ -463,7 +496,7 @@ describe("compose — hooks", () => {
 
 describe("compose — error handling", () => {
   it("throws when SDK call fails", async () => {
-    const sdk = await import("@opencode-ai/sdk") as any;
+    const sdk = (await import("@opencode-ai/sdk")) as any;
     sdk.__setQueue([{ text: "error" }]);
 
     const fn = compose({ prompt: "test", tools: {}, logDir: tmpdir() });

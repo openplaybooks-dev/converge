@@ -23,16 +23,16 @@ context:
   - type: ai
     prompt: >
       A task needs the input file matching pattern `{inputPattern}` but it doesn't exist.
-      
+
       Read these SKILL.md files to find which task should produce it:
       {attemptDir}/../../../tasks/*/SKILL.md
-      
+
       For each task found, check its `outputs:` field. If a task's outputs match
       or could produce `{inputPattern}`, report:
       1. The task ID and its SKILL.md path
       2. Whether it has already run (check for checkpoint.json in its journal dir)
       3. If it ran, why it might have failed to produce the file
-      
+
       If no task produces this file, say so clearly.
       Be concise — 5-10 lines max.
     label: producer-analysis
@@ -59,12 +59,12 @@ A task is blocked because required input files are missing.
 
 The `producer-analysis.md` file tells you which upstream task should produce the missing file.
 
-| Finding | Action |
-|---------|--------|
-| Producer found, hasn't run | Write LEARN.md: "run {producer} first" |
-| Producer found, ran but failed | Write LEARN.md: why it failed + what to fix |
-| No producer found | Write LEARN.md: "no task produces {pattern} — need new task" |
-| Files exist at different path | Fix the input glob pattern in the task's SKILL.md |
+| Finding                        | Action                                                       |
+| ------------------------------ | ------------------------------------------------------------ |
+| Producer found, hasn't run     | Write LEARN.md: "run {producer} first"                       |
+| Producer found, ran but failed | Write LEARN.md: why it failed + what to fix                  |
+| No producer found              | Write LEARN.md: "no task produces {pattern} — need new task" |
+| Files exist at different path  | Fix the input glob pattern in the task's SKILL.md            |
 
 ## Step 3: Check Pattern Mismatch
 

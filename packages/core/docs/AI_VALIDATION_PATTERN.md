@@ -3,6 +3,7 @@
 **Pattern:** Use `ctx.ai.ask()` for validation instead of brittle shell checks
 
 **Benefits:**
+
 - More flexible and semantic
 - Self-correcting loops
 - Fewer false negatives
@@ -22,6 +23,7 @@ checks:
 ```
 
 **Issues:**
+
 - Exact string matching (fails if AI uses "# Sitemap" instead)
 - No semantic understanding
 - Can't self-correct
@@ -42,7 +44,7 @@ After generating files, use `ctx.ai.ask()` to validate:
 
 \`\`\`typescript
 const validation = await ctx.ai.ask({
-  prompt: \`
+prompt: \`
 Review the files I just created:
 
 1. QUALITY CHECKS:
@@ -60,6 +62,7 @@ Review the files I just created:
    - Are there any gaps or missing information?
 
 Files to review:
+
 - .stitch/SITE.md
 - .stitch/screens.json
 
@@ -67,18 +70,18 @@ Respond with:
 ✅ VALID: [what's correct]
 ❌ ISSUES: [problems found]
 🔧 FIXES: [how to correct them]
-  \`.trim()
+\`.trim()
 });
 
 // Self-correction loop
 if (validation.includes('❌') || validation.includes('🔧')) {
-  console.log('Issues detected, applying fixes...');
+console.log('Issues detected, applying fixes...');
 
-  // Extract fix instructions
-  // Apply corrections
-  // Regenerate files
+// Extract fix instructions
+// Apply corrections
+// Regenerate files
 
-  // Validate again (recursive until clean)
+// Validate again (recursive until clean)
 }
 \`\`\`
 ```
@@ -90,7 +93,7 @@ if (validation.includes('❌') || validation.includes('🔧')) {
 name: my-task
 description: Generate files with AI validation
 skill: my-skill
-checks: []  # Empty - AI validates instead!
+checks: [] # Empty - AI validates instead!
 ---
 ```
 
@@ -101,6 +104,7 @@ checks: []  # Empty - AI validates instead!
 ### 1. File Generation Tasks
 
 **Before (brittle):**
+
 ```bash
 test -f output.json
 grep -q "expected-field" output.json
@@ -108,6 +112,7 @@ node -e "JSON.parse(fs.readFileSync('output.json'))"
 ```
 
 **After (flexible):**
+
 ```typescript
 await ctx.ai.ask({
   prompt: `Validate output.json:
@@ -115,13 +120,14 @@ await ctx.ai.ask({
 - Does it have all required fields?
 - Is the data structure correct?
 
-If not, fix it and regenerate.`
+If not, fix it and regenerate.`,
 });
 ```
 
 ### 2. Code Generation Tasks
 
 **Before (brittle):**
+
 ```bash
 grep -q "export default" component.tsx
 grep -q "interface Props" component.tsx
@@ -129,6 +135,7 @@ tsc --noEmit component.tsx
 ```
 
 **After (flexible):**
+
 ```typescript
 await ctx.ai.ask({
   prompt: `Review component.tsx:
@@ -136,13 +143,14 @@ await ctx.ai.ask({
 - Are types correctly defined?
 - Will it compile without errors?
 
-If issues found, fix and regenerate.`
+If issues found, fix and regenerate.`,
 });
 ```
 
 ### 3. Documentation Tasks
 
 **Before (brittle):**
+
 ```bash
 grep -q "# Title" README.md
 grep -q "## Installation" README.md
@@ -150,6 +158,7 @@ wc -l README.md | awk '{if($1<10)exit 1}'
 ```
 
 **After (flexible):**
+
 ```typescript
 await ctx.ai.ask({
   prompt: `Review README.md:
@@ -157,7 +166,7 @@ await ctx.ai.ask({
 - Is the content clear and helpful?
 - Are examples complete?
 
-If improvements needed, apply them.`
+If improvements needed, apply them.`,
 });
 ```
 
@@ -183,11 +192,11 @@ async function generateWithValidation() {
       Respond with one of:
       - ✅ VALID - if everything is correct
       - ❌ ISSUES: [list] - if problems found
-      `
+      `,
     });
 
-    if (validation.includes('✅ VALID')) {
-      console.log('Validation passed!');
+    if (validation.includes("✅ VALID")) {
+      console.log("Validation passed!");
       return;
     }
 
@@ -201,7 +210,7 @@ async function generateWithValidation() {
 
       ${validation}
 
-      Please fix them now by regenerating the files correctly.`
+      Please fix them now by regenerating the files correctly.`,
     });
 
     attempts++;
@@ -227,21 +236,24 @@ When the gap detection system spawns a gap-fixer task, it should include AI vali
 You need to create: \`${missingFile}\`
 
 ## Requirements
+
 [AI-generated requirements based on context]
 
 ## Instructions
+
 1. Read related files for context
 2. Generate the missing file
 3. **VALIDATE YOUR WORK:**
    \`\`\`typescript
    const check = await ctx.ai.ask({
-     prompt: "Verify ${missingFile} is correct and complete"
+   prompt: "Verify ${missingFile} is correct and complete"
    });
    \`\`\`
 4. Fix any issues found
 5. Validate again until clean
 
 ## Success Criteria
+
 - File exists
 - File is valid format
 - File matches schema expected by downstream tasks
@@ -252,14 +264,14 @@ You need to create: \`${missingFile}\`
 
 ## Benefits Over Shell Checks
 
-| Aspect | Shell Checks | AI Validation |
-|--------|--------------|---------------|
-| Flexibility | ❌ Exact match only | ✅ Semantic understanding |
-| Self-correction | ❌ No | ✅ Yes |
-| Context awareness | ❌ No | ✅ Yes |
-| False negatives | ⚠️ Common | ✅ Rare |
-| Maintenance | ⚠️ High | ✅ Low |
-| Error messages | ❌ Generic | ✅ Specific |
+| Aspect            | Shell Checks        | AI Validation             |
+| ----------------- | ------------------- | ------------------------- |
+| Flexibility       | ❌ Exact match only | ✅ Semantic understanding |
+| Self-correction   | ❌ No               | ✅ Yes                    |
+| Context awareness | ❌ No               | ✅ Yes                    |
+| False negatives   | ⚠️ Common           | ✅ Rare                   |
+| Maintenance       | ⚠️ High             | ✅ Low                    |
+| Error messages    | ❌ Generic          | ✅ Specific               |
 
 ---
 
@@ -277,7 +289,7 @@ await ctx.ai.ask({
   1. Valid JSON syntax?
   2. Has fields: id, name, description?
   3. All IDs are unique?
-  4. Matches schema in schema.json?`
+  4. Matches schema in schema.json?`,
 });
 ```
 
@@ -292,11 +304,11 @@ const validation = await ctx.ai.ask({
   ✅ VALID: [what passed]
   ❌ ISSUES: [what failed]
   🔧 FIXES: [how to fix]
-  `
+  `,
 });
 
 // Easy to parse
-const hasIssues = validation.includes('❌');
+const hasIssues = validation.includes("❌");
 ```
 
 ### 3. Limited Retry Attempts
@@ -316,14 +328,14 @@ while (attempts < MAX_ATTEMPTS) {
 
 ```typescript
 // ✅ Record validation for debugging
-console.log('🔍 AI Validation Result:');
+console.log("🔍 AI Validation Result:");
 console.log(validation);
 
 // Log to journal
 await ctx.journal.log({
-  type: 'ai-validation',
+  type: "ai-validation",
   result: validation,
-  passed: validation.includes('✅')
+  passed: validation.includes("✅"),
 });
 ```
 
@@ -334,6 +346,7 @@ await ctx.journal.log({
 ### Converting Existing Tasks
 
 **Step 1: Identify brittle checks**
+
 ```yaml
 checks:
   - id: has-header
@@ -343,23 +356,26 @@ checks:
 ```
 
 **Step 2: Replace with AI validation in skill**
+
 ```markdown
 ## Validation
 
 Use AI to verify output.md:
 \`\`\`typescript
 await ctx.ai.ask({
-  prompt: "Does output.md have a title and sections?"
+prompt: "Does output.md have a title and sections?"
 });
 \`\`\`
 ```
 
 **Step 3: Remove shell checks**
+
 ```yaml
-checks: []  # AI validates instead
+checks: [] # AI validates instead
 ```
 
 **Step 4: Test**
+
 ```bash
 pnpm converge run --task my-task
 ```
@@ -377,7 +393,7 @@ pnpm converge run --task my-task
 
 \`\`\`typescript
 const validation = await ctx.ai.ask({
-  prompt: \`
+prompt: \`
 Review .stitch/SITE.md and .stitch/screens.json:
 
 1. SITE.md:
@@ -390,11 +406,11 @@ Review .stitch/SITE.md and .stitch/screens.json:
    - Unique IDs in kebab-case?
 
 Respond: ✅ VALID or ❌ ISSUES: [list]
-  \`
+\`
 });
 
 if (validation.includes('❌')) {
-  // Fix and retry
+// Fix and retry
 }
 \`\`\`
 ```
@@ -412,17 +428,18 @@ await createMissingFile();
 
 // AI validates
 const check = await ctx.ai.ask({
-  prompt: \`
+prompt: \`
 Verify the file I just created meets requirements:
+
 - Correct format?
 - Complete content?
 - Matches downstream expectations?
   \`
-});
+  });
 
 // Self-correct if needed
 if (check.includes('❌')) {
-  await fixIssues();
+await fixIssues();
 }
 \`\`\`
 ```
@@ -434,6 +451,7 @@ if (check.includes('❌')) {
 **Key Takeaway:** Let AI validate its own work instead of writing brittle shell checks.
 
 **Implementation:**
+
 1. Add AI validation step to skill instructions
 2. Use `ctx.ai.ask()` for semantic checks
 3. Implement self-correction loops

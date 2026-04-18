@@ -5,8 +5,8 @@
  * Prevents circular dependencies and provides detailed error messages.
  */
 
-import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -19,10 +19,10 @@ export interface SkillMetadata {
   category?: string;
   tags?: string[];
   outputs?: string[];
-  'related-skills'?: string[];
+  "related-skills"?: string[];
   dependencies?: string[];
   requires?: string[];
-  'allowed-tools'?: string[];
+  "allowed-tools"?: string[];
 }
 
 export interface SkillResolutionResult {
@@ -59,16 +59,16 @@ function parseFrontmatter(content: string): Record<string, any> {
   let currentKey: string | null = null;
   let currentArray: string[] = [];
 
-  for (const line of yaml.split('\n')) {
+  for (const line of yaml.split("\n")) {
     // Array item continuation
-    if (line.trim().startsWith('-') && currentKey) {
+    if (line.trim().startsWith("-") && currentKey) {
       const value = line.trim().slice(1).trim();
       // Handle inline array notation: [item1, item2]
-      if (value.startsWith('[') && value.endsWith(']')) {
+      if (value.startsWith("[") && value.endsWith("]")) {
         const items = value
           .slice(1, -1)
-          .split(',')
-          .map(s => s.trim())
+          .split(",")
+          .map((s) => s.trim())
           .filter(Boolean);
         currentArray.push(...items);
       } else {
@@ -85,23 +85,25 @@ function parseFrontmatter(content: string): Record<string, any> {
     }
 
     // Key-value pair
-    const colonIndex = line.indexOf(':');
+    const colonIndex = line.indexOf(":");
     if (colonIndex > 0) {
       const key = line.slice(0, colonIndex).trim();
       let value = line.slice(colonIndex + 1).trim();
 
       // Strip quotes
-      if ((value.startsWith('"') && value.endsWith('"')) ||
-          (value.startsWith("'") && value.endsWith("'"))) {
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
         value = value.slice(1, -1);
       }
 
       // Check if it's an inline array
-      if (value.startsWith('[') && value.endsWith(']')) {
+      if (value.startsWith("[") && value.endsWith("]")) {
         result[key] = value
           .slice(1, -1)
-          .split(',')
-          .map(s => s.trim())
+          .split(",")
+          .map((s) => s.trim())
           .filter(Boolean);
       } else if (value) {
         result[key] = value;
@@ -128,8 +130,8 @@ export function loadSkillMetadata(
   skillsRoot: string,
   skillName: string,
 ): SkillMetadata | null {
-  const taskMdPath = join(skillsRoot, skillName, 'TASK.md');
-  const skillMdPath = join(skillsRoot, skillName, 'SKILL.md');
+  const taskMdPath = join(skillsRoot, skillName, "TASK.md");
+  const skillMdPath = join(skillsRoot, skillName, "SKILL.md");
   const skillPath = existsSync(taskMdPath) ? taskMdPath : skillMdPath;
 
   if (!existsSync(skillPath)) {
@@ -137,7 +139,7 @@ export function loadSkillMetadata(
   }
 
   try {
-    const content = readFileSync(skillPath, 'utf-8');
+    const content = readFileSync(skillPath, "utf-8");
     const meta = parseFrontmatter(content) as SkillMetadata;
 
     // Ensure name is set
@@ -172,11 +174,7 @@ export function resolveSkillDependencies(
   rootSkills: string[],
   options: SkillResolutionOptions = {},
 ): SkillResolutionResult {
-  const {
-    maxDepth = 10,
-    throwOnMissing = true,
-    verbose = false,
-  } = options;
+  const { maxDepth = 10, throwOnMissing = true, verbose = false } = options;
 
   const graph = new Map<string, string[]>();
   const warnings: string[] = [];
@@ -201,7 +199,7 @@ export function resolveSkillDependencies(
     }
 
     if (stack.has(skillName)) {
-      const msg = `Circular dependency detected: ${Array.from(stack).join(' → ')} → ${skillName}`;
+      const msg = `Circular dependency detected: ${Array.from(stack).join(" → ")} → ${skillName}`;
       warnings.push(msg);
       if (throwOnMissing) {
         throw new Error(msg);
@@ -210,7 +208,7 @@ export function resolveSkillDependencies(
     }
 
     if (verbose) {
-      console.log(`   ${'  '.repeat(depth)}├─ Resolving: ${skillName}`);
+      console.log(`   ${"  ".repeat(depth)}├─ Resolving: ${skillName}`);
     }
 
     stack.add(skillName);
@@ -232,22 +230,34 @@ export function resolveSkillDependencies(
     const deps: string[] = [];
 
     if (meta.dependencies) {
-      deps.push(...(Array.isArray(meta.dependencies) ? meta.dependencies : [meta.dependencies]));
+      deps.push(
+        ...(Array.isArray(meta.dependencies)
+          ? meta.dependencies
+          : [meta.dependencies]),
+      );
     }
 
     if (meta.requires) {
-      deps.push(...(Array.isArray(meta.requires) ? meta.requires : [meta.requires]));
+      deps.push(
+        ...(Array.isArray(meta.requires) ? meta.requires : [meta.requires]),
+      );
     }
 
-    if (meta['related-skills']) {
-      deps.push(...(Array.isArray(meta['related-skills']) ? meta['related-skills'] : [meta['related-skills']]));
+    if (meta["related-skills"]) {
+      deps.push(
+        ...(Array.isArray(meta["related-skills"])
+          ? meta["related-skills"]
+          : [meta["related-skills"]]),
+      );
     }
 
     // Store in graph
     graph.set(skillName, deps);
 
     if (verbose && deps.length > 0) {
-      console.log(`   ${'  '.repeat(depth)}   Dependencies: ${deps.join(', ')}`);
+      console.log(
+        `   ${"  ".repeat(depth)}   Dependencies: ${deps.join(", ")}`,
+      );
     }
 
     // Recursively resolve dependencies
@@ -261,7 +271,9 @@ export function resolveSkillDependencies(
 
   // Start resolution from root skills
   if (verbose) {
-    console.log(`\n📦 Resolving skill dependencies from: ${rootSkills.join(', ')}`);
+    console.log(
+      `\n📦 Resolving skill dependencies from: ${rootSkills.join(", ")}`,
+    );
   }
 
   for (const skill of rootSkills) {
@@ -302,10 +314,11 @@ export function resolveSkillDependencies(
     console.log(`\n✅ Resolved ${sorted.length} skill(s) in dependency order:`);
     sorted.forEach((s, i) => {
       const deps = graph.get(s) || [];
-      const depsStr = deps.length > 0 ? ` (depends on: ${deps.join(', ')})` : '';
+      const depsStr =
+        deps.length > 0 ? ` (depends on: ${deps.join(", ")})` : "";
       console.log(`   ${i + 1}. ${s}${depsStr}`);
     });
-    console.log('');
+    console.log("");
   }
 
   return { skills: sorted, graph, warnings };
@@ -327,8 +340,8 @@ export function validateSkillsExist(
   const missing: string[] = [];
 
   for (const skillName of skills) {
-    const taskMdPath = join(skillsRoot, skillName, 'TASK.md');
-    const skillMdPath = join(skillsRoot, skillName, 'SKILL.md');
+    const taskMdPath = join(skillsRoot, skillName, "TASK.md");
+    const skillMdPath = join(skillsRoot, skillName, "SKILL.md");
     if (!existsSync(taskMdPath) && !existsSync(skillMdPath)) {
       missing.push(skillName);
     }
@@ -337,8 +350,8 @@ export function validateSkillsExist(
   if (missing.length > 0) {
     throw new Error(
       `Required skill(s) not found in ${skillsRoot}:\n` +
-      missing.map(s => `  - ${s}`).join('\n') +
-      '\n\nEnsure all skill directories contain a TASK.md file.',
+        missing.map((s) => `  - ${s}`).join("\n") +
+        "\n\nEnsure all skill directories contain a TASK.md file.",
     );
   }
 }
@@ -346,23 +359,20 @@ export function validateSkillsExist(
 /**
  * Get a summary of what skills will be loaded
  */
-export function getSkillSummary(
-  skillsRoot: string,
-  skills: string[],
-): string {
+export function getSkillSummary(skillsRoot: string, skills: string[]): string {
   const lines: string[] = [];
 
   for (const skillName of skills) {
     const meta = loadSkillMetadata(skillsRoot, skillName);
     if (meta) {
-      const desc = meta.description || '(no description)';
+      const desc = meta.description || "(no description)";
       lines.push(`  - ${skillName}: ${desc}`);
     } else {
       lines.push(`  - ${skillName}: ⚠️  NOT FOUND`);
     }
   }
 
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 /**
@@ -379,25 +389,25 @@ export function collectAllowedTools(
   skills: string[],
 ): string[] {
   const toolSet = new Set<string>([
-    'Skill', // Always include Skill tool so Claude can invoke other skills
+    "Skill", // Always include Skill tool so Claude can invoke other skills
   ]);
 
   // Default tools that should always be available
-  const defaultTools = ['Read', 'Write', 'Edit', 'Bash', 'Glob', 'Grep'];
-  defaultTools.forEach(t => toolSet.add(t));
+  const defaultTools = ["Read", "Write", "Edit", "Bash", "Glob", "Grep"];
+  defaultTools.forEach((t) => toolSet.add(t));
 
   // Collect tools from all skills
   for (const skillName of skills) {
     const meta = loadSkillMetadata(skillsRoot, skillName);
-    if (meta?.['allowed-tools']) {
-      const tools = Array.isArray(meta['allowed-tools'])
-        ? meta['allowed-tools']
-        : [meta['allowed-tools']];
-      tools.forEach(t => toolSet.add(t));
+    if (meta?.["allowed-tools"]) {
+      const tools = Array.isArray(meta["allowed-tools"])
+        ? meta["allowed-tools"]
+        : [meta["allowed-tools"]];
+      tools.forEach((t) => toolSet.add(t));
     }
   }
 
   const tools: string[] = [];
-  toolSet.forEach(t => tools.push(t));
+  toolSet.forEach((t) => tools.push(t));
   return tools.sort();
 }

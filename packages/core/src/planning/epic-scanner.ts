@@ -5,11 +5,11 @@
  * Each subdirectory = one epic, with tasks auto-discovered from tasks/ subfolder.
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import { glob } from 'glob';
-import type { TaskFileMetadata } from './types.ts';
-import type { EpicConfig } from '../storage/types.ts';
+import * as fs from "fs";
+import * as path from "path";
+import { glob } from "glob";
+import type { TaskFileMetadata } from "./types.ts";
+import type { EpicConfig } from "../storage/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Epic Scanner Types                                                */
@@ -118,12 +118,15 @@ export class EpicFileScanner {
   /**
    * Extract epic name from epic.yaml or directory name
    */
-  private async extractEpicName(epicDir: string, epicId: string): Promise<string> {
+  private async extractEpicName(
+    epicDir: string,
+    epicId: string,
+  ): Promise<string> {
     // Try epic.yaml
-    const yamlPath = path.join(epicDir, 'epic.yaml');
+    const yamlPath = path.join(epicDir, "epic.yaml");
     if (fs.existsSync(yamlPath)) {
       try {
-        const content = fs.readFileSync(yamlPath, 'utf-8');
+        const content = fs.readFileSync(yamlPath, "utf-8");
         const nameMatch = content.match(/name:\s*["']?([^"'\n]+)["']?/);
         if (nameMatch) return nameMatch[1];
       } catch {
@@ -132,10 +135,10 @@ export class EpicFileScanner {
     }
 
     // Try epic.md
-    const mdPath = path.join(epicDir, 'epic.md');
+    const mdPath = path.join(epicDir, "epic.md");
     if (fs.existsSync(mdPath)) {
       try {
-        const content = fs.readFileSync(mdPath, 'utf-8');
+        const content = fs.readFileSync(mdPath, "utf-8");
         const titleMatch = content.match(/^#\s+(.+)$/m);
         if (titleMatch) return titleMatch[1];
       } catch {
@@ -145,21 +148,23 @@ export class EpicFileScanner {
 
     // Fall back to directory name (convert kebab-case to Title Case)
     return epicId
-      .replace(/^\d+-/, '') // Remove numeric prefix
-      .split('-')
+      .replace(/^\d+-/, "") // Remove numeric prefix
+      .split("-")
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(' ');
+      .join(" ");
   }
 
   /**
    * Extract epic description
    */
-  private async extractEpicDescription(epicDir: string): Promise<string | undefined> {
+  private async extractEpicDescription(
+    epicDir: string,
+  ): Promise<string | undefined> {
     // Try epic.yaml
-    const yamlPath = path.join(epicDir, 'epic.yaml');
+    const yamlPath = path.join(epicDir, "epic.yaml");
     if (fs.existsSync(yamlPath)) {
       try {
-        const content = fs.readFileSync(yamlPath, 'utf-8');
+        const content = fs.readFileSync(yamlPath, "utf-8");
         const descMatch = content.match(/description:\s*["']?([^"'\n]+)["']?/);
         if (descMatch) return descMatch[1];
       } catch {
@@ -168,10 +173,10 @@ export class EpicFileScanner {
     }
 
     // Try epic.md (first paragraph after title)
-    const mdPath = path.join(epicDir, 'epic.md');
+    const mdPath = path.join(epicDir, "epic.md");
     if (fs.existsSync(mdPath)) {
       try {
-        const content = fs.readFileSync(mdPath, 'utf-8');
+        const content = fs.readFileSync(mdPath, "utf-8");
         const descMatch = content.match(/^#\s+.+\n\n(.+?)(?:\n\n|$)/m);
         if (descMatch) return descMatch[1];
       } catch {
@@ -189,15 +194,15 @@ export class EpicFileScanner {
     const goals: string[] = [];
 
     // Try epic.yaml
-    const yamlPath = path.join(epicDir, 'epic.yaml');
+    const yamlPath = path.join(epicDir, "epic.yaml");
     if (fs.existsSync(yamlPath)) {
       try {
-        const content = fs.readFileSync(yamlPath, 'utf-8');
+        const content = fs.readFileSync(yamlPath, "utf-8");
         const goalsMatch = content.match(/goals:\s*\n((?:\s*-\s*.+\n?)+)/);
         if (goalsMatch) {
-          const goalLines = goalsMatch[1].split('\n').filter((l) => l.trim());
+          const goalLines = goalsMatch[1].split("\n").filter((l) => l.trim());
           goals.push(
-            ...goalLines.map((line) => line.replace(/^\s*-\s*/, '').trim())
+            ...goalLines.map((line) => line.replace(/^\s*-\s*/, "").trim()),
           );
         }
       } catch {
@@ -206,15 +211,17 @@ export class EpicFileScanner {
     }
 
     // Try epic.md (## Goals section)
-    const mdPath = path.join(epicDir, 'epic.md');
+    const mdPath = path.join(epicDir, "epic.md");
     if (fs.existsSync(mdPath) && goals.length === 0) {
       try {
-        const content = fs.readFileSync(mdPath, 'utf-8');
-        const goalsMatch = content.match(/##\s+Goals?\s*\n\n((?:[-*]\s+.+\n?)+)/i);
+        const content = fs.readFileSync(mdPath, "utf-8");
+        const goalsMatch = content.match(
+          /##\s+Goals?\s*\n\n((?:[-*]\s+.+\n?)+)/i,
+        );
         if (goalsMatch) {
-          const goalLines = goalsMatch[1].split('\n').filter((l) => l.trim());
+          const goalLines = goalsMatch[1].split("\n").filter((l) => l.trim());
           goals.push(
-            ...goalLines.map((line) => line.replace(/^[-*]\s+/, '').trim())
+            ...goalLines.map((line) => line.replace(/^[-*]\s+/, "").trim()),
           );
         }
       } catch {
@@ -229,14 +236,14 @@ export class EpicFileScanner {
    * Scan tasks from epic's tasks/ subdirectory
    */
   private async scanEpicTasks(epicDir: string): Promise<TaskFileMetadata[]> {
-    const tasksDir = path.join(epicDir, 'tasks');
+    const tasksDir = path.join(epicDir, "tasks");
 
     if (!fs.existsSync(tasksDir)) {
       return [];
     }
 
     // Find all .ts files
-    const pattern = path.join(tasksDir, '*.ts');
+    const pattern = path.join(tasksDir, "*.ts");
     const files = await glob(pattern);
 
     const tasks: TaskFileMetadata[] = [];
@@ -261,9 +268,11 @@ export class EpicFileScanner {
   /**
    * Parse a single task file (similar to TaskFileScanner)
    */
-  private async parseTaskFile(filePath: string): Promise<TaskFileMetadata | null> {
-    const content = fs.readFileSync(filePath, 'utf-8');
-    const fileName = path.basename(filePath, '.ts');
+  private async parseTaskFile(
+    filePath: string,
+  ): Promise<TaskFileMetadata | null> {
+    const content = fs.readFileSync(filePath, "utf-8");
+    const fileName = path.basename(filePath, ".ts");
 
     const priority = this.extractPriority(fileName);
     const taskId = this.extractTaskId(fileName, content);
@@ -298,20 +307,20 @@ export class EpicFileScanner {
    * Scan checks from epic's checks/ subdirectory
    */
   private async scanEpicChecks(
-    epicDir: string
+    epicDir: string,
   ): Promise<Array<{ file: string; checkId: string }>> {
-    const checksDir = path.join(epicDir, 'checks');
+    const checksDir = path.join(epicDir, "checks");
 
     if (!fs.existsSync(checksDir)) {
       return [];
     }
 
-    const pattern = path.join(checksDir, '*.ts');
+    const pattern = path.join(checksDir, "*.ts");
     const files = await glob(pattern);
 
     return files.map((file) => ({
       file,
-      checkId: path.basename(file, '.ts'),
+      checkId: path.basename(file, ".ts"),
     }));
   }
 
@@ -327,7 +336,7 @@ export class EpicFileScanner {
   private extractTaskId(fileName: string, content: string): string | null {
     const idMatch = content.match(/\.id\(['"]([^'"]+)['"]\)/);
     if (idMatch) return idMatch[1];
-    return fileName.replace(/^\d+-/, '');
+    return fileName.replace(/^\d+-/, "");
   }
 
   private extractTitle(content: string): string | null {
@@ -349,8 +358,8 @@ export class EpicFileScanner {
     const match = content.match(/\.deps\(\[([^\]]+)\]\)/);
     if (!match) return [];
     return match[1]
-      .split(',')
-      .map((s) => s.trim().replace(/['"]/g, ''))
+      .split(",")
+      .map((s) => s.trim().replace(/['"]/g, ""))
       .filter(Boolean);
   }
 
@@ -358,8 +367,8 @@ export class EpicFileScanner {
     const match = content.match(/\.checks\(\[([^\]]+)\]\)/);
     if (!match) return undefined;
     return match[1]
-      .split(',')
-      .map((s) => s.trim().replace(/['"]/g, ''))
+      .split(",")
+      .map((s) => s.trim().replace(/['"]/g, ""))
       .filter(Boolean);
   }
 
@@ -367,8 +376,8 @@ export class EpicFileScanner {
     const match = content.match(/\.inputs\(\[([^\]]+)\]\)/);
     if (!match) return undefined;
     return match[1]
-      .split(',')
-      .map((s) => s.trim().replace(/['"]/g, ''))
+      .split(",")
+      .map((s) => s.trim().replace(/['"]/g, ""))
       .filter(Boolean);
   }
 
@@ -376,8 +385,8 @@ export class EpicFileScanner {
     const match = content.match(/\.outputs\(\[([^\]]+)\]\)/);
     if (!match) return undefined;
     return match[1]
-      .split(',')
-      .map((s) => s.trim().replace(/['"]/g, ''))
+      .split(",")
+      .map((s) => s.trim().replace(/['"]/g, ""))
       .filter(Boolean);
   }
 }

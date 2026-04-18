@@ -7,29 +7,29 @@
  * - TaskMdShape interface — type contract
  */
 
-import { describe, it, expect } from 'vitest';
-import { parseTaskMdString } from '../../src/config/task-md-definition.ts';
-import type { TaskMdShape } from '../../src/config/task-md-definition.ts';
-import { rawMd, template } from '../../src/config/task-definition.ts';
+import { describe, it, expect } from "vitest";
+import { parseTaskMdString } from "../../src/config/task-md-definition.ts";
+import type { TaskMdShape } from "../../src/config/task-md-definition.ts";
+import { rawMd, template } from "../../src/config/task-definition.ts";
 
 /* ------------------------------------------------------------------ */
 /*  parseTaskMdString()                                                */
 /* ------------------------------------------------------------------ */
 
-describe('parseTaskMdString', () => {
-  it('parses basic frontmatter + body', () => {
+describe("parseTaskMdString", () => {
+  it("parses basic frontmatter + body", () => {
     const shape = parseTaskMdString(`---
 id: my-task
 title: My Task
 ---
 This is the body.
 `);
-    expect(shape.id).toBe('my-task');
-    expect(shape.title).toBe('My Task');
-    expect(shape.body).toBe('This is the body.');
+    expect(shape.id).toBe("my-task");
+    expect(shape.title).toBe("My Task");
+    expect(shape.body).toBe("This is the body.");
   });
 
-  it('parses skills array', () => {
+  it("parses skills array", () => {
     const shape = parseTaskMdString(`---
 id: task-1
 skills:
@@ -37,10 +37,10 @@ skills:
   - stitch-generate
 ---
 `);
-    expect(shape.skills).toEqual(['stitch-prompt', 'stitch-generate']);
+    expect(shape.skills).toEqual(["stitch-prompt", "stitch-generate"]);
   });
 
-  it('parses dependencies and blocking', () => {
+  it("parses dependencies and blocking", () => {
     const shape = parseTaskMdString(`---
 id: task-2
 dependencies:
@@ -49,11 +49,11 @@ dependencies:
 blocking: true
 ---
 `);
-    expect(shape.dependencies).toEqual(['001-design-system', '002-layout']);
+    expect(shape.dependencies).toEqual(["001-design-system", "002-layout"]);
     expect(shape.blocking).toBe(true);
   });
 
-  it('parses inputs, outputs, tags', () => {
+  it("parses inputs, outputs, tags", () => {
     const shape = parseTaskMdString(`---
 id: task-3
 inputs:
@@ -65,12 +65,12 @@ tags:
   - "priority:high"
 ---
 `);
-    expect(shape.inputs).toEqual(['.stitch/DESIGN.md']);
-    expect(shape.outputs).toEqual(['src/pages/Home.tsx']);
-    expect(shape.tags).toEqual(['screen', 'priority:high']);
+    expect(shape.inputs).toEqual([".stitch/DESIGN.md"]);
+    expect(shape.outputs).toEqual(["src/pages/Home.tsx"]);
+    expect(shape.tags).toEqual(["screen", "priority:high"]);
   });
 
-  it('parses checks with all fields', () => {
+  it("parses checks with all fields", () => {
     const shape = parseTaskMdString(`---
 id: task-4
 checks:
@@ -80,11 +80,11 @@ checks:
 ---
 `);
     expect(shape.checks).toEqual([
-      { id: 'lint', cmd: 'npm run lint', description: 'Run linter' },
+      { id: "lint", cmd: "npm run lint", description: "Run linter" },
     ]);
   });
 
-  it('parses needs with auto-generated description', () => {
+  it("parses needs with auto-generated description", () => {
     const shape = parseTaskMdString(`---
 id: task-4b
 needs:
@@ -93,11 +93,11 @@ needs:
 ---
 `);
     // parseChecks auto-generates description from id when not provided
-    expect(shape.needs?.[0].id).toBe('build-check');
-    expect(shape.needs?.[0].cmd).toBe('test -f dist/bundle.js');
+    expect(shape.needs?.[0].id).toBe("build-check");
+    expect(shape.needs?.[0].cmd).toBe("test -f dist/bundle.js");
   });
 
-  it('parses executor config', () => {
+  it("parses executor config", () => {
     const shape = parseTaskMdString(`---
 id: task-5
 executor:
@@ -110,14 +110,14 @@ executor:
 ---
 `);
     expect(shape.executor).toEqual({
-      type: 'script',
-      path: './run.sh',
-      args: ['--verbose'],
-      env: { NODE_ENV: 'production' },
+      type: "script",
+      path: "./run.sh",
+      args: ["--verbose"],
+      env: { NODE_ENV: "production" },
     });
   });
 
-  it('parses WBS config', () => {
+  it("parses WBS config", () => {
     const shape = parseTaskMdString(`---
 id: task-6
 wbs:
@@ -126,12 +126,12 @@ wbs:
 ---
 `);
     expect(shape.wbs).toEqual({
-      type: 'nodejs',
-      path: './wbs.js',
+      type: "nodejs",
+      path: "./wbs.js",
     });
   });
 
-  it('parses plan config', () => {
+  it("parses plan config", () => {
     const shape = parseTaskMdString(`---
 id: task-7
 plan:
@@ -140,12 +140,12 @@ plan:
 ---
 `);
     expect(shape.plan).toEqual({
-      prompt: 'Analyze the screens',
-      output: '.converge/plan.md',
+      prompt: "Analyze the screens",
+      output: ".converge/plan.md",
     });
   });
 
-  it('parses materials', () => {
+  it("parses materials", () => {
     const shape = parseTaskMdString(`---
 id: task-8
 materials:
@@ -153,10 +153,10 @@ materials:
   - docs/design.md
 ---
 `);
-    expect(shape.materials).toEqual(['docs/spec.md', 'docs/design.md']);
+    expect(shape.materials).toEqual(["docs/spec.md", "docs/design.md"]);
   });
 
-  it('collects non-reserved keys into vars', () => {
+  it("collects non-reserved keys into vars", () => {
     const shape = parseTaskMdString(`---
 id: task-9
 title: Test
@@ -164,11 +164,11 @@ customField: hello
 timeout: 3000
 ---
 `);
-    expect(shape.vars?.customField).toBe('hello');
+    expect(shape.vars?.customField).toBe("hello");
     expect(shape.vars?.timeout).toBe(3000);
   });
 
-  it('merges explicit vars with extra keys', () => {
+  it("merges explicit vars with extra keys", () => {
     const shape = parseTaskMdString(`---
 id: task-10
 customKey: extra
@@ -177,46 +177,46 @@ vars:
   verbose: true
 ---
 `);
-    expect(shape.vars?.customKey).toBe('extra');
+    expect(shape.vars?.customKey).toBe("extra");
     expect(shape.vars?.retries).toBe(3);
     expect(shape.vars?.verbose).toBe(true);
   });
 
-  it('returns empty id when no frontmatter', () => {
-    const shape = parseTaskMdString('Just a plain body with no frontmatter.');
-    expect(shape.id).toBe('');
-    expect(shape.body).toBe('Just a plain body with no frontmatter.');
+  it("returns empty id when no frontmatter", () => {
+    const shape = parseTaskMdString("Just a plain body with no frontmatter.");
+    expect(shape.id).toBe("");
+    expect(shape.body).toBe("Just a plain body with no frontmatter.");
   });
 
-  it('returns empty id and body when frontmatter is empty object', () => {
+  it("returns empty id and body when frontmatter is empty object", () => {
     const shape = parseTaskMdString(`---
 {}
 ---
 Body here.
 `);
-    expect(shape.id).toBe('');
-    expect(shape.body).toBe('Body here.');
+    expect(shape.id).toBe("");
+    expect(shape.body).toBe("Body here.");
   });
 
-  it('handles description field', () => {
+  it("handles description field", () => {
     const shape = parseTaskMdString(`---
 id: desc-task
 description: A detailed description of the task
 ---
 `);
-    expect(shape.description).toBe('A detailed description of the task');
+    expect(shape.description).toBe("A detailed description of the task");
   });
 
-  it('handles agent field', () => {
+  it("handles agent field", () => {
     const shape = parseTaskMdString(`---
 id: agent-task
 agent: developer
 ---
 `);
-    expect(shape.agent).toBe('developer');
+    expect(shape.agent).toBe("developer");
   });
 
-  it('parses all fields in a single complex TASK.md', () => {
+  it("parses all fields in a single complex TASK.md", () => {
     const shape = parseTaskMdString(`---
 id: complex-task
 title: Complex Task
@@ -248,21 +248,21 @@ vars:
 ---
 Build the home page using the design system.
 `);
-    expect(shape.id).toBe('complex-task');
-    expect(shape.title).toBe('Complex Task');
-    expect(shape.description).toBe('A fully loaded task definition');
-    expect(shape.skills).toEqual(['stitch-prompt', 'stitch-generate']);
-    expect(shape.agent).toBe('ui-designer');
-    expect(shape.dependencies).toEqual(['000-setup']);
+    expect(shape.id).toBe("complex-task");
+    expect(shape.title).toBe("Complex Task");
+    expect(shape.description).toBe("A fully loaded task definition");
+    expect(shape.skills).toEqual(["stitch-prompt", "stitch-generate"]);
+    expect(shape.agent).toBe("ui-designer");
+    expect(shape.dependencies).toEqual(["000-setup"]);
     expect(shape.blocking).toBe(true);
-    expect(shape.inputs).toEqual(['.stitch/DESIGN.md']);
-    expect(shape.outputs).toEqual(['src/pages/Home.tsx']);
-    expect(shape.checks?.[0].id).toBe('lint');
-    expect(shape.tags).toEqual(['screen', 'ui']);
-    expect(shape.materials).toEqual(['docs/spec.md']);
-    expect(shape.plan?.prompt).toBe('Plan the work');
-    expect(shape.vars?.screenId).toBe('home');
-    expect(shape.body).toBe('Build the home page using the design system.');
+    expect(shape.inputs).toEqual([".stitch/DESIGN.md"]);
+    expect(shape.outputs).toEqual(["src/pages/Home.tsx"]);
+    expect(shape.checks?.[0].id).toBe("lint");
+    expect(shape.tags).toEqual(["screen", "ui"]);
+    expect(shape.materials).toEqual(["docs/spec.md"]);
+    expect(shape.plan?.prompt).toBe("Plan the work");
+    expect(shape.vars?.screenId).toBe("home");
+    expect(shape.body).toBe("Build the home page using the design system.");
   });
 });
 
@@ -270,14 +270,14 @@ Build the home page using the design system.
 /*  rawMd() and template()                                             */
 /* ------------------------------------------------------------------ */
 
-describe('rawMd()', () => {
-  it('creates a RawMarkdown tagged type', () => {
-    const md = rawMd('---\ntitle: Test\n---\nBody');
-    expect(md._type).toBe('raw-markdown');
-    expect(md.content).toBe('---\ntitle: Test\n---\nBody');
+describe("rawMd()", () => {
+  it("creates a RawMarkdown tagged type", () => {
+    const md = rawMd("---\ntitle: Test\n---\nBody");
+    expect(md._type).toBe("raw-markdown");
+    expect(md.content).toBe("---\ntitle: Test\n---\nBody");
   });
 
-  it('integrates with parseTaskMdString', () => {
+  it("integrates with parseTaskMdString", () => {
     const md = rawMd(`---
 id: from-raw
 title: From Raw
@@ -287,29 +287,29 @@ skills:
 Generate a prompt for the home screen.
 `);
     const shape = parseTaskMdString(md.content);
-    expect(shape.id).toBe('from-raw');
-    expect(shape.title).toBe('From Raw');
-    expect(shape.skills).toEqual(['stitch-prompt']);
-    expect(shape.body).toBe('Generate a prompt for the home screen.');
+    expect(shape.id).toBe("from-raw");
+    expect(shape.title).toBe("From Raw");
+    expect(shape.skills).toEqual(["stitch-prompt"]);
+    expect(shape.body).toBe("Generate a prompt for the home screen.");
   });
 });
 
-describe('template()', () => {
-  it('creates a TemplateRef tagged type', () => {
-    const ref = template('./templates/screen.md');
-    expect(ref._type).toBe('template-ref');
-    expect(ref.path).toBe('./templates/screen.md');
+describe("template()", () => {
+  it("creates a TemplateRef tagged type", () => {
+    const ref = template("./templates/screen.md");
+    expect(ref._type).toBe("template-ref");
+    expect(ref.path).toBe("./templates/screen.md");
     expect(ref.vars).toBeUndefined();
   });
 
-  it('accepts optional vars', () => {
-    const ref = template('./templates/screen.md', {
-      screenId: 'home',
-      screenTitle: 'Home Screen',
+  it("accepts optional vars", () => {
+    const ref = template("./templates/screen.md", {
+      screenId: "home",
+      screenTitle: "Home Screen",
     });
     expect(ref.vars).toEqual({
-      screenId: 'home',
-      screenTitle: 'Home Screen',
+      screenId: "home",
+      screenTitle: "Home Screen",
     });
   });
 });
@@ -318,67 +318,67 @@ describe('template()', () => {
 /*  TaskMdShape as spawn currency                                      */
 /* ------------------------------------------------------------------ */
 
-describe('TaskMdShape', () => {
-  it('plain object with id is a valid TaskMdShape', () => {
+describe("TaskMdShape", () => {
+  it("plain object with id is a valid TaskMdShape", () => {
     const shape: TaskMdShape = {
-      id: '001-task',
-      title: 'Task One',
-      dependencies: ['000-setup'],
-      skills: ['stitch-prompt'],
-      tags: ['screen'],
+      id: "001-task",
+      title: "Task One",
+      dependencies: ["000-setup"],
+      skills: ["stitch-prompt"],
+      tags: ["screen"],
     };
-    expect(shape.id).toBe('001-task');
-    expect(typeof shape.id).toBe('string');
+    expect(shape.id).toBe("001-task");
+    expect(typeof shape.id).toBe("string");
   });
 
-  it('supports body and prompt as aliases', () => {
-    const withBody: TaskMdShape = { id: 'a', body: 'body text' };
-    const withPrompt: TaskMdShape = { id: 'b', prompt: 'prompt text' };
+  it("supports body and prompt as aliases", () => {
+    const withBody: TaskMdShape = { id: "a", body: "body text" };
+    const withPrompt: TaskMdShape = { id: "b", prompt: "prompt text" };
 
-    expect(withBody.body).toBe('body text');
-    expect(withPrompt.prompt).toBe('prompt text');
+    expect(withBody.body).toBe("body text");
+    expect(withPrompt.prompt).toBe("prompt text");
   });
 
-  it('supports all optional fields', () => {
+  it("supports all optional fields", () => {
     const shape: TaskMdShape = {
-      id: 'full-task',
-      title: 'Full Task',
-      description: 'A complete task definition',
-      skills: ['stitch-prompt', 'stitch-generate'],
-      agent: 'developer',
-      executor: { type: 'ai' },
-      dependencies: ['dep-1'],
+      id: "full-task",
+      title: "Full Task",
+      description: "A complete task definition",
+      skills: ["stitch-prompt", "stitch-generate"],
+      agent: "developer",
+      executor: { type: "ai" },
+      dependencies: ["dep-1"],
       blocking: true,
-      inputs: ['input.txt'],
-      outputs: ['output.txt'],
-      checks: [{ id: 'check-1', cmd: 'test -f output.txt' }],
-      needs: [{ id: 'need-1', cmd: 'which node' }],
-      plan: { prompt: 'Plan it' },
-      wbs: { type: 'nodejs', path: './wbs.js' },
-      tags: ['tag-1'],
-      materials: ['doc.md'],
-      vars: { key: 'value' },
-      body: 'The task body text',
-      prompt: 'Alternative to body',
+      inputs: ["input.txt"],
+      outputs: ["output.txt"],
+      checks: [{ id: "check-1", cmd: "test -f output.txt" }],
+      needs: [{ id: "need-1", cmd: "which node" }],
+      plan: { prompt: "Plan it" },
+      wbs: { type: "nodejs", path: "./wbs.js" },
+      tags: ["tag-1"],
+      materials: ["doc.md"],
+      vars: { key: "value" },
+      body: "The task body text",
+      prompt: "Alternative to body",
     };
-    expect(shape.id).toBe('full-task');
+    expect(shape.id).toBe("full-task");
     expect(shape.skills).toHaveLength(2);
-    expect(shape.executor?.type).toBe('ai');
+    expect(shape.executor?.type).toBe("ai");
     expect(shape.blocking).toBe(true);
-    expect(shape.body).toBe('The task body text');
+    expect(shape.body).toBe("The task body text");
   });
 
-  it('round-trips through parseTaskMdString → shape', () => {
+  it("round-trips through parseTaskMdString → shape", () => {
     const original: TaskMdShape = {
-      id: 'round-trip',
-      title: 'Round Trip',
-      skills: ['stitch-prompt'],
-      dependencies: ['001-setup'],
+      id: "round-trip",
+      title: "Round Trip",
+      skills: ["stitch-prompt"],
+      dependencies: ["001-setup"],
       blocking: true,
-      inputs: ['.stitch/DESIGN.md'],
-      outputs: ['src/Home.tsx'],
-      tags: ['screen'],
-      body: 'Generate the home page.',
+      inputs: [".stitch/DESIGN.md"],
+      outputs: ["src/Home.tsx"],
+      tags: ["screen"],
+      body: "Generate the home page.",
     };
 
     // Build a TASK.md string manually

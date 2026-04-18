@@ -18,16 +18,20 @@
  *   - Producer ran but forgot to create one of its declared outputs
  */
 
-import { join, dirname, relative } from 'node:path';
-import { existsSync } from 'node:fs';
-import { writeFile, mkdir, readFile } from 'node:fs/promises';
-import { z } from 'zod';
-import type { Gap } from '../../gap/types.ts';
-import type { FixStrategy, StrategyContext, StrategyOutcome } from '../types.ts';
-import { logTaskEvent } from '../../journal/writer.ts';
-import { generateDepsMap } from '../../journal/deps-map.ts';
-import { PromptBuilder } from '../system-prompts.ts';
-import { READONLY_TOOLS } from '../../ai/context.ts';
+import { join, dirname, relative } from "node:path";
+import { existsSync } from "node:fs";
+import { writeFile, mkdir, readFile } from "node:fs/promises";
+import { z } from "zod";
+import type { Gap } from "../../gap/types.ts";
+import type {
+  FixStrategy,
+  StrategyContext,
+  StrategyOutcome,
+} from "../types.ts";
+import { logTaskEvent } from "../../journal/writer.ts";
+import { generateDepsMap } from "../../journal/deps-map.ts";
+import { PromptBuilder } from "../system-prompts.ts";
+import { READONLY_TOOLS } from "../../ai/context.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Producer info (extended for cross-epic support)                    */
@@ -46,16 +50,17 @@ export interface ProducerInfo {
 /* ------------------------------------------------------------------ */
 
 export class DependencyBackoffStrategy implements FixStrategy {
-  readonly name = 'dependency-backoff';
-  readonly description = 'Detects missing inputs and defers to run upstream dependencies first';
-  readonly priority = 9;  // Higher than most (run early)
+  readonly name = "dependency-backoff";
+  readonly description =
+    "Detects missing inputs and defers to run upstream dependencies first";
+  readonly priority = 9; // Higher than most (run early)
 
   canHandle(gap: Gap): boolean {
     // Handle input/blocker gaps - missing files that should be produced by other tasks
     return (
-      gap.metadata?.gapKind === 'input' ||
-      gap.metadata?.gapKind === 'blocker' ||
-      gap.type === 'missing-intermediate'
+      gap.metadata?.gapKind === "input" ||
+      gap.metadata?.gapKind === "blocker" ||
+      gap.type === "missing-intermediate"
     );
   }
 
@@ -70,18 +75,21 @@ export class DependencyBackoffStrategy implements FixStrategy {
       if (missingInputs.length === 0) {
         return {
           success: false,
-          reason: 'No missing inputs detected in gap metadata',
+          reason: "No missing inputs detected in gap metadata",
           shouldRetry: false,
         };
       }
 
-      console.log(`   📋 Missing inputs: ${missingInputs.join(', ')}`);
+      console.log(`   📋 Missing inputs: ${missingInputs.join(", ")}`);
 
       // ── Generate DEPS.md for AI context ─────────────────────────────
       let depsMapRelPath: string | null = null;
       try {
-        const depsMapPath = await generateDepsMap(projectDir, journalCtx.epicId);
-        depsMapRelPath = relative(projectDir, depsMapPath).replace(/\\/g, '/');
+        const depsMapPath = await generateDepsMap(
+          projectDir,
+          journalCtx.epicId,
+        );
+        depsMapRelPath = relative(projectDir, depsMapPath).replace(/\\/g, "/");
         console.log(`   📄 Generated DEPS.md for repair analysis`);
       } catch (err: any) {
         console.warn(`   ⚠️  Could not generate DEPS.md: ${err.message}`);
@@ -89,7 +97,12 @@ export class DependencyBackoffStrategy implements FixStrategy {
 
       // ── Ask AI for strategy decision ─────────────────────────────────
       const AiDecisionSchema = z.object({
-        strategy: z.enum(['rerun-producer', 'spawn-new-task', 'fix-pattern', 'remove-input']),
+        strategy: z.enum([
+          "rerun-producer",
+          "spawn-new-task",
+          "fix-pattern",
+          "remove-input",
+        ]),
         producerTaskId: z.string().nullable(),
         producerEpicId: z.string().nullable(),
         producerJournalTaskId: z.string().nullable(),
@@ -105,53 +118,77 @@ export class DependencyBackoffStrategy implements FixStrategy {
         try {
           const aiCtx = ctx.ai();
           const prompt = PromptBuilder.buildDepsRepairPrompt(
-            depsMapRelPath, missingInputs, journalCtx.taskId,
+            depsMapRelPath,
+            missingInputs,
+            journalCtx.taskId,
           );
-          aiDecision = await aiCtx.askJson(prompt, AiDecisionSchema, { allowedTools: [...READONLY_TOOLS] });
-          console.log(`   🤖 AI decision: ${aiDecision.strategy} — ${aiDecision.reason}`);
+          aiDecision = await aiCtx.askJson(prompt, AiDecisionSchema, {
+            allowedTools: [...READONLY_TOOLS],
+          });
+          console.log(
+            `   🤖 AI decision: ${aiDecision.strategy} — ${aiDecision.reason}`,
+          );
         } catch (err: any) {
-          console.warn(`   ⚠️  AI strategy decision failed: ${err.message} — using heuristics`);
+          console.warn(
+            `   ⚠️  AI strategy decision failed: ${err.message} — using heuristics`,
+          );
         }
       }
 
       // If AI says to delegate to other strategies, signal that
-      if (aiDecision?.strategy === 'spawn-new-task') {
+      if (aiDecision?.strategy === "spawn-new-task") {
         return {
           success: false,
           reason: `AI recommends spawning a new task (no producer exists): ${aiDecision.reason}`,
           shouldRetry: false,
         };
       }
-      if (aiDecision?.strategy === 'fix-pattern' || aiDecision?.strategy === 'remove-input') {
+      if (
+        aiDecision?.strategy === "fix-pattern" ||
+        aiDecision?.strategy === "remove-input"
+      ) {
         const patterns = aiDecision.suggestedPatterns;
         if (patterns && Object.keys(patterns).length > 0) {
           // Build path to the blocked task's TASK.md.
           // journalCtx.taskId may or may not include the epic prefix depending on task structure:
           //   with prefix:    "06-wire-screens/002-nav/001-analyze/leaf"  → tasks/ before every segment
           //   without prefix: "002-pages/002-001-home"                   → first segment is a direct epic child
-          const epicPrefix = journalCtx.epicId + '/';
+          const epicPrefix = journalCtx.epicId + "/";
           const hasEpicPrefix = journalCtx.taskId.startsWith(epicPrefix);
-          const rawTaskId = hasEpicPrefix ? journalCtx.taskId.slice(epicPrefix.length) : journalCtx.taskId;
-          const segments = rawTaskId.split('/');
+          const rawTaskId = hasEpicPrefix
+            ? journalCtx.taskId.slice(epicPrefix.length)
+            : journalCtx.taskId;
+          const segments = rawTaskId.split("/");
           const pathParts: string[] = hasEpicPrefix
-            ? segments.flatMap(s => ['tasks', s])
-            : [segments[0], ...segments.slice(1).flatMap(s => ['tasks', s])];
+            ? segments.flatMap((s) => ["tasks", s])
+            : [segments[0], ...segments.slice(1).flatMap((s) => ["tasks", s])];
           const taskMdPath = join(
-            projectDir, '.converge', 'epics', journalCtx.epicId, ...pathParts, 'TASK.md',
+            projectDir,
+            ".converge",
+            "epics",
+            journalCtx.epicId,
+            ...pathParts,
+            "TASK.md",
           );
 
           if (existsSync(taskMdPath)) {
-            let content = await readFile(taskMdPath, 'utf-8');
+            let content = await readFile(taskMdPath, "utf-8");
             let replacements = 0;
 
-            if (aiDecision.strategy === 'remove-input') {
+            if (aiDecision.strategy === "remove-input") {
               // Remove stale inputs from YAML frontmatter
               for (const [staleInput] of Object.entries(patterns)) {
                 // Remove the YAML list entry line (e.g. "  - path/to/file\n")
-                const escapedInput = staleInput.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const inputLineRegex = new RegExp(`^\\s*-\\s*${escapedInput}\\s*$\\n?`, 'gm');
+                const escapedInput = staleInput.replace(
+                  /[.*+?^${}()|[\]\\]/g,
+                  "\\$&",
+                );
+                const inputLineRegex = new RegExp(
+                  `^\\s*-\\s*${escapedInput}\\s*$\\n?`,
+                  "gm",
+                );
                 const before = content;
-                content = content.replace(inputLineRegex, '');
+                content = content.replace(inputLineRegex, "");
                 if (content !== before) {
                   replacements++;
                   console.log(`   🗑️  Removed stale input: "${staleInput}"`);
@@ -162,28 +199,34 @@ export class DependencyBackoffStrategy implements FixStrategy {
                 if (content.includes(original)) {
                   content = content.replaceAll(original, corrected);
                   replacements++;
-                  console.log(`   ✏️  Pattern fix: "${original}" → "${corrected}"`);
+                  console.log(
+                    `   ✏️  Pattern fix: "${original}" → "${corrected}"`,
+                  );
                 }
               }
             }
 
             if (replacements > 0) {
-              await writeFile(taskMdPath, content, 'utf-8');
-              const action = aiDecision.strategy === 'remove-input' ? 'Removed' : 'Fixed';
-              console.log(`   ✅ Updated TASK.md: ${action} ${replacements} input(s)`);
+              await writeFile(taskMdPath, content, "utf-8");
+              const action =
+                aiDecision.strategy === "remove-input" ? "Removed" : "Fixed";
+              console.log(
+                `   ✅ Updated TASK.md: ${action} ${replacements} input(s)`,
+              );
               return {
                 success: true,
                 reason: `${action} ${replacements} input(s) in TASK.md: ${aiDecision.reason}`,
-                retryMode: 'full' as const,
+                retryMode: "full" as const,
               };
             }
           }
         }
 
         // Guard: no patterns provided or no replacements matched
-        const actionDesc = aiDecision.strategy === 'remove-input'
-          ? 'removing stale input'
-          : 'fixing glob pattern';
+        const actionDesc =
+          aiDecision.strategy === "remove-input"
+            ? "removing stale input"
+            : "fixing glob pattern";
         return {
           success: false,
           reason: `AI recommends ${actionDesc} but no actionable replacements found: ${aiDecision.reason}`,
@@ -207,44 +250,59 @@ export class DependencyBackoffStrategy implements FixStrategy {
 
       if (producers.length === 0) {
         // Fall back to heuristic: scan all epics for producers
-        producers = await this.findProducerTasksCrossEpic(missingInputs, projectDir);
+        producers = await this.findProducerTasksCrossEpic(
+          missingInputs,
+          projectDir,
+        );
       }
 
       if (producers.length === 0) {
         return {
           success: false,
-          reason: `No producer tasks found for: ${missingInputs.join(', ')}`,
+          reason: `No producer tasks found for: ${missingInputs.join(", ")}`,
           shouldRetry: false,
         };
       }
 
       // ── Check which producers have already run ───────────────────────
-      const pendingProducers = await this.filterPendingProducers(producers, projectDir);
+      const pendingProducers = await this.filterPendingProducers(
+        producers,
+        projectDir,
+      );
       const learnHints = aiDecision?.learnHints ?? [];
 
       if (pendingProducers.length === 0) {
         // All producers have run — but outputs are still missing
         // Schedule re-run with LEARN.md to guide them
-        console.log(`   ↩  All producers ran but outputs missing — injecting LEARN.md for re-run`);
+        console.log(
+          `   ↩  All producers ran but outputs missing — injecting LEARN.md for re-run`,
+        );
 
         for (const producer of producers) {
           await this.writeProducerLearnMd(
-            producer, missingInputs, journalCtx.taskId, projectDir, learnHints,
+            producer,
+            missingInputs,
+            journalCtx.taskId,
+            projectDir,
+            learnHints,
           );
         }
 
-        const reason = `Producers ran but outputs missing — re-running with LEARN.md: ${producers.map(p => p.taskId).join(', ')}`;
+        const reason = `Producers ran but outputs missing — re-running with LEARN.md: ${producers.map((p) => p.taskId).join(", ")}`;
 
         await logTaskEvent(
           projectDir,
           journalCtx.epicId,
           journalCtx.taskId,
-          'DEPENDENCY_MISSING',
+          "DEPENDENCY_MISSING",
           reason,
           {
             strategyName: this.name,
             missingInputs,
-            producers: producers.map(p => ({ taskId: p.taskId, epicId: p.epicId })),
+            producers: producers.map((p) => ({
+              taskId: p.taskId,
+              epicId: p.epicId,
+            })),
           },
         );
 
@@ -252,12 +310,12 @@ export class DependencyBackoffStrategy implements FixStrategy {
           success: true,
           reason,
           retryMode: {
-            type: 'backoff',
-            runFirst: producers.map(p => p.taskId),
+            type: "backoff",
+            runFirst: producers.map((p) => p.taskId),
             reason,
           },
           metadata: {
-            producers: producers.map(p => ({
+            producers: producers.map((p) => ({
               taskId: p.taskId,
               epicId: p.epicId,
               journalTaskId: p.journalTaskId,
@@ -268,21 +326,25 @@ export class DependencyBackoffStrategy implements FixStrategy {
       }
 
       // Some producers are still pending — run them first
-      console.log(`   ⏸️  Found ${pendingProducers.length} pending dependencies:`);
-      pendingProducers.forEach(p => console.log(`      → ${p.epicId}/${p.journalTaskId}`));
+      console.log(
+        `   ⏸️  Found ${pendingProducers.length} pending dependencies:`,
+      );
+      pendingProducers.forEach((p) =>
+        console.log(`      → ${p.epicId}/${p.journalTaskId}`),
+      );
 
-      const reason = `Dependencies must run first: ${pendingProducers.map(p => p.taskId).join(', ')}`;
+      const reason = `Dependencies must run first: ${pendingProducers.map((p) => p.taskId).join(", ")}`;
 
       await logTaskEvent(
         projectDir,
         journalCtx.epicId,
         journalCtx.taskId,
-        'DEPENDENCY_MISSING',
+        "DEPENDENCY_MISSING",
         reason,
         {
           strategyName: this.name,
           missingInputs,
-          pendingProducers: pendingProducers.map(p => p.taskId),
+          pendingProducers: pendingProducers.map((p) => p.taskId),
         },
       );
 
@@ -290,12 +352,12 @@ export class DependencyBackoffStrategy implements FixStrategy {
         success: true,
         reason,
         retryMode: {
-          type: 'backoff',
-          runFirst: pendingProducers.map(p => p.taskId),
-          reason: `Task ${journalCtx.taskId} requires outputs from: ${pendingProducers.map(p => p.taskId).join(', ')}`,
+          type: "backoff",
+          runFirst: pendingProducers.map((p) => p.taskId),
+          reason: `Task ${journalCtx.taskId} requires outputs from: ${pendingProducers.map((p) => p.taskId).join(", ")}`,
         },
         metadata: {
-          producers: pendingProducers.map(p => ({
+          producers: pendingProducers.map((p) => ({
             taskId: p.taskId,
             epicId: p.epicId,
             journalTaskId: p.journalTaskId,
@@ -320,25 +382,36 @@ export class DependencyBackoffStrategy implements FixStrategy {
   private extractMissingInputs(gap: Gap): string[] {
     const inputs: string[] = [];
 
-    if (gap.metadata?.missingInputs && Array.isArray(gap.metadata.missingInputs)) {
-      inputs.push(...gap.metadata.missingInputs as string[]);
+    if (
+      gap.metadata?.missingInputs &&
+      Array.isArray(gap.metadata.missingInputs)
+    ) {
+      inputs.push(...(gap.metadata.missingInputs as string[]));
     }
 
-    if (gap.metadata?.missingPath && typeof gap.metadata.missingPath === 'string') {
+    if (
+      gap.metadata?.missingPath &&
+      typeof gap.metadata.missingPath === "string"
+    ) {
       inputs.push(gap.metadata.missingPath as string);
     }
 
-    if (gap.metadata?.expectedInput && typeof gap.metadata.expectedInput === 'string') {
+    if (
+      gap.metadata?.expectedInput &&
+      typeof gap.metadata.expectedInput === "string"
+    ) {
       inputs.push(gap.metadata.expectedInput as string);
     }
 
     // From gap description (parse "Missing input: path/to/file")
-    const descMatch = gap.description.match(/Missing (?:input|file|output):\s*(.+)/i);
+    const descMatch = gap.description.match(
+      /Missing (?:input|file|output):\s*(.+)/i,
+    );
     if (descMatch) {
       inputs.push(descMatch[1].trim());
     }
 
-    if (gap.type === 'missing-intermediate' && gap.metadata?.missingOutputs) {
+    if (gap.type === "missing-intermediate" && gap.metadata?.missingOutputs) {
       inputs.push(...(gap.metadata.missingOutputs as string[]));
     }
 
@@ -354,28 +427,35 @@ export class DependencyBackoffStrategy implements FixStrategy {
     projectDir: string,
   ): Promise<ProducerInfo[]> {
     const producers: ProducerInfo[] = [];
-    const { glob } = await import('glob');
+    const { glob } = await import("glob");
 
-    const epicsDir = join(projectDir, '.converge', 'epics');
+    const epicsDir = join(projectDir, ".converge", "epics");
     if (!existsSync(epicsDir)) return producers;
 
-    const { readdirSync, statSync } = await import('node:fs');
-    const epicDirs = readdirSync(epicsDir).filter(e => {
-      try { return statSync(join(epicsDir, e)).isDirectory(); } catch { return false; }
+    const { readdirSync, statSync } = await import("node:fs");
+    const epicDirs = readdirSync(epicsDir).filter((e) => {
+      try {
+        return statSync(join(epicsDir, e)).isDirectory();
+      } catch {
+        return false;
+      }
     });
 
     for (const epicId of epicDirs) {
       const epicPath = join(epicsDir, epicId);
       // Find all SKILL.md files in this epic (including nested WBS tasks)
-      const skillFiles = await glob('**/SKILL.md', { cwd: epicPath, absolute: true });
+      const skillFiles = await glob("**/SKILL.md", {
+        cwd: epicPath,
+        absolute: true,
+      });
 
       for (const skillPath of skillFiles) {
         const taskOutputs = await this.getTaskOutputs(skillPath);
         const taskId = this.extractTaskId(skillPath, epicPath);
         const journalTaskId = this.extractJournalTaskId(skillPath, epicPath);
 
-        const matches = missingPaths.filter(missing =>
-          taskOutputs.some(output => this.pathMatches(output, missing)),
+        const matches = missingPaths.filter((missing) =>
+          taskOutputs.some((output) => this.pathMatches(output, missing)),
         );
 
         if (matches.length > 0) {
@@ -398,20 +478,27 @@ export class DependencyBackoffStrategy implements FixStrategy {
     journalTaskId: string,
     projectDir: string,
   ): Promise<ProducerInfo | null> {
-    const { glob } = await import('glob');
-    const epicsDir = join(projectDir, '.converge', 'epics');
+    const { glob } = await import("glob");
+    const epicsDir = join(projectDir, ".converge", "epics");
 
     // Try to find the SKILL.md for this epic/journalTaskId
     // journalTaskId may be "parent/child" (WBS) or just "taskId"
-    const parts = journalTaskId.split('/');
+    const parts = journalTaskId.split("/");
     let skillPath: string;
 
     if (parts.length === 1) {
       // Simple task
-      skillPath = join(epicsDir, epicId, parts[0], 'SKILL.md');
+      skillPath = join(epicsDir, epicId, parts[0], "SKILL.md");
     } else {
       // WBS subtask: parent/tasks/child/SKILL.md
-      skillPath = join(epicsDir, epicId, parts[0], 'tasks', parts.slice(1).join('/tasks/'), 'SKILL.md');
+      skillPath = join(
+        epicsDir,
+        epicId,
+        parts[0],
+        "tasks",
+        parts.slice(1).join("/tasks/"),
+        "SKILL.md",
+      );
     }
 
     if (!existsSync(skillPath)) {
@@ -427,7 +514,10 @@ export class DependencyBackoffStrategy implements FixStrategy {
     const outputs = await this.getTaskOutputs(skillPath);
     const epicPath = join(epicsDir, epicId);
     // Always compute journalTaskId from actual file path (not AI-provided which may include epicId prefix)
-    const computedJournalTaskId = this.extractJournalTaskId(skillPath, epicPath);
+    const computedJournalTaskId = this.extractJournalTaskId(
+      skillPath,
+      epicPath,
+    );
     return {
       taskId: parts[parts.length - 1],
       epicId,
@@ -438,26 +528,32 @@ export class DependencyBackoffStrategy implements FixStrategy {
   }
 
   private extractTaskId(skillPath: string, epicPath: string): string {
-    const rel = relative(epicPath, skillPath).replace(/\\/g, '/');
-    const parts = rel.split('/').filter((p: string) => p !== 'SKILL.md' && p !== 'tasks');
+    const rel = relative(epicPath, skillPath).replace(/\\/g, "/");
+    const parts = rel
+      .split("/")
+      .filter((p: string) => p !== "SKILL.md" && p !== "tasks");
     return parts[parts.length - 1];
   }
 
   private extractJournalTaskId(skillPath: string, epicPath: string): string {
-    const rel = relative(epicPath, skillPath).replace(/\\/g, '/');
-    const parts = rel.split('/').filter((p: string) => p !== 'SKILL.md' && p !== 'tasks');
-    return parts.join('/');
+    const rel = relative(epicPath, skillPath).replace(/\\/g, "/");
+    const parts = rel
+      .split("/")
+      .filter((p: string) => p !== "SKILL.md" && p !== "tasks");
+    return parts.join("/");
   }
 
   private async getTaskOutputs(skillPath: string): Promise<string[]> {
     try {
-      const { readFile } = await import('node:fs/promises');
-      const content = await readFile(skillPath, 'utf-8');
+      const { readFile } = await import("node:fs/promises");
+      const content = await readFile(skillPath, "utf-8");
       const match = content.match(/^---\s*\n([\s\S]*?)\n---/);
       if (!match) return [];
-      const yaml = await import('yaml');
+      const yaml = await import("yaml");
       const frontmatter = yaml.parse(match[1]) as Record<string, unknown>;
-      return Array.isArray(frontmatter.outputs) ? frontmatter.outputs as string[] : [];
+      return Array.isArray(frontmatter.outputs)
+        ? (frontmatter.outputs as string[])
+        : [];
     } catch {
       return [];
     }
@@ -465,9 +561,14 @@ export class DependencyBackoffStrategy implements FixStrategy {
 
   private pathMatches(pattern: string, actualPath: string): boolean {
     if (pattern === actualPath) return true;
-    if (pattern.includes('*')) {
+    if (pattern.includes("*")) {
       const regex = new RegExp(
-        '^' + pattern.replace(/\./g, '\\.').replace(/\*\*/g, '.*').replace(/\*/g, '[^/]*') + '$',
+        "^" +
+          pattern
+            .replace(/\./g, "\\.")
+            .replace(/\*\*/g, ".*")
+            .replace(/\*/g, "[^/]*") +
+          "$",
       );
       return regex.test(actualPath);
     }
@@ -491,7 +592,10 @@ export class DependencyBackoffStrategy implements FixStrategy {
         pending.push(producer);
       } else {
         // Task ran - verify it actually created outputs
-        const hasOutputs = await this.verifyOutputsExist(producer.outputs, projectDir);
+        const hasOutputs = await this.verifyOutputsExist(
+          producer.outputs,
+          projectDir,
+        );
         if (!hasOutputs) {
           // Task ran but didn't create expected outputs → needs re-run
           pending.push(producer);
@@ -502,22 +606,34 @@ export class DependencyBackoffStrategy implements FixStrategy {
     return pending;
   }
 
-  private async hasProducerRun(producer: ProducerInfo, projectDir: string): Promise<boolean> {
+  private async hasProducerRun(
+    producer: ProducerInfo,
+    projectDir: string,
+  ): Promise<boolean> {
     // Check if task has any attempt records in journal
-    const segments = producer.journalTaskId.split('/');
+    const segments = producer.journalTaskId.split("/");
     const pathParts: string[] = [segments[0]];
     for (let i = 1; i < segments.length; i++) {
-      pathParts.push('tasks', segments[i]);
+      pathParts.push("tasks", segments[i]);
     }
     const attemptsPath = join(
-      projectDir, '.converge', 'journal', 'epics', producer.epicId, ...pathParts, 'attempts.jsonl',
+      projectDir,
+      ".converge",
+      "journal",
+      "epics",
+      producer.epicId,
+      ...pathParts,
+      "attempts.jsonl",
     );
     return existsSync(attemptsPath);
   }
 
-  private async verifyOutputsExist(outputs: string[], projectDir: string): Promise<boolean> {
+  private async verifyOutputsExist(
+    outputs: string[],
+    projectDir: string,
+  ): Promise<boolean> {
     for (const output of outputs) {
-      if (output.includes('*')) continue; // Skip glob patterns for now
+      if (output.includes("*")) continue; // Skip glob patterns for now
       if (!existsSync(join(projectDir, output))) return false;
     }
     return true;
@@ -540,13 +656,19 @@ export class DependencyBackoffStrategy implements FixStrategy {
     learnHints: string[],
   ): Promise<void> {
     // Build the producer's journal attempts directory
-    const segments = producer.journalTaskId.split('/');
+    const segments = producer.journalTaskId.split("/");
     const pathParts: string[] = [segments[0]];
     for (let i = 1; i < segments.length; i++) {
-      pathParts.push('tasks', segments[i]);
+      pathParts.push("tasks", segments[i]);
     }
     const attemptsBaseDir = join(
-      projectDir, '.converge', 'journal', 'epics', producer.epicId, ...pathParts, 'attempts',
+      projectDir,
+      ".converge",
+      "journal",
+      "epics",
+      producer.epicId,
+      ...pathParts,
+      "attempts",
     );
 
     // Find the most recent numbered attempt (e.g., 01, 02, ...)
@@ -554,9 +676,10 @@ export class DependencyBackoffStrategy implements FixStrategy {
     let targetDir: string;
 
     if (existsSync(attemptsBaseDir)) {
-      const { readdirSync, statSync } = await import('node:fs') as typeof import('node:fs');
+      const { readdirSync, statSync } =
+        (await import("node:fs")) as typeof import("node:fs");
       const entries = readdirSync(attemptsBaseDir)
-        .filter(e => /^\d+$/.test(e))
+        .filter((e) => /^\d+$/.test(e))
         .sort()
         .reverse();
 
@@ -565,11 +688,11 @@ export class DependencyBackoffStrategy implements FixStrategy {
         targetDir = join(attemptsBaseDir, entries[0]);
       } else {
         // No archived attempts — write to wip/ (will be archived on next run)
-        targetDir = join(attemptsBaseDir, 'wip');
+        targetDir = join(attemptsBaseDir, "wip");
       }
     } else {
       // No attempts directory yet — create wip/
-      targetDir = join(attemptsBaseDir, 'wip');
+      targetDir = join(attemptsBaseDir, "wip");
     }
 
     await mkdir(targetDir, { recursive: true });
@@ -580,7 +703,9 @@ export class DependencyBackoffStrategy implements FixStrategy {
       learnHints,
     );
 
-    await writeFile(join(targetDir, 'LEARN.md'), learnContent, 'utf-8');
-    console.log(`   📝 LEARN.md written → ${join(targetDir, 'LEARN.md').replace(projectDir, '')}`);
+    await writeFile(join(targetDir, "LEARN.md"), learnContent, "utf-8");
+    console.log(
+      `   📝 LEARN.md written → ${join(targetDir, "LEARN.md").replace(projectDir, "")}`,
+    );
   }
 }

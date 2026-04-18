@@ -1,0 +1,10 @@
+{
+  "taskId": "06-quality/003-test-coverage",
+  "checks": [
+    {
+      "id": "test-report-exists",
+      "description": "Test report exists",
+      "cmd": "test -f .converge/standardize-state/quality/test-report.json"
+    }
+  ]
+}

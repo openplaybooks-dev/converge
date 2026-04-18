@@ -9,16 +9,16 @@
  *   ProjectContext → EpicContext → TaskContext
  */
 
-import type { Gap, CheckResult, EvalResult } from '../gap/types.ts';
+import type { Gap, CheckResult, EvalResult } from "../gap/types.ts";
 import type {
   ProjectConfig,
   EpicConfig,
   TaskConfig,
   EpicStatus,
   TaskStatus,
-} from '../storage/types.ts';
-import type { JournalAPI } from '../journal/types.ts';
-import type { ArtifactAPI } from '../artifacts/index.ts';
+} from "../storage/types.ts";
+import type { JournalAPI } from "../journal/types.ts";
+import type { ArtifactAPI } from "../artifacts/index.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Base Context                                                      */
@@ -63,7 +63,7 @@ export interface BaseContext {
  */
 export interface ProjectContext extends BaseContext {
   /** Context level */
-  readonly level: 'project';
+  readonly level: "project";
 
   /** Project configuration */
   readonly config: Readonly<ProjectConfig>;
@@ -94,7 +94,7 @@ export interface ProjectContext extends BaseContext {
  */
 export interface EpicContext extends BaseContext {
   /** Context level */
-  readonly level: 'epic';
+  readonly level: "epic";
 
   /** Epic ID */
   readonly epicId: string;
@@ -133,7 +133,7 @@ export interface EpicContext extends BaseContext {
  */
 export interface ExecutionStackLevel {
   id: string;
-  type: 'epic' | 'task' | 'subtask';
+  type: "epic" | "task" | "subtask";
   filePath: string;
   depth: number;
 }
@@ -144,7 +144,7 @@ export interface ExecutionStackLevel {
  */
 export interface TaskContext extends BaseContext {
   /** Context level */
-  readonly level: 'task';
+  readonly level: "task";
 
   /** Task ID */
   readonly taskId: string;

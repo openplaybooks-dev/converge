@@ -6,12 +6,12 @@
  * to disk as a crash-safe checkpoint between each action.
  */
 
-import type { Unit } from './unit.ts';
-import { getProjectRoot, getEpicId } from './helpers.ts';
-import type { TaskEventWriter } from '../journal/event-writer.ts';
-import { converge } from '../repair/navigator/navigator.ts';
-import { buildActionRegistry } from '../repair/navigator/actions.ts';
-import { TaskContext } from '../repair/navigator/task-context.ts';
+import type { Unit } from "./unit.ts";
+import { getProjectRoot, getEpicId } from "./helpers.ts";
+import type { TaskEventWriter } from "../journal/event-writer.ts";
+import { converge } from "../repair/navigator/navigator.ts";
+import { buildActionRegistry } from "../repair/navigator/actions.ts";
+import { TaskContext } from "../repair/navigator/task-context.ts";
 
 /**
  * Get event writer from global context (if running under task-runner)
@@ -26,7 +26,7 @@ function getEventWriter(): TaskEventWriter | null {
  */
 export async function run(unit: Unit): Promise<boolean> {
   const eventWriter = getEventWriter();
-  const taskTitle = unit.title || unit.id || 'Unit';
+  const taskTitle = unit.title || unit.id || "Unit";
 
   // Log AI reasoning about task execution
   if (eventWriter) {
@@ -38,7 +38,7 @@ export async function run(unit: Unit): Promise<boolean> {
         isWbs: !!unit.wbsFn,
         hasInputs: (unit.inputs?.length ?? 0) > 0,
         hasOutputs: (unit.outputs?.length ?? 0) > 0,
-      }
+      },
     );
   }
 

@@ -14,10 +14,10 @@ export type {
   ResolvedPlaybook,
   PlaybookContext,
   PlaybookTrendEntry,
-} from './types.ts';
+} from "./types.ts";
 
-export type { PlaybookPaths } from './paths.ts';
-export { resolvePlaybookPaths } from './paths.ts';
+export type { PlaybookPaths } from "./paths.ts";
+export { resolvePlaybookPaths } from "./paths.ts";
 
 export {
   parsePlaybookYml,
@@ -27,16 +27,13 @@ export {
   resolvePlaybook,
   substituteVars,
   parseDuration,
-} from './loader.ts';
+} from "./loader.ts";
 
-export {
-  generateEpicFromPlaybook,
-  mergeRunConfig,
-} from './executor.ts';
+export { generateEpicFromPlaybook, mergeRunConfig } from "./executor.ts";
 
 export {
   initPlaybookJournal,
   appendTrend,
   readTrends,
   getPlaybookJournalDir,
-} from './journal.ts';
+} from "./journal.ts";

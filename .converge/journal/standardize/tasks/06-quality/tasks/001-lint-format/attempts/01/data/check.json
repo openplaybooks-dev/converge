@@ -1,0 +1,15 @@
+{
+  "taskId": "06-quality/001-lint-format",
+  "checks": [
+    {
+      "id": "lint-report-exists",
+      "description": "Lint report exists",
+      "cmd": "test -f .converge/standardize-state/quality/lint-report.json"
+    },
+    {
+      "id": "lint-passes",
+      "description": "No lint errors",
+      "cmd": "node -e \"const r=JSON.parse(require('fs').readFileSync('.converge/standardize-state/quality/lint-report.json','utf-8'));if(r.errors>0)throw new Error(r.errors+' lint errors')\""
+    }
+  ]
+}

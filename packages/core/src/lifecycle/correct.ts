@@ -12,17 +12,17 @@
  *   4. If all checks pass → resolved; otherwise → re-diagnose and retry
  */
 
-import { writeFile, mkdir, appendFile } from 'node:fs/promises';
-import { join } from 'node:path';
-import { getTaskCorrectionsDir } from '../journal/structure.ts';
-import { logTaskEvent } from '../journal/writer.ts';
-import { runAgent } from '../repair/agent-runner.ts';
-import { runAfterPhase } from './after.ts';
-import { diagnoseFailure } from './diagnose.ts';
-import type { AfterPhaseResult, CheckDef, AfterPhaseMeta } from './after.ts';
-import type { StructuredDiagnosis, DiagnosisHint } from './diagnose.ts';
-import type { InputSnapshot } from './before.ts';
-import type { JournalContext } from '../repair/types.ts';
+import { writeFile, mkdir, appendFile } from "node:fs/promises";
+import { join } from "node:path";
+import { getTaskCorrectionsDir } from "../journal/structure.ts";
+import { logTaskEvent } from "../journal/writer.ts";
+import { runAgent } from "../repair/agent-runner.ts";
+import { runAfterPhase } from "./after.ts";
+import { diagnoseFailure } from "./diagnose.ts";
+import type { AfterPhaseResult, CheckDef, AfterPhaseMeta } from "./after.ts";
+import type { StructuredDiagnosis, DiagnosisHint } from "./diagnose.ts";
+import type { InputSnapshot } from "./before.ts";
+import type { JournalContext } from "../repair/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                               */
@@ -33,7 +33,7 @@ export interface CorrectionAttempt {
   diagnosis: StructuredDiagnosis;
   fixApplied: boolean;
   fixDescription: string;
-  checkResults: AfterPhaseResult['checkResults'];
+  checkResults: AfterPhaseResult["checkResults"];
   resolved: boolean;
   durationMs: number;
 }
@@ -69,8 +69,16 @@ export async function runCorrectionLoop(
   opts: CorrectionLoopOptions,
 ): Promise<CorrectionLoopResult> {
   const {
-    taskId, epicId, checks, diagnosisHints, correctionBudget,
-    inputSnapshot, startMs, taskDescription, taskOutputs, label,
+    taskId,
+    epicId,
+    checks,
+    diagnosisHints,
+    correctionBudget,
+    inputSnapshot,
+    startMs,
+    taskDescription,
+    taskOutputs,
+    label,
   } = opts;
 
   const correctionsDir = getTaskCorrectionsDir(projectDir, epicId, taskId);
@@ -79,8 +87,14 @@ export async function runCorrectionLoop(
   const journalCtx: JournalContext = { epicId, taskId };
   const history: CorrectionAttempt[] = [];
 
-  await logTaskEvent(projectDir, epicId, taskId, 'CORRECTION_LOOP_START',
-    `Inner correction loop starting (budget: ${correctionBudget})`, { correctionBudget });
+  await logTaskEvent(
+    projectDir,
+    epicId,
+    taskId,
+    "CORRECTION_LOOP_START",
+    `Inner correction loop starting (budget: ${correctionBudget})`,
+    { correctionBudget },
+  );
 
   let currentDiagnosis = initialDiagnosis;
   let currentAfterResult = initialAfterResult;
@@ -88,21 +102,34 @@ export async function runCorrectionLoop(
   for (let attempt = 1; attempt <= correctionBudget; attempt++) {
     const attemptStart = Date.now();
 
-    await logTaskEvent(projectDir, epicId, taskId, 'CORRECTION_ATTEMPTED',
-      `Correction attempt ${attempt}/${correctionBudget}: ${currentDiagnosis.errorClass}`, {
-        attempt, automatable: currentDiagnosis.automatable,
-      });
+    await logTaskEvent(
+      projectDir,
+      epicId,
+      taskId,
+      "CORRECTION_ATTEMPTED",
+      `Correction attempt ${attempt}/${correctionBudget}: ${currentDiagnosis.errorClass}`,
+      {
+        attempt,
+        automatable: currentDiagnosis.automatable,
+      },
+    );
 
     // If not automatable, bail immediately
     if (!currentDiagnosis.automatable) {
-      await logTaskEvent(projectDir, epicId, taskId, 'CORRECTION_FAILED',
-        `Correction attempt ${attempt} skipped — not automatable`, { attempt });
+      await logTaskEvent(
+        projectDir,
+        epicId,
+        taskId,
+        "CORRECTION_FAILED",
+        `Correction attempt ${attempt} skipped — not automatable`,
+        { attempt },
+      );
 
       history.push({
         attemptNumber: attempt,
         diagnosis: currentDiagnosis,
         fixApplied: false,
-        fixDescription: '(skipped — not automatable)',
+        fixDescription: "(skipped — not automatable)",
         checkResults: currentAfterResult.checkResults,
         resolved: false,
         durationMs: Date.now() - attemptStart,
@@ -112,18 +139,22 @@ export async function runCorrectionLoop(
 
     // Build repair prompt
     const repairPrompt = buildRepairPrompt(
-      projectDir, currentDiagnosis, currentAfterResult, taskDescription, taskOutputs,
+      projectDir,
+      currentDiagnosis,
+      currentAfterResult,
+      taskDescription,
+      taskOutputs,
     );
 
     // Run targeted repair agent
     let fixApplied = false;
-    let fixDescription = 'AI repair attempt';
+    let fixDescription = "AI repair attempt";
     try {
       await runAgent({
         phase: `correction_${attempt}`,
         prompt: repairPrompt,
         agentOptions: {
-          allowedTools: ['Read', 'Write', 'Edit', 'Bash', 'Glob'],
+          allowedTools: ["Read", "Write", "Edit", "Bash", "Glob"],
           timeoutMs: 180_000,
         },
         projectDir,
@@ -132,18 +163,31 @@ export async function runCorrectionLoop(
       });
       fixApplied = true;
       fixDescription = `Applied fix for: ${currentDiagnosis.likelyCause.slice(0, 80)}`;
-      await logTaskEvent(projectDir, epicId, taskId, 'CORRECTION_APPLIED',
-        `Correction ${attempt} applied`, { attempt });
+      await logTaskEvent(
+        projectDir,
+        epicId,
+        taskId,
+        "CORRECTION_APPLIED",
+        `Correction ${attempt} applied`,
+        { attempt },
+      );
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       fixDescription = `Agent failed: ${msg.slice(0, 100)}`;
-      await logTaskEvent(projectDir, epicId, taskId, 'CORRECTION_FAILED',
-        `Correction ${attempt} agent call failed: ${msg.slice(0, 100)}`, { attempt });
+      await logTaskEvent(
+        projectDir,
+        epicId,
+        taskId,
+        "CORRECTION_FAILED",
+        `Correction ${attempt} agent call failed: ${msg.slice(0, 100)}`,
+        { attempt },
+      );
     }
 
     // Re-run after phase to check if fix worked
     const meta: AfterPhaseMeta = {
-      taskId, epicId,
+      taskId,
+      epicId,
       attempt: currentDiagnosis.attempt,
       correctionAttempts: attempt,
       startMs,
@@ -151,7 +195,12 @@ export async function runCorrectionLoop(
       outputs: taskOutputs,
     };
     const recheck = await runAfterPhase(
-      projectDir, epicId, taskId, checks, inputSnapshot, meta,
+      projectDir,
+      epicId,
+      taskId,
+      checks,
+      inputSnapshot,
+      meta,
     );
 
     // Append to correction-log.jsonl
@@ -161,11 +210,13 @@ export async function runCorrectionLoop(
       fixApplied,
       fixDescription,
       allChecksPassed: recheck.allChecksPassed,
-      failedChecks: recheck.checkResults.filter(r => !r.passed).map(r => r.id),
+      failedChecks: recheck.checkResults
+        .filter((r) => !r.passed)
+        .map((r) => r.id),
     };
     await appendFile(
-      join(correctionsDir, 'correction-log.jsonl'),
-      JSON.stringify(logEntry) + '\n',
+      join(correctionsDir, "correction-log.jsonl"),
+      JSON.stringify(logEntry) + "\n",
     );
 
     const correctionRecord: CorrectionAttempt = {
@@ -182,32 +233,67 @@ export async function runCorrectionLoop(
     // Update the attempt file with resolved status
     await writeFile(
       join(correctionsDir, `attempt-${currentDiagnosis.attempt}.json`),
-      JSON.stringify({ ...currentDiagnosis, fixApplied, fixDescription, resolved: recheck.allChecksPassed }, null, 2),
+      JSON.stringify(
+        {
+          ...currentDiagnosis,
+          fixApplied,
+          fixDescription,
+          resolved: recheck.allChecksPassed,
+        },
+        null,
+        2,
+      ),
     );
 
     if (recheck.allChecksPassed) {
-      await logTaskEvent(projectDir, epicId, taskId, 'CORRECTION_VERIFIED',
-        `Correction ${attempt} verified — all checks pass`, { attempt });
-      return { resolved: true, attemptsUsed: attempt, maxAttempts: correctionBudget, history };
+      await logTaskEvent(
+        projectDir,
+        epicId,
+        taskId,
+        "CORRECTION_VERIFIED",
+        `Correction ${attempt} verified — all checks pass`,
+        { attempt },
+      );
+      return {
+        resolved: true,
+        attemptsUsed: attempt,
+        maxAttempts: correctionBudget,
+        history,
+      };
     }
 
-    await logTaskEvent(projectDir, epicId, taskId, 'CORRECTION_FAILED',
-      `Correction ${attempt} did not resolve all checks`, { attempt });
+    await logTaskEvent(
+      projectDir,
+      epicId,
+      taskId,
+      "CORRECTION_FAILED",
+      `Correction ${attempt} did not resolve all checks`,
+      { attempt },
+    );
 
     // Re-diagnose for next attempt
     if (attempt < correctionBudget) {
       currentAfterResult = recheck;
-      currentDiagnosis = await diagnoseFailure(projectDir, recheck, '', {
-        taskId, epicId, diagnosisHints, attempt: attempt + 1,
+      currentDiagnosis = await diagnoseFailure(projectDir, recheck, "", {
+        taskId,
+        epicId,
+        diagnosisHints,
+        attempt: attempt + 1,
       });
     }
   }
 
-  await logTaskEvent(projectDir, epicId, taskId, 'CORRECTION_LOOP_EXHAUSTED',
-    `Correction loop exhausted after ${history.length} attempt(s)`, {
+  await logTaskEvent(
+    projectDir,
+    epicId,
+    taskId,
+    "CORRECTION_LOOP_EXHAUSTED",
+    `Correction loop exhausted after ${history.length} attempt(s)`,
+    {
       attemptsUsed: history.length,
       correctionBudget,
-    });
+    },
+  );
 
   return {
     resolved: false,
@@ -228,17 +314,20 @@ function buildRepairPrompt(
   taskDescription?: string,
   taskOutputs?: string[],
 ): string {
-  const failedChecks = afterResult.checkResults.filter(r => !r.passed);
-  const checkBlock = failedChecks.map(c =>
-    `Check: ${c.description}\nCommand: ${c.cmd}\nExit: ${c.exitCode}\nOutput:\n${(c.stdout + '\n' + c.stderr).trim().slice(0, 300)}`
-  ).join('\n\n---\n\n');
+  const failedChecks = afterResult.checkResults.filter((r) => !r.passed);
+  const checkBlock = failedChecks
+    .map(
+      (c) =>
+        `Check: ${c.description}\nCommand: ${c.cmd}\nExit: ${c.exitCode}\nOutput:\n${(c.stdout + "\n" + c.stderr).trim().slice(0, 300)}`,
+    )
+    .join("\n\n---\n\n");
 
   return `You are a precise code repair agent. A task's verification checks failed.
 Make the minimal targeted fix to resolve the failing checks.
 
 PROJECT DIRECTORY: ${projectDir}
 
-TASK: ${taskDescription ?? 'complete the task'}
+TASK: ${taskDescription ?? "complete the task"}
 
 DIAGNOSIS:
 Error type: ${diagnosis.errorClass}
@@ -246,10 +335,10 @@ Likely cause: ${diagnosis.likelyCause}
 Suggested fix: ${diagnosis.suggestedFix}
 
 FAILING CHECKS:
-${checkBlock || '(no check output captured)'}
+${checkBlock || "(no check output captured)"}
 
 EXPECTED OUTPUTS:
-${(taskOutputs ?? []).map(f => `- ${f}`).join('\n') || '(see task definition)'}
+${(taskOutputs ?? []).map((f) => `- ${f}`).join("\n") || "(see task definition)"}
 
 INSTRUCTIONS:
 1. Read the relevant files to understand the current state

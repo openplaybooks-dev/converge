@@ -21,7 +21,7 @@ import {
 } from "./skills.js";
 
 export interface EnhancePromptOptions {
-  /** Working directory for finding .crew folder */
+  /** Working directory for finding .converge folder */
   cwd?: string;
 }
 
@@ -55,17 +55,20 @@ function extractSkillRefs(prompt: string): string[] {
 
 /**
  * @deprecated Application-level prompt formatting should be done by the caller.
- * This function uses legacy auto-detection of .crew/ directories.
+ * This function uses legacy auto-detection of .converge/ directories.
  *
  * Enhance a prompt by adding footnote references to skills and agents.
  *
- * - /skill refs point to .crew/{name}/SKILL.md
- * - @agent refs point to .crew/{name}/AGENT.md or .crew/{name}.md (fallback to SKILL.md)
+ * - /skill refs point to .converge/{name}/SKILL.md
+ * - @agent refs point to .converge/{name}/AGENT.md or .converge/{name}.md (fallback to SKILL.md)
  *
  * Returns the enhanced prompt with skill/agent footnotes.
  * The AI can load these files on-demand when needed.
  */
-export function enhancePrompt(prompt: string, options?: EnhancePromptOptions): string {
+export function enhancePrompt(
+  prompt: string,
+  options?: EnhancePromptOptions,
+): string {
   const cwd = options?.cwd;
 
   const skillRefs = extractSkillRefs(prompt);

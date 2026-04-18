@@ -11,7 +11,16 @@ related-skills:
   - repair-dependency
 context:
   - type: gap
-    fields: [gapKind, checkCmd, checkOutput, taskTitle, inputPattern, unitPath, allMissingItems]
+    fields:
+      [
+        gapKind,
+        checkCmd,
+        checkOutput,
+        taskTitle,
+        inputPattern,
+        unitPath,
+        allMissingItems,
+      ]
   - type: file
     path: "{attemptDir}/TASK.md"
     label: task-definition
@@ -35,11 +44,11 @@ You are a repair triage agent. Diagnose the root cause and invoke the correct re
 
 ## Step 2: Route
 
-| Gap Kind | Repair Skill | When |
-|----------|-------------|------|
-| `check-failed` | `/repair-check-failed` | Check command returned non-zero |
+| Gap Kind               | Repair Skill             | When                                      |
+| ---------------------- | ------------------------ | ----------------------------------------- |
+| `check-failed`         | `/repair-check-failed`   | Check command returned non-zero           |
 | `output` / `corrupted` | `/repair-missing-output` | Expected file doesn't exist or is invalid |
-| `blocker` / `input` | `/repair-dependency` | Required input missing from upstream |
+| `blocker` / `input`    | `/repair-dependency`     | Required input missing from upstream      |
 
 ## Step 3: Invoke
 

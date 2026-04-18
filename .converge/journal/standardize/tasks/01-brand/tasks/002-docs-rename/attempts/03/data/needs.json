@@ -1,0 +1,9 @@
+{
+  "taskId": "01-brand/002-docs-rename",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    ".converge/standardize-state/brand/002-docs.json"
+  ],
+  "blocked": false
+}

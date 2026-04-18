@@ -5,15 +5,15 @@
  * run-executor action. This file handles plan, WBS, children, and leaf.
  */
 
-import { WbsExecutor } from '../executor/wbs-executor.ts';
-import { PlanExecutor } from '../executor/plan-executor.ts';
-import type { Gap } from '../gap/types.ts';
-import type { Resolution } from '../repair/types.ts';
-import type { Unit } from './unit.ts';
-import { getProjectRoot, getEpicId } from './helpers.ts';
-import { resolvePrompt, createTaskContext } from './resolve.ts';
-import { discoverChildren } from './children.ts';
-import { findGaps } from './find-gaps.ts';
+import { WbsExecutor } from "../executor/wbs-executor.ts";
+import { PlanExecutor } from "../executor/plan-executor.ts";
+import type { Gap } from "../gap/types.ts";
+import type { Resolution } from "../repair/types.ts";
+import type { Unit } from "./unit.ts";
+import { getProjectRoot, getEpicId } from "./helpers.ts";
+import { resolvePrompt, createTaskContext } from "./resolve.ts";
+import { discoverChildren } from "./children.ts";
+import { findGaps } from "./find-gaps.ts";
 
 /**
  * Fix gaps - plan, WBS, children delegation, or leaf (return 0).
@@ -23,7 +23,7 @@ export async function fixGaps(unit: Unit, gaps: Gap[]): Promise<number> {
   const jCtx = { epicId: getEpicId(unit), taskId: unit.id };
 
   // ── Plan gap: generate plan.md via PlanExecutor ─────────────────
-  const planGap = gaps.find(g => g.metadata?.gapKind === 'plan');
+  const planGap = gaps.find((g) => g.metadata?.gapKind === "plan");
   if (planGap && unit.planConfig) {
     const executor = new PlanExecutor(projectDir, jCtx, {
       id: unit.id,
@@ -34,13 +34,13 @@ export async function fixGaps(unit: Unit, gaps: Gap[]): Promise<number> {
     if (!executor.alreadyPlanned()) {
       const ctx = createTaskContext(unit);
       const planPromptOverride =
-        typeof unit.planConfig.prompt === 'function'
+        typeof unit.planConfig.prompt === "function"
           ? await unit.planConfig.prompt(ctx)
           : unit.planConfig.prompt;
 
       // Resolve outputPrompt if it's a function
       const outputPrompt =
-        typeof unit.planConfig.outputPrompt === 'function'
+        typeof unit.planConfig.outputPrompt === "function"
           ? await unit.planConfig.outputPrompt(ctx)
           : unit.planConfig.outputPrompt;
 
@@ -49,7 +49,7 @@ export async function fixGaps(unit: Unit, gaps: Gap[]): Promise<number> {
         taskPrompt,
         planPromptOverride,
         unit.planConfig.output,
-        outputPrompt
+        outputPrompt,
       );
 
       try {
@@ -65,7 +65,7 @@ export async function fixGaps(unit: Unit, gaps: Gap[]): Promise<number> {
   }
 
   // ── WBS gap: seed subtasks via WbsExecutor ─────────────────────
-  const wbsGap = gaps.find(g => g.metadata?.gapKind === 'wbs');
+  const wbsGap = gaps.find((g) => g.metadata?.gapKind === "wbs");
   if (wbsGap && unit.wbsFn) {
     const executor = new WbsExecutor(projectDir, jCtx, unit.path, {
       id: unit.id,
@@ -74,7 +74,7 @@ export async function fixGaps(unit: Unit, gaps: Gap[]): Promise<number> {
     });
     const attemptNumber = 1;
     const result = await executor.run(unit.wbsFn, attemptNumber);
-    return (result.error || result.spawnCount === 0) ? 0 : 1;
+    return result.error || result.spawnCount === 0 ? 0 : 1;
   }
 
   // Legacy WBS dispatch (for tasks without gap-driven flow)
@@ -86,7 +86,7 @@ export async function fixGaps(unit: Unit, gaps: Gap[]): Promise<number> {
     });
     const attemptNumber = 1;
     const result = await executor.run(unit.wbsFn, attemptNumber);
-    return (result.error || result.spawnCount === 0) ? 0 : gaps.length;
+    return result.error || result.spawnCount === 0 ? 0 : gaps.length;
   }
 
   // Discover children if not already done
@@ -116,6 +116,9 @@ export async function fixGaps(unit: Unit, gaps: Gap[]): Promise<number> {
  * @deprecated Leaf-unit gap resolution is now handled by the walker's repair-loop.
  * This stub is kept for backward compatibility but returns empty results.
  */
-export async function fixGapsDetailed(_unit: Unit, _gaps: Gap[]): Promise<Resolution[]> {
+export async function fixGapsDetailed(
+  _unit: Unit,
+  _gaps: Gap[],
+): Promise<Resolution[]> {
   return [];
 }

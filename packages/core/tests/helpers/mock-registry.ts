@@ -1,14 +1,14 @@
 /**
  * Mock Registry - Reusable Mock Functions
  *
- * Centralized collection of mock functions for testing Crew V2 framework.
+ * Centralized collection of mock functions for testing Converge V2 framework.
  * All mocks are stateless and predictable unless explicitly configured as stateful.
  */
 
-import type { CheckResult, Gap, EvalResult } from '../../src/gap/types.ts';
-import type { TaskResult } from '../../src/functions/types.ts';
-import type { TaskConfig } from '../../src/storage/types.ts';
-import { createTestGap } from './test-builders.ts';
+import type { CheckResult, Gap, EvalResult } from "../../src/gap/types.ts";
+import type { TaskResult } from "../../src/functions/types.ts";
+import type { TaskConfig } from "../../src/storage/types.ts";
+import { createTestGap } from "./test-builders.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Mock Check Functions                                              */
@@ -19,83 +19,83 @@ export const mockChecks = {
    * Always passes - no gaps detected
    */
   typescript: (): CheckResult => ({
-    check: 'typescript',
+    check: "typescript",
     passed: true,
     gaps: [],
-    message: 'TypeScript compilation successful',
+    message: "TypeScript compilation successful",
   }),
 
   /**
    * Configurable ESLint check
    */
   eslint: (shouldFail = false): CheckResult => ({
-    check: 'eslint',
+    check: "eslint",
     passed: !shouldFail,
     gaps: shouldFail
       ? [
           createTestGap({
-            type: 'quality',
-            description: 'ESLint violations detected',
+            type: "quality",
+            description: "ESLint violations detected",
           }),
         ]
       : [],
-    message: shouldFail ? 'ESLint found errors' : 'ESLint passed',
+    message: shouldFail ? "ESLint found errors" : "ESLint passed",
   }),
 
   /**
    * Always passes
    */
   jest: (): CheckResult => ({
-    check: 'jest',
+    check: "jest",
     passed: true,
     gaps: [],
-    message: 'All tests passed',
+    message: "All tests passed",
   }),
 
   /**
    * Configurable test check
    */
   testsPass: (shouldFail = false): CheckResult => ({
-    check: 'tests-pass',
+    check: "tests-pass",
     passed: !shouldFail,
     gaps: shouldFail
       ? [
           createTestGap({
-            type: 'quality',
-            description: 'Test failures detected',
+            type: "quality",
+            description: "Test failures detected",
           }),
         ]
       : [],
-    message: shouldFail ? 'Tests failed' : 'Tests passed',
+    message: shouldFail ? "Tests failed" : "Tests passed",
   }),
 
   /**
    * File existence check
    */
   filesExist: (missingFiles: string[] = []): CheckResult => ({
-    check: 'files-exist',
+    check: "files-exist",
     passed: missingFiles.length === 0,
     gaps: missingFiles.map((file) =>
       createTestGap({
-        type: 'structural',
+        type: "structural",
         description: `Missing file: ${file}`,
         metadata: { file },
-      })
+      }),
     ),
     message:
       missingFiles.length === 0
-        ? 'All required files exist'
-        : `Missing files: ${missingFiles.join(', ')}`,
+        ? "All required files exist"
+        : `Missing files: ${missingFiles.join(", ")}`,
   }),
 
   /**
    * Custom check with configurable gaps
    */
   custom: (passed: boolean, gaps: Gap[] = []): CheckResult => ({
-    check: 'custom',
+    check: "custom",
     passed,
     gaps,
-    message: passed ? 'Check passed' : 'Check failed',
+    message: passed ? "Check passed" : "Check failed",
   }),
 
   /**
@@ -104,7 +104,7 @@ export const mockChecks = {
   slow: async (delayMs = 100): Promise<CheckResult> => {
     await new Promise((resolve) => setTimeout(resolve, delayMs));
     return {
-      check: 'slow',
+      check: "slow",
       passed: true,
       gaps: [],
       message: `Completed after ${delayMs}ms`,
@@ -124,9 +124,9 @@ export const mockEvals = {
     const gaps = hasGaps
       ? [
           createTestGap({
-            type: 'structural',
-            level: 'project',
-            description: 'Missing package.json',
+            type: "structural",
+            level: "project",
+            description: "Missing package.json",
           }),
         ]
       : [];
@@ -136,19 +136,19 @@ export const mockEvals = {
       summary: {
         total: gaps.length,
         byType: {
-          structural: gaps.filter((g) => g.type === 'structural').length,
+          structural: gaps.filter((g) => g.type === "structural").length,
           semantic: 0,
           quality: 0,
           integration: 0,
         },
         byLevel: {
-          project: gaps.filter((g) => g.level === 'project').length,
+          project: gaps.filter((g) => g.level === "project").length,
           epic: 0,
           task: 0,
         },
       },
       timestamp: new Date().toISOString(),
-      checksRun: ['files-exist'],
+      checksRun: ["files-exist"],
     };
   },
 
@@ -159,9 +159,9 @@ export const mockEvals = {
     const gaps = hasGaps
       ? [
           createTestGap({
-            type: 'semantic',
-            level: 'epic',
-            description: 'Epic goals not satisfied',
+            type: "semantic",
+            level: "epic",
+            description: "Epic goals not satisfied",
           }),
         ]
       : [];
@@ -172,18 +172,18 @@ export const mockEvals = {
         total: gaps.length,
         byType: {
           structural: 0,
-          semantic: gaps.filter((g) => g.type === 'semantic').length,
+          semantic: gaps.filter((g) => g.type === "semantic").length,
           quality: 0,
           integration: 0,
         },
         byLevel: {
           project: 0,
-          epic: gaps.filter((g) => g.level === 'epic').length,
+          epic: gaps.filter((g) => g.level === "epic").length,
           task: 0,
         },
       },
       timestamp: new Date().toISOString(),
-      checksRun: ['goal-check'],
+      checksRun: ["goal-check"],
     };
   },
 
@@ -192,16 +192,16 @@ export const mockEvals = {
    */
   custom: (gaps: Gap[]): EvalResult => {
     const byType = {
-      structural: gaps.filter((g) => g.type === 'structural').length,
-      semantic: gaps.filter((g) => g.type === 'semantic').length,
-      quality: gaps.filter((g) => g.type === 'quality').length,
-      integration: gaps.filter((g) => g.type === 'integration').length,
+      structural: gaps.filter((g) => g.type === "structural").length,
+      semantic: gaps.filter((g) => g.type === "semantic").length,
+      quality: gaps.filter((g) => g.type === "quality").length,
+      integration: gaps.filter((g) => g.type === "integration").length,
     };
 
     const byLevel = {
-      project: gaps.filter((g) => g.level === 'project').length,
-      epic: gaps.filter((g) => g.level === 'epic').length,
-      task: gaps.filter((g) => g.level === 'task').length,
+      project: gaps.filter((g) => g.level === "project").length,
+      epic: gaps.filter((g) => g.level === "epic").length,
+      task: gaps.filter((g) => g.level === "task").length,
     };
 
     return {
@@ -212,7 +212,7 @@ export const mockEvals = {
         byLevel,
       },
       timestamp: new Date().toISOString(),
-      checksRun: ['custom'],
+      checksRun: ["custom"],
     };
   },
 };
@@ -227,17 +227,17 @@ export const mockPlanners = {
    */
   structural: (gaps: Gap[]): TaskConfig[] => {
     return gaps
-      .filter((gap) => gap.type === 'structural')
+      .filter((gap) => gap.type === "structural")
       .map((gap) => ({
         id: `fix-${gap.id}`,
         title: `Fix: ${gap.description}`,
         description: `Address structural gap: ${gap.description}`,
-        type: 'fix-structural',
+        type: "fix-structural",
         deps: [],
         inputs: [],
         outputs: [],
         checks: [],
-        fn: 'fix-structural',
+        fn: "fix-structural",
         vars: { gapId: gap.id },
         constraints: {},
         metadata: { generatedFrom: gap.id },
@@ -249,17 +249,17 @@ export const mockPlanners = {
    */
   quality: (gaps: Gap[]): TaskConfig[] => {
     return gaps
-      .filter((gap) => gap.type === 'quality')
+      .filter((gap) => gap.type === "quality")
       .map((gap) => ({
         id: `fix-${gap.id}`,
         title: `Fix: ${gap.description}`,
         description: `Address quality gap: ${gap.description}`,
-        type: 'fix-quality',
+        type: "fix-quality",
         deps: [],
         inputs: [],
         outputs: [],
         checks: [],
-        fn: 'fix-quality',
+        fn: "fix-quality",
         vars: { gapId: gap.id },
         constraints: {},
         metadata: { generatedFrom: gap.id },
@@ -274,7 +274,7 @@ export const mockPlanners = {
   /**
    * Custom planner
    */
-  custom: (tasks: TaskConfig[]): () => TaskConfig[] => {
+  custom: (tasks: TaskConfig[]): (() => TaskConfig[]) => {
     return () => tasks;
   },
 };
@@ -289,8 +289,8 @@ export const mockTasks = {
    */
   install: (): TaskResult => ({
     success: true,
-    message: 'Dependencies installed successfully',
-    filesModified: ['package-lock.json'],
+    message: "Dependencies installed successfully",
+    filesModified: ["package-lock.json"],
   }),
 
   /**
@@ -299,7 +299,7 @@ export const mockTasks = {
    */
   generateScreenSubtasks: (screens: string[]): TaskResult => {
     const subtasksGenerated = screens.map((screen, index) => {
-      const prefix = String(index + 1).padStart(3, '0');
+      const prefix = String(index + 1).padStart(3, "0");
       return `${prefix}-screen-${screen}.ts`;
     });
 
@@ -324,7 +324,7 @@ export const mockTasks = {
       : `Generated ${screenName} screen successfully`,
     filesModified: shouldFail
       ? []
-      : [`.stitch/designs/${screenName}.html`, '.stitch/metadata.json'],
+      : [`.stitch/designs/${screenName}.html`, ".stitch/metadata.json"],
     output: shouldFail
       ? undefined
       : {
@@ -338,14 +338,14 @@ export const mockTasks = {
    */
   coding: (shouldFail = false): TaskResult => ({
     success: !shouldFail,
-    message: shouldFail ? undefined : 'Code generated successfully',
+    message: shouldFail ? undefined : "Code generated successfully",
     error: shouldFail
       ? {
-          message: 'Failed to generate code',
+          message: "Failed to generate code",
           recoverable: true,
         }
       : undefined,
-    filesModified: shouldFail ? [] : ['src/index.ts'],
+    filesModified: shouldFail ? [] : ["src/index.ts"],
   }),
 
   /**
@@ -353,10 +353,10 @@ export const mockTasks = {
    */
   test: (shouldFail = false): TaskResult => ({
     success: !shouldFail,
-    message: shouldFail ? undefined : 'All tests passed',
+    message: shouldFail ? undefined : "All tests passed",
     error: shouldFail
       ? {
-          message: '3 tests failed',
+          message: "3 tests failed",
           recoverable: true,
         }
       : undefined,
@@ -367,8 +367,8 @@ export const mockTasks = {
    */
   build: (): TaskResult => ({
     success: true,
-    message: 'Build completed successfully',
-    filesModified: ['dist/index.js'],
+    message: "Build completed successfully",
+    filesModified: ["dist/index.js"],
   }),
 
   /**
@@ -376,7 +376,7 @@ export const mockTasks = {
    */
   deploy: (): TaskResult => ({
     success: true,
-    message: 'Deployed to production',
+    message: "Deployed to production",
   }),
 
   /**
@@ -389,9 +389,7 @@ export const mockTasks = {
       const shouldFail = attempts <= failCount;
       return {
         success: !shouldFail,
-        message: shouldFail
-          ? undefined
-          : `Succeeded on attempt ${attempts}`,
+        message: shouldFail ? undefined : `Succeeded on attempt ${attempts}`,
         error: shouldFail
           ? {
               message: `Attempt ${attempts} failed`,
@@ -421,7 +419,7 @@ export const mockTasks = {
    */
   discoverGaps: (discoveredGaps: Gap[]): TaskResult => ({
     success: true,
-    message: 'Task completed, but discovered new gaps',
+    message: "Task completed, but discovered new gaps",
     gapsDiscovered: discoveredGaps,
   }),
 
@@ -437,7 +435,7 @@ export const mockTasks = {
   /**
    * Custom task
    */
-  custom: (result: TaskResult): () => TaskResult => {
+  custom: (result: TaskResult): (() => TaskResult) => {
     return () => result;
   },
 };
@@ -495,8 +493,8 @@ export class MockCallRecorder<T extends (...args: any[]) => any> {
    * Check if function was called with specific args
    */
   wasCalledWith(...args: Parameters<T>): boolean {
-    return this.calls.some((call) =>
-      JSON.stringify(call.args) === JSON.stringify(args)
+    return this.calls.some(
+      (call) => JSON.stringify(call.args) === JSON.stringify(args),
     );
   }
 }
@@ -505,7 +503,7 @@ export class MockCallRecorder<T extends (...args: any[]) => any> {
  * Create a recorded mock function
  */
 export function createRecordedMock<T extends (...args: any[]) => any>(
-  fn: T
+  fn: T,
 ): MockCallRecorder<T> {
   return new MockCallRecorder(fn);
 }

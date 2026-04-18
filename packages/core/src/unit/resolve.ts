@@ -2,15 +2,19 @@
  * Resolution helpers — createTaskContext, resolveChecks, resolvePrompt, resolveAgent, resolveSkill.
  */
 
-import type { TaskContext, Check, CheckEntry } from '../config/task-definition.ts';
-import type { Unit } from './unit.ts';
+import type {
+  TaskContext,
+  Check,
+  CheckEntry,
+} from "../config/task-definition.ts";
+import type { Unit } from "./unit.ts";
 
 /**
  * Create task context for callback evaluation.
  */
 export function createTaskContext(unit: Unit): TaskContext {
   return {
-    level: 'task',
+    level: "task",
     taskId: unit.id,
     projectDir: unit.getProjectRoot(),
     vars: unit.vars || {},
@@ -31,15 +35,15 @@ export async function resolveChecks(unit: Unit): Promise<Check[]> {
     return (unit.vars?.inlineChecks as any[]) || [];
   }
   const ctx = createTaskContext(unit);
-  const entries: CheckEntry[] = typeof unit.checks === 'function'
-    ? await unit.checks(ctx)
-    : unit.checks;
+  const entries: CheckEntry[] =
+    typeof unit.checks === "function" ? await unit.checks(ctx) : unit.checks;
   // Resolve any per-entry callbacks in the array
   const checks = await Promise.all(
-    entries.map(e => {
-      if (typeof e === 'function') return (e as (ctx: TaskContext) => Check | Promise<Check>)(ctx);
+    entries.map((e) => {
+      if (typeof e === "function")
+        return (e as (ctx: TaskContext) => Check | Promise<Check>)(ctx);
       return e as Check;
-    })
+    }),
   );
   return checks.map(sanitizeCheck);
 }
@@ -53,7 +57,9 @@ function sanitizeCheck(check: Check): Check {
   if (!check.cmd) return check;
   const patched = sanitizeCheckCmd(check.cmd);
   if (patched === check.cmd) return check;
-  console.log(`   🔧 Sanitized check '${check.id}': replaced Windows-incompatible command`);
+  console.log(
+    `   🔧 Sanitized check '${check.id}': replaced Windows-incompatible command`,
+  );
   return { ...check, cmd: patched };
 }
 
@@ -68,7 +74,7 @@ function sanitizeCheck(check: Check): Check {
 function sanitizeCheckCmd(cmd: string): string {
   // Pattern: "while IFS= read -r line; do echo "$line" | node -e '...JSON.parse.../dev/stdin...' || exit 1; done < FILE"
   // /dev/stdin is not reliably available in Node.js on Windows Git Bash.
-  if (cmd.includes('/dev/stdin')) {
+  if (cmd.includes("/dev/stdin")) {
     const fileMatch = cmd.match(/<\s*(\S+)\s*$/);
     if (fileMatch) {
       const file = fileMatch[1];
@@ -85,7 +91,7 @@ function sanitizeCheckCmd(cmd: string): string {
  */
 export async function resolvePrompt(unit: Unit): Promise<string | undefined> {
   if (unit.prompt) {
-    if (typeof unit.prompt === 'function') {
+    if (typeof unit.prompt === "function") {
       const ctx = createTaskContext(unit);
       return await unit.prompt(ctx);
     }
@@ -107,5 +113,8 @@ export function resolveAgent(unit: Unit): string | undefined {
  */
 export function resolveSkill(unit: Unit): string | string[] | undefined {
   if (unit.skill) return unit.skill;
-  return (unit.vars?.skill as string | string[] | undefined) || (unit.vars?.skills as string[] | undefined);
+  return (
+    (unit.vars?.skill as string | string[] | undefined) ||
+    (unit.vars?.skills as string[] | undefined)
+  );
 }

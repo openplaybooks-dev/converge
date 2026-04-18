@@ -13,7 +13,8 @@ tags:
   - gap:check-failed
 context:
   - type: gap
-    fields: [checkId, checkCmd, checkOutput, checkDescription, taskTitle, unitPath]
+    fields:
+      [checkId, checkCmd, checkOutput, checkDescription, taskTitle, unitPath]
   - type: cmd
     cmd: "{checkCmd}"
     label: fresh-check-output
@@ -60,13 +61,13 @@ You are fixing a task whose validation check(s) failed.
 
 Compare the fresh check output with the expected behavior in `repair-context/all-checks.md`.
 
-| Error Pattern | Fix |
-|---------------|-----|
-| `file not found` | Wrong output path — check TASK.md for correct path |
-| `expected X got Y` | Content mismatch — fix the content |
-| `syntax error` | Generated code has a bug — fix it |
-| `module not found` | Missing import/dependency |
-| `exit code 1` no output | Check command needs different args |
+| Error Pattern           | Fix                                                |
+| ----------------------- | -------------------------------------------------- |
+| `file not found`        | Wrong output path — check TASK.md for correct path |
+| `expected X got Y`      | Content mismatch — fix the content                 |
+| `syntax error`          | Generated code has a bug — fix it                  |
+| `module not found`      | Missing import/dependency                          |
+| `exit code 1` no output | Check command needs different args                 |
 
 ## Step 3: Fix
 
@@ -77,6 +78,7 @@ Compare the fresh check output with the expected behavior in `repair-context/all
 ## Step 4: Verify
 
 Run the failing check:
+
 ```bash
 # The exact check command from the gap
 ```

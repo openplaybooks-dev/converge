@@ -10,16 +10,21 @@ import type {
   PlanAPI,
   PluginAPI,
   CheckAPI,
-} from './types.ts';
-import type { JournalAPI } from '../journal/types.ts';
-import type { ProjectConfig } from '../storage/types.ts';
-import type { Gap, CheckResult, EvalResult } from '../gap/types.ts';
-import type { TaskConfig } from '../storage/types.ts';
-import { FileSystemAPIImpl, ShellAPIImpl, GitAPIImpl, LoggerAPIImpl } from './base.ts';
-import { ArtifactStore } from '../artifacts/index.ts';
-import { FilesystemStorage } from '../storage/filesystem.ts';
-import { globalRegistry } from '../functions/registry.ts';
-import { resolve } from 'node:path';
+} from "./types.ts";
+import type { JournalAPI } from "../journal/types.ts";
+import type { ProjectConfig } from "../storage/types.ts";
+import type { Gap, CheckResult, EvalResult } from "../gap/types.ts";
+import type { TaskConfig } from "../storage/types.ts";
+import {
+  FileSystemAPIImpl,
+  ShellAPIImpl,
+  GitAPIImpl,
+  LoggerAPIImpl,
+} from "./base.ts";
+import { ArtifactStore } from "../artifacts/index.ts";
+import { FilesystemStorage } from "../storage/filesystem.ts";
+import { globalRegistry } from "../functions/registry.ts";
+import { resolve } from "node:path";
 
 /* ------------------------------------------------------------------ */
 /*  Eval API Implementation (Project Level)                           */
@@ -28,16 +33,15 @@ import { resolve } from 'node:path';
 class ProjectEvalAPI implements EvalAPI {
   constructor(
     private ctx: ProjectContextImpl,
-    private storage: FilesystemStorage
+    private storage: FilesystemStorage,
   ) {}
 
   async detectGaps(): Promise<EvalResult> {
-    const checksToRun = this.ctx.config.plugins
-      .flatMap((p) => {
-        // Extract check names from plugin config
-        // This is simplified - real implementation would query loaded plugins
-        return [];
-      });
+    const checksToRun = this.ctx.config.plugins.flatMap((p) => {
+      // Extract check names from plugin config
+      // This is simplified - real implementation would query loaded plugins
+      return [];
+    });
 
     const checkResults = await this.runChecks(checksToRun);
     const allGaps = checkResults.flatMap((r) => r.gaps);
@@ -108,7 +112,7 @@ class ProjectEvalAPI implements EvalAPI {
 class ProjectPlanAPI implements PlanAPI {
   constructor(
     private ctx: ProjectContextImpl,
-    private storage: FilesystemStorage
+    private storage: FilesystemStorage,
   ) {}
 
   async generateTasks(gaps: Gap[]): Promise<TaskConfig[]> {
@@ -129,7 +133,9 @@ class ProjectPlanAPI implements PlanAPI {
         const tasks = await planMeta.fn(this.ctx as any, relevantGaps);
         allTasks.push(...tasks);
       } catch (error: any) {
-        this.ctx.log.error(`Plan function "${planMeta.name}" failed: ${error.message}`);
+        this.ctx.log.error(
+          `Plan function "${planMeta.name}" failed: ${error.message}`,
+        );
       }
     }
 
@@ -189,7 +195,7 @@ class ProjectPluginAPI implements PluginAPI {
 /* ------------------------------------------------------------------ */
 
 export class ProjectContextImpl implements ProjectContext {
-  readonly level = 'project' as const;
+  readonly level = "project" as const;
   readonly projectDir: string;
   readonly convergeDir: string;
   readonly vars: Readonly<Record<string, unknown>>;
@@ -210,7 +216,7 @@ export class ProjectContextImpl implements ProjectContext {
     projectDir: string,
     config: ProjectConfig,
     storage: FilesystemStorage,
-    loadedPlugins: string[] = []
+    loadedPlugins: string[] = [],
   ) {
     this.projectDir = projectDir;
     this.convergeDir = `${projectDir}/.converge`;
@@ -222,18 +228,28 @@ export class ProjectContextImpl implements ProjectContext {
     this.shell = new ShellAPIImpl(projectDir);
     this.git = new GitAPIImpl(projectDir);
     this.artifact = new ArtifactStore(projectDir);
-    this.log = new LoggerAPIImpl('project');
+    this.log = new LoggerAPIImpl("project");
     this.eval = new ProjectEvalAPI(this, storage);
     this.plan = new ProjectPlanAPI(this, storage);
     this.plugins = new ProjectPluginAPI(loadedPlugins);
     this.check = {
-      run: async () => ({ check: '', passed: true, gaps: [] }),
+      run: async () => ({ check: "", passed: true, gaps: [] }),
       runAll: async () => [],
-      validateOutputs: async () => ({ check: 'outputs', passed: true, gaps: [] }),
+      validateOutputs: async () => ({
+        check: "outputs",
+        passed: true,
+        gaps: [],
+      }),
     };
     this.journal = {
       getGaps: async () => [],
-      getSummary: async () => ({ total: 0, byType: {}, bySeverity: {}, updated: new Date().toISOString(), gaps: [] }),
+      getSummary: async () => ({
+        total: 0,
+        byType: {},
+        bySeverity: {},
+        updated: new Date().toISOString(),
+        gaps: [],
+      }),
       getRecentEvents: async () => [],
       findErrors: async () => [],
       searchLog: async () => [],
@@ -253,7 +269,7 @@ export function createProjectContext(
   projectDir: string,
   config: ProjectConfig,
   storage: FilesystemStorage,
-  loadedPlugins?: string[]
+  loadedPlugins?: string[],
 ): ProjectContext {
   return new ProjectContextImpl(projectDir, config, storage, loadedPlugins);
 }

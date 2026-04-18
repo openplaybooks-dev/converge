@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-quality/003-test-coverage",
+  "status": "pending",
+  "lastUpdated": "2026-04-18T05:02:39.566Z",
+  "createdAt": "2026-04-18T00:43:25.606Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T00:43:25.606Z",
+      "completedAt": "2026-04-18T00:46:46.485Z",
+      "outcome": "success",
+      "durationMs": 200879
+    }
+  ],
+  "currentAttempt": 1
+}

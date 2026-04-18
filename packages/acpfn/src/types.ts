@@ -99,13 +99,13 @@ export interface AcpFnOptions<T = string> {
 
   // ─── SDK-specific options ───────────────────────────
 
-  /** 
+  /**
    * Additional SDK options that are passed directly to the Agent SDK.
    * These override any defaults set by acpfn.
    */
   sdkOptions?: Partial<Options>;
 
-  /** 
+  /**
    * Model to use for the session.
    * Defaults to the SDK default.
    */
@@ -155,9 +155,7 @@ export interface AcpFnResult<T = string> {
 }
 
 /** A callable function created by acpfn() */
-export type AcpFn<T = string> = (
-  input?: string,
-) => Promise<AcpFnResult<T>>;
+export type AcpFn<T = string> = (input?: string) => Promise<AcpFnResult<T>>;
 
 // ─── Composition Types ─────────────────────────────────────
 
@@ -217,17 +215,17 @@ export interface ComposeOptions<T = string> {
 
   // ── SDK-specific ───────────────────────────────────
 
-  /** 
+  /**
    * Additional SDK options that are passed directly to the Agent SDK.
    */
   sdkOptions?: Partial<Options>;
 
-  /** 
+  /**
    * Model to use for the session.
    */
   model?: string;
 
-  /** 
+  /**
    * Maximum agentic turns.
    */
   maxTurns?: number;

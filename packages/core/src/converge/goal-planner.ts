@@ -13,22 +13,32 @@
  * sees it's still unsatisfied, and generates a new task (with failure context).
  */
 
-import { resolve, join, dirname, basename } from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { execSync } from 'node:child_process';
-import { existsSync, mkdirSync, writeFileSync, readdirSync, readFileSync } from 'node:fs';
-import { glob } from 'glob';
-import { getEpicsDir } from '../journal/structure.ts';
-import { z } from 'zod';
-import { agentfn } from '@converge/agentfn';
-import { READONLY_TOOLS } from '../ai/context.ts';
-import { parseGoalMd } from '../config/parse-goal.ts';
-import type { GoalDefinition } from '../config/parse-goal.ts';
-import type { TaskMdShape } from '../config/task-md-definition.ts';
-import type { WbsContext, WbsSpawnTarget, WbsSpawnOptions } from '../config/task-definition.ts';
-import { resolveWbsTarget } from '../executor/wbs-executor.ts';
-import { ArtifactStore } from '../artifacts/index.ts';
-import { stringify as stringifyYaml, parse as parseYaml } from 'yaml';
+import { resolve, join, dirname, basename } from "node:path";
+import { pathToFileURL } from "node:url";
+import { execSync } from "node:child_process";
+import {
+  existsSync,
+  mkdirSync,
+  writeFileSync,
+  readdirSync,
+  readFileSync,
+} from "node:fs";
+import { glob } from "glob";
+import { getEpicsDir } from "../journal/structure.ts";
+import { z } from "zod";
+import { agentfn } from "@converge/agentfn";
+import { READONLY_TOOLS } from "../ai/context.ts";
+import { parseGoalMd } from "../config/parse-goal.ts";
+import type { GoalDefinition } from "../config/parse-goal.ts";
+import type { TaskMdShape } from "../config/task-md-definition.ts";
+import type {
+  WbsContext,
+  WbsSpawnTarget,
+  WbsSpawnOptions,
+} from "../config/task-definition.ts";
+import { resolveWbsTarget } from "../executor/wbs-executor.ts";
+import { ArtifactStore } from "../artifacts/index.ts";
+import { stringify as stringifyYaml, parse as parseYaml } from "yaml";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -44,7 +54,7 @@ export interface GoalEvalResult {
   /** Sub-goal results (if goal has nested sub-goals) */
   subResults?: GoalEvalResult[];
   /** DoD result when goal uses dod.js */
-  dodResult?: import('./dod-runner.ts').DodResult;
+  dodResult?: import("./dod-runner.ts").DodResult;
 }
 
 export interface PlanResult {
@@ -71,17 +81,25 @@ export interface EvalResult {
 
 export async function evaluateGoals(projectDir: string): Promise<EvalResult> {
   // 1. Discover top-level goals (sub-goals are nested inside via parser)
-  const goalFiles = await glob('**/.converge/goals/*/GOAL.md', {
+  const goalFiles = await glob("**/.converge/goals/*/GOAL.md", {
     cwd: projectDir,
     absolute: true,
-    ignore: ['**/.converge/goals/*/goals/**'],  // Skip sub-goals (parsed by parent)
+    ignore: ["**/.converge/goals/*/goals/**"], // Skip sub-goals (parsed by parent)
   });
 
   if (goalFiles.length === 0) {
-    return { results: [], totalGoals: 0, needsPlanning: [], satisfied: 0, blocked: 0 };
+    return {
+      results: [],
+      totalGoals: 0,
+      needsPlanning: [],
+      satisfied: 0,
+      blocked: 0,
+    };
   }
 
-  goalFiles.sort((a, b) => basename(dirname(a)).localeCompare(basename(dirname(b))));
+  goalFiles.sort((a, b) =>
+    basename(dirname(a)).localeCompare(basename(dirname(b))),
+  );
 
   // 2. Parse goals (parser auto-discovers sub-goals from goals/ subdirs)
   const goals: GoalDefinition[] = [];
@@ -100,9 +118,15 @@ export async function evaluateGoals(projectDir: string): Promise<EvalResult> {
   for (const goal of goals) {
     // Check dependencies before evaluation — don't run dod.js if deps unmet
     const deps = goal.depends ?? [];
-    const unmetDeps = deps.filter(d => !satisfiedIds.has(d));
+    const unmetDeps = deps.filter((d) => !satisfiedIds.has(d));
     if (unmetDeps.length > 0) {
-      results.push({ goal, value: -1, satisfied: false, blocked: true, blockedBy: unmetDeps });
+      results.push({
+        goal,
+        value: -1,
+        satisfied: false,
+        blocked: true,
+        blockedBy: unmetDeps,
+      });
       continue;
     }
 
@@ -112,18 +136,20 @@ export async function evaluateGoals(projectDir: string): Promise<EvalResult> {
   }
 
   // 4. Filter actionable goals (unsatisfied + unblocked + no error)
-  const actionable = results.filter(r => !r.satisfied && !r.blocked && !r.error);
+  const actionable = results.filter(
+    (r) => !r.satisfied && !r.blocked && !r.error,
+  );
 
   // 5. Filter needsPlanning: no existing tasks, or all-failed
-  const needsPlanning = actionable.filter(r => {
+  const needsPlanning = actionable.filter((r) => {
     const status = goalTaskStatus(r.goal, projectDir);
-    if (status === 'none') return true;       // No existing tasks → plan
-    if (status === 'all-failed') return true;  // All failed → re-plan
-    return false;                              // Pending/running → wait
+    if (status === "none") return true; // No existing tasks → plan
+    if (status === "all-failed") return true; // All failed → re-plan
+    return false; // Pending/running → wait
   });
 
-  const satisfied = results.filter(r => r.satisfied).length;
-  const blocked = results.filter(r => r.blocked).length;
+  const satisfied = results.filter((r) => r.satisfied).length;
+  const blocked = results.filter((r) => r.blocked).length;
 
   return { results, totalGoals, needsPlanning, satisfied, blocked };
 }
@@ -133,7 +159,7 @@ export async function evaluateGoals(projectDir: string): Promise<EvalResult> {
 /* ------------------------------------------------------------------ */
 
 /** Skills consumed by the planning phase (not passed to generated tasks) */
-const PLANNING_SKILLS = new Set(['converge-planning']);
+const PLANNING_SKILLS = new Set(["converge-planning"]);
 
 export async function planFromGoals(
   projectDir: string,
@@ -142,12 +168,18 @@ export async function planFromGoals(
   const { results, totalGoals, needsPlanning, satisfied, blocked } = evalResult;
 
   if (needsPlanning.length === 0) {
-    return { evaluated: results.length, satisfied, blocked, tasksGenerated: 0, totalGoals };
+    return {
+      evaluated: results.length,
+      satisfied,
+      blocked,
+      tasksGenerated: 0,
+      totalGoals,
+    };
   }
 
   // Create epic directory
   const epicId = nextEpicId(projectDir);
-  const epicDir = join(projectDir, '.converge', 'epics', epicId);
+  const epicDir = join(projectDir, ".converge", "epics", epicId);
   mkdirSync(epicDir, { recursive: true });
 
   // Build planning prompt
@@ -158,17 +190,23 @@ export async function planFromGoals(
   for (const r of needsPlanning) {
     for (const s of r.goal.skills ?? []) allSkills.add(s);
   }
-  const planningSkills = [...allSkills].filter(s => PLANNING_SKILLS.has(s));
-  const implSkills = [...allSkills].filter(s => !PLANNING_SKILLS.has(s));
+  const planningSkills = [...allSkills].filter((s) => PLANNING_SKILLS.has(s));
+  const implSkills = [...allSkills].filter((s) => !PLANNING_SKILLS.has(s));
 
   // Invoke planning agent
-  const logDir = join(projectDir, '.converge', 'journal', 'converge-planning', epicId);
+  const logDir = join(
+    projectDir,
+    ".converge",
+    "journal",
+    "converge-planning",
+    epicId,
+  );
   mkdirSync(logDir, { recursive: true });
 
-  const skillsRoot = join(projectDir, '.converge', 'skills');
+  const skillsRoot = join(projectDir, ".converge", "skills");
   const executor = agentfn({
     prompt,
-    allowedTools: ['Read', 'Glob', 'Write', 'Bash', 'Grep'],
+    allowedTools: ["Read", "Glob", "Write", "Bash", "Grep"],
     timeoutMs: 300_000,
     cwd: projectDir,
     logDir,
@@ -180,14 +218,28 @@ export async function planFromGoals(
   try {
     await executor();
   } catch (err: any) {
-    console.warn(`⚠️  Planning agent failed: ${err.message?.split('\n')[0]}`);
-    return { evaluated: results.length, satisfied, blocked, tasksGenerated: 0, totalGoals };
+    console.warn(`⚠️  Planning agent failed: ${err.message?.split("\n")[0]}`);
+    return {
+      evaluated: results.length,
+      satisfied,
+      blocked,
+      tasksGenerated: 0,
+      totalGoals,
+    };
   }
 
   // Scan for generated TASK.md files
-  const generatedTasks = await glob('tasks/*/TASK.md', { cwd: epicDir, absolute: true, ignore: ['**/subtask/**'] });
+  const generatedTasks = await glob("tasks/*/TASK.md", {
+    cwd: epicDir,
+    absolute: true,
+    ignore: ["**/subtask/**"],
+  });
   // Also check nested tasks
-  const nestedTasks = await glob('tasks/*/tasks/*/TASK.md', { cwd: epicDir, absolute: true, ignore: ['**/subtask/**'] });
+  const nestedTasks = await glob("tasks/*/tasks/*/TASK.md", {
+    cwd: epicDir,
+    absolute: true,
+    ignore: ["**/subtask/**"],
+  });
   const allTasks = [...generatedTasks, ...nestedTasks];
 
   // Post-process: strip planning skills from generated tasks
@@ -196,21 +248,30 @@ export async function planFromGoals(
   // Write TASK.md for the epic
   const epicFm: Record<string, unknown> = {
     id: epicId,
-    title: 'Goal Remediation',
+    title: "Goal Remediation",
     description: `Auto-generated: fix ${needsPlanning.length} unsatisfied goal(s)`,
-    goals: needsPlanning.map(r => r.goal.id),
+    goals: needsPlanning.map((r) => r.goal.id),
   };
   writeTaskMd(
-    join(epicDir, 'TASK.md'),
+    join(epicDir, "TASK.md"),
     epicFm,
-    `# Goal Remediation\n\n${needsPlanning.map(r => `- ${r.goal.title} (${r.value} → ${r.goal.metric.target})`).join('\n')}`,
+    `# Goal Remediation\n\n${needsPlanning.map((r) => `- ${r.goal.title} (${r.value} → ${r.goal.metric.target})`).join("\n")}`,
   );
 
   if (allTasks.length > 0) {
-    console.log(`📋 Generated ${allTasks.length} task(s) from ${needsPlanning.length} unsatisfied goal(s) → epics/${epicId}/\n`);
+    console.log(
+      `📋 Generated ${allTasks.length} task(s) from ${needsPlanning.length} unsatisfied goal(s) → epics/${epicId}/\n`,
+    );
   }
 
-  return { evaluated: results.length, satisfied, blocked, tasksGenerated: allTasks.length, epicId, totalGoals };
+  return {
+    evaluated: results.length,
+    satisfied,
+    blocked,
+    tasksGenerated: allTasks.length,
+    epicId,
+    totalGoals,
+  };
 }
 
 /**
@@ -224,7 +285,9 @@ function buildPlanningPrompt(
 ): string {
   const sections: string[] = [];
 
-  sections.push(`You are a planning agent. Your job is to analyze unsatisfied goals and generate implementation TASK.md files.`);
+  sections.push(
+    `You are a planning agent. Your job is to analyze unsatisfied goals and generate implementation TASK.md files.`,
+  );
   sections.push(`\nPROJECT DIRECTORY: ${projectDir}`);
   sections.push(`EPIC DIRECTORY: ${epicDir}`);
 
@@ -232,12 +295,14 @@ function buildPlanningPrompt(
 
   for (let i = 0; i < needsPlanning.length; i++) {
     const r = needsPlanning[i];
-    const goalPrefix = String(i + 1).padStart(3, '0');
+    const goalPrefix = String(i + 1).padStart(3, "0");
     const goalTaskId = `${goalPrefix}-${r.goal.id}`;
-    const taskDir = join(epicDir, 'tasks', goalTaskId);
+    const taskDir = join(epicDir, "tasks", goalTaskId);
 
     sections.push(`### Goal: ${r.goal.title} (id: ${r.goal.id})`);
-    sections.push(`- Metric: current=${r.value}, target=${r.goal.metric.target}, direction=${r.goal.metric.direction}`);
+    sections.push(
+      `- Metric: current=${r.value}, target=${r.goal.metric.target}, direction=${r.goal.metric.direction}`,
+    );
 
     if (r.goal.requirements) {
       sections.push(`- Requirements:\n${r.goal.requirements}`);
@@ -257,29 +322,45 @@ function buildPlanningPrompt(
           if (json.length < 5000) {
             sections.push(`- DoD Data:\n\`\`\`json\n${json}\n\`\`\``);
           }
-        } catch { /* skip */ }
+        } catch {
+          /* skip */
+        }
       }
     }
 
     // Collect implementation skills from this goal
-    const implSkills = (r.goal.skills ?? []).filter(s => !PLANNING_SKILLS.has(s));
+    const implSkills = (r.goal.skills ?? []).filter(
+      (s) => !PLANNING_SKILLS.has(s),
+    );
 
     sections.push(`- Output: Write TASK.md file(s) to \`${taskDir}/TASK.md\``);
     if (implSkills.length > 0) {
-      sections.push(`- Include in generated TASK.md frontmatter: \`skills: [${implSkills.join(', ')}]\``);
+      sections.push(
+        `- Include in generated TASK.md frontmatter: \`skills: [${implSkills.join(", ")}]\``,
+      );
     }
-    sections.push('');
+    sections.push("");
   }
 
   sections.push(`## Instructions\n`);
   sections.push(`1. Read the project files to understand current state.`);
-  sections.push(`2. For each unsatisfied goal, create a TASK.md file at the specified output path.`);
-  sections.push(`3. Each TASK.md must have YAML frontmatter with: id, title, goals, skills (implementation skills only).`);
-  sections.push(`4. The markdown body should contain clear, actionable implementation instructions.`);
-  sections.push(`5. IMPORTANT: Do NOT include 'converge-planning' in any generated task's skills field.`);
-  sections.push(`6. Create the task directories with mkdir -p before writing files.`);
+  sections.push(
+    `2. For each unsatisfied goal, create a TASK.md file at the specified output path.`,
+  );
+  sections.push(
+    `3. Each TASK.md must have YAML frontmatter with: id, title, goals, skills (implementation skills only).`,
+  );
+  sections.push(
+    `4. The markdown body should contain clear, actionable implementation instructions.`,
+  );
+  sections.push(
+    `5. IMPORTANT: Do NOT include 'converge-planning' in any generated task's skills field.`,
+  );
+  sections.push(
+    `6. Create the task directories with mkdir -p before writing files.`,
+  );
 
-  return sections.join('\n');
+  return sections.join("\n");
 }
 
 /**
@@ -287,10 +368,13 @@ function buildPlanningPrompt(
  * - Strip planning skills (converge-planning) from skills fields
  * - Ensure implementation skills are present
  */
-function stripPlanningSkillFromTasks(taskPaths: string[], implSkills: string[]): void {
+function stripPlanningSkillFromTasks(
+  taskPaths: string[],
+  implSkills: string[],
+): void {
   for (const taskPath of taskPaths) {
     try {
-      const content = readFileSync(taskPath, 'utf-8');
+      const content = readFileSync(taskPath, "utf-8");
       const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
       if (!match) continue;
 
@@ -308,7 +392,9 @@ function stripPlanningSkillFromTasks(taskPaths: string[], implSkills: string[]):
       // Parse, filter, rewrite
       const parsed = parseYaml(yaml) as Record<string, unknown>;
       if (parsed && Array.isArray(parsed.skills)) {
-        parsed.skills = (parsed.skills as string[]).filter(s => !PLANNING_SKILLS.has(s));
+        parsed.skills = (parsed.skills as string[]).filter(
+          (s) => !PLANNING_SKILLS.has(s),
+        );
         // Add implementation skills if missing
         for (const is of implSkills) {
           if (!parsed.skills.includes(is)) parsed.skills.push(is);
@@ -318,8 +404,10 @@ function stripPlanningSkillFromTasks(taskPaths: string[], implSkills: string[]):
 
       const body = content.slice(match[0].length);
       const newYaml = stringifyYaml(parsed, { lineWidth: 0 }).trim();
-      writeFileSync(taskPath, `---\n${newYaml}\n---${body}`, 'utf-8');
-    } catch { /* skip corrupt files */ }
+      writeFileSync(taskPath, `---\n${newYaml}\n---${body}`, "utf-8");
+    } catch {
+      /* skip corrupt files */
+    }
   }
 }
 
@@ -336,45 +424,68 @@ export async function evaluateAndPlan(projectDir: string): Promise<PlanResult> {
  * Legacy task generation path (wbs.js / split / single).
  * Used by evaluateAndPlan() for backward compatibility.
  */
-async function planFromGoalsLegacy(projectDir: string, evalResult: EvalResult): Promise<PlanResult> {
+async function planFromGoalsLegacy(
+  projectDir: string,
+  evalResult: EvalResult,
+): Promise<PlanResult> {
   const { results, totalGoals, needsPlanning, satisfied, blocked } = evalResult;
 
   if (needsPlanning.length === 0) {
-    return { evaluated: results.length, satisfied, blocked, tasksGenerated: 0, totalGoals };
+    return {
+      evaluated: results.length,
+      satisfied,
+      blocked,
+      tasksGenerated: 0,
+      totalGoals,
+    };
   }
 
   // Generate remediation epic
   const epicId = nextEpicId(projectDir);
-  const epicDir = join(projectDir, '.converge', 'epics', epicId);
+  const epicDir = join(projectDir, ".converge", "epics", epicId);
   mkdirSync(epicDir, { recursive: true });
 
   let tasksGenerated = 0;
 
   for (let i = 0; i < needsPlanning.length; i++) {
     const result = needsPlanning[i];
-    const goalPrefix = String(i + 1).padStart(3, '0');
+    const goalPrefix = String(i + 1).padStart(3, "0");
     const goalTaskId = `${goalPrefix}-${result.goal.id}`;
-    tasksGenerated += await processGoalForPlanning(result, epicDir, goalTaskId, projectDir);
+    tasksGenerated += await processGoalForPlanning(
+      result,
+      epicDir,
+      goalTaskId,
+      projectDir,
+    );
   }
 
   // Write TASK.md for the epic
   const epicFm: Record<string, unknown> = {
     id: epicId,
-    title: 'Goal Remediation',
+    title: "Goal Remediation",
     description: `Auto-generated: fix ${needsPlanning.length} unsatisfied goal(s)`,
-    goals: needsPlanning.map(r => r.goal.id),
+    goals: needsPlanning.map((r) => r.goal.id),
   };
   writeTaskMd(
-    join(epicDir, 'TASK.md'),
+    join(epicDir, "TASK.md"),
     epicFm,
-    `# Goal Remediation\n\n${needsPlanning.map(r => `- ${r.goal.title} (${r.value} → ${r.goal.metric.target})`).join('\n')}`,
+    `# Goal Remediation\n\n${needsPlanning.map((r) => `- ${r.goal.title} (${r.value} → ${r.goal.metric.target})`).join("\n")}`,
   );
 
   if (tasksGenerated > 0) {
-    console.log(`📋 Generated ${tasksGenerated} task(s) from ${needsPlanning.length} unsatisfied goal(s) → epics/${epicId}/\n`);
+    console.log(
+      `📋 Generated ${tasksGenerated} task(s) from ${needsPlanning.length} unsatisfied goal(s) → epics/${epicId}/\n`,
+    );
   }
 
-  return { evaluated: results.length, satisfied, blocked, tasksGenerated, epicId, totalGoals };
+  return {
+    evaluated: results.length,
+    satisfied,
+    blocked,
+    tasksGenerated,
+    epicId,
+    totalGoals,
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -385,7 +496,10 @@ async function planFromGoalsLegacy(projectDir: string, evalResult: EvalResult): 
  * Evaluate a goal and all its sub-goals recursively.
  * Parent is satisfied only if its own metric passes AND all sub-goals pass.
  */
-async function evaluateGoalTree(goal: GoalDefinition, projectDir: string): Promise<GoalEvalResult> {
+async function evaluateGoalTree(
+  goal: GoalDefinition,
+  projectDir: string,
+): Promise<GoalEvalResult> {
   const ownResult = await evaluateGoal(goal, projectDir);
 
   if (!goal.goals || goal.goals.length === 0) {
@@ -399,7 +513,7 @@ async function evaluateGoalTree(goal: GoalDefinition, projectDir: string): Promi
   }
 
   // Parent satisfied = own metric + all sub-goals
-  const allSubsSatisfied = subResults.every(sr => sr.satisfied);
+  const allSubsSatisfied = subResults.every((sr) => sr.satisfied);
   const satisfied = ownResult.satisfied && allSubsSatisfied;
 
   return {
@@ -409,18 +523,28 @@ async function evaluateGoalTree(goal: GoalDefinition, projectDir: string): Promi
   };
 }
 
-async function evaluateGoal(goal: GoalDefinition, projectDir: string): Promise<GoalEvalResult> {
+async function evaluateGoal(
+  goal: GoalDefinition,
+  projectDir: string,
+): Promise<GoalEvalResult> {
   try {
     // DoD branch — single script replaces metric + detail
     if (goal.dod?.script) {
       const dodPath = join(dirname(goal.filePath), goal.dod.script);
-      const { runDod } = await import('./dod-runner.ts');
+      const { runDod } = await import("./dod-runner.ts");
       const dodResult = await runDod(dodPath, projectDir);
       const target = goal.metric.target ?? 0;
-      const satisfied = goal.metric.direction === 'max'
-        ? dodResult.value >= target
-        : dodResult.value <= target;
-      return { goal, value: dodResult.value, satisfied, blocked: false, dodResult };
+      const satisfied =
+        goal.metric.direction === "max"
+          ? dodResult.value >= target
+          : dodResult.value <= target;
+      return {
+        goal,
+        value: dodResult.value,
+        satisfied,
+        blocked: false,
+        dodResult,
+      };
     }
 
     let value: number;
@@ -430,32 +554,53 @@ async function evaluateGoal(goal: GoalDefinition, projectDir: string): Promise<G
       const mod = await import(pathToFileURL(scriptPath).href);
       value = await mod.run({
         projectDir,
-        exec: (cmd: string) => execSync(cmd, {
-          cwd: projectDir, encoding: 'utf8', timeout: 30_000,
-          stdio: ['pipe', 'pipe', 'pipe'],
-        }).trim(),
+        exec: (cmd: string) =>
+          execSync(cmd, {
+            cwd: projectDir,
+            encoding: "utf8",
+            timeout: 30_000,
+            stdio: ["pipe", "pipe", "pipe"],
+          }).trim(),
       });
     } else if (goal.metric.cmd) {
       const output = execSync(goal.metric.cmd, {
-        cwd: projectDir, encoding: 'utf8', timeout: 30_000,
-        stdio: ['pipe', 'pipe', 'pipe'],
+        cwd: projectDir,
+        encoding: "utf8",
+        timeout: 30_000,
+        stdio: ["pipe", "pipe", "pipe"],
       }).trim();
       value = parseInt(output, 10) || 0;
     } else {
-      return { goal, value: 0, satisfied: false, blocked: false, error: 'No metric cmd or script' };
+      return {
+        goal,
+        value: 0,
+        satisfied: false,
+        blocked: false,
+        error: "No metric cmd or script",
+      };
     }
 
-    const satisfied = goal.metric.direction === 'min'
-      ? value <= goal.metric.target
-      : value >= goal.metric.target;
+    const satisfied =
+      goal.metric.direction === "min"
+        ? value <= goal.metric.target
+        : value >= goal.metric.target;
 
     return { goal, value, satisfied, blocked: false };
   } catch (err: any) {
     if (err.status === 1 && !err.stderr?.toString().trim()) {
-      const satisfied = goal.metric.direction === 'min' ? 0 <= goal.metric.target : 0 >= goal.metric.target;
+      const satisfied =
+        goal.metric.direction === "min"
+          ? 0 <= goal.metric.target
+          : 0 >= goal.metric.target;
       return { goal, value: 0, satisfied, blocked: false };
     }
-    return { goal, value: -1, satisfied: false, blocked: false, error: err.message?.split('\n')[0] };
+    return {
+      goal,
+      value: -1,
+      satisfied: false,
+      blocked: false,
+      error: err.message?.split("\n")[0],
+    };
   }
 }
 
@@ -495,7 +640,7 @@ async function processGoalForPlanning(
     for (const sr of result.subResults) {
       if (sr.satisfied || sr.error) continue;
       const deps = sr.goal.depends ?? [];
-      if (deps.length === 0 || deps.every(d => siblingIds.has(d))) {
+      if (deps.length === 0 || deps.every((d) => siblingIds.has(d))) {
         unblocked.push(sr);
       } else {
         softBlocked.push(sr);
@@ -507,8 +652,14 @@ async function processGoalForPlanning(
       let count = 0;
       for (let j = 0; j < unsatisfied.length; j++) {
         const sub = unsatisfied[j];
-        const subId = `${goalTaskId}-${String(j + 1).padStart(3, '0')}-${sub.goal.id}`;
-        count += await processGoalForPlanning(sub, epicDir, subId, projectDir, depth + 1);
+        const subId = `${goalTaskId}-${String(j + 1).padStart(3, "0")}-${sub.goal.id}`;
+        count += await processGoalForPlanning(
+          sub,
+          epicDir,
+          subId,
+          projectDir,
+          depth + 1,
+        );
       }
       return count;
     }
@@ -534,7 +685,7 @@ function writeLeafGoalTask(
   goalTaskId: string,
   result: GoalEvalResult,
 ): number {
-  const goalTaskDir = join(epicDir, 'tasks', goalTaskId);
+  const goalTaskDir = join(epicDir, "tasks", goalTaskId);
   mkdirSync(goalTaskDir, { recursive: true });
 
   const body = buildGoalTaskBody(result);
@@ -545,7 +696,7 @@ function writeLeafGoalTask(
   };
   if (result.goal.skills?.length) fm.skills = result.goal.skills;
 
-  writeTaskMd(join(goalTaskDir, 'TASK.md'), fm, body);
+  writeTaskMd(join(goalTaskDir, "TASK.md"), fm, body);
 
   return 1;
 }
@@ -561,7 +712,7 @@ function writeSubGoalTasks(
   unsatisfiedSubs: GoalEvalResult[],
   projectDir: string,
 ): number {
-  const goalTaskDir = join(epicDir, 'tasks', goalTaskId);
+  const goalTaskDir = join(epicDir, "tasks", goalTaskId);
   mkdirSync(goalTaskDir, { recursive: true });
 
   // Parent task
@@ -571,14 +722,14 @@ function writeSubGoalTasks(
     goals: [parentGoal.id],
   };
   if (parentGoal.skills?.length) parentFm.skills = parentGoal.skills;
-  writeTaskMd(join(goalTaskDir, 'TASK.md'), parentFm, parentGoal.body);
+  writeTaskMd(join(goalTaskDir, "TASK.md"), parentFm, parentGoal.body);
 
   // Sub-goal tasks
   let count = 1;
-  const subDir = join(goalTaskDir, 'tasks');
+  const subDir = join(goalTaskDir, "tasks");
   for (let i = 0; i < unsatisfiedSubs.length; i++) {
     const sub = unsatisfiedSubs[i];
-    const subId = String(i + 1).padStart(3, '0') + '-' + sub.goal.id;
+    const subId = String(i + 1).padStart(3, "0") + "-" + sub.goal.id;
     const taskDir = join(subDir, subId);
     mkdirSync(taskDir, { recursive: true });
 
@@ -592,7 +743,7 @@ function writeSubGoalTasks(
     if (sub.goal.skills?.length) subFm.skills = sub.goal.skills;
     else if (parentGoal.skills?.length) subFm.skills = parentGoal.skills;
 
-    writeTaskMd(join(taskDir, 'TASK.md'), subFm, body);
+    writeTaskMd(join(taskDir, "TASK.md"), subFm, body);
     count++;
   }
 
@@ -608,7 +759,7 @@ function writeGoalTasks(
   result: GoalEvalResult,
   subTasks: TaskMdShape[],
 ): number {
-  const goalTaskDir = join(epicDir, 'tasks', goalTaskId);
+  const goalTaskDir = join(epicDir, "tasks", goalTaskId);
   mkdirSync(goalTaskDir, { recursive: true });
 
   const body = buildGoalTaskBody(result);
@@ -616,15 +767,15 @@ function writeGoalTasks(
     id: goalTaskId,
     title: `Fix: ${result.goal.title}`,
     goals: [result.goal.id],
-    outputs: subTasks.length === 0 ? ['src/**/*'] : undefined,
+    outputs: subTasks.length === 0 ? ["src/**/*"] : undefined,
   };
   if (result.goal.skills?.length) fm.skills = result.goal.skills;
 
-  writeTaskMd(join(goalTaskDir, 'TASK.md'), fm, body);
+  writeTaskMd(join(goalTaskDir, "TASK.md"), fm, body);
 
   let count = 1;
   if (subTasks.length > 0) {
-    const subDir = join(goalTaskDir, 'tasks');
+    const subDir = join(goalTaskDir, "tasks");
     for (const sub of subTasks) {
       const taskDir = join(subDir, sub.id);
       mkdirSync(taskDir, { recursive: true });
@@ -636,7 +787,7 @@ function writeGoalTasks(
       };
       if (sub.skills?.length) subFm.skills = sub.skills;
       else if (result.goal.skills?.length) subFm.skills = result.goal.skills;
-      writeTaskMd(join(taskDir, 'TASK.md'), subFm, sub.body ?? '');
+      writeTaskMd(join(taskDir, "TASK.md"), subFm, sub.body ?? "");
       count++;
     }
   }
@@ -644,24 +795,34 @@ function writeGoalTasks(
   return count;
 }
 
-async function generateTasksForGoal(result: GoalEvalResult, projectDir: string): Promise<{ tasks: TaskMdShape[], goalsSpawned: number }> {
+async function generateTasksForGoal(
+  result: GoalEvalResult,
+  projectDir: string,
+): Promise<{ tasks: TaskMdShape[]; goalsSpawned: number }> {
   const goal = result.goal;
 
   // Try wbs.js first
-  const wbsPath = join(dirname(goal.filePath), 'wbs.js');
+  const wbsPath = join(dirname(goal.filePath), "wbs.js");
   if (existsSync(wbsPath)) {
     return await runWbs(wbsPath, result, projectDir);
   }
 
   // Split: parse detail output
-  if ((goal.plan?.strategy ?? 'single') === 'split' && goal.detail) {
-    return { tasks: await splitFromDetail(result, projectDir), goalsSpawned: 0 };
+  if ((goal.plan?.strategy ?? "single") === "split" && goal.detail) {
+    return {
+      tasks: await splitFromDetail(result, projectDir),
+      goalsSpawned: 0,
+    };
   }
 
-  return { tasks: [], goalsSpawned: 0 };  // Parent task handles it
+  return { tasks: [], goalsSpawned: 0 }; // Parent task handles it
 }
 
-async function runWbs(wbsPath: string, result: GoalEvalResult, projectDir: string): Promise<{ tasks: TaskMdShape[], goalsSpawned: number }> {
+async function runWbs(
+  wbsPath: string,
+  result: GoalEvalResult,
+  projectDir: string,
+): Promise<{ tasks: TaskMdShape[]; goalsSpawned: number }> {
   const tasks: TaskMdShape[] = [];
   const spawnedGoals: GoalDef[] = [];
   let reportData: unknown;
@@ -669,24 +830,32 @@ async function runWbs(wbsPath: string, result: GoalEvalResult, projectDir: strin
   if (result.dodResult) {
     reportData = result.dodResult.reportData;
   } else if (result.goal.detail?.script) {
-    const detailScript = join(dirname(result.goal.filePath), result.goal.detail.script);
+    const detailScript = join(
+      dirname(result.goal.filePath),
+      result.goal.detail.script,
+    );
     if (existsSync(detailScript)) {
       try {
         const mod = await import(pathToFileURL(detailScript).href);
         const out = await mod.run({
           projectDir,
-          exec: (cmd: string) => execSync(cmd, {
-            cwd: projectDir, encoding: 'utf8', timeout: 30_000,
-            stdio: ['pipe', 'pipe', 'pipe'],
-          }).trim(),
+          exec: (cmd: string) =>
+            execSync(cmd, {
+              cwd: projectDir,
+              encoding: "utf8",
+              timeout: 30_000,
+              stdio: ["pipe", "pipe", "pipe"],
+            }).trim(),
         });
         reportData = out.data ?? out;
-      } catch { /* best effort */ }
+      } catch {
+        /* best effort */
+      }
     }
   }
 
   const goalId = result.goal.id;
-  const logDir = join(projectDir, '.converge', 'journal', 'wbs-logs', goalId);
+  const logDir = join(projectDir, ".converge", "journal", "wbs-logs", goalId);
   mkdirSync(logDir, { recursive: true });
 
   const spawnedTasks: Array<{ id: string; writeToPath?: string }> = [];
@@ -699,7 +868,7 @@ async function runWbs(wbsPath: string, result: GoalEvalResult, projectDir: strin
       value: result.value,
       target: result.goal.metric.target,
       reportData,
-      reportPath: '',
+      reportPath: "",
     },
     log: {
       info: (msg: string) => console.log(`[wbs:${goalId}] ${msg}`),
@@ -707,15 +876,26 @@ async function runWbs(wbsPath: string, result: GoalEvalResult, projectDir: strin
       error: (msg: string) => console.error(`[wbs:${goalId}] ERROR: ${msg}`),
     },
     get spawnedTasks() {
-      return spawnedTasks as ReadonlyArray<{ id: string; writeToPath?: string }>;
+      return spawnedTasks as ReadonlyArray<{
+        id: string;
+        writeToPath?: string;
+      }>;
     },
     ai: {
-      ask: (question: string) => buildGoalAiAsk(question, projectDir, goalId, logDir),
+      ask: (question: string) =>
+        buildGoalAiAsk(question, projectDir, goalId, logDir),
     },
     plan: {
       getPlanPath: (_relativePath: string) => {
         // Goal WBS has no journal-based plan paths — return a project-relative path
-        return join(projectDir, '.converge', 'journal', 'wbs-logs', goalId, 'plan.md');
+        return join(
+          projectDir,
+          ".converge",
+          "journal",
+          "wbs-logs",
+          goalId,
+          "plan.md",
+        );
       },
     },
     artifact: new ArtifactStore(projectDir),
@@ -734,7 +914,9 @@ async function runWbs(wbsPath: string, result: GoalEvalResult, projectDir: strin
   try {
     const mod = await import(pathToFileURL(wbsPath).href);
     await mod.run(ctx);
-  } catch { /* fall through */ }
+  } catch {
+    /* fall through */
+  }
 
   // Write spawned goals as nested GOAL.md files under the parent goal
   if (spawnedGoals.length > 0) {
@@ -750,7 +932,12 @@ async function runWbs(wbsPath: string, result: GoalEvalResult, projectDir: strin
  * Build an AskResult for goal-planner WBS context.
  * Matches the pattern from wbs-executor.ts — lazy boolean, .asJson(schema).
  */
-function buildGoalAiAsk(question: string, projectDir: string, goalId: string, logDir: string) {
+function buildGoalAiAsk(
+  question: string,
+  projectDir: string,
+  goalId: string,
+  logDir: string,
+) {
   const basePrompt = `You are analyzing a project to help break down work into subtasks.
 
 PROJECT DIRECTORY: ${projectDir}
@@ -770,7 +957,9 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
     if (!booleanPromise) {
       booleanPromise = (async (): Promise<boolean> => {
         const executor = agentfn<{ answer: boolean; reasoning: string }>({
-          prompt: basePrompt + `\n\nReturn a JSON object:\n- answer: true if the condition is fully met, false otherwise\n- reasoning: brief explanation (1-2 sentences)`,
+          prompt:
+            basePrompt +
+            `\n\nReturn a JSON object:\n- answer: true if the condition is fully met, false otherwise\n- reasoning: brief explanation (1-2 sentences)`,
           schema: AskSchema,
           allowedTools: [...READONLY_TOOLS],
           timeoutMs: 60_000,
@@ -790,54 +979,71 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
 
   return {
     then: <TResult1 = boolean, TResult2 = never>(
-      onfulfilled?: ((value: boolean) => TResult1 | PromiseLike<TResult1>) | null,
+      onfulfilled?:
+        | ((value: boolean) => TResult1 | PromiseLike<TResult1>)
+        | null,
       onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null,
     ) => getBooleanPromise().then(onfulfilled, onrejected),
 
-    asJson: <T>(schema: import('zod').ZodType<T>): Promise<T> => {
+    asJson: <T>(schema: import("zod").ZodType<T>): Promise<T> => {
       const executor = agentfn<T>({
-        prompt: basePrompt + `\n\nReturn a JSON object matching the requested schema.`,
+        prompt:
+          basePrompt +
+          `\n\nReturn a JSON object matching the requested schema.`,
         schema,
         allowedTools: [...READONLY_TOOLS],
         timeoutMs: 120_000,
         cwd: projectDir,
         logDir,
       });
-      return executor().then(r => r.data);
+      return executor().then((r) => r.data);
     },
   };
 }
 
-async function splitFromDetail(result: GoalEvalResult, projectDir: string): Promise<TaskMdShape[]> {
+async function splitFromDetail(
+  result: GoalEvalResult,
+  projectDir: string,
+): Promise<TaskMdShape[]> {
   let detailOutput: string;
   try {
     if (result.dodResult) {
       detailOutput = result.dodResult.detail;
     } else if (result.goal.detail?.script) {
-      const scriptPath = join(dirname(result.goal.filePath), result.goal.detail.script);
+      const scriptPath = join(
+        dirname(result.goal.filePath),
+        result.goal.detail.script,
+      );
       const mod = await import(pathToFileURL(scriptPath).href);
       const out = await mod.run({
         projectDir,
-        exec: (cmd: string) => execSync(cmd, {
-          cwd: projectDir, encoding: 'utf8', timeout: 30_000,
-          stdio: ['pipe', 'pipe', 'pipe'],
-        }).trim(),
+        exec: (cmd: string) =>
+          execSync(cmd, {
+            cwd: projectDir,
+            encoding: "utf8",
+            timeout: 30_000,
+            stdio: ["pipe", "pipe", "pipe"],
+          }).trim(),
       });
-      detailOutput = typeof out === 'string' ? out : out.detail ?? '';
+      detailOutput = typeof out === "string" ? out : (out.detail ?? "");
     } else if (result.goal.detail?.cmd) {
       detailOutput = execSync(result.goal.detail.cmd, {
-        cwd: projectDir, encoding: 'utf8', timeout: 30_000,
-        stdio: ['pipe', 'pipe', 'pipe'],
+        cwd: projectDir,
+        encoding: "utf8",
+        timeout: 30_000,
+        stdio: ["pipe", "pipe", "pipe"],
       }).trim();
     } else {
       return [];
     }
-  } catch { return []; }
+  } catch {
+    return [];
+  }
 
   const fileGroups = new Map<string, string[]>();
-  for (const line of detailOutput.split('\n').filter(l => l.trim())) {
+  for (const line of detailOutput.split("\n").filter((l) => l.trim())) {
     const match = line.match(/^([^:]+):/);
-    const file = match?.[1] ?? 'unknown';
+    const file = match?.[1] ?? "unknown";
     const group = fileGroups.get(file) ?? [];
     group.push(line);
     fileGroups.set(file, group);
@@ -847,12 +1053,12 @@ async function splitFromDetail(result: GoalEvalResult, projectDir: string): Prom
   let idx = 0;
   for (const [file, lines] of fileGroups) {
     idx++;
-    const slug = file.replace(/[^a-zA-Z0-9]/g, '-').replace(/-+/g, '-');
+    const slug = file.replace(/[^a-zA-Z0-9]/g, "-").replace(/-+/g, "-");
     tasks.push({
-      id: `${String(idx).padStart(3, '0')}-${slug}`,
+      id: `${String(idx).padStart(3, "0")}-${slug}`,
       title: `Fix ${result.goal.title} in ${basename(file)}`,
       outputs: [file],
-      body: `Fix the following issues in \`${file}\`:\n\n${lines.map(l => `- ${l}`).join('\n')}\n\n${result.goal.body}`,
+      body: `Fix the following issues in \`${file}\`:\n\n${lines.map((l) => `- ${l}`).join("\n")}\n\n${result.goal.body}`,
     });
   }
 
@@ -876,7 +1082,9 @@ function buildGoalTaskBody(result: GoalEvalResult): string {
   if (result.goal.body) {
     parts.push(result.goal.body);
   }
-  parts.push(`\nGoal metric: current=${result.value}, target=${result.goal.metric.target}`);
+  parts.push(
+    `\nGoal metric: current=${result.value}, target=${result.goal.metric.target}`,
+  );
 
   // Include dod report data so the planning skill has diagnostic context
   if (result.dodResult) {
@@ -889,11 +1097,13 @@ function buildGoalTaskBody(result: GoalEvalResult): string {
         if (json.length < 5000) {
           parts.push(`## DoD Data\n\n\`\`\`json\n${json}\n\`\`\``);
         }
-      } catch { /* skip if not serializable */ }
+      } catch {
+        /* skip if not serializable */
+      }
     }
   }
 
-  return parts.filter(Boolean).join('\n\n');
+  return parts.filter(Boolean).join("\n\n");
 }
 
 /** Count a goal and all its nested sub-goals recursively. */
@@ -912,9 +1122,12 @@ function countGoals(goal: GoalDefinition): number {
  *   'all-failed' — all tasks failed → should re-plan (repeat until met)
  *   'active'     — some tasks pending/running → wait
  */
-function goalTaskStatus(goal: GoalDefinition, projectDir: string): 'none' | 'all-failed' | 'active' {
-  const epicsDir = join(projectDir, '.converge', 'epics');
-  if (!existsSync(epicsDir)) return 'none';
+function goalTaskStatus(
+  goal: GoalDefinition,
+  projectDir: string,
+): "none" | "all-failed" | "active" {
+  const epicsDir = join(projectDir, ".converge", "epics");
+  if (!existsSync(epicsDir)) return "none";
 
   let foundTasks = false;
   let allFailed = true;
@@ -922,10 +1135,10 @@ function goalTaskStatus(goal: GoalDefinition, projectDir: string): 'none' | 'all
   try {
     const epics = readdirSync(epicsDir);
     for (const epic of epics) {
-      const epicMdPath = join(epicsDir, epic, 'TASK.md');
+      const epicMdPath = join(epicsDir, epic, "TASK.md");
       if (!existsSync(epicMdPath)) continue;
 
-      const content = readFileSync(epicMdPath, 'utf-8');
+      const content = readFileSync(epicMdPath, "utf-8");
       if (!content.includes(goal.id)) continue;
 
       // This epic has tasks for this goal. Check checkpoint status.
@@ -948,20 +1161,24 @@ function goalTaskStatus(goal: GoalDefinition, projectDir: string): 'none' | 'all
       foundTasks = true;
       for (const ckpt of checkpoints) {
         try {
-          const data = JSON.parse(readFileSync(ckpt, 'utf-8'));
-          if (data.status !== 'failed') {
+          const data = JSON.parse(readFileSync(ckpt, "utf-8"));
+          if (data.status !== "failed") {
             allFailed = false;
             break;
           }
-        } catch { /* ignore corrupt */ }
+        } catch {
+          /* ignore corrupt */
+        }
       }
       if (!allFailed) break;
     }
-  } catch { return 'none'; }
+  } catch {
+    return "none";
+  }
 
-  if (!foundTasks) return 'none';
-  if (allFailed) return 'all-failed';
-  return 'active';
+  if (!foundTasks) return "none";
+  if (allFailed) return "all-failed";
+  return "active";
 }
 
 function findCheckpoints(dir: string): string[] {
@@ -973,57 +1190,66 @@ function findCheckpoints(dir: string): string[] {
       const full = join(dir, entry.name);
       if (entry.isDirectory()) {
         results.push(...findCheckpoints(full));
-      } else if (entry.name === 'checkpoint.json') {
+      } else if (entry.name === "checkpoint.json") {
         results.push(full);
       }
     }
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return results;
 }
 
 function nextEpicId(projectDir: string): string {
-  const epicsDir = join(projectDir, '.converge', 'epics');
-  if (!existsSync(epicsDir)) return '01-remediation';
+  const epicsDir = join(projectDir, ".converge", "epics");
+  if (!existsSync(epicsDir)) return "01-remediation";
 
   const existing = readdirSync(epicsDir)
-    .filter(d => /^\d+-/.test(d))
-    .map(d => parseInt(d.split('-')[0], 10))
-    .filter(n => !isNaN(n));
+    .filter((d) => /^\d+-/.test(d))
+    .map((d) => parseInt(d.split("-")[0], 10))
+    .filter((n) => !isNaN(n));
 
-  const next = (Math.max(0, ...existing) + 1).toString().padStart(2, '0');
+  const next = (Math.max(0, ...existing) + 1).toString().padStart(2, "0");
   return `${next}-remediation`;
 }
 
-function writeTaskMd(path: string, frontmatter: Record<string, unknown>, body: string): void {
+function writeTaskMd(
+  path: string,
+  frontmatter: Record<string, unknown>,
+  body: string,
+): void {
   const clean: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(frontmatter)) {
     if (v !== undefined) clean[k] = v;
   }
   const yaml = stringifyYaml(clean, { lineWidth: 0 }).trim();
-  writeFileSync(path, `---\n${yaml}\n---\n\n${body}\n`, 'utf-8');
+  writeFileSync(path, `---\n${yaml}\n---\n\n${body}\n`, "utf-8");
 }
 
 /* ------------------------------------------------------------------ */
 /*  goalDefs: write GOAL.md files from task's goalDefs property        */
 /* ------------------------------------------------------------------ */
 
-import type { GoalDef } from '../config/task-md-definition.ts';
+import type { GoalDef } from "../config/task-md-definition.ts";
 
 /**
  * Write GOAL.md files as nested sub-goals under a parent goal directory.
  * Creates {parentGoalDir}/goals/{id}/GOAL.md for each definition.
  */
-function writeNestedGoalDefs(parentGoalDir: string, goalDefs: GoalDef[]): number {
+function writeNestedGoalDefs(
+  parentGoalDir: string,
+  goalDefs: GoalDef[],
+): number {
   if (!goalDefs || goalDefs.length === 0) return 0;
 
-  const subGoalsDir = join(parentGoalDir, 'goals');
+  const subGoalsDir = join(parentGoalDir, "goals");
   let written = 0;
 
   for (const def of goalDefs) {
     const goalDir = join(subGoalsDir, def.id);
 
     // Skip if already exists
-    if (existsSync(join(goalDir, 'GOAL.md'))) continue;
+    if (existsSync(join(goalDir, "GOAL.md"))) continue;
 
     mkdirSync(goalDir, { recursive: true });
 
@@ -1033,20 +1259,20 @@ function writeNestedGoalDefs(parentGoalDir: string, goalDefs: GoalDef[]): number
     };
     if (def.depends?.length) frontmatter.depends = def.depends;
     if (def.requirements) frontmatter.requirements = def.requirements;
-    if (def.dod) frontmatter.dod = { script: 'dod.js' };
-    if (def.wbs) frontmatter.plan = { strategy: 'wbs' };
+    if (def.dod) frontmatter.dod = { script: "dod.js" };
+    if (def.wbs) frontmatter.plan = { strategy: "wbs" };
     else if (def.plan) frontmatter.plan = def.plan;
     if (def.tags?.length) frontmatter.tags = def.tags;
 
-    const body = def.body ?? '';
-    writeTaskMd(join(goalDir, 'GOAL.md'), frontmatter, body);
+    const body = def.body ?? "";
+    writeTaskMd(join(goalDir, "GOAL.md"), frontmatter, body);
 
     // Write dod.js and wbs.js scripts alongside GOAL.md when provided
     if (def.dod) {
-      writeFileSync(join(goalDir, 'dod.js'), def.dod, 'utf-8');
+      writeFileSync(join(goalDir, "dod.js"), def.dod, "utf-8");
     }
     if (def.wbs) {
-      writeFileSync(join(goalDir, 'wbs.js'), def.wbs, 'utf-8');
+      writeFileSync(join(goalDir, "wbs.js"), def.wbs, "utf-8");
     }
 
     written++;
@@ -1067,20 +1293,24 @@ function writeNestedGoalDefs(parentGoalDir: string, goalDefs: GoalDef[]): number
  *
  * Returns number of goals written.
  */
-export function writeGoalDefs(projectDir: string, goalDefs: GoalDef[], parentGoalDir?: string): number {
+export function writeGoalDefs(
+  projectDir: string,
+  goalDefs: GoalDef[],
+  parentGoalDir?: string,
+): number {
   if (parentGoalDir) return writeNestedGoalDefs(parentGoalDir, goalDefs);
   if (!goalDefs || goalDefs.length === 0) return 0;
 
-  const goalsDir = join(projectDir, '.converge', 'goals');
+  const goalsDir = join(projectDir, ".converge", "goals");
   let written = 0;
 
   // Find the next available number prefix
   let nextNum = 100;
   if (existsSync(goalsDir)) {
     const existing = readdirSync(goalsDir)
-      .filter(d => /^\d+-/.test(d))
-      .map(d => parseInt(d.split('-')[0], 10))
-      .filter(n => !isNaN(n));
+      .filter((d) => /^\d+-/.test(d))
+      .map((d) => parseInt(d.split("-")[0], 10))
+      .filter((n) => !isNaN(n));
     if (existing.length > 0) {
       nextNum = Math.max(...existing) + 10;
       // Round up to next 10
@@ -1090,11 +1320,12 @@ export function writeGoalDefs(projectDir: string, goalDefs: GoalDef[], parentGoa
 
   for (const def of goalDefs) {
     // Skip if a goal with this id already exists
-    const existingGoal = existsSync(goalsDir) &&
-      readdirSync(goalsDir).some(d => d.endsWith(`-${def.id}`));
+    const existingGoal =
+      existsSync(goalsDir) &&
+      readdirSync(goalsDir).some((d) => d.endsWith(`-${def.id}`));
     if (existingGoal) continue;
 
-    const dirName = `${String(nextNum).padStart(3, '0')}-${def.id}`;
+    const dirName = `${String(nextNum).padStart(3, "0")}-${def.id}`;
     const goalDir = join(goalsDir, dirName);
     mkdirSync(goalDir, { recursive: true });
 
@@ -1104,20 +1335,20 @@ export function writeGoalDefs(projectDir: string, goalDefs: GoalDef[], parentGoa
     };
     if (def.depends?.length) frontmatter.depends = def.depends;
     if (def.requirements) frontmatter.requirements = def.requirements;
-    if (def.dod) frontmatter.dod = { script: 'dod.js' };
-    if (def.wbs) frontmatter.plan = { strategy: 'wbs' };
+    if (def.dod) frontmatter.dod = { script: "dod.js" };
+    if (def.wbs) frontmatter.plan = { strategy: "wbs" };
     else if (def.plan) frontmatter.plan = def.plan;
     if (def.tags?.length) frontmatter.tags = def.tags;
 
-    const body = def.body ?? '';
-    writeTaskMd(join(goalDir, 'GOAL.md'), frontmatter, body);
+    const body = def.body ?? "";
+    writeTaskMd(join(goalDir, "GOAL.md"), frontmatter, body);
 
     // Write dod.js and wbs.js scripts alongside GOAL.md when provided
     if (def.dod) {
-      writeFileSync(join(goalDir, 'dod.js'), def.dod, 'utf-8');
+      writeFileSync(join(goalDir, "dod.js"), def.dod, "utf-8");
     }
     if (def.wbs) {
-      writeFileSync(join(goalDir, 'wbs.js'), def.wbs, 'utf-8');
+      writeFileSync(join(goalDir, "wbs.js"), def.wbs, "utf-8");
     }
 
     nextNum += 10;

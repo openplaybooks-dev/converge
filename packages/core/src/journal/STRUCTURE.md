@@ -56,21 +56,27 @@ AI can easily navigate the hierarchy:
 
 ```typescript
 // Start at project level
-const project = await getProjectOverview(projectDir, 'SheetsRun');
+const project = await getProjectOverview(projectDir, "MyProject");
 console.log(`Project has ${project.epicCount} epics`);
 
 // Navigate to an epic
-const epic = await getEpicOverview(projectDir, 'SheetsRun', '01-api');
+const epic = await getEpicOverview(projectDir, "MyProject", "01-api");
 console.log(`Epic has ${epic.taskCount} tasks`);
 
 // Navigate to a task
-const task = await getTaskOverview(projectDir, 'SheetsRun', '01-api', 'setup-db');
+const task = await getTaskOverview(
+  projectDir,
+  "MyProject",
+  "01-api",
+  "setup-db",
+);
 console.log(`Task has ${task.gaps.length} gaps`);
 ```
 
 ### 2. Clear Context
 
 Each level has its own directory with:
+
 - **gaps.yml** - Current gaps at this level
 - **events.jsonl** - Events that occurred at this level
 - **log.log** - Human-readable log
@@ -83,9 +89,10 @@ Every `summary.md` includes breadcrumbs:
 ```markdown
 # Setup Database
 
-**Breadcrumb**: [SheetsRun](../../../../project/summary.md) > [API Development](../../summary.md) > Setup Database
+**Breadcrumb**: [MyProject](../../../../project/summary.md) > [API Development](../../summary.md) > Setup Database
 
 ### Parent
+
 - [← Back to Epic](../../summary.md)
 - [← Back to Project](../../../../project/summary.md)
 ```
@@ -96,11 +103,11 @@ AI can discover what's under each level:
 
 ```typescript
 // List all epics
-const epics = await listEpics(projectDir, 'SheetsRun');
+const epics = await listEpics(projectDir, "MyProject");
 // → [{ id: '01-api', gapCount: 2, taskCount: 3 }, ...]
 
 // List tasks in an epic
-const tasks = await listTasks(projectDir, 'SheetsRun', '01-api');
+const tasks = await listTasks(projectDir, "MyProject", "01-api");
 // → [{ id: 'setup-db', gapCount: 1 }, ...]
 ```
 
@@ -109,7 +116,7 @@ const tasks = await listTasks(projectDir, 'SheetsRun', '01-api');
 Find all items with gaps:
 
 ```typescript
-const itemsWithGaps = await findItemsWithGaps(projectDir, 'SheetsRun');
+const itemsWithGaps = await findItemsWithGaps(projectDir, 'MyProject');
 
 // Result:
 {
@@ -172,7 +179,7 @@ Overview with navigation, breadcrumbs, and gap details.
 
 ```typescript
 // Get high-level overview
-const overview = await getProjectOverview(projectDir, 'SheetsRun');
+const overview = await getProjectOverview(projectDir, "MyProject");
 
 console.log(`📊 ${overview.location.breadcrumbs[0].name}`);
 console.log(`   Epics: ${overview.epicCount}`);
@@ -189,10 +196,12 @@ for (const epic of overview.location.children) {
 
 ```typescript
 // Navigate to specific epic
-const epic = await getEpicOverview(projectDir, 'SheetsRun', '01-api');
+const epic = await getEpicOverview(projectDir, "MyProject", "01-api");
 
 console.log(`📊 ${epic.location.breadcrumbs[1].name}`);
-console.log(`   Breadcrumb: ${epic.location.breadcrumbs.map(b => b.name).join(' > ')}`);
+console.log(
+  `   Breadcrumb: ${epic.location.breadcrumbs.map((b) => b.name).join(" > ")}`,
+);
 console.log(`   Tasks: ${epic.taskCount}`);
 console.log(`   Gaps: ${epic.gaps.length}`);
 
@@ -206,10 +215,17 @@ for (const task of epic.location.children) {
 
 ```typescript
 // Navigate to specific task
-const task = await getTaskOverview(projectDir, 'SheetsRun', '01-api', 'setup-db');
+const task = await getTaskOverview(
+  projectDir,
+  "MyProject",
+  "01-api",
+  "setup-db",
+);
 
 console.log(`📊 ${task.location.breadcrumbs[2].name}`);
-console.log(`   Breadcrumb: ${task.location.breadcrumbs.map(b => b.name).join(' > ')}`);
+console.log(
+  `   Breadcrumb: ${task.location.breadcrumbs.map((b) => b.name).join(" > ")}`,
+);
 console.log(`   Gaps: ${task.gaps.length}`);
 
 // Show gap details
@@ -222,10 +238,10 @@ for (const gap of task.gaps) {
 
 ```typescript
 // Find all items that need work
-const itemsWithGaps = await findItemsWithGaps(projectDir, 'SheetsRun');
+const itemsWithGaps = await findItemsWithGaps(projectDir, "MyProject");
 
 if (itemsWithGaps.project.gapCount > 0) {
-  console.log('⚠️  Project has unresolved gaps');
+  console.log("⚠️  Project has unresolved gaps");
 }
 
 if (itemsWithGaps.tasks.length > 0) {
@@ -257,6 +273,7 @@ if (itemsWithGaps.tasks.length > 0) {
 ```
 
 **Problems:**
+
 - Hard to see hierarchy at a glance
 - No clear parent/child relationships
 - File names get long and repetitive
@@ -281,6 +298,7 @@ if (itemsWithGaps.tasks.length > 0) {
 ```
 
 **Benefits:**
+
 - Clear hierarchy visible in directory structure
 - Easy to navigate with file browser
 - Natural parent/child relationships
@@ -294,24 +312,24 @@ if (itemsWithGaps.tasks.length > 0) {
 ```typescript
 const location = await getLocation(
   projectDir,
-  'SheetsRun',
-  '01-api',
-  'API Development',
-  'setup-db',
-  'Setup Database'
+  "MyProject",
+  "01-api",
+  "API Development",
+  "setup-db",
+  "Setup Database",
 );
 
-console.log('Current level:', location.level);
-console.log('Breadcrumb:', location.breadcrumbs.map(b => b.name).join(' > '));
-console.log('Files:', location.files);
-console.log('Children:', location.children);
-console.log('Parent:', location.parent);
+console.log("Current level:", location.level);
+console.log("Breadcrumb:", location.breadcrumbs.map((b) => b.name).join(" > "));
+console.log("Files:", location.files);
+console.log("Children:", location.children);
+console.log("Parent:", location.parent);
 ```
 
 ### List All Epics
 
 ```typescript
-const epics = await listEpics(projectDir, 'SheetsRun');
+const epics = await listEpics(projectDir, "MyProject");
 
 for (const epic of epics) {
   console.log(`${epic.id}: ${epic.gapCount} gaps, ${epic.taskCount} tasks`);
@@ -321,7 +339,7 @@ for (const epic of epics) {
 ### List Tasks in Epic
 
 ```typescript
-const tasks = await listTasks(projectDir, 'SheetsRun', '01-api');
+const tasks = await listTasks(projectDir, "MyProject", "01-api");
 
 for (const task of tasks) {
   console.log(`${task.id}: ${task.gapCount} gaps`);
@@ -334,11 +352,17 @@ The new structure is backward compatible through the legacy `getJournalPath()` f
 
 ```typescript
 // Legacy call (still works)
-const path = getJournalPath(projectDir, 'task', '01-api.setup-db', 'gaps');
+const path = getJournalPath(projectDir, "task", "01-api.setup-db", "gaps");
 // → .converge/journal/tasks/01-api/tasks/setup-db/gaps.yml
 
 // New call (recommended)
-const path = getJournalFilePath(projectDir, 'task', 'gaps', '01-api', 'setup-db');
+const path = getJournalFilePath(
+  projectDir,
+  "task",
+  "gaps",
+  "01-api",
+  "setup-db",
+);
 // → .converge/journal/tasks/01-api/tasks/setup-db/gaps.yml
 ```
 

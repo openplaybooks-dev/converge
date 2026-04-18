@@ -2,7 +2,7 @@
 
 ## Quick Start
 
-The `converge search` command helps you find information in crew projects using tools you already know: **Grep, Glob, and Read**.
+The `converge search` command helps you find information in converge projects using tools you already know: **Grep, Glob, and Read**.
 
 ## Common Searches
 
@@ -10,7 +10,7 @@ The `converge search` command helps you find information in crew projects using 
 
 ```bash
 # Show the pattern
-crew search status
+converge search status
 
 # Use Grep tool with the pattern
 grep -r '"status": "pending"' .converge/epics/*/tasks/*/task.json
@@ -20,7 +20,7 @@ grep -r '"status": "pending"' .converge/epics/*/tasks/*/task.json
 
 ```bash
 # Show the pattern
-crew search title
+converge search title
 
 # Use Grep tool to search for "authentication"
 grep -r '"title".*authentication' .converge/epics/*/tasks/*/task.json
@@ -30,7 +30,7 @@ grep -r '"title".*authentication' .converge/epics/*/tasks/*/task.json
 
 ```bash
 # Show the pattern
-crew search epic
+converge search epic
 
 # List tasks in epic 2
 ls .converge/epics/02-*/tasks/
@@ -40,7 +40,7 @@ ls .converge/epics/02-*/tasks/
 
 ```bash
 # Show the pattern
-crew search display
+converge search display
 
 # Navigate to task m2.3 (epic 2, task 3)
 cat .converge/epics/02-*/tasks/03-*/task.json
@@ -91,6 +91,6 @@ Run `converge search` to see all 12 available search patterns, or `converge sear
 - ✅ **Familiar**: You already know Grep, Glob, and Read
 - ✅ **Transparent**: You can see exactly what's being searched
 - ✅ **Flexible**: Modify patterns for your specific needs
-- ✅ **Educational**: Learn the crew project structure
+- ✅ **Educational**: Learn the converge project structure
 
 The `.converge/` directory structure IS the search index. File navigation IS the search engine.

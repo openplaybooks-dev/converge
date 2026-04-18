@@ -5,8 +5,8 @@
  * the filesystem structure (task files) IS the plan.
  */
 
-import type { Gap } from '../gap/types.ts';
-import type { TaskConfig } from '../storage/types.ts';
+import type { Gap } from "../gap/types.ts";
+import type { TaskConfig } from "../storage/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Plan Generation Configuration                                     */
@@ -30,10 +30,10 @@ export interface PlanGenerationConfig {
   };
 
   /** Planning strategy */
-  strategy?: 'sequential' | 'parallel' | 'hybrid';
+  strategy?: "sequential" | "parallel" | "hybrid";
 
   /** Granularity of task breakdown */
-  granularity?: 'coarse' | 'fine';
+  granularity?: "coarse" | "fine";
 
   /** Enable dynamic replanning during execution */
   adaptive?: boolean;
@@ -78,13 +78,13 @@ export interface ReplanResult {
  */
 export enum ReplanTrigger {
   /** No progress after N iterations */
-  STALLED_PROGRESS = 'stalled-progress',
+  STALLED_PROGRESS = "stalled-progress",
   /** New requirement/missing system component discovered */
-  MAJOR_GAP = 'major-gap',
+  MAJOR_GAP = "major-gap",
   /** Current plan is inefficient, better approach found */
-  BETTER_APPROACH = 'better-approach',
+  BETTER_APPROACH = "better-approach",
   /** Architectural decision blocks current approach */
-  BLOCKED_PATH = 'blocked-path',
+  BLOCKED_PATH = "blocked-path",
 }
 
 /**
@@ -176,7 +176,7 @@ export interface FeedbackAttempt {
   /** Validation issues from verification */
   verificationIssues?: Array<{
     message: string;
-    severity: 'error' | 'warning';
+    severity: "error" | "warning";
     file?: string;
     line?: number;
   }>;

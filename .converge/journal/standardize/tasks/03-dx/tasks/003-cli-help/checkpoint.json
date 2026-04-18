@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-dx/003-cli-help",
+  "status": "pending",
+  "lastUpdated": "2026-04-18T05:02:39.566Z",
+  "createdAt": "2026-04-17T23:51:41.462Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-17T23:51:41.462Z",
+      "completedAt": "2026-04-17T23:53:15.238Z",
+      "outcome": "success",
+      "durationMs": 93776
+    }
+  ],
+  "currentAttempt": 1
+}

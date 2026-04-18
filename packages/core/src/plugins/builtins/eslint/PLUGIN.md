@@ -15,7 +15,7 @@ and optional auto-fix.
 
 ## Options
 
-| Option       | Default                          | Description                  |
-|--------------|----------------------------------|------------------------------|
-| `fix`        | `false`                          | Run with `--fix` flag        |
-| `extensions` | `[".ts", ".tsx", ".js", ".jsx"]` | File extensions to lint      |
+| Option       | Default                          | Description             |
+| ------------ | -------------------------------- | ----------------------- |
+| `fix`        | `false`                          | Run with `--fix` flag   |
+| `extensions` | `[".ts", ".tsx", ".js", ".jsx"]` | File extensions to lint |

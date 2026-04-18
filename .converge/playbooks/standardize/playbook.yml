@@ -10,10 +10,10 @@ run:
 
 checks:
   - id: no-harness-refs
-    cmd: "! grep -ri 'harness' --include='*.ts' --include='*.md' --include='*.json' --include='*.yml' packages/ docs/ README.md CONTRIBUTING.md 2>/dev/null | grep -v node_modules | grep -v CHANGELOG | grep -v '.converge/' | grep -v 'auto-verify' | head -1"
+    cmd: "test -z \"$(grep -ri 'harness' --include='*.ts' --include='*.md' --include='*.json' --include='*.yml' packages/ docs/ README.md CONTRIBUTING.md 2>/dev/null | grep -v node_modules | grep -v CHANGELOG | grep -v '.converge/' | grep -v 'auto-verify')\""
     description: No stale 'harness' references in source, docs, or config
   - id: no-crew-refs
-    cmd: "! grep -ri 'crew\\|crewadd\\|sheetsrun' --include='*.ts' --include='*.md' --include='*.json' packages/ docs/ README.md 2>/dev/null | grep -v node_modules | grep -v CHANGELOG | grep -v '.converge/' | head -1"
+    cmd: "test -z \"$(grep -ri 'crew\\|crewadd\\|sheetsrun' --include='*.ts' --include='*.md' --include='*.json' packages/ docs/ README.md 2>/dev/null | grep -v node_modules | grep -v CHANGELOG | grep -v '.converge/')\""
     description: No stale 'crew/crewadd/sheetsrun' references
   - id: readme-exists
     cmd: "test -f README.md && head -1 README.md | grep -qi converge"

@@ -1,281 +1,119 @@
 <div align="center">
-<pre>
-  _   _    _    ____  _   _ _____ ____ ____
- | | | |  / \  |  _ \| \ | | ____/ ___/ ___|
- | |_| | / _ \ | |_) |  \| |  _| \___ \___ \
- |  _  |/ ___ \|  _ <| |\  | |___ ___) |__) |
- |_| |_/_/   \_\_| \_\_| \_|_____|____/____/
-</pre>
 
-<strong>A build system for AI agents — Version 2.0</strong><br/>
-Universal Unit Architecture: One class, infinite nesting, data-driven convergence.
+![Converge](./banner.svg)
 
-<p>
-  <a href="#"><img src="https://img.shields.io/npm/v/@converge/core?style=flat&colorA=000000&colorB=000000" alt="npm version"></a>
-  <a href="#"><img src="https://img.shields.io/npm/dm/@converge/core?style=flat&colorA=000000&colorB=000000" alt="npm downloads"></a>
-  <a href="#"><img src="https://img.shields.io/badge/license-MIT-000000.svg?style=flat&colorA=000000&colorB=000000" alt="License"></a>
-  <a href="#"><img src="https://img.shields.io/badge/coverage-92%25-success?style=flat&colorA=000000&colorB=000000" alt="Coverage"></a>
-</p>
+### Define done. Converge gets there.
 
-<p>
-<a href="#quick-start">Quick Start</a> •
-<a href="#architecture">Architecture</a> •
-<a href="#documentation">Documentation</a> •
-<a href="#examples">Examples</a>
-</p>
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![npm](https://img.shields.io/badge/npm-%40converge%2Fcore-cb3837.svg)](https://www.npmjs.com/package/@converge/core)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6.svg)](https://www.typescriptlang.org/)
+[![Node](https://img.shields.io/badge/node-%E2%89%A520-339933.svg)](https://nodejs.org/)
+
 </div>
 
----
+Converge is an open-source, TypeScript-native framework for orchestrating complex AI agent workflows. Instead of defining steps, graphs, or roles, you declare what "done" looks like — what files must exist, what checks must pass — and Converge continuously measures gaps, generates work to close them, and self-corrects when things fail.
 
-Define tasks in TypeScript — AI converges on completion through self-correcting gap detection.
+270 lines of core logic. 92% test coverage. 7 runtime dependencies.
 
-**V2 simplifies everything**: One `Unit` class. No inheritance. 88% less code. Same power.
+```bash
+npm install -g @converge/core
+```
+
+## Why Converge?
+
+**Gap-driven, not step-driven** — SQL describes what data you want, not how to fetch it. Terraform describes what infrastructure you want, not what API calls to make. Converge describes what the finished project looks like and figures out the rest.
+
+**Self-correcting across attempts** — When a check fails, Converge writes a structured LEARN.md analyzing what went wrong. The next attempt reads that analysis and applies targeted corrections instead of retrying blind.
+
+**Filesystem is the plan** — Your `.converge/` directory is the execution plan. `ls` is your dashboard, `cat` is your debugger, `git diff` shows exactly what changed. No opaque state stores.
+
+**Deterministic verification** — Checks are shell commands: `grep`, `test`, `npm test`, `python validate.py`. Real assertions against real files, not AI judgment calls.
+
+**Dynamic task spawning** — WBS scripts decompose work at runtime based on project state. Scope emerges from the problem, not from a predetermined graph.
+
+**Crash-safe checkpoints** — Kill the process, restart, and Converge picks up exactly where it left off. Long-running workflows survive interruptions.
+
+**Multi-provider** — Claude, Gemini, Kimi, and Qwen via the `agentfn` abstraction. No vendor lock-in.
+
+## How It Works
+
+```mermaid
+flowchart LR
+    A[Scan task tree] --> B[Pick next gap]
+    B --> C[Execute via AI agent]
+    C --> D{Checks pass?}
+    D -- Yes --> E[Mark complete]
+    D -- No --> F[Write LEARN.md]
+    F --> C
+    E --> A
+```
+
+Converge runs a continuous loop: scan the task tree for incomplete work, pick the next gap, execute it with an AI agent following markdown instructions, and verify with shell-based checks. When a check fails, the agent writes a LEARN.md capturing what went wrong. The next attempt reads that analysis and applies targeted corrections. The loop repeats until every task passes or the budget is exhausted.
 
 ## Quick Start
 
 ```bash
-# Install
-npm install @converge/core
-
-# Run a task
-converge run .converge/epics/01-data-analysis/001-task.ts
-
-# Test
-npm test
+npm install -g @converge/core
+converge init --name="my-api"
+converge plan "REST API with health check endpoint and test suite"
+converge run
 ```
 
-## Architecture
+Converge generates a task tree from your description. Each task includes target files, shell-based checks, and instructions for the AI agent. Here's what a generated task looks like:
 
-### Core Principle: Universal Unit
+```markdown
+---
+title: Health Check Endpoint
+outputs:
+  - src/routes/health.ts
+  - src/routes/health.test.ts
+checks:
+  - id: server-starts
+    cmd: npx tsx src/index.ts &; sleep 2; curl -sf http://localhost:3000/health; kill %1
+    description: Health endpoint returns 200
+  - id: tests-pass
+    cmd: npx vitest run src/routes/health.test.ts
+    description: Health check tests pass
+---
 
-**ONE class for EVERYTHING** - no inheritance, no polymorphism, just data.
-
-```typescript
-// Load any task file (Epic/Task/Subtask/...)
-const unit = await Unit.fromPath('.converge/epics/01-epic/001-task.ts');
-
-// Run convergence loop (same for ALL levels!)
-await unit.run();
+Implement a GET /health endpoint that returns `{ "status": "ok" }`.
+Write unit tests covering the success case and response shape.
 ```
 
-### How It Works
+`converge run` discovers gaps (missing files, failing checks), executes tasks, self-corrects on failure, and repeats until done.
 
-```
-1. Find Gaps   → Missing inputs/outputs/failed checks
-2. Fix Gaps    → Delegate to children OR use AI
-3. Converge    → Repeat until gaps.length === 0
-```
+## Use Cases
 
-### Key Features
+**Software Development** — Full application builds where requirements flow through design, implementation, tests, and docs. Checks run linters, type checkers, and test suites at every step. Failed tests produce structured analysis; the next attempt applies targeted fixes.
 
-- ✅ **88% smaller** - 450 lines vs 3,800 lines
-- ✅ **Universal** - One class for all levels
-- ✅ **Data-driven** - Behavior from task definitions
-- ✅ **Self-correcting** - AI fixes gaps automatically
-- ✅ **Endlessly nestable** - Tasks contain tasks infinitely
-- ✅ **92% test coverage** - Production-ready
+**Deep Research** — Multi-source literature reviews, competitive analyses, and synthesis reports. Tasks gather sources, extract findings, cross-reference, and synthesize — each step verified before the next begins.
 
-## Task Definition
+**Data Pipelines** — ETL workflows, data validation, and transformation chains. Checks enforce schema conformance, row counts, and data quality thresholds. Self-correction handles schema drift and upstream format changes.
 
-Tasks are TypeScript files using `taskDef()`:
+**Content Production** — Blog posts, documentation, marketing copy with editorial checks. Checks enforce word counts, required sections, link validity, and brand voice consistency. Playbooks encode your editorial process for repeatable execution.
 
-```typescript
-// Leaf task (no children - uses AI)
-export default taskDef()
-  .id('analyze-data')
-  .title('Analyze Data')
-  .agent('data-analyst')
-  .prompt('Analyze TSV files and generate schema')
-  .inputs(['data/**/*.tsv'])
-  .outputs(['data-modeling/schema.sql'])
-  .check({ id: 'validate', cmd: 'test -f data-modeling/schema.sql' })
-  .build();
+**Business Automation** — Client deliverables, compliance audits, onboarding workflows. Define what the final package looks like; Converge assembles it from templates, data sources, and verification steps.
 
-// Parent task (has children - delegates)
-export default taskDef()
-  .id('generate-screens')
-  .yields({
-    plan: 'Create one task per screen',
-    outputDir: '.converge/epics/02-ux/003-screens',
-    template: '000-screen-{slug}.ts.tpl',
-  })
-  .inputs(['.stitch/SITE.md'])
-  .outputs(['.converge/epics/02-ux/003-screens/**/*.ts'])
-  .build();
-```
-
-## Directory Structure
-
-```
-.converge/
-├── epics/
-│   ├── 01-data-analysis.ts              # Parent
-│   ├── 01-data-analysis/
-│   │   ├── 001-analyze.ts               # Child
-│   │   └── 002-model.ts                 # Child
-│   │
-│   ├── 02-ux-design.ts                  # Parent
-│   └── 02-ux-design/
-│       ├── 001-overview.ts
-│       ├── 002-design-system.ts
-│       ├── 003-generate-screens.ts      # Parent (yields)
-│       └── 003-generate-screens/        # AI-generated
-│           ├── 001-screen-home.ts
-│           ├── 002-screen-about.ts
-│           └── 003-screen-contact.ts
-│
-└── converge.ts
-```
+The domain doesn't matter. If you can describe what done looks like, Converge can get there.
 
 ## Documentation
 
-### Start Here
-- **[V2 Architecture](./docs/V2_ARCHITECTURE.md)** - Core concepts
-- **[Example Walkthrough](./docs/V2_EXAMPLE_WALKTHROUGH.md)** - Complete example
-- **[V2 vs V1](./docs/V2_COMPARISON.md)** - What changed
+- **[Getting Started](./docs/getting-started.md)** — Install, configure, and run your first workflow
+- **[Architecture & Reference](./packages/core/README.md)** — Core internals, task format, and full API
+- **[Why Converge?](./docs/why-converge.md)** — Problem statement and design philosophy
+- **[Architecture Decisions](./docs/adr/)** — ADRs for key design choices
+- **[Contributing](./CONTRIBUTING.md)** — Development setup and guidelines
 
-### Interface Reference
-- **[Unit Level Interfaces](./UNIT_LEVEL_INTERFACES.md)** - Complete interface reference for all levels
-- **[Interface Hierarchy](./INTERFACE_HIERARCHY.md)** - Visual diagrams and type system
+## Acknowledgements
 
-### Reference
-- **[Complete Summary](./docs/V2_COMPLETE_SUMMARY.md)** - Full overview
-- **[File Index](./docs/V2_FILES_INDEX.md)** - All files
-- **[Test Guide](./packages/core/tests/README.md)** - Testing
-
-## Examples
-
-### Run a Task
-
-```bash
-converge run .converge/epics/01-epic/001-task.ts
-```
-
-### Create a New Task
-
-```typescript
-import { taskDef } from '@converge/core';
-
-export default taskDef()
-  .id('new-task')
-  .title('My New Task')
-  .agent('developer')
-  .prompt('Task instructions here')
-  .inputs(['required/files/**/*'])
-  .outputs(['generated/output.json'])
-  .check({ id: 'validate', cmd: 'npm test' })
-  .build();
-```
-
-### Parent Task with Dynamic Children
-
-```typescript
-export default taskDef()
-  .id('parent-task')
-  .yields({
-    plan: 'Generate one child per item in config',
-    outputDir: '.converge/epics/02/003-parent',
-    template: '000-child-{name}.ts.tpl',
-    maxTasks: 10,
-  })
-  .inputs(['config/items.json'])
-  .outputs(['.converge/epics/02/003-parent/**/*.ts'])
-  .build();
-```
-
-## Key Concepts
-
-### Convergence Loop
-
-Every unit runs the same loop:
-
-```typescript
-while (iteration < maxIterations) {
-  gaps = findGaps()           // Check inputs/outputs/checks
-  if (gaps.length === 0) return true    // ✅ Converged
-  if (hasStalled(gaps)) return false    // ❌ Stalled
-  fixGaps(gaps)               // Delegate or use AI
-}
-```
-
-### Gap Types
-
-- **Input gap** - Missing required input
-- **Output gap** - Task hasn't produced output yet
-- **Check gap** - Verification check failed
-
-### Parent vs Leaf
-
-- **Parent**: Has children → delegates to them
-- **Leaf**: No children → uses AI to fix gaps
-
-### Yields Pattern
-
-Parents use `.yields()` to generate children dynamically:
-1. AI reads inputs (e.g., sitemap)
-2. AI instantiates template for each item
-3. AI writes child task files
-4. Next iteration: discovers and runs children
-
-## Code Metrics
-
-| Metric | V1 | V2 | Improvement |
-|--------|----|----|-------------|
-| Total lines | 3,800 | 450 | **88% smaller** |
-| Largest function | 639 | 60 | **91% smaller** |
-| Classes | 3+ | 1 | **67% fewer** |
-| Test coverage | ~70% | ~92% | **+31% better** |
-
-## Development
-
-### Running Tests
-
-```bash
-npm test              # All tests
-npm test -- unit      # Unit tests
-npm test -- integration # Integration tests
-npm test -- --watch   # Watch mode
-npm test -- --coverage # Coverage report
-```
-
-### Building
-
-```bash
-npm run build         # Build TypeScript
-npm run type-check    # Type check
-npm run lint          # Lint
-```
-
-## Contributing
-
-1. Create feature branch
-2. Make changes
-3. Add tests (maintain >90% coverage)
-4. Update documentation
-5. Submit pull request
-
-## Principles
-
-1. **Data over inheritance** - One class, different data
-2. **Verify, don't trust** - Checks after every task
-3. **Filesystem as database** - `ls` and `cat` debug
-4. **Resumable by default** - Checkpoints everywhere
-5. **Self-correcting** - AI fixes its own gaps
-6. **Progressive complexity** - Start simple, grow
+Converge draws from ideas that predate AI agents: SQL's declarative data retrieval, Terraform's desired-state infrastructure, and control theory's feedback loops. The gap-driven convergence model applies these proven patterns to AI orchestration — measure the distance to done, generate work to close it, verify, correct, repeat.
 
 ## License
 
-MIT - see [LICENSE](LICENSE)
+MIT — see [LICENSE](./LICENSE)
 
-## Links
+<div align="center">
 
-- [GitHub Repository](#)
-- [Documentation](./docs/)
-- [Issue Tracker](#)
+Gap-driven. Convergent. Markdown-first.
 
----
-
-**Version**: 2.0.0
-**Status**: ✅ Production Ready
-**Last Updated**: 2024-03-31
-
+</div>

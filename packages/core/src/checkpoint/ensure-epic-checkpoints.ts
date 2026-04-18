@@ -5,8 +5,8 @@
  * Epics track their child tasks' progress.
  */
 
-import { UnitCheckpointManager } from './unit-checkpoint.ts';
-import type { TaskNode } from '../cli/next-task.ts';
+import { UnitCheckpointManager } from "./unit-checkpoint.ts";
+import type { TaskNode } from "../cli/next-task.ts";
 
 /**
  * Ensure all epics have checkpoints (ONLY if they already exist)
@@ -21,10 +21,10 @@ export async function ensureEpicCheckpoints(
   projectDir: string,
   tree: TaskNode[],
 ): Promise<void> {
-  const epicIds = [...new Set(tree.map(n => n.epicId))];
+  const epicIds = [...new Set(tree.map((n) => n.epicId))];
 
   for (const epicId of epicIds) {
-    const epicCkpt = new UnitCheckpointManager(projectDir, 'epic', epicId);
+    const epicCkpt = new UnitCheckpointManager(projectDir, "epic", epicId);
     const existing = await epicCkpt.load();
 
     // Only update existing checkpoints - don't create new ones for pending epics
@@ -51,7 +51,7 @@ export async function updateEpicProgress(
   failedSet: Set<string>,
 ): Promise<void> {
   // Only update if epic checkpoint already exists
-  const epicCkpt = new UnitCheckpointManager(projectDir, 'epic', epicId);
+  const epicCkpt = new UnitCheckpointManager(projectDir, "epic", epicId);
   const existing = await epicCkpt.load();
   if (!existing) {
     // Epic checkpoint doesn't exist - don't create it
@@ -59,7 +59,7 @@ export async function updateEpicProgress(
   }
 
   // Get all tasks in this epic
-  const allEpicTasks = tree.filter(n => n.epicId === epicId);
+  const allEpicTasks = tree.filter((n) => n.epicId === epicId);
 
   // Build set of all child task IDs (tasks that have a parent)
   const allChildTaskIds = new Set<string>();
@@ -71,12 +71,14 @@ export async function updateEpicProgress(
 
   // Also check folder structure for direct nesting (tasks nested under other tasks)
   for (const task of allEpicTasks) {
-    const taskDir = task.filePath.substring(0, task.filePath.lastIndexOf('/'));
-    const directChildren = allEpicTasks.filter(other =>
-      other !== task &&
-      !other.parentTaskId && // Only consider tasks without explicit parentTaskId
-      other.filePath.startsWith(taskDir + '/') &&
-      other.filePath.substring(0, other.filePath.lastIndexOf('/')) !== taskDir // Direct children only
+    const taskDir = task.filePath.substring(0, task.filePath.lastIndexOf("/"));
+    const directChildren = allEpicTasks.filter(
+      (other) =>
+        other !== task &&
+        !other.parentTaskId && // Only consider tasks without explicit parentTaskId
+        other.filePath.startsWith(taskDir + "/") &&
+        other.filePath.substring(0, other.filePath.lastIndexOf("/")) !==
+          taskDir, // Direct children only
     );
     for (const child of directChildren) {
       allChildTaskIds.add(child.taskId);
@@ -84,18 +86,24 @@ export async function updateEpicProgress(
   }
 
   // Top-level tasks are those that are NOT children
-  const topLevelTasks = allEpicTasks.filter(n => !allChildTaskIds.has(n.taskId));
+  const topLevelTasks = allEpicTasks.filter(
+    (n) => !allChildTaskIds.has(n.taskId),
+  );
 
   const totalTasks = topLevelTasks.length;
-  const completedTasks = topLevelTasks.filter(n => completedSet.has(n.journalTaskId)).length;
-  const failedTasks = topLevelTasks.filter(n => failedSet.has(n.journalTaskId)).length;
+  const completedTasks = topLevelTasks.filter((n) =>
+    completedSet.has(n.journalTaskId),
+  ).length;
+  const failedTasks = topLevelTasks.filter((n) =>
+    failedSet.has(n.journalTaskId),
+  ).length;
 
   // updateProgress will only save if values have actually changed
   await epicCkpt.updateProgress({
     totalChildren: totalTasks,
     completedChildren: completedTasks,
     failedChildren: failedTasks,
-    childIds: topLevelTasks.map(n => n.taskId),
+    childIds: topLevelTasks.map((n) => n.taskId),
     lastProgressUpdate: new Date().toISOString(),
   });
 }

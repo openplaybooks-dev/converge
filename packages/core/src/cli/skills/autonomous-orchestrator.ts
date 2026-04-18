@@ -10,22 +10,26 @@
  * - AI debugs errors and self-corrects
  *
  * Usage:
- *   crew run project.ts
- *   crew run project.ts --watch
+ *   converge run project.ts
+ *   converge run project.ts --watch
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import { createTaskFileScanner } from '../../planning/task-scanner.ts';
-import { createEpicFileScanner } from '../../planning/epic-scanner.ts';
-import { createTaskFileGenerator } from '../../planning/task-file-generator.ts';
-import { createReplanEngine } from '../../planning/replan-engine.ts';
-import { createConvergeSynthesizer } from '../../auto-verify/synthesizer.ts';
-import { createConvergeExecutor } from '../../auto-verify/executor.ts';
-import { createConvergeRefiner } from '../../auto-verify/refiner.ts';
-import type { TaskFileMetadata, FeedbackHistory, FeedbackAttempt } from '../../planning/types.ts';
-import type { EpicMetadata } from '../../planning/epic-scanner.ts';
-import type { Gap } from '../../gap/types.ts';
+import * as fs from "fs";
+import * as path from "path";
+import { createTaskFileScanner } from "../../planning/task-scanner.ts";
+import { createEpicFileScanner } from "../../planning/epic-scanner.ts";
+import { createTaskFileGenerator } from "../../planning/task-file-generator.ts";
+import { createReplanEngine } from "../../planning/replan-engine.ts";
+import { createConvergeSynthesizer } from "../../auto-verify/synthesizer.ts";
+import { createConvergeExecutor } from "../../auto-verify/executor.ts";
+import { createConvergeRefiner } from "../../auto-verify/refiner.ts";
+import type {
+  TaskFileMetadata,
+  FeedbackHistory,
+  FeedbackAttempt,
+} from "../../planning/types.ts";
+import type { EpicMetadata } from "../../planning/epic-scanner.ts";
+import type { Gap } from "../../gap/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Orchestrator State                                                */
@@ -62,7 +66,11 @@ export class AutonomousOrchestrator {
   constructor(projectFile: string) {
     this.projectFile = path.resolve(projectFile);
     this.workspaceDir = path.dirname(this.projectFile);
-    this.logFile = path.join(this.workspaceDir, '.crew', 'orchestrator.log');
+    this.logFile = path.join(
+      this.workspaceDir,
+      ".converge",
+      "orchestrator.log",
+    );
 
     this.state = {
       iteration: 0,
@@ -80,21 +88,21 @@ export class AutonomousOrchestrator {
 
     // Initialize components
     this.taskScanner = createTaskFileScanner({
-      tasksDir: path.join(this.workspaceDir, '.crew', 'tasks'),
-      checksDir: path.join(this.workspaceDir, '.crew', 'checks'),
+      tasksDir: path.join(this.workspaceDir, ".converge", "tasks"),
+      checksDir: path.join(this.workspaceDir, ".converge", "checks"),
       watch: false,
     });
 
     this.epicScanner = createEpicFileScanner(
-      path.join(this.workspaceDir, '.crew', 'epics')
+      path.join(this.workspaceDir, ".converge", "epics"),
     );
 
     this.generator = createTaskFileGenerator(
-      path.join(this.workspaceDir, '.crew', 'tasks')
+      path.join(this.workspaceDir, ".converge", "tasks"),
     );
 
     this.replanner = createReplanEngine(
-      path.join(this.workspaceDir, '.crew', 'tasks')
+      path.join(this.workspaceDir, ".converge", "tasks"),
     );
   }
 
@@ -105,13 +113,15 @@ export class AutonomousOrchestrator {
   /**
    * Run autonomous orchestration
    */
-  async run(options: { maxIterations?: number; watch?: boolean } = {}): Promise<void> {
+  async run(
+    options: { maxIterations?: number; watch?: boolean } = {},
+  ): Promise<void> {
     const maxIterations = options.maxIterations || 100;
 
-    this.log('🤖 Starting Autonomous Orchestrator');
+    this.log("🤖 Starting Autonomous Orchestrator");
     this.log(`📁 Project: ${this.projectFile}`);
     this.log(`📂 Workspace: ${this.workspaceDir}`);
-    this.log('');
+    this.log("");
 
     this.state.running = true;
 
@@ -122,9 +132,9 @@ export class AutonomousOrchestrator {
     while (this.state.running && this.state.iteration < maxIterations) {
       this.state.iteration++;
 
-      this.log(`\n${'='.repeat(60)}`);
+      this.log(`\n${"=".repeat(60)}`);
       this.log(`🔄 ITERATION ${this.state.iteration}`);
-      this.log('='.repeat(60));
+      this.log("=".repeat(60));
 
       try {
         // Step 1: Auto-discover epics and tasks (RESCAN EVERY LOOP)
@@ -141,7 +151,7 @@ export class AutonomousOrchestrator {
 
         // Step 5: Check convergence
         if (await this.checkConvergence()) {
-          this.log('\n✅ PROJECT COMPLETE - All tasks converged!');
+          this.log("\n✅ PROJECT COMPLETE - All tasks converged!");
           break;
         }
 
@@ -151,7 +161,9 @@ export class AutonomousOrchestrator {
         // Add delay between iterations
         await this.sleep(1000);
       } catch (error: any) {
-        this.logError(`Iteration ${this.state.iteration} failed: ${error.message}`);
+        this.logError(
+          `Iteration ${this.state.iteration} failed: ${error.message}`,
+        );
 
         // AI attempts to self-correct
         await this.handleIterationError(error);
@@ -159,7 +171,7 @@ export class AutonomousOrchestrator {
     }
 
     if (this.state.iteration >= maxIterations) {
-      this.log('\n⚠️  Max iterations reached without convergence');
+      this.log("\n⚠️  Max iterations reached without convergence");
     }
 
     this.showFinalReport();
@@ -171,7 +183,7 @@ export class AutonomousOrchestrator {
   /* ────────────────────────────────────────────────────────────── */
 
   private async autoDiscoverAll(): Promise<void> {
-    this.log('\n📋 Step 1: Auto-discovering epics and tasks...');
+    this.log("\n📋 Step 1: Auto-discovering epics and tasks...");
 
     // Scan epics from .converge/epics/
     const epicScanResult = await this.epicScanner.scan();
@@ -198,12 +210,16 @@ export class AutonomousOrchestrator {
     const newTasks = this.state.tasksDiscovered > this.state.lastTaskCount;
 
     if (newEpics) {
-      this.log(`   🆕 ${this.state.epicsDiscovered - this.state.lastEpicCount} new epics detected!`);
+      this.log(
+        `   🆕 ${this.state.epicsDiscovered - this.state.lastEpicCount} new epics detected!`,
+      );
     }
 
     if (newTasks) {
-      this.log(`   🆕 ${this.state.tasksDiscovered - this.state.lastTaskCount} new tasks detected!`);
-      this.log('   🔄 Auto-aligning on new tasks...');
+      this.log(
+        `   🆕 ${this.state.tasksDiscovered - this.state.lastTaskCount} new tasks detected!`,
+      );
+      this.log("   🔄 Auto-aligning on new tasks...");
     }
 
     this.state.lastEpicCount = this.state.epicsDiscovered;
@@ -213,7 +229,9 @@ export class AutonomousOrchestrator {
     if (epicScanResult.epics.length > 0) {
       this.log(`   ✓ Found ${epicScanResult.epics.length} epics:`);
       epicScanResult.epics.forEach((epic: EpicMetadata) => {
-        this.log(`     📦 ${epic.id}: ${epic.name} (${epic.tasks.length} tasks)`);
+        this.log(
+          `     📦 ${epic.id}: ${epic.name} (${epic.tasks.length} tasks)`,
+        );
 
         // Show tasks in epic
         epic.tasks.slice(0, 3).forEach((task: TaskFileMetadata) => {
@@ -232,7 +250,7 @@ export class AutonomousOrchestrator {
     }
 
     if (allTasks.length === 0) {
-      this.log('   ⚠️  No tasks found. AI will generate initial plan...');
+      this.log("   ⚠️  No tasks found. AI will generate initial plan...");
       await this.generateInitialPlan();
     }
   }
@@ -242,16 +260,16 @@ export class AutonomousOrchestrator {
   /* ────────────────────────────────────────────────────────────── */
 
   private async executeTasks(): Promise<void> {
-    this.log('\n⚡ Step 2: Executing tasks...');
+    this.log("\n⚡ Step 2: Executing tasks...");
 
     // Get all tasks (epic + global)
     const allTasks = await this.getAllTasks();
     const pendingTasks = allTasks.filter(
-      (t: TaskFileMetadata) => this.getTaskStatus(t) === '⏸️ '
+      (t: TaskFileMetadata) => this.getTaskStatus(t) === "⏸️ ",
     );
 
     if (pendingTasks.length === 0) {
-      this.log('   ✓ No pending tasks to execute');
+      this.log("   ✓ No pending tasks to execute");
       return;
     }
 
@@ -313,7 +331,10 @@ export class AutonomousOrchestrator {
       const result = await this.loadAndExecuteTask(taskMeta);
 
       // Validate with AutoConverge if configured
-      const verificationResult = await this.validateTaskOutput(taskMeta, result);
+      const verificationResult = await this.validateTaskOutput(
+        taskMeta,
+        result,
+      );
 
       const duration = Date.now() - startTime;
 
@@ -321,9 +342,11 @@ export class AutonomousOrchestrator {
       const attempt: FeedbackAttempt = {
         number: attemptNumber,
         timestamp: new Date().toISOString(),
-        prompt: taskMeta.task.description || '',
+        prompt: taskMeta.task.description || "",
         result: {
-          success: result.success && (!verificationResult || verificationResult.passed),
+          success:
+            result.success &&
+            (!verificationResult || verificationResult.passed),
           message: result.message,
           error: result.error,
         },
@@ -338,7 +361,9 @@ export class AutonomousOrchestrator {
         this.log(`      ✅ Success (${duration}ms)`);
         this.state.tasksCompleted++;
       } else {
-        this.log(`      ❌ Failed: ${result.error?.message || 'Unknown error'}`);
+        this.log(
+          `      ❌ Failed: ${result.error?.message || "Unknown error"}`,
+        );
         this.state.tasksFailed++;
 
         // Show verification issues
@@ -350,7 +375,8 @@ export class AutonomousOrchestrator {
 
         // Track patterns
         if (result.error) {
-          const count = history.patterns.recurringErrors.get(result.error.message) || 0;
+          const count =
+            history.patterns.recurringErrors.get(result.error.message) || 0;
           history.patterns.recurringErrors.set(result.error.message, count + 1);
         }
       }
@@ -364,7 +390,7 @@ export class AutonomousOrchestrator {
       history.attempts.push({
         number: attemptNumber,
         timestamp: new Date().toISOString(),
-        prompt: taskMeta.task.description || '',
+        prompt: taskMeta.task.description || "",
         result: {
           success: false,
           error: {
@@ -392,7 +418,7 @@ export class AutonomousOrchestrator {
     // Mock result
     return {
       success: Math.random() > 0.3, // 70% success rate for demo
-      message: 'Task executed',
+      message: "Task executed",
       filesModified: taskMeta.task.outputs || [],
     };
   }
@@ -402,7 +428,7 @@ export class AutonomousOrchestrator {
    */
   private async validateTaskOutput(
     taskMeta: TaskFileMetadata,
-    result: any
+    result: any,
   ): Promise<any> {
     // Check if task has autoConverge config
     const hasAutoConverge = taskMeta.task.vars?.autoConverge;
@@ -411,7 +437,7 @@ export class AutonomousOrchestrator {
       return null;
     }
 
-    this.log('      🔍 Running AutoConverge validation...');
+    this.log("      🔍 Running AutoConverge validation...");
 
     const synthesizer = createConvergeSynthesizer();
     const executor = createConvergeExecutor(this.workspaceDir);
@@ -428,7 +454,10 @@ export class AutonomousOrchestrator {
     });
 
     // Execute verification
-    const verificationResult = await executor.execute(verification.code, hasAutoConverge as any);
+    const verificationResult = await executor.execute(
+      verification.code,
+      hasAutoConverge as any,
+    );
 
     return verificationResult;
   }
@@ -438,7 +467,7 @@ export class AutonomousOrchestrator {
   /* ────────────────────────────────────────────────────────────── */
 
   private async detectGaps(): Promise<void> {
-    this.log('\n🔍 Step 3: Detecting gaps...');
+    this.log("\n🔍 Step 3: Detecting gaps...");
 
     const gaps: Gap[] = [];
 
@@ -455,8 +484,8 @@ export class AutonomousOrchestrator {
           // Gap detected: task failure
           gaps.push({
             id: `task-failed-${taskMeta.task.id}`,
-            type: 'semantic',
-            level: 'task',
+            type: "semantic",
+            level: "task",
             scope: taskMeta.filePath,
             description: `Task ${taskMeta.task.title} failed: ${lastAttempt.result.error?.message}`,
             detected: new Date().toISOString(),
@@ -470,7 +499,7 @@ export class AutonomousOrchestrator {
     this.state.gapsDetected += gaps.length;
 
     if (gaps.length === 0) {
-      this.log('   ✓ No gaps detected');
+      this.log("   ✓ No gaps detected");
     } else {
       this.log(`   ⚠️  Detected ${gaps.length} gaps:`);
       gaps.forEach((gap) => {
@@ -486,10 +515,10 @@ export class AutonomousOrchestrator {
    * Fill gaps by creating new tasks
    */
   private async fillGaps(gaps: Gap[]): Promise<void> {
-    this.log('\n   🔧 AI is filling gaps...');
+    this.log("\n   🔧 AI is filling gaps...");
 
     const result = await this.generator.fillGaps(gaps, {
-      projectGoal: 'Complete project goals',
+      projectGoal: "Complete project goals",
       existingTasks: [],
       gaps,
     });
@@ -507,16 +536,20 @@ export class AutonomousOrchestrator {
   /* ────────────────────────────────────────────────────────────── */
 
   private async selfCorrect(): Promise<void> {
-    this.log('\n🔄 Step 4: Self-correcting...');
+    this.log("\n🔄 Step 4: Self-correcting...");
 
     // Check for tasks with multiple failures
     for (const [taskId, history] of this.state.feedbackHistory) {
       if (history.attempts.length >= 3) {
-        const recentFailures = history.attempts.slice(-3).filter((a) => !a.result.success);
+        const recentFailures = history.attempts
+          .slice(-3)
+          .filter((a) => !a.result.success);
 
         if (recentFailures.length >= 2) {
-          this.log(`   ⚠️  Task ${taskId} has ${recentFailures.length} recent failures`);
-          this.log('   🤖 AI analyzing patterns...');
+          this.log(
+            `   ⚠️  Task ${taskId} has ${recentFailures.length} recent failures`,
+          );
+          this.log("   🤖 AI analyzing patterns...");
 
           // Analyze patterns
           await this.analyzeAndCorrect(taskId, history);
@@ -528,18 +561,23 @@ export class AutonomousOrchestrator {
   /**
    * Analyze patterns and apply corrections
    */
-  private async analyzeAndCorrect(taskId: string, history: FeedbackHistory): Promise<void> {
+  private async analyzeAndCorrect(
+    taskId: string,
+    history: FeedbackHistory,
+  ): Promise<void> {
     // Check for recurring errors
     for (const [error, count] of history.patterns.recurringErrors) {
       if (count >= 2) {
-        this.log(`      💡 Pattern detected: "${error}" occurred ${count} times`);
-        this.log('      🔧 AI will try a different approach...');
+        this.log(
+          `      💡 Pattern detected: "${error}" occurred ${count} times`,
+        );
+        this.log("      🔧 AI will try a different approach...");
 
         // Replan with different strategy
         await this.replanner.replanFromGaps(
           [],
           history,
-          'better-approach' as any
+          "better-approach" as any,
         );
 
         this.state.replans++;
@@ -579,16 +617,16 @@ export class AutonomousOrchestrator {
       throw new Error(`Project file not found: ${this.projectFile}`);
     }
 
-    this.log('✓ Project file loaded\n');
+    this.log("✓ Project file loaded\n");
 
-    // Check if .crew directory exists
-    const crewDir = path.join(this.workspaceDir, '.crew');
-    if (!fs.existsSync(crewDir)) {
-      this.log('📁 Initializing .crew directory...');
-      fs.mkdirSync(crewDir, { recursive: true });
-      fs.mkdirSync(path.join(crewDir, 'epics'), { recursive: true });
-      fs.mkdirSync(path.join(crewDir, 'tasks'), { recursive: true });
-      fs.mkdirSync(path.join(crewDir, 'checks'), { recursive: true });
+    // Check if .converge directory exists
+    const convergeDir = path.join(this.workspaceDir, ".converge");
+    if (!fs.existsSync(convergeDir)) {
+      this.log("📁 Initializing .converge directory...");
+      fs.mkdirSync(convergeDir, { recursive: true });
+      fs.mkdirSync(path.join(convergeDir, "epics"), { recursive: true });
+      fs.mkdirSync(path.join(convergeDir, "tasks"), { recursive: true });
+      fs.mkdirSync(path.join(convergeDir, "checks"), { recursive: true });
     }
   }
 
@@ -596,14 +634,14 @@ export class AutonomousOrchestrator {
    * Generate initial plan if no tasks exist
    */
   private async generateInitialPlan(): Promise<void> {
-    this.log('   🤖 AI generating initial plan from project goals...');
+    this.log("   🤖 AI generating initial plan from project goals...");
 
     const result = await this.generator.generateTaskFiles(
-      'Complete project objectives',
+      "Complete project objectives",
       {
-        strategy: 'sequential',
-        granularity: 'fine',
-      }
+        strategy: "sequential",
+        granularity: "fine",
+      },
     );
 
     this.log(`   ✅ Generated ${result.taskCount} tasks`);
@@ -616,10 +654,10 @@ export class AutonomousOrchestrator {
    * Handle iteration error
    */
   private async handleIterationError(error: Error): Promise<void> {
-    this.log('\n   🤖 AI attempting to recover from error...');
+    this.log("\n   🤖 AI attempting to recover from error...");
 
     // Simple recovery: continue to next iteration
-    this.log('   ↻ Will retry in next iteration');
+    this.log("   ↻ Will retry in next iteration");
   }
 
   /**
@@ -629,20 +667,22 @@ export class AutonomousOrchestrator {
     const history = this.state.feedbackHistory.get(task.task.id);
 
     if (!history || history.attempts.length === 0) {
-      return '⏸️ ';
+      return "⏸️ ";
     }
 
     const lastAttempt = history.attempts[history.attempts.length - 1];
-    return lastAttempt.result.success ? '✅' : '❌';
+    return lastAttempt.result.success ? "✅" : "❌";
   }
 
   /**
    * Show iteration status
    */
   private showStatus(): void {
-    this.log('\n📊 Status:');
+    this.log("\n📊 Status:");
     this.log(`   Epics: ${this.state.epicsDiscovered}📦`);
-    this.log(`   Tasks: ${this.state.tasksCompleted}✅ / ${this.state.tasksFailed}❌ / ${this.state.tasksDiscovered}📋`);
+    this.log(
+      `   Tasks: ${this.state.tasksCompleted}✅ / ${this.state.tasksFailed}❌ / ${this.state.tasksDiscovered}📋`,
+    );
     this.log(`   Gaps: ${this.state.gapsDetected} detected`);
     this.log(`   Replans: ${this.state.replans}`);
   }
@@ -651,21 +691,21 @@ export class AutonomousOrchestrator {
    * Show final report
    */
   private showFinalReport(): void {
-    this.log('\n' + '='.repeat(60));
-    this.log('📈 FINAL REPORT');
-    this.log('='.repeat(60));
+    this.log("\n" + "=".repeat(60));
+    this.log("📈 FINAL REPORT");
+    this.log("=".repeat(60));
     this.log(`Iterations: ${this.state.iteration}`);
     this.log(`Tasks Completed: ${this.state.tasksCompleted}`);
     this.log(`Tasks Failed: ${this.state.tasksFailed}`);
     this.log(`Gaps Detected: ${this.state.gapsDetected}`);
     this.log(`Replans: ${this.state.replans}`);
-    this.log('');
+    this.log("");
 
     // Show task summary
-    this.log('Task Summary:');
+    this.log("Task Summary:");
     for (const [taskId, history] of this.state.feedbackHistory) {
       const lastAttempt = history.attempts[history.attempts.length - 1];
-      const status = lastAttempt?.result.success ? '✅' : '❌';
+      const status = lastAttempt?.result.success ? "✅" : "❌";
       const attempts = history.attempts.length;
       this.log(`  ${status} ${taskId} (${attempts} attempts)`);
     }
@@ -678,7 +718,7 @@ export class AutonomousOrchestrator {
     console.log(message);
 
     // Also write to log file
-    fs.appendFileSync(this.logFile, message + '\n', 'utf-8');
+    fs.appendFileSync(this.logFile, message + "\n", "utf-8");
   }
 
   /**
@@ -686,7 +726,7 @@ export class AutonomousOrchestrator {
    */
   private logError(message: string): void {
     console.error(message);
-    fs.appendFileSync(this.logFile, `ERROR: ${message}\n`, 'utf-8');
+    fs.appendFileSync(this.logFile, `ERROR: ${message}\n`, "utf-8");
   }
 
   /**
@@ -703,7 +743,7 @@ export class AutonomousOrchestrator {
 
 export async function runAutonomousOrchestrator(
   projectFile: string,
-  options: { maxIterations?: number; watch?: boolean } = {}
+  options: { maxIterations?: number; watch?: boolean } = {},
 ): Promise<void> {
   const orchestrator = new AutonomousOrchestrator(projectFile);
   await orchestrator.run(options);
@@ -711,12 +751,17 @@ export async function runAutonomousOrchestrator(
 
 // Run if executed directly
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const projectFile = process.argv[2] || 'project.ts';
-  const watch = process.argv.includes('--watch');
-  const maxIterations = parseInt(process.argv.find((arg) => arg.startsWith('--max='))?.split('=')[1] || '100');
+  const projectFile = process.argv[2] || "project.ts";
+  const watch = process.argv.includes("--watch");
+  const maxIterations = parseInt(
+    process.argv.find((arg) => arg.startsWith("--max="))?.split("=")[1] ||
+      "100",
+  );
 
-  runAutonomousOrchestrator(projectFile, { watch, maxIterations }).catch((error) => {
-    console.error('Orchestrator failed:', error);
-    process.exit(1);
-  });
+  runAutonomousOrchestrator(projectFile, { watch, maxIterations }).catch(
+    (error) => {
+      console.error("Orchestrator failed:", error);
+      process.exit(1);
+    },
+  );
 }

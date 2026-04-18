@@ -1,0 +1,253 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-dx/003-cli-help-missing-output-.converge/standardize-state/dx/cli-help-audit.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-dx/003-cli-help",
+            "severity": "high",
+            "description": "[03-dx/003-cli-help] Task output not created: .converge/standardize-state/dx/cli-help-audit.json",
+            "source": "unit",
+            "detected": "2026-04-17T23:51:41.466Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/standardize/tasks/03-dx/tasks/003-cli-help",
+              "taskId": "03-dx/003-cli-help",
+              "taskTitle": "CLI Help Text Audit",
+              "taskPrompt": "Audit all CLI help text for accuracy, consistency, and completeness.\n\n**Scope**: `packages/core/src/cli/` — main.ts, commands.ts, all commands-*.ts files\n\n**Audit checklist**:\n1. Every command has a description\n2. All descriptions use \"Converge\" not \"harness\"\n3. Example commands in help text are accurate and runnable\n4. Flags and options are documented\n5. Default values are mentioned where applicable\n6. Help text is concise (< 3 lines per command)\n\n**Process**:\n1. Read `packages/core/src/cli/main.ts` — check banner, version display\n2. Read `packages/core/src/cli/commands.ts` — check command registration\n3. Read each `commands-*.ts` file — check help text\n4. Document findings in audit report\n\n**Write report** to `.converge/standardize-state/dx/cli-help-audit.json`:\n```json\n{\n  \"commands\": [\n    {\n      \"name\": \"run\",\n      \"hasDescription\": true,\n      \"brandCorrect\": true,\n      \"examplesAccurate\": true,\n      \"issues\": []\n    }\n  ],\n  \"totalCommands\": 10,\n  \"issuesFound\": 0,\n  \"fixes\": [\"description of any fixes applied\"]\n}\n```\n\nFix any issues found during the audit — don't just report them.",
+              "factId": "file-exists:test -f \".converge/standardize-state/dx/cli-help-audit.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-dx/003-cli-help-check-failed-audit-complete",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-dx/003-cli-help",
+            "severity": "high",
+            "description": "[03-dx/003-cli-help] Check failed: CLI help audit report exists",
+            "source": "unit",
+            "detected": "2026-04-17T23:51:41.468Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "audit-complete",
+              "checkCmd": "test -f .converge/standardize-state/dx/cli-help-audit.json",
+              "checkDescription": "CLI help audit report exists",
+              "checkOutput": "Command failed: test -f .converge/standardize-state/dx/cli-help-audit.json\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Audit all CLI help text for accuracy, consistency, and completeness.\n\n**Scope**: `packages/core/src/cli/` — main.ts, commands.ts, all commands-*.ts files\n\n**Audit checklist**:\n1. Every command has a description\n2. All descriptions use \"Converge\" not \"harness\"\n3. Example commands in help text are accurate and runnable\n4. Flags and options are documented\n5. Default values are mentioned where applicable\n6. Help text is concise (< 3 lines per command)\n\n**Process**:\n1. Read `packages/core/src/cli/main.ts` — check banner, version display\n2. Read `packages/core/src/cli/commands.ts` — check command registration\n3. Read each `commands-*.ts` file — check help text\n4. Document findings in audit report\n\n**Write report** to `.converge/standardize-state/dx/cli-help-audit.json`:\n```json\n{\n  \"commands\": [\n    {\n      \"name\": \"run\",\n      \"hasDescription\": true,\n      \"brandCorrect\": true,\n      \"examplesAccurate\": true,\n      \"issues\": []\n    }\n  ],\n  \"totalCommands\": 10,\n  \"issuesFound\": 0,\n  \"fixes\": [\"description of any fixes applied\"]\n}\n```\n\nFix any issues found during the audit — don't just report them.",
+              "taskId": "03-dx/003-cli-help",
+              "taskTitle": "CLI Help Text Audit",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/standardize/tasks/03-dx/tasks/003-cli-help",
+              "factId": "check:audit-complete"
+            }
+          }
+        ],
+        "durationMs": 5
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "resolve-blockers",
+      "handler": "resolve-blockers",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 80,
+        "applicable": "hasBlockerAndIsFirst"
+      }
+    },
+    {
+      "id": "bail-blockers",
+      "handler": "bail-blockers",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 79,
+        "applicable": "hasBlockerAndNotFirst"
+      }
+    },
+    {
+      "id": "strategy-user-question-resume",
+      "handler": "strategy-user-question-resume",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 60,
+        "applicable": "hasUserQ"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65,
+        "applicable": "isFirst"
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55,
+        "applicable": "hasRepairableGap"
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 77
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#23",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 93673
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-17T23:51:41.463Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-17T23:51:41.463Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-17T23:51:41.468Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-17T23:51:41.469Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-17T23:51:41.476Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#23",
+      "iteration": 1,
+      "ts": "2026-04-17T23:53:15.150Z"
+    },
+    {
+      "from": "run-strategy:task-run#23",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-17T23:53:15.227Z"
+    }
+  ]
+}

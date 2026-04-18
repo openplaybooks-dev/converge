@@ -29,28 +29,32 @@
  *   - This strategy: "004-002 produces design.html in same dir → add design.png → re-run"
  */
 
-import { join, dirname, basename, relative } from 'node:path';
-import { existsSync } from 'node:fs';
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { getEpicsDir } from '../../journal/structure.ts';
-import type { Gap } from '../../gap/types.ts';
-import type { FixStrategy, StrategyContext, StrategyOutcome } from '../types.ts';
-import type { ProducerInfo } from './dependency-backoff.ts';
-import { logTaskEvent } from '../../journal/writer.ts';
+import { join, dirname, basename, relative } from "node:path";
+import { existsSync } from "node:fs";
+import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { getEpicsDir } from "../../journal/structure.ts";
+import type { Gap } from "../../gap/types.ts";
+import type {
+  FixStrategy,
+  StrategyContext,
+  StrategyOutcome,
+} from "../types.ts";
+import type { ProducerInfo } from "./dependency-backoff.ts";
+import { logTaskEvent } from "../../journal/writer.ts";
 
 /* ------------------------------------------------------------------ */
 /*  IncompleteProducerOutputStrategy                                   */
 /* ------------------------------------------------------------------ */
 
 export class IncompleteProducerOutputStrategy implements FixStrategy {
-  readonly name = 'incomplete-producer-output';
+  readonly name = "incomplete-producer-output";
   readonly priority = 8;
 
   canHandle(gap: Gap): boolean {
     return (
-      gap.metadata?.gapKind === 'blocker' ||
-      gap.metadata?.gapKind === 'input' ||
-      gap.type === 'missing-intermediate'
+      gap.metadata?.gapKind === "blocker" ||
+      gap.metadata?.gapKind === "input" ||
+      gap.type === "missing-intermediate"
     );
   }
 
@@ -59,10 +63,12 @@ export class IncompleteProducerOutputStrategy implements FixStrategy {
 
     const missingInputs = this.extractMissingInputs(gap);
     if (missingInputs.length === 0) {
-      return { success: false, reason: 'No missing inputs in gap metadata' };
+      return { success: false, reason: "No missing inputs in gap metadata" };
     }
 
-    console.log(`   🔍 Searching for incomplete producers for: ${missingInputs.join(', ')}`);
+    console.log(
+      `   🔍 Searching for incomplete producers for: ${missingInputs.join(", ")}`,
+    );
 
     const fixes: Array<{ producer: ProducerInfo; missingFile: string }> = [];
 
@@ -73,8 +79,12 @@ export class IncompleteProducerOutputStrategy implements FixStrategy {
       const producer = await this.findSiblingProducer(missingFile, projectDir);
       if (!producer) continue;
 
-      console.log(`   💡 Found incomplete producer: ${producer.epicId}/${producer.journalTaskId}`);
-      console.log(`      Produces sibling files in ${dirname(missingFile)} but not ${basename(missingFile)}`);
+      console.log(
+        `   💡 Found incomplete producer: ${producer.epicId}/${producer.journalTaskId}`,
+      );
+      console.log(
+        `      Produces sibling files in ${dirname(missingFile)} but not ${basename(missingFile)}`,
+      );
 
       fixes.push({ producer, missingFile });
     }
@@ -82,7 +92,8 @@ export class IncompleteProducerOutputStrategy implements FixStrategy {
     if (fixes.length === 0) {
       return {
         success: false,
-        reason: 'No sibling-producing tasks found that could be the incomplete producer',
+        reason:
+          "No sibling-producing tasks found that could be the incomplete producer",
       };
     }
 
@@ -94,32 +105,45 @@ export class IncompleteProducerOutputStrategy implements FixStrategy {
         await this.patchSkillMd(producer.filePath, missingFile);
         console.log(`   ✏️  Patched SKILL.md: added ${missingFile} to outputs`);
 
-        await this.writeLearnMd(producer, missingFile, journalCtx.taskId, projectDir);
+        await this.writeLearnMd(
+          producer,
+          missingFile,
+          journalCtx.taskId,
+          projectDir,
+        );
         console.log(`   📝 Injected LEARN.md into producer's last attempt`);
 
         patchedProducers.push(producer);
       } catch (err: any) {
-        console.warn(`   ⚠️  Could not patch ${producer.taskId}: ${err.message}`);
+        console.warn(
+          `   ⚠️  Could not patch ${producer.taskId}: ${err.message}`,
+        );
       }
     }
 
     if (patchedProducers.length === 0) {
-      return { success: false, reason: 'SKILL.md patching failed for all candidates' };
+      return {
+        success: false,
+        reason: "SKILL.md patching failed for all candidates",
+      };
     }
 
-    const missingFiles = fixes.map(f => f.missingFile);
-    const reason = `Patched ${patchedProducers.length} producer(s) to declare missing outputs: ${missingFiles.join(', ')}`;
+    const missingFiles = fixes.map((f) => f.missingFile);
+    const reason = `Patched ${patchedProducers.length} producer(s) to declare missing outputs: ${missingFiles.join(", ")}`;
 
     await logTaskEvent(
       projectDir,
       journalCtx.epicId,
       journalCtx.taskId,
-      'INCOMPLETE_PRODUCER_FIXED',
+      "INCOMPLETE_PRODUCER_FIXED",
       reason,
       {
         strategyName: this.name,
         missingFiles,
-        patchedProducers: patchedProducers.map(p => ({ taskId: p.taskId, epicId: p.epicId })),
+        patchedProducers: patchedProducers.map((p) => ({
+          taskId: p.taskId,
+          epicId: p.epicId,
+        })),
       },
     );
 
@@ -127,18 +151,18 @@ export class IncompleteProducerOutputStrategy implements FixStrategy {
       success: true,
       reason,
       retryMode: {
-        type: 'backoff',
-        runFirst: patchedProducers.map(p => p.taskId),
-        reason: `Re-running patched producer(s): ${patchedProducers.map(p => p.taskId).join(', ')}`,
+        type: "backoff",
+        runFirst: patchedProducers.map((p) => p.taskId),
+        reason: `Re-running patched producer(s): ${patchedProducers.map((p) => p.taskId).join(", ")}`,
       },
       metadata: {
-        producers: patchedProducers.map(p => ({
+        producers: patchedProducers.map((p) => ({
           taskId: p.taskId,
           epicId: p.epicId,
           journalTaskId: p.journalTaskId,
           filePath: p.filePath,
         })),
-        fix: 'skill-md-patched',
+        fix: "skill-md-patched",
         missingFiles,
       },
     };
@@ -160,26 +184,34 @@ export class IncompleteProducerOutputStrategy implements FixStrategy {
     projectDir: string,
   ): Promise<ProducerInfo | null> {
     const missingDir = dirname(missingFile);
-    const { glob } = await import('glob');
-    const { readdirSync, statSync } = await import('node:fs') as typeof import('node:fs');
+    const { glob } = await import("glob");
+    const { readdirSync, statSync } =
+      (await import("node:fs")) as typeof import("node:fs");
 
-    const epicsDir = join(projectDir, '.converge', 'epics');
+    const epicsDir = join(projectDir, ".converge", "epics");
     if (!existsSync(epicsDir)) return null;
 
-    const epicDirs = readdirSync(epicsDir).filter(e => {
-      try { return statSync(join(epicsDir, e)).isDirectory(); } catch { return false; }
+    const epicDirs = readdirSync(epicsDir).filter((e) => {
+      try {
+        return statSync(join(epicsDir, e)).isDirectory();
+      } catch {
+        return false;
+      }
     });
 
     for (const epicId of epicDirs) {
       const epicPath = join(epicsDir, epicId);
-      const skillFiles = await glob('**/SKILL.md', { cwd: epicPath, absolute: true });
+      const skillFiles = await glob("**/SKILL.md", {
+        cwd: epicPath,
+        absolute: true,
+      });
 
       for (const skillPath of skillFiles) {
         const outputs = await this.getOutputs(skillPath);
 
         // Check if this task produces files in the same directory as the missing file
         // but does NOT already declare the missing file
-        const producesSiblingFile = outputs.some(out => {
+        const producesSiblingFile = outputs.some((out) => {
           const outDir = dirname(out);
           return outDir === missingDir && out !== missingFile;
         });
@@ -207,27 +239,29 @@ export class IncompleteProducerOutputStrategy implements FixStrategy {
     projectDir: string,
   ): Promise<boolean> {
     // When journalTaskId starts with epicId, the epic IS the task — no double-nesting.
-    const segments = journalTaskId.split('/');
+    const segments = journalTaskId.split("/");
     let basePath: string;
     if (segments[0] === epicId) {
       if (segments.length === 1) {
         basePath = join(getEpicsDir(projectDir), epicId);
       } else {
-        const childParts: string[] = ['tasks', segments[1]];
-        for (let i = 2; i < segments.length; i++) childParts.push('tasks', segments[i]);
+        const childParts: string[] = ["tasks", segments[1]];
+        for (let i = 2; i < segments.length; i++)
+          childParts.push("tasks", segments[i]);
         basePath = join(getEpicsDir(projectDir), epicId, ...childParts);
       }
     } else {
       const pathParts: string[] = [segments[0]];
-      for (let i = 1; i < segments.length; i++) pathParts.push('tasks', segments[i]);
+      for (let i = 1; i < segments.length; i++)
+        pathParts.push("tasks", segments[i]);
       basePath = join(getEpicsDir(projectDir), epicId, ...pathParts);
     }
 
     // Has a checkpoint → ran at least once
-    if (existsSync(join(basePath, 'checkpoint.json'))) return true;
+    if (existsSync(join(basePath, "checkpoint.json"))) return true;
 
     // Has attempts.jsonl → ran at least once
-    return existsSync(join(basePath, 'attempts.jsonl'));
+    return existsSync(join(basePath, "attempts.jsonl"));
   }
 
   /* ------------------------------------------------------------------ */
@@ -240,12 +274,15 @@ export class IncompleteProducerOutputStrategy implements FixStrategy {
    *   - Add a shell check (`test -f <file>`)
    *   - Append a note to the task body
    */
-  private async patchSkillMd(skillPath: string, missingFile: string): Promise<void> {
-    const content = await readFile(skillPath, 'utf-8');
+  private async patchSkillMd(
+    skillPath: string,
+    missingFile: string,
+  ): Promise<void> {
+    const content = await readFile(skillPath, "utf-8");
     const match = content.match(/^---\s*\n([\s\S]*?)\n---\n?/);
     if (!match) throw new Error(`No YAML frontmatter found in ${skillPath}`);
 
-    const yaml = await import('yaml');
+    const yaml = await import("yaml");
     const fm = yaml.parse(match[1]) as Record<string, unknown>;
 
     // Add to outputs
@@ -257,9 +294,15 @@ export class IncompleteProducerOutputStrategy implements FixStrategy {
 
     // Add a check for the missing file
     if (!Array.isArray(fm.checks)) fm.checks = [];
-    const checks = fm.checks as Array<{ id: string; description: string; cmd: string }>;
-    const checkId = `${basename(missingFile, '.' + basename(missingFile).split('.').pop())}-exists`;
-    const alreadyHasCheck = checks.some(c => c.id === checkId || c.cmd.includes(missingFile));
+    const checks = fm.checks as Array<{
+      id: string;
+      description: string;
+      cmd: string;
+    }>;
+    const checkId = `${basename(missingFile, "." + basename(missingFile).split(".").pop())}-exists`;
+    const alreadyHasCheck = checks.some(
+      (c) => c.id === checkId || c.cmd.includes(missingFile),
+    );
     if (!alreadyHasCheck) {
       checks.push({
         id: checkId,
@@ -278,8 +321,8 @@ export class IncompleteProducerOutputStrategy implements FixStrategy {
 
     await writeFile(
       skillPath,
-      `---\n${newFrontmatter}\n---\n${body}${bodyHasNote ? '' : note}`,
-      'utf-8',
+      `---\n${newFrontmatter}\n---\n${body}${bodyHasNote ? "" : note}`,
+      "utf-8",
     );
   }
 
@@ -297,26 +340,32 @@ export class IncompleteProducerOutputStrategy implements FixStrategy {
     dependentTaskId: string,
     projectDir: string,
   ): Promise<void> {
-    const segments = producer.journalTaskId.split('/');
+    const segments = producer.journalTaskId.split("/");
     const pathParts: string[] = [segments[0]];
-    for (let i = 1; i < segments.length; i++) pathParts.push('tasks', segments[i]);
+    for (let i = 1; i < segments.length; i++)
+      pathParts.push("tasks", segments[i]);
 
     const attemptsBaseDir = join(
-      getEpicsDir(projectDir), producer.epicId, ...pathParts, 'attempts',
+      getEpicsDir(projectDir),
+      producer.epicId,
+      ...pathParts,
+      "attempts",
     );
 
     let targetDir: string;
     if (existsSync(attemptsBaseDir)) {
-      const { readdirSync } = await import('node:fs') as typeof import('node:fs');
+      const { readdirSync } =
+        (await import("node:fs")) as typeof import("node:fs");
       const numbered = readdirSync(attemptsBaseDir)
-        .filter(e => /^\d+$/.test(e))
+        .filter((e) => /^\d+$/.test(e))
         .sort()
         .reverse();
-      targetDir = numbered.length > 0
-        ? join(attemptsBaseDir, numbered[0])
-        : join(attemptsBaseDir, 'wip');
+      targetDir =
+        numbered.length > 0
+          ? join(attemptsBaseDir, numbered[0])
+          : join(attemptsBaseDir, "wip");
     } else {
-      targetDir = join(attemptsBaseDir, 'wip');
+      targetDir = join(attemptsBaseDir, "wip");
     }
 
     await mkdir(targetDir, { recursive: true });
@@ -344,10 +393,12 @@ export class IncompleteProducerOutputStrategy implements FixStrategy {
       `\`\`\`sh`,
       `test -f ${missingFile} && echo "OK" || echo "MISSING"`,
       `\`\`\``,
-    ].join('\n');
+    ].join("\n");
 
-    await writeFile(join(targetDir, 'LEARN.md'), learnContent, 'utf-8');
-    console.log(`   📝 LEARN.md → ${join(targetDir, 'LEARN.md').replace(projectDir, '')}`);
+    await writeFile(join(targetDir, "LEARN.md"), learnContent, "utf-8");
+    console.log(
+      `   📝 LEARN.md → ${join(targetDir, "LEARN.md").replace(projectDir, "")}`,
+    );
   }
 
   /* ------------------------------------------------------------------ */
@@ -356,12 +407,19 @@ export class IncompleteProducerOutputStrategy implements FixStrategy {
 
   private extractMissingInputs(gap: Gap): string[] {
     const inputs: string[] = [];
-    for (const key of ['missingInputs', 'blockedInputs', 'allMissingItems'] as const) {
+    for (const key of [
+      "missingInputs",
+      "blockedInputs",
+      "allMissingItems",
+    ] as const) {
       if (Array.isArray(gap.metadata?.[key])) {
         inputs.push(...(gap.metadata[key] as string[]));
       }
     }
-    if (gap.metadata?.missingPath && typeof gap.metadata.missingPath === 'string') {
+    if (
+      gap.metadata?.missingPath &&
+      typeof gap.metadata.missingPath === "string"
+    ) {
       inputs.push(gap.metadata.missingPath);
     }
     return [...new Set(inputs)];
@@ -369,10 +427,10 @@ export class IncompleteProducerOutputStrategy implements FixStrategy {
 
   private async getOutputs(skillPath: string): Promise<string[]> {
     try {
-      const content = await readFile(skillPath, 'utf-8');
+      const content = await readFile(skillPath, "utf-8");
       const match = content.match(/^---\s*\n([\s\S]*?)\n---/);
       if (!match) return [];
-      const yaml = await import('yaml');
+      const yaml = await import("yaml");
       const fm = yaml.parse(match[1]) as Record<string, unknown>;
       return Array.isArray(fm.outputs) ? (fm.outputs as string[]) : [];
     } catch {
@@ -381,14 +439,18 @@ export class IncompleteProducerOutputStrategy implements FixStrategy {
   }
 
   private extractTaskId(skillPath: string, epicPath: string): string {
-    const rel = relative(epicPath, skillPath).replace(/\\/g, '/');
-    const parts = rel.split('/').filter(p => p !== 'SKILL.md' && p !== 'tasks');
+    const rel = relative(epicPath, skillPath).replace(/\\/g, "/");
+    const parts = rel
+      .split("/")
+      .filter((p) => p !== "SKILL.md" && p !== "tasks");
     return parts[parts.length - 1];
   }
 
   private extractJournalTaskId(skillPath: string, epicPath: string): string {
-    const rel = relative(epicPath, skillPath).replace(/\\/g, '/');
-    const parts = rel.split('/').filter(p => p !== 'SKILL.md' && p !== 'tasks');
-    return parts.join('/');
+    const rel = relative(epicPath, skillPath).replace(/\\/g, "/");
+    const parts = rel
+      .split("/")
+      .filter((p) => p !== "SKILL.md" && p !== "tasks");
+    return parts.join("/");
   }
 }

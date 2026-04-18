@@ -8,13 +8,13 @@
 
 The convergence loop works differently at each development phase:
 
-| Phase | Check Type | Confidence | Example |
-|-------|-----------|------------|---------|
-| Ideation & Requirements | **File existence + structure** | Low — "does the artifact exist and have sections?" | `test -f .converge/requirements.md && grep -q "## User Stories" .converge/requirements.md` |
-| Design & Architecture | **Schema validation + structure** | Medium — "does the design doc follow the template?" | `ajv validate --schema design-schema.json .stitch/DESIGN.md` |
-| Implementation | **Static analysis** | High — "does the code compile and lint?" | `tsc --noEmit && eslint .` |
-| Testing & QA | **Deterministic** | Very High — "do all tests pass?" | `vitest run && playwright test` |
-| Production Readiness | **Deterministic** | Very High — "does it build, pass security, meet perf?" | `npm run build && npm audit && lighthouse --budget` |
+| Phase                   | Check Type                        | Confidence                                             | Example                                                                                    |
+| ----------------------- | --------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| Ideation & Requirements | **File existence + structure**    | Low — "does the artifact exist and have sections?"     | `test -f .converge/requirements.md && grep -q "## User Stories" .converge/requirements.md` |
+| Design & Architecture   | **Schema validation + structure** | Medium — "does the design doc follow the template?"    | `ajv validate --schema design-schema.json .stitch/DESIGN.md`                               |
+| Implementation          | **Static analysis**               | High — "does the code compile and lint?"               | `tsc --noEmit && eslint .`                                                                 |
+| Testing & QA            | **Deterministic**                 | Very High — "do all tests pass?"                       | `vitest run && playwright test`                                                            |
+| Production Readiness    | **Deterministic**                 | Very High — "does it build, pass security, meet perf?" | `npm run build && npm audit && lighthouse --budget`                                        |
 
 The trick: **each phase's outputs become the next phase's inputs**. The convergence loop at phase N can only start when phase N-1's goals are satisfied.
 
@@ -54,7 +54,7 @@ outputs:
 goal: requirements-complete
 description: "Structured requirements with user stories, data model, and acceptance criteria"
 inputs:
-  - idea.md  # or PRD.md — the starting point
+  - idea.md # or PRD.md — the starting point
 checks:
   - id: requirements-exists
     cmd: "test -f .converge/analysis/requirements.md"
@@ -168,7 +168,7 @@ inputs:
 checks:
   - id: typescript-clean
     cmd: "tsc --noEmit"
-    parse: tsc  # built-in parser: file:line → Gap[]
+    parse: tsc # built-in parser: file:line → Gap[]
   - id: lint-clean
     cmd: "eslint src/ --format json --max-warnings 0"
     parse: eslint
@@ -324,19 +324,25 @@ Each phase's checks are MORE deterministic than the previous. The convergence lo
 ## What Makes This Work
 
 ### 1. Outputs become inputs
+
 Phase 1 outputs `.converge/analysis/sitemap.md` → Phase 2 reads it to know which screens to design. Phase 2 outputs `.stitch/designs/` → Phase 4 reads them to know which components to implement. The chain is self-documenting.
 
 ### 2. Checks are the source of truth
+
 No task is "done" because an AI said so. It's done because `tsc --noEmit` exits 0. This eliminates the "AI thinks it's done but it's broken" problem.
 
 ### 3. Each phase converges independently
+
 Phase 4 (implementation) might take 15 iterations while Phase 3 (data layer) takes 2. Each phase has its own convergence loop with its own stall detection.
 
 ### 4. WBS handles the "thousands of tasks" problem
+
 A 50-screen app = 50 design subtasks + 50 implementation subtasks + 50 test subtasks = 150+ tasks. WBS spawns these dynamically from the sitemap. No manual task definition needed.
 
 ### 5. Failure at any phase is recoverable
+
 If Phase 4 stalls after 15 iterations, Converge:
+
 - Writes LEARN.md with failure analysis
 - Tries different repair strategies
 - Escalates to human if stuck
@@ -346,29 +352,32 @@ If Phase 4 stalls after 15 iterations, Converge:
 
 ## Realistic Scale Estimate
 
-| Project Size | Screens | Estimated Tasks | Estimated Iterations | Feasibility |
-|-------------|---------|-----------------|---------------------|-------------|
-| **Small** (landing page + dashboard) | 3-5 | 30-50 | 20-40 | High — works today |
-| **Medium** (SaaS app) | 10-20 | 100-200 | 50-100 | Medium — needs parallel execution |
-| **Large** (enterprise app) | 50+ | 500-1000 | 200-500 | Requires distributed workers |
+| Project Size                         | Screens | Estimated Tasks | Estimated Iterations | Feasibility                       |
+| ------------------------------------ | ------- | --------------- | -------------------- | --------------------------------- |
+| **Small** (landing page + dashboard) | 3-5     | 30-50           | 20-40                | High — works today                |
+| **Medium** (SaaS app)                | 10-20   | 100-200         | 50-100               | Medium — needs parallel execution |
+| **Large** (enterprise app)           | 50+     | 500-1000        | 200-500              | Requires distributed workers      |
 
 ---
 
 ## Honest Limitations
 
 ### What converge handles well:
+
 - **Structure creation** — scaffolding, file generation, boilerplate
 - **Deterministic fixes** — type errors, lint violations, missing imports
 - **Template-based generation** — screens from designs, components from schemas
 - **Quality gates** — build, test, lint, audit, lighthouse
 
 ### What converge handles poorly (today):
+
 - **Subjective quality** — "does this UI look good?" (no deterministic check)
 - **Business logic correctness** — "does the billing calculation work?" (needs human-written tests)
 - **Performance optimization** — lighthouse can detect, but fixing is creative
 - **Complex state management** — no check for "is the Redux store well-structured?"
 
 ### The honest gap:
+
 Phases 0-1 have **weak checks** (file existence ≠ quality). An AI can create a `requirements.md` that passes all structural checks but contains nonsense. The convergence loop catches _structural_ problems, not _semantic_ ones.
 
 **Mitigation**: Human review gates between phases. Converge pauses and asks "Phase 1 complete — review requirements before proceeding?"
@@ -379,11 +388,11 @@ Phases 0-1 have **weak checks** (file existence ≠ quality). An AI can create a
 
 To make this real, the framework needs (in order):
 
-| Priority | What | Effort | Impact |
-|----------|------|--------|--------|
-| **1** | Shell-based check primitives (cmd → exitCode → satisfied) | Small | Unlocks all phases |
-| **2** | Built-in parsers (tsc, eslint, vitest output → Gap[]) | Medium | Makes Phase 4-5 powerful |
-| **3** | `converge converge` CLI command | Medium | The entry point |
-| **4** | Phase dependency DAG (parallel Phase 2+3) | Medium | Faster execution |
-| **5** | Human review gates between phases | Small | Quality control |
-| **6** | Worker pool (parallel subtasks within a phase) | Large | Scale to 50+ screens |
+| Priority | What                                                      | Effort | Impact                   |
+| -------- | --------------------------------------------------------- | ------ | ------------------------ |
+| **1**    | Shell-based check primitives (cmd → exitCode → satisfied) | Small  | Unlocks all phases       |
+| **2**    | Built-in parsers (tsc, eslint, vitest output → Gap[])     | Medium | Makes Phase 4-5 powerful |
+| **3**    | `converge converge` CLI command                           | Medium | The entry point          |
+| **4**    | Phase dependency DAG (parallel Phase 2+3)                 | Medium | Faster execution         |
+| **5**    | Human review gates between phases                         | Small  | Quality control          |
+| **6**    | Worker pool (parallel subtasks within a phase)            | Large  | Scale to 50+ screens     |

@@ -5,11 +5,11 @@
  * The tree is dynamic and evolves during execution as tasks generate subtasks.
  */
 
-import type { Unit } from '../unit/index.ts';
-import type { Cursor, ExecutionLevel, Checkpoint } from '../storage/types.ts';
-import type { Gap } from '../gap/types.ts';
-import { discoverTaskHierarchy } from '../checkpoint/tree-utils.ts';
-import path from 'node:path';
+import type { Unit } from "../unit/index.ts";
+import type { Cursor, ExecutionLevel, Checkpoint } from "../storage/types.ts";
+import type { Gap } from "../gap/types.ts";
+import { discoverTaskHierarchy } from "../checkpoint/tree-utils.ts";
+import path from "node:path";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                             */
@@ -58,7 +58,7 @@ export interface TraversalResult {
   finalState: TraversalState;
 
   /** Termination reason */
-  terminationReason: 'completed' | 'stalled' | 'max-iterations' | 'error';
+  terminationReason: "completed" | "stalled" | "max-iterations" | "error";
 }
 
 /**
@@ -69,7 +69,11 @@ export interface TraversalVisitor {
   onEnterUnit?(unit: Unit, state: TraversalState): Promise<void>;
 
   /** Called when exiting a unit */
-  onExitUnit?(unit: Unit, state: TraversalState, success: boolean): Promise<void>;
+  onExitUnit?(
+    unit: Unit,
+    state: TraversalState,
+    success: boolean,
+  ): Promise<void>;
 
   /** Called on each iteration */
   onIteration?(state: TraversalState): Promise<void>;
@@ -96,11 +100,13 @@ export class TreeTraversal {
   private maxIterations: number;
   private checkpointInterval: number; // Checkpoint every N iterations
 
-  constructor(options: {
-    visitor?: TraversalVisitor;
-    maxIterations?: number;
-    checkpointInterval?: number;
-  } = {}) {
+  constructor(
+    options: {
+      visitor?: TraversalVisitor;
+      maxIterations?: number;
+      checkpointInterval?: number;
+    } = {},
+  ) {
     this.visitor = options.visitor;
     this.maxIterations = options.maxIterations || 100;
     this.checkpointInterval = options.checkpointInterval || 1; // Checkpoint after each iteration
@@ -116,7 +122,7 @@ export class TreeTraversal {
     rootUnit: Unit,
     resumeCursor?: Cursor,
     resumeCompletedUnits?: Set<string>,
-    resumeIteration?: number
+    resumeIteration?: number,
   ): Promise<TraversalResult> {
     let iteration = resumeIteration || 0;
     const completedUnits = resumeCompletedUnits || new Set<string>();
@@ -126,7 +132,9 @@ export class TreeTraversal {
     // Initialize traversal state
     let state: TraversalState = {
       cursor: resumeCursor || this.createInitialCursor(rootUnit),
-      executionStack: resumeCursor?.breadcrumbs || [this.createRootLevel(rootUnit)],
+      executionStack: resumeCursor?.breadcrumbs || [
+        this.createRootLevel(rootUnit),
+      ],
       currentUnit: rootUnit,
       iteration,
       gaps: [],
@@ -138,7 +146,7 @@ export class TreeTraversal {
       state.currentUnit = await this.navigateToCursor(rootUnit, resumeCursor);
     }
 
-    console.log('\n🌳 Starting tree traversal...');
+    console.log("\n🌳 Starting tree traversal...");
     this.logCursor(state.cursor);
 
     // Call onEnterUnit for the initial unit
@@ -148,9 +156,11 @@ export class TreeTraversal {
       iteration++;
       state.iteration = iteration;
 
-      console.log(`\n${'━'.repeat(80)}`);
-      console.log(`📍 Iteration ${iteration} at: ${this.formatCursorPath(state.cursor)}`);
-      console.log(`${'━'.repeat(80)}`);
+      console.log(`\n${"━".repeat(80)}`);
+      console.log(
+        `📍 Iteration ${iteration} at: ${this.formatCursorPath(state.cursor)}`,
+      );
+      console.log(`${"━".repeat(80)}`);
 
       // Notify visitor
       await this.visitor?.onIteration?.(state);
@@ -161,7 +171,10 @@ export class TreeTraversal {
 
       // Notify about gaps BEFORE fixing (if any were found)
       if (executeResult.gapsBeforeFix.length > 0) {
-        await this.visitor?.onGapsDetected?.(executeResult.gapsBeforeFix, state);
+        await this.visitor?.onGapsDetected?.(
+          executeResult.gapsBeforeFix,
+          state,
+        );
       }
 
       // Notify about resolved gaps (if any were fixed)
@@ -189,14 +202,14 @@ export class TreeTraversal {
         const nextUnit = await this.getNextUnit(state);
         if (!nextUnit) {
           // Entire tree traversed
-          console.log('\n✅ Tree traversal complete - all units processed');
+          console.log("\n✅ Tree traversal complete - all units processed");
           return {
             success: true,
             totalIterations: iteration,
             totalUnitsExecuted,
             totalUnitsCompleted: completedUnits.size,
             finalState: state,
-            terminationReason: 'completed',
+            terminationReason: "completed",
           };
         }
 
@@ -210,7 +223,9 @@ export class TreeTraversal {
       } else {
         // Unit not yet complete, continue fixing gaps
         if (executeResult.resolved > 0) {
-          console.log(`📝 Resolved ${executeResult.resolved}/${executeResult.gaps.length} gaps`);
+          console.log(
+            `📝 Resolved ${executeResult.resolved}/${executeResult.gaps.length} gaps`,
+          );
           consecutiveStalls = 0; // Reset stall counter on progress
         }
 
@@ -225,14 +240,14 @@ export class TreeTraversal {
           // Only trigger stall after 3 consecutive iterations with no progress
           // AND if we haven't reached max iterations yet (max iterations takes precedence)
           if (consecutiveStalls >= 3 && iteration < this.maxIterations) {
-            console.log('\n⚠️  Traversal stalled - no progress');
+            console.log("\n⚠️  Traversal stalled - no progress");
             return {
               success: false,
               totalIterations: iteration,
               totalUnitsExecuted,
               totalUnitsCompleted: completedUnits.size,
               finalState: state,
-              terminationReason: 'stalled',
+              terminationReason: "stalled",
             };
           }
         } else {
@@ -248,7 +263,7 @@ export class TreeTraversal {
       totalUnitsExecuted,
       totalUnitsCompleted: completedUnits.size,
       finalState: state,
-      terminationReason: 'max-iterations',
+      terminationReason: "max-iterations",
     };
   }
 
@@ -257,7 +272,7 @@ export class TreeTraversal {
    */
   private async executeUnit(
     unit: Unit,
-    state: TraversalState
+    state: TraversalState,
   ): Promise<{
     gaps: Gap[];
     gapsBeforeFix: Gap[];
@@ -267,14 +282,26 @@ export class TreeTraversal {
   }> {
     // Skip if already completed
     if (state.completedUnits.has(unit.id)) {
-      return { gaps: [], gapsBeforeFix: [], resolved: 0, completed: true, stalled: false };
+      return {
+        gaps: [],
+        gapsBeforeFix: [],
+        resolved: 0,
+        completed: true,
+        stalled: false,
+      };
     }
 
     // Find gaps
     const gapsBeforeFix = await (unit as any).findGaps();
 
     if (gapsBeforeFix.length === 0) {
-      return { gaps: [], gapsBeforeFix: [], resolved: 0, completed: true, stalled: false };
+      return {
+        gaps: [],
+        gapsBeforeFix: [],
+        resolved: 0,
+        completed: true,
+        stalled: false,
+      };
     }
 
     // Try to fix gaps
@@ -284,7 +311,10 @@ export class TreeTraversal {
     const remainingGaps = await (unit as any).findGaps();
 
     // Check for stall: no progress made (same or more gaps as before fix, and nothing resolved)
-    const stalled = remainingGaps.length > 0 && remainingGaps.length >= gapsBeforeFix.length && resolved === 0;
+    const stalled =
+      remainingGaps.length > 0 &&
+      remainingGaps.length >= gapsBeforeFix.length &&
+      resolved === 0;
 
     return {
       gaps: remainingGaps,
@@ -314,7 +344,9 @@ export class TreeTraversal {
     // Try to go to next sibling
     const parent = current.parent;
     if (parent?.children) {
-      const currentIndex = parent.children.findIndex((c) => c.id === current.id);
+      const currentIndex = parent.children.findIndex(
+        (c) => c.id === current.id,
+      );
       if (currentIndex !== -1 && currentIndex + 1 < parent.children.length) {
         return parent.children[currentIndex + 1];
       }
@@ -325,8 +357,13 @@ export class TreeTraversal {
     while (ancestor) {
       const ancestorParent = ancestor.parent;
       if (ancestorParent?.children) {
-        const ancestorIndex = ancestorParent.children.findIndex((c) => c.id === ancestor!.id);
-        if (ancestorIndex !== -1 && ancestorIndex + 1 < ancestorParent.children.length) {
+        const ancestorIndex = ancestorParent.children.findIndex(
+          (c) => c.id === ancestor!.id,
+        );
+        if (
+          ancestorIndex !== -1 &&
+          ancestorIndex + 1 < ancestorParent.children.length
+        ) {
           return ancestorParent.children[ancestorIndex + 1];
         }
       }
@@ -403,16 +440,22 @@ export class TreeTraversal {
   /**
    * Infer unit type from depth
    */
-  private inferUnitType(unit: Unit, depth: number): 'epic' | 'task' | 'subtask' {
-    if (depth === 0) return 'epic';
-    if (depth === 1) return 'task';
-    return 'subtask';
+  private inferUnitType(
+    unit: Unit,
+    depth: number,
+  ): "epic" | "task" | "subtask" {
+    if (depth === 0) return "epic";
+    if (depth === 1) return "task";
+    return "subtask";
   }
 
   /**
    * Navigate to cursor position
    */
-  private async navigateToCursor(rootUnit: Unit, cursor: Cursor): Promise<Unit> {
+  private async navigateToCursor(
+    rootUnit: Unit,
+    cursor: Cursor,
+  ): Promise<Unit> {
     let current = rootUnit;
 
     // Follow cursor path
@@ -427,7 +470,9 @@ export class TreeTraversal {
       // Find child with matching ID
       const child = current.children?.find((c) => c.id === targetId);
       if (!child) {
-        console.warn(`⚠️  Could not find child ${targetId}, using parent instead`);
+        console.warn(
+          `⚠️  Could not find child ${targetId}, using parent instead`,
+        );
         return current;
       }
 
@@ -446,7 +491,8 @@ export class TreeTraversal {
    */
   private async createCheckpoint(state: TraversalState): Promise<void> {
     // Get root path from first breadcrumb
-    const rootPath = state.executionStack[0]?.filePath || state.currentUnit.path;
+    const rootPath =
+      state.executionStack[0]?.filePath || state.currentUnit.path;
 
     const checkpoint: Checkpoint = {
       version: 3,
@@ -465,7 +511,9 @@ export class TreeTraversal {
 
     await this.visitor?.onCheckpoint?.(checkpoint, state);
 
-    console.log(`\n💾 Checkpoint created at: ${this.formatCursorPath(state.cursor)}`);
+    console.log(
+      `\n💾 Checkpoint created at: ${this.formatCursorPath(state.cursor)}`,
+    );
   }
 
   /**
@@ -480,6 +528,6 @@ export class TreeTraversal {
    * Format cursor path for display
    */
   private formatCursorPath(cursor: Cursor): string {
-    return cursor.path.join(' → ');
+    return cursor.path.join(" → ");
   }
 }

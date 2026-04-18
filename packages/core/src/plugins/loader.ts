@@ -5,12 +5,12 @@
  * Supports both legacy (V1) and new (V2) plugin formats.
  */
 
-import { resolve, join } from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { existsSync } from 'node:fs';
-import type { ConvergePluginV2, PluginEntry, PluginStateV2 } from './types.ts';
-import { PluginAPIImplV2 } from './api.ts';
-import { getBuiltinPlugin } from './builtins/index.ts';
+import { resolve, join } from "node:path";
+import { pathToFileURL } from "node:url";
+import { existsSync } from "node:fs";
+import type { ConvergePluginV2, PluginEntry, PluginStateV2 } from "./types.ts";
+import { PluginAPIImplV2 } from "./api.ts";
+import { getBuiltinPlugin } from "./builtins/index.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Plugin Entry Parsing                                              */
@@ -22,7 +22,7 @@ interface ParsedEntry {
 }
 
 function parseEntry(entry: PluginEntry): ParsedEntry {
-  if (typeof entry === 'string') {
+  if (typeof entry === "string") {
     return { name: entry, options: {} };
   }
   if (Array.isArray(entry)) {
@@ -35,16 +35,19 @@ function parseEntry(entry: PluginEntry): ParsedEntry {
 /*  Plugin Resolution                                                 */
 /* ------------------------------------------------------------------ */
 
-async function resolvePlugin(name: string, projectDir: string): Promise<ConvergePluginV2> {
+async function resolvePlugin(
+  name: string,
+  projectDir: string,
+): Promise<ConvergePluginV2> {
   // 1. Project-local plugin in .converge/plugins/{name}/
-  const crewPluginDir = join(projectDir, '.crew', 'plugins', name);
-  const crewPluginIndex = join(crewPluginDir, 'index.ts');
-  const crewPluginIndexJs = join(crewPluginDir, 'index.js');
-  const localPath = existsSync(crewPluginIndex)
-    ? crewPluginIndex
-    : existsSync(crewPluginIndexJs)
-    ? crewPluginIndexJs
-    : null;
+  const convergePluginDir = join(projectDir, ".converge", "plugins", name);
+  const convergePluginIndex = join(convergePluginDir, "index.ts");
+  const convergePluginIndexJs = join(convergePluginDir, "index.js");
+  const localPath = existsSync(convergePluginIndex)
+    ? convergePluginIndex
+    : existsSync(convergePluginIndexJs)
+      ? convergePluginIndexJs
+      : null;
 
   if (localPath) {
     const mod = await import(pathToFileURL(localPath).href);
@@ -61,7 +64,7 @@ async function resolvePlugin(name: string, projectDir: string): Promise<Converge
   }
 
   // 3. Local file path (starts with ./ or ../ or /)
-  if (name.startsWith('./') || name.startsWith('../') || name.startsWith('/')) {
+  if (name.startsWith("./") || name.startsWith("../") || name.startsWith("/")) {
     const absPath = resolve(projectDir, name);
     if (!existsSync(absPath)) {
       throw new Error(`Plugin file not found: ${absPath}`);
@@ -86,23 +89,28 @@ async function resolvePlugin(name: string, projectDir: string): Promise<Converge
         `  - Local file "${name}"\n` +
         `  - npm package "${name}"\n\n` +
         `Install it with: npm install ${name}\n` +
-        `Or create a local plugin in .converge/plugins/${name}/.`
+        `Or create a local plugin in .converge/plugins/${name}/.`,
     );
   }
 }
 
-function validatePlugin(plugin: unknown, source: string): asserts plugin is ConvergePluginV2 {
-  if (!plugin || typeof plugin !== 'object') {
-    throw new Error(`Plugin "${source}" does not export a valid plugin object.`);
+function validatePlugin(
+  plugin: unknown,
+  source: string,
+): asserts plugin is ConvergePluginV2 {
+  if (!plugin || typeof plugin !== "object") {
+    throw new Error(
+      `Plugin "${source}" does not export a valid plugin object.`,
+    );
   }
   const p = plugin as Record<string, unknown>;
-  if (typeof p.name !== 'string' || !p.name) {
+  if (typeof p.name !== "string" || !p.name) {
     throw new Error(`Plugin "${source}" is missing a "name" field.`);
   }
-  if (typeof p.version !== 'string' || !p.version) {
+  if (typeof p.version !== "string" || !p.version) {
     throw new Error(`Plugin "${source}" is missing a "version" field.`);
   }
-  if (typeof p.setup !== 'function') {
+  if (typeof p.setup !== "function") {
     throw new Error(`Plugin "${source}" is missing a "setup" function.`);
   }
 }
@@ -144,7 +152,7 @@ function topologicalSort(plugins: ResolvedPlugin[]): ResolvedPlugin[] {
 
     if (visiting.has(name)) {
       throw new Error(
-        `Circular plugin dependency detected: ${[...chain, name].join(' → ')}`
+        `Circular plugin dependency detected: ${[...chain, name].join(" → ")}`,
       );
     }
 
@@ -157,7 +165,7 @@ function topologicalSort(plugins: ResolvedPlugin[]): ResolvedPlugin[] {
       if (!nameToPlugin.has(req)) {
         throw new Error(
           `Plugin "${name}" requires "${req}", but it is not in the plugins list.\n` +
-            `Add "${req}" before "${name}" in project.yaml plugins array.`
+            `Add "${req}" before "${name}" in project.yaml plugins array.`,
         );
       }
       visit(req, [...chain, name]);
@@ -186,7 +194,7 @@ function topologicalSort(plugins: ResolvedPlugin[]): ResolvedPlugin[] {
  */
 export async function loadPluginsV2(
   entries: PluginEntry[],
-  projectDir: string
+  projectDir: string,
 ): Promise<PluginStateV2> {
   const state: PluginStateV2 = {
     checks: new Map(),
@@ -233,41 +241,45 @@ export async function loadPluginsV2(
  */
 export function formatPluginListV2(state: PluginStateV2): string {
   if (state.manifests.length === 0) {
-    return 'No plugins loaded.';
+    return "No plugins loaded.";
   }
 
   const lines: string[] = [`Plugins (${state.manifests.length}):`];
 
   for (const m of state.manifests) {
-    const req = m.requires?.length ? ` (requires: ${m.requires.join(', ')})` : '';
+    const req = m.requires?.length
+      ? ` (requires: ${m.requires.join(", ")})`
+      : "";
     lines.push(
-      `  ${m.name}@${m.version}${m.description ? ` — ${m.description}` : ''}${req}`
+      `  ${m.name}@${m.version}${m.description ? ` — ${m.description}` : ""}${req}`,
     );
 
     const details: string[] = [];
 
     // New function contributions
-    if (m.checkFns.length) details.push(`✓ checks: ${m.checkFns.join(', ')}`);
-    if (m.evalFns.length) details.push(`✓ evals: ${m.evalFns.join(', ')}`);
-    if (m.planFns.length) details.push(`✓ plans: ${m.planFns.join(', ')}`);
-    if (m.taskFns.length) details.push(`✓ tasks: ${m.taskFns.join(', ')}`);
+    if (m.checkFns.length) details.push(`✓ checks: ${m.checkFns.join(", ")}`);
+    if (m.evalFns.length) details.push(`✓ evals: ${m.evalFns.join(", ")}`);
+    if (m.planFns.length) details.push(`✓ plans: ${m.planFns.join(", ")}`);
+    if (m.taskFns.length) details.push(`✓ tasks: ${m.taskFns.join(", ")}`);
 
     // Legacy contributions (if any)
-    if (m.checks.length) details.push(`  [legacy] checks: ${m.checks.join(', ')}`);
-    if (m.taskTypes.length) details.push(`  [legacy] types: ${m.taskTypes.join(', ')}`);
+    if (m.checks.length)
+      details.push(`  [legacy] checks: ${m.checks.join(", ")}`);
+    if (m.taskTypes.length)
+      details.push(`  [legacy] types: ${m.taskTypes.join(", ")}`);
     if (m.extendedTypes.length)
-      details.push(`  [legacy] extends: ${m.extendedTypes.join(', ')}`);
+      details.push(`  [legacy] extends: ${m.extendedTypes.join(", ")}`);
 
     // Infrastructure
-    if (m.hooks.length) details.push(`  hooks: ${m.hooks.join(', ')}`);
-    if (m.tools.length) details.push(`  tools: ${m.tools.join(', ')}`);
-    if (m.vars.length) details.push(`  vars: ${m.vars.join(', ')}`);
+    if (m.hooks.length) details.push(`  hooks: ${m.hooks.join(", ")}`);
+    if (m.tools.length) details.push(`  tools: ${m.tools.join(", ")}`);
+    if (m.vars.length) details.push(`  vars: ${m.vars.join(", ")}`);
 
     for (const d of details) {
       lines.push(`    ${d}`);
     }
 
-    lines.push('');
+    lines.push("");
   }
 
   // Summary
@@ -282,12 +294,20 @@ export function formatPluginListV2(state: PluginStateV2): string {
   lines.push(`  Plan functions: ${totalPlans}`);
   lines.push(`  Task functions: ${totalTasks}`);
 
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 /**
  * List all available built-in plugins
  */
 export function listBuiltinPluginsV2(): string[] {
-  return ['typescript', 'nextjs', 'git', 'docker', 'eslint', 'vitest', 'convergeconfig'];
+  return [
+    "typescript",
+    "nextjs",
+    "git",
+    "docker",
+    "eslint",
+    "vitest",
+    "convergeconfig",
+  ];
 }

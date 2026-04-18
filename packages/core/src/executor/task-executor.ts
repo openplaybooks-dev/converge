@@ -8,10 +8,10 @@
  * Used by ConvergeController which decides how many times to call run().
  */
 
-import { READONLY_TOOLS } from '../ai/context.ts';
-import { runAgent } from '../repair/agent-runner.ts';
-import { join } from 'node:path';
-import { z } from 'zod';
+import { READONLY_TOOLS } from "../ai/context.ts";
+import { runAgent } from "../repair/agent-runner.ts";
+import { join } from "node:path";
+import { z } from "zod";
 import type {
   ExecutorFn,
   ExecutorContext,
@@ -21,17 +21,17 @@ import type {
   SpawnTarget,
   SpawnOptions,
   SpawnResult,
-} from '../config/task-definition.ts';
-import type { JournalContext } from '../repair/types.ts';
+} from "../config/task-definition.ts";
+import type { JournalContext } from "../repair/types.ts";
 import {
   logTaskEvent,
   writeTaskStatus,
   writeTaskTodo,
-} from '../journal/writer.ts';
-import { getJournalStructure } from '../journal/structure.ts';
-import type { TaskStatus, ChecklistItem } from '../journal/types.ts';
-import { SpawnRunner } from './spawn-runner.ts';
-import type { SpawnState, WriteStatusOpts } from './spawn-runner.ts';
+} from "../journal/writer.ts";
+import { getJournalStructure } from "../journal/structure.ts";
+import type { TaskStatus, ChecklistItem } from "../journal/types.ts";
+import { SpawnRunner } from "./spawn-runner.ts";
+import type { SpawnState, WriteStatusOpts } from "./spawn-runner.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Result type                                                       */
@@ -79,7 +79,10 @@ export class TaskExecutor {
    * Run the executor function once with a fresh ExecutorContext.
    * iteration is passed from ConvergeController (1 in manual mode).
    */
-  async run(executorFn: ExecutorFn, iteration: number): Promise<TaskExecutorResult> {
+  async run(
+    executorFn: ExecutorFn,
+    iteration: number,
+  ): Promise<TaskExecutorResult> {
     const startedAt = new Date().toISOString();
     const spawnState: SpawnState = {
       counter: 0,
@@ -113,7 +116,10 @@ export class TaskExecutor {
   /*  ExecutorContext builder                                         */
   /* ---------------------------------------------------------------- */
 
-  private buildExecutorContext(iteration: number, spawnState: SpawnState): ExecutorContext {
+  private buildExecutorContext(
+    iteration: number,
+    spawnState: SpawnState,
+  ): ExecutorContext {
     return {
       task: {
         id: this.taskMeta.id,
@@ -128,7 +134,7 @@ export class TaskExecutor {
       },
       spawn: (target: SpawnTarget, opts?: SpawnOptions) => {
         spawnState.counter++;
-        if (typeof target === 'string') {
+        if (typeof target === "string") {
           return this.spawnRunner.executeSpawnPath(target, spawnState, opts);
         } else {
           return this.spawnRunner.executeSpawnInline(target, spawnState, opts);
@@ -144,11 +150,12 @@ export class TaskExecutor {
 
   private buildAiFn<T>(opts: AiFnOpts<T>): AiFn<T> {
     const logDir = this.getLogDir();
-    const label = opts.label ?? 'ai.fn';
+    const label = opts.label ?? "ai.fn";
     let callCount = 0;
 
     // Get event writer from global context (if running under task-runner)
-    const getEventWriter = () => (global as any).__CONVERGE_EVENT_WRITER__ || null;
+    const getEventWriter = () =>
+      (global as any).__CONVERGE_EVENT_WRITER__ || null;
 
     // Use runAgent from agent-runner.ts which reads AI config from project.yaml
     const agentOptions = {
@@ -167,7 +174,7 @@ export class TaskExecutor {
         this.projectDir,
         this.journalCtx.epicId,
         this.journalCtx.taskId,
-        'CLAUDEFN_START',
+        "CLAUDEFN_START",
         `${label} call ${callCount}`,
         { phase, label, callCount },
       );
@@ -180,15 +187,21 @@ export class TaskExecutor {
           projectDir: this.projectDir,
           journalCtx: this.journalCtx,
           label: `${label}_${callCount}`,
-          agentName: 'task-executor',
+          agentName: "task-executor",
         });
         await logTaskEvent(
           this.projectDir,
           this.journalCtx.epicId,
           this.journalCtx.taskId,
-          'CLAUDEFN_COMPLETE',
+          "CLAUDEFN_COMPLETE",
           `${label} call ${callCount} done in ${result.durationMs}ms`,
-          { phase, label, callCount, durationMs: result.durationMs, sessionId: result.sessionId },
+          {
+            phase,
+            label,
+            callCount,
+            durationMs: result.durationMs,
+            sessionId: result.sessionId,
+          },
         );
         return result.data;
       } catch (error: any) {
@@ -196,7 +209,7 @@ export class TaskExecutor {
           this.projectDir,
           this.journalCtx.epicId,
           this.journalCtx.taskId,
-          'CLAUDEFN_FAILED',
+          "CLAUDEFN_FAILED",
           `${label} call ${callCount} failed: ${error.message}`,
           { phase, label, callCount, error: error.message },
         );
@@ -225,7 +238,9 @@ whether the condition described in QUESTION is fully satisfied.`;
       if (!booleanPromise) {
         booleanPromise = (async (): Promise<boolean> => {
           const askFn = this.buildAiFn<{ answer: boolean; reasoning: string }>({
-            prompt: basePrompt + `
+            prompt:
+              basePrompt +
+              `
 
 Return a JSON object:
 - answer: true if the condition is fully met, false otherwise
@@ -233,7 +248,7 @@ Return a JSON object:
             schema: AskSchema,
             allowedTools: [...READONLY_TOOLS],
             timeoutMs: 60_000,
-            label: 'ai.ask',
+            label: "ai.ask",
           });
 
           try {
@@ -250,19 +265,23 @@ Return a JSON object:
 
     return {
       then: <TResult1 = boolean, TResult2 = never>(
-        onfulfilled?: ((value: boolean) => TResult1 | PromiseLike<TResult1>) | null,
+        onfulfilled?:
+          | ((value: boolean) => TResult1 | PromiseLike<TResult1>)
+          | null,
         onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null,
       ) => getBooleanPromise().then(onfulfilled, onrejected),
 
-      asJson: <T>(schema: import('zod').ZodType<T>): Promise<T> => {
+      asJson: <T>(schema: import("zod").ZodType<T>): Promise<T> => {
         const jsonFn = this.buildAiFn<T>({
-          prompt: basePrompt + `
+          prompt:
+            basePrompt +
+            `
 
 Return a JSON object matching the requested schema.`,
           schema,
           allowedTools: [...READONLY_TOOLS],
           timeoutMs: 60_000,
-          label: 'ai.ask.asJson',
+          label: "ai.ask.asJson",
         });
         return jsonFn();
       },
@@ -274,7 +293,7 @@ Return a JSON object matching the requested schema.`,
   /* ---------------------------------------------------------------- */
 
   private async writeStatus(opts: {
-    status: TaskStatus['status'];
+    status: TaskStatus["status"];
     startedAt: string;
     completedAt?: string;
     checklist: ChecklistItem[];
@@ -289,11 +308,15 @@ Return a JSON object matching the requested schema.`,
       startedAt: opts.startedAt,
       completedAt: opts.completedAt,
       durationMs: opts.completedAt
-        ? new Date(opts.completedAt).getTime() - new Date(opts.startedAt).getTime()
+        ? new Date(opts.completedAt).getTime() -
+          new Date(opts.startedAt).getTime()
         : undefined,
       attempt: 1,
-      gapsResolved: opts.status === 'complete' ? opts.checklist.filter(i => i.done).length : 0,
-      gapsFailed: opts.status === 'failed' ? 1 : 0,
+      gapsResolved:
+        opts.status === "complete"
+          ? opts.checklist.filter((i) => i.done).length
+          : 0,
+      gapsFailed: opts.status === "failed" ? 1 : 0,
       error: opts.error,
       checklist: opts.checklist,
     };
@@ -304,7 +327,6 @@ Return a JSON object matching the requested schema.`,
   getLogDir(): string {
     const { epicId, taskId } = this.journalCtx;
     const structure = getJournalStructure(this.projectDir, epicId, taskId);
-    return join(structure.attempt ?? structure.task!, 'logs');
+    return join(structure.attempt ?? structure.task!, "logs");
   }
 }
-

@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-positioning/003-why-converge",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T00:33:49.367Z",
+  "createdAt": "2026-04-18T00:32:39.879Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T00:32:39.879Z",
+      "completedAt": "2026-04-18T00:33:49.364Z",
+      "outcome": "success",
+      "durationMs": 69485
+    }
+  ],
+  "currentAttempt": 1
+}

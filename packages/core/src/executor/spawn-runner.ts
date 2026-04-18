@@ -10,15 +10,15 @@
  */
 
 // Force UTF-8 encoding for Python subprocesses (fixes Windows codec errors with kimi)
-process.env.PYTHONIOENCODING = 'utf-8';
-process.env.PYTHONUTF8 = '1';
+process.env.PYTHONIOENCODING = "utf-8";
+process.env.PYTHONUTF8 = "1";
 
-import { agentfn } from '@converge/agentfn';
-import type { AgentFnResult } from '@converge/agentfn';
-import { existsSync, readFileSync, readdirSync, appendFileSync } from 'node:fs';
-import { mkdir, writeFile } from 'node:fs/promises';
-import { homedir } from 'node:os';
-import { join, dirname, basename } from 'node:path';
+import { agentfn } from "@converge/agentfn";
+import type { AgentFnResult } from "@converge/agentfn";
+import { existsSync, readFileSync, readdirSync, appendFileSync } from "node:fs";
+import { mkdir, writeFile } from "node:fs/promises";
+import { homedir } from "node:os";
+import { join, dirname, basename } from "node:path";
 import type {
   SpawnOptions,
   SpawnResult,
@@ -26,28 +26,48 @@ import type {
   PathRefTarget,
   TaskDefFactory,
   Need,
-} from '../config/task-definition.ts';
-import { TaskDefinitionBuilder } from '../config/task-definition.ts';
-import type { JournalContext } from '../repair/types.ts';
-import { logTaskEvent, writeTaskStatus, writeTaskTodo } from '../journal/writer.ts';
-import type { TaskStatus as JournalTaskStatus, ChecklistItem } from '../journal/types.ts';
+} from "../config/task-definition.ts";
+import { TaskDefinitionBuilder } from "../config/task-definition.ts";
+import type { JournalContext } from "../repair/types.ts";
+import {
+  logTaskEvent,
+  writeTaskStatus,
+  writeTaskTodo,
+} from "../journal/writer.ts";
+import type {
+  TaskStatus as JournalTaskStatus,
+  ChecklistItem,
+} from "../journal/types.ts";
 import {
   resolveSkillDependencies,
   validateSkillsExist,
   getSkillSummary,
   collectAllowedTools,
-} from './skill-resolver.ts';
-import { classifyAgentError } from '../repair/agent-runner.ts';
-import { SimpleLogTailer } from '../journal/simple-log-tailer.ts';
-import { resolveAIConfig, listAIProviders } from '../ai/factory.ts';
-import { FilesystemStorage } from '../storage/filesystem.ts';
-import { resolveSkillsRoot, logSkillSources } from '../config/skill-path-resolver.ts';
+} from "./skill-resolver.ts";
+import { classifyAgentError } from "../repair/agent-runner.ts";
+import { SimpleLogTailer } from "../journal/simple-log-tailer.ts";
+import { resolveAIConfig, listAIProviders } from "../ai/factory.ts";
+import { FilesystemStorage } from "../storage/filesystem.ts";
+import {
+  resolveSkillsRoot,
+  logSkillSources,
+} from "../config/skill-path-resolver.ts";
 /** Sleep for the given number of milliseconds (interruptible via AbortSignal). */
 function sleepMs(ms: number, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
-    if (signal?.aborted) { resolve(); return; }
+    if (signal?.aborted) {
+      resolve();
+      return;
+    }
     const timer = setTimeout(resolve, ms);
-    signal?.addEventListener('abort', () => { clearTimeout(timer); resolve(); }, { once: true });
+    signal?.addEventListener(
+      "abort",
+      () => {
+        clearTimeout(timer);
+        resolve();
+      },
+      { once: true },
+    );
   });
 }
 
@@ -66,7 +86,7 @@ export interface SpawnState {
 /* ------------------------------------------------------------------ */
 
 export interface WriteStatusOpts {
-  status: JournalTaskStatus['status'];
+  status: JournalTaskStatus["status"];
   startedAt: string;
   completedAt?: string;
   checklist: ChecklistItem[];
@@ -100,7 +120,7 @@ export class SpawnRunner {
     if (!existsSync(absSkillPath)) {
       throw new Error(
         `ctx.spawn: skill file not found: ${absSkillPath}. ` +
-        `Ensure the path is relative to the project root.`
+          `Ensure the path is relative to the project root.`,
       );
     }
 
@@ -110,10 +130,10 @@ export class SpawnRunner {
     //   skillName    = stitch-loop
     const skillDir = dirname(absSkillPath);
     const skillName = basename(skillDir);
-    
+
     // Resolve skillsRoot with fallback chain:
     //   1. Project .skill/ folder
-    //   2. Global .claude/skills/ folder  
+    //   2. Global .claude/skills/ folder
     //   3. Legacy .converge/skills/ folder
     const skillsRoot = resolveSkillsRoot(this.projectDir);
 
@@ -123,13 +143,17 @@ export class SpawnRunner {
 
     const item: ChecklistItem = {
       id: checklistId,
-      type: 'subtask',
+      type: "subtask",
       description: label,
       details: skillPath,
       done: false,
     };
     state.checklist.push(item);
-    await this.writeStatus({ status: 'running', startedAt: state.startedAt, checklist: state.checklist });
+    await this.writeStatus({
+      status: "running",
+      startedAt: state.startedAt,
+      checklist: state.checklist,
+    });
 
     const logDir = this.getLogDir();
     const phase = `spawn_${spawnNumber}`;
@@ -149,44 +173,43 @@ export class SpawnRunner {
       validateSkillsExist(skillsRoot, [skillName]);
 
       // Resolve all transitive dependencies
-      const resolution = resolveSkillDependencies(
-        skillsRoot,
-        [skillName],
-        {
-          maxDepth: 10,
-          throwOnMissing: true,
-          verbose: true, // Enable verbose logging to debug issues
-        },
-      );
+      const resolution = resolveSkillDependencies(skillsRoot, [skillName], {
+        maxDepth: 10,
+        throwOnMissing: true,
+        verbose: true, // Enable verbose logging to debug issues
+      });
 
       allSkills = resolution.skills;
 
       // Log warnings if any
       if (resolution.warnings.length > 0) {
         console.log(`   ⚠️  Warnings during skill resolution:`);
-        resolution.warnings.forEach(w => console.log(`      - ${w}`));
+        resolution.warnings.forEach((w) => console.log(`      - ${w}`));
       }
 
       // Validate all resolved skills exist
       validateSkillsExist(skillsRoot, allSkills);
 
       console.log(`   ✅ Loading ${allSkills.length} skill(s):`);
-      console.log(getSkillSummary(skillsRoot, allSkills)
-        .split('\n')
-        .map(line => `   ${line}`)
-        .join('\n'));
+      console.log(
+        getSkillSummary(skillsRoot, allSkills)
+          .split("\n")
+          .map((line) => `   ${line}`)
+          .join("\n"),
+      );
 
       // Collect all allowed tools from all skills
       mergedAllowedTools = collectAllowedTools(skillsRoot, allSkills);
-      console.log(`   🔧 Allowed tools (${mergedAllowedTools.length}): ${mergedAllowedTools.join(', ')}`);
-
+      console.log(
+        `   🔧 Allowed tools (${mergedAllowedTools.length}): ${mergedAllowedTools.join(", ")}`,
+      );
     } catch (error: any) {
       console.error(`   ❌ Skill validation failed: ${error.message}`);
       await logTaskEvent(
         this.projectDir,
         this.journalCtx.epicId,
         this.journalCtx.taskId,
-        'SKILL_VALIDATION_FAILED',
+        "SKILL_VALIDATION_FAILED",
         `Skill validation failed for ${skillName}: ${error.message}`,
         { phase, skillPath, skillName, spawnNumber, error: error.message },
       );
@@ -197,7 +220,7 @@ export class SpawnRunner {
       this.projectDir,
       this.journalCtx.epicId,
       this.journalCtx.taskId,
-      'CLAUDEFN_START',
+      "CLAUDEFN_START",
       `spawn ${spawnNumber}: ${label}`,
       { phase, skillPath, skillName, spawnNumber, skills: allSkills },
     );
@@ -214,22 +237,41 @@ export class SpawnRunner {
 
     const getLatestLogFile = (): string | null => {
       try {
-        const files = readdirSync(logDir).filter((f: string) => f.endsWith('.log')).sort();
+        const files = readdirSync(logDir)
+          .filter((f: string) => f.endsWith(".log"))
+          .sort();
         return files.length > 0 ? `${logDir}/${files.at(-1)}` : null;
-      } catch { return null; }
+      } catch {
+        return null;
+      }
     };
 
     /** Read all log files in logDir and aggregate line counts + content. */
     const getAllLogContent = (): string => {
       try {
-        const files = readdirSync(logDir).filter((f: string) => f.endsWith('.log')).sort();
-        return files.map(f => { try { return readFileSync(`${logDir}/${f}`, 'utf-8'); } catch { return ''; } }).join('\n');
-      } catch { return ''; }
+        const files = readdirSync(logDir)
+          .filter((f: string) => f.endsWith(".log"))
+          .sort();
+        return files
+          .map((f) => {
+            try {
+              return readFileSync(`${logDir}/${f}`, "utf-8");
+            } catch {
+              return "";
+            }
+          })
+          .join("\n");
+      } catch {
+        return "";
+      }
     };
 
     // Print actual log file path once it appears (agentfn creates it on start)
     const logFilePoller = setInterval(() => {
-      if (logFilePrinted) { clearInterval(logFilePoller); return; }
+      if (logFilePrinted) {
+        clearInterval(logFilePoller);
+        return;
+      }
       const logFile = getLatestLogFile();
       if (logFile) {
         console.log(`   Log   : ${logFile}`);
@@ -240,23 +282,27 @@ export class SpawnRunner {
     }, 500);
 
     let stdoutSeen = false;
-    let lastStderrLine = '';
+    let lastStderrLine = "";
 
     // Hang guard: rejects when lastActivityAt hasn't advanced for HANG_IDLE_MS.
     // lastActivityAt is bumped by the heartbeat on every new log line — so an
     // active agent never triggers this. Only dead silence does.
     let _hangReject: ((err: Error) => void) | null = null;
-    const hangGuard = new Promise<never>((_, reject) => { _hangReject = reject; });
+    const hangGuard = new Promise<never>((_, reject) => {
+      _hangReject = reject;
+    });
     const hangChecker = setInterval(() => {
       const idleMs = Date.now() - lastActivityAt;
       if (idleMs >= HANG_IDLE_MS) {
         clearInterval(hangChecker);
         const idleMins = Math.floor(idleMs / 60_000);
-        _hangReject?.(new Error(
-          `Hang detected: no new log lines for ${idleMins} minute${idleMins !== 1 ? 's' : ''}. Task killed.\n` +
-          `Last activity: ${new Date(lastActivityAt).toISOString()}\n` +
-          `Log lines seen: ${lastLogLineCount}`
-        ));
+        _hangReject?.(
+          new Error(
+            `Hang detected: no new log lines for ${idleMins} minute${idleMins !== 1 ? "s" : ""}. Task killed.\n` +
+              `Last activity: ${new Date(lastActivityAt).toISOString()}\n` +
+              `Log lines seen: ${lastLogLineCount}`,
+          ),
+        );
       }
     }, 30_000); // check every 30 seconds
 
@@ -272,15 +318,17 @@ export class SpawnRunner {
       // BUT: Only track activity from the LATEST log file to detect hangs correctly.
       // Reading all historical logs would make old crashes look like "new activity".
       const latestLogFile = getLatestLogFile();
-      let currentContent = '';
+      let currentContent = "";
       if (latestLogFile) {
         try {
-          currentContent = readFileSync(latestLogFile, 'utf-8');
-        } catch { /* ignore */ }
+          currentContent = readFileSync(latestLogFile, "utf-8");
+        } catch {
+          /* ignore */
+        }
       }
 
       if (currentContent) {
-        const lines = currentContent.split('\n').filter(Boolean);
+        const lines = currentContent.split("\n").filter(Boolean);
         if (lines.length > lastLogLineCount) {
           lastLogLineCount = lines.length;
           lastActivityAt = Date.now(); // Only update activity if current log grows
@@ -289,24 +337,40 @@ export class SpawnRunner {
 
       // Use allContent for display/stderr detection (shows full history)
       if (allContent) {
-        if (!stdoutSeen && allContent.includes('[STDOUT]')) stdoutSeen = true;
+        if (!stdoutSeen && allContent.includes("[STDOUT]")) stdoutSeen = true;
         // Capture latest STDERR line for display
-        const stderrLines = allContent.split('\n').filter(l => l.includes('[STDERR]'));
+        const stderrLines = allContent
+          .split("\n")
+          .filter((l) => l.includes("[STDERR]"));
         if (stderrLines.length > 0) {
-          lastStderrLine = stderrLines.at(-1)!.replace(/.*\[STDERR\]\s*/, '').trim().slice(0, 120);
+          lastStderrLine = stderrLines
+            .at(-1)!
+            .replace(/.*\[STDERR\]\s*/, "")
+            .trim()
+            .slice(0, 120);
         }
       }
 
       const idleSecs = Math.floor((Date.now() - lastActivityAt) / 1000);
-      const idleStr = idleSecs < 60 ? `${idleSecs}s ago` : `${Math.floor(idleSecs / 60)}m ${idleSecs % 60}s ago`;
+      const idleStr =
+        idleSecs < 60
+          ? `${idleSecs}s ago`
+          : `${Math.floor(idleSecs / 60)}m ${idleSecs % 60}s ago`;
 
       if (lastStderrLine) {
-        console.log(`   ⏳ Still running... ${elapsedStr} elapsed — ⚠️  stderr: ${lastStderrLine}`);
+        console.log(
+          `   ⏳ Still running... ${elapsedStr} elapsed — ⚠️  stderr: ${lastStderrLine}`,
+        );
       } else if (!stdoutSeen && elapsed >= 60) {
-        console.log(`   ⏳ Still running... ${elapsedStr} elapsed — ⚠️  no output yet (process may be hung)`);
+        console.log(
+          `   ⏳ Still running... ${elapsedStr} elapsed — ⚠️  no output yet (process may be hung)`,
+        );
       } else {
-        const activityNote = idleSecs > 30 ? ` — last activity: ${idleStr}` : '';
-        console.log(`   ⏳ Still running... ${elapsedStr} elapsed${activityNote}`);
+        const activityNote =
+          idleSecs > 30 ? ` — last activity: ${idleStr}` : "";
+        console.log(
+          `   ⏳ Still running... ${elapsedStr} elapsed${activityNote}`,
+        );
       }
     }, 60_000);
 
@@ -320,19 +384,21 @@ export class SpawnRunner {
     await logTailer.start();
 
     // Load AI configuration from project.yaml
-    let resolvedAI: import('../ai/factory.ts').ResolvedAIConfig | null = null;
+    let resolvedAI: import("../ai/factory.ts").ResolvedAIConfig | null = null;
     try {
-      const convergeDir = join(this.projectDir, '.converge');
-      const projectYamlPath = join(convergeDir, 'project.yaml');
-      
+      const convergeDir = join(this.projectDir, ".converge");
+      const projectYamlPath = join(convergeDir, "project.yaml");
+
       if (existsSync(projectYamlPath)) {
         const storage = new FilesystemStorage(convergeDir);
         const projectConfig = storage.readProject();
-        
+
         if (projectConfig.ai) {
           resolvedAI = resolveAIConfig(projectConfig.ai);
           if (resolvedAI) {
-            console.log(`   🤖 AI Provider: ${resolvedAI.name} (${resolvedAI.resolvedProvider})`);
+            console.log(
+              `   🤖 AI Provider: ${resolvedAI.name} (${resolvedAI.resolvedProvider})`,
+            );
           }
         }
       }
@@ -346,20 +412,30 @@ export class SpawnRunner {
     // Set environment variables from config (for Claude CLI with custom backends like Kimi)
     const envBackup: Record<string, string | undefined> = {};
     if (resolvedAI?.env) {
-      console.log(`   🔧 Setting env vars: ${Object.keys(resolvedAI.env).join(', ')}`);
+      console.log(
+        `   🔧 Setting env vars: ${Object.keys(resolvedAI.env).join(", ")}`,
+      );
       for (const [key, value] of Object.entries(resolvedAI.env)) {
         envBackup[key] = process.env[key];
         process.env[key] = value;
       }
     }
 
-    const agentFnProvider = resolvedAI?.resolvedProvider && !opts?.provider ? resolvedAI.resolvedProvider : opts?.provider;
-    console.log(`   [spawn-runner] agentfn: provider=${agentFnProvider ?? 'default'}, skills=[${allSkills.join(', ')}]`);
-    
+    const agentFnProvider =
+      resolvedAI?.resolvedProvider && !opts?.provider
+        ? resolvedAI.resolvedProvider
+        : opts?.provider;
+    console.log(
+      `   [spawn-runner] agentfn: provider=${agentFnProvider ?? "default"}, skills=[${allSkills.join(", ")}]`,
+    );
+
     // NOTE: skills and skillsRoot disabled for kimi provider - causes hang
     // For kimi, we rely on the skill content being in the prompt or use skill injection
-    const useSkills = agentFnProvider !== 'kimi' && agentFnProvider !== 'qwen' && agentFnProvider !== 'gemini';
-    
+    const useSkills =
+      agentFnProvider !== "kimi" &&
+      agentFnProvider !== "qwen" &&
+      agentFnProvider !== "gemini";
+
     const executor = agentfn<string>({
       prompt: opts?.prompt ?? `Execute using the \`/${skillName}\` skill.`,
       ...(useSkills ? { skillsRoot, skills: allSkills } : {}),
@@ -370,43 +446,53 @@ export class SpawnRunner {
       signal: opts?.signal,
       // Apply AI configuration from project.yaml (if not overridden in opts)
       ...(agentFnProvider ? { provider: agentFnProvider } : {}),
-      ...(resolvedAI?.apiKey && !opts?.apiKey ? { apiKey: resolvedAI.apiKey } : {}),
-      ...(resolvedAI?.baseUrl && !opts?.baseUrl ? { baseUrl: resolvedAI.baseUrl } : {}),
+      ...(resolvedAI?.apiKey && !opts?.apiKey
+        ? { apiKey: resolvedAI.apiKey }
+        : {}),
+      ...(resolvedAI?.baseUrl && !opts?.baseUrl
+        ? { baseUrl: resolvedAI.baseUrl }
+        : {}),
       ...(resolvedAI?.model && !opts?.model ? { model: resolvedAI.model } : {}),
       // Hooks disabled for kimi - may cause hang
-      ...(agentFnProvider !== 'kimi' ? {
-        hooks: {
-          before: async ({ prompt }) => {
-            console.log(`   📝 Prompt: ${prompt.slice(0, 100)}...`);
-            await logTaskEvent(
-              this.projectDir,
-              this.journalCtx.epicId,
-              this.journalCtx.taskId,
-              'CLAUDEFN_PROMPT',
-              `Executing with ${allSkills.length} skill(s): ${allSkills.join(', ')}`,
-              { phase, prompt: prompt.slice(0, 500), skills: allSkills },
-            );
-            return prompt;
-          },
-          onStream: (chunk: string) => {
-            stdoutSeen = true;
-            const logFile = getLatestLogFile();
-            if (logFile) {
-              try { appendFileSync(logFile, chunk); } catch { /* best-effort */ }
-            }
-          },
-          after: async ({ result, durationMs }) => {
-            await logTaskEvent(
-              this.projectDir,
-              this.journalCtx.epicId,
-              this.journalCtx.taskId,
-              'CLAUDEFN_COMPLETE',
-              `Completed in ${(durationMs / 1000).toFixed(1)}s`,
-              { phase, durationMs, resultLength: result.length },
-            );
-          },
-        },
-      } : {}),
+      ...(agentFnProvider !== "kimi"
+        ? {
+            hooks: {
+              before: async ({ prompt }) => {
+                console.log(`   📝 Prompt: ${prompt.slice(0, 100)}...`);
+                await logTaskEvent(
+                  this.projectDir,
+                  this.journalCtx.epicId,
+                  this.journalCtx.taskId,
+                  "CLAUDEFN_PROMPT",
+                  `Executing with ${allSkills.length} skill(s): ${allSkills.join(", ")}`,
+                  { phase, prompt: prompt.slice(0, 500), skills: allSkills },
+                );
+                return prompt;
+              },
+              onStream: (chunk: string) => {
+                stdoutSeen = true;
+                const logFile = getLatestLogFile();
+                if (logFile) {
+                  try {
+                    appendFileSync(logFile, chunk);
+                  } catch {
+                    /* best-effort */
+                  }
+                }
+              },
+              after: async ({ result, durationMs }) => {
+                await logTaskEvent(
+                  this.projectDir,
+                  this.journalCtx.epicId,
+                  this.journalCtx.taskId,
+                  "CLAUDEFN_COMPLETE",
+                  `Completed in ${(durationMs / 1000).toFixed(1)}s`,
+                  { phase, durationMs, resultLength: result.length },
+                );
+              },
+            },
+          }
+        : {}),
     });
 
     // Crash-resilient execution: retry on process crashes AND timeouts
@@ -425,136 +511,168 @@ export class SpawnRunner {
           logTailer.stop(); // Stop log streaming
           break; // success — exit retry loop
         } catch (error: any) {
-        const diagnosis = classifyAgentError(error);
-        const isRetryable = diagnosis.type === 'crash' || diagnosis.type === 'timeout';
+          const diagnosis = classifyAgentError(error);
+          const isRetryable =
+            diagnosis.type === "crash" || diagnosis.type === "timeout";
 
-        // If aborted externally, don't retry at all
-        if (opts?.signal?.aborted) {
+          // If aborted externally, don't retry at all
+          if (opts?.signal?.aborted) {
+            clearInterval(hangChecker);
+            clearInterval(heartbeat);
+            clearInterval(logFilePoller);
+            logTailer.stop(); // Stop log streaming
+            throw error;
+          }
+
+          // On crash or timeout, retry with backoff before giving up
+          if (isRetryable && retryAttempt < MAX_RETRIES) {
+            retryAttempt++;
+            const delayMs = Math.min(
+              2000 * Math.pow(2, retryAttempt - 1),
+              16000,
+            ); // 2s, 4s, 8s, 16s
+            const errorType =
+              diagnosis.type === "crash" ? "crashed" : "timed out";
+            console.warn(
+              `\n   ❌ Process ${errorType} (attempt ${retryAttempt}/${MAX_RETRIES}): ${diagnosis.summary}`,
+            );
+            if (diagnosis.hint) console.warn(`   💡 ${diagnosis.hint}`);
+            console.warn(`   ⏳ Retrying in ${delayMs / 1000}s...`);
+
+            await logTaskEvent(
+              this.projectDir,
+              this.journalCtx.epicId,
+              this.journalCtx.taskId,
+              diagnosis.type === "crash"
+                ? "CLAUDEFN_CRASH_RETRY"
+                : "CLAUDEFN_TIMEOUT_RETRY",
+              `spawn ${spawnNumber} ${errorType} (attempt ${retryAttempt}/${MAX_RETRIES}): ${error.message}`,
+              {
+                phase,
+                skillName,
+                spawnNumber,
+                retryAttempt,
+                errorType: diagnosis.type,
+                diagnosis: diagnosis.summary,
+              },
+            );
+
+            await sleepMs(delayMs, opts?.signal);
+
+            // Reset activity tracking for the retry
+            lastActivityAt = Date.now();
+            stdoutSeen = false;
+            lastStderrLine = "";
+            continue;
+          }
+
+          // Non-recoverable — clean up and throw
           clearInterval(hangChecker);
           clearInterval(heartbeat);
           clearInterval(logFilePoller);
           logTailer.stop(); // Stop log streaming
-          throw error;
-        }
 
-        // On crash or timeout, retry with backoff before giving up
-        if (isRetryable && retryAttempt < MAX_RETRIES) {
-          retryAttempt++;
-          const delayMs = Math.min(2000 * Math.pow(2, retryAttempt - 1), 16000); // 2s, 4s, 8s, 16s
-          const errorType = diagnosis.type === 'crash' ? 'crashed' : 'timed out';
-          console.warn(`\n   ❌ Process ${errorType} (attempt ${retryAttempt}/${MAX_RETRIES}): ${diagnosis.summary}`);
-          if (diagnosis.hint) console.warn(`   💡 ${diagnosis.hint}`);
-          console.warn(`   ⏳ Retrying in ${delayMs / 1000}s...`);
+          const errorDetails = {
+            phase,
+            skillPath,
+            skillName,
+            spawnNumber,
+            allSkills,
+            error: error.message,
+            errorStack: error.stack,
+            stdoutSeen,
+            lastStderrLine,
+            elapsedSeconds: Math.floor((Date.now() - runStart) / 1000),
+            retryAttempts: retryAttempt,
+            errorType: diagnosis.type,
+          };
+
+          console.error(
+            `\n   ❌ Skill execution failed [${diagnosis.type}]: ${diagnosis.summary}`,
+          );
+          if (diagnosis.hint) console.error(`   💡 ${diagnosis.hint}`);
+          console.error(`   Skills loaded: ${allSkills.join(", ")}`);
+          console.error(`   Stdout seen: ${stdoutSeen}`);
+          if (retryAttempt > 0) {
+            console.error(`   ⚠️  All ${MAX_RETRIES} retries exhausted`);
+          }
+          if (lastStderrLine) {
+            console.error(`   Last stderr: ${lastStderrLine}`);
+          }
+          if (isRetryable && retryAttempt >= MAX_RETRIES) {
+            console.error(`\n   💡 Troubleshooting steps:`);
+            console.error(
+              `      1. Run \`claude --version\` to verify CLI works`,
+            );
+            console.error(`      2. Check if antivirus is blocking Claude`);
+            console.error(`      3. Review logs at: ${logDir}`);
+            console.error(
+              `      4. Try closing other applications to free resources`,
+            );
+            if (diagnosis.type === "timeout") {
+              console.error(
+                `      5. Check Claude API status (api.anthropic.com)`,
+              );
+              console.error(`      6. Review the prompt/skill complexity`);
+            }
+          }
 
           await logTaskEvent(
             this.projectDir,
             this.journalCtx.epicId,
             this.journalCtx.taskId,
-            diagnosis.type === 'crash' ? 'CLAUDEFN_CRASH_RETRY' : 'CLAUDEFN_TIMEOUT_RETRY',
-            `spawn ${spawnNumber} ${errorType} (attempt ${retryAttempt}/${MAX_RETRIES}): ${error.message}`,
-            { phase, skillName, spawnNumber, retryAttempt, errorType: diagnosis.type, diagnosis: diagnosis.summary },
+            "CLAUDEFN_FAILED",
+            `spawn ${spawnNumber} failed: ${error.message}`,
+            errorDetails,
           );
 
-          await sleepMs(delayMs, opts?.signal);
-
-          // Reset activity tracking for the retry
-          lastActivityAt = Date.now();
-          stdoutSeen = false;
-          lastStderrLine = '';
-          continue;
+          item.details = `${skillPath} [FAILED: ${error.message}]`;
+          await this.writeStatus({
+            status: "running",
+            startedAt: state.startedAt,
+            checklist: state.checklist,
+          });
+          throw error;
         }
+      }
 
-        // Non-recoverable — clean up and throw
-        clearInterval(hangChecker);
-        clearInterval(heartbeat);
-        clearInterval(logFilePoller);
-        logTailer.stop(); // Stop log streaming
+      item.done = true;
+      item.doneAt = new Date().toISOString();
+      await this.writeStatus({
+        status: "running",
+        startedAt: state.startedAt,
+        checklist: state.checklist,
+      });
 
-        const errorDetails = {
+      const elapsedSeconds = Math.floor((Date.now() - runStart) / 1000);
+      console.log(`\n   ✅ Skill execution completed successfully`);
+      console.log(`   Duration: ${elapsedSeconds}s`);
+      console.log(`   Skills used: ${allSkills.join(", ")}`);
+      console.log(`   Session ID: ${result.sessionId ?? "N/A"}`);
+
+      await logTaskEvent(
+        this.projectDir,
+        this.journalCtx.epicId,
+        this.journalCtx.taskId,
+        "CLAUDEFN_COMPLETE",
+        `spawn ${spawnNumber} done in ${result.durationMs}ms`,
+        {
           phase,
           skillPath,
           skillName,
           spawnNumber,
+          durationMs: result.durationMs,
+          sessionId: result.sessionId,
           allSkills,
-          error: error.message,
-          errorStack: error.stack,
-          stdoutSeen,
-          lastStderrLine,
-          elapsedSeconds: Math.floor((Date.now() - runStart) / 1000),
-          retryAttempts: retryAttempt,
-          errorType: diagnosis.type,
-        };
+          resultLength: result.data?.length,
+        },
+      );
 
-        console.error(`\n   ❌ Skill execution failed [${diagnosis.type}]: ${diagnosis.summary}`);
-        if (diagnosis.hint) console.error(`   💡 ${diagnosis.hint}`);
-        console.error(`   Skills loaded: ${allSkills.join(', ')}`);
-        console.error(`   Stdout seen: ${stdoutSeen}`);
-        if (retryAttempt > 0) {
-          console.error(`   ⚠️  All ${MAX_RETRIES} retries exhausted`);
-        }
-        if (lastStderrLine) {
-          console.error(`   Last stderr: ${lastStderrLine}`);
-        }
-        if (isRetryable && retryAttempt >= MAX_RETRIES) {
-          console.error(`\n   💡 Troubleshooting steps:`);
-          console.error(`      1. Run \`claude --version\` to verify CLI works`);
-          console.error(`      2. Check if antivirus is blocking Claude`);
-          console.error(`      3. Review logs at: ${logDir}`);
-          console.error(`      4. Try closing other applications to free resources`);
-          if (diagnosis.type === 'timeout') {
-            console.error(`      5. Check Claude API status (api.anthropic.com)`);
-            console.error(`      6. Review the prompt/skill complexity`);
-          }
-        }
-
-        await logTaskEvent(
-          this.projectDir,
-          this.journalCtx.epicId,
-          this.journalCtx.taskId,
-          'CLAUDEFN_FAILED',
-          `spawn ${spawnNumber} failed: ${error.message}`,
-          errorDetails,
-        );
-
-        item.details = `${skillPath} [FAILED: ${error.message}]`;
-        await this.writeStatus({ status: 'running', startedAt: state.startedAt, checklist: state.checklist });
-        throw error;
-      }
-    }
-
-    item.done = true;
-    item.doneAt = new Date().toISOString();
-    await this.writeStatus({ status: 'running', startedAt: state.startedAt, checklist: state.checklist });
-
-    const elapsedSeconds = Math.floor((Date.now() - runStart) / 1000);
-    console.log(`\n   ✅ Skill execution completed successfully`);
-    console.log(`   Duration: ${elapsedSeconds}s`);
-    console.log(`   Skills used: ${allSkills.join(', ')}`);
-    console.log(`   Session ID: ${result.sessionId ?? 'N/A'}`);
-
-    await logTaskEvent(
-      this.projectDir,
-      this.journalCtx.epicId,
-      this.journalCtx.taskId,
-      'CLAUDEFN_COMPLETE',
-      `spawn ${spawnNumber} done in ${result.durationMs}ms`,
-      {
-        phase,
-        skillPath,
-        skillName,
-        spawnNumber,
+      return {
+        success: true,
         durationMs: result.durationMs,
-        sessionId: result.sessionId,
-        allSkills,
-        resultLength: result.data?.length,
-      },
-    );
-
-    return {
-      success: true,
-      durationMs: result.durationMs,
-      sessionId: result.sessionId ?? '',
-    };
+        sessionId: result.sessionId ?? "",
+      };
     } finally {
       // Restore environment variables
       for (const [key, value] of Object.entries(envBackup)) {
@@ -576,38 +694,55 @@ export class SpawnRunner {
     state: SpawnState,
     opts?: SpawnOptions,
   ): Promise<SpawnResult> {
-    const label = opts?.label ?? target.definition.title ?? target.definition.id;
+    const label =
+      opts?.label ?? target.definition.title ?? target.definition.id;
     const spawnNumber = state.counter;
     const checklistId = `subtask:spawn-${spawnNumber}`;
 
     const item: ChecklistItem = {
       id: checklistId,
-      type: 'subtask',
+      type: "subtask",
       description: label,
       details: target.definition.id,
       done: false,
     };
     state.checklist.push(item);
-    await this.writeStatus({ status: 'running', startedAt: state.startedAt, checklist: state.checklist });
+    await this.writeStatus({
+      status: "running",
+      startedAt: state.startedAt,
+      checklist: state.checklist,
+    });
 
     await logTaskEvent(
       this.projectDir,
       this.journalCtx.epicId,
       this.journalCtx.taskId,
-      'CLAUDEFN_START',
+      "CLAUDEFN_START",
       `spawn ${spawnNumber}: inline task '${target.definition.id}'`,
-      { phase: `spawn_${spawnNumber}`, taskId: target.definition.id, spawnNumber },
+      {
+        phase: `spawn_${spawnNumber}`,
+        taskId: target.definition.id,
+        spawnNumber,
+      },
     );
 
     let virtualPath: string | undefined;
     if (target.writeToPath) {
       const absPath = join(this.projectDir, target.writeToPath);
-      await writeInlineDefinitionToFile(this.projectDir, target.definition, target.writeToPath);
+      await writeInlineDefinitionToFile(
+        this.projectDir,
+        target.definition,
+        target.writeToPath,
+      );
       virtualPath = absPath;
     }
 
-    const { Unit } = await import('../unit/index.ts');
-    const childUnit = Unit.fromDefinition(target.definition, this.parentUnit, virtualPath);
+    const { Unit } = await import("../unit/index.ts");
+    const childUnit = Unit.fromDefinition(
+      target.definition,
+      this.parentUnit,
+      virtualPath,
+    );
 
     const start = Date.now();
     let success = false;
@@ -618,27 +753,46 @@ export class SpawnRunner {
         this.projectDir,
         this.journalCtx.epicId,
         this.journalCtx.taskId,
-        'CLAUDEFN_FAILED',
+        "CLAUDEFN_FAILED",
         `spawn ${spawnNumber} inline task '${target.definition.id}' failed: ${error.message}`,
-        { phase: `spawn_${spawnNumber}`, taskId: target.definition.id, spawnNumber, error: error.message },
+        {
+          phase: `spawn_${spawnNumber}`,
+          taskId: target.definition.id,
+          spawnNumber,
+          error: error.message,
+        },
       );
       item.details = `${target.definition.id} [FAILED: ${error.message}]`;
-      await this.writeStatus({ status: 'running', startedAt: state.startedAt, checklist: state.checklist });
+      await this.writeStatus({
+        status: "running",
+        startedAt: state.startedAt,
+        checklist: state.checklist,
+      });
       throw error;
     }
     const durationMs = Date.now() - start;
 
     item.done = success;
     item.doneAt = new Date().toISOString();
-    await this.writeStatus({ status: 'running', startedAt: state.startedAt, checklist: state.checklist });
+    await this.writeStatus({
+      status: "running",
+      startedAt: state.startedAt,
+      checklist: state.checklist,
+    });
 
     await logTaskEvent(
       this.projectDir,
       this.journalCtx.epicId,
       this.journalCtx.taskId,
-      'CLAUDEFN_COMPLETE',
+      "CLAUDEFN_COMPLETE",
       `spawn ${spawnNumber} inline task '${target.definition.id}' done in ${durationMs}ms`,
-      { phase: `spawn_${spawnNumber}`, taskId: target.definition.id, spawnNumber, durationMs, success },
+      {
+        phase: `spawn_${spawnNumber}`,
+        taskId: target.definition.id,
+        spawnNumber,
+        durationMs,
+        success,
+      },
     );
 
     return {
@@ -662,34 +816,38 @@ export class SpawnRunner {
     if (!existsSync(absPath)) {
       throw new Error(
         `ctx.spawn: task file not found: ${absPath}. ` +
-        `Ensure the path is relative to the project root.`
+          `Ensure the path is relative to the project root.`,
       );
     }
 
-    const label = opts?.label ?? target.path.split('/').pop() ?? target.path;
+    const label = opts?.label ?? target.path.split("/").pop() ?? target.path;
     const spawnNumber = state.counter;
     const checklistId = `subtask:spawn-${spawnNumber}`;
 
     const item: ChecklistItem = {
       id: checklistId,
-      type: 'subtask',
+      type: "subtask",
       description: label,
       details: target.path,
       done: false,
     };
     state.checklist.push(item);
-    await this.writeStatus({ status: 'running', startedAt: state.startedAt, checklist: state.checklist });
+    await this.writeStatus({
+      status: "running",
+      startedAt: state.startedAt,
+      checklist: state.checklist,
+    });
 
     await logTaskEvent(
       this.projectDir,
       this.journalCtx.epicId,
       this.journalCtx.taskId,
-      'CLAUDEFN_START',
+      "CLAUDEFN_START",
       `spawn ${spawnNumber}: path-ref '${target.path}'`,
       { phase: `spawn_${spawnNumber}`, taskPath: target.path, spawnNumber },
     );
 
-    const { Unit } = await import('../unit/index.ts');
+    const { Unit } = await import("../unit/index.ts");
     const childUnit = await Unit.fromPath(absPath, this.parentUnit);
 
     const start = Date.now();
@@ -701,27 +859,46 @@ export class SpawnRunner {
         this.projectDir,
         this.journalCtx.epicId,
         this.journalCtx.taskId,
-        'CLAUDEFN_FAILED',
+        "CLAUDEFN_FAILED",
         `spawn ${spawnNumber} path-ref '${target.path}' failed: ${error.message}`,
-        { phase: `spawn_${spawnNumber}`, taskPath: target.path, spawnNumber, error: error.message },
+        {
+          phase: `spawn_${spawnNumber}`,
+          taskPath: target.path,
+          spawnNumber,
+          error: error.message,
+        },
       );
       item.details = `${target.path} [FAILED: ${error.message}]`;
-      await this.writeStatus({ status: 'running', startedAt: state.startedAt, checklist: state.checklist });
+      await this.writeStatus({
+        status: "running",
+        startedAt: state.startedAt,
+        checklist: state.checklist,
+      });
       throw error;
     }
     const durationMs = Date.now() - start;
 
     item.done = success;
     item.doneAt = new Date().toISOString();
-    await this.writeStatus({ status: 'running', startedAt: state.startedAt, checklist: state.checklist });
+    await this.writeStatus({
+      status: "running",
+      startedAt: state.startedAt,
+      checklist: state.checklist,
+    });
 
     await logTaskEvent(
       this.projectDir,
       this.journalCtx.epicId,
       this.journalCtx.taskId,
-      'CLAUDEFN_COMPLETE',
+      "CLAUDEFN_COMPLETE",
       `spawn ${spawnNumber} path-ref '${target.path}' done in ${durationMs}ms`,
-      { phase: `spawn_${spawnNumber}`, taskPath: target.path, spawnNumber, durationMs, success },
+      {
+        phase: `spawn_${spawnNumber}`,
+        taskPath: target.path,
+        spawnNumber,
+        durationMs,
+        success,
+      },
     );
 
     return {
@@ -757,15 +934,22 @@ export class SpawnRunner {
   ): Promise<SpawnResult> {
     // Access internal def without calling build() (which requires id)
     // Use duck-type property access to handle dual-module instances
-    const def = (builder as any).def as Partial<import('../config/task-definition.ts').TaskDefinition> ?? {};
+    const def =
+      ((builder as any).def as Partial<
+        import("../config/task-definition.ts").TaskDefinition
+      >) ?? {};
     const skillField = def.skill;
-    const skills = Array.isArray(skillField) ? skillField : (typeof skillField === 'string' ? [skillField] : []);
-    const prompt = typeof def.prompt === 'string' ? def.prompt : undefined;
+    const skills = Array.isArray(skillField)
+      ? skillField
+      : typeof skillField === "string"
+        ? [skillField]
+        : [];
+    const prompt = typeof def.prompt === "string" ? def.prompt : undefined;
     const needs = (def.vars?.needs as Need[] | undefined) ?? [];
 
     if (skills.length === 0) {
       throw new Error(
-        `ctx.loop.spawn: TaskDefinitionBuilder has no skills — add .skills(['skill-name'])`
+        `ctx.loop.spawn: TaskDefinitionBuilder has no skills — add .skills(['skill-name'])`,
       );
     }
 
@@ -774,12 +958,12 @@ export class SpawnRunner {
       const failures = checkNeeds(needs, this.projectDir);
       if (failures.length > 0) {
         throw new Error(
-          `Task needs not met:\n${failures.map(f => `  ✗ ${f}`).join('\n')}`
+          `Task needs not met:\n${failures.map((f) => `  ✗ ${f}`).join("\n")}`,
         );
       }
     }
 
-    let last: SpawnResult = { success: false, durationMs: 0, sessionId: '' };
+    let last: SpawnResult = { success: false, durationMs: 0, sessionId: "" };
     for (let i = 0; i < skills.length; i++) {
       // Caller already incremented counter for the first skill.
       // Subsequent skills get their own counter slot.
@@ -808,11 +992,11 @@ function checkNeeds(needs: Need[], projectDir: string): string[] {
   const failures: string[] = [];
 
   for (const req of needs) {
-    if (req.type === 'mcp-server') {
+    if (req.type === "mcp-server") {
       if (!isMcpServerConfigured(req.name, projectDir)) {
         failures.push(
           `MCP server "${req.name}" is not configured. ` +
-          `Add it to .claude/settings.json or ~/.claude/settings.json under mcpServers.`
+            `Add it to .claude/settings.json or ~/.claude/settings.json under mcpServers.`,
         );
       }
     }
@@ -827,22 +1011,27 @@ function checkNeeds(needs: Need[], projectDir: string): string[] {
  */
 function isMcpServerConfigured(name: string, projectDir: string): boolean {
   const candidates = [
-    join(projectDir, '.mcp.json'),                   // Claude Code project MCP config
-    join(projectDir, '.claude', 'settings.json'),    // Claude Code project settings
-    join(homedir(), '.claude', 'settings.json'),     // Claude Code user settings
+    join(projectDir, ".mcp.json"), // Claude Code project MCP config
+    join(projectDir, ".claude", "settings.json"), // Claude Code project settings
+    join(homedir(), ".claude", "settings.json"), // Claude Code user settings
   ];
 
   for (const settingsPath of candidates) {
     if (!existsSync(settingsPath)) continue;
     try {
-      const settings = JSON.parse(readFileSync(settingsPath, 'utf-8'));
+      const settings = JSON.parse(readFileSync(settingsPath, "utf-8"));
       const servers: Record<string, unknown> = settings?.mcpServers ?? {};
       // Match by exact name or name prefix (e.g. "stitch" matches "stitch-server")
       const found = Object.keys(servers).some(
-        key => key === name || key.startsWith(name + '-') || key.startsWith(name + '_')
+        (key) =>
+          key === name ||
+          key.startsWith(name + "-") ||
+          key.startsWith(name + "_"),
       );
       if (found) return true;
-    } catch { /* malformed settings — treat as not configured */ }
+    } catch {
+      /* malformed settings — treat as not configured */
+    }
   }
 
   return false;
@@ -858,22 +1047,31 @@ function isMcpServerConfigured(name: string, projectDir: string): boolean {
  */
 export async function writeInlineDefinitionToFile(
   projectDir: string,
-  def: import('../config/task-definition.ts').TaskDefinition,
+  def: import("../config/task-definition.ts").TaskDefinition,
   relPath: string,
 ): Promise<void> {
   const absPath = join(projectDir, relPath);
   await mkdir(dirname(absPath), { recursive: true });
 
-  const lines: string[] = ["import { taskDef } from '@converge/core';", 'export default taskDef()'];
+  const lines: string[] = [
+    "import { taskDef } from '@converge/core';",
+    "export default taskDef()",
+  ];
   lines.push(`  .id(${JSON.stringify(def.id)})`);
   if (def.title) lines.push(`  .title(${JSON.stringify(def.title)})`);
-  if (def.description) lines.push(`  .description(${JSON.stringify(def.description)})`);
-  if (typeof def.skill === 'string') lines.push(`  .skill(${JSON.stringify(def.skill)})`);
-  else if (Array.isArray(def.skill) && def.skill.length > 0) lines.push(`  .skills(${JSON.stringify(def.skill)})`);
+  if (def.description)
+    lines.push(`  .description(${JSON.stringify(def.description)})`);
+  if (typeof def.skill === "string")
+    lines.push(`  .skill(${JSON.stringify(def.skill)})`);
+  else if (Array.isArray(def.skill) && def.skill.length > 0)
+    lines.push(`  .skills(${JSON.stringify(def.skill)})`);
   if (def.agent) lines.push(`  .agent(${JSON.stringify(def.agent)})`);
-  if (typeof def.prompt === 'string') lines.push(`  .prompt(${JSON.stringify(def.prompt)})`);
-  if (def.inputs?.length) lines.push(`  .inputs(${JSON.stringify(def.inputs)})`);
-  if (def.outputs?.length) lines.push(`  .outputs(${JSON.stringify(def.outputs)})`);
+  if (typeof def.prompt === "string")
+    lines.push(`  .prompt(${JSON.stringify(def.prompt)})`);
+  if (def.inputs?.length)
+    lines.push(`  .inputs(${JSON.stringify(def.inputs)})`);
+  if (def.outputs?.length)
+    lines.push(`  .outputs(${JSON.stringify(def.outputs)})`);
   if (def.tags?.length) lines.push(`  .tags(${JSON.stringify(def.tags)})`);
   if (def.vars && Object.keys(def.vars).length > 0) {
     lines.push(`  .vars(${JSON.stringify(def.vars)})`);
@@ -881,7 +1079,7 @@ export async function writeInlineDefinitionToFile(
   if (Array.isArray(def.checks) && def.checks.length > 0) {
     lines.push(`  .checks(${JSON.stringify(def.checks)})`);
   }
-  lines.push('  .build();');
+  lines.push("  .build();");
 
-  await writeFile(absPath, lines.join('\n') + '\n', 'utf-8');
+  await writeFile(absPath, lines.join("\n") + "\n", "utf-8");
 }

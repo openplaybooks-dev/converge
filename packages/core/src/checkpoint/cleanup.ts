@@ -6,10 +6,10 @@
  * from causing issues when tasks are renamed, deleted, or moved.
  */
 
-import { readdirSync, statSync, existsSync } from 'fs';
-import { rm } from 'fs/promises';
-import path from 'path';
-import { getEpicsDir } from '../journal/structure.ts';
+import { readdirSync, statSync, existsSync } from "fs";
+import { rm } from "fs/promises";
+import path from "path";
+import { getEpicsDir } from "../journal/structure.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -34,7 +34,7 @@ export class JournalCleanup {
   constructor(projectDir: string) {
     this.projectDir = projectDir;
     this.journalDir = getEpicsDir(projectDir);
-    this.epicsDir = path.join(projectDir, '.converge', 'epics');
+    this.epicsDir = path.join(projectDir, ".converge", "epics");
   }
 
   /**
@@ -68,9 +68,9 @@ export class JournalCleanup {
       await this.cleanupTasksInDirectory(
         epicJournalDir,
         epicId,
-        '',
+        "",
         validTaskIds,
-        removed
+        removed,
       );
     }
 
@@ -107,7 +107,7 @@ export class JournalCleanup {
 
     if (!existsSync(epicDir)) return taskIds;
 
-    this.scanValidTasksInDirectory(epicDir, '', taskIds);
+    this.scanValidTasksInDirectory(epicDir, "", taskIds);
 
     return taskIds;
   }
@@ -118,26 +118,26 @@ export class JournalCleanup {
   private scanValidTasksInDirectory(
     dir: string,
     parentPath: string,
-    taskIds: Set<string>
+    taskIds: Set<string>,
   ): void {
     for (const entry of readdirSync(dir)) {
       const entryPath = path.join(dir, entry);
       if (!statSync(entryPath).isDirectory()) continue;
 
       // Skip internal directories
-      if (entry === 'materials' || entry === 'examples') continue;
+      if (entry === "materials" || entry === "examples") continue;
 
       // Check if this is a task directory (has task.ts or SKILL.md)
       const hasTaskFile =
-        existsSync(path.join(entryPath, 'task.ts')) ||
-        existsSync(path.join(entryPath, 'SKILL.md'));
+        existsSync(path.join(entryPath, "task.ts")) ||
+        existsSync(path.join(entryPath, "SKILL.md"));
 
       if (hasTaskFile) {
         const taskPath = parentPath ? `${parentPath}/${entry}` : entry;
         taskIds.add(taskPath);
 
         // Recursively scan tasks/ subdirectory for WBS subtasks
-        const tasksSubdir = path.join(entryPath, 'tasks');
+        const tasksSubdir = path.join(entryPath, "tasks");
         if (existsSync(tasksSubdir) && statSync(tasksSubdir).isDirectory()) {
           this.scanValidTasksInDirectory(tasksSubdir, taskPath, taskIds);
         }
@@ -153,14 +153,14 @@ export class JournalCleanup {
     epicId: string,
     parentPath: string,
     validTaskIds: Set<string>,
-    removed: string[]
+    removed: string[],
   ): Promise<void> {
     for (const entry of readdirSync(dir)) {
       const entryPath = path.join(dir, entry);
       if (!statSync(entryPath).isDirectory()) continue;
 
       // Skip internal directories (don't delete attempts/logs)
-      if (entry === 'attempts' || entry === 'logs') continue;
+      if (entry === "attempts" || entry === "logs") continue;
 
       // Build task path
       const taskPath = parentPath ? `${parentPath}/${entry}` : entry;
@@ -174,14 +174,14 @@ export class JournalCleanup {
       }
 
       // Task exists → recursively check tasks/ subdirectory
-      const tasksSubdir = path.join(entryPath, 'tasks');
+      const tasksSubdir = path.join(entryPath, "tasks");
       if (existsSync(tasksSubdir) && statSync(tasksSubdir).isDirectory()) {
         await this.cleanupTasksInDirectory(
           tasksSubdir,
           epicId,
           taskPath,
           validTaskIds,
-          removed
+          removed,
         );
       }
     }
@@ -201,7 +201,7 @@ export class JournalCleanup {
         }
       }
     } else if (verbose) {
-      console.log('✓ No orphaned journals found');
+      console.log("✓ No orphaned journals found");
     }
 
     return result;

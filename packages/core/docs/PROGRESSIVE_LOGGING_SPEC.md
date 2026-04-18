@@ -51,6 +51,7 @@ Based on the log output analysis:
 ### Phase 3: AI Execution (Enhanced Real-Time Updates)
 
 **First Minute** (Initial context):
+
 ```
 🤖 AI Agent Running
    ├─ Phase: run_task
@@ -70,6 +71,7 @@ Based on the log output analysis:
 ```
 
 **Second Minute** (Progress context):
+
 ```
 ⏱️  1:15 │ 🛠️  Tool: Skill (stitch-generate)
    └─ Invoking Stitch AI for HTML generation...
@@ -84,6 +86,7 @@ Based on the log output analysis:
 ```
 
 **Third Minute** (Completion context):
+
 ```
 ⏱️  2:34 │ ✅ File created: .stitch/designs/home-lesson-tree.html (42.3 KB)
    └─ Contains: semantic markup, inline CSS, animations, a11y features
@@ -100,6 +103,7 @@ Based on the log output analysis:
 ### Phase 4: Output Validation
 
 **Success Case**:
+
 ```
 ┌─ Validation ────────────────────────────────────────────────┐
 │ ✅ All outputs created                                       │
@@ -113,6 +117,7 @@ Based on the log output analysis:
 ```
 
 **Failure Case (Current Issue)**:
+
 ```
 ┌─ Validation ────────────────────────────────────────────────┐
 │ ⚠️  Output validation failed                                 │
@@ -185,6 +190,7 @@ Based on the log output analysis:
 ```
 
 **If Still Failing**:
+
 ```
 ┌─ Retry #2 ──────────────────────────────────────────────────┐
 │ ⚠️  Persistent failure detected                              │
@@ -211,6 +217,7 @@ Based on the log output analysis:
 ### Phase 6: Final Status
 
 **Success**:
+
 ```
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ ✅ TASK COMPLETED                                           ┃
@@ -226,6 +233,7 @@ Based on the log output analysis:
 ```
 
 **Failure**:
+
 ```
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ ❌ TASK FAILED                                              ┃
@@ -260,28 +268,28 @@ Based on the log output analysis:
 ```typescript
 enum LogEventType {
   // Lifecycle
-  TASK_START = 'task_start',
-  TASK_COMPLETE = 'task_complete',
-  TASK_FAILED = 'task_failed',
+  TASK_START = "task_start",
+  TASK_COMPLETE = "task_complete",
+  TASK_FAILED = "task_failed",
 
   // Progress
-  AI_THINKING = 'ai_thinking',
-  AI_TOOL_START = 'ai_tool_start',
-  AI_TOOL_COMPLETE = 'ai_tool_complete',
-  FILE_CREATED = 'file_created',
-  FILE_VERIFIED = 'file_verified',
+  AI_THINKING = "ai_thinking",
+  AI_TOOL_START = "ai_tool_start",
+  AI_TOOL_COMPLETE = "ai_tool_complete",
+  FILE_CREATED = "file_created",
+  FILE_VERIFIED = "file_verified",
 
   // Validation
-  OUTPUT_VALID = 'output_valid',
-  OUTPUT_MISSING = 'output_missing',
-  CHECK_PASSED = 'check_passed',
-  CHECK_FAILED = 'check_failed',
+  OUTPUT_VALID = "output_valid",
+  OUTPUT_MISSING = "output_missing",
+  CHECK_PASSED = "check_passed",
+  CHECK_FAILED = "check_failed",
 
   // Retry
-  RETRY_START = 'retry_start',
-  RETRY_ANALYSIS = 'retry_analysis',
-  GAP_DETECTED = 'gap_detected',
-  STRATEGY_APPLIED = 'strategy_applied',
+  RETRY_START = "retry_start",
+  RETRY_ANALYSIS = "retry_analysis",
+  GAP_DETECTED = "gap_detected",
+  STRATEGY_APPLIED = "strategy_applied",
 }
 ```
 
@@ -290,15 +298,15 @@ enum LogEventType {
 ```typescript
 interface ProgressUpdate {
   timestamp: string;
-  elapsed: string;  // "1m 35s"
+  elapsed: string; // "1m 35s"
   event: LogEventType;
-  summary: string;  // User-friendly description
+  summary: string; // User-friendly description
   details?: {
     toolName?: string;
     filePath?: string;
     fileSize?: string;
     exitCode?: number;
-    aiThought?: string;  // Extracted from AI reasoning
+    aiThought?: string; // Extracted from AI reasoning
   };
 }
 ```
@@ -306,12 +314,14 @@ interface ProgressUpdate {
 ### 3. Smart Activity Summarization
 
 Instead of:
+
 ```
 📋 Last activity 1m 0s ago:
    ▸ [STDOUT] {"type":"user","message":{"role":"user","content":[...]
 ```
 
 Show:
+
 ```
 ⏱️  1:15 │ 🛠️  Tool: Skill (stitch-generate)
    └─ Invoking Stitch AI for HTML generation...
@@ -324,8 +334,8 @@ Show:
 interface RetryContext {
   attemptNumber: number;
   maxAttempts: number;
-  previousOutcome: 'success_claimed' | 'error' | 'timeout';
-  gapType: 'output_missing' | 'check_failed' | 'validation_error';
+  previousOutcome: "success_claimed" | "error" | "timeout";
+  gapType: "output_missing" | "check_failed" | "validation_error";
   rootCauseHypothesis: string;
   enhancedStrategy: string;
 }
@@ -334,12 +344,14 @@ interface RetryContext {
 ### 5. Visual Hierarchy
 
 **Priority Levels**:
+
 - 🎯 Critical: Task start/end, failures
 - 📊 Important: Phase transitions, validations
 - 💬 Info: Tool calls, file operations
 - 🔍 Debug: AI reasoning, internal events
 
 **Use Box Drawing**:
+
 - `┌─┐ └─┘ ├─┤ ┬─┴` for sections
 - `│` for indentation
 - `└─` for tree structure
@@ -347,12 +359,14 @@ interface RetryContext {
 ### 6. Suppress Noise
 
 **Move to Debug Mode**:
+
 - Deprecation warnings
 - Full JSON payloads
 - Internal state transitions
 - STREAM_EVENT raw data
 
 **Keep in Standard Output**:
+
 - User-facing actions
 - File operations
 - AI tool usage (summarized)

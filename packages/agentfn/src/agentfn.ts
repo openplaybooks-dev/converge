@@ -50,12 +50,10 @@ function findProjectRoot(startDir: string): string | null {
  * Skills handling:
  * - New API: pass `skillsRoot` (+ optional `skills` filter) for explicit control.
  *   agentfn creates symlinks for Claude and cleans up after. No prompt injection.
- * - Legacy: `enableSkills: true` (default) auto-detects .crew/ and injects
+ * - Legacy: `enableSkills: true` (default) auto-detects .converge/ and injects
  *   prompt footnotes. Deprecated — will be removed.
  */
-export function agentfn<T = string>(
-  options?: AgentFnOptions<T>,
-): AgentFn<T> {
+export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
   const opts = options ?? ({} as AgentFnOptions<T>);
   const provider: Provider = opts.provider ?? getDefaultProvider();
 
@@ -69,7 +67,7 @@ export function agentfn<T = string>(
 
   if (opts.mode === "stream" && provider !== "claude") {
     throw new Error(
-      `Stream mode is not supported with ${provider} provider. Use Claude instead.`
+      `Stream mode is not supported with ${provider} provider. Use Claude instead.`,
     );
   }
 
@@ -166,7 +164,13 @@ export function agentfn<T = string>(
       mkdirSync(symlinkTarget, { recursive: true });
       for (const [name, absDir] of Object.entries(opts.skillDirs)) {
         const linkPath = join(symlinkTarget, name);
-        try { lstatSync(linkPath); console.log(`   ⏭  ${name}: already exists`); continue; } catch { /* doesn't exist */ }
+        try {
+          lstatSync(linkPath);
+          console.log(`   ⏭  ${name}: already exists`);
+          continue;
+        } catch {
+          /* doesn't exist */
+        }
         try {
           symlinkSync(absDir, linkPath, "junction");
           createdSymlinks.push(name);
@@ -185,13 +189,13 @@ export function agentfn<T = string>(
       });
       createdSymlinks.push(...fromRoot);
     } else if (useLegacySkills) {
-      // Legacy: auto-detect from .crew/ (deprecated)
+      // Legacy: auto-detect from .converge/ (deprecated)
       const { _findProjectRoot } = await import("./skills.js");
       const root = _findProjectRoot(opts.cwd);
       if (root) {
-        const crewSkillsDir = join(root, ".crew", "skills");
+        const convergeSkillsDir = join(root, ".converge", "skills");
         symlinkTarget = join(root, ".claude", "skills");
-        createdSymlinks = ensureSkillSymlinks(crewSkillsDir, {
+        createdSymlinks = ensureSkillSymlinks(convergeSkillsDir, {
           targetRoot: symlinkTarget,
         });
       }
@@ -229,7 +233,9 @@ function toClaudeOptions<T>(opts: AgentFnOptions<T>): ClaudeFnOptions<T> {
     // Deprecated SDK-only options — passed through for backward compat
     ...(opts.backend && { backend: opts.backend }),
     ...(opts.model && { model: opts.model }),
-    ...(opts.permissionMode !== undefined && { permissionMode: opts.permissionMode }),
+    ...(opts.permissionMode !== undefined && {
+      permissionMode: opts.permissionMode,
+    }),
     ...(opts.maxTurns && { maxTurns: opts.maxTurns }),
     ...(opts.disallowedTools && { disallowedTools: opts.disallowedTools }),
     ...(opts.mcpServers && { mcpServers: opts.mcpServers }),

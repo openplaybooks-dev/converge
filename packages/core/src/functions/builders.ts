@@ -17,7 +17,7 @@ import type {
   EvalBuilder as IEvalBuilder,
   PlanBuilder as IPlanBuilder,
   TaskBuilder as ITaskBuilder,
-} from './types.ts';
+} from "./types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Check Function Builder                                            */
@@ -26,7 +26,7 @@ import type {
 class CheckBuilderImpl implements ICheckBuilder {
   private _name?: string;
   private _description?: string;
-  private _category?: CheckFnMeta['category'];
+  private _category?: CheckFnMeta["category"];
   private _timeout?: number;
   private _parallel: boolean = false;
 
@@ -40,7 +40,7 @@ class CheckBuilderImpl implements ICheckBuilder {
     return this;
   }
 
-  category(category: CheckFnMeta['category']): this {
+  category(category: CheckFnMeta["category"]): this {
     this._category = category;
     return this;
   }
@@ -57,10 +57,12 @@ class CheckBuilderImpl implements ICheckBuilder {
 
   run(fn: CheckFn): CheckFnMeta {
     if (!this._name) {
-      throw new Error('Check name is required. Call .name() before .run()');
+      throw new Error("Check name is required. Call .name() before .run()");
     }
     if (!this._description) {
-      throw new Error('Check description is required. Call .description() before .run()');
+      throw new Error(
+        "Check description is required. Call .description() before .run()",
+      );
     }
 
     return {
@@ -139,10 +141,12 @@ class EvalBuilderImpl implements IEvalBuilder {
 
   run(fn: EvalFn): EvalFnMeta {
     if (!this._name) {
-      throw new Error('Eval name is required. Call .name() before .run()');
+      throw new Error("Eval name is required. Call .name() before .run()");
     }
     if (!this._description) {
-      throw new Error('Eval description is required. Call .description() before .run()');
+      throw new Error(
+        "Eval description is required. Call .description() before .run()",
+      );
     }
 
     return {
@@ -218,10 +222,12 @@ class PlanBuilderImpl implements IPlanBuilder {
 
   run(fn: PlanFn): PlanFnMeta {
     if (!this._name) {
-      throw new Error('Plan name is required. Call .name() before .run()');
+      throw new Error("Plan name is required. Call .name() before .run()");
     }
     if (!this._description) {
-      throw new Error('Plan description is required. Call .description() before .run()');
+      throw new Error(
+        "Plan description is required. Call .description() before .run()",
+      );
     }
 
     return {
@@ -313,10 +319,12 @@ class TaskBuilderImpl implements ITaskBuilder {
 
   run(fn: TaskFn): TaskFnMeta {
     if (!this._type) {
-      throw new Error('Task type is required. Call .type() before .run()');
+      throw new Error("Task type is required. Call .type() before .run()");
     }
     if (!this._description) {
-      throw new Error('Task description is required. Call .description() before .run()');
+      throw new Error(
+        "Task description is required. Call .description() before .run()",
+      );
     }
 
     return {
@@ -375,8 +383,8 @@ import type {
   ProjectBuilder as IProjectBuilder,
   EpicDefinition,
   ProjectDefinition,
-} from './types.ts';
-import type { TaskConfig, ProjectConfig } from '../storage/types.ts';
+} from "./types.ts";
+import type { TaskConfig, ProjectConfig } from "../storage/types.ts";
 
 class TaskDefBuilderImpl implements ITaskDefBuilder {
   private _id?: string;
@@ -439,8 +447,15 @@ class TaskDefBuilderImpl implements ITaskDefBuilder {
     return this;
   }
 
-  check(inlineCheck: { id: string; cmd?: string; prompt?: string; description?: string; files?: string[] }): this {
-    const existing = (this._vars.inlineChecks as typeof inlineCheck[] | undefined) ?? [];
+  check(inlineCheck: {
+    id: string;
+    cmd?: string;
+    prompt?: string;
+    description?: string;
+    files?: string[];
+  }): this {
+    const existing =
+      (this._vars.inlineChecks as (typeof inlineCheck)[] | undefined) ?? [];
     this._vars.inlineChecks = [...existing, inlineCheck];
     return this;
   }
@@ -495,17 +510,17 @@ class TaskDefBuilderImpl implements ITaskDefBuilder {
     return this;
   }
 
-  yields(config: import('./types.ts').YieldsConfig): this {
+  yields(config: import("./types.ts").YieldsConfig): this {
     this._vars.yields = config;
     return this;
   }
 
-  subtasks(config: import('../subtasks/types.ts').SubtasksConfig): this {
+  subtasks(config: import("../subtasks/types.ts").SubtasksConfig): this {
     this._vars.subtasks = config;
     return this;
   }
 
-  autoConverge(config: import('./types.ts').AutoConvergeConfig): this {
+  autoConverge(config: import("./types.ts").AutoConvergeConfig): this {
     this._vars.autoConverge = config;
     return this;
   }
@@ -518,7 +533,7 @@ class TaskDefBuilderImpl implements ITaskDefBuilder {
   run(fn: TaskFn): this {
     // Store function reference
     // In real implementation, this would register the function and store a reference
-    this._fn = `task-${this._id || 'anonymous'}`;
+    this._fn = `task-${this._id || "anonymous"}`;
     this._vars.runFn = true; // Mark that run() was called
     return this;
   }
@@ -529,10 +544,10 @@ class TaskDefBuilderImpl implements ITaskDefBuilder {
 
   build(): TaskConfig {
     if (!this._id) {
-      throw new Error('Task ID is required. Call .id() before .build()');
+      throw new Error("Task ID is required. Call .id() before .build()");
     }
     if (!this._title) {
-      throw new Error('Task title is required. Call .title() before .build()');
+      throw new Error("Task title is required. Call .title() before .build()");
     }
 
     const now = new Date().toISOString();
@@ -549,7 +564,7 @@ class TaskDefBuilderImpl implements ITaskDefBuilder {
     if (!this._vars.autoConverge) {
       this._vars.autoConverge = {
         enabled: true,
-        from: 'task-prompt',
+        from: "task-prompt",
         refinable: true,
         maxRefinements: 3,
         cache: true,
@@ -561,7 +576,7 @@ class TaskDefBuilderImpl implements ITaskDefBuilder {
     if (!this._vars.yields) {
       this._vars.yields = {
         enabled: true,
-        plan: 'Auto-detect gaps and spawn tasks as needed',
+        plan: "Auto-detect gaps and spawn tasks as needed",
         maxTasks: 10,
         when: undefined, // Always enabled
       };
@@ -629,7 +644,7 @@ export function taskDef(): ITaskDefBuilder {
 /*  Epic Builder                                                      */
 /* ------------------------------------------------------------------ */
 
-import type { Goal } from '../goal/types.ts';
+import type { Goal } from "../goal/types.ts";
 
 class EpicBuilderImpl implements IEpicBuilder {
   private _id?: string;
@@ -694,10 +709,10 @@ class EpicBuilderImpl implements IEpicBuilder {
 
   build(): EpicDefinition {
     if (!this._id) {
-      throw new Error('Epic ID is required. Call .id() before .build()');
+      throw new Error("Epic ID is required. Call .id() before .build()");
     }
     if (!this._name) {
-      throw new Error('Epic name is required. Call .name() before .build()');
+      throw new Error("Epic name is required. Call .name() before .build()");
     }
 
     return {
@@ -757,9 +772,7 @@ export function defineEpic(config: {
   planners?: PlanFnMeta[];
   tasks?: TaskConfig[];
 }): EpicDefinition {
-  const builder = epic()
-    .id(config.id)
-    .name(config.name);
+  const builder = epic().id(config.id).name(config.name);
 
   if (config.description) {
     builder.description(config.description);
@@ -804,23 +817,30 @@ export function defineEpic(config: {
 /*  Project Builder                                                   */
 /* ------------------------------------------------------------------ */
 
-import { createFilesystemStorage } from '../storage/filesystem.ts';
-import { createProjectContext } from '../context/index.ts';
-import { createProjectOrchestratorV2 } from '../orchestrator/project-orchestrator.ts';
-import { createStatusManager } from '../storage/status.ts';
-import { registerCheck, registerEval, registerPlan } from './registry.ts';
-import { createRuntime } from '../runtime/runtime.ts';
-import type { Runtime } from '../runtime/types.ts';
-import type { ConvergenceConfig, ConvergenceResult } from '../orchestrator/convergence.ts';
-import type { ProjectOrchestrationResult } from '../orchestrator/project-orchestrator.ts';
-import type { EvalResult } from '../gap/types.ts';
+import { createFilesystemStorage } from "../storage/filesystem.ts";
+import { createProjectContext } from "../context/index.ts";
+import { createProjectOrchestratorV2 } from "../orchestrator/project-orchestrator.ts";
+import { createStatusManager } from "../storage/status.ts";
+import { registerCheck, registerEval, registerPlan } from "./registry.ts";
+import { createRuntime } from "../runtime/runtime.ts";
+import type { Runtime } from "../runtime/types.ts";
+import type {
+  ConvergenceConfig,
+  ConvergenceResult,
+} from "../orchestrator/convergence.ts";
+import type { ProjectOrchestrationResult } from "../orchestrator/project-orchestrator.ts";
+import type { EvalResult } from "../gap/types.ts";
 
 class ProjectDefinitionImpl implements ProjectDefinition {
   config: ProjectConfig;
   epics: EpicDefinition[];
   private _workspaceDir: string;
 
-  constructor(config: ProjectConfig, epics: EpicDefinition[], workspaceDir: string) {
+  constructor(
+    config: ProjectConfig,
+    epics: EpicDefinition[],
+    workspaceDir: string,
+  ) {
     this.config = config;
     this.epics = epics;
     this._workspaceDir = workspaceDir;
@@ -828,7 +848,7 @@ class ProjectDefinitionImpl implements ProjectDefinition {
 
   async init(): Promise<Runtime> {
     // Initialize storage
-    const storage = createFilesystemStorage(`${this._workspaceDir}/.crew`);
+    const storage = createFilesystemStorage(`${this._workspaceDir}/.converge`);
     storage.init();
 
     // Write project config
@@ -860,9 +880,11 @@ class ProjectDefinitionImpl implements ProjectDefinition {
     return createRuntime(this.config, this.epics, this._workspaceDir);
   }
 
-  async run(config?: Partial<ConvergenceConfig>): Promise<ProjectOrchestrationResult> {
+  async run(
+    config?: Partial<ConvergenceConfig>,
+  ): Promise<ProjectOrchestrationResult> {
     // Initialize storage
-    const storage = createFilesystemStorage(`${this._workspaceDir}/.crew`);
+    const storage = createFilesystemStorage(`${this._workspaceDir}/.converge`);
     storage.init();
 
     // Write project config
@@ -913,10 +935,14 @@ class ProjectDefinitionImpl implements ProjectDefinition {
   }
 
   async resume(): Promise<ProjectOrchestrationResult> {
-    const storage = createFilesystemStorage(`${this._workspaceDir}/.crew`);
+    const storage = createFilesystemStorage(`${this._workspaceDir}/.converge`);
     const projectConfig = storage.readProject();
     const statusManager = createStatusManager(storage);
-    const ctx = createProjectContext(this._workspaceDir, projectConfig, storage);
+    const ctx = createProjectContext(
+      this._workspaceDir,
+      projectConfig,
+      storage,
+    );
     const orchestrator = createProjectOrchestratorV2(storage, statusManager);
 
     // Re-register functions
@@ -945,7 +971,7 @@ class ProjectDefinitionImpl implements ProjectDefinition {
 
   async verify(): Promise<EvalResult> {
     // TODO: Implement verification
-    throw new Error('verify() not yet implemented');
+    throw new Error("verify() not yet implemented");
   }
 
   addGoal(goal: string): void {
@@ -953,7 +979,9 @@ class ProjectDefinitionImpl implements ProjectDefinition {
       this.config.goals.push(goal);
 
       // Update storage if initialized
-      const storage = createFilesystemStorage(`${this._workspaceDir}/.crew`);
+      const storage = createFilesystemStorage(
+        `${this._workspaceDir}/.converge`,
+      );
       if (storage) {
         storage.writeProject(this.config);
       }
@@ -966,7 +994,9 @@ class ProjectDefinitionImpl implements ProjectDefinition {
       this.config.goals.splice(index, 1);
 
       // Update storage if initialized
-      const storage = createFilesystemStorage(`${this._workspaceDir}/.crew`);
+      const storage = createFilesystemStorage(
+        `${this._workspaceDir}/.converge`,
+      );
       if (storage) {
         storage.writeProject(this.config);
       }
@@ -1024,10 +1054,12 @@ class ProjectBuilderImpl implements IProjectBuilder {
 
   build(): ProjectDefinition {
     if (!this._name) {
-      throw new Error('Project name is required. Call .name() before .build()');
+      throw new Error("Project name is required. Call .name() before .build()");
     }
     if (!this._dir) {
-      throw new Error('Project directory is required. Call .dir() before .build()');
+      throw new Error(
+        "Project directory is required. Call .dir() before .build()",
+      );
     }
 
     const now = new Date().toISOString();
@@ -1054,8 +1086,8 @@ class ProjectBuilderImpl implements IProjectBuilder {
  * Create a new project builder
  *
  * @example
- * const sheetsRunProject = project()
- *   .name('SheetsRun Workspace')
+ * const convergeProject = project()
+ *   .name('Converge Workspace')
  *   .dir('/workspace/dir')
  *   .goals(['Generate complete data model', 'Build all screens'])
  *   .plugins(['sheets-modeling', 'ux-design'])
@@ -1063,7 +1095,7 @@ class ProjectBuilderImpl implements IProjectBuilder {
  *   .epic(designEpic)
  *   .build();
  *
- * const result = await sheetsRunProject.run({ maxIterations: 50 });
+ * const result = await convergeProject.run({ maxIterations: 50 });
  */
 export function project(): IProjectBuilder {
   return new ProjectBuilderImpl();
@@ -1073,8 +1105,8 @@ export function project(): IProjectBuilder {
  * Define a project (shorthand for builder pattern)
  *
  * @example
- * const sheetsRunProject = defineProject({
- *   name: 'SheetsRun Workspace',
+ * const convergeProject = defineProject({
+ *   name: 'Converge Workspace',
  *   dir: '/workspace/dir',
  *   goals: ['Generate complete data model'],
  *   epics: [dataAnalysisEpic, designEpic],
@@ -1090,9 +1122,7 @@ export function defineProject(config: {
   plugins?: string[];
   epics?: EpicDefinition[];
 }): ProjectDefinition {
-  const builder = project()
-    .name(config.name)
-    .dir(config.dir);
+  const builder = project().name(config.name).dir(config.dir);
 
   if (config.description) {
     builder.description(config.description);

@@ -7,9 +7,14 @@
  * - Function-driven execution
  */
 
-import type { CheckFnMeta, EvalFnMeta, PlanFnMeta, TaskFnMeta } from '../functions/types.ts';
-import type { Gap } from '../gap/types.ts';
-import type { HookEvent } from '../hooks/types.ts';
+import type {
+  CheckFnMeta,
+  EvalFnMeta,
+  PlanFnMeta,
+  TaskFnMeta,
+} from "../functions/types.ts";
+import type { Gap } from "../gap/types.ts";
+import type { HookEvent } from "../hooks/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Enhanced Plugin Definition                                        */
@@ -138,7 +143,7 @@ export type {
   HookEvent,
   HookFn as TypedHookFn,
   LegacyHookFn,
-} from '../hooks/types.ts';
+} from "../hooks/types.ts";
 
 /**
  * Legacy hook function signature used by `PluginAPIV2.addHook()`.

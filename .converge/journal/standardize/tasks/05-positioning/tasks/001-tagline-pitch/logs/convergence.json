@@ -1,0 +1,246 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "05-positioning/001-tagline-pitch-missing-output-docs/brand-messaging.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-positioning/001-tagline-pitch",
+            "severity": "high",
+            "description": "[05-positioning/001-tagline-pitch] Task output not created: docs/brand-messaging.md",
+            "source": "unit",
+            "detected": "2026-04-18T00:29:52.687Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/standardize/tasks/05-positioning/tasks/001-tagline-pitch",
+              "taskId": "05-positioning/001-tagline-pitch",
+              "taskTitle": "Create Brand Messaging Document",
+              "taskPrompt": "Create the canonical brand messaging document for Converge.\n\n**Reference**: Read `docs/converge-gtm.md` — sections 1 (Product Positioning),\n2 (Name & Branding), and 11 (Differentiation Messaging).\n\n**Document structure** (`docs/brand-messaging.md`):\n\n1. **Tagline**: \"Define done. Converge gets there.\"\n2. **One-liner** (for README, social bios):\n   Gap-driven convergence framework for AI agent orchestration.\n3. **Elevator pitch** (30 seconds):\n   - Problem: existing frameworks make you define HOW\n   - Solution: Converge lets you define WHAT \"done\" looks like\n   - Differentiator: gap-driven convergence, not graph execution\n4. **Positioning statement** (formal, from GTM doc)\n5. **Key messages** (3-5 bullet points for different audiences):\n   - For solo entrepreneurs\n   - For small teams\n   - For engineering leaders\n6. **Brand voice guidelines**:\n   - Tone: professional, precise, confident (not hype)\n   - Avoid: \"revolutionary\", \"game-changing\", \"AI-powered\" (overused)\n   - Prefer: specific, measurable claims backed by architecture\n7. **Boilerplate** (for press, about pages):\n   - Short (1 sentence)\n   - Medium (1 paragraph)\n   - Long (3 paragraphs)",
+              "factId": "file-exists:test -f \"docs/brand-messaging.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "05-positioning/001-tagline-pitch-check-failed-messaging-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-positioning/001-tagline-pitch",
+            "severity": "high",
+            "description": "[05-positioning/001-tagline-pitch] Check failed: Brand messaging document exists",
+            "source": "unit",
+            "detected": "2026-04-18T00:29:52.689Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "messaging-exists",
+              "checkCmd": "test -f docs/brand-messaging.md",
+              "checkDescription": "Brand messaging document exists",
+              "checkOutput": "Command failed: test -f docs/brand-messaging.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Create the canonical brand messaging document for Converge.\n\n**Reference**: Read `docs/converge-gtm.md` — sections 1 (Product Positioning),\n2 (Name & Branding), and 11 (Differentiation Messaging).\n\n**Document structure** (`docs/brand-messaging.md`):\n\n1. **Tagline**: \"Define done. Converge gets there.\"\n2. **One-liner** (for README, social bios):\n   Gap-driven convergence framework for AI agent orchestration.\n3. **Elevator pitch** (30 seconds):\n   - Problem: existing frameworks make you define HOW\n   - Solution: Converge lets you define WHAT \"done\" looks like\n   - Differentiator: gap-driven convergence, not graph execution\n4. **Positioning statement** (formal, from GTM doc)\n5. **Key messages** (3-5 bullet points for different audiences):\n   - For solo entrepreneurs\n   - For small teams\n   - For engineering leaders\n6. **Brand voice guidelines**:\n   - Tone: professional, precise, confident (not hype)\n   - Avoid: \"revolutionary\", \"game-changing\", \"AI-powered\" (overused)\n   - Prefer: specific, measurable claims backed by architecture\n7. **Boilerplate** (for press, about pages):\n   - Short (1 sentence)\n   - Medium (1 paragraph)\n   - Long (3 paragraphs)",
+              "taskId": "05-positioning/001-tagline-pitch",
+              "taskTitle": "Create Brand Messaging Document",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/standardize/tasks/05-positioning/tasks/001-tagline-pitch",
+              "factId": "check:messaging-exists"
+            }
+          },
+          {
+            "id": "05-positioning/001-tagline-pitch-check-failed-messaging-has-tagline",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-positioning/001-tagline-pitch",
+            "severity": "high",
+            "description": "[05-positioning/001-tagline-pitch] Check failed: Document includes tagline",
+            "source": "unit",
+            "detected": "2026-04-18T00:29:52.693Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "messaging-has-tagline",
+              "checkCmd": "grep -qi 'tagline\\|one-liner' docs/brand-messaging.md",
+              "checkDescription": "Document includes tagline",
+              "checkOutput": "grep: docs/brand-messaging.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "Create the canonical brand messaging document for Converge.\n\n**Reference**: Read `docs/converge-gtm.md` — sections 1 (Product Positioning),\n2 (Name & Branding), and 11 (Differentiation Messaging).\n\n**Document structure** (`docs/brand-messaging.md`):\n\n1. **Tagline**: \"Define done. Converge gets there.\"\n2. **One-liner** (for README, social bios):\n   Gap-driven convergence framework for AI agent orchestration.\n3. **Elevator pitch** (30 seconds):\n   - Problem: existing frameworks make you define HOW\n   - Solution: Converge lets you define WHAT \"done\" looks like\n   - Differentiator: gap-driven convergence, not graph execution\n4. **Positioning statement** (formal, from GTM doc)\n5. **Key messages** (3-5 bullet points for different audiences):\n   - For solo entrepreneurs\n   - For small teams\n   - For engineering leaders\n6. **Brand voice guidelines**:\n   - Tone: professional, precise, confident (not hype)\n   - Avoid: \"revolutionary\", \"game-changing\", \"AI-powered\" (overused)\n   - Prefer: specific, measurable claims backed by architecture\n7. **Boilerplate** (for press, about pages):\n   - Short (1 sentence)\n   - Medium (1 paragraph)\n   - Long (3 paragraphs)",
+              "taskId": "05-positioning/001-tagline-pitch",
+              "taskTitle": "Create Brand Messaging Document",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/standardize/tasks/05-positioning/tasks/001-tagline-pitch",
+              "factId": "check:messaging-has-tagline"
+            }
+          }
+        ],
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 30
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 21
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 74216
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-18T00:29:52.683Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-18T00:29:52.683Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-18T00:29:52.693Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-18T00:29:52.695Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-18T00:29:52.726Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-04-18T00:31:06.942Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-18T00:31:06.965Z"
+    }
+  ]
+}

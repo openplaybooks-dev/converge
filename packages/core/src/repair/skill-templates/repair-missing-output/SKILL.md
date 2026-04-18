@@ -47,6 +47,7 @@ A task's expected output file(s) don't exist or are corrupted.
 Follow the task definition instructions to create the missing files.
 
 **Key principles**:
+
 - Write complete, production-quality content (no placeholders)
 - Match the expected format (check extension: .json → valid JSON, .html → valid HTML)
 - Write to the exact path from the gap
@@ -54,6 +55,7 @@ Follow the task definition instructions to create the missing files.
 ## Step 3: For Corrupted Files
 
 If gap kind is `corrupted` — the file exists but failed validation:
+
 - Read the file first
 - Fix the specific issue (wrong magic bytes, invalid syntax, missing structure)
 - Do NOT delete and recreate unless the file is beyond repair

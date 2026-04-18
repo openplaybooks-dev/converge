@@ -5,9 +5,15 @@
  * Separates authored config from runtime state.
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+  readdirSync,
+} from "node:fs";
+import { dirname, join } from "node:path";
+import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import {
   ProjectConfig,
   ProjectConfigSchema,
@@ -31,7 +37,7 @@ import {
   ProvenanceRecordSchema,
   StoragePaths,
   createStoragePaths,
-} from './types.ts';
+} from "./types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Filesystem Storage Class                                          */
@@ -40,8 +46,8 @@ import {
 export class FilesystemStorage {
   readonly paths: StoragePaths;
 
-  constructor(crewDir: string = '.crew') {
-    this.paths = createStoragePaths(crewDir);
+  constructor(convergeDir: string = ".converge") {
+    this.paths = createStoragePaths(convergeDir);
   }
 
   /* ────────────────────────────────────────────────────────────── */
@@ -79,12 +85,12 @@ checkpoints/*.yaml
 !checkpoints/.gitkeep
 !gaps/.gitkeep
 `;
-      writeFileSync(gitignorePath, gitignoreContent, 'utf8');
+      writeFileSync(gitignorePath, gitignoreContent, "utf8");
     }
 
     // Create .gitkeep files
-    writeFileSync(`${this.paths.checkpoints}/.gitkeep`, '', 'utf8');
-    writeFileSync(`${this.paths.gaps}/.gitkeep`, '', 'utf8');
+    writeFileSync(`${this.paths.checkpoints}/.gitkeep`, "", "utf8");
+    writeFileSync(`${this.paths.gaps}/.gitkeep`, "", "utf8");
   }
 
   /**
@@ -102,7 +108,7 @@ checkpoints/*.yaml
    * Read project configuration
    */
   readProject(): ProjectConfig {
-    const content = readFileSync(this.paths.project, 'utf8');
+    const content = readFileSync(this.paths.project, "utf8");
     const data = parseYaml(content);
     return ProjectConfigSchema.parse(data);
   }
@@ -114,7 +120,7 @@ checkpoints/*.yaml
     const validated = ProjectConfigSchema.parse(config);
     const content = stringifyYaml(validated, { lineWidth: 0 });
     this.ensureDir(this.paths.project);
-    writeFileSync(this.paths.project, content, 'utf8');
+    writeFileSync(this.paths.project, content, "utf8");
   }
 
   /**
@@ -133,7 +139,7 @@ checkpoints/*.yaml
    */
   readEpicConfig(epicId: string): EpicConfig {
     const path = this.paths.epicConfig(epicId);
-    const content = readFileSync(path, 'utf8');
+    const content = readFileSync(path, "utf8");
     const data = parseYaml(content);
     return EpicConfigSchema.parse(data);
   }
@@ -146,7 +152,7 @@ checkpoints/*.yaml
     const path = this.paths.epicConfig(config.id);
     const content = stringifyYaml(validated, { lineWidth: 0 });
     this.ensureDir(path);
-    writeFileSync(path, content, 'utf8');
+    writeFileSync(path, content, "utf8");
   }
 
   /**
@@ -156,7 +162,7 @@ checkpoints/*.yaml
     const path = this.paths.epicStatus(epicId);
     if (!existsSync(path)) return null;
 
-    const content = readFileSync(path, 'utf8');
+    const content = readFileSync(path, "utf8");
     const data = parseYaml(content);
     return EpicStatusSchema.parse(data);
   }
@@ -169,7 +175,7 @@ checkpoints/*.yaml
     const path = this.paths.epicStatus(status.id);
     const content = stringifyYaml(validated, { lineWidth: 0 });
     this.ensureDir(path);
-    writeFileSync(path, content, 'utf8');
+    writeFileSync(path, content, "utf8");
   }
 
   /**
@@ -179,7 +185,7 @@ checkpoints/*.yaml
     const path = this.paths.epicDeps(epicId);
     if (!existsSync(path)) return null;
 
-    const content = readFileSync(path, 'utf8');
+    const content = readFileSync(path, "utf8");
     const data = parseYaml(content);
     return EpicDepsSchema.parse(data);
   }
@@ -192,7 +198,7 @@ checkpoints/*.yaml
     const path = this.paths.epicDeps(deps.id);
     const content = stringifyYaml(validated, { lineWidth: 0 });
     this.ensureDir(path);
-    writeFileSync(path, content, 'utf8');
+    writeFileSync(path, content, "utf8");
   }
 
   /**
@@ -206,11 +212,11 @@ checkpoints/*.yaml
     this.ensureDir(path);
 
     if (existsSync(path)) {
-      const existing = readFileSync(path, 'utf8');
-      writeFileSync(path, existing + entry, 'utf8');
+      const existing = readFileSync(path, "utf8");
+      writeFileSync(path, existing + entry, "utf8");
     } else {
       const header = `# Epic Log: ${epicId}\n`;
-      writeFileSync(path, header + entry, 'utf8');
+      writeFileSync(path, header + entry, "utf8");
     }
   }
 
@@ -221,8 +227,13 @@ checkpoints/*.yaml
     if (!existsSync(this.paths.epics)) return [];
 
     return readdirSync(this.paths.epics)
-      .filter((file) => file.endsWith('.yaml') && !file.includes('.status') && !file.includes('.deps'))
-      .map((file) => file.replace('.yaml', ''));
+      .filter(
+        (file) =>
+          file.endsWith(".yaml") &&
+          !file.includes(".status") &&
+          !file.includes(".deps"),
+      )
+      .map((file) => file.replace(".yaml", ""));
   }
 
   /* ────────────────────────────────────────────────────────────── */
@@ -234,7 +245,7 @@ checkpoints/*.yaml
    */
   readTaskConfig(epicId: string, taskId: string): TaskConfig {
     const path = this.paths.taskConfig(epicId, taskId);
-    const content = readFileSync(path, 'utf8');
+    const content = readFileSync(path, "utf8");
     const data = parseYaml(content);
     return TaskConfigSchema.parse(data);
   }
@@ -247,7 +258,7 @@ checkpoints/*.yaml
     const path = this.paths.taskConfig(epicId, config.id);
     const content = stringifyYaml(validated, { lineWidth: 0 });
     this.ensureDir(path);
-    writeFileSync(path, content, 'utf8');
+    writeFileSync(path, content, "utf8");
   }
 
   /**
@@ -257,7 +268,7 @@ checkpoints/*.yaml
     const path = this.paths.taskStatus(epicId, taskId);
     if (!existsSync(path)) return null;
 
-    const content = readFileSync(path, 'utf8');
+    const content = readFileSync(path, "utf8");
     const data = parseYaml(content);
     return TaskStatusSchema.parse(data);
   }
@@ -270,7 +281,7 @@ checkpoints/*.yaml
     const path = this.paths.taskStatus(epicId, status.id);
     const content = stringifyYaml(validated, { lineWidth: 0 });
     this.ensureDir(path);
-    writeFileSync(path, content, 'utf8');
+    writeFileSync(path, content, "utf8");
   }
 
   /**
@@ -284,11 +295,11 @@ checkpoints/*.yaml
     this.ensureDir(path);
 
     if (existsSync(path)) {
-      const existing = readFileSync(path, 'utf8');
-      writeFileSync(path, existing + entry, 'utf8');
+      const existing = readFileSync(path, "utf8");
+      writeFileSync(path, existing + entry, "utf8");
     } else {
       const header = `# Task Log: ${taskId}\n`;
-      writeFileSync(path, header + entry, 'utf8');
+      writeFileSync(path, header + entry, "utf8");
     }
   }
 
@@ -300,8 +311,8 @@ checkpoints/*.yaml
     if (!existsSync(tasksDir)) return [];
 
     return readdirSync(tasksDir)
-      .filter((file) => file.endsWith('.yaml') && !file.includes('.status'))
-      .map((file) => file.replace('.yaml', ''));
+      .filter((file) => file.endsWith(".yaml") && !file.includes(".status"))
+      .map((file) => file.replace(".yaml", ""));
   }
 
   /* ────────────────────────────────────────────────────────────── */
@@ -313,11 +324,11 @@ checkpoints/*.yaml
    */
   writeGapSnapshot(snapshot: GapSnapshot): void {
     const validated = GapSnapshotSchema.parse(snapshot);
-    const filename = `${snapshot.timestamp.replace(/[:.]/g, '-')}.yaml`;
+    const filename = `${snapshot.timestamp.replace(/[:.]/g, "-")}.yaml`;
     const path = `${this.paths.gaps}/${filename}`;
     const content = stringifyYaml(validated, { lineWidth: 0 });
     this.ensureDir(path);
-    writeFileSync(path, content, 'utf8');
+    writeFileSync(path, content, "utf8");
   }
 
   /**
@@ -327,14 +338,14 @@ checkpoints/*.yaml
     if (!existsSync(this.paths.gaps)) return null;
 
     const files = readdirSync(this.paths.gaps)
-      .filter((f) => f.endsWith('.yaml'))
+      .filter((f) => f.endsWith(".yaml"))
       .sort()
       .reverse();
 
     if (files.length === 0) return null;
 
     const path = `${this.paths.gaps}/${files[0]}`;
-    const content = readFileSync(path, 'utf8');
+    const content = readFileSync(path, "utf8");
     const data = parseYaml(content);
     return GapSnapshotSchema.parse(data);
   }
@@ -346,7 +357,7 @@ checkpoints/*.yaml
     if (!existsSync(this.paths.gaps)) return [];
 
     return readdirSync(this.paths.gaps)
-      .filter((f) => f.endsWith('.yaml'))
+      .filter((f) => f.endsWith(".yaml"))
       .sort();
   }
 
@@ -359,11 +370,11 @@ checkpoints/*.yaml
    */
   writeCheckpoint(checkpoint: Checkpoint): void {
     const validated = CheckpointSchema.parse(checkpoint);
-    const filename = `${checkpoint.timestamp.replace(/[:.]/g, '-')}.yaml`;
+    const filename = `${checkpoint.timestamp.replace(/[:.]/g, "-")}.yaml`;
     const path = `${this.paths.checkpoints}/${filename}`;
     const content = stringifyYaml(validated, { lineWidth: 0 });
     this.ensureDir(path);
-    writeFileSync(path, content, 'utf8');
+    writeFileSync(path, content, "utf8");
   }
 
   /**
@@ -373,14 +384,14 @@ checkpoints/*.yaml
     if (!existsSync(this.paths.checkpoints)) return null;
 
     const files = readdirSync(this.paths.checkpoints)
-      .filter((f) => f.endsWith('.yaml'))
+      .filter((f) => f.endsWith(".yaml"))
       .sort()
       .reverse();
 
     if (files.length === 0) return null;
 
     const path = `${this.paths.checkpoints}/${files[0]}`;
-    const content = readFileSync(path, 'utf8');
+    const content = readFileSync(path, "utf8");
     const data = parseYaml(content);
     return CheckpointSchema.parse(data);
   }
@@ -392,7 +403,7 @@ checkpoints/*.yaml
     if (!existsSync(this.paths.checkpoints)) return [];
 
     return readdirSync(this.paths.checkpoints)
-      .filter((f) => f.endsWith('.yaml'))
+      .filter((f) => f.endsWith(".yaml"))
       .sort();
   }
 
@@ -409,7 +420,7 @@ checkpoints/*.yaml
     const path = `${this.paths.provenance}/${filename}`;
     const content = stringifyYaml(validated, { lineWidth: 0 });
     this.ensureDir(path);
-    writeFileSync(path, content, 'utf8');
+    writeFileSync(path, content, "utf8");
   }
 
   /**
@@ -419,7 +430,7 @@ checkpoints/*.yaml
     const path = `${this.paths.provenance}/${entityId}.yaml`;
     if (!existsSync(path)) return null;
 
-    const content = readFileSync(path, 'utf8');
+    const content = readFileSync(path, "utf8");
     const data = parseYaml(content);
     return ProvenanceRecordSchema.parse(data);
   }
@@ -431,8 +442,8 @@ checkpoints/*.yaml
     if (!existsSync(this.paths.provenance)) return [];
 
     return readdirSync(this.paths.provenance)
-      .filter((f) => f.endsWith('.yaml'))
-      .map((f) => f.replace('.yaml', ''));
+      .filter((f) => f.endsWith(".yaml"))
+      .map((f) => f.replace(".yaml", ""));
   }
 
   /* ────────────────────────────────────────────────────────────── */
@@ -447,9 +458,9 @@ checkpoints/*.yaml
    */
   async readSubtaskConfigs(
     epicId: string,
-    parentTaskId: string
+    parentTaskId: string,
   ): Promise<TaskConfig[]> {
-    const parentTaskDir = join(this.paths.epics, epicId, 'tasks', parentTaskId);
+    const parentTaskDir = join(this.paths.epics, epicId, "tasks", parentTaskId);
 
     if (!existsSync(parentTaskDir)) {
       return [];
@@ -459,7 +470,7 @@ checkpoints/*.yaml
     const subtasks: TaskConfig[] = [];
 
     for (const entry of entries) {
-      if (entry.isFile() && entry.name.endsWith('.ts')) {
+      if (entry.isFile() && entry.name.endsWith(".ts")) {
         const subtaskPath = join(parentTaskDir, entry.name);
 
         // Dynamically import the subtask .ts file
@@ -493,6 +504,8 @@ checkpoints/*.yaml
 /**
  * Create a new filesystem storage instance
  */
-export function createFilesystemStorage(crewDir: string = '.crew'): FilesystemStorage {
-  return new FilesystemStorage(crewDir);
+export function createFilesystemStorage(
+  convergeDir: string = ".converge",
+): FilesystemStorage {
+  return new FilesystemStorage(convergeDir);
 }

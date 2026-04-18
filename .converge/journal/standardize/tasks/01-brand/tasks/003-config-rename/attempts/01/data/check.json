@@ -1,0 +1,10 @@
+{
+  "taskId": "01-brand/003-config-rename",
+  "checks": [
+    {
+      "id": "no-harness-in-config",
+      "description": "No harness references in config files",
+      "cmd": "test -z \"$(grep -ri 'harness' --include='*.json' --include='*.yml' --include='*.yaml' packages/ 2>/dev/null | grep -v node_modules | grep -v CHANGELOG | grep -v '.converge/' | grep -v package-lock)\""
+    }
+  ]
+}

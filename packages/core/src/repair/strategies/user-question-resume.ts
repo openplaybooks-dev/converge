@@ -12,12 +12,16 @@
  * waiting for user input.
  */
 
-import { join } from 'node:path';
-import { readFile, writeFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import type { Gap } from '../../gap/types.ts';
-import type { FixStrategy, StrategyContext, StrategyOutcome } from '../types.ts';
-import { logTaskEvent } from '../../journal/writer.ts';
+import { join } from "node:path";
+import { readFile, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import type { Gap } from "../../gap/types.ts";
+import type {
+  FixStrategy,
+  StrategyContext,
+  StrategyOutcome,
+} from "../types.ts";
+import { logTaskEvent } from "../../journal/writer.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                             */
@@ -36,13 +40,14 @@ interface UserQuestionContext {
 /* ------------------------------------------------------------------ */
 
 export class UserQuestionResumeStrategy implements FixStrategy {
-  readonly name = 'user-question-resume';
-  readonly description = 'Handles tasks waiting for user input - creates LEARN.md and resumes on next attempt';
+  readonly name = "user-question-resume";
+  readonly description =
+    "Handles tasks waiting for user input - creates LEARN.md and resumes on next attempt";
   readonly priority = 10; // High priority - check before expensive AI repair
 
   canHandle(gap: Gap): boolean {
     // Only handle output gaps where task asked user a question
-    if (gap.metadata?.gapKind !== 'output') {
+    if (gap.metadata?.gapKind !== "output") {
       return false;
     }
 
@@ -60,18 +65,18 @@ export class UserQuestionResumeStrategy implements FixStrategy {
       // Get attempt directory
       const attemptDir = join(
         projectDir,
-        '.converge',
-        'journal',
-        'epics',
+        ".converge",
+        "journal",
+        "epics",
         journalCtx.epicId,
-        'tasks',
+        "tasks",
         journalCtx.taskId,
-        'attempts',
-        'wip'
+        "attempts",
+        "wip",
       );
 
       // Check if user has already provided an answer (ANSWER.md exists)
-      const answerPath = join(attemptDir, 'ANSWER.md');
+      const answerPath = join(attemptDir, "ANSWER.md");
       const hasAnswer = existsSync(answerPath);
 
       if (hasAnswer) {
@@ -100,22 +105,25 @@ export class UserQuestionResumeStrategy implements FixStrategy {
   private async createQuestionLearn(
     gap: Gap,
     ctx: StrategyContext,
-    attemptDir: string
+    attemptDir: string,
   ): Promise<StrategyOutcome> {
     const { projectDir, journalCtx } = ctx;
 
     // Extract question from gap metadata
-    const question = gap.metadata?.userQuestion as string || 'User input required';
-    const options = gap.metadata?.userQuestionOptions as Array<{ label: string; description: string }> | undefined;
+    const question =
+      (gap.metadata?.userQuestion as string) || "User input required";
+    const options = gap.metadata?.userQuestionOptions as
+      | Array<{ label: string; description: string }>
+      | undefined;
 
     // Read task logs to get full context
-    const logPath = join(attemptDir, 'logs', 'log.log');
-    let taskOutput = '';
+    const logPath = join(attemptDir, "logs", "log.log");
+    let taskOutput = "";
     if (existsSync(logPath)) {
-      taskOutput = await readFile(logPath, 'utf-8');
+      taskOutput = await readFile(logPath, "utf-8");
       // Extract last 100 lines
-      const lines = taskOutput.split('\n');
-      taskOutput = lines.slice(-100).join('\n');
+      const lines = taskOutput.split("\n");
+      taskOutput = lines.slice(-100).join("\n");
     }
 
     // Create LEARN.md content
@@ -128,12 +136,12 @@ export class UserQuestionResumeStrategy implements FixStrategy {
     };
 
     const learnContent = this.formatQuestionLearn(questionContext, taskOutput);
-    const learnPath = join(attemptDir, 'LEARN.md');
+    const learnPath = join(attemptDir, "LEARN.md");
     await writeFile(learnPath, learnContent);
 
     // Create template ANSWER.md for user to fill in
     const answerTemplate = this.createAnswerTemplate(question, options);
-    const answerPath = join(attemptDir, 'ANSWER.md');
+    const answerPath = join(attemptDir, "ANSWER.md");
     if (!existsSync(answerPath)) {
       await writeFile(answerPath, answerTemplate);
     }
@@ -143,14 +151,14 @@ export class UserQuestionResumeStrategy implements FixStrategy {
       projectDir,
       journalCtx.epicId,
       journalCtx.taskId,
-      'AWAITING_USER_INPUT',
+      "AWAITING_USER_INPUT",
       `Task is waiting for user to answer question`,
       {
         gapId: gap.id,
         question,
         learnPath,
         answerPath,
-      }
+      },
     );
 
     console.log(`   📄 Created LEARN.md: ${learnPath}`);
@@ -159,7 +167,8 @@ export class UserQuestionResumeStrategy implements FixStrategy {
 
     return {
       success: false, // Not fixed yet - waiting for user
-      reason: 'Awaiting user input. User should edit ANSWER.md and re-run the task.',
+      reason:
+        "Awaiting user input. User should edit ANSWER.md and re-run the task.",
       shouldRetry: false, // Don't retry until user provides answer
       metadata: {
         awaitingUserInput: true,
@@ -178,19 +187,21 @@ export class UserQuestionResumeStrategy implements FixStrategy {
     gap: Gap,
     ctx: StrategyContext,
     answerPath: string,
-    attemptDir: string
+    attemptDir: string,
   ): Promise<StrategyOutcome> {
     const { projectDir, journalCtx } = ctx;
 
     // Read user's answer
-    const answerContent = await readFile(answerPath, 'utf-8');
+    const answerContent = await readFile(answerPath, "utf-8");
     const answer = this.parseAnswer(answerContent);
 
     if (!answer) {
-      console.log(`   ⚠️  ANSWER.md is empty or invalid - user needs to provide answer`);
+      console.log(
+        `   ⚠️  ANSWER.md is empty or invalid - user needs to provide answer`,
+      );
       return {
         success: false,
-        reason: 'ANSWER.md exists but is empty. User needs to fill it in.',
+        reason: "ANSWER.md exists but is empty. User needs to fill it in.",
         shouldRetry: false,
       };
     }
@@ -198,15 +209,17 @@ export class UserQuestionResumeStrategy implements FixStrategy {
     console.log(`   📖 User answer: "${answer.slice(0, 100)}..."`);
 
     // Update LEARN.md with the answer
-    const learnPath = join(attemptDir, 'LEARN.md');
+    const learnPath = join(attemptDir, "LEARN.md");
     if (existsSync(learnPath)) {
-      const learnContent = await readFile(learnPath, 'utf-8');
-      const updatedLearn = learnContent + `\n\n## User Answer\n\nProvided at: ${new Date().toISOString()}\n\n${answer}\n`;
+      const learnContent = await readFile(learnPath, "utf-8");
+      const updatedLearn =
+        learnContent +
+        `\n\n## User Answer\n\nProvided at: ${new Date().toISOString()}\n\n${answer}\n`;
       await writeFile(learnPath, updatedLearn);
     }
 
     // Create RESUME.md with instructions for continuing the task
-    const resumePath = join(attemptDir, 'RESUME.md');
+    const resumePath = join(attemptDir, "RESUME.md");
     const resumeContent = this.createResumeInstructions(answer, gap);
     await writeFile(resumePath, resumeContent);
 
@@ -215,13 +228,13 @@ export class UserQuestionResumeStrategy implements FixStrategy {
       projectDir,
       journalCtx.epicId,
       journalCtx.taskId,
-      'USER_INPUT_RECEIVED',
+      "USER_INPUT_RECEIVED",
       `User provided answer - ready to resume task`,
       {
         gapId: gap.id,
         answerPreview: answer.slice(0, 200),
         resumePath,
-      }
+      },
     );
 
     console.log(`   ✅ User answer received`);
@@ -232,8 +245,8 @@ export class UserQuestionResumeStrategy implements FixStrategy {
     // The task-run strategy will pick up RESUME.md and use it in the prompt
     return {
       success: true,
-      reason: 'User answer received - task ready to resume',
-      retryMode: 'rerun', // Trigger task re-execution
+      reason: "User answer received - task ready to resume",
+      retryMode: "rerun", // Trigger task re-execution
       metadata: {
         userAnswerReceived: true,
         answer,
@@ -246,7 +259,10 @@ export class UserQuestionResumeStrategy implements FixStrategy {
   /*  Helper methods                                                    */
   /* ------------------------------------------------------------------ */
 
-  private formatQuestionLearn(context: UserQuestionContext, taskOutput: string): string {
+  private formatQuestionLearn(
+    context: UserQuestionContext,
+    taskOutput: string,
+  ): string {
     let content = `# User Question: ${context.taskId}\n\n`;
     content += `> **Status**: Awaiting user input\n\n`;
     content += `## Question\n\n${context.question}\n\n`;
@@ -274,7 +290,10 @@ export class UserQuestionResumeStrategy implements FixStrategy {
     return content;
   }
 
-  private createAnswerTemplate(question: string, options?: Array<{ label: string; description: string }>): string {
+  private createAnswerTemplate(
+    question: string,
+    options?: Array<{ label: string; description: string }>,
+  ): string {
     let content = `# User Answer\n\n`;
     content += `**Question**: ${question}\n\n`;
 
@@ -294,7 +313,7 @@ export class UserQuestionResumeStrategy implements FixStrategy {
 
   private parseAnswer(content: string): string | null {
     // Remove markdown comments
-    let answer = content.replace(/<!--[\s\S]*?-->/g, '');
+    let answer = content.replace(/<!--[\s\S]*?-->/g, "");
 
     // Extract content after "## Your Answer" heading if present
     const answerMatch = answer.match(/##\s*Your Answer\s*\n+([\s\S]+)/i);
@@ -303,9 +322,9 @@ export class UserQuestionResumeStrategy implements FixStrategy {
     }
 
     // Remove "# User Answer" and "**Question**" sections
-    answer = answer.replace(/^#\s*User Answer[\s\S]*?\n\n/, '');
-    answer = answer.replace(/\*\*Question\*\*:[\s\S]*?\n\n/, '');
-    answer = answer.replace(/##\s*Available Options[\s\S]*?\n\n/, '');
+    answer = answer.replace(/^#\s*User Answer[\s\S]*?\n\n/, "");
+    answer = answer.replace(/\*\*Question\*\*:[\s\S]*?\n\n/, "");
+    answer = answer.replace(/##\s*Available Options[\s\S]*?\n\n/, "");
 
     answer = answer.trim();
 

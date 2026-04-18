@@ -11,6 +11,7 @@
 ## Where the Logs Are
 
 When you see:
+
 ```
 🤖 Running AI
    Task  : Generate Design: undefined
@@ -38,6 +39,7 @@ $ tail -50 2026-04-04T16-41-35-173Z_d895bdc2.log
 ```
 
 Shows:
+
 - AI thinking/reasoning
 - Tool calls (Read, Write, Bash, etc.)
 - Tool results
@@ -48,6 +50,7 @@ Shows:
 - Final results
 
 **Example snippet:**
+
 ```
 [2026-04-04T16:42:58.993Z] [FINAL_RESULT] Perfect! The home-lesson-tree design
 has been successfully generated and verified.
@@ -72,12 +75,14 @@ Stitch AI and is ready for use.
 The current logging architecture has **two separate streams**:
 
 ### Stream 1: Task Events (events.jsonl) → Console
+
 - **Written by**: `TaskEventWriter`
 - **Read by**: `ConsoleFormatter`
 - **Displayed**: Real-time in console with icons (🎬, 💭, 🔍, ✅)
 - **Events**: task_start, gap_detected, gap_resolved, ai_reasoning, etc.
 
 ### Stream 2: AI Execution Logs (.log files) → File Only
+
 - **Written by**: `agentfn` package
 - **Read by**: Nobody (currently)
 - **Displayed**: NOT shown in console
@@ -86,6 +91,7 @@ The current logging architecture has **two separate streams**:
 ## The Gap
 
 You see:
+
 ```
 🤖 Running AI
    Task  : Generate Design: undefined
@@ -98,6 +104,7 @@ You see:
 ```
 
 You WANT to see:
+
 ```
 🤖 Running AI
    Task  : Generate Design: undefined
@@ -127,14 +134,14 @@ Add real-time log tailing when AI is running:
 
 ```typescript
 // In agent-runner.ts, after showing "🤖 Running AI" header:
-const logTailer = spawn('tail', ['-f', logFile]);
-logTailer.stdout.on('data', (chunk) => {
+const logTailer = spawn("tail", ["-f", logFile]);
+logTailer.stdout.on("data", (chunk) => {
   // Parse and format log lines
-  const lines = chunk.toString().split('\n');
+  const lines = chunk.toString().split("\n");
   for (const line of lines) {
-    if (line.includes('[TOOL_USE]')) {
+    if (line.includes("[TOOL_USE]")) {
       console.log(`   📝 ${formatToolUse(line)}`);
-    } else if (line.includes('[REASONING]')) {
+    } else if (line.includes("[REASONING]")) {
       console.log(`   💬 ${formatReasoning(line)}`);
     }
   }
@@ -151,18 +158,19 @@ const cfExecutor = agentfn({
   hooks: {
     onToolUse: (tool, params) => {
       // Write to both streams
-      agentfn.log(`[TOOL_USE] ${tool}`, params);  // → .log file
-      eventWriter.write({                          // → events.jsonl
-        type: 'tool_use',
+      agentfn.log(`[TOOL_USE] ${tool}`, params); // → .log file
+      eventWriter.write({
+        // → events.jsonl
+        type: "tool_use",
         tool,
-        params
+        params,
       });
     },
     onThinking: (text) => {
       agentfn.log(`[THINKING] ${text}`);
       eventWriter.aiThinking(text);
-    }
-  }
+    },
+  },
 });
 ```
 
@@ -178,7 +186,7 @@ Merge all logging into a single event stream:
 ## Current Status
 
 ✅ **Logs exist**: All AI execution details are captured in `.log` files
-⚠️  **Not displayed**: Console doesn't stream these logs in real-time
+⚠️ **Not displayed**: Console doesn't stream these logs in real-time
 📁 **Manual access**: You can `tail -f` the `.log` files to watch AI execution
 
 ## Immediate Workaround
@@ -194,6 +202,7 @@ This will show you what the AI is doing in real-time!
 ## Next Steps
 
 Would you like me to implement:
+
 1. **Quick fix**: Add log tailing to show AI activity
 2. **Bridge streams**: Make agentfn write to events.jsonl
 3. **Full solution**: Unified event stream architecture

@@ -9,18 +9,21 @@
  * - No redundant information required from user
  */
 
-import { existsSync, statSync } from 'node:fs';
-import { cp, mkdir } from 'node:fs/promises';
-import * as path from 'node:path';
-import type { TaskDefinition } from '../config/task-definition.ts';
-import type { Unit } from './unit.ts';
-import { extractLeafTaskId, extractJournalTaskId } from './path-utils.ts';
+import { existsSync, statSync } from "node:fs";
+import { cp, mkdir } from "node:fs/promises";
+import * as path from "node:path";
+import type { TaskDefinition } from "../config/task-definition.ts";
+import type { Unit } from "./unit.ts";
+import { extractLeafTaskId, extractJournalTaskId } from "./path-utils.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Mtime-based parse cache for TASK.md                                */
 /* ------------------------------------------------------------------ */
 
-const _taskDefCache = new Map<string, { mtimeMs: number; taskDef: TaskDefinition }>();
+const _taskDefCache = new Map<
+  string,
+  { mtimeMs: number; taskDef: TaskDefinition }
+>();
 
 /**
  * Unified factory: Load unit from path (directory or TASK.md).
@@ -67,7 +70,7 @@ export async function fromPath(taskPath: string, parent?: Unit): Promise<Unit> {
   const journalTaskId = extractJournalTaskId(taskDir);
 
   // Detect format: only TASK.md is supported
-  const taskMdPath = path.join(taskDir, 'TASK.md');
+  const taskMdPath = path.join(taskDir, "TASK.md");
 
   let taskDef: TaskDefinition;
 
@@ -75,16 +78,15 @@ export async function fromPath(taskPath: string, parent?: Unit): Promise<Unit> {
     taskDef = await loadFromTaskMdCached(taskMdPath, journalTaskId, taskDir);
   } else {
     throw new Error(
-      `No TASK.md found in ${taskDir}\n` +
-      `Expected: ${taskMdPath}`
+      `No TASK.md found in ${taskDir}\n` + `Expected: ${taskMdPath}`,
     );
   }
 
   // Dynamic import to avoid circular dependency at module level
-  const { Unit: UnitClass } = await import('./unit.ts');
+  const { Unit: UnitClass } = await import("./unit.ts");
   return new UnitClass({
     parent: parent || null,
-    path: taskDir,  // Store directory path, not file path
+    path: taskDir, // Store directory path, not file path
     taskDef,
     config: {
       maxIterations: (taskDef.vars?.maxIterations as number) || 100,
@@ -96,7 +98,11 @@ export async function fromPath(taskPath: string, parent?: Unit): Promise<Unit> {
  * Mtime-cached wrapper around loadFromTaskMd.
  * Returns cached TaskDefinition if file hasn't changed since last parse.
  */
-async function loadFromTaskMdCached(taskMdPath: string, taskId: string, taskDir: string): Promise<TaskDefinition> {
+async function loadFromTaskMdCached(
+  taskMdPath: string,
+  taskId: string,
+  taskDir: string,
+): Promise<TaskDefinition> {
   const mtimeMs = statSync(taskMdPath).mtimeMs;
   const cached = _taskDefCache.get(taskMdPath);
 
@@ -115,14 +121,19 @@ async function loadFromTaskMdCached(taskMdPath: string, taskId: string, taskDir:
  * including WBS script configuration.
  * Task ID is ALWAYS derived from directory name.
  */
-async function loadFromTaskMd(taskMdPath: string, taskId: string, taskDir: string): Promise<TaskDefinition> {
-  const { parseTaskMd, mapTaskMdToTaskDefinition } = await import('../config/task-md-definition.ts');
+async function loadFromTaskMd(
+  taskMdPath: string,
+  taskId: string,
+  taskDir: string,
+): Promise<TaskDefinition> {
+  const { parseTaskMd, mapTaskMdToTaskDefinition } =
+    await import("../config/task-md-definition.ts");
 
   const result = await parseTaskMd(taskMdPath);
   if (!result) {
     throw new Error(
       `Failed to parse TASK.md: ${taskMdPath}\n` +
-      `TASK.md must contain valid YAML frontmatter or markdown content.`
+        `TASK.md must contain valid YAML frontmatter or markdown content.`,
     );
   }
 
@@ -153,7 +164,7 @@ export async function copyTaskMaterials(
     return;
   }
 
-  const materialsDir = path.join(attemptDir, 'materials');
+  const materialsDir = path.join(attemptDir, "materials");
   await mkdir(materialsDir, { recursive: true });
 
   for (const materialPath of materials) {
@@ -179,5 +190,7 @@ export async function copyTaskMaterials(
     }
   }
 
-  console.log(`   ✅ Copied ${materials.length} material(s) to attempt directory`);
+  console.log(
+    `   ✅ Copied ${materials.length} material(s) to attempt directory`,
+  );
 }

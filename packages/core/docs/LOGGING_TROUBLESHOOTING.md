@@ -9,6 +9,7 @@ The three-layer logging system is implemented and writing events. However, you m
 ### Event Writing ✅
 
 Events ARE being written to:
+
 ```
 .converge/journal/epics/{epic}/tasks/{task}/attempts/wip/logs/events.jsonl
 ```
@@ -18,10 +19,11 @@ Each event is a JSON line in JSONL format.
 ### Console Formatter Behavior
 
 The ConsoleFormatter:
+
 1. ✅ Creates empty events.jsonl file if it doesn't exist
 2. ✅ Starts watching the file for changes
-3. ⚠️  Only formats events AFTER they're written to the file
-4. ⚠️  May have slight delay (10-100ms) due to file system watch latency
+3. ⚠️ Only formats events AFTER they're written to the file
+4. ⚠️ May have slight delay (10-100ms) due to file system watch latency
 
 ## Verification
 
@@ -41,12 +43,26 @@ tail -10 .converge/journal/epics/*/tasks/*/attempts/wip/logs/events.jsonl | jq
 ### Expected Event Format
 
 ```jsonl
-{"timestamp":"2026-04-04T16:30:17.971Z","type":"task_start","level":"critical","taskId":"003-001-design-home-lesson-tree","taskName":"Generate Design: Home Lesson Tree","attempt":3,"inputs":[".stitch/prompts/home-lesson-tree.md"],"outputs":[".stitch/designs/home-lesson-tree.html"]}
+{
+  "timestamp": "2026-04-04T16:30:17.971Z",
+  "type": "task_start",
+  "level": "critical",
+  "taskId": "003-001-design-home-lesson-tree",
+  "taskName": "Generate Design: Home Lesson Tree",
+  "attempt": 3,
+  "inputs": [
+    ".stitch/prompts/home-lesson-tree.md"
+  ],
+  "outputs": [
+    ".stitch/designs/home-lesson-tree.html"
+  ]
+}
 ```
 
 ### Debug Logs
 
 When running a task, you should see:
+
 ```
 ✅ Logged task_start event to .../logs/events.jsonl
 📊 Event logging started → .../logs/events.jsonl
@@ -79,6 +95,7 @@ When running a task, you should see:
 **Impact**: May not flush immediately
 
 **Solution**:
+
 - Critical events (task_start, task_complete, gap_detected) flush immediately
 - Other events flush every 100ms or when buffer reaches 10 events
 
@@ -87,16 +104,19 @@ When running a task, you should see:
 ### Manual Test
 
 1. Run a task:
+
 ```bash
 pnpm converge run --step
 ```
 
 2. In another terminal, tail the events:
+
 ```bash
 tail -f .converge/journal/epics/*/tasks/*/attempts/wip/logs/events.jsonl
 ```
 
 3. You should see events like:
+
 ```jsonl
 {"timestamp":"...","type":"task_start","level":"critical",...}
 {"timestamp":"...","type":"ai_reasoning","level":"info",...}
@@ -110,15 +130,15 @@ tail -f .converge/journal/epics/*/tasks/*/attempts/wip/logs/events.jsonl
 To test the formatter in isolation:
 
 ```typescript
-import { ConsoleFormatter } from '@converge/core';
+import { ConsoleFormatter } from "@converge/core";
 
 const formatter = new ConsoleFormatter(
-  '.converge/journal/epics/02-prepare-designs/tasks/003-001-design-home-lesson-tree/attempts/02/logs/events.jsonl',
+  ".converge/journal/epics/02-prepare-designs/tasks/003-001-design-home-lesson-tree/attempts/02/logs/events.jsonl",
   {
-    minLevel: 'info',
+    minLevel: "info",
     useColor: true,
     useIcons: true,
-  }
+  },
 );
 
 await formatter.start();
@@ -177,16 +197,19 @@ await formatter.start();
 If you don't see formatted console output:
 
 1. **Check events.jsonl exists and has content**
+
    ```bash
    cat .converge/journal/epics/*/tasks/*/attempts/wip/logs/events.jsonl
    ```
 
-2. **Look for our event types** (not old CLAUDEFN_* events)
+2. **Look for our event types** (not old CLAUDEFN\_\* events)
+
    ```bash
    grep -E "(task_start|task_complete|gap_detected|ai_reasoning)" .converge/journal/epics/*/tasks/*/attempts/wip/logs/events.jsonl
    ```
 
 3. **Check for debug logs in console**
+
    ```
    ✅ Logged task_start event to ...
    📊 Event logging started → ...

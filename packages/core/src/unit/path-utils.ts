@@ -12,7 +12,7 @@
  * - Epic structure is mirrored exactly in journal structure
  */
 
-import * as path from 'node:path';
+import * as path from "node:path";
 
 /**
  * Extract full hierarchical journal task ID from a task path.
@@ -37,17 +37,25 @@ import * as path from 'node:path';
  */
 export function extractJournalTaskId(taskPath: string): string {
   // Normalize path separators
-  const normalizedPath = taskPath.split(path.sep).join('/');
-  const parts = normalizedPath.split('/');
+  const normalizedPath = taskPath.split(path.sep).join("/");
+  const parts = normalizedPath.split("/");
 
   // Try playbook path first: .converge/playbooks/{name}/tasks/{taskId}/TASK.md
-  const playbooksIndex = parts.indexOf('playbooks');
-  if (playbooksIndex !== -1 && playbooksIndex + 2 < parts.length && parts[playbooksIndex + 2] === 'tasks') {
+  const playbooksIndex = parts.indexOf("playbooks");
+  if (
+    playbooksIndex !== -1 &&
+    playbooksIndex + 2 < parts.length &&
+    parts[playbooksIndex + 2] === "tasks"
+  ) {
     // Segments after playbooks/{name}/tasks/
     const taskSegments = parts.slice(playbooksIndex + 3);
     const hierarchicalSegments: string[] = [];
     for (const segment of taskSegments) {
-      if (segment === 'tasks' || segment.endsWith('.ts') || segment.endsWith('.md')) {
+      if (
+        segment === "tasks" ||
+        segment.endsWith(".ts") ||
+        segment.endsWith(".md")
+      ) {
         continue;
       }
       hierarchicalSegments.push(segment);
@@ -55,18 +63,20 @@ export function extractJournalTaskId(taskPath: string): string {
     if (hierarchicalSegments.length === 0) {
       return parts[playbooksIndex + 1]; // playbook name as fallback
     }
-    return hierarchicalSegments.join('/');
+    return hierarchicalSegments.join("/");
   }
 
   // Find epics directory index
-  const epicsIndex = parts.indexOf('epics');
+  const epicsIndex = parts.indexOf("epics");
   if (epicsIndex === -1) {
     throw new Error(`Invalid task path (no 'epics' directory): ${taskPath}`);
   }
 
   // Validate that we have an epic ID
   if (epicsIndex + 1 >= parts.length) {
-    throw new Error(`Invalid task path (no epic ID after 'epics'): ${taskPath}`);
+    throw new Error(
+      `Invalid task path (no epic ID after 'epics'): ${taskPath}`,
+    );
   }
 
   // Everything after the epic ID is part of the task hierarchy
@@ -76,7 +86,8 @@ export function extractJournalTaskId(taskPath: string): string {
   // When the first segment after the epic ID is 'tasks/', the epic-root task
   // (TASK.md in the epic dir) is the parent of these children.
   // Prepend epicId so children get hierarchical IDs like "03-build-screens/001-home-skill-tree".
-  const startsWithTasks = taskSegments.length > 0 && taskSegments[0] === 'tasks';
+  const startsWithTasks =
+    taskSegments.length > 0 && taskSegments[0] === "tasks";
 
   // Build hierarchical ID by joining segments, skipping 'tasks' directory markers
   // to create clean parent-child relationships (e.g., "parent/child")
@@ -86,7 +97,11 @@ export function extractJournalTaskId(taskPath: string): string {
   }
   for (const segment of taskSegments) {
     // Skip 'tasks' directory markers and file names
-    if (segment === 'tasks' || segment.endsWith('.ts') || segment.endsWith('.md')) {
+    if (
+      segment === "tasks" ||
+      segment.endsWith(".ts") ||
+      segment.endsWith(".md")
+    ) {
       continue;
     }
     hierarchicalSegments.push(segment);
@@ -98,7 +113,7 @@ export function extractJournalTaskId(taskPath: string): string {
     return epicId;
   }
 
-  return hierarchicalSegments.join('/');
+  return hierarchicalSegments.join("/");
 }
 
 /**
@@ -108,17 +123,17 @@ export function extractJournalTaskId(taskPath: string): string {
  * @returns Epic ID (e.g., "03-implement-app")
  */
 export function extractEpicId(taskPath: string): string {
-  const normalizedPath = taskPath.split(path.sep).join('/');
-  const parts = normalizedPath.split('/');
+  const normalizedPath = taskPath.split(path.sep).join("/");
+  const parts = normalizedPath.split("/");
 
   // Try playbook path: .converge/playbooks/{name}/tasks/...
   // Use the playbook name as the epic ID
-  const playbooksIndex = parts.indexOf('playbooks');
+  const playbooksIndex = parts.indexOf("playbooks");
   if (playbooksIndex !== -1 && playbooksIndex + 1 < parts.length) {
     return parts[playbooksIndex + 1];
   }
 
-  const epicsIndex = parts.indexOf('epics');
+  const epicsIndex = parts.indexOf("epics");
 
   if (epicsIndex === -1) {
     throw new Error(`Invalid task path (no 'epics' directory): ${taskPath}`);
@@ -126,7 +141,9 @@ export function extractEpicId(taskPath: string): string {
 
   const epicId = parts[epicsIndex + 1];
   if (!epicId) {
-    throw new Error(`Invalid task path (no epic ID after 'epics'): ${taskPath}`);
+    throw new Error(
+      `Invalid task path (no epic ID after 'epics'): ${taskPath}`,
+    );
   }
 
   return epicId;
@@ -139,17 +156,21 @@ export function extractEpicId(taskPath: string): string {
  * @returns Absolute path to epic directory
  */
 export function extractEpicDir(taskPath: string): string {
-  const normalizedPath = taskPath.split(path.sep).join('/');
-  const parts = normalizedPath.split('/');
+  const normalizedPath = taskPath.split(path.sep).join("/");
+  const parts = normalizedPath.split("/");
 
   // Try playbook path: .converge/playbooks/{name}/tasks/...
   // The "epic dir" equivalent is .converge/playbooks/{name}/tasks/
-  const playbooksIndex = parts.indexOf('playbooks');
-  if (playbooksIndex !== -1 && playbooksIndex + 2 < parts.length && parts[playbooksIndex + 2] === 'tasks') {
-    return parts.slice(0, playbooksIndex + 3).join('/');
+  const playbooksIndex = parts.indexOf("playbooks");
+  if (
+    playbooksIndex !== -1 &&
+    playbooksIndex + 2 < parts.length &&
+    parts[playbooksIndex + 2] === "tasks"
+  ) {
+    return parts.slice(0, playbooksIndex + 3).join("/");
   }
 
-  const epicsIndex = parts.indexOf('epics');
+  const epicsIndex = parts.indexOf("epics");
 
   if (epicsIndex === -1) {
     throw new Error(`Invalid task path (no 'epics' directory): ${taskPath}`);
@@ -157,7 +178,7 @@ export function extractEpicDir(taskPath: string): string {
 
   // Epic directory is at epicsIndex + 1
   const epicDirParts = parts.slice(0, epicsIndex + 2);
-  return epicDirParts.join('/');
+  return epicDirParts.join("/");
 }
 
 /**
@@ -167,15 +188,20 @@ export function extractEpicDir(taskPath: string): string {
  * @returns Leaf task ID (e.g., "002-001-home")
  */
 export function extractLeafTaskId(taskPath: string): string {
-  const normalizedPath = taskPath.split(path.sep).join('/');
-  const parts = normalizedPath.split('/');
+  const normalizedPath = taskPath.split(path.sep).join("/");
+  const parts = normalizedPath.split("/");
 
   // Find the last segment that looks like a task ID (numbered prefix)
   for (let i = parts.length - 1; i >= 0; i--) {
     const segment = parts[i];
     // Skip empty segments, file names, and 'tasks' markers
     // Note: Using 'tasks' (plural) because there are always multiple subtasks
-    if (!segment || segment.endsWith('.ts') || segment.endsWith('.md') || segment === 'tasks') {
+    if (
+      !segment ||
+      segment.endsWith(".ts") ||
+      segment.endsWith(".md") ||
+      segment === "tasks"
+    ) {
       continue;
     }
     // Check if it has a numbered prefix (e.g., "002-pages" or "002-001-home")
@@ -196,13 +222,13 @@ export function extractLeafTaskId(taskPath: string): string {
  * @returns Parent task ID, or undefined if this is a root task
  */
 export function extractParentTaskId(taskPath: string): string | undefined {
-  const normalizedPath = taskPath.split(path.sep).join('/');
-  const parts = normalizedPath.split('/');
+  const normalizedPath = taskPath.split(path.sep).join("/");
+  const parts = normalizedPath.split("/");
 
   // Find all 'tasks' directory markers (plural - there are always multiple subtasks)
   const tasksIndices: number[] = [];
   for (let i = 0; i < parts.length; i++) {
-    if (parts[i] === 'tasks') {
+    if (parts[i] === "tasks") {
       tasksIndices.push(i);
     }
   }
@@ -241,39 +267,55 @@ export function extractParentTaskId(taskPath: string): string | undefined {
  * @returns Journal path (mirrors epic structure with journal/tasks/ root)
  */
 export function constructJournalPath(taskPath: string): string {
-  const normalizedPath = taskPath.split(path.sep).join('/');
-  const parts = normalizedPath.split('/');
+  const normalizedPath = taskPath.split(path.sep).join("/");
+  const parts = normalizedPath.split("/");
 
   // Try playbook path: .converge/playbooks/{name}/tasks/...
   // → .converge/journal/{name}/tasks/...
-  const playbooksIndex = parts.indexOf('playbooks');
-  if (playbooksIndex !== -1 && playbooksIndex + 2 < parts.length && parts[playbooksIndex + 2] === 'tasks') {
+  const playbooksIndex = parts.indexOf("playbooks");
+  if (
+    playbooksIndex !== -1 &&
+    playbooksIndex + 2 < parts.length &&
+    parts[playbooksIndex + 2] === "tasks"
+  ) {
     const playbookName = parts[playbooksIndex + 1];
-    const journalParts = [...parts.slice(0, playbooksIndex), 'journal', playbookName, 'tasks', ...parts.slice(playbooksIndex + 3)];
+    const journalParts = [
+      ...parts.slice(0, playbooksIndex),
+      "journal",
+      playbookName,
+      "tasks",
+      ...parts.slice(playbooksIndex + 3),
+    ];
     const lastPart = journalParts[journalParts.length - 1];
-    if (lastPart && (lastPart.endsWith('.md') || lastPart.endsWith('.ts'))) {
+    if (lastPart && (lastPart.endsWith(".md") || lastPart.endsWith(".ts"))) {
       journalParts.pop();
     }
-    return journalParts.join('/');
+    return journalParts.join("/");
   }
 
-  const epicsIndex = parts.indexOf('epics');
+  const epicsIndex = parts.indexOf("epics");
 
   if (epicsIndex === -1) {
     throw new Error(`Invalid task path (no 'epics' directory): ${taskPath}`);
   }
 
   // Replace 'epics' with 'journal/{playbook}/tasks/'
-  const playbook = process.env.CONVERGE_PLAYBOOK ?? 'default';
-  const journalParts = [...parts.slice(0, epicsIndex), 'journal', playbook, 'tasks', ...parts.slice(epicsIndex + 1)];
+  const playbook = process.env.CONVERGE_PLAYBOOK ?? "default";
+  const journalParts = [
+    ...parts.slice(0, epicsIndex),
+    "journal",
+    playbook,
+    "tasks",
+    ...parts.slice(epicsIndex + 1),
+  ];
 
   // Remove file extensions if present (TASK.md, task.ts)
   const lastPart = journalParts[journalParts.length - 1];
-  if (lastPart && (lastPart.endsWith('.md') || lastPart.endsWith('.ts'))) {
+  if (lastPart && (lastPart.endsWith(".md") || lastPart.endsWith(".ts"))) {
     journalParts.pop();
   }
 
-  return journalParts.join('/');
+  return journalParts.join("/");
 }
 
 /**
@@ -283,5 +325,5 @@ export function constructJournalPath(taskPath: string): string {
  * @returns Absolute path to TASK.md file
  */
 export function resolveTaskMdPath(taskDir: string): string {
-  return path.join(taskDir, 'TASK.md');
+  return path.join(taskDir, "TASK.md");
 }

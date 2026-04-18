@@ -18,7 +18,7 @@ export type {
   GoalConvergenceConfig,
   GoalProgressUpdate,
   GoalConvergenceResult,
-} from './types.ts';
+} from "./types.ts";
 
 // Evaluator
 export {
@@ -27,10 +27,7 @@ export {
   flattenGoalHierarchy,
   countGoals,
   findGoalById,
-} from './evaluator.ts';
+} from "./evaluator.ts";
 
 // Builder
-export {
-  goal,
-  defineGoal,
-} from './builder.ts';
+export { goal, defineGoal } from "./builder.ts";

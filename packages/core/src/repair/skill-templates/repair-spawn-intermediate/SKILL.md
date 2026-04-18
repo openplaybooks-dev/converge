@@ -13,7 +13,17 @@ tags:
   - gap:blocker
 context:
   - type: gap
-    fields: [gapKind, taskId, taskTitle, inputPattern, missingOutputs, requiredByTask, epicId, suggestedUpstreamTask]
+    fields:
+      [
+        gapKind,
+        taskId,
+        taskTitle,
+        inputPattern,
+        missingOutputs,
+        requiredByTask,
+        epicId,
+        suggestedUpstreamTask,
+      ]
   - type: files
     pattern: ".converge/epics/*/tasks/*/SKILL.md"
     label: all-task-skills
@@ -21,14 +31,14 @@ context:
   - type: ai
     prompt: >
       A task `{requiredByTask}` needs input files matching `{inputPattern}` but no existing task produces them.
-      
+
       Search all SKILL.md files in .converge/epics/ to confirm no task has these in its outputs.
       Then determine:
       1. What kind of task should produce these files (e.g., generate HTML, compile data, screenshot)
       2. What inputs the new task would need
       3. Which epic it belongs to
       4. A reasonable task ID (zero-padded, e.g., 002-generate-screenshots)
-      
+
       Return a concrete task definition plan in 5-10 lines.
     label: task-plan
     tools: [Read, Glob, Grep]

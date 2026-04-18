@@ -24,6 +24,7 @@ Before this fix, when you ran a task, you saw:
 ## The Solution
 
 Created `LogStreamer` class that:
+
 1. Tails the `.log` files created by `agentfn`
 2. Parses interesting events (tool calls, results, errors)
 3. Formats and displays them in real-time to the console
@@ -51,11 +52,12 @@ Created `LogStreamer` class that:
 ### Tool Call Tracking
 
 Shows when AI uses tools:
+
 - 📖 `Read` - Reading files
-- ✍️  `Write` - Writing files
-- ✏️  `Edit` - Editing files
-- ⚙️  `Bash` - Running commands
-- 🛠️  `Skill` - Calling skills
+- ✍️ `Write` - Writing files
+- ✏️ `Edit` - Editing files
+- ⚙️ `Bash` - Running commands
+- 🛠️ `Skill` - Calling skills
 - 🔍 `WebSearch` - Searching the web
 - 🌐 `WebFetch` - Fetching URLs
 
@@ -63,17 +65,17 @@ Shows when AI uses tools:
 
 - ✅ Success indicators when operations complete
 - ❌ Error messages when operations fail
-- ⏱️  Duration tracking for long operations
+- ⏱️ Duration tracking for long operations
 
 ### Configurable Output
 
 ```typescript
 new LogStreamer(logDir, {
-  showToolCalls: true,      // Show tool usage (default: true)
-  showReasoning: false,     // Show AI thinking (default: false, verbose)
-  showResults: true,        // Show final results (default: true)
-  useColor: true,          // Use colors (default: true)
-  debounceMs: 100,         // Batch updates (default: 100ms)
+  showToolCalls: true, // Show tool usage (default: true)
+  showReasoning: false, // Show AI thinking (default: false, verbose)
+  showResults: true, // Show final results (default: true)
+  useColor: true, // Use colors (default: true)
+  debounceMs: 100, // Batch updates (default: 100ms)
 });
 ```
 
@@ -84,6 +86,7 @@ new LogStreamer(logDir, {
 **Location**: `src/journal/log-streamer.ts`
 
 **Key Methods**:
+
 - `start()` - Start streaming logs
 - `stop()` - Stop streaming
 - `processLogLine()` - Parse and format individual log lines
@@ -91,6 +94,7 @@ new LogStreamer(logDir, {
 - `formatResult()` - Format completion events
 
 **Architecture**:
+
 1. Uses Node.js `fs.watch()` to monitor log directory
 2. Maintains `lastPosition` map for each log file
 3. Reads only new content (incremental streaming)
@@ -100,6 +104,7 @@ new LogStreamer(logDir, {
 ### Integration with agent-runner.ts
 
 **Before**:
+
 ```typescript
 try {
   const executor = agentfn({ ... });
@@ -109,6 +114,7 @@ try {
 ```
 
 **After**:
+
 ```typescript
 // Start real-time log streaming
 const logStreamer = new LogStreamer(logDir, {
@@ -133,9 +139,11 @@ try {
 ## Files Modified
 
 ### New Files
+
 - `src/journal/log-streamer.ts` - LogStreamer class implementation
 
 ### Modified Files
+
 - `src/repair/agent-runner.ts` - Integrated LogStreamer
 - `src/journal/index.ts` - Exported LogStreamer
 
@@ -147,29 +155,32 @@ try {
 
 The LogStreamer recognizes and formats these event types from agentfn logs:
 
-| Log Level | Description | Example |
-|-----------|-------------|---------|
-| `TOOL_USE_START` | Tool call initiated | `[TOOL_USE_START] {"name":"Read",...}` |
-| `TOOL_RESULT` | Tool result received | `[TOOL_RESULT] {"success":true,...}` |
-| `STDOUT` | Streaming JSON events | `[STDOUT] {"type":"tool_use",...}` |
-| `STREAM_EVENT` | Event stream chunks | `[STREAM_EVENT] {"type":"result",...}` |
-| `FINAL_RESULT` | Task completion | `[FINAL_RESULT] Design generated` |
-| `ERROR` | Error messages | `[ERROR] File not found` |
-| `STDERR` | Standard error | `[STDERR] Permission denied` |
+| Log Level        | Description           | Example                                |
+| ---------------- | --------------------- | -------------------------------------- |
+| `TOOL_USE_START` | Tool call initiated   | `[TOOL_USE_START] {"name":"Read",...}` |
+| `TOOL_RESULT`    | Tool result received  | `[TOOL_RESULT] {"success":true,...}`   |
+| `STDOUT`         | Streaming JSON events | `[STDOUT] {"type":"tool_use",...}`     |
+| `STREAM_EVENT`   | Event stream chunks   | `[STREAM_EVENT] {"type":"result",...}` |
+| `FINAL_RESULT`   | Task completion       | `[FINAL_RESULT] Design generated`      |
+| `ERROR`          | Error messages        | `[ERROR] File not found`               |
+| `STDERR`         | Standard error        | `[STDERR] Permission denied`           |
 
 ## Performance Considerations
 
 ### Debouncing
+
 - Updates are batched with 100ms debounce
 - Prevents console spam during rapid file writes
 - Configurable via `debounceMs` option
 
 ### Incremental Reading
+
 - Only reads new content since last position
 - Maintains position map for each log file
 - Minimal disk I/O overhead
 
 ### Filtering
+
 - Skips verbose events (REASONING, THINKING) by default
 - Users can enable with `showReasoning: true`
 - Level-based filtering (debug, info, warning, error)
@@ -177,6 +188,7 @@ The LogStreamer recognizes and formats these event types from agentfn logs:
 ## Comparison with Old Heartbeat
 
 ### Old Timer-Based Heartbeat (REMOVED)
+
 - Printed every 60 seconds
 - Showed last 4 log lines
 - Verbose JSON dumps
@@ -184,6 +196,7 @@ The LogStreamer recognizes and formats these event types from agentfn logs:
 - Interrupted by new lines
 
 ### New Real-Time Streaming
+
 - Shows events as they happen
 - Clean, formatted output
 - Only interesting events (tool calls, results)
@@ -235,14 +248,15 @@ The LogStreamer recognizes and formats these event types from agentfn logs:
 ```typescript
 const logStreamer = new LogStreamer(logDir, {
   showToolCalls: true,
-  showReasoning: true,   // ← Show AI thinking
+  showReasoning: true, // ← Show AI thinking
   showResults: true,
-  minLevel: 'debug',     // ← Show debug logs
+  minLevel: "debug", // ← Show debug logs
   useColor: true,
 });
 ```
 
 Output:
+
 ```
    💬 Analyzing prompt file structure...
    📖 Reading .stitch/prompts/home-lesson-tree.md
@@ -257,15 +271,16 @@ Output:
 
 ```typescript
 const logStreamer = new LogStreamer(logDir, {
-  showToolCalls: false,   // ← Hide tool calls
+  showToolCalls: false, // ← Hide tool calls
   showReasoning: false,
-  showResults: false,     // ← Hide results
-  minLevel: 'error',      // ← Only errors
+  showResults: false, // ← Hide results
+  minLevel: "error", // ← Only errors
   useColor: true,
 });
 ```
 
 Output:
+
 ```
    ❌ Error: File not found: .stitch/DESIGN.md
 ```
@@ -273,10 +288,11 @@ Output:
 ### Default Mode (Balanced)
 
 ```typescript
-const logStreamer = new LogStreamer(logDir);  // Uses defaults
+const logStreamer = new LogStreamer(logDir); // Uses defaults
 ```
 
 Output:
+
 ```
    📖 Reading .stitch/prompts/home-lesson-tree.md
    🛠️  Skill: /stitch-generate
@@ -287,6 +303,7 @@ Output:
 ## Future Enhancements
 
 ### Planned Features
+
 - [ ] Progress bars for long-running operations
 - [ ] Token usage display (input/output/cost)
 - [ ] Colored output based on event type
@@ -295,6 +312,7 @@ Output:
 - [ ] Replay mode for debugging past runs
 
 ### Nice-to-Have
+
 - [ ] Filter by tool type (e.g., show only file operations)
 - [ ] Time-based filtering (show events from last N seconds)
 - [ ] Search/grep within streamed logs
@@ -305,40 +323,45 @@ Output:
 ### No logs appearing
 
 **Check 1**: Verify log directory exists
+
 ```bash
 ls -la .converge/journal/epics/*/tasks/*/attempts/wip/logs/
 ```
 
 **Check 2**: Verify logs are being written
+
 ```bash
 tail -f .converge/journal/epics/*/tasks/*/attempts/wip/logs/*.log
 ```
 
 **Check 3**: Check LogStreamer configuration
+
 ```typescript
 // Make sure showToolCalls is true
 const logStreamer = new LogStreamer(logDir, {
-  showToolCalls: true,  // ← Must be true
+  showToolCalls: true, // ← Must be true
 });
 ```
 
 ### Too much output
 
 **Solution**: Reduce verbosity
+
 ```typescript
 const logStreamer = new LogStreamer(logDir, {
   showToolCalls: true,
-  showReasoning: false,  // ← Disable AI thinking
-  showResults: false,    // ← Disable full results
+  showReasoning: false, // ← Disable AI thinking
+  showResults: false, // ← Disable full results
 });
 ```
 
 ### Logs appear delayed
 
 **Solution**: Reduce debounce interval
+
 ```typescript
 const logStreamer = new LogStreamer(logDir, {
-  debounceMs: 50,  // ← Faster updates (default: 100ms)
+  debounceMs: 50, // ← Faster updates (default: 100ms)
 });
 ```
 

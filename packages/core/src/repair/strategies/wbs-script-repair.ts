@@ -8,19 +8,23 @@
  * Gap kind: 'wbs-script-error'
  */
 
-import { readFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { glob } from 'glob';
-import type { Gap } from '../../gap/types.ts';
-import type { FixStrategy, StrategyContext, StrategyOutcome } from '../types.ts';
-import { runAgent, getAgentLogDir } from '../agent-runner.ts';
+import { readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { glob } from "glob";
+import type { Gap } from "../../gap/types.ts";
+import type {
+  FixStrategy,
+  StrategyContext,
+  StrategyOutcome,
+} from "../types.ts";
+import { runAgent, getAgentLogDir } from "../agent-runner.ts";
 
 export class WbsScriptRepairStrategy implements FixStrategy {
-  readonly name = 'wbs-script-repair';
+  readonly name = "wbs-script-repair";
 
   canHandle(gap: Gap): boolean {
-    return gap.metadata?.gapKind === 'wbs-script-error';
+    return gap.metadata?.gapKind === "wbs-script-error";
   }
 
   async tryFix(gap: Gap, ctx: StrategyContext): Promise<StrategyOutcome> {
@@ -28,13 +32,14 @@ export class WbsScriptRepairStrategy implements FixStrategy {
 
     const scriptPath = gap.metadata?.scriptPath as string | undefined;
     if (!scriptPath) {
-      return { success: false, reason: 'No scriptPath in gap metadata' };
+      return { success: false, reason: "No scriptPath in gap metadata" };
     }
 
     // Resolve script path — may be a directory (unit.path) or a file
-    const candidates = scriptPath.endsWith('.js') || scriptPath.endsWith('.ts')
-      ? [scriptPath]
-      : [join(scriptPath, 'wbs.js'), join(scriptPath, 'wbs.ts')];
+    const candidates =
+      scriptPath.endsWith(".js") || scriptPath.endsWith(".ts")
+        ? [scriptPath]
+        : [join(scriptPath, "wbs.js"), join(scriptPath, "wbs.ts")];
 
     let resolvedScriptPath: string | undefined;
     for (const c of candidates) {
@@ -45,7 +50,10 @@ export class WbsScriptRepairStrategy implements FixStrategy {
     }
 
     if (!resolvedScriptPath) {
-      return { success: false, reason: `WBS script not found at ${scriptPath}` };
+      return {
+        success: false,
+        reason: `WBS script not found at ${scriptPath}`,
+      };
     }
 
     console.log(`   [wbs-script-repair] Reading script: ${resolvedScriptPath}`);
@@ -53,26 +61,32 @@ export class WbsScriptRepairStrategy implements FixStrategy {
     // Read the script source
     let scriptSource: string;
     try {
-      scriptSource = await readFile(resolvedScriptPath, 'utf-8');
+      scriptSource = await readFile(resolvedScriptPath, "utf-8");
     } catch {
-      return { success: false, reason: `Cannot read script: ${resolvedScriptPath}` };
+      return {
+        success: false,
+        reason: `Cannot read script: ${resolvedScriptPath}`,
+      };
     }
 
     // Read TASK.md frontmatter from same directory (if exists)
-    const taskMdPath = join(dirname(resolvedScriptPath), 'TASK.md');
-    let taskMdContent = '';
+    const taskMdPath = join(dirname(resolvedScriptPath), "TASK.md");
+    let taskMdContent = "";
     if (existsSync(taskMdPath)) {
       try {
-        taskMdContent = await readFile(taskMdPath, 'utf-8');
-      } catch { /* ignore */ }
+        taskMdContent = await readFile(taskMdPath, "utf-8");
+      } catch {
+        /* ignore */
+      }
     }
 
     // Collect input files referenced by the script (scan for common patterns)
     const inputFiles = await this.collectInputFiles(scriptSource, projectDir);
 
-    const errorMessage = gap.metadata?.errorMessage as string ?? 'Unknown error';
-    const errorStack = gap.metadata?.errorStack as string ?? '';
-    const attemptNumber = gap.metadata?.attemptNumber as number ?? 1;
+    const errorMessage =
+      (gap.metadata?.errorMessage as string) ?? "Unknown error";
+    const errorStack = (gap.metadata?.errorStack as string) ?? "";
+    const attemptNumber = (gap.metadata?.attemptNumber as number) ?? 1;
 
     // Build AI prompt
     const prompt = this.buildPrompt({
@@ -85,14 +99,16 @@ export class WbsScriptRepairStrategy implements FixStrategy {
       projectDir,
     });
 
-    console.log(`   [wbs-script-repair] Calling AI to fix script (attempt ${attemptNumber})...`);
+    console.log(
+      `   [wbs-script-repair] Calling AI to fix script (attempt ${attemptNumber})...`,
+    );
 
     try {
       await runAgent({
-        phase: 'wbs_script_repair',
+        phase: "wbs_script_repair",
         prompt,
         agentOptions: {
-          allowedTools: ['Read', 'Write', 'Bash', 'Glob'],
+          allowedTools: ["Read", "Write", "Bash", "Glob"],
           timeoutMs: 180_000,
         },
         projectDir,
@@ -101,7 +117,11 @@ export class WbsScriptRepairStrategy implements FixStrategy {
       });
 
       console.log(`   [wbs-script-repair] AI fix applied`);
-      return { success: true, reason: 'WBS script repaired by AI', retryMode: 'full' };
+      return {
+        success: true,
+        reason: "WBS script repaired by AI",
+        retryMode: "full",
+      };
     } catch (err: any) {
       console.error(`   [wbs-script-repair] AI repair failed: ${err.message}`);
       return { success: false, reason: `AI repair failed: ${err.message}` };
@@ -138,19 +158,24 @@ export class WbsScriptRepairStrategy implements FixStrategy {
         // Try to resolve from project dir
         const candidates = [
           join(projectDir, relPath),
-          join(projectDir, '.stitch', relPath),
+          join(projectDir, ".stitch", relPath),
         ];
 
         for (const absPath of candidates) {
           if (existsSync(absPath)) {
             try {
-              const content = await readFile(absPath, 'utf-8');
+              const content = await readFile(absPath, "utf-8");
               // Limit to 4KB to avoid bloating the prompt
               results.push({
                 path: relPath,
-                content: content.length > 4096 ? content.slice(0, 4096) + '\n...(truncated)' : content,
+                content:
+                  content.length > 4096
+                    ? content.slice(0, 4096) + "\n...(truncated)"
+                    : content,
               });
-            } catch { /* skip unreadable */ }
+            } catch {
+              /* skip unreadable */
+            }
             break;
           }
         }
@@ -159,19 +184,29 @@ export class WbsScriptRepairStrategy implements FixStrategy {
 
     // Also glob for .stitch/*.json which WBS scripts commonly read
     try {
-      const stitchFiles = await glob('**/.stitch/*.json', { cwd: projectDir, absolute: false });
+      const stitchFiles = await glob("**/.stitch/*.json", {
+        cwd: projectDir,
+        absolute: false,
+      });
       for (const f of stitchFiles.slice(0, 5)) {
         if (seenPaths.has(f)) continue;
         seenPaths.add(f);
         try {
-          const content = await readFile(join(projectDir, f), 'utf-8');
+          const content = await readFile(join(projectDir, f), "utf-8");
           results.push({
             path: f,
-            content: content.length > 4096 ? content.slice(0, 4096) + '\n...(truncated)' : content,
+            content:
+              content.length > 4096
+                ? content.slice(0, 4096) + "\n...(truncated)"
+                : content,
           });
-        } catch { /* skip */ }
+        } catch {
+          /* skip */
+        }
       }
-    } catch { /* glob failed, skip */ }
+    } catch {
+      /* glob failed, skip */
+    }
 
     return results;
   }
@@ -185,17 +220,25 @@ export class WbsScriptRepairStrategy implements FixStrategy {
     inputFiles: Array<{ path: string; content: string }>;
     projectDir: string;
   }): string {
-    const { scriptPath, scriptSource, errorMessage, errorStack, taskMdContent, inputFiles, projectDir } = opts;
+    const {
+      scriptPath,
+      scriptSource,
+      errorMessage,
+      errorStack,
+      taskMdContent,
+      inputFiles,
+      projectDir,
+    } = opts;
 
-    let inputSection = '';
+    let inputSection = "";
     if (inputFiles.length > 0) {
-      inputSection = '\n## Referenced Project Files\n\n';
+      inputSection = "\n## Referenced Project Files\n\n";
       for (const f of inputFiles) {
         inputSection += `### ${f.path}\n\`\`\`\n${f.content}\n\`\`\`\n\n`;
       }
     }
 
-    let taskMdSection = '';
+    let taskMdSection = "";
     if (taskMdContent) {
       taskMdSection = `\n## TASK.md (parent task)\n\`\`\`markdown\n${taskMdContent}\n\`\`\`\n`;
     }

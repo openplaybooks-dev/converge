@@ -20,5 +20,5 @@ with TypeScript checks enabled by default.
 ## Variables
 
 | Key        | Value          |
-|------------|----------------|
+| ---------- | -------------- |
 | `language` | `"typescript"` |

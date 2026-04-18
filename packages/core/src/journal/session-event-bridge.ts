@@ -16,10 +16,10 @@
  * - Gap detection patterns across tasks
  */
 
-import { readFile } from 'node:fs/promises';
-import { watch } from 'node:fs';
-import type { SessionLogger } from './session-logger.ts';
-import type { TaskEvent } from './event-writer.ts';
+import { readFile } from "node:fs/promises";
+import { watch } from "node:fs";
+import type { SessionLogger } from "./session-logger.ts";
+import type { TaskEvent } from "./event-writer.ts";
 
 export class SessionEventBridge {
   private watchers: Array<() => void> = [];
@@ -30,18 +30,21 @@ export class SessionEventBridge {
   /**
    * Start monitoring a task's event file
    */
-  async monitorTaskEvents(taskId: string, eventsFilePath: string): Promise<void> {
+  async monitorTaskEvents(
+    taskId: string,
+    eventsFilePath: string,
+  ): Promise<void> {
     // Read initial events from file
     await this.processEventsFile(taskId, eventsFilePath);
 
     // Watch for new events (file may be written in real-time)
     const watcher = watch(eventsFilePath, async (eventType) => {
-      if (eventType === 'change') {
+      if (eventType === "change") {
         await this.processEventsFile(taskId, eventsFilePath);
       }
     });
-    watcher.on('error', (err: any) => {
-      if (err.code !== 'EPERM' && err.code !== 'ENOENT') throw err;
+    watcher.on("error", (err: any) => {
+      if (err.code !== "EPERM" && err.code !== "ENOENT") throw err;
     });
 
     this.watchers.push(() => watcher.close());
@@ -50,10 +53,16 @@ export class SessionEventBridge {
   /**
    * Process events from JSONL file and bridge to session logger
    */
-  private async processEventsFile(taskId: string, filePath: string): Promise<void> {
+  private async processEventsFile(
+    taskId: string,
+    filePath: string,
+  ): Promise<void> {
     try {
-      const content = await readFile(filePath, 'utf-8');
-      const lines = content.trim().split('\n').filter(l => l.trim());
+      const content = await readFile(filePath, "utf-8");
+      const lines = content
+        .trim()
+        .split("\n")
+        .filter((l) => l.trim());
 
       const lastProcessed = this.processedLines.get(filePath) || 0;
       const newLines = lines.slice(lastProcessed);
@@ -71,8 +80,10 @@ export class SessionEventBridge {
       this.processedLines.set(filePath, lines.length);
     } catch (err: any) {
       // File may not exist yet or be locked
-      if (err.code !== 'ENOENT') {
-        console.warn(`[SessionBridge] Error reading events file: ${err.message}`);
+      if (err.code !== "ENOENT") {
+        console.warn(
+          `[SessionBridge] Error reading events file: ${err.message}`,
+        );
       }
     }
   }
@@ -84,54 +95,58 @@ export class SessionEventBridge {
     const eventType = event.type;
 
     switch (eventType) {
-      case 'gap_detected':
+      case "gap_detected":
         await this.sessionLogger.logGapDetected(
           taskId,
-          (event as any).gapType || 'unknown',
-          (event as any).description || ''
+          (event as any).gapType || "unknown",
+          (event as any).description || "",
         );
         break;
 
-      case 'strategy_applied':
+      case "strategy_applied":
         await this.sessionLogger.logStrategyAttempted(
           taskId,
-          (event as any).strategy || 'unknown'
+          (event as any).strategy || "unknown",
         );
         break;
 
-      case 'gap_resolved':
+      case "gap_resolved":
         // Log to session with metadata
-        await this.sessionLogger.writeSessionEvent('GAP_RESOLVED', `Gap resolved in ${taskId}`, {
-          taskId,
-          gapId: (event as any).gapId,
-          strategy: (event as any).strategy,
-          duration: (event as any).duration,
-        });
+        await this.sessionLogger.writeSessionEvent(
+          "GAP_RESOLVED",
+          `Gap resolved in ${taskId}`,
+          {
+            taskId,
+            gapId: (event as any).gapId,
+            strategy: (event as any).strategy,
+            duration: (event as any).duration,
+          },
+        );
         break;
 
-      case 'tool_use_start':
+      case "tool_use_start":
         await this.sessionLogger.logToolUse(
           taskId,
-          (event as any).toolName || 'unknown',
-          (event as any).params || {}
+          (event as any).toolName || "unknown",
+          (event as any).params || {},
         );
         break;
 
-      case 'ai_reasoning':
-      case 'ai_planning':
-      case 'ai_thinking':
+      case "ai_reasoning":
+      case "ai_planning":
+      case "ai_thinking":
         await this.sessionLogger.logAiActivity(
           taskId,
-          eventType.replace('ai_', ''),
+          eventType.replace("ai_", ""),
           {
             message: (event as any).message,
             metadata: (event as any).metadata,
-          }
+          },
         );
         break;
 
-      case 'task_complete':
-      case 'task_failed':
+      case "task_complete":
+      case "task_failed":
         // These are already logged by task-runner.ts via logTaskAttemptComplete
         // Skip to avoid duplicates
         break;
@@ -139,13 +154,13 @@ export class SessionEventBridge {
       default:
         // Bridge all other events generically
         await this.sessionLogger.writeSessionEvent(
-          'TASK_ATTEMPT_START', // Generic event type for task activity
-          `${eventType}: ${(event as any).message || ''}`,
+          "TASK_ATTEMPT_START", // Generic event type for task activity
+          `${eventType}: ${(event as any).message || ""}`,
           {
             taskId,
             eventType,
             ...event,
-          }
+          },
         );
     }
   }

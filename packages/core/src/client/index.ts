@@ -13,10 +13,10 @@
  * ```
  */
 
-import { ConvergeClient } from './converge-client.ts';
+import { ConvergeClient } from "./converge-client.ts";
 
-export { ConvergeClient } from './converge-client.ts';
-export type { ConvergeClientContext, SpawnedTask } from './types.ts';
+export { ConvergeClient } from "./converge-client.ts";
+export type { ConvergeClientContext, SpawnedTask } from "./types.ts";
 
 /**
  * Create a new ConvergeClient instance.

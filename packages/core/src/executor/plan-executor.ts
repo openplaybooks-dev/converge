@@ -13,13 +13,13 @@
  *   4. Log PLAN_START / PLAN_COMPLETE / PLAN_FAILED events
  */
 
-import { READONLY_TOOLS } from '../ai/context.ts';
-import { runAgent } from '../repair/agent-runner.ts';
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { getJournalStructure } from '../journal/structure.ts';
-import { writeTaskPlan, logTaskEvent } from '../journal/writer.ts';
-import type { JournalContext } from '../repair/types.ts';
+import { READONLY_TOOLS } from "../ai/context.ts";
+import { runAgent } from "../repair/agent-runner.ts";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { getJournalStructure } from "../journal/structure.ts";
+import { writeTaskPlan, logTaskEvent } from "../journal/writer.ts";
+import type { JournalContext } from "../repair/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  PlanExecutor                                                      */
@@ -45,7 +45,7 @@ export class PlanExecutor {
       this.journalCtx.epicId,
       this.journalCtx.taskId,
     );
-    return join(structure.task!, 'plan.md');
+    return join(structure.task!, "plan.md");
   }
 
   /**
@@ -69,9 +69,9 @@ export class PlanExecutor {
     taskPrompt?: string,
     planPromptOverride?: string,
     output?: string,
-    outputPrompt?: string
+    outputPrompt?: string,
   ): string {
-    let prompt = '';
+    let prompt = "";
 
     if (planPromptOverride) {
       prompt = `${planPromptOverride}
@@ -93,7 +93,7 @@ Your role is EXCLUSIVELY to explore the codebase and design implementation plans
 PROJECT DIRECTORY: ${this.projectDir}
 TASK: ${this.taskMeta.title ?? this.taskMeta.id}
 
-${taskPrompt ? `TASK INSTRUCTIONS:\n${taskPrompt}\n` : ''}
+${taskPrompt ? `TASK INSTRUCTIONS:\n${taskPrompt}\n` : ""}
 ## Your Process
 
 1. **Understand Requirements**: Focus on the task instructions above.
@@ -155,7 +155,7 @@ REMEMBER: You can ONLY explore and plan. You CANNOT and MUST NOT write, edit, or
       this.projectDir,
       this.journalCtx.epicId,
       this.journalCtx.taskId,
-      'PLAN_START',
+      "PLAN_START",
       `Planning: ${this.taskMeta.title ?? this.taskMeta.id}`,
       { taskId: this.taskMeta.id },
     );
@@ -166,7 +166,7 @@ REMEMBER: You can ONLY explore and plan. You CANNOT and MUST NOT write, edit, or
     let result;
     try {
       result = await runAgent<string>({
-        phase: 'plan',
+        phase: "plan",
         prompt: planningPrompt,
         agentOptions: {
           allowedTools: [...READONLY_TOOLS],
@@ -175,14 +175,14 @@ REMEMBER: You can ONLY explore and plan. You CANNOT and MUST NOT write, edit, or
         projectDir: this.projectDir,
         journalCtx: this.journalCtx,
         label: this.taskMeta.title ?? this.taskMeta.id,
-        agentName: 'plan-executor',
+        agentName: "plan-executor",
       });
     } catch (error: any) {
       await logTaskEvent(
         this.projectDir,
         this.journalCtx.epicId,
         this.journalCtx.taskId,
-        'PLAN_FAILED',
+        "PLAN_FAILED",
         `Planning failed: ${error.message}`,
         { taskId: this.taskMeta.id, error: error.message },
       );
@@ -191,9 +191,14 @@ REMEMBER: You can ONLY explore and plan. You CANNOT and MUST NOT write, edit, or
     }
 
     const durationMs = Date.now() - start;
-    const plan = typeof result.data === 'string' ? result.data : String(result.data);
+    const plan =
+      typeof result.data === "string" ? result.data : String(result.data);
     // Derive a one-line summary from the first non-empty line of the plan
-    const summary = plan.split('\n').map(l => l.trim()).find(l => l && !l.startsWith('#')) ?? 'Plan generated';
+    const summary =
+      plan
+        .split("\n")
+        .map((l) => l.trim())
+        .find((l) => l && !l.startsWith("#")) ?? "Plan generated";
 
     // Write plan.md to journal
     const planContent = `# Plan: ${this.taskMeta.title ?? this.taskMeta.id}\n\n${plan}`;
@@ -209,7 +214,7 @@ REMEMBER: You can ONLY explore and plan. You CANNOT and MUST NOT write, edit, or
     if (outputPath) {
       const absPath = join(this.projectDir, outputPath);
       mkdirSync(dirname(absPath), { recursive: true });
-      writeFileSync(absPath, plan, 'utf-8');
+      writeFileSync(absPath, plan, "utf-8");
       console.log(`   📄 Output written to ${outputPath}`);
     }
 
@@ -217,7 +222,7 @@ REMEMBER: You can ONLY explore and plan. You CANNOT and MUST NOT write, edit, or
       this.projectDir,
       this.journalCtx.epicId,
       this.journalCtx.taskId,
-      'PLAN_COMPLETE',
+      "PLAN_COMPLETE",
       summary,
       { taskId: this.taskMeta.id, durationMs, planPath: this.planPath() },
     );
@@ -232,6 +237,6 @@ REMEMBER: You can ONLY explore and plan. You CANNOT and MUST NOT write, edit, or
       this.journalCtx.epicId,
       this.journalCtx.taskId,
     );
-    return join(structure.attempt ?? structure.task!, 'logs');
+    return join(structure.attempt ?? structure.task!, "logs");
   }
 }

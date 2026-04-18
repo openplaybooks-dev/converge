@@ -7,8 +7,8 @@
  *   - Report data = populated via ctx.data(key, value)
  */
 
-import { pathToFileURL } from 'node:url';
-import { execSync } from 'node:child_process';
+import { pathToFileURL } from "node:url";
+import { execSync } from "node:child_process";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -44,7 +44,7 @@ export interface DodResult {
 class DodAssertionError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'DodAssertionError';
+    this.name = "DodAssertionError";
   }
 }
 
@@ -74,7 +74,10 @@ function createMatchers(actual: unknown, negated: boolean): Matchers {
 
   const matchers: Matchers = {
     toBe(expected: unknown) {
-      assert(actual === expected, `Expected ${JSON.stringify(actual)} to be ${JSON.stringify(expected)}`);
+      assert(
+        actual === expected,
+        `Expected ${JSON.stringify(actual)} to be ${JSON.stringify(expected)}`,
+      );
     },
     toEqual(expected: unknown) {
       assert(
@@ -83,12 +86,21 @@ function createMatchers(actual: unknown, negated: boolean): Matchers {
       );
     },
     toContain(expected: unknown) {
-      if (typeof actual === 'string') {
-        assert(actual.includes(String(expected)), `Expected string to contain ${JSON.stringify(expected)}`);
+      if (typeof actual === "string") {
+        assert(
+          actual.includes(String(expected)),
+          `Expected string to contain ${JSON.stringify(expected)}`,
+        );
       } else if (Array.isArray(actual)) {
-        assert(actual.includes(expected), `Expected array to contain ${JSON.stringify(expected)}`);
+        assert(
+          actual.includes(expected),
+          `Expected array to contain ${JSON.stringify(expected)}`,
+        );
       } else {
-        assert(false, `toContain requires string or array, got ${typeof actual}`);
+        assert(
+          false,
+          `toContain requires string or array, got ${typeof actual}`,
+        );
       }
     },
     toBeTruthy() {
@@ -98,14 +110,23 @@ function createMatchers(actual: unknown, negated: boolean): Matchers {
       assert(!actual, `Expected ${JSON.stringify(actual)} to be falsy`);
     },
     toMatch(pattern: RegExp | string) {
-      const re = typeof pattern === 'string' ? new RegExp(pattern) : pattern;
-      assert(re.test(String(actual)), `Expected ${JSON.stringify(actual)} to match ${re}`);
+      const re = typeof pattern === "string" ? new RegExp(pattern) : pattern;
+      assert(
+        re.test(String(actual)),
+        `Expected ${JSON.stringify(actual)} to match ${re}`,
+      );
     },
     toBeGreaterThan(expected: number) {
-      assert((actual as number) > expected, `Expected ${actual} to be greater than ${expected}`);
+      assert(
+        (actual as number) > expected,
+        `Expected ${actual} to be greater than ${expected}`,
+      );
     },
     toBeLessThan(expected: number) {
-      assert((actual as number) < expected, `Expected ${actual} to be less than ${expected}`);
+      assert(
+        (actual as number) < expected,
+        `Expected ${actual} to be less than ${expected}`,
+      );
     },
     get not(): Matchers {
       return createMatchers(actual, !negated);
@@ -119,7 +140,9 @@ type ExpectFn = ((actual: unknown) => Matchers) & { fail(msg: string): void };
 
 function createExpect(): ExpectFn {
   const fn = ((actual: unknown) => createMatchers(actual, false)) as ExpectFn;
-  fn.fail = (msg: string) => { throw new DodAssertionError(msg); };
+  fn.fail = (msg: string) => {
+    throw new DodAssertionError(msg);
+  };
   return fn;
 }
 
@@ -133,10 +156,13 @@ interface CollectedTest {
   fn: () => Promise<void>;
 }
 
-export async function runDod(scriptPath: string, projectDir: string): Promise<DodResult> {
+export async function runDod(
+  scriptPath: string,
+  projectDir: string,
+): Promise<DodResult> {
   const reportData: Record<string, unknown> = {};
   const tests: CollectedTest[] = [];
-  let currentSuite = '(root)';
+  let currentSuite = "(root)";
 
   const expect = createExpect();
 
@@ -147,14 +173,22 @@ export async function runDod(scriptPath: string, projectDir: string): Promise<Do
       const prev = currentSuite;
       currentSuite = name;
       const result = fn();
-      if (result && typeof (result as Promise<void>).then === 'function') {
-        return (result as Promise<void>).then(() => { currentSuite = prev; });
+      if (result && typeof (result as Promise<void>).then === "function") {
+        return (result as Promise<void>).then(() => {
+          currentSuite = prev;
+        });
       }
       currentSuite = prev;
     },
     it(description: string, fn: () => void | Promise<void>) {
       const suite = currentSuite;
-      tests.push({ suite, description, fn: async () => { await fn(); } });
+      tests.push({
+        suite,
+        description,
+        fn: async () => {
+          await fn();
+        },
+      });
     },
     data(key: string, value: unknown) {
       reportData[key] = value;
@@ -162,9 +196,9 @@ export async function runDod(scriptPath: string, projectDir: string): Promise<Do
     exec(cmd: string): string {
       return execSync(cmd, {
         cwd: projectDir,
-        encoding: 'utf8',
+        encoding: "utf8",
         timeout: 30_000,
-        stdio: ['pipe', 'pipe', 'pipe'],
+        stdio: ["pipe", "pipe", "pipe"],
       }).trim();
     },
   };
@@ -185,7 +219,10 @@ export async function runDod(scriptPath: string, projectDir: string): Promise<Do
       await test.fn();
     } catch (err: any) {
       passed = false;
-      error = err instanceof DodAssertionError ? err.message : (err.message ?? String(err));
+      error =
+        err instanceof DodAssertionError
+          ? err.message
+          : (err.message ?? String(err));
       failCount++;
     }
 
@@ -205,7 +242,9 @@ export async function runDod(scriptPath: string, projectDir: string): Promise<Do
   for (const suite of suites) {
     lines.push(suite.description);
     for (const t of suite.tests) {
-      lines.push(`  ${t.passed ? '✓' : '✗'} ${t.description}${t.error ? ` — ${t.error}` : ''}`);
+      lines.push(
+        `  ${t.passed ? "✓" : "✗"} ${t.description}${t.error ? ` — ${t.error}` : ""}`,
+      );
     }
   }
 
@@ -214,6 +253,6 @@ export async function runDod(scriptPath: string, projectDir: string): Promise<Do
     total: tests.length,
     suites,
     reportData,
-    detail: lines.join('\n'),
+    detail: lines.join("\n"),
   };
 }

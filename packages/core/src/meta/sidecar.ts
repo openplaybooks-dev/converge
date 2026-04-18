@@ -20,13 +20,17 @@
  *   .converge/meta/latest-stats.json                    — running statistics
  */
 
-import type { SidecarHooks, SidecarContext } from '../sidecar/types.ts';
-import type { SidecarRunner } from '../sidecar/runner.ts';
-import { MetaAnalyzer } from './analyzer.ts';
-import type { MetaAnalyzerConfig, MetaAnalysisStats, ImprovementProposal } from './analyzer.ts';
-import { writeFile, mkdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+import type { SidecarHooks, SidecarContext } from "../sidecar/types.ts";
+import type { SidecarRunner } from "../sidecar/runner.ts";
+import { MetaAnalyzer } from "./analyzer.ts";
+import type {
+  MetaAnalyzerConfig,
+  MetaAnalysisStats,
+  ImprovementProposal,
+} from "./analyzer.ts";
+import { writeFile, mkdir } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 
 /* ------------------------------------------------------------------ */
 /*  Configuration                                                      */
@@ -67,7 +71,7 @@ export class MetaOptimizationSidecar {
   private failedCount = 0;
 
   /** Sidecar task ID used for registration */
-  static readonly TASK_ID = '__meta-optimization-sidecar__';
+  static readonly TASK_ID = "__meta-optimization-sidecar__";
 
   constructor(
     private readonly projectDir: string,
@@ -91,11 +95,10 @@ export class MetaOptimizationSidecar {
 
     const hooks = this.buildHooks();
 
-    runner.start(
-      MetaOptimizationSidecar.TASK_ID,
-      hooks,
-    ).catch(err => {
-      console.warn(`[MetaOptimizationSidecar] Failed to register: ${err.message}`);
+    runner.start(MetaOptimizationSidecar.TASK_ID, hooks).catch((err) => {
+      console.warn(
+        `[MetaOptimizationSidecar] Failed to register: ${err.message}`,
+      );
     });
   }
 
@@ -104,12 +107,12 @@ export class MetaOptimizationSidecar {
    */
   buildHooks(): SidecarHooks {
     return {
-      'task:complete': async (payload, ctx) => {
+      "task:complete": async (payload, ctx) => {
         this.completedCount++;
-        const taskId = (payload as any)?.taskId ?? 'unknown';
+        const taskId = (payload as any)?.taskId ?? "unknown";
 
         // Notify analyzer (it tracks interval internally)
-        await this.analyzer.onTaskCompleted(taskId, 'completed');
+        await this.analyzer.onTaskCompleted(taskId, "completed");
 
         // Write running stats periodically
         if ((this.completedCount + this.failedCount) % 5 === 0) {
@@ -117,40 +120,42 @@ export class MetaOptimizationSidecar {
         }
       },
 
-      'task:fail': async (payload, ctx) => {
+      "task:fail": async (payload, ctx) => {
         this.failedCount++;
-        const taskId = (payload as any)?.taskId ?? 'unknown';
+        const taskId = (payload as any)?.taskId ?? "unknown";
 
         // Notify analyzer
-        await this.analyzer.onTaskCompleted(taskId, 'failed');
+        await this.analyzer.onTaskCompleted(taskId, "failed");
       },
 
-      'epic:complete': async (payload, ctx) => {
+      "epic:complete": async (payload, ctx) => {
         if (!this.config.analyzeOnEpicComplete) return;
 
         // Always run analysis at end of epic — captures full picture
-        ctx.log.info('Epic complete — running final meta-analysis');
+        ctx.log.info("Epic complete — running final meta-analysis");
         try {
           const proposal = await this.analyzer.runAnalysis();
           if (proposal && proposal.proposals.length > 0) {
-            ctx.log.info(`Meta-analysis found ${proposal.proposals.length} improvement proposal(s)`);
+            ctx.log.info(
+              `Meta-analysis found ${proposal.proposals.length} improvement proposal(s)`,
+            );
           }
         } catch (err: any) {
           ctx.log.warn(`Meta-analysis failed: ${err.message}`);
         }
       },
 
-      'convergence:stalled': async (payload, ctx) => {
+      "convergence:stalled": async (payload, ctx) => {
         if (!this.config.analyzeOnStall) return;
 
         // Stalls are the most valuable time to analyze — something systematic is failing
-        ctx.log.info('Convergence stalled — running diagnostic meta-analysis');
+        ctx.log.info("Convergence stalled — running diagnostic meta-analysis");
         try {
           const proposal = await this.analyzer.runAnalysis();
           if (proposal && proposal.proposals.length > 0) {
             ctx.log.warn(
               `Found ${proposal.proposals.length} potential fix(es). ` +
-              `Check .converge/meta/proposals/ for details.`
+                `Check .converge/meta/proposals/ for details.`,
             );
           }
         } catch (err: any) {
@@ -166,7 +171,7 @@ export class MetaOptimizationSidecar {
    */
   private async writeRunningStats(ctx: SidecarContext): Promise<void> {
     try {
-      const statsDir = join(this.projectDir, '.converge', 'meta');
+      const statsDir = join(this.projectDir, ".converge", "meta");
       await mkdir(statsDir, { recursive: true });
 
       const stats = {
@@ -174,13 +179,14 @@ export class MetaOptimizationSidecar {
         completedTasks: this.completedCount,
         failedTasks: this.failedCount,
         totalTasks: this.completedCount + this.failedCount,
-        successRate: this.completedCount + this.failedCount > 0
-          ? this.completedCount / (this.completedCount + this.failedCount)
-          : 0,
+        successRate:
+          this.completedCount + this.failedCount > 0
+            ? this.completedCount / (this.completedCount + this.failedCount)
+            : 0,
       };
 
       await writeFile(
-        join(statsDir, 'latest-stats.json'),
+        join(statsDir, "latest-stats.json"),
         JSON.stringify(stats, null, 2),
       );
     } catch {
@@ -219,14 +225,21 @@ export class MetaOptimizationSidecar {
    * The SkillBasedRepairStrategy will pick them up automatically since it
    * scans the repair skills directory on each invocation.
    */
-  private async maybeCreateRepairSkills(proposal: ImprovementProposal): Promise<void> {
+  private async maybeCreateRepairSkills(
+    proposal: ImprovementProposal,
+  ): Promise<void> {
     if (!this.config.autoCreateRepairSkills) return;
 
-    const repairSkillsDir = join(this.projectDir, '.converge', 'skills', 'repair');
+    const repairSkillsDir = join(
+      this.projectDir,
+      ".converge",
+      "skills",
+      "repair",
+    );
 
     for (const p of proposal.proposals) {
       // Only auto-create for "repeated failure" proposals
-      if (!p.title.startsWith('Add strategy for repeated failure')) continue;
+      if (!p.title.startsWith("Add strategy for repeated failure")) continue;
 
       // Extract the failure pattern from the rationale
       const patternMatch = p.rationale.match(/The failure "([^"]+)"/);
@@ -235,13 +248,13 @@ export class MetaOptimizationSidecar {
       const failurePattern = patternMatch[1];
       const slug = failurePattern
         .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '')
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "")
         .slice(0, 40);
 
       const skillName = `repair-custom-${slug}`;
       const skillDir = join(repairSkillsDir, skillName);
-      const skillMd = join(skillDir, 'SKILL.md');
+      const skillMd = join(skillDir, "SKILL.md");
 
       // Don't overwrite existing custom skills
       if (existsSync(skillMd)) continue;
@@ -249,7 +262,11 @@ export class MetaOptimizationSidecar {
       // Create the custom repair skill
       await mkdir(skillDir, { recursive: true });
 
-      const content = this.generateCustomRepairSkill(skillName, failurePattern, p);
+      const content = this.generateCustomRepairSkill(
+        skillName,
+        failurePattern,
+        p,
+      );
       await writeFile(skillMd, content);
 
       console.log(`   🔧 Auto-created repair skill: ${skillName}`);
@@ -263,7 +280,7 @@ export class MetaOptimizationSidecar {
   private generateCustomRepairSkill(
     skillName: string,
     failurePattern: string,
-    proposal: ImprovementProposal['proposals'][0],
+    proposal: ImprovementProposal["proposals"][0],
   ): string {
     return `---
 name: ${skillName}
@@ -306,10 +323,10 @@ ${proposal.rationale}
 ### Diagnosis
 
 This failure pattern typically indicates:
-- ${failurePattern.includes('command not found') ? 'A required tool is not installed or not in PATH' : ''}
-- ${failurePattern.includes('exit') ? 'A command returned a non-zero exit code' : ''}
-- ${failurePattern.includes('not found') ? 'A file or module that should exist is missing' : ''}
-- ${failurePattern.includes('timeout') ? 'An operation took too long and was killed' : ''}
+- ${failurePattern.includes("command not found") ? "A required tool is not installed or not in PATH" : ""}
+- ${failurePattern.includes("exit") ? "A command returned a non-zero exit code" : ""}
+- ${failurePattern.includes("not found") ? "A file or module that should exist is missing" : ""}
+- ${failurePattern.includes("timeout") ? "An operation took too long and was killed" : ""}
 - Review the specific error output in gap.md for details
 
 ### Fix

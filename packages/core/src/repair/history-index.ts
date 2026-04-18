@@ -13,12 +13,12 @@
  * Token cost: ~200-500 tokens (vs reading raw attempts.jsonl: ~2000-5000 tokens)
  */
 
-import { writeFile, readFile, mkdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { getJournalStructure } from '../journal/structure.ts';
-import type { AttemptRecord } from './types.ts';
-import type { JournalContext } from './types.ts';
+import { writeFile, readFile, mkdir } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { getJournalStructure } from "../journal/structure.ts";
+import type { AttemptRecord } from "./types.ts";
+import type { JournalContext } from "./types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -57,7 +57,10 @@ export interface HistoryIndex {
   /** Total number of attempts */
   totalAttempts: number;
   /** Strategies that have been tried (with success/fail counts) */
-  strategySummary: Record<string, { tried: number; succeeded: number; failed: number }>;
+  strategySummary: Record<
+    string,
+    { tried: number; succeeded: number; failed: number }
+  >;
   /** Ordered list of attempt summaries */
   attempts: AttemptSummary[];
   /** Key patterns: what approaches were tried and failed (for AI to avoid) */
@@ -78,9 +81,13 @@ export class HistoryIndexBuilder {
     private readonly projectDir: string,
     private readonly journalCtx: JournalContext,
   ) {
-    const structure = getJournalStructure(projectDir, journalCtx.epicId, journalCtx.taskId);
-    this.historyPath = join(structure.task!, 'history.json');
-    this.attemptsPath = join(structure.task!, 'attempts.jsonl');
+    const structure = getJournalStructure(
+      projectDir,
+      journalCtx.epicId,
+      journalCtx.taskId,
+    );
+    this.historyPath = join(structure.task!, "history.json");
+    this.attemptsPath = join(structure.task!, "attempts.jsonl");
   }
 
   /**
@@ -90,7 +97,7 @@ export class HistoryIndexBuilder {
   async rebuild(): Promise<HistoryIndex> {
     const records = await this.readAttempts();
 
-    const strategySummary: HistoryIndex['strategySummary'] = {};
+    const strategySummary: HistoryIndex["strategySummary"] = {};
     const attempts: AttemptSummary[] = [];
     const failedApproaches: string[] = [];
     let successfulApproach: string | undefined;
@@ -98,7 +105,11 @@ export class HistoryIndexBuilder {
     for (const record of records) {
       // Update strategy summary
       if (!strategySummary[record.strategyName]) {
-        strategySummary[record.strategyName] = { tried: 0, succeeded: 0, failed: 0 };
+        strategySummary[record.strategyName] = {
+          tried: 0,
+          succeeded: 0,
+          failed: 0,
+        };
       }
       const stats = strategySummary[record.strategyName];
       stats.tried++;
@@ -107,7 +118,9 @@ export class HistoryIndexBuilder {
         successfulApproach = `${record.strategyName}: ${record.outcome.reason}`;
       } else {
         stats.failed++;
-        failedApproaches.push(`${record.strategyName}: ${record.outcome.reason}`);
+        failedApproaches.push(
+          `${record.strategyName}: ${record.outcome.reason}`,
+        );
       }
 
       // Build attempt summary
@@ -149,7 +162,7 @@ export class HistoryIndexBuilder {
   async load(): Promise<HistoryIndex | null> {
     if (!existsSync(this.historyPath)) return null;
     try {
-      const content = await readFile(this.historyPath, 'utf-8');
+      const content = await readFile(this.historyPath, "utf-8");
       return JSON.parse(content) as HistoryIndex;
     } catch {
       return null;
@@ -166,33 +179,35 @@ export class HistoryIndexBuilder {
 
     const lines: string[] = [
       `## Attempt History (${index.totalAttempts} prior attempts)`,
-      '',
+      "",
     ];
 
     // Strategy summary
-    lines.push('### Strategies Tried');
+    lines.push("### Strategies Tried");
     for (const [name, stats] of Object.entries(index.strategySummary)) {
-      lines.push(`- ${name}: ${stats.tried}x (${stats.succeeded} succeeded, ${stats.failed} failed)`);
+      lines.push(
+        `- ${name}: ${stats.tried}x (${stats.succeeded} succeeded, ${stats.failed} failed)`,
+      );
     }
-    lines.push('');
+    lines.push("");
 
     // Failed approaches (most important for avoiding repetition)
     if (index.failedApproaches.length > 0) {
-      lines.push('### Failed Approaches (DO NOT REPEAT)');
+      lines.push("### Failed Approaches (DO NOT REPEAT)");
       for (const approach of index.failedApproaches) {
         lines.push(`- ${approach}`);
       }
-      lines.push('');
+      lines.push("");
     }
 
     // What worked
     if (index.successfulApproach) {
       lines.push(`### Last Successful Approach`);
       lines.push(`- ${index.successfulApproach}`);
-      lines.push('');
+      lines.push("");
     }
 
-    return lines.join('\n');
+    return lines.join("\n");
   }
 
   /** Get path to history.json */
@@ -203,11 +218,11 @@ export class HistoryIndexBuilder {
   private async readAttempts(): Promise<AttemptRecord[]> {
     if (!existsSync(this.attemptsPath)) return [];
     try {
-      const raw = await readFile(this.attemptsPath, 'utf-8');
+      const raw = await readFile(this.attemptsPath, "utf-8");
       return raw
-        .split('\n')
-        .filter(l => l.trim())
-        .map(l => {
+        .split("\n")
+        .filter((l) => l.trim())
+        .map((l) => {
           try {
             return JSON.parse(l) as AttemptRecord;
           } catch {

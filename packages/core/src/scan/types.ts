@@ -3,7 +3,7 @@ export interface BacklogDef {
   id: string;
   cmd: string;
   description?: string;
-  severity?: 'low' | 'medium' | 'high';
+  severity?: "low" | "medium" | "high";
 }
 
 /** A single backlog item parsed from command output */
@@ -18,7 +18,7 @@ export interface BacklogItem {
   line?: number;
   /** Category description */
   description: string;
-  severity: 'low' | 'medium' | 'high';
+  severity: "low" | "medium" | "high";
   /** ISO timestamp */
   collectedAt: string;
 }

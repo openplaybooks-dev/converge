@@ -14,8 +14,8 @@
  * Resume after crash: load graph from disk → last node is done → pick next.
  */
 
-import { appendFileSync, mkdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { appendFileSync, mkdirSync } from "node:fs";
+import { join } from "node:path";
 import type {
   Snapshot,
   WalkResult,
@@ -23,12 +23,17 @@ import type {
   GraphNode,
   GoalCondition,
   Graph,
-} from './types.ts';
-import type { Unit } from '../../unit/unit.ts';
-import type { TaskContext } from './task-context.ts';
-import { NavigatorGraph } from './graph.ts';
-import { buildInitialNodes, GOAL_CONDITIONS } from './default-graph.ts';
-import { evalPredicate } from './predicates.ts';
+} from "./types.ts";
+import type { Unit } from "../../unit/unit.ts";
+import type { TaskContext } from "./task-context.ts";
+import { NavigatorGraph } from "./graph.ts";
+import {
+  buildPreflightNodes,
+  buildResponseNodes,
+  buildPostActionNodes,
+  GOAL_CONDITIONS,
+} from "./default-graph.ts";
+import { evalPredicate } from "./predicates.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Trace logger                                                       */
@@ -38,7 +43,7 @@ function trace(snap: Snapshot, entry: Record<string, unknown>): void {
   const attemptDir = process.env.CONVERGE_TASK_ATTEMPT_DIR;
   if (!attemptDir) return;
   try {
-    const logsDir = join(attemptDir, 'logs');
+    const logsDir = join(attemptDir, "logs");
     mkdirSync(logsDir, { recursive: true });
     const line = JSON.stringify({
       ts: new Date().toISOString(),
@@ -47,7 +52,7 @@ function trace(snap: Snapshot, entry: Record<string, unknown>): void {
       stall: snap.stallCount,
       ...entry,
     });
-    appendFileSync(join(logsDir, 'predicate-logs.jsonl'), line + '\n');
+    appendFileSync(join(logsDir, "predicate-logs.jsonl"), line + "\n");
   } catch {
     // Best-effort
   }
@@ -78,7 +83,7 @@ export interface ConvergeResult {
 function selectNext(graph: Graph, state: Snapshot): GraphNode | null {
   const buffered = graph.getBufferedNodes();
 
-  const applicable = buffered.filter(n => {
+  const applicable = buffered.filter((n) => {
     const pred = n.data?.applicable as string | undefined;
     if (!pred) return true; // no precondition = always applicable
     return evalPredicate(pred, state);
@@ -105,8 +110,8 @@ function isStalled(graph: Graph): boolean {
   if (recent.length < 3) return false;
 
   // Same handler failed twice
-  const failed = recent.filter(n => n.status === 'failed');
-  const failedHandlers = failed.map(n => n.handler);
+  const failed = recent.filter((n) => n.status === "failed");
+  const failedHandlers = failed.map((n) => n.handler);
   const duplicateFailures = failedHandlers.filter(
     (h, i) => failedHandlers.indexOf(h) !== i,
   );
@@ -114,7 +119,7 @@ function isStalled(graph: Graph): boolean {
 
   // 3+ consecutive failures
   const lastThree = recent.slice(-3);
-  if (lastThree.every(n => n.status === 'failed')) return true;
+  if (lastThree.every((n) => n.status === "failed")) return true;
 
   return false;
 }
@@ -124,7 +129,7 @@ function isStalled(graph: Graph): boolean {
 /* ------------------------------------------------------------------ */
 
 function allSatisfied(conditions: GoalCondition[], state: Snapshot): boolean {
-  return conditions.every(c => c.check(state));
+  return conditions.every((c) => c.check(state));
 }
 
 /* ------------------------------------------------------------------ */
@@ -133,13 +138,13 @@ function allSatisfied(conditions: GoalCondition[], state: Snapshot): boolean {
 
 function startNewCycle(graph: NavigatorGraph, unit: Unit, cycle: number): void {
   const suffix = `#${cycle}`;
-  const fresh = buildInitialNodes(unit);
+  const fresh = buildPreflightNodes(unit);
 
   for (const node of fresh) {
     const cycleNode: GraphNode = {
       ...node,
       id: `${node.id}${suffix}`,
-      origin: 'reactive',
+      origin: "reactive",
     };
     graph.addNode(cycleNode);
   }
@@ -155,11 +160,17 @@ function rebuildStateFromGraph(
   projectDir: string,
   epicId: string,
   taskContext: TaskContext,
-): { gaps: readonly import('../../gap/types.ts').Gap[]; previousGaps: readonly import('../../gap/types.ts').Gap[]; stallCount: number; iteration: number; lastNodeId: string | null } {
+): {
+  gaps: readonly import("../../gap/types.ts").Gap[];
+  previousGaps: readonly import("../../gap/types.ts").Gap[];
+  stallCount: number;
+  iteration: number;
+  lastNodeId: string | null;
+} {
   // Walk executed nodes to find the latest gap state and stall count
   const executed = graph.getLastN(Infinity);
-  let gaps: import('../../gap/types.ts').Gap[] = [];
-  let previousGaps: import('../../gap/types.ts').Gap[] = [];
+  let gaps: import("../../gap/types.ts").Gap[] = [];
+  let previousGaps: import("../../gap/types.ts").Gap[] = [];
   let stallCount = 0;
   let iteration = 1;
   let lastNodeId: string | null = null;
@@ -173,8 +184,9 @@ function rebuildStateFromGraph(
   }
 
   // Count completed cycles (each detect-gaps that completed = one cycle)
-  const detectGapsDone = graph.getNodesByHandler('detect-gaps')
-    .filter(n => n.status === 'done');
+  const detectGapsDone = graph
+    .getNodesByHandler("detect-gaps")
+    .filter((n) => n.status === "done");
   iteration = Math.max(1, detectGapsDone.length);
 
   return { gaps, previousGaps, stallCount, iteration, lastNodeId };
@@ -198,7 +210,13 @@ export async function converge(opts: ConvergeOptions): Promise<ConvergeResult> {
       nodes: walkerState.nodes,
       edges: walkerState.edges,
     });
-    const rebuilt = rebuildStateFromGraph(graph, unit, projectDir, epicId, taskContext);
+    const rebuilt = rebuildStateFromGraph(
+      graph,
+      unit,
+      projectDir,
+      epicId,
+      taskContext,
+    );
     cycle = rebuilt.iteration;
     lastNodeId = rebuilt.lastNodeId;
   } else {
@@ -206,8 +224,8 @@ export async function converge(opts: ConvergeOptions): Promise<ConvergeResult> {
     cycle = 1;
   }
 
-  // 2. Seed initial buffered nodes (idempotent)
-  const initialNodes = buildInitialNodes(unit);
+  // 2. Seed pre-flight nodes only (response/post-action injected JIT)
+  const initialNodes = buildPreflightNodes(unit);
   for (const node of initialNodes) {
     graph.addNode(node);
   }
@@ -221,21 +239,27 @@ export async function converge(opts: ConvergeOptions): Promise<ConvergeResult> {
   });
 
   // 4. Build initial snapshot
-  let gaps: import('../../gap/types.ts').Gap[] = [];
-  let previousGaps: import('../../gap/types.ts').Gap[] = [];
+  let gaps: import("../../gap/types.ts").Gap[] = [];
+  let previousGaps: import("../../gap/types.ts").Gap[] = [];
   let stallCount = walkerState?.stallCount ?? 0;
 
   // If resuming, rebuild gap state from graph
   if (walkerState && walkerState.nodes.length > 0) {
-    const rebuilt = rebuildStateFromGraph(graph, unit, projectDir, epicId, taskContext);
+    const rebuilt = rebuildStateFromGraph(
+      graph,
+      unit,
+      projectDir,
+      epicId,
+      taskContext,
+    );
     gaps = [...rebuilt.gaps];
     previousGaps = [...rebuilt.previousGaps];
     stallCount = rebuilt.stallCount;
   }
 
   // 5. Main convergence loop — one action per pass
-  let actionCount = graph.nodes.filter(n =>
-    n.status === 'done' || n.status === 'failed',
+  let actionCount = graph.nodes.filter(
+    (n) => n.status === "done" || n.status === "failed",
   ).length;
 
   while (actionCount < maxActions) {
@@ -251,18 +275,23 @@ export async function converge(opts: ConvergeOptions): Promise<ConvergeResult> {
     };
 
     // Goal condition check (skip if no detection has been done yet)
-    const detectionsComplete = graph.getNodesByHandler('detect-gaps')
-      .some(n => n.status === 'done');
+    const detectionsComplete = graph
+      .getNodesByHandler("detect-gaps")
+      .some((n) => n.status === "done");
     // Also check that signal-done has run (or is not applicable) before declaring success.
     // This ensures the completion handler properly marks the task as done in checkpoint/journal.
     // Without this, the goal condition check bypasses signal-done for no-inputs/no-outputs tasks.
-    const signalDoneNode = graph.getNodesByHandler('signal-done').find(n => n.status === 'done');
-    const signalDoneNotApplicable = !graph.getBufferedNodes().some(n => n.handler === 'signal-done');
+    const signalDoneNode = graph
+      .getNodesByHandler("signal-done")
+      .find((n) => n.status === "done");
+    const signalDoneNotApplicable = !graph
+      .getBufferedNodes()
+      .some((n) => n.handler === "signal-done");
     if (detectionsComplete && allSatisfied(GOAL_CONDITIONS, snap)) {
       // Only declare success if signal-done has actually run, or there's no signal-done to run
       if (signalDoneNode || signalDoneNotApplicable) {
-        taskContext.logOutcome(cycle, 'done', 'All goal conditions satisfied');
-        return { success: true, reason: 'All goal conditions satisfied' };
+        taskContext.logOutcome(cycle, "done", "All goal conditions satisfied");
+        return { success: true, reason: "All goal conditions satisfied" };
       }
       // Otherwise let signal-done run first before checking goal conditions again
     }
@@ -281,11 +310,11 @@ export async function converge(opts: ConvergeOptions): Promise<ConvergeResult> {
       if (!next) {
         // Check if we've actually converged despite no applicable actions
         if (detectionsComplete && gaps.length === 0) {
-          taskContext.logOutcome(cycle, 'done', 'Converged');
-          return { success: true, reason: 'Converged' };
+          taskContext.logOutcome(cycle, "done", "Converged");
+          return { success: true, reason: "Converged" };
         }
-        taskContext.logOutcome(cycle, 'bail', 'No applicable action');
-        return { success: false, reason: 'No applicable action' };
+        taskContext.logOutcome(cycle, "bail", "No applicable action");
+        return { success: false, reason: "No applicable action" };
       }
     }
 
@@ -294,28 +323,26 @@ export async function converge(opts: ConvergeOptions): Promise<ConvergeResult> {
     const handler = registry.get(handlerName);
 
     if (!handler) {
-      trace(snap, { node: 'action', handler: handlerName, error: 'unknown' });
-      next.status = 'failed';
+      trace(snap, { node: "action", handler: handlerName, error: "unknown" });
+      next.status = "failed";
       next.result = {
-        action: 'bail',
+        action: "bail",
         reason: `Unknown handler: ${handlerName}`,
         durationMs: 0,
       };
-      taskContext.logOutcome(cycle, 'bail', `Unknown handler: ${handlerName}`);
+      taskContext.logOutcome(cycle, "bail", `Unknown handler: ${handlerName}`);
       return { success: false, reason: `Unknown handler: ${handlerName}` };
     }
 
-    next.status = 'executing';
-    trace(snap, { node: 'action', handler: handlerName, status: 'start' });
+    next.status = "executing";
+    trace(snap, { node: "action", handler: handlerName, status: "start" });
 
     const t0 = Date.now();
     const result = await handler(snap, graph);
     const durationMs = Date.now() - t0;
 
     // Record result on the node
-    next.status = (result.action === 'bail')
-      ? 'failed'
-      : 'done';
+    next.status = result.action === "bail" ? "failed" : "done";
     next.result = {
       action: result.action,
       success: result.success,
@@ -325,18 +352,24 @@ export async function converge(opts: ConvergeOptions): Promise<ConvergeResult> {
     };
 
     trace(snap, {
-      node: 'action',
+      node: "action",
       handler: handlerName,
-      status: 'done',
+      status: "done",
       result: result.action,
       ...(result.reason ? { reason: result.reason } : {}),
       ...(result.gaps ? { newGaps: result.gaps.length } : {}),
     });
 
-    taskContext.logAction(cycle, handlerName, result.action, durationMs, result.reason);
+    taskContext.logAction(
+      cycle,
+      handlerName,
+      result.action,
+      durationMs,
+      result.reason,
+    );
 
     // Record the transition edge
-    graph.addEdge(lastNodeId ?? '_start', next.id, { iteration: cycle });
+    graph.addEdge(lastNodeId ?? "_start", next.id, { iteration: cycle });
     lastNodeId = next.id;
 
     // Apply result to state
@@ -351,6 +384,40 @@ export async function converge(opts: ConvergeOptions): Promise<ConvergeResult> {
       stallCount = result.stallCount;
     }
 
+    // JIT injection: add response nodes when gaps appear
+    const cycleSuffix = cycle > 1 ? `#${cycle}` : "";
+    if (result.gaps && result.gaps.length > 0) {
+      const responseNodes = buildResponseNodes(unit, result.gaps, cycle);
+      for (const node of responseNodes) {
+        graph.addNode({
+          ...node,
+          id: `${node.id}${cycleSuffix}`,
+          ...(cycleSuffix ? { origin: "reactive" as const } : {}),
+        });
+      }
+    }
+
+    // JIT injection: add post-action nodes after a response node completes
+    const PREFLIGHT_AND_POST = new Set([
+      "check-wbs-seeded",
+      "check-outputs-exist",
+      "detect-gaps",
+      "signal-done",
+      "verify",
+      "check-stall",
+      "advance-attempt",
+    ]);
+    if (!PREFLIGHT_AND_POST.has(handlerName)) {
+      const postNodes = buildPostActionNodes();
+      for (const node of postNodes) {
+        graph.addNode({
+          ...node,
+          id: `${node.id}${cycleSuffix}`,
+          ...(cycleSuffix ? { origin: "reactive" as const } : {}),
+        });
+      }
+    }
+
     // Persist — crash-safe checkpoint
     await taskContext.saveWalkerState({
       iteration: cycle,
@@ -362,42 +429,48 @@ export async function converge(opts: ConvergeOptions): Promise<ConvergeResult> {
     actionCount++;
 
     // Handle terminal actions
-    if (result.action === 'done') {
-      taskContext.logOutcome(cycle, 'done', result.reason);
+    if (result.action === "done") {
+      taskContext.logOutcome(cycle, "done", result.reason);
       return { success: result.success ?? true, reason: result.reason };
     }
 
-    if (result.action === 'bail') {
-      taskContext.logOutcome(cycle, 'bail', result.reason);
+    if (result.action === "bail") {
+      taskContext.logOutcome(cycle, "bail", result.reason);
       return { success: false, reason: result.reason };
     }
 
-    if (result.action === 'delegate' && result.delegateChildren) {
+    if (result.action === "delegate" && result.delegateChildren) {
       const children = result.delegateChildren;
       console.log(`\n📦 Delegating to ${children.length} child task(s)...`);
       let completed = 0;
       for (const child of children) {
         const ok = await child.run();
         if (ok) completed++;
-        console.log(`   [${completed}/${children.length}] ${child.id}: ${ok ? '✅' : '❌'}`);
+        console.log(
+          `   [${completed}/${children.length}] ${child.id}: ${ok ? "✅" : "❌"}`,
+        );
       }
-      taskContext.logOutcome(cycle, 'delegate', `${completed}/${children.length} children completed`);
+      taskContext.logOutcome(
+        cycle,
+        "delegate",
+        `${completed}/${children.length} children completed`,
+      );
       // Continue — detect-gaps in next cycle will check if parent's gaps are resolved
     }
 
     // Stall detection
     if (isStalled(graph)) {
-      taskContext.logOutcome(cycle, 'bail', 'Stalled — repeated failures');
-      return { success: false, reason: 'Stalled — repeated failures' };
+      taskContext.logOutcome(cycle, "bail", "Stalled — repeated failures");
+      return { success: false, reason: "Stalled — repeated failures" };
     }
   }
 
-  taskContext.logOutcome(cycle, 'max-iterations');
+  taskContext.logOutcome(cycle, "max-iterations");
   console.log(`\n❌ Max actions (${maxActions}) reached`);
-  const { findGaps } = await import('../../unit/find-gaps.ts');
+  const { findGaps } = await import("../../unit/find-gaps.ts");
   const finalGaps = await findGaps(unit);
   for (const gap of finalGaps) {
     console.log(`  - ${gap.type}: ${gap.description}`);
   }
-  return { success: false, reason: 'Max actions reached' };
+  return { success: false, reason: "Max actions reached" };
 }

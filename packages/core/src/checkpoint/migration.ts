@@ -12,7 +12,7 @@ import type {
   CompletionTree,
   CompletionNode,
   TreeSnapshot,
-} from '../storage/types.ts';
+} from "../storage/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Version Detection                                                 */
@@ -23,7 +23,7 @@ import type {
  */
 export function detectCheckpointVersion(checkpoint: any): 1 | 2 {
   // v2 checkpoints have version field
-  if ('version' in checkpoint && checkpoint.version === 2) {
+  if ("version" in checkpoint && checkpoint.version === 2) {
     return 2;
   }
 
@@ -53,11 +53,14 @@ export function migrateCheckpointV1toV2(v1: CheckpointV1): Checkpoint {
   const cursor = inferCursorFromV1(v1);
 
   // Build completion tree from flat lists
-  const completionTree = buildTreeFromFlatLists(v1.completed.epics, v1.completed.tasks);
+  const completionTree = buildTreeFromFlatLists(
+    v1.completed.epics,
+    v1.completed.tasks,
+  );
 
   // No tree snapshot available - empty hash triggers reconciliation on resume
   const treeSnapshot: TreeSnapshot = {
-    structureHash: '', // Empty = force reconciliation
+    structureHash: "", // Empty = force reconciliation
     taskPaths: [],
   };
 
@@ -91,13 +94,13 @@ function inferCursorFromV1(v1: CheckpointV1): Cursor | undefined {
   const path: string[] = [currentEpic];
   const breadcrumbs: Array<{
     id: string;
-    type: 'epic' | 'task' | 'subtask';
+    type: "epic" | "task" | "subtask";
     filePath: string;
     depth: number;
   }> = [
     {
       id: currentEpic,
-      type: 'epic',
+      type: "epic",
       filePath: `.converge/epics/${currentEpic}/epic.ts`,
       depth: 0,
     },
@@ -107,7 +110,7 @@ function inferCursorFromV1(v1: CheckpointV1): Cursor | undefined {
     path.push(currentTask);
     breadcrumbs.push({
       id: currentTask,
-      type: 'task',
+      type: "task",
       filePath: `.converge/epics/${currentEpic}/${currentTask}/SKILL.md`,
       depth: 1,
     });
@@ -126,14 +129,17 @@ function inferCursorFromV1(v1: CheckpointV1): Cursor | undefined {
  * Creates a minimal completion tree from completed epic/task lists.
  * Doesn't capture true hierarchy (parent-child relationships unknown).
  */
-function buildTreeFromFlatLists(completedEpics: string[], completedTasks: string[]): CompletionTree {
+function buildTreeFromFlatLists(
+  completedEpics: string[],
+  completedTasks: string[],
+): CompletionTree {
   const nodes: Record<string, CompletionNode> = {};
 
   // Add completed epics
   for (const epicId of completedEpics) {
     nodes[epicId] = {
       id: epicId,
-      status: 'completed',
+      status: "completed",
       completedAt: new Date().toISOString(),
       childIds: [],
     };
@@ -143,7 +149,7 @@ function buildTreeFromFlatLists(completedEpics: string[], completedTasks: string
   for (const taskId of completedTasks) {
     nodes[taskId] = {
       id: taskId,
-      status: 'completed',
+      status: "completed",
       completedAt: new Date().toISOString(),
       childIds: [],
     };
@@ -169,25 +175,30 @@ export function validateMigratedCheckpoint(checkpoint: Checkpoint): {
 
   // Check required v2 fields
   if (!checkpoint.version || checkpoint.version !== 2) {
-    errors.push('Missing or invalid version field');
+    errors.push("Missing or invalid version field");
   }
 
   // Cursor is optional but should be valid if present
   if (checkpoint.cursor) {
     if (!checkpoint.cursor.path || checkpoint.cursor.path.length === 0) {
-      errors.push('Cursor has empty path');
+      errors.push("Cursor has empty path");
     }
 
-    if (!checkpoint.cursor.breadcrumbs || checkpoint.cursor.breadcrumbs.length === 0) {
-      errors.push('Cursor has empty breadcrumbs');
+    if (
+      !checkpoint.cursor.breadcrumbs ||
+      checkpoint.cursor.breadcrumbs.length === 0
+    ) {
+      errors.push("Cursor has empty breadcrumbs");
     }
 
-    if (checkpoint.cursor.path.length !== checkpoint.cursor.breadcrumbs.length) {
-      errors.push('Cursor path and breadcrumbs length mismatch');
+    if (
+      checkpoint.cursor.path.length !== checkpoint.cursor.breadcrumbs.length
+    ) {
+      errors.push("Cursor path and breadcrumbs length mismatch");
     }
 
     if (checkpoint.cursor.depth !== checkpoint.cursor.path.length - 1) {
-      errors.push('Cursor depth mismatch');
+      errors.push("Cursor depth mismatch");
     }
   }
 
@@ -213,7 +224,7 @@ export function migrateCheckpoints(checkpoints: CheckpointV1[]): Checkpoint[] {
  */
 export function getMigrationSummary(
   original: CheckpointV1[],
-  migrated: Checkpoint[]
+  migrated: Checkpoint[],
 ): {
   total: number;
   successful: number;

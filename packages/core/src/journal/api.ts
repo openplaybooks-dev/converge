@@ -4,9 +4,20 @@
  * Provides journal access methods for task/epic/project contexts.
  */
 
-import type { JournalAPI, SearchLogOptions, ReadLogOptions, JournalEvent, GapSummary } from './types.ts';
-import type { Gap } from '../gap/types.ts';
-import { readGaps, readGapSummary, readEvents, searchEvents } from './reader.ts';
+import type {
+  JournalAPI,
+  SearchLogOptions,
+  ReadLogOptions,
+  JournalEvent,
+  GapSummary,
+} from "./types.ts";
+import type { Gap } from "../gap/types.ts";
+import {
+  readGaps,
+  readGapSummary,
+  readEvents,
+  searchEvents,
+} from "./reader.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Journal API Factory                                               */
@@ -17,8 +28,8 @@ import { readGaps, readGapSummary, readEvents, searchEvents } from './reader.ts'
  */
 export function createJournalAPI(
   projectDir: string,
-  level: 'project' | 'epic' | 'task',
-  scope: string
+  level: "project" | "epic" | "task",
+  scope: string,
 ): JournalAPI {
   return {
     async getGaps(): Promise<Gap[]> {
@@ -27,13 +38,15 @@ export function createJournalAPI(
 
     async getSummary(): Promise<GapSummary> {
       const summary = await readGapSummary(projectDir, level, scope);
-      return summary || {
-        total: 0,
-        byType: {},
-        bySeverity: {},
-        updated: new Date().toISOString(),
-        gaps: [],
-      };
+      return (
+        summary || {
+          total: 0,
+          byType: {},
+          bySeverity: {},
+          updated: new Date().toISOString(),
+          gaps: [],
+        }
+      );
     },
 
     async getRecentEvents(count: number = 20): Promise<JournalEvent[]> {
@@ -42,7 +55,7 @@ export function createJournalAPI(
 
     async findErrors(): Promise<JournalEvent[]> {
       return searchEvents(projectDir, level, scope, {
-        eventType: ['ERROR', 'TASK_FAILED', 'EPIC_FAILED', 'CHECK_FAILED'],
+        eventType: ["ERROR", "TASK_FAILED", "EPIC_FAILED", "CHECK_FAILED"],
       });
     },
 
@@ -66,9 +79,9 @@ export function createJournalAPI(
 export function createTaskJournalAPI(
   projectDir: string,
   epicId: string,
-  taskId: string
+  taskId: string,
 ): JournalAPI {
-  return createJournalAPI(projectDir, 'task', `${epicId}.${taskId}`);
+  return createJournalAPI(projectDir, "task", `${epicId}.${taskId}`);
 }
 
 /**
@@ -76,16 +89,14 @@ export function createTaskJournalAPI(
  */
 export function createEpicJournalAPI(
   projectDir: string,
-  epicId: string
+  epicId: string,
 ): JournalAPI {
-  return createJournalAPI(projectDir, 'epic', epicId);
+  return createJournalAPI(projectDir, "epic", epicId);
 }
 
 /**
  * Create project-level journal API
  */
-export function createProjectJournalAPI(
-  projectDir: string
-): JournalAPI {
-  return createJournalAPI(projectDir, 'project', 'project');
+export function createProjectJournalAPI(projectDir: string): JournalAPI {
+  return createJournalAPI(projectDir, "project", "project");
 }

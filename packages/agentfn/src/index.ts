@@ -21,11 +21,7 @@ export type { UnifiedAgentOptions, AgentFn as AgentAgentFn } from "./agent.js";
 export { getDefaultProvider, setDefaultProvider } from "./provider.js";
 
 // ─── Prompting (legacy — deprecated) ────────────────────────
-export {
-  enhancePrompt,
-  listSkills,
-  listAgents,
-} from "./prompting.js";
+export { enhancePrompt, listSkills, listAgents } from "./prompting.js";
 export type { EnhancePromptOptions } from "./prompting.js";
 
 // ─── Skills ─────────────────────────────────────────────────

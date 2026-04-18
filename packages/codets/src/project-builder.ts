@@ -19,10 +19,16 @@
  * ```
  */
 
-import { writeFileSync, mkdirSync, existsSync, readFileSync, rmSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { CoreBuilder } from './core-builder.ts';
-import { SemanticBuilder } from './semantic/index.ts';
+import {
+  writeFileSync,
+  mkdirSync,
+  existsSync,
+  readFileSync,
+  rmSync,
+} from "node:fs";
+import { join, dirname } from "node:path";
+import { CoreBuilder } from "./core-builder.ts";
+import { SemanticBuilder } from "./semantic/index.ts";
 
 // ── Flush types ──────────────────────────────────────────────────────
 
@@ -100,7 +106,7 @@ export class ProjectBuilder<B extends CoreBuilder = CoreBuilder> {
    * Serializes with 2-space indentation and a trailing newline.
    */
   json(path: string, data: unknown): this {
-    return this.rawFile(path, JSON.stringify(data, null, 2) + '\n');
+    return this.rawFile(path, JSON.stringify(data, null, 2) + "\n");
   }
 
   /**
@@ -234,7 +240,7 @@ export class ProjectBuilder<B extends CoreBuilder = CoreBuilder> {
     const {
       dryRun = false,
       clean = false,
-      encoding = 'utf-8',
+      encoding = "utf-8",
       onWrite,
       onMkdir,
       diffOnly = false,
@@ -294,9 +300,9 @@ export class ProjectBuilder<B extends CoreBuilder = CoreBuilder> {
 
   /** Auto-register parent directories for a file path. */
   private _ensureParentDirs(filePath: string): void {
-    const parts = filePath.split('/');
+    const parts = filePath.split("/");
     for (let i = 1; i < parts.length; i++) {
-      this._dirs.add(parts.slice(0, i).join('/'));
+      this._dirs.add(parts.slice(0, i).join("/"));
     }
   }
 }

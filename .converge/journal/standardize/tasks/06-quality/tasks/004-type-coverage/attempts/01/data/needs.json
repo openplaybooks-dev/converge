@@ -1,0 +1,9 @@
+{
+  "taskId": "06-quality/004-type-coverage",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    ".converge/standardize-state/quality/type-report.json"
+  ],
+  "blocked": false
+}

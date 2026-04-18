@@ -2,27 +2,31 @@
  * Autonomous Run Command
  */
 
-import type { CommonOptions } from './commands.ts';
-import type { ConvergeConfig } from '../config/types.ts';
-import type { HookRegistry } from '../hooks/registry.ts';
-import { treeNodesToTaskNodes, getTaskStates, calculateExecutionPlan } from './next-task.ts';
-import type { TaskNode, TaskStates } from './next-task.ts';
-import { TaskTree } from '../tree/index.ts';
-import { convergeRun } from '../converge/converge-runner.ts';
-import { printTaskTree } from './tree-display.ts';
-import { autonomousRun, guardDirtySession } from './autonomous-run.ts';
-import { CheckpointManager } from '../checkpoint/manager.ts';
-import { executeTask } from '../lifecycle/task-runner.ts';
-import { SessionLogger, generateSessionId } from '../journal/session-logger.ts';
-import { getJournalStructure } from '../journal/structure.ts';
-import { UnblockStrategy } from '../repair/strategies/unblock.ts';
-import { ExecutionTimeline } from '../repair/timeline.ts';
-import type { Gap } from '../gap/types.ts';
-import type { StrategyContext } from '../repair/types.ts';
-import { createAIContext } from '../ai/context.ts';
-import { readFile, unlink } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+import type { CommonOptions } from "./commands.ts";
+import type { ConvergeConfig } from "../config/types.ts";
+import type { HookRegistry } from "../hooks/registry.ts";
+import {
+  treeNodesToTaskNodes,
+  getTaskStates,
+  calculateExecutionPlan,
+} from "./next-task.ts";
+import type { TaskNode, TaskStates } from "./next-task.ts";
+import { TaskTree } from "../tree/index.ts";
+import { convergeRun } from "../converge/converge-runner.ts";
+import { printTaskTree } from "./tree-display.ts";
+import { autonomousRun, guardDirtySession } from "./autonomous-run.ts";
+import { CheckpointManager } from "../checkpoint/manager.ts";
+import { executeTask } from "../lifecycle/task-runner.ts";
+import { SessionLogger, generateSessionId } from "../journal/session-logger.ts";
+import { getJournalStructure } from "../journal/structure.ts";
+import { UnblockStrategy } from "../repair/strategies/unblock.ts";
+import { ExecutionTimeline } from "../repair/timeline.ts";
+import type { Gap } from "../gap/types.ts";
+import type { StrategyContext } from "../repair/types.ts";
+import { createAIContext } from "../ai/context.ts";
+import { readFile, unlink } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 
 export interface AutoRunOptions extends CommonOptions {
   /** Run only one step then exit */
@@ -89,10 +93,14 @@ export interface AutoRunOptions extends CommonOptions {
  *   converge run --step         # Execute the next single task
  *   converge run --step --dry   # Preview next task without executing
  */
-export async function runAutonomousCommand(options: AutoRunOptions = {}): Promise<void> {
+export async function runAutonomousCommand(
+  options: AutoRunOptions = {},
+): Promise<void> {
   try {
     if (!options.convergeConfig) {
-      throw new Error('No .converge/PROJECT.md or .converge/project.yaml found. Please create a .converge/PROJECT.md or .converge/project.yaml file.');
+      throw new Error(
+        "No .converge/PROJECT.md or .converge/project.yaml found. Please create a .converge/PROJECT.md or .converge/project.yaml file.",
+      );
     }
 
     const projectDir = options.dir || process.cwd();
@@ -132,7 +140,7 @@ export async function runAutonomousCommand(options: AutoRunOptions = {}): Promis
     }
 
     // ── Discover + build tree ──────────────────────────────────────────
-    console.log('🔍 Discovering tasks, epics, and skills...\n');
+    console.log("🔍 Discovering tasks, epics, and skills...\n");
 
     const taskTree = await TaskTree.load(projectDir, options.convergeConfig);
     const tree = treeNodesToTaskNodes(taskTree, projectDir);
@@ -142,9 +150,12 @@ export async function runAutonomousCommand(options: AutoRunOptions = {}): Promis
     const completedIds = states.completed;
     // Exclude tasks that are done (completed, failed, or seeded/locked WBS parents WITH children)
     // CRITICAL: Seeded/locked tasks with NO spawned children should remain pending (they failed to spawn)
-    const pendingNodes = tree.filter(n => {
+    const pendingNodes = tree.filter((n) => {
       // Already completed or failed? Definitely not pending
-      if (states.completed.has(n.journalTaskId) || states.failed.has(n.journalTaskId)) {
+      if (
+        states.completed.has(n.journalTaskId) ||
+        states.failed.has(n.journalTaskId)
+      ) {
         return false;
       }
 
@@ -169,21 +180,26 @@ export async function runAutonomousCommand(options: AutoRunOptions = {}): Promis
     // When --force, allow any task state (including completed/failed/blocked); otherwise use pending only
     const nodePool = force ? tree : pendingNodes;
     const filteredNodes = filter
-      ? nodePool.filter(n => {
-          const slashIdx = filter.indexOf('/');
+      ? nodePool.filter((n) => {
+          const slashIdx = filter.indexOf("/");
           if (slashIdx >= 0) {
             // Explicit epic/task filter: first part matches epic, second matches task
             const filterEpic = filter.substring(0, slashIdx);
             const filterTask = filter.substring(slashIdx + 1);
             const epicMatch = !filterEpic || n.epicId.includes(filterEpic);
-            const taskMatch = !filterTask || n.taskId.includes(filterTask) || n.journalTaskId.includes(filterTask);
+            const taskMatch =
+              !filterTask ||
+              n.taskId.includes(filterTask) ||
+              n.journalTaskId.includes(filterTask);
             return epicMatch && taskMatch;
           }
           // No slash: match against epicId, taskId, journalTaskId, or parentTaskId
-          return n.epicId.includes(filter)
-            || n.taskId.includes(filter)
-            || n.journalTaskId.includes(filter)
-            || (n.parentTaskId?.includes(filter) ?? false);
+          return (
+            n.epicId.includes(filter) ||
+            n.taskId.includes(filter) ||
+            n.journalTaskId.includes(filter) ||
+            (n.parentTaskId?.includes(filter) ?? false)
+          );
         })
       : nodePool;
 
@@ -194,24 +210,32 @@ export async function runAutonomousCommand(options: AutoRunOptions = {}): Promis
         if (filter) {
           console.log(`✅ No pending tasks match filter "${filter}".\n`);
         } else if (states.failed.size > 0) {
-          console.log(`⚠️  No runnable tasks — ${states.failed.size} task(s) failed. Run --unblock to attempt repair.\n`);
+          console.log(
+            `⚠️  No runnable tasks — ${states.failed.size} task(s) failed. Run --unblock to attempt repair.\n`,
+          );
         } else if (states.blocked.size > 0) {
-          console.log(`⚠️  No runnable tasks — ${states.blocked.size} task(s) blocked.\n`);
+          console.log(
+            `⚠️  No runnable tasks — ${states.blocked.size} task(s) blocked.\n`,
+          );
         } else {
-          console.log('✅ All tasks complete.\n');
+          console.log("✅ All tasks complete.\n");
         }
         return;
       }
 
       if (options.dry) {
         // Preview: show the same queue autonomousRun would process
-        console.log(`📋 Pending queue (${filteredNodes.length}/${tree.length} tasks):\n`);
+        console.log(
+          `📋 Pending queue (${filteredNodes.length}/${tree.length} tasks):\n`,
+        );
         for (let i = 0; i < filteredNodes.length; i++) {
           const n = filteredNodes[i];
-          console.log(`  ${String(i + 1).padStart(2)}. [${n.epicId}] ${n.taskId}`);
+          console.log(
+            `  ${String(i + 1).padStart(2)}. [${n.epicId}] ${n.taskId}`,
+          );
           console.log(`      ${n.relPath}`);
         }
-        console.log('\n(dry run — not executing)\n');
+        console.log("\n(dry run — not executing)\n");
         return;
       }
 
@@ -237,49 +261,67 @@ export async function runAutonomousCommand(options: AutoRunOptions = {}): Promis
     if (options.unblock) {
       // Find first dependency-blocked task with a recorded needs.json
       let blockedTask: TaskNode | null = null;
-      let needsJson: { blocked: boolean; blockedReason?: string; inputs: { pattern: string; count: number }[] } | null = null;
+      let needsJson: {
+        blocked: boolean;
+        blockedReason?: string;
+        inputs: { pattern: string; count: number }[];
+      } | null = null;
 
       // Candidates: dependency-blocked tasks + failed tasks that recorded blocked inputs
-      const candidateNodes = tree.filter(n =>
-        (states.blocked.has(n.journalTaskId) || states.failed.has(n.journalTaskId)) &&
-        !states.completed.has(n.journalTaskId)
+      const candidateNodes = tree.filter(
+        (n) =>
+          (states.blocked.has(n.journalTaskId) ||
+            states.failed.has(n.journalTaskId)) &&
+          !states.completed.has(n.journalTaskId),
       );
       for (const node of candidateNodes) {
         const nj = await readNeedsJson(projectDir, node);
-        if (nj?.blocked) { blockedTask = node; needsJson = nj; break; }
+        if (nj?.blocked) {
+          blockedTask = node;
+          needsJson = nj;
+          break;
+        }
       }
 
       if (!blockedTask || !needsJson) {
-        console.log('✅ No blocked tasks with recorded missing inputs found.\n');
+        console.log(
+          "✅ No blocked tasks with recorded missing inputs found.\n",
+        );
         return;
       }
 
-      const missingInputs = needsJson.inputs.filter(i => i.count === 0).map(i => i.pattern);
-      const completedCount = tree.filter(n => states.completed.has(n.journalTaskId)).length;
+      const missingInputs = needsJson.inputs
+        .filter((i) => i.count === 0)
+        .map((i) => i.pattern);
+      const completedCount = tree.filter((n) =>
+        states.completed.has(n.journalTaskId),
+      ).length;
       const { plan } = calculateExecutionPlan(tree);
-      console.log(`📍 Progress: ${completedCount}/${tree.length} tasks complete\n`);
+      console.log(
+        `📍 Progress: ${completedCount}/${tree.length} tasks complete\n`,
+      );
       printTaskTree(tree, states, blockedTask.journalTaskId, undefined, plan);
       console.log(`\n🔓 Unblocking: ${blockedTask.relPath}`);
-      console.log(`   Reason: ${needsJson.blockedReason ?? 'Missing inputs'}`);
-      missingInputs.forEach(m => console.log(`   Missing: ${m}`));
+      console.log(`   Reason: ${needsJson.blockedReason ?? "Missing inputs"}`);
+      missingInputs.forEach((m) => console.log(`   Missing: ${m}`));
 
       if (options.dry) {
-        console.log('\n(dry run — not executing)\n');
+        console.log("\n(dry run — not executing)\n");
         return;
       }
 
       // Build Gap object matching the structure task-runner.ts uses
       const blockerGap: Gap = {
         id: `blocker-${blockedTask.journalTaskId}`,
-        type: 'missing-intermediate',
-        level: 'task',
+        type: "missing-intermediate",
+        level: "task",
         scope: blockedTask.journalTaskId,
-        description: needsJson.blockedReason ?? 'Missing required inputs',
+        description: needsJson.blockedReason ?? "Missing required inputs",
         detected: new Date().toISOString(),
         resolved: false,
         checks: [],
         metadata: {
-          gapKind: 'blocker',
+          gapKind: "blocker",
           missingInputs,
           blockedInputs: missingInputs,
           allMissingItems: missingInputs,
@@ -288,7 +330,10 @@ export async function runAutonomousCommand(options: AutoRunOptions = {}): Promis
 
       // Build StrategyContext with AI support
       const timeline = new ExecutionTimeline(projectDir);
-      const journalCtx = { epicId: blockedTask.epicId, taskId: blockedTask.journalTaskId };
+      const journalCtx = {
+        epicId: blockedTask.epicId,
+        taskId: blockedTask.journalTaskId,
+      };
       const strategyCtx: StrategyContext = {
         projectDir,
         journalCtx,
@@ -298,31 +343,52 @@ export async function runAutonomousCommand(options: AutoRunOptions = {}): Promis
       };
 
       // Run UnblockStrategy — tries MissingInputPatternRepair, then DependencyBackoff, etc.
-      console.log('\n   🔧 Running UnblockStrategy (MissingInputPattern → DependencyBackoff → ...)');
-      const unblockResult = await new UnblockStrategy().tryFix(blockerGap, strategyCtx);
+      console.log(
+        "\n   🔧 Running UnblockStrategy (MissingInputPattern → DependencyBackoff → ...)",
+      );
+      const unblockResult = await new UnblockStrategy().tryFix(
+        blockerGap,
+        strategyCtx,
+      );
 
       if (!unblockResult.success) {
-        console.log(`\n⚠️  Could not find an unblocking path: ${unblockResult.reason}\n`);
+        console.log(
+          `\n⚠️  Could not find an unblocking path: ${unblockResult.reason}\n`,
+        );
         return;
       }
 
-      console.log(`\n   ✅ Strategy: ${unblockResult.metadata?.solvedBy ?? 'unblock-coordinator'} — ${unblockResult.reason}`);
+      console.log(
+        `\n   ✅ Strategy: ${unblockResult.metadata?.solvedBy ?? "unblock-coordinator"} — ${unblockResult.reason}`,
+      );
 
       // If backoff retryMode → execute the identified producer tasks
-      if (typeof unblockResult.retryMode === 'object' && unblockResult.retryMode.type === 'backoff') {
+      if (
+        typeof unblockResult.retryMode === "object" &&
+        unblockResult.retryMode.type === "backoff"
+      ) {
         const producers = (unblockResult.metadata?.producers ?? []) as Array<{
-          taskId: string; epicId: string; journalTaskId: string; filePath: string;
+          taskId: string;
+          epicId: string;
+          journalTaskId: string;
+          filePath: string;
         }>;
 
         if (producers.length > 0) {
           const checkpointMgr = new CheckpointManager(projectDir);
           const sessionId = generateSessionId();
-          const sessionLogger = new SessionLogger(projectDir, sessionId,
-            options.convergeConfig!.name || 'Unknown Project', { maxIterations: 1, maxAttemptsPerTask: 2 });
+          const sessionLogger = new SessionLogger(
+            projectDir,
+            sessionId,
+            options.convergeConfig!.name || "Unknown Project",
+            { maxIterations: 1, maxAttemptsPerTask: 2 },
+          );
           await sessionLogger.writeSessionStart();
 
           for (const producer of producers) {
-            console.log(`\n   ▶  Executing producer: ${producer.epicId}/${producer.journalTaskId}`);
+            console.log(
+              `\n   ▶  Executing producer: ${producer.epicId}/${producer.journalTaskId}`,
+            );
             try {
               await executeTask(
                 {
@@ -341,8 +407,14 @@ export async function runAutonomousCommand(options: AutoRunOptions = {}): Promis
           }
 
           await sessionLogger.writeSessionEnd(
-            { totalIterations: 1, tasksCompleted: producers.length, tasksFailed: 0, gapsResolved: 1, convergenceAchieved: true },
-            'complete'
+            {
+              totalIterations: 1,
+              tasksCompleted: producers.length,
+              tasksFailed: 0,
+              gapsResolved: 1,
+              convergenceAchieved: true,
+            },
+            "complete",
           );
         }
 
@@ -350,10 +422,11 @@ export async function runAutonomousCommand(options: AutoRunOptions = {}): Promis
         const toReset = [
           blockedTask,
           // Any task that was failure-blocked (blocked due to a failed dependency)
-          ...tree.filter(n =>
-            n.journalTaskId !== blockedTask.journalTaskId &&
-            states.blocked.has(n.journalTaskId) &&
-            !states.completed.has(n.journalTaskId)
+          ...tree.filter(
+            (n) =>
+              n.journalTaskId !== blockedTask.journalTaskId &&
+              states.blocked.has(n.journalTaskId) &&
+              !states.completed.has(n.journalTaskId),
           ),
         ];
         for (const node of toReset) {
@@ -368,13 +441,19 @@ export async function runAutonomousCommand(options: AutoRunOptions = {}): Promis
           const strayPath = buildStrayCheckpointPath(projectDir, node);
           if (strayPath && existsSync(strayPath)) {
             await unlink(strayPath);
-            console.log(`   🔄 Cleaned stray checkpoint: ${node.journalTaskId}`);
+            console.log(
+              `   🔄 Cleaned stray checkpoint: ${node.journalTaskId}`,
+            );
           }
         }
 
-        console.log(`\n✅ Producers executed. Run --step to execute the unblocked task: ${blockedTask.relPath}\n`);
+        console.log(
+          `\n✅ Producers executed. Run --step to execute the unblocked task: ${blockedTask.relPath}\n`,
+        );
       } else {
-        console.log(`\n✅ Unblocked (retryMode: ${JSON.stringify(unblockResult.retryMode)}). Run --step to continue.\n`);
+        console.log(
+          `\n✅ Unblocked (retryMode: ${JSON.stringify(unblockResult.retryMode)}). Run --step to continue.\n`,
+        );
       }
       return;
     }
@@ -383,47 +462,70 @@ export async function runAutonomousCommand(options: AutoRunOptions = {}): Promis
     // Resolve the next task: if candidate is a WBS parent with pending children,
     // drill down recursively to the first pending leaf child.
     const rawNext = filteredNodes[0] ?? null;
-    const next = rawNext ? resolveToLeafTask(rawNext, filteredNodes, states) : null;
+    const next = rawNext
+      ? resolveToLeafTask(rawNext, filteredNodes, states)
+      : null;
 
     if (!next) {
       if (states.failed.size > 0) {
-        console.log(`⚠️  No runnable tasks — ${states.failed.size} task(s) failed. Run --unblock to attempt repair.\n`);
+        console.log(
+          `⚠️  No runnable tasks — ${states.failed.size} task(s) failed. Run --unblock to attempt repair.\n`,
+        );
       } else if (states.blocked.size > 0) {
-        console.log(`⚠️  No runnable tasks — ${states.blocked.size} task(s) blocked.\n`);
+        console.log(
+          `⚠️  No runnable tasks — ${states.blocked.size} task(s) blocked.\n`,
+        );
       } else {
-        console.log('✅ All tasks complete.\n');
+        console.log("✅ All tasks complete.\n");
       }
       return;
     }
 
     // Only count tasks that exist in the current tree (prevent 22/21 bug)
-    const completedCount = tree.filter(n => completedIds.has(n.journalTaskId)).length;
+    const completedCount = tree.filter((n) =>
+      completedIds.has(n.journalTaskId),
+    ).length;
     const totalCount = tree.length;
 
-    console.log(`📍 Progress: ${completedCount}/${totalCount} tasks complete\n`);
+    console.log(
+      `📍 Progress: ${completedCount}/${totalCount} tasks complete\n`,
+    );
 
     // Tree display — group by epic
     // In step mode, the next task is about to execute, so pass it as runningTaskId for visual consistency
     const { plan } = calculateExecutionPlan(tree);
-    printTaskTree(tree, states, next.taskId, options.dry ? undefined : next.taskId, plan);
+    printTaskTree(
+      tree,
+      states,
+      next.taskId,
+      options.dry ? undefined : next.taskId,
+      plan,
+    );
 
     // Same header line for both dry and actual — only the verb differs
-    console.log(`\n▶  ${options.dry ? 'Would execute' : 'Executing'}: ${next.relPath}`);
+    console.log(
+      `\n▶  ${options.dry ? "Would execute" : "Executing"}: ${next.relPath}`,
+    );
 
     if (options.dry) {
-      console.log('\n(dry run — not executing)\n');
+      console.log("\n(dry run — not executing)\n");
       return;
     }
 
-    console.log('');
+    console.log("");
 
     // Initialize session logger for step mode
     const sessionId = generateSessionId();
-    const projectName = options.convergeConfig.name || 'Unknown Project';
-    const sessionLogger = new SessionLogger(projectDir, sessionId, projectName, {
-      maxIterations: 1, // Step mode runs only one iteration
-      maxAttemptsPerTask: 2,
-    });
+    const projectName = options.convergeConfig.name || "Unknown Project";
+    const sessionLogger = new SessionLogger(
+      projectDir,
+      sessionId,
+      projectName,
+      {
+        maxIterations: 1, // Step mode runs only one iteration
+        maxAttemptsPerTask: 2,
+      },
+    );
 
     // Write session start
     await sessionLogger.writeSessionStart();
@@ -436,7 +538,7 @@ export async function runAutonomousCommand(options: AutoRunOptions = {}): Promis
         id: next.journalTaskId,
         epic: next.epicId,
         attempt: 1,
-        status: 'running',
+        status: "running",
       },
       gaps: [],
     });
@@ -444,7 +546,7 @@ export async function runAutonomousCommand(options: AutoRunOptions = {}): Promis
     await sessionLogger.logTaskAttemptStart(next.journalTaskId, 1);
 
     // Setup cancellation handler for this session
-    const cleanupSession = async (status: 'error' | 'cancelled') => {
+    const cleanupSession = async (status: "error" | "cancelled") => {
       await sessionLogger.writeSessionEnd(
         {
           totalIterations: 1,
@@ -453,25 +555,33 @@ export async function runAutonomousCommand(options: AutoRunOptions = {}): Promis
           gapsResolved: 0,
           convergenceAchieved: false,
         },
-        status
+        status,
       );
     };
 
     // Register cleanup handler
-    process.once('SIGINT', async () => {
+    process.once("SIGINT", async () => {
       const currentTask = (global as any).__CONVERGE_CURRENT_TASK__;
       if (currentTask) {
-        try { await currentTask.unitCkpt.markInterrupted(); } catch { /* best effort */ }
+        try {
+          await currentTask.unitCkpt.markInterrupted();
+        } catch {
+          /* best effort */
+        }
       }
-      await cleanupSession('cancelled');
+      await cleanupSession("cancelled");
       process.exit(130); // Standard exit code for SIGINT
     });
-    process.once('SIGTERM', async () => {
+    process.once("SIGTERM", async () => {
       const currentTask = (global as any).__CONVERGE_CURRENT_TASK__;
       if (currentTask) {
-        try { await currentTask.unitCkpt.markInterrupted(); } catch { /* best effort */ }
+        try {
+          await currentTask.unitCkpt.markInterrupted();
+        } catch {
+          /* best effort */
+        }
       }
-      await cleanupSession('cancelled');
+      await cleanupSession("cancelled");
       process.exit(143); // Standard exit code for SIGTERM
     });
 
@@ -495,7 +605,12 @@ export async function runAutonomousCommand(options: AutoRunOptions = {}): Promis
       const taskDuration = Date.now() - taskStartTime;
 
       // Log task completion
-      await sessionLogger.logTaskAttemptComplete(next.journalTaskId, 1, result.success, taskDuration);
+      await sessionLogger.logTaskAttemptComplete(
+        next.journalTaskId,
+        1,
+        result.success,
+        taskDuration,
+      );
       await sessionLogger.logConvergence(next.journalTaskId, result.success);
 
       // Write session end
@@ -507,18 +622,18 @@ export async function runAutonomousCommand(options: AutoRunOptions = {}): Promis
           gapsResolved: 0, // TODO: track from gap resolution pipeline
           convergenceAchieved: result.success,
         },
-        result.success ? 'complete' : 'stalled'
+        result.success ? "complete" : "stalled",
       );
 
       // Display final status
       if (result.success) {
         if (result.isWbsTask) {
-          console.log('');
+          console.log("");
         } else {
-          console.log('\n✅ Step completed.\n');
+          console.log("\n✅ Step completed.\n");
         }
       } else {
-        console.log('\n❌ Step did not converge.\n');
+        console.log("\n❌ Step did not converge.\n");
       }
     } catch (taskError: any) {
       // Ensure session is finalized on task execution error
@@ -530,11 +645,10 @@ export async function runAutonomousCommand(options: AutoRunOptions = {}): Promis
           gapsResolved: 0,
           convergenceAchieved: false,
         },
-        'error'
+        "error",
       );
       throw taskError; // Re-throw to be caught by outer catch
     }
-
   } catch (error: any) {
     console.error(`\n❌ Run failed: ${error.message}`);
     if (options.verbose) console.error(error.stack);
@@ -552,13 +666,19 @@ export async function runAutonomousCommand(options: AutoRunOptions = {}): Promis
  * "Runnable" means: in pool AND not completed/failed/blocked.
  * This mirrors TreeNode.findNextTask() used by autonomous-run.
  */
-function resolveToLeafTask(candidate: TaskNode, pool: TaskNode[], states: TaskStates): TaskNode {
+function resolveToLeafTask(
+  candidate: TaskNode,
+  pool: TaskNode[],
+  states: TaskStates,
+): TaskNode {
   const runnableChildren = pool
-    .filter(n =>
-      (n.parentTaskId === candidate.journalTaskId || n.parentTaskId === candidate.taskId) &&
-      !states.completed.has(n.journalTaskId) &&
-      !states.failed.has(n.journalTaskId) &&
-      !states.blocked.has(n.journalTaskId)
+    .filter(
+      (n) =>
+        (n.parentTaskId === candidate.journalTaskId ||
+          n.parentTaskId === candidate.taskId) &&
+        !states.completed.has(n.journalTaskId) &&
+        !states.failed.has(n.journalTaskId) &&
+        !states.blocked.has(n.journalTaskId),
     )
     .sort((a, b) => a.filePath.localeCompare(b.filePath));
 
@@ -570,18 +690,29 @@ function resolveToLeafTask(candidate: TaskNode, pool: TaskNode[], states: TaskSt
  * Read needs.json from the wip attempt directory for a task.
  * Returns null if the file doesn't exist or can't be parsed.
  */
-async function readNeedsJson(projectDir: string, node: TaskNode): Promise<any | null> {
+async function readNeedsJson(
+  projectDir: string,
+  node: TaskNode,
+): Promise<any | null> {
   // Build path: journal/tasks/{epicId}/{journalTaskId-segments-with-tasks}/attempts/wip/data/needs.json
-  const segments = node.journalTaskId.split('/');
+  const segments = node.journalTaskId.split("/");
   const parts: string[] = [segments[0]];
-  for (let i = 1; i < segments.length; i++) parts.push('tasks', segments[i]);
+  for (let i = 1; i < segments.length; i++) parts.push("tasks", segments[i]);
   const p = join(
-    projectDir, '.converge', 'journal', 'epics', node.epicId,
-    ...parts, 'attempts', 'wip', 'data', 'needs.json'
+    projectDir,
+    ".converge",
+    "journal",
+    "epics",
+    node.epicId,
+    ...parts,
+    "attempts",
+    "wip",
+    "data",
+    "needs.json",
   );
   if (!existsSync(p)) return null;
   try {
-    return JSON.parse(await readFile(p, 'utf-8'));
+    return JSON.parse(await readFile(p, "utf-8"));
   } catch {
     return null;
   }
@@ -591,21 +722,27 @@ async function readNeedsJson(projectDir: string, node: TaskNode): Promise<any | 
  * Build the path to a task's checkpoint.json in the journal.
  */
 function buildTaskCheckpointPath(projectDir: string, node: TaskNode): string {
-  const segments = node.journalTaskId.split('/');
+  const segments = node.journalTaskId.split("/");
 
   // If journalTaskId starts with epicId (epic-level task children),
   // strip the prefix to avoid double-nesting
   const startIdx = segments[0] === node.epicId ? 1 : 0;
   const taskSegments = segments.slice(startIdx);
 
-  const parts: string[] = taskSegments.length > 0 ? ['tasks', taskSegments[0]] : [];
+  const parts: string[] =
+    taskSegments.length > 0 ? ["tasks", taskSegments[0]] : [];
   for (let i = 1; i < taskSegments.length; i++) {
-    parts.push('tasks', taskSegments[i]);
+    parts.push("tasks", taskSegments[i]);
   }
 
   return join(
-    projectDir, '.converge', 'journal', 'epics', node.epicId,
-    ...parts, 'checkpoint.json'
+    projectDir,
+    ".converge",
+    "journal",
+    "epics",
+    node.epicId,
+    ...parts,
+    "checkpoint.json",
   );
 }
 
@@ -614,15 +751,23 @@ function buildTaskCheckpointPath(projectDir: string, node: TaskNode): string {
  * when it incorrectly treated the first journalTaskId segment as epicId.
  * Only applicable for WBS children (journalTaskId has 2+ segments).
  */
-function buildStrayCheckpointPath(projectDir: string, node: TaskNode): string | null {
-  const segments = node.journalTaskId.split('/');
+function buildStrayCheckpointPath(
+  projectDir: string,
+  node: TaskNode,
+): string | null {
+  const segments = node.journalTaskId.split("/");
   if (segments.length < 2) return null; // root tasks: no stray possible
   // Wrong epicId = first segment of journalTaskId (e.g. '002-convert-designs-to-react')
   const wrongEpicId = segments[0];
   const taskSegment = segments[1]; // e.g. '002-002-convert-lesson-quiz'
   return join(
-    projectDir, '.converge', 'journal', 'epics', wrongEpicId,
-    taskSegment, 'checkpoint.json'
+    projectDir,
+    ".converge",
+    "journal",
+    "epics",
+    wrongEpicId,
+    taskSegment,
+    "checkpoint.json",
   );
 }
 
@@ -639,30 +784,34 @@ function buildStrayCheckpointPath(projectDir: string, node: TaskNode): string | 
 async function runWbsOnly(options: AutoRunOptions): Promise<void> {
   const projectDir = options.dir || process.cwd();
 
-  console.log('🔍 Discovering WBS tasks...\n');
+  console.log("🔍 Discovering WBS tasks...\n");
   const taskTree = await TaskTree.load(projectDir, options.convergeConfig!);
   const tree = treeNodesToTaskNodes(taskTree, projectDir);
   // WBS-only mode: skip auto-complete — we only need seeded/completed status for gate checks
-  const states = await getTaskStates(projectDir, tree, { skipAutoComplete: true });
+  const states = await getTaskStates(projectDir, tree, {
+    skipAutoComplete: true,
+  });
 
   // Filter to WBS parents only
   const filter = options.filter;
-  const wbsNodes = tree.filter(n => {
+  const wbsNodes = tree.filter((n) => {
     if (!n.isWbsParent) return false;
     if (!filter) return true;
     // Match on taskId, journalTaskId, relPath, or filePath substring.
     // Users may pass a full path like ".converge/epics/06-wire-screens/tasks/002-wire-navigation".
-    return n.taskId === filter
-      || n.journalTaskId === filter
-      || n.relPath.includes(filter)
-      || n.filePath.includes(filter)
-      || filter.endsWith(n.taskId);
+    return (
+      n.taskId === filter ||
+      n.journalTaskId === filter ||
+      n.relPath.includes(filter) ||
+      n.filePath.includes(filter) ||
+      filter.endsWith(n.taskId)
+    );
   });
 
   if (wbsNodes.length === 0) {
-    console.log(filter
-      ? `No WBS tasks match filter "${filter}".`
-      : 'No WBS tasks found.');
+    console.log(
+      filter ? `No WBS tasks match filter "${filter}".` : "No WBS tasks found.",
+    );
     return;
   }
 
@@ -670,22 +819,32 @@ async function runWbsOnly(options: AutoRunOptions): Promise<void> {
   for (const n of wbsNodes) {
     console.log(`  • ${n.journalTaskId}  (${n.relPath})`);
   }
-  console.log('');
+  console.log("");
 
   const checkpointMgr = new CheckpointManager(projectDir);
 
   for (const node of wbsNodes) {
-    const structure = getJournalStructure(projectDir, node.epicId, node.journalTaskId);
-    const wbsJsonPath = structure.task ? join(structure.task, 'wbs.json') : null;
+    const structure = getJournalStructure(
+      projectDir,
+      node.epicId,
+      node.journalTaskId,
+    );
+    const wbsJsonPath = structure.task
+      ? join(structure.task, "wbs.json")
+      : null;
     const alreadySeeded = wbsJsonPath ? existsSync(wbsJsonPath) : false;
 
     if (alreadySeeded && !options.inc) {
-      let detail = '';
+      let detail = "";
       try {
-        const data = JSON.parse(await readFile(wbsJsonPath!, 'utf-8'));
+        const data = JSON.parse(await readFile(wbsJsonPath!, "utf-8"));
         detail = ` (${data.spawnCount} tasks)`;
-      } catch { /* ignore */ }
-      console.error(`❌ ${node.journalTaskId}: already seeded${detail}. Use --inc to re-seed incrementally.`);
+      } catch {
+        /* ignore */
+      }
+      console.error(
+        `❌ ${node.journalTaskId}: already seeded${detail}. Use --inc to re-seed incrementally.`,
+      );
       process.exit(1);
     }
 
@@ -695,15 +854,26 @@ async function runWbsOnly(options: AutoRunOptions): Promise<void> {
       console.log(`  ✓ ${node.journalTaskId}: deleted wbs.json`);
 
       // Clear gate 1: reset checkpoint from seeded/completed → pending
-      try { await checkpointMgr.removeFromCompleted(node.journalTaskId, node.epicId); } catch { /* ignore */ }
+      try {
+        await checkpointMgr.removeFromCompleted(
+          node.journalTaskId,
+          node.epicId,
+        );
+      } catch {
+        /* ignore */
+      }
       console.log(`  ✓ ${node.journalTaskId}: reset checkpoint to pending`);
     }
 
     // Execute WBS seeding
     console.log(`\n▶  Seeding: ${node.relPath}`);
     const sessionId = generateSessionId();
-    const sessionLogger = new SessionLogger(projectDir, sessionId,
-      options.convergeConfig?.name || 'Project', { maxIterations: 1, maxAttemptsPerTask: 1 });
+    const sessionLogger = new SessionLogger(
+      projectDir,
+      sessionId,
+      options.convergeConfig?.name || "Project",
+      { maxIterations: 1, maxAttemptsPerTask: 1 },
+    );
     await sessionLogger.writeSessionStart();
 
     const result = await executeTask(
@@ -725,7 +895,7 @@ async function runWbsOnly(options: AutoRunOptions): Promise<void> {
         gapsResolved: 0,
         convergenceAchieved: result.success,
       },
-      result.success ? 'complete' : 'stalled',
+      result.success ? "complete" : "stalled",
     );
 
     if (!result.success) {
@@ -734,5 +904,5 @@ async function runWbsOnly(options: AutoRunOptions): Promise<void> {
     }
   }
 
-  console.log('\n✅ WBS seeding complete');
+  console.log("\n✅ WBS seeding complete");
 }

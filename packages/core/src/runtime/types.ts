@@ -10,10 +10,10 @@ import type {
   GoalHierarchy,
   GoalConvergenceConfig,
   GoalConvergenceResult,
-} from '../goal/types.ts';
-import type { TaskConfig, TaskStatus } from '../storage/types.ts';
-import type { ConvergenceConfig } from '../orchestrator/convergence.ts';
-import type { ProjectOrchestrationResult } from '../orchestrator/project-orchestrator.ts';
+} from "../goal/types.ts";
+import type { TaskConfig, TaskStatus } from "../storage/types.ts";
+import type { ConvergenceConfig } from "../orchestrator/convergence.ts";
+import type { ProjectOrchestrationResult } from "../orchestrator/project-orchestrator.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Goal Manager                                                      */
@@ -36,7 +36,10 @@ export interface GoalManager {
   /**
    * Satisfy a specific goal (run convergence for that goal)
    */
-  satisfy(goalId: string, config?: Partial<GoalConvergenceConfig>): Promise<GoalStatus>;
+  satisfy(
+    goalId: string,
+    config?: Partial<GoalConvergenceConfig>,
+  ): Promise<GoalStatus>;
 
   /**
    * Get goal by ID
@@ -93,7 +96,10 @@ export interface EpicManager {
   /**
    * Run epic convergence
    */
-  run(epicId: string, config?: Partial<ConvergenceConfig>): Promise<{
+  run(
+    epicId: string,
+    config?: Partial<ConvergenceConfig>,
+  ): Promise<{
     converged: boolean;
     goalsSatisfied: number;
     totalGoals: number;

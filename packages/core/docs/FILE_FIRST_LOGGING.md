@@ -48,13 +48,13 @@ class ConsoleFormatter {
   async start(eventsFile: string): Promise<void> {
     // Tail the events file
     this.eventStream = fs.createReadStream(eventsFile, {
-      encoding: 'utf8',
+      encoding: "utf8",
       start: this.lastPosition,
     });
 
     // Watch for new lines
-    this.eventStream.on('data', (chunk) => {
-      const lines = chunk.split('\n').filter(l => l.trim());
+    this.eventStream.on("data", (chunk) => {
+      const lines = chunk.split("\n").filter((l) => l.trim());
       for (const line of lines) {
         const event = JSON.parse(line);
         this.formatAndLog(event);
@@ -64,7 +64,7 @@ class ConsoleFormatter {
 
     // Watch file for new appends
     fs.watch(eventsFile, (eventType) => {
-      if (eventType === 'change') {
+      if (eventType === "change") {
         this.resumeReading();
       }
     });
@@ -79,24 +79,24 @@ class ConsoleFormatter {
 
   format(event: TaskEvent): string | null {
     switch (event.type) {
-      case 'TASK_START':
+      case "TASK_START":
         return this.formatTaskStart(event);
 
-      case 'TOOL_USE_COMPLETE':
+      case "TOOL_USE_COMPLETE":
         return this.formatToolComplete(event);
 
-      case 'AI_REASONING':
+      case "AI_REASONING":
         return this.formatReasoning(event);
 
-      case 'VALIDATION_RESULT':
+      case "VALIDATION_RESULT":
         return this.formatValidation(event);
 
-      case 'TASK_COMPLETE':
+      case "TASK_COMPLETE":
         return this.formatTaskComplete(event);
 
       // Internal events - don't show on console
-      case 'STREAM_CHUNK':
-      case 'INTERNAL_STATE':
+      case "STREAM_CHUNK":
+      case "INTERNAL_STATE":
         return null;
 
       default:
@@ -105,22 +105,22 @@ class ConsoleFormatter {
   }
 
   formatToolComplete(event: ToolUseCompleteEvent): string {
-    const icon = event.success ? '✅' : '❌';
+    const icon = event.success ? "✅" : "❌";
     const tool = this.getToolIcon(event.toolName);
 
-    if (event.toolName === 'Read') {
+    if (event.toolName === "Read") {
       return `${tool} Read ${event.params.file} (${this.formatSize(event.result.size)})`;
     }
 
-    if (event.toolName === 'Write') {
+    if (event.toolName === "Write") {
       return `✍️  Write ${event.params.file} (${this.formatSize(event.result.size)}, ${event.result.lines} lines)`;
     }
 
-    if (event.toolName === 'Skill') {
+    if (event.toolName === "Skill") {
       return `🛠️  Skill: ${event.params.skill} → ${event.result.output}`;
     }
 
-    return `${icon} ${event.toolName} ${event.success ? 'completed' : 'failed'}`;
+    return `${icon} ${event.toolName} ${event.success ? "completed" : "failed"}`;
   }
 }
 ```
@@ -138,20 +138,20 @@ class TaskEventWriter {
   constructor(journalDir: string, taskId: string, attempt: number) {
     this.eventsFile = path.join(
       journalDir,
-      'epics',
+      "epics",
       extractEpicId(taskId),
-      'tasks',
+      "tasks",
       taskId,
-      'attempts',
-      String(attempt).padStart(2, '0'),
-      'events.jsonl'
+      "attempts",
+      String(attempt).padStart(2, "0"),
+      "events.jsonl",
     );
 
     // Ensure directory exists
     fs.mkdirSync(path.dirname(this.eventsFile), { recursive: true });
 
     // Open append stream
-    this.writeStream = fs.createWriteStream(this.eventsFile, { flags: 'a' });
+    this.writeStream = fs.createWriteStream(this.eventsFile, { flags: "a" });
   }
 
   // Write event to file (buffered for performance)
@@ -178,7 +178,7 @@ class TaskEventWriter {
     if (this.eventBuffer.length === 0) return;
 
     for (const event of this.eventBuffer) {
-      const line = JSON.stringify(event) + '\n';
+      const line = JSON.stringify(event) + "\n";
       this.writeStream.write(line);
     }
 
@@ -200,17 +200,12 @@ class TaskEventWriter {
 ```typescript
 // 1. Task starts - write to journal
 eventWriter.write({
-  type: 'TASK_START',
-  taskId: '003-001-design-home-lesson-tree',
-  taskName: 'Generate Design: Home Lesson Tree',
+  type: "TASK_START",
+  taskId: "003-001-design-home-lesson-tree",
+  taskName: "Generate Design: Home Lesson Tree",
   attempt: 1,
-  inputs: [
-    '.stitch/prompts/home-lesson-tree.md',
-    '.stitch/DESIGN.md',
-  ],
-  outputs: [
-    '.stitch/designs/home-lesson-tree.html',
-  ],
+  inputs: [".stitch/prompts/home-lesson-tree.md", ".stitch/DESIGN.md"],
+  outputs: [".stitch/designs/home-lesson-tree.html"],
 });
 
 // Console formatter reads → displays:
@@ -220,16 +215,16 @@ eventWriter.write({
 
 // 2. AI uses Read tool - write to journal
 eventWriter.write({
-  type: 'TOOL_USE_START',
-  toolName: 'Read',
+  type: "TOOL_USE_START",
+  toolName: "Read",
   params: {
-    file: '.stitch/prompts/home-lesson-tree.md',
+    file: ".stitch/prompts/home-lesson-tree.md",
   },
 });
 
 eventWriter.write({
-  type: 'TOOL_USE_COMPLETE',
-  toolName: 'Read',
+  type: "TOOL_USE_COMPLETE",
+  toolName: "Read",
   success: true,
   result: {
     size: 4234,
@@ -242,12 +237,12 @@ eventWriter.write({
 
 // 3. AI reasoning - write to journal
 eventWriter.write({
-  type: 'AI_REASONING',
-  text: 'Analyzing design requirements for mobile-first zigzag lesson tree',
+  type: "AI_REASONING",
+  text: "Analyzing design requirements for mobile-first zigzag lesson tree",
   context: {
-    screenType: 'home-lesson-tree',
-    deviceTarget: 'mobile-first',
-    keyComponents: ['header', 'lesson-nodes', 'navigation'],
+    screenType: "home-lesson-tree",
+    deviceTarget: "mobile-first",
+    keyComponents: ["header", "lesson-nodes", "navigation"],
   },
 });
 
@@ -257,8 +252,8 @@ eventWriter.write({
 
 // 4. File created - write to journal
 eventWriter.write({
-  type: 'FILE_CREATED',
-  path: '.stitch/designs/home-lesson-tree.html',
+  type: "FILE_CREATED",
+  path: ".stitch/designs/home-lesson-tree.html",
   size: 43234,
   lines: 847,
   verified: true,
@@ -269,13 +264,11 @@ eventWriter.write({
 
 // 5. Validation - write to journal
 eventWriter.write({
-  type: 'VALIDATION_RESULT',
-  output: '.stitch/designs/home-lesson-tree.html',
+  type: "VALIDATION_RESULT",
+  output: ".stitch/designs/home-lesson-tree.html",
   exists: true,
   size: 43234,
-  checks: [
-    { id: 'design-exists', passed: true },
-  ],
+  checks: [{ id: "design-exists", passed: true }],
 });
 
 // Console formatter reads → displays:
@@ -285,9 +278,9 @@ eventWriter.write({
 
 // 6. Task complete - write to journal
 eventWriter.write({
-  type: 'TASK_COMPLETE',
+  type: "TASK_COMPLETE",
   duration: 171234,
-  outputs: ['.stitch/designs/home-lesson-tree.html'],
+  outputs: [".stitch/designs/home-lesson-tree.html"],
   success: true,
 });
 
@@ -356,10 +349,11 @@ webSocket.streamEvents(eventsFile);
 async function replayConsole(eventsFile: string): Promise<void> {
   const formatter = new ConsoleFormatter();
 
-  const events = fs.readFileSync(eventsFile, 'utf8')
-    .split('\n')
-    .filter(l => l.trim())
-    .map(l => JSON.parse(l));
+  const events = fs
+    .readFileSync(eventsFile, "utf8")
+    .split("\n")
+    .filter((l) => l.trim())
+    .map((l) => JSON.parse(l));
 
   for (const event of events) {
     formatter.formatAndLog(event);
@@ -369,7 +363,9 @@ async function replayConsole(eventsFile: string): Promise<void> {
 }
 
 // Usage: Replay previous run
-await replayConsole('.converge/journal/epics/02-prepare-designs/tasks/003-001.../attempts/01/events.jsonl');
+await replayConsole(
+  ".converge/journal/epics/02-prepare-designs/tasks/003-001.../attempts/01/events.jsonl",
+);
 ```
 
 ### 4. Analysis & Debugging
@@ -390,12 +386,12 @@ class EventAnalyzer {
   }
 
   analyzeToolUsage(events: TaskEvent[]): ToolStats {
-    const toolEvents = events.filter(e => e.type === 'TOOL_USE_COMPLETE');
+    const toolEvents = events.filter((e) => e.type === "TOOL_USE_COMPLETE");
 
     return {
       totalCalls: toolEvents.length,
-      byTool: this.groupBy(toolEvents, 'toolName'),
-      avgDuration: this.average(toolEvents.map(e => e.duration)),
+      byTool: this.groupBy(toolEvents, "toolName"),
+      avgDuration: this.average(toolEvents.map((e) => e.duration)),
       successRate: this.calculateSuccessRate(toolEvents),
     };
   }
@@ -421,7 +417,7 @@ class EventAnalyzer {
       hasRetries: true,
       totalAttempts: attempts.length,
       pattern: this.identifyPattern(differences),
-      resolution: differences.find(d => d.outcome === 'success'),
+      resolution: differences.find((d) => d.outcome === "success"),
     };
   }
 }
@@ -454,46 +450,46 @@ class EventAnalyzer {
 ```typescript
 // Base event
 interface TaskEvent {
-  timestamp: string;        // ISO 8601
+  timestamp: string; // ISO 8601
   type: TaskEventType;
-  level?: 'debug' | 'info' | 'warning' | 'error';
-  [key: string]: any;       // Event-specific data
+  level?: "debug" | "info" | "warning" | "error";
+  [key: string]: any; // Event-specific data
 }
 
 // Event types
 enum TaskEventType {
   // Lifecycle
-  TASK_START = 'task_start',
-  TASK_COMPLETE = 'task_complete',
-  TASK_FAILED = 'task_failed',
-  RETRY_START = 'retry_start',
+  TASK_START = "task_start",
+  TASK_COMPLETE = "task_complete",
+  TASK_FAILED = "task_failed",
+  RETRY_START = "retry_start",
 
   // Tool usage
-  TOOL_USE_START = 'tool_use_start',
-  TOOL_USE_COMPLETE = 'tool_use_complete',
-  TOOL_USE_ERROR = 'tool_use_error',
+  TOOL_USE_START = "tool_use_start",
+  TOOL_USE_COMPLETE = "tool_use_complete",
+  TOOL_USE_ERROR = "tool_use_error",
 
   // File operations
-  FILE_CREATED = 'file_created',
-  FILE_MODIFIED = 'file_modified',
-  FILE_DELETED = 'file_deleted',
-  FILE_VERIFIED = 'file_verified',
+  FILE_CREATED = "file_created",
+  FILE_MODIFIED = "file_modified",
+  FILE_DELETED = "file_deleted",
+  FILE_VERIFIED = "file_verified",
 
   // Validation
-  VALIDATION_START = 'validation_start',
-  VALIDATION_RESULT = 'validation_result',
-  CHECK_PASSED = 'check_passed',
-  CHECK_FAILED = 'check_failed',
+  VALIDATION_START = "validation_start",
+  VALIDATION_RESULT = "validation_result",
+  CHECK_PASSED = "check_passed",
+  CHECK_FAILED = "check_failed",
 
   // AI
-  AI_REASONING = 'ai_reasoning',
-  AI_PLANNING = 'ai_planning',
-  AI_ERROR = 'ai_error',
+  AI_REASONING = "ai_reasoning",
+  AI_PLANNING = "ai_planning",
+  AI_ERROR = "ai_error",
 
   // Gap resolution
-  GAP_DETECTED = 'gap_detected',
-  GAP_RESOLVED = 'gap_resolved',
-  STRATEGY_APPLIED = 'strategy_applied',
+  GAP_DETECTED = "gap_detected",
+  GAP_RESOLVED = "gap_resolved",
+  STRATEGY_APPLIED = "strategy_applied",
 }
 ```
 
@@ -511,21 +507,25 @@ enum TaskEventType {
 ### Migration Path
 
 **Phase 1**: Add event writer alongside current logging
+
 - Keep existing logs
 - Start writing events.jsonl
 - No console changes yet
 
 **Phase 2**: Add console formatter
+
 - Read events.jsonl
 - Display formatted output
 - Run in parallel with old logs
 
 **Phase 3**: Replace old logging
+
 - Remove timer-based logging
 - Remove JSON dumps to console
 - Keep only event-driven system
 
 **Phase 4**: Cleanup
+
 - Remove legacy log files
 - Archive old logs
 - Document new system

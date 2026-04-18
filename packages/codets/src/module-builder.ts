@@ -8,9 +8,9 @@
  * `toString()` emits: banner → directives → imports → body.
  */
 
-import { CoreBuilder } from './core-builder.ts';
-import { ImportRegistry } from './import-registry.ts';
-import type { ImportSpec } from './types.ts';
+import { CoreBuilder } from "./core-builder.ts";
+import { ImportRegistry } from "./import-registry.ts";
+import type { ImportSpec } from "./types.ts";
 
 export class ModuleBuilder extends CoreBuilder {
   private _banner?: string;
@@ -44,7 +44,7 @@ export class ModuleBuilder extends CoreBuilder {
   }
 
   /** Register an npm dependency for downstream package.json generation. */
-  addDependency(name: string, version = '*'): this {
+  addDependency(name: string, version = "*"): this {
     this._registry.addDependency(name, version);
     return this;
   }
@@ -58,7 +58,7 @@ export class ModuleBuilder extends CoreBuilder {
 
   /** `import { a, b } from 'module';` — emits immediately in body. */
   importNamed(names: string | string[], from: string): this {
-    const n = Array.isArray(names) ? names.join(', ') : names;
+    const n = Array.isArray(names) ? names.join(", ") : names;
     return this.line(`import { ${n} } from '${from}';`);
   }
 
@@ -69,7 +69,7 @@ export class ModuleBuilder extends CoreBuilder {
 
   /** `import type { a, b } from 'module';` — emits immediately in body. */
   importType(names: string | string[], from: string): this {
-    const n = Array.isArray(names) ? names.join(', ') : names;
+    const n = Array.isArray(names) ? names.join(", ") : names;
     return this.line(`import type { ${n} } from '${from}';`);
   }
 
@@ -85,24 +85,24 @@ export class ModuleBuilder extends CoreBuilder {
 
     if (this._banner) {
       header.push(`// ${this._banner}`);
-      header.push('');
+      header.push("");
     }
 
     if (this._directives.length > 0) {
       header.push(...this._directives);
-      header.push('');
+      header.push("");
     }
 
     const importLines = this._registry.buildLines();
     if (importLines.length > 0) {
       header.push(...importLines);
-      header.push('');
+      header.push("");
     }
 
     if (header.length === 0) return super.toString();
 
     header.push(...this._lines);
-    const result = header.join('\n');
-    return result.endsWith('\n') ? result : result + '\n';
+    const result = header.join("\n");
+    return result.endsWith("\n") ? result : result + "\n";
   }
 }

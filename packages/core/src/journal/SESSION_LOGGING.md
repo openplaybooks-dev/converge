@@ -87,6 +87,7 @@ This document describes the **session-level logging** system that captures compl
 **Format**: Plain text with ASCII art formatting
 
 **Contents**:
+
 - Session start banner with config
 - Iteration summaries
 - Task selections and outcomes
@@ -94,6 +95,7 @@ This document describes the **session-level logging** system that captures compl
 - Final session summary with stats
 
 **Example**:
+
 ```
 ╔════════════════════════════════════════════════════════════╗
 ║         🤖 Autonomous AI Orchestrator Starting...         ║
@@ -154,6 +156,7 @@ Session artifacts: .converge/journal/sessions/2026-04-05T15-17-00-abc123
 **Format**: JSON Lines (one JSON object per line)
 
 **Event Types**:
+
 - `SESSION_START` / `SESSION_END`
 - `ITERATION_START` / `ITERATION_COMPLETE`
 - `TASK_SELECTED`
@@ -163,6 +166,7 @@ Session artifacts: .converge/journal/sessions/2026-04-05T15-17-00-abc123
 - `CONVERGENCE_ACHIEVED` / `CONVERGENCE_STALLED`
 
 **Example**:
+
 ```jsonl
 {"timestamp":"2026-04-05T15:17:00.123Z","eventType":"SESSION_START","message":"Session started","metadata":{"projectName":"My Mobile App","config":{"maxIterations":100,"maxAttemptsPerTask":2}}}
 {"timestamp":"2026-04-05T15:17:02.456Z","eventType":"ITERATION_START","message":"Iteration 1 started","metadata":{"iteration":1,"tasksComplete":0,"tasksTotal":11}}
@@ -185,6 +189,7 @@ Session artifacts: .converge/journal/sessions/2026-04-05T15-17-00-abc123
 **Format**: JSON
 
 **Contents**:
+
 - `sessionId`: Unique session identifier
 - `projectName`: Project name from converge.ts
 - `startTime` / `endTime`: ISO timestamps
@@ -195,6 +200,7 @@ Session artifacts: .converge/journal/sessions/2026-04-05T15-17-00-abc123
 - `environment`: Node version, platform
 
 **Example**:
+
 ```json
 {
   "sessionId": "2026-04-05T15-17-00-abc123",
@@ -230,6 +236,7 @@ Session artifacts: .converge/journal/sessions/2026-04-05T15-17-00-abc123
 **Format**: JSON Lines
 
 **Contents**: One snapshot per iteration with:
+
 - `iteration`: Iteration number
 - `timestamp`: ISO timestamp
 - `tasksComplete` / `tasksTotal`: Progress counters
@@ -237,6 +244,7 @@ Session artifacts: .converge/journal/sessions/2026-04-05T15-17-00-abc123
 - `gaps`: Active gaps detected
 
 **Example**:
+
 ```jsonl
 {"iteration":1,"timestamp":"2026-04-05T15:17:02.456Z","tasksComplete":0,"tasksTotal":11,"currentTask":{"id":"001-gather-idea-generate-ux","epic":"01-prepare-requirements","attempt":1,"status":"running"},"gaps":[]}
 {"iteration":2,"timestamp":"2026-04-05T15:20:35.789Z","tasksComplete":1,"tasksTotal":11,"currentTask":{"id":"001-breakdown-ux-to-screens","epic":"02-prepare-designs","attempt":1,"status":"running"},"gaps":[]}
@@ -252,13 +260,13 @@ The **SessionEventBridge** automatically aggregates task-level events to the ses
 
 ### Task → Session Event Mapping
 
-| Task Event (TaskEventWriter) | Session Event (SessionLogger) |
-|------------------------------|-------------------------------|
-| `gap_detected` | `GAP_DETECTED` |
-| `strategy_applied` | `STRATEGY_ATTEMPTED` |
-| `gap_resolved` | `GAP_RESOLVED` (with metadata) |
-| `tool_use_start` | Logged via `logToolUse()` |
-| `ai_reasoning` / `ai_planning` | Logged via `logAiActivity()` |
+| Task Event (TaskEventWriter)    | Session Event (SessionLogger)             |
+| ------------------------------- | ----------------------------------------- |
+| `gap_detected`                  | `GAP_DETECTED`                            |
+| `strategy_applied`              | `STRATEGY_ATTEMPTED`                      |
+| `gap_resolved`                  | `GAP_RESOLVED` (with metadata)            |
+| `tool_use_start`                | Logged via `logToolUse()`                 |
+| `ai_reasoning` / `ai_planning`  | Logged via `logAiActivity()`              |
 | `task_complete` / `task_failed` | `TASK_ATTEMPT_COMPLETE` (via task-runner) |
 
 ### How It Works
@@ -284,6 +292,7 @@ pnpm converge run  # Session logs created in .converge/journal/sessions/
 ### Viewing Session Logs
 
 **Human-readable log**:
+
 ```bash
 # View the latest session log
 tail -f .converge/journal/sessions/latest/session.log
@@ -293,6 +302,7 @@ cat .converge/journal/sessions/2026-04-05T15-17-00-abc123/session.log
 ```
 
 **Structured events (JSONL)**:
+
 ```bash
 # Stream events as they happen
 tail -f .converge/journal/sessions/latest/events.jsonl | jq .
@@ -307,11 +317,13 @@ cat .converge/journal/sessions/latest/events.jsonl \
 ```
 
 **Session metadata**:
+
 ```bash
 cat .converge/journal/sessions/latest/metadata.json | jq .
 ```
 
 **Progress over time**:
+
 ```bash
 cat .converge/journal/sessions/latest/progress.jsonl | jq .tasksComplete
 ```
@@ -374,10 +386,15 @@ cat .converge/journal/sessions/latest/metadata.json | jq '{
 ### In `autonomous-run.ts`
 
 ```typescript
-import { SessionLogger, generateSessionId } from '../journal/session-logger.ts';
+import { SessionLogger, generateSessionId } from "../journal/session-logger.ts";
 
 const sessionId = generateSessionId();
-const sessionLogger = new SessionLogger(projectDir, sessionId, projectName, config);
+const sessionLogger = new SessionLogger(
+  projectDir,
+  sessionId,
+  projectName,
+  config,
+);
 
 // Session lifecycle
 await sessionLogger.writeSessionStart();
@@ -391,7 +408,7 @@ await sessionLogger.writeSessionEnd(outcomes, status);
 ### In `task-runner.ts`
 
 ```typescript
-import { SessionEventBridge } from '../journal/session-event-bridge.ts';
+import { SessionEventBridge } from "../journal/session-event-bridge.ts";
 
 // Pass session logger to task execution context
 const execResult = await executeTask(
@@ -429,26 +446,31 @@ if (sessionLogger && journalCtx.taskId) {
 ## Benefits
 
 ### 1. **Complete Audit Trail**
+
 - Every session is fully logged with structured data
 - Trace back any issue to exact iteration, task, and attempt
 - Understand what the AI agent did and why
 
 ### 2. **Performance Analysis**
+
 - Measure task durations across sessions
 - Identify slow tasks or bottlenecks
 - Track convergence speed improvements
 
 ### 3. **Gap Pattern Detection**
+
 - Analyze which gaps occur most frequently
 - Identify which strategies are most effective
 - Improve gap resolution pipeline
 
 ### 4. **Cross-Task Analysis**
+
 - See dependencies and upstream triggers
 - Understand task ordering and parallelization
 - Optimize task scheduling
 
 ### 5. **Debugging & Inspection**
+
 - Rich context for debugging failures
 - Replay session events to understand behavior
 - Compare successful vs. failed sessions

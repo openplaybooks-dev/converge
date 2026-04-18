@@ -15,15 +15,18 @@
  *  7. null → exhausted
  */
 
-import type { Gap } from '../gap/types.ts';
-import type { FixStrategy, AttemptRecord, JournalContext } from './types.ts';
-import type { StrategyDescriptor } from './strategy-catalog.ts';
-import { buildSelectionPrompt, buildPlanningPrompt } from './strategy-catalog.ts';
-import { HistoryIndexBuilder } from './history-index.ts';
-import { RepairPlanSchema, isConfidentToPlan, listPredicates } from './plan.ts';
-import type { GraphNode } from './navigator/types.ts';
-import { createAIContext, READONLY_TOOLS } from '../ai/context.ts';
-import { join } from 'node:path';
+import type { Gap } from "../gap/types.ts";
+import type { FixStrategy, AttemptRecord, JournalContext } from "./types.ts";
+import type { StrategyDescriptor } from "./strategy-catalog.ts";
+import {
+  buildSelectionPrompt,
+  buildPlanningPrompt,
+} from "./strategy-catalog.ts";
+import { HistoryIndexBuilder } from "./history-index.ts";
+import { RepairPlanSchema, isConfidentToPlan, listPredicates } from "./plan.ts";
+import type { GraphNode } from "./navigator/types.ts";
+import { createAIContext, READONLY_TOOLS } from "../ai/context.ts";
+import { join } from "node:path";
 
 /* ------------------------------------------------------------------ */
 /*  State types                                                        */
@@ -49,9 +52,9 @@ function strategyNode(strategy: string): GraphNode {
   const seq = ++strategySeq;
   return {
     id: `run-strategy:${strategy}#${seq}`,
-    handler: 'run-strategy',
-    status: 'buffered',
-    origin: 'planned',
+    handler: "run-strategy",
+    status: "buffered",
+    origin: "planned",
     data: { strategy, priority: 55 },
   };
 }
@@ -74,17 +77,23 @@ export class GapRepairPredicate {
     const { gap, tried, descriptors, tsEligible, extraTs } = state;
 
     // 1. task-run always first
-    const taskRun = tsEligible.find(s => s.name === 'task-run');
-    if (taskRun && !tried.includes('task-run')) {
-      return { nodes: [strategyNode('task-run')] };
+    const taskRun = tsEligible.find((s) => s.name === "task-run");
+    if (taskRun && !tried.includes("task-run")) {
+      return { nodes: [strategyNode("task-run")] };
     }
 
     // Steps 2+ only after task-run has been attempted
-    if (tried.includes('task-run')) {
-      const untriedDescriptors = descriptors.filter(d => !tried.includes(d.name));
+    if (tried.includes("task-run")) {
+      const untriedDescriptors = descriptors.filter(
+        (d) => !tried.includes(d.name),
+      );
 
       // 2. Generate new plan if confident and plan hasn't been tried yet
-      if (!tried.includes('__plan__') && isConfidentToPlan([], gap) && untriedDescriptors.length >= 2) {
+      if (
+        !tried.includes("__plan__") &&
+        isConfidentToPlan([], gap) &&
+        untriedDescriptors.length >= 2
+      ) {
         const plan = await this.generatePlan(descriptors, gap, tried, []);
         if (plan) {
           console.log(`   🗺️  Plan: ${plan.reasoning}`);
@@ -94,10 +103,12 @@ export class GapRepairPredicate {
     }
 
     // 3-5. Single-strategy selection from remaining untried descriptors
-    const untriedDescriptors = descriptors.filter(d => !tried.includes(d.name));
+    const untriedDescriptors = descriptors.filter(
+      (d) => !tried.includes(d.name),
+    );
 
     // 3. Deterministic descriptor (no AI cost)
-    const deterministic = untriedDescriptors.find(d => d.deterministic);
+    const deterministic = untriedDescriptors.find((d) => d.deterministic);
     if (deterministic) {
       return { nodes: [strategyNode(deterministic.name)] };
     }
@@ -116,7 +127,7 @@ export class GapRepairPredicate {
     }
 
     // 6. Unregistered TS strategies (fallback)
-    const untriedTs = extraTs.filter(s => !tried.includes(s.name));
+    const untriedTs = extraTs.filter((s) => !tried.includes(s.name));
     if (untriedTs.length > 0) {
       return { nodes: [strategyNode(untriedTs[0].name)] };
     }
@@ -133,34 +144,40 @@ export class GapRepairPredicate {
     tried: string[],
   ): Promise<StrategyDescriptor | null> {
     try {
-      const catalog = untried.map((d, i) =>
-        `${i + 1}. **${d.name}** (${d.type}): ${d.description}`
-      ).join('\n');
+      const catalog = untried
+        .map((d, i) => `${i + 1}. **${d.name}** (${d.type}): ${d.description}`)
+        .join("\n");
 
-      let historySection = '';
+      let historySection = "";
       try {
         const h = new HistoryIndexBuilder(this.projectDir, this.journalCtx);
         const s = await h.formatForPrompt();
         if (s) historySection = `\n## History\n${s}`;
-      } catch { /* non-fatal */ }
+      } catch {
+        /* non-fatal */
+      }
 
       const prompt = buildSelectionPrompt(gap, catalog, historySection, tried);
       const aiCtx = createAIContext(this.projectDir, this.journalCtx);
       const resp = await aiCtx.ask(prompt, {
-        phase: 'strategy-selection', label: 'select-strategy',
-        allowedTools: [], timeoutMs: 30_000,  // no tools: pure reasoning from gap metadata
+        phase: "strategy-selection",
+        label: "select-strategy",
+        allowedTools: [],
+        timeoutMs: 30_000, // no tools: pure reasoning from gap metadata
       });
 
       const text = resp.asText();
       const m = text.match(/\{[\s\S]*?"strategy"\s*:\s*"([^"]+)"[\s\S]*?\}/);
       if (m) {
-        const found = untried.find(d => d.name === m[1]);
+        const found = untried.find((d) => d.name === m[1]);
         if (found) {
           console.log(`   🎯 AI picked: ${found.name}`);
           return found;
         }
       }
-    } catch { /* AI unavailable */ }
+    } catch {
+      /* AI unavailable */
+    }
 
     // Fallback: highest priority (first in sorted list)
     return untried[0] ?? null;
@@ -175,30 +192,46 @@ export class GapRepairPredicate {
     history: Array<{ strategy: string; succeeded: boolean }>,
   ): Promise<{ reasoning: string; graph: { nodes: GraphNode[] } } | null> {
     try {
-      const untried = descriptors.filter(d => !tried.includes(d.name));
+      const untried = descriptors.filter((d) => !tried.includes(d.name));
       if (untried.length < 2) return null;
 
       // Collect context file paths — AI reads only what it needs
       const attemptDir = process.env.CONVERGE_TASK_ATTEMPT_DIR;
       const contextFiles: string[] = [];
       if (attemptDir) {
-        const { existsSync } = await import('node:fs');
-        const { relative } = await import('node:path');
-        for (const fname of ['FEEDBACK.md', 'LEARN.md', 'CONVERGE.md']) {
+        const { existsSync } = await import("node:fs");
+        const { relative } = await import("node:path");
+        for (const fname of ["FEEDBACK.md", "LEARN.md", "CONVERGE.md"]) {
           if (existsSync(join(attemptDir, fname))) {
-            contextFiles.push(relative(this.projectDir, join(attemptDir, fname)).replace(/\\/g, '/'));
+            contextFiles.push(
+              relative(this.projectDir, join(attemptDir, fname)).replace(
+                /\\/g,
+                "/",
+              ),
+            );
           }
         }
       }
 
-      const catalog = untried.map((d, i) => `${i + 1}. **${d.name}**: ${d.description}`).join('\n');
-      const historySection = history.map(h => `- ${h.strategy}: ${h.succeeded ? 'succeeded' : 'failed'}`).join('\n');
-      const prompt = buildPlanningPrompt(gap, catalog, historySection, tried, listPredicates(), contextFiles);
+      const catalog = untried
+        .map((d, i) => `${i + 1}. **${d.name}**: ${d.description}`)
+        .join("\n");
+      const historySection = history
+        .map((h) => `- ${h.strategy}: ${h.succeeded ? "succeeded" : "failed"}`)
+        .join("\n");
+      const prompt = buildPlanningPrompt(
+        gap,
+        catalog,
+        historySection,
+        tried,
+        listPredicates(),
+        contextFiles,
+      );
 
       const aiCtx = createAIContext(this.projectDir, this.journalCtx);
       const plan = await aiCtx.askJson(prompt, RepairPlanSchema, {
-        phase: 'plan-generation',
-        label: 'generate-repair-plan',
+        phase: "plan-generation",
+        label: "generate-repair-plan",
         allowedTools: [...READONLY_TOOLS],
         timeoutMs: 45_000,
       });

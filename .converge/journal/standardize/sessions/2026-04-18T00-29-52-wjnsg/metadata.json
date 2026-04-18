@@ -1,0 +1,23 @@
+{
+  "sessionId": "2026-04-18T00-29-52-wjnsg",
+  "projectName": "converge",
+  "startTime": "2026-04-18T00:29:52.646Z",
+  "status": "complete",
+  "config": {
+    "maxIterations": 100,
+    "maxAttemptsPerTask": 2
+  },
+  "environment": {
+    "nodeVersion": "v22.19.0",
+    "platform": "darwin"
+  },
+  "endTime": "2026-04-18T00:52:54.589Z",
+  "duration": 1381943,
+  "outcomes": {
+    "totalIterations": 10,
+    "tasksCompleted": 9,
+    "tasksFailed": 0,
+    "gapsResolved": 0,
+    "convergenceAchieved": true
+  }
+}

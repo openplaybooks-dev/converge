@@ -22,11 +22,11 @@
  * ```
  */
 
-import { readFileSync, existsSync, statSync } from 'node:fs';
-import { execSync } from 'node:child_process';
-import { resolve, join } from 'node:path';
-import { globSync } from 'glob';
-import type { ConvergeClientContext, SpawnedTask } from './types.ts';
+import { readFileSync, existsSync, statSync } from "node:fs";
+import { execSync } from "node:child_process";
+import { resolve, join } from "node:path";
+import { globSync } from "glob";
+import type { ConvergeClientContext, SpawnedTask } from "./types.ts";
 
 export class ConvergeClient {
   private context: ConvergeClientContext;
@@ -37,7 +37,7 @@ export class ConvergeClient {
     this.context = this.readContext();
 
     // Auto-flush tasks to stdout on process exit
-    process.on('beforeExit', () => {
+    process.on("beforeExit", () => {
       this.flush();
     });
   }
@@ -69,7 +69,7 @@ export class ConvergeClient {
    */
   spawn(task: SpawnedTask): void {
     if (!task.id) {
-      throw new Error('SpawnedTask requires an id');
+      throw new Error("SpawnedTask requires an id");
     }
     this.tasks.push(task);
   }
@@ -94,7 +94,7 @@ export class ConvergeClient {
    */
   readFile(relativePath: string): string {
     const absPath = resolve(this.context.projectDir, relativePath);
-    return readFileSync(absPath, 'utf-8');
+    return readFileSync(absPath, "utf-8");
   }
 
   /**
@@ -122,8 +122,8 @@ export class ConvergeClient {
   exec(cmd: string): string {
     return execSync(cmd, {
       cwd: this.context.projectDir,
-      encoding: 'utf-8',
-      maxBuffer: 10 * 1024 * 1024,  // 10MB
+      encoding: "utf-8",
+      maxBuffer: 10 * 1024 * 1024, // 10MB
     });
   }
 
@@ -157,8 +157,8 @@ export class ConvergeClient {
     // Fall back to individual CONVERGE_VAR_* env vars
     const vars: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(process.env)) {
-      if (key.startsWith('CONVERGE_VAR_') && value !== undefined) {
-        const varName = key.slice('CONVERGE_VAR_'.length).toLowerCase();
+      if (key.startsWith("CONVERGE_VAR_") && value !== undefined) {
+        const varName = key.slice("CONVERGE_VAR_".length).toLowerCase();
         vars[varName] = value;
       }
     }

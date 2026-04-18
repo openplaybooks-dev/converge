@@ -4,19 +4,30 @@
  * Writes gaps, logs, and summaries to journal files.
  */
 
-import { mkdir, writeFile, appendFile } from 'node:fs/promises';
-import { dirname } from 'node:path';
-import { stringify as yamlStringify } from 'yaml';
-import type { Gap } from '../gap/types.ts';
-import type { EventType, JournalEvent, GapSummary, TaskStatus, EpicStatus, ChecklistItem } from './types.ts';
-import { getJournalStructure, getJournalFilePath, getBreadcrumbs } from './structure.ts';
+import { mkdir, writeFile, appendFile } from "node:fs/promises";
+import { dirname } from "node:path";
+import { stringify as yamlStringify } from "yaml";
+import type { Gap } from "../gap/types.ts";
+import type {
+  EventType,
+  JournalEvent,
+  GapSummary,
+  TaskStatus,
+  EpicStatus,
+  ChecklistItem,
+} from "./types.ts";
+import {
+  getJournalStructure,
+  getJournalFilePath,
+  getBreadcrumbs,
+} from "./structure.ts";
 import {
   writeProjectSummary,
   writeEpicSummary,
   writeTaskSummary,
   discoverEpicIds,
   discoverTaskIds,
-} from './summary-writer.ts';
+} from "./summary-writer.ts";
 
 /* ------------------------------------------------------------------ */
 /*  File Naming Utilities                                             */
@@ -35,20 +46,20 @@ export function getJournalDir(projectDir: string): string {
  */
 export function getJournalPath(
   projectDir: string,
-  level: 'project' | 'epic' | 'task',
+  level: "project" | "epic" | "task",
   scope: string,
-  type: 'gaps' | 'events' | 'summary' | 'log' | 'status'
+  type: "gaps" | "events" | "summary" | "log" | "status",
 ): string {
   // Parse scope to extract epicId and taskId
   let epicId: string | undefined;
   let taskId: string | undefined;
 
-  if (level === 'epic') {
+  if (level === "epic") {
     epicId = scope;
-  } else if (level === 'task') {
-    const parts = scope.split('.');
+  } else if (level === "task") {
+    const parts = scope.split(".");
     epicId = parts[0];
-    taskId = parts.slice(1).join('.');
+    taskId = parts.slice(1).join(".");
   }
 
   return getJournalFilePath(projectDir, level, type, epicId, taskId);
@@ -63,16 +74,16 @@ export function getJournalPath(
  */
 export async function writeGaps(
   projectDir: string,
-  level: 'project' | 'epic' | 'task',
+  level: "project" | "epic" | "task",
   scope: string,
   gaps: Gap[],
   metadata?: {
     projectName?: string;
     epicName?: string;
     taskName?: string;
-  }
+  },
 ): Promise<void> {
-  const filePath = getJournalPath(projectDir, level, scope, 'gaps');
+  const filePath = getJournalPath(projectDir, level, scope, "gaps");
 
   // Ensure directory exists
   await mkdir(dirname(filePath), { recursive: true });
@@ -90,7 +101,8 @@ export async function writeGaps(
   for (const gap of gaps) {
     summary.byType[gap.type] = (summary.byType[gap.type] || 0) + 1;
     if (gap.severity) {
-      summary.bySeverity[gap.severity] = (summary.bySeverity[gap.severity] || 0) + 1;
+      summary.bySeverity[gap.severity] =
+        (summary.bySeverity[gap.severity] || 0) + 1;
     }
   }
 
@@ -100,7 +112,7 @@ export async function writeGaps(
     lineWidth: 0, // No line wrapping
   });
 
-  await writeFile(filePath, yamlContent, 'utf-8');
+  await writeFile(filePath, yamlContent, "utf-8");
 
   // Generate summary.md with navigation
   await generateSummaryMd(projectDir, level, scope, gaps, metadata);
@@ -111,33 +123,48 @@ export async function writeGaps(
  */
 async function generateSummaryMd(
   projectDir: string,
-  level: 'project' | 'epic' | 'task',
+  level: "project" | "epic" | "task",
   scope: string,
   gaps: Gap[],
   metadata?: {
     projectName?: string;
     epicName?: string;
     taskName?: string;
-  }
+  },
 ): Promise<void> {
-  const projectName = metadata?.projectName || 'Project';
+  const projectName = metadata?.projectName || "Project";
 
   try {
-    if (level === 'project') {
+    if (level === "project") {
       const epicIds = await discoverEpicIds(projectDir);
       await writeProjectSummary(projectDir, projectName, gaps, epicIds);
-    } else if (level === 'epic') {
+    } else if (level === "epic") {
       const epicId = scope;
       const epicName = metadata?.epicName || epicId;
       const taskIds = await discoverTaskIds(projectDir, epicId);
-      await writeEpicSummary(projectDir, projectName, epicId, epicName, gaps, taskIds);
-    } else if (level === 'task') {
-      const parts = scope.split('.');
+      await writeEpicSummary(
+        projectDir,
+        projectName,
+        epicId,
+        epicName,
+        gaps,
+        taskIds,
+      );
+    } else if (level === "task") {
+      const parts = scope.split(".");
       const epicId = parts[0];
-      const taskId = parts.slice(1).join('.');
+      const taskId = parts.slice(1).join(".");
       const epicName = metadata?.epicName || epicId;
       const taskName = metadata?.taskName || taskId;
-      await writeTaskSummary(projectDir, projectName, epicId, epicName, taskId, taskName, gaps);
+      await writeTaskSummary(
+        projectDir,
+        projectName,
+        epicId,
+        epicName,
+        taskId,
+        taskName,
+        gaps,
+      );
     }
   } catch (error) {
     // Silently fail if summary generation fails - gaps.yml is still written
@@ -154,13 +181,13 @@ async function generateSummaryMd(
  */
 export async function appendEvent(
   projectDir: string,
-  level: 'project' | 'epic' | 'task',
+  level: "project" | "epic" | "task",
   scope: string,
   eventType: EventType,
   message?: string,
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>,
 ): Promise<void> {
-  const filePath = getJournalPath(projectDir, level, scope, 'events');
+  const filePath = getJournalPath(projectDir, level, scope, "events");
 
   // Ensure directory exists
   await mkdir(dirname(filePath), { recursive: true });
@@ -175,8 +202,8 @@ export async function appendEvent(
   };
 
   // Write as JSONL (one JSON object per line)
-  const line = JSON.stringify(event) + '\n';
-  await appendFile(filePath, line, 'utf-8');
+  const line = JSON.stringify(event) + "\n";
+  await appendFile(filePath, line, "utf-8");
 }
 
 /* ------------------------------------------------------------------ */
@@ -188,11 +215,11 @@ export async function appendEvent(
  */
 export async function appendLog(
   projectDir: string,
-  level: 'project' | 'epic' | 'task',
+  level: "project" | "epic" | "task",
   scope: string,
-  message: string
+  message: string,
 ): Promise<void> {
-  const filePath = getJournalPath(projectDir, level, scope, 'log');
+  const filePath = getJournalPath(projectDir, level, scope, "log");
 
   // Ensure directory exists
   await mkdir(dirname(filePath), { recursive: true });
@@ -200,7 +227,7 @@ export async function appendLog(
   const timestamp = new Date().toISOString();
   const line = `[${timestamp}] ${message}\n`;
 
-  await appendFile(filePath, line, 'utf-8');
+  await appendFile(filePath, line, "utf-8");
 }
 
 /* ------------------------------------------------------------------ */
@@ -212,11 +239,11 @@ export async function appendLog(
  */
 export async function writeSummary(
   projectDir: string,
-  level: 'project' | 'epic' | 'task',
+  level: "project" | "epic" | "task",
   scope: string,
-  data: Record<string, unknown>
+  data: Record<string, unknown>,
 ): Promise<void> {
-  const filePath = getJournalPath(projectDir, level, scope, 'summary');
+  const filePath = getJournalPath(projectDir, level, scope, "summary");
 
   // Ensure directory exists
   await mkdir(dirname(filePath), { recursive: true });
@@ -226,7 +253,7 @@ export async function writeSummary(
     lineWidth: 0,
   });
 
-  await writeFile(filePath, yamlContent, 'utf-8');
+  await writeFile(filePath, yamlContent, "utf-8");
 }
 
 /* ------------------------------------------------------------------ */
@@ -242,15 +269,15 @@ export async function logTaskEvent(
   taskId: string,
   eventType: EventType,
   message: string,
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>,
 ): Promise<void> {
   const scope = `${epicId}.${taskId}`;
 
   // Write to JSONL
-  await appendEvent(projectDir, 'task', scope, eventType, message, metadata);
+  await appendEvent(projectDir, "task", scope, eventType, message, metadata);
 
   // Write to human-readable log
-  await appendLog(projectDir, 'task', scope, `[${eventType}] ${message}`);
+  await appendLog(projectDir, "task", scope, `[${eventType}] ${message}`);
 }
 
 /**
@@ -261,10 +288,10 @@ export async function logEpicEvent(
   epicId: string,
   eventType: EventType,
   message: string,
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>,
 ): Promise<void> {
-  await appendEvent(projectDir, 'epic', epicId, eventType, message, metadata);
-  await appendLog(projectDir, 'epic', epicId, `[${eventType}] ${message}`);
+  await appendEvent(projectDir, "epic", epicId, eventType, message, metadata);
+  await appendLog(projectDir, "epic", epicId, `[${eventType}] ${message}`);
 }
 
 /**
@@ -274,10 +301,22 @@ export async function logProjectEvent(
   projectDir: string,
   eventType: EventType,
   message: string,
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>,
 ): Promise<void> {
-  await appendEvent(projectDir, 'project', 'project', eventType, message, metadata);
-  await appendLog(projectDir, 'project', 'project', `[${eventType}] ${message}`);
+  await appendEvent(
+    projectDir,
+    "project",
+    "project",
+    eventType,
+    message,
+    metadata,
+  );
+  await appendLog(
+    projectDir,
+    "project",
+    "project",
+    `[${eventType}] ${message}`,
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -307,24 +346,30 @@ export async function writeTaskPlan(
   projectDir: string,
   epicId: string,
   taskId: string,
-  content: string
+  content: string,
 ): Promise<void> {
   const structure = getJournalStructure(projectDir, epicId, taskId);
-  if (!structure.task) throw new Error(`writeTaskPlan: task journal dir not resolved`);
+  if (!structure.task)
+    throw new Error(`writeTaskPlan: task journal dir not resolved`);
   const filePath = `${structure.task}/plan.md`;
   await mkdir(dirname(filePath), { recursive: true });
-  await writeFile(filePath, content, 'utf-8');
+  await writeFile(filePath, content, "utf-8");
 }
 
 export async function writeTaskStatus(
   projectDir: string,
   epicId: string,
   taskId: string,
-  status: TaskStatus
+  status: TaskStatus,
 ): Promise<void> {
-  const filePath = getJournalPath(projectDir, 'task', `${epicId}.${taskId}`, 'status');
+  const filePath = getJournalPath(
+    projectDir,
+    "task",
+    `${epicId}.${taskId}`,
+    "status",
+  );
   await mkdir(dirname(filePath), { recursive: true });
-  await writeFile(filePath, JSON.stringify(status, null, 2), 'utf-8');
+  await writeFile(filePath, JSON.stringify(status, null, 2), "utf-8");
 }
 
 /**
@@ -336,11 +381,11 @@ export async function writeTaskStatus(
 export async function writeEpicStatus(
   projectDir: string,
   epicId: string,
-  status: EpicStatus
+  status: EpicStatus,
 ): Promise<void> {
-  const filePath = getJournalPath(projectDir, 'epic', epicId, 'status');
+  const filePath = getJournalPath(projectDir, "epic", epicId, "status");
   await mkdir(dirname(filePath), { recursive: true });
-  await writeFile(filePath, JSON.stringify(status, null, 2), 'utf-8');
+  await writeFile(filePath, JSON.stringify(status, null, 2), "utf-8");
 }
 
 /* ------------------------------------------------------------------ */
@@ -377,73 +422,82 @@ export async function writeTaskTodo(
   projectDir: string,
   epicId: string,
   taskId: string,
-  status: TaskStatus
+  status: TaskStatus,
 ): Promise<void> {
-  const filePath = getJournalPath(projectDir, 'task', `${epicId}.${taskId}`, 'summary')
-    .replace('summary.md', 'todo.md');
+  const filePath = getJournalPath(
+    projectDir,
+    "task",
+    `${epicId}.${taskId}`,
+    "summary",
+  ).replace("summary.md", "todo.md");
   await mkdir(dirname(filePath), { recursive: true });
 
   const lines: string[] = [];
 
-  const displayId = taskId.split('/').pop() ?? taskId;
+  const displayId = taskId.split("/").pop() ?? taskId;
   lines.push(`# Todo: ${displayId}`);
-  lines.push('');
+  lines.push("");
 
-  const statusIcon = status.status === 'complete' ? '✅' :
-                     status.status === 'running'  ? '🔄' :
-                     status.status === 'failed'   ? '❌' : '⏳';
+  const statusIcon =
+    status.status === "complete"
+      ? "✅"
+      : status.status === "running"
+        ? "🔄"
+        : status.status === "failed"
+          ? "❌"
+          : "⏳";
   const meta: string[] = [`Status: ${statusIcon} ${status.status}`];
   if (status.agent) meta.push(`Agent: ${status.agent}`);
   if (status.startedAt) meta.push(`Started: ${status.startedAt}`);
   if (status.completedAt) meta.push(`Completed: ${status.completedAt}`);
-  lines.push(meta.join(' | '));
-  lines.push('');
+  lines.push(meta.join(" | "));
+  lines.push("");
 
-  const outputs = status.checklist.filter(i => i.type === 'output');
-  const checks  = status.checklist.filter(i => i.type === 'check');
-  const subtasks = status.checklist.filter(i => i.type === 'subtask');
+  const outputs = status.checklist.filter((i) => i.type === "output");
+  const checks = status.checklist.filter((i) => i.type === "check");
+  const subtasks = status.checklist.filter((i) => i.type === "subtask");
 
   if (outputs.length > 0) {
-    lines.push('## Outputs');
+    lines.push("## Outputs");
     for (const item of outputs) {
-      const box = item.done ? '[x]' : '[ ]';
-      const detail = item.details ? ` \`${item.details}\`` : '';
+      const box = item.done ? "[x]" : "[ ]";
+      const detail = item.details ? ` \`${item.details}\`` : "";
       lines.push(`- ${box} ${item.description}${detail}`);
     }
-    lines.push('');
+    lines.push("");
   }
 
   if (checks.length > 0) {
-    lines.push('## Checks');
+    lines.push("## Checks");
     for (const item of checks) {
-      const box = item.done ? '[x]' : '[ ]';
-      const cmd = item.details ? ` — \`${item.details}\`` : '';
+      const box = item.done ? "[x]" : "[ ]";
+      const cmd = item.details ? ` — \`${item.details}\`` : "";
       lines.push(`- ${box} ${item.description}${cmd}`);
     }
-    lines.push('');
+    lines.push("");
   }
 
   if (subtasks.length > 0) {
-    lines.push('## Subtasks');
+    lines.push("## Subtasks");
     for (const item of subtasks) {
-      const box = item.done ? '[x]' : '[ ]';
-      const detail = item.details ? ` (${item.details})` : '';
+      const box = item.done ? "[x]" : "[ ]";
+      const detail = item.details ? ` (${item.details})` : "";
       lines.push(`- ${box} ${item.description}${detail}`);
     }
-    lines.push('');
+    lines.push("");
   }
 
   if (status.checklist.length === 0) {
-    lines.push('_No checklist items defined._');
-    lines.push('');
+    lines.push("_No checklist items defined._");
+    lines.push("");
   }
 
-  const doneCount = status.checklist.filter(i => i.done).length;
+  const doneCount = status.checklist.filter((i) => i.done).length;
   const totalCount = status.checklist.length;
   if (totalCount > 0) {
     lines.push(`---`);
     lines.push(`Progress: ${doneCount}/${totalCount} items complete`);
   }
 
-  await writeFile(filePath, lines.join('\n'), 'utf-8');
+  await writeFile(filePath, lines.join("\n"), "utf-8");
 }

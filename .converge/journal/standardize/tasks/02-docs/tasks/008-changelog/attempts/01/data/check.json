@@ -1,0 +1,10 @@
+{
+  "taskId": "02-docs/008-changelog",
+  "checks": [
+    {
+      "id": "changelog-exists",
+      "description": "CHANGELOG.md exists",
+      "cmd": "test -f CHANGELOG.md"
+    }
+  ]
+}

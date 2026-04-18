@@ -4,10 +4,10 @@
  * Much simpler and more reliable than file watching.
  */
 
-import { spawn, type ChildProcess } from 'node:child_process';
-import { existsSync } from 'node:fs';
-import { readdir } from 'node:fs/promises';
-import { join } from 'node:path';
+import { spawn, type ChildProcess } from "node:child_process";
+import { existsSync } from "node:fs";
+import { readdir } from "node:fs/promises";
+import { join } from "node:path";
 
 export interface TailerOptions {
   showToolCalls?: boolean;
@@ -48,7 +48,7 @@ export class SimpleLogTailer {
       try {
         const existing = await readdir(this.logDir);
         for (const f of existing) {
-          if (f.endsWith('.log') && f !== 'log.log') {
+          if (f.endsWith(".log") && f !== "log.log") {
             this.existingFilesAtStart.add(f);
           }
         }
@@ -93,7 +93,12 @@ export class SimpleLogTailer {
       // Filter for timestamped log files that are NEW (not present when start() was called).
       // This prevents latching onto stale logs from a previous wip attempt.
       const logFiles = files
-        .filter(f => f.endsWith('.log') && f !== 'log.log' && !this.existingFilesAtStart.has(f))
+        .filter(
+          (f) =>
+            f.endsWith(".log") &&
+            f !== "log.log" &&
+            !this.existingFilesAtStart.has(f),
+        )
         .sort()
         .reverse(); // Most recent first
 
@@ -118,10 +123,10 @@ export class SimpleLogTailer {
    */
   private startTail(logFile: string): void {
     console.log(`   📡 Streaming logs from: ${logFile}`);
-    this.tailProcess = spawn('tail', ['-f', '-n', '0', logFile]);
+    this.tailProcess = spawn("tail", ["-f", "-n", "0", logFile]);
 
-    this.tailProcess.stdout?.on('data', (chunk) => {
-      const lines = chunk.toString().split('\n');
+    this.tailProcess.stdout?.on("data", (chunk) => {
+      const lines = chunk.toString().split("\n");
       for (const line of lines) {
         if (line.trim()) {
           this.processLogLine(line);
@@ -129,15 +134,15 @@ export class SimpleLogTailer {
       }
     });
 
-    this.tailProcess.stderr?.on('data', (chunk) => {
+    this.tailProcess.stderr?.on("data", (chunk) => {
       console.warn(`   ⚠️  tail stderr: ${chunk.toString()}`);
     });
 
-    this.tailProcess.on('error', (err) => {
+    this.tailProcess.on("error", (err) => {
       console.warn(`   ⚠️  tail process error: ${err.message}`);
     });
 
-    this.tailProcess.on('exit', (code) => {
+    this.tailProcess.on("exit", (code) => {
       this.tailProcess = null;
     });
   }
@@ -153,19 +158,21 @@ export class SimpleLogTailer {
     const [, , level, message] = match;
 
     // Handle different log types
-    if (level === 'TOOL_USE' && this.options.showToolCalls) {
+    if (level === "TOOL_USE" && this.options.showToolCalls) {
       this.formatToolUse(message);
-    } else if (level === 'TOOL_RESULT' && this.options.showToolResults) {
+    } else if (level === "TOOL_RESULT" && this.options.showToolResults) {
       this.formatToolResult(message);
-    } else if (level === 'TEXT_BLOCK' && this.options.showReasoning) {
-      const textShort = message.length > 100 ? message.substring(0, 97) + '...' : message;
+    } else if (level === "TEXT_BLOCK" && this.options.showReasoning) {
+      const textShort =
+        message.length > 100 ? message.substring(0, 97) + "..." : message;
       console.log(`   💬 ${textShort}`);
-    } else if (level === 'FINAL_RESULT' && this.options.showResults) {
+    } else if (level === "FINAL_RESULT" && this.options.showResults) {
       console.log(`   ✅ Task completed`);
-    } else if (level === 'ERROR' || level === 'STDERR') {
-      const errShort = message.length > 120 ? message.substring(0, 117) + '...' : message;
+    } else if (level === "ERROR" || level === "STDERR") {
+      const errShort =
+        message.length > 120 ? message.substring(0, 117) + "..." : message;
       console.log(`   ❌ ${errShort}`);
-    } else if (level === 'STDOUT' && this.options.showToolCalls) {
+    } else if (level === "STDOUT" && this.options.showToolCalls) {
       this.parseStdout(message);
     }
   }
@@ -174,7 +181,7 @@ export class SimpleLogTailer {
    * Format tool use
    */
   private formatToolUse(message: string): void {
-    const lines = message.split('\n');
+    const lines = message.split("\n");
     const toolMatch = lines[0]?.match(/Tool:\s+(\w+)/);
 
     if (toolMatch) {
@@ -183,7 +190,7 @@ export class SimpleLogTailer {
       // Try to extract input from next lines
       let input: any = {};
       try {
-        const inputStart = message.indexOf('Input: {');
+        const inputStart = message.indexOf("Input: {");
         if (inputStart > -1) {
           const jsonStr = message.substring(inputStart + 7);
           input = JSON.parse(jsonStr);
@@ -203,9 +210,9 @@ export class SimpleLogTailer {
     try {
       const event = JSON.parse(message);
 
-      if (event.type === 'assistant' && event.message?.content) {
+      if (event.type === "assistant" && event.message?.content) {
         for (const item of event.message.content) {
-          if (item.type === 'tool_use') {
+          if (item.type === "tool_use") {
             this.printTool(item.name, item.input);
           }
         }
@@ -220,12 +227,16 @@ export class SimpleLogTailer {
    */
   private formatToolResult(message: string): void {
     // Only show if explicitly enabled (verbose)
-    if (message.includes('success') || message.includes('Success')) {
+    if (message.includes("success") || message.includes("Success")) {
       const resultShort = message.substring(0, 80);
-      console.log(`      ✓ ${resultShort}${message.length > 80 ? '...' : ''}`);
-    } else if (message.includes('error') || message.includes('Error') || message.includes('failed')) {
+      console.log(`      ✓ ${resultShort}${message.length > 80 ? "..." : ""}`);
+    } else if (
+      message.includes("error") ||
+      message.includes("Error") ||
+      message.includes("failed")
+    ) {
       const resultShort = message.substring(0, 80);
-      console.log(`      ✗ ${resultShort}${message.length > 80 ? '...' : ''}`);
+      console.log(`      ✗ ${resultShort}${message.length > 80 ? "..." : ""}`);
     }
   }
 
@@ -234,75 +245,83 @@ export class SimpleLogTailer {
    */
   private printTool(tool: string, input: any = {}): void {
     switch (tool) {
-      case 'Read':
-        const readPath = input.file_path || 'file';
-        const readOffset = input.offset ? ` (offset: ${input.offset})` : '';
-        const readLimit = input.limit ? ` (limit: ${input.limit} lines)` : '';
+      case "Read":
+        const readPath = input.file_path || "file";
+        const readOffset = input.offset ? ` (offset: ${input.offset})` : "";
+        const readLimit = input.limit ? ` (limit: ${input.limit} lines)` : "";
         console.log(`   📖 Read ${readPath}${readOffset}${readLimit}`);
         break;
 
-      case 'Write':
-        const writePath = input.file_path || 'file';
+      case "Write":
+        const writePath = input.file_path || "file";
         const writeSize = input.content?.length || 0;
-        const writeSizeStr = writeSize > 0 ? ` (${this.formatBytes(writeSize)})` : '';
+        const writeSizeStr =
+          writeSize > 0 ? ` (${this.formatBytes(writeSize)})` : "";
         console.log(`   ✍️  Write ${writePath}${writeSizeStr}`);
         break;
 
-      case 'Edit':
-        const editPath = input.file_path || 'file';
+      case "Edit":
+        const editPath = input.file_path || "file";
         const oldLen = input.old_string?.length || 0;
         const newLen = input.new_string?.length || 0;
-        const editInfo = oldLen > 0 ? ` (${oldLen} → ${newLen} chars)` : '';
+        const editInfo = oldLen > 0 ? ` (${oldLen} → ${newLen} chars)` : "";
         console.log(`   ✏️  Edit ${editPath}${editInfo}`);
         break;
 
-      case 'Bash':
-        const cmd = input.command || 'command';
-        const cmdShort = cmd.length > 80 ? cmd.substring(0, 77) + '...' : cmd;
-        const desc = input.description ? ` - ${input.description}` : '';
+      case "Bash":
+        const cmd = input.command || "command";
+        const cmdShort = cmd.length > 80 ? cmd.substring(0, 77) + "..." : cmd;
+        const desc = input.description ? ` - ${input.description}` : "";
         console.log(`   ⚙️  ${cmdShort}${desc}`);
         break;
 
-      case 'Skill':
-        const skill = input.skill || 'unknown';
-        const args = input.args ? ` ${input.args}` : '';
+      case "Skill":
+        const skill = input.skill || "unknown";
+        const args = input.args ? ` ${input.args}` : "";
         console.log(`   🛠️  Skill: /${skill}${args}`);
         break;
 
-      case 'WebSearch':
-        const query = input.query || '';
-        const queryShort = query.length > 60 ? query.substring(0, 57) + '...' : query;
+      case "WebSearch":
+        const query = input.query || "";
+        const queryShort =
+          query.length > 60 ? query.substring(0, 57) + "..." : query;
         console.log(`   🔍 Search: ${queryShort}`);
         break;
 
-      case 'WebFetch':
-        const url = input.url || '';
-        const urlShort = url.length > 70 ? url.substring(0, 67) + '...' : url;
+      case "WebFetch":
+        const url = input.url || "";
+        const urlShort = url.length > 70 ? url.substring(0, 67) + "..." : url;
         console.log(`   🌐 Fetch: ${urlShort}`);
         break;
 
-      case 'Glob':
-        const pattern = input.pattern || '*';
-        const globPath = input.path ? ` in ${input.path}` : '';
+      case "Glob":
+        const pattern = input.pattern || "*";
+        const globPath = input.path ? ` in ${input.path}` : "";
         console.log(`   📂 Glob: ${pattern}${globPath}`);
         break;
 
-      case 'Grep':
-        const grepPattern = input.pattern || '';
-        const grepFile = input.path ? ` in ${input.path}` : '';
-        const grepShort = grepPattern.length > 50 ? grepPattern.substring(0, 47) + '...' : grepPattern;
+      case "Grep":
+        const grepPattern = input.pattern || "";
+        const grepFile = input.path ? ` in ${input.path}` : "";
+        const grepShort =
+          grepPattern.length > 50
+            ? grepPattern.substring(0, 47) + "..."
+            : grepPattern;
         console.log(`   🔎 Grep: "${grepShort}"${grepFile}`);
         break;
 
-      case 'TodoWrite':
-      case 'TaskCreate':
-      case 'TaskUpdate':
+      case "TodoWrite":
+      case "TaskCreate":
+      case "TaskUpdate":
         // Skip todo/task management tools (too verbose)
         return;
 
       default:
         // Show other tools with their name
-        const params = Object.keys(input).length > 0 ? ` (${Object.keys(input).join(', ')})` : '';
+        const params =
+          Object.keys(input).length > 0
+            ? ` (${Object.keys(input).join(", ")})`
+            : "";
         console.log(`   🔧 ${tool}${params}`);
     }
   }

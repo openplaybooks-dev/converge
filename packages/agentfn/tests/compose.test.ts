@@ -95,7 +95,12 @@ describe("compose — core API", () => {
     }));
 
     const dummyTool = {
-      fn: async () => ({ data: "", raw: "", durationMs: 0, provider: "claude" as const }),
+      fn: async () => ({
+        data: "",
+        raw: "",
+        durationMs: 0,
+        provider: "claude" as const,
+      }),
       description: "test tool",
     };
 
@@ -114,7 +119,12 @@ describe("compose — core API", () => {
     }));
 
     const dummyTool = {
-      fn: async () => ({ data: "", raw: "", durationMs: 0, provider: "claude" as const }),
+      fn: async () => ({
+        data: "",
+        raw: "",
+        durationMs: 0,
+        provider: "claude" as const,
+      }),
       description: "test",
     };
 
@@ -131,7 +141,12 @@ describe("compose — core API", () => {
     }));
 
     const dummyTool = {
-      fn: async () => ({ data: "", raw: "", durationMs: 0, provider: "kimi" as const }),
+      fn: async () => ({
+        data: "",
+        raw: "",
+        durationMs: 0,
+        provider: "kimi" as const,
+      }),
       description: "test",
     };
 
@@ -148,7 +163,12 @@ describe("compose — core API", () => {
     }));
 
     const dummyTool = {
-      fn: async () => ({ data: "", raw: "", durationMs: 0, provider: "qwen" as const }),
+      fn: async () => ({
+        data: "",
+        raw: "",
+        durationMs: 0,
+        provider: "qwen" as const,
+      }),
       description: "test",
     };
 
@@ -166,7 +186,12 @@ describe("compose — core API", () => {
     }));
 
     const dummyTool = {
-      fn: async () => ({ data: "", raw: "", durationMs: 0, provider: "gemini" as const }),
+      fn: async () => ({
+        data: "",
+        raw: "",
+        durationMs: 0,
+        provider: "gemini" as const,
+      }),
       description: "test",
     };
 
@@ -190,7 +215,12 @@ describe("compose — result augmentation", () => {
     (mockClaudeCompose as any).mockReturnValue(innerFn);
 
     const dummyTool = {
-      fn: async () => ({ data: "", raw: "", durationMs: 0, provider: "claude" as const }),
+      fn: async () => ({
+        data: "",
+        raw: "",
+        durationMs: 0,
+        provider: "claude" as const,
+      }),
       description: "test",
     };
 
@@ -211,7 +241,12 @@ describe("compose — result augmentation", () => {
     (mockKimiCompose as any).mockReturnValue(innerFn);
 
     const dummyTool = {
-      fn: async () => ({ data: "", raw: "", durationMs: 0, provider: "kimi" as const }),
+      fn: async () => ({
+        data: "",
+        raw: "",
+        durationMs: 0,
+        provider: "kimi" as const,
+      }),
       description: "test",
     };
 
@@ -235,7 +270,12 @@ describe("compose — result augmentation", () => {
     (mockQwenCompose as any).mockReturnValue(innerFn);
 
     const dummyTool = {
-      fn: async () => ({ data: "", raw: "", durationMs: 0, provider: "qwen" as const }),
+      fn: async () => ({
+        data: "",
+        raw: "",
+        durationMs: 0,
+        provider: "qwen" as const,
+      }),
       description: "test",
     };
 
@@ -259,7 +299,12 @@ describe("compose — result augmentation", () => {
     (mockGeminiCompose as any).mockReturnValue(innerFn);
 
     const dummyTool = {
-      fn: async () => ({ data: "", raw: "", durationMs: 0, provider: "gemini" as const }),
+      fn: async () => ({
+        data: "",
+        raw: "",
+        durationMs: 0,
+        provider: "gemini" as const,
+      }),
       description: "test",
     };
 
@@ -286,7 +331,12 @@ describe("compose — options forwarding", () => {
     }));
 
     const dummyTool = {
-      fn: async () => ({ data: "", raw: "", durationMs: 0, provider: "claude" as const }),
+      fn: async () => ({
+        data: "",
+        raw: "",
+        durationMs: 0,
+        provider: "claude" as const,
+      }),
       description: "test",
     };
 
@@ -320,7 +370,12 @@ describe("compose — options forwarding", () => {
     }));
 
     const dummyTool = {
-      fn: async () => ({ data: "", raw: "", durationMs: 0, provider: "kimi" as const }),
+      fn: async () => ({
+        data: "",
+        raw: "",
+        durationMs: 0,
+        provider: "kimi" as const,
+      }),
       description: "test",
     };
 
@@ -351,7 +406,12 @@ describe("compose — options forwarding", () => {
     }));
 
     const dummyTool = {
-      fn: async () => ({ data: "", raw: "", durationMs: 0, provider: "claude" as const }),
+      fn: async () => ({
+        data: "",
+        raw: "",
+        durationMs: 0,
+        provider: "claude" as const,
+      }),
       description: "test",
     };
 
@@ -384,7 +444,12 @@ describe("compose — options forwarding", () => {
     }));
 
     const dummyTool = {
-      fn: async () => ({ data: "", raw: "", durationMs: 0, provider: "kimi" as const }),
+      fn: async () => ({
+        data: "",
+        raw: "",
+        durationMs: 0,
+        provider: "kimi" as const,
+      }),
       description: "test",
     };
 
@@ -411,7 +476,12 @@ describe("compose — options forwarding", () => {
     }));
 
     const dummyTool = {
-      fn: async () => ({ data: "", raw: "", durationMs: 0, provider: "qwen" as const }),
+      fn: async () => ({
+        data: "",
+        raw: "",
+        durationMs: 0,
+        provider: "qwen" as const,
+      }),
       description: "test",
     };
 
@@ -442,7 +512,12 @@ describe("compose — options forwarding", () => {
     }));
 
     const dummyTool = {
-      fn: async () => ({ data: "", raw: "", durationMs: 0, provider: "qwen" as const }),
+      fn: async () => ({
+        data: "",
+        raw: "",
+        durationMs: 0,
+        provider: "qwen" as const,
+      }),
       description: "test",
     };
 
@@ -469,7 +544,12 @@ describe("compose — options forwarding", () => {
     }));
 
     const dummyTool = {
-      fn: async () => ({ data: "", raw: "", durationMs: 0, provider: "gemini" as const }),
+      fn: async () => ({
+        data: "",
+        raw: "",
+        durationMs: 0,
+        provider: "gemini" as const,
+      }),
       description: "test",
     };
 
@@ -500,7 +580,12 @@ describe("compose — options forwarding", () => {
     }));
 
     const dummyTool = {
-      fn: async () => ({ data: "", raw: "", durationMs: 0, provider: "gemini" as const }),
+      fn: async () => ({
+        data: "",
+        raw: "",
+        durationMs: 0,
+        provider: "gemini" as const,
+      }),
       description: "test",
     };
 
@@ -527,11 +612,21 @@ describe("compose — options forwarding", () => {
     }));
 
     const tool1 = {
-      fn: async () => ({ data: "", raw: "", durationMs: 0, provider: "claude" as const }),
+      fn: async () => ({
+        data: "",
+        raw: "",
+        durationMs: 0,
+        provider: "claude" as const,
+      }),
       description: "first tool",
     };
     const tool2 = {
-      fn: async () => ({ data: "", raw: "", durationMs: 0, provider: "claude" as const }),
+      fn: async () => ({
+        data: "",
+        raw: "",
+        durationMs: 0,
+        provider: "claude" as const,
+      }),
       description: "second tool",
     };
 
@@ -541,10 +636,7 @@ describe("compose — options forwarding", () => {
     });
 
     const calledWith = (mockClaudeCompose as any).mock.calls[0][0];
-    expect(Object.keys(calledWith.tools)).toEqual([
-      "translate",
-      "summarize",
-    ]);
+    expect(Object.keys(calledWith.tools)).toEqual(["translate", "summarize"]);
     expect(calledWith.tools.translate.description).toBe("first tool");
     expect(calledWith.tools.summarize.description).toBe("second tool");
   });
@@ -563,7 +655,12 @@ describe("compose — default provider", () => {
     setDefaultProvider("kimi");
 
     const dummyTool = {
-      fn: async () => ({ data: "", raw: "", durationMs: 0, provider: "kimi" as const }),
+      fn: async () => ({
+        data: "",
+        raw: "",
+        durationMs: 0,
+        provider: "kimi" as const,
+      }),
       description: "test",
     };
 
@@ -582,7 +679,12 @@ describe("compose — default provider", () => {
     setDefaultProvider("kimi");
 
     const dummyTool = {
-      fn: async () => ({ data: "", raw: "", durationMs: 0, provider: "claude" as const }),
+      fn: async () => ({
+        data: "",
+        raw: "",
+        durationMs: 0,
+        provider: "claude" as const,
+      }),
       description: "test",
     };
 
