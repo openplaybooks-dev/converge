@@ -76,6 +76,31 @@ export interface CheckpointSummary {
   avgTaskDurationMs: number;
 }
 
+/** Structured benchmark output for analysis */
+export interface BenchmarkResult {
+  /** When the benchmark was run */
+  timestamp: string;
+  /** Session-level metrics */
+  sessions: SessionMetrics[];
+  /** Aggregated session metrics */
+  aggregate: AggregateMetrics;
+  /** Checkpoint summary (task success rates, retries) */
+  checkpointSummary: CheckpointSummary;
+  /** Convergence data: gap ledger entries (if available) */
+  convergence: ConvergenceData[];
+}
+
+/** A single convergence data point from the gap ledger */
+export interface ConvergenceData {
+  timestamp: string;
+  runId: string;
+  phase: "start" | "end";
+  totalGaps: number;
+  weightedScore: number;
+  delta: number | null;
+  trend: string;
+}
+
 /** Aggregated metrics across sessions */
 export interface AggregateMetrics {
   sessionCount: number;

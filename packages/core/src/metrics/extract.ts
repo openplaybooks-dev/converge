@@ -8,6 +8,8 @@ import type {
   ModelUsage,
   CheckpointMetrics,
   CheckpointSummary,
+  BenchmarkResult,
+  ConvergenceData,
 } from "./types.ts";
 
 /** Derive epic/task/attempt from a log file path (supports both old epics and new tasks formats) */
@@ -519,6 +521,49 @@ export async function extractAllCheckpoints(
   }
 
   return checkpoints;
+}
+
+/** Export structured benchmark results from a journal directory */
+export async function exportBenchmarkResults(
+  journalDir: string,
+): Promise<BenchmarkResult> {
+  const sessions = await extractAll(journalDir);
+  const agg = aggregate(sessions);
+  const checkpoints = await extractAllCheckpoints(journalDir);
+  const checkpointSummary = summarizeCheckpoints(checkpoints);
+
+  // Read gap ledger if it exists
+  const ledgerPath = join(journalDir, "..", "gap-ledger.jsonl");
+  const convergence: ConvergenceData[] = [];
+  if (existsSync(ledgerPath)) {
+    const lines = readFileSync(ledgerPath, "utf-8")
+      .split("\n")
+      .filter((l) => l.trim());
+    for (const line of lines) {
+      try {
+        const entry = JSON.parse(line);
+        convergence.push({
+          timestamp: entry.timestamp,
+          runId: entry.runId,
+          phase: entry.phase,
+          totalGaps: entry.totalGaps,
+          weightedScore: entry.weightedScore,
+          delta: entry.delta,
+          trend: entry.trend,
+        });
+      } catch {
+        // skip corrupt lines
+      }
+    }
+  }
+
+  return {
+    timestamp: new Date().toISOString(),
+    sessions,
+    aggregate: agg,
+    checkpointSummary,
+    convergence,
+  };
 }
 
 /** Summarize checkpoint metrics */

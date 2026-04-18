@@ -167,6 +167,7 @@ COMMANDS:
   goals                 Evaluate project goals and generate remediation tasks
   validate              Validate checkpoint consistency with filesystem
   metrics               Show cost, token, tool, and model metrics from journal logs
+  swebench              Run SWE-bench Lite evaluation (AI coding agent benchmark)
   inspect [sessionId]   Inspect execution sessions (detailed navigation and logs)
   timeline [sessionId]  DEPRECATED: Use 'inspect' instead
   plan <prompt>         Generate a playbook from a prompt (shorthand for run --playbook=plan)
@@ -217,6 +218,12 @@ OPTIONS (for 'plan' command):
   --prompt=TEXT         What to build (can also be passed as first positional arg)
   --name=NAME           Name for the generated playbook (default: derived from prompt)
   --update              Update an existing playbook instead of creating new
+
+OPTIONS (for 'swebench' command):
+  --instance=ID         Filter to specific instance(s), comma-separated
+  --repo=REPO           Filter to specific repo(s), comma-separated
+  --limit=N             Maximum number of instances to run
+  --refresh             Force re-download of dataset
 
 OPTIONS (for 'inspect' command):
   --session=ID          View specific session (omit to see all sessions)
@@ -1296,6 +1303,47 @@ async function main(): Promise<void> {
           json: options.json as boolean,
           save: options.save as boolean,
         });
+        break;
+      }
+
+      case "swebench": {
+        const { swebenchCommand } = await import("@converge/swebench");
+        const { playbookName, epicId } = await swebenchCommand({
+          dir: options.dir,
+          instance: options.instance as string,
+          repo: options.repo as string,
+          limit: options.limit ? Number(options.limit) : undefined,
+          refresh: options.refresh as boolean,
+          verbose: options.verbose || options.v,
+        });
+
+        // Set playbook context and delegate to run
+        process.env.CONVERGE_PLAYBOOK = playbookName;
+        const searchDir = resolve(options.dir || process.cwd());
+        await initPlaybookJournal(searchDir, playbookName);
+
+        await runAutonomousCommand({
+          dir: options.dir,
+          filter: epicId,
+          force: options.force || false,
+          resume: options.resume || true,
+          restart: options.restart || false,
+          step: options.step || false,
+          dry: options.dry || false,
+          analyze: false,
+          unblock: false,
+          converge: false,
+          wbs: false,
+          inc: false,
+          maxIterations: options["max-iterations"] || options.maxIterations || 500,
+          maxDuration: options["max-duration"] || options.maxDuration,
+          checkInterval: options["check-interval"] || options.checkInterval,
+          autoFix: false,
+          selfPlan: false,
+          verbose: options.verbose || options.v,
+        });
+
+        delete process.env.CONVERGE_PLAYBOOK;
         break;
       }
 

@@ -89,6 +89,9 @@
     "yaml": "^2.7.0",
     "zod": "^3.24.1"
   },
+  "optionalDependencies": {
+    "@converge/swebench": "workspace:*"
+  },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "tsup": "^8.5.1",

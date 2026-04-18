@@ -116,6 +116,10 @@ importers:
       zod:
         specifier: ^3.24.1
         version: 3.25.76
+    optionalDependencies:
+      '@converge/swebench':
+        specifier: workspace:*
+        version: link:../swebench
     devDependencies:
       '@types/node':
         specifier: ^22.0.0
@@ -196,6 +200,22 @@ importers:
       vitest:
         specifier: ^3.1.0
         version: 3.2.4(@types/node@22.19.17)(tsx@4.21.0)(yaml@2.8.3)
+
+  packages/swebench:
+    dependencies:
+      '@converge/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+      vitest:
+        specifier: ^4.0.18
+        version: 4.1.4(@types/node@22.19.17)(vite@7.3.2(@types/node@22.19.17)(tsx@4.21.0)(yaml@2.8.3))
 
 packages:
 
