@@ -12,6 +12,7 @@ This document tracks the implementation progress of the four future enhancements
 ### What Was Implemented
 
 Added AI lifecycle event logging to capture:
+
 - AI planning before execution
 - AI thinking after execution
 - Execution context (label, call count, duration)
@@ -21,6 +22,7 @@ Added AI lifecycle event logging to capture:
 **File**: `src/executor/task-executor.ts`
 
 **Before**:
+
 ```typescript
 const cfExecutor = agentfn<T>({
   prompt: opts.prompt,
@@ -33,6 +35,7 @@ const cfExecutor = agentfn<T>({
 ```
 
 **After**:
+
 ```typescript
 const getEventWriter = () => (global as any).__CONVERGE_EVENT_WRITER__ || null;
 
@@ -49,8 +52,8 @@ const cfExecutor = agentfn<T>({
       const eventWriter = getEventWriter();
       if (eventWriter) {
         eventWriter.write({
-          type: 'ai_planning' as any,
-          level: 'info',
+          type: "ai_planning" as any,
+          level: "info",
           text: `Executing AI function: ${label}`,
           context: {
             label,
@@ -65,8 +68,8 @@ const cfExecutor = agentfn<T>({
       const eventWriter = getEventWriter();
       if (eventWriter) {
         eventWriter.write({
-          type: 'ai_thinking' as any,
-          level: 'info',
+          type: "ai_thinking" as any,
+          level: "info",
           text: `AI function completed: ${label}`,
           context: {
             label,
@@ -110,6 +113,7 @@ This is a deeper integration that would require modifications to the claudefn pa
 ### Next Steps
 
 For complete tool call logging, we would need to:
+
 1. Parse Claude CLI output for tool use events
 2. Add tool call event types to event-writer.ts
 3. Create tool execution wrappers that emit events
@@ -125,6 +129,7 @@ For complete tool call logging, we would need to:
 ### Objective
 
 Connect Layer 2 (task events) to Layer 1 (session logger):
+
 - Link task events to session timeline
 - Show task progress in session view
 - Track task dependencies and parallelism
@@ -155,6 +160,7 @@ Connect Layer 2 (task events) to Layer 1 (session logger):
 ### Objective
 
 Improve console formatter with advanced features:
+
 - Progress bars for long operations
 - Collapsible sections for verbose data
 - Real-time task tree view with status
@@ -188,6 +194,7 @@ Improve console formatter with advanced features:
 ### Objective
 
 Remove old timer-based logging system:
+
 - Remove 60s polling ticks
 - Remove JSON dumps to console
 - Delete legacy log.log files
@@ -205,6 +212,7 @@ Remove old timer-based logging system:
 ### Search Patterns
 
 Files to check for legacy logging:
+
 - `setInterval` with 60000ms or 60s
 - `console.log(JSON.stringify`
 - `log.log` file writes
@@ -222,12 +230,12 @@ Files to check for legacy logging:
 
 ## Summary
 
-| Enhancement | Status | Priority | Complexity |
-|------------|--------|----------|-----------|
-| 1. Tool Call Logging | ✅ Partial | High | Medium |
-| 2. Session Integration | 🔄 Pending | Medium | Low |
-| 3. Enhanced Console | 🔄 Pending | High | Medium |
-| 4. Deprecate Legacy | 🔄 Pending | Low | Low |
+| Enhancement            | Status     | Priority | Complexity |
+| ---------------------- | ---------- | -------- | ---------- |
+| 1. Tool Call Logging   | ✅ Partial | High     | Medium     |
+| 2. Session Integration | 🔄 Pending | Medium   | Low        |
+| 3. Enhanced Console    | 🔄 Pending | High     | Medium     |
+| 4. Deprecate Legacy    | 🔄 Pending | Low      | Low        |
 
 ### Completed Features
 

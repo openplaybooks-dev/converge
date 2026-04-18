@@ -18,10 +18,10 @@
  * a JSON merge marker (`"_update": entryId`) that readers collapse.
  */
 
-import { appendFile, mkdir, readFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
-import { v4 as uuidv4 } from 'uuid';
+import { appendFile, mkdir, readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { v4 as uuidv4 } from "uuid";
 
 /* ------------------------------------------------------------------ */
 /*  TimelineEntry                                                      */
@@ -36,7 +36,7 @@ export interface TimelineEntry {
   epicId?: string;
   startedAt: string;
   completedAt?: string;
-  status: 'running' | 'completed' | 'failed';
+  status: "running" | "completed" | "failed";
   /** Relative paths (from projectDir) of files written during this run. */
   outputsProduced: string[];
   gapsResolved: number;
@@ -51,7 +51,12 @@ export class ExecutionTimeline {
   private readonly timelinePath: string;
 
   constructor(private readonly projectDir: string) {
-    this.timelinePath = join(projectDir, '.converge', 'journal', 'timeline.jsonl');
+    this.timelinePath = join(
+      projectDir,
+      ".converge",
+      "journal",
+      "timeline.jsonl",
+    );
   }
 
   /* ── Write ──────────────────────────────────────────────────────── */
@@ -59,14 +64,18 @@ export class ExecutionTimeline {
   /**
    * Record that a task is starting. Returns the entry `id` for later `finish()` calls.
    */
-  async begin(taskId: string, taskFilePath: string, epicId?: string): Promise<string> {
+  async begin(
+    taskId: string,
+    taskFilePath: string,
+    epicId?: string,
+  ): Promise<string> {
     const entry: TimelineEntry = {
       id: uuidv4(),
       taskId,
       taskFilePath,
       epicId,
       startedAt: new Date().toISOString(),
-      status: 'running',
+      status: "running",
       outputsProduced: [],
       gapsResolved: 0,
       gapsFailed: 0,
@@ -81,7 +90,7 @@ export class ExecutionTimeline {
    */
   async finish(
     entryId: string,
-    status: 'completed' | 'failed',
+    status: "completed" | "failed",
     stats: {
       gapsResolved: number;
       gapsFailed: number;
@@ -106,7 +115,7 @@ export class ExecutionTimeline {
    */
   async getHistory(taskId: string): Promise<TimelineEntry[]> {
     const all = await this.readAll();
-    return all.filter(e => e.taskId === taskId);
+    return all.filter((e) => e.taskId === taskId);
   }
 
   /**
@@ -118,7 +127,10 @@ export class ExecutionTimeline {
     // Search from newest to oldest
     for (let i = all.length - 1; i >= 0; i--) {
       const entry = all[i];
-      if (entry.status === 'completed' && entry.outputsProduced.includes(relPath)) {
+      if (
+        entry.status === "completed" &&
+        entry.outputsProduced.includes(relPath)
+      ) {
         return entry;
       }
     }
@@ -132,9 +144,11 @@ export class ExecutionTimeline {
    * Returns true if the re-run converged (all gaps resolved).
    */
   async rewind(entry: TimelineEntry): Promise<boolean> {
-    const { Unit } = await import('../unit/index.ts');
+    const { Unit } = await import("../unit/index.ts");
 
-    console.log(`\n⏪ Rewind: re-running ${entry.taskId} (from ${entry.taskFilePath})`);
+    console.log(
+      `\n⏪ Rewind: re-running ${entry.taskId} (from ${entry.taskFilePath})`,
+    );
 
     try {
       // Always use fromPath() - it handles both SKILL.md and task.ts
@@ -149,11 +163,11 @@ export class ExecutionTimeline {
   /* ── Internals ──────────────────────────────────────────────────── */
 
   private async append(entry: TimelineEntry): Promise<void> {
-    const dir = join(this.projectDir, '.converge', 'journal');
+    const dir = join(this.projectDir, ".converge", "journal");
     if (!existsSync(dir)) {
       await mkdir(dir, { recursive: true });
     }
-    await appendFile(this.timelinePath, JSON.stringify(entry) + '\n', 'utf-8');
+    await appendFile(this.timelinePath, JSON.stringify(entry) + "\n", "utf-8");
   }
 
   /**
@@ -162,8 +176,8 @@ export class ExecutionTimeline {
   private async readAll(): Promise<TimelineEntry[]> {
     if (!existsSync(this.timelinePath)) return [];
 
-    const raw = await readFile(this.timelinePath, 'utf-8');
-    const lines = raw.split('\n').filter(l => l.trim());
+    const raw = await readFile(this.timelinePath, "utf-8");
+    const lines = raw.split("\n").filter((l) => l.trim());
 
     // Merge by id: later lines overwrite earlier for the same id
     const byId = new Map<string, TimelineEntry>();
@@ -179,7 +193,8 @@ export class ExecutionTimeline {
 
     // Return chronological order (by startedAt)
     return [...byId.values()].sort(
-      (a, b) => new Date(a.startedAt).getTime() - new Date(b.startedAt).getTime(),
+      (a, b) =>
+        new Date(a.startedAt).getTime() - new Date(b.startedAt).getTime(),
     );
   }
 }

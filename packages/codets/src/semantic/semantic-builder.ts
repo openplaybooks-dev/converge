@@ -19,15 +19,15 @@
  * ```
  */
 
-import type { StmtNode, ImportStmt, ExprNode } from './nodes.ts';
+import type { StmtNode, ImportStmt, ExprNode } from "./nodes.ts";
 import {
   ExprHelper,
   ImportBuilder,
   ConstBuilder,
   FnBody,
-} from './sub-builders.ts';
-import { formatFile, DEFAULT_FORMAT } from './formatter.ts';
-import type { FormatOptions } from './formatter.ts';
+} from "./sub-builders.ts";
+import { formatFile, DEFAULT_FORMAT } from "./formatter.ts";
+import type { FormatOptions } from "./formatter.ts";
 
 export interface SemanticFnOptions {
   exported?: boolean;
@@ -89,22 +89,30 @@ export class SemanticBuilder extends ExprHelper {
       sideEffect?: boolean;
     },
   ): void {
-    const existing = this._imports.find(i => i.from === from);
+    const existing = this._imports.find((i) => i.from === from);
 
     if (existing) {
       if (spec.defaultName) existing.defaultName = spec.defaultName;
       if (spec.named) existing.named.push(...spec.named);
       if (spec.types) existing.types.push(...spec.types);
       // Side-effect is suppressed when value specifiers exist
-      if (spec.sideEffect && !existing.defaultName && existing.named.length === 0 && existing.types.length === 0) {
+      if (
+        spec.sideEffect &&
+        !existing.defaultName &&
+        existing.named.length === 0 &&
+        existing.types.length === 0
+      ) {
         existing.sideEffect = true;
       } else {
         existing.sideEffect = false;
       }
     } else {
-      const hasParts = !!spec.defaultName || (spec.named?.length ?? 0) > 0 || (spec.types?.length ?? 0) > 0;
+      const hasParts =
+        !!spec.defaultName ||
+        (spec.named?.length ?? 0) > 0 ||
+        (spec.types?.length ?? 0) > 0;
       this._imports.push({
-        kind: 'import',
+        kind: "import",
         from,
         defaultName: spec.defaultName,
         named: [...(spec.named ?? [])],
@@ -133,7 +141,7 @@ export class SemanticBuilder extends ExprHelper {
     opts?: { type?: string; exported?: boolean },
   ): this {
     this._addStmt({
-      kind: 'const',
+      kind: "const",
       name,
       type: opts?.type,
       value,
@@ -159,16 +167,16 @@ export class SemanticBuilder extends ExprHelper {
     let params: string;
     let fnOpts: SemanticFnOptions;
 
-    if (typeof opts === 'string') {
+    if (typeof opts === "string") {
       params = opts;
       fnOpts = {};
     } else {
-      params = opts.args?.join(', ') ?? '';
+      params = opts.args?.join(", ") ?? "";
       fnOpts = opts;
     }
 
     this._addStmt({
-      kind: 'function',
+      kind: "function",
       name,
       params,
       returnType: fnOpts.returnType,
@@ -184,10 +192,11 @@ export class SemanticBuilder extends ExprHelper {
 
   /** Export default an identifier or expression. */
   exportDefault(nameOrExpr: string | ExprNode): this {
-    const value: ExprNode = typeof nameOrExpr === 'string'
-      ? { kind: 'identifier', name: nameOrExpr }
-      : nameOrExpr;
-    this._addStmt({ kind: 'exportDefault', value });
+    const value: ExprNode =
+      typeof nameOrExpr === "string"
+        ? { kind: "identifier", name: nameOrExpr }
+        : nameOrExpr;
+    this._addStmt({ kind: "exportDefault", value });
     return this;
   }
 
@@ -196,20 +205,20 @@ export class SemanticBuilder extends ExprHelper {
   /** Banner comment at the top of the file. */
   banner(text: string | string[]): this {
     const lines = Array.isArray(text) ? text : [text];
-    this._addStmt({ kind: 'banner', lines });
+    this._addStmt({ kind: "banner", lines });
     return this;
   }
 
   /** JSDoc comment. */
   jsdoc(text: string | string[]): this {
     const lines = Array.isArray(text) ? text : [text];
-    this._addStmt({ kind: 'jsdoc', lines });
+    this._addStmt({ kind: "jsdoc", lines });
     return this;
   }
 
   /** File-level directive (e.g., 'use strict'). */
   directive(value: string): this {
-    this._addStmt({ kind: 'directive', value });
+    this._addStmt({ kind: "directive", value });
     return this;
   }
 
@@ -217,13 +226,13 @@ export class SemanticBuilder extends ExprHelper {
 
   /** Raw line of code (no semantic processing). */
   rawLine(code: string): this {
-    this._addStmt({ kind: 'rawStmt', code });
+    this._addStmt({ kind: "rawStmt", code });
     return this;
   }
 
   /** Blank line for spacing. */
   blank(): this {
-    this._addStmt({ kind: 'blank' });
+    this._addStmt({ kind: "blank" });
     return this;
   }
 

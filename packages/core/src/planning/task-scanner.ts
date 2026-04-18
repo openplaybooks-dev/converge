@@ -5,15 +5,11 @@
  * Supports hot-reload via file watching.
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import { glob } from 'glob';
-import type {
-  ScannerConfig,
-  ScanResult,
-  TaskFileMetadata,
-} from './types.ts';
-import type { TaskConfig } from '../storage/types.ts';
+import * as fs from "fs";
+import * as path from "path";
+import { glob } from "glob";
+import type { ScannerConfig, ScanResult, TaskFileMetadata } from "./types.ts";
+import type { TaskConfig } from "../storage/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Task File Scanner                                                 */
@@ -77,7 +73,7 @@ export class TaskFileScanner {
     }
 
     // Find all .ts files in tasks directory
-    const pattern = path.join(tasksDir, '*.ts');
+    const pattern = path.join(tasksDir, "*.ts");
     const files = await glob(pattern);
 
     // Parse each file
@@ -103,9 +99,11 @@ export class TaskFileScanner {
   /**
    * Parse a single task file
    */
-  private async parseTaskFile(filePath: string): Promise<TaskFileMetadata | null> {
-    const content = fs.readFileSync(filePath, 'utf-8');
-    const fileName = path.basename(filePath, '.ts');
+  private async parseTaskFile(
+    filePath: string,
+  ): Promise<TaskFileMetadata | null> {
+    const content = fs.readFileSync(filePath, "utf-8");
+    const fileName = path.basename(filePath, ".ts");
 
     // Extract priority from filename (e.g., "001-setup-db.ts" → 1)
     const priority = this.extractPriority(fileName);
@@ -163,7 +161,7 @@ export class TaskFileScanner {
     }
 
     // Fall back to filename without numeric prefix
-    return fileName.replace(/^\d+-/, '');
+    return fileName.replace(/^\d+-/, "");
   }
 
   /**
@@ -198,8 +196,8 @@ export class TaskFileScanner {
     if (!match) return [];
 
     return match[1]
-      .split(',')
-      .map((s) => s.trim().replace(/['"]/g, ''))
+      .split(",")
+      .map((s) => s.trim().replace(/['"]/g, ""))
       .filter(Boolean);
   }
 
@@ -211,8 +209,8 @@ export class TaskFileScanner {
     if (!match) return undefined;
 
     return match[1]
-      .split(',')
-      .map((s) => s.trim().replace(/['"]/g, ''))
+      .split(",")
+      .map((s) => s.trim().replace(/['"]/g, ""))
       .filter(Boolean);
   }
 
@@ -224,8 +222,8 @@ export class TaskFileScanner {
     if (!match) return undefined;
 
     return match[1]
-      .split(',')
-      .map((s) => s.trim().replace(/['"]/g, ''))
+      .split(",")
+      .map((s) => s.trim().replace(/['"]/g, ""))
       .filter(Boolean);
   }
 
@@ -237,15 +235,17 @@ export class TaskFileScanner {
     if (!match) return undefined;
 
     return match[1]
-      .split(',')
-      .map((s) => s.trim().replace(/['"]/g, ''))
+      .split(",")
+      .map((s) => s.trim().replace(/['"]/g, ""))
       .filter(Boolean);
   }
 
   /**
    * Scan check files from .converge/checks/ directory
    */
-  private async scanCheckFiles(): Promise<Array<{ file: string; checkId: string }>> {
+  private async scanCheckFiles(): Promise<
+    Array<{ file: string; checkId: string }>
+  > {
     const checksDir = this.config.checksDir;
 
     // Ensure directory exists
@@ -255,13 +255,13 @@ export class TaskFileScanner {
     }
 
     // Find all .ts files in checks directory
-    const pattern = path.join(checksDir, '*.ts');
+    const pattern = path.join(checksDir, "*.ts");
     const files = await glob(pattern);
 
     // Extract check IDs from filenames (kebab-case)
     return files.map((file) => ({
       file,
-      checkId: path.basename(file, '.ts'),
+      checkId: path.basename(file, ".ts"),
     }));
   }
 
@@ -274,13 +274,16 @@ export class TaskFileScanner {
     }
 
     // In a real implementation, would use chokidar or fs.watch
-    console.log('[TaskFileScanner] Watch mode not yet implemented');
+    console.log("[TaskFileScanner] Watch mode not yet implemented");
   }
 
   /**
    * Register event listener
    */
-  on(event: 'task-added' | 'task-changed' | 'task-removed' | 'check-added', handler: (file: string) => void): void {
+  on(
+    event: "task-added" | "task-changed" | "task-removed" | "check-added",
+    handler: (file: string) => void,
+  ): void {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, []);
     }

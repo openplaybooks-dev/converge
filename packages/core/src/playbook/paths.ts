@@ -16,7 +16,7 @@
  *   // paths.sessions → .converge/journal/sessions/
  */
 
-import { join } from 'node:path';
+import { join } from "node:path";
 
 /**
  * All resolved paths for a playbook.
@@ -54,36 +54,39 @@ export interface PlaybookPaths {
  * @param projectDir - Absolute project root
  * @param playbook   - Playbook name, or undefined for legacy default
  */
-export function resolvePlaybookPaths(projectDir: string, playbook?: string): PlaybookPaths {
-  if (playbook && playbook !== 'default') {
+export function resolvePlaybookPaths(
+  projectDir: string,
+  playbook?: string,
+): PlaybookPaths {
+  if (playbook && playbook !== "default") {
     // Named playbook — everything scoped under playbooks/{name}/
-    const pbRoot = join(projectDir, '.converge', 'playbooks', playbook);
-    const jRoot = join(projectDir, '.converge', 'journal', playbook);
+    const pbRoot = join(projectDir, ".converge", "playbooks", playbook);
+    const jRoot = join(projectDir, ".converge", "journal", playbook);
 
     return {
       projectDir,
       playbook,
-      tasks: join(pbRoot, 'tasks'),
-      goals: join(pbRoot, 'goals'),
+      tasks: join(pbRoot, "tasks"),
+      goals: join(pbRoot, "goals"),
       journal: jRoot,
-      journalTasks: join(jRoot, 'tasks'),
-      sessions: join(jRoot, 'sessions'),
-      config: join(pbRoot, 'playbook.yml'),
+      journalTasks: join(jRoot, "tasks"),
+      sessions: join(jRoot, "sessions"),
+      config: join(pbRoot, "playbook.yml"),
     };
   }
 
   // Default playbook — same structure as named, under 'default'
-  const defRoot = join(projectDir, '.converge', 'playbooks', 'default');
-  const defJournal = join(projectDir, '.converge', 'journal', 'default');
+  const defRoot = join(projectDir, ".converge", "playbooks", "default");
+  const defJournal = join(projectDir, ".converge", "journal", "default");
 
   return {
     projectDir,
-    playbook: 'default',
-    tasks: join(defRoot, 'tasks'),
-    goals: join(defRoot, 'goals'),
+    playbook: "default",
+    tasks: join(defRoot, "tasks"),
+    goals: join(defRoot, "goals"),
     journal: defJournal,
-    journalTasks: join(defJournal, 'tasks'),
-    sessions: join(defJournal, 'sessions'),
-    config: join(defRoot, 'playbook.yml'),
+    journalTasks: join(defJournal, "tasks"),
+    sessions: join(defJournal, "sessions"),
+    config: join(defRoot, "playbook.yml"),
   };
 }

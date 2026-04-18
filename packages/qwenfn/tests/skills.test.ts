@@ -1,9 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { join } from "node:path";
-import {
-  enhancePrompt,
-  listSkills,
-} from "../src/skills.js";
+import { enhancePrompt, listSkills } from "../src/skills.js";
 
 // Project root is 2 levels up from qwenfn package
 const PROJECT_ROOT = join(process.cwd(), "..", "..");

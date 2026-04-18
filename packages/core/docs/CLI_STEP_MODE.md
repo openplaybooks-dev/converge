@@ -7,6 +7,7 @@ The `--step` flag enables **single-step execution mode** for debugging and contr
 ## Purpose
 
 When developing or debugging converge workflows, you often want to:
+
 - Execute one iteration at a time
 - Inspect the state after each step
 - Manually control progression through the loop
@@ -32,21 +33,25 @@ converge run --step --auto-fix=false
 When `--step` is enabled:
 
 ### 1. Single Iteration
+
 - `maxIterations` is automatically set to `1`
 - The loop executes exactly one iteration and exits
 - Overrides any `--max-iterations` setting
 
 ### 2. No Wait Time
+
 - `checkInterval` is automatically set to `0`
 - No sleep between iterations (since there's only one)
 - Completes almost immediately
 
 ### 3. Debug Messages
+
 - Shows "Running Single Step (Debug Mode)" instead of "Starting Autonomous Converge Loop"
 - Shows "Single Step Complete" instead of "Autonomous Loop Complete"
 - Displays tip: "Run 'converge run --step' again to execute the next iteration"
 
 ### 4. All Other Features Work Normally
+
 - Gap detection runs normally
 - Self-planning works if enabled
 - Auto-fix works if enabled
@@ -108,11 +113,13 @@ converge run --step
 
 ```typescript
 // In commands-run.ts
-export async function runAutonomousCommand(options: AutoRunOptions = {}): Promise<void> {
+export async function runAutonomousCommand(
+  options: AutoRunOptions = {},
+): Promise<void> {
   const config: AutonomousRunConfig = {
     projectDir: options.dir,
-    maxIterations: options.step ? 1 : options.maxIterations,      // Override to 1
-    checkInterval: options.step ? 0 : options.checkInterval,      // Override to 0
+    maxIterations: options.step ? 1 : options.maxIterations, // Override to 1
+    checkInterval: options.step ? 0 : options.checkInterval, // Override to 0
     step: options.step,
     // ... other options
   };
@@ -121,12 +128,16 @@ export async function runAutonomousCommand(options: AutoRunOptions = {}): Promis
 }
 
 // In autonomous-run.ts
-export async function autonomousRun(userConfig: AutonomousRunConfig = {}): Promise<void> {
+export async function autonomousRun(
+  userConfig: AutonomousRunConfig = {},
+): Promise<void> {
   // ...
 
-  log(config, config.step
-    ? '🚀 Running Single Step (Debug Mode)'
-    : '🚀 Starting Autonomous Converge Loop'
+  log(
+    config,
+    config.step
+      ? "🚀 Running Single Step (Debug Mode)"
+      : "🚀 Starting Autonomous Converge Loop",
   );
 
   // Main loop
@@ -141,13 +152,16 @@ export async function autonomousRun(userConfig: AutonomousRunConfig = {}): Promi
     }
   }
 
-  log(config, config.step
-    ? '✅ Single Step Complete'
-    : '✅ Autonomous Loop Complete'
+  log(
+    config,
+    config.step ? "✅ Single Step Complete" : "✅ Autonomous Loop Complete",
   );
 
   if (config.step) {
-    log(config, `\n💡 Tip: Run 'converge run --step' again to execute the next iteration`);
+    log(
+      config,
+      `\n💡 Tip: Run 'converge run --step' again to execute the next iteration`,
+    );
   }
 }
 ```
@@ -155,18 +169,21 @@ export async function autonomousRun(userConfig: AutonomousRunConfig = {}): Promi
 ## Benefits
 
 ### For Development
+
 - Fast feedback loop
 - Easy to debug issues
 - Controlled execution
 - Inspect state between steps
 
 ### For Testing
+
 - Predictable behavior
 - Single iteration per test
 - No timeouts or race conditions
 - Easier to mock/stub
 
 ### For Production Debugging
+
 - Safe to run in production
 - No risk of runaway loops
 - Manual control over fixes
@@ -219,7 +236,7 @@ converge run --step --auto-fix=false
 
 ```typescript
 // Test that runs exactly one iteration
-it('should detect and fix gaps in one iteration', async () => {
+it("should detect and fix gaps in one iteration", async () => {
   const config: AutonomousRunConfig = {
     projectDir: testDir,
     step: true,
@@ -231,23 +248,23 @@ it('should detect and fix gaps in one iteration', async () => {
 
   // Verify exactly one iteration ran
   const events = await readEvents(testDir);
-  expect(events.filter(e => e.type === 'SESSION_START')).toHaveLength(1);
-  expect(events.filter(e => e.type === 'SESSION_END')).toHaveLength(1);
+  expect(events.filter((e) => e.type === "SESSION_START")).toHaveLength(1);
+  expect(events.filter((e) => e.type === "SESSION_END")).toHaveLength(1);
 });
 ```
 
 ## Comparison: Normal vs Step Mode
 
-| Feature | Normal Mode | Step Mode (`--step`) |
-|---------|-------------|---------------------|
-| Iterations | Up to `maxIterations` (default: 100) | Exactly 1 |
-| Sleep between iterations | `checkInterval` (default: 5s) | 0ms (no sleep) |
-| Duration | Up to `maxDuration` (default: 1 hour) | <1 second |
-| Use case | Production, autonomous operation | Development, debugging |
-| Control | Fully autonomous | Manual control |
-| Loop message | "Starting Autonomous Converge Loop" | "Running Single Step (Debug Mode)" |
-| Completion message | "Autonomous Loop Complete" | "Single Step Complete" |
-| Tip message | None | "Run again for next iteration" |
+| Feature                  | Normal Mode                           | Step Mode (`--step`)               |
+| ------------------------ | ------------------------------------- | ---------------------------------- |
+| Iterations               | Up to `maxIterations` (default: 100)  | Exactly 1                          |
+| Sleep between iterations | `checkInterval` (default: 5s)         | 0ms (no sleep)                     |
+| Duration                 | Up to `maxDuration` (default: 1 hour) | <1 second                          |
+| Use case                 | Production, autonomous operation      | Development, debugging             |
+| Control                  | Fully autonomous                      | Manual control                     |
+| Loop message             | "Starting Autonomous Converge Loop"   | "Running Single Step (Debug Mode)" |
+| Completion message       | "Autonomous Loop Complete"            | "Single Step Complete"             |
+| Tip message              | None                                  | "Run again for next iteration"     |
 
 ## See Also
 

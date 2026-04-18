@@ -5,8 +5,8 @@
  * All task operations should use these types instead of direct file access.
  */
 
-import type { Unit } from '../unit/unit.ts';
-import type { TreeNode } from './tree-node.ts';
+import type { Unit } from "../unit/unit.ts";
+import type { TreeNode } from "./tree-node.ts";
 
 /**
  * Lightweight node data for API results.

@@ -4,100 +4,100 @@
  * Simple journal system for AI self-planning and gap tracking.
  */
 
-import type { Gap } from '../gap/types.ts';
+import type { Gap } from "../gap/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Event Types                                                       */
 /* ------------------------------------------------------------------ */
 
 export type EventType =
-  | 'SESSION_START'
-  | 'SESSION_END'
-  | 'ITERATION_START'
-  | 'ITERATION_COMPLETE'
-  | 'GAP_DETECTED'
-  | 'GAP_RESOLVED'
-  | 'TASK_START'
-  | 'TASK_COMPLETE'
-  | 'TASK_FAILED'
-  | 'EPIC_START'
-  | 'EPIC_COMPLETE'
-  | 'EPIC_FAILED'
-  | 'PROJECT_START'
-  | 'PROJECT_COMPLETE'
-  | 'ERROR'
-  | 'DECISION'
-  | 'RETRY'
-  | 'CHECK_RUN'
-  | 'CHECK_FAILED'
-  | 'GAP_RESOLVED'
-  | 'GAP_FIX_FAILED'
-  | 'TASKS_CHANGED'
-  | 'CLAUDEFN_START'
-  | 'CLAUDEFN_COMPLETE'
-  | 'CLAUDEFN_FAILED'
-  | 'PLAN_START'
-  | 'PLAN_COMPLETE'
-  | 'PLAN_FAILED'
-  | 'UPSTREAM_TRIGGERED'
-  | 'UPSTREAM_RESOLVED'
-  | 'UPSTREAM_FAILED'
-  | 'UPSTREAM_SKIPPED'
-  | 'STRATEGY_ATTEMPTED'
-  | 'STRATEGY_SUCCEEDED'
-  | 'STRATEGY_FAILED'
-  | 'TIMELINE_BEGIN'
-  | 'TIMELINE_FINISH'
-  | 'REWIND_TRIGGERED'
-  | 'REWIND_SUCCEEDED'
-  | 'REWIND_FAILED'
+  | "SESSION_START"
+  | "SESSION_END"
+  | "ITERATION_START"
+  | "ITERATION_COMPLETE"
+  | "GAP_DETECTED"
+  | "GAP_RESOLVED"
+  | "TASK_START"
+  | "TASK_COMPLETE"
+  | "TASK_FAILED"
+  | "EPIC_START"
+  | "EPIC_COMPLETE"
+  | "EPIC_FAILED"
+  | "PROJECT_START"
+  | "PROJECT_COMPLETE"
+  | "ERROR"
+  | "DECISION"
+  | "RETRY"
+  | "CHECK_RUN"
+  | "CHECK_FAILED"
+  | "GAP_RESOLVED"
+  | "GAP_FIX_FAILED"
+  | "TASKS_CHANGED"
+  | "CLAUDEFN_START"
+  | "CLAUDEFN_COMPLETE"
+  | "CLAUDEFN_FAILED"
+  | "PLAN_START"
+  | "PLAN_COMPLETE"
+  | "PLAN_FAILED"
+  | "UPSTREAM_TRIGGERED"
+  | "UPSTREAM_RESOLVED"
+  | "UPSTREAM_FAILED"
+  | "UPSTREAM_SKIPPED"
+  | "STRATEGY_ATTEMPTED"
+  | "STRATEGY_SUCCEEDED"
+  | "STRATEGY_FAILED"
+  | "TIMELINE_BEGIN"
+  | "TIMELINE_FINISH"
+  | "REWIND_TRIGGERED"
+  | "REWIND_SUCCEEDED"
+  | "REWIND_FAILED"
   // ── Pruning ───────────────────────────────────────────────────────────
-  | 'PRUNE_MARKER'
+  | "PRUNE_MARKER"
   // ── Before phase ──────────────────────────────────────────────────────
-  | 'LIFECYCLE_BEFORE_START'
-  | 'LIFECYCLE_BEFORE_COMPLETE'
-  | 'LIFECYCLE_BEFORE_FAILED'
-  | 'INPUT_SNAPSHOT_TAKEN'
-  | 'CONTEXT_DOC_BUILT'
-  | 'DEPENDENCY_MISSING'
-  | 'DEPENDENCY_SATISFIED'
+  | "LIFECYCLE_BEFORE_START"
+  | "LIFECYCLE_BEFORE_COMPLETE"
+  | "LIFECYCLE_BEFORE_FAILED"
+  | "INPUT_SNAPSHOT_TAKEN"
+  | "CONTEXT_DOC_BUILT"
+  | "DEPENDENCY_MISSING"
+  | "DEPENDENCY_SATISFIED"
   // ── After phase ───────────────────────────────────────────────────────
-  | 'LIFECYCLE_AFTER_START'
-  | 'LIFECYCLE_AFTER_COMPLETE'
-  | 'LIFECYCLE_AFTER_FAILED'
-  | 'DIFF_CAPTURED'
-  | 'CHECKS_RUN'
-  | 'CHECK_PASSED'
-  | 'CHECK_FAILED_DETAIL'
-  | 'OUTCOME_WRITTEN'
-  | 'BACKLOGS_COLLECTED'
-  | 'SUMMARY_WRITTEN'
+  | "LIFECYCLE_AFTER_START"
+  | "LIFECYCLE_AFTER_COMPLETE"
+  | "LIFECYCLE_AFTER_FAILED"
+  | "DIFF_CAPTURED"
+  | "CHECKS_RUN"
+  | "CHECK_PASSED"
+  | "CHECK_FAILED_DETAIL"
+  | "OUTCOME_WRITTEN"
+  | "BACKLOGS_COLLECTED"
+  | "SUMMARY_WRITTEN"
   // ── Inner correction loop ─────────────────────────────────────────────
-  | 'CORRECTION_LOOP_START'
-  | 'CORRECTION_LOOP_EXHAUSTED'
-  | 'CORRECTION_ATTEMPTED'
-  | 'CORRECTION_DIAGNOSIS'
-  | 'CORRECTION_APPLIED'
-  | 'CORRECTION_VERIFIED'
-  | 'CORRECTION_FAILED'
+  | "CORRECTION_LOOP_START"
+  | "CORRECTION_LOOP_EXHAUSTED"
+  | "CORRECTION_ATTEMPTED"
+  | "CORRECTION_DIAGNOSIS"
+  | "CORRECTION_APPLIED"
+  | "CORRECTION_VERIFIED"
+  | "CORRECTION_FAILED"
   // ── WBS ───────────────────────────────────────────────────────────────
-  | 'WBS_SEED'
+  | "WBS_SEED"
   // ── Extended events (controller, spawn-runner, lifecycle, repair) ────
-  | 'TASK_CRASH'
-  | 'SKILL_VALIDATION_FAILED'
-  | 'CLAUDEFN_PROMPT'
-  | 'CLAUDEFN_CRASH_RETRY'
-  | 'CLAUDEFN_TIMEOUT_RETRY'
-  | 'CHECK_SELF_HEALED'
-  | 'HEALTH_CHECK_ISSUES'
-  | 'WBS_SPAWN_BLOCKED'
-  | 'WBS_SPAWN_ISSUES'
-  | 'INCOMPLETE_PRODUCER_FIXED'
-  | 'PATTERN_AUTO_FIXED'
-  | 'AWAITING_USER_INPUT'
-  | 'USER_INPUT_RECEIVED'
-  | 'WBS_GENERATOR_FIXED'
-  | 'TOOL_ENVIRONMENT_REPAIRED';
+  | "TASK_CRASH"
+  | "SKILL_VALIDATION_FAILED"
+  | "CLAUDEFN_PROMPT"
+  | "CLAUDEFN_CRASH_RETRY"
+  | "CLAUDEFN_TIMEOUT_RETRY"
+  | "CHECK_SELF_HEALED"
+  | "HEALTH_CHECK_ISSUES"
+  | "WBS_SPAWN_BLOCKED"
+  | "WBS_SPAWN_ISSUES"
+  | "INCOMPLETE_PRODUCER_FIXED"
+  | "PATTERN_AUTO_FIXED"
+  | "AWAITING_USER_INPUT"
+  | "USER_INPUT_RECEIVED"
+  | "WBS_GENERATOR_FIXED"
+  | "TOOL_ENVIRONMENT_REPAIRED";
 
 /**
  * A single event in the journal log
@@ -105,7 +105,7 @@ export type EventType =
 export interface JournalEvent {
   timestamp: string;
   eventType: EventType;
-  level: 'project' | 'epic' | 'task';
+  level: "project" | "epic" | "task";
   scope: string; // project/epic/task ID
   message?: string;
   metadata?: Record<string, unknown>;
@@ -193,7 +193,7 @@ export interface ChecklistItem {
   /** Stable ID: "output:<path>", "check:<id>", "subtask:<taskId>" */
   id: string;
   /** Source of this checklist item */
-  type: 'output' | 'check' | 'subtask';
+  type: "output" | "check" | "subtask";
   /** Human-readable label */
   description: string;
   /** Extra detail: glob pattern, shell command, or subtask file path */
@@ -211,7 +211,12 @@ export interface ChecklistItem {
 /**
  * Lifecycle state of a task in the journal
  */
-export type TaskStatusState = 'pending' | 'running' | 'complete' | 'failed' | 'skipped';
+export type TaskStatusState =
+  | "pending"
+  | "running"
+  | "complete"
+  | "failed"
+  | "skipped";
 
 /**
  * Per-task status record written to status.json in the journal directory.

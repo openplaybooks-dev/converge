@@ -76,7 +76,12 @@ export interface BgHandle {
   stop(): Promise<void>;
 }
 
-export type BgStatus = 'starting' | 'ready' | 'degraded' | 'stopped' | 'crashed';
+export type BgStatus =
+  | "starting"
+  | "ready"
+  | "degraded"
+  | "stopped"
+  | "crashed";
 
 /* ------------------------------------------------------------------ */
 /*  ManagedProcess (internal)                                         */
@@ -105,7 +110,7 @@ export interface ManagedProcess {
 
 export interface OutputLine {
   timestamp: number;
-  stream: 'stdout' | 'stderr';
+  stream: "stdout" | "stderr";
   text: string;
 }
 

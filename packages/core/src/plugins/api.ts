@@ -12,8 +12,13 @@ import type {
   ToolFactory,
   PluginStateV2,
   PluginManifestV2,
-} from './types.ts';
-import type { CheckFnMeta, EvalFnMeta, PlanFnMeta, TaskFnMeta } from '../functions/types.ts';
+} from "./types.ts";
+import type {
+  CheckFnMeta,
+  EvalFnMeta,
+  PlanFnMeta,
+  TaskFnMeta,
+} from "../functions/types.ts";
 
 export class PluginAPIImplV2 implements PluginAPIV2 {
   readonly options: Record<string, unknown>;
@@ -38,7 +43,7 @@ export class PluginAPIImplV2 implements PluginAPIV2 {
     pluginName: string,
     projectDir: string,
     options: Record<string, unknown>,
-    state: PluginStateV2
+    state: PluginStateV2,
   ) {
     this._pluginName = pluginName;
     this.projectDir = projectDir;
@@ -54,7 +59,7 @@ export class PluginAPIImplV2 implements PluginAPIV2 {
     if (this._state.checks.has(check.name)) {
       throw new Error(
         `Check "${check.name}" already registered by another plugin. ` +
-        `Choose a different name or namespace it (e.g., "${this._pluginName}:${check.name}").`
+          `Choose a different name or namespace it (e.g., "${this._pluginName}:${check.name}").`,
       );
     }
     this._state.checks.set(check.name, check);
@@ -71,7 +76,7 @@ export class PluginAPIImplV2 implements PluginAPIV2 {
     if (this._state.evals.has(evalFn.name)) {
       throw new Error(
         `Eval "${evalFn.name}" already registered by another plugin. ` +
-        `Choose a different name or namespace it (e.g., "${this._pluginName}:${evalFn.name}").`
+          `Choose a different name or namespace it (e.g., "${this._pluginName}:${evalFn.name}").`,
       );
     }
     this._state.evals.set(evalFn.name, evalFn);
@@ -88,7 +93,7 @@ export class PluginAPIImplV2 implements PluginAPIV2 {
     if (this._state.plans.has(plan.name)) {
       throw new Error(
         `Plan "${plan.name}" already registered by another plugin. ` +
-        `Choose a different name or namespace it (e.g., "${this._pluginName}:${plan.name}").`
+          `Choose a different name or namespace it (e.g., "${this._pluginName}:${plan.name}").`,
       );
     }
     this._state.plans.set(plan.name, plan);
@@ -105,7 +110,7 @@ export class PluginAPIImplV2 implements PluginAPIV2 {
     if (this._state.tasks.has(task.type)) {
       throw new Error(
         `Task type "${task.type}" already registered by another plugin. ` +
-        `Choose a different type or namespace it (e.g., "${this._pluginName}:${task.type}").`
+          `Choose a different type or namespace it (e.g., "${this._pluginName}:${task.type}").`,
       );
     }
     this._state.tasks.set(task.type, task);
@@ -126,7 +131,7 @@ export class PluginAPIImplV2 implements PluginAPIV2 {
     // Legacy support - store but don't use in new execution
     this._legacyChecks.push(name);
     console.warn(
-      `[${this._pluginName}] addCheck() is deprecated. Use registerCheck() with CheckFnMeta instead.`
+      `[${this._pluginName}] addCheck() is deprecated. Use registerCheck() with CheckFnMeta instead.`,
     );
   }
 
@@ -138,10 +143,10 @@ export class PluginAPIImplV2 implements PluginAPIV2 {
 
   addTaskType(type: unknown): void {
     // Legacy support
-    const typeName = (type as any)?.name || 'unknown';
+    const typeName = (type as any)?.name || "unknown";
     this._taskTypes.push(typeName);
     console.warn(
-      `[${this._pluginName}] addTaskType() is deprecated. Use registerTask() with TaskFnMeta instead.`
+      `[${this._pluginName}] addTaskType() is deprecated. Use registerTask() with TaskFnMeta instead.`,
     );
   }
 
@@ -150,7 +155,7 @@ export class PluginAPIImplV2 implements PluginAPIV2 {
       this._extendedTypes.push(name);
     }
     console.warn(
-      `[${this._pluginName}] extendTaskType() is deprecated. Use registerTask() to define task functions.`
+      `[${this._pluginName}] extendTaskType() is deprecated. Use registerTask() to define task functions.`,
     );
   }
 
@@ -176,7 +181,7 @@ export class PluginAPIImplV2 implements PluginAPIV2 {
     if (this._state.tools.has(name)) {
       throw new Error(
         `Tool "${name}" already registered by another plugin. ` +
-        `Choose a different name or namespace it (e.g., "${this._pluginName}:${name}").`
+          `Choose a different name or namespace it (e.g., "${this._pluginName}:${name}").`,
       );
     }
     this._state.tools.set(name, factory);

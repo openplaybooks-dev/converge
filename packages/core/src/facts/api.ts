@@ -5,11 +5,11 @@
  * Every fact is a simple boolean: exit 0 = true, exit 1 = false.
  */
 
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import { appendFile, mkdir, writeFile } from 'fs/promises';
-import { join } from 'path';
-import { getJournalStructure } from '../journal/structure.js';
+import { exec } from "child_process";
+import { promisify } from "util";
+import { appendFile, mkdir, writeFile } from "fs/promises";
+import { join } from "path";
+import { getJournalStructure } from "../journal/structure.js";
 
 const execAsync = promisify(exec);
 
@@ -57,10 +57,14 @@ export interface Fact {
  * @param timeoutMs - Optional timeout override (default: 15000ms)
  * @returns Result with ok (boolean), output (string), exitCode, and durationMs
  */
-export async function check(cmd: string, cwd: string, timeoutMs = 15_000): Promise<FactResult> {
+export async function check(
+  cmd: string,
+  cwd: string,
+  timeoutMs = 15_000,
+): Promise<FactResult> {
   const start = Date.now();
   try {
-    const shell = process.platform === 'win32' ? 'bash' : '/bin/bash';
+    const shell = process.platform === "win32" ? "bash" : "/bin/bash";
     const { stdout, stderr } = await execAsync(cmd, {
       cwd,
       timeout: timeoutMs,
@@ -73,14 +77,14 @@ export async function check(cmd: string, cwd: string, timeoutMs = 15_000): Promi
       durationMs: Date.now() - start,
     };
   } catch (error: any) {
-    const output = [error.stderr?.trim(), error.stdout?.trim()]
-      .filter(Boolean)
-      .join('\n')
-      || (error.killed ? `Command timed out after ${timeoutMs}ms` : error.message);
+    const output =
+      [error.stderr?.trim(), error.stdout?.trim()].filter(Boolean).join("\n") ||
+      (error.killed ? `Command timed out after ${timeoutMs}ms` : error.message);
     return {
       ok: false,
       output,
-      exitCode: typeof error.code === 'number' ? error.code : (error.killed ? 124 : 1),
+      exitCode:
+        typeof error.code === "number" ? error.code : error.killed ? 124 : 1,
       durationMs: Date.now() - start,
     };
   }
@@ -100,19 +104,23 @@ export const FileChecks = {
   dirExists: (path: string) => `test -d "${path}"`,
 
   /** Check PNG magic bytes (first 8 bytes: 89 50 4E 47 0D 0A 1A 0A) */
-  isPNG: (path: string) => `node -e "const b=require('fs').readFileSync('${path}');if(b[0]!==0x89||b[1]!==0x50||b[2]!==0x4E||b[3]!==0x47)process.exit(1)"`,
+  isPNG: (path: string) =>
+    `node -e "const b=require('fs').readFileSync('${path}');if(b[0]!==0x89||b[1]!==0x50||b[2]!==0x4E||b[3]!==0x47)process.exit(1)"`,
 
   /** Check JPEG magic bytes (first 2 bytes: FF D8) */
-  isJPEG: (path: string) => `node -e "const b=require('fs').readFileSync('${path}');if(b[0]!==0xFF||b[1]!==0xD8)process.exit(1)"`,
+  isJPEG: (path: string) =>
+    `node -e "const b=require('fs').readFileSync('${path}');if(b[0]!==0xFF||b[1]!==0xD8)process.exit(1)"`,
 
   /** Check if JSON is valid */
-  isValidJSON: (path: string) => `node -e "JSON.parse(require('fs').readFileSync('${path}','utf8'))"`,
+  isValidJSON: (path: string) =>
+    `node -e "JSON.parse(require('fs').readFileSync('${path}','utf8'))"`,
 
   /** Count lines in file */
   lineCount: (path: string) => `wc -l < "${path}"`,
 
   /** Get file size in bytes */
-  fileSize: (path: string) => `stat -f%z "${path}" 2>/dev/null || stat -c%s "${path}" 2>/dev/null`,
+  fileSize: (path: string) =>
+    `stat -f%z "${path}" 2>/dev/null || stat -c%s "${path}" 2>/dev/null`,
 };
 
 /**
@@ -141,8 +149,7 @@ export const JSONChecks = {
  */
 export const ContentChecks = {
   /** Check if file contains pattern */
-  contains: (path: string, pattern: string) =>
-    `grep -q "${pattern}" "${path}"`,
+  contains: (path: string, pattern: string) => `grep -q "${pattern}" "${path}"`,
 
   /** Check if file contains pattern (case insensitive) */
   containsIgnoreCase: (path: string, pattern: string) =>
@@ -207,20 +214,19 @@ export const PortableChecks = {
    * File content matches a regex pattern.
    * @param flags - Optional regex flags ('i' = case-insensitive, 'm' = multiline)
    */
-  matches: (file: string, pattern: string, flags = '') =>
+  matches: (file: string, pattern: string, flags = "") =>
     `node -e "const f=require('fs').readFileSync(${jss(file)},'utf8');if(!new RegExp(${jss(pattern)},${jss(flags)}).test(f))process.exit(1)"`,
 
   /**
    * File content does NOT match a regex pattern.
    */
-  notMatches: (file: string, pattern: string, flags = '') =>
+  notMatches: (file: string, pattern: string, flags = "") =>
     `node -e "const f=require('fs').readFileSync(${jss(file)},'utf8');if(new RegExp(${jss(pattern)},${jss(flags)}).test(f))process.exit(1)"`,
 
   /**
    * File exists (any size, including empty).
    */
-  exists: (file: string) =>
-    `node -e "require('fs').statSync(${jss(file)})"`,
+  exists: (file: string) => `node -e "require('fs').statSync(${jss(file)})"`,
 
   /**
    * Directory exists.
@@ -271,15 +277,19 @@ export class FactsLogger {
     private projectDir: string,
     private epicId: string,
     private taskId: string,
-    private attemptNumber?: number
+    private attemptNumber?: number,
   ) {}
 
   /**
    * Get the task-level facts log path (append-only JSONL).
    */
   private getTaskFactsLogPath(): string {
-    const structure = getJournalStructure(this.projectDir, this.epicId, this.taskId);
-    return join(structure.task!, 'logs', 'facts.jsonl');
+    const structure = getJournalStructure(
+      this.projectDir,
+      this.epicId,
+      this.taskId,
+    );
+    return join(structure.task!, "logs", "facts.jsonl");
   }
 
   /**
@@ -287,8 +297,18 @@ export class FactsLogger {
    */
   private getAttemptFactsSnapshotPath(): string | null {
     if (this.attemptNumber === undefined) return null;
-    const structure = getJournalStructure(this.projectDir, this.epicId, this.taskId);
-    return join(structure.task!, 'attempts', String(this.attemptNumber).padStart(2, '0'), 'data', 'facts.json');
+    const structure = getJournalStructure(
+      this.projectDir,
+      this.epicId,
+      this.taskId,
+    );
+    return join(
+      structure.task!,
+      "attempts",
+      String(this.attemptNumber).padStart(2, "0"),
+      "data",
+      "facts.json",
+    );
   }
 
   /**
@@ -301,8 +321,8 @@ export class FactsLogger {
   async logFact(fact: Fact): Promise<void> {
     // Always append to task-level facts log (time-series)
     const taskFactsLogPath = this.getTaskFactsLogPath();
-    await mkdir(join(taskFactsLogPath, '..'), { recursive: true });
-    await appendFile(taskFactsLogPath, JSON.stringify(fact) + '\n');
+    await mkdir(join(taskFactsLogPath, ".."), { recursive: true });
+    await appendFile(taskFactsLogPath, JSON.stringify(fact) + "\n");
 
     // Also update attempt-level facts snapshot if we're in an attempt context
     const attemptSnapshotPath = this.getAttemptFactsSnapshotPath();
@@ -311,7 +331,7 @@ export class FactsLogger {
       this.facts[fact.id] = fact;
 
       // Write as JSON object snapshot for easy access (facts.x.y)
-      await mkdir(join(attemptSnapshotPath, '..'), { recursive: true });
+      await mkdir(join(attemptSnapshotPath, ".."), { recursive: true });
       await writeFile(attemptSnapshotPath, JSON.stringify(this.facts, null, 2));
     }
   }
@@ -367,7 +387,7 @@ export async function validateFile(
   path: string,
   rules: ValidationRule[],
   cwd: string,
-  logger?: FactsLogger
+  logger?: FactsLogger,
 ): Promise<{ valid: boolean; failures: ValidationRule[] }> {
   const failures: ValidationRule[] = [];
 
@@ -376,12 +396,12 @@ export async function validateFile(
 
     if (logger) {
       await logger.collectFact({
-        type: 'validation',
+        type: "validation",
         ruleId: rule.id,
         path,
         description: rule.description,
         cmd: rule.cmd,
-        ...result
+        ...result,
       });
     }
 
@@ -392,7 +412,7 @@ export async function validateFile(
 
   return {
     valid: failures.length === 0,
-    failures
+    failures,
   };
 }
 
@@ -403,58 +423,58 @@ export const ValidationRuleSets = {
   /** PNG file validation */
   png: (path: string): ValidationRule[] => [
     {
-      id: 'exists',
-      description: 'File exists',
-      cmd: FileChecks.exists(path)
+      id: "exists",
+      description: "File exists",
+      cmd: FileChecks.exists(path),
     },
     {
-      id: 'non-empty',
-      description: 'File is non-empty',
-      cmd: FileChecks.nonEmpty(path)
+      id: "non-empty",
+      description: "File is non-empty",
+      cmd: FileChecks.nonEmpty(path),
     },
     {
-      id: 'valid-png',
-      description: 'File has PNG magic bytes',
-      cmd: FileChecks.isPNG(path)
-    }
+      id: "valid-png",
+      description: "File has PNG magic bytes",
+      cmd: FileChecks.isPNG(path),
+    },
   ],
 
   /** HTML file validation */
   html: (path: string): ValidationRule[] => [
     {
-      id: 'exists',
-      description: 'File exists',
-      cmd: FileChecks.exists(path)
+      id: "exists",
+      description: "File exists",
+      cmd: FileChecks.exists(path),
     },
     {
-      id: 'non-empty',
-      description: 'File is non-empty',
-      cmd: FileChecks.nonEmpty(path)
+      id: "non-empty",
+      description: "File is non-empty",
+      cmd: FileChecks.nonEmpty(path),
     },
     {
-      id: 'has-html-tag',
-      description: 'Contains <html> tag',
-      cmd: ContentChecks.containsIgnoreCase(path, '<html'),
-      required: false
-    }
+      id: "has-html-tag",
+      description: "Contains <html> tag",
+      cmd: ContentChecks.containsIgnoreCase(path, "<html"),
+      required: false,
+    },
   ],
 
   /** JSON file validation */
   json: (path: string): ValidationRule[] => [
     {
-      id: 'exists',
-      description: 'File exists',
-      cmd: FileChecks.exists(path)
+      id: "exists",
+      description: "File exists",
+      cmd: FileChecks.exists(path),
     },
     {
-      id: 'non-empty',
-      description: 'File is non-empty',
-      cmd: FileChecks.nonEmpty(path)
+      id: "non-empty",
+      description: "File is non-empty",
+      cmd: FileChecks.nonEmpty(path),
     },
     {
-      id: 'valid-json',
-      description: 'Valid JSON syntax',
-      cmd: FileChecks.isValidJSON(path)
-    }
-  ]
+      id: "valid-json",
+      description: "Valid JSON syntax",
+      cmd: FileChecks.isValidJSON(path),
+    },
+  ],
 };

@@ -8,10 +8,10 @@
  * Usage: triggered by Unit.fixGaps() when taskDef.loopFn is set.
  */
 
-import { agentfn } from '@converge/agentfn';
-import { READONLY_TOOLS } from '../ai/context.ts';
-import { join } from 'node:path';
-import { z } from 'zod';
+import { agentfn } from "@converge/agentfn";
+import { READONLY_TOOLS } from "../ai/context.ts";
+import { join } from "node:path";
+import { z } from "zod";
 import {
   LOOP_DONE_SIGNAL,
   isBuilderTarget,
@@ -26,17 +26,17 @@ import {
   type TaskHandle,
   type SpawnOptions,
   type SpawnResult,
-} from '../config/task-definition.ts';
-import type { JournalContext } from '../repair/types.ts';
+} from "../config/task-definition.ts";
+import type { JournalContext } from "../repair/types.ts";
 import {
   logTaskEvent,
   writeTaskStatus,
   writeTaskTodo,
-} from '../journal/writer.ts';
-import { getJournalStructure } from '../journal/structure.ts';
-import type { TaskStatus, ChecklistItem } from '../journal/types.ts';
-import { SpawnRunner } from './spawn-runner.ts';
-import type { SpawnState, WriteStatusOpts } from './spawn-runner.ts';
+} from "../journal/writer.ts";
+import { getJournalStructure } from "../journal/structure.ts";
+import type { TaskStatus, ChecklistItem } from "../journal/types.ts";
+import { SpawnRunner } from "./spawn-runner.ts";
+import type { SpawnState, WriteStatusOpts } from "./spawn-runner.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Result type                                                       */
@@ -91,9 +91,12 @@ export class LoopFunctionExecutor {
     let spawnCounter = 0;
     // Queue: taskId → { target, opts } — persists across iterations within one run()
     let enqueueCounter = 0;
-    const taskQueue = new Map<string, { target: LoopSpawnTarget; opts?: SpawnOptions }>();
+    const taskQueue = new Map<
+      string,
+      { target: LoopSpawnTarget; opts?: SpawnOptions }
+    >();
 
-    await this.writeStatus({ status: 'running', startedAt, checklist });
+    await this.writeStatus({ status: "running", startedAt, checklist });
 
     for (let iteration = 1; iteration <= maxIterations; iteration++) {
       console.log(`\n🔄 Loop iteration ${iteration}/${maxIterations}`);
@@ -102,7 +105,7 @@ export class LoopFunctionExecutor {
         this.projectDir,
         this.journalCtx.epicId,
         this.journalCtx.taskId,
-        'TASK_START',
+        "TASK_START",
         `Loop iteration ${iteration}`,
         { iteration },
       );
@@ -116,21 +119,32 @@ export class LoopFunctionExecutor {
           done: () => LOOP_DONE_SIGNAL,
           continue: () => undefined,
           next: () => undefined,
-          spawn: async (target: LoopSpawnTarget, opts?: SpawnOptions): Promise<SpawnResult> => {
+          spawn: async (
+            target: LoopSpawnTarget,
+            opts?: SpawnOptions,
+          ): Promise<SpawnResult> => {
             spawnCounter++;
-            return this.dispatchSpawn(target, { counter: spawnCounter, checklist, startedAt }, opts);
+            return this.dispatchSpawn(
+              target,
+              { counter: spawnCounter, checklist, startedAt },
+              opts,
+            );
           },
           await: async (taskId: string): Promise<SpawnResult> => {
             const queued = taskQueue.get(taskId);
             if (!queued) {
               throw new Error(
                 `ctx.loop.await: no task found for id '${taskId}'. ` +
-                `Use ctx.enqueue() first to register the task.`
+                  `Use ctx.enqueue() first to register the task.`,
               );
             }
             taskQueue.delete(taskId);
             spawnCounter++;
-            return this.dispatchSpawn(queued.target, { counter: spawnCounter, checklist, startedAt }, queued.opts);
+            return this.dispatchSpawn(
+              queued.target,
+              { counter: spawnCounter, checklist, startedAt },
+              queued.opts,
+            );
           },
         },
         enqueue: (target: LoopSpawnTarget, opts?: SpawnOptions): TaskHandle => {
@@ -154,12 +168,12 @@ export class LoopFunctionExecutor {
           this.projectDir,
           this.journalCtx.epicId,
           this.journalCtx.taskId,
-          'TASK_FAILED',
+          "TASK_FAILED",
           `Loop iteration ${iteration} threw: ${error.message}`,
           { iteration, error: error.message },
         );
         await this.writeStatus({
-          status: 'failed',
+          status: "failed",
           startedAt,
           completedAt: new Date().toISOString(),
           checklist,
@@ -172,7 +186,7 @@ export class LoopFunctionExecutor {
         this.projectDir,
         this.journalCtx.epicId,
         this.journalCtx.taskId,
-        'TASK_COMPLETE',
+        "TASK_COMPLETE",
         `Loop iteration ${iteration} done`,
         { iteration },
       );
@@ -181,7 +195,12 @@ export class LoopFunctionExecutor {
       if (signal === LOOP_DONE_SIGNAL) {
         console.log(`   ✅ Loop complete after ${iteration} iteration(s)`);
         const completedAt = new Date().toISOString();
-        await this.writeStatus({ status: 'complete', startedAt, completedAt, checklist });
+        await this.writeStatus({
+          status: "complete",
+          startedAt,
+          completedAt,
+          checklist,
+        });
         return { iterationsRun: iteration, done: true, maxReached: false };
       }
     }
@@ -189,7 +208,7 @@ export class LoopFunctionExecutor {
     // Max iterations reached without done
     const completedAt = new Date().toISOString();
     await this.writeStatus({
-      status: 'failed',
+      status: "failed",
       startedAt,
       completedAt,
       checklist,
@@ -207,7 +226,7 @@ export class LoopFunctionExecutor {
     state: SpawnState,
     opts?: SpawnOptions,
   ): Promise<SpawnResult> {
-    if (typeof target === 'string') {
+    if (typeof target === "string") {
       return this.spawnRunner.executeSpawnPath(target, state, opts);
     }
     if (isBuilderTarget(target)) {
@@ -222,7 +241,9 @@ export class LoopFunctionExecutor {
     if (isInlineTaskTarget(target)) {
       return this.spawnRunner.executeSpawnInline(target, state, opts);
     }
-    throw new Error(`ctx.loop.spawn: unrecognized target type: ${JSON.stringify(target)}`);
+    throw new Error(
+      `ctx.loop.spawn: unrecognized target type: ${JSON.stringify(target)}`,
+    );
   }
 
   /* ---------------------------------------------------------------- */
@@ -256,13 +277,15 @@ whether the condition described in QUESTION is fully satisfied.`;
             this.projectDir,
             this.journalCtx.epicId,
             this.journalCtx.taskId,
-            'CLAUDEFN_START',
+            "CLAUDEFN_START",
             `ai.ask iteration ${iteration}`,
             { phase, question },
           );
 
           const evaluator = agentfn({
-            prompt: basePrompt + `
+            prompt:
+              basePrompt +
+              `
 
 Return a JSON object:
 - answer: true if the condition is fully met, false otherwise
@@ -280,9 +303,14 @@ Return a JSON object:
               this.projectDir,
               this.journalCtx.epicId,
               this.journalCtx.taskId,
-              'CLAUDEFN_COMPLETE',
+              "CLAUDEFN_COMPLETE",
               `ai.ask iteration ${iteration}: answer=${result.data.answer}`,
-              { phase, answer: result.data.answer, reasoning: result.data.reasoning, durationMs: result.durationMs },
+              {
+                phase,
+                answer: result.data.answer,
+                reasoning: result.data.reasoning,
+                durationMs: result.durationMs,
+              },
             );
             return result.data.answer;
           } catch (error: any) {
@@ -290,7 +318,7 @@ Return a JSON object:
               this.projectDir,
               this.journalCtx.epicId,
               this.journalCtx.taskId,
-              'CLAUDEFN_FAILED',
+              "CLAUDEFN_FAILED",
               `ai.ask iteration ${iteration} failed: ${error.message}`,
               { phase, error: error.message },
             );
@@ -304,26 +332,32 @@ Return a JSON object:
 
     return {
       then: <TResult1 = boolean, TResult2 = never>(
-        onfulfilled?: ((value: boolean) => TResult1 | PromiseLike<TResult1>) | null,
+        onfulfilled?:
+          | ((value: boolean) => TResult1 | PromiseLike<TResult1>)
+          | null,
         onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null,
       ) => getBooleanPromise().then(onfulfilled, onrejected),
 
-      asJson: <T>(schema: import('zod').ZodType<T>): Promise<T> => {
+      asJson: <T>(schema: import("zod").ZodType<T>): Promise<T> => {
         const phase = `ai_ask_json_${iteration}`;
 
         return (async () => {
-          console.log(`   🤖 Evaluating: ${question.slice(0, 80)}${question.length > 80 ? '…' : ''}`);
+          console.log(
+            `   🤖 Evaluating: ${question.slice(0, 80)}${question.length > 80 ? "…" : ""}`,
+          );
           await logTaskEvent(
             this.projectDir,
             this.journalCtx.epicId,
             this.journalCtx.taskId,
-            'CLAUDEFN_START',
+            "CLAUDEFN_START",
             `ai.ask.asJson iteration ${iteration}`,
             { phase, question },
           );
 
           const evaluator = agentfn<T>({
-            prompt: basePrompt + `
+            prompt:
+              basePrompt +
+              `
 
 Return a JSON object matching the requested schema.`,
             schema,
@@ -339,7 +373,7 @@ Return a JSON object matching the requested schema.`,
               this.projectDir,
               this.journalCtx.epicId,
               this.journalCtx.taskId,
-              'CLAUDEFN_COMPLETE',
+              "CLAUDEFN_COMPLETE",
               `ai.ask.asJson iteration ${iteration} done in ${result.durationMs}ms`,
               { phase, durationMs: result.durationMs },
             );
@@ -349,7 +383,7 @@ Return a JSON object matching the requested schema.`,
               this.projectDir,
               this.journalCtx.epicId,
               this.journalCtx.taskId,
-              'CLAUDEFN_FAILED',
+              "CLAUDEFN_FAILED",
               `ai.ask.asJson iteration ${iteration} failed: ${error.message}`,
               { phase, error: error.message },
             );
@@ -365,7 +399,7 @@ Return a JSON object matching the requested schema.`,
   /* ---------------------------------------------------------------- */
 
   private async writeStatus(opts: {
-    status: TaskStatus['status'];
+    status: TaskStatus["status"];
     startedAt: string;
     completedAt?: string;
     checklist: ChecklistItem[];
@@ -381,11 +415,15 @@ Return a JSON object matching the requested schema.`,
       startedAt: opts.startedAt,
       completedAt: opts.completedAt,
       durationMs: opts.completedAt
-        ? new Date(opts.completedAt).getTime() - new Date(opts.startedAt).getTime()
+        ? new Date(opts.completedAt).getTime() -
+          new Date(opts.startedAt).getTime()
         : undefined,
       attempt: 1,
-      gapsResolved: opts.status === 'complete' ? opts.checklist.filter(i => i.done).length : 0,
-      gapsFailed: opts.status === 'failed' ? 1 : 0,
+      gapsResolved:
+        opts.status === "complete"
+          ? opts.checklist.filter((i) => i.done).length
+          : 0,
+      gapsFailed: opts.status === "failed" ? 1 : 0,
       error: opts.error,
       checklist: opts.checklist,
     };
@@ -397,6 +435,6 @@ Return a JSON object matching the requested schema.`,
   private getLogDir(): string {
     const { epicId, taskId } = this.journalCtx;
     const structure = getJournalStructure(this.projectDir, epicId, taskId);
-    return join(structure.attempt ?? structure.task!, 'logs');
+    return join(structure.attempt ?? structure.task!, "logs");
   }
 }

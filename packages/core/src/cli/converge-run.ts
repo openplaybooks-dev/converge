@@ -9,25 +9,25 @@
  * - AI debugs and self-corrects
  *
  * Usage:
- *   crew run project.ts
- *   crew run project.ts --watch
- *   crew run project.ts --max=50
+ *   converge run project.ts
+ *   converge run project.ts --watch
+ *   converge run project.ts --max=50
  */
 
-import { runAutonomousOrchestrator } from './skills/autonomous-orchestrator.ts';
+import { runAutonomousOrchestrator } from "./skills/autonomous-orchestrator.ts";
 
 async function main() {
   const args = process.argv.slice(2);
 
   // Show help
-  if (args.includes('--help') || args.includes('-h')) {
+  if (args.includes("--help") || args.includes("-h")) {
     console.log(`
 ╔════════════════════════════════════════════════════════════╗
 ║              Converge - Autonomous AI Orchestrator            ║
 ╚════════════════════════════════════════════════════════════╝
 
 Usage:
-  crew run <project-file> [options]
+  converge run <project-file> [options]
 
 Options:
   --watch           Watch mode (restart on file changes)
@@ -35,9 +35,9 @@ Options:
   --help, -h        Show this help
 
 Examples:
-  crew run project.ts
-  crew run project.ts --max=50
-  crew run project.ts --watch
+  converge run project.ts
+  converge run project.ts --max=50
+  converge run project.ts --watch
 
 What happens when you run:
   1. 🤖 AI discovers tasks from .converge/tasks/
@@ -54,12 +54,12 @@ The AI is fully autonomous - it runs everything!
   }
 
   // Get project file
-  const projectFile = args.find((arg) => !arg.startsWith('--')) || 'project.ts';
+  const projectFile = args.find((arg) => !arg.startsWith("--")) || "project.ts";
 
   // Parse options
-  const watch = args.includes('--watch');
-  const maxArg = args.find((arg) => arg.startsWith('--max='));
-  const maxIterations = maxArg ? parseInt(maxArg.split('=')[1]) : 100;
+  const watch = args.includes("--watch");
+  const maxArg = args.find((arg) => arg.startsWith("--max="));
+  const maxIterations = maxArg ? parseInt(maxArg.split("=")[1]) : 100;
 
   console.log(`
 ╔════════════════════════════════════════════════════════════╗
@@ -73,7 +73,7 @@ The AI is fully autonomous - it runs everything!
       maxIterations,
     });
   } catch (error: any) {
-    console.error('\n❌ Orchestrator failed:', error.message);
+    console.error("\n❌ Orchestrator failed:", error.message);
     process.exit(1);
   }
 }

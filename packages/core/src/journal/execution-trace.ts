@@ -17,9 +17,9 @@
  * specific patterns (errors, timeouts, exit codes) as needed.
  */
 
-import { appendFile, mkdir, readFile, stat } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { appendFile, mkdir, readFile, stat } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { join, dirname } from "node:path";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -29,16 +29,16 @@ import { join, dirname } from 'node:path';
  * Classification of trace entry actions
  */
 export type TraceAction =
-  | 'tool_call'     // AI tool invocation (Read, Write, Bash, etc.)
-  | 'file_write'    // File created or modified
-  | 'file_read'     // File read by the system
-  | 'command'       // Shell command executed
-  | 'ai_response'   // AI model response received
-  | 'check_run'     // Validation check executed
-  | 'gap_detected'  // Gap detected during evaluation
-  | 'strategy_try'  // Repair strategy attempted
-  | 'error'         // Error occurred
-  | 'milestone';    // Significant event (task start, phase change, etc.)
+  | "tool_call" // AI tool invocation (Read, Write, Bash, etc.)
+  | "file_write" // File created or modified
+  | "file_read" // File read by the system
+  | "command" // Shell command executed
+  | "ai_response" // AI model response received
+  | "check_run" // Validation check executed
+  | "gap_detected" // Gap detected during evaluation
+  | "strategy_try" // Repair strategy attempted
+  | "error" // Error occurred
+  | "milestone"; // Significant event (task start, phase change, etc.)
 
 /**
  * A single execution trace entry.
@@ -97,13 +97,13 @@ export class ExecutionTraceLogger {
   private static readonly FLUSH_DELAY_MS = 2000;
 
   constructor(attemptDir: string) {
-    this.tracePath = join(attemptDir, 'trace.jsonl');
+    this.tracePath = join(attemptDir, "trace.jsonl");
   }
 
   /**
    * Log a trace entry. Buffered for performance.
    */
-  async log(entry: Omit<TraceEntry, 'ts'>): Promise<void> {
+  async log(entry: Omit<TraceEntry, "ts">): Promise<void> {
     const full: TraceEntry = {
       ts: new Date().toISOString(),
       ...entry,
@@ -124,9 +124,15 @@ export class ExecutionTraceLogger {
   /**
    * Log a shell command execution
    */
-  async logCommand(cmd: string, output: string, exitCode: number, durationMs: number, category?: string): Promise<void> {
+  async logCommand(
+    cmd: string,
+    output: string,
+    exitCode: number,
+    durationMs: number,
+    category?: string,
+  ): Promise<void> {
     await this.log({
-      action: 'command',
+      action: "command",
       input: cmd,
       output,
       ms: durationMs,
@@ -139,51 +145,66 @@ export class ExecutionTraceLogger {
   /**
    * Log a validation check result
    */
-  async logCheck(checkId: string, cmd: string, passed: boolean, output: string, durationMs: number): Promise<void> {
+  async logCheck(
+    checkId: string,
+    cmd: string,
+    passed: boolean,
+    output: string,
+    durationMs: number,
+  ): Promise<void> {
     await this.log({
-      action: 'check_run',
+      action: "check_run",
       input: `${checkId}: ${cmd}`,
       output,
       ms: durationMs,
       ok: passed,
-      cat: 'check',
+      cat: "check",
     });
   }
 
   /**
    * Log a repair strategy attempt
    */
-  async logStrategy(strategyName: string, success: boolean, reason: string, durationMs: number): Promise<void> {
+  async logStrategy(
+    strategyName: string,
+    success: boolean,
+    reason: string,
+    durationMs: number,
+  ): Promise<void> {
     await this.log({
-      action: 'strategy_try',
+      action: "strategy_try",
       input: strategyName,
       output: reason,
       ms: durationMs,
       ok: success,
-      cat: 'repair',
+      cat: "repair",
     });
   }
 
   /**
    * Log a gap detection event
    */
-  async logGap(gapId: string, description: string, kind: string): Promise<void> {
+  async logGap(
+    gapId: string,
+    description: string,
+    kind: string,
+  ): Promise<void> {
     await this.log({
-      action: 'gap_detected',
+      action: "gap_detected",
       input: `${kind}: ${gapId}`,
       output: description,
       ms: 0,
       ok: false,
-      cat: 'gap',
+      cat: "gap",
     });
   }
 
   /**
    * Log a milestone event
    */
-  async logMilestone(event: string, details: string = ''): Promise<void> {
+  async logMilestone(event: string, details: string = ""): Promise<void> {
     await this.log({
-      action: 'milestone',
+      action: "milestone",
       input: event,
       output: details,
       ms: 0,
@@ -196,12 +217,12 @@ export class ExecutionTraceLogger {
    */
   async logError(context: string, error: string): Promise<void> {
     await this.log({
-      action: 'error',
+      action: "error",
       input: context,
       output: error,
       ms: 0,
       ok: false,
-      cat: 'error',
+      cat: "error",
     });
   }
 
@@ -217,14 +238,14 @@ export class ExecutionTraceLogger {
     if (this.buffer.length === 0) return;
 
     const entries = this.buffer.splice(0);
-    const lines = entries.map(e => JSON.stringify(e)).join('\n') + '\n';
+    const lines = entries.map((e) => JSON.stringify(e)).join("\n") + "\n";
 
     const dir = dirname(this.tracePath);
     if (!existsSync(dir)) {
       await mkdir(dir, { recursive: true });
     }
 
-    await appendFile(this.tracePath, lines, 'utf-8');
+    await appendFile(this.tracePath, lines, "utf-8");
   }
 
   /**
@@ -245,8 +266,8 @@ export class ExecutionTraceLogger {
 
     const byAction: Record<string, number> = {};
     const failuresByAction: Record<string, number> = {};
-    const recentErrors: TraceSummary['recentErrors'] = [];
-    const failedCommands: TraceSummary['failedCommands'] = [];
+    const recentErrors: TraceSummary["recentErrors"] = [];
+    const failedCommands: TraceSummary["failedCommands"] = [];
     let totalDurationMs = 0;
 
     for (const entry of entries) {
@@ -254,14 +275,27 @@ export class ExecutionTraceLogger {
       totalDurationMs += entry.ms;
 
       if (!entry.ok) {
-        failuresByAction[entry.action] = (failuresByAction[entry.action] || 0) + 1;
+        failuresByAction[entry.action] =
+          (failuresByAction[entry.action] || 0) + 1;
 
-        if (entry.action === 'error') {
-          recentErrors.push({ input: entry.input, output: entry.output, ts: entry.ts });
+        if (entry.action === "error") {
+          recentErrors.push({
+            input: entry.input,
+            output: entry.output,
+            ts: entry.ts,
+          });
         }
 
-        if (entry.action === 'command' && entry.code !== undefined && entry.code !== 0) {
-          failedCommands.push({ input: entry.input, code: entry.code, output: entry.output });
+        if (
+          entry.action === "command" &&
+          entry.code !== undefined &&
+          entry.code !== 0
+        ) {
+          failedCommands.push({
+            input: entry.input,
+            code: entry.code,
+            output: entry.output,
+          });
         }
       }
     }
@@ -286,44 +320,49 @@ export class ExecutionTraceLogger {
 
     const lines: string[] = [
       `## Execution Trace Summary (${summary.totalEntries} events, ${Math.round(summary.totalDurationMs / 1000)}s)`,
-      '',
+      "",
     ];
 
     // Failed commands (most diagnostic)
     if (summary.failedCommands.length > 0) {
-      lines.push('### Failed Commands');
+      lines.push("### Failed Commands");
       for (const cmd of summary.failedCommands) {
-        lines.push(`- \`${cmd.input}\` → exit ${cmd.code}: ${cmd.output.slice(0, 150)}`);
+        lines.push(
+          `- \`${cmd.input}\` → exit ${cmd.code}: ${cmd.output.slice(0, 150)}`,
+        );
       }
-      lines.push('');
+      lines.push("");
     }
 
     // Recent errors
     if (summary.recentErrors.length > 0) {
-      lines.push('### Recent Errors');
+      lines.push("### Recent Errors");
       for (const err of summary.recentErrors) {
         lines.push(`- ${err.input}: ${err.output.slice(0, 150)}`);
       }
-      lines.push('');
+      lines.push("");
     }
 
     // Failure counts by action
     if (Object.keys(summary.failuresByAction).length > 0) {
-      lines.push('### Failure Counts');
+      lines.push("### Failure Counts");
       for (const [action, count] of Object.entries(summary.failuresByAction)) {
         lines.push(`- ${action}: ${count} failures`);
       }
-      lines.push('');
+      lines.push("");
     }
 
     // If nothing failed, note success
-    if (summary.failedCommands.length === 0 && summary.recentErrors.length === 0) {
-      lines.push('All traced actions succeeded.');
+    if (
+      summary.failedCommands.length === 0 &&
+      summary.recentErrors.length === 0
+    ) {
+      lines.push("All traced actions succeeded.");
     }
 
     lines.push(`\nFull trace: ${this.tracePath}`);
 
-    return lines.join('\n');
+    return lines.join("\n");
   }
 
   /** Get path to trace file */
@@ -333,17 +372,19 @@ export class ExecutionTraceLogger {
 
   private truncateOutput(output: string): string {
     if (output.length <= ExecutionTraceLogger.MAX_OUTPUT_LENGTH) return output;
-    return output.slice(0, ExecutionTraceLogger.MAX_OUTPUT_LENGTH) + '…[truncated]';
+    return (
+      output.slice(0, ExecutionTraceLogger.MAX_OUTPUT_LENGTH) + "…[truncated]"
+    );
   }
 
   private async readAll(): Promise<TraceEntry[]> {
     if (!existsSync(this.tracePath)) return [];
     try {
-      const raw = await readFile(this.tracePath, 'utf-8');
+      const raw = await readFile(this.tracePath, "utf-8");
       return raw
-        .split('\n')
-        .filter(l => l.trim())
-        .map(l => {
+        .split("\n")
+        .filter((l) => l.trim())
+        .map((l) => {
           try {
             return JSON.parse(l) as TraceEntry;
           } catch {

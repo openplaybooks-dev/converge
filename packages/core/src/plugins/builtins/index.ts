@@ -9,23 +9,23 @@
  *   - PLUGIN.md  — human-readable descriptor (copied to .converge/plugins/ on init)
  */
 
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import type { ConvergePlugin } from '../types.ts';
-import typescriptPlugin from './typescript/index.ts';
-import nextjsPlugin from './nextjs/index.ts';
-import gitPlugin from './git/index.ts';
-import dockerPlugin from './docker/index.ts';
-import eslintPlugin from './eslint/index.ts';
-import vitestPlugin from './vitest/index.ts';
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import type { ConvergePlugin } from "../types.ts";
+import typescriptPlugin from "./typescript/index.ts";
+import nextjsPlugin from "./nextjs/index.ts";
+import gitPlugin from "./git/index.ts";
+import dockerPlugin from "./docker/index.ts";
+import eslintPlugin from "./eslint/index.ts";
+import vitestPlugin from "./vitest/index.ts";
 
 const builtins = new Map<string, ConvergePlugin>([
-  ['typescript', typescriptPlugin],
-  ['nextjs', nextjsPlugin],
-  ['git', gitPlugin],
-  ['docker', dockerPlugin],
-  ['eslint', eslintPlugin],
-  ['vitest', vitestPlugin],
+  ["typescript", typescriptPlugin],
+  ["nextjs", nextjsPlugin],
+  ["git", gitPlugin],
+  ["docker", dockerPlugin],
+  ["eslint", eslintPlugin],
+  ["vitest", vitestPlugin],
 ]);
 
 /**

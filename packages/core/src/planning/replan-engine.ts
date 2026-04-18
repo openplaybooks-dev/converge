@@ -5,15 +5,15 @@
  * Operations: create, edit, rename (reorder), delete task files.
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from "fs";
+import * as path from "path";
 import type {
   ReplanResult,
   ReplanContext,
   ReplanTrigger,
   FeedbackHistory,
-} from './types.ts';
-import type { Gap } from '../gap/types.ts';
+} from "./types.ts";
+import type { Gap } from "../gap/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Replan Engine                                                     */
@@ -32,7 +32,7 @@ export class ReplanEngine {
   async replanFromGaps(
     gaps: Gap[],
     feedbackHistory: FeedbackHistory,
-    trigger: ReplanTrigger
+    trigger: ReplanTrigger,
   ): Promise<ReplanResult> {
     console.log(`[ReplanEngine] Replanning due to: ${trigger}`);
 
@@ -55,38 +55,38 @@ export class ReplanEngine {
     };
 
     switch (strategy) {
-      case 'add-parallel-approach':
+      case "add-parallel-approach":
         // Add new tasks for alternative approach
         result.created = await this.addParallelTasks(gaps);
-        result.rationale = 'Adding parallel tasks for alternative approach';
+        result.rationale = "Adding parallel tasks for alternative approach";
         break;
 
-      case 'reorder-priorities':
+      case "reorder-priorities":
         // Reorder tasks to deprioritize blocked items
         result.renamed = await this.reorderTasks(gaps);
-        result.rationale = 'Reordering tasks to avoid blocked paths';
+        result.rationale = "Reordering tasks to avoid blocked paths";
         break;
 
-      case 'split-complex-tasks':
+      case "split-complex-tasks":
         // Split complex failing tasks into smaller pieces
         result.created = await this.splitComplexTasks(feedbackHistory);
-        result.rationale = 'Splitting complex tasks into smaller units';
+        result.rationale = "Splitting complex tasks into smaller units";
         break;
 
-      case 'remove-obsolete':
+      case "remove-obsolete":
         // Remove tasks that are no longer relevant
         result.deleted = await this.removeObsoleteTasks(gaps);
-        result.rationale = 'Removing obsolete tasks';
+        result.rationale = "Removing obsolete tasks";
         break;
 
-      case 'modify-approach':
+      case "modify-approach":
         // Modify existing tasks with different approach
         result.modified = await this.modifyTaskApproach(feedbackHistory);
-        result.rationale = 'Modifying task approach based on feedback';
+        result.rationale = "Modifying task approach based on feedback";
         break;
 
       default:
-        result.rationale = 'No replanning needed';
+        result.rationale = "No replanning needed";
     }
 
     return result;
@@ -99,24 +99,24 @@ export class ReplanEngine {
     const { trigger, feedbackHistory, gaps } = context;
 
     switch (trigger) {
-      case 'stalled-progress':
+      case "stalled-progress":
         // If stalled, try parallel approach
-        return 'add-parallel-approach';
+        return "add-parallel-approach";
 
-      case 'blocked-path':
+      case "blocked-path":
         // If blocked, reorder to work on unblocked items
-        return 'reorder-priorities';
+        return "reorder-priorities";
 
-      case 'major-gap':
+      case "major-gap":
         // If major gap, might need to add new tasks
-        return 'add-parallel-approach';
+        return "add-parallel-approach";
 
-      case 'better-approach':
+      case "better-approach":
         // If better approach found, modify existing tasks
-        return 'modify-approach';
+        return "modify-approach";
 
       default:
-        return 'no-change';
+        return "no-change";
     }
   }
 
@@ -144,7 +144,9 @@ export class ReplanEngine {
   /**
    * Reorder tasks to change priorities
    */
-  private async reorderTasks(gaps: Gap[]): Promise<Array<{ from: string; to: string }>> {
+  private async reorderTasks(
+    gaps: Gap[],
+  ): Promise<Array<{ from: string; to: string }>> {
     const renamed: Array<{ from: string; to: string }> = [];
 
     // In real impl, would analyze gaps to determine reordering
@@ -169,7 +171,9 @@ export class ReplanEngine {
   /**
    * Split complex tasks into smaller pieces
    */
-  private async splitComplexTasks(feedbackHistory: FeedbackHistory): Promise<string[]> {
+  private async splitComplexTasks(
+    feedbackHistory: FeedbackHistory,
+  ): Promise<string[]> {
     const created: string[] = [];
 
     // In real impl, would analyze feedback to identify complex tasks
@@ -208,7 +212,9 @@ export class ReplanEngine {
   /**
    * Modify existing tasks with different approach
    */
-  private async modifyTaskApproach(feedbackHistory: FeedbackHistory): Promise<string[]> {
+  private async modifyTaskApproach(
+    feedbackHistory: FeedbackHistory,
+  ): Promise<string[]> {
     const modified: string[] = [];
 
     // In real impl, would rewrite task files with different approach
@@ -232,12 +238,12 @@ export class ReplanEngine {
     }, 0);
 
     const priority = maxPriority + 1;
-    const paddedPriority = priority.toString().padStart(3, '0');
+    const paddedPriority = priority.toString().padStart(3, "0");
     const fileName = `${paddedPriority}-${task.id}.ts`;
     const filePath = path.join(this.tasksDir, fileName);
 
     const content = this.generateTaskFileContent(task);
-    fs.writeFileSync(filePath, content, 'utf-8');
+    fs.writeFileSync(filePath, content, "utf-8");
 
     return filePath;
   }
@@ -247,8 +253,8 @@ export class ReplanEngine {
    */
   private changeTaskPriority(filePath: string, newPriority: number): string {
     const fileName = path.basename(filePath);
-    const nameWithoutPriority = fileName.replace(/^\d+-/, '');
-    const paddedPriority = newPriority.toString().padStart(3, '0');
+    const nameWithoutPriority = fileName.replace(/^\d+-/, "");
+    const paddedPriority = newPriority.toString().padStart(3, "0");
     const newFileName = `${paddedPriority}-${nameWithoutPriority}`;
     return path.join(path.dirname(filePath), newFileName);
   }
@@ -263,7 +269,7 @@ export class ReplanEngine {
 
     return fs
       .readdirSync(this.tasksDir)
-      .filter((file) => file.endsWith('.ts'))
+      .filter((file) => file.endsWith(".ts"))
       .map((file) => path.join(this.tasksDir, file))
       .sort();
   }
@@ -272,7 +278,7 @@ export class ReplanEngine {
    * Extract priority from file path
    */
   private extractPriorityFromPath(filePath: string): number {
-    const fileName = path.basename(filePath, '.ts');
+    const fileName = path.basename(filePath, ".ts");
     const match = fileName.match(/^(\d+)/);
     return match ? parseInt(match[1], 10) : 0;
   }

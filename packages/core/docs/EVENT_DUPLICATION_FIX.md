@@ -30,6 +30,7 @@ Console output showed duplicate events - every event appeared twice:
 **Location**: `src/repair/pipeline.ts` (Lines 72-79)
 
 Gap detection events were being logged in TWO places:
+
 - ✅ In `unit/run.ts` when gaps are detected (lines 82-88, 217-223)
 - ❌ In `pipeline.ts` when resolution begins (lines 73-79) - **DUPLICATE**
 
@@ -41,7 +42,7 @@ if (eventWriter) {
   eventWriter.gapDetected(
     gap.id,
     gap.description,
-    (gap.metadata?.gapKind as string) ?? gap.type
+    (gap.metadata?.gapKind as string) ?? gap.type,
   );
 }
 
@@ -57,6 +58,7 @@ if (eventWriter) {
 The file watcher could trigger multiple times for a single write operation, causing duplicate reads:
 
 **Problem Flow**:
+
 1. Event written to file
 2. File watcher triggers `'change'` event
 3. `readNew()` called
@@ -90,11 +92,11 @@ The original code had separate event listeners for `'end'` and `'close'`:
 
 ```typescript
 // BEFORE: Potential race between 'end' and 'close'
-stream.on('end', () => {
+stream.on("end", () => {
   this.lastPosition = stats.size;
 });
 
-await new Promise((resolve) => stream.on('close', resolve));
+await new Promise((resolve) => stream.on("close", resolve));
 ```
 
 If the file watcher triggered between `'end'` and `'close'`, `lastPosition` might not be set yet.
@@ -104,20 +106,22 @@ If the file watcher triggered between `'end'` and `'close'`, `lastPosition` migh
 ```typescript
 // AFTER: Atomically handle both events
 await new Promise((resolve, reject) => {
-  stream.on('end', () => {
+  stream.on("end", () => {
     this.lastPosition = stats.size;
   });
-  stream.on('close', resolve);
-  stream.on('error', reject);
+  stream.on("close", resolve);
+  stream.on("error", reject);
 });
 ```
 
 ## Files Modified
 
 ### src/repair/pipeline.ts
+
 **Lines 66-79**: Removed duplicate `gapDetected` event logging
 
 ### src/journal/console-formatter.ts
+
 **Lines 110-119**: Fixed async race in `readExisting()`
 **Lines 126-135**: Added debounce to `startWatching()`
 

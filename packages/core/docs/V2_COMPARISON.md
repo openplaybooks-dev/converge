@@ -3,6 +3,7 @@
 ## File Size Comparison
 
 ### V1 (Old)
+
 ```
 src/cli/autonomous-run.ts        1,796 lines
   ├── discoverAndSnapshotTasks()   639 lines  (god function)
@@ -26,6 +27,7 @@ TOTAL: ~3,800 lines
 ```
 
 ### V2 (New)
+
 ```
 src/unit.ts                        120 lines  (universal unit)
 src/cli/autonomous-run-v2.ts        15 lines  (CLI entry)
@@ -40,31 +42,34 @@ TOTAL: 135 lines (96% reduction!)
 ```typescript
 // Complex type hierarchy
 interface ProjectContext {
-  level: 'project'
-  config: ProjectConfig
-  epics: EpicContext[]
+  level: "project";
+  config: ProjectConfig;
+  epics: EpicContext[];
 }
 
 interface EpicContext {
-  level: 'epic'
-  epicId: string
-  parent: ProjectContext
-  tasks: TaskContext[]
+  level: "epic";
+  epicId: string;
+  parent: ProjectContext;
+  tasks: TaskContext[];
 }
 
 interface TaskContext {
-  level: 'task'
-  epicId: string
-  taskId: string
-  parent: EpicContext
+  level: "task";
+  epicId: string;
+  taskId: string;
+  parent: EpicContext;
 }
 
 // Factory pattern
 function createContext(level: Level, config: Config): Context {
   switch (level) {
-    case 'project': return new ProjectContext(config)
-    case 'epic': return new EpicContext(config)
-    case 'task': return new TaskContext(config)
+    case "project":
+      return new ProjectContext(config);
+    case "epic":
+      return new EpicContext(config);
+    case "task":
+      return new TaskContext(config);
   }
 }
 
@@ -81,22 +86,22 @@ if (isProjectContext(ctx)) {
 ```typescript
 // Single class for everything
 class Unit {
-  parent: Unit | null
-  inputs: string[]
-  outputs: string[]
-  checks: CheckFn[]
+  parent: Unit | null;
+  inputs: string[];
+  outputs: string[];
+  checks: CheckFn[];
 
   async run() {
     while (hasGaps) {
-      gaps = findGaps()
-      fixGaps(gaps)
+      gaps = findGaps();
+      fixGaps(gaps);
     }
   }
 }
 
 // No factory, no types, no guards - just data
-const unit = await Unit.fromPath(path)
-await unit.run()
+const unit = await Unit.fromPath(path);
+await unit.run();
 ```
 
 ## Gap Detection Comparison
@@ -152,31 +157,31 @@ async function discoverAndSnapshotTasks(
 ```typescript
 class Unit {
   async findGaps(): Promise<Gap[]> {
-    const gaps: Gap[] = []
+    const gaps: Gap[] = [];
 
     // Check inputs
     for (const input of this.inputs) {
       if (!exists(input)) {
-        gaps.push({ type: 'input', path: input })
+        gaps.push({ type: "input", path: input });
       }
     }
 
     // Check outputs
     for (const output of this.outputs) {
       if (!exists(output)) {
-        gaps.push({ type: 'output', path: output })
+        gaps.push({ type: "output", path: output });
       }
     }
 
     // Run checks
     for (const check of this.checks) {
-      const result = await check.run()
+      const result = await check.run();
       if (!result.passed) {
-        gaps.push(...result.gaps)
+        gaps.push(...result.gaps);
       }
     }
 
-    return gaps
+    return gaps;
   }
 }
 ```
@@ -188,30 +193,32 @@ class Unit {
 ```typescript
 // Main loop (100+ lines)
 while (shouldContinue(state, config) || state.runningTasks.size > 0) {
-  state.iteration++
+  state.iteration++;
 
   // Scan and snapshot (639 lines)
-  await discoverAndSnapshotTasks(projectDir, state, config, checkpointMgr)
+  await discoverAndSnapshotTasks(projectDir, state, config, checkpointMgr);
 
   // Find items with gaps (reads journals)
-  const itemsWithGaps = await findItemsWithGaps(projectDir, projectName)
+  const itemsWithGaps = await findItemsWithGaps(projectDir, projectName);
 
   // Select focus (manual priority logic)
-  const focus = selectFocus(itemsWithGaps)
-  state.currentFocus = focus
+  const focus = selectFocus(itemsWithGaps);
+  state.currentFocus = focus;
 
   // Load gaps for selected scope
-  let gaps: Gap[] = []
-  if (focus.level === 'task' && focus.epicId && focus.taskId) {
-    gaps = (await getTaskOverview(projectDir, projectName, focus.epicId, focus.taskId)).gaps
-  } else if (focus.level === 'epic' && focus.epicId) {
-    gaps = (await getEpicOverview(projectDir, projectName, focus.epicId)).gaps
+  let gaps: Gap[] = [];
+  if (focus.level === "task" && focus.epicId && focus.taskId) {
+    gaps = (
+      await getTaskOverview(projectDir, projectName, focus.epicId, focus.taskId)
+    ).gaps;
+  } else if (focus.level === "epic" && focus.epicId) {
+    gaps = (await getEpicOverview(projectDir, projectName, focus.epicId)).gaps;
   } else {
-    gaps = (await getProjectOverview(projectDir, projectName)).gaps
+    gaps = (await getProjectOverview(projectDir, projectName)).gaps;
   }
 
   // Execute fixes (complex task management)
-  await executeFixes(projectDir, focus, gaps, config, checkpointMgr, focusPath)
+  await executeFixes(projectDir, focus, gaps, config, checkpointMgr, focusPath);
 
   // ... more complexity ...
 }
@@ -252,18 +259,18 @@ async run(): Promise<boolean> {
 
 ```typescript
 interface AutonomousRunConfig {
-  projectDir?: string
-  filter?: string              // Epic/task filtering
-  maxIterations?: number
-  maxDuration?: number
-  checkInterval?: number
-  autoFix?: boolean
-  selfPlan?: boolean
-  verbose?: boolean
-  step?: boolean
-  dry?: boolean
-  convergeConfig?: ConvergeConfig  // Loaded converge.ts
-  hookRegistry?: HookRegistry     // Pre-built hooks
+  projectDir?: string;
+  filter?: string; // Epic/task filtering
+  maxIterations?: number;
+  maxDuration?: number;
+  checkInterval?: number;
+  autoFix?: boolean;
+  selfPlan?: boolean;
+  verbose?: boolean;
+  step?: boolean;
+  dry?: boolean;
+  convergeConfig?: ConvergeConfig; // Loaded converge.ts
+  hookRegistry?: HookRegistry; // Pre-built hooks
 }
 
 const DEFAULT_CONFIG: Required<AutonomousRunConfig> = {
@@ -276,14 +283,16 @@ const DEFAULT_CONFIG: Required<AutonomousRunConfig> = {
   verbose: false,
   step: false,
   dry: false,
-  filter: '',
+  filter: "",
   // ... more defaults ...
-}
+};
 
 // Complex initialization
-export async function autonomousRun(userConfig: AutonomousRunConfig = {}): Promise<void> {
-  const config = { ...DEFAULT_CONFIG, ...userConfig }
-  const projectDir = resolve(config.projectDir || process.cwd())
+export async function autonomousRun(
+  userConfig: AutonomousRunConfig = {},
+): Promise<void> {
+  const config = { ...DEFAULT_CONFIG, ...userConfig };
+  const projectDir = resolve(config.projectDir || process.cwd());
 
   // ... 200+ lines of setup ...
 
@@ -298,27 +307,30 @@ export async function autonomousRun(userConfig: AutonomousRunConfig = {}): Promi
 
 ```typescript
 interface AutonomousRunConfigV2 {
-  projectDir?: string
-  verbose?: boolean
+  projectDir?: string;
+  verbose?: boolean;
 }
 
-export async function autonomousRunV2(config: AutonomousRunConfigV2 = {}): Promise<void> {
-  const targetPath = resolve(config.projectDir || process.cwd())
+export async function autonomousRunV2(
+  config: AutonomousRunConfigV2 = {},
+): Promise<void> {
+  const targetPath = resolve(config.projectDir || process.cwd());
 
   // Load unit from path
-  const unit = await Unit.fromPath(targetPath)
+  const unit = await Unit.fromPath(targetPath);
 
   // Run (same method for all levels)
-  const success = await unit.run()
+  const success = await unit.run();
 
   // Done
-  process.exit(success ? 0 : 1)
+  process.exit(success ? 0 : 1);
 }
 ```
 
 ## Benefits Summary
 
 ### Code Quality
+
 - **92% less code**: 135 lines vs 1,796 lines
 - **No god functions**: Largest function is 40 lines (was 639)
 - **Single responsibility**: Each method does one thing
@@ -326,6 +338,7 @@ export async function autonomousRunV2(config: AutonomousRunConfigV2 = {}): Promi
 - **Easy to test**: Pure functions, mockable dependencies
 
 ### Developer Experience
+
 - **Instant understanding**: One class, one loop
 - **Easy debugging**: Single call stack
 - **Simple extension**: Just add config files
@@ -333,6 +346,7 @@ export async function autonomousRunV2(config: AutonomousRunConfigV2 = {}): Promi
 - **Zero abstraction overhead**: No interfaces, no patterns
 
 ### Production Ready
+
 - **Self-correcting**: AI fixes leaf units
 - **Nested delegation**: Parents coordinate children
 - **Resumable**: Checkpoint system (can be added)
@@ -340,6 +354,7 @@ export async function autonomousRunV2(config: AutonomousRunConfigV2 = {}): Promi
 - **Scalable**: Endlessly nestable structure
 
 ### Maintenance
+
 - **Less to break**: 92% fewer lines
 - **Less to test**: Minimal surface area
 - **Less to document**: Self-explanatory code
@@ -349,23 +364,27 @@ export async function autonomousRunV2(config: AutonomousRunConfigV2 = {}): Promi
 ## Migration Path
 
 ### Phase 1: Parallel Implementation (Week 1)
+
 - [x] Implement V2 in parallel (src/unit.ts, src/cli/autonomous-run-v2.ts)
 - [ ] Add feature flag: `CONVERGE_V2=1` or `--v2` flag
 - [ ] Add integration tests
 
 ### Phase 2: Testing (Week 2-3)
+
 - [ ] Test with existing projects
 - [ ] Compare results (V1 vs V2)
 - [ ] Fix any discrepancies
 - [ ] Performance benchmarking
 
 ### Phase 3: Switchover (Week 4)
+
 - [ ] Make V2 the default
 - [ ] Keep V1 available via `--v1` flag
 - [ ] Update documentation
 - [ ] Add migration guide
 
 ### Phase 4: Cleanup (Week 5-6)
+
 - [ ] Deprecation notice for V1
 - [ ] Remove V1 after 1-2 release cycles
 - [ ] Delete legacy code
@@ -374,15 +393,19 @@ export async function autonomousRunV2(config: AutonomousRunConfigV2 = {}): Promi
 ## Risks & Mitigation
 
 ### Risk: Breaking Existing Projects
+
 **Mitigation**: Feature flag allows gradual migration, V1 stays available
 
 ### Risk: Missing V1 Features
+
 **Mitigation**: Audit V1 features, add essential ones to V2
 
 ### Risk: Performance Regression
+
 **Mitigation**: Benchmark both versions, optimize V2 if needed
 
 ### Risk: User Confusion
+
 **Mitigation**: Clear migration guide, side-by-side examples
 
 ## Conclusion

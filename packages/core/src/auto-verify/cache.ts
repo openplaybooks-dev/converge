@@ -4,7 +4,7 @@
  * Caches synthesized verification code for reuse across similar tasks.
  */
 
-import type { SynthesizedVerification } from './types.ts';
+import type { SynthesizedVerification } from "./types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Converge Cache                                                     */
@@ -60,12 +60,15 @@ export class ConvergeCache {
   }): string {
     // Simple hash-like key generation
     const parts = [
-      taskContext.type || '',
-      taskContext.title || '',
-      taskContext.description || '',
+      taskContext.type || "",
+      taskContext.title || "",
+      taskContext.description || "",
     ];
 
-    return parts.join('::').toLowerCase().replace(/[^a-z0-9:]/g, '-');
+    return parts
+      .join("::")
+      .toLowerCase()
+      .replace(/[^a-z0-9:]/g, "-");
   }
 }
 

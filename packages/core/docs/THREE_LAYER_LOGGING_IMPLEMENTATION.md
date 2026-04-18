@@ -45,17 +45,18 @@ The complete three-layer logging system has been successfully integrated into th
 **Location**: `src/lifecycle/task-runner.ts`
 
 **Changes**:
+
 ```typescript
 // Create event writer and formatter at attempt start
-const eventsFile = path.join(attemptDir, 'events.jsonl');
+const eventsFile = path.join(attemptDir, "events.jsonl");
 const eventWriter = new TaskEventWriter(eventsFile);
 
 const formatter = new ConsoleFormatter(eventsFile, {
-  minLevel: 'info',
+  minLevel: "info",
   useColor: true,
   useIcons: true,
 });
-formatter.start().catch(err => {
+formatter.start().catch((err) => {
   console.warn(`⚠️  Console formatter failed to start: ${err.message}`);
 });
 
@@ -76,7 +77,11 @@ success = await unit.run();
 if (success && unit) {
   eventWriter.taskComplete(ctx.journalTaskId, durationMs, unit.outputs || []);
 } else {
-  eventWriter.taskFailed(ctx.journalTaskId, 'Convergence not achieved', durationMs);
+  eventWriter.taskFailed(
+    ctx.journalTaskId,
+    "Convergence not achieved",
+    durationMs,
+  );
 }
 
 // Close event writer and stop formatter
@@ -90,6 +95,7 @@ delete (global as any).__CONVERGE_EVENT_WRITER__;
 **Location**: `src/unit/run.ts`
 
 **Changes**:
+
 ```typescript
 // Get event writer from global context
 function getEventWriter(): TaskEventWriter | null {
@@ -109,7 +115,7 @@ export async function run(unit: Unit): Promise<boolean> {
         isWbs: !!unit.wbsFn,
         hasInputs: (unit.inputs?.length ?? 0) > 0,
         hasOutputs: (unit.outputs?.length ?? 0) > 0,
-      }
+      },
     );
   }
 
@@ -120,7 +126,7 @@ export async function run(unit: Unit): Promise<boolean> {
         eventWriter.gapDetected(
           b.id,
           b.description,
-          b.metadata?.gapKind || 'blocker'
+          b.metadata?.gapKind || "blocker",
         );
       }
     }
@@ -129,26 +135,30 @@ export async function run(unit: Unit): Promise<boolean> {
   // Log validation results
   if (eventWriter) {
     eventWriter.write({
-      type: 'validation_start' as any,
-      level: 'info',
+      type: "validation_start" as any,
+      level: "info",
       outputs: unit.outputs || [],
     });
 
     if (postGaps.length === 0) {
       eventWriter.write({
-        type: 'validation_result' as any,
-        level: 'info',
-        output: unit.outputs?.join(', ') || '',
+        type: "validation_result" as any,
+        level: "info",
+        output: unit.outputs?.join(", ") || "",
         exists: true,
-        checks: (unit.outputs || []).map(o => ({ id: o, passed: true })),
+        checks: (unit.outputs || []).map((o) => ({ id: o, passed: true })),
       });
     } else {
       eventWriter.write({
-        type: 'validation_result' as any,
-        level: 'warning',
-        output: unit.outputs?.join(', ') || '',
+        type: "validation_result" as any,
+        level: "warning",
+        output: unit.outputs?.join(", ") || "",
         exists: false,
-        checks: postGaps.map(g => ({ id: g.id, passed: false, error: g.description })),
+        checks: postGaps.map((g) => ({
+          id: g.id,
+          passed: false,
+          error: g.description,
+        })),
       });
     }
   }
@@ -159,7 +169,7 @@ export async function run(unit: Unit): Promise<boolean> {
       eventWriter.gapDetected(
         gap.id,
         gap.description,
-        gap.metadata?.gapKind || gap.type
+        gap.metadata?.gapKind || gap.type,
       );
     }
   }
@@ -171,14 +181,18 @@ export async function run(unit: Unit): Promise<boolean> {
     for (let i = 0; i < gaps.length; i++) {
       const gap = gaps[i];
       if (i < resolved) {
-        eventWriter.gapResolved(gap.id, 'gap_fix_iteration', fixDuration / gaps.length);
+        eventWriter.gapResolved(
+          gap.id,
+          "gap_fix_iteration",
+          fixDuration / gaps.length,
+        );
       } else {
         eventWriter.write({
-          type: 'strategy_failed' as any,
-          level: 'warning',
+          type: "strategy_failed" as any,
+          level: "warning",
           gapId: gap.id,
-          strategy: 'gap_fix_iteration',
-          reason: 'Gap persisted after fix attempt',
+          strategy: "gap_fix_iteration",
+          reason: "Gap persisted after fix attempt",
         });
       }
     }
@@ -191,6 +205,7 @@ export async function run(unit: Unit): Promise<boolean> {
 **Location**: `src/repair/pipeline.ts`
 
 **Changes**:
+
 ```typescript
 function getEventWriter(): TaskEventWriter | null {
   return (global as any).__CONVERGE_EVENT_WRITER__ || null;
@@ -233,30 +248,36 @@ async resolve(gap: Gap): Promise<Resolution> {
 ## Event Types Captured
 
 ### Lifecycle Events
+
 - ✅ `task_start` - Task execution begins
 - ✅ `task_complete` - Task succeeds
 - ✅ `task_failed` - Task fails
 - ✅ `retry_start` - Retry attempt begins
 
 ### AI Events
+
 - ✅ `ai_reasoning` - AI reasoning about task execution
 - ✅ `ai_error` - Errors during execution
 
 ### Gap Resolution Events
+
 - ✅ `gap_detected` - Gap found during validation
 - ✅ `gap_resolved` - Gap successfully fixed
 - ✅ `strategy_applied` - Resolution strategy applied
 - ✅ `strategy_failed` - Strategy failed to resolve gap
 
 ### Validation Events
+
 - ✅ `validation_start` - Output validation begins
 - ✅ `validation_result` - Validation results (pass/fail with checks)
 
 ### Tool Usage Events
+
 - 🔄 `tool_use_start` - Tool invocation begins (TODO: requires agentfn integration)
 - 🔄 `tool_use_complete` - Tool completes (TODO: requires agentfn integration)
 
 ### File Operations
+
 - 🔄 `file_created` - File created (TODO: requires file watcher or explicit logging)
 - 🔄 `file_modified` - File modified (TODO: requires file watcher or explicit logging)
 - 🔄 `file_verified` - File verified to exist (TODO: add to validation phase)
@@ -268,6 +289,7 @@ async resolve(gap: Gap): Promise<Resolution> {
 **Format**: JSON Lines (JSONL) - one JSON object per line
 
 **Example**:
+
 ```jsonl
 {"timestamp":"2026-04-04T15:27:13.576Z","type":"task_start","level":"critical","taskId":"003-001-design-home-lesson-tree","taskName":"Generate Design: Home Lesson Tree","attempt":1,"inputs":[".stitch/prompts/home-lesson-tree.md"],"outputs":[".stitch/designs/home-lesson-tree.html"]}
 {"timestamp":"2026-04-04T15:27:14.123Z","type":"ai_reasoning","level":"info","text":"Starting convergence loop for task: Generate Design: Home Lesson Tree","context":{"taskId":"003-001-design-home-lesson-tree","maxIterations":100,"isWbs":false,"hasInputs":true,"hasOutputs":true}}
@@ -304,17 +326,17 @@ The `ConsoleFormatter` reads from `events.jsonl` and displays human-readable out
 
 ## Benefits Over Previous Timer-Based Logging
 
-| Previous (Timer) | New (Event-Driven) |
-|-----------------|-------------------|
-| ⏰ Logs every 60s | 📊 Logs on important events |
-| 📋 Shows JSON dumps | 💬 Human-readable summaries |
-| ❓ "Last activity 1m ago" | ✅ "Created file.html (42 KB)" |
-| 🔁 Repeats same info | 🎯 Only new information |
-| 📊 50+ lines/minute | 📊 ~4 lines per event |
-| ❌ Misses events between ticks | ✅ Captures everything |
-| ⏱️ User waits 60s | ⏱️ Instant feedback |
-| 🚫 Lost if crashed | ✅ Persisted to file |
-| ❌ No replay | ✅ Can replay from file |
+| Previous (Timer)               | New (Event-Driven)             |
+| ------------------------------ | ------------------------------ |
+| ⏰ Logs every 60s              | 📊 Logs on important events    |
+| 📋 Shows JSON dumps            | 💬 Human-readable summaries    |
+| ❓ "Last activity 1m ago"      | ✅ "Created file.html (42 KB)" |
+| 🔁 Repeats same info           | 🎯 Only new information        |
+| 📊 50+ lines/minute            | 📊 ~4 lines per event          |
+| ❌ Misses events between ticks | ✅ Captures everything         |
+| ⏱️ User waits 60s              | ⏱️ Instant feedback            |
+| 🚫 Lost if crashed             | ✅ Persisted to file           |
+| ❌ No replay                   | ✅ Can replay from file        |
 
 ## File Structure
 
@@ -354,10 +376,10 @@ Event logging is automatically enabled for all task executions. The console will
 ### 2. Replay Events from File
 
 ```typescript
-import { ConsoleFormatter } from '@converge/core';
+import { ConsoleFormatter } from "@converge/core";
 
 const formatter = new ConsoleFormatter(
-  '.converge/journal/epics/03-implement-app/tasks/003-001-asset-logo/attempts/01/events.jsonl'
+  ".converge/journal/epics/03-implement-app/tasks/003-001-asset-logo/attempts/01/events.jsonl",
 );
 await formatter.start(); // Replays all events
 ```
@@ -365,44 +387,57 @@ await formatter.start(); // Replays all events
 ### 3. Analyze Events Programmatically
 
 ```typescript
-import { readFileSync } from 'fs';
+import { readFileSync } from "fs";
 
-const events = readFileSync(eventsFile, 'utf8')
-  .split('\n')
-  .filter(l => l.trim())
-  .map(l => JSON.parse(l));
+const events = readFileSync(eventsFile, "utf8")
+  .split("\n")
+  .filter((l) => l.trim())
+  .map((l) => JSON.parse(l));
 
 // Calculate metrics
-const start = events.find(e => e.type === 'task_start');
-const end = events.find(e => e.type === 'task_complete');
-const duration = new Date(end.timestamp).getTime() - new Date(start.timestamp).getTime();
+const start = events.find((e) => e.type === "task_start");
+const end = events.find((e) => e.type === "task_complete");
+const duration =
+  new Date(end.timestamp).getTime() - new Date(start.timestamp).getTime();
 
 // Gap resolution stats
-const gapsDetected = events.filter(e => e.type === 'gap_detected');
-const gapsResolved = events.filter(e => e.type === 'gap_resolved');
-const resolutionRate = (gapsResolved.length / gapsDetected.length * 100).toFixed(1);
+const gapsDetected = events.filter((e) => e.type === "gap_detected");
+const gapsResolved = events.filter((e) => e.type === "gap_resolved");
+const resolutionRate = (
+  (gapsResolved.length / gapsDetected.length) *
+  100
+).toFixed(1);
 
-console.log({ duration, gapsDetected: gapsDetected.length, gapsResolved: gapsResolved.length, resolutionRate });
+console.log({
+  duration,
+  gapsDetected: gapsDetected.length,
+  gapsResolved: gapsResolved.length,
+  resolutionRate,
+});
 ```
 
 ## Next Steps (Future Enhancements)
 
 ### Phase 1: Complete Tool Call Logging ⏭️
+
 - Hook into agentfn to capture tool calls (Read, Write, Bash, etc.)
 - Log AI reasoning and thinking events
 - Capture file creation/modification events
 
 ### Phase 2: Session Logger Integration ⏭️
+
 - Connect task events to session logger
 - Show task progress in session timeline
 - Track task dependencies and parallelism
 
 ### Phase 3: Enhanced Visualization ⏭️
+
 - Progress bars for long operations
 - Collapsible sections for verbose data
 - Real-time task tree view with status
 
 ### Phase 4: Deprecate Legacy Logging ⏭️
+
 - Remove timer-based polling (60s ticks)
 - Remove JSON dumps to console
 - Delete legacy log.log files

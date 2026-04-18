@@ -9,18 +9,24 @@
  * Both --step and --step --dry use the same function so they're always in sync.
  */
 
-import { existsSync } from 'node:fs';
-import path from 'node:path';
-import { CheckpointManager } from '../checkpoint/manager.ts';
-import { TaskCheckpointManager } from '../checkpoint/task-checkpoint.ts';
-import { UnitCheckpointManager } from '../checkpoint/unit-checkpoint.ts';
-import { ensureEpicCheckpoints, updateEpicProgress } from '../checkpoint/ensure-epic-checkpoints.ts';
-import { constructJournalPath, extractJournalTaskId } from '../unit/path-utils.ts';
-import { Unit } from '../unit/index.ts';
-import { pathExists } from '../unit/helpers.ts';
-import { check as checkCmd } from '../facts/api.ts';
-import { resolveChecks as resolveChecksForUnit } from '../unit/resolve.ts';
-import type { TaskTree } from '../tree/index.ts';
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { CheckpointManager } from "../checkpoint/manager.ts";
+import { TaskCheckpointManager } from "../checkpoint/task-checkpoint.ts";
+import { UnitCheckpointManager } from "../checkpoint/unit-checkpoint.ts";
+import {
+  ensureEpicCheckpoints,
+  updateEpicProgress,
+} from "../checkpoint/ensure-epic-checkpoints.ts";
+import {
+  constructJournalPath,
+  extractJournalTaskId,
+} from "../unit/path-utils.ts";
+import { Unit } from "../unit/index.ts";
+import { pathExists } from "../unit/helpers.ts";
+import { check as checkCmd } from "../facts/api.ts";
+import { resolveChecks as resolveChecksForUnit } from "../unit/resolve.ts";
+import type { TaskTree } from "../tree/index.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -69,11 +75,11 @@ export interface TaskNode {
   /** Whether this task is a WBS parent (has wbs: config) */
   isWbsParent?: boolean;
   /** Execution status from journal (optional, added when wiring trees) */
-  status?: 'pending' | 'running' | 'complete' | 'failed' | 'seeded';
+  status?: "pending" | "running" | "complete" | "failed" | "seeded";
   /** Number of execution attempts from journal (optional, added when wiring trees) */
   attempts?: number;
   /** Linked journal node (optional, added when wiring trees) */
-  journalNode?: any;  // JournalNode type
+  journalNode?: any; // JournalNode type
 }
 
 /* ------------------------------------------------------------------ */
@@ -86,9 +92,12 @@ export interface TaskNode {
  * Used by tree, gantt, and run commands so they all share the same
  * conversion logic and produce consistent task lists.
  */
-export function treeNodesToTaskNodes(taskTree: TaskTree, projectDir: string): TaskNode[] {
-  return taskTree.getAllNodes().map(node => {
-    const epicId = node.epicId || 'unknown';
+export function treeNodesToTaskNodes(
+  taskTree: TaskTree,
+  projectDir: string,
+): TaskNode[] {
+  return taskTree.getAllNodes().map((node) => {
+    const epicId = node.epicId || "unknown";
 
     // Derive parentTaskId from journalTaskId structure.
     // journalTaskId format: "epicId/taskId" for epic-root children,
@@ -96,8 +105,8 @@ export function treeNodesToTaskNodes(taskTree: TaskTree, projectDir: string): Ta
     // parentTaskId should be undefined for top-level tasks within an epic
     // (where the parent portion is just the epicId itself).
     let parentTaskId: string | undefined;
-    if (node.id.includes('/')) {
-      const parentPortion = node.id.split('/').slice(0, -1).join('/');
+    if (node.id.includes("/")) {
+      const parentPortion = node.id.split("/").slice(0, -1).join("/");
       // If parent portion is just the epicId, this is a top-level epic task
       if (parentPortion !== epicId) {
         parentTaskId = parentPortion;
@@ -106,9 +115,9 @@ export function treeNodesToTaskNodes(taskTree: TaskTree, projectDir: string): Ta
 
     return {
       epicId,
-      taskId: node.id.split('/').pop() || node.id,
+      taskId: node.id.split("/").pop() || node.id,
       filePath: node.unit.path,
-      relPath: node.unit.path.replace(projectDir + '/', ''),
+      relPath: node.unit.path.replace(projectDir + "/", ""),
       parentTaskId,
       journalTaskId: node.id,
       journalPath: constructJournalPath(node.unit.path),
@@ -119,7 +128,11 @@ export function treeNodesToTaskNodes(taskTree: TaskTree, projectDir: string): Ta
       description: node.unit.description,
       inputs: node.unit.inputs,
       outputs: node.unit.outputs,
-      skills: Array.isArray(node.unit.skill) ? node.unit.skill : node.unit.skill ? [node.unit.skill] : undefined,
+      skills: Array.isArray(node.unit.skill)
+        ? node.unit.skill
+        : node.unit.skill
+          ? [node.unit.skill]
+          : undefined,
       isWbsParent: node.isWbsParent || undefined,
     };
   });
@@ -139,7 +152,9 @@ export async function buildTaskTree(
   tasks: Array<{ filePath: string }>,
   projectDir: string,
 ): Promise<TaskNode[]> {
-  const sortedEpics = [...epics].sort((a, b) => a.filePath.localeCompare(b.filePath));
+  const sortedEpics = [...epics].sort((a, b) =>
+    a.filePath.localeCompare(b.filePath),
+  );
   const result: TaskNode[] = [];
 
   for (const epic of sortedEpics) {
@@ -147,7 +162,7 @@ export async function buildTaskTree(
     const epicId = path.basename(epicDir);
 
     const epicTasks = tasks
-      .filter(t => t.filePath.startsWith(epicDir))
+      .filter((t) => t.filePath.startsWith(epicDir))
       .sort((a, b) => a.filePath.localeCompare(b.filePath));
 
     for (const task of epicTasks) {
@@ -158,15 +173,15 @@ export async function buildTaskTree(
       const journalTaskId = extractJournalTaskId(taskDir);
 
       // Detect parent for display/dependency purposes only.
-      const parentTaskId = journalTaskId.includes('/')
-        ? journalTaskId.split('/').slice(0, -1).join('/')
+      const parentTaskId = journalTaskId.includes("/")
+        ? journalTaskId.split("/").slice(0, -1).join("/")
         : undefined;
 
       // Journal path mirrors task definition path exactly: insert 'journal/' before 'epics/'.
       const journalPath = constructJournalPath(task.filePath);
 
       // Load blocking status, dependencies, and tags from task definition
-      let blocking = true;  // Default to blocking
+      let blocking = true; // Default to blocking
       let dependencies: string[] | undefined;
       let tags: string[] | undefined;
       try {
@@ -175,14 +190,16 @@ export async function buildTaskTree(
         dependencies = unit.dependencies;
         tags = unit.tags;
 
-        if (process.env.CONVERGE_DEBUG_DEPS === 'true') {
-          console.log(`📦 Loaded ${taskId}: blocking=${blocking}, dependencies=${JSON.stringify(dependencies)}, tags=${JSON.stringify(tags)}`);
+        if (process.env.CONVERGE_DEBUG_DEPS === "true") {
+          console.log(
+            `📦 Loaded ${taskId}: blocking=${blocking}, dependencies=${JSON.stringify(dependencies)}, tags=${JSON.stringify(tags)}`,
+          );
         }
       } catch (err) {
         // If task definition cannot be loaded, skip it entirely
         // (it's not a valid task - likely a directory without TASK.md)
         console.warn(`⚠️  Failed to load ${taskId}: ${(err as Error).message}`);
-        continue;  // Skip this invalid task
+        continue; // Skip this invalid task
       }
 
       result.push({
@@ -201,9 +218,9 @@ export async function buildTaskTree(
   }
 
   // Append orphaned tasks (not under any epic)
-  const epicDirs = new Set(sortedEpics.map(e => path.dirname(e.filePath)));
+  const epicDirs = new Set(sortedEpics.map((e) => path.dirname(e.filePath)));
   const orphans = tasks
-    .filter(t => ![...epicDirs].some(d => t.filePath.startsWith(d)))
+    .filter((t) => ![...epicDirs].some((d) => t.filePath.startsWith(d)))
     .sort((a, b) => a.filePath.localeCompare(b.filePath));
 
   for (const task of orphans) {
@@ -213,7 +230,7 @@ export async function buildTaskTree(
     // Try to infer epic from path pattern .converge/epics/{epicId}/...
     // This handles dynamically spawned WBS subtasks that may not be matched by the epic filter above
     const epicMatch = task.filePath.match(/\.converge[/\\]epics[/\\]([^/\\]+)/);
-    const inferredEpicId = epicMatch ? epicMatch[1] : 'standalone';
+    const inferredEpicId = epicMatch ? epicMatch[1] : "standalone";
 
     // Derive journalTaskId and parentTaskId using the same logic as the epic case.
     // extractJournalTaskId strips 'tasks/' markers and prepends the epicId when the
@@ -222,21 +239,21 @@ export async function buildTaskTree(
     let journalTaskId: string;
     let parentTaskId: string | undefined;
 
-    if (inferredEpicId !== 'standalone') {
+    if (inferredEpicId !== "standalone") {
       try {
         journalTaskId = extractJournalTaskId(taskDir);
       } catch {
         journalTaskId = taskId;
       }
-      parentTaskId = journalTaskId.includes('/')
-        ? journalTaskId.split('/').slice(0, -1).join('/')
+      parentTaskId = journalTaskId.includes("/")
+        ? journalTaskId.split("/").slice(0, -1).join("/")
         : undefined;
     } else {
       journalTaskId = taskId;
     }
 
     // Load blocking status, dependencies, and tags from task definition
-    let blocking = true;  // Default to blocking
+    let blocking = true; // Default to blocking
     let dependencies: string[] | undefined;
     let tags: string[] | undefined;
     try {
@@ -245,12 +262,14 @@ export async function buildTaskTree(
       dependencies = unit.dependencies;
       tags = unit.tags;
 
-      if (process.env.CONVERGE_DEBUG_DEPS === 'true' && dependencies) {
-        console.log(`📦 Loaded ${taskId}: dependencies=${JSON.stringify(dependencies)}, tags=${JSON.stringify(tags)}`);
+      if (process.env.CONVERGE_DEBUG_DEPS === "true" && dependencies) {
+        console.log(
+          `📦 Loaded ${taskId}: dependencies=${JSON.stringify(dependencies)}, tags=${JSON.stringify(tags)}`,
+        );
       }
     } catch (err) {
       // Ignore errors loading task definition - blocking defaults to true
-      if (process.env.CONVERGE_DEBUG_DEPS === 'true') {
+      if (process.env.CONVERGE_DEBUG_DEPS === "true") {
         console.warn(`⚠️  Failed to load ${taskId}: ${(err as Error).message}`);
       }
     }
@@ -357,20 +376,20 @@ export async function getTaskStates(
 
   for (const [id, status] of statusMap) {
     // Add both the full key and the stripped taskId-only key
-    const taskIdOnly = id.includes('/') ? id.split('/').slice(1).join('/') : id;
+    const taskIdOnly = id.includes("/") ? id.split("/").slice(1).join("/") : id;
 
-    if (status === 'complete') {
+    if (status === "complete") {
       completed.add(id);
       completed.add(taskIdOnly);
-    } else if (status === 'failed') {
+    } else if (status === "failed") {
       failed.add(id);
       failed.add(taskIdOnly);
-    } else if (status === 'seeded') {
+    } else if (status === "seeded") {
       seeded.add(id);
       seeded.add(taskIdOnly);
     }
 
-    if (status === 'complete' || status === 'failed' || status === 'seeded') {
+    if (status === "complete" || status === "failed" || status === "seeded") {
       locked.add(id);
       locked.add(taskIdOnly);
     }
@@ -395,13 +414,19 @@ export async function getTaskStates(
   // We build parent-child relationships from the tree, then compute progress from checkpoint state.
 
   // Build parent → children mapping from tree structure
-  const parentChildMap = new Map<string, { epicId: string; children: TaskNode[] }>();
+  const parentChildMap = new Map<
+    string,
+    { epicId: string; children: TaskNode[] }
+  >();
 
   for (const node of tree) {
     // Case 1: Node has parentTaskId set (Pattern 1 - /task/ subdirectory)
     if (node.parentTaskId) {
       if (!parentChildMap.has(node.parentTaskId)) {
-        parentChildMap.set(node.parentTaskId, { epicId: node.epicId, children: [] });
+        parentChildMap.set(node.parentTaskId, {
+          epicId: node.epicId,
+          children: [],
+        });
       }
       parentChildMap.get(node.parentTaskId)!.children.push(node);
     } else {
@@ -411,24 +436,33 @@ export async function getTaskStates(
       // node.filePath may be a FILE path (e.g. .../TASK.md) or a DIRECTORY path depending on how
       // the tree was built. Normalise to the task's own directory and use forward-slash comparison
       // so that the check works cross-platform regardless of path.sep.
-      const fp = node.filePath.replace(/\\/g, '/');
-      const nodeDir = /\.(md|ts|tsx|js|jsx)$/.test(fp) ? fp.slice(0, fp.lastIndexOf('/')) : fp;
+      const fp = node.filePath.replace(/\\/g, "/");
+      const nodeDir = /\.(md|ts|tsx|js|jsx)$/.test(fp)
+        ? fp.slice(0, fp.lastIndexOf("/"))
+        : fp;
 
-      const potentialChildren = tree.filter(other => {
+      const potentialChildren = tree.filter((other) => {
         if (other === node || other.parentTaskId) return false; // Skip self and explicitly-parented nodes
-        const ofp = other.filePath.replace(/\\/g, '/');
-        const otherDir = /\.(md|ts|tsx|js|jsx)$/.test(ofp) ? ofp.slice(0, ofp.lastIndexOf('/')) : ofp;
-        if (!otherDir.startsWith(nodeDir + '/')) return false;
+        const ofp = other.filePath.replace(/\\/g, "/");
+        const otherDir = /\.(md|ts|tsx|js|jsx)$/.test(ofp)
+          ? ofp.slice(0, ofp.lastIndexOf("/"))
+          : ofp;
+        if (!otherDir.startsWith(nodeDir + "/")) return false;
         // Direct children only — no '/' in the relative segment means one level deep
-        return !otherDir.slice(nodeDir.length + 1).includes('/');
+        return !otherDir.slice(nodeDir.length + 1).includes("/");
       });
 
       if (potentialChildren.length > 0) {
         // This node is a parent
         if (!parentChildMap.has(node.journalTaskId)) {
-          parentChildMap.set(node.journalTaskId, { epicId: node.epicId, children: [] });
+          parentChildMap.set(node.journalTaskId, {
+            epicId: node.epicId,
+            children: [],
+          });
         }
-        parentChildMap.get(node.journalTaskId)!.children.push(...potentialChildren);
+        parentChildMap
+          .get(node.journalTaskId)!
+          .children.push(...potentialChildren);
       }
     }
   }
@@ -442,15 +476,23 @@ export async function getTaskStates(
 
     const entry = parentChildMap.get(node.journalTaskId);
     if (!entry || entry.children.length === 0) {
-      console.warn(`⚠️  WBS parent ${node.journalTaskId} marked complete but has no children — reverting to pending`);
+      console.warn(
+        `⚠️  WBS parent ${node.journalTaskId} marked complete but has no children — reverting to pending`,
+      );
       completed.delete(node.journalTaskId);
       locked.delete(node.journalTaskId);
       seeded.delete(node.journalTaskId);
 
       // Clear stale checkpoint
-      pendingWrites.push(checkpointMgr.removeFromCompleted(node.journalTaskId, node.epicId).catch(err => {
-        console.error(`   ❌ Failed to clear stale checkpoint for ${node.journalTaskId}: ${(err as Error).message}`);
-      }));
+      pendingWrites.push(
+        checkpointMgr
+          .removeFromCompleted(node.journalTaskId, node.epicId)
+          .catch((err) => {
+            console.error(
+              `   ❌ Failed to clear stale checkpoint for ${node.journalTaskId}: ${(err as Error).message}`,
+            );
+          }),
+      );
     }
   }
 
@@ -488,7 +530,12 @@ export async function getTaskStates(
     });
 
     // Update universal unit checkpoint with progress information (fire-and-forget)
-    const unitCkpt = new UnitCheckpointManager(projectDir, 'task', epicId, parentJournalTaskId);
+    const unitCkpt = new UnitCheckpointManager(
+      projectDir,
+      "task",
+      epicId,
+      parentJournalTaskId,
+    );
     unitCkpt.updateProgress({
       totalChildren: spawnCount,
       completedChildren: completedSubtasks,
@@ -498,8 +545,12 @@ export async function getTaskStates(
     });
 
     // Also update legacy task checkpoint for backward compatibility (fire-and-forget)
-    const taskCkpt = new TaskCheckpointManager(projectDir, epicId, parentJournalTaskId);
-    taskCkpt.load().then(parentCheckpoint => {
+    const taskCkpt = new TaskCheckpointManager(
+      projectDir,
+      epicId,
+      parentJournalTaskId,
+    );
+    taskCkpt.load().then((parentCheckpoint) => {
       if (parentCheckpoint) {
         parentCheckpoint.progress = {
           totalChildren: spawnCount,
@@ -548,37 +599,58 @@ export async function getTaskStates(
     // Case 1: Task marked completed but outputs missing - UNCOMPLETE AND UPDATE CHECKPOINT
     if (completed.has(node.journalTaskId) && missingOutputs.length > 0) {
       completed.delete(node.journalTaskId);
-      console.warn(`⚠️  Task ${node.journalTaskId} marked complete but missing outputs:`);
+      console.warn(
+        `⚠️  Task ${node.journalTaskId} marked complete but missing outputs:`,
+      );
       for (const missing of missingOutputs) {
         console.warn(`   - ${missing}`);
       }
 
       // Automatically update checkpoint to remove from completed
-      pendingWrites.push(checkpointMgr.removeFromCompleted(node.journalTaskId, node.epicId).catch(err => {
-        console.error(`   ❌ Failed to update checkpoint for ${node.journalTaskId}: ${err.message}`);
-      }));
+      pendingWrites.push(
+        checkpointMgr
+          .removeFromCompleted(node.journalTaskId, node.epicId)
+          .catch((err) => {
+            console.error(
+              `   ❌ Failed to update checkpoint for ${node.journalTaskId}: ${err.message}`,
+            );
+          }),
+      );
     }
 
     // Case 2: Task marked failed but all outputs exist - RECONCILE CHECKPOINT
     // Skip WBS parents — their completion is determined by children, not outputs on disk
-    const isWbsParent = parentChildMap.has(node.journalTaskId) ||
-                        wbsProgress.has(node.journalTaskId) ||
-                        node.isWbsParent;
-    if (failed.has(node.journalTaskId) && missingOutputs.length === 0 && !isWbsParent) {
-      console.warn(`⚠️  Task ${node.journalTaskId} marked failed but all outputs exist. Reconciling checkpoint...`);
+    const isWbsParent =
+      parentChildMap.has(node.journalTaskId) ||
+      wbsProgress.has(node.journalTaskId) ||
+      node.isWbsParent;
+    if (
+      failed.has(node.journalTaskId) &&
+      missingOutputs.length === 0 &&
+      !isWbsParent
+    ) {
+      console.warn(
+        `⚠️  Task ${node.journalTaskId} marked failed but all outputs exist. Reconciling checkpoint...`,
+      );
 
       // Move from failed to completed in memory
       failed.delete(node.journalTaskId);
       completed.add(node.journalTaskId);
 
       // Update checkpoint to reflect reality
-      pendingWrites.push(checkpointMgr.reconcileTask(
-        node.journalTaskId,
-        'marked failed but all required outputs exist',
-        node.epicId,
-      ).catch(err => {
-        console.error(`   ❌ Failed to reconcile checkpoint for ${node.journalTaskId}: ${err.message}`);
-      }));
+      pendingWrites.push(
+        checkpointMgr
+          .reconcileTask(
+            node.journalTaskId,
+            "marked failed but all required outputs exist",
+            node.epicId,
+          )
+          .catch((err) => {
+            console.error(
+              `   ❌ Failed to reconcile checkpoint for ${node.journalTaskId}: ${err.message}`,
+            );
+          }),
+      );
     }
   }
 
@@ -588,66 +660,76 @@ export async function getTaskStates(
   // Skipped in read-only contexts (e.g. tree display) for performance.
   if (options?.skipAutoComplete) {
     // Skip expensive check evaluation — tree/gantt/graph only need status display
-  } else for (const node of tree) {
-    // Skip already-resolved tasks
-    if (completed.has(node.journalTaskId) ||
+  } else
+    for (const node of tree) {
+      // Skip already-resolved tasks
+      if (
+        completed.has(node.journalTaskId) ||
         failed.has(node.journalTaskId) ||
-        seeded.has(node.journalTaskId)) continue;
+        seeded.has(node.journalTaskId)
+      )
+        continue;
 
-    // Skip parent tasks (they auto-complete via children)
-    if (parentChildMap.has(node.journalTaskId)) continue;
+      // Skip parent tasks (they auto-complete via children)
+      if (parentChildMap.has(node.journalTaskId)) continue;
 
-    // Load task definition to get checks and outputs
-    let unit: Unit | null = null;
-    try {
-      unit = await Unit.fromPath(node.filePath);
-    } catch {
-      continue;
-    }
+      // Load task definition to get checks and outputs
+      let unit: Unit | null = null;
+      try {
+        unit = await Unit.fromPath(node.filePath);
+      } catch {
+        continue;
+      }
 
-    // Skip WBS parent tasks — they complete only via children, never via checks
-    if (unit.wbsFn) continue;
+      // Skip WBS parent tasks — they complete only via children, never via checks
+      if (unit.wbsFn) continue;
 
-    const checks = unit.checks;
-    const outputs = unit.config.outputs;
+      const checks = unit.checks;
+      const outputs = unit.config.outputs;
 
-    // Skip tasks with no checks defined — nothing to validate
-    if (!checks || (Array.isArray(checks) && checks.length === 0)) continue;
+      // Skip tasks with no checks defined — nothing to validate
+      if (!checks || (Array.isArray(checks) && checks.length === 0)) continue;
 
-    // First: verify all declared outputs exist
-    if (outputs && outputs.length > 0) {
-      let allOutputsExist = true;
-      for (const output of outputs) {
-        if (!(await pathExists(projectDir, output))) {
-          allOutputsExist = false;
+      // First: verify all declared outputs exist
+      if (outputs && outputs.length > 0) {
+        let allOutputsExist = true;
+        for (const output of outputs) {
+          if (!(await pathExists(projectDir, output))) {
+            allOutputsExist = false;
+            break;
+          }
+        }
+        if (!allOutputsExist) continue;
+      }
+
+      // Then: run all check commands
+      const resolvedChecks = await resolveChecksForUnit(unit);
+      let allChecksPassed = true;
+      for (const chk of resolvedChecks) {
+        if (!chk.cmd) continue;
+        const result = await checkCmd(chk.cmd, projectDir);
+        if (!result.ok) {
+          allChecksPassed = false;
           break;
         }
       }
-      if (!allOutputsExist) continue;
-    }
 
-    // Then: run all check commands
-    const resolvedChecks = await resolveChecksForUnit(unit);
-    let allChecksPassed = true;
-    for (const chk of resolvedChecks) {
-      if (!chk.cmd) continue;
-      const result = await checkCmd(chk.cmd, projectDir);
-      if (!result.ok) {
-        allChecksPassed = false;
-        break;
+      if (allChecksPassed) {
+        completed.add(node.journalTaskId);
+        console.log(`  ✓ Auto-completed (checks pass): ${node.journalTaskId}`);
+
+        // Persist to checkpoint
+        pendingWrites.push(
+          checkpointMgr
+            .markTaskCompleted(node.journalTaskId, node.epicId)
+            .catch((err) => {
+              console.warn(
+                `⚠️  Failed to persist auto-completion: ${(err as Error).message}`,
+              );
+            }),
+        );
       }
     }
-
-    if (allChecksPassed) {
-      completed.add(node.journalTaskId);
-      console.log(`  ✓ Auto-completed (checks pass): ${node.journalTaskId}`);
-
-      // Persist to checkpoint
-      pendingWrites.push(checkpointMgr.markTaskCompleted(node.journalTaskId, node.epicId).catch(err => {
-        console.warn(`⚠️  Failed to persist auto-completion: ${(err as Error).message}`);
-      }));
-    }
-  }
 
   // Source 4.5: Auto-complete parents based on CURRENT child state (after output validation)
   // This MUST run AFTER output validation to use accurate child completion state
@@ -676,12 +758,20 @@ export async function getTaskStates(
           failed.add(parentJournalTaskId);
           seeded.delete(parentJournalTaskId);
           completed.delete(parentJournalTaskId);
-          console.log(`  ↻ Auto-failed parent: ${parentJournalTaskId} (${currentFailedSubtasks}/${spawnCount} children failed)`);
+          console.log(
+            `  ↻ Auto-failed parent: ${parentJournalTaskId} (${currentFailedSubtasks}/${spawnCount} children failed)`,
+          );
 
           // Persist to global checkpoint
-          pendingWrites.push(checkpointMgr.markTaskFailed(parentJournalTaskId, epicId).catch(err => {
-            console.warn(`⚠️  Failed to persist parent failure: ${err.message}`);
-          }));
+          pendingWrites.push(
+            checkpointMgr
+              .markTaskFailed(parentJournalTaskId, epicId)
+              .catch((err) => {
+                console.warn(
+                  `⚠️  Failed to persist parent failure: ${err.message}`,
+                );
+              }),
+          );
         }
       } else {
         // All children completed → parent completed
@@ -689,12 +779,20 @@ export async function getTaskStates(
           completed.add(parentJournalTaskId);
           seeded.delete(parentJournalTaskId);
           failed.delete(parentJournalTaskId);
-          console.log(`  ↻ Auto-completed parent: ${parentJournalTaskId} (${currentCompletedSubtasks}/${spawnCount} children done)`);
+          console.log(
+            `  ↻ Auto-completed parent: ${parentJournalTaskId} (${currentCompletedSubtasks}/${spawnCount} children done)`,
+          );
 
           // Persist to global checkpoint
-          pendingWrites.push(checkpointMgr.markTaskCompleted(parentJournalTaskId, epicId).catch(err => {
-            console.warn(`⚠️  Failed to persist parent completion: ${err.message}`);
-          }));
+          pendingWrites.push(
+            checkpointMgr
+              .markTaskCompleted(parentJournalTaskId, epicId)
+              .catch((err) => {
+                console.warn(
+                  `⚠️  Failed to persist parent completion: ${err.message}`,
+                );
+              }),
+          );
         }
       }
     } else {
@@ -715,9 +813,13 @@ export async function getTaskStates(
           // Normal WBS lifecycle: parent ran and spawned children, children still executing
           // No alarming message — this is expected
         } else if (wasCompleted) {
-          console.log(`  ↻ Reverted parent to seeded: ${parentJournalTaskId} (${currentCompletedSubtasks}/${spawnCount} children done)`);
+          console.log(
+            `  ↻ Reverted parent to seeded: ${parentJournalTaskId} (${currentCompletedSubtasks}/${spawnCount} children done)`,
+          );
         } else if (wasFailed) {
-          console.log(`  ↻ Reverted failed parent to seeded: ${parentJournalTaskId} (children state changed)`);
+          console.log(
+            `  ↻ Reverted failed parent to seeded: ${parentJournalTaskId} (children state changed)`,
+          );
         }
         // If pending (e.g. after --restart): no log needed, expected state
 
@@ -727,8 +829,12 @@ export async function getTaskStates(
           if (ckpt) {
             if (ckpt.version === 1) {
               // V1 - modify arrays directly
-              ckpt.completedTasks = ckpt.completedTasks.filter(id => id !== parentJournalTaskId);
-              ckpt.failedTasks = (ckpt.failedTasks ?? []).filter(id => id !== parentJournalTaskId);
+              ckpt.completedTasks = ckpt.completedTasks.filter(
+                (id) => id !== parentJournalTaskId,
+              );
+              ckpt.failedTasks = (ckpt.failedTasks ?? []).filter(
+                (id) => id !== parentJournalTaskId,
+              );
               if (!ckpt.seededTasks) ckpt.seededTasks = [];
               if (!ckpt.seededTasks.includes(parentJournalTaskId)) {
                 ckpt.seededTasks.push(parentJournalTaskId);
@@ -736,7 +842,10 @@ export async function getTaskStates(
               await checkpointMgr.save(ckpt);
             } else if (ckpt.version === 2) {
               // V2 - use CheckpointManager methods
-              await checkpointMgr.removeFromCompleted(parentJournalTaskId, epicId);
+              await checkpointMgr.removeFromCompleted(
+                parentJournalTaskId,
+                epicId,
+              );
               await checkpointMgr.markTaskSeeded(parentJournalTaskId, epicId);
             }
           }
@@ -750,8 +859,10 @@ export async function getTaskStates(
   for (const node of tree) {
     if (node.blocking && failed.has(node.journalTaskId)) {
       blockingFailures.add(node.journalTaskId);
-      if (process.env.CONVERGE_DEBUG_DEPS === 'true') {
-        console.log(`🔴 Blocking failure detected: ${node.journalTaskId} (blocking=${node.blocking}, tags=${node.tags?.join(', ')})`);
+      if (process.env.CONVERGE_DEBUG_DEPS === "true") {
+        console.log(
+          `🔴 Blocking failure detected: ${node.journalTaskId} (blocking=${node.blocking}, tags=${node.tags?.join(", ")})`,
+        );
       }
     }
   }
@@ -762,7 +873,11 @@ export async function getTaskStates(
   let iterations = 0;
   const maxIterations = 100; // Safety limit to prevent infinite loops
 
-  while ((blocked.size !== prevBlockedSize || failureBlocked.size !== prevFailureBlockedSize) && iterations < maxIterations) {
+  while (
+    (blocked.size !== prevBlockedSize ||
+      failureBlocked.size !== prevFailureBlockedSize) &&
+    iterations < maxIterations
+  ) {
     prevBlockedSize = blocked.size;
     prevFailureBlockedSize = failureBlocked.size;
     iterations++;
@@ -774,40 +889,43 @@ export async function getTaskStates(
       // Check explicit dependencies
       if (node.dependencies) {
         for (const dep of node.dependencies) {
-          if (dep.startsWith('tag:')) {
+          if (dep.startsWith("tag:")) {
             // Tag dependency - block if ANY of these conditions:
             // 1. A task with this tag has failed as a blocking task
             // 2. A task with this tag is blocked (transitive blocking)
             // 3. NO task with this tag has completed yet (prerequisite not met)
-            const tag = dep.substring(4);  // Remove "tag:" prefix
+            const tag = dep.substring(4); // Remove "tag:" prefix
 
-            const hasFailedTagDep = tree.some(t =>
-              t.tags?.includes(tag) &&
-              t.blocking &&
-              failed.has(t.journalTaskId)
+            const hasFailedTagDep = tree.some(
+              (t) =>
+                t.tags?.includes(tag) &&
+                t.blocking &&
+                failed.has(t.journalTaskId),
             );
 
-            const hasBlockedTagDep = tree.some(t =>
-              t.tags?.includes(tag) &&
-              blocked.has(t.journalTaskId)
+            const hasBlockedTagDep = tree.some(
+              (t) => t.tags?.includes(tag) && blocked.has(t.journalTaskId),
             );
 
-            const hasFailureBlockedTagDep = tree.some(t =>
-              t.tags?.includes(tag) &&
-              failureBlocked.has(t.journalTaskId)
+            const hasFailureBlockedTagDep = tree.some(
+              (t) =>
+                t.tags?.includes(tag) && failureBlocked.has(t.journalTaskId),
             );
 
-            const hasCompletedTagDep = tree.some(t =>
-              t.tags?.includes(tag) &&
-              completed.has(t.journalTaskId)
+            const hasCompletedTagDep = tree.some(
+              (t) => t.tags?.includes(tag) && completed.has(t.journalTaskId),
             );
 
-            if (process.env.CONVERGE_DEBUG_DEPS === 'true') {
-              console.log(`   [Iter ${iterations}] Checking ${node.journalTaskId} dependency on tag:${tag}:`);
+            if (process.env.CONVERGE_DEBUG_DEPS === "true") {
+              console.log(
+                `   [Iter ${iterations}] Checking ${node.journalTaskId} dependency on tag:${tag}:`,
+              );
               console.log(`     hasFailedTagDep: ${hasFailedTagDep}`);
               console.log(`     hasBlockedTagDep: ${hasBlockedTagDep}`);
               console.log(`     hasCompletedTagDep: ${hasCompletedTagDep}`);
-              console.log(`     → will block: ${hasFailedTagDep || hasBlockedTagDep || !hasCompletedTagDep}`);
+              console.log(
+                `     → will block: ${hasFailedTagDep || hasBlockedTagDep || !hasCompletedTagDep}`,
+              );
             }
 
             // Block if any dependency with this tag failed, is blocked, or none completed
@@ -817,32 +935,42 @@ export async function getTaskStates(
               if (hasFailedTagDep || hasFailureBlockedTagDep) {
                 failureBlocked.add(node.journalTaskId);
               }
-              break;  // One failed dependency is enough to block
+              break; // One failed dependency is enough to block
             }
           } else {
             // Direct task ID dependency - block if:
             // 1. The task is a blocking failure
             // 2. The task is blocked
             // 3. The task has not completed yet
-            const depNode = tree.find(t => t.journalTaskId === dep || t.taskId === dep);
+            const depNode = tree.find(
+              (t) => t.journalTaskId === dep || t.taskId === dep,
+            );
 
             if (!depNode) {
               // Dependency not found - this is a configuration error
-              console.warn(`⚠️  Dependency "${dep}" not found for task ${node.journalTaskId}`);
+              console.warn(
+                `⚠️  Dependency "${dep}" not found for task ${node.journalTaskId}`,
+              );
               continue;
             }
 
             const isDepBlocked = blocked.has(depNode.journalTaskId);
             const isDepFailed = blockingFailures.has(depNode.journalTaskId);
-            const isDepFailureBlocked = failureBlocked.has(depNode.journalTaskId);
+            const isDepFailureBlocked = failureBlocked.has(
+              depNode.journalTaskId,
+            );
             const isDepCompleted = completed.has(depNode.journalTaskId);
 
-            if (process.env.CONVERGE_DEBUG_DEPS === 'true') {
-              console.log(`   [Iter ${iterations}] Checking ${node.journalTaskId} dependency on ${dep}:`);
+            if (process.env.CONVERGE_DEBUG_DEPS === "true") {
+              console.log(
+                `   [Iter ${iterations}] Checking ${node.journalTaskId} dependency on ${dep}:`,
+              );
               console.log(`     isDepBlocked: ${isDepBlocked}`);
               console.log(`     isDepFailed: ${isDepFailed}`);
               console.log(`     isDepCompleted: ${isDepCompleted}`);
-              console.log(`     → will block: ${isDepFailed || isDepBlocked || !isDepCompleted}`);
+              console.log(
+                `     → will block: ${isDepFailed || isDepBlocked || !isDepCompleted}`,
+              );
             }
 
             if (isDepFailed || isDepBlocked || !isDepCompleted) {
@@ -865,15 +993,17 @@ export async function getTaskStates(
     }
   }
 
-  if (process.env.CONVERGE_DEBUG_DEPS === 'true') {
-    console.log(`🔄 Dependency resolution converged after ${iterations} iterations`);
+  if (process.env.CONVERGE_DEBUG_DEPS === "true") {
+    console.log(
+      `🔄 Dependency resolution converged after ${iterations} iterations`,
+    );
     console.log(`   Blocked tasks: ${blocked.size}`);
   }
 
   // Step 3: Ensure WBS children inherit parent's blocked status (only when appropriate)
   for (const node of tree) {
     if (node.parentTaskId) {
-      const parent = tree.find(t => t.journalTaskId === node.parentTaskId);
+      const parent = tree.find((t) => t.journalTaskId === node.parentTaskId);
       if (parent) {
         // If parent is blocked (by dependencies or failure), block child
         if (blocked.has(parent.journalTaskId)) {
@@ -890,21 +1020,27 @@ export async function getTaskStates(
           const parentWbs = wbsProgress.get(parent.journalTaskId);
           const isWbsPartialFailure = parentWbs && parentWbs.spawnCount > 0;
 
-          if (process.env.CONVERGE_DEBUG_DEPS === 'true') {
-            console.log(`🔍 Checking child ${node.journalTaskId} of blocking failure ${parent.journalTaskId}`);
-            console.log(`   parentWbs: ${JSON.stringify(parentWbs)}, isWbsPartialFailure: ${isWbsPartialFailure}`);
+          if (process.env.CONVERGE_DEBUG_DEPS === "true") {
+            console.log(
+              `🔍 Checking child ${node.journalTaskId} of blocking failure ${parent.journalTaskId}`,
+            );
+            console.log(
+              `   parentWbs: ${JSON.stringify(parentWbs)}, isWbsPartialFailure: ${isWbsPartialFailure}`,
+            );
           }
 
           if (!isWbsPartialFailure) {
             // Normal blocking failure - block all children
             blocked.add(node.journalTaskId);
             failureBlocked.add(node.journalTaskId);
-            if (process.env.CONVERGE_DEBUG_DEPS === 'true') {
+            if (process.env.CONVERGE_DEBUG_DEPS === "true") {
               console.log(`   → Blocking child (normal blocking failure)`);
             }
           } else {
-            if (process.env.CONVERGE_DEBUG_DEPS === 'true') {
-              console.log(`   → NOT blocking child (WBS partial failure - child should run)`);
+            if (process.env.CONVERGE_DEBUG_DEPS === "true") {
+              console.log(
+                `   → NOT blocking child (WBS partial failure - child should run)`,
+              );
             }
           }
           // else: WBS partial failure - children should run to complete parent
@@ -912,12 +1048,14 @@ export async function getTaskStates(
         // ONLY block child if parent hasn't completed AND parent is NOT seeded/running
         // If parent is seeded or has spawned children, children should be executable
         const parentSeeded = seeded.has(parent.journalTaskId);
-        const parentHasChildren = wbsProgress.has(parent.journalTaskId) &&
-                                  wbsProgress.get(parent.journalTaskId)!.spawnCount > 0;
-        const parentNotStarted = !completed.has(parent.journalTaskId) &&
-                                !failed.has(parent.journalTaskId) &&
-                                !parentSeeded &&
-                                !parentHasChildren;
+        const parentHasChildren =
+          wbsProgress.has(parent.journalTaskId) &&
+          wbsProgress.get(parent.journalTaskId)!.spawnCount > 0;
+        const parentNotStarted =
+          !completed.has(parent.journalTaskId) &&
+          !failed.has(parent.journalTaskId) &&
+          !parentSeeded &&
+          !parentHasChildren;
 
         if (parentNotStarted) {
           blocked.add(node.journalTaskId);
@@ -955,11 +1093,15 @@ export async function getTaskStates(
   for (const epicId of sortedEpicIds) {
     const epicTasks = epicTaskMap.get(epicId)!;
     // Sort tasks by file path (matches execution order within epic)
-    const sortedTasks = epicTasks.sort((a, b) => a.filePath.localeCompare(b.filePath));
+    const sortedTasks = epicTasks.sort((a, b) =>
+      a.filePath.localeCompare(b.filePath),
+    );
 
-    if (process.env.CONVERGE_DEBUG_DEPS === 'true') {
+    if (process.env.CONVERGE_DEBUG_DEPS === "true") {
       console.log(`\n📂 Processing epic: ${epicId}`);
-      console.log(`   Tasks in epic: ${sortedTasks.map(t => `${t.taskId}(blocking=${t.blocking})`).join(', ')}`);
+      console.log(
+        `   Tasks in epic: ${sortedTasks.map((t) => `${t.taskId}(blocking=${t.blocking})`).join(", ")}`,
+      );
     }
 
     for (const task of sortedTasks) {
@@ -972,16 +1114,23 @@ export async function getTaskStates(
         if (globalFailureBlocked) {
           failureBlocked.add(task.journalTaskId);
         }
-        if (process.env.CONVERGE_DEBUG_DEPS === 'true') {
-          console.log(`🔒 Blocking ${task.journalTaskId} - comes after failed blocking task`);
+        if (process.env.CONVERGE_DEBUG_DEPS === "true") {
+          console.log(
+            `🔒 Blocking ${task.journalTaskId} - comes after failed blocking task`,
+          );
         }
         continue;
       }
 
       // Check if THIS task has failed AND is a blocking task
       // ONLY blocking tasks should block subsequent tasks
-      if (process.env.CONVERGE_DEBUG_DEPS === 'true' && failed.has(task.journalTaskId)) {
-        console.log(`🔍 Checking failed task: ${task.journalTaskId} (blocking=${task.blocking})`);
+      if (
+        process.env.CONVERGE_DEBUG_DEPS === "true" &&
+        failed.has(task.journalTaskId)
+      ) {
+        console.log(
+          `🔍 Checking failed task: ${task.journalTaskId} (blocking=${task.blocking})`,
+        );
       }
 
       if (task.blocking && failed.has(task.journalTaskId)) {
@@ -989,12 +1138,17 @@ export async function getTaskStates(
         // (partial failure - subtasks were written but wbs.json wasn't)
         const wbs = wbsProgress.get(task.journalTaskId);
         if (wbs && wbs.spawnCount > 0) {
-          const allSubtasksDone = wbs.completedSubtasks + wbs.failedSubtasks === wbs.spawnCount;
+          const allSubtasksDone =
+            wbs.completedSubtasks + wbs.failedSubtasks === wbs.spawnCount;
           if (!allSubtasksDone) {
             globalBlockingFailure = true;
             globalFailureBlocked = true;
-            console.log(`🚫 Blocking task failure detected: ${task.journalTaskId} (blocking=true) - ALL subsequent tasks will be blocked`);
-            console.log(`   Note: WBS parent has incomplete children (${wbs.completedSubtasks}/${wbs.spawnCount} done)`);
+            console.log(
+              `🚫 Blocking task failure detected: ${task.journalTaskId} (blocking=true) - ALL subsequent tasks will be blocked`,
+            );
+            console.log(
+              `   Note: WBS parent has incomplete children (${wbs.completedSubtasks}/${wbs.spawnCount} done)`,
+            );
             continue;
           }
           // All subtasks done - fall through to regular failed-task blocking
@@ -1002,18 +1156,27 @@ export async function getTaskStates(
 
         globalBlockingFailure = true;
         globalFailureBlocked = true;
-        console.log(`🚫 Blocking task failure detected: ${task.journalTaskId} (blocking=true) - ALL subsequent tasks will be blocked`);
+        console.log(
+          `🚫 Blocking task failure detected: ${task.journalTaskId} (blocking=true) - ALL subsequent tasks will be blocked`,
+        );
       }
 
       // Check if THIS task is a WBS parent that is seeded but not yet complete
       // When a blocking WBS parent is seeded, block all subsequent tasks until ALL subtasks complete
-      if (task.blocking && seeded.has(task.journalTaskId) && !completed.has(task.journalTaskId)) {
+      if (
+        task.blocking &&
+        seeded.has(task.journalTaskId) &&
+        !completed.has(task.journalTaskId)
+      ) {
         const wbs = wbsProgress.get(task.journalTaskId);
         if (wbs && wbs.spawnCount > 0) {
-          const allSubtasksDone = wbs.completedSubtasks + wbs.failedSubtasks === wbs.spawnCount;
+          const allSubtasksDone =
+            wbs.completedSubtasks + wbs.failedSubtasks === wbs.spawnCount;
           if (!allSubtasksDone) {
             globalBlockingFailure = true;
-            console.log(`🚫 Blocking WBS parent running: ${task.journalTaskId} (blocking=true) - ALL subsequent tasks blocked until subtasks complete (${wbs.completedSubtasks}/${wbs.spawnCount} done)`);
+            console.log(
+              `🚫 Blocking WBS parent running: ${task.journalTaskId} (blocking=true) - ALL subsequent tasks blocked until subtasks complete (${wbs.completedSubtasks}/${wbs.spawnCount} done)`,
+            );
           }
         }
       }
@@ -1033,7 +1196,9 @@ export async function getTaskStates(
   }
 
   for (const siblings of subtasksByParent.values()) {
-    const sorted = [...siblings].sort((a, b) => a.filePath.localeCompare(b.filePath));
+    const sorted = [...siblings].sort((a, b) =>
+      a.filePath.localeCompare(b.filePath),
+    );
     let siblingBlocker = false;
     let siblingFailureBlocker = false;
     for (const sibling of sorted) {
@@ -1048,7 +1213,10 @@ export async function getTaskStates(
       if (sibling.blocking !== false && !completed.has(sibling.journalTaskId)) {
         siblingBlocker = true;
         // Only failure-block subsequent siblings if the blocker actually failed
-        if (failed.has(sibling.journalTaskId) || failureBlocked.has(sibling.journalTaskId)) {
+        if (
+          failed.has(sibling.journalTaskId) ||
+          failureBlocked.has(sibling.journalTaskId)
+        ) {
           siblingFailureBlocker = true;
         }
       }
@@ -1063,23 +1231,31 @@ export async function getTaskStates(
       if (failureBlocked.has(node.parentTaskId)) {
         failureBlocked.add(node.journalTaskId);
       }
-      if (process.env.CONVERGE_DEBUG_DEPS === 'true') {
-        console.log(`🔒 Blocking ${node.journalTaskId} - parent ${node.parentTaskId} is blocked`);
+      if (process.env.CONVERGE_DEBUG_DEPS === "true") {
+        console.log(
+          `🔒 Blocking ${node.journalTaskId} - parent ${node.parentTaskId} is blocked`,
+        );
       }
     }
   }
 
-  if (process.env.CONVERGE_DEBUG_DEPS === 'true') {
+  if (process.env.CONVERGE_DEBUG_DEPS === "true") {
     console.log(`\n📊 Task States Summary:`);
     console.log(`   Completed: ${completed.size}`);
-    console.log(`   Failed: ${failed.size} - ${Array.from(failed).join(', ')}`);
-    console.log(`   Blocking Failures: ${blockingFailures.size} - ${Array.from(blockingFailures).join(', ')}`);
-    console.log(`   Blocked: ${blocked.size} - ${Array.from(blocked).join(', ')}`);
-    console.log(`   Failure Blocked: ${failureBlocked.size} - ${Array.from(failureBlocked).join(', ')}\n`);
+    console.log(`   Failed: ${failed.size} - ${Array.from(failed).join(", ")}`);
+    console.log(
+      `   Blocking Failures: ${blockingFailures.size} - ${Array.from(blockingFailures).join(", ")}`,
+    );
+    console.log(
+      `   Blocked: ${blocked.size} - ${Array.from(blocked).join(", ")}`,
+    );
+    console.log(
+      `   Failure Blocked: ${failureBlocked.size} - ${Array.from(failureBlocked).join(", ")}\n`,
+    );
   }
 
   // Update epic progress (aggregating all top-level tasks in each epic)
-  const epicIds = [...new Set(tree.map(n => n.epicId))];
+  const epicIds = [...new Set(tree.map((n) => n.epicId))];
   for (const epicId of epicIds) {
     await updateEpicProgress(projectDir, epicId, tree, completed, failed);
   }
@@ -1090,7 +1266,16 @@ export async function getTaskStates(
     await Promise.all(pendingWrites);
   }
 
-  return { completed, failed, seeded, locked, wbsProgress, blocked, blockingFailures, failureBlocked };
+  return {
+    completed,
+    failed,
+    seeded,
+    locked,
+    wbsProgress,
+    blocked,
+    blockingFailures,
+    failureBlocked,
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -1127,7 +1312,8 @@ export function calculateExecutionPlan(tree: TaskNode[]): {
   const childrenOf = new Map<string, TaskNode[]>();
   for (const node of tree) {
     if (node.parentTaskId) {
-      if (!childrenOf.has(node.parentTaskId)) childrenOf.set(node.parentTaskId, []);
+      if (!childrenOf.has(node.parentTaskId))
+        childrenOf.set(node.parentTaskId, []);
       childrenOf.get(node.parentTaskId)!.push(node);
     }
   }
@@ -1144,8 +1330,8 @@ export function calculateExecutionPlan(tree: TaskNode[]): {
     }
   }
   const sortedEpicIds = [...epicTopLevel.keys()].sort((a, b) => {
-    const aNum = parseInt(a.match(/^(\d+)/)?.[1] ?? '999', 10);
-    const bNum = parseInt(b.match(/^(\d+)/)?.[1] ?? '999', 10);
+    const aNum = parseInt(a.match(/^(\d+)/)?.[1] ?? "999", 10);
+    const bNum = parseInt(b.match(/^(\d+)/)?.[1] ?? "999", 10);
     return aNum - bNum;
   });
 
@@ -1203,12 +1389,14 @@ export async function findNextTask(
     completed.has(n.journalTaskId) ||
     failed.has(n.journalTaskId) ||
     locked.has(n.journalTaskId) ||
-    blocked.has(n.journalTaskId) ||  // Skip blocked tasks
-    seeded.has(n.journalTaskId);     // Skip seeded WBS parents (waiting for children)
+    blocked.has(n.journalTaskId) || // Skip blocked tasks
+    seeded.has(n.journalTaskId); // Skip seeded WBS parents (waiting for children)
 
-  const completedCount = tree.filter(n => completed.has(n.journalTaskId)).length;
+  const completedCount = tree.filter((n) =>
+    completed.has(n.journalTaskId),
+  ).length;
 
-  const next = tree.find(n => !isDone(n));
+  const next = tree.find((n) => !isDone(n));
   if (!next) return null;
 
   return {

@@ -5,12 +5,18 @@
  * All methods handle errors gracefully and provide clear error messages.
  */
 
-import { readFile as fsReadFile, writeFile as fsWriteFile, symlink, rm, mkdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { dirname, join, relative } from 'node:path';
-import { glob } from 'glob';
-import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
-import type { FilesystemHelper, TaskDefinition } from '../types.ts';
+import {
+  readFile as fsReadFile,
+  writeFile as fsWriteFile,
+  symlink,
+  rm,
+  mkdir,
+} from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import { glob } from "glob";
+import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
+import type { FilesystemHelper, TaskDefinition } from "../types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Filesystem Helper Implementation                                  */
@@ -25,7 +31,7 @@ export class FilesystemHelperImpl implements FilesystemHelper {
   async readFile(path: string): Promise<string> {
     try {
       const fullPath = this.resolvePath(path);
-      return await fsReadFile(fullPath, 'utf-8');
+      return await fsReadFile(fullPath, "utf-8");
     } catch (err: any) {
       throw new Error(`Failed to read file ${path}: ${err.message}`);
     }
@@ -44,7 +50,7 @@ export class FilesystemHelperImpl implements FilesystemHelper {
         await mkdir(dir, { recursive: true });
       }
 
-      await fsWriteFile(fullPath, content, 'utf-8');
+      await fsWriteFile(fullPath, content, "utf-8");
     } catch (err: any) {
       throw new Error(`Failed to write file ${path}: ${err.message}`);
     }
@@ -56,7 +62,9 @@ export class FilesystemHelperImpl implements FilesystemHelper {
   async listDirectory(path: string, pattern?: string): Promise<string[]> {
     try {
       const fullPath = this.resolvePath(path);
-      const globPattern = pattern ? join(fullPath, pattern) : join(fullPath, '**/*');
+      const globPattern = pattern
+        ? join(fullPath, pattern)
+        : join(fullPath, "**/*");
 
       const files = await glob(globPattern, {
         nodir: true,
@@ -64,7 +72,7 @@ export class FilesystemHelperImpl implements FilesystemHelper {
       });
 
       // Return paths relative to project directory
-      return files.map(f => relative(this.projectDir, f));
+      return files.map((f) => relative(this.projectDir, f));
     } catch (err: any) {
       throw new Error(`Failed to list directory ${path}: ${err.message}`);
     }
@@ -94,14 +102,19 @@ export class FilesystemHelperImpl implements FilesystemHelper {
 
       await symlink(relTarget, fullLink);
     } catch (err: any) {
-      throw new Error(`Failed to create symlink ${link} -> ${target}: ${err.message}`);
+      throw new Error(
+        `Failed to create symlink ${link} -> ${target}: ${err.message}`,
+      );
     }
   }
 
   /**
    * Update TASK.md frontmatter with new definition
    */
-  async updateSkillMd(path: string, updates: Partial<TaskDefinition>): Promise<void> {
+  async updateSkillMd(
+    path: string,
+    updates: Partial<TaskDefinition>,
+  ): Promise<void> {
     try {
       const fullPath = this.resolvePath(path);
 
@@ -144,13 +157,16 @@ export class FilesystemHelperImpl implements FilesystemHelper {
 
   private resolvePath(path: string): string {
     // If path is already absolute, use it; otherwise resolve relative to projectDir
-    if (path.startsWith('/')) {
+    if (path.startsWith("/")) {
       return path;
     }
     return join(this.projectDir, path);
   }
 
-  private parseTaskMd(content: string): { frontmatter: TaskDefinition; body: string } {
+  private parseTaskMd(content: string): {
+    frontmatter: TaskDefinition;
+    body: string;
+  } {
     // TASK.md format:
     // ---
     // frontmatter YAML
@@ -159,7 +175,7 @@ export class FilesystemHelperImpl implements FilesystemHelper {
 
     const match = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/);
     if (!match) {
-      throw new Error('Invalid TASK.md format: missing frontmatter');
+      throw new Error("Invalid TASK.md format: missing frontmatter");
     }
 
     const frontmatter = parseYaml(match[1]) as TaskDefinition;
@@ -170,14 +186,14 @@ export class FilesystemHelperImpl implements FilesystemHelper {
 
   async removeFile(filePath: string): Promise<void> {
     const absPath = join(this.projectDir, filePath);
-    const { unlink } = await import('node:fs/promises');
+    const { unlink } = await import("node:fs/promises");
     await unlink(absPath);
   }
 
   private stringifySkillMd(frontmatter: TaskDefinition, body: string): string {
     const yaml = stringifyYaml(frontmatter, {
-      defaultStringType: 'QUOTE_DOUBLE',
-      defaultKeyType: 'PLAIN',
+      defaultStringType: "QUOTE_DOUBLE",
+      defaultKeyType: "PLAIN",
     });
 
     return `---\n${yaml}---\n${body}`;

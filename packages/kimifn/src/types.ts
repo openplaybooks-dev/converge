@@ -58,9 +58,7 @@ export interface KimiFnResult<T = string> {
 }
 
 /** A callable function created by kimifn() */
-export type KimiFn<T = string> = (
-  input?: string,
-) => Promise<KimiFnResult<T>>;
+export type KimiFn<T = string> = (input?: string) => Promise<KimiFnResult<T>>;
 
 // ─── Composition Types ─────────────────────────────────────
 

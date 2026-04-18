@@ -12,16 +12,31 @@
  * - Leaf nodes use AI (GapFixer), parents delegate to children
  */
 
-import type { TaskDefinition, LoopFn, ExecutorFn, ConvergeConfig, WbsFn, PlanConfig, CheckEntry, TaskContext as CallbackContext, Check } from '../config/task-definition.ts';
-import type { TaskContext } from './task-context.ts';
-import type { UnitConfig } from './types.ts';
+import type {
+  TaskDefinition,
+  LoopFn,
+  ExecutorFn,
+  ConvergeConfig,
+  WbsFn,
+  PlanConfig,
+  CheckEntry,
+  TaskContext as CallbackContext,
+  Check,
+} from "../config/task-definition.ts";
+import type { TaskContext } from "./task-context.ts";
+import type { UnitConfig } from "./types.ts";
 
 // Delegated implementations
-import { run as runImpl } from './run.ts';
-import { resolveChecks as resolveChecksImpl, resolvePrompt as resolvePromptImpl, resolveAgent as resolveAgentImpl, resolveSkill as resolveSkillImpl } from './resolve.ts';
-import { getProjectRoot as getProjectRootImpl } from './helpers.ts';
-import { fromPath as fromPathImpl } from './factories.ts';
-import { createTaskContext } from './task-context.ts';
+import { run as runImpl } from "./run.ts";
+import {
+  resolveChecks as resolveChecksImpl,
+  resolvePrompt as resolvePromptImpl,
+  resolveAgent as resolveAgentImpl,
+  resolveSkill as resolveSkillImpl,
+} from "./resolve.ts";
+import { getProjectRoot as getProjectRootImpl } from "./helpers.ts";
+import { fromPath as fromPathImpl } from "./factories.ts";
+import { createTaskContext } from "./task-context.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Universal Unit Class                                              */
@@ -50,7 +65,9 @@ export class Unit implements TaskDefinition {
   prompt?: string | ((ctx: CallbackContext) => string | Promise<string>);
   agent?: string;
   skill?: string | string[];
-  checks?: CheckEntry[] | ((ctx: CallbackContext) => CheckEntry[] | Promise<CheckEntry[]>);
+  checks?:
+    | CheckEntry[]
+    | ((ctx: CallbackContext) => CheckEntry[] | Promise<CheckEntry[]>);
 
   // Unit-specific properties
   parent: Unit | null;
@@ -64,13 +81,13 @@ export class Unit implements TaskDefinition {
   convergeConfig?: ConvergeConfig;
 
   // Backlog scan definitions
-  backlogs?: import('../scan/types.ts').BacklogDef[];
+  backlogs?: import("../scan/types.ts").BacklogDef[];
 
   // Execution modifiers
   isAsync?: boolean;
-  backgroundConfig?: import('../process/types.ts').BackgroundConfig;
-  scheduleConfig?: import('../schedule/types.ts').ScheduleConfig;
-  sidecarHooks?: import('../sidecar/types.ts').SidecarHooks;
+  backgroundConfig?: import("../process/types.ts").BackgroundConfig;
+  scheduleConfig?: import("../schedule/types.ts").ScheduleConfig;
+  sidecarHooks?: import("../sidecar/types.ts").SidecarHooks;
 
   // Task context with parent chain (enables native tree traversal)
   context?: TaskContext;
@@ -203,7 +220,11 @@ export class Unit implements TaskDefinition {
   /**
    * Factory: Create a Unit from an in-memory TaskDefinition (no file I/O).
    */
-  static fromDefinition(taskDef: TaskDefinition, parent: Unit, virtualPath?: string): Unit {
+  static fromDefinition(
+    taskDef: TaskDefinition,
+    parent: Unit,
+    virtualPath?: string,
+  ): Unit {
     return new Unit({
       parent,
       path: virtualPath ?? `<virtual:${taskDef.id}>`,

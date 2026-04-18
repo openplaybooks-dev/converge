@@ -1,14 +1,14 @@
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
-import { writeFile } from 'node:fs/promises';
-import { existsSync, mkdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
+import { writeFile } from "node:fs/promises";
+import { existsSync, mkdirSync } from "node:fs";
+import { join } from "node:path";
 
 const execAsync = promisify(exec);
 
 export interface TaskFileChange {
   file: string;
-  status: 'added' | 'modified' | 'deleted' | 'renamed';
+  status: "added" | "modified" | "deleted" | "renamed";
   diff?: string;
 }
 
@@ -23,9 +23,9 @@ export interface TaskChangeSummary {
  * Check if task definitions have changed using git diff
  */
 export async function detectTaskChanges(
-  projectDir: string
+  projectDir: string,
 ): Promise<TaskChangeSummary> {
-  const tasksDir = '.converge/tasks';
+  const tasksDir = ".converge/tasks";
   const summary: TaskChangeSummary = {
     iteration: 0,
     timestamp: new Date().toISOString(),
@@ -35,11 +35,14 @@ export async function detectTaskChanges(
 
   try {
     // Check if we're in a git repo
-    const { stdout: isGitRepo } = await execAsync('git rev-parse --is-inside-work-tree', {
-      cwd: projectDir,
-    });
+    const { stdout: isGitRepo } = await execAsync(
+      "git rev-parse --is-inside-work-tree",
+      {
+        cwd: projectDir,
+      },
+    );
 
-    if (isGitRepo.trim() !== 'true') {
+    if (isGitRepo.trim() !== "true") {
       // Not a git repo, can't detect changes
       return summary;
     }
@@ -47,7 +50,7 @@ export async function detectTaskChanges(
     // Get status of task files (staged + unstaged changes)
     const { stdout: statusOutput } = await execAsync(
       `git status --porcelain ${tasksDir}`,
-      { cwd: projectDir }
+      { cwd: projectDir },
     );
 
     if (!statusOutput.trim()) {
@@ -58,29 +61,29 @@ export async function detectTaskChanges(
     summary.hasChanges = true;
 
     // Parse git status output
-    const lines = statusOutput.trim().split('\n');
+    const lines = statusOutput.trim().split("\n");
     for (const line of lines) {
       const status = line.substring(0, 2);
       const file = line.substring(3);
 
-      let changeStatus: TaskFileChange['status'];
-      if (status.includes('A')) {
-        changeStatus = 'added';
-      } else if (status.includes('D')) {
-        changeStatus = 'deleted';
-      } else if (status.includes('R')) {
-        changeStatus = 'renamed';
+      let changeStatus: TaskFileChange["status"];
+      if (status.includes("A")) {
+        changeStatus = "added";
+      } else if (status.includes("D")) {
+        changeStatus = "deleted";
+      } else if (status.includes("R")) {
+        changeStatus = "renamed";
       } else {
-        changeStatus = 'modified';
+        changeStatus = "modified";
       }
 
       // Get diff for modified/added files
       let diff: string | undefined;
-      if (changeStatus === 'modified' || changeStatus === 'added') {
+      if (changeStatus === "modified" || changeStatus === "added") {
         try {
           const { stdout: diffOutput } = await execAsync(
             `git diff HEAD -- "${file}"`,
-            { cwd: projectDir }
+            { cwd: projectDir },
           );
           diff = diffOutput;
         } catch {
@@ -88,7 +91,7 @@ export async function detectTaskChanges(
           try {
             const { stdout: diffOutput } = await execAsync(
               `git diff --no-index /dev/null "${file}" || true`,
-              { cwd: projectDir }
+              { cwd: projectDir },
             );
             diff = diffOutput;
           } catch {
@@ -117,9 +120,9 @@ export async function detectTaskChanges(
 export async function saveChangeSummary(
   projectDir: string,
   iteration: number,
-  summary: TaskChangeSummary
+  summary: TaskChangeSummary,
 ): Promise<void> {
-  const snapshotsDir = join(projectDir, '.converge/journal/project/snapshots');
+  const snapshotsDir = join(projectDir, ".converge/journal/project/snapshots");
 
   if (!existsSync(snapshotsDir)) {
     mkdirSync(snapshotsDir, { recursive: true });
@@ -127,10 +130,10 @@ export async function saveChangeSummary(
 
   summary.iteration = iteration;
 
-  const filename = `task-changes-${iteration.toString().padStart(3, '0')}.json`;
+  const filename = `task-changes-${iteration.toString().padStart(3, "0")}.json`;
   await writeFile(
     join(snapshotsDir, filename),
     JSON.stringify(summary, null, 2),
-    'utf-8'
+    "utf-8",
   );
 }

@@ -7,16 +7,20 @@ The `MissingInputPatternRepairStrategy` automatically detects and **fixes** glob
 ## How Auto-Heal Works
 
 ### 1. Detection Phase
+
 When a task fails with "missing inputs", the strategy:
+
 - Checks if the missing input uses a glob pattern (contains `*`)
 - Generates pattern variations (deeper/shallower wildcards)
 - Tests each variation against the filesystem
 
 ### 2. Auto-Fix Phase
+
 When files are found with a corrected pattern:
+
 ```typescript
 // Example: Task declares this pattern
-inputs: [".stitch/designs/*.html"]
+inputs: [".stitch/designs/*.html"];
 
 // But files actually exist at:
 // .stitch/designs/home-dashboard/design.html
@@ -26,13 +30,16 @@ inputs: [".stitch/designs/*.html"]
 ```
 
 The strategy then:
+
 1. **Locates** the task file (SKILL.md or task.ts)
 2. **Replaces** the incorrect pattern with the correct one
 3. **Logs** the auto-fix event
 4. **Returns** `retryMode: 'full'` to retry the task
 
 ### 3. Retry Phase
+
 The Converge executor:
+
 - Sees `success: true` and `retryMode: 'full'`
 - Reloads the task definition (with fixed pattern)
 - Retries task execution
@@ -96,6 +103,7 @@ The Converge executor:
 The strategy modifies task definition files:
 
 ### SKILL.md Files
+
 ```yaml
 # Before
 inputs:
@@ -107,6 +115,7 @@ inputs:
 ```
 
 ### task.ts Files
+
 ```typescript
 // Before
 .inputs(['.stitch/designs/*.html'])
@@ -118,24 +127,28 @@ inputs:
 ## Supported Pattern Corrections
 
 ### 1. Nested Directory Mismatch
+
 ```
 ❌ .stitch/designs/*.html
 ✅ .stitch/designs/*/design.html
 ```
 
 ### 2. Recursive Wildcard Needed
+
 ```
 ❌ src/components/*.tsx
 ✅ src/components/**/*.tsx
 ```
 
 ### 3. Too Deep Nesting
+
 ```
 ❌ .stitch/designs/screens/*.html
 ✅ .stitch/designs/*.html
 ```
 
 ### 4. Case Sensitivity
+
 ```
 ❌ assets/Images/*.png
 ✅ assets/images/*.png
@@ -176,6 +189,7 @@ The strategy will **not** auto-fix if:
 ## Comparison: Before vs After
 
 ### Before (Manual Fix Required)
+
 ```
 ❌ Task fails: Missing input .stitch/designs/*.html
 💭 Developer investigates
@@ -186,6 +200,7 @@ The strategy will **not** auto-fix if:
 ```
 
 ### After (Auto-Heal)
+
 ```
 ❌ Task fails: Missing input .stitch/designs/*.html
 🤖 Strategy detects pattern mismatch
@@ -200,6 +215,7 @@ The strategy will **not** auto-fix if:
 Auto-heal is **enabled by default** in the repair pipeline.
 
 To disable (not recommended):
+
 ```typescript
 // In converge config
 const strategies = [
@@ -214,6 +230,7 @@ const strategies = [
 ## Testing
 
 Run the full test suite:
+
 ```bash
 cd artifacts/claude-reactjs/converge/packages/core
 pnpm test missing-input-pattern
@@ -226,22 +243,26 @@ All 14 tests should pass ✅
 ### Pattern not auto-fixed?
 
 Check the journal logs:
+
 ```bash
 cat .converge/journal/tasks/*/tasks/*/logs/events.jsonl | grep PATTERN
 ```
 
 Look for:
+
 - `PATTERN_MISMATCH_DETECTED` - Strategy found the issue
 - `PATTERN_AUTO_FIXED` - Fix was applied
 
 ### Task still fails after fix?
 
 1. Verify the file was modified:
+
    ```bash
    git diff .converge/epics/*/*/task.ts
    ```
 
 2. Check if pattern is now correct:
+
    ```bash
    grep "inputs" .converge/epics/*/*/task.ts
    ```
@@ -254,6 +275,7 @@ Look for:
 ## Future Enhancements
 
 Potential improvements:
+
 - [ ] AI-powered pattern suggestions for complex cases
 - [ ] Automatic output pattern correction (not just inputs)
 - [ ] Pattern normalization (standardize on one convention)

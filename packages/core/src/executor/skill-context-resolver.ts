@@ -5,10 +5,10 @@
  * Supports three resolution strategies: auto, manual, and inherit.
  */
 
-import { readFileSync } from 'node:fs';
-import type { SkillDependencyGraph } from '../discovery/skill-graph.ts';
+import { readFileSync } from "node:fs";
+import type { SkillDependencyGraph } from "../discovery/skill-graph.ts";
 
-export type SkillResolutionStrategy = 'auto' | 'manual' | 'inherit';
+export type SkillResolutionStrategy = "auto" | "manual" | "inherit";
 
 export interface SkillResolutionConfig {
   /** Skills specified in task definition */
@@ -37,22 +37,27 @@ export class SkillContextResolver {
    * Resolve skills and load their content
    */
   async resolve(config: SkillResolutionConfig): Promise<SkillResolutionResult> {
-    const { taskSkills = [], agentSkills = [], resolution, skillGraph } = config;
+    const {
+      taskSkills = [],
+      agentSkills = [],
+      resolution,
+      skillGraph,
+    } = config;
 
     let resolvedSkills: string[];
 
     switch (resolution) {
-      case 'auto':
+      case "auto":
         // Merge task + agent skills, resolve all transitive deps
         resolvedSkills = skillGraph.getTaskSkills(taskSkills, agentSkills);
         break;
 
-      case 'manual':
+      case "manual":
         // Only explicit task skills, no transitive resolution
         resolvedSkills = taskSkills;
         break;
 
-      case 'inherit':
+      case "inherit":
         // Only agent skills + transitive deps
         resolvedSkills = skillGraph.getAgentSkills(agentSkills);
         break;
@@ -67,7 +72,7 @@ export class SkillContextResolver {
       const node = skillGraph.getNode(skillName);
       if (node) {
         try {
-          const content = readFileSync(node.path, 'utf-8');
+          const content = readFileSync(node.path, "utf-8");
           skillContent.set(skillName, content);
         } catch (err: any) {
           console.warn(`Failed to load skill ${skillName}: ${err.message}`);

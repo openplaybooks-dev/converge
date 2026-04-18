@@ -131,9 +131,11 @@ export function parseTaskReport(raw: string): TaskCompletionReport {
   };
 
   const statusRaw = extract("status");
-  const status = (["completed", "partial", "failed"].includes(statusRaw)
-    ? statusRaw
-    : "partial") as TaskCompletionReport["status"];
+  const status = (
+    ["completed", "partial", "failed"].includes(statusRaw)
+      ? statusRaw
+      : "partial"
+  ) as TaskCompletionReport["status"];
 
   return {
     status,
@@ -169,16 +171,21 @@ export function formatReportAsMarkdown(
     lines.push("");
     if (meta.taskId) lines.push(`- **Task ID:** ${meta.taskId}`);
     if (meta.epicTitle) lines.push(`- **Epic:** ${meta.epicTitle}`);
-    if (meta.durationMs) lines.push(`- **Duration:** ${(meta.durationMs / 1000).toFixed(1)}s`);
-    lines.push(`- **Timestamp:** ${meta.timestamp || new Date().toISOString()}`);
+    if (meta.durationMs)
+      lines.push(`- **Duration:** ${(meta.durationMs / 1000).toFixed(1)}s`);
+    lines.push(
+      `- **Timestamp:** ${meta.timestamp || new Date().toISOString()}`,
+    );
     lines.push("");
   }
 
   // Status
   const statusEmoji =
-    report.status === "completed" ? "DONE" :
-    report.status === "partial" ? "PARTIAL" :
-    "FAILED";
+    report.status === "completed"
+      ? "DONE"
+      : report.status === "partial"
+        ? "PARTIAL"
+        : "FAILED";
   lines.push(`## Status: ${statusEmoji}`);
   lines.push("");
 

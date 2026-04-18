@@ -16,7 +16,7 @@
  *      1  — backlog:low (TODOs, FIXMEs)
  */
 
-import type { Gap } from '../gap/types.ts';
+import type { Gap } from "../gap/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Weight Map                                                         */
@@ -24,28 +24,28 @@ import type { Gap } from '../gap/types.ts';
 
 /** Gap kind → base weight. Derived from gap.metadata.gapKind. */
 const KIND_WEIGHTS: Record<string, number> = {
-  output:       1000,
-  plan:          500,
-  wbs:           500,
-  blocker:       200,
-  'check-failed': 100,
-  corrupted:      50,
-  backlog:        10,  // default for backlog items; refined by severity
+  output: 1000,
+  plan: 500,
+  wbs: 500,
+  blocker: 200,
+  "check-failed": 100,
+  corrupted: 50,
+  backlog: 10, // default for backlog items; refined by severity
 };
 
 /** Severity multiplier applied on top of base weight. */
 const SEVERITY_MULTIPLIER: Record<string, number> = {
   critical: 4,
-  high:     2,
-  medium:   1,
-  low:      0.5,
+  high: 2,
+  medium: 1,
+  low: 0.5,
 };
 
 /** Backlog severity → weight (overrides base when gapKind === 'backlog'). */
 const BACKLOG_SEVERITY_WEIGHTS: Record<string, number> = {
-  high:   10,
-  medium:  5,
-  low:     1,
+  high: 10,
+  medium: 5,
+  low: 1,
 };
 
 /* ------------------------------------------------------------------ */
@@ -59,13 +59,14 @@ export function gapWeight(gap: Gap): number {
   const kind = (gap.metadata?.gapKind as string) ?? gap.type;
 
   // Backlog gaps use their own severity table
-  if (kind === 'backlog') {
-    const sev = (gap.metadata?.backlogSeverity as string) ?? gap.severity ?? 'medium';
+  if (kind === "backlog") {
+    const sev =
+      (gap.metadata?.backlogSeverity as string) ?? gap.severity ?? "medium";
     return BACKLOG_SEVERITY_WEIGHTS[sev] ?? BACKLOG_SEVERITY_WEIGHTS.medium;
   }
 
   const base = KIND_WEIGHTS[kind] ?? 50;
-  const mult = SEVERITY_MULTIPLIER[gap.severity ?? 'medium'] ?? 1;
+  const mult = SEVERITY_MULTIPLIER[gap.severity ?? "medium"] ?? 1;
   return Math.round(base * mult);
 }
 
@@ -95,7 +96,7 @@ export function scoreByKind(gaps: Gap[]): Record<string, number> {
 export function scoreBySeverity(gaps: Gap[]): Record<string, number> {
   const result: Record<string, number> = {};
   for (const g of gaps) {
-    const sev = g.severity ?? 'medium';
+    const sev = g.severity ?? "medium";
     result[sev] = (result[sev] ?? 0) + gapWeight(g);
   }
   return result;

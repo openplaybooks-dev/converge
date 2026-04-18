@@ -1,6 +1,6 @@
 # Converge Autonomous Orchestrator - Claude Code Skill
 
-This is a Claude Code skill that enables fully autonomous AI execution of crew projects.
+This is a Claude Code skill that enables fully autonomous AI execution of converge projects.
 
 ## What It Does
 
@@ -13,16 +13,16 @@ When you run `converge run project.ts`, Claude Code (AI) becomes the orchestrato
 5. **🔧 Fills Gaps:** Creates new task files to address gaps
 6. **🔄 Self-Corrects:** Analyzes failures and tries different approaches
 7. **📝 Modifies Code:** Edits `project.ts` and task files directly
-8. **↻  Repeats:** Continues until all tasks converge to success
+8. **↻ Repeats:** Continues until all tasks converge to success
 
 ## Installation
 
 ```bash
-# Install crew
-npm install crew
+# Install converge
+npm install @converge/core
 
 # Or use via npx
-npx crew run project.ts
+npx converge run project.ts
 ```
 
 ## Usage
@@ -30,20 +30,20 @@ npx crew run project.ts
 ### Basic
 
 ```bash
-crew run project.ts
+converge run project.ts
 ```
 
 ### With Options
 
 ```bash
 # Limit iterations
-crew run project.ts --max=50
+converge run project.ts --max=50
 
 # Watch mode (auto-restart on changes)
-crew run project.ts --watch
+converge run project.ts --watch
 
 # Show help
-crew run --help
+converge run --help
 ```
 
 ## How It Works
@@ -53,25 +53,25 @@ crew run --help
 You define high-level goals and initial tasks:
 
 ```typescript
-import { project, epic, goal, taskDef } from '@converge/core';
+import { project, epic, goal, taskDef } from "@converge/core";
 
 const myProject = project()
-  .name('My API')
-  .goals(['Build REST API', 'Add authentication'])
+  .name("My API")
+  .goals(["Build REST API", "Add authentication"])
   .epic(
     epic()
-      .id('setup')
+      .id("setup")
       .task(
         taskDef()
-          .id('init-ts')
-          .title('Initialize TypeScript')
-          .autoConverge({ from: 'outputs', refinable: true })
+          .id("init-ts")
+          .title("Initialize TypeScript")
+          .autoConverge({ from: "outputs", refinable: true })
           .run(async (ctx) => {
             // Implementation
           })
-          .build()
+          .build(),
       )
-      .build()
+      .build(),
   )
   .build();
 
@@ -82,7 +82,7 @@ export default myProject;
 
 ```
 ┌─────────────────────────────────────┐
-│  crew run project.ts                │
+│  converge run project.ts            │
 └───────────┬─────────────────────────┘
             │
             ▼
@@ -263,13 +263,13 @@ AI Executes: Tests are written
 
 ```typescript
 project()
-  .name('My Project')
+  .name("My Project")
   .dir(__dirname)
-  .goals(['Goal 1', 'Goal 2'])
+  .goals(["Goal 1", "Goal 2"])
   .variables({
     // Custom variables
     apiPort: 3000,
-    dbUrl: 'postgresql://...',
+    dbUrl: "postgresql://...",
   })
   .build();
 ```
@@ -278,20 +278,22 @@ project()
 
 ```typescript
 taskDef()
-  .id('my-task')
-  .title('My Task')
-  .description('What this task does')
-  .deps(['other-task'])              // Dependencies
-  .inputs(['src/input.ts'])          // Required inputs
-  .outputs(['src/output.ts'])        // Expected outputs
-  .checks(['typescript', 'tests'])   // Validation checks
-  .autoConverge({                      // Auto-validation
-    from: 'task-prompt',
+  .id("my-task")
+  .title("My Task")
+  .description("What this task does")
+  .deps(["other-task"]) // Dependencies
+  .inputs(["src/input.ts"]) // Required inputs
+  .outputs(["src/output.ts"]) // Expected outputs
+  .checks(["typescript", "tests"]) // Validation checks
+  .autoConverge({
+    // Auto-validation
+    from: "task-prompt",
     refinable: true,
     maxRefinements: 3,
   })
-  .yields({                           // Dynamic task spawning
-    plan: 'Create one test per endpoint',
+  .yields({
+    // Dynamic task spawning
+    plan: "Create one test per endpoint",
     maxTasks: 10,
   })
   .run(async (ctx) => {
@@ -303,7 +305,7 @@ taskDef()
 ### Orchestrator Options
 
 ```bash
-crew run project.ts --max=100  # Max iterations
+converge run project.ts --max=100  # Max iterations
 ```
 
 ## Output Files
@@ -354,17 +356,17 @@ AI improves validation code:
 
 ```javascript
 // Iteration 1: Basic check
-if (!file.exists('output.ts')) {
-  issues.push({ message: 'Missing file' });
+if (!file.exists("output.ts")) {
+  issues.push({ message: "Missing file" });
 }
 
 // Iteration 2: More specific
-if (!file.exists('output.ts')) {
-  issues.push({ message: 'Missing output.ts', severity: 'error' });
+if (!file.exists("output.ts")) {
+  issues.push({ message: "Missing output.ts", severity: "error" });
 }
-const content = await file.read('output.ts');
-if (!content.includes('export')) {
-  issues.push({ message: 'File has no exports', severity: 'warning' });
+const content = await file.read("output.ts");
+if (!content.includes("export")) {
+  issues.push({ message: "File has no exports", severity: "warning" });
 }
 ```
 
@@ -373,6 +375,7 @@ if (!content.includes('export')) {
 ### Task Keeps Failing
 
 AI will automatically:
+
 1. Analyze error patterns
 2. Try different approaches
 3. Split into smaller tasks
@@ -381,6 +384,7 @@ AI will automatically:
 ### No Tasks Found
 
 AI will:
+
 1. Detect empty `.converge/tasks/`
 2. Generate initial plan from project goals
 3. Create task files automatically
@@ -390,7 +394,7 @@ AI will:
 Use `--max` to limit iterations:
 
 ```bash
-crew run project.ts --max=50
+converge run project.ts --max=50
 ```
 
 ## Integration with Claude Code

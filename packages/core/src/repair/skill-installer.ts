@@ -16,10 +16,10 @@
  * based on observed failure patterns.
  */
 
-import { readFile, writeFile, mkdir, readdir, stat } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { readFile, writeFile, mkdir, readdir, stat } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
 /* ------------------------------------------------------------------ */
 /*  Bundled skill templates                                            */
@@ -50,13 +50,16 @@ export async function installRepairSkills(
   projectDir: string,
   force = false,
 ): Promise<string[]> {
-  const targetDir = join(projectDir, '.converge', 'skills', 'repair');
+  const targetDir = join(projectDir, ".converge", "skills", "repair");
   await mkdir(targetDir, { recursive: true });
 
   // Find bundled templates
-  const templatesDir = join(dirname(fileURLToPath(import.meta.url)), 'skill-templates');
+  const templatesDir = join(
+    dirname(fileURLToPath(import.meta.url)),
+    "skill-templates",
+  );
   if (!existsSync(templatesDir)) {
-    console.log('   ℹ️  No repair skill templates found');
+    console.log("   ℹ️  No repair skill templates found");
     return [];
   }
 
@@ -65,14 +68,14 @@ export async function installRepairSkills(
 
   for (const skillName of templateDirs) {
     const sourceDir = join(templatesDir, skillName);
-    const sourceMd = join(sourceDir, 'SKILL.md');
+    const sourceMd = join(sourceDir, "SKILL.md");
 
     // Skip if not a valid skill directory
     const sourceStat = await stat(sourceDir).catch(() => null);
     if (!sourceStat?.isDirectory() || !existsSync(sourceMd)) continue;
 
     const targetSkillDir = join(targetDir, skillName);
-    const targetMd = join(targetSkillDir, 'SKILL.md');
+    const targetMd = join(targetSkillDir, "SKILL.md");
 
     // Skip if already exists (unless force)
     if (existsSync(targetMd) && !force) {
@@ -81,13 +84,15 @@ export async function installRepairSkills(
 
     // Copy the skill
     await mkdir(targetSkillDir, { recursive: true });
-    const content = await readFile(sourceMd, 'utf-8');
+    const content = await readFile(sourceMd, "utf-8");
     await writeFile(targetMd, content);
     installed.push(skillName);
   }
 
   if (installed.length > 0) {
-    console.log(`   ✅ Installed ${installed.length} repair skill(s): ${installed.join(', ')}`);
+    console.log(
+      `   ✅ Installed ${installed.length} repair skill(s): ${installed.join(", ")}`,
+    );
   }
 
   return installed;
@@ -97,13 +102,14 @@ export async function installRepairSkills(
  * Check if repair skills are installed.
  */
 export function hasRepairSkills(projectDir: string): boolean {
-  const repairDir = join(projectDir, '.converge', 'skills', 'repair');
+  const repairDir = join(projectDir, ".converge", "skills", "repair");
   if (!existsSync(repairDir)) return false;
 
   try {
-    const dirs = require('fs').readdirSync(repairDir, { withFileTypes: true });
-    return dirs.some((d: any) =>
-      d.isDirectory() && existsSync(join(repairDir, d.name, 'SKILL.md'))
+    const dirs = require("fs").readdirSync(repairDir, { withFileTypes: true });
+    return dirs.some(
+      (d: any) =>
+        d.isDirectory() && existsSync(join(repairDir, d.name, "SKILL.md")),
     );
   } catch {
     return false;
@@ -114,14 +120,14 @@ export function hasRepairSkills(projectDir: string): boolean {
  * List installed repair skills.
  */
 export async function listRepairSkills(projectDir: string): Promise<string[]> {
-  const repairDir = join(projectDir, '.converge', 'skills', 'repair');
+  const repairDir = join(projectDir, ".converge", "skills", "repair");
   if (!existsSync(repairDir)) return [];
 
   const skills: string[] = [];
   const dirs = await readdir(repairDir);
 
   for (const d of dirs) {
-    if (existsSync(join(repairDir, d, 'SKILL.md'))) {
+    if (existsSync(join(repairDir, d, "SKILL.md"))) {
       skills.push(d);
     }
   }

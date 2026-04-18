@@ -9,34 +9,38 @@
  * clear mistakes (missing `name`, wrong types) early with good messages.
  */
 
-import { z } from 'zod';
-import type { ConvergeConfig } from './types.ts';
+import { z } from "zod";
+import type { ConvergeConfig } from "./types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Sub-schemas                                                        */
 /* ------------------------------------------------------------------ */
 
-const DiscoveryConfigSchema = z.object({
-  tasks:  z.array(z.string()).optional(),
-  epics:  z.array(z.string()).optional(),
-  checks: z.array(z.string()).optional(),
-  plans:  z.array(z.string()).optional(),
-  agents: z.array(z.string()).optional(),
-  skills: z.array(z.string()).optional(),
-  watch:  z.boolean().optional(),
-  spawn:  z.enum(['subtasks-only', 'unrestricted']).optional(),
-}).strict();
+const DiscoveryConfigSchema = z
+  .object({
+    tasks: z.array(z.string()).optional(),
+    epics: z.array(z.string()).optional(),
+    checks: z.array(z.string()).optional(),
+    plans: z.array(z.string()).optional(),
+    agents: z.array(z.string()).optional(),
+    skills: z.array(z.string()).optional(),
+    watch: z.boolean().optional(),
+    spawn: z.enum(["subtasks-only", "unrestricted"]).optional(),
+  })
+  .strict();
 
-const RuntimeConfigSchema = z.object({
-  maxIterations:    z.number().int().positive().optional(),
-  maxStallCount:    z.number().int().positive().optional(),
-  parallelExecution: z.boolean().optional(),
-  maxParallelTasks: z.number().int().positive().optional(),
-  enableCheckpoints: z.boolean().optional(),
-  logLevel:         z.enum(['debug', 'info', 'warn', 'error']).optional(),
-  jsonLogs:         z.boolean().optional(),
-  milestone:        z.string().optional(),
-}).strict();
+const RuntimeConfigSchema = z
+  .object({
+    maxIterations: z.number().int().positive().optional(),
+    maxStallCount: z.number().int().positive().optional(),
+    parallelExecution: z.boolean().optional(),
+    maxParallelTasks: z.number().int().positive().optional(),
+    enableCheckpoints: z.boolean().optional(),
+    logLevel: z.enum(["debug", "info", "warn", "error"]).optional(),
+    jsonLogs: z.boolean().optional(),
+    milestone: z.string().optional(),
+  })
+  .strict();
 
 // Plugin entry: string | [string, object] | { name, options? }
 const PluginEntrySchema = z.union([
@@ -50,17 +54,17 @@ const PluginEntrySchema = z.union([
 /* ------------------------------------------------------------------ */
 
 const ConvergeConfigSchema = z.object({
-  name:        z.string().min(1, 'Project name is required'),
+  name: z.string().min(1, "Project name is required"),
   description: z.string().optional(),
-  dir:         z.string().optional(),
-  discovery:   DiscoveryConfigSchema.optional(),
-  plugins:     z.array(PluginEntrySchema).optional(),
-  variables:   z.record(z.unknown()).optional(),
+  dir: z.string().optional(),
+  discovery: DiscoveryConfigSchema.optional(),
+  plugins: z.array(PluginEntrySchema).optional(),
+  variables: z.record(z.unknown()).optional(),
   // hooks: validated structurally but not deeply (functions can't be Zod-validated)
-  hooks:       z.record(z.function()).optional(),
-  runtime:     RuntimeConfigSchema.optional(),
-  agents:      z.record(z.string()).optional(),
-  skills:      z.record(z.string()).optional(),
+  hooks: z.record(z.function()).optional(),
+  runtime: RuntimeConfigSchema.optional(),
+  agents: z.record(z.string()).optional(),
+  skills: z.record(z.string()).optional(),
 });
 
 /* ------------------------------------------------------------------ */
@@ -77,21 +81,21 @@ const ConvergeConfigSchema = z.object({
  */
 export function validateConvergeConfig(
   config: unknown,
-  source = 'PROJECT.md'
+  source = "PROJECT.md",
 ): ConvergeConfig {
   const result = ConvergeConfigSchema.safeParse(config);
 
   if (!result.success) {
     const errors = result.error.errors
       .map((e) => {
-        const path = e.path.length > 0 ? e.path.join('.') : '(root)';
+        const path = e.path.length > 0 ? e.path.join(".") : "(root)";
         return `  · ${path}: ${e.message}`;
       })
-      .join('\n');
+      .join("\n");
 
     throw new Error(
       `Invalid configuration in ${source}:\n${errors}\n\n` +
-      `Tip: See PROJECT.md format reference.`
+        `Tip: See PROJECT.md format reference.`,
     );
   }
 

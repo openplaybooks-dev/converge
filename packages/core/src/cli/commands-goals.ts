@@ -5,16 +5,16 @@
  * and optionally generates remediation TASK.md files via AI.
  */
 
-import { resolve, join, dirname, basename } from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { execSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
-import { ArtifactStore } from '../artifacts/index.ts';
-import { glob } from 'glob';
-import { parseGoalMd } from '../config/parse-goal.ts';
-import type { GoalDefinition } from '../config/parse-goal.ts';
-import { resolveConvergeConfig } from '../config/loader.ts';
-import { evaluateGoals, planFromGoals } from '../converge/goal-planner.ts';
+import { resolve, join, dirname, basename } from "node:path";
+import { pathToFileURL } from "node:url";
+import { execSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { ArtifactStore } from "../artifacts/index.ts";
+import { glob } from "glob";
+import { parseGoalMd } from "../config/parse-goal.ts";
+import type { GoalDefinition } from "../config/parse-goal.ts";
+import { resolveConvergeConfig } from "../config/loader.ts";
+import { evaluateGoals, planFromGoals } from "../converge/goal-planner.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -37,7 +37,7 @@ interface GoalResult {
   detailOutput?: string;
   reportData?: unknown;
   error?: string;
-  dodResult?: import('../converge/dod-runner.ts').DodResult;
+  dodResult?: import("../converge/dod-runner.ts").DodResult;
 }
 
 /* ------------------------------------------------------------------ */
@@ -45,13 +45,13 @@ interface GoalResult {
 /* ------------------------------------------------------------------ */
 
 const C = {
-  RESET: '\x1b[0m',
-  GREEN: '\x1b[32m',
-  RED: '\x1b[31m',
-  YELLOW: '\x1b[33m',
-  GRAY: '\x1b[90m',
-  BOLD: '\x1b[1m',
-  DIM: '\x1b[2m',
+  RESET: "\x1b[0m",
+  GREEN: "\x1b[32m",
+  RED: "\x1b[31m",
+  YELLOW: "\x1b[33m",
+  GRAY: "\x1b[90m",
+  BOLD: "\x1b[1m",
+  DIM: "\x1b[2m",
 };
 
 /* ------------------------------------------------------------------ */
@@ -67,8 +67,8 @@ export async function evaluateCommand(options: EvaluateOptions): Promise<void> {
 
   // Phase 1: Discover GOAL.md files
   const goalPatterns = [
-    '**/.converge/goals/*/GOAL.md',
-    '**/.converge/playbooks/*/goals/*/GOAL.md',
+    "**/.converge/goals/*/GOAL.md",
+    "**/.converge/playbooks/*/goals/*/GOAL.md",
   ];
   const goalFiles: string[] = [];
   for (const pattern of goalPatterns) {
@@ -80,7 +80,9 @@ export async function evaluateCommand(options: EvaluateOptions): Promise<void> {
   }
 
   if (goalFiles.length === 0) {
-    console.log('\nNo goals found. Create GOAL.md files in .converge/goals/ or .converge/playbooks/*/goals/ to define project goals.\n');
+    console.log(
+      "\nNo goals found. Create GOAL.md files in .converge/goals/ or .converge/playbooks/*/goals/ to define project goals.\n",
+    );
     return;
   }
 
@@ -103,15 +105,15 @@ export async function evaluateCommand(options: EvaluateOptions): Promise<void> {
   }
 
   if (allGoals.length === 0) {
-    console.log('\nNo valid goals found. Check GOAL.md format.\n');
+    console.log("\nNo valid goals found. Check GOAL.md format.\n");
     return;
   }
 
   // Filter to a single goal if requested
   if (options.goal) {
-    const match = allGoals.find(g => g.id === options.goal);
+    const match = allGoals.find((g) => g.id === options.goal);
     if (!match) {
-      const ids = allGoals.map(g => g.id).join(', ');
+      const ids = allGoals.map((g) => g.id).join(", ");
       console.log(`\nGoal "${options.goal}" not found. Available: ${ids}\n`);
       return;
     }
@@ -128,9 +130,15 @@ export async function evaluateCommand(options: EvaluateOptions): Promise<void> {
   for (const goal of goals) {
     // Check dependencies — skip evaluation if deps not satisfied
     const deps = goal.depends ?? [];
-    const unmetDeps = deps.filter(d => !satisfiedIds.has(d));
+    const unmetDeps = deps.filter((d) => !satisfiedIds.has(d));
     if (unmetDeps.length > 0) {
-      results.push({ goal, value: -1, satisfied: false, blocked: true, blockedBy: unmetDeps });
+      results.push({
+        goal,
+        value: -1,
+        satisfied: false,
+        blocked: true,
+        blockedBy: unmetDeps,
+      });
       continue;
     }
 
@@ -143,7 +151,7 @@ export async function evaluateCommand(options: EvaluateOptions): Promise<void> {
   renderDashboard(results, options.verbose ?? false);
 
   // Phase 5: Collect detail for unsatisfied goals
-  const unsatisfied = results.filter(r => !r.satisfied && !r.error);
+  const unsatisfied = results.filter((r) => !r.satisfied && !r.error);
 
   if (unsatisfied.length === 0) {
     console.log(`\n${C.GREEN}${C.BOLD}All goals satisfied.${C.RESET}\n`);
@@ -166,7 +174,7 @@ export async function evaluateCommand(options: EvaluateOptions): Promise<void> {
     if (result.dodResult) {
       if (showDetail && result.detailOutput) {
         console.log(`  ${C.BOLD}${result.goal.title}:${C.RESET}`);
-        for (const line of result.detailOutput.split('\n')) {
+        for (const line of result.detailOutput.split("\n")) {
           console.log(`    ${C.GRAY}${line}${C.RESET}`);
         }
         console.log();
@@ -191,13 +199,14 @@ export async function evaluateCommand(options: EvaluateOptions): Promise<void> {
             projectDir,
             goalId,
             isPlanning: isPlanning && !isDry,
-            exec: (cmd: string) => execSync(cmd, {
-              cwd: projectDir,
-              encoding: 'utf8',
-              timeout: 30_000,
-              stdio: ['pipe', 'pipe', 'pipe'],
-              shell: process.platform === 'win32' ? 'bash' : '/bin/sh',
-            }).trim(),
+            exec: (cmd: string) =>
+              execSync(cmd, {
+                cwd: projectDir,
+                encoding: "utf8",
+                timeout: 30_000,
+                stdio: ["pipe", "pipe", "pipe"],
+                shell: process.platform === "win32" ? "bash" : "/bin/sh",
+              }).trim(),
             artifact: store,
             log: {
               info: (msg: string) => logLines.push(msg),
@@ -205,7 +214,7 @@ export async function evaluateCommand(options: EvaluateOptions): Promise<void> {
               error: (msg: string) => logLines.push(`ERROR: ${msg}`),
             },
           });
-          result.detailOutput = scriptResult.detail ?? '';
+          result.detailOutput = scriptResult.detail ?? "";
           result.reportData = scriptResult.data;
         } catch {
           // detail.script failed — non-fatal
@@ -217,10 +226,10 @@ export async function evaluateCommand(options: EvaluateOptions): Promise<void> {
       try {
         const output = execSync(detail.cmd, {
           cwd: projectDir,
-          encoding: 'utf8',
+          encoding: "utf8",
           timeout: 30_000,
-          stdio: ['pipe', 'pipe', 'pipe'],
-          shell: process.platform === 'win32' ? 'bash' : '/bin/sh',
+          stdio: ["pipe", "pipe", "pipe"],
+          shell: process.platform === "win32" ? "bash" : "/bin/sh",
         }).trim();
         result.detailOutput = output;
         if (store && !isDry) store.set(`goals/${goalId}/report`, output);
@@ -238,7 +247,7 @@ export async function evaluateCommand(options: EvaluateOptions): Promise<void> {
         console.log();
       } else if (result.detailOutput) {
         console.log(`  ${C.BOLD}${result.goal.title}:${C.RESET}`);
-        for (const line of result.detailOutput.split('\n')) {
+        for (const line of result.detailOutput.split("\n")) {
           console.log(`    ${C.GRAY}${line}${C.RESET}`);
         }
         console.log();
@@ -257,28 +266,42 @@ export async function evaluateCommand(options: EvaluateOptions): Promise<void> {
   const evalResult = await evaluateGoals(projectDir);
 
   if (evalResult.needsPlanning.length === 0) {
-    console.log(`  ${C.YELLOW}No goals need planning (tasks may already exist).${C.RESET}\n`);
+    console.log(
+      `  ${C.YELLOW}No goals need planning (tasks may already exist).${C.RESET}\n`,
+    );
     return;
   }
 
   if (isDry) {
     // Dry run — show what would be planned without invoking the agent
-    console.log(`  ${C.BOLD}Goals that would be planned:${C.RESET} ${C.YELLOW}(dry run)${C.RESET}\n`);
+    console.log(
+      `  ${C.BOLD}Goals that would be planned:${C.RESET} ${C.YELLOW}(dry run)${C.RESET}\n`,
+    );
     for (const r of evalResult.needsPlanning) {
-      const implSkills = (r.goal.skills ?? []).filter(s => s !== 'converge-planning');
-      console.log(`    ${C.BOLD}${r.goal.id}${C.RESET}  ${r.goal.title}  (${r.value} → ${r.goal.metric.target})`);
+      const implSkills = (r.goal.skills ?? []).filter(
+        (s) => s !== "converge-planning",
+      );
+      console.log(
+        `    ${C.BOLD}${r.goal.id}${C.RESET}  ${r.goal.title}  (${r.value} → ${r.goal.metric.target})`,
+      );
       if (implSkills.length > 0) {
-        console.log(`      ${C.GRAY}skills: [${implSkills.join(', ')}]${C.RESET}`);
+        console.log(
+          `      ${C.GRAY}skills: [${implSkills.join(", ")}]${C.RESET}`,
+        );
       }
     }
-    console.log(`\nRe-run without ${C.BOLD}--dry${C.RESET} to invoke the planning agent.\n`);
+    console.log(
+      `\nRe-run without ${C.BOLD}--dry${C.RESET} to invoke the planning agent.\n`,
+    );
     return;
   }
 
   const planResult = await planFromGoals(projectDir, evalResult);
 
   if (planResult.tasksGenerated > 0) {
-    console.log(`  ${C.GREEN}✓${C.RESET} Generated ${planResult.tasksGenerated} task(s) in epic ${C.BOLD}${planResult.epicId}${C.RESET}`);
+    console.log(
+      `  ${C.GREEN}✓${C.RESET} Generated ${planResult.tasksGenerated} task(s) in epic ${C.BOLD}${planResult.epicId}${C.RESET}`,
+    );
     console.log(`\nRun \`converge run\` to execute.\n`);
   } else {
     console.log(`  ${C.YELLOW}No tasks generated.${C.RESET}\n`);
@@ -289,7 +312,10 @@ export async function evaluateCommand(options: EvaluateOptions): Promise<void> {
 /*  Metric Runner                                                      */
 /* ------------------------------------------------------------------ */
 
-async function runMetric(goal: GoalDefinition, projectDir: string): Promise<GoalResult> {
+async function runMetric(
+  goal: GoalDefinition,
+  projectDir: string,
+): Promise<GoalResult> {
   let result: GoalResult;
   if (goal.dod?.script) {
     result = await runMetricDod(goal, projectDir);
@@ -302,55 +328,97 @@ async function runMetric(goal: GoalDefinition, projectDir: string): Promise<Goal
   return result;
 }
 
-async function runMetricDod(goal: GoalDefinition, projectDir: string): Promise<GoalResult> {
+async function runMetricDod(
+  goal: GoalDefinition,
+  projectDir: string,
+): Promise<GoalResult> {
   const dodPath = join(dirname(goal.filePath), goal.dod!.script);
   if (!existsSync(dodPath)) {
-    return { goal, value: 0, satisfied: false, error: `DoD script not found: ${goal.dod!.script}` };
+    return {
+      goal,
+      value: 0,
+      satisfied: false,
+      error: `DoD script not found: ${goal.dod!.script}`,
+    };
   }
   try {
-    const { runDod } = await import('../converge/dod-runner.ts');
+    const { runDod } = await import("../converge/dod-runner.ts");
     const dodResult = await runDod(dodPath, projectDir);
     const target = goal.metric.target ?? 0;
-    const satisfied = goal.metric.direction === 'max'
-      ? dodResult.value >= target
-      : dodResult.value <= target;
-    return { goal, value: dodResult.value, satisfied, detailOutput: dodResult.detail, reportData: dodResult.reportData, dodResult };
+    const satisfied =
+      goal.metric.direction === "max"
+        ? dodResult.value >= target
+        : dodResult.value <= target;
+    return {
+      goal,
+      value: dodResult.value,
+      satisfied,
+      detailOutput: dodResult.detail,
+      reportData: dodResult.reportData,
+      dodResult,
+    };
   } catch (err: any) {
-    return { goal, value: 0, satisfied: false, error: `DoD script failed: ${err.message}` };
+    return {
+      goal,
+      value: 0,
+      satisfied: false,
+      error: `DoD script failed: ${err.message}`,
+    };
   }
 }
 
-async function runMetricScript(goal: GoalDefinition, projectDir: string): Promise<GoalResult> {
+async function runMetricScript(
+  goal: GoalDefinition,
+  projectDir: string,
+): Promise<GoalResult> {
   const scriptPath = join(dirname(goal.filePath), goal.metric.script!);
   if (!existsSync(scriptPath)) {
-    return { goal, value: 0, satisfied: false, error: `Metric script not found: ${goal.metric.script}` };
+    return {
+      goal,
+      value: 0,
+      satisfied: false,
+      error: `Metric script not found: ${goal.metric.script}`,
+    };
   }
 
   try {
     const mod = await import(pathToFileURL(scriptPath).href);
     const result = await mod.run({
       projectDir,
-      exec: (cmd: string) => execSync(cmd, {
-        cwd: projectDir,
-        encoding: 'utf8',
-        timeout: 30_000,
-        stdio: ['pipe', 'pipe', 'pipe'],
-        shell: process.platform === 'win32' ? 'bash' : '/bin/sh',
-      }).trim(),
+      exec: (cmd: string) =>
+        execSync(cmd, {
+          cwd: projectDir,
+          encoding: "utf8",
+          timeout: 30_000,
+          stdio: ["pipe", "pipe", "pipe"],
+          shell: process.platform === "win32" ? "bash" : "/bin/sh",
+        }).trim(),
     });
 
-    const value = typeof result === 'number' ? result : parseInt(String(result), 10);
+    const value =
+      typeof result === "number" ? result : parseInt(String(result), 10);
     if (isNaN(value)) {
-      return { goal, value: 0, satisfied: false, error: `Metric script returned non-numeric: ${result}` };
+      return {
+        goal,
+        value: 0,
+        satisfied: false,
+        error: `Metric script returned non-numeric: ${result}`,
+      };
     }
 
-    const satisfied = goal.metric.direction === 'min'
-      ? value <= goal.metric.target
-      : value >= goal.metric.target;
+    const satisfied =
+      goal.metric.direction === "min"
+        ? value <= goal.metric.target
+        : value >= goal.metric.target;
 
     return { goal, value, satisfied };
   } catch (err: any) {
-    return { goal, value: 0, satisfied: false, error: `Metric script failed: ${err.message}` };
+    return {
+      goal,
+      value: 0,
+      satisfied: false,
+      error: `Metric script failed: ${err.message}`,
+    };
   }
 }
 
@@ -358,33 +426,45 @@ function runMetricCmd(goal: GoalDefinition, projectDir: string): GoalResult {
   try {
     const rawOutput = execSync(goal.metric.cmd!, {
       cwd: projectDir,
-      encoding: 'utf8',
+      encoding: "utf8",
       timeout: 60_000,
-      stdio: ['pipe', 'pipe', 'pipe'],
-      shell: process.platform === 'win32' ? 'bash' : '/bin/sh',
+      stdio: ["pipe", "pipe", "pipe"],
+      shell: process.platform === "win32" ? "bash" : "/bin/sh",
     }).trim();
 
     const value = parseInt(rawOutput, 10);
     if (isNaN(value)) {
-      return { goal, value: 0, satisfied: false, error: `Non-numeric output: "${rawOutput}"` };
+      return {
+        goal,
+        value: 0,
+        satisfied: false,
+        error: `Non-numeric output: "${rawOutput}"`,
+      };
     }
 
-    const satisfied = goal.metric.direction === 'min'
-      ? value <= goal.metric.target
-      : value >= goal.metric.target;
+    const satisfied =
+      goal.metric.direction === "min"
+        ? value <= goal.metric.target
+        : value >= goal.metric.target;
 
     return { goal, value, satisfied };
   } catch (err: any) {
     // Many metric commands output to stderr on error — try parsing stdout from error
-    const stdout = err.stdout?.toString?.()?.trim?.() ?? '';
+    const stdout = err.stdout?.toString?.()?.trim?.() ?? "";
     const parsed = parseInt(stdout, 10);
     if (!isNaN(parsed)) {
-      const satisfied = goal.metric.direction === 'min'
-        ? parsed <= goal.metric.target
-        : parsed >= goal.metric.target;
+      const satisfied =
+        goal.metric.direction === "min"
+          ? parsed <= goal.metric.target
+          : parsed >= goal.metric.target;
       return { goal, value: parsed, satisfied };
     }
-    return { goal, value: 0, satisfied: false, error: `Command failed: ${err.message}` };
+    return {
+      goal,
+      value: 0,
+      satisfied: false,
+      error: `Command failed: ${err.message}`,
+    };
   }
 }
 
@@ -394,20 +474,26 @@ function runMetricCmd(goal: GoalDefinition, projectDir: string): GoalResult {
 
 function renderDashboard(results: GoalResult[], verbose: boolean): void {
   console.log(`\n${C.BOLD}Project Completeness Assessment${C.RESET}`);
-  console.log('═'.repeat(60));
+  console.log("═".repeat(60));
   console.log();
 
   // Find longest title for alignment
-  const maxTitleLen = Math.max(...results.map(r => r.goal.title.length));
+  const maxTitleLen = Math.max(...results.map((r) => r.goal.title.length));
 
   for (const result of results) {
-    const icon = result.blocked ? '⏸️ ' : result.error ? '⚠️ ' : result.satisfied ? '✅ ' : '❌ ';
+    const icon = result.blocked
+      ? "⏸️ "
+      : result.error
+        ? "⚠️ "
+        : result.satisfied
+          ? "✅ "
+          : "❌ ";
     const title = result.goal.title.padEnd(maxTitleLen);
-    const dots = '.'.repeat(Math.max(1, 40 - result.goal.title.length));
+    const dots = ".".repeat(Math.max(1, 40 - result.goal.title.length));
 
     let valueStr: string;
     if (result.blocked) {
-      const waiting = result.blockedBy?.join(', ') ?? 'dependencies';
+      const waiting = result.blockedBy?.join(", ") ?? "dependencies";
       valueStr = `${C.DIM}waiting on: ${waiting}${C.RESET}`;
     } else if (result.error) {
       valueStr = `${C.YELLOW}error${C.RESET}`;
@@ -418,30 +504,38 @@ function renderDashboard(results: GoalResult[], verbose: boolean): void {
     }
 
     const targetStr = result.blocked
-      ? 'not active'
-      : result.goal.metric.direction === 'min'
+      ? "not active"
+      : result.goal.metric.direction === "min"
         ? `target: ${result.goal.metric.target}`
         : result.goal.metric.target > 1
           ? `target: ${result.goal.metric.target}`
           : `target: ≥${result.goal.metric.target}`;
 
-    const color = result.blocked ? C.DIM : result.error ? C.YELLOW : result.satisfied ? C.GREEN : C.RED;
+    const color = result.blocked
+      ? C.DIM
+      : result.error
+        ? C.YELLOW
+        : result.satisfied
+          ? C.GREEN
+          : C.RED;
 
     const idLabel = `${C.DIM}[${result.goal.id}]${C.RESET}`;
-    console.log(`  ${icon} ${idLabel} ${color}${title}${C.RESET} ${C.DIM}${dots}${C.RESET} ${valueStr}  ${C.GRAY}(${targetStr})${C.RESET}`);
+    console.log(
+      `  ${icon} ${idLabel} ${color}${title}${C.RESET} ${C.DIM}${dots}${C.RESET} ${valueStr}  ${C.GRAY}(${targetStr})${C.RESET}`,
+    );
 
     if (verbose && result.error) {
       console.log(`       ${C.YELLOW}${result.error}${C.RESET}`);
     }
   }
 
-  const satisfiedCount = results.filter(r => r.satisfied).length;
-  const blockedCount = results.filter(r => r.blocked).length;
+  const satisfiedCount = results.filter((r) => r.satisfied).length;
+  const blockedCount = results.filter((r) => r.blocked).length;
   const activeCount = results.length - blockedCount;
   console.log();
-  console.log('─'.repeat(60));
-  console.log(`  Metrics at target: ${satisfiedCount} / ${activeCount} active    ${blockedCount > 0 ? `(${blockedCount} not active)` : ''}`);
-  console.log('─'.repeat(60));
+  console.log("─".repeat(60));
+  console.log(
+    `  Metrics at target: ${satisfiedCount} / ${activeCount} active    ${blockedCount > 0 ? `(${blockedCount} not active)` : ""}`,
+  );
+  console.log("─".repeat(60));
 }
-
-

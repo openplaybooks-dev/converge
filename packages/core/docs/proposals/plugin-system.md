@@ -1,7 +1,7 @@
-# Proposal: Plugin System for crew
+# Proposal: Plugin System for Converge
 
 **Status:** Draft
-**Author:** crew team
+**Author:** Converge team
 **Date:** 2026-03-06
 
 ---
@@ -18,7 +18,7 @@ Introduce a **plugin system** that lets users compose project configuration from
 ```
 
 ```bash
-crew init
+converge init
 # → TypeScript checks registered (tsc)
 # → Next.js checks registered (build, lint)
 # → Git hooks registered (auto-commit on task complete)
@@ -33,17 +33,29 @@ Today, every project must manually define checks, task types, and hooks in `.con
 
 ```javascript
 export const checks = {
-  tsc: async (ctx) => { /* ... */ },
-  build: async (ctx) => { /* ... */ },
-  lint: async (ctx) => { /* ... */ },
+  tsc: async (ctx) => {
+    /* ... */
+  },
+  build: async (ctx) => {
+    /* ... */
+  },
+  lint: async (ctx) => {
+    /* ... */
+  },
 };
 
 export const taskTypes = {
-  coding: { name: 'coding', defaults: { skill: 'coding-agent' }, checks: ['tsc'] },
+  coding: {
+    name: "coding",
+    defaults: { skill: "coding-agent" },
+    checks: ["tsc"],
+  },
 };
 
 export const hooks = {
-  async beforeTask(ctx) { /* ... */ },
+  async beforeTask(ctx) {
+    /* ... */
+  },
 };
 ```
 
@@ -58,13 +70,13 @@ This setup is:
 
 Plugins encapsulate reusable configuration units. Each plugin contributes:
 
-| Contribution | Example |
-|---|---|
-| **Checks** | `tsc`, `eslint`, `next build`, `docker build` |
-| **Task types** | `coding` (with `tsc` check), `deploy` (with docker checks) |
-| **Hooks** | Auto-install deps before coding tasks, auto-commit after task completion |
-| **Vars** | `nodeVersion: '20'`, `framework: 'nextjs'` |
-| **Tools** | Plugin-specific tools injected into `TaskContext.tools` |
+| Contribution   | Example                                                                  |
+| -------------- | ------------------------------------------------------------------------ |
+| **Checks**     | `tsc`, `eslint`, `next build`, `docker build`                            |
+| **Task types** | `coding` (with `tsc` check), `deploy` (with docker checks)               |
+| **Hooks**      | Auto-install deps before coding tasks, auto-commit after task completion |
+| **Vars**       | `nodeVersion: '20'`, `framework: 'nextjs'`                               |
+| **Tools**      | Plugin-specific tools injected into `TaskContext.tools`                  |
 
 Users stack plugins — the framework deep-merges their contributions in declaration order.
 
@@ -130,15 +142,18 @@ export interface PluginAPI {
 }
 
 export type HookEvent =
-  | 'beforeTask'
-  | 'afterTask'
-  | 'beforeEpic'
-  | 'afterEpic'
-  | 'beforePlan'
-  | 'afterPlan'
-  | 'onTaskFail';
+  | "beforeTask"
+  | "afterTask"
+  | "beforeEpic"
+  | "afterEpic"
+  | "beforePlan"
+  | "afterPlan"
+  | "onTaskFail";
 
-export type HookFn = (ctx: TaskContext, ...args: unknown[]) => void | Promise<void>;
+export type HookFn = (
+  ctx: TaskContext,
+  ...args: unknown[]
+) => void | Promise<void>;
 export type ToolFactory = (ctx: TaskContext) => unknown;
 ```
 
@@ -157,14 +172,14 @@ Plugins can be specified in three ways:
     "@converge/plugin-docker",
 
     // 3. Local file path
-    "./plugins/custom-plugin.js"
-  ]
+    "./plugins/custom-plugin.js",
+  ],
 }
 ```
 
 Resolution order:
 
-1. **Built-in** — check `crew/plugins/{name}.js` for bundled presets
+1. **Built-in** — check `converge/plugins/{name}.js` for bundled presets
 2. **npm** — `require(name)` / `import(name)` from `node_modules`
 3. **Local** — resolve relative to `converge.json` location
 
@@ -191,12 +206,12 @@ Plugins declare dependencies via `requires`:
 
 ```typescript
 const nextjsPlugin: ConvergePlugin = {
-  name: 'nextjs',
-  version: '1.0.0',
-  requires: ['typescript'],  // typescript must load first
+  name: "nextjs",
+  version: "1.0.0",
+  requires: ["typescript"], // typescript must load first
   setup(api) {
     // Can assume tsc check exists
-    api.extendTaskType('coding', { checks: ['lint', 'build'] });
+    api.extendTaskType("coding", { checks: ["lint", "build"] });
   },
 };
 ```
@@ -219,8 +234,8 @@ Plugins can accept user-provided options via the object syntax:
   "plugins": [
     "typescript",
     ["nextjs", { "appDir": true, "turbopack": false }],
-    ["docker", { "registry": "ghcr.io/myorg" }]
-  ]
+    ["docker", { "registry": "ghcr.io/myorg" }],
+  ],
 }
 ```
 
@@ -242,23 +257,23 @@ The framework ships with common plugins so most projects need zero manual setup.
 
 ```typescript
 export default {
-  name: 'typescript',
-  version: '1.0.0',
-  description: 'TypeScript type checking and coding task type',
+  name: "typescript",
+  version: "1.0.0",
+  description: "TypeScript type checking and coding task type",
   setup(api) {
-    api.addCheck('tsc', async (ctx) => {
-      const r = await ctx.tools.shell.run('npx tsc --noEmit');
+    api.addCheck("tsc", async (ctx) => {
+      const r = await ctx.tools.shell.run("npx tsc --noEmit");
       return { passed: r.exitCode === 0, output: r.stderr };
     });
 
     api.addTaskType({
-      name: 'coding',
-      description: 'Implementation tasks with TypeScript checks',
-      defaults: { skill: 'coding-agent' },
-      checks: ['tsc'],
+      name: "coding",
+      description: "Implementation tasks with TypeScript checks",
+      defaults: { skill: "coding-agent" },
+      checks: ["tsc"],
     });
 
-    api.addVars({ language: 'typescript' });
+    api.addVars({ language: "typescript" });
   },
 };
 ```
@@ -267,27 +282,27 @@ export default {
 
 ```typescript
 export default {
-  name: 'nextjs',
-  version: '1.0.0',
-  description: 'Next.js build and lint checks',
-  requires: ['typescript'],
+  name: "nextjs",
+  version: "1.0.0",
+  description: "Next.js build and lint checks",
+  requires: ["typescript"],
   setup(api) {
     const opts = api.options as { appDir?: boolean };
 
-    api.addCheck('build', async (ctx) => {
-      const r = await ctx.tools.shell.run('npx next build');
+    api.addCheck("build", async (ctx) => {
+      const r = await ctx.tools.shell.run("npx next build");
       return { passed: r.exitCode === 0, output: r.stderr };
     });
 
-    api.addCheck('lint', async (ctx) => {
-      const r = await ctx.tools.shell.run('npx next lint');
+    api.addCheck("lint", async (ctx) => {
+      const r = await ctx.tools.shell.run("npx next lint");
       return { passed: r.exitCode === 0, output: r.stdout };
     });
 
-    api.extendTaskType('coding', { checks: ['lint'] });
+    api.extendTaskType("coding", { checks: ["lint"] });
 
     api.addVars({
-      framework: 'nextjs',
+      framework: "nextjs",
       appDir: opts?.appDir ?? true,
     });
   },
@@ -298,31 +313,31 @@ export default {
 
 ```typescript
 export default {
-  name: 'git',
-  version: '1.0.0',
-  description: 'Git auto-commit after task completion',
+  name: "git",
+  version: "1.0.0",
+  description: "Git auto-commit after task completion",
   setup(api) {
     const opts = api.options as { autoCommit?: boolean; commitPrefix?: string };
     const autoCommit = opts?.autoCommit ?? true;
-    const prefix = opts?.commitPrefix ?? 'crew';
+    const prefix = opts?.commitPrefix ?? "converge";
 
     if (autoCommit) {
-      api.addHook('afterTask', async (ctx) => {
+      api.addHook("afterTask", async (ctx) => {
         const status = await ctx.tools.git.status();
         if (status.trim()) {
-          await ctx.tools.git.add(['.']);
+          await ctx.tools.git.add(["."]);
           await ctx.tools.git.commit(
-            `${prefix}: complete task ${ctx.taskId} — ${ctx.task.title}`
+            `${prefix}: complete task ${ctx.taskId} — ${ctx.task.title}`,
           );
         }
       });
     }
 
-    api.addCheck('git-clean', async (ctx) => {
-      const status = await ctx.tools.shell.run('git status --porcelain');
+    api.addCheck("git-clean", async (ctx) => {
+      const status = await ctx.tools.shell.run("git status --porcelain");
       return {
-        passed: status.stdout.trim() === '',
-        output: status.stdout || 'Working tree clean',
+        passed: status.stdout.trim() === "",
+        output: status.stdout || "Working tree clean",
       };
     });
   },
@@ -333,9 +348,9 @@ export default {
 
 ```typescript
 export default {
-  name: 'docker',
-  version: '1.0.0',
-  description: 'Docker build verification and deploy task type',
+  name: "docker",
+  version: "1.0.0",
+  description: "Docker build verification and deploy task type",
   setup(api) {
     const opts = api.options as {
       dockerfile?: string;
@@ -343,28 +358,28 @@ export default {
       imageName?: string;
     };
 
-    const dockerfile = opts?.dockerfile ?? 'Dockerfile';
-    const imageName = opts?.imageName ?? 'app';
+    const dockerfile = opts?.dockerfile ?? "Dockerfile";
+    const imageName = opts?.imageName ?? "app";
 
-    api.addCheck('docker-build', async (ctx) => {
+    api.addCheck("docker-build", async (ctx) => {
       const r = await ctx.tools.shell.run(
-        `docker build -f ${dockerfile} -t ${imageName}:check .`
+        `docker build -f ${dockerfile} -t ${imageName}:check .`,
       );
       return { passed: r.exitCode === 0, output: r.stderr };
     });
 
-    api.addCheck('docker-run', async (ctx) => {
+    api.addCheck("docker-run", async (ctx) => {
       const r = await ctx.tools.shell.run(
-        `docker run --rm ${imageName}:check echo "Container starts OK"`
+        `docker run --rm ${imageName}:check echo "Container starts OK"`,
       );
       return { passed: r.exitCode === 0, output: r.stdout };
     });
 
     api.addTaskType({
-      name: 'deploy',
-      description: 'Deployment tasks with Docker verification',
-      defaults: { skill: 'deploy-agent' },
-      checks: ['docker-build'],
+      name: "deploy",
+      description: "Deployment tasks with Docker verification",
+      defaults: { skill: "deploy-agent" },
+      checks: ["docker-build"],
     });
   },
 };
@@ -374,17 +389,17 @@ export default {
 
 ```typescript
 export default {
-  name: 'eslint',
-  version: '1.0.0',
-  description: 'ESLint code quality checks',
+  name: "eslint",
+  version: "1.0.0",
+  description: "ESLint code quality checks",
   setup(api) {
     const opts = api.options as { fix?: boolean; extensions?: string[] };
     const fix = opts?.fix ?? false;
-    const extensions = opts?.extensions ?? ['.ts', '.tsx', '.js', '.jsx'];
+    const extensions = opts?.extensions ?? [".ts", ".tsx", ".js", ".jsx"];
 
-    api.addCheck('eslint', async (ctx) => {
-      const ext = extensions.map(e => `--ext ${e}`).join(' ');
-      const fixFlag = fix ? '--fix' : '';
+    api.addCheck("eslint", async (ctx) => {
+      const ext = extensions.map((e) => `--ext ${e}`).join(" ");
+      const fixFlag = fix ? "--fix" : "";
       const r = await ctx.tools.shell.run(`npx eslint ${ext} ${fixFlag} src/`);
       return { passed: r.exitCode === 0, output: r.stdout };
     });
@@ -396,16 +411,16 @@ export default {
 
 ```typescript
 export default {
-  name: 'vitest',
-  version: '1.0.0',
-  description: 'Vitest test runner',
+  name: "vitest",
+  version: "1.0.0",
+  description: "Vitest test runner",
   setup(api) {
-    api.addCheck('test', async (ctx) => {
-      const r = await ctx.tools.shell.run('npx vitest run');
+    api.addCheck("test", async (ctx) => {
+      const r = await ctx.tools.shell.run("npx vitest run");
       return { passed: r.exitCode === 0, output: r.stdout };
     });
 
-    api.extendTaskType('coding', { checks: ['test'] });
+    api.extendTaskType("coding", { checks: ["test"] });
   },
 };
 ```
@@ -418,11 +433,12 @@ export default {
 // converge.json
 {
   "name": "my-nextjs-app",
-  "plugins": ["typescript", "nextjs", "git"]
+  "plugins": ["typescript", "nextjs", "git"],
 }
 ```
 
 This single declaration gives you:
+
 - `tsc` check on all `coding` tasks
 - `build` and `lint` checks from Next.js
 - Auto-commit after each task completion
@@ -438,9 +454,9 @@ This single declaration gives you:
     ["nextjs", { "appDir": true }],
     "eslint",
     "vitest",
-    ["git", { "commitPrefix": "chore(crew)" }],
-    ["docker", { "registry": "ghcr.io/myorg", "imageName": "fullstack-app" }]
-  ]
+    ["git", { "commitPrefix": "chore(converge)" }],
+    ["docker", { "registry": "ghcr.io/myorg", "imageName": "fullstack-app" }],
+  ],
 }
 ```
 
@@ -449,27 +465,23 @@ This single declaration gives you:
 ```jsonc
 {
   "name": "my-app",
-  "plugins": [
-    "typescript",
-    "nextjs",
-    "./plugins/my-db-checks.js"
-  ]
+  "plugins": ["typescript", "nextjs", "./plugins/my-db-checks.js"],
 }
 ```
 
 ```javascript
 // ./plugins/my-db-checks.js
 export default {
-  name: 'db-checks',
-  version: '1.0.0',
+  name: "db-checks",
+  version: "1.0.0",
   setup(api) {
-    api.addCheck('db-migrate', async (ctx) => {
-      const r = await ctx.tools.shell.run('npx prisma migrate deploy');
+    api.addCheck("db-migrate", async (ctx) => {
+      const r = await ctx.tools.shell.run("npx prisma migrate deploy");
       return { passed: r.exitCode === 0, output: r.stderr };
     });
 
-    api.addCheck('db-seed', async (ctx) => {
-      const r = await ctx.tools.shell.run('npx prisma db seed');
+    api.addCheck("db-seed", async (ctx) => {
+      const r = await ctx.tools.shell.run("npx prisma db seed");
       return { passed: r.exitCode === 0, output: r.stdout };
     });
   },
@@ -486,8 +498,8 @@ Plugins don't replace `.converge/setup/index.js` — they complement it. Manual 
 // This file adds project-specific customization on top.
 
 export const checks = {
-  'e2e': async (ctx) => {
-    const r = await ctx.tools.shell.run('npx playwright test');
+  e2e: async (ctx) => {
+    const r = await ctx.tools.shell.run("npx playwright test");
     return { passed: r.exitCode === 0, output: r.stdout };
   },
 };
@@ -526,7 +538,7 @@ The existing `loadConfig()` function gains a plugin loading phase:
 ```typescript
 // config-loader.ts (updated flow)
 export async function loadConfig(projectDir: string) {
-  const config = readCrewJson(projectDir);
+  const config = readConvergeJson(projectDir);
 
   // NEW: Load and initialize plugins before setup script
   if (config.plugins) {
@@ -544,7 +556,7 @@ export async function loadConfig(projectDir: string) {
 
 ```bash
 # List loaded plugins and their contributions
-crew plugins
+converge plugins
 
 # Output:
 # Plugins (3):
@@ -564,12 +576,14 @@ crew plugins
 ## Implementation Plan
 
 ### Phase 1: Core Plugin Infrastructure
+
 1. Define `ConvergePlugin` and `PluginAPI` interfaces in `src/plugins/types.ts`
 2. Implement `PluginLoader` in `src/plugins/loader.ts` — resolution, dependency sort, loading
 3. Implement `PluginAPIImpl` in `src/plugins/api.ts` — bridges plugin calls to existing registries
 4. Update `config-loader.ts` to call plugin loader before setup script
 
 ### Phase 2: Built-in Plugins
+
 5. Create `src/plugins/builtins/typescript.ts`
 6. Create `src/plugins/builtins/nextjs.ts`
 7. Create `src/plugins/builtins/git.ts`
@@ -578,6 +592,7 @@ crew plugins
 10. Create `src/plugins/builtins/vitest.ts`
 
 ### Phase 3: CLI & DX
+
 11. Add `converge plugins` command
 12. Update `converge init` to offer plugin selection
 13. Update documentation
@@ -587,6 +602,7 @@ crew plugins
 ### Why Not a Separate Plugin Registry?
 
 Plugins call straight into existing registries (`registerCheck`, `registerTaskType`, etc.). This means:
+
 - Zero migration for existing projects
 - Plugin contributions are indistinguishable from manual setup
 - No new abstraction layer to maintain

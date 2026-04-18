@@ -6,7 +6,7 @@ Currently, **all successful repairs trigger a full task rerun**, creating unnece
 
 ```typescript
 // Current behavior:
-outcome = { success: true, reason: "Created symlink" }
+outcome = { success: true, reason: "Created symlink" };
 // → Pipeline returns success
 // → Caller reruns ENTIRE task (new attempt created)
 // → Wasteful if symlink was all we needed
@@ -18,11 +18,22 @@ The `StrategyOutcome` type has inconsistent retry semantics:
 
 ```typescript
 export type StrategyOutcome =
-  | { success: true; message?: string; reason?: string; metadata?: Record<string, unknown> }
-  | { success: false; reason: string; shouldRetry?: boolean; metadata?: Record<string, unknown> };
+  | {
+      success: true;
+      message?: string;
+      reason?: string;
+      metadata?: Record<string, unknown>;
+    }
+  | {
+      success: false;
+      reason: string;
+      shouldRetry?: boolean;
+      metadata?: Record<string, unknown>;
+    };
 ```
 
 **Issues:**
+
 1. `shouldRetry` only exists on `success: false` (controls strategy retry)
 2. No way for `success: true` to say "fixed, but don't rerun task"
 3. Caller assumes `success: true` = "rerun the task to validate fix"
@@ -33,35 +44,35 @@ export type StrategyOutcome =
 
 ```typescript
 export type RetryMode =
-  | 'full'       // Full task re-execution (new attempt) - DEFAULT
-  | 'validate'   // Just rerun validation checks (no new attempt)
-  | 'none';      // No retry needed (fix is self-sufficient)
+  | "full" // Full task re-execution (new attempt) - DEFAULT
+  | "validate" // Just rerun validation checks (no new attempt)
+  | "none"; // No retry needed (fix is self-sufficient)
 
 export type StrategyOutcome =
   | {
       success: true;
       reason: string;
-      retryMode?: RetryMode;  // NEW: Defaults to 'full'
+      retryMode?: RetryMode; // NEW: Defaults to 'full'
       metadata?: Record<string, unknown>;
     }
   | {
       success: false;
       reason: string;
-      shouldRetry?: boolean;  // Keep for strategy-level retry
+      shouldRetry?: boolean; // Keep for strategy-level retry
       metadata?: Record<string, unknown>;
     };
 ```
 
 ### 2. Strategy Decision Matrix
 
-| Fix Type | Example | retryMode | Why |
-|----------|---------|-----------|-----|
-| **Definition update** | Update SKILL.md outputs | `full` | Task needs new definition |
-| **Symlink only** | Create .stitch/designs/X.html → X/design.html | `validate` | Just check if file accessible now |
-| **Check command fix** | Update check to handle both formats | `validate` | Rerun checks, not task |
-| **Upstream completed** | Re-ran producer, file exists now | `validate` | Just verify file exists |
-| **Environment setup** | Logged "npm install stitch" | `none` | Manual intervention needed |
-| **Gap-fixer spawned** | Created intermediate task | `none` | Wait for gap-fixer to run |
+| Fix Type               | Example                                       | retryMode  | Why                               |
+| ---------------------- | --------------------------------------------- | ---------- | --------------------------------- |
+| **Definition update**  | Update SKILL.md outputs                       | `full`     | Task needs new definition         |
+| **Symlink only**       | Create .stitch/designs/X.html → X/design.html | `validate` | Just check if file accessible now |
+| **Check command fix**  | Update check to handle both formats           | `validate` | Rerun checks, not task            |
+| **Upstream completed** | Re-ran producer, file exists now              | `validate` | Just verify file exists           |
+| **Environment setup**  | Logged "npm install stitch"                   | `none`     | Manual intervention needed        |
+| **Gap-fixer spawned**  | Created intermediate task                     | `none`     | Wait for gap-fixer to run         |
 
 ### 3. Strategy Updates
 
@@ -149,26 +160,26 @@ The caller (unit/run.ts or autonomous-run.ts) needs to respect `retryMode`:
 const resolution = await pipeline.resolve(gap);
 if (resolution.success) {
   // CURRENT: Always reruns entire task
-  return await this.run();  // Full re-execution
+  return await this.run(); // Full re-execution
 }
 
 // PROPOSED:
 const resolution = await pipeline.resolve(gap);
 if (resolution.success) {
-  const retryMode = resolution.retryMode || 'full';
+  const retryMode = resolution.retryMode || "full";
 
   switch (retryMode) {
-    case 'full':
+    case "full":
       // Full task re-execution (new attempt)
       return await this.run();
 
-    case 'validate':
+    case "validate":
       // Just rerun validation checks (no new attempt)
       return await this.validateOnly();
 
-    case 'none':
+    case "none":
       // No retry (mark as pending/blocked)
-      return { success: false, reason: 'Waiting for dependency' };
+      return { success: false, reason: "Waiting for dependency" };
   }
 }
 ```
@@ -181,13 +192,14 @@ export interface Resolution {
   strategyName?: string;
   attempts: AttemptRecord[];
   durationMs: number;
-  retryMode?: RetryMode;  // NEW: Pass through from strategy
+  retryMode?: RetryMode; // NEW: Pass through from strategy
 }
 ```
 
 ## Benefits
 
 ### Before (Current):
+
 ```
 Gap: Output mismatch
 → TaskDefinitionRepair creates symlink
@@ -198,6 +210,7 @@ Gap: Output mismatch
 ```
 
 ### After (Optimized):
+
 ```
 Gap: Output mismatch
 → TaskDefinitionRepair creates symlink
@@ -210,11 +223,13 @@ Gap: Output mismatch
 ## Metrics
 
 **Cost Savings:**
+
 - Full task rerun: ~10-30s (depends on task complexity)
 - Validate-only: ~0.1-1s (just run checks)
 - **90-99% time reduction** for symlink/check fixes
 
 **Attempt Reduction:**
+
 - Before: Every fix = new attempt (attempt count inflates)
 - After: Only `retryMode: 'full'` creates new attempts
 - **~50% fewer attempts** for projects with many symlink/check fixes
@@ -232,10 +247,12 @@ Gap: Output mismatch
 ## Migration
 
 **Backward Compatible:**
+
 - `retryMode` is optional, defaults to `'full'`
 - Existing strategies work without changes (use default)
 - Can update strategies incrementally
 
 **Zero Breaking Changes:**
+
 - Type unions preserve existing behavior
 - Callers that ignore `retryMode` work as before

@@ -48,22 +48,22 @@ run.ts
 
 The tree is a discriminated union of 5 node types:
 
-| Type | Behavior |
-|------|----------|
-| `condition` | Evaluates `test(ctx)`, branches to `then` or `else` |
-| `action` | Calls a named handler from the registry, chains to `onSuccess`/`onFailure` |
-| `sequence` | Runs steps in order, stops on `done`/`bail` |
-| `fallthrough` | Tries attempts in order, stops on first success |
-| `select` | AI picks from N options (reuses existing AI infra) |
+| Type          | Behavior                                                                   |
+| ------------- | -------------------------------------------------------------------------- |
+| `condition`   | Evaluates `test(ctx)`, branches to `then` or `else`                        |
+| `action`      | Calls a named handler from the registry, chains to `onSuccess`/`onFailure` |
+| `sequence`    | Runs steps in order, stops on `done`/`bail`                                |
+| `fallthrough` | Tries attempts in order, stops on first success                            |
+| `select`      | AI picks from N options (reuses existing AI infra)                         |
 
 ### Files
 
-| File | Contents |
-|------|----------|
-| `repair/playbook/types.ts` | `PlaybookNode` union, `PlaybookContext`, `PlaybookResult`, `ActionHandler` |
-| `repair/playbook/walker.ts` | `PlaybookTree` class — recursive `walk()` evaluator |
-| `repair/playbook/default-tree.ts` | `DEFAULT_TREE` constant and condition helpers |
-| `repair/playbook/actions.ts` | `buildActionRegistry()` — 13 action handlers wrapping existing code |
+| File                              | Contents                                                                   |
+| --------------------------------- | -------------------------------------------------------------------------- |
+| `repair/playbook/types.ts`        | `PlaybookNode` union, `PlaybookContext`, `PlaybookResult`, `ActionHandler` |
+| `repair/playbook/walker.ts`       | `PlaybookTree` class — recursive `walk()` evaluator                        |
+| `repair/playbook/default-tree.ts` | `DEFAULT_TREE` constant and condition helpers                              |
+| `repair/playbook/actions.ts`      | `buildActionRegistry()` — 13 action handlers wrapping existing code        |
 
 ---
 
@@ -102,17 +102,17 @@ root (condition: isFirstIteration?)
 
 ### Exit Conditions
 
-| Condition | Result | Source |
-|-----------|--------|--------|
-| Pre-flight: all outputs exist | `true` | `run.ts` |
-| Pre-flight: WBS already seeded | `true` | `run.ts` |
-| WBS seeded successfully | `true` | `resolve-wbs` action |
-| Blockers persist after fix (iter 1) | `false` | `resolve-blockers` action |
-| 0 gaps after first execution | `true` | `verify-outputs` action |
-| Blockers persist into iter 2+ | `false` | `bail-blockers` action |
-| 0 gaps in iter 2+ | `true` | `signal-converged` / `re-verify` action |
-| 3 consecutive stalls | `false` | `check-stall` action |
-| Max iterations reached | `false` | `run.ts` |
+| Condition                           | Result  | Source                                  |
+| ----------------------------------- | ------- | --------------------------------------- |
+| Pre-flight: all outputs exist       | `true`  | `run.ts`                                |
+| Pre-flight: WBS already seeded      | `true`  | `run.ts`                                |
+| WBS seeded successfully             | `true`  | `resolve-wbs` action                    |
+| Blockers persist after fix (iter 1) | `false` | `resolve-blockers` action               |
+| 0 gaps after first execution        | `true`  | `verify-outputs` action                 |
+| Blockers persist into iter 2+       | `false` | `bail-blockers` action                  |
+| 0 gaps in iter 2+                   | `true`  | `signal-converged` / `re-verify` action |
+| 3 consecutive stalls                | `false` | `check-stall` action                    |
+| Max iterations reached              | `false` | `run.ts`                                |
 
 ---
 
@@ -122,9 +122,9 @@ Each action handler wraps existing code and returns a `PlaybookResult`:
 
 ```typescript
 interface PlaybookResult {
-  action: 'continue' | 'done' | 'bail';
+  action: "continue" | "done" | "bail";
   success?: boolean;
-  retryMode?: RetryMode;   // ← preserved from strategy resolution
+  retryMode?: RetryMode; // ← preserved from strategy resolution
   resolved?: number;
   reason?: string;
 }
@@ -132,21 +132,21 @@ interface PlaybookResult {
 
 ### Handler Registry
 
-| Handler | Wraps | Key behavior |
-|---------|-------|-------------|
-| `detect-gaps` | `findGaps(unit)` | Sets `ctx.gaps` and `ctx.previousGaps` |
-| `signal-converged` | — | Returns `done(success)` |
-| `signal-bail` | — | Returns `bail(failure)` |
-| `resolve-plan` | `fixGaps(unit, [planGap])` | Delegates to PlanExecutor |
-| `resolve-wbs` | `fixGaps(unit, [wbsGap])` | Delegates to WbsExecutor, done if seeded |
-| `resolve-blockers` | `fixGaps(unit, blockers)` | Re-verifies after fix, bails if stuck |
-| `run-executor` | `executeInitial(unit)` | Runs task via existing execute.ts |
-| `verify-outputs` | `findGaps(unit)` post-execution | Validates with event logging |
-| `bail-blockers` | checks for blocker gaps | Fatal in iteration 2+ — returns `bail` |
-| `fix-gaps` | `fixGapsDetailed(unit, gaps)` | Calls strategy pipeline, surfaces `retryMode` + `strategyName` |
-| `re-verify` | `findGaps(unit)` post-fix | Ground-truth gap count, `done` if 0 |
-| `check-stall` | `hasStalled()` from helpers | Increments stall count, bails at 3 |
-| `advance-attempt` | creates next numbered dir | Archives `wip/` for next attempt |
+| Handler            | Wraps                           | Key behavior                                                   |
+| ------------------ | ------------------------------- | -------------------------------------------------------------- |
+| `detect-gaps`      | `findGaps(unit)`                | Sets `ctx.gaps` and `ctx.previousGaps`                         |
+| `signal-converged` | —                               | Returns `done(success)`                                        |
+| `signal-bail`      | —                               | Returns `bail(failure)`                                        |
+| `resolve-plan`     | `fixGaps(unit, [planGap])`      | Delegates to PlanExecutor                                      |
+| `resolve-wbs`      | `fixGaps(unit, [wbsGap])`       | Delegates to WbsExecutor, done if seeded                       |
+| `resolve-blockers` | `fixGaps(unit, blockers)`       | Re-verifies after fix, bails if stuck                          |
+| `run-executor`     | `executeInitial(unit)`          | Runs task via existing execute.ts                              |
+| `verify-outputs`   | `findGaps(unit)` post-execution | Validates with event logging                                   |
+| `bail-blockers`    | checks for blocker gaps         | Fatal in iteration 2+ — returns `bail`                         |
+| `fix-gaps`         | `fixGapsDetailed(unit, gaps)`   | Calls strategy pipeline, surfaces `retryMode` + `strategyName` |
+| `re-verify`        | `findGaps(unit)` post-fix       | Ground-truth gap count, `done` if 0                            |
+| `check-stall`      | `hasStalled()` from helpers     | Increments stall count, bails at 3                             |
+| `advance-attempt`  | creates next numbered dir       | Archives `wip/` for next attempt                               |
 
 ---
 
@@ -164,8 +164,14 @@ export async function run(unit: Unit): Promise<boolean> {
 
   for (let iteration = 1; iteration <= unit.config.maxIterations; iteration++) {
     const ctx: PlaybookContext = {
-      unit, gaps: [], projectDir, epicId,
-      iteration, previousGaps, stallCount, metadata: {},
+      unit,
+      gaps: [],
+      projectDir,
+      epicId,
+      iteration,
+      previousGaps,
+      stallCount,
+      metadata: {},
     };
 
     const result = await tree.walk(ctx);
@@ -174,8 +180,8 @@ export async function run(unit: Unit): Promise<boolean> {
     previousGaps = ctx.previousGaps;
     stallCount = ctx.stallCount;
 
-    if (result.action === 'done') return result.success ?? true;
-    if (result.action === 'bail') return false;
+    if (result.action === "done") return result.success ?? true;
+    if (result.action === "bail") return false;
     // 'continue' → next iteration
   }
 
@@ -308,28 +314,28 @@ The fallthrough node stops on first `resolved > 0`. The walker never sees the pi
 
 ### Tree Node Ordering
 
-| Position | Node Type | Strategy | Why |
-|----------|-----------|----------|-----|
-| 1st | action | task-run | Cheap retry, most gaps resolve on retry with FEEDBACK.md |
-| 2nd | select | all other eligible | AI diagnoses root cause and picks strategy |
+| Position | Node Type | Strategy           | Why                                                      |
+| -------- | --------- | ------------------ | -------------------------------------------------------- |
+| 1st      | action    | task-run           | Cheap retry, most gaps resolve on retry with FEEDBACK.md |
+| 2nd      | select    | all other eligible | AI diagnoses root cause and picks strategy               |
 
 No strategy is auto-run (except task-run). The root cause of a gap is ambiguous — e.g. a missing input could be a wrong glob pattern in the task definition OR an upstream task that didn't produce its output. AI should decide.
 
 ### Strategy Selection
 
-| Level | Filter | Purpose |
-|-------|--------|---------|
-| `gapKinds` (descriptor metadata) | Fast | Which strategies appear in the sub-tree |
-| AI select node | Root cause diagnosis | Which strategy to try for this specific gap |
+| Level                            | Filter               | Purpose                                     |
+| -------------------------------- | -------------------- | ------------------------------------------- |
+| `gapKinds` (descriptor metadata) | Fast                 | Which strategies appear in the sub-tree     |
+| AI select node                   | Root cause diagnosis | Which strategy to try for this specific gap |
 
 Example for a missing-input gap (`gapKind: 'blocker'`):
 
-| Strategy | gapKinds match? | In select node? | When AI picks it |
-|----------|-----------------|-----------------|------------------|
-| `missing-input-pattern` | Yes (`blocker`) | Yes | Task definition has wrong glob pattern |
-| `dependency-backoff` | Yes (`blocker`) | Yes | Upstream task didn't produce the file |
-| `skill-based-repair` | Yes (`blocker`) | Yes | Other structural issue |
-| `task-run` | No (`output`, `check-failed`) | Not in tree | Not eligible for blockers |
+| Strategy                | gapKinds match?               | In select node? | When AI picks it                       |
+| ----------------------- | ----------------------------- | --------------- | -------------------------------------- |
+| `missing-input-pattern` | Yes (`blocker`)               | Yes             | Task definition has wrong glob pattern |
+| `dependency-backoff`    | Yes (`blocker`)               | Yes             | Upstream task didn't produce the file  |
+| `skill-based-repair`    | Yes (`blocker`)               | Yes             | Other structural issue                 |
+| `task-run`              | No (`output`, `check-failed`) | Not in tree     | Not eligible for blockers              |
 
 ### How Results Surface
 
@@ -446,13 +452,13 @@ tryFix:
 
 ### Why a tree instead of inline if/else?
 
-| Before | After |
-|--------|-------|
-| Decision logic scattered across run.ts, fix-gaps.ts, pipeline.ts, unblock.ts | Single `DEFAULT_TREE` constant |
-| Adding a repair path requires editing 3-5 files | Add an action handler + a tree node |
-| `retryMode` lost at fix-gaps.ts boundary (returns `number`) | `PlaybookResult.retryMode` propagates back to run.ts |
-| 455-line while loop in run.ts | ~80 lines delegating to tree |
-| Blocker handling duplicated in 4 places | Single `resolve-blockers` handler |
+| Before                                                                       | After                                                |
+| ---------------------------------------------------------------------------- | ---------------------------------------------------- |
+| Decision logic scattered across run.ts, fix-gaps.ts, pipeline.ts, unblock.ts | Single `DEFAULT_TREE` constant                       |
+| Adding a repair path requires editing 3-5 files                              | Add an action handler + a tree node                  |
+| `retryMode` lost at fix-gaps.ts boundary (returns `number`)                  | `PlaybookResult.retryMode` propagates back to run.ts |
+| 455-line while loop in run.ts                                                | ~80 lines delegating to tree                         |
+| Blocker handling duplicated in 4 places                                      | Single `resolve-blockers` handler                    |
 
 ### Key invariants
 
@@ -465,17 +471,17 @@ tryFix:
 
 ## 10. File Reference
 
-| File | Role |
-|------|------|
-| `unit/run.ts` | Pre-flight checks + playbook convergence loop |
-| `repair/playbook/types.ts` | `PlaybookNode` union, `PlaybookContext`, `PlaybookResult` |
-| `repair/playbook/walker.ts` | `PlaybookTree.walk()` — recursive node evaluator |
-| `repair/playbook/default-tree.ts` | `DEFAULT_TREE` — the data-driven decision structure |
-| `repair/playbook/actions.ts` | `buildActionRegistry()` — 13 handlers wrapping existing code |
-| `unit/find-gaps.ts` | Gap detection (inputs, outputs, checks) |
-| `unit/fix-gaps.ts` | Gap dispatch (plan, wbs, executor, children, pipeline) |
-| `repair/index.ts` | Pipeline factory + all exports |
-| `repair/pipeline.ts` | `GapResolutionPipeline` — strategy orchestrator |
-| `repair/types.ts` | `FixStrategy`, `StrategyOutcome`, `RetryMode`, `Resolution` |
-| `repair/unified-strategy.ts` | AI-driven strategy selection |
-| `gap/types.ts` | `Gap` interface, `CompactGap` |
+| File                              | Role                                                         |
+| --------------------------------- | ------------------------------------------------------------ |
+| `unit/run.ts`                     | Pre-flight checks + playbook convergence loop                |
+| `repair/playbook/types.ts`        | `PlaybookNode` union, `PlaybookContext`, `PlaybookResult`    |
+| `repair/playbook/walker.ts`       | `PlaybookTree.walk()` — recursive node evaluator             |
+| `repair/playbook/default-tree.ts` | `DEFAULT_TREE` — the data-driven decision structure          |
+| `repair/playbook/actions.ts`      | `buildActionRegistry()` — 13 handlers wrapping existing code |
+| `unit/find-gaps.ts`               | Gap detection (inputs, outputs, checks)                      |
+| `unit/fix-gaps.ts`                | Gap dispatch (plan, wbs, executor, children, pipeline)       |
+| `repair/index.ts`                 | Pipeline factory + all exports                               |
+| `repair/pipeline.ts`              | `GapResolutionPipeline` — strategy orchestrator              |
+| `repair/types.ts`                 | `FixStrategy`, `StrategyOutcome`, `RetryMode`, `Resolution`  |
+| `repair/unified-strategy.ts`      | AI-driven strategy selection                                 |
+| `gap/types.ts`                    | `Gap` interface, `CompactGap`                                |

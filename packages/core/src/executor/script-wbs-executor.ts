@@ -18,13 +18,13 @@
  *   4. Saved as wbs.generated.js for debugging
  */
 
-import { execFileSync } from 'node:child_process';
-import { dirname, join, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { existsSync } from 'node:fs';
-import { mkdir, writeFile } from 'node:fs/promises';
-import type { WbsFn, WbsContext } from '../config/task-definition.ts';
-import type { TaskMdWbs, TaskMdShape } from '../config/task-md-definition.ts';
+import { execFileSync } from "node:child_process";
+import { dirname, join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+import { existsSync } from "node:fs";
+import { mkdir, writeFile } from "node:fs/promises";
+import type { WbsFn, WbsContext } from "../config/task-definition.ts";
+import type { TaskMdWbs, TaskMdShape } from "../config/task-md-definition.ts";
 
 /* ------------------------------------------------------------------ */
 /*  createScriptWbsFn                                                  */
@@ -36,25 +36,28 @@ import type { TaskMdWbs, TaskMdShape } from '../config/task-md-definition.ts';
  * @param wbsConfig - WBS configuration from TASK.md frontmatter
  * @param taskDir - Absolute path to the task directory (for resolving relative paths)
  */
-export function createScriptWbsFn(wbsConfig: TaskMdWbs, taskDir: string): WbsFn {
+export function createScriptWbsFn(
+  wbsConfig: TaskMdWbs,
+  taskDir: string,
+): WbsFn {
   return async (ctx: WbsContext): Promise<void> => {
     if (!wbsConfig.path) {
-      throw new Error('wbs.path is required for nodejs/shell WBS scripts');
+      throw new Error("wbs.path is required for nodejs/shell WBS scripts");
     }
     const scriptPath = resolve(taskDir, wbsConfig.path);
 
     if (!existsSync(scriptPath)) {
       throw new Error(
         `WBS script not found: ${wbsConfig.path}\n` +
-        `Resolved to: ${scriptPath}\n` +
-        `Task directory: ${taskDir}`
+          `Resolved to: ${scriptPath}\n` +
+          `Task directory: ${taskDir}`,
       );
     }
 
     ctx.log.info(`Executing WBS script: ${wbsConfig.path} (${wbsConfig.type})`);
 
     // For nodejs scripts, try in-process import first
-    if (wbsConfig.type === 'nodejs') {
+    if (wbsConfig.type === "nodejs") {
       const imported = await tryImportAndRun(scriptPath, ctx);
       if (imported) return;
       // Fall through to child-process mode if no `run` export found
@@ -73,15 +76,18 @@ export function createScriptWbsFn(wbsConfig: TaskMdWbs, taskDir: string): WbsFn 
  * Try to dynamically import the script and call its `run(ctx)` export.
  * Returns true if the script had a `run` export and was executed.
  */
-async function tryImportAndRun(scriptPath: string, ctx: WbsContext): Promise<boolean> {
+async function tryImportAndRun(
+  scriptPath: string,
+  ctx: WbsContext,
+): Promise<boolean> {
   try {
     const fileUrl = pathToFileURL(scriptPath);
     // Cache-bust so re-runs pick up changes
-    fileUrl.searchParams.set('t', String(Date.now()));
+    fileUrl.searchParams.set("t", String(Date.now()));
     const mod = await import(fileUrl.href);
 
     const runFn = mod.run ?? mod.default;
-    if (typeof runFn !== 'function') {
+    if (typeof runFn !== "function") {
       return false; // No run export — fall back to child-process
     }
 
@@ -90,9 +96,7 @@ async function tryImportAndRun(scriptPath: string, ctx: WbsContext): Promise<boo
   } catch (err: any) {
     // If the import itself failed (syntax error, missing dep), propagate
     // so the WBS executor's error handling can deal with it.
-    throw new Error(
-      `WBS script import failed: ${scriptPath}\n${err.message}`
-    );
+    throw new Error(`WBS script import failed: ${scriptPath}\n${err.message}`);
   }
 }
 
@@ -107,7 +111,7 @@ async function runAsChildProcess(
 ): Promise<void> {
   // Build environment variables
   const env: Record<string, string> = {
-    ...process.env as Record<string, string>,
+    ...(process.env as Record<string, string>),
     CONVERGE_PROJECT_DIR: ctx.projectDir,
     CONVERGE_CONTEXT_JSON: JSON.stringify({
       projectDir: ctx.projectDir,
@@ -128,7 +132,7 @@ async function runAsChildProcess(
   let command: string;
   let args: string[];
 
-  if (wbsConfig.type === 'nodejs') {
+  if (wbsConfig.type === "nodejs") {
     command = process.execPath;
     args = [scriptPath, ...(wbsConfig.args ?? [])];
   } else {
@@ -141,32 +145,32 @@ async function runAsChildProcess(
     stdout = execFileSync(command, args, {
       cwd: ctx.projectDir,
       env,
-      encoding: 'utf-8',
+      encoding: "utf-8",
       maxBuffer: 10 * 1024 * 1024,
       timeout: 120_000,
     });
   } catch (err: any) {
-    const stderr = err.stderr ? String(err.stderr) : '';
+    const stderr = err.stderr ? String(err.stderr) : "";
     throw new Error(
       `WBS script failed: ${wbsConfig.path}\n` +
-      `Exit code: ${err.status ?? 'unknown'}\n` +
-      `Stderr: ${stderr}\n` +
-      `Stdout: ${err.stdout ? String(err.stdout) : '(empty)'}`
+        `Exit code: ${err.status ?? "unknown"}\n` +
+        `Stderr: ${stderr}\n` +
+        `Stdout: ${err.stdout ? String(err.stdout) : "(empty)"}`,
     );
   }
 
   // Strip log lines and extract JSON
-  const lines = stdout.split('\n');
-  const logLines = lines.filter(l => l.startsWith('[WBS]'));
-  const jsonLines = lines.filter(l => !l.startsWith('[WBS]'));
+  const lines = stdout.split("\n");
+  const logLines = lines.filter((l) => l.startsWith("[WBS]"));
+  const jsonLines = lines.filter((l) => !l.startsWith("[WBS]"));
 
   for (const line of logLines) {
     ctx.log.info(line);
   }
 
-  const jsonOutput = jsonLines.join('\n').trim();
+  const jsonOutput = jsonLines.join("\n").trim();
   if (!jsonOutput) {
-    ctx.log.warn('WBS script produced no JSON output — no tasks to spawn');
+    ctx.log.warn("WBS script produced no JSON output — no tasks to spawn");
     return;
   }
 
@@ -177,8 +181,8 @@ async function runAsChildProcess(
   } catch (err: any) {
     throw new Error(
       `WBS script output is not valid JSON: ${wbsConfig.path}\n` +
-      `Parse error: ${err.message}\n` +
-      `Output (first 500 chars): ${jsonOutput.slice(0, 500)}`
+        `Parse error: ${err.message}\n` +
+        `Output (first 500 chars): ${jsonOutput.slice(0, 500)}`,
     );
   }
 
@@ -186,7 +190,7 @@ async function runAsChildProcess(
 
   for (const task of tasks) {
     if (!task.id) {
-      ctx.log.warn('Skipping task with no id in WBS script output');
+      ctx.log.warn("Skipping task with no id in WBS script output");
       continue;
     }
     await ctx.spawn(task);
@@ -232,9 +236,11 @@ Optional: title, body, dependencies, inputs, outputs, checks, skills, vars, tags
 export function createAiWbsFn(wbsConfig: TaskMdWbs, taskDir: string): WbsFn {
   return async (ctx: WbsContext): Promise<void> => {
     const maxAttempts = wbsConfig.maxAttempts ?? 3;
-    const prompt = wbsConfig.prompt ?? '';
+    const prompt = wbsConfig.prompt ?? "";
 
-    ctx.log.info(`AI-driven WBS — generating script from prompt (max ${maxAttempts} attempts)`);
+    ctx.log.info(
+      `AI-driven WBS — generating script from prompt (max ${maxAttempts} attempts)`,
+    );
 
     const generationPrompt = buildGenerationPrompt(prompt, ctx);
 
@@ -245,24 +251,31 @@ export function createAiWbsFn(wbsConfig: TaskMdWbs, taskDir: string): WbsFn {
       ctx.log.info(`Generation attempt ${attempt}/${maxAttempts}`);
 
       try {
-        const { agentfn } = await import('@converge/agentfn');
-        const { READONLY_TOOLS } = await import('../ai/context.ts');
-        const { z } = await import('zod');
+        const { agentfn } = await import("@converge/agentfn");
+        const { READONLY_TOOLS } = await import("../ai/context.ts");
+        const { z } = await import("zod");
 
         const GeneratedWbs = z.object({
-          source: z.string().describe('Complete wbs.js source code (ESM, exports async run(ctx))'),
-          reasoning: z.string().describe('Brief explanation of what the script does'),
+          source: z
+            .string()
+            .describe(
+              "Complete wbs.js source code (ESM, exports async run(ctx))",
+            ),
+          reasoning: z
+            .string()
+            .describe("Brief explanation of what the script does"),
         });
 
-        const logDir = join(taskDir, 'logs');
+        const logDir = join(taskDir, "logs");
         await mkdir(logDir, { recursive: true });
 
         const executor = agentfn<{ source: string; reasoning: string }>({
-          prompt: attempt === 1
-            ? generationPrompt
-            : `${generationPrompt}\n\nPREVIOUS ATTEMPT FAILED:\n${lastError}\n\nFix the issue and generate a corrected script.`,
+          prompt:
+            attempt === 1
+              ? generationPrompt
+              : `${generationPrompt}\n\nPREVIOUS ATTEMPT FAILED:\n${lastError}\n\nFix the issue and generate a corrected script.`,
           schema: GeneratedWbs,
-          allowedTools: [...READONLY_TOOLS, 'Bash'],
+          allowedTools: [...READONLY_TOOLS, "Bash"],
           timeoutMs: 120_000,
           cwd: ctx.projectDir,
           logDir,
@@ -292,22 +305,22 @@ export function createAiWbsFn(wbsConfig: TaskMdWbs, taskDir: string): WbsFn {
     if (!generatedSource) {
       throw new Error(
         `AI WBS generation failed after ${maxAttempts} attempts.\n` +
-        `Last error: ${lastError}\n` +
-        `Prompt: ${prompt.slice(0, 200)}...`
+          `Last error: ${lastError}\n` +
+          `Prompt: ${prompt.slice(0, 200)}...`,
       );
     }
 
     // Write generated script to disk for debugging
-    const generatedPath = join(taskDir, 'wbs.generated.js');
-    await writeFile(generatedPath, generatedSource, 'utf-8');
+    const generatedPath = join(taskDir, "wbs.generated.js");
+    await writeFile(generatedPath, generatedSource, "utf-8");
     ctx.log.info(`Generated script saved to: wbs.generated.js`);
 
     // Execute the generated script via in-process import
     const imported = await tryImportAndRun(generatedPath, ctx);
     if (!imported) {
       throw new Error(
-        'AI-generated wbs.js has no `run` export. ' +
-        'The script must export an async function named `run`.'
+        "AI-generated wbs.js has no `run` export. " +
+          "The script must export an async function named `run`.",
       );
     }
   };
@@ -317,9 +330,10 @@ export function createAiWbsFn(wbsConfig: TaskMdWbs, taskDir: string): WbsFn {
  * Build the full prompt for AI WBS generation.
  */
 function buildGenerationPrompt(userPrompt: string, ctx: WbsContext): string {
-  const varsStr = Object.keys(ctx.vars).length > 0
-    ? `TASK VARIABLES: ${JSON.stringify(ctx.vars, null, 2)}`
-    : 'TASK VARIABLES: (none)';
+  const varsStr =
+    Object.keys(ctx.vars).length > 0
+      ? `TASK VARIABLES: ${JSON.stringify(ctx.vars, null, 2)}`
+      : "TASK VARIABLES: (none)";
 
   return `You are generating a WBS (Work Breakdown Structure) script for the converge task system.
 
@@ -356,21 +370,23 @@ IMPORTANT:
 function validateGeneratedSource(source: string): string | null {
   // Check for CommonJS patterns
   if (/\brequire\s*\(/.test(source) && !/\/\/.*require/.test(source)) {
-    return 'Generated script uses require() — must use ESM imports';
+    return "Generated script uses require() — must use ESM imports";
   }
   if (/\bmodule\.exports\b/.test(source)) {
-    return 'Generated script uses module.exports — must use export';
+    return "Generated script uses module.exports — must use export";
   }
 
   // Check for run export
-  if (!/export\s+(async\s+)?function\s+run\b/.test(source) &&
-      !/export\s+default\s+(async\s+)?function/.test(source)) {
-    return 'Generated script missing `export async function run(ctx)` or `export default async function`';
+  if (
+    !/export\s+(async\s+)?function\s+run\b/.test(source) &&
+    !/export\s+default\s+(async\s+)?function/.test(source)
+  ) {
+    return "Generated script missing `export async function run(ctx)` or `export default async function`";
   }
 
   // Check for dangerous operations
   if (/process\.exit\s*\(/.test(source)) {
-    return 'Generated script calls process.exit() — not allowed in WBS scripts';
+    return "Generated script calls process.exit() — not allowed in WBS scripts";
   }
 
   // Basic syntax check via Function constructor (doesn't execute, just parses)
@@ -379,11 +395,11 @@ function validateGeneratedSource(source: string): string | null {
     // obvious issues by checking for balanced braces
     let depth = 0;
     for (const char of source) {
-      if (char === '{') depth++;
-      if (char === '}') depth--;
-      if (depth < 0) return 'Unbalanced braces in generated script';
+      if (char === "{") depth++;
+      if (char === "}") depth--;
+      if (depth < 0) return "Unbalanced braces in generated script";
     }
-    if (depth !== 0) return 'Unbalanced braces in generated script';
+    if (depth !== 0) return "Unbalanced braces in generated script";
   } catch (err: any) {
     return `Syntax validation failed: ${err.message}`;
   }

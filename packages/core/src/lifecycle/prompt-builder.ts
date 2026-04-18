@@ -17,12 +17,12 @@
  * discover inputs by itself — while minimizing token usage.
  */
 
-import { stat } from 'node:fs/promises';
-import { join } from 'node:path';
-import type { InputSnapshot } from './before.ts';
-import type { CheckDef } from './after.ts';
-import type { Gap } from '../gap/types.ts';
-import { formatCompactGaps } from '../gap/types.ts';
+import { stat } from "node:fs/promises";
+import { join } from "node:path";
+import type { InputSnapshot } from "./before.ts";
+import type { CheckDef } from "./after.ts";
+import type { Gap } from "../gap/types.ts";
+import { formatCompactGaps } from "../gap/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                               */
@@ -51,16 +51,24 @@ export interface EnrichedPromptOptions {
 /*  Main builder                                                        */
 /* ------------------------------------------------------------------ */
 
-export async function buildEnrichedPrompt(opts: EnrichedPromptOptions): Promise<string> {
+export async function buildEnrichedPrompt(
+  opts: EnrichedPromptOptions,
+): Promise<string> {
   const {
-    skillMarkdown, contextDoc, inputSnapshot, outputs, checks, projectDir,
-    currentGaps, fileIndexMode,
+    skillMarkdown,
+    contextDoc,
+    inputSnapshot,
+    outputs,
+    checks,
+    projectDir,
+    currentGaps,
+    fileIndexMode,
   } = opts;
 
   const sections: string[] = [];
 
   // Section 1: Context from upstream tasks
-  if (contextDoc && contextDoc.trim() && !contextDoc.includes('_(No prior')) {
+  if (contextDoc && contextDoc.trim() && !contextDoc.includes("_(No prior")) {
     sections.push(`[CONTEXT FROM PRIOR TASKS]\n${contextDoc.trim()}`);
   }
 
@@ -70,28 +78,36 @@ export async function buildEnrichedPrompt(opts: EnrichedPromptOptions): Promise<
   }
 
   // Section 3: Input file manifest (selective or full)
-  const useFileIndex = fileIndexMode ?? (inputSnapshot.inputs.reduce((n, inp) => n + (inp.files?.length ?? 0), 0) > 30);
+  const useFileIndex =
+    fileIndexMode ??
+    inputSnapshot.inputs.reduce((n, inp) => n + (inp.files?.length ?? 0), 0) >
+      30;
   const manifestLines = await buildInputManifest(projectDir, inputSnapshot, {
     currentGaps,
     fileIndexMode: useFileIndex,
   });
   if (manifestLines.length > 0) {
-    const readHint = currentGaps && currentGaps.length > 0
-      ? '\nRead only the files relevant to the current gap — do not process all inputs.'
-      : '';
-    sections.push(`[INPUTS AVAILABLE]\nThe following files exist and are ready to read:${readHint}\n${manifestLines.join('\n')}`);
+    const readHint =
+      currentGaps && currentGaps.length > 0
+        ? "\nRead only the files relevant to the current gap — do not process all inputs."
+        : "";
+    sections.push(
+      `[INPUTS AVAILABLE]\nThe following files exist and are ready to read:${readHint}\n${manifestLines.join("\n")}`,
+    );
   }
 
   // Section 4: Expected outputs (highlight missing only if gaps provided)
   const outputLines = await buildOutputStatus(projectDir, outputs, currentGaps);
   if (outputLines.length > 0) {
-    sections.push(`[OUTPUTS REQUIRED]\n${outputLines.join('\n')}`);
+    sections.push(`[OUTPUTS REQUIRED]\n${outputLines.join("\n")}`);
   }
 
   // Section 5: Checks to pass (selective: only failing checks if gaps provided)
   const checkLines = buildCheckSection(checks, currentGaps);
   if (checkLines.length > 0) {
-    sections.push(`[CHECKS TO PASS]\nAfter writing all files, these commands must exit 0:\n${checkLines.join('\n')}`);
+    sections.push(
+      `[CHECKS TO PASS]\nAfter writing all files, these commands must exit 0:\n${checkLines.join("\n")}`,
+    );
   }
 
   // Section 6: Compact gap summary (Meta-Converge optimization)
@@ -99,7 +115,7 @@ export async function buildEnrichedPrompt(opts: EnrichedPromptOptions): Promise<
     sections.push(formatCompactGaps(currentGaps));
   }
 
-  return sections.join('\n\n---\n\n');
+  return sections.join("\n\n---\n\n");
 }
 
 /* ------------------------------------------------------------------ */
@@ -122,9 +138,11 @@ async function buildInputManifest(
 
   // Determine which input patterns are gap-relevant
   const gapRelevantPatterns = currentGaps
-    ? new Set(currentGaps
-        .filter(g => g.metadata?.inputPattern)
-        .map(g => g.metadata!.inputPattern as string))
+    ? new Set(
+        currentGaps
+          .filter((g) => g.metadata?.inputPattern)
+          .map((g) => g.metadata!.inputPattern as string),
+      )
     : null;
 
   for (const inp of snapshot.inputs) {
@@ -134,8 +152,9 @@ async function buildInputManifest(
     }
 
     // Selective context: mark non-relevant patterns as summary only
-    const isRelevant = !gapRelevantPatterns || gapRelevantPatterns.has(inp.pattern);
-    const maxPerPattern = isRelevant ? 20 : 3;  // Show fewer for non-relevant patterns
+    const isRelevant =
+      !gapRelevantPatterns || gapRelevantPatterns.has(inp.pattern);
+    const maxPerPattern = isRelevant ? 20 : 3; // Show fewer for non-relevant patterns
 
     const shown = inp.files.slice(0, maxPerPattern);
     const remaining = inp.files.length - shown.length;
@@ -171,10 +190,12 @@ async function buildOutputStatus(
 
   // If we have gap context, identify which outputs are missing from gaps
   const missingFromGaps = currentGaps
-    ? new Set(currentGaps
-        .filter(g => (g.metadata?.gapKind as string) === 'output')
-        .map(g => (g.metadata?.outputPath as string) ?? g.description)
-        .filter(Boolean))
+    ? new Set(
+        currentGaps
+          .filter((g) => (g.metadata?.gapKind as string) === "output")
+          .map((g) => (g.metadata?.outputPath as string) ?? g.description)
+          .filter(Boolean),
+      )
     : null;
 
   for (const output of outputs) {
@@ -182,7 +203,9 @@ async function buildOutputStatus(
     try {
       await stat(join(projectDir, output));
       exists = true;
-    } catch { /* does not exist */ }
+    } catch {
+      /* does not exist */
+    }
 
     if (exists) {
       // When gaps are known, show existing outputs as brief summary
@@ -203,14 +226,14 @@ function buildCheckSection(checks: CheckDef[], currentGaps?: Gap[]): string[] {
 
   // If no gap context, show all checks (first attempt)
   if (!currentGaps || currentGaps.length === 0) {
-    return checks.map(c => `- ${c.cmd}  # ${c.description}`);
+    return checks.map((c) => `- ${c.cmd}  # ${c.description}`);
   }
 
   // Identify failing check IDs from gaps
   const failingCheckIds = new Set(
     currentGaps
-      .filter(g => (g.metadata?.gapKind as string) === 'check')
-      .flatMap(g => g.checks)
+      .filter((g) => (g.metadata?.gapKind as string) === "check")
+      .flatMap((g) => g.checks),
   );
 
   const lines: string[] = [];
@@ -227,7 +250,9 @@ function buildCheckSection(checks: CheckDef[], currentGaps?: Gap[]): string[] {
   }
 
   if (passingChecks.length > 0) {
-    lines.push(`- (${passingChecks.length} other checks passing: ${passingChecks.join(', ')})`);
+    lines.push(
+      `- (${passingChecks.length} other checks passing: ${passingChecks.join(", ")})`,
+    );
   }
 
   return lines;

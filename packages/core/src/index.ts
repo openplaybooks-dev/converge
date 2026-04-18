@@ -25,15 +25,15 @@ export type {
   ClaudeProviderConfig,
   ACPProviderConfig,
   KimiProviderConfig,
-} from './config/types.ts';
+} from "./config/types.ts";
 
 export {
   findConvergeConfig,
   loadConvergeConfig,
   resolveConvergeConfig,
-} from './config/loader.ts';
+} from "./config/loader.ts";
 
-export { validateConvergeConfig } from './config/validator.ts';
+export { validateConvergeConfig } from "./config/validator.ts";
 
 /* ── Hooks ──────────────────────────────────────────────────────── */
 
@@ -41,7 +41,7 @@ export { validateConvergeConfig } from './config/validator.ts';
  * Register, fire, and manage lifecycle hooks.
  * Injected into orchestrators automatically when `PROJECT.md` is used.
  */
-export { HookRegistry, globalHookRegistry } from './hooks/registry.ts';
+export { HookRegistry, globalHookRegistry } from "./hooks/registry.ts";
 
 export type {
   HookEvent,
@@ -50,7 +50,7 @@ export type {
   ConvergeHooks,
   HookRegistration,
   LegacyHookFn,
-} from './hooks/types.ts';
+} from "./hooks/types.ts";
 
 /* ── Discovery ──────────────────────────────────────────────────── */
 
@@ -58,8 +58,14 @@ export type {
  * Glob-based auto-discovery of task/epic/check/plan files.
  * Supersedes the static-path `TaskFileScanner` for new projects.
  */
-export { DiscoveryScanner, createDiscoveryScanner } from './discovery/scanner.ts';
-export { DiscoveryWatcher, createDiscoveryWatcher } from './discovery/watcher.ts';
+export {
+  DiscoveryScanner,
+  createDiscoveryScanner,
+} from "./discovery/scanner.ts";
+export {
+  DiscoveryWatcher,
+  createDiscoveryWatcher,
+} from "./discovery/watcher.ts";
 
 export type {
   DiscoveredFile,
@@ -67,11 +73,11 @@ export type {
   DiscoveredFileType,
   DiscoveryChangeEvent,
   DiscoveryChangeType,
-} from './discovery/types.ts';
+} from "./discovery/types.ts";
 
 /* ── Structured Logger ──────────────────────────────────────────── */
 
-export { createLogger, createDefaultLogger } from './runtime/logger.ts';
+export { createLogger, createDefaultLogger } from "./runtime/logger.ts";
 
 /* ════════════════════════════════════════════════════════════════════ */
 /*  ★  BUILDER API  —  Fluent project/epic/task definition              */
@@ -97,7 +103,7 @@ export type {
   AIConfig,
   AIProviderConfig,
   AIMultiProviderConfig,
-} from './storage/types.ts';
+} from "./storage/types.ts";
 
 export {
   ProjectConfigSchema,
@@ -109,22 +115,19 @@ export {
   AIConfigSchema,
   AIProviderConfigSchema,
   AIMultiProviderConfigSchema,
-} from './storage/types.ts';
+} from "./storage/types.ts";
 
 export {
   FilesystemStorage,
   createFilesystemStorage,
-} from './storage/filesystem.ts';
+} from "./storage/filesystem.ts";
 
-export {
-  StatusManager,
-  createStatusManager,
-} from './storage/status.ts';
+export { StatusManager, createStatusManager } from "./storage/status.ts";
 
 export {
   ProvenanceManager,
   createProvenanceManager,
-} from './storage/provenance.ts';
+} from "./storage/provenance.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Gap Framework                                                      */
@@ -138,19 +141,16 @@ export type {
   GapPriority,
   PrioritizationStrategy,
   CompactGap,
-} from './gap/types.ts';
+} from "./gap/types.ts";
 
-export {
-  toCompactGap,
-  formatCompactGaps,
-} from './gap/types.ts';
+export { toCompactGap, formatCompactGaps } from "./gap/types.ts";
 
 export {
   GapDetector,
   ConvergenceAnalyzer,
   createGapDetector,
   createConvergenceAnalyzer,
-} from './gap/detector.ts';
+} from "./gap/detector.ts";
 
 export {
   createGap,
@@ -163,7 +163,7 @@ export {
   sortByPriority,
   calculateGapStats,
   formatGapStats,
-} from './gap/utils.ts';
+} from "./gap/utils.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Goals                                                              */
@@ -182,7 +182,7 @@ export type {
   GoalConvergenceConfig,
   GoalProgressUpdate,
   GoalConvergenceResult,
-} from './goal/types.ts';
+} from "./goal/types.ts";
 
 export {
   GoalEvaluatorImpl,
@@ -190,12 +190,9 @@ export {
   flattenGoalHierarchy,
   countGoals,
   findGoalById,
-} from './goal/evaluator.ts';
+} from "./goal/evaluator.ts";
 
-export {
-  goal,
-  defineGoal,
-} from './goal/builder.ts';
+export { goal, defineGoal } from "./goal/builder.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Runtime                                                            */
@@ -207,45 +204,37 @@ export type {
   TaskManager,
   EpicManager,
   ProjectManager,
-} from './runtime/types.ts';
+} from "./runtime/types.ts";
 
-export {
-  RuntimeImpl,
-  createRuntime,
-} from './runtime/runtime.ts';
+export { RuntimeImpl, createRuntime } from "./runtime/runtime.ts";
 
-export {
-  GoalManagerImpl,
-} from './runtime/goal-manager.ts';
+export { GoalManagerImpl } from "./runtime/goal-manager.ts";
 
-export {
-  TaskManagerImpl,
-} from './runtime/task-manager.ts';
+export { TaskManagerImpl } from "./runtime/task-manager.ts";
 
-export {
-  EpicManagerImpl,
-} from './runtime/epic-manager.ts';
+export { EpicManagerImpl } from "./runtime/epic-manager.ts";
 
-export {
-  ProjectManagerImpl,
-} from './runtime/project-manager.ts';
+export { ProjectManagerImpl } from "./runtime/project-manager.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  V2 Universal Unit Architecture                                    */
 /* ────────────────────────────────────────────────────────────────── */
 
-export { Unit } from './unit/index.ts';
-export type { UnitConfig as V2UnitConfig, CheckResult as V2CheckResult } from './unit/index.ts';
+export { Unit } from "./unit/index.ts";
+export type {
+  UnitConfig as V2UnitConfig,
+  CheckResult as V2CheckResult,
+} from "./unit/index.ts";
 
 export {
-  taskDef,  // V2 is now the default taskDef
+  taskDef, // V2 is now the default taskDef
   taskDef as v2TaskDef,
   TaskDefinitionBuilder,
   TaskDefinitionBuilder as V2TaskDefinitionBuilder,
   mcpServer,
   rawMd,
   template,
-} from './config/task-definition.ts';
+} from "./config/task-definition.ts";
 export type {
   TaskDefinition as V2TaskDefinition,
   ProjectDefinition as V2ProjectDefinition,
@@ -260,7 +249,7 @@ export type {
   McpServerNeed,
   RawMarkdown,
   TemplateRef,
-} from './config/task-definition.ts';
+} from "./config/task-definition.ts";
 
 export {
   isProjectDefinition as v2IsProjectDefinition,
@@ -269,10 +258,10 @@ export {
   hasYields as v2HasYields,
   isLeafDefinition as v2IsLeafDefinition,
   isChecklistDefinition as v2IsChecklistDefinition,
-} from './config/task-definition.ts';
+} from "./config/task-definition.ts";
 
-export { autonomousRun as v2AutonomousRun } from './cli/autonomous-run.ts';
-export type { AutonomousRunConfig as V2AutonomousRunConfig } from './cli/autonomous-run.ts';
+export { autonomousRun as v2AutonomousRun } from "./cli/autonomous-run.ts";
+export type { AutonomousRunConfig as V2AutonomousRunConfig } from "./cli/autonomous-run.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Context                                                            */
@@ -293,13 +282,13 @@ export type {
   PlanAPI,
   CheckAPI,
   PluginAPI,
-} from './context/types.ts';
+} from "./context/types.ts";
 
 export {
   createProjectContext,
   createEpicContext,
   createTaskContext,
-} from './context/index.ts';
+} from "./context/index.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Functions                                                          */
@@ -322,19 +311,19 @@ export type {
   ProjectBuilder,
   EpicDefinition,
   ProjectDefinition,
-} from './functions/types.ts';
+} from "./functions/types.ts";
 
 export {
   check,
   evalFn as eval,
   plan,
   task,
-  taskDef as v1TaskDef,  // Rename V1 to avoid conflict
+  taskDef as v1TaskDef, // Rename V1 to avoid conflict
   epic,
   project,
   defineEpic,
   defineProject,
-} from './functions/builders.ts';
+} from "./functions/builders.ts";
 
 export {
   globalRegistry,
@@ -348,7 +337,7 @@ export {
   getPlan,
   getTask,
   listFunctions,
-} from './functions/registry.ts';
+} from "./functions/registry.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Plugins                                                            */
@@ -361,13 +350,13 @@ export type {
   PluginEntry,
   PluginStateV2,
   PluginManifestV2,
-} from './plugins/types.ts';
+} from "./plugins/types.ts";
 
 export {
   loadPluginsV2,
   formatPluginListV2,
   listBuiltinPluginsV2,
-} from './plugins/loader.ts';
+} from "./plugins/loader.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Executor                                                           */
@@ -376,7 +365,7 @@ export {
 export type {
   ExecutionOptions,
   ExecutionResult,
-} from './executor/function-executor.ts';
+} from "./executor/function-executor.ts";
 
 export {
   FunctionExecutor,
@@ -384,7 +373,7 @@ export {
   createFunctionExecutor,
   createBatchExecutor,
   DEFAULT_EXECUTION_OPTIONS,
-} from './executor/function-executor.ts';
+} from "./executor/function-executor.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Orchestrator                                                       */
@@ -393,50 +382,44 @@ export {
 export type {
   ConvergenceConfig,
   ConvergenceResult,
-} from './orchestrator/convergence.ts';
+} from "./orchestrator/convergence.ts";
 
 export {
   ConvergenceOrchestrator,
   createConvergenceOrchestrator,
   DEFAULT_CONVERGENCE_CONFIG,
-} from './orchestrator/convergence.ts';
+} from "./orchestrator/convergence.ts";
 
-export type {
-  ProjectOrchestrationResult,
-} from './orchestrator/project-orchestrator.ts';
+export type { ProjectOrchestrationResult } from "./orchestrator/project-orchestrator.ts";
 
 export {
   ProjectOrchestratorV2,
   createProjectOrchestratorV2,
-} from './orchestrator/project-orchestrator.ts';
+} from "./orchestrator/project-orchestrator.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Planner                                                            */
 /* ────────────────────────────────────────────────────────────────── */
 
-export type {
-  PlanningStrategy,
-} from './planning/dynamic-planner.ts';
+export type { PlanningStrategy } from "./planning/dynamic-planner.ts";
 
 export {
   DynamicPlanner,
   AdaptivePlanner,
   createDynamicPlanner,
   createAdaptivePlanner,
-} from './planning/dynamic-planner.ts';
+} from "./planning/dynamic-planner.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Resume                                                             */
 /* ────────────────────────────────────────────────────────────────── */
 
-export type {
-  ResumePoint,
-} from './resume/resumability.ts';
+export type { ResumePoint } from "./resume/resumability.ts";
 
 export {
   ResumabilityManager,
   createResumabilityManager,
-} from './resume/resumability.ts';
+} from "./resume/resumability.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Planning (Phase 0 - Autonomous Planning Engine)                   */
@@ -455,22 +438,19 @@ export type {
   TaskFileMetadata,
   ScannerConfig,
   ScanResult,
-} from './planning/types.ts';
+} from "./planning/types.ts";
 
 export {
   TaskFileScanner,
   createTaskFileScanner,
-} from './planning/task-scanner.ts';
+} from "./planning/task-scanner.ts";
 
 export {
   TaskFileGenerator,
   createTaskFileGenerator,
-} from './planning/task-file-generator.ts';
+} from "./planning/task-file-generator.ts";
 
-export {
-  ReplanEngine,
-  createReplanEngine,
-} from './planning/replan-engine.ts';
+export { ReplanEngine, createReplanEngine } from "./planning/replan-engine.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Yields (Phase 1 - Enhanced Yields API)                            */
@@ -481,17 +461,11 @@ export type {
   YieldsDeclarative,
   YieldsFn,
   YieldsStatic,
-} from './functions/types.ts';
+} from "./functions/types.ts";
 
-export {
-  YieldsProcessor,
-  createYieldsProcessor,
-} from './yields/processor.ts';
+export { YieldsProcessor, createYieldsProcessor } from "./yields/processor.ts";
 
-export {
-  YieldsSpawner,
-  createYieldsSpawner,
-} from './yields/spawner.ts';
+export { YieldsSpawner, createYieldsSpawner } from "./yields/spawner.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Converge (Phase 2 - AutoConverge Generation System)                 */
@@ -508,50 +482,41 @@ export type {
   SynthesizedVerification,
   RefinementRequest,
   RefinementResult,
-} from './auto-verify/types.ts';
+} from "./auto-verify/types.ts";
 
 export {
   ConvergeSynthesizer,
   createConvergeSynthesizer,
-} from './auto-verify/synthesizer.ts';
+} from "./auto-verify/synthesizer.ts";
 
 export {
   ConvergeExecutor,
   createConvergeExecutor,
-} from './auto-verify/executor.ts';
+} from "./auto-verify/executor.ts";
 
 export {
   ConvergeRefiner,
   createConvergeRefiner,
-} from './auto-verify/refiner.ts';
+} from "./auto-verify/refiner.ts";
 
-export {
-  ConvergeCache,
-  createConvergeCache,
-} from './auto-verify/cache.ts';
+export { ConvergeCache, createConvergeCache } from "./auto-verify/cache.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Subtasks                                                          */
 /* ────────────────────────────────────────────────────────────────── */
 
-export type {
-  SubtasksConfig,
-  SubtasksGeneratorFn,
-} from './subtasks/types.ts';
+export type { SubtasksConfig, SubtasksGeneratorFn } from "./subtasks/types.ts";
 
 export {
   SubtasksProcessor,
   createSubtasksProcessor,
-} from './subtasks/processor.ts';
+} from "./subtasks/processor.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Meta-Optimization (Self-Improvement Loop)                         */
 /* ────────────────────────────────────────────────────────────────── */
 
-export {
-  MetaAnalyzer,
-  MetaOptimizationSidecar,
-} from './meta/index.ts';
+export { MetaAnalyzer, MetaOptimizationSidecar } from "./meta/index.ts";
 
 export type {
   MetaAnalyzerConfig,
@@ -559,7 +524,7 @@ export type {
   MetaAnalysisStats,
   ImprovementProposal,
   SidecarConfig as MetaSidecarConfig,
-} from './meta/index.ts';
+} from "./meta/index.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  TASK.md Parser                                                    */
@@ -569,7 +534,7 @@ export {
   parseTaskMd,
   parseTaskMdString,
   mapTaskMdToTaskDefinition,
-} from './config/task-md-definition.ts';
+} from "./config/task-md-definition.ts";
 
 export type {
   TaskMdDef,
@@ -577,7 +542,7 @@ export type {
   TaskMdExecutor,
   TaskMdWbs,
   TaskMdPlan,
-} from './config/task-md-definition.ts';
+} from "./config/task-md-definition.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Validation                                                         */
@@ -589,7 +554,7 @@ export {
   validateTaskMdFile,
   validateProjectMd,
   validateProjectMdFile,
-} from './validation/validate.ts';
+} from "./validation/validate.ts";
 
 export type {
   ValidationIssue,
@@ -601,19 +566,22 @@ export type {
   ValidationLayer,
   Severity,
   TaskValidationInput,
-} from './validation/types.ts';
+} from "./validation/types.ts";
 
-export { formatRules } from './validation/rules/format.ts';
-export { structureRules } from './validation/rules/structure.ts';
-export { syntaxRules } from './validation/rules/syntax.ts';
-export { projectRules } from './validation/rules/project.ts';
-export { projectMdRules } from './validation/rules/project-md.ts';
+export { formatRules } from "./validation/rules/format.ts";
+export { structureRules } from "./validation/rules/structure.ts";
+export { syntaxRules } from "./validation/rules/syntax.ts";
+export { projectRules } from "./validation/rules/project.ts";
+export { projectMdRules } from "./validation/rules/project-md.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Script WBS Executor                                               */
 /* ────────────────────────────────────────────────────────────────── */
 
-export { createScriptWbsFn, createAiWbsFn } from './executor/script-wbs-executor.ts';
+export {
+  createScriptWbsFn,
+  createAiWbsFn,
+} from "./executor/script-wbs-executor.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Shared Sub-parsers (reused by TASK.md)                            */
@@ -624,7 +592,7 @@ export {
   parseAutoConverge,
   parseDiagnosisHints,
   parseContextSteps,
-} from './config/skill-definition.ts';
+} from "./config/skill-definition.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Playbooks (Unified Workflows + Run Config)                       */
@@ -639,10 +607,10 @@ export type {
   ResolvedPlaybook,
   PlaybookContext,
   PlaybookTrendEntry,
-} from './playbook/types.ts';
+} from "./playbook/types.ts";
 
-export type { PlaybookPaths } from './playbook/paths.ts';
-export { resolvePlaybookPaths } from './playbook/paths.ts';
+export type { PlaybookPaths } from "./playbook/paths.ts";
+export { resolvePlaybookPaths } from "./playbook/paths.ts";
 
 export {
   parsePlaybookYml,
@@ -652,19 +620,19 @@ export {
   resolvePlaybook,
   parseDuration,
   substituteVars,
-} from './playbook/loader.ts';
+} from "./playbook/loader.ts";
 
 export {
   generateEpicFromPlaybook,
   mergeRunConfig,
-} from './playbook/executor.ts';
+} from "./playbook/executor.ts";
 
 export {
   initPlaybookJournal,
   appendTrend,
   readTrends,
   getPlaybookJournalDir,
-} from './playbook/journal.ts';
+} from "./playbook/journal.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  AI Factory                                                        */
@@ -676,25 +644,17 @@ export {
   createDefaultAI,
   resolveAIConfig,
   listAIProviders,
-} from './ai/factory.ts';
+} from "./ai/factory.ts";
 
-export type {
-  AICaller,
-  ResolvedAIConfig,
-  AIProvider,
-} from './ai/factory.ts';
+export type { AICaller, ResolvedAIConfig, AIProvider } from "./ai/factory.ts";
 
-export {
-  AIContext,
-  AIResponse,
-  createAIContext,
-} from './ai/context.ts';
+export { AIContext, AIResponse, createAIContext } from "./ai/context.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Legacy Compat — deprecated, use TASK.md equivalents              */
 /* ────────────────────────────────────────────────────────────────── */
 
 /** @deprecated Use parseTaskMd instead */
-export { parseSkillMd } from './config/skill-definition.ts';
+export { parseSkillMd } from "./config/skill-definition.ts";
 /** @deprecated Use TaskMdDef instead */
-export type { SkillTaskDef } from './config/skill-definition.ts';
+export type { SkillTaskDef } from "./config/skill-definition.ts";

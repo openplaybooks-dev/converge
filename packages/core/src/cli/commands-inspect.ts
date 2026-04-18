@@ -6,12 +6,20 @@
  * Display session directory structure and detailed execution logs.
  */
 
-import { readdir, readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-import { existsSync, readdirSync, statSync } from 'node:fs';
-import type { CommonOptions } from './commands.ts';
-import type { SessionEvent, SessionMetadata, ProgressSnapshot } from '../journal/session-types.ts';
-import { getSessionsDir, getEpicsDir } from '../journal/structure.ts';
+import { readdir, readFile } from "node:fs/promises";
+import { join } from "node:path";
+import { existsSync, readdirSync, statSync } from "node:fs";
+import type { CommonOptions } from "./commands.ts";
+import type {
+  SessionEvent,
+  SessionMetadata,
+  ProgressSnapshot,
+} from "../journal/session-types.ts";
+import {
+  getSessionsDir,
+  getEpicsDir,
+  getJournalStructure,
+} from "../journal/structure.ts";
 import {
   renderSingleSessionTimeline,
   renderMultiSessionTimeline,
@@ -22,7 +30,7 @@ import {
   COLORS,
   type SessionData,
   type SessionInfo,
-} from './inspect-display.ts';
+} from "./inspect-display.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Inspect Options                                                   */
@@ -90,13 +98,15 @@ export type TimelineOptions = InspectOptions;
  */
 async function findProjectRoot(startDir?: string): Promise<string> {
   let dir = startDir || process.cwd();
-  while (dir !== '/') {
-    if (existsSync(join(dir, '.converge'))) {
+  while (dir !== "/") {
+    if (existsSync(join(dir, ".converge"))) {
       return dir;
     }
-    dir = join(dir, '..');
+    dir = join(dir, "..");
   }
-  throw new Error('Not inside a converge project (no .converge directory found)');
+  throw new Error(
+    "Not inside a converge project (no .converge directory found)",
+  );
 }
 
 /**
@@ -113,20 +123,20 @@ async function findSessions(projectDir: string): Promise<SessionInfo[]> {
   const sessions: SessionInfo[] = [];
 
   for (const entry of entries) {
-    if (!entry.isDirectory() || entry.name === 'latest') {
+    if (!entry.isDirectory() || entry.name === "latest") {
       continue;
     }
 
     const sessionId = entry.name;
     const sessionDir = join(sessionsDir, sessionId);
-    const metadataPath = join(sessionDir, 'metadata.json');
+    const metadataPath = join(sessionDir, "metadata.json");
 
     if (!existsSync(metadataPath)) {
       continue;
     }
 
     try {
-      const metadataRaw = await readFile(metadataPath, 'utf-8');
+      const metadataRaw = await readFile(metadataPath, "utf-8");
 
       // Skip empty files (interrupted sessions)
       if (!metadataRaw.trim()) {
@@ -141,7 +151,9 @@ async function findSessions(projectDir: string): Promise<SessionInfo[]> {
         metadata,
       });
     } catch (err) {
-      console.warn(`Warning: Failed to parse metadata for session ${sessionId}`);
+      console.warn(
+        `Warning: Failed to parse metadata for session ${sessionId}`,
+      );
       continue;
     }
   }
@@ -165,7 +177,7 @@ async function getLatestSession(projectDir: string): Promise<string | null> {
  */
 async function getSessionById(
   projectDir: string,
-  sessionId: string
+  sessionId: string,
 ): Promise<SessionData | null> {
   const sessionDir = join(getSessionsDir(projectDir), sessionId);
 
@@ -173,9 +185,9 @@ async function getSessionById(
     return null;
   }
 
-  const metadataPath = join(sessionDir, 'metadata.json');
-  const eventsPath = join(sessionDir, 'events.jsonl');
-  const progressPath = join(sessionDir, 'progress.jsonl');
+  const metadataPath = join(sessionDir, "metadata.json");
+  const eventsPath = join(sessionDir, "events.jsonl");
+  const progressPath = join(sessionDir, "progress.jsonl");
 
   if (!existsSync(metadataPath) || !existsSync(eventsPath)) {
     return null;
@@ -183,7 +195,7 @@ async function getSessionById(
 
   try {
     // Read metadata
-    const metadataRaw = await readFile(metadataPath, 'utf-8');
+    const metadataRaw = await readFile(metadataPath, "utf-8");
     const metadata: SessionMetadata = JSON.parse(metadataRaw);
 
     // Read events
@@ -216,8 +228,11 @@ async function getSessionById(
  * Parse session events from JSONL file
  */
 async function parseSessionEvents(eventsPath: string): Promise<SessionEvent[]> {
-  const content = await readFile(eventsPath, 'utf-8');
-  const lines = content.trim().split('\n').filter((l) => l.trim());
+  const content = await readFile(eventsPath, "utf-8");
+  const lines = content
+    .trim()
+    .split("\n")
+    .filter((l) => l.trim());
 
   const events: SessionEvent[] = [];
   for (const line of lines) {
@@ -234,9 +249,14 @@ async function parseSessionEvents(eventsPath: string): Promise<SessionEvent[]> {
 /**
  * Parse progress snapshots from JSONL file
  */
-async function parseProgressSnapshots(progressPath: string): Promise<ProgressSnapshot[]> {
-  const content = await readFile(progressPath, 'utf-8');
-  const lines = content.trim().split('\n').filter((l) => l.trim());
+async function parseProgressSnapshots(
+  progressPath: string,
+): Promise<ProgressSnapshot[]> {
+  const content = await readFile(progressPath, "utf-8");
+  const lines = content
+    .trim()
+    .split("\n")
+    .filter((l) => l.trim());
 
   const snapshots: ProgressSnapshot[] = [];
   for (const line of lines) {
@@ -253,7 +273,10 @@ async function parseProgressSnapshots(progressPath: string): Promise<ProgressSna
 /**
  * Filter events based on options
  */
-function filterEvents(events: SessionEvent[], options: InspectOptions): SessionEvent[] {
+function filterEvents(
+  events: SessionEvent[],
+  options: InspectOptions,
+): SessionEvent[] {
   let filtered = events;
 
   // Filter by task ID
@@ -262,13 +285,13 @@ function filterEvents(events: SessionEvent[], options: InspectOptions): SessionE
     filtered = filtered.filter(
       (e) =>
         e.metadata?.taskId === taskFilter ||
-        (typeof e.message === 'string' && e.message.includes(taskFilter))
+        (typeof e.message === "string" && e.message.includes(taskFilter)),
     );
   }
 
   // Filter by event types
   if (options.events) {
-    const types = options.events.split(',').map((t) => t.trim());
+    const types = options.events.split(",").map((t) => t.trim());
     filtered = filtered.filter((e) => types.includes(e.eventType));
   }
 
@@ -282,7 +305,9 @@ function filterEvents(events: SessionEvent[], options: InspectOptions): SessionE
 /**
  * Inspect command - comprehensive inspection tool for converge sessions
  */
-export async function inspectCommand(options: InspectOptions = {}): Promise<void> {
+export async function inspectCommand(
+  options: InspectOptions = {},
+): Promise<void> {
   try {
     const projectDir = await findProjectRoot(options.dir);
 
@@ -292,30 +317,43 @@ export async function inspectCommand(options: InspectOptions = {}): Promise<void
     // Convergence view (--converge --task=ID) — works without sessions
     if (options.converge) {
       if (!options.task) {
-        console.error('');
-        console.error('❌ --converge requires --task=<taskPath>');
-        console.error('');
-        console.error('Usage: converge inspect --converge --task=<epicId/taskId>');
-        console.error('');
-        console.error('Example:');
-        console.error('  converge inspect --converge --task=02-design-system/005-generate-design-references');
-        console.error('');
+        console.error("");
+        console.error("❌ --converge requires --task=<taskPath>");
+        console.error("");
+        console.error(
+          "Usage: converge inspect --converge --task=<epicId/taskId>",
+        );
+        console.error("");
+        console.error("Example:");
+        console.error(
+          "  converge inspect --converge --task=02-design-system/005-generate-design-references",
+        );
+        console.error("");
         process.exit(1);
       }
 
-      const epicsRoot = getEpicsDir(projectDir);
-      const convergencePath = join(epicsRoot, ...options.task.split('/'), 'logs', 'convergence.json');
+      // Use getJournalStructure to properly resolve nested task paths.
+      // For playbook tasks, epicId is the playbook name (from CONVERGE_PLAYBOOK env).
+      // The task path "01-brand/003-config-rename" resolves to:
+      //   journal/{playbook}/tasks/01-brand/tasks/003-config-rename/
+      const playbookName = process.env.CONVERGE_PLAYBOOK;
+      const epicId = playbookName ?? "default";
+      const structure = getJournalStructure(projectDir, epicId, options.task);
+      const taskDir =
+        structure.task ??
+        join(getEpicsDir(projectDir), ...options.task.split("/"));
+      const convergencePath = join(taskDir, "logs", "convergence.json");
 
       if (!existsSync(convergencePath)) {
-        console.error('');
+        console.error("");
         console.error(`❌ No convergence.json found for task: ${options.task}`);
         console.error(`   Expected: ${convergencePath}`);
-        console.error('');
+        console.error("");
         process.exit(1);
       }
 
       try {
-        const raw = await readFile(convergencePath, 'utf-8');
+        const raw = await readFile(convergencePath, "utf-8");
         const walkerState = JSON.parse(raw);
 
         if (options.json) {
@@ -332,11 +370,11 @@ export async function inspectCommand(options: InspectOptions = {}): Promise<void
     }
 
     if (allSessions.length === 0) {
-      console.log('');
-      console.log('No sessions found.');
-      console.log('');
-      console.log('Run `pnpm converge run` to create a session.');
-      console.log('');
+      console.log("");
+      console.log("No sessions found.");
+      console.log("");
+      console.log("Run `pnpm converge run` to create a session.");
+      console.log("");
       return;
     }
 
@@ -344,7 +382,7 @@ export async function inspectCommand(options: InspectOptions = {}): Promise<void
     if (options.lastSession) {
       const latestSession = allSessions[0]; // Already sorted by date, newest first
       if (!latestSession) {
-        console.log('No sessions found.');
+        console.log("No sessions found.");
         return;
       }
 
@@ -425,7 +463,9 @@ export async function inspectCommand(options: InspectOptions = {}): Promise<void
     if (options.dirs) {
       if (options.session) {
         // Show specific session directory
-        const session = allSessions.find(s => s.sessionId === options.session);
+        const session = allSessions.find(
+          (s) => s.sessionId === options.session,
+        );
         if (session) {
           renderDirectoryTree(session.sessionDir, session.sessionId);
         } else {
@@ -434,19 +474,21 @@ export async function inspectCommand(options: InspectOptions = {}): Promise<void
         }
       } else {
         // Show all session directories
-        console.log('');
-        console.log(color('📁 Session Directories', COLORS.BOLD));
-        console.log('');
+        console.log("");
+        console.log(color("📁 Session Directories", COLORS.BOLD));
+        console.log("");
         const count = Math.min(options.last || 10, allSessions.length);
         const sessions = allSessions.slice(0, count);
         for (const session of sessions) {
           console.log(`${session.sessionId}`);
           console.log(`  ${color(session.sessionDir, COLORS.GRAY)}`);
-          console.log('');
+          console.log("");
         }
-        console.log(color('Usage:', COLORS.BOLD));
-        console.log('  converge inspect --dirs --session=<id>   View specific session directory');
-        console.log('');
+        console.log(color("Usage:", COLORS.BOLD));
+        console.log(
+          "  converge inspect --dirs --session=<id>   View specific session directory",
+        );
+        console.log("");
       }
       return;
     }
@@ -456,7 +498,9 @@ export async function inspectCommand(options: InspectOptions = {}): Promise<void
 
     // If no session ID provided at this point, something went wrong
     if (!sessionId) {
-      console.error('No session specified. Use --session=<id> to view a specific session.');
+      console.error(
+        "No session specified. Use --session=<id> to view a specific session.",
+      );
       process.exit(1);
     }
 
@@ -465,15 +509,15 @@ export async function inspectCommand(options: InspectOptions = {}): Promise<void
 
     if (!session) {
       console.error(`Session not found: ${sessionId}`);
-      console.error('');
-      console.error('Available sessions:');
+      console.error("");
+      console.error("Available sessions:");
       for (const s of allSessions.slice(0, 5)) {
         console.error(`  - ${s.sessionId}`);
       }
       if (allSessions.length > 5) {
         console.error(`  ... and ${allSessions.length - 5} more`);
       }
-      console.error('');
+      console.error("");
       process.exit(1);
     }
 
@@ -498,7 +542,7 @@ export async function inspectCommand(options: InspectOptions = {}): Promise<void
   } catch (error: any) {
     console.error(`\n❌ Inspect error: ${error.message}`);
     if (options.verbose) {
-      console.error('\nStack trace:');
+      console.error("\nStack trace:");
       console.error(error.stack);
     }
     process.exit(1);
@@ -509,8 +553,12 @@ export async function inspectCommand(options: InspectOptions = {}): Promise<void
  * Timeline command - DEPRECATED: Use inspectCommand instead
  * Kept for backward compatibility
  */
-export async function timelineCommand(options: TimelineOptions = {}): Promise<void> {
-  console.warn('⚠️  Warning: The \'timeline\' command is deprecated. Please use \'inspect\' instead.');
-  console.warn('   This alias will be removed in a future version.\n');
+export async function timelineCommand(
+  options: TimelineOptions = {},
+): Promise<void> {
+  console.warn(
+    "⚠️  Warning: The 'timeline' command is deprecated. Please use 'inspect' instead.",
+  );
+  console.warn("   This alias will be removed in a future version.\n");
   return inspectCommand(options);
 }

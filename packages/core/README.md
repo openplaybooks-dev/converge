@@ -14,7 +14,7 @@ Playbooks · Markdown-first tasks · Hierarchical task trees · Dynamic task spa
 
 ## Why Converge?
 
-AI agents are powerful but non-deterministic. A single agent attempting a complex project will hallucinate, lose context, skip steps, and produce inconsistent results across runs. Existing orchestration frameworks paper over this with static pipelines, linear chains, or role-based crews — none of which scale to genuinely complex, multi-phase workflows.
+AI agents are powerful but non-deterministic. A single agent attempting a complex project will hallucinate, lose context, skip steps, and produce inconsistent results across runs. Existing orchestration frameworks paper over this with static pipelines, linear chains, or role-based agents — none of which scale to genuinely complex, multi-phase workflows.
 
 Converge is **general-purpose**. Any domain where work can be expressed as verifiable goals — outputs that exist, checks that pass, invariants that hold — is a domain Converge can automate. Software, research, data, content, operations, legal, science.
 
@@ -108,6 +108,7 @@ The WBS script reads the content plan and spawns one task per article, each with
 Orchestrate multi-step business workflows that span document generation, data extraction, validation, approvals, and notifications. Each process step is a task with verifiable completion criteria.
 
 **Example: Contract processing pipeline**
+
 ```
 playbooks/default/tasks/
 ├── 01-intake/
@@ -200,7 +201,7 @@ Unlike static pipeline systems that execute a predetermined plan, Converge adapt
 ## Quick Start
 
 ```bash
-npm install @converge/core
+npm install -g @converge/core
 ```
 
 Create `.converge/project.yaml`:
@@ -482,17 +483,17 @@ The WBS script reads project state and spawns tasks:
 
 ```javascript
 // wbs/index.js — simplified
-const screens = JSON.parse(fs.readFileSync('.stitch/screens.json'));
+const screens = JSON.parse(fs.readFileSync(".stitch/screens.json"));
 
 for (let idx = 0; idx < screens.length; idx++) {
   const screen = screens[idx];
-  const prefix = String(idx + 1).padStart(3, '0');
+  const prefix = String(idx + 1).padStart(3, "0");
 
   await ctx.spawn({
     id: `${prefix}-${screen.id}`,
     title: `Screen: ${screen.title}`,
     dependencies: prevScreenLastId ? [prevScreenLastId] : [],
-    inputs: ['.stitch/screens.json', '.stitch/system/DESIGN.md'],
+    inputs: [".stitch/screens.json", ".stitch/system/DESIGN.md"],
     outputs: [`lib/screens/${screen.id}/*.dart`],
   });
 }
@@ -507,6 +508,7 @@ Spawned tasks are written to the filesystem and discovered on the next Layer 1 s
 Every task declares **checks** — shell commands that must exit 0 for the task to succeed. After each execution, Converge runs every check. Failed checks trigger an inline correction loop; if the agent still can't fix it, it writes `LEARN.md` and the attempt ends.
 
 **Attempt 1 — Execute → Verify:**
+
 ```
 Phase 1 — Execute TASK.md
 Phase 2 — Run all checks from CHECK.md
@@ -515,6 +517,7 @@ Phase 2 — Run all checks from CHECK.md
 ```
 
 **Attempt 2+ — Learn → Execute → Verify:**
+
 ```
 Phase 1 — Read LEARN.md (what failed, corrections required)
 Phase 2 — Execute TASK.md with corrections applied
@@ -531,15 +534,18 @@ Phase 3 — Run all checks
 ## Failed Checks
 
 ### tests-pass
+
 **Description**: All unit tests pass
 **Command**: `npm test`
 **Exit code**: 1
 **Output**: TypeError: Cannot read properties of undefined (reading 'map') at UserList.tsx:42
 
 ## Passed Checks
+
 - ✓ types-compile — TypeScript compiles without errors
 
 ## Corrections Required
+
 - **tests-pass**: UserList.tsx line 42 — add null check before calling .map()
   on the users prop. The component must handle undefined/null users array.
 ```
@@ -564,7 +570,7 @@ The repair system runs between attempts, not inside them. Agents execute with a 
 
 ### Skills
 
-Skills are reusable AI instruction libraries that live in `.converge/skills/`. Unlike tasks (which define *what to do*), skills define *how to do it* — domain expertise, procedures, and best practices that can be referenced across many tasks.
+Skills are reusable AI instruction libraries that live in `.converge/skills/`. Unlike tasks (which define _what to do_), skills define _how to do it_ — domain expertise, procedures, and best practices that can be referenced across many tasks.
 
 ```markdown
 # .converge/skills/extract-data-models-from-flutter/SKILL.md
@@ -582,7 +588,7 @@ fields, and relationships.
 4. Generate specification — write data-models.md
 ```
 
-Tasks reference skills via the `references:` field in their frontmatter. This keeps task definitions focused on *what* while skills centralize *how*.
+Tasks reference skills via the `references:` field in their frontmatter. This keeps task definitions focused on _what_ while skills centralize _how_.
 
 ```yaml
 # In a TASK.md frontmatter
@@ -617,14 +623,35 @@ Gap types include: missing outputs, failing checks, broken dependencies, unmet g
 ## CLI Reference
 
 ```
-converge run                          Run all pending tasks autonomously
-converge run --step                   Run one task then stop
+converge run [task]                   Run autonomous agent loop (optionally filter to a task)
+converge run --step                   Run one task then stop (debug mode)
 converge run --converge               Convergence mode — weighted gap scoring
-converge plan "build a login page"    Generate a playbook from a prompt
-converge goals                        Evaluate goals and show pass/fail
-converge tree                         Visualize the task tree
-converge inspect                      Browse execution sessions and logs
-converge reset <taskId>               Reset a task to re-run it
+converge run --wbs [filter]           Run only WBS seeding phase
+converge run --wbs --inc [filter]     Incremental WBS re-seed (preserves progress)
+converge init                         Initialize new converge project
+converge status                       Show project status and progress
+converge verify                       Verify config, structure, format, and detect issues
+converge plan <prompt>                Generate a playbook from a prompt
+converge goals                        Evaluate project goals and generate remediation tasks
+converge tree [filter]                Visualize the task tree
+converge gantt                        Show Gantt chart timeline of execution order
+converge graph [filter]               Show task dependency graph (--detail for data flow)
+converge journal [epicId]             Show execution history (attempts, outcomes, timing)
+converge inspect [sessionId]          Inspect execution sessions and logs
+converge metrics                      Show cost, token, tool, and model metrics
+converge trend                        Show weighted gap convergence trend across runs
+converge backlog                      Show accumulated backlog items
+converge reset <taskId...>            Reset task(s) to re-run
+converge reset --all                  Reset entire project to initial state
+converge cleanup                      Remove orphaned journal directories
+converge checkpoint                   Show checkpoint (iteration, completed/locked tasks)
+converge validate                     Validate checkpoint consistency with filesystem
+converge plugins                      List loaded plugins
+converge skills list                  List available skills
+converge skills install               Install skills to a target directory
+converge playbook list                List available playbooks
+converge playbook info <name>         Show playbook details (inputs, DAG, run config, checks)
+converge playbook history <name>      Show execution history for a playbook
 ```
 
 ---
@@ -693,6 +720,6 @@ MIT
 
 **Gap-driven. Convergent. Markdown-first.**
 
-*Build AI workflows that actually finish.*
+_Build AI workflows that actually finish._
 
 </div>

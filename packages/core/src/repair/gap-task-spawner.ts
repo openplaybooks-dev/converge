@@ -8,11 +8,11 @@
  * dependency gaps.
  */
 
-import type { Gap, MissingIntermediateGap } from '../gap/types.ts';
-import type { TaskDefinition } from '../config/task-definition.ts';
-import { v4 as uuidv4 } from 'uuid';
-import { join, dirname } from 'node:path';
-import { mkdir, writeFile } from 'node:fs/promises';
+import type { Gap, MissingIntermediateGap } from "../gap/types.ts";
+import type { TaskDefinition } from "../config/task-definition.ts";
+import { v4 as uuidv4 } from "uuid";
+import { join, dirname } from "node:path";
+import { mkdir, writeFile } from "node:fs/promises";
 
 /* ------------------------------------------------------------------ */
 /*  Task Metadata for Gap Detection                                  */
@@ -53,7 +53,7 @@ export class GapTaskSpawner {
    */
   async detectIntermediateGap(
     currentTask: TaskMetadata,
-    epicTasks: TaskMetadata[]
+    epicTasks: TaskMetadata[],
   ): Promise<MissingIntermediateGap | null> {
     const requiredInputs = currentTask.inputs || [];
     if (requiredInputs.length === 0) {
@@ -61,19 +61,19 @@ export class GapTaskSpawner {
     }
 
     // Get all tasks that run before this one
-    const priorTasks = epicTasks.filter(t => t.order < currentTask.order);
+    const priorTasks = epicTasks.filter((t) => t.order < currentTask.order);
 
     // Collect all outputs from prior tasks
     const availableOutputs = new Set<string>();
     for (const task of priorTasks) {
       if (task.outputs) {
-        task.outputs.forEach(output => availableOutputs.add(output));
+        task.outputs.forEach((output) => availableOutputs.add(output));
       }
     }
 
     // Find missing outputs (inputs not produced by any prior task)
     const missingOutputs = requiredInputs.filter(
-      input => !availableOutputs.has(input) && !this.isGlobPattern(input)
+      (input) => !availableOutputs.has(input) && !this.isGlobPattern(input),
     );
 
     if (missingOutputs.length === 0) {
@@ -81,20 +81,19 @@ export class GapTaskSpawner {
     }
 
     // Create gap
-    const lastProducingTask = priorTasks.length > 0
-      ? priorTasks[priorTasks.length - 1].id
-      : null;
+    const lastProducingTask =
+      priorTasks.length > 0 ? priorTasks[priorTasks.length - 1].id : null;
 
     return {
       id: `missing-intermediate-${currentTask.id}-${uuidv4().slice(0, 8)}`,
-      type: 'missing-intermediate',
-      level: 'epic',
+      type: "missing-intermediate",
+      level: "epic",
       scope: currentTask.epicId,
-      description: `Task '${currentTask.id}' requires ${missingOutputs.join(', ')} but no prior task produces them`,
+      description: `Task '${currentTask.id}' requires ${missingOutputs.join(", ")} but no prior task produces them`,
       detected: new Date().toISOString(),
       resolved: false,
       checks: [],
-      severity: 'critical',
+      severity: "critical",
       metadata: {
         missingOutputs,
         requiredByTask: currentTask.id,
@@ -102,7 +101,7 @@ export class GapTaskSpawner {
         epicId: currentTask.epicId,
         gapFixerAttempts: 0,
       },
-      suggestedFix: `Create an intermediate task that produces ${missingOutputs.join(', ')} before '${currentTask.id}'`,
+      suggestedFix: `Create an intermediate task that produces ${missingOutputs.join(", ")} before '${currentTask.id}'`,
     };
   }
 
@@ -112,12 +111,13 @@ export class GapTaskSpawner {
    */
   async generateGapFixerTask(
     gap: MissingIntermediateGap,
-    attemptNumber: number
+    attemptNumber: number,
   ): Promise<GapFixerTaskDef> {
-    const { missingOutputs, requiredByTask, lastProducingTask, epicId } = gap.metadata;
+    const { missingOutputs, requiredByTask, lastProducingTask, epicId } =
+      gap.metadata;
 
     // Generate task ID: {parent-task}-fix-gap-{attempt}
-    const taskId = `${requiredByTask}-fix-gap-${String(attemptNumber).padStart(3, '0')}`;
+    const taskId = `${requiredByTask}-fix-gap-${String(attemptNumber).padStart(3, "0")}`;
 
     // Build AI prompt for task generation
     const prompt = this.buildTaskGenerationPrompt(gap);
@@ -126,7 +126,7 @@ export class GapTaskSpawner {
     // For now, create a template task
     const taskDef: GapFixerTaskDef = {
       id: taskId,
-      title: `Fix gap: ${missingOutputs.join(', ')}`,
+      title: `Fix gap: ${missingOutputs.join(", ")}`,
       description: `Generate missing outputs required by ${requiredByTask}`,
       outputs: missingOutputs,
       prompt,
@@ -147,15 +147,15 @@ export class GapTaskSpawner {
    */
   async persistGapFixerTask(
     taskDef: GapFixerTaskDef,
-    epicPath: string
+    epicPath: string,
   ): Promise<string> {
     const taskPath = join(epicPath, taskDef.id);
     await mkdir(taskPath, { recursive: true });
 
-    const taskMdPath = join(taskPath, 'TASK.md');
+    const taskMdPath = join(taskPath, "TASK.md");
     const content = this.generateSkillMd(taskDef);
 
-    await writeFile(taskMdPath, content, 'utf-8');
+    await writeFile(taskMdPath, content, "utf-8");
 
     return taskPath;
   }
@@ -165,7 +165,7 @@ export class GapTaskSpawner {
   /* ---------------------------------------------------------------- */
 
   private isGlobPattern(input: string): boolean {
-    return input.includes('*') || input.includes('?');
+    return input.includes("*") || input.includes("?");
   }
 
   private buildTaskGenerationPrompt(gap: MissingIntermediateGap): string {
@@ -178,9 +178,9 @@ You need to create a task that generates the missing outputs required by the dow
 
 ## Context
 
-**Missing Outputs:** ${missingOutputs.join(', ')}
+**Missing Outputs:** ${missingOutputs.join(", ")}
 **Required By:** ${requiredByTask}
-**Last Upstream Task:** ${lastProducingTask || 'none'}
+**Last Upstream Task:** ${lastProducingTask || "none"}
 
 ## Your Mission
 
@@ -195,7 +195,7 @@ Create the missing files that ${requiredByTask} needs as inputs.
 
 2. **Generate Files**
    For each missing output:
-   ${missingOutputs.map(output => `   - Create ${output}`).join('\n')}
+   ${missingOutputs.map((output) => `   - Create ${output}`).join("\n")}
 
 3. **Validation**
    - Ensure files exist
@@ -205,7 +205,7 @@ Create the missing files that ${requiredByTask} needs as inputs.
 ## Success Criteria
 
 After completion:
-${missingOutputs.map(output => `- ✅ ${output} exists and is valid`).join('\n')}
+${missingOutputs.map((output) => `- ✅ ${output} exists and is valid`).join("\n")}
 - ✅ Files contain the expected structure
 - ✅ Downstream task ${requiredByTask} can proceed
 
@@ -227,7 +227,7 @@ You have access to:
   }
 
   private generateSkillMd(taskDef: GapFixerTaskDef): string {
-    const fm: string[] = ['---'];
+    const fm: string[] = ["---"];
     fm.push(`name: ${this.yamlStr(taskDef.title || taskDef.id)}`);
     if (taskDef.description) {
       fm.push(`description: ${this.yamlStr(taskDef.description)}`);
@@ -238,24 +238,28 @@ You have access to:
     fm.push(`attempt: ${taskDef.gapFixerMetadata.attempt}`);
 
     if (taskDef.inputs?.length) {
-      fm.push('inputs:');
-      taskDef.inputs.forEach(i => fm.push(`  - ${this.yamlStr(i)}`));
+      fm.push("inputs:");
+      taskDef.inputs.forEach((i) => fm.push(`  - ${this.yamlStr(i)}`));
     }
 
     if (taskDef.outputs?.length) {
-      fm.push('outputs:');
-      taskDef.outputs.forEach(o => fm.push(`  - ${this.yamlStr(o)}`));
+      fm.push("outputs:");
+      taskDef.outputs.forEach((o) => fm.push(`  - ${this.yamlStr(o)}`));
     }
 
-    fm.push('---');
-    fm.push('');
-    fm.push(typeof taskDef.prompt === 'string' ? taskDef.prompt : '');
+    fm.push("---");
+    fm.push("");
+    fm.push(typeof taskDef.prompt === "string" ? taskDef.prompt : "");
 
-    return fm.join('\n');
+    return fm.join("\n");
   }
 
   private yamlStr(value: string): string {
-    if (/[:#\[\]{}&*!|>'"%@`,]/.test(value) || /^\s/.test(value) || value.includes('\n')) {
+    if (
+      /[:#\[\]{}&*!|>'"%@`,]/.test(value) ||
+      /^\s/.test(value) ||
+      value.includes("\n")
+    ) {
       return JSON.stringify(value);
     }
     return value;

@@ -2,7 +2,7 @@
  * Shared task-tree renderer used by both `converge run --step` and `converge tree`.
  */
 
-import type { TaskNode, TaskStates, ExecutionSpan } from './next-task.ts';
+import type { TaskNode, TaskStates, ExecutionSpan } from "./next-task.ts";
 
 /**
  * Derive the display label for the tree root from the first task's filePath.
@@ -11,13 +11,13 @@ import type { TaskNode, TaskStates, ExecutionSpan } from './next-task.ts';
  * nothing matches (e.g. empty tree).
  */
 function deriveTreeRoot(tree: TaskNode[]): string {
-  if (tree.length === 0) return '.converge/epics/';
-  const sample = tree[0].filePath.replace(/\\/g, '/');
+  if (tree.length === 0) return ".converge/epics/";
+  const sample = tree[0].filePath.replace(/\\/g, "/");
   const playbookMatch = sample.match(/(\.converge\/playbooks\/[^/]+\/tasks\/)/);
   if (playbookMatch) return playbookMatch[1];
   const legacyMatch = sample.match(/(\.converge\/epics\/)/);
   if (legacyMatch) return legacyMatch[1];
-  return '.converge/epics/';
+  return ".converge/epics/";
 }
 
 /**
@@ -61,16 +61,18 @@ export function printTaskTree(
   });
 
   // Build ancestor sets for the next task (parent task + epic)
-  const nextAncestors = new Set<string>();  // journalTaskIds
-  const nextEpics = new Set<string>();      // epicIds
+  const nextAncestors = new Set<string>(); // journalTaskIds
+  const nextEpics = new Set<string>(); // epicIds
   if (nextTaskId) {
-    const nextNode = tree.find(n => n.journalTaskId === nextTaskId);
+    const nextNode = tree.find((n) => n.journalTaskId === nextTaskId);
     if (nextNode) {
       nextEpics.add(nextNode.epicId);
       if (nextNode.parentTaskId) {
         nextAncestors.add(nextNode.parentTaskId);
         // Also mark the parent's epic
-        const parentNode = tree.find(n => n.journalTaskId === nextNode.parentTaskId);
+        const parentNode = tree.find(
+          (n) => n.journalTaskId === nextNode.parentTaskId,
+        );
         if (parentNode) nextEpics.add(parentNode.epicId);
       }
     }
@@ -78,13 +80,15 @@ export function printTaskTree(
 
   // Also mark the running task's epic with ▶ indicator
   if (runningTaskId) {
-    const runningNode = tree.find(n => n.journalTaskId === runningTaskId);
+    const runningNode = tree.find((n) => n.journalTaskId === runningTaskId);
     if (runningNode) {
       nextEpics.add(runningNode.epicId);
       // If running task has a parent, mark it as ancestor
       if (runningNode.parentTaskId) {
         nextAncestors.add(runningNode.parentTaskId);
-        const parentNode = tree.find(n => n.journalTaskId === runningNode.parentTaskId);
+        const parentNode = tree.find(
+          (n) => n.journalTaskId === runningNode.parentTaskId,
+        );
         if (parentNode) nextEpics.add(parentNode.epicId);
       }
     }
@@ -92,70 +96,111 @@ export function printTaskTree(
 
   const { wbsProgress, seeded } = states;
 
-  const renderTask = (node: TaskNode, prefix: string, branch: string, children: TaskNode[], continuationPrefix: string) => {
-    const isNext     = nextTaskId !== '' && node.journalTaskId === nextTaskId;
-    const isRunning  = runningTaskId !== undefined && node.journalTaskId === runningTaskId;
+  const renderTask = (
+    node: TaskNode,
+    prefix: string,
+    branch: string,
+    children: TaskNode[],
+    continuationPrefix: string,
+  ) => {
+    const isNext = nextTaskId !== "" && node.journalTaskId === nextTaskId;
+    const isRunning =
+      runningTaskId !== undefined && node.journalTaskId === runningTaskId;
     const isAncestor = nextAncestors.has(node.journalTaskId);
-    const isDone     = completed.has(node.journalTaskId);
-    const isFailed   = failed.has(node.journalTaskId);
-    const isSeeded   = seeded.has(node.journalTaskId); // WBS seeded, waiting for subtasks
-    const isLocked   = locked.has(node.journalTaskId) && !isDone && !isFailed && !isSeeded && !isRunning;
-    const isBlocked  = failureBlocked.has(node.journalTaskId);
+    const isDone = completed.has(node.journalTaskId);
+    const isFailed = failed.has(node.journalTaskId);
+    const isSeeded = seeded.has(node.journalTaskId); // WBS seeded, waiting for subtasks
+    const isLocked =
+      locked.has(node.journalTaskId) &&
+      !isDone &&
+      !isFailed &&
+      !isSeeded &&
+      !isRunning;
+    const isBlocked = failureBlocked.has(node.journalTaskId);
 
     let icon: string;
     let suffix: string;
     // Priority order: blocked-by-failure > running/next/ancestor > done > failed > seeded > locked > blocked > pending
     // failureBlocked overrides running to prevent stale running checkpoints from hiding blocked state
-    if (isBlocked)      { icon = '🚫';  suffix = '  (blocked)'; }
-    else if (isRunning) { icon = '○ ';  suffix = '  ▶ ◑'; }
-    else if (isNext)    { icon = '○ ';  suffix = '  ▶'; }
-    else if (isAncestor){ icon = '○ ';  suffix = '  ▶'; }
-    else if (isDone)    { icon = '✓ ';  suffix = ''; }
-    else if (isFailed)  { icon = '✗ ';  suffix = '  (failed)'; }
-    else if (isSeeded)  { icon = '◑ ';  suffix = '  (seeded)'; }
-    else if (isLocked)  { icon = '⊙ ';  suffix = '  (locked)'; }
-    else                { icon = '○ ';  suffix = ''; }
+    if (isBlocked) {
+      icon = "🚫";
+      suffix = "  (blocked)";
+    } else if (isRunning) {
+      icon = "○ ";
+      suffix = "  ▶ ◑";
+    } else if (isNext) {
+      icon = "○ ";
+      suffix = "  ▶";
+    } else if (isAncestor) {
+      icon = "○ ";
+      suffix = "  ▶";
+    } else if (isDone) {
+      icon = "✓ ";
+      suffix = "";
+    } else if (isFailed) {
+      icon = "✗ ";
+      suffix = "  (failed)";
+    } else if (isSeeded) {
+      icon = "◑ ";
+      suffix = "  (seeded)";
+    } else if (isLocked) {
+      icon = "⊙ ";
+      suffix = "  (locked)";
+    } else {
+      icon = "○ ";
+      suffix = "";
+    }
 
     // No blocking marker needed - blocking is default behavior
-    const blockingMarker = '';
+    const blockingMarker = "";
 
     // Progress annotation for parent tasks (with children)
     // Show progress for ALL parents, regardless of how they were created (seeded or manual)
-    let wbsSuffix = '';
+    let wbsSuffix = "";
     const wbs = wbsProgress.get(node.journalTaskId);
     if (children.length > 0 || wbs) {
       if (wbs && wbs.spawnCount > 0) {
-        const pending = wbs.spawnCount - wbs.completedSubtasks - wbs.failedSubtasks;
-        const parts: string[] = [`${wbs.completedSubtasks}/${wbs.spawnCount} done`];
+        const pending =
+          wbs.spawnCount - wbs.completedSubtasks - wbs.failedSubtasks;
+        const parts: string[] = [
+          `${wbs.completedSubtasks}/${wbs.spawnCount} done`,
+        ];
         if (wbs.failedSubtasks > 0) parts.push(`${wbs.failedSubtasks} failed`);
         if (pending > 0) parts.push(`${pending} pending`);
-        wbsSuffix = `  [${parts.join(', ')}]`;
+        wbsSuffix = `  [${parts.join(", ")}]`;
       }
     }
 
     // Attempt annotation (from journal)
-    let attemptSuffix = '';
+    let attemptSuffix = "";
     if (node.attempts && node.attempts > 1) {
       attemptSuffix = `  (${node.attempts} attempts)`;
     }
 
     const span = plan?.get(node.journalTaskId);
     const indexLabel = span
-      ? (span.startIndex === span.endIndex
-          ? `${String(span.startIndex).padStart(2)}.`
-          : `${span.startIndex}-${span.endIndex}.`)
-      : '';
-    console.log(`${prefix}${branch}${icon}${indexLabel} ${node.taskId}${blockingMarker}${suffix}${attemptSuffix}${wbsSuffix}`);
+      ? span.startIndex === span.endIndex
+        ? `${String(span.startIndex).padStart(2)}.`
+        : `${span.startIndex}-${span.endIndex}.`
+      : "";
+    console.log(
+      `${prefix}${branch}${icon}${indexLabel} ${node.taskId}${blockingMarker}${suffix}${attemptSuffix}${wbsSuffix}`,
+    );
 
     // Detail lines: show metadata beneath the task when --detail is active
     if (detail) {
       const detailLines: string[] = [];
       if (node.title) detailLines.push(`title: ${node.title}`);
-      if (node.skills && node.skills.length > 0) detailLines.push(`skills: ${node.skills.join(', ')}`);
-      if (node.dependencies && node.dependencies.length > 0) detailLines.push(`deps: ${node.dependencies.join(', ')}`);
-      if (node.inputs && node.inputs.length > 0) detailLines.push(`inputs: ${node.inputs.join(', ')}`);
-      if (node.outputs && node.outputs.length > 0) detailLines.push(`outputs: ${node.outputs.join(', ')}`);
-      if (node.tags && node.tags.length > 0) detailLines.push(`tags: ${node.tags.join(', ')}`);
+      if (node.skills && node.skills.length > 0)
+        detailLines.push(`skills: ${node.skills.join(", ")}`);
+      if (node.dependencies && node.dependencies.length > 0)
+        detailLines.push(`deps: ${node.dependencies.join(", ")}`);
+      if (node.inputs && node.inputs.length > 0)
+        detailLines.push(`inputs: ${node.inputs.join(", ")}`);
+      if (node.outputs && node.outputs.length > 0)
+        detailLines.push(`outputs: ${node.outputs.join(", ")}`);
+      if (node.tags && node.tags.length > 0)
+        detailLines.push(`tags: ${node.tags.join(", ")}`);
       for (const line of detailLines) {
         console.log(`${continuationPrefix}    ${line}`);
       }
@@ -165,29 +210,35 @@ export function printTaskTree(
   console.log(`📁 ${deriveTreeRoot(tree)}`);
 
   epicIds.forEach((epicId, epicIdx) => {
-    const isLastEpic      = epicIdx === epicIds.length - 1;
-    const epicPrefix      = isLastEpic ? '└── ' : '├── ';
-    const epicChildPrefix = isLastEpic ? '    ' : '│   ';
+    const isLastEpic = epicIdx === epicIds.length - 1;
+    const epicPrefix = isLastEpic ? "└── " : "├── ";
+    const epicChildPrefix = isLastEpic ? "    " : "│   ";
 
     const allEpicTasks = epicMap.get(epicId)!;
 
     // Detect epic-root task: a top-level task whose taskId matches the epicId
-    const epicRootNode = allEpicTasks.find(n => !n.parentTaskId && n.taskId === epicId);
+    const epicRootNode = allEpicTasks.find(
+      (n) => !n.parentTaskId && n.taskId === epicId,
+    );
 
     // Build epic folder suffix from the epic-root node's status/progress
-    let epicSuffix = '';
+    let epicSuffix = "";
     if (epicRootNode) {
-      const rootDone    = completed.has(epicRootNode.journalTaskId);
-      const rootFailed  = failed.has(epicRootNode.journalTaskId);
-      const rootSeeded  = seeded.has(epicRootNode.journalTaskId);
-      const rootLocked  = locked.has(epicRootNode.journalTaskId) && !rootDone && !rootFailed && !rootSeeded;
+      const rootDone = completed.has(epicRootNode.journalTaskId);
+      const rootFailed = failed.has(epicRootNode.journalTaskId);
+      const rootSeeded = seeded.has(epicRootNode.journalTaskId);
+      const rootLocked =
+        locked.has(epicRootNode.journalTaskId) &&
+        !rootDone &&
+        !rootFailed &&
+        !rootSeeded;
       const rootBlocked = failureBlocked.has(epicRootNode.journalTaskId);
 
-      if (rootBlocked)     epicSuffix += '  🚫 (blocked)';
-      else if (rootFailed) epicSuffix += '  ✗ (failed)';
-      else if (rootSeeded) epicSuffix += '  ◑ (seeded)';
-      else if (rootLocked) epicSuffix += '  ⊙ (locked)';
-      else if (rootDone)   epicSuffix += '  ✓';
+      if (rootBlocked) epicSuffix += "  🚫 (blocked)";
+      else if (rootFailed) epicSuffix += "  ✗ (failed)";
+      else if (rootSeeded) epicSuffix += "  ◑ (seeded)";
+      else if (rootLocked) epicSuffix += "  ⊙ (locked)";
+      else if (rootDone) epicSuffix += "  ✓";
 
       if (epicRootNode.attempts && epicRootNode.attempts > 1) {
         epicSuffix += `  (${epicRootNode.attempts} attempts)`;
@@ -195,16 +246,19 @@ export function printTaskTree(
 
       const wbs = wbsProgress.get(epicRootNode.journalTaskId);
       if (wbs && wbs.spawnCount > 0) {
-        const pending = wbs.spawnCount - wbs.completedSubtasks - wbs.failedSubtasks;
-        const parts: string[] = [`${wbs.completedSubtasks}/${wbs.spawnCount} done`];
+        const pending =
+          wbs.spawnCount - wbs.completedSubtasks - wbs.failedSubtasks;
+        const parts: string[] = [
+          `${wbs.completedSubtasks}/${wbs.spawnCount} done`,
+        ];
         if (wbs.failedSubtasks > 0) parts.push(`${wbs.failedSubtasks} failed`);
         if (pending > 0) parts.push(`${pending} pending`);
-        epicSuffix += `  [${parts.join(', ')}]`;
+        epicSuffix += `  [${parts.join(", ")}]`;
       }
     }
 
     const epicActive = nextEpics.has(epicId);
-    const epicIndicator = epicActive ? '  ▶' : '';
+    const epicIndicator = epicActive ? "  ▶" : "";
     console.log(`${epicPrefix}📂 ${epicId}${epicSuffix}${epicIndicator}`);
 
     // Build parent-child relationships using journalTaskId (supports multi-level nesting)
@@ -212,14 +266,17 @@ export function printTaskTree(
 
     for (const node of allEpicTasks) {
       if (node.parentTaskId) {
-        if (!childrenOf.has(node.parentTaskId)) childrenOf.set(node.parentTaskId, []);
+        if (!childrenOf.has(node.parentTaskId))
+          childrenOf.set(node.parentTaskId, []);
         childrenOf.get(node.parentTaskId)!.push(node);
       }
     }
 
     // Top-level tasks are those without a parentTaskId
     // Exclude the epic-root node (already shown on the epic folder line)
-    const topLevel = allEpicTasks.filter(n => !n.parentTaskId && n !== epicRootNode);
+    const topLevel = allEpicTasks.filter(
+      (n) => !n.parentTaskId && n !== epicRootNode,
+    );
 
     // If the epic-root was excluded, promote its children to top level
     if (epicRootNode) {
@@ -234,16 +291,20 @@ export function printTaskTree(
     }
 
     // Recursive renderer for arbitrary depth
-    const renderSubtree = (nodes: TaskNode[], prefix: string, depth: number = 0) => {
+    const renderSubtree = (
+      nodes: TaskNode[],
+      prefix: string,
+      depth: number = 0,
+    ) => {
       nodes.forEach((node, idx) => {
         const children = childrenOf.get(node.journalTaskId) ?? [];
         const isLast = idx === nodes.length - 1;
-        const branch = isLast ? '└── ' : '├── ';
-        const childPrefix = prefix + (isLast ? '    ' : '│   ');
+        const branch = isLast ? "└── " : "├── ";
+        const childPrefix = prefix + (isLast ? "    " : "│   ");
         renderTask(node, prefix, branch, children, childPrefix);
         // Extra indent for nested children to make hierarchy more visually distinct
         if (children.length > 0) {
-          const nestedPrefix = childPrefix + '    ';
+          const nestedPrefix = childPrefix + "    ";
           renderSubtree(children, nestedPrefix, depth + 1);
         }
       });

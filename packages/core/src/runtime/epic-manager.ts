@@ -2,11 +2,11 @@
  * Epic Manager Implementation
  */
 
-import type { EpicManager } from './types.ts';
-import type { GoalStatus, GoalEvaluationContext } from '../goal/types.ts';
-import type { EpicDefinition } from '../functions/types.ts';
-import type { ConvergenceConfig } from '../orchestrator/convergence.ts';
-import { GoalEvaluatorImpl } from '../goal/evaluator.ts';
+import type { EpicManager } from "./types.ts";
+import type { GoalStatus, GoalEvaluationContext } from "../goal/types.ts";
+import type { EpicDefinition } from "../functions/types.ts";
+import type { ConvergenceConfig } from "../orchestrator/convergence.ts";
+import { GoalEvaluatorImpl } from "../goal/evaluator.ts";
 
 export class EpicManagerImpl implements EpicManager {
   private epics: EpicDefinition[];
@@ -61,7 +61,7 @@ export class EpicManagerImpl implements EpicManager {
    */
   async run(
     epicId: string,
-    config?: Partial<ConvergenceConfig>
+    config?: Partial<ConvergenceConfig>,
   ): Promise<{
     converged: boolean;
     goalsSatisfied: number;
@@ -77,7 +77,9 @@ export class EpicManagerImpl implements EpicManager {
     let iteration = 0;
 
     while (iteration < maxIterations) {
-      this.ctx.log.info(`Epic ${epicId} - Iteration ${iteration + 1}/${maxIterations}`);
+      this.ctx.log.info(
+        `Epic ${epicId} - Iteration ${iteration + 1}/${maxIterations}`,
+      );
 
       // Evaluate all goals
       const goalStatuses: GoalStatus[] = [];
@@ -91,7 +93,10 @@ export class EpicManagerImpl implements EpicManager {
       const goalsSatisfied = goalStatuses.filter((s) => s.satisfied).length;
 
       if (goalsSatisfied === totalGoals) {
-        this.ctx.log.info(`✅ Epic ${epicId} converged`, { goalsSatisfied, totalGoals });
+        this.ctx.log.info(`✅ Epic ${epicId} converged`, {
+          goalsSatisfied,
+          totalGoals,
+        });
         return { converged: true, goalsSatisfied, totalGoals };
       }
 

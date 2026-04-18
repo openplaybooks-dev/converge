@@ -30,8 +30,8 @@ export function parseDuration(input: string): number {
   if (!match) {
     throw new Error(
       `Invalid duration string: '${input}'. ` +
-      `Expected format: <number><unit> where unit is ms, s, m, or h. ` +
-      `Examples: '5s', '15s', '1m', '500ms'.`
+        `Expected format: <number><unit> where unit is ms, s, m, or h. ` +
+        `Examples: '5s', '15s', '1m', '500ms'.`,
     );
   }
 

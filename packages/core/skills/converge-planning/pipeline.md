@@ -110,7 +110,7 @@ checks:
   - id: analysis-exists
     cmd: test -f {stateDir}/analysis.json
   - id: analysis-valid
-    cmd: "node -e \"JSON.parse(require('fs').readFileSync('{stateDir}/analysis.json','utf-8'))\""
+    cmd: 'node -e "JSON.parse(require(''fs'').readFileSync(''{stateDir}/analysis.json'',''utf-8''))"'
 ```
 
 For fresh projects with no code, write minimal analysis with empty fields.
@@ -153,9 +153,7 @@ Do NOT ask the user questions. Infer from the prompt and codebase context. If so
     "FACT: Express 4.x is the HTTP framework — Source: package.json",
     "FACT: PostgreSQL 15 is the database — Source: docker-compose.yml"
   ],
-  "openQuestions": [
-    "Should sessions expire after 24h or 7d?"
-  ]
+  "openQuestions": ["Should sessions expire after 24h or 7d?"]
 }
 ```
 
@@ -180,7 +178,7 @@ needs:
     cmd: test -f {stateDir}/analysis.json
     description: Analysis must be complete before research
   - id: analysis-valid
-    cmd: "node -e \"JSON.parse(require('fs').readFileSync('{stateDir}/analysis.json','utf-8'))\""
+    cmd: 'node -e "JSON.parse(require(''fs'').readFileSync(''{stateDir}/analysis.json'',''utf-8''))"'
     description: Analysis must be valid JSON
 
 # checks — postconditions: verify research output
@@ -188,7 +186,7 @@ checks:
   - id: requirements-exists
     cmd: test -f {stateDir}/requirements.json
   - id: requirements-valid
-    cmd: "node -e \"JSON.parse(require('fs').readFileSync('{stateDir}/requirements.json','utf-8'))\""
+    cmd: 'node -e "JSON.parse(require(''fs'').readFileSync(''{stateDir}/requirements.json'',''utf-8''))"'
 ```
 
 `needs` runs before execution — if `analysis.json` is missing or invalid, the task blocks immediately instead of wasting an execution cycle. `checks` runs after — proves the research output is valid.
@@ -240,14 +238,14 @@ Does NOT decompose epics into tasks — that's delegated to per-epic subtasks in
 
 Select the pattern that best matches the project:
 
-| Pattern | Typical epics |
-|---------|--------------|
-| `full-stack-app` | foundation, data-layer, api, frontend, auth, deployment |
-| `api` | foundation, data-layer, endpoints, auth, testing |
-| `cli` | foundation, core-commands, config, output-formatting, testing |
-| `data-pipeline` | foundation, ingestion, transformation, output, monitoring |
-| `static-site` | foundation, content, components, styling, deployment |
-| `mobile` | foundation, navigation, screens, data, platform-specific |
+| Pattern          | Typical epics                                                 |
+| ---------------- | ------------------------------------------------------------- |
+| `full-stack-app` | foundation, data-layer, api, frontend, auth, deployment       |
+| `api`            | foundation, data-layer, endpoints, auth, testing              |
+| `cli`            | foundation, core-commands, config, output-formatting, testing |
+| `data-pipeline`  | foundation, ingestion, transformation, output, monitoring     |
+| `static-site`    | foundation, content, components, styling, deployment          |
+| `mobile`         | foundation, navigation, screens, data, platform-specific      |
 
 ### Complexity estimates
 
@@ -272,9 +270,9 @@ checks:
   - id: outline-exists
     cmd: test -f {stateDir}/outline.json
   - id: outline-has-epics
-    cmd: "node -e \"const o=JSON.parse(require('fs').readFileSync('{stateDir}/outline.json','utf-8'));if(!o.epics||!o.epics.length)throw new Error('no epics')\""
+    cmd: 'node -e "const o=JSON.parse(require(''fs'').readFileSync(''{stateDir}/outline.json'',''utf-8''));if(!o.epics||!o.epics.length)throw new Error(''no epics'')"'
   - id: outline-epics-have-deps
-    cmd: "node -e \"const o=JSON.parse(require('fs').readFileSync('{stateDir}/outline.json','utf-8'));o.epics.forEach(e=>{if(!Array.isArray(e.dependencies))throw new Error(e.id+' missing deps')})\""
+    cmd: 'node -e "const o=JSON.parse(require(''fs'').readFileSync(''{stateDir}/outline.json'',''utf-8''));o.epics.forEach(e=>{if(!Array.isArray(e.dependencies))throw new Error(e.id+'' missing deps'')})"'
 ```
 
 The `needs` checks verify that all prior interpolation outputs exist before this phase starts. If `analysis.json` or `requirements.json` is missing, the outline phase blocks immediately instead of producing a bad result.
@@ -295,7 +293,7 @@ needs:
     cmd: test -f {stateDir}/outline.json
     description: Outline must exist before decomposition
   - id: outline-has-epics
-    cmd: "node -e \"const o=JSON.parse(require('fs').readFileSync('{stateDir}/outline.json','utf-8'));if(!o.epics.length)throw 'empty'\""
+    cmd: 'node -e "const o=JSON.parse(require(''fs'').readFileSync(''{stateDir}/outline.json'',''utf-8''));if(!o.epics.length)throw ''empty''"'
     description: Outline must have epics to decompose
 ```
 
@@ -316,19 +314,19 @@ needs:
 See `decompose-epics-wbs.js` for the canonical example:
 
 ```javascript
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { readFileSync } from "fs";
+import { join } from "path";
 
 export async function run(ctx) {
-  const stateDir = `.converge/plan-state/${ctx.vars?.name || 'default'}`;
+  const stateDir = `.converge/plan-state/${ctx.vars?.name || "default"}`;
   const outline = JSON.parse(
-    readFileSync(join(ctx.projectDir, stateDir, 'outline.json'), 'utf-8')
+    readFileSync(join(ctx.projectDir, stateDir, "outline.json"), "utf-8"),
   );
 
   let prevId = null;
   for (let i = 0; i < outline.epics.length; i++) {
     const epic = outline.epics[i];
-    const padded = String(i + 1).padStart(3, '0');
+    const padded = String(i + 1).padStart(3, "0");
     const taskId = `003-${padded}-${epic.id}`;
     const outputPath = `${stateDir}/epics/${epic.id}.json`;
 
@@ -338,10 +336,13 @@ export async function run(ctx) {
       dependencies: prevId ? [prevId] : [],
       inputs: [`${stateDir}/outline.json`, `${stateDir}/requirements.json`],
       outputs: [outputPath],
-      skills: ['converge-planning'],
+      skills: ["converge-planning"],
       checks: [
         { id: `${epic.id}-exists`, cmd: `test -f ${outputPath}` },
-        { id: `${epic.id}-valid`, cmd: `node -e "const e=JSON.parse(require('fs').readFileSync('${outputPath}','utf-8'));if(!e.tasks||!e.tasks.length)throw 'no tasks'"` },
+        {
+          id: `${epic.id}-valid`,
+          cmd: `node -e "const e=JSON.parse(require('fs').readFileSync('${outputPath}','utf-8'));if(!e.tasks||!e.tasks.length)throw 'no tasks'"`,
+        },
       ],
       body: `Decompose epic "${epic.title}" into 3-7 tasks...`,
     });
@@ -369,9 +370,7 @@ Each subtask writes `{stateDir}/epics/{epic.id}.json`:
       "dependencies": [],
       "inputs": [],
       "outputs": ["src/db/schema.sql"],
-      "checks": [
-        { "id": "schema-exists", "cmd": "test -f src/db/schema.sql" }
-      ],
+      "checks": [{ "id": "schema-exists", "cmd": "test -f src/db/schema.sql" }],
       "body": "Create the PostgreSQL schema..."
     }
   ],
@@ -454,7 +453,7 @@ checks:
   - id: plan-exists
     cmd: test -f {stateDir}/plan.json
   - id: plan-has-epics
-    cmd: "node -e \"const p=JSON.parse(require('fs').readFileSync('{stateDir}/plan.json','utf-8'));if(!p.epics||!p.epics.length)throw 'no epics'\""
+    cmd: 'node -e "const p=JSON.parse(require(''fs'').readFileSync(''{stateDir}/plan.json'',''utf-8''));if(!p.epics||!p.epics.length)throw ''no epics''"'
 ```
 
 ## Phase 3d: Deepen (Conditional WBS)
@@ -475,7 +474,7 @@ needs:
     cmd: test -f {stateDir}/plan.json
     description: Merged plan must exist before deepening
   - id: plan-valid
-    cmd: "node -e \"JSON.parse(require('fs').readFileSync('{stateDir}/plan.json','utf-8'))\""
+    cmd: 'node -e "JSON.parse(require(''fs'').readFileSync(''{stateDir}/plan.json'',''utf-8''))"'
     description: Plan must be valid JSON
 ```
 
@@ -484,22 +483,22 @@ needs:
 See `deepen-tasks-wbs.js` for the canonical example:
 
 ```javascript
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { readFileSync } from "fs";
+import { join } from "path";
 
 export async function run(ctx) {
-  const stateDir = `.converge/plan-state/${ctx.vars?.name || 'default'}`;
+  const stateDir = `.converge/plan-state/${ctx.vars?.name || "default"}`;
   const plan = JSON.parse(
-    readFileSync(join(ctx.projectDir, stateDir, 'plan.json'), 'utf-8')
+    readFileSync(join(ctx.projectDir, stateDir, "plan.json"), "utf-8"),
   );
 
   const toDeepen = plan.needsDeepening || [];
-  if (toDeepen.length === 0) return;  // nothing to do
+  if (toDeepen.length === 0) return; // nothing to do
 
   let prevId = null;
   for (let i = 0; i < toDeepen.length; i++) {
     const item = toDeepen[i];
-    const padded = String(i + 1).padStart(3, '0');
+    const padded = String(i + 1).padStart(3, "0");
     const taskId = `003-d-${padded}-${item.epicId}-${item.taskId}`;
     const outputPath = `${stateDir}/deepened/${item.epicId}-${item.taskId}.json`;
 
@@ -511,7 +510,10 @@ export async function run(ctx) {
       outputs: [outputPath],
       checks: [
         { id: `deep-${padded}-exists`, cmd: `test -f ${outputPath}` },
-        { id: `deep-${padded}-valid`, cmd: `node -e "JSON.parse(require('fs').readFileSync('${outputPath}','utf-8'))"` },
+        {
+          id: `deep-${padded}-valid`,
+          cmd: `node -e "JSON.parse(require('fs').readFileSync('${outputPath}','utf-8'))"`,
+        },
       ],
       body: `Sub-decompose task ${item.taskId} in epic ${item.epicId}...`,
     });
@@ -534,7 +536,9 @@ Each subtask writes `{stateDir}/deepened/{epicId}-{taskId}.json`:
       "id": "001-get-users",
       "title": "GET /users endpoint",
       "outputs": ["src/routes/users/list.ts"],
-      "checks": [{ "id": "list-exists", "cmd": "test -f src/routes/users/list.ts" }],
+      "checks": [
+        { "id": "list-exists", "cmd": "test -f src/routes/users/list.ts" }
+      ],
       "body": "Implement the GET /users endpoint..."
     }
   ],
@@ -577,7 +581,7 @@ checks:
   - id: plan-finalized
     cmd: test -f {stateDir}/plan.json
   - id: no-pending-deepening
-    cmd: "node -e \"const p=JSON.parse(require('fs').readFileSync('{stateDir}/plan.json','utf-8'));if(p.needsDeepening&&p.needsDeepening.length)throw 'still has pending'\""
+    cmd: 'node -e "const p=JSON.parse(require(''fs'').readFileSync(''{stateDir}/plan.json'',''utf-8''));if(p.needsDeepening&&p.needsDeepening.length)throw ''still has pending''"'
 ```
 
 After finalizing, no task should be flagged as needing further decomposition. The plan is at full resolution — every task is executable, every gap is either closed or represented as a task that will close it.
@@ -599,7 +603,7 @@ needs:
     cmd: test -f {stateDir}/plan.json
     description: Finalized plan must exist
   - id: plan-no-pending-deepening
-    cmd: "node -e \"const p=JSON.parse(require('fs').readFileSync('{stateDir}/plan.json','utf-8'));if(p.needsDeepening&&p.needsDeepening.length)throw 'pending'\""
+    cmd: 'node -e "const p=JSON.parse(require(''fs'').readFileSync(''{stateDir}/plan.json'',''utf-8''));if(p.needsDeepening&&p.needsDeepening.length)throw ''pending''"'
     description: All deepening must be resolved before validation
   - id: requirements-ready
     cmd: test -f {stateDir}/requirements.json
@@ -610,15 +614,15 @@ needs:
 
 Each check targets a specific type of gap:
 
-| Check | Gap it detects |
-|-------|---------------|
-| Structural completeness | Tasks missing outputs or checks (unverifiable work) |
-| Task quality | Tasks too vague to execute (specificity gap) |
-| Dependency integrity | Broken or circular references (ordering gap) |
-| I/O chain | Inputs not produced by any prior task (information gap) |
-| Requirements coverage | `must` features with no corresponding task (coverage gap) |
-| Facts documented | Assumptions not grounded in evidence (knowledge gap) |
-| Sizing | Epics with 7+ tasks or tasks too coarse (granularity gap) |
+| Check                   | Gap it detects                                            |
+| ----------------------- | --------------------------------------------------------- |
+| Structural completeness | Tasks missing outputs or checks (unverifiable work)       |
+| Task quality            | Tasks too vague to execute (specificity gap)              |
+| Dependency integrity    | Broken or circular references (ordering gap)              |
+| I/O chain               | Inputs not produced by any prior task (information gap)   |
+| Requirements coverage   | `must` features with no corresponding task (coverage gap) |
+| Facts documented        | Assumptions not grounded in evidence (knowledge gap)      |
+| Sizing                  | Epics with 7+ tasks or tasks too coarse (granularity gap) |
 
 ### Output schema
 
@@ -626,16 +630,33 @@ Each check targets a specific type of gap:
 {
   "valid": true,
   "checks": {
-    "structuralCompleteness": { "pass": true, "details": "All 5 epics have tasks" },
-    "taskQuality": { "pass": true, "details": "23 tasks, all with outputs and checks" },
-    "dependencyIntegrity": { "pass": true, "details": "No circular deps, all refs valid" },
-    "inputOutputChain": { "pass": true, "details": "All inputs traced to prior outputs" },
-    "requirementsCoverage": { "pass": true, "details": "8/8 must features covered" },
+    "structuralCompleteness": {
+      "pass": true,
+      "details": "All 5 epics have tasks"
+    },
+    "taskQuality": {
+      "pass": true,
+      "details": "23 tasks, all with outputs and checks"
+    },
+    "dependencyIntegrity": {
+      "pass": true,
+      "details": "No circular deps, all refs valid"
+    },
+    "inputOutputChain": {
+      "pass": true,
+      "details": "All inputs traced to prior outputs"
+    },
+    "requirementsCoverage": {
+      "pass": true,
+      "details": "8/8 must features covered"
+    },
     "factsDocumented": { "pass": true, "details": "5 facts documented" },
     "sizing": { "pass": true, "details": "Max 6 tasks per epic" }
   },
   "errors": [],
-  "warnings": ["Epic 04-testing has only 2 tasks — consider merging into another epic"],
+  "warnings": [
+    "Epic 04-testing has only 2 tasks — consider merging into another epic"
+  ],
   "summary": "Plan has 5 epics, 23 tasks, covers all must-have requirements"
 }
 ```
@@ -647,7 +668,7 @@ checks:
   - id: validation-exists
     cmd: test -f {stateDir}/validation.json
   - id: validation-passes
-    cmd: "node -e \"const v=JSON.parse(require('fs').readFileSync('{stateDir}/validation.json','utf-8'));if(!v.valid)throw v.errors.join(', ')\""
+    cmd: 'node -e "const v=JSON.parse(require(''fs'').readFileSync(''{stateDir}/validation.json'',''utf-8''));if(!v.valid)throw v.errors.join('', '')"'
 ```
 
 If validation fails, fix the issues in `plan.json` and re-validate. Do not proceed to emit until validation passes.
@@ -669,7 +690,7 @@ needs:
     cmd: test -f {stateDir}/plan.json
     description: Finalized plan must exist
   - id: validation-passed
-    cmd: "node -e \"const v=JSON.parse(require('fs').readFileSync('{stateDir}/validation.json','utf-8'));if(!v.valid)throw v.errors[0]\""
+    cmd: 'node -e "const v=JSON.parse(require(''fs'').readFileSync(''{stateDir}/validation.json'',''utf-8''));if(!v.valid)throw v.errors[0]"'
     description: Plan must be validated before emission
 ```
 

@@ -4,13 +4,23 @@
  * Reads gaps, logs, and summaries from journal files.
  */
 
-import { readFile, access, readdir } from 'node:fs/promises';
-import { constants } from 'node:fs';
-import { parse as yamlParse } from 'yaml';
-import type { Gap } from '../gap/types.ts';
-import type { JournalEvent, GapSummary, ReadLogOptions, SearchLogOptions, TaskStatus } from './types.ts';
-import { getJournalPath } from './writer.ts';
-import { getJournalFilePath, getEpicTasksDir, getEpicsDir } from './structure.ts';
+import { readFile, access, readdir } from "node:fs/promises";
+import { constants } from "node:fs";
+import { parse as yamlParse } from "yaml";
+import type { Gap } from "../gap/types.ts";
+import type {
+  JournalEvent,
+  GapSummary,
+  ReadLogOptions,
+  SearchLogOptions,
+  TaskStatus,
+} from "./types.ts";
+import { getJournalPath } from "./writer.ts";
+import {
+  getJournalFilePath,
+  getEpicTasksDir,
+  getEpicsDir,
+} from "./structure.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Gap Reading (YAML)                                                */
@@ -21,17 +31,17 @@ import { getJournalFilePath, getEpicTasksDir, getEpicsDir } from './structure.ts
  */
 export async function readGaps(
   projectDir: string,
-  level: 'project' | 'epic' | 'task',
-  scope: string
+  level: "project" | "epic" | "task",
+  scope: string,
 ): Promise<Gap[]> {
-  const filePath = getJournalPath(projectDir, level, scope, 'gaps');
+  const filePath = getJournalPath(projectDir, level, scope, "gaps");
 
   try {
-    const content = await readFile(filePath, 'utf-8');
+    const content = await readFile(filePath, "utf-8");
     const summary = yamlParse(content) as GapSummary;
     return summary.gaps || [];
   } catch (error: any) {
-    if (error.code === 'ENOENT') {
+    if (error.code === "ENOENT") {
       return []; // File doesn't exist yet
     }
     throw error;
@@ -43,13 +53,13 @@ export async function readGaps(
  */
 export async function readGapSummary(
   projectDir: string,
-  level: 'project' | 'epic' | 'task',
-  scope: string
+  level: "project" | "epic" | "task",
+  scope: string,
 ): Promise<GapSummary | null> {
-  const filePath = getJournalPath(projectDir, level, scope, 'gaps');
+  const filePath = getJournalPath(projectDir, level, scope, "gaps");
 
   try {
-    const content = await readFile(filePath, 'utf-8');
+    const content = await readFile(filePath, "utf-8");
     const summary = yamlParse(content) as GapSummary;
 
     // Return summary without gaps array for lightweight access
@@ -61,7 +71,7 @@ export async function readGapSummary(
       gaps: [], // Don't include gaps in summary
     };
   } catch (error: any) {
-    if (error.code === 'ENOENT') {
+    if (error.code === "ENOENT") {
       return null;
     }
     throw error;
@@ -77,32 +87,37 @@ export async function readGapSummary(
  */
 export async function readEvents(
   projectDir: string,
-  level: 'project' | 'epic' | 'task',
+  level: "project" | "epic" | "task",
   scope: string,
-  options?: ReadLogOptions
+  options?: ReadLogOptions,
 ): Promise<JournalEvent[]> {
-  const filePath = getJournalPath(projectDir, level, scope, 'events');
+  const filePath = getJournalPath(projectDir, level, scope, "events");
 
   try {
-    const content = await readFile(filePath, 'utf-8');
-    const lines = content.trim().split('\n').filter(line => line.length > 0);
+    const content = await readFile(filePath, "utf-8");
+    const lines = content
+      .trim()
+      .split("\n")
+      .filter((line) => line.length > 0);
 
-    let events: JournalEvent[] = lines.map(line => JSON.parse(line));
+    let events: JournalEvent[] = lines.map((line) => JSON.parse(line));
 
     // Apply filters
     if (options) {
       // Filter by event type
       if (options.eventType) {
-        const types = Array.isArray(options.eventType) ? options.eventType : [options.eventType];
-        events = events.filter(e => types.includes(e.eventType));
+        const types = Array.isArray(options.eventType)
+          ? options.eventType
+          : [options.eventType];
+        events = events.filter((e) => types.includes(e.eventType));
       }
 
       // Filter by time range
       if (options.since) {
-        events = events.filter(e => e.timestamp >= options.since!);
+        events = events.filter((e) => e.timestamp >= options.since!);
       }
       if (options.until) {
-        events = events.filter(e => e.timestamp <= options.until!);
+        events = events.filter((e) => e.timestamp <= options.until!);
       }
 
       // Apply offset
@@ -118,7 +133,7 @@ export async function readEvents(
 
     return events;
   } catch (error: any) {
-    if (error.code === 'ENOENT') {
+    if (error.code === "ENOENT") {
       return [];
     }
     throw error;
@@ -130,31 +145,35 @@ export async function readEvents(
  */
 export async function searchEvents(
   projectDir: string,
-  level: 'project' | 'epic' | 'task',
+  level: "project" | "epic" | "task",
   scope: string,
-  options: SearchLogOptions
+  options: SearchLogOptions,
 ): Promise<JournalEvent[]> {
-  const filePath = getJournalPath(projectDir, level, scope, 'events');
+  const filePath = getJournalPath(projectDir, level, scope, "events");
 
   try {
-    const content = await readFile(filePath, 'utf-8');
-    const lines = content.trim().split('\n').filter(line => line.length > 0);
+    const content = await readFile(filePath, "utf-8");
+    const lines = content
+      .trim()
+      .split("\n")
+      .filter((line) => line.length > 0);
 
-    let events: JournalEvent[] = lines.map(line => JSON.parse(line));
+    let events: JournalEvent[] = lines.map((line) => JSON.parse(line));
 
     // Filter by event type
-    const types = Array.isArray(options.eventType) ? options.eventType : [options.eventType];
-    events = events.filter(e => types.includes(e.eventType));
+    const types = Array.isArray(options.eventType)
+      ? options.eventType
+      : [options.eventType];
+    events = events.filter((e) => types.includes(e.eventType));
 
     // Filter by pattern
     if (options.pattern) {
-      const pattern = typeof options.pattern === 'string'
-        ? new RegExp(options.pattern, 'i')
-        : options.pattern;
+      const pattern =
+        typeof options.pattern === "string"
+          ? new RegExp(options.pattern, "i")
+          : options.pattern;
 
-      events = events.filter(e =>
-        e.message && pattern.test(e.message)
-      );
+      events = events.filter((e) => e.message && pattern.test(e.message));
     }
 
     // Apply limit
@@ -164,7 +183,7 @@ export async function searchEvents(
 
     return events;
   } catch (error: any) {
-    if (error.code === 'ENOENT') {
+    if (error.code === "ENOENT") {
       return [];
     }
     throw error;
@@ -176,24 +195,24 @@ export async function searchEvents(
  */
 export async function readLog(
   projectDir: string,
-  level: 'project' | 'epic' | 'task',
+  level: "project" | "epic" | "task",
   scope: string,
-  lastN?: number
+  lastN?: number,
 ): Promise<string> {
-  const filePath = getJournalPath(projectDir, level, scope, 'log');
+  const filePath = getJournalPath(projectDir, level, scope, "log");
 
   try {
-    const content = await readFile(filePath, 'utf-8');
+    const content = await readFile(filePath, "utf-8");
 
     if (lastN) {
-      const lines = content.trim().split('\n');
-      return lines.slice(-lastN).join('\n');
+      const lines = content.trim().split("\n");
+      return lines.slice(-lastN).join("\n");
     }
 
     return content;
   } catch (error: any) {
-    if (error.code === 'ENOENT') {
-      return '';
+    if (error.code === "ENOENT") {
+      return "";
     }
     throw error;
   }
@@ -208,9 +227,9 @@ export async function readLog(
  */
 export async function journalExists(
   projectDir: string,
-  level: 'project' | 'epic' | 'task',
+  level: "project" | "epic" | "task",
   scope: string,
-  type: 'gaps' | 'events' | 'summary' | 'log'
+  type: "gaps" | "events" | "summary" | "log",
 ): Promise<boolean> {
   const filePath = getJournalPath(projectDir, level, scope, type);
 
@@ -233,14 +252,19 @@ export async function journalExists(
 export async function readTaskStatus(
   projectDir: string,
   epicId: string,
-  taskId: string
+  taskId: string,
 ): Promise<TaskStatus | null> {
-  const filePath = getJournalPath(projectDir, 'task', `${epicId}.${taskId}`, 'status');
+  const filePath = getJournalPath(
+    projectDir,
+    "task",
+    `${epicId}.${taskId}`,
+    "status",
+  );
   try {
-    const content = await readFile(filePath, 'utf-8');
+    const content = await readFile(filePath, "utf-8");
     return JSON.parse(content) as TaskStatus;
   } catch (error: any) {
-    if (error.code === 'ENOENT') return null;
+    if (error.code === "ENOENT") return null;
     throw error;
   }
 }

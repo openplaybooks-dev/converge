@@ -9,19 +9,14 @@ export {
   ConvergenceOrchestrator,
   createConvergenceOrchestrator,
   DEFAULT_CONVERGENCE_CONFIG,
-} from './convergence.ts';
+} from "./convergence.ts";
 
-export type {
-  ConvergenceConfig,
-  ConvergenceResult,
-} from './convergence.ts';
+export type { ConvergenceConfig, ConvergenceResult } from "./convergence.ts";
 
 // Project Orchestration
 export {
   ProjectOrchestratorV2,
   createProjectOrchestratorV2,
-} from './project-orchestrator.ts';
+} from "./project-orchestrator.ts";
 
-export type {
-  ProjectOrchestrationResult,
-} from './project-orchestrator.ts';
+export type { ProjectOrchestrationResult } from "./project-orchestrator.ts";

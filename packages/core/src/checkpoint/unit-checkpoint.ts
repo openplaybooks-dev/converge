@@ -11,10 +11,10 @@
  * Each unit has its own checkpoint.json tracking its execution state.
  */
 
-import { writeFile, readFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
-import { getJournalStructure } from '../journal/structure.ts';
+import { writeFile, readFile, mkdir } from "fs/promises";
+import { existsSync } from "fs";
+import path from "path";
+import { getJournalStructure } from "../journal/structure.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -28,7 +28,7 @@ export interface AttemptRecord {
   /** ISO timestamp when this attempt ended (undefined if still running) */
   completedAt?: string;
   /** Outcome of this attempt */
-  outcome?: 'success' | 'failed' | 'interrupted';
+  outcome?: "success" | "failed" | "interrupted";
   /** Wall-clock duration in ms */
   durationMs?: number;
 }
@@ -48,7 +48,7 @@ export interface UnitProgress {
 
 export interface UnitCheckpoint {
   /** Unit type */
-  type: 'project' | 'epic' | 'task';
+  type: "project" | "epic" | "task";
   /** Unit identifier (epicId, taskId, etc.) */
   id: string;
   /** Parent unit ID (for nested units) */
@@ -56,7 +56,14 @@ export interface UnitCheckpoint {
   /** Current attempt number (for tasks) */
   currentAttempt?: number;
   /** Aggregate status */
-  status: 'pending' | 'running' | 'complete' | 'failed' | 'seeded' | 'interrupted' | 'partial';
+  status:
+    | "pending"
+    | "running"
+    | "complete"
+    | "failed"
+    | "seeded"
+    | "interrupted"
+    | "partial";
   /** Remaining gap IDs when task was marked partial (converge mode) */
   remainingGapIds?: string[];
   /** Per-attempt history (for tasks) */
@@ -87,7 +94,7 @@ export class UnitCheckpointManager {
    */
   constructor(
     private projectDir: string,
-    private unitType: 'project' | 'epic' | 'task',
+    private unitType: "project" | "epic" | "task",
     private epicId?: string,
     private taskId?: string,
   ) {
@@ -95,23 +102,28 @@ export class UnitCheckpointManager {
   }
 
   private getCheckpointPath(): string {
-    const journalRoot = path.join(this.projectDir, '.converge', 'journal');
+    const journalRoot = path.join(this.projectDir, ".converge", "journal");
 
     switch (this.unitType) {
-      case 'project':
-        return path.join(journalRoot, 'project', 'checkpoint.json');
+      case "project":
+        return path.join(journalRoot, "project", "checkpoint.json");
 
-      case 'epic':
-        if (!this.epicId) throw new Error('Epic ID required for epic checkpoint');
-        return path.join(journalRoot, 'epics', this.epicId, 'checkpoint.json');
+      case "epic":
+        if (!this.epicId)
+          throw new Error("Epic ID required for epic checkpoint");
+        return path.join(journalRoot, "epics", this.epicId, "checkpoint.json");
 
-      case 'task': {
+      case "task": {
         if (!this.epicId || !this.taskId) {
-          throw new Error('Epic ID and Task ID required for task checkpoint');
+          throw new Error("Epic ID and Task ID required for task checkpoint");
         }
         // Delegate to getJournalStructure which mirrors the source epic layout exactly.
-        const structure = getJournalStructure(this.projectDir, this.epicId, this.taskId);
-        return path.join(structure.task!, 'checkpoint.json');
+        const structure = getJournalStructure(
+          this.projectDir,
+          this.epicId,
+          this.taskId,
+        );
+        return path.join(structure.task!, "checkpoint.json");
       }
     }
   }
@@ -125,10 +137,12 @@ export class UnitCheckpointManager {
     }
 
     try {
-      const content = await readFile(this.filePath, 'utf-8');
+      const content = await readFile(this.filePath, "utf-8");
       return JSON.parse(content) as UnitCheckpoint;
     } catch (error) {
-      console.warn(`⚠️  Failed to load checkpoint: ${(error as Error).message}`);
+      console.warn(
+        `⚠️  Failed to load checkpoint: ${(error as Error).message}`,
+      );
       return null;
     }
   }
@@ -148,7 +162,7 @@ export class UnitCheckpointManager {
     await writeFile(
       this.filePath,
       JSON.stringify(checkpoint, null, 2),
-      'utf-8'
+      "utf-8",
     );
   }
 
@@ -157,12 +171,12 @@ export class UnitCheckpointManager {
    */
   createDefault(): UnitCheckpoint {
     const now = new Date().toISOString();
-    const id = this.taskId || this.epicId || 'project';
+    const id = this.taskId || this.epicId || "project";
 
     return {
       type: this.unitType,
       id,
-      status: 'pending',
+      status: "pending",
       lastUpdated: now,
       createdAt: now,
     };
@@ -172,8 +186,8 @@ export class UnitCheckpointManager {
    * Start an attempt (for tasks only)
    */
   async startAttempt(attemptNumber: number): Promise<void> {
-    if (this.unitType !== 'task') {
-      throw new Error('startAttempt is only for tasks');
+    if (this.unitType !== "task") {
+      throw new Error("startAttempt is only for tasks");
     }
 
     let checkpoint = await this.load();
@@ -191,7 +205,7 @@ export class UnitCheckpointManager {
 
     checkpoint.attempts.push(attemptRecord);
     checkpoint.currentAttempt = attemptNumber;
-    checkpoint.status = 'running';
+    checkpoint.status = "running";
 
     await this.save(checkpoint);
   }
@@ -201,18 +215,20 @@ export class UnitCheckpointManager {
    */
   async completeAttempt(
     attemptNumber: number,
-    outcome: 'success' | 'failed',
+    outcome: "success" | "failed",
     startedAt: string,
   ): Promise<void> {
-    if (this.unitType !== 'task') {
-      throw new Error('completeAttempt is only for tasks');
+    if (this.unitType !== "task") {
+      throw new Error("completeAttempt is only for tasks");
     }
 
     let checkpoint = await this.load();
     if (!checkpoint) {
       // Checkpoint was lost (filesystem race, directory rebuild, etc.)
       // Create a recovery checkpoint so the outcome is still recorded.
-      console.warn(`⚠️  Checkpoint missing at ${this.filePath} — creating recovery checkpoint`);
+      console.warn(
+        `⚠️  Checkpoint missing at ${this.filePath} — creating recovery checkpoint`,
+      );
       checkpoint = this.createDefault();
       checkpoint.attempts = [];
     }
@@ -221,7 +237,9 @@ export class UnitCheckpointManager {
     }
 
     // Find existing attempt record, or create one if missing
-    let attemptRecord = checkpoint.attempts.find(a => a.attempt === attemptNumber);
+    let attemptRecord = checkpoint.attempts.find(
+      (a) => a.attempt === attemptNumber,
+    );
     if (!attemptRecord) {
       attemptRecord = { attempt: attemptNumber, startedAt };
       checkpoint.attempts.push(attemptRecord);
@@ -230,9 +248,10 @@ export class UnitCheckpointManager {
     const now = new Date().toISOString();
     attemptRecord.completedAt = now;
     attemptRecord.outcome = outcome;
-    attemptRecord.durationMs = new Date(now).getTime() - new Date(startedAt).getTime();
+    attemptRecord.durationMs =
+      new Date(now).getTime() - new Date(startedAt).getTime();
 
-    checkpoint.status = outcome === 'success' ? 'complete' : 'failed';
+    checkpoint.status = outcome === "success" ? "complete" : "failed";
 
     await this.save(checkpoint);
   }
@@ -257,7 +276,8 @@ export class UnitCheckpointManager {
       oldProgress.totalChildren !== progress.totalChildren ||
       oldProgress.completedChildren !== progress.completedChildren ||
       oldProgress.failedChildren !== progress.failedChildren ||
-      JSON.stringify((oldProgress.childIds || []).sort()) !== JSON.stringify((progress.childIds || []).sort());
+      JSON.stringify((oldProgress.childIds || []).sort()) !==
+        JSON.stringify((progress.childIds || []).sort());
 
     if (!hasChanged) {
       // No substantive change - skip update to avoid timestamp churn
@@ -267,11 +287,14 @@ export class UnitCheckpointManager {
     checkpoint.progress = progress;
 
     // Auto-complete if all children done
-    if (progress.completedChildren + progress.failedChildren === progress.totalChildren) {
+    if (
+      progress.completedChildren + progress.failedChildren ===
+      progress.totalChildren
+    ) {
       if (progress.failedChildren > 0) {
-        checkpoint.status = 'failed';
+        checkpoint.status = "failed";
       } else {
-        checkpoint.status = 'complete';
+        checkpoint.status = "complete";
       }
       // Remove seeded status if present
       delete (checkpoint as any).seeded;
@@ -289,7 +312,7 @@ export class UnitCheckpointManager {
       checkpoint = this.createDefault();
     }
 
-    checkpoint.status = 'seeded';
+    checkpoint.status = "seeded";
 
     await this.save(checkpoint);
   }
@@ -303,7 +326,7 @@ export class UnitCheckpointManager {
       checkpoint = this.createDefault();
     }
 
-    checkpoint.status = 'complete';
+    checkpoint.status = "complete";
 
     await this.save(checkpoint);
   }
@@ -317,7 +340,7 @@ export class UnitCheckpointManager {
       checkpoint = this.createDefault();
     }
 
-    checkpoint.status = 'failed';
+    checkpoint.status = "failed";
 
     await this.save(checkpoint);
   }
@@ -332,7 +355,7 @@ export class UnitCheckpointManager {
       checkpoint = this.createDefault();
     }
 
-    checkpoint.status = 'partial';
+    checkpoint.status = "partial";
     checkpoint.remainingGapIds = remainingGapIds;
 
     await this.save(checkpoint);
@@ -352,14 +375,16 @@ export class UnitCheckpointManager {
 
     // Record the interruption on the current attempt record
     if (checkpoint.attempts && checkpoint.currentAttempt) {
-      const attempt = checkpoint.attempts.find(a => a.attempt === checkpoint.currentAttempt);
+      const attempt = checkpoint.attempts.find(
+        (a) => a.attempt === checkpoint.currentAttempt,
+      );
       if (attempt && !attempt.completedAt) {
         attempt.completedAt = new Date().toISOString();
-        attempt.outcome = 'interrupted';
+        attempt.outcome = "interrupted";
       }
     }
 
-    checkpoint.status = 'interrupted';
+    checkpoint.status = "interrupted";
 
     await this.save(checkpoint);
   }

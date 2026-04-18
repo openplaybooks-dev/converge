@@ -14,9 +14,9 @@
  * Call invalidate() after any filesystem mutation.
  */
 
-import { readdirSync, statSync, existsSync, readFileSync } from 'fs';
-import path from 'path';
-import { UnitCheckpoint } from './unit-checkpoint.ts';
+import { readdirSync, statSync, existsSync, readFileSync } from "fs";
+import path from "path";
+import { UnitCheckpoint } from "./unit-checkpoint.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -28,13 +28,20 @@ export interface TaskStatus {
   /** Epic identifier */
   epicId: string;
   /** Current status */
-  status: 'pending' | 'running' | 'complete' | 'failed' | 'seeded' | 'interrupted' | 'partial';
+  status:
+    | "pending"
+    | "running"
+    | "complete"
+    | "failed"
+    | "seeded"
+    | "interrupted"
+    | "partial";
   /** Number of attempts */
   attempts: number;
   /** Last attempt info */
   lastAttempt?: {
     timestamp: string;
-    outcome: 'success' | 'failed' | 'interrupted';
+    outcome: "success" | "failed" | "interrupted";
   };
 }
 
@@ -43,9 +50,9 @@ export interface TaskStatus {
 /* ------------------------------------------------------------------ */
 
 interface StatusCacheEntry {
-  status: UnitCheckpoint['status'];
+  status: UnitCheckpoint["status"];
   attempts: number;
-  lastAttempt?: TaskStatus['lastAttempt'];
+  lastAttempt?: TaskStatus["lastAttempt"];
   /** Absolute path to the checkpoint.json file that was scanned */
   checkpointPath?: string;
 }
@@ -75,7 +82,7 @@ export class FilesystemTaskStatus {
   };
 
   constructor(projectDir: string) {
-    this.journalDir = path.join(projectDir, '.converge', 'journal');
+    this.journalDir = path.join(projectDir, ".converge", "journal");
   }
 
   /**
@@ -107,7 +114,7 @@ export class FilesystemTaskStatus {
     return {
       taskId,
       epicId,
-      status: 'pending',
+      status: "pending",
       attempts: 0,
     };
   }
@@ -135,8 +142,8 @@ export class FilesystemTaskStatus {
         paths.push(entry.checkpointPath);
         continue;
       }
-      if (key.includes('/')) {
-        const stripped = key.split('/').slice(1).join('/');
+      if (key.includes("/")) {
+        const stripped = key.split("/").slice(1).join("/");
         if (stripped === qualifiedKey || stripped === taskId) {
           paths.push(entry.checkpointPath);
         }
@@ -181,8 +188,8 @@ export class FilesystemTaskStatus {
     for (const [key, entry] of this._cache.allStatuses) {
       map.set(key, entry.status);
       // Also add the taskPath portion (strip epicId prefix) for tree-node lookups
-      if (key.includes('/')) {
-        const taskPart = key.split('/').slice(1).join('/');
+      if (key.includes("/")) {
+        const taskPart = key.split("/").slice(1).join("/");
         if (taskPart && !map.has(taskPart)) {
           map.set(taskPart, entry.status);
         }
@@ -197,7 +204,7 @@ export class FilesystemTaskStatus {
    */
   async isTaskLocked(epicId: string, taskId: string): Promise<boolean> {
     const status = await this.getTaskStatus(epicId, taskId);
-    return ['complete', 'failed', 'seeded'].includes(status.status);
+    return ["complete", "failed", "seeded"].includes(status.status);
   }
 
   /* ── Private ─────────────────────────────────────────────────── */
@@ -210,17 +217,22 @@ export class FilesystemTaskStatus {
    *   2. taskId         (bare taskId)
    *   3. Scan all keys whose stripped suffix matches epicId/taskId
    */
-  private findCachedEntry(epicId: string, taskId: string): StatusCacheEntry | undefined {
+  private findCachedEntry(
+    epicId: string,
+    taskId: string,
+  ): StatusCacheEntry | undefined {
     const qualifiedKey = `${epicId}/${taskId}`;
-    const direct = this._cache.allStatuses.get(qualifiedKey) ?? this._cache.allStatuses.get(taskId);
+    const direct =
+      this._cache.allStatuses.get(qualifiedKey) ??
+      this._cache.allStatuses.get(taskId);
     if (direct) return direct;
 
     // Fallback: scan for any key whose suffix (after stripping the first segment)
     // matches the qualifiedKey. This handles journal/default/create-web/... matching
     // a lookup for create-web/...
     for (const [key, entry] of this._cache.allStatuses) {
-      if (key.includes('/')) {
-        const stripped = key.split('/').slice(1).join('/');
+      if (key.includes("/")) {
+        const stripped = key.split("/").slice(1).join("/");
         if (stripped === qualifiedKey || stripped === taskId) {
           return entry;
         }
@@ -241,7 +253,7 @@ export class FilesystemTaskStatus {
     this._cache.locked.clear();
 
     // Scan legacy journal/epics/ structure
-    const epicsDir = path.join(this.journalDir, 'epics');
+    const epicsDir = path.join(this.journalDir, "epics");
     if (existsSync(epicsDir)) {
       this.scanEpicsDirectory(epicsDir);
     }
@@ -250,11 +262,12 @@ export class FilesystemTaskStatus {
     // Each top-level directory in journal/ that has a tasks/ subdirectory is a playbook
     if (existsSync(this.journalDir)) {
       for (const entry of readdirSync(this.journalDir)) {
-        if (entry === 'epics' || entry === 'project') continue;
+        if (entry === "epics" || entry === "project") continue;
         const playbookDir = path.join(this.journalDir, entry);
         if (!statSync(playbookDir).isDirectory()) continue;
-        const tasksDir = path.join(playbookDir, 'tasks');
-        if (!existsSync(tasksDir) || !statSync(tasksDir).isDirectory()) continue;
+        const tasksDir = path.join(playbookDir, "tasks");
+        if (!existsSync(tasksDir) || !statSync(tasksDir).isDirectory())
+          continue;
 
         // For playbook projects, tasks/ contains tasks directly (not epic subdirs).
         // The playbook name serves as the epicId namespace.
@@ -275,13 +288,13 @@ export class FilesystemTaskStatus {
       if (!statSync(epicDir).isDirectory()) continue;
 
       // Check epic-level checkpoint
-      const epicCheckpoint = path.join(epicDir, 'checkpoint.json');
+      const epicCheckpoint = path.join(epicDir, "checkpoint.json");
       if (existsSync(epicCheckpoint)) {
         this.cacheCheckpointFile(epicCheckpoint, epicId, epicId);
       }
 
       // Scan tasks in this epic
-      this.scanAllStatusesInDirectory(epicDir, epicId, '');
+      this.scanAllStatusesInDirectory(epicDir, epicId, "");
     }
   }
 
@@ -291,8 +304,11 @@ export class FilesystemTaskStatus {
    * The playbook name is used as the epicId for cache keys.
    * Children are nested directly (no tasks/ subdirectory between levels).
    */
-  private scanPlaybookTasksDirectory(tasksDir: string, playbookName: string): void {
-    this.scanFlatDirectory(tasksDir, playbookName, '');
+  private scanPlaybookTasksDirectory(
+    tasksDir: string,
+    playbookName: string,
+  ): void {
+    this.scanFlatDirectory(tasksDir, playbookName, "");
   }
 
   /**
@@ -308,10 +324,10 @@ export class FilesystemTaskStatus {
       if (!statSync(entryPath).isDirectory()) continue;
 
       // Skip internal directories
-      if (entry === 'attempts' || entry === 'logs') continue;
+      if (entry === "attempts" || entry === "logs") continue;
 
       // 'tasks' is structural — recurse without adding to path
-      if (entry === 'tasks') {
+      if (entry === "tasks") {
         this.scanAllStatusesInDirectory(entryPath, epicId, parentPath);
         continue;
       }
@@ -319,13 +335,13 @@ export class FilesystemTaskStatus {
       const taskPath = parentPath ? `${parentPath}/${entry}` : entry;
 
       // Check checkpoint
-      const checkpointPath = path.join(entryPath, 'checkpoint.json');
+      const checkpointPath = path.join(entryPath, "checkpoint.json");
       if (existsSync(checkpointPath)) {
         this.cacheCheckpointFile(checkpointPath, epicId, taskPath);
       }
 
       // Recurse into tasks/ subdirectory for WBS subtasks
-      const tasksSubdir = path.join(entryPath, 'tasks');
+      const tasksSubdir = path.join(entryPath, "tasks");
       if (existsSync(tasksSubdir) && statSync(tasksSubdir).isDirectory()) {
         this.scanAllStatusesInDirectory(tasksSubdir, epicId, taskPath);
       }
@@ -346,12 +362,13 @@ export class FilesystemTaskStatus {
       if (!statSync(entryPath).isDirectory()) continue;
 
       // Skip internal directories
-      if (entry === 'attempts' || entry === 'logs' || entry === 'sessions') continue;
+      if (entry === "attempts" || entry === "logs" || entry === "sessions")
+        continue;
 
       // 'tasks' is structural — recurse without adding to path
       // (mirrors scanAllStatusesInDirectory behaviour so cache keys
       //  match tree-node IDs which never contain '/tasks/' segments)
-      if (entry === 'tasks') {
+      if (entry === "tasks") {
         this.scanFlatDirectory(entryPath, epicId, parentPath);
         continue;
       }
@@ -359,7 +376,7 @@ export class FilesystemTaskStatus {
       const taskPath = parentPath ? `${parentPath}/${entry}` : entry;
 
       // Check checkpoint
-      const checkpointPath = path.join(entryPath, 'checkpoint.json');
+      const checkpointPath = path.join(entryPath, "checkpoint.json");
       if (existsSync(checkpointPath)) {
         this.cacheCheckpointFile(checkpointPath, epicId, taskPath);
       }
@@ -372,10 +389,14 @@ export class FilesystemTaskStatus {
   /**
    * Read a checkpoint.json and populate all cache fields.
    */
-  private cacheCheckpointFile(checkpointPath: string, epicId: string, taskPath: string): void {
+  private cacheCheckpointFile(
+    checkpointPath: string,
+    epicId: string,
+    taskPath: string,
+  ): void {
     try {
       const checkpoint = JSON.parse(
-        readFileSync(checkpointPath, 'utf-8')
+        readFileSync(checkpointPath, "utf-8"),
       ) as UnitCheckpoint;
 
       const key = `${epicId}/${taskPath}`;
@@ -388,19 +409,19 @@ export class FilesystemTaskStatus {
         lastAttempt: lastAttempt
           ? {
               timestamp: lastAttempt.completedAt || lastAttempt.startedAt,
-              outcome: lastAttempt.outcome || 'success',
+              outcome: lastAttempt.outcome || "success",
             }
           : undefined,
         checkpointPath,
       });
 
-      if (checkpoint.status === 'complete') {
+      if (checkpoint.status === "complete") {
         this._cache.completed.add(key);
       }
-      if (checkpoint.status === 'failed') {
+      if (checkpoint.status === "failed") {
         this._cache.failed.add(key);
       }
-      if (['complete', 'failed', 'seeded'].includes(checkpoint.status)) {
+      if (["complete", "failed", "seeded"].includes(checkpoint.status)) {
         this._cache.locked.add(key);
       }
     } catch {
@@ -413,27 +434,27 @@ export class FilesystemTaskStatus {
    */
   private getTaskJournalPath(epicId: string, taskId: string): string {
     // Mirror the structure from unit-checkpoint.ts
-    const segments = taskId.split('/').filter(Boolean);
+    const segments = taskId.split("/").filter(Boolean);
 
     // Epic-level task: when first segment equals epicId, the epic IS the task.
     if (segments[0] === epicId) {
       if (segments.length === 1) {
-        return path.join(this.journalDir, 'epics', epicId);
+        return path.join(this.journalDir, "epics", epicId);
       }
       const childSegments = segments.slice(1);
-      const pathSegments: string[] = ['tasks', childSegments[0]];
+      const pathSegments: string[] = ["tasks", childSegments[0]];
       for (let i = 1; i < childSegments.length; i++) {
-        pathSegments.push('tasks', childSegments[i]);
+        pathSegments.push("tasks", childSegments[i]);
       }
-      return path.join(this.journalDir, 'epics', epicId, ...pathSegments);
+      return path.join(this.journalDir, "epics", epicId, ...pathSegments);
     }
 
     const pathSegments: string[] = [segments[0]];
     // WBS subtasks use tasks/ subdirectory
     for (let i = 1; i < segments.length; i++) {
-      pathSegments.push('tasks', segments[i]);
+      pathSegments.push("tasks", segments[i]);
     }
 
-    return path.join(this.journalDir, 'epics', epicId, ...pathSegments);
+    return path.join(this.journalDir, "epics", epicId, ...pathSegments);
   }
 }

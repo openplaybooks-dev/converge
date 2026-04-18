@@ -9,8 +9,8 @@ import type {
   ConvergeSynthesisRequest,
   SynthesizedVerification,
   ConvergeMetadata,
-} from './types.ts';
-import type { AutoConvergeConfig } from '../functions/types.ts';
+} from "./types.ts";
+import type { AutoConvergeConfig } from "../functions/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Converge Synthesizer                                               */
@@ -20,8 +20,12 @@ export class ConvergeSynthesizer {
   /**
    * Synthesize verification code from task context
    */
-  async synthesize(request: ConvergeSynthesisRequest): Promise<SynthesizedVerification> {
-    console.log(`[ConvergeSynthesizer] Synthesizing verification for task: ${request.taskContext.id}`);
+  async synthesize(
+    request: ConvergeSynthesisRequest,
+  ): Promise<SynthesizedVerification> {
+    console.log(
+      `[ConvergeSynthesizer] Synthesizing verification for task: ${request.taskContext.id}`,
+    );
 
     // Build synthesis prompt
     const prompt = this.buildSynthesisPrompt(request);
@@ -37,7 +41,7 @@ export class ConvergeSynthesizer {
     const metadata: ConvergeMetadata = {
       id: `verify-${request.taskContext.id}`,
       synthesizedAt: new Date().toISOString(),
-      source: request.config.from || 'description',
+      source: request.config.from || "description",
       config: request.config,
       refinementCount: 0,
       cacheKey: request.config.cacheKey,
@@ -64,16 +68,16 @@ export class ConvergeSynthesizer {
       prompt += `Description: ${taskContext.description}\n`;
     }
 
-    if (config.from === 'task-prompt' && taskContext.prompt) {
+    if (config.from === "task-prompt" && taskContext.prompt) {
       prompt += `Prompt: ${taskContext.prompt}\n`;
     }
 
-    if (config.from === 'inputs' && taskContext.inputs) {
-      prompt += `Inputs: ${taskContext.inputs.join(', ')}\n`;
+    if (config.from === "inputs" && taskContext.inputs) {
+      prompt += `Inputs: ${taskContext.inputs.join(", ")}\n`;
     }
 
-    if (config.from === 'outputs' && taskContext.outputs) {
-      prompt += `Outputs: ${taskContext.outputs.join(', ')}\n`;
+    if (config.from === "outputs" && taskContext.outputs) {
+      prompt += `Outputs: ${taskContext.outputs.join(", ")}\n`;
     }
 
     if (config.prompt) {
@@ -93,7 +97,9 @@ export class ConvergeSynthesizer {
   /**
    * Generate a template verification (placeholder for LLM generation)
    */
-  private generateTemplateVerification(request: ConvergeSynthesisRequest): string {
+  private generateTemplateVerification(
+    request: ConvergeSynthesisRequest,
+  ): string {
     const { taskContext } = request;
 
     return `/**
@@ -117,7 +123,7 @@ async function validate(file, shell, issues) {
    */
   private generateOutputValidation(outputs?: string[]): string {
     if (!outputs || outputs.length === 0) {
-      return '// No outputs to validate';
+      return "// No outputs to validate";
     }
 
     return outputs
@@ -129,9 +135,9 @@ async function validate(file, shell, issues) {
       severity: 'error',
       file: '${output}',
     });
-  }`
+  }`,
       )
-      .join('\n');
+      .join("\n");
   }
 
   /**
@@ -139,11 +145,11 @@ async function validate(file, shell, issues) {
    */
   private generateInputValidation(inputs?: string[]): string {
     if (!inputs || inputs.length === 0) {
-      return '// No inputs to validate';
+      return "// No inputs to validate";
     }
 
     return `// Validate inputs exist
-  ${inputs.map((input) => `// Check: ${input}`).join('\n  ')}`;
+  ${inputs.map((input) => `// Check: ${input}`).join("\n  ")}`;
   }
 
   /**
@@ -156,25 +162,25 @@ async function validate(file, shell, issues) {
     const errors: string[] = [];
 
     // Check for forbidden patterns
-    if (code.includes('require(')) {
-      errors.push('Verification code cannot use require()');
+    if (code.includes("require(")) {
+      errors.push("Verification code cannot use require()");
     }
 
-    if (code.includes('import ')) {
-      errors.push('Verification code cannot use import');
+    if (code.includes("import ")) {
+      errors.push("Verification code cannot use import");
     }
 
-    if (code.includes('eval(')) {
-      errors.push('Verification code cannot use eval()');
+    if (code.includes("eval(")) {
+      errors.push("Verification code cannot use eval()");
     }
 
-    if (code.includes('Function(')) {
-      errors.push('Verification code cannot use Function constructor');
+    if (code.includes("Function(")) {
+      errors.push("Verification code cannot use Function constructor");
     }
 
     // Ensure validate function exists
-    if (!code.includes('function validate') && !code.includes('validate =')) {
-      errors.push('Verification code must define a validate function');
+    if (!code.includes("function validate") && !code.includes("validate =")) {
+      errors.push("Verification code must define a validate function");
     }
 
     return {

@@ -4,9 +4,18 @@
  * Automatically re-evaluates gaps after task/epic completion.
  */
 
-import type { TaskContext, EpicContext, ProjectContext } from '../context/types.ts';
-import { writeGaps, logTaskEvent, logEpicEvent, logProjectEvent } from './writer.ts';
-import { readGaps } from './reader.ts';
+import type {
+  TaskContext,
+  EpicContext,
+  ProjectContext,
+} from "../context/types.ts";
+import {
+  writeGaps,
+  logTaskEvent,
+  logEpicEvent,
+  logProjectEvent,
+} from "./writer.ts";
+import { readGaps } from "./reader.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Gap Detection Helpers                                             */
@@ -18,7 +27,7 @@ import { readGaps } from './reader.ts';
 async function detectTaskGaps(ctx: TaskContext): Promise<any[]> {
   try {
     const results = await ctx.check.runAll();
-    const gaps = results.flatMap(r => r.gaps);
+    const gaps = results.flatMap((r) => r.gaps);
     return gaps;
   } catch (error: any) {
     ctx.log.error(`Failed to detect task gaps: ${error.message}`);
@@ -33,7 +42,7 @@ async function detectEpicGaps(ctx: EpicContext): Promise<any[]> {
   try {
     // Run epic-level checks
     const results = await ctx.check.runAll();
-    const gaps = results.flatMap(r => r.gaps);
+    const gaps = results.flatMap((r) => r.gaps);
     return gaps;
   } catch (error: any) {
     ctx.log.error(`Failed to detect epic gaps: ${error.message}`);
@@ -48,7 +57,7 @@ async function detectProjectGaps(ctx: ProjectContext): Promise<any[]> {
   try {
     // Run project-level checks
     const results = await ctx.check.runAll();
-    const gaps = results.flatMap(r => r.gaps);
+    const gaps = results.flatMap((r) => r.gaps);
     return gaps;
   } catch (error: any) {
     ctx.log.error(`Failed to detect project gaps: ${error.message}`);
@@ -73,45 +82,45 @@ export async function reEvaluateAfterTask(ctx: TaskContext): Promise<void> {
   const epicId = epic.epicId;
   const scope = `${epicId}.${taskId}`;
 
-  ctx.log.info('Re-evaluating gaps after task completion...');
+  ctx.log.info("Re-evaluating gaps after task completion...");
 
   // Step 1: Re-detect task gaps
   const taskGaps = await detectTaskGaps(ctx);
-  await writeGaps(projectDir, 'task', scope, taskGaps);
+  await writeGaps(projectDir, "task", scope, taskGaps);
 
   await logTaskEvent(
     projectDir,
     epicId,
     taskId,
-    'CHECK_RUN',
+    "CHECK_RUN",
     `Task re-evaluation: ${taskGaps.length} gaps detected`,
-    { gapCount: taskGaps.length }
+    { gapCount: taskGaps.length },
   );
 
   // Step 2: Re-detect epic gaps
   const epicGaps = await detectEpicGaps(epic);
-  await writeGaps(projectDir, 'epic', epicId, epicGaps);
+  await writeGaps(projectDir, "epic", epicId, epicGaps);
 
   await logEpicEvent(
     projectDir,
     epicId,
-    'CHECK_RUN',
+    "CHECK_RUN",
     `Epic re-evaluation: ${epicGaps.length} gaps detected`,
-    { gapCount: epicGaps.length, triggeredBy: `task:${taskId}` }
+    { gapCount: epicGaps.length, triggeredBy: `task:${taskId}` },
   );
 
   // Step 3: If epic complete, re-evaluate project
   if (epicGaps.length === 0) {
-    ctx.log.info('Epic has no gaps, re-evaluating project...');
+    ctx.log.info("Epic has no gaps, re-evaluating project...");
 
     const projectGaps = await detectProjectGaps(epic.project);
-    await writeGaps(projectDir, 'project', 'project', projectGaps);
+    await writeGaps(projectDir, "project", "project", projectGaps);
 
     await logProjectEvent(
       projectDir,
-      'EPIC_COMPLETE',
+      "EPIC_COMPLETE",
       `Epic ${epicId} completed, project re-evaluation: ${projectGaps.length} gaps`,
-      { epicId, gapCount: projectGaps.length }
+      { epicId, gapCount: projectGaps.length },
     );
   }
 }
@@ -130,32 +139,32 @@ export async function reEvaluateAfterTask(ctx: TaskContext): Promise<void> {
  */
 export async function reEvaluateAfterEpic(
   ctx: ProjectContext,
-  epicId: string
+  epicId: string,
 ): Promise<void> {
   const { projectDir } = ctx;
 
   ctx.log.info(`Re-evaluating gaps after epic ${epicId} completion...`);
 
   // Step 1: Clear epic gaps
-  await writeGaps(projectDir, 'epic', epicId, []);
+  await writeGaps(projectDir, "epic", epicId, []);
 
   await logEpicEvent(
     projectDir,
     epicId,
-    'EPIC_COMPLETE',
-    `Epic ${epicId} completed, all gaps resolved`
+    "EPIC_COMPLETE",
+    `Epic ${epicId} completed, all gaps resolved`,
   );
 
   // Step 2: Re-detect project gaps
   const projectGaps = await detectProjectGaps(ctx);
-  await writeGaps(projectDir, 'project', 'project', projectGaps);
+  await writeGaps(projectDir, "project", "project", projectGaps);
 
   // Step 3: Log to project journal
   await logProjectEvent(
     projectDir,
-    'EPIC_COMPLETE',
+    "EPIC_COMPLETE",
     `Epic ${epicId} completed, project re-evaluation: ${projectGaps.length} gaps`,
-    { epicId, gapCount: projectGaps.length }
+    { epicId, gapCount: projectGaps.length },
   );
 }
 
@@ -168,15 +177,15 @@ export async function reEvaluateAfterEpic(
  */
 export async function markGapResolved(
   projectDir: string,
-  level: 'project' | 'epic' | 'task',
+  level: "project" | "epic" | "task",
   scope: string,
-  gapId: string
+  gapId: string,
 ): Promise<void> {
   // Read current gaps
   const gaps = await readGaps(projectDir, level, scope);
 
   // Find and mark as resolved
-  const gap = gaps.find(g => g.id === gapId);
+  const gap = gaps.find((g) => g.id === gapId);
   if (gap) {
     gap.resolved = true;
     gap.resolvedAt = new Date().toISOString();
@@ -185,14 +194,32 @@ export async function markGapResolved(
     await writeGaps(projectDir, level, scope, gaps);
 
     // Log resolution
-    const eventType = 'GAP_RESOLVED';
-    if (level === 'task') {
-      const [epicId, taskId] = scope.split('.');
-      await logTaskEvent(projectDir, epicId, taskId, eventType, `Gap resolved: ${gap.description}`, { gapId });
-    } else if (level === 'epic') {
-      await logEpicEvent(projectDir, scope, eventType, `Gap resolved: ${gap.description}`, { gapId });
+    const eventType = "GAP_RESOLVED";
+    if (level === "task") {
+      const [epicId, taskId] = scope.split(".");
+      await logTaskEvent(
+        projectDir,
+        epicId,
+        taskId,
+        eventType,
+        `Gap resolved: ${gap.description}`,
+        { gapId },
+      );
+    } else if (level === "epic") {
+      await logEpicEvent(
+        projectDir,
+        scope,
+        eventType,
+        `Gap resolved: ${gap.description}`,
+        { gapId },
+      );
     } else {
-      await logProjectEvent(projectDir, eventType, `Gap resolved: ${gap.description}`, { gapId });
+      await logProjectEvent(
+        projectDir,
+        eventType,
+        `Gap resolved: ${gap.description}`,
+        { gapId },
+      );
     }
   }
 }
@@ -202,9 +229,9 @@ export async function markGapResolved(
  */
 export async function areAllGapsResolved(
   projectDir: string,
-  level: 'project' | 'epic' | 'task',
-  scope: string
+  level: "project" | "epic" | "task",
+  scope: string,
 ): Promise<boolean> {
   const gaps = await readGaps(projectDir, level, scope);
-  return gaps.length === 0 || gaps.every(g => g.resolved);
+  return gaps.length === 0 || gaps.every((g) => g.resolved);
 }

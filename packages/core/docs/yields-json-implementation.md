@@ -11,6 +11,7 @@ The yields planning process was generating unparseable output because:
 ### Example of the Issue
 
 From task `01-analyze-animations-for-homepage`, the log showed:
+
 - Lines 1054-1113: First JSON block
 - Lines 1114-1171: Duplicate JSON block
 - Lines 1172-1209: Summary text (violated "nothing after ```" rule)
@@ -22,11 +23,13 @@ This caused the parser to fail because it expected exactly ONE JSON code block w
 Changed from markdown-based JSON extraction to direct JSON file writing:
 
 ### Before (Problematic)
+
 1. Agent generates markdown with ```json code block
 2. System parses markdown using regex to extract JSON
 3. Issues: extra text, duplicate blocks, format violations
 
 ### After (Better)
+
 1. Provide AI with a JSON schema describing the task format
 2. Instruct AI to write directly to a JSON file using the Write tool
 3. System reads and parses the JSON file
@@ -41,7 +44,8 @@ Changed from markdown-based JSON extraction to direct JSON file writing:
 ### 1. Updated `YIELDS_PLANNING_PROMPT` (lines 706-777)
 
 **Before:**
-```
+
+````
 ## Response Format — STRICT REQUIREMENT
 
 You MUST respond with ONLY a JSON code block. Nothing else.
@@ -54,23 +58,26 @@ FORBIDDEN:
 Example of CORRECT response:
 ```json
 [...]
-```
+````
+
 ```
 
 **After:**
 ```
+
 ## Output Format
 
 Use the Write tool to create a file at {{yieldsJsonPath}} with a JSON array of tasks.
 
 Example:
 [
-  {
-    "id": "task-1",
-    ...
-  }
+{
+"id": "task-1",
+...
+}
 ]
-```
+
+````
 
 ### 2. Updated `parseYieldedTasks` function (lines 779-813)
 
@@ -89,9 +96,10 @@ function parseYieldedTasks(raw: string): TaskDef[] {
     // ...
   }
 }
-```
+````
 
 **After:**
+
 ```typescript
 function parseYieldedTasks(raw: string): TaskDef[] {
   // Direct JSON parsing - no markdown code block extraction needed
@@ -105,7 +113,8 @@ function parseYieldedTasks(raw: string): TaskDef[] {
 ### 3. Updated `runYields` function (lines 903-957)
 
 **Before:**
-```typescript
+
+````typescript
 const planPrompt = YIELDS_PLANNING_PROMPT
   .replace('{{prompt}}', interpolatedPlan)
   .replace('{{taskTitle}}', ctx.task.title)
@@ -125,40 +134,43 @@ if (!hasCodeBlock) {
   ctx.log.error('Yields agent response must contain JSON in a code block');
   throw new Error(...);
 }
-```
+````
 
 **After:**
+
 ```typescript
 // Determine where the agent should write the JSON file
 const yieldsJsonPath = ctx.taskDir
   ? `${ctx.taskDir}/yields.json`
-  : `.converge/plans/${ctx.taskId.replace(/\./g, '-')}-yields.json`;
+  : `.converge/plans/${ctx.taskId.replace(/\./g, "-")}-yields.json`;
 
-const planPrompt = YIELDS_PLANNING_PROMPT
-  .replace('{{prompt}}', interpolatedPlan)
-  .replace('{{taskTitle}}', ctx.task.title)
-  .replace('{{outputs}}', outputFiles)
-  .replace('{{yieldsJsonPath}}', yieldsJsonPath);
+const planPrompt = YIELDS_PLANNING_PROMPT.replace(
+  "{{prompt}}",
+  interpolatedPlan,
+)
+  .replace("{{taskTitle}}", ctx.task.title)
+  .replace("{{outputs}}", outputFiles)
+  .replace("{{yieldsJsonPath}}", yieldsJsonPath);
 
 const planResult = await ctx.agent(planPrompt, {
   inputs: ctx.task.outputs,
   outputs: [yieldsJsonPath], // Tell agent where to write
-  permissionMode: 'plan',
+  permissionMode: "plan",
   // ...
 });
 
 // Read the JSON file instead of parsing markdown
-let agentOutput = '';
+let agentOutput = "";
 if (await ctx.tools.file.exists(yieldsJsonPath)) {
   agentOutput = await ctx.tools.file.read(yieldsJsonPath);
 }
 
 // Validate that yields.json exists and is valid JSON
 if (!agentOutput) {
-  ctx.log.error('Yields agent did not create yields.json file');
+  ctx.log.error("Yields agent did not create yields.json file");
   throw new Error(
     `Yields agent must write tasks to ${yieldsJsonPath}.\n` +
-    'See YIELDS_PLANNING_PROMPT for required JSON structure.'
+      "See YIELDS_PLANNING_PROMPT for required JSON structure.",
   );
 }
 ```
@@ -175,6 +187,7 @@ if (!agentOutput) {
 ## Testing
 
 The changes maintain backward compatibility:
+
 - The `yields.md` file is still generated for auditability (lines 968-1026)
 - The validation logic remains unchanged
 - Task spawning logic remains unchanged
@@ -182,6 +195,7 @@ The changes maintain backward compatibility:
 ## Next Steps
 
 When the next yields-driven task runs, it will:
+
 1. Generate a `yields.json` file in the task directory
 2. Parse tasks from that JSON file
 3. Still generate the human-readable `yields.md` for review

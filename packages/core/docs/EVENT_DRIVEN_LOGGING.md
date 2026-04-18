@@ -3,6 +3,7 @@
 ## Problem with Current Approach
 
 **Current**: Time-based polling (every 1 minute)
+
 ```
 ⏳ 1m 0s  │  AI  │  Generate Design: undefined
 📋 Last activity 1m 0s ago:
@@ -18,6 +19,7 @@
 ```
 
 **Issues**:
+
 - ❌ Logs every minute regardless of activity
 - ❌ Shows JSON dumps instead of meaningful progress
 - ❌ Misses important events between intervals
@@ -178,16 +180,14 @@ class TaskEventBus {
     this.updateProgress(event);
 
     // 4. Trigger handlers
-    this.handlers.get(event.type)?.forEach(h => h(event));
+    this.handlers.get(event.type)?.forEach((h) => h(event));
   }
 
   isImportant(event: TaskEvent): boolean {
     // Only log significant events to console
-    return ![
-      'INTERNAL_STATE_CHANGE',
-      'HEARTBEAT',
-      'STREAM_CHUNK',
-    ].includes(event.type);
+    return !["INTERNAL_STATE_CHANGE", "HEARTBEAT", "STREAM_CHUNK"].includes(
+      event.type,
+    );
   }
 }
 ```
@@ -196,11 +196,11 @@ class TaskEventBus {
 
 ```typescript
 enum EventPriority {
-  CRITICAL = 0,  // Task start/end, failures - always show
-  HIGH = 1,      // Tool calls, validations - show by default
-  MEDIUM = 2,    // AI reasoning, file ops - show in verbose mode
-  LOW = 3,       // State changes - journal only
-  DEBUG = 4,     // Raw data - debug mode only
+  CRITICAL = 0, // Task start/end, failures - always show
+  HIGH = 1, // Tool calls, validations - show by default
+  MEDIUM = 2, // AI reasoning, file ops - show in verbose mode
+  LOW = 3, // State changes - journal only
+  DEBUG = 4, // Raw data - debug mode only
 }
 
 const EVENT_PRIORITIES: Record<TaskEventType, EventPriority> = {
@@ -247,10 +247,10 @@ class EventAggregator {
     const grouped = this.groupByType(this.buffer);
 
     // Example: Multiple file reads -> Single summary
-    const reads = grouped.get('TOOL_USE_READ') || [];
+    const reads = grouped.get("TOOL_USE_READ") || [];
     if (reads.length > 1) {
       console.log(`📖 Read ${reads.length} files (${this.totalSize(reads)})`);
-      reads.forEach(r => console.log(`   └─ ${r.filePath}`));
+      reads.forEach((r) => console.log(`   └─ ${r.filePath}`));
     } else if (reads.length === 1) {
       console.log(`📖 Read ${reads[0].filePath} (${reads[0].size})`);
     }
@@ -266,16 +266,16 @@ class EventAggregator {
 class ProgressFormatter {
   format(event: TaskEvent, context: TaskContext): string {
     switch (event.type) {
-      case 'TOOL_USE_START':
+      case "TOOL_USE_START":
         return this.formatToolStart(event, context);
 
-      case 'TOOL_USE_COMPLETE':
+      case "TOOL_USE_COMPLETE":
         return this.formatToolComplete(event, context);
 
-      case 'AI_REASONING':
+      case "AI_REASONING":
         return this.formatReasoning(event, context);
 
-      case 'VALIDATION_RESULT':
+      case "VALIDATION_RESULT":
         return this.formatValidation(event, context);
     }
   }
@@ -285,24 +285,22 @@ class ProgressFormatter {
     const action = this.getToolAction(event.toolName);
 
     // Add context if this is a retry or recovery action
-    const suffix = context.isRetry
-      ? ` (retry #${context.attemptNumber})`
-      : '';
+    const suffix = context.isRetry ? ` (retry #${context.attemptNumber})` : "";
 
     return `${icon} ${action} ${event.params.file}${suffix}`;
   }
 
   formatToolComplete(event: ToolUseEvent, context: TaskContext): string {
-    const icon = event.success ? '✅' : '❌';
+    const icon = event.success ? "✅" : "❌";
     const duration = this.formatDuration(event.durationMs);
 
-    if (event.toolName === 'Write' && event.success) {
+    if (event.toolName === "Write" && event.success) {
       const size = this.formatSize(event.result.fileSize);
       const lines = event.result.lines;
       return `${icon} Created ${event.params.file} (${size}, ${lines} lines) in ${duration}`;
     }
 
-    return `${icon} ${event.toolName} ${event.success ? 'completed' : 'failed'} in ${duration}`;
+    return `${icon} ${event.toolName} ${event.success ? "completed" : "failed"} in ${duration}`;
   }
 }
 ```
@@ -324,7 +322,9 @@ class ProgressMonitor {
       const silenceDuration = Date.now() - this.lastEvent.getTime();
 
       if (silenceDuration > this.silenceThreshold) {
-        console.log(`⏸️  No activity for ${Math.floor(silenceDuration / 1000)}s`);
+        console.log(
+          `⏸️  No activity for ${Math.floor(silenceDuration / 1000)}s`,
+        );
         console.log(`   Last event: ${this.getLastEventSummary()}`);
         console.log(`   Status: ${this.getCurrentStatus()}`);
       }
@@ -410,7 +410,7 @@ class ProgressMonitor {
 // .converge/config/logging.ts
 export const loggingConfig = {
   // Event filtering
-  minPriority: EventPriority.HIGH,  // Show HIGH and CRITICAL only
+  minPriority: EventPriority.HIGH, // Show HIGH and CRITICAL only
 
   // Event aggregation
   aggregateWindow: 100, // ms
@@ -422,11 +422,11 @@ export const loggingConfig = {
   // Formatting
   useColor: true,
   useIcons: true,
-  timestampFormat: 'relative', // "2m 15s ago" vs "15:27:13"
+  timestampFormat: "relative", // "2m 15s ago" vs "15:27:13"
 
   // Verbosity modes
-  verbose: false,  // Include MEDIUM priority events
-  debug: false,    // Include DEBUG events + raw JSON
+  verbose: false, // Include MEDIUM priority events
+  debug: false, // Include DEBUG events + raw JSON
 };
 ```
 
@@ -443,39 +443,44 @@ export const loggingConfig = {
 
 ### Benefits vs Current Approach
 
-| Current (Time-Based) | Proposed (Event-Driven) |
-|---------------------|------------------------|
-| ⏰ Log every 60s | 📊 Log on events |
-| 📋 Shows JSON dumps | 💬 Shows human-readable summaries |
-| ❓ "Last activity 1m ago" | ✅ "Created file.html (42 KB)" |
-| 🔁 Repeats same info | 🎯 Only new information |
-| 📊 50+ lines per minute | 📊 ~4 lines per significant event |
-| ❌ Misses events between ticks | ✅ Captures everything |
-| ⏱️ User waits for next tick | ⏱️ Instant feedback |
+| Current (Time-Based)           | Proposed (Event-Driven)           |
+| ------------------------------ | --------------------------------- |
+| ⏰ Log every 60s               | 📊 Log on events                  |
+| 📋 Shows JSON dumps            | 💬 Shows human-readable summaries |
+| ❓ "Last activity 1m ago"      | ✅ "Created file.html (42 KB)"    |
+| 🔁 Repeats same info           | 🎯 Only new information           |
+| 📊 50+ lines per minute        | 📊 ~4 lines per significant event |
+| ❌ Misses events between ticks | ✅ Captures everything            |
+| ⏱️ User waits for next tick    | ⏱️ Instant feedback               |
 
 ### Implementation Roadmap
 
 **Phase 1**: Event bus infrastructure
+
 - TaskEventBus with priority filtering
 - Event types and schemas
 - Console formatters
 
 **Phase 2**: AI integration
+
 - Hook into Claude API callbacks
 - Extract tool uses and reasoning
 - Emit structured events
 
 **Phase 3**: File system integration
+
 - Watch for file creation/modification
 - Emit on validation checkpoints
 - Track output changes
 
 **Phase 4**: Smart aggregation
+
 - EventAggregator for similar events
 - Context-aware formatting
 - Retry diagnosis
 
 **Phase 5**: Polish
+
 - Icons and colors
 - Progress bars for long operations
 - Collapsible sections for verbose data

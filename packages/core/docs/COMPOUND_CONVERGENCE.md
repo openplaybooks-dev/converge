@@ -9,6 +9,7 @@ Three root causes:
 ### 1. Tasks fail-and-reset instead of accumulate progress
 
 In `unit/run.ts`, when a task stalls after 3 iterations:
+
 - Task is marked **failed**
 - All partial progress inside that attempt is abandoned
 - Next run starts from scratch — same gaps, same stall
@@ -40,6 +41,7 @@ A simple append-only JSONL file that records a snapshot after every run:
 ```
 
 Each line:
+
 ```json
 {
   "timestamp": "2026-04-10T15:00:00Z",
@@ -54,10 +56,12 @@ Each line:
 ```
 
 **Key fields:**
+
 - `delta`: Change from previous run. Negative = gaps closed. Positive = gaps added.
 - `trend`: "improving" (3+ consecutive negative deltas), "stalled" (delta ~0), "degrading" (positive deltas)
 
 **CLI command:**
+
 ```bash
 converge trend
 
@@ -77,6 +81,7 @@ converge trend
 Convert `BacklogItem[]` into `Gap[]` so the convergence loop processes them.
 
 Currently:
+
 ```
 BacklogDef (cmd: "tsc --noEmit")
     → backlog-runner.ts → BacklogItem[]
@@ -84,6 +89,7 @@ BacklogDef (cmd: "tsc --noEmit")
 ```
 
 Should be:
+
 ```
 BacklogDef (cmd: "tsc --noEmit")
     → backlog-runner.ts → BacklogItem[]
@@ -92,20 +98,26 @@ BacklogDef (cmd: "tsc --noEmit")
 ```
 
 **The converter** (new function, ~30 lines):
+
 ```typescript
 function backlogItemToGap(item: BacklogItem, taskId: string): Gap {
   return {
-    id: `backlog-${item.backlogId}-${item.file ?? 'unknown'}-${item.line ?? 0}`,
-    type: 'quality',
-    level: 'task',
+    id: `backlog-${item.backlogId}-${item.file ?? "unknown"}-${item.line ?? 0}`,
+    type: "quality",
+    level: "task",
     scope: taskId,
     description: `[${item.backlogId}] ${item.raw}`,
     detected: item.collectedAt,
     resolved: false,
     checks: [item.backlogId],
-    severity: item.severity === 'high' ? 'high' : item.severity === 'medium' ? 'medium' : 'low',
+    severity:
+      item.severity === "high"
+        ? "high"
+        : item.severity === "medium"
+          ? "medium"
+          : "low",
     metadata: {
-      gapKind: 'backlog',
+      gapKind: "backlog",
       file: item.file,
       line: item.line,
       backlogId: item.backlogId,
@@ -120,7 +132,7 @@ function backlogItemToGap(item: BacklogItem, taskId: string): Gap {
 // In findGaps():
 if (unit.backlogs && unit.backlogs.length > 0) {
   const items = runBacklogs(unit.backlogs, projectDir);
-  const backlogGaps = items.map(item => backlogItemToGap(item, unit.id));
+  const backlogGaps = items.map((item) => backlogItemToGap(item, unit.id));
   gaps.push(...backlogGaps);
 }
 ```
@@ -132,11 +144,13 @@ Now every `tsc` error, every `eslint` violation, every `grep TODO` result is a g
 When a task stalls, don't throw away progress. Instead:
 
 **Current behavior** (`unit/run.ts:400-405`):
+
 ```
 stall 3x → return false → task marked failed → all progress lost
 ```
 
 **New behavior:**
+
 ```
 stall 3x → snapshot remaining gaps → mark task "partial"
            → next run starts with ONLY the remaining gaps (not all original gaps)
@@ -147,11 +161,19 @@ stall 3x → snapshot remaining gaps → mark task "partial"
 #### a) New task status: `partial`
 
 Add to checkpoint alongside `complete`, `failed`, `seeded`:
+
 ```typescript
-type TaskStatus = 'pending' | 'active' | 'complete' | 'failed' | 'seeded' | 'partial';
+type TaskStatus =
+  | "pending"
+  | "active"
+  | "complete"
+  | "failed"
+  | "seeded"
+  | "partial";
 ```
 
 A `partial` task:
+
 - Has some outputs present (don't regenerate them)
 - Has remaining gaps recorded (only fix those)
 - Gets priority in next run (it's closest to done)
@@ -171,12 +193,13 @@ await checkpoint.markTaskPartial(taskId, remainingGaps);
 #### c) Resume from partial state
 
 When `run()` starts, if task is `partial`:
+
 ```typescript
 const saved = await loadRemainingGaps(unit);
 if (saved.length > 0) {
   // Start from iteration 2 — skip initial execution, go straight to fix
   previousGaps = saved;
-  iteration = 1;  // Will enter the "Iteration 2+" branch
+  iteration = 1; // Will enter the "Iteration 2+" branch
 }
 ```
 
@@ -244,16 +267,16 @@ Each backlog `cmd` is a static analysis command. Output lines become gaps. Gaps 
 
 ## What Changes in the Codebase
 
-| File | Change | Effort |
-|------|--------|--------|
-| `unit/find-gaps.ts` | Add backlog → gap conversion after existing gap detection | Small |
-| `scan/backlog-runner.ts` | Add `backlogItemToGap()` converter function | Small |
-| `checkpoint/manager.ts` | Add `partial` status + `markTaskPartial()` method | Small |
-| `unit/run.ts` | On stall: write remaining gaps, mark partial (not failed) | Small |
-| `unit/run.ts` | On start: resume from partial state with saved gaps | Small |
-| `journal/gap-ledger.ts` | **New file**: append snapshot to `gap-ledger.jsonl` | Small |
-| `cli/commands-trend.ts` | **New file**: `converge trend` command | Small |
-| `cli/autonomous-run.ts` | After run: write gap ledger entry | Small |
+| File                     | Change                                                    | Effort |
+| ------------------------ | --------------------------------------------------------- | ------ |
+| `unit/find-gaps.ts`      | Add backlog → gap conversion after existing gap detection | Small  |
+| `scan/backlog-runner.ts` | Add `backlogItemToGap()` converter function               | Small  |
+| `checkpoint/manager.ts`  | Add `partial` status + `markTaskPartial()` method         | Small  |
+| `unit/run.ts`            | On stall: write remaining gaps, mark partial (not failed) | Small  |
+| `unit/run.ts`            | On start: resume from partial state with saved gaps       | Small  |
+| `journal/gap-ledger.ts`  | **New file**: append snapshot to `gap-ledger.jsonl`       | Small  |
+| `cli/commands-trend.ts`  | **New file**: `converge trend` command                    | Small  |
+| `cli/autonomous-run.ts`  | After run: write gap ledger entry                         | Small  |
 
 **Total effort: ~200 lines of new code across 8 files.**
 

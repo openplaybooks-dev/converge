@@ -5,9 +5,9 @@
  * and task registration.
  */
 
-import type { TaskConfig } from '../storage/types.ts';
-import type { YieldsDeclarative } from '../functions/types.ts';
-import type { FilesystemStorage } from '../storage/filesystem.ts';
+import type { TaskConfig } from "../storage/types.ts";
+import type { YieldsDeclarative } from "../functions/types.ts";
+import type { FilesystemStorage } from "../storage/filesystem.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Yields Spawner                                                    */
@@ -27,14 +27,16 @@ export class YieldsSpawner {
     tasks: TaskConfig[],
     config: {
       epicId: string;
-      target?: YieldsDeclarative['target'];
-      approval?: YieldsDeclarative['approval'];
-    }
+      target?: YieldsDeclarative["target"];
+      approval?: YieldsDeclarative["approval"];
+    },
   ): Promise<{
     spawned: TaskConfig[];
     pending: TaskConfig[];
   }> {
-    console.log(`[YieldsSpawner] Spawning ${tasks.length} tasks into epic: ${config.epicId}`);
+    console.log(
+      `[YieldsSpawner] Spawning ${tasks.length} tasks into epic: ${config.epicId}`,
+    );
 
     const spawned: TaskConfig[] = [];
     const pending: TaskConfig[] = [];
@@ -43,9 +45,9 @@ export class YieldsSpawner {
     const targetEpicId = this.determineTargetEpic(config.epicId, config.target);
 
     // Check approval mode
-    if (config.approval === 'review') {
+    if (config.approval === "review") {
       // Add to pending for manual approval
-      console.log('[YieldsSpawner] Approval required, adding to pending');
+      console.log("[YieldsSpawner] Approval required, adding to pending");
       pending.push(...tasks);
       return { spawned, pending };
     }
@@ -59,7 +61,9 @@ export class YieldsSpawner {
         spawned.push(task);
         console.log(`[YieldsSpawner] Spawned task: ${task.id}`);
       } catch (error: any) {
-        console.error(`[YieldsSpawner] Failed to spawn task ${task.id}: ${error.message}`);
+        console.error(
+          `[YieldsSpawner] Failed to spawn task ${task.id}: ${error.message}`,
+        );
       }
     }
 
@@ -71,18 +75,18 @@ export class YieldsSpawner {
    */
   private determineTargetEpic(
     currentEpicId: string,
-    target?: YieldsDeclarative['target']
+    target?: YieldsDeclarative["target"],
   ): string {
     switch (target) {
-      case 'next-epic':
+      case "next-epic":
         // In real impl, would look up next epic in sequence
         return currentEpicId;
 
-      case 'new-epic':
+      case "new-epic":
         // In real impl, would create a new epic
         return currentEpicId;
 
-      case 'current-epic':
+      case "current-epic":
       default:
         return currentEpicId;
     }
@@ -93,7 +97,7 @@ export class YieldsSpawner {
    */
   async approvePendingTasks(
     pendingTasks: TaskConfig[],
-    epicId: string
+    epicId: string,
   ): Promise<TaskConfig[]> {
     const spawned: TaskConfig[] = [];
 
@@ -102,7 +106,9 @@ export class YieldsSpawner {
         this.storage.writeTaskConfig(epicId, task);
         spawned.push(task);
       } catch (error: any) {
-        console.error(`[YieldsSpawner] Failed to approve task ${task.id}: ${error.message}`);
+        console.error(
+          `[YieldsSpawner] Failed to approve task ${task.id}: ${error.message}`,
+        );
       }
     }
 

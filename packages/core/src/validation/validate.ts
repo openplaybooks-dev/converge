@@ -5,26 +5,26 @@
  * validateProject() — validate an entire project
  */
 
-import { readFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import path from 'node:path';
-import { parse as parseYaml } from 'yaml';
-import { glob } from 'glob';
-import { parseTaskMdString } from '../config/task-md-definition.ts';
-import type { TaskMdShape } from '../config/task-md-definition.ts';
+import { readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { parse as parseYaml } from "yaml";
+import { glob } from "glob";
+import { parseTaskMdString } from "../config/task-md-definition.ts";
+import type { TaskMdShape } from "../config/task-md-definition.ts";
 import type {
   TaskValidationInput,
   TaskValidationResult,
   ProjectValidationResult,
   ProjectMdValidationResult,
   ValidationIssue,
-} from './types.ts';
-import { formatRules } from './rules/format.ts';
-import { structureRules } from './rules/structure.ts';
-import { syntaxRules } from './rules/syntax.ts';
-import { projectRules } from './rules/project.ts';
-import { projectMdRules } from './rules/project-md.ts';
-import type { ProjectMdValidationInput } from './rules/project-md.ts';
+} from "./types.ts";
+import { formatRules } from "./rules/format.ts";
+import { structureRules } from "./rules/structure.ts";
+import { syntaxRules } from "./rules/syntax.ts";
+import { projectRules } from "./rules/project.ts";
+import { projectMdRules } from "./rules/project-md.ts";
+import type { ProjectMdValidationInput } from "./rules/project-md.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Single task validation                                              */
@@ -33,7 +33,9 @@ import type { ProjectMdValidationInput } from './rules/project-md.ts';
 /**
  * Validate a single TASK.md given pre-parsed input.
  */
-export function validateTaskMd(input: TaskValidationInput): TaskValidationResult {
+export function validateTaskMd(
+  input: TaskValidationInput,
+): TaskValidationResult {
   const allRules = [...formatRules, ...structureRules, ...syntaxRules];
   const issues: ValidationIssue[] = [];
 
@@ -42,10 +44,10 @@ export function validateTaskMd(input: TaskValidationInput): TaskValidationResult
   }
 
   return {
-    taskId: input.shape.id || '(unknown)',
+    taskId: input.shape.id || "(unknown)",
     path: input.filePath,
     issues,
-    valid: issues.every(i => i.severity !== 'error'),
+    valid: issues.every((i) => i.severity !== "error"),
   };
 }
 
@@ -62,7 +64,7 @@ function parseRawFrontmatter(content: string): Record<string, unknown> {
 
   try {
     const parsed = parseYaml(match[1]);
-    if (parsed && typeof parsed === 'object') {
+    if (parsed && typeof parsed === "object") {
       return parsed as Record<string, unknown>;
     }
   } catch {
@@ -85,7 +87,7 @@ async function buildInput(
   if (!existsSync(filePath)) return null;
 
   try {
-    const content = await readFile(filePath, 'utf8');
+    const content = await readFile(filePath, "utf8");
     const rawFrontmatter = parseRawFrontmatter(content);
     const shape = parseTaskMdString(content);
     const taskDir = path.dirname(filePath);
@@ -109,7 +111,9 @@ async function buildInput(
 /**
  * Validate a PROJECT.md file. Returns issues found in the frontmatter.
  */
-export function validateProjectMd(input: ProjectMdValidationInput): ProjectMdValidationResult {
+export function validateProjectMd(
+  input: ProjectMdValidationInput,
+): ProjectMdValidationResult {
   const issues: ValidationIssue[] = [];
   for (const rule of projectMdRules) {
     issues.push(...rule.check(input));
@@ -117,7 +121,7 @@ export function validateProjectMd(input: ProjectMdValidationInput): ProjectMdVal
   return {
     path: input.filePath,
     issues,
-    valid: issues.every(i => i.severity !== 'error'),
+    valid: issues.every((i) => i.severity !== "error"),
   };
 }
 
@@ -131,7 +135,7 @@ export async function validateProjectMdFile(
   if (!existsSync(filePath)) return null;
 
   try {
-    const content = await readFile(filePath, 'utf8');
+    const content = await readFile(filePath, "utf8");
     const frontmatter = parseRawFrontmatter(content);
     return validateProjectMd({ frontmatter, filePath });
   } catch {
@@ -146,12 +150,14 @@ export async function validateProjectMdFile(
 /**
  * Validate all TASK.md files in a project (and PROJECT.md if present).
  */
-export async function validateProject(projectDir: string): Promise<ProjectValidationResult> {
+export async function validateProject(
+  projectDir: string,
+): Promise<ProjectValidationResult> {
   // Discover TASK.md files
   const mdPatterns = [
-    '.converge/epics/**/*/TASK.md',
-    '.converge/epics/**/*/tasks/**/TASK.md',
-    '.converge/playbooks/*/tasks/**/TASK.md',
+    ".converge/epics/**/*/TASK.md",
+    ".converge/epics/**/*/tasks/**/TASK.md",
+    ".converge/playbooks/*/tasks/**/TASK.md",
   ];
 
   const mdFiles: string[] = [];
@@ -160,11 +166,11 @@ export async function validateProject(projectDir: string): Promise<ProjectValida
       cwd: projectDir,
       absolute: true,
       ignore: [
-        '**/node_modules/**',
-        '**/templates/**',
-        '**/examples/**',
-        '**/scripts/**',
-        '**/materials/**',
+        "**/node_modules/**",
+        "**/templates/**",
+        "**/examples/**",
+        "**/scripts/**",
+        "**/materials/**",
       ],
     });
     mdFiles.push(...matches);
@@ -181,14 +187,16 @@ export async function validateProject(projectDir: string): Promise<ProjectValida
   }
 
   // Validate each task
-  const tasks: TaskValidationResult[] = inputs.map(input => validateTaskMd(input));
+  const tasks: TaskValidationResult[] = inputs.map((input) =>
+    validateTaskMd(input),
+  );
 
   // Parse PROJECT.md frontmatter early so project rules can use it
-  const projectMdPath = path.join(projectDir, '.converge', 'PROJECT.md');
+  const projectMdPath = path.join(projectDir, ".converge", "PROJECT.md");
   let projectMdFrontmatter: Record<string, unknown> | undefined;
   if (existsSync(projectMdPath)) {
     try {
-      const content = await readFile(projectMdPath, 'utf8');
+      const content = await readFile(projectMdPath, "utf8");
       projectMdFrontmatter = parseRawFrontmatter(content);
     } catch {
       // Can't read — skip
@@ -210,11 +218,13 @@ export async function validateProject(projectDir: string): Promise<ProjectValida
   }
 
   // Aggregate
-  let totalErrors = projectIssues.filter(i => i.severity === 'error').length;
-  let totalWarnings = projectIssues.filter(i => i.severity === 'warning').length;
+  let totalErrors = projectIssues.filter((i) => i.severity === "error").length;
+  let totalWarnings = projectIssues.filter(
+    (i) => i.severity === "warning",
+  ).length;
   for (const t of tasks) {
-    totalErrors += t.issues.filter(i => i.severity === 'error').length;
-    totalWarnings += t.issues.filter(i => i.severity === 'warning').length;
+    totalErrors += t.issues.filter((i) => i.severity === "error").length;
+    totalWarnings += t.issues.filter((i) => i.severity === "warning").length;
   }
 
   return {

@@ -11,12 +11,17 @@
  * 6. Persisting corrections to checkpoint
  */
 
-import { resolve } from 'node:path';
-import { buildTaskTree, getTaskStates, type TaskStates, type TaskNode } from './next-task.js';
-import { CheckpointManager } from '../checkpoint/manager.js';
-import { createDiscoveryScanner } from '../discovery/scanner.js';
-import { resolveConvergeConfig } from '../config/loader.js';
-import { validateConvergeConfig } from '../config/validator.js';
+import { resolve } from "node:path";
+import {
+  buildTaskTree,
+  getTaskStates,
+  type TaskStates,
+  type TaskNode,
+} from "./next-task.js";
+import { CheckpointManager } from "../checkpoint/manager.js";
+import { createDiscoveryScanner } from "../discovery/scanner.js";
+import { resolveConvergeConfig } from "../config/loader.js";
+import { validateConvergeConfig } from "../config/validator.js";
 
 export interface ReconciliationResult {
   /** All tasks in the tree */
@@ -48,7 +53,7 @@ export async function reconcile(
   silent = false,
 ): Promise<ReconciliationResult> {
   if (!silent) {
-    console.log('🔄 Reconciling task state...');
+    console.log("🔄 Reconciling task state...");
   }
 
   // Track corrections
@@ -62,27 +67,41 @@ export async function reconcile(
   // 1. Resolve converge config and scan filesystem for all tasks
   const resolved = await resolveConvergeConfig(projectDir);
   if (!resolved) {
-    throw new Error('No .converge/PROJECT.md or .converge/project.yaml found. Run from within a converge project.');
+    throw new Error(
+      "No .converge/PROJECT.md or .converge/project.yaml found. Run from within a converge project.",
+    );
   }
-  const convergeConfig = validateConvergeConfig(resolved.config, resolved.configPath);
+  const convergeConfig = validateConvergeConfig(
+    resolved.config,
+    resolved.configPath,
+  );
 
-  const scanner = createDiscoveryScanner(convergeConfig.discovery ?? {}, projectDir);
+  const scanner = createDiscoveryScanner(
+    convergeConfig.discovery ?? {},
+    projectDir,
+  );
   const discoveryResult = await scanner.scan();
 
-  const epics = discoveryResult.files.filter(f => f.type === 'epic');
-  const epicPaths = new Set(epics.map(e => e.filePath));
-  const tasks = discoveryResult.files.filter(f => f.type === 'task' && !epicPaths.has(f.filePath));
+  const epics = discoveryResult.files.filter((f) => f.type === "epic");
+  const epicPaths = new Set(epics.map((e) => e.filePath));
+  const tasks = discoveryResult.files.filter(
+    (f) => f.type === "task" && !epicPaths.has(f.filePath),
+  );
 
   const tree = await buildTaskTree(epics, tasks, projectDir);
 
   if (!silent) {
-    console.log(`   Found ${tree.length} tasks across ${new Set(tree.map(t => t.epicId)).size} epics`);
+    console.log(
+      `   Found ${tree.length} tasks across ${new Set(tree.map((t) => t.epicId)).size} epics`,
+    );
   }
 
   // 2. Load checkpoint state before reconciliation
   const checkpointMgr = new CheckpointManager(projectDir);
   const checkpointBefore = await checkpointMgr.load();
-  const completedBefore = new Set((checkpointBefore as any)?.completedTasks ?? []);
+  const completedBefore = new Set(
+    (checkpointBefore as any)?.completedTasks ?? [],
+  );
   const failedBefore = new Set((checkpointBefore as any)?.failedTasks ?? []);
 
   // 3. Run getTaskStates - this performs all reconciliation logic:
@@ -106,24 +125,34 @@ export async function reconcile(
 
   // Tasks that were failed before but completed after = reconciled (outputs exist)
   for (const taskId of failedBefore) {
-    if (completedAfter.has(taskId as string) && !completedBefore.has(taskId as string)) {
+    if (
+      completedAfter.has(taskId as string) &&
+      !completedBefore.has(taskId as string)
+    ) {
       corrected.reconciled.push(taskId as string);
     }
   }
 
   // Log corrections if any occurred
-  if (!silent && (corrected.uncompleted.length > 0 || corrected.reconciled.length > 0)) {
-    console.log('   Corrections applied:');
+  if (
+    !silent &&
+    (corrected.uncompleted.length > 0 || corrected.reconciled.length > 0)
+  ) {
+    console.log("   Corrections applied:");
 
     if (corrected.uncompleted.length > 0) {
-      console.log(`     Uncompleted (missing outputs): ${corrected.uncompleted.length}`);
+      console.log(
+        `     Uncompleted (missing outputs): ${corrected.uncompleted.length}`,
+      );
       for (const taskId of corrected.uncompleted) {
         console.log(`       - ${taskId}`);
       }
     }
 
     if (corrected.reconciled.length > 0) {
-      console.log(`     Reconciled (outputs exist): ${corrected.reconciled.length}`);
+      console.log(
+        `     Reconciled (outputs exist): ${corrected.reconciled.length}`,
+      );
       for (const taskId of corrected.reconciled) {
         console.log(`       - ${taskId}`);
       }

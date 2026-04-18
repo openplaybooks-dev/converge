@@ -5,8 +5,8 @@
  * Useful for debugging, understanding decisions, and migration analysis.
  */
 
-import { FilesystemStorage } from './filesystem.ts';
-import type { ProvenanceRecord } from './types.ts';
+import { FilesystemStorage } from "./filesystem.ts";
+import type { ProvenanceRecord } from "./types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Provenance Manager                                                */
@@ -20,10 +20,10 @@ export class ProvenanceManager {
    */
   recordCreation(params: {
     entityId: string;
-    entityType: ProvenanceRecord['entityType'];
-    createdBy: ProvenanceRecord['createdBy'];
-    trigger?: ProvenanceRecord['trigger'];
-    related?: ProvenanceRecord['related'];
+    entityType: ProvenanceRecord["entityType"];
+    createdBy: ProvenanceRecord["createdBy"];
+    trigger?: ProvenanceRecord["trigger"];
+    related?: ProvenanceRecord["related"];
   }): void {
     const record: ProvenanceRecord = {
       entityId: params.entityId,
@@ -50,7 +50,9 @@ export class ProvenanceManager {
   }): void {
     const existing = this.storage.readProvenance(params.entityId);
     if (!existing) {
-      throw new Error(`Cannot record change: entity ${params.entityId} not found`);
+      throw new Error(
+        `Cannot record change: entity ${params.entityId} not found`,
+      );
     }
 
     const change = {
@@ -79,11 +81,16 @@ export class ProvenanceManager {
   /**
    * Get entities created by a specific source
    */
-  getEntitiesCreatedBy(createdBy: ProvenanceRecord['createdBy']): ProvenanceRecord[] {
+  getEntitiesCreatedBy(
+    createdBy: ProvenanceRecord["createdBy"],
+  ): ProvenanceRecord[] {
     const allIds = this.storage.listProvenance();
     return allIds
-      .map(id => this.storage.readProvenance(id))
-      .filter((record): record is ProvenanceRecord => record !== null && record.createdBy === createdBy);
+      .map((id) => this.storage.readProvenance(id))
+      .filter(
+        (record): record is ProvenanceRecord =>
+          record !== null && record.createdBy === createdBy,
+      );
   }
 
   /**
@@ -92,11 +99,12 @@ export class ProvenanceManager {
   getEntitiesTriggeredByGap(gapId: string): ProvenanceRecord[] {
     const allIds = this.storage.listProvenance();
     return allIds
-      .map(id => this.storage.readProvenance(id))
-      .filter((record): record is ProvenanceRecord =>
-        record !== null &&
-        record.trigger?.type === 'gap' &&
-        record.trigger?.source === gapId
+      .map((id) => this.storage.readProvenance(id))
+      .filter(
+        (record): record is ProvenanceRecord =>
+          record !== null &&
+          record.trigger?.type === "gap" &&
+          record.trigger?.source === gapId,
       );
   }
 
@@ -106,17 +114,17 @@ export class ProvenanceManager {
   getChildren(entityId: string): ProvenanceRecord[] {
     const allIds = this.storage.listProvenance();
     return allIds
-      .map(id => this.storage.readProvenance(id))
-      .filter((record): record is ProvenanceRecord =>
-        record !== null &&
-        record.related?.parent === entityId
+      .map((id) => this.storage.readProvenance(id))
+      .filter(
+        (record): record is ProvenanceRecord =>
+          record !== null && record.related?.parent === entityId,
       );
   }
 
   /**
    * Get change history for an entity
    */
-  getChangeHistory(entityId: string): ProvenanceRecord['changes'] {
+  getChangeHistory(entityId: string): ProvenanceRecord["changes"] {
     const record = this.storage.readProvenance(entityId);
     return record?.changes || [];
   }
@@ -132,7 +140,7 @@ export class ProvenanceManager {
   } {
     const allIds = this.storage.listProvenance();
     const records = allIds
-      .map(id => this.storage.readProvenance(id))
+      .map((id) => this.storage.readProvenance(id))
       .filter((r): r is ProvenanceRecord => r !== null);
 
     const byType: Record<string, number> = {};
@@ -143,7 +151,8 @@ export class ProvenanceManager {
       byType[record.entityType] = (byType[record.entityType] || 0) + 1;
       byCreator[record.createdBy] = (byCreator[record.createdBy] || 0) + 1;
       if (record.trigger?.type) {
-        byTrigger[record.trigger.type] = (byTrigger[record.trigger.type] || 0) + 1;
+        byTrigger[record.trigger.type] =
+          (byTrigger[record.trigger.type] || 0) + 1;
       }
     }
 
@@ -163,6 +172,8 @@ export class ProvenanceManager {
 /**
  * Create a new provenance manager
  */
-export function createProvenanceManager(storage: FilesystemStorage): ProvenanceManager {
+export function createProvenanceManager(
+  storage: FilesystemStorage,
+): ProvenanceManager {
   return new ProvenanceManager(storage);
 }

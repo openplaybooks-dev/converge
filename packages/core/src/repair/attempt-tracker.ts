@@ -13,12 +13,12 @@
  * Readable by tests, dashboards, and AI self-inspection.
  */
 
-import { appendFile, mkdir, readFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { getJournalStructure } from '../journal/structure.ts';
-import type { AttemptRecord } from './types.ts';
-import type { JournalContext } from './types.ts';
+import { appendFile, mkdir, readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { getJournalStructure } from "../journal/structure.ts";
+import type { AttemptRecord } from "./types.ts";
+import type { JournalContext } from "./types.ts";
 
 export class AttemptTracker {
   private readonly attemptsPath: string;
@@ -27,8 +27,12 @@ export class AttemptTracker {
     private readonly projectDir: string,
     private readonly journalCtx: JournalContext,
   ) {
-    const structure = getJournalStructure(projectDir, journalCtx.epicId, journalCtx.taskId);
-    this.attemptsPath = join(structure.task!, 'attempts.jsonl');
+    const structure = getJournalStructure(
+      projectDir,
+      journalCtx.epicId,
+      journalCtx.taskId,
+    );
+    this.attemptsPath = join(structure.task!, "attempts.jsonl");
   }
 
   /** Append one attempt record. Creates the file if it doesn't exist. */
@@ -37,13 +41,17 @@ export class AttemptTracker {
     if (!existsSync(dir)) {
       await mkdir(dir, { recursive: true });
     }
-    await appendFile(this.attemptsPath, JSON.stringify(attempt) + '\n', 'utf-8');
+    await appendFile(
+      this.attemptsPath,
+      JSON.stringify(attempt) + "\n",
+      "utf-8",
+    );
   }
 
   /** All attempts across all strategies for a given gap ID. */
   async getAttempts(gapId: string): Promise<AttemptRecord[]> {
     const all = await this.readAll();
-    return all.filter(a => a.gapId === gapId);
+    return all.filter((a) => a.gapId === gapId);
   }
 
   /**
@@ -52,7 +60,7 @@ export class AttemptTracker {
    */
   async countAttempts(gapId: string, strategyName: string): Promise<number> {
     const all = await this.getAttempts(gapId);
-    return all.filter(a => a.strategyName === strategyName).length;
+    return all.filter((a) => a.strategyName === strategyName).length;
   }
 
   /** Path to the attempts log, for log-tailing or test assertions. */
@@ -62,11 +70,11 @@ export class AttemptTracker {
 
   private async readAll(): Promise<AttemptRecord[]> {
     if (!existsSync(this.attemptsPath)) return [];
-    const raw = await readFile(this.attemptsPath, 'utf-8');
+    const raw = await readFile(this.attemptsPath, "utf-8");
     return raw
-      .split('\n')
-      .filter(l => l.trim())
-      .map(l => {
+      .split("\n")
+      .filter((l) => l.trim())
+      .map((l) => {
         try {
           return JSON.parse(l) as AttemptRecord;
         } catch {

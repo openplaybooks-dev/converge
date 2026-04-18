@@ -17,13 +17,13 @@
  *     whose all spawned subtasks are now done.
  */
 
-import { existsSync } from 'node:fs';
-import { readFile } from 'node:fs/promises';
-import path from 'node:path';
-import { getJournalStructure } from '../journal/structure.ts';
-import { CheckpointManager } from '../checkpoint/manager.ts';
-import { TaskCheckpointManager } from '../checkpoint/task-checkpoint.ts';
-import type { Unit } from '../unit/unit.ts';
+import { existsSync } from "node:fs";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+import { getJournalStructure } from "../journal/structure.ts";
+import { CheckpointManager } from "../checkpoint/manager.ts";
+import { TaskCheckpointManager } from "../checkpoint/task-checkpoint.ts";
+import type { Unit } from "../unit/unit.ts";
 
 /* ------------------------------------------------------------------ */
 /*  markAncestorsRunning                                               */
@@ -45,7 +45,7 @@ export async function markAncestorsRunning(
   journalTaskId?: string,
 ): Promise<void> {
   // New path: Use Unit's context chain
-  if (typeof unitOrProjectDir !== 'string') {
+  if (typeof unitOrProjectDir !== "string") {
     const unit = unitOrProjectDir;
     if (!unit.context) return; // Virtual unit without context
 
@@ -53,13 +53,21 @@ export async function markAncestorsRunning(
 
     // Walk ancestor contexts natively (no string parsing)
     for (const ancestorCtx of unit.walkAncestorContexts()) {
-      const taskCkpt = new TaskCheckpointManager(projectDir, ancestorCtx.epicId, ancestorCtx.fullTaskId);
+      const taskCkpt = new TaskCheckpointManager(
+        projectDir,
+        ancestorCtx.epicId,
+        ancestorCtx.fullTaskId,
+      );
       const existing = await taskCkpt.load();
 
       // Only update if the ancestor checkpoint exists and isn't already complete or seeded
       // Seeded ancestors are locked WBS parents waiting for children — don't revert to running
-      if (existing && existing.status !== 'complete' && existing.status !== 'seeded') {
-        existing.status = 'running';
+      if (
+        existing &&
+        existing.status !== "complete" &&
+        existing.status !== "seeded"
+      ) {
+        existing.status = "running";
         await taskCkpt.save(existing);
       }
     }
@@ -69,21 +77,27 @@ export async function markAncestorsRunning(
   // Legacy path: String-based traversal (for backward compatibility)
   const projectDir = unitOrProjectDir;
   if (!epicId || !journalTaskId) {
-    throw new Error('epicId and journalTaskId required when calling with string projectDir');
+    throw new Error(
+      "epicId and journalTaskId required when calling with string projectDir",
+    );
   }
 
-  const segments = journalTaskId.split('/').filter(Boolean);
+  const segments = journalTaskId.split("/").filter(Boolean);
   if (segments.length <= 1) return; // No ancestors — top-level task
 
   for (let depth = 1; depth < segments.length; depth++) {
-    const ancestorId = segments.slice(0, depth).join('/');
+    const ancestorId = segments.slice(0, depth).join("/");
     const taskCkpt = new TaskCheckpointManager(projectDir, epicId, ancestorId);
     const existing = await taskCkpt.load();
 
     // Only update if the ancestor checkpoint exists and isn't already complete or seeded
     // Seeded ancestors are locked WBS parents waiting for children — don't revert to running
-    if (existing && existing.status !== 'complete' && existing.status !== 'seeded') {
-      existing.status = 'running';
+    if (
+      existing &&
+      existing.status !== "complete" &&
+      existing.status !== "seeded"
+    ) {
+      existing.status = "running";
       await taskCkpt.save(existing);
     }
   }
@@ -116,7 +130,7 @@ export async function rollUpCompletion(
   let checkpointMgr: CheckpointManager;
   let unit: Unit | undefined;
 
-  if (typeof unitOrProjectDir !== 'string') {
+  if (typeof unitOrProjectDir !== "string") {
     // New signature: rollUpCompletion(unit, checkpointMgr)
     unit = unitOrProjectDir;
     if (!unit.context) return; // Virtual unit without context
@@ -136,30 +150,44 @@ export async function rollUpCompletion(
   if (unit) {
     // Walk ancestor contexts (most efficient path)
     for (const ancestorCtx of unit.walkAncestorContexts()) {
-      const structure = getJournalStructure(projectDir, ancestorCtx.epicId, ancestorCtx.fullTaskId);
+      const structure = getJournalStructure(
+        projectDir,
+        ancestorCtx.epicId,
+        ancestorCtx.fullTaskId,
+      );
       if (!structure.task) break;
 
-      const wbsFile = path.join(structure.task, 'wbs.json');
+      const wbsFile = path.join(structure.task, "wbs.json");
       if (!existsSync(wbsFile)) break; // Not a WBS parent — stop rolling up
 
-      await rollUpSingleAncestor(projectDir, ancestorCtx.epicId, ancestorCtx.fullTaskId, checkpointMgr);
+      await rollUpSingleAncestor(
+        projectDir,
+        ancestorCtx.epicId,
+        ancestorCtx.fullTaskId,
+        checkpointMgr,
+      );
     }
     return;
   }
 
   // Legacy path: String-based traversal
-  const segments = journalTaskId.split('/').filter(Boolean);
+  const segments = journalTaskId.split("/").filter(Boolean);
   if (segments.length <= 1) return; // No ancestors
 
   for (let depth = segments.length - 1; depth >= 1; depth--) {
-    const parentJournalId = segments.slice(0, depth).join('/');
+    const parentJournalId = segments.slice(0, depth).join("/");
     const structure = getJournalStructure(projectDir, epicId, parentJournalId);
     if (!structure.task) break;
 
-    const wbsFile = path.join(structure.task, 'wbs.json');
+    const wbsFile = path.join(structure.task, "wbs.json");
     if (!existsSync(wbsFile)) break; // Not a WBS parent — stop rolling up
 
-    await rollUpSingleAncestor(projectDir, epicId, parentJournalId, checkpointMgr);
+    await rollUpSingleAncestor(
+      projectDir,
+      epicId,
+      parentJournalId,
+      checkpointMgr,
+    );
   }
 }
 
@@ -176,12 +204,12 @@ async function rollUpSingleAncestor(
   const structure = getJournalStructure(projectDir, epicId, parentJournalId);
   if (!structure.task) return;
 
-  const wbsFile = path.join(structure.task, 'wbs.json');
+  const wbsFile = path.join(structure.task, "wbs.json");
   if (!existsSync(wbsFile)) return;
 
   let wbs: { spawnCount: number; subtasks: Array<{ id: string }> };
   try {
-    wbs = JSON.parse(await readFile(wbsFile, 'utf-8'));
+    wbs = JSON.parse(await readFile(wbsFile, "utf-8"));
   } catch {
     return; // Malformed wbs.json
   }
@@ -191,8 +219,10 @@ async function rollUpSingleAncestor(
   // 1. Hierarchical: "parent-id/child-id" (when parentTaskId is set in discovery)
   // 2. Flat: "child-id" (when tasks are direct children without /task/ pattern)
   // We need to check both formats for backward compatibility
-  const subtaskJournalIds = wbs.subtasks.map(s => `${parentJournalId}/${s.id}`);
-  const subtaskSimpleIds = wbs.subtasks.map(s => s.id);
+  const subtaskJournalIds = wbs.subtasks.map(
+    (s) => `${parentJournalId}/${s.id}`,
+  );
+  const subtaskSimpleIds = wbs.subtasks.map((s) => s.id);
 
   // Read latest global checkpoint
   const checkpoint = await checkpointMgr.load();
@@ -234,13 +264,15 @@ async function rollUpSingleAncestor(
       const taskCheckpoint = await taskCkpt.load();
 
       if (taskCheckpoint) {
-        if (taskCheckpoint.status === 'complete') {
+        if (taskCheckpoint.status === "complete") {
           completedSet.add(hierarchical);
           subtaskIdMap.set(hierarchical, simple);
           // Also add to global checkpoint using the actual ID (simple)
           await checkpointMgr.markTaskCompleted(simple, epicId);
-          console.log(`  ↻ Synced completed task to global checkpoint: ${simple}`);
-        } else if (taskCheckpoint.status === 'failed') {
+          console.log(
+            `  ↻ Synced completed task to global checkpoint: ${simple}`,
+          );
+        } else if (taskCheckpoint.status === "failed") {
           failedSet.add(hierarchical);
           subtaskIdMap.set(hierarchical, simple);
           // Also add to global checkpoint using the actual ID (simple)
@@ -251,18 +283,32 @@ async function rollUpSingleAncestor(
     }
   }
 
-  const allDone = subtaskJournalIds.every(id => completedSet.has(id) || failedSet.has(id));
+  const allDone = subtaskJournalIds.every(
+    (id) => completedSet.has(id) || failedSet.has(id),
+  );
 
   // Diagnostic logging
   console.log(`  Checking parent: ${parentJournalId}`);
-  console.log(`    Subtasks: ${subtaskJournalIds.join(', ')}`);
-  console.log(`    Completed: ${Array.from(completedSet).filter(id => subtaskJournalIds.includes(id)).join(', ') || 'none'}`);
-  console.log(`    Failed: ${Array.from(failedSet).filter(id => subtaskJournalIds.includes(id)).join(', ') || 'none'}`);
+  console.log(`    Subtasks: ${subtaskJournalIds.join(", ")}`);
+  console.log(
+    `    Completed: ${
+      Array.from(completedSet)
+        .filter((id) => subtaskJournalIds.includes(id))
+        .join(", ") || "none"
+    }`,
+  );
+  console.log(
+    `    Failed: ${
+      Array.from(failedSet)
+        .filter((id) => subtaskJournalIds.includes(id))
+        .join(", ") || "none"
+    }`,
+  );
   console.log(`    All done: ${allDone}`);
 
   if (!allDone) return; // Some subtasks still pending — can't roll up
 
-  const anyFailed = subtaskJournalIds.some(id => failedSet.has(id));
+  const anyFailed = subtaskJournalIds.some((id) => failedSet.has(id));
 
   // Update global checkpoint
   if (anyFailed) {
@@ -272,16 +318,22 @@ async function rollUpSingleAncestor(
   }
 
   // Update the parent's own TaskCheckpoint status
-  const taskCkpt = new TaskCheckpointManager(projectDir, epicId, parentJournalId);
+  const taskCkpt = new TaskCheckpointManager(
+    projectDir,
+    epicId,
+    parentJournalId,
+  );
   const taskCheckpoint = await taskCkpt.load();
   if (taskCheckpoint) {
-    taskCheckpoint.status = anyFailed ? 'failed' : 'complete';
+    taskCheckpoint.status = anyFailed ? "failed" : "complete";
     await taskCkpt.save(taskCheckpoint);
   }
 
-  const doneCount = subtaskJournalIds.filter(id => completedSet.has(id)).length;
+  const doneCount = subtaskJournalIds.filter((id) =>
+    completedSet.has(id),
+  ).length;
   console.log(
-    `↑ Auto-${anyFailed ? 'failed' : 'completed'} parent: ${parentJournalId}` +
-    ` (${doneCount}/${subtaskJournalIds.length} subtasks done)`,
+    `↑ Auto-${anyFailed ? "failed" : "completed"} parent: ${parentJournalId}` +
+      ` (${doneCount}/${subtaskJournalIds.length} subtasks done)`,
   );
 }

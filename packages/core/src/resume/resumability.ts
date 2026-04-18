@@ -5,13 +5,13 @@
  * Trust the codebase, not stale status.
  */
 
-import type { ProjectContext, EpicContext } from '../context/types.ts';
-import type { Checkpoint, EpicStatus, TaskStatus } from '../storage/types.ts';
-import type { Gap } from '../gap/types.ts';
-import { FilesystemStorage } from '../storage/filesystem.ts';
-import { StatusManager } from '../storage/status.ts';
-import { GapDetector } from '../gap/detector.ts';
-import { createEpicContext } from '../context/epic-context.ts';
+import type { ProjectContext, EpicContext } from "../context/types.ts";
+import type { Checkpoint, EpicStatus, TaskStatus } from "../storage/types.ts";
+import type { Gap } from "../gap/types.ts";
+import { FilesystemStorage } from "../storage/filesystem.ts";
+import { StatusManager } from "../storage/status.ts";
+import { GapDetector } from "../gap/detector.ts";
+import { createEpicContext } from "../context/epic-context.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Resume Point                                                      */
@@ -28,7 +28,7 @@ export interface ResumePoint {
   epicId: string;
 
   /** Phase to resume at */
-  phase: 'evaluate' | 'plan' | 'execute' | 'verify';
+  phase: "evaluate" | "plan" | "execute" | "verify";
 
   /** Gaps at checkpoint (may be stale) */
   checkpointGaps: Gap[];
@@ -79,22 +79,30 @@ export class ResumabilityManager {
       return null;
     }
 
-    ctx.log.info(`Found checkpoint: ${checkpoint.id} (iteration ${checkpoint.iteration ?? 0})`);
+    ctx.log.info(
+      `Found checkpoint: ${checkpoint.id} (iteration ${checkpoint.iteration ?? 0})`,
+    );
 
     // Get epic to resume
     const epicId = checkpoint.state?.currentEpic;
     if (!epicId) {
-      ctx.log.warn('Checkpoint has no current epic, cannot resume');
+      ctx.log.warn("Checkpoint has no current epic, cannot resume");
       return null;
     }
 
     // Load epic context
     const epicConfig = this.storage.readEpicConfig(epicId);
     const epicStatus = this.statusManager.getEpicStatus(epicId);
-    const epicCtx = createEpicContext(epicId, epicConfig, epicStatus, ctx, this.storage);
+    const epicCtx = createEpicContext(
+      epicId,
+      epicConfig,
+      epicStatus,
+      ctx,
+      this.storage,
+    );
 
     // Re-evaluate gaps (trust codebase, not checkpoint)
-    ctx.log.info('Re-evaluating gaps from codebase...');
+    ctx.log.info("Re-evaluating gaps from codebase...");
     const evalResult = await this.detector.detectEpicGaps(epicCtx);
     const currentGaps = evalResult.gaps;
 
@@ -110,7 +118,7 @@ export class ResumabilityManager {
       ctx.log.info(
         `Gaps changed since checkpoint: ` +
           `${checkpointGaps.length} → ${currentGaps.length} ` +
-          `(${Math.abs(currentGaps.length - checkpointGaps.length)} difference)`
+          `(${Math.abs(currentGaps.length - checkpointGaps.length)} difference)`,
       );
     } else {
       ctx.log.info(`Gaps unchanged since checkpoint`);
@@ -120,7 +128,7 @@ export class ResumabilityManager {
       checkpointId: checkpoint.id,
       iteration: checkpoint.iteration ?? 0,
       epicId,
-      phase: checkpoint.state?.phase ?? 'evaluate',
+      phase: checkpoint.state?.phase ?? "evaluate",
       checkpointGaps,
       currentGaps,
       completedTasks: checkpoint.completed?.tasks ?? [],
@@ -135,8 +143,11 @@ export class ResumabilityManager {
   /**
    * Reconcile checkpoint state with current codebase state
    */
-  async reconcileState(ctx: EpicContext, resumePoint: ResumePoint): Promise<void> {
-    ctx.log.info('Reconciling state from checkpoint...');
+  async reconcileState(
+    ctx: EpicContext,
+    resumePoint: ResumePoint,
+  ): Promise<void> {
+    ctx.log.info("Reconciling state from checkpoint...");
 
     // Verify completed tasks are actually complete
     const verifiedCompleted: string[] = [];
@@ -166,8 +177,8 @@ export class ResumabilityManager {
           this.statusManager.transitionTask(
             ctx.epicId,
             taskId,
-            'pending',
-            'Outputs missing, needs rework'
+            "pending",
+            "Outputs missing, needs rework",
           );
         }
       } else {
@@ -177,7 +188,7 @@ export class ResumabilityManager {
     }
 
     ctx.log.info(
-      `State reconciliation: ${verifiedCompleted.length} verified, ${needsRework.length} need rework`
+      `State reconciliation: ${verifiedCompleted.length} verified, ${needsRework.length} need rework`,
     );
   }
 
@@ -189,8 +200,9 @@ export class ResumabilityManager {
    * Check if checkpoint is from a different machine
    */
   isCrossMachineResume(checkpoint: Checkpoint): boolean {
-    const currentMachine = process.env.HOSTNAME || process.env.COMPUTERNAME || 'unknown';
-    const checkpointMachine = checkpoint.metadata?.machine || 'unknown';
+    const currentMachine =
+      process.env.HOSTNAME || process.env.COMPUTERNAME || "unknown";
+    const checkpointMachine = checkpoint.metadata?.machine || "unknown";
     return currentMachine !== checkpointMachine;
   }
 
@@ -199,10 +211,10 @@ export class ResumabilityManager {
    */
   async prepareCrossMachineResume(
     ctx: ProjectContext,
-    checkpoint: Checkpoint
+    checkpoint: Checkpoint,
   ): Promise<void> {
     ctx.log.info(
-      `Cross-machine resume detected: ${checkpoint.metadata?.machine} → ${process.env.HOSTNAME || 'unknown'}`
+      `Cross-machine resume detected: ${checkpoint.metadata?.machine} → ${process.env.HOSTNAME || "unknown"}`,
     );
 
     // Verify git commit if available
@@ -212,7 +224,7 @@ export class ResumabilityManager {
         if (currentCommit !== checkpoint.metadata.commit) {
           ctx.log.warn(
             `Git commit mismatch: checkpoint=${checkpoint.metadata.commit.substring(0, 7)}, ` +
-              `current=${currentCommit.substring(0, 7)}`
+              `current=${currentCommit.substring(0, 7)}`,
           );
           ctx.log.warn(`Code may have changed since checkpoint was created`);
         }
@@ -222,7 +234,9 @@ export class ResumabilityManager {
     }
 
     // Verify dependencies/environment
-    ctx.log.info('Cross-machine resume prepared, re-evaluation will detect any issues');
+    ctx.log.info(
+      "Cross-machine resume prepared, re-evaluation will detect any issues",
+    );
   }
 
   /* ────────────────────────────────────────────────────────────── */
@@ -236,7 +250,7 @@ export class ResumabilityManager {
     ctx: EpicContext,
     iteration: number,
     gaps: Gap[],
-    message?: string
+    message?: string,
   ): Promise<Checkpoint> {
     const checkpoint: Checkpoint = {
       version: 3,
@@ -245,25 +259,27 @@ export class ResumabilityManager {
       iteration,
       state: {
         currentEpic: ctx.epicId,
-        phase: 'execute',
+        phase: "execute",
       },
       gaps,
       completed: {
         epics: [],
         tasks: this.storage
           .listTasks(ctx.epicId)
-          .filter((taskId) => this.statusManager.isTaskCompleted(ctx.epicId, taskId)),
+          .filter((taskId) =>
+            this.statusManager.isTaskCompleted(ctx.epicId, taskId),
+          ),
       },
       metadata: {
         created: new Date().toISOString(),
-        machine: process.env.HOSTNAME || 'unknown',
+        machine: process.env.HOSTNAME || "unknown",
         commit: await ctx.git.getCurrentCommit().catch(() => undefined),
       },
     };
 
     this.storage.writeCheckpoint(checkpoint);
     ctx.log.info(
-      `Manual checkpoint created: ${checkpoint.id}${message ? ` (${message})` : ''}`
+      `Manual checkpoint created: ${checkpoint.id}${message ? ` (${message})` : ""}`,
     );
 
     return checkpoint;
@@ -313,7 +329,7 @@ export class ResumabilityManager {
  */
 export function createResumabilityManager(
   storage: FilesystemStorage,
-  statusManager: StatusManager
+  statusManager: StatusManager,
 ): ResumabilityManager {
   return new ResumabilityManager(storage, statusManager);
 }

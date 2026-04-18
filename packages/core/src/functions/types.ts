@@ -8,9 +8,13 @@
  * - TaskFn: Executes work to close gaps
  */
 
-import type { Gap, CheckResult, EvalResult } from '../gap/types.ts';
-import type { TaskConfig } from '../storage/types.ts';
-import type { ProjectContext, EpicContext, TaskContext } from '../context/types.ts';
+import type { Gap, CheckResult, EvalResult } from "../gap/types.ts";
+import type { TaskConfig } from "../storage/types.ts";
+import type {
+  ProjectContext,
+  EpicContext,
+  TaskContext,
+} from "../context/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Check Function                                                    */
@@ -25,7 +29,9 @@ import type { ProjectContext, EpicContext, TaskContext } from '../context/types.
  * - Linting check
  * - Build verification
  */
-export type CheckFn = (ctx: TaskContext | EpicContext | ProjectContext) => Promise<CheckResult> | CheckResult;
+export type CheckFn = (
+  ctx: TaskContext | EpicContext | ProjectContext,
+) => Promise<CheckResult> | CheckResult;
 
 /**
  * Check function metadata
@@ -41,7 +47,7 @@ export interface CheckFnMeta {
   fn: CheckFn;
 
   /** Check type category */
-  category?: 'build' | 'test' | 'lint' | 'security' | 'custom';
+  category?: "build" | "test" | "lint" | "security" | "custom";
 
   /** Timeout (ms) */
   timeout?: number;
@@ -63,7 +69,9 @@ export interface CheckFnMeta {
  * - Epic-level: Check if all required files exist
  * - Task-level: Check if task outputs match expectations
  */
-export type EvalFn = (ctx: ProjectContext | EpicContext | TaskContext) => Promise<EvalResult> | EvalResult;
+export type EvalFn = (
+  ctx: ProjectContext | EpicContext | TaskContext,
+) => Promise<EvalResult> | EvalResult;
 
 /**
  * Evaluation function metadata
@@ -100,7 +108,7 @@ export interface EvalFnMeta {
  */
 export type PlanFn = (
   ctx: EpicContext,
-  gaps: Gap[]
+  gaps: Gap[],
 ) => Promise<TaskConfig[]> | TaskConfig[];
 
 /**
@@ -267,7 +275,7 @@ export interface CheckBuilder {
   description(description: string): this;
 
   /** Set category */
-  category(category: CheckFnMeta['category']): this;
+  category(category: CheckFnMeta["category"]): this;
 
   /** Set timeout */
   timeout(ms: number): this;
@@ -386,7 +394,7 @@ export interface YieldsDeclarative {
   maxTasks?: number;
 
   /** Where to spawn tasks */
-  target?: 'current-epic' | 'next-epic' | 'new-epic';
+  target?: "current-epic" | "next-epic" | "new-epic";
 
   /** Default task type for spawned tasks */
   taskType?: string;
@@ -395,13 +403,16 @@ export interface YieldsDeclarative {
   checks?: string[];
 
   /** Approval mode */
-  approval?: 'immediate' | 'review';
+  approval?: "immediate" | "review";
 }
 
 /**
  * Programmatic yields function
  */
-export type YieldsFn = (ctx: TaskContext | EpicContext, result: TaskResult) => Promise<TaskConfig[]> | TaskConfig[];
+export type YieldsFn = (
+  ctx: TaskContext | EpicContext,
+  result: TaskResult,
+) => Promise<TaskConfig[]> | TaskConfig[];
 
 /**
  * Static template yields
@@ -424,7 +435,7 @@ export type YieldsConfig = string | YieldsDeclarative | YieldsFn | YieldsStatic;
  */
 export interface AutoConvergeConfig {
   /** Derive validation from task context */
-  from?: 'task-prompt' | 'inputs' | 'outputs' | 'description';
+  from?: "task-prompt" | "inputs" | "outputs" | "description";
 
   /** Custom validation prompt */
   prompt?: string;
@@ -445,7 +456,7 @@ export interface AutoConvergeConfig {
   strictness?: number;
 
   /** Sandbox level */
-  sandbox?: 'strict' | 'moderate' | 'permissive';
+  sandbox?: "strict" | "moderate" | "permissive";
 }
 
 /**
@@ -453,7 +464,7 @@ export interface AutoConvergeConfig {
  */
 export interface ConvergeIssue {
   message: string;
-  severity: 'error' | 'warning';
+  severity: "error" | "warning";
   file?: string;
   line?: number;
 }
@@ -552,7 +563,7 @@ export interface TaskDefBuilder {
   yields(config: YieldsConfig): this;
 
   /** Configure subtasks (sequential child task execution) - stored in vars */
-  subtasks(config: import('../subtasks/types.ts').SubtasksConfig): this;
+  subtasks(config: import("../subtasks/types.ts").SubtasksConfig): this;
 
   /** Configure AutoConverge validation (Phase 2) */
   autoConverge(config: AutoConvergeConfig): this;
@@ -595,7 +606,7 @@ export interface EpicDefinition {
   id: string;
   name: string;
   description?: string;
-  goals: import('../goal/types.ts').Goal[];  // Hierarchical Goal objects (not strings)
+  goals: import("../goal/types.ts").Goal[]; // Hierarchical Goal objects (not strings)
   deps: string[];
   checks: CheckFnMeta[];
   evals: EvalFnMeta[];
@@ -617,10 +628,10 @@ export interface EpicBuilder {
   description(description: string): this;
 
   /** Set epic goals (hierarchical Goal objects) */
-  goals(goals: import('../goal/types.ts').Goal[]): this;
+  goals(goals: import("../goal/types.ts").Goal[]): this;
 
   /** Add a single goal */
-  goal(goal: import('../goal/types.ts').Goal): this;
+  goal(goal: import("../goal/types.ts").Goal): this;
 
   /** Set epic dependencies */
   deps(deps: string[]): this;
@@ -653,16 +664,24 @@ export interface ProjectDefinition {
   epics: EpicDefinition[];
 
   /** Initialize runtime (returns Runtime interface for goal-centric operations) */
-  init(): Promise<import('../runtime/types.ts').Runtime>;
+  init(): Promise<import("../runtime/types.ts").Runtime>;
 
   /** Run the project convergence loop */
-  run(config?: Partial<import('../orchestrator/convergence.ts').ConvergenceConfig>): Promise<import('../orchestrator/project-orchestrator.ts').ProjectOrchestrationResult>;
+  run(
+    config?: Partial<
+      import("../orchestrator/convergence.ts").ConvergenceConfig
+    >,
+  ): Promise<
+    import("../orchestrator/project-orchestrator.ts").ProjectOrchestrationResult
+  >;
 
   /** Resume from checkpoint */
-  resume(): Promise<import('../orchestrator/project-orchestrator.ts').ProjectOrchestrationResult>;
+  resume(): Promise<
+    import("../orchestrator/project-orchestrator.ts").ProjectOrchestrationResult
+  >;
 
   /** Verify project state */
-  verify(): Promise<import('../gap/types.ts').EvalResult>;
+  verify(): Promise<import("../gap/types.ts").EvalResult>;
 
   /** Add a goal dynamically */
   addGoal(goal: string): void;
@@ -704,4 +723,4 @@ export interface ProjectBuilder {
 }
 
 // Import ProjectConfig from storage types
-import type { ProjectConfig } from '../storage/types.ts';
+import type { ProjectConfig } from "../storage/types.ts";

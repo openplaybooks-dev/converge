@@ -5,9 +5,9 @@
  * for display in the console, providing visibility into what the AI is doing.
  */
 
-import { watch, statSync, createReadStream, existsSync } from 'node:fs';
-import { readdir } from 'node:fs/promises';
-import { join } from 'node:path';
+import { watch, statSync, createReadStream, existsSync } from "node:fs";
+import { readdir } from "node:fs/promises";
+import { join } from "node:path";
 
 interface StreamOptions {
   /** Show tool calls (Read, Write, Bash, etc.) */
@@ -17,7 +17,7 @@ interface StreamOptions {
   /** Show results/completions */
   showResults?: boolean;
   /** Minimum log level to show */
-  minLevel?: 'debug' | 'info' | 'warning' | 'error';
+  minLevel?: "debug" | "info" | "warning" | "error";
   /** Use colors in output */
   useColor?: boolean;
   /** Debounce interval (ms) to batch updates */
@@ -28,7 +28,7 @@ const DEFAULT_OPTIONS: StreamOptions = {
   showToolCalls: true,
   showReasoning: false, // Too verbose for most users
   showResults: true,
-  minLevel: 'info',
+  minLevel: "info",
   useColor: true,
   debounceMs: 100,
 };
@@ -87,9 +87,7 @@ export class LogStreamer {
 
     try {
       const files = await readdir(this.logDir);
-      const logFiles = files
-        .filter(f => f.endsWith('.log'))
-        .sort(); // Chronological order
+      const logFiles = files.filter((f) => f.endsWith(".log")).sort(); // Chronological order
 
       for (const file of logFiles) {
         const filePath = join(this.logDir, file);
@@ -122,12 +120,12 @@ export class LogStreamer {
 
     try {
       this.watcher = watch(this.logDir, (eventType, filename) => {
-        if (eventType === 'change' && filename?.endsWith('.log')) {
+        if (eventType === "change" && filename?.endsWith(".log")) {
           this.scheduleUpdate(join(this.logDir, filename));
         }
       });
-      this.watcher.on('error', (err: any) => {
-        if (err.code !== 'EPERM' && err.code !== 'ENOENT') throw err;
+      this.watcher.on("error", (err: any) => {
+        if (err.code !== "EPERM" && err.code !== "ENOENT") throw err;
       });
     } catch (err: any) {
       console.warn(`   ⚠️  Failed to watch log directory: ${err.message}`);
@@ -163,16 +161,16 @@ export class LogStreamer {
       if (stats.size <= lastPosition) return;
 
       const stream = createReadStream(filePath, {
-        encoding: 'utf8',
+        encoding: "utf8",
         start: lastPosition,
       });
 
-      let buffer = '';
+      let buffer = "";
 
-      stream.on('data', (chunk) => {
+      stream.on("data", (chunk) => {
         buffer += chunk;
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
 
         for (const line of lines) {
           if (line.trim()) {
@@ -181,7 +179,7 @@ export class LogStreamer {
         }
       });
 
-      stream.on('end', () => {
+      stream.on("end", () => {
         this.lastPositions.set(filePath, stats.size);
       });
     } catch (err) {
@@ -200,37 +198,39 @@ export class LogStreamer {
     const [, timestamp, level, message] = match;
 
     // Filter by level
-    if (level === 'DEBUG' && this.options.minLevel !== 'debug') return;
+    if (level === "DEBUG" && this.options.minLevel !== "debug") return;
 
     // Parse and format based on event type
-    if (level === 'TOOL_USE') {
+    if (level === "TOOL_USE") {
       if (this.options.showToolCalls) {
         this.formatToolCall(message);
       }
-    } else if (level === 'TOOL_RESULT') {
+    } else if (level === "TOOL_RESULT") {
       if (this.options.showToolCalls) {
         this.formatToolResult(message);
       }
-    } else if (level === 'TEXT_BLOCK') {
+    } else if (level === "TEXT_BLOCK") {
       if (this.options.showReasoning) {
         this.formatReasoning(message);
       }
-    } else if (level === 'FINAL_RESULT' || level === 'RESULT') {
+    } else if (level === "FINAL_RESULT" || level === "RESULT") {
       if (this.options.showResults) {
         this.formatResult(message);
       }
-    } else if (level === 'STDOUT' || level === 'STREAM_EVENT') {
+    } else if (level === "STDOUT" || level === "STREAM_EVENT") {
       // Parse JSON events
       try {
         const event = JSON.parse(message);
 
         // Check for tool_use in assistant message
-        if (event.type === 'assistant' && event.message?.content) {
-          const toolUse = event.message.content.find((c: any) => c.type === 'tool_use');
+        if (event.type === "assistant" && event.message?.content) {
+          const toolUse = event.message.content.find(
+            (c: any) => c.type === "tool_use",
+          );
           if (toolUse && this.options.showToolCalls) {
             this.formatToolUseFromMessage(toolUse);
           }
-        } else if (event.type === 'result') {
+        } else if (event.type === "result") {
           if (this.options.showResults) {
             this.formatAgentResult(event);
           }
@@ -238,7 +238,7 @@ export class LogStreamer {
       } catch {
         // Not JSON - ignore
       }
-    } else if (level === 'ERROR' || level === 'STDERR') {
+    } else if (level === "ERROR" || level === "STDERR") {
       this.formatError(message);
     }
   }
@@ -248,7 +248,7 @@ export class LogStreamer {
    */
   private formatToolCall(message: string): void {
     // Format: Tool: {name}\nInput: {...}
-    const lines = message.split('\n');
+    const lines = message.split("\n");
     if (lines.length >= 1) {
       const toolLine = lines[0];
       const toolMatch = toolLine.match(/Tool:\s+(\w+)/);
@@ -274,27 +274,29 @@ export class LogStreamer {
    */
   private printToolIcon(tool: string, input?: any): void {
     switch (tool) {
-      case 'Read':
-        console.log(`   📖 Reading ${input?.file_path || 'file'}`);
+      case "Read":
+        console.log(`   📖 Reading ${input?.file_path || "file"}`);
         break;
-      case 'Write':
-        console.log(`   ✍️  Writing ${input?.file_path || 'file'}`);
+      case "Write":
+        console.log(`   ✍️  Writing ${input?.file_path || "file"}`);
         break;
-      case 'Edit':
-        console.log(`   ✏️  Editing ${input?.file_path || 'file'}`);
+      case "Edit":
+        console.log(`   ✏️  Editing ${input?.file_path || "file"}`);
         break;
-      case 'Bash':
-        const cmd = input?.command?.substring(0, 50) || 'command';
-        console.log(`   ⚙️  Running: ${cmd}${input?.command?.length > 50 ? '...' : ''}`);
+      case "Bash":
+        const cmd = input?.command?.substring(0, 50) || "command";
+        console.log(
+          `   ⚙️  Running: ${cmd}${input?.command?.length > 50 ? "..." : ""}`,
+        );
         break;
-      case 'Skill':
-        console.log(`   🛠️  Skill: /${input?.skill || 'unknown'}`);
+      case "Skill":
+        console.log(`   🛠️  Skill: /${input?.skill || "unknown"}`);
         break;
-      case 'WebSearch':
-        console.log(`   🔍 Searching: ${input?.query || ''}`);
+      case "WebSearch":
+        console.log(`   🔍 Searching: ${input?.query || ""}`);
         break;
-      case 'WebFetch':
-        console.log(`   🌐 Fetching: ${input?.url || ''}`);
+      case "WebFetch":
+        console.log(`   🌐 Fetching: ${input?.url || ""}`);
         break;
       default:
         console.log(`   🔧 ${tool}`);
@@ -306,9 +308,13 @@ export class LogStreamer {
    */
   private formatToolResult(message: string): void {
     // Tool results can be very long - only show errors or short messages
-    if (message.includes('error') || message.includes('Error') || message.includes('failed')) {
+    if (
+      message.includes("error") ||
+      message.includes("Error") ||
+      message.includes("failed")
+    ) {
       const shortMsg = message.substring(0, 100);
-      console.log(`   ❌ ${shortMsg}${message.length > 100 ? '...' : ''}`);
+      console.log(`   ❌ ${shortMsg}${message.length > 100 ? "..." : ""}`);
     }
     // Otherwise, tool results are usually successful and verbose - skip them
   }
@@ -317,7 +323,9 @@ export class LogStreamer {
    * Format AI reasoning
    */
   private formatReasoning(message: string): void {
-    console.log(`   💬 ${message.substring(0, 100)}${message.length > 100 ? '...' : ''}`);
+    console.log(
+      `   💬 ${message.substring(0, 100)}${message.length > 100 ? "..." : ""}`,
+    );
   }
 
   /**
@@ -325,7 +333,7 @@ export class LogStreamer {
    */
   private formatResult(message: string): void {
     // Results can be very long - just show a snippet
-    const lines = message.split('\n').slice(0, 3);
+    const lines = message.split("\n").slice(0, 3);
     for (const line of lines) {
       if (line.trim()) {
         console.log(`   ${line}`);
@@ -337,11 +345,11 @@ export class LogStreamer {
    * Format agent result (from STREAM_EVENT)
    */
   private formatAgentResult(event: any): void {
-    if (event.subtype === 'success') {
+    if (event.subtype === "success") {
       const duration = (event.duration_ms / 1000).toFixed(1);
       console.log(`   ✅ Done in ${duration}s`);
-    } else if (event.subtype === 'error') {
-      console.log(`   ❌ Error: ${event.error || 'Unknown error'}`);
+    } else if (event.subtype === "error") {
+      console.log(`   ❌ Error: ${event.error || "Unknown error"}`);
     }
   }
 

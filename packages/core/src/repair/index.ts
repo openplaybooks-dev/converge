@@ -32,31 +32,42 @@ export type {
   AttemptRecord,
   Resolution,
   JournalContext,
-} from './types.ts';
+} from "./types.ts";
 
-export { GapRepairPredicate } from './predicate.ts';
-export type { RepairState } from './predicate.ts';
-export { ExecutionTimeline } from './timeline.ts';
-export type { TimelineEntry } from './timeline.ts';
-export { AttemptTracker } from './attempt-tracker.ts';
-export { HistoryIndexBuilder } from './history-index.ts';
-export type { HistoryIndex, AttemptSummary } from './history-index.ts';
-export { writeRepairContext, buildFilesystemRepairPrompt } from './context-writer.ts';
-export type { ContextWriterParams, ContextWriterResult } from './context-writer.ts';
-export { PromptBuilder } from './system-prompts.ts';
-export { runAgent, getAgentLogDir, resolveAIConfig, listAIProviders } from './agent-runner.ts';
-export type { ResolvedAIConfig } from './agent-runner.ts';
-export { prepareFeedback } from './feedback-writer.ts';
+export { GapRepairPredicate } from "./predicate.ts";
+export type { RepairState } from "./predicate.ts";
+export { ExecutionTimeline } from "./timeline.ts";
+export type { TimelineEntry } from "./timeline.ts";
+export { AttemptTracker } from "./attempt-tracker.ts";
+export { HistoryIndexBuilder } from "./history-index.ts";
+export type { HistoryIndex, AttemptSummary } from "./history-index.ts";
+export {
+  writeRepairContext,
+  buildFilesystemRepairPrompt,
+} from "./context-writer.ts";
+export type {
+  ContextWriterParams,
+  ContextWriterResult,
+} from "./context-writer.ts";
+export { PromptBuilder } from "./system-prompts.ts";
+export {
+  runAgent,
+  getAgentLogDir,
+  resolveAIConfig,
+  listAIProviders,
+} from "./agent-runner.ts";
+export type { ResolvedAIConfig } from "./agent-runner.ts";
+export { prepareFeedback } from "./feedback-writer.ts";
 
 // Active strategies (7)
-export { TaskRunStrategy } from './strategies/task-run.ts';
-export { WBSGeneratorRepairStrategy } from './strategies/wbs-generator-repair.ts';
-export { ToolEnvironmentRepairStrategy } from './strategies/tool-environment-repair.ts';
-export { DependencyBackoffStrategy } from './strategies/dependency-backoff.ts';
-export { MissingInputPatternRepairStrategy } from './strategies/missing-input-pattern.ts';
-export { UserQuestionResumeStrategy } from './strategies/user-question-resume.ts';
-export { SkillBasedRepairStrategy } from './strategies/skill-based-repair.ts';
-export { WbsScriptRepairStrategy } from './strategies/wbs-script-repair.ts';
+export { TaskRunStrategy } from "./strategies/task-run.ts";
+export { WBSGeneratorRepairStrategy } from "./strategies/wbs-generator-repair.ts";
+export { ToolEnvironmentRepairStrategy } from "./strategies/tool-environment-repair.ts";
+export { DependencyBackoffStrategy } from "./strategies/dependency-backoff.ts";
+export { MissingInputPatternRepairStrategy } from "./strategies/missing-input-pattern.ts";
+export { UserQuestionResumeStrategy } from "./strategies/user-question-resume.ts";
+export { SkillBasedRepairStrategy } from "./strategies/skill-based-repair.ts";
+export { WbsScriptRepairStrategy } from "./strategies/wbs-script-repair.ts";
 
 // Unified Strategy System (AI-driven selection across TS + TASK.md)
 export {
@@ -64,26 +75,48 @@ export {
   gatherContext,
   buildSelectionPrompt,
   getBuiltinDescriptors,
-} from './strategy-catalog.ts';
+} from "./strategy-catalog.ts";
 export type {
   StrategyDescriptor,
   ContextStep,
   GatheredContext,
   AISelectionResult,
-} from './strategy-catalog.ts';
+} from "./strategy-catalog.ts";
 
 // Skill-based repair (installer for repair TASK.md templates)
-export { installRepairSkills, hasRepairSkills, listRepairSkills } from './skill-installer.ts';
+export {
+  installRepairSkills,
+  hasRepairSkills,
+  listRepairSkills,
+} from "./skill-installer.ts";
 
 // Health Check Hooks
-export { taskCompletionHealthCheck, wbsSpawnReview, registerHealthCheckHooks } from './health-checks.ts';
+export {
+  taskCompletionHealthCheck,
+  wbsSpawnReview,
+  registerHealthCheckHooks,
+} from "./health-checks.ts";
 
 // Navigator Graph (graph-driven state machine)
-export { converge } from './navigator/navigator.ts';
-export type { ConvergeOptions, ConvergeResult } from './navigator/navigator.ts';
-export { NavigatorGraph } from './navigator/graph.ts';
-export { buildInitialNodes, GOAL_CONDITIONS } from './navigator/default-graph.ts';
-export { buildActionRegistry } from './navigator/actions.ts';
-export type { GraphNode, GraphEdge, Graph, Snapshot, WalkResult, GoalCondition, NodeStatus, NodeOrigin } from './navigator/types.ts';
-export { evalPredicate, listPredicates } from './navigator/predicates.ts';
-
+export { converge } from "./navigator/navigator.ts";
+export type { ConvergeOptions, ConvergeResult } from "./navigator/navigator.ts";
+export { NavigatorGraph } from "./navigator/graph.ts";
+export {
+  buildPreflightNodes,
+  buildResponseNodes,
+  buildPostActionNodes,
+  buildInitialNodes,
+  GOAL_CONDITIONS,
+} from "./navigator/default-graph.ts";
+export { buildActionRegistry } from "./navigator/actions.ts";
+export type {
+  GraphNode,
+  GraphEdge,
+  Graph,
+  Snapshot,
+  WalkResult,
+  GoalCondition,
+  NodeStatus,
+  NodeOrigin,
+} from "./navigator/types.ts";
+export { evalPredicate, listPredicates } from "./navigator/predicates.ts";

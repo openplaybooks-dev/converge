@@ -5,51 +5,51 @@
  * Console output is derived by reading/tailing this file.
  */
 
-import { createWriteStream, WriteStream, mkdirSync } from 'fs';
-import { dirname } from 'path';
+import { createWriteStream, WriteStream, mkdirSync } from "fs";
+import { dirname } from "path";
 
 /**
  * Task event types - comprehensive list of all trackable events
  */
 export enum TaskEventType {
   // Lifecycle
-  TASK_START = 'task_start',
-  TASK_COMPLETE = 'task_complete',
-  TASK_FAILED = 'task_failed',
-  RETRY_START = 'retry_start',
+  TASK_START = "task_start",
+  TASK_COMPLETE = "task_complete",
+  TASK_FAILED = "task_failed",
+  RETRY_START = "retry_start",
 
   // Tool usage
-  TOOL_USE_START = 'tool_use_start',
-  TOOL_USE_COMPLETE = 'tool_use_complete',
-  TOOL_USE_ERROR = 'tool_use_error',
+  TOOL_USE_START = "tool_use_start",
+  TOOL_USE_COMPLETE = "tool_use_complete",
+  TOOL_USE_ERROR = "tool_use_error",
 
   // File operations
-  FILE_CREATED = 'file_created',
-  FILE_MODIFIED = 'file_modified',
-  FILE_DELETED = 'file_deleted',
-  FILE_VERIFIED = 'file_verified',
+  FILE_CREATED = "file_created",
+  FILE_MODIFIED = "file_modified",
+  FILE_DELETED = "file_deleted",
+  FILE_VERIFIED = "file_verified",
 
   // Validation
-  VALIDATION_START = 'validation_start',
-  VALIDATION_RESULT = 'validation_result',
-  CHECK_PASSED = 'check_passed',
-  CHECK_FAILED = 'check_failed',
+  VALIDATION_START = "validation_start",
+  VALIDATION_RESULT = "validation_result",
+  CHECK_PASSED = "check_passed",
+  CHECK_FAILED = "check_failed",
 
   // AI
-  AI_REASONING = 'ai_reasoning',
-  AI_PLANNING = 'ai_planning',
-  AI_THINKING = 'ai_thinking',
-  AI_ERROR = 'ai_error',
+  AI_REASONING = "ai_reasoning",
+  AI_PLANNING = "ai_planning",
+  AI_THINKING = "ai_thinking",
+  AI_ERROR = "ai_error",
 
   // Gap resolution
-  GAP_DETECTED = 'gap_detected',
-  GAP_RESOLVED = 'gap_resolved',
-  STRATEGY_APPLIED = 'strategy_applied',
-  STRATEGY_FAILED = 'strategy_failed',
+  GAP_DETECTED = "gap_detected",
+  GAP_RESOLVED = "gap_resolved",
+  STRATEGY_APPLIED = "strategy_applied",
+  STRATEGY_FAILED = "strategy_failed",
 
   // Internal (debug only)
-  INTERNAL_STATE = 'internal_state',
-  STREAM_CHUNK = 'stream_chunk',
+  INTERNAL_STATE = "internal_state",
+  STREAM_CHUNK = "stream_chunk",
 }
 
 /**
@@ -63,7 +63,7 @@ export interface TaskEvent {
   type: TaskEventType;
 
   /** Event priority for filtering */
-  level?: 'debug' | 'info' | 'warning' | 'error' | 'critical';
+  level?: "debug" | "info" | "warning" | "error" | "critical";
 
   /** Event-specific data */
   [key: string]: any;
@@ -138,10 +138,10 @@ export class TaskEventWriter {
     mkdirSync(dirname(this.eventsFile), { recursive: true });
 
     // Open append stream
-    this.writeStream = createWriteStream(this.eventsFile, { flags: 'a' });
+    this.writeStream = createWriteStream(this.eventsFile, { flags: "a" });
 
     // Handle stream errors
-    this.writeStream.on('error', (err) => {
+    this.writeStream.on("error", (err) => {
       console.error(`❌ Event writer error: ${err.message}`);
     });
   }
@@ -151,7 +151,7 @@ export class TaskEventWriter {
    */
   write(event: TaskEvent): void {
     if (this.closed) {
-      throw new Error('Cannot write to closed event writer');
+      throw new Error("Cannot write to closed event writer");
     }
 
     // Add timestamp if not present
@@ -168,7 +168,7 @@ export class TaskEventWriter {
     this.eventBuffer.push(event);
 
     // Flush immediately for critical events, otherwise buffer
-    const isCritical = event.level === 'critical' || event.level === 'error';
+    const isCritical = event.level === "critical" || event.level === "error";
     if (isCritical) {
       this.flush();
       return;
@@ -192,7 +192,7 @@ export class TaskEventWriter {
     if (this.eventBuffer.length === 0 || !this.writeStream) return;
 
     for (const event of this.eventBuffer) {
-      const line = JSON.stringify(event) + '\n';
+      const line = JSON.stringify(event) + "\n";
       this.writeStream.write(line);
     }
 
@@ -225,29 +225,29 @@ export class TaskEventWriter {
   /**
    * Infer event level from type
    */
-  private inferLevel(type: TaskEventType): TaskEvent['level'] {
+  private inferLevel(type: TaskEventType): TaskEvent["level"] {
     switch (type) {
       case TaskEventType.TASK_FAILED:
       case TaskEventType.TOOL_USE_ERROR:
       case TaskEventType.AI_ERROR:
-        return 'error';
+        return "error";
 
       case TaskEventType.VALIDATION_RESULT:
       case TaskEventType.CHECK_FAILED:
       case TaskEventType.STRATEGY_FAILED:
-        return 'warning';
+        return "warning";
 
       case TaskEventType.TASK_START:
       case TaskEventType.TASK_COMPLETE:
       case TaskEventType.GAP_RESOLVED:
-        return 'critical';
+        return "critical";
 
       case TaskEventType.INTERNAL_STATE:
       case TaskEventType.STREAM_CHUNK:
-        return 'debug';
+        return "debug";
 
       default:
-        return 'info';
+        return "info";
     }
   }
 
@@ -255,7 +255,7 @@ export class TaskEventWriter {
    * Convenience methods for common events
    */
 
-  taskStart(data: Omit<TaskStartEvent, 'type' | 'timestamp' | 'level'>): void {
+  taskStart(data: Omit<TaskStartEvent, "type" | "timestamp" | "level">): void {
     this.write({
       type: TaskEventType.TASK_START,
       ...data,
@@ -294,7 +294,7 @@ export class TaskEventWriter {
     success: boolean,
     result?: Record<string, any>,
     error?: string,
-    duration?: number
+    duration?: number,
   ): void {
     this.write({
       type: TaskEventType.TOOL_USE_COMPLETE,
@@ -306,7 +306,12 @@ export class TaskEventWriter {
     });
   }
 
-  fileCreated(path: string, size: number, lines?: number, verified = false): void {
+  fileCreated(
+    path: string,
+    size: number,
+    lines?: number,
+    verified = false,
+  ): void {
     this.write({
       type: TaskEventType.FILE_CREATED,
       path,
@@ -320,7 +325,7 @@ export class TaskEventWriter {
     output: string,
     exists: boolean,
     checks: Array<{ id: string; passed: boolean; error?: string }>,
-    size?: number
+    size?: number,
   ): void {
     this.write({
       type: TaskEventType.VALIDATION_RESULT,

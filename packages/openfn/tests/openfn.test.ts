@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 
 // We mock the @opencode-ai/sdk module since we can't make real API calls in tests.
 vi.mock("@opencode-ai/sdk", async () => {
-  const actual = await import("@opencode-ai/sdk") as any;
+  const actual = (await import("@opencode-ai/sdk")) as any;
 
   let _queue: Array<unknown> = [];
   let _callIndex = 0;
@@ -24,19 +24,26 @@ vi.mock("@opencode-ai/sdk", async () => {
     // The SDK wraps responses in { data: { info: {...} } }
     // When using structured output, it returns { info: { structured_output: {...} } }
     // When using text, it returns { info: { text: "..." } }
-    const resp = _queue[_callIndex] ?? _queue[_queue.length - 1] ?? { text: "default response" };
+    const resp = _queue[_callIndex] ??
+      _queue[_queue.length - 1] ?? { text: "default response" };
     _callIndex++;
 
     // Check if this is a structured output response
     if ((resp as any).structured_output) {
-      return { data: { info: { structured_output: (resp as any).structured_output } } };
+      return {
+        data: { info: { structured_output: (resp as any).structured_output } },
+      };
     }
     // Check if this has an info property (already SDK format)
     if ((resp as any).info) {
       return { data: resp };
     }
     // Otherwise wrap it as text response
-    return { data: { info: { text: typeof resp === 'string' ? resp : JSON.stringify(resp) } } };
+    return {
+      data: {
+        info: { text: typeof resp === "string" ? resp : JSON.stringify(resp) },
+      },
+    };
   });
 
   const MockClient = vi.fn().mockImplementation(() => ({
@@ -68,7 +75,7 @@ vi.mock("@opencode-ai/sdk", async () => {
   };
 });
 
-const mockSdk = await import("@opencode-ai/sdk") as any;
+const mockSdk = (await import("@opencode-ai/sdk")) as any;
 
 beforeEach(() => {
   mockSdk.__setQueue([]);
@@ -85,10 +92,15 @@ describe("openfn — core API", () => {
   });
 
   it("creates an Opencode client with the correct baseUrl", async () => {
-    const fn = openfn({ prompt: "Say hello", baseUrl: "http://localhost:8080" });
+    const fn = openfn({
+      prompt: "Say hello",
+      baseUrl: "http://localhost:8080",
+    });
     await fn();
     const ClientConstructor = mockSdk.__MockClient;
-    expect(ClientConstructor).toHaveBeenCalledWith({ baseUrl: "http://localhost:8080" });
+    expect(ClientConstructor).toHaveBeenCalledWith({
+      baseUrl: "http://localhost:8080",
+    });
   });
 
   it("returns result with data, raw, and durationMs", async () => {
@@ -111,7 +123,10 @@ describe("openfn — core API", () => {
 
   it("interpolates {{input}} in prompt template", async () => {
     mockSdk.__setNextResponse({ text: "translated: hello" });
-    const fn = openfn({ prompt: "Translate {{input}} to French", logDir: tmpdir() });
+    const fn = openfn({
+      prompt: "Translate {{input}} to French",
+      logDir: tmpdir(),
+    });
     await fn("hello");
     expect(mockSdk.__MockClient).toHaveBeenCalled();
   });
@@ -125,7 +140,11 @@ describe("openfn — core API", () => {
 
   it("accepts cwd option without error", async () => {
     mockSdk.__setNextResponse({ text: "ok" });
-    const fn = openfn({ prompt: "test", cwd: "/tmp/myproject", logDir: tmpdir() });
+    const fn = openfn({
+      prompt: "test",
+      cwd: "/tmp/myproject",
+      logDir: tmpdir(),
+    });
     await fn();
     expect(mockSdk.__MockClient).toHaveBeenCalled();
   });
@@ -165,9 +184,7 @@ describe("openfn — dynamic prompt", () => {
 describe("openfn — schema validation", () => {
   it("parses JSON output through zod schema", async () => {
     // SDK structured output is returned in result.data.info.structured_output
-    mockSdk.__setQueue([
-      { structured_output: { name: "Alice", age: 30 } },
-    ]);
+    mockSdk.__setQueue([{ structured_output: { name: "Alice", age: 30 } }]);
     const fn = openfn({
       prompt: "Give me a person",
       schema: z.object({ name: z.string(), age: z.number() }),
@@ -179,9 +196,7 @@ describe("openfn — schema validation", () => {
 
   it("extracts JSON from markdown code fences before parsing", async () => {
     // With SDK structured output, the response is directly in structured_output format
-    mockSdk.__setQueue([
-      { structured_output: { name: "Bob", age: 25 } },
-    ]);
+    mockSdk.__setQueue([{ structured_output: { name: "Bob", age: 25 } }]);
     const fn = openfn({
       prompt: "Give me a person",
       schema: z.object({ name: z.string(), age: z.number() }),
@@ -222,7 +237,7 @@ describe("openfn — hooks", () => {
       expect.objectContaining({
         result: expect.any(String),
         durationMs: expect.any(Number),
-      })
+      }),
     );
   });
 });

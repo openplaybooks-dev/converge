@@ -15,26 +15,26 @@
  * log.info('Task started', { taskId: 'my-task' });
  */
 
-import type { LoggerAPI } from '../context/types.ts';
+import type { LoggerAPI } from "../context/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Level Hierarchy                                                    */
 /* ------------------------------------------------------------------ */
 
-type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+type LogLevel = "debug" | "info" | "warn" | "error";
 
 const LEVEL_VALUES: Record<LogLevel, number> = {
   debug: 0,
-  info:  1,
-  warn:  2,
+  info: 1,
+  warn: 2,
   error: 3,
 };
 
 const LEVEL_LABELS: Record<LogLevel, string> = {
-  debug: 'DEBUG',
-  info:  ' INFO',
-  warn:  ' WARN',
-  error: 'ERROR',
+  debug: "DEBUG",
+  info: " INFO",
+  warn: " WARN",
+  error: "ERROR",
 };
 
 /* ------------------------------------------------------------------ */
@@ -53,25 +53,25 @@ class StructuredLogger implements LoggerAPI {
   private prefix: string;
 
   constructor(config: LoggerConfig = {}) {
-    this.minLevel = LEVEL_VALUES[config.logLevel ?? 'info'];
+    this.minLevel = LEVEL_VALUES[config.logLevel ?? "info"];
     this.jsonLogs = config.jsonLogs ?? false;
-    this.prefix = config.prefix ? `[${config.prefix}] ` : '';
+    this.prefix = config.prefix ? `[${config.prefix}] ` : "";
   }
 
   debug(message: string, meta?: Record<string, unknown>): void {
-    this.emit('debug', message, meta);
+    this.emit("debug", message, meta);
   }
 
   info(message: string, meta?: Record<string, unknown>): void {
-    this.emit('info', message, meta);
+    this.emit("info", message, meta);
   }
 
   warn(message: string, meta?: Record<string, unknown>): void {
-    this.emit('warn', message, meta);
+    this.emit("warn", message, meta);
   }
 
   error(message: string, meta?: Record<string, unknown>): void {
-    this.emit('error', message, meta);
+    this.emit("error", message, meta);
   }
 
   child(prefix: string): LoggerAPI {
@@ -82,34 +82,38 @@ class StructuredLogger implements LoggerAPI {
     });
   }
 
-  private emit(level: LogLevel, message: string, meta?: Record<string, unknown>): void {
+  private emit(
+    level: LogLevel,
+    message: string,
+    meta?: Record<string, unknown>,
+  ): void {
     if (LEVEL_VALUES[level] < this.minLevel) return;
 
     if (this.jsonLogs) {
       const entry: Record<string, unknown> = {
-        ts:      new Date().toISOString(),
+        ts: new Date().toISOString(),
         level,
         message: this.prefix + message,
       };
       if (meta && Object.keys(meta).length > 0) {
         Object.assign(entry, meta);
       }
-      (level === 'error' || level === 'warn' ? console.error : console.log)(
-        JSON.stringify(entry)
+      (level === "error" || level === "warn" ? console.error : console.log)(
+        JSON.stringify(entry),
       );
     } else {
       const ts = new Date().toISOString().slice(11, 23); // HH:MM:SS.mmm
       const label = LEVEL_LABELS[level];
       const text = `${ts} ${label} ${this.prefix}${message}`;
-      if (level === 'error') {
+      if (level === "error") {
         console.error(text);
-        if (meta) console.error('         ', meta);
-      } else if (level === 'warn') {
+        if (meta) console.error("         ", meta);
+      } else if (level === "warn") {
         console.warn(text);
-        if (meta) console.warn('         ', meta);
+        if (meta) console.warn("         ", meta);
       } else {
         console.log(text);
-        if (meta) console.log('         ', meta);
+        if (meta) console.log("         ", meta);
       }
     }
   }
@@ -123,7 +127,7 @@ function levelFromValue(value: number): LogLevel {
   for (const [k, v] of Object.entries(LEVEL_VALUES) as [LogLevel, number][]) {
     if (v === value) return k;
   }
-  return 'info';
+  return "info";
 }
 
 /* ------------------------------------------------------------------ */
@@ -137,8 +141,8 @@ function levelFromValue(value: number): LogLevel {
  * @param prefix - Optional prefix string (e.g., 'project', 'epic:setup')
  */
 export function createLogger(
-  config: Pick<LoggerConfig, 'logLevel' | 'jsonLogs'> = {},
-  prefix?: string
+  config: Pick<LoggerConfig, "logLevel" | "jsonLogs"> = {},
+  prefix?: string,
 ): LoggerAPI {
   return new StructuredLogger({ ...config, prefix });
 }
@@ -148,5 +152,5 @@ export function createLogger(
  * Used as a fallback when no converge.ts config is present.
  */
 export function createDefaultLogger(prefix?: string): LoggerAPI {
-  return new StructuredLogger({ logLevel: 'info', jsonLogs: false, prefix });
+  return new StructuredLogger({ logLevel: "info", jsonLogs: false, prefix });
 }

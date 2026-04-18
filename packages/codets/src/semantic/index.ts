@@ -32,7 +32,7 @@ export type {
   BannerComment,
   JsdocComment,
   DirectiveStmt,
-} from './nodes.ts';
+} from "./nodes.ts";
 
 // Sub-builders
 export {
@@ -43,12 +43,12 @@ export {
   ConstBuilder,
   ConstResult,
   FnBody,
-} from './sub-builders.ts';
+} from "./sub-builders.ts";
 
 // Formatter
-export { formatFile, DEFAULT_FORMAT } from './formatter.ts';
-export type { FormatOptions } from './formatter.ts';
+export { formatFile, DEFAULT_FORMAT } from "./formatter.ts";
+export type { FormatOptions } from "./formatter.ts";
 
 // Main builder
-export { SemanticBuilder } from './semantic-builder.ts';
-export type { SemanticFnOptions } from './semantic-builder.ts';
+export { SemanticBuilder } from "./semantic-builder.ts";
+export type { SemanticFnOptions } from "./semantic-builder.ts";

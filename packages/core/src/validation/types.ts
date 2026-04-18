@@ -4,13 +4,13 @@
  * Core types for the rule-based TASK.md and project validation system.
  */
 
-import type { TaskMdShape } from '../config/task-md-definition.ts';
+import type { TaskMdShape } from "../config/task-md-definition.ts";
 
 /** Severity levels */
-export type Severity = 'error' | 'warning' | 'info';
+export type Severity = "error" | "warning" | "info";
 
 /** Validation layers — what aspect of the definition is checked */
-export type ValidationLayer = 'format' | 'structure' | 'syntax';
+export type ValidationLayer = "format" | "structure" | "syntax";
 
 /** A single validation issue found by a rule */
 export interface ValidationIssue {
@@ -72,7 +72,11 @@ export interface ProjectValidationRule {
   severity: Severity;
   description: string;
   /** Run against all tasks in the project */
-  check: (tasks: TaskValidationInput[], projectDir: string, projectMd?: Record<string, unknown>) => ValidationIssue[];
+  check: (
+    tasks: TaskValidationInput[],
+    projectDir: string,
+    projectMd?: Record<string, unknown>,
+  ) => ValidationIssue[];
 }
 
 /** Input to validation rules — parsed TASK.md plus filesystem metadata */

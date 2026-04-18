@@ -1,13 +1,13 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { spawn } from 'node:child_process';
-import { AgentManager } from '../agent-manager.js';
-import { unlinkSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
-import { homedir } from 'node:os';
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { spawn } from "node:child_process";
+import { AgentManager } from "../agent-manager.js";
+import { unlinkSync, existsSync } from "node:fs";
+import { join } from "node:path";
+import { homedir } from "node:os";
 
-describe('AgentManager', () => {
+describe("AgentManager", () => {
   let manager: AgentManager;
-  const stateFilePath = join(homedir(), '.converge', 'agent-registry.json');
+  const stateFilePath = join(homedir(), ".converge", "agent-registry.json");
 
   beforeEach(() => {
     // Clean up state file before each test
@@ -22,7 +22,7 @@ describe('AgentManager', () => {
     const processes = manager.getAllProcesses();
     for (const proc of processes) {
       try {
-        process.kill(proc.pid, 'SIGKILL');
+        process.kill(proc.pid, "SIGKILL");
       } catch {
         // Process may already be dead
       }
@@ -35,14 +35,14 @@ describe('AgentManager', () => {
     }
   });
 
-  it('registers and tracks agents by PID', async () => {
-    const proc = spawn('sleep', ['1']);
+  it("registers and tracks agents by PID", async () => {
+    const proc = spawn("sleep", ["1"]);
 
     manager.register(proc, {
-      sessionId: 'test-session-1',
-      logPath: '/tmp/test.log',
-      command: 'sleep',
-      args: ['1'],
+      sessionId: "test-session-1",
+      logPath: "/tmp/test.log",
+      command: "sleep",
+      args: ["1"],
       cwd: process.cwd(),
       convergeMetadata: {
         projectDir: process.cwd(),
@@ -50,39 +50,39 @@ describe('AgentManager', () => {
     });
 
     expect(manager.getProcess(proc.pid!)).toBeDefined();
-    expect(manager.getProcess(proc.pid!)?.sessionId).toBe('test-session-1');
+    expect(manager.getProcess(proc.pid!)?.sessionId).toBe("test-session-1");
 
     proc.kill();
   });
 
-  it('registers and tracks agents by sessionId', async () => {
-    const proc = spawn('sleep', ['1']);
+  it("registers and tracks agents by sessionId", async () => {
+    const proc = spawn("sleep", ["1"]);
 
     manager.register(proc, {
-      sessionId: 'test-session-2',
-      logPath: '/tmp/test.log',
-      command: 'sleep',
-      args: ['1'],
+      sessionId: "test-session-2",
+      logPath: "/tmp/test.log",
+      command: "sleep",
+      args: ["1"],
       cwd: process.cwd(),
       convergeMetadata: {
         projectDir: process.cwd(),
       },
     });
 
-    expect(manager.getProcessBySession('test-session-2')).toBeDefined();
-    expect(manager.getProcessBySession('test-session-2')?.pid).toBe(proc.pid);
+    expect(manager.getProcessBySession("test-session-2")).toBeDefined();
+    expect(manager.getProcessBySession("test-session-2")?.pid).toBe(proc.pid);
 
     proc.kill();
   });
 
-  it('detects hung agents', async () => {
-    const proc = spawn('sleep', ['10']);
+  it("detects hung agents", async () => {
+    const proc = spawn("sleep", ["10"]);
 
     manager.register(proc, {
-      sessionId: 'test-session-3',
-      logPath: '/tmp/test.log',
-      command: 'sleep',
-      args: ['10'],
+      sessionId: "test-session-3",
+      logPath: "/tmp/test.log",
+      command: "sleep",
+      args: ["10"],
       cwd: process.cwd(),
       convergeMetadata: {
         projectDir: process.cwd(),
@@ -92,7 +92,7 @@ describe('AgentManager', () => {
     // Simulate hung process by setting lastActivityAt to 6 minutes ago
     const info = manager.getProcess(proc.pid!);
     if (info) {
-      info.lastActivityAt = Date.now() - (6 * 60 * 1000);
+      info.lastActivityAt = Date.now() - 6 * 60 * 1000;
     }
 
     const hungProcesses = manager.getHungProcesses();
@@ -102,18 +102,18 @@ describe('AgentManager', () => {
     proc.kill();
   });
 
-  it('handles rapid spawn/exit cycles', async () => {
+  it("handles rapid spawn/exit cycles", async () => {
     const processes = [];
 
     for (let i = 0; i < 5; i++) {
-      const proc = spawn('echo', ['hello']);
+      const proc = spawn("echo", ["hello"]);
       processes.push(proc);
 
       manager.register(proc, {
         sessionId: `test-session-${i}`,
-        logPath: '/tmp/test.log',
-        command: 'echo',
-        args: ['hello'],
+        logPath: "/tmp/test.log",
+        command: "echo",
+        args: ["hello"],
         cwd: process.cwd(),
         convergeMetadata: {
           projectDir: process.cwd(),
@@ -122,7 +122,7 @@ describe('AgentManager', () => {
     }
 
     // Wait for all processes to exit
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Clean up dead processes
     manager.cleanupDeadProcesses();
@@ -131,15 +131,15 @@ describe('AgentManager', () => {
     expect(manager.getAllProcesses().length).toBe(0);
   });
 
-  it('supports dual-index lookups (PID and sessionId)', async () => {
-    const proc = spawn('sleep', ['1']);
-    const sessionId = 'test-dual-index';
+  it("supports dual-index lookups (PID and sessionId)", async () => {
+    const proc = spawn("sleep", ["1"]);
+    const sessionId = "test-dual-index";
 
     manager.register(proc, {
       sessionId,
-      logPath: '/tmp/test.log',
-      command: 'sleep',
-      args: ['1'],
+      logPath: "/tmp/test.log",
+      command: "sleep",
+      args: ["1"],
       cwd: process.cwd(),
       convergeMetadata: {
         projectDir: process.cwd(),
@@ -158,61 +158,61 @@ describe('AgentManager', () => {
     proc.kill();
   });
 
-  it('tracks converge metadata', async () => {
-    const proc = spawn('sleep', ['1']);
+  it("tracks converge metadata", async () => {
+    const proc = spawn("sleep", ["1"]);
 
     manager.register(proc, {
-      sessionId: 'test-metadata',
-      logPath: '/tmp/test.log',
-      command: 'sleep',
-      args: ['1'],
+      sessionId: "test-metadata",
+      logPath: "/tmp/test.log",
+      command: "sleep",
+      args: ["1"],
       cwd: process.cwd(),
       convergeMetadata: {
-        projectDir: '/test/project',
-        epicId: 'epic-1',
-        taskId: 'task-1',
-        phase: 'execution',
-        strategyType: 'task-run',
+        projectDir: "/test/project",
+        epicId: "epic-1",
+        taskId: "task-1",
+        phase: "execution",
+        strategyType: "task-run",
       },
     });
 
     const info = manager.getProcess(proc.pid!);
-    expect(info?.convergeMetadata.epicId).toBe('epic-1');
-    expect(info?.convergeMetadata.taskId).toBe('task-1');
-    expect(info?.convergeMetadata.phase).toBe('execution');
+    expect(info?.convergeMetadata.epicId).toBe("epic-1");
+    expect(info?.convergeMetadata.taskId).toBe("task-1");
+    expect(info?.convergeMetadata.phase).toBe("execution");
 
     proc.kill();
   });
 
-  it('provides task-specific agent queries', async () => {
-    const proc1 = spawn('sleep', ['1']);
-    const proc2 = spawn('sleep', ['1']);
+  it("provides task-specific agent queries", async () => {
+    const proc1 = spawn("sleep", ["1"]);
+    const proc2 = spawn("sleep", ["1"]);
 
     manager.register(proc1, {
-      sessionId: 'test-query-1',
-      logPath: '/tmp/test.log',
-      command: 'sleep',
-      args: ['1'],
+      sessionId: "test-query-1",
+      logPath: "/tmp/test.log",
+      command: "sleep",
+      args: ["1"],
       cwd: process.cwd(),
       convergeMetadata: {
         projectDir: process.cwd(),
-        taskId: 'task-1',
+        taskId: "task-1",
       },
     });
 
     manager.register(proc2, {
-      sessionId: 'test-query-2',
-      logPath: '/tmp/test.log',
-      command: 'sleep',
-      args: ['1'],
+      sessionId: "test-query-2",
+      logPath: "/tmp/test.log",
+      command: "sleep",
+      args: ["1"],
       cwd: process.cwd(),
       convergeMetadata: {
         projectDir: process.cwd(),
-        taskId: 'task-2',
+        taskId: "task-2",
       },
     });
 
-    const task1Processes = manager.getProcessesByTask('task-1');
+    const task1Processes = manager.getProcessesByTask("task-1");
     expect(task1Processes.length).toBe(1);
     expect(task1Processes[0].pid).toBe(proc1.pid);
 
@@ -220,56 +220,56 @@ describe('AgentManager', () => {
     proc2.kill();
   });
 
-  it('cleans up agents by task', async () => {
-    const proc1 = spawn('sleep', ['10']);
-    const proc2 = spawn('sleep', ['10']);
+  it("cleans up agents by task", async () => {
+    const proc1 = spawn("sleep", ["10"]);
+    const proc2 = spawn("sleep", ["10"]);
 
     manager.register(proc1, {
-      sessionId: 'test-cleanup-task-1',
-      logPath: '/tmp/test.log',
-      command: 'sleep',
-      args: ['10'],
+      sessionId: "test-cleanup-task-1",
+      logPath: "/tmp/test.log",
+      command: "sleep",
+      args: ["10"],
       cwd: process.cwd(),
       convergeMetadata: {
         projectDir: process.cwd(),
-        taskId: 'cleanup-task-1',
+        taskId: "cleanup-task-1",
       },
     });
 
     manager.register(proc2, {
-      sessionId: 'test-cleanup-task-2',
-      logPath: '/tmp/test.log',
-      command: 'sleep',
-      args: ['10'],
+      sessionId: "test-cleanup-task-2",
+      logPath: "/tmp/test.log",
+      command: "sleep",
+      args: ["10"],
       cwd: process.cwd(),
       convergeMetadata: {
         projectDir: process.cwd(),
-        taskId: 'cleanup-task-2',
+        taskId: "cleanup-task-2",
       },
     });
 
-    await manager.cleanupTask('cleanup-task-1');
+    await manager.cleanupTask("cleanup-task-1");
 
     // Wait for process to be killed
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     // Task 1 should be dead, task 2 should still be running
     const proc1Info = manager.getProcess(proc1.pid!);
-    expect(proc1Info?.status).toBe('exiting');
+    expect(proc1Info?.status).toBe("exiting");
 
     // Clean up remaining process
     proc2.kill();
   });
 
-  it('cleans up agents by session', async () => {
-    const proc = spawn('sleep', ['10']);
-    const sessionId = 'test-cleanup-session';
+  it("cleans up agents by session", async () => {
+    const proc = spawn("sleep", ["10"]);
+    const sessionId = "test-cleanup-session";
 
     manager.register(proc, {
       sessionId,
-      logPath: '/tmp/test.log',
-      command: 'sleep',
-      args: ['10'],
+      logPath: "/tmp/test.log",
+      command: "sleep",
+      args: ["10"],
       cwd: process.cwd(),
       convergeMetadata: {
         projectDir: process.cwd(),
@@ -279,47 +279,47 @@ describe('AgentManager', () => {
     await manager.killSession(sessionId);
 
     // Wait for process to be killed
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     const info = manager.getProcessBySession(sessionId);
-    expect(info?.status).toBe('exiting');
+    expect(info?.status).toBe("exiting");
   });
 
-  it('calculates metrics correctly', async () => {
-    const proc1 = spawn('echo', ['test1']);
-    const proc2 = spawn('sleep', ['10']);
+  it("calculates metrics correctly", async () => {
+    const proc1 = spawn("echo", ["test1"]);
+    const proc2 = spawn("sleep", ["10"]);
 
     manager.register(proc1, {
-      sessionId: 'metrics-1',
-      logPath: '/tmp/test.log',
-      command: 'echo',
-      args: ['test1'],
+      sessionId: "metrics-1",
+      logPath: "/tmp/test.log",
+      command: "echo",
+      args: ["test1"],
       cwd: process.cwd(),
       convergeMetadata: {
         projectDir: process.cwd(),
-        phase: 'analysis',
+        phase: "analysis",
       },
     });
 
     manager.register(proc2, {
-      sessionId: 'metrics-2',
-      logPath: '/tmp/test.log',
-      command: 'sleep',
-      args: ['10'],
+      sessionId: "metrics-2",
+      logPath: "/tmp/test.log",
+      command: "sleep",
+      args: ["10"],
       cwd: process.cwd(),
       convergeMetadata: {
         projectDir: process.cwd(),
-        phase: 'execution',
+        phase: "execution",
       },
     });
 
     // Wait for echo to complete
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     const metrics = manager.getMetrics();
     expect(metrics.totalSpawned).toBe(2);
-    expect(metrics.byPhase['analysis']).toBe(1);
-    expect(metrics.byPhase['execution']).toBe(1);
+    expect(metrics.byPhase["analysis"]).toBe(1);
+    expect(metrics.byPhase["execution"]).toBe(1);
 
     proc2.kill();
   });

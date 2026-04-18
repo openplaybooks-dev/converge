@@ -11,7 +11,13 @@
 /* ------------------------------------------------------------------ */
 
 /** The type of contribution a discovered file makes */
-export type DiscoveredFileType = 'task' | 'epic' | 'check' | 'plan' | 'skill' | 'agent';
+export type DiscoveredFileType =
+  | "task"
+  | "epic"
+  | "check"
+  | "plan"
+  | "skill"
+  | "agent";
 
 /**
  * A single file found by the discovery scanner.
@@ -65,7 +71,7 @@ export interface DiscoveryResult {
 /* ------------------------------------------------------------------ */
 
 /** The type of filesystem change in watch mode */
-export type DiscoveryChangeType = 'added' | 'removed' | 'modified';
+export type DiscoveryChangeType = "added" | "removed" | "modified";
 
 /**
  * A single filesystem change detected during watch mode.

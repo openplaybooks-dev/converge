@@ -4,9 +4,9 @@
  * Helps AI navigate the hierarchical journal structure.
  */
 
-import { readdir, readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-import type { Gap } from '../gap/types.ts';
+import { readdir, readFile } from "node:fs/promises";
+import { join } from "node:path";
+import type { Gap } from "../gap/types.ts";
 import {
   getJournalStructure,
   getJournalFilePath,
@@ -14,8 +14,8 @@ import {
   getEpicTasksDir,
   type Breadcrumb,
   getBreadcrumbs,
-} from './structure.ts';
-import { readGaps, readGapSummary } from './reader.ts';
+} from "./structure.ts";
+import { readGaps, readGapSummary } from "./reader.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Navigation Types                                                  */
@@ -23,7 +23,7 @@ import { readGaps, readGapSummary } from './reader.ts';
 
 export interface JournalLocation {
   /** Current level */
-  level: 'project' | 'epic' | 'task';
+  level: "project" | "epic" | "task";
 
   /** Breadcrumb trail */
   breadcrumbs: Breadcrumb[];
@@ -49,7 +49,7 @@ export interface JournalLocation {
 
   /** Parent location (if not at project level) */
   parent?: {
-    level: 'project' | 'epic';
+    level: "project" | "epic";
     path: string;
   };
 }
@@ -67,37 +67,44 @@ export async function getLocation(
   epicId?: string,
   epicName?: string,
   taskId?: string,
-  taskName?: string
+  taskName?: string,
 ): Promise<JournalLocation> {
   const structure = getJournalStructure(projectDir, epicId, taskId);
-  const breadcrumbs = getBreadcrumbs(projectDir, projectName, epicId, epicName, taskId, taskName);
+  const breadcrumbs = getBreadcrumbs(
+    projectDir,
+    projectName,
+    epicId,
+    epicName,
+    taskId,
+    taskName,
+  );
 
-  let level: 'project' | 'epic' | 'task';
+  let level: "project" | "epic" | "task";
   let currentPath: string;
-  let parentLevel: 'project' | 'epic' | undefined;
+  let parentLevel: "project" | "epic" | undefined;
   let parentPath: string | undefined;
 
   if (taskId && epicId) {
-    level = 'task';
+    level = "task";
     currentPath = structure.task!;
-    parentLevel = 'epic';
+    parentLevel = "epic";
     parentPath = structure.epic!;
   } else if (epicId) {
-    level = 'epic';
+    level = "epic";
     currentPath = structure.epic!;
-    parentLevel = 'project';
+    parentLevel = "project";
     parentPath = structure.project;
   } else {
-    level = 'project';
+    level = "project";
     currentPath = structure.project;
   }
 
   // Get file paths
   const files = {
-    gaps: getJournalFilePath(projectDir, level, 'gaps', epicId, taskId),
-    events: getJournalFilePath(projectDir, level, 'events', epicId, taskId),
-    log: getJournalFilePath(projectDir, level, 'log', epicId, taskId),
-    summary: getJournalFilePath(projectDir, level, 'summary', epicId, taskId),
+    gaps: getJournalFilePath(projectDir, level, "gaps", epicId, taskId),
+    events: getJournalFilePath(projectDir, level, "events", epicId, taskId),
+    log: getJournalFilePath(projectDir, level, "log", epicId, taskId),
+    summary: getJournalFilePath(projectDir, level, "summary", epicId, taskId),
   };
 
   // Get children
@@ -128,13 +135,20 @@ export async function getLocation(
  */
 async function getChildren(
   projectDir: string,
-  level: 'project' | 'epic' | 'task',
-  epicId?: string
-): Promise<Array<{ id: string; name: string; path: string; gapCount: number }>> {
-  const children: Array<{ id: string; name: string; path: string; gapCount: number }> = [];
+  level: "project" | "epic" | "task",
+  epicId?: string,
+): Promise<
+  Array<{ id: string; name: string; path: string; gapCount: number }>
+> {
+  const children: Array<{
+    id: string;
+    name: string;
+    path: string;
+    gapCount: number;
+  }> = [];
 
   try {
-    if (level === 'project') {
+    if (level === "project") {
       // Get all epics (shallow — epics are never nested)
       const epicsDir = getEpicsDir(projectDir);
       const entries = await readdir(epicsDir, { withFileTypes: true });
@@ -142,14 +156,19 @@ async function getChildren(
       for (const entry of entries) {
         if (entry.isDirectory()) {
           const epicPath = join(epicsDir, entry.name);
-          const gapCount = await getGapCount(projectDir, 'epic', entry.name);
-          children.push({ id: entry.name, name: entry.name, path: epicPath, gapCount });
+          const gapCount = await getGapCount(projectDir, "epic", entry.name);
+          children.push({
+            id: entry.name,
+            name: entry.name,
+            path: epicPath,
+            gapCount,
+          });
         }
       }
-    } else if (level === 'epic' && epicId) {
+    } else if (level === "epic" && epicId) {
       // Get all tasks at any depth — recurse into subdirectories.
       const tasksDir = getEpicTasksDir(projectDir, epicId);
-      const found = await scanTaskDirsDeep(projectDir, tasksDir, epicId, '');
+      const found = await scanTaskDirsDeep(projectDir, tasksDir, epicId, "");
       children.push(...found);
     }
   } catch {
@@ -174,9 +193,16 @@ async function scanTaskDirsDeep(
   projectDir: string,
   dir: string,
   epicId: string,
-  relPrefix: string
-): Promise<Array<{ id: string; name: string; path: string; gapCount: number }>> {
-  const result: Array<{ id: string; name: string; path: string; gapCount: number }> = [];
+  relPrefix: string,
+): Promise<
+  Array<{ id: string; name: string; path: string; gapCount: number }>
+> {
+  const result: Array<{
+    id: string;
+    name: string;
+    path: string;
+    gapCount: number;
+  }> = [];
   let entries;
   try {
     entries = await readdir(dir, { withFileTypes: true });
@@ -189,7 +215,11 @@ async function scanTaskDirsDeep(
 
     const relId = relPrefix ? `${relPrefix}/${entry.name}` : entry.name;
     const entryPath = join(dir, entry.name);
-    const gapCount = await getGapCount(projectDir, 'task', `${epicId}.${relId}`);
+    const gapCount = await getGapCount(
+      projectDir,
+      "task",
+      `${epicId}.${relId}`,
+    );
 
     if (gapCount > 0) {
       // This directory has its own gap journal — include it as a task node
@@ -209,8 +239,8 @@ async function scanTaskDirsDeep(
  */
 async function getGapCount(
   projectDir: string,
-  level: 'project' | 'epic' | 'task',
-  scope: string
+  level: "project" | "epic" | "task",
+  scope: string,
 ): Promise<number> {
   try {
     const summary = await readGapSummary(projectDir, level, scope);
@@ -229,7 +259,7 @@ async function getGapCount(
  */
 export async function getProjectOverview(
   projectDir: string,
-  projectName: string
+  projectName: string,
 ): Promise<{
   location: JournalLocation;
   gaps: Gap[];
@@ -237,7 +267,7 @@ export async function getProjectOverview(
   totalTaskCount: number;
 }> {
   const location = await getLocation(projectDir, projectName);
-  const gaps = await readGaps(projectDir, 'project', 'project');
+  const gaps = await readGaps(projectDir, "project", "project");
 
   let totalTaskCount = 0;
   for (const epic of location.children) {
@@ -260,14 +290,14 @@ export async function getEpicOverview(
   projectDir: string,
   projectName: string,
   epicId: string,
-  epicName?: string
+  epicName?: string,
 ): Promise<{
   location: JournalLocation;
   gaps: Gap[];
   taskCount: number;
 }> {
   const location = await getLocation(projectDir, projectName, epicId, epicName);
-  const gaps = await readGaps(projectDir, 'epic', epicId);
+  const gaps = await readGaps(projectDir, "epic", epicId);
 
   return {
     location,
@@ -285,13 +315,20 @@ export async function getTaskOverview(
   epicId: string,
   taskId: string,
   epicName?: string,
-  taskName?: string
+  taskName?: string,
 ): Promise<{
   location: JournalLocation;
   gaps: Gap[];
 }> {
-  const location = await getLocation(projectDir, projectName, epicId, epicName, taskId, taskName);
-  const gaps = await readGaps(projectDir, 'task', `${epicId}.${taskId}`);
+  const location = await getLocation(
+    projectDir,
+    projectName,
+    epicId,
+    epicName,
+    taskId,
+    taskName,
+  );
+  const gaps = await readGaps(projectDir, "task", `${epicId}.${taskId}`);
 
   return {
     location,
@@ -304,7 +341,7 @@ export async function getTaskOverview(
  */
 export async function listEpics(
   projectDir: string,
-  projectName: string
+  projectName: string,
 ): Promise<Array<{ id: string; gapCount: number; taskCount: number }>> {
   const location = await getLocation(projectDir, projectName);
 
@@ -316,7 +353,7 @@ export async function listEpics(
         gapCount: epic.gapCount,
         taskCount: epicLocation.children.length,
       };
-    })
+    }),
   );
 
   return epics;
@@ -328,11 +365,11 @@ export async function listEpics(
 export async function listTasks(
   projectDir: string,
   projectName: string,
-  epicId: string
+  epicId: string,
 ): Promise<Array<{ id: string; gapCount: number }>> {
   const location = await getLocation(projectDir, projectName, epicId);
 
-  return location.children.map(task => ({
+  return location.children.map((task) => ({
     id: task.id,
     gapCount: task.gapCount,
   }));
@@ -343,7 +380,7 @@ export async function listTasks(
  */
 export async function findItemsWithGaps(
   projectDir: string,
-  projectName: string
+  projectName: string,
 ): Promise<{
   project: { gapCount: number };
   epics: Array<{ id: string; gapCount: number }>;
@@ -356,7 +393,7 @@ export async function findItemsWithGaps(
   };
 
   // Check project
-  const projectGaps = await readGaps(projectDir, 'project', 'project');
+  const projectGaps = await readGaps(projectDir, "project", "project");
   result.project.gapCount = projectGaps.length;
 
   // Check all epics and tasks

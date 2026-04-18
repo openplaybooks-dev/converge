@@ -38,6 +38,7 @@ if (failed.has(taskId) && allOutputsExist) {
 ```
 
 **Benefits:**
+
 - Automatic detection and fix on every `converge run`, `converge gantt`, etc.
 - No manual intervention required
 - Graceful degradation (async checkpoint update won't block execution)
@@ -49,11 +50,13 @@ if (failed.has(taskId) && allOutputsExist) {
 New command: `pnpm converge validate [--fix]`
 
 **Features:**
+
 - Scans all tasks and compares checkpoint state with filesystem
 - Reports inconsistencies grouped by severity (error/warning)
 - `--fix` flag auto-reconciles tasks marked failed with all outputs present
 
 **Output Example:**
+
 ```
 🔍 Validating Checkpoint Consistency
 
@@ -82,6 +85,7 @@ async reconcileTask(taskId: string, reason: string): Promise<void>
 ```
 
 The `reconcileTask()` method:
+
 1. Checks if task is in `failedTasks` but not in `completedTasks`
 2. Moves task from `failedTasks` to `completedTasks`
 3. Ensures task is in `lockedTasks`
@@ -92,6 +96,7 @@ The `reconcileTask()` method:
 **File:** `src/lifecycle/task-runner.ts`
 
 When task fails, now logs:
+
 ```
 ❌ Task did not converge
    Task ID: 001-breakdown-ux-to-screens
@@ -154,6 +159,7 @@ CONVERGE_DEBUG_DEPS=true pnpm converge gantt
 ```
 
 Shows detailed dependency resolution:
+
 ```
 🔴 Blocking failure detected: 001-breakdown-ux-to-screens
    [Iter 1] Checking 002-generate-design-system dependency on 001-breakdown-ux-to-screens:
@@ -181,6 +187,7 @@ cat .converge/journal/epics/{epic}/tasks/{task}/attempts.jsonl
 Existing projects with checkpoint inconsistencies will be automatically fixed on the next `converge run` or `converge gantt` execution.
 
 For immediate fix:
+
 ```bash
 pnpm converge validate --fix
 ```
@@ -203,8 +210,8 @@ async markTaskFailed(taskId: string): Promise<void>     // Now removes from comp
 
 ```typescript
 interface ValidateOptions {
-  dir?: string;     // Project directory (default: cwd)
-  fix?: boolean;    // Auto-fix issues (default: false)
+  dir?: string; // Project directory (default: cwd)
+  fix?: boolean; // Auto-fix issues (default: false)
 }
 
 // Usage
@@ -258,6 +265,7 @@ pnpm converge validate --fix
 ## Support
 
 For issues or questions:
+
 - Check debug logs with `CONVERGE_DEBUG_DEPS=true`
 - Run `pnpm converge validate` to diagnose
 - Inspect journal files in `.converge/journal/`

@@ -5,7 +5,7 @@
  */
 
 // Legacy context API (kept for backward compatibility)
-export { AIContext, AIResponse, createAIContext } from './context.ts';
+export { AIContext, AIResponse, createAIContext } from "./context.ts";
 
 // New factory-based AI API
 export {
@@ -17,4 +17,4 @@ export {
   type AICaller,
   type ResolvedAIConfig,
   type AIProvider,
-} from './factory.ts';
+} from "./factory.ts";

@@ -107,23 +107,23 @@ gaps:
 
 ```typescript
 type EventType =
-  | 'SESSION_START'
-  | 'SESSION_END'
-  | 'GAP_DETECTED'
-  | 'GAP_RESOLVED'
-  | 'TASK_START'
-  | 'TASK_COMPLETE'
-  | 'TASK_FAILED'
-  | 'EPIC_START'
-  | 'EPIC_COMPLETE'
-  | 'EPIC_FAILED'
-  | 'PROJECT_START'
-  | 'PROJECT_COMPLETE'
-  | 'ERROR'
-  | 'DECISION'
-  | 'RETRY'
-  | 'CHECK_RUN'
-  | 'CHECK_FAILED';
+  | "SESSION_START"
+  | "SESSION_END"
+  | "GAP_DETECTED"
+  | "GAP_RESOLVED"
+  | "TASK_START"
+  | "TASK_COMPLETE"
+  | "TASK_FAILED"
+  | "EPIC_START"
+  | "EPIC_COMPLETE"
+  | "EPIC_FAILED"
+  | "PROJECT_START"
+  | "PROJECT_COMPLETE"
+  | "ERROR"
+  | "DECISION"
+  | "RETRY"
+  | "CHECK_RUN"
+  | "CHECK_FAILED";
 ```
 
 ## Automatic Re-Evaluation
@@ -136,16 +136,16 @@ The journal system automatically re-evaluates gaps when tasks/epics complete:
 async function onTaskComplete(ctx: TaskContext) {
   // 1. Re-detect task gaps → write {epic}.{task}.gaps.yml
   const taskGaps = await detectTaskGaps(ctx);
-  await writeGaps(projectDir, 'task', scope, taskGaps);
+  await writeGaps(projectDir, "task", scope, taskGaps);
 
   // 2. Re-detect epic gaps → write {epic}.gaps.yml
   const epicGaps = await detectEpicGaps(ctx.epic);
-  await writeGaps(projectDir, 'epic', epicId, epicGaps);
+  await writeGaps(projectDir, "epic", epicId, epicGaps);
 
   // 3. If epic complete → re-detect project gaps → write project.gaps.yml
   if (epicGaps.length === 0) {
     const projectGaps = await detectProjectGaps(ctx.project);
-    await writeGaps(projectDir, 'project', 'project', projectGaps);
+    await writeGaps(projectDir, "project", "project", projectGaps);
   }
 }
 ```
@@ -155,11 +155,11 @@ async function onTaskComplete(ctx: TaskContext) {
 ```typescript
 async function onEpicComplete(ctx: ProjectContext, epicId: string) {
   // 1. Clear epic gaps
-  await writeGaps(projectDir, 'epic', epicId, []);
+  await writeGaps(projectDir, "epic", epicId, []);
 
   // 2. Re-detect project gaps
   const projectGaps = await detectProjectGaps(ctx);
-  await writeGaps(projectDir, 'project', 'project', projectGaps);
+  await writeGaps(projectDir, "project", "project", projectGaps);
 }
 ```
 
@@ -192,14 +192,14 @@ const errors = await ctx.journal.findErrors();
 
 // Search by pattern
 const connectionErrors = await ctx.journal.searchLog({
-  eventType: 'ERROR',
+  eventType: "ERROR",
   pattern: /connection/i,
   limit: 10,
 });
 
 // Read with filters
 const recentErrors = await ctx.journal.readLog({
-  eventType: ['ERROR', 'TASK_FAILED'],
+  eventType: ["ERROR", "TASK_FAILED"],
   last: 5,
 });
 ```
@@ -216,13 +216,16 @@ if (summary.total > 0) {
 
   // Load full gaps if needed
   const gaps = await ctx.journal.getGaps();
-  console.log('Gaps:', gaps.map(g => g.description));
+  console.log(
+    "Gaps:",
+    gaps.map((g) => g.description),
+  );
 }
 
 // Check for recent errors
 const errors = await ctx.journal.findErrors();
 if (errors.length > 0) {
-  console.log('Recent errors:', errors[0].message);
+  console.log("Recent errors:", errors[0].message);
 }
 ```
 
@@ -231,18 +234,18 @@ if (errors.length > 0) {
 ```typescript
 // Find when error first occurred
 const events = await ctx.journal.getRecentEvents(20);
-const firstError = events.find(e => e.eventType === 'ERROR');
-console.log('First error:', firstError?.message);
+const firstError = events.find((e) => e.eventType === "ERROR");
+console.log("First error:", firstError?.message);
 
 // Check if this error pattern happened before
 const connectionErrors = await ctx.journal.searchLog({
-  eventType: 'ERROR',
+  eventType: "ERROR",
   pattern: /ConnectionTimeout/,
 });
 
 if (connectionErrors.length > 2) {
-  console.log('Recurring connection timeout pattern detected');
-  console.log('Previous occurrences:', connectionErrors.length);
+  console.log("Recurring connection timeout pattern detected");
+  console.log("Previous occurrences:", connectionErrors.length);
 }
 ```
 
@@ -256,14 +259,14 @@ console.log(`Total gaps: ${summary.total}`);
 // Level 2: Load full gaps (if needed)
 if (summary.total > 0 && summary.bySeverity.critical > 0) {
   const gaps = await ctx.journal.getGaps();
-  const criticalGaps = gaps.filter(g => g.severity === 'critical');
-  console.log('Critical gaps:', criticalGaps);
+  const criticalGaps = gaps.filter((g) => g.severity === "critical");
+  console.log("Critical gaps:", criticalGaps);
 }
 
 // Level 3: Load history (if debugging)
-if (criticalGaps.some(g => g.type === 'structural')) {
-  const events = await ctx.journal.readLog({ eventType: 'ERROR' });
-  console.log('Error history:', events);
+if (criticalGaps.some((g) => g.type === "structural")) {
+  const events = await ctx.journal.readLog({ eventType: "ERROR" });
+  console.log("Error history:", events);
 }
 ```
 
@@ -272,64 +275,59 @@ if (criticalGaps.some(g => g.type === 'structural')) {
 ### Writing Gaps
 
 ```typescript
-import { writeGaps } from './journal/writer.ts';
+import { writeGaps } from "./journal/writer.ts";
 
 // Write gaps to gaps.yml
-await writeGaps(projectDir, 'task', '01-api.setup-db', gaps);
+await writeGaps(projectDir, "task", "01-api.setup-db", gaps);
 ```
 
 ### Logging Events
 
 ```typescript
-import { logTaskEvent, logEpicEvent, logProjectEvent } from './journal/writer.ts';
+import {
+  logTaskEvent,
+  logEpicEvent,
+  logProjectEvent,
+} from "./journal/writer.ts";
 
 // Log task events
 await logTaskEvent(
   projectDir,
   epicId,
   taskId,
-  'TASK_START',
-  'Starting database setup',
-  { attempt: 1 }
+  "TASK_START",
+  "Starting database setup",
+  { attempt: 1 },
 );
 
 // Log epic events
-await logEpicEvent(
-  projectDir,
-  epicId,
-  'EPIC_COMPLETE',
-  'All tasks completed'
-);
+await logEpicEvent(projectDir, epicId, "EPIC_COMPLETE", "All tasks completed");
 
 // Log project events
-await logProjectEvent(
-  projectDir,
-  'PROJECT_START',
-  'Starting new project'
-);
+await logProjectEvent(projectDir, "PROJECT_START", "Starting new project");
 ```
 
 ### Manual Logging
 
 ```typescript
-import { appendEvent, appendLog } from './journal/writer.ts';
+import { appendEvent, appendLog } from "./journal/writer.ts";
 
 // Append to JSONL events file
 await appendEvent(
   projectDir,
-  'task',
-  '01-api.setup-db',
-  'DECISION',
-  'Switching to PostgreSQL',
-  { reason: 'Better performance' }
+  "task",
+  "01-api.setup-db",
+  "DECISION",
+  "Switching to PostgreSQL",
+  { reason: "Better performance" },
 );
 
 // Append to human-readable log
 await appendLog(
   projectDir,
-  'task',
-  '01-api.setup-db',
-  'Decision: Switching to PostgreSQL for better performance'
+  "task",
+  "01-api.setup-db",
+  "Decision: Switching to PostgreSQL for better performance",
 );
 ```
 
@@ -341,24 +339,42 @@ The executor automatically logs events:
 class FunctionExecutor {
   async execute(ctx: TaskContext, config: TaskConfig) {
     // Log task start
-    await logTaskEvent(projectDir, epicId, taskId, 'TASK_START', 'Starting task');
+    await logTaskEvent(
+      projectDir,
+      epicId,
+      taskId,
+      "TASK_START",
+      "Starting task",
+    );
 
     try {
       const result = await executeTask(ctx, config);
 
       if (result.success) {
         // Log completion
-        await logTaskEvent(projectDir, epicId, taskId, 'TASK_COMPLETE', 'Task completed');
+        await logTaskEvent(
+          projectDir,
+          epicId,
+          taskId,
+          "TASK_COMPLETE",
+          "Task completed",
+        );
 
         // Trigger automatic re-evaluation
         await reEvaluateAfterTask(ctx);
       } else {
         // Log failure
-        await logTaskEvent(projectDir, epicId, taskId, 'TASK_FAILED', result.message);
+        await logTaskEvent(
+          projectDir,
+          epicId,
+          taskId,
+          "TASK_FAILED",
+          result.message,
+        );
       }
     } catch (error) {
       // Log error
-      await logTaskEvent(projectDir, epicId, taskId, 'ERROR', error.message);
+      await logTaskEvent(projectDir, epicId, taskId, "ERROR", error.message);
     }
   }
 }
@@ -384,5 +400,6 @@ npm test -- journal
 ```
 
 Test files:
+
 - `tests/unit/journal/journal-writer.test.ts`
 - `tests/unit/journal/journal-api.test.ts`

@@ -11,33 +11,33 @@ name: my-playbook
 description: What this playbook builds
 
 run:
-  mode: autonomous          # autonomous | stepped
-  maxIterations: 50         # max converge cycles
-  maxTaskAttempts: 3        # max retries per failing task
-  resume: true              # resume from last checkpoint
+  mode: autonomous # autonomous | stepped
+  maxIterations: 50 # max converge cycles
+  maxTaskAttempts: 3 # max retries per failing task
+  resume: true # resume from last checkpoint
 
-inputs:                     # playbook-level inputs
-  - prompt                  # available as ${prompt} in tasks
+inputs: # playbook-level inputs
+  - prompt # available as ${prompt} in tasks
 
-key: prompt                 # cache key for idempotent runs
+key: prompt # cache key for idempotent runs
 
-checks:                     # playbook-level checks (all must pass to complete)
+checks: # playbook-level checks (all must pass to complete)
   - id: builds-clean
     cmd: npm run build
     description: Project builds without errors
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | yes | Playbook identifier |
-| `description` | string | yes | What the playbook does |
-| `run.mode` | string | no | `autonomous` (default) or `stepped` |
-| `run.maxIterations` | number | no | Max converge cycles (default: 50) |
-| `run.maxTaskAttempts` | number | no | Max retries per task (default: 3) |
-| `run.resume` | boolean | no | Resume from checkpoint (default: true) |
-| `inputs` | string[] | no | Named inputs passed at invocation |
-| `key` | string | no | Input field used as cache key |
-| `checks` | CheckDef[] | no | Playbook-level completion checks |
+| Field                 | Type       | Required | Description                            |
+| --------------------- | ---------- | -------- | -------------------------------------- |
+| `name`                | string     | yes      | Playbook identifier                    |
+| `description`         | string     | yes      | What the playbook does                 |
+| `run.mode`            | string     | no       | `autonomous` (default) or `stepped`    |
+| `run.maxIterations`   | number     | no       | Max converge cycles (default: 50)      |
+| `run.maxTaskAttempts` | number     | no       | Max retries per task (default: 3)      |
+| `run.resume`          | boolean    | no       | Resume from checkpoint (default: true) |
+| `inputs`              | string[]   | no       | Named inputs passed at invocation      |
+| `key`                 | string     | no       | Input field used as cache key          |
+| `checks`              | CheckDef[] | no       | Playbook-level completion checks       |
 
 ## TASK.md Format
 
@@ -60,10 +60,9 @@ checks:
     cmd: test -f src/db/schema.sql
     description: Schema file created
   - id: schema-valid
-    cmd: "node -e \"require('fs').readFileSync('src/db/schema.sql','utf-8')\""
+    cmd: 'node -e "require(''fs'').readFileSync(''src/db/schema.sql'',''utf-8'')"'
     description: Schema file is readable
 ---
-
 # Set Up Database Schema
 
 Create the initial database schema for the application.
@@ -80,43 +79,43 @@ The markdown body below the frontmatter becomes the AI prompt — the instructio
 
 Every field from the `TaskMdDef` interface:
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `id` | string | no | Task identifier (usually derived from directory name) |
-| `name` | string | no | Task name (alternative to id) |
-| `title` | string | yes | Human-readable task title |
-| `description` | string | no | One-line summary of what the task does |
-| `dependencies` | string[] | no | Task ids that must complete before this one |
-| `requires` | string[] | no | Required capabilities or preconditions |
-| `inputs` | string[] | no | File paths this task reads |
-| `outputs` | string[] | no | File paths this task produces |
-| `checks` | CheckDef[] | no | Postcondition checks — run after execution, validate outputs |
-| `needs` | CheckDef[] | no | Precondition checks — run before execution, block if failed |
-| `skills` | string[] | no | Converge skills this task requires |
-| `agent` | string | no | AI agent/model to use for execution |
-| `executor` | TaskMdExecutor | no | Custom executor config (type: ai/script/function) |
-| `wbs` | TaskMdWbs | no | Work breakdown structure config for spawning subtasks |
-| `plan` | TaskMdPlan | no | Planning config (prompt, output, outputPrompt) |
-| `blocking` | boolean | no | If true, all downstream tasks wait for this one |
-| `tags` | string[] | no | Metadata tags for filtering and grouping |
-| `vars` | object | no | Custom variables passed to the task context |
-| `materials` | string[] | no | File paths to load as context for the AI |
-| `allowed-tools` | string[] | no | Restrict which tools the AI can use |
-| `diagnosis-hints` | DiagnosisHint[] | no | Hints for diagnosing failures |
-| `correction-budget` | number | no | Max correction attempts before failing |
-| `context-depth` | number | no | How many ancestor contexts to include |
-| `auto-converge` | boolean/object | no | Auto-convergence policy |
-| `context` | SkillContextStep[] | no | Steps to build context before execution |
-| `backlogs` | BacklogDef[] | no | Backlog items to track during execution |
-| `goals` | string[] | no | Goal ids this task contributes to |
+| Field               | Type               | Required | Description                                                  |
+| ------------------- | ------------------ | -------- | ------------------------------------------------------------ |
+| `id`                | string             | no       | Task identifier (usually derived from directory name)        |
+| `name`              | string             | no       | Task name (alternative to id)                                |
+| `title`             | string             | yes      | Human-readable task title                                    |
+| `description`       | string             | no       | One-line summary of what the task does                       |
+| `dependencies`      | string[]           | no       | Task ids that must complete before this one                  |
+| `requires`          | string[]           | no       | Required capabilities or preconditions                       |
+| `inputs`            | string[]           | no       | File paths this task reads                                   |
+| `outputs`           | string[]           | no       | File paths this task produces                                |
+| `checks`            | CheckDef[]         | no       | Postcondition checks — run after execution, validate outputs |
+| `needs`             | CheckDef[]         | no       | Precondition checks — run before execution, block if failed  |
+| `skills`            | string[]           | no       | Converge skills this task requires                           |
+| `agent`             | string             | no       | AI agent/model to use for execution                          |
+| `executor`          | TaskMdExecutor     | no       | Custom executor config (type: ai/script/function)            |
+| `wbs`               | TaskMdWbs          | no       | Work breakdown structure config for spawning subtasks        |
+| `plan`              | TaskMdPlan         | no       | Planning config (prompt, output, outputPrompt)               |
+| `blocking`          | boolean            | no       | If true, all downstream tasks wait for this one              |
+| `tags`              | string[]           | no       | Metadata tags for filtering and grouping                     |
+| `vars`              | object             | no       | Custom variables passed to the task context                  |
+| `materials`         | string[]           | no       | File paths to load as context for the AI                     |
+| `allowed-tools`     | string[]           | no       | Restrict which tools the AI can use                          |
+| `diagnosis-hints`   | DiagnosisHint[]    | no       | Hints for diagnosing failures                                |
+| `correction-budget` | number             | no       | Max correction attempts before failing                       |
+| `context-depth`     | number             | no       | How many ancestor contexts to include                        |
+| `auto-converge`     | boolean/object     | no       | Auto-convergence policy                                      |
+| `context`           | SkillContextStep[] | no       | Steps to build context before execution                      |
+| `backlogs`          | BacklogDef[]       | no       | Backlog items to track during execution                      |
+| `goals`             | string[]           | no       | Goal ids this task contributes to                            |
 
 Additional fields available on `TaskMdShape` (the `ctx.spawn()` currency):
 
-| Field | Type | Description |
-|-------|------|-------------|
+| Field      | Type      | Description                                   |
+| ---------- | --------- | --------------------------------------------- |
 | `goalDefs` | GoalDef[] | Goal definitions produced when task completes |
-| `body` | string | Markdown body (AI prompt) |
-| `prompt` | string | Alias for body (backward compat) |
+| `body`     | string    | Markdown body (AI prompt)                     |
+| `prompt`   | string    | Alias for body (backward compat)              |
 
 ### `needs` vs `checks`
 
@@ -141,7 +140,7 @@ needs:
     cmd: test -f src/db/schema.sql
     description: Database schema must exist before migration
   - id: config-valid
-    cmd: "node -e \"JSON.parse(require('fs').readFileSync('config.json','utf-8'))\""
+    cmd: 'node -e "JSON.parse(require(''fs'').readFileSync(''config.json'',''utf-8''))"'
     description: Config file must be valid JSON
 
 # checks — postconditions (run after execution)
@@ -150,7 +149,7 @@ checks:
     cmd: test -f src/db/migrations/001-initial.sql
     description: Migration file created
   - id: migration-valid
-    cmd: "node -e \"JSON.parse(require('fs').readFileSync('src/db/migrations/001-initial.sql','utf-8'))\""
+    cmd: 'node -e "JSON.parse(require(''fs'').readFileSync(''src/db/migrations/001-initial.sql'',''utf-8''))"'
     description: Migration is valid
 ```
 
@@ -159,20 +158,20 @@ checks:
 Used by both `needs` and `checks`:
 
 ```yaml
-  - id: unique-check-id      # required — identifies this check
-    cmd: test -f output.json  # shell command, exit 0 = pass
-    description: Output file exists  # human-readable explanation
+- id: unique-check-id # required — identifies this check
+  cmd: test -f output.json # shell command, exit 0 = pass
+  description: Output file exists # human-readable explanation
 ```
 
 ### Sub-type: WbsDef
 
 ```yaml
 wbs:
-  type: nodejs       # nodejs | shell | ai
-  path: ./wbs.js     # script path (nodejs/shell)
-  prompt: |          # AI prompt (type: ai only)
+  type: nodejs # nodejs | shell | ai
+  path: ./wbs.js # script path (nodejs/shell)
+  prompt: | # AI prompt (type: ai only)
     Read data and spawn subtasks...
-  maxAttempts: 3     # max AI generation attempts (type: ai only)
+  maxAttempts: 3 # max AI generation attempts (type: ai only)
 ```
 
 ### Sub-type: PlanDef
@@ -188,7 +187,7 @@ plan:
 
 ```yaml
 executor:
-  type: script       # ai | script | function
+  type: script # ai | script | function
   path: ./run.sh
   args: [--verbose]
   env:
@@ -205,30 +204,30 @@ goalDefs:
     title: Project builds without errors
     metric:
       cmd: npm run build
-      target: 0           # target value for the metric
-      direction: min      # min | max
+      target: 0 # target value for the metric
+      direction: min # min | max
     depends: [deps-installed]
     requirements: "Build must complete in under 60s"
     tags: [critical]
     plan:
-      strategy: single    # split | single | custom | wbs
+      strategy: single # split | single | custom | wbs
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `id` | string | yes | Goal identifier |
-| `title` | string | yes | Human-readable title |
-| `metric.cmd` | string | no | Shell command to measure |
-| `metric.script` | string | no | Script path to measure |
-| `metric.target` | number | yes | Target value |
-| `metric.direction` | string | yes | `min` or `max` |
-| `depends` | string[] | no | Goal ids this depends on |
-| `requirements` | string | no | Requirements text |
-| `tags` | string[] | no | Tags for filtering |
-| `plan.strategy` | string | no | `split`, `single`, `custom`, or `wbs` |
-| `body` | string | no | Goal description markdown |
-| `dod` | string | no | dod.js script content |
-| `wbs` | string | no | wbs.js script content |
+| Field              | Type     | Required | Description                           |
+| ------------------ | -------- | -------- | ------------------------------------- |
+| `id`               | string   | yes      | Goal identifier                       |
+| `title`            | string   | yes      | Human-readable title                  |
+| `metric.cmd`       | string   | no       | Shell command to measure              |
+| `metric.script`    | string   | no       | Script path to measure                |
+| `metric.target`    | number   | yes      | Target value                          |
+| `metric.direction` | string   | yes      | `min` or `max`                        |
+| `depends`          | string[] | no       | Goal ids this depends on              |
+| `requirements`     | string   | no       | Requirements text                     |
+| `tags`             | string[] | no       | Tags for filtering                    |
+| `plan.strategy`    | string   | no       | `split`, `single`, `custom`, or `wbs` |
+| `body`             | string   | no       | Goal description markdown             |
+| `dod`              | string   | no       | dod.js script content                 |
+| `wbs`              | string   | no       | wbs.js script content                 |
 
 ### Sub-type: BacklogDef
 
@@ -239,15 +238,15 @@ backlogs:
   - id: lint-warnings
     cmd: "npx eslint src/ --format compact 2>&1 | grep warning || true"
     description: ESLint warnings to fix
-    severity: medium     # low | medium | high
+    severity: medium # low | medium | high
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `id` | string | yes | Backlog category identifier |
-| `cmd` | string | yes | Shell command — each stdout line becomes a backlog item |
-| `description` | string | no | Human-readable category description |
-| `severity` | string | no | `low`, `medium`, or `high` |
+| Field         | Type   | Required | Description                                             |
+| ------------- | ------ | -------- | ------------------------------------------------------- |
+| `id`          | string | yes      | Backlog category identifier                             |
+| `cmd`         | string | yes      | Shell command — each stdout line becomes a backlog item |
+| `description` | string | no       | Human-readable category description                     |
+| `severity`    | string | no       | `low`, `medium`, or `high`                              |
 
 ### Sub-type: DiagnosisHint
 
@@ -263,14 +262,14 @@ diagnosis-hints:
     automatable: true
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `id` | string | yes | Hint identifier |
-| `pattern` | string | yes | Substring or regex to match against check output |
-| `errorClass` | string | yes | `timeout`, `missing-output`, `check-failed`, `corrupted-output`, `dependency-missing`, `tool-error`, `unknown` |
-| `cause` | string | yes | Human-readable cause description |
-| `fix` | string | yes | Suggested fix description |
-| `automatable` | boolean | yes | Whether the fix can be applied automatically |
+| Field         | Type    | Required | Description                                                                                                    |
+| ------------- | ------- | -------- | -------------------------------------------------------------------------------------------------------------- |
+| `id`          | string  | yes      | Hint identifier                                                                                                |
+| `pattern`     | string  | yes      | Substring or regex to match against check output                                                               |
+| `errorClass`  | string  | yes      | `timeout`, `missing-output`, `check-failed`, `corrupted-output`, `dependency-missing`, `tool-error`, `unknown` |
+| `cause`       | string  | yes      | Human-readable cause description                                                                               |
+| `fix`         | string  | yes      | Suggested fix description                                                                                      |
+| `automatable` | boolean | yes      | Whether the fix can be applied automatically                                                                   |
 
 ### Sub-type: AutoConvergePolicy
 
@@ -352,16 +351,16 @@ The task can access these as `ctx.vars.apiVersion`, `ctx.vars.baseUrl`, etc.
 
 Deterministic checks for common validation scenarios:
 
-| Pattern | Command | Use when |
-|---------|---------|----------|
-| File exists | `test -f path/to/file` | Any file output |
-| Non-empty | `test -s path/to/file` | File must have content |
-| Valid JSON | `node -e "JSON.parse(require('fs').readFileSync('path','utf-8'))"` | JSON output |
-| JSON has field | `node -e "const d=JSON.parse(require('fs').readFileSync('path','utf-8'));if(!d.field)throw 'missing'"` | Required JSON field |
-| Array non-empty | `node -e "const d=JSON.parse(require('fs').readFileSync('path','utf-8'));if(!d.items.length)throw 'empty'"` | JSON array output |
-| TypeScript compiles | `npx tsc --noEmit` | TypeScript source files |
-| Tests pass | `npm test` | Test files |
-| File count | `[ $(ls path/*.json \| wc -l) -ge 3 ]` | Multiple file outputs |
+| Pattern             | Command                                                                                                     | Use when                |
+| ------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------- |
+| File exists         | `test -f path/to/file`                                                                                      | Any file output         |
+| Non-empty           | `test -s path/to/file`                                                                                      | File must have content  |
+| Valid JSON          | `node -e "JSON.parse(require('fs').readFileSync('path','utf-8'))"`                                          | JSON output             |
+| JSON has field      | `node -e "const d=JSON.parse(require('fs').readFileSync('path','utf-8'));if(!d.field)throw 'missing'"`      | Required JSON field     |
+| Array non-empty     | `node -e "const d=JSON.parse(require('fs').readFileSync('path','utf-8'));if(!d.items.length)throw 'empty'"` | JSON array output       |
+| TypeScript compiles | `npx tsc --noEmit`                                                                                          | TypeScript source files |
+| Tests pass          | `npm test`                                                                                                  | Test files              |
+| File count          | `[ $(ls path/*.json \| wc -l) -ge 3 ]`                                                                      | Multiple file outputs   |
 
 Always use at least the "file exists" check. Layer additional checks for stronger validation.
 

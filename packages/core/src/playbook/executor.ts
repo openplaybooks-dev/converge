@@ -11,12 +11,12 @@
  * The playbook executor doesn't know or care — it just copies and substitutes.
  */
 
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
-import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
-import type { ResolvedPlaybook, PlaybookRunConfig } from './types.ts';
-import { substituteVars } from './loader.ts';
+import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
+import type { ResolvedPlaybook, PlaybookRunConfig } from "./types.ts";
+import { substituteVars } from "./loader.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Template Copy with Variable Substitution                           */
@@ -38,13 +38,17 @@ async function copyWithSubstitution(
     if (entry.isDirectory()) {
       await copyWithSubstitution(srcPath, destPath, vars);
     } else if (entry.isFile()) {
-      let content = await readFile(srcPath, 'utf8');
+      let content = await readFile(srcPath, "utf8");
 
-      if (entry.name.endsWith('.md') || entry.name.endsWith('.yml') || entry.name.endsWith('.yaml')) {
+      if (
+        entry.name.endsWith(".md") ||
+        entry.name.endsWith(".yml") ||
+        entry.name.endsWith(".yaml")
+      ) {
         content = substituteVars(content, vars);
       }
 
-      await writeFile(destPath, content, 'utf8');
+      await writeFile(destPath, content, "utf8");
     }
   }
 }
@@ -61,7 +65,7 @@ export async function generateEpicFromPlaybook(
   playbook: ResolvedPlaybook,
   projectDir: string,
 ): Promise<string> {
-  const epicDir = join(projectDir, '.converge', 'epics', playbook.epicId);
+  const epicDir = join(projectDir, ".converge", "epics", playbook.epicId);
 
   if (existsSync(epicDir)) {
     throw new Error(`Epic directory already exists: ${epicDir}`);
@@ -70,7 +74,7 @@ export async function generateEpicFromPlaybook(
   await mkdir(epicDir, { recursive: true });
 
   // Copy tasks/ with variable substitution
-  const templateTasksDir = join(playbook.templateDir, 'tasks');
+  const templateTasksDir = join(playbook.templateDir, "tasks");
   if (existsSync(templateTasksDir)) {
     await copyWithSubstitution(templateTasksDir, epicDir, playbook.vars);
   }
@@ -92,8 +96,13 @@ export async function installPlaybook(
   playbook: ResolvedPlaybook,
   projectDir: string,
 ): Promise<string> {
-  const playbookDir = join(projectDir, '.converge', 'playbooks', playbook.def.name);
-  const tasksDir = join(playbookDir, 'tasks');
+  const playbookDir = join(
+    projectDir,
+    ".converge",
+    "playbooks",
+    playbook.def.name,
+  );
+  const tasksDir = join(playbookDir, "tasks");
 
   // Already installed — skip
   if (existsSync(tasksDir)) {
@@ -103,22 +112,24 @@ export async function installPlaybook(
   await mkdir(tasksDir, { recursive: true });
 
   // Copy playbook.yml
-  const srcYml = join(playbook.templateDir, 'playbook.yml');
+  const srcYml = join(playbook.templateDir, "playbook.yml");
   if (existsSync(srcYml)) {
-    let ymlContent = await readFile(srcYml, 'utf8');
+    let ymlContent = await readFile(srcYml, "utf8");
     ymlContent = substituteVars(ymlContent, playbook.vars);
-    await writeFile(join(playbookDir, 'playbook.yml'), ymlContent, 'utf8');
+    await writeFile(join(playbookDir, "playbook.yml"), ymlContent, "utf8");
   }
 
   // Copy tasks/ with variable substitution.
   // If the template has a root TASK.md directly in tasks/ (single-root playbook),
   // wrap contents into tasks/{epicId}/ so the scanner can derive a task ID.
-  const templateTasksDir = join(playbook.templateDir, 'tasks');
+  const templateTasksDir = join(playbook.templateDir, "tasks");
   if (existsSync(templateTasksDir)) {
-    const hasRootTask = existsSync(join(templateTasksDir, 'TASK.md'));
+    const hasRootTask = existsSync(join(templateTasksDir, "TASK.md"));
     const entries = await readdir(templateTasksDir, { withFileTypes: true });
     const hasSubdirTasks = entries.some(
-      e => e.isDirectory() && existsSync(join(templateTasksDir, e.name, 'TASK.md'))
+      (e) =>
+        e.isDirectory() &&
+        existsSync(join(templateTasksDir, e.name, "TASK.md")),
     );
 
     if (hasRootTask && !hasSubdirTasks) {
@@ -128,7 +139,7 @@ export async function installPlaybook(
       await copyWithSubstitution(templateTasksDir, taskDir, playbook.vars);
       // Inject playbook vars into the root TASK.md frontmatter so WBS scripts
       // can access them via ctx.vars at runtime.
-      await injectVarsIntoTaskMd(join(taskDir, 'TASK.md'), playbook.vars);
+      await injectVarsIntoTaskMd(join(taskDir, "TASK.md"), playbook.vars);
     } else {
       // Multi-task: copy directly
       await copyWithSubstitution(templateTasksDir, tasksDir, playbook.vars);
@@ -154,7 +165,7 @@ async function injectVarsIntoTaskMd(
 ): Promise<void> {
   if (!existsSync(taskMdPath) || Object.keys(vars).length === 0) return;
 
-  const content = await readFile(taskMdPath, 'utf8');
+  const content = await readFile(taskMdPath, "utf8");
   const match = content.match(FRONTMATTER_RE);
   if (!match) return;
 
@@ -162,7 +173,7 @@ async function injectVarsIntoTaskMd(
   frontmatter.vars = { ...vars };
   const newFrontmatter = stringifyYaml(frontmatter).trimEnd();
   const body = content.slice(match[0].length);
-  await writeFile(taskMdPath, `---\n${newFrontmatter}\n---${body}`, 'utf8');
+  await writeFile(taskMdPath, `---\n${newFrontmatter}\n---${body}`, "utf8");
 }
 
 /* ------------------------------------------------------------------ */
@@ -180,7 +191,7 @@ export function mergeRunConfig(
   const overrides = cliOverrides || {};
 
   return {
-    mode: overrides.mode ?? base.mode ?? 'autonomous',
+    mode: overrides.mode ?? base.mode ?? "autonomous",
     maxIterations: overrides.maxIterations ?? base.maxIterations,
     maxTaskAttempts: overrides.maxTaskAttempts ?? base.maxTaskAttempts,
     maxDuration: overrides.maxDuration ?? base.maxDuration,

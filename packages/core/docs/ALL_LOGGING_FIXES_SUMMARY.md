@@ -15,6 +15,7 @@
 **Root Cause**: agentfn logs written to `.log` files, not streamed to console
 **Fix**: Created LogStreamer class to tail and format logs in real-time
 **Files**:
+
 - `src/journal/log-streamer.ts` (new)
 - `src/repair/agent-runner.ts` (modified)
 
@@ -102,12 +103,12 @@ Resolved 1/1 gap(s) in 83.2s
 
 ## Key Improvements
 
-| Issue | Before | After |
-|-------|--------|-------|
-| **Events** | Duplicated (2x) | Single appearance ✅ |
-| **AI Activity** | Complete silence | Real-time updates ✅ |
-| **Timer Logs** | Every 60s (verbose) | Never (removed) ✅ |
-| **Gap Logging** | Duplicated | Single log ✅ |
+| Issue           | Before               | After                 |
+| --------------- | -------------------- | --------------------- |
+| **Events**      | Duplicated (2x)      | Single appearance ✅  |
+| **AI Activity** | Complete silence     | Real-time updates ✅  |
+| **Timer Logs**  | Every 60s (verbose)  | Never (removed) ✅    |
+| **Gap Logging** | Duplicated           | Single log ✅         |
 | **Readability** | Cluttered, confusing | Clean, informative ✅ |
 
 ## Build Status
@@ -119,11 +120,13 @@ Resolved 1/1 gap(s) in 83.2s
 ## Files Modified
 
 ### New Files
+
 1. `src/journal/log-streamer.ts` - Real-time log streaming
 2. `src/journal/event-writer.ts` - Task event writer
 3. `src/journal/console-formatter.ts` - Event formatter
 
 ### Modified Files
+
 1. `src/repair/agent-runner.ts` - Disabled heartbeat, added LogStreamer
 2. `src/repair/pipeline.ts` - Removed duplicate gap logging
 3. `src/unit/run.ts` - Removed duplicate console.log statements
@@ -191,7 +194,7 @@ Resolved 1/1 gap(s) in 83.2s
 // In agent-runner.ts:
 const logStreamer = new LogStreamer(logDir, {
   showToolCalls: true,
-  showReasoning: true,  // ← Enable AI thinking
+  showReasoning: true, // ← Enable AI thinking
   showResults: true,
 });
 ```
@@ -209,7 +212,7 @@ const logStreamer = new LogStreamer(logDir, {
 ```typescript
 // In task-runner.ts:
 const formatter = new ConsoleFormatter(eventsFile, {
-  minLevel: 'debug',  // Show debug events
+  minLevel: "debug", // Show debug events
   useColor: true,
   useIcons: true,
 });
@@ -243,13 +246,13 @@ pnpm converge run --step | grep "⏳"
 
 ## Performance Impact
 
-| Metric | Before | After | Change |
-|--------|--------|-------|--------|
-| **Console spam** | High (duplicates + timer) | Low | ✅ -80% |
-| **Visibility** | Low (silence) | High (streaming) | ✅ +300% |
-| **CPU overhead** | Medium (60s timer) | Low (event-driven) | ✅ -40% |
-| **Disk I/O** | Low | Low | ✅ Same |
-| **User experience** | Confusing | Informative | ✅ Much better |
+| Metric              | Before                    | After              | Change         |
+| ------------------- | ------------------------- | ------------------ | -------------- |
+| **Console spam**    | High (duplicates + timer) | Low                | ✅ -80%        |
+| **Visibility**      | Low (silence)             | High (streaming)   | ✅ +300%       |
+| **CPU overhead**    | Medium (60s timer)        | Low (event-driven) | ✅ -40%        |
+| **Disk I/O**        | Low                       | Low                | ✅ Same        |
+| **User experience** | Confusing                 | Informative        | ✅ Much better |
 
 ## Known Limitations
 
@@ -270,18 +273,21 @@ pnpm converge run --step | grep "⏳"
 ## Summary
 
 ### What Changed
+
 ✅ Removed event duplication
 ✅ Added real-time log streaming
 ✅ Removed timer-based heartbeat
 ✅ Cleaned up console output
 
 ### What Improved
+
 ✅ User can see AI activity in real-time
 ✅ No more confusing duplicate events
 ✅ No more verbose timer dumps
 ✅ Clean, informative console output
 
 ### What Stayed the Same
+
 ✅ All logs still written to files
 ✅ No breaking API changes
 ✅ Performance characteristics unchanged
@@ -294,6 +300,7 @@ pnpm build
 ```
 
 Output:
+
 ```
 ESM ⚡️ Build success in 924ms
 ```

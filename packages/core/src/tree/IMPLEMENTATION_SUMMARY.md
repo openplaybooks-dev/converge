@@ -7,29 +7,41 @@ A unified tree module where **TreeNode wraps Unit** to combine execution logic (
 ## Core Design
 
 ### Before (Duplicated)
+
 ```typescript
 // TreeNode had its own properties
 class TreeNode {
-  id: string;                // Duplicated
-  epicId: string;            // Duplicated
-  blocking: boolean;         // Duplicated
-  tags: string[];            // Duplicated
-  unit: Unit;                // Also had the unit
+  id: string; // Duplicated
+  epicId: string; // Duplicated
+  blocking: boolean; // Duplicated
+  tags: string[]; // Duplicated
+  unit: Unit; // Also had the unit
 }
 ```
 
 ### After (Unified)
+
 ```typescript
 // TreeNode wraps Unit and delegates
 class TreeNode {
-  readonly unit: Unit;       // The actual task
+  readonly unit: Unit; // The actual task
 
   // Delegates to unit (no duplication)
-  get id() { return this.unit.id; }
-  get parent() { return this.unit.parent; }
-  get epicId() { return this.unit.context?.epicId; }
-  get blocking() { return this.unit.blocking; }
-  get tags() { return this.unit.tags; }
+  get id() {
+    return this.unit.id;
+  }
+  get parent() {
+    return this.unit.parent;
+  }
+  get epicId() {
+    return this.unit.context?.epicId;
+  }
+  get blocking() {
+    return this.unit.blocking;
+  }
+  get tags() {
+    return this.unit.tags;
+  }
 
   // Tree structure (TreeNode owns this)
   children: TreeNode[] = [];
@@ -62,6 +74,7 @@ Unit                │
 ## Division of Responsibilities
 
 ### Unit Responsibilities
+
 - ✅ Task definition (id, title, inputs, outputs, vars, tags)
 - ✅ Execution logic (run(), resolveChecks(), resolvePrompt())
 - ✅ Parent reference (parent: Unit - single upward link)
@@ -69,6 +82,7 @@ Unit                │
 - ✅ Convergence loop (while hasGaps { fixGaps })
 
 ### TreeNode Responsibilities
+
 - ✅ Tree structure (children: TreeNode[], dependencies, dependents)
 - ✅ Tree traversal (findNextTask(), getChildren(), getAncestorUnits())
 - ✅ State queries (isComplete(), isFailed(), isBlocked())
@@ -76,6 +90,7 @@ Unit                │
 - ✅ Property delegation (id, parent, blocking, tags → unit)
 
 ### TaskTree Responsibilities
+
 - ✅ Tree construction (load Units, wrap in TreeNodes, build edges)
 - ✅ Fast lookup (nodes: Map for O(1) access)
 - ✅ Tree shake (reload() after WBS seeding)
@@ -86,6 +101,7 @@ Unit                │
 ## Files Created/Modified
 
 ### Created
+
 - ✅ `src/tree/types.ts` - Type definitions
 - ✅ `src/tree/tree-node.ts` - TreeNode class (wraps Unit)
 - ✅ `src/tree/task-tree.ts` - TaskTree class
@@ -95,22 +111,27 @@ Unit                │
 - ✅ `src/tree/IMPLEMENTATION_SUMMARY.md` - This file
 
 ### Modified
+
 - ✅ `src/tree/index.ts` - Added new exports
 - ✅ `src/cli/autonomous-run.ts` - Integrated tree-based traversal
 
 ## Key Features
 
 ### 1. No Duplication
+
 TreeNode delegates all properties to Unit instead of copying them:
+
 ```typescript
 // Access via delegation
-console.log(node.id);        // → unit.id
-console.log(node.blocking);  // → unit.blocking
-console.log(node.parent);    // → unit.parent
+console.log(node.id); // → unit.id
+console.log(node.blocking); // → unit.blocking
+console.log(node.parent); // → unit.parent
 ```
 
 ### 2. Natural Parent Chain
+
 Unit already has parent references, TreeNode uses them:
+
 ```typescript
 // Unit.parent is a Unit
 const parentUnit = node.unit.parent;
@@ -119,39 +140,46 @@ const parentUnit = node.unit.parent;
 const parentNode = tree.findAncestorNodes(node)[0];
 
 // Or via tree lookup
-const parentNode = Array.from(tree.nodes.values())
-  .find(n => n.unit === node.parent);
+const parentNode = Array.from(tree.nodes.values()).find(
+  (n) => n.unit === node.parent,
+);
 ```
 
 ### 3. Hierarchical Traversal
+
 Each level operates at depth 1 only:
+
 ```typescript
 // Depth 1 chain
-const epic = await tree.findNextTask();      // Epic (depth 1 from root)
-const task = await epic.findNextTask();      // Task (depth 1 from epic)
-const subtask = await task.findNextTask();   // Subtask (depth 1 from task)
+const epic = await tree.findNextTask(); // Epic (depth 1 from root)
+const task = await epic.findNextTask(); // Task (depth 1 from epic)
+const subtask = await task.findNextTask(); // Subtask (depth 1 from task)
 ```
 
 ### 4. Tree Shake
+
 Reload after each task execution to pick up WBS-spawned children:
+
 ```typescript
 while (true) {
   const next = await tree.findNextTask();
-  await executeTask(next.unit);  // Execute Unit
-  await tree.reload();           // Tree shake
+  await executeTask(next.unit); // Execute Unit
+  await tree.reload(); // Tree shake
 }
 ```
 
 ### 5. Checkpoint Integration
+
 Checkpoint maintains 1:1 mapping with TreeNodes:
+
 ```typescript
 // State queries use checkpoint
-const isComplete = await node.isComplete();  // Checks checkpoint
-const isFailed = await node.isFailed();      // Checks checkpoint
+const isComplete = await node.isComplete(); // Checks checkpoint
+const isFailed = await node.isFailed(); // Checks checkpoint
 
 // Tree mutations update checkpoint
-await tree.markCompleted(node);  // Updates checkpoint + propagates
-await tree.markFailed(node);     // Updates checkpoint
+await tree.markCompleted(node); // Updates checkpoint + propagates
+await tree.markFailed(node); // Updates checkpoint
 ```
 
 ## Example Usage
@@ -162,26 +190,26 @@ const tree = await TaskTree.load(projectDir, config);
 
 // 2. Find next task (hierarchical traversal)
 const result = await tree.findNextTask();
-const nextNode = result.node;  // TreeNodeData
+const nextNode = result.node; // TreeNodeData
 
 // 3. Get TreeNode for execution
 const treeNode = tree.getNode(nextNode.id);
 
 // 4. Access Unit for execution
 const unit = treeNode.unit;
-await unit.run();  // Execute convergence loop
+await unit.run(); // Execute convergence loop
 
 // 5. Access parent via Unit
 const parentUnit = unit.parent;
 const parentContext = unit.context?.parent;
 
 // 6. Access children via TreeNode
-const childNodes = treeNode.children;  // TreeNode[]
-const childUnits = childNodes.map(n => n.unit);  // Unit[]
+const childNodes = treeNode.children; // TreeNode[]
+const childUnits = childNodes.map((n) => n.unit); // Unit[]
 
 // 7. Query state via TreeNode
-const isBlocked = await treeNode.isBlocked();  // Uses dependencies
-const isComplete = await treeNode.isComplete();  // Uses checkpoint
+const isBlocked = await treeNode.isBlocked(); // Uses dependencies
+const isComplete = await treeNode.isComplete(); // Uses checkpoint
 
 // 8. Tree shake (after WBS seeding)
 await tree.reload();
@@ -210,6 +238,7 @@ ESM ⚡️ Build success in 988ms
 ## Next Steps
 
 ### Phase 1 (Complete ✅)
+
 - ✅ TreeNode wraps Unit
 - ✅ TaskTree loads Units and wraps in TreeNodes
 - ✅ Property delegation (no duplication)
@@ -220,12 +249,14 @@ ESM ⚡️ Build success in 988ms
 - ✅ Builds successfully
 
 ### Phase 2 (Next)
+
 - ⏳ Write actual unit tests (scaffolding created)
 - ⏳ Update repair strategies to use tree queries
 - ⏳ Migrate other consumers from file scanning
 - ⏳ Performance benchmarks (tree vs file scanning)
 
 ### Phase 3 (Cleanup)
+
 - ⏳ Remove old file-scanning code
 - ⏳ Make next-task.ts a thin wrapper or remove it
 - ⏳ Document migration guide for other consumers
@@ -257,13 +288,14 @@ ESM ⚡️ Build success in 988ms
 ## Comparison: Before vs After
 
 ### BEFORE (Array + File Scanning)
+
 ```typescript
 // Re-scan filesystem every iteration
 const snap = await snapTree();
-const tasks = snap.tasks;  // Flat array
+const tasks = snap.tasks; // Flat array
 
 // Linear search
-const next = tasks.find(t => !completed.has(t.id));
+const next = tasks.find((t) => !completed.has(t.id));
 
 // Direct checkpoint write
 checkpoint.completedTasks.add(next.id);
@@ -271,6 +303,7 @@ await checkpoint.save();
 ```
 
 ### AFTER (Tree Traversal)
+
 ```typescript
 // Load tree once
 const tree = await TaskTree.load(projectDir, config);
@@ -281,7 +314,7 @@ const task = await epic?.findNextTask();
 
 // Tree mutation with propagation
 const node = tree.getNode(taskId);
-await tree.markCompleted(node);  // Auto-completes parent
+await tree.markCompleted(node); // Auto-completes parent
 
 // Tree shake
 await tree.reload();

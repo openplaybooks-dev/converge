@@ -16,7 +16,7 @@ Use **path helper functions** at the top of each epic's `index.js` file:
 
 ```javascript
 // Paths relative to .converge/setup/plan/
-const EPIC_PATH = './epics/2-build-pages';
+const EPIC_PATH = "./epics/2-build-pages";
 const prompt = (file) => `${EPIC_PATH}/prompts/${file}`;
 const executor = (file) => `${EPIC_PATH}/executors/${file}`;
 ```
@@ -78,24 +78,28 @@ No prompts or executors, so no path helpers needed.
 ## Benefits
 
 ### Before (Verbose)
+
 ```javascript
 .promptFrom('./epics/2-build-pages/prompts/analyze-page.md', { ... })
 .executeFrom('./epics/2-build-pages/executors/verify-components.js', { ... })
 ```
 
 **Issues:**
+
 - ❌ Long, repetitive paths
 - ❌ Not intuitive (not relative to current file)
 - ❌ Hard to refactor if epic is renamed
 - ❌ Error-prone (easy to mistype full path)
 
 ### After (Clean)
+
 ```javascript
 .promptFrom(prompt('analyze-page.md'), { ... })
 .executeFrom(executor('verify-components.js'), { ... })
 ```
 
 **Benefits:**
+
 - ✅ Short, clean syntax
 - ✅ Reads like relative paths
 - ✅ Easy to refactor (change once at top)
@@ -111,6 +115,7 @@ The crew framework resolves paths relative to `.converge/setup/plan/`, not relat
 3. Handle edge cases and maintain backward compatibility
 
 The helper function approach achieves the same goal with:
+
 - ✅ No framework changes needed
 - ✅ Clear path resolution (explicit base path)
 - ✅ Easy to understand and maintain
@@ -137,11 +142,11 @@ export function createNewEpic(ctx, input) {
 
 ## Comparison
 
-| Approach | Syntax | Pros | Cons |
-|----------|--------|------|------|
-| Full paths | `'./epics/2-build-pages/prompts/file.md'` | Simple, explicit | Verbose, repetitive |
-| Helper functions | `prompt('file.md')` | Clean, maintainable | Need to define helpers |
-| True relative | `'./prompts/file.md'` | Most intuitive | Requires framework changes |
+| Approach         | Syntax                                    | Pros                | Cons                       |
+| ---------------- | ----------------------------------------- | ------------------- | -------------------------- |
+| Full paths       | `'./epics/2-build-pages/prompts/file.md'` | Simple, explicit    | Verbose, repetitive        |
+| Helper functions | `prompt('file.md')`                       | Clean, maintainable | Need to define helpers     |
+| True relative    | `'./prompts/file.md'`                     | Most intuitive      | Requires framework changes |
 
 **Chosen:** Helper functions (best balance)
 
@@ -161,11 +166,13 @@ All tests pass with helper function approach:
 ## Summary
 
 **Before:**
+
 ```javascript
 .promptFrom('./epics/2-build-pages/prompts/analyze-page.md', {...})
 ```
 
 **After:**
+
 ```javascript
 // At top of file
 const prompt = (file) => `${EPIC_PATH}/prompts/${file}`;
@@ -175,6 +182,7 @@ const prompt = (file) => `${EPIC_PATH}/prompts/${file}`;
 ```
 
 **Result:**
+
 - 🎯 Clean, readable code
 - 📝 Intuitive syntax
 - 🔧 Easy to maintain

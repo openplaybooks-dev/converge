@@ -9,6 +9,7 @@ Successfully migrated `converge tree` and `converge gantt` commands to use the n
 ### 1. `commands-tree.ts`
 
 **Before**: Used file scanning + buildTaskTree + getTaskStates
+
 ```typescript
 // Old approach
 const scanner = createDiscoveryScanner(config.discovery, projectDir);
@@ -18,19 +19,20 @@ const states = await getTaskStates(projectDir, tree);
 ```
 
 **After**: Uses TaskTree API
+
 ```typescript
 // New approach
 const taskTree = await TaskTree.load(projectDir, convergeConfig);
 const states = await taskTree.getTaskStates();
 
 // Convert TreeNodes to legacy format for display
-const tree: TaskNode[] = taskTree.getAllNodes().map(node => ({
-  epicId: node.epicId || 'unknown',
-  taskId: node.id.split('/').pop() || node.id,
+const tree: TaskNode[] = taskTree.getAllNodes().map((node) => ({
+  epicId: node.epicId || "unknown",
+  taskId: node.id.split("/").pop() || node.id,
   filePath: node.unit.path,
-  isSkillMd: node.unit.path.endsWith('SKILL.md'),
-  relPath: node.unit.path.replace(projectDir + '/', ''),
-  parentTaskId: node.id.includes('/') ? node.id.split('/')[0] : undefined,
+  isSkillMd: node.unit.path.endsWith("SKILL.md"),
+  relPath: node.unit.path.replace(projectDir + "/", ""),
+  parentTaskId: node.id.includes("/") ? node.id.split("/")[0] : undefined,
   journalTaskId: node.id,
   blocking: node.blocking,
   dependencies: node.unit.dependencies,
@@ -41,24 +43,26 @@ const tree: TaskNode[] = taskTree.getAllNodes().map(node => ({
 ### 2. `commands-gantt.ts`
 
 **Before**: Used file scanning + buildTaskTree + getTaskStates
+
 ```typescript
 // Old approach
 const scanner = createDiscoveryScanner(config.discovery, projectDir);
 const discovery = await scanner.scan();
-const epics = discovery.files.filter(f => f.type === 'epic');
-const tasks = discovery.files.filter(f => f.type === 'task');
+const epics = discovery.files.filter((f) => f.type === "epic");
+const tasks = discovery.files.filter((f) => f.type === "task");
 const tree = await buildTaskTree(epics, tasks, projectDir);
 const states = await getTaskStates(projectDir, tree);
 ```
 
 **After**: Uses TaskTree API
+
 ```typescript
 // New approach
 const taskTree = await TaskTree.load(projectDir, convergeConfig);
 const states = await taskTree.getTaskStates();
 
 // Convert TreeNodes to legacy format
-const tree: TaskNode[] = taskTree.getAllNodes().map(node => ({
+const tree: TaskNode[] = taskTree.getAllNodes().map((node) => ({
   // ... same conversion as tree command
 }));
 ```
@@ -75,7 +79,7 @@ export interface TaskStates {
   locked: Set<string>;
   blocked: Set<string>;
   blockingFailures: Set<string>;
-  wbsProgress: Map<string, WbsProgress>;  // Added for compatibility
+  wbsProgress: Map<string, WbsProgress>; // Added for compatibility
 }
 ```
 
@@ -117,33 +121,39 @@ async getTaskStates(): Promise<TaskStates> {
 ## Benefits
 
 ### 1. Consistent Tree Structure
+
 Both commands now use the same tree structure as `converge run`, ensuring consistency across all commands.
 
 ### 2. Single Source of Truth
+
 Tree is built once and reused, rather than scanning files multiple times.
 
 ### 3. Better Performance
+
 - O(1) node lookups via Map instead of linear array searches
 - Tree structure cached between operations
 - Dependency resolution done once during tree construction
 
 ### 4. Cleaner Code
+
 - Removed duplicate file scanning logic
 - Centralized tree operations in TaskTree class
 - Clear separation: TaskTree = structure, commands = display
 
 ### 5. Future-Proof
+
 Both commands can now leverage any future tree enhancements (caching, incremental updates, etc.) automatically.
 
 ## Backward Compatibility
 
 ### Display Functions Unchanged
+
 The display functions (`printTaskTree`, `printHierarchicalGantt`) still work with the legacy TaskNode format. We convert TreeNodes to TaskNodes for display:
 
 ```typescript
-const tree: TaskNode[] = taskTree.getAllNodes().map(node => ({
-  epicId: node.epicId || 'unknown',
-  taskId: node.id.split('/').pop() || node.id,
+const tree: TaskNode[] = taskTree.getAllNodes().map((node) => ({
+  epicId: node.epicId || "unknown",
+  taskId: node.id.split("/").pop() || node.id,
   filePath: node.unit.path,
   // ... other fields
 }));
@@ -152,22 +162,26 @@ const tree: TaskNode[] = taskTree.getAllNodes().map(node => ({
 This maintains compatibility with existing display logic while using the new tree internally.
 
 ### Type Compatibility
+
 Added `wbsProgress` to tree TaskStates to match the legacy interface, ensuring smooth integration with existing code.
 
 ## Migration Strategy
 
 ### Phase 1 (Complete ✅)
+
 - ✅ Migrate `converge tree` to use TaskTree API
 - ✅ Migrate `converge gantt` to use TaskTree API
 - ✅ Maintain backward compatibility with display functions
 - ✅ Build succeeds with no errors
 
 ### Phase 2 (Future)
+
 - ⏳ Update display functions to work directly with TreeNodes
 - ⏳ Remove legacy TaskNode conversion layer
 - ⏳ Optimize display for tree structure
 
 ### Phase 3 (Future)
+
 - ⏳ Migrate other commands (inspect, validate, etc.)
 - ⏳ Remove old buildTaskTree/getTaskStates functions
 - ⏳ Centralize all tree operations in TaskTree
@@ -175,6 +189,7 @@ Added `wbsProgress` to tree TaskStates to match the legacy interface, ensuring s
 ## Testing
 
 ### Commands Still Work
+
 Both commands continue to function as expected:
 
 ```bash
@@ -192,6 +207,7 @@ converge gantt --only-blocked
 ```
 
 ### Build Success
+
 ```bash
 $ npm run build
 ESM ⚡️ Build success in 1118ms
@@ -202,6 +218,7 @@ No TypeScript errors, all imports resolved correctly.
 ## Example Output
 
 ### `converge tree`
+
 ```
 📊 Tasks: 12  Completed: 5  Running: 1  Failed: 0  Blocked: 2
 
@@ -218,6 +235,7 @@ No TypeScript errors, all imports resolved correctly.
 ```
 
 ### `converge gantt`
+
 ```
 📊 Execution Timeline (Gantt View)
 
@@ -248,14 +266,17 @@ Legend:
 ## Validation Results
 
 ### Build Status
+
 ✅ **Builds successfully with no TypeScript errors**
 
 ### Command Testing
 
 #### `converge tree`
+
 ✅ **Works correctly** - Displays hierarchical task structure with proper parent-child relationships
 
 Example output:
+
 ```bash
 $ pnpm converge tree 03-implement-app
 
@@ -284,6 +305,7 @@ $ pnpm converge tree 03-implement-app
 ```
 
 #### `converge gantt`
+
 ✅ **Works correctly** - Uses tree structure for dependency resolution and execution ordering
 
 ### Key Improvements
@@ -299,6 +321,7 @@ $ pnpm converge tree 03-implement-app
 **Note**: There is a pre-existing display bug (not related to this migration) where tasks with direct nesting (without `/task/` subdirectory) may appear duplicated in the tree view when multiple parents are shown. This is a limitation of the legacy `printTaskTree` display function, not the tree structure itself. The tree structure is correct - it's only the visual display that has this issue.
 
 Example of affected pattern:
+
 ```
 epic/
   002-parent/
@@ -308,6 +331,7 @@ epic/
 ```
 
 Tasks using the `/task/` pattern display correctly:
+
 ```
 epic/
   002-parent/

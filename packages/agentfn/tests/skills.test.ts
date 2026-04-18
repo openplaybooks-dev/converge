@@ -1,15 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { join } from "node:path";
-import {
-  enhancePrompt,
-  listSkills,
-  listAgents,
-} from "../src/prompting.js";
+import { enhancePrompt, listSkills, listAgents } from "../src/prompting.js";
 
 // Project root is 2 levels up from agentfn package
 const PROJECT_ROOT = join(process.cwd(), "..", "..");
 
-describe("Skill/Agent loader (.crew folder)", () => {
+describe("Skill/Agent loader (.converge folder)", () => {
   describe("enhancePrompt", () => {
     it("returns original prompt when no skills referenced", () => {
       const prompt = "Just a regular prompt without refs";
@@ -68,7 +64,7 @@ describe("Skill/Agent loader (.crew folder)", () => {
   });
 
   describe("listSkills", () => {
-    it("returns array (may be empty if no .crew dir)", () => {
+    it("returns array (may be empty if no .converge dir)", () => {
       const skills = listSkills(PROJECT_ROOT);
       expect(Array.isArray(skills)).toBe(true);
     });

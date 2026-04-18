@@ -12,12 +12,12 @@
 export async function run(ctx) {
   const issue = ctx.vars?.issue;
   if (!issue) {
-    throw new Error('Missing required input: issue');
+    throw new Error("Missing required input: issue");
   }
 
   // Phase 1: Investigate
   await ctx.spawn({
-    id: '001-investigate',
+    id: "001-investigate",
     title: `Investigate issue #${issue}`,
     outputs: [`.converge/fix-${issue}/analysis.json`],
     body: `Read and understand issue #${issue}.
@@ -43,9 +43,9 @@ Do NOT fix anything yet.`,
 
   // Phase 2: Implement
   await ctx.spawn({
-    id: '002-implement',
+    id: "002-implement",
     title: `Implement fix for #${issue}`,
-    dependencies: ['001-investigate'],
+    dependencies: ["001-investigate"],
     inputs: [`.converge/fix-${issue}/analysis.json`],
     body: `Read \`.converge/fix-${issue}/analysis.json\` and implement the fix.
 
@@ -57,21 +57,19 @@ Rules:
 
   // Phase 3: Verify
   await ctx.spawn({
-    id: '003-verify',
+    id: "003-verify",
     title: `Verify fix for #${issue}`,
-    dependencies: ['002-implement'],
-    checks: [
-      { id: 'tests-pass', cmd: 'npm test' },
-    ],
+    dependencies: ["002-implement"],
+    checks: [{ id: "tests-pass", cmd: "npm test" }],
     body: `Run the test suite and verify issue #${issue} is fixed.
 If tests fail, diagnose and fix before proceeding.`,
   });
 
   // Phase 4: Commit
   await ctx.spawn({
-    id: '004-commit',
+    id: "004-commit",
     title: `Commit fix for #${issue}`,
-    dependencies: ['003-verify'],
+    dependencies: ["003-verify"],
     body: `Create a git commit:
 1. Stage only changed files
 2. Message: \`fix: <description> (#${issue})\`

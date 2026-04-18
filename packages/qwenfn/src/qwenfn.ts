@@ -11,9 +11,7 @@ import { extractJson, resolvePrompt } from "./utils.js";
 import { enhancePrompt } from "./skills.js";
 
 /** Resolve the queue option to a GlobalQueue instance or null */
-function resolveQueue(
-  option: QwenFnOptions["queue"],
-): GlobalQueue | null {
+function resolveQueue(option: QwenFnOptions["queue"]): GlobalQueue | null {
   if (!option) return null;
   if (option === true) return getDefaultQueue();
   if (option instanceof GlobalQueue) return option;
@@ -41,9 +39,7 @@ function resolveQueue(
  * // data is typed as { name: string; age: number }
  * ```
  */
-export function qwenfn<T = string>(
-  options?: QwenFnOptions<T>,
-): QwenFn<T> {
+export function qwenfn<T = string>(options?: QwenFnOptions<T>): QwenFn<T> {
   const opts = options ?? ({} as QwenFnOptions<T>);
 
   const {
@@ -122,12 +118,7 @@ export async function executeViaCli<T>(
 
   const start = Date.now();
 
-  const args = [
-    "-y",
-    "-p",
-    prompt,
-    ...cliFlags,
-  ];
+  const args = ["-y", "-p", prompt, ...cliFlags];
 
   const raw = await new Promise<string>((resolve, reject) => {
     const proc = spawn("qwen", args, {

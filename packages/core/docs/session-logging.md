@@ -46,6 +46,7 @@ Human-readable log file mirroring console output. Includes:
 - Final summary with outcomes
 
 Example:
+
 ```
 ╔════════════════════════════════════════════════════════════╗
 ║         🤖 Autonomous AI Orchestrator Starting...         ║
@@ -94,6 +95,7 @@ Structured event stream (one JSON object per line). Each event has:
 ```
 
 **Event Types:**
+
 - `SESSION_START` - Session began
 - `SESSION_END` - Session finished
 - `ITERATION_START` - New iteration cycle begins
@@ -138,6 +140,7 @@ Session configuration and final outcomes:
 ```
 
 **Status values:**
+
 - `running` - Session in progress
 - `complete` - All tasks converged successfully
 - `stalled` - Hit max iterations or consecutive failures
@@ -160,7 +163,7 @@ Iteration-by-iteration progress snapshots (one per line):
     "status": "running"
   },
   "gaps": [
-    {"type": "output", "task": "001-gather-idea-generate-ux", "count": 1}
+    { "type": "output", "task": "001-gather-idea-generate-ux", "count": 1 }
   ]
 }
 ```
@@ -224,12 +227,12 @@ jq '.duration / 1000 | floor' .converge/journal/sessions/*/metadata.json
 ### Using SessionLogger
 
 ```typescript
-import { SessionLogger, generateSessionId } from '../journal/session-logger.ts';
-import type { ProgressSnapshot } from '../journal/session-types.ts';
+import { SessionLogger, generateSessionId } from "../journal/session-logger.ts";
+import type { ProgressSnapshot } from "../journal/session-types.ts";
 
 // Create session logger
 const sessionId = generateSessionId();
-const logger = new SessionLogger(projectDir, sessionId, 'My Project', {
+const logger = new SessionLogger(projectDir, sessionId, "My Project", {
   maxIterations: 100,
   maxAttemptsPerTask: 2,
 });
@@ -244,20 +247,20 @@ const snapshot: ProgressSnapshot = {
   tasksComplete: 0,
   tasksTotal: 5,
   currentTask: {
-    id: 'task-001',
-    epic: 'epic-01',
+    id: "task-001",
+    epic: "epic-01",
     attempt: 1,
-    status: 'running',
+    status: "running",
   },
   gaps: [],
 };
 await logger.writeIterationSnapshot(snapshot);
 
 // Log task execution
-await logger.logTaskSelected('task-001', 'epic-01', 1);
-await logger.logTaskAttemptStart('task-001', 1);
+await logger.logTaskSelected("task-001", "epic-01", 1);
+await logger.logTaskAttemptStart("task-001", 1);
 // ... execute task ...
-await logger.logTaskAttemptComplete('task-001', 1, true, 5000);
+await logger.logTaskAttemptComplete("task-001", 1, true, 5000);
 
 // End session
 await logger.writeSessionEnd(
@@ -268,28 +271,34 @@ await logger.writeSessionEnd(
     gapsResolved: 0,
     convergenceAchieved: true,
   },
-  'complete'
+  "complete",
 );
 ```
 
 ### Reading Session Data
 
 ```typescript
-import { readFile } from 'node:fs/promises';
+import { readFile } from "node:fs/promises";
 
 // Read metadata
 const metadataPath = `${projectDir}/.converge/journal/sessions/${sessionId}/metadata.json`;
-const metadata = JSON.parse(await readFile(metadataPath, 'utf-8'));
+const metadata = JSON.parse(await readFile(metadataPath, "utf-8"));
 
 // Read events
 const eventsPath = `${projectDir}/.converge/journal/sessions/${sessionId}/events.jsonl`;
-const eventsData = await readFile(eventsPath, 'utf-8');
-const events = eventsData.trim().split('\n').map(line => JSON.parse(line));
+const eventsData = await readFile(eventsPath, "utf-8");
+const events = eventsData
+  .trim()
+  .split("\n")
+  .map((line) => JSON.parse(line));
 
 // Read progress snapshots
 const progressPath = `${projectDir}/.converge/journal/sessions/${sessionId}/progress.jsonl`;
-const progressData = await readFile(progressPath, 'utf-8');
-const snapshots = progressData.trim().split('\n').map(line => JSON.parse(line));
+const progressData = await readFile(progressPath, "utf-8");
+const snapshots = progressData
+  .trim()
+  .split("\n")
+  .map((line) => JSON.parse(line));
 ```
 
 ## Benefits
@@ -297,6 +306,7 @@ const snapshots = progressData.trim().split('\n').map(line => JSON.parse(line));
 ### 1. Debugging
 
 Session logs provide complete execution history:
+
 - What tasks ran and in what order
 - How many attempts each task took
 - What gaps were detected
@@ -305,6 +315,7 @@ Session logs provide complete execution history:
 ### 2. Auditability
 
 Permanent record of autonomous runs:
+
 - When runs happened
 - What changed
 - Who/what triggered changes
@@ -313,6 +324,7 @@ Permanent record of autonomous runs:
 ### 3. Analytics
 
 Structured data enables analysis:
+
 - Average task execution time
 - Success/failure rates by task
 - Gap patterns over time
@@ -321,6 +333,7 @@ Structured data enables analysis:
 ### 4. Reproducibility
 
 Session metadata captures enough context to reproduce issues:
+
 - Configuration used
 - Environment details
 - Task execution order
@@ -363,21 +376,23 @@ jq 'select(.eventType | startswith("CONVERGENCE"))' \
 
 ## Comparison with Task-Level Journals
 
-| Feature | Session Logging | Task Journals |
-|---------|----------------|---------------|
-| **Scope** | Entire autonomous run | Single task execution |
-| **Location** | `.converge/journal/sessions/` | `.converge/journal/epics/{epic}/tasks/{task}/` |
-| **Granularity** | Iteration-level | Attempt-level |
-| **Purpose** | Run-level debugging | Task-level debugging |
-| **Format** | JSONL + human log | YAML + JSONL + markdown |
+| Feature         | Session Logging               | Task Journals                                  |
+| --------------- | ----------------------------- | ---------------------------------------------- |
+| **Scope**       | Entire autonomous run         | Single task execution                          |
+| **Location**    | `.converge/journal/sessions/` | `.converge/journal/epics/{epic}/tasks/{task}/` |
+| **Granularity** | Iteration-level               | Attempt-level                                  |
+| **Purpose**     | Run-level debugging           | Task-level debugging                           |
+| **Format**      | JSONL + human log             | YAML + JSONL + markdown                        |
 
 **Use session logs for:**
+
 - Understanding overall run behavior
 - Tracking project progress
 - Analyzing convergence patterns
 - Debugging orchestration issues
 
 **Use task journals for:**
+
 - Debugging specific task failures
 - Understanding gap resolution
 - Reviewing AI outputs

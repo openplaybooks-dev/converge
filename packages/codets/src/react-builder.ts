@@ -8,10 +8,9 @@
  * backward compatibility.
  */
 
-import { TypeScriptBuilder } from './ts-builder.ts';
+import { TypeScriptBuilder } from "./ts-builder.ts";
 
 export class ReactBuilder extends TypeScriptBuilder {
-
   /** Register a `'use client'` directive (emitted before imports). */
   useClient(): this {
     return this.directive("'use client';");
@@ -24,11 +23,11 @@ export class ReactBuilder extends TypeScriptBuilder {
 
   /** Emit a `return ( ... );` block — the standard React JSX return pattern. */
   returnJsx(body: (b: this) => void): this {
-    this.line('return (');
+    this.line("return (");
     this.indent();
     body(this);
     this.dedent();
-    this.line(');');
+    this.line(");");
     return this;
   }
 }

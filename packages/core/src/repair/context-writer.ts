@@ -31,14 +31,14 @@
  * Token savings: ~60-75% per repair iteration
  */
 
-import { writeFile, mkdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join, relative } from 'node:path';
-import type { Gap } from '../gap/types.ts';
-import { formatCompactGaps } from '../gap/types.ts';
-import { HistoryIndexBuilder } from './history-index.ts';
-import { ExecutionTraceLogger } from '../journal/execution-trace.ts';
-import type { JournalContext } from './types.ts';
+import { writeFile, mkdir } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { join, relative } from "node:path";
+import type { Gap } from "../gap/types.ts";
+import { formatCompactGaps } from "../gap/types.ts";
+import { HistoryIndexBuilder } from "./history-index.ts";
+import { ExecutionTraceLogger } from "../journal/execution-trace.ts";
+import type { JournalContext } from "./types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -53,7 +53,12 @@ export interface ContextWriterParams {
   /** Output file paths and their existence status */
   outputStatus?: Array<{ path: string; exists: boolean }>;
   /** Check results (if available) */
-  checkResults?: Array<{ id: string; cmd: string; passed: boolean; output: string }>;
+  checkResults?: Array<{
+    id: string;
+    cmd: string;
+    passed: boolean;
+    output: string;
+  }>;
   /** Execution trace logger (if available) */
   traceLogger?: ExecutionTraceLogger;
 }
@@ -75,63 +80,70 @@ export interface ContextWriterResult {
  * Write structured repair context to filesystem.
  * Returns paths for the repair prompt to reference.
  */
-export async function writeRepairContext(params: ContextWriterParams): Promise<ContextWriterResult> {
+export async function writeRepairContext(
+  params: ContextWriterParams,
+): Promise<ContextWriterResult> {
   const {
-    projectDir, journalCtx, attemptDir,
-    gaps, outputStatus, checkResults, traceLogger,
+    projectDir,
+    journalCtx,
+    attemptDir,
+    gaps,
+    outputStatus,
+    checkResults,
+    traceLogger,
   } = params;
 
-  const contextDir = join(attemptDir, 'context');
+  const contextDir = join(attemptDir, "context");
   await mkdir(contextDir, { recursive: true });
 
-  const relContextDir = relative(projectDir, contextDir).replace(/\\/g, '/');
+  const relContextDir = relative(projectDir, contextDir).replace(/\\/g, "/");
   const writtenFiles: string[] = [];
 
   // 1. Gaps summary (compact format)
   if (gaps.length > 0) {
     const gapsMd = formatCompactGaps(gaps);
-    await writeFile(join(contextDir, 'gaps-summary.md'), gapsMd);
-    writtenFiles.push('gaps-summary.md');
+    await writeFile(join(contextDir, "gaps-summary.md"), gapsMd);
+    writtenFiles.push("gaps-summary.md");
   }
 
   // 2. Output status
   if (outputStatus && outputStatus.length > 0) {
-    const lines = ['# Output Status', ''];
+    const lines = ["# Output Status", ""];
     for (const o of outputStatus) {
-      const icon = o.exists ? '✓' : '✗';
-      lines.push(`- ${icon} \`${o.path}\` ${o.exists ? 'exists' : 'MISSING'}`);
+      const icon = o.exists ? "✓" : "✗";
+      lines.push(`- ${icon} \`${o.path}\` ${o.exists ? "exists" : "MISSING"}`);
     }
-    await writeFile(join(contextDir, 'outputs-status.md'), lines.join('\n'));
-    writtenFiles.push('outputs-status.md');
+    await writeFile(join(contextDir, "outputs-status.md"), lines.join("\n"));
+    writtenFiles.push("outputs-status.md");
   }
 
   // 3. Check results (only if we have results)
   if (checkResults && checkResults.length > 0) {
-    const lines = ['# Check Results', ''];
-    const failed = checkResults.filter(c => !c.passed);
-    const passed = checkResults.filter(c => c.passed);
+    const lines = ["# Check Results", ""];
+    const failed = checkResults.filter((c) => !c.passed);
+    const passed = checkResults.filter((c) => c.passed);
 
     if (failed.length > 0) {
-      lines.push(`## Failed (${failed.length})`, '');
+      lines.push(`## Failed (${failed.length})`, "");
       for (const c of failed) {
         lines.push(`### ${c.id}`);
         lines.push(`Command: \`${c.cmd}\``);
         if (c.output.trim()) {
-          lines.push('```', c.output.trim().slice(0, 500), '```');
+          lines.push("```", c.output.trim().slice(0, 500), "```");
         }
-        lines.push('');
+        lines.push("");
       }
     }
 
     if (passed.length > 0) {
-      lines.push(`## Passed (${passed.length})`, '');
+      lines.push(`## Passed (${passed.length})`, "");
       for (const c of passed) {
         lines.push(`- ✓ ${c.id}`);
       }
     }
 
-    await writeFile(join(contextDir, 'checks-results.md'), lines.join('\n'));
-    writtenFiles.push('checks-results.md');
+    await writeFile(join(contextDir, "checks-results.md"), lines.join("\n"));
+    writtenFiles.push("checks-results.md");
   }
 
   // 4. History summary (cross-attempt credit assignment)
@@ -139,8 +151,8 @@ export async function writeRepairContext(params: ContextWriterParams): Promise<C
     const historyBuilder = new HistoryIndexBuilder(projectDir, journalCtx);
     const historySummary = await historyBuilder.formatForPrompt();
     if (historySummary) {
-      await writeFile(join(contextDir, 'history-summary.md'), historySummary);
-      writtenFiles.push('history-summary.md');
+      await writeFile(join(contextDir, "history-summary.md"), historySummary);
+      writtenFiles.push("history-summary.md");
     }
   } catch {
     // Non-fatal
@@ -151,8 +163,8 @@ export async function writeRepairContext(params: ContextWriterParams): Promise<C
     try {
       const traceSummary = await traceLogger.formatSummaryForPrompt();
       if (traceSummary) {
-        await writeFile(join(contextDir, 'trace-summary.md'), traceSummary);
-        writtenFiles.push('trace-summary.md');
+        await writeFile(join(contextDir, "trace-summary.md"), traceSummary);
+        writtenFiles.push("trace-summary.md");
       }
     } catch {
       // Non-fatal
@@ -175,7 +187,9 @@ export function buildFilesystemRepairPrompt(
 ): string {
   const { relContextDir, writtenFiles } = contextResult;
 
-  const contextFileList = writtenFiles.map(f => `  - \`${relContextDir}/${f}\``).join('\n');
+  const contextFileList = writtenFiles
+    .map((f) => `  - \`${relContextDir}/${f}\``)
+    .join("\n");
 
   return `## Repair Task
 

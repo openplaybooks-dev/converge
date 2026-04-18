@@ -13,7 +13,7 @@ Add a built-in `plan` playbook that auto-scans the current project state and tak
 
 ## Problem
 
-Today, the `converge-planning` skill provides excellent planning *guidance* — analyze, discover, architect, validate — but it's a passive reference. A human (or AI agent) must manually:
+Today, the `converge-planning` skill provides excellent planning _guidance_ — analyze, discover, architect, validate — but it's a passive reference. A human (or AI agent) must manually:
 
 1. Read SKILL.md, pick the right phase
 2. Load the right playbook (analyze.md, discovery.md, etc.)
@@ -25,13 +25,13 @@ This is powerful for expert users but creates friction for the common case: **"I
 
 ### What's Missing
 
-| Gap | Impact |
-|-----|--------|
-| No single command to generate a plan | Users must orchestrate 4 phases manually |
-| No auto-scan of current state | Phase 1 (analyze) requires manual exploration |
-| No prompt-driven planning | Phase 2 (discover) requires interactive Q&A |
-| No iterative refinement | Re-planning means starting from scratch |
-| No playbook output | Plans live in `.converge/epics/` but aren't runnable playbooks |
+| Gap                                  | Impact                                                         |
+| ------------------------------------ | -------------------------------------------------------------- |
+| No single command to generate a plan | Users must orchestrate 4 phases manually                       |
+| No auto-scan of current state        | Phase 1 (analyze) requires manual exploration                  |
+| No prompt-driven planning            | Phase 2 (discover) requires interactive Q&A                    |
+| No iterative refinement              | Re-planning means starting from scratch                        |
+| No playbook output                   | Plans live in `.converge/epics/` but aren't runnable playbooks |
 
 ---
 
@@ -185,6 +185,7 @@ The decompose phase follows a **"scan N items, delegate each to a subtask"** pat
 ```
 
 This ensures:
+
 - Each epic gets its own AI execution context (better focus, less confusion)
 - Complex tasks are automatically identified and broken down further
 - The pipeline self-decomposes to match project complexity
@@ -232,6 +233,7 @@ The root task spawns 5 phases as a sequential pipeline:
 ```
 
 Each phase:
+
 - Has explicit **inputs** and **outputs** (JSON files in `.converge/plan-state/`)
 - Has **checks** (output file exists, valid JSON, required fields present)
 - References the `converge-planning` skill for domain knowledge
@@ -244,6 +246,7 @@ Each phase:
 **Purpose**: Automatically understand what exists in the cwd.
 
 **What it does**:
+
 - Detects tech stack (package.json, tsconfig, requirements.txt, etc.)
 - Maps file structure (directory tree, file counts by type)
 - Assesses current state (build passes? tests? git status?)
@@ -251,6 +254,7 @@ Each phase:
 - Lists external dependencies (env vars, third-party services)
 
 **Output**: `.converge/plan-state/analysis.json`
+
 ```json
 {
   "techStack": {
@@ -294,6 +298,7 @@ Each phase:
 **Purpose**: Parse the user's prompt into structured requirements.
 
 **What it does**:
+
 - Extracts features, goals, and constraints from the prompt
 - Infers priorities (what's core vs. nice-to-have)
 - Cross-references with existing codebase (what's already built?)
@@ -302,6 +307,7 @@ Each phase:
 
 **Input**: `.converge/plan-state/analysis.json` + user prompt
 **Output**: `.converge/plan-state/requirements.json`
+
 ```json
 {
   "vision": "Build a real-time dashboard for monitoring IoT devices",
@@ -332,6 +338,7 @@ Each phase:
 **Purpose**: Break requirements into a hierarchical plan of epics and tasks.
 
 **What it does**:
+
 - Selects the best project pattern from `preferences/project-patterns.md`
 - Generates epics (3-7 per project)
 - Breaks each epic into tasks (3-7 per epic)
@@ -341,6 +348,7 @@ Each phase:
 - Documents API needs and facts
 
 **Decomposition Strategy** (the key innovation):
+
 ```
 Level 0: User prompt → Project vision + feature list
 Level 1: Features → Epics (logical work packages)
@@ -349,12 +357,14 @@ Level 3: Tasks → WBS subtasks (only for N-similar-items patterns)
 ```
 
 The decomposition is **depth-adaptive**:
+
 - Simple projects (< 5 features): 2-3 epics, flat tasks
 - Medium projects (5-15 features): 4-6 epics, some WBS
 - Complex projects (15+ features): 6-7 epics, WBS for repetitive work, sub-epic splits
 
 **Input**: `.converge/plan-state/requirements.json` + `.converge/plan-state/analysis.json`
 **Output**: `.converge/plan-state/plan.json`
+
 ```json
 {
   "name": "iot-dashboard",
@@ -387,9 +397,12 @@ The decomposition is **depth-adaptive**:
       "tasks": []
     }
   ],
-  "facts": [ "..." ],
+  "facts": ["..."],
   "apiNeeds": { "internal": [], "external": [] },
-  "dependencyGraph": { "01-foundation": [], "02-device-views": ["01-foundation"] }
+  "dependencyGraph": {
+    "01-foundation": [],
+    "02-device-views": ["01-foundation"]
+  }
 }
 ```
 
@@ -398,6 +411,7 @@ The decomposition is **depth-adaptive**:
 **Purpose**: Ensure the plan is complete, consistent, and executable.
 
 **Checks**:
+
 - Every epic has at least 1 task, no more than 7
 - Every task has outputs and checks
 - All dependencies resolve (no broken refs, no cycles)
@@ -413,6 +427,7 @@ The decomposition is **depth-adaptive**:
 **Purpose**: Convert the validated plan into runnable playbook files.
 
 **What it generates**:
+
 ```
 .converge/playbooks/<name>/
 ├── playbook.yml           ← from plan metadata
@@ -435,6 +450,7 @@ The decomposition is **depth-adaptive**:
 ```
 
 **Update mode**: When `--update` is passed, the emit phase:
+
 1. Reads the existing playbook
 2. Diffs against the new plan
 3. Adds new tasks, updates changed tasks
@@ -460,6 +476,7 @@ converge plan --prompt "Add collaborative editing and offline sync" --name todo-
 ```
 
 Each re-run:
+
 - Re-scans the project (picks up new files, updated state)
 - Merges new requirements with existing
 - Adds/updates tasks without destroying progress
@@ -485,6 +502,7 @@ Level 3: 003-finalize merges sub-decomposition into WBS definitions
 
 The key pattern is **"scan N items, delegate each to a subtask"** — the parent
 never does the detailed work itself. This means:
+
 - Each AI execution context is focused on one epic or one complex task
 - The pipeline automatically adapts depth to project complexity
 - Simple projects (no flags) skip deepening entirely (zero overhead)
@@ -503,6 +521,7 @@ wbs:
 ```
 
 **Flow:**
+
 ```
 TASK.md (type: ai, prompt)
     ↓
@@ -587,6 +606,7 @@ When the user runs `converge plan` for the first time:
 3. Runs it as a normal keyed playbook
 
 This means:
+
 - Users can customize the planning playbook after initialization
 - System playbooks serve as templates, not locked resources
 - `converge plan --prompt "..."` works out of the box with no setup
@@ -615,22 +635,22 @@ The skill's playbooks and preferences remain as **reference material** for the A
 
 ### New Files
 
-| File | Purpose |
-|------|---------|
-| `skills/converge-planning/playbooks/plan/playbook.yml` | System playbook config |
-| `skills/converge-planning/playbooks/plan/tasks/TASK.md` | Root WBS task |
-| `skills/converge-planning/playbooks/plan/tasks/wbs.js` | Main pipeline generator |
-| `skills/converge-planning/playbooks/plan/tasks/wbs/decompose-epics-wbs.js` | Per-epic delegation WBS (nodejs fallback) |
-| `skills/converge-planning/playbooks/plan/tasks/wbs/deepen-tasks-wbs.js` | Conditional sub-decomposition WBS (nodejs fallback) |
-| `skills/converge-planning/preferences/wbs-ai-guide.md` | AI-driven WBS reference and patterns |
-| `examples/planning/README.md` | Example documentation |
-| `examples/planning/.converge/playbooks/plan/` | Example playbook (mirrors skill) |
-| `docs/proposals/planning-playbook.md` | This proposal |
+| File                                                                       | Purpose                                             |
+| -------------------------------------------------------------------------- | --------------------------------------------------- |
+| `skills/converge-planning/playbooks/plan/playbook.yml`                     | System playbook config                              |
+| `skills/converge-planning/playbooks/plan/tasks/TASK.md`                    | Root WBS task                                       |
+| `skills/converge-planning/playbooks/plan/tasks/wbs.js`                     | Main pipeline generator                             |
+| `skills/converge-planning/playbooks/plan/tasks/wbs/decompose-epics-wbs.js` | Per-epic delegation WBS (nodejs fallback)           |
+| `skills/converge-planning/playbooks/plan/tasks/wbs/deepen-tasks-wbs.js`    | Conditional sub-decomposition WBS (nodejs fallback) |
+| `skills/converge-planning/preferences/wbs-ai-guide.md`                     | AI-driven WBS reference and patterns                |
+| `examples/planning/README.md`                                              | Example documentation                               |
+| `examples/planning/.converge/playbooks/plan/`                              | Example playbook (mirrors skill)                    |
+| `docs/proposals/planning-playbook.md`                                      | This proposal                                       |
 
 ### Modified Files
 
-| File | Change |
-|------|--------|
+| File                                | Change                                                            |
+| ----------------------------------- | ----------------------------------------------------------------- |
 | `skills/converge-planning/SKILL.md` | Add `plan` playbook to phase detection matrix and quick reference |
 
 ---

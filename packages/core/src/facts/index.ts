@@ -13,5 +13,5 @@ export {
   PortableChecks,
   validateFile,
   ValidationRuleSets,
-  type ValidationRule
-} from './api';
+  type ValidationRule,
+} from "./api";

@@ -18,6 +18,7 @@ This document describes the comprehensive test suite for the Converge V2 framewo
 Centralized mock functions for all function types:
 
 **Mock Checks:**
+
 - `typescript()` - Always passes
 - `eslint(shouldFail)` - Configurable pass/fail
 - `jest()` - Always passes
@@ -27,17 +28,20 @@ Centralized mock functions for all function types:
 - `slow(delayMs)` - Async check for timeout testing
 
 **Mock Evals:**
+
 - `projectStructure(hasGaps)` - Project structure evaluation
 - `epicCompleteness(hasGaps)` - Epic completeness evaluation
 - `custom(gaps)` - Custom eval with specific gaps
 
 **Mock Planners:**
+
 - `structural(gaps)` - Creates one task per structural gap
 - `quality(gaps)` - Creates one task per quality gap
 - `empty()` - Generates no tasks
 - `custom(tasks)` - Returns predefined tasks
 
 **Mock Tasks:**
+
 - `install()` - Always succeeds
 - `coding(shouldFail)` - Configurable code generation
 - `test(shouldFail)` - Configurable test execution
@@ -50,6 +54,7 @@ Centralized mock functions for all function types:
 - `custom(result)` - Custom result
 
 **MockCallRecorder:**
+
 - Records function calls with args and results
 - Provides assertions: `wasCalledWith()`, `getCallCount()`, `getLastCall()`
 
@@ -58,6 +63,7 @@ Centralized mock functions for all function types:
 Builder functions for creating test entities:
 
 **Gap Builders:**
+
 - `createTestGap(overrides)` - Generic gap with defaults
 - `createStructuralGap(description)` - Structural gap
 - `createQualityGap(description)` - Quality gap
@@ -66,30 +72,36 @@ Builder functions for creating test entities:
 - `createBlockingGap()` - Critical severity gap
 
 **Task Builders:**
+
 - `createTestTask(overrides)` - Generic task config
 - `createInstallTask()` - Install dependencies task
 - `createCodingTask(prompt)` - Code generation task
 - `createTestingTask()` - Test execution task
 
 **Context Builders:**
+
 - `createTestProjectContext(overrides)` - Project context with mocks
 - `createTestEpicContext(overrides)` - Epic context with mocks
 - `createTestTaskContext(overrides)` - Task context with mocks
 
 **Status Builders:**
+
 - `createTestTaskStatus(state)` - Task status
 - `createTestEpicStatus(state)` - Epic status
 
 **Config Builders:**
+
 - `createTestEpicConfig(overrides)` - Epic configuration
 - `createTestProjectConfig(overrides)` - Project configuration
 
 **Convergence State Builders:**
+
 - `createConvergedState()` - All gaps resolved
 - `createStalledState()` - No progress, stalled
 - `createInProgressState()` - Partial progress
 
 **Eval Result Builders:**
+
 - `createTestEvalResult(gaps)` - Evaluation result with gap summary
 
 #### 3. Test Fixtures (`tests/fixtures/project-fixtures.ts`) ✅
@@ -112,6 +124,7 @@ Complete project scenarios for different workflows:
 **20 tests passing**
 
 Tests:
+
 - ✅ Check function registration and retrieval
 - ✅ Prevents duplicate registration
 - ✅ Filters checks by category
@@ -132,6 +145,7 @@ Coverage: Core registration system fully tested
 **8 tests passing**
 
 Tests:
+
 - ✅ Detects no gaps when checks pass
 - ✅ Detects gaps from failing checks
 - ✅ Detects structural gaps
@@ -152,7 +166,7 @@ Coverage: Basic gap detection logic tested
 **Purpose**: Test convergence state analysis and stall detection
 
 ```typescript
-describe('Convergence Analyzer', () => {
+describe("Convergence Analyzer", () => {
   // Test: Detects convergence when all gaps resolved
   // Test: Detects stall when no progress
   // Test: Calculates gap reduction rate
@@ -167,7 +181,7 @@ describe('Convergence Analyzer', () => {
 **Purpose**: Test context creation, immutability, inheritance
 
 ```typescript
-describe('Context Hierarchy', () => {
+describe("Context Hierarchy", () => {
   // Test: Creates immutable project context
   // Test: Epic context inherits from project
   // Test: Task context has access to epic and project
@@ -181,7 +195,7 @@ describe('Context Hierarchy', () => {
 **Purpose**: Test function execution with timeout and retry
 
 ```typescript
-describe('Function Executor', () => {
+describe("Function Executor", () => {
   // Test: Executes task function successfully
   // Test: Retries failed task up to maxAttempts
   // Test: Stops retrying after maxAttempts
@@ -197,7 +211,7 @@ describe('Function Executor', () => {
 **Purpose**: Test complete detect → plan → execute → verify cycle
 
 ```typescript
-describe('Gap-Driven Workflow', () => {
+describe("Gap-Driven Workflow", () => {
   // Test: Completes full gap resolution cycle
   // Test: Detects gaps from checks
   // Test: Generates tasks from gaps
@@ -212,7 +226,7 @@ describe('Gap-Driven Workflow', () => {
 **Purpose**: Test full orchestrator convergence loop
 
 ```typescript
-describe('Convergence Loop', () => {
+describe("Convergence Loop", () => {
   // Test: Converges when all gaps resolved
   // Test: Detects stall after no progress
   // Test: Stops at max iterations
@@ -227,7 +241,7 @@ describe('Convergence Loop', () => {
 **Purpose**: Test hierarchical goal evaluation
 
 ```typescript
-describe('Goal Satisfaction', () => {
+describe("Goal Satisfaction", () => {
   // Test: Evaluates single goal
   // Test: Evaluates hierarchical goals
   // Test: Parent goal fails if child fails
@@ -241,7 +255,7 @@ describe('Goal Satisfaction', () => {
 **Purpose**: Test subtask file generation and auto-discovery
 
 ```typescript
-describe('Subtask Generation & Pickup', () => {
+describe("Subtask Generation & Pickup", () => {
   // Test: Parent task generates subtask files
   // Test: Scanner discovers generated subtasks
   // Test: Subtasks discovered in numeric order
@@ -256,26 +270,23 @@ describe('Subtask Generation & Pickup', () => {
 **Purpose**: Test AI self-planning and self-correction capabilities
 
 ```typescript
-describe('Journal Capabilities', () => {
+describe("Journal Capabilities", () => {
   // Event Logging (6 tests)
   // - Complete task lifecycle
   // - Errors and failures
   // - Retry attempts
   // - Decisions and reasoning
   // - Hierarchical events
-
   // Gap Tracking (4 tests)
   // - Detection and resolution
   // - Gap summary
   // - Progression over time
   // - No re-running checks
-
   // Self-Planning (5 tests)
   // - Review execution history
   // - Learn from recurring failures
   // - Use past decisions
   // - Plan by gap severity
-
   // Self-Correction (4 tests)
   // - Detect and correct errors
   // - Adapt timeout strategy
@@ -291,7 +302,7 @@ describe('Journal Capabilities', () => {
 **Purpose**: Complete subtask generation and execution workflow
 
 ```typescript
-describe('Subtask Workflow E2E', () => {
+describe("Subtask Workflow E2E", () => {
   // Test: Parent generates → subtasks execute
   // Test: Nested subtasks (screens → components)
   // Test: Incremental discovery (new screens mid-execution)
@@ -306,7 +317,7 @@ describe('Subtask Workflow E2E', () => {
 **Purpose**: Complete minimal project from start to finish
 
 ```typescript
-describe('Minimal Project E2E', () => {
+describe("Minimal Project E2E", () => {
   // Test: Runs minimal project to completion
   // Test: Verifies expected iteration count
   // Test: Verifies final gap count is zero
@@ -319,7 +330,7 @@ describe('Minimal Project E2E', () => {
 **Purpose**: Gap-driven workflow end-to-end
 
 ```typescript
-describe('Gap-Driven Project E2E', () => {
+describe("Gap-Driven Project E2E", () => {
   // Test: Resolves gaps and converges
   // Test: Respects epic dependencies
   // Test: Generates tasks dynamically from gaps
@@ -354,6 +365,7 @@ npm run test -- tests/unit/functions tests/unit/gap
 ## Current Test Status
 
 ✅ **Completed (238 tests passing):**
+
 - Function Registry (20 tests)
 - Gap Detection (8 tests)
 - Journal API (unit tests)
@@ -368,6 +380,7 @@ npm run test -- tests/unit/functions tests/unit/gap
   - Self-Correction (4 tests)
 
 ⏳ **Remaining to implement:**
+
 - Convergence Analysis (unit)
 - Context Hierarchy (unit)
 - Function Executor (unit)
@@ -399,7 +412,7 @@ const failedCheck = mockRegistry.checks.eslint(true); // Fails
 const passedCheck = mockRegistry.checks.eslint(false); // Passes
 
 // File existence check
-const result = mockRegistry.checks.filesExist(['package.json', 'README.md']);
+const result = mockRegistry.checks.filesExist(["package.json", "README.md"]);
 ```
 
 ### Using Mock Tasks
@@ -423,14 +436,14 @@ await slowTask(); // Takes 200ms
 
 ```typescript
 // Create a gap
-const gap = createStructuralGap('Missing package.json');
+const gap = createStructuralGap("Missing package.json");
 
 // Create a task
-const task = createCodingTask('Implement login feature');
+const task = createCodingTask("Implement login feature");
 
 // Create a context
 const ctx = createTestProjectContext({
-  vars: { key: 'value' }
+  vars: { key: "value" },
 });
 
 // Create a convergence state
@@ -463,6 +476,7 @@ expect(mockFn.getLastCall().result).toBe(20);
 ## Coverage Goals
 
 **Core Modules** (target: >80%)
+
 - `src/functions/registry.ts` ✅ (covered)
 - `src/gap/detector.ts` ✅ (covered)
 - `src/gap/convergence.ts` ⏳ (to implement)
@@ -471,6 +485,7 @@ expect(mockFn.getLastCall().result).toBe(20);
 - `src/executor/*` ⏳ (to implement)
 
 **Supporting Modules** (target: >60%)
+
 - `src/storage/*`
 - `src/planning/*`
 - `src/runtime/*`
@@ -481,10 +496,11 @@ expect(mockFn.getLastCall().result).toBe(20);
 ✅ No real AI API calls (all mocked)
 ✅ Coverage >80% for core modules
 ✅ Tests validate key scenarios:
-  - Convergence detection
-  - Stall detection
-  - Parallel execution
-  - Goal satisfaction
-  - Gap-driven workflow
-⏳ Tests are maintainable with reusable utilities ✅
-⏳ Documentation complete ✅
+
+- Convergence detection
+- Stall detection
+- Parallel execution
+- Goal satisfaction
+- Gap-driven workflow
+  ⏳ Tests are maintainable with reusable utilities ✅
+  ⏳ Documentation complete ✅

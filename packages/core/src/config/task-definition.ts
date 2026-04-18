@@ -13,7 +13,7 @@
  * - Checklist: Fine-grained verification tasks
  */
 
-import type { ArtifactAPI } from '../artifacts/index.ts';
+import type { ArtifactAPI } from "../artifacts/index.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Base Task Definition (used by all levels)                         */
@@ -84,7 +84,9 @@ export interface TaskDefinition {
    *
    * Set via .checks() or .check() on the builder.
    */
-  checks?: CheckEntry[] | ((ctx: TaskContext) => CheckEntry[] | Promise<CheckEntry[]>);
+  checks?:
+    | CheckEntry[]
+    | ((ctx: TaskContext) => CheckEntry[] | Promise<CheckEntry[]>);
 
   /**
    * Dynamic variables (pure runtime data only).
@@ -190,7 +192,7 @@ export interface TaskDefinition {
   dependencies?: string[];
 
   /** Backlog scan definitions — commands whose output produces backlog items */
-  backlogs?: import('../scan/types.ts').BacklogDef[];
+  backlogs?: import("../scan/types.ts").BacklogDef[];
 
   /**
    * Facts API function. Collects project-level or task-specific facts before execution.
@@ -240,7 +242,7 @@ export interface TaskDefinition {
    *
    * Set via .background(config) on the builder.
    */
-  backgroundConfig?: import('../process/types.ts').BackgroundConfig;
+  backgroundConfig?: import("../process/types.ts").BackgroundConfig;
 
   /**
    * Schedule configuration.
@@ -248,7 +250,7 @@ export interface TaskDefinition {
    *
    * Set via .schedule(interval, opts?) on the builder.
    */
-  scheduleConfig?: import('../schedule/types.ts').ScheduleConfig;
+  scheduleConfig?: import("../schedule/types.ts").ScheduleConfig;
 
   /**
    * Sidecar hook map.
@@ -257,7 +259,7 @@ export interface TaskDefinition {
    *
    * Set via .sidecar(hooks) on the builder.
    */
-  sidecarHooks?: import('../sidecar/types.ts').SidecarHooks;
+  sidecarHooks?: import("../sidecar/types.ts").SidecarHooks;
 }
 
 /**
@@ -279,16 +281,14 @@ export interface Check {
  * .check(ctx => ({ id: 'png-valid',   cmd: `file "${ctx.vars.pngFile}" | grep -q "PNG"` }))
  * ```
  */
-export type CheckEntry =
-  | Check
-  | ((ctx: TaskContext) => Check | Promise<Check>);
+export type CheckEntry = Check | ((ctx: TaskContext) => Check | Promise<Check>);
 
 /**
  * Task context passed to callbacks (prompt, checks).
  * Minimal context for resolving dynamic values.
  */
 export interface TaskContext {
-  level: 'task' | 'epic' | 'project';
+  level: "task" | "epic" | "project";
   taskId: string;
   projectDir: string;
   vars: Record<string, unknown>;
@@ -318,15 +318,19 @@ export interface FactsContext {
    * @param description - Optional human-readable description
    * @returns Promise resolving to the fact result
    */
-  collect(id: string, cmd: string, description?: string): Promise<import('../facts/api').Fact>;
+  collect(
+    id: string,
+    cmd: string,
+    description?: string,
+  ): Promise<import("../facts/api").Fact>;
 }
 
 /**
  * Declarative fact definition - a bash command or collect call.
  */
 export type FactDef =
-  | string  // Simple command: 'test -f file.txt'
-  | { cmd: string; description?: string };  // Command with description
+  | string // Simple command: 'test -f file.txt'
+  | { cmd: string; description?: string }; // Command with description
 
 /**
  * Facts object - maps fact IDs to commands.
@@ -344,8 +348,8 @@ export type FactsObject = Record<string, FactDef>;
  * 2. Declarative: function returning object mapping IDs to commands
  */
 export type FactsApiFn =
-  | ((ctx: FactsContext) => Promise<void> | void)  // Imperative
-  | ((ctx: FactsContext) => FactsObject | Promise<FactsObject>);  // Declarative
+  | ((ctx: FactsContext) => Promise<void> | void) // Imperative
+  | ((ctx: FactsContext) => FactsObject | Promise<FactsObject>); // Declarative
 
 /* ------------------------------------------------------------------ */
 /*  Level-Specific Interfaces (describe expected vars structure)     */
@@ -359,7 +363,7 @@ export type FactsApiFn =
  * ```ts
  * export default taskDef()
  *   .id('project-root')
- *   .title('SheetsRun App')
+ *   .title('Converge App')
  *   .inputs([])
  *   .outputs(['.converge/epics/**\/*.ts'])
  *   .vars({ maxIterations: 100, projectRoot: process.cwd() })
@@ -534,24 +538,32 @@ export interface ChecklistDefinition extends TaskDefinition {
 /**
  * Check if a TaskDefinition is a Project-level definition.
  */
-export function isProjectDefinition(def: TaskDefinition): def is ProjectDefinition {
-  return def.id.startsWith('project-') ||
-         (def.vars?.projectRoot !== undefined) ||
-         (!def.inputs?.length && !!(def.outputs?.some(o => o.includes('/epics/'))));
+export function isProjectDefinition(
+  def: TaskDefinition,
+): def is ProjectDefinition {
+  return (
+    def.id.startsWith("project-") ||
+    def.vars?.projectRoot !== undefined ||
+    (!def.inputs?.length && !!def.outputs?.some((o) => o.includes("/epics/")))
+  );
 }
 
 /**
  * Check if a TaskDefinition is an Epic-level definition.
  */
 export function isEpicDefinition(def: TaskDefinition): def is EpicDefinition {
-  return def.id.startsWith('epic-') ||
-         !!(def.outputs?.some(o => o.includes('/epics/') && o.endsWith('.ts')));
+  return (
+    def.id.startsWith("epic-") ||
+    !!def.outputs?.some((o) => o.includes("/epics/") && o.endsWith(".ts"))
+  );
 }
 
 /**
  * Check if a TaskDefinition is a Task-level definition.
  */
-export function isTaskDefinition(def: TaskDefinition): def is TaskLevelDefinition {
+export function isTaskDefinition(
+  def: TaskDefinition,
+): def is TaskLevelDefinition {
   return !!(def.vars?.agent || def.vars?.yields);
 }
 
@@ -559,7 +571,7 @@ export function isTaskDefinition(def: TaskDefinition): def is TaskLevelDefinitio
  * Check if a TaskDefinition has yields (parent that generates children).
  */
 export function hasYields(def: TaskDefinition): boolean {
-  return !!(def.vars?.yields);
+  return !!def.vars?.yields;
 }
 
 /**
@@ -573,22 +585,26 @@ export function isLeafDefinition(def: TaskDefinition): boolean {
  * Check if a TaskDefinition uses the loop execution primitive.
  */
 export function hasLoop(def: TaskDefinition): boolean {
-  return !!(def.loopFn);
+  return !!def.loopFn;
 }
 
 /**
  * Check if a TaskDefinition uses the executor/converge execution primitive.
  */
 export function hasExecutor(def: TaskDefinition): boolean {
-  return !!(def.executorFn);
+  return !!def.executorFn;
 }
 
 /**
  * Check if a TaskDefinition is a Checklist.
  */
-export function isChecklistDefinition(def: TaskDefinition): def is ChecklistDefinition {
-  return def.id.startsWith('checklist-') ||
-         !!(def.vars?.checks && Array.isArray(def.vars.checks));
+export function isChecklistDefinition(
+  def: TaskDefinition,
+): def is ChecklistDefinition {
+  return (
+    def.id.startsWith("checklist-") ||
+    !!(def.vars?.checks && Array.isArray(def.vars.checks))
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -596,7 +612,7 @@ export function isChecklistDefinition(def: TaskDefinition): def is ChecklistDefi
 /* ------------------------------------------------------------------ */
 
 /** Unique signal returned by ctx.loop.done() to exit the loop */
-export const LOOP_DONE_SIGNAL: unique symbol = Symbol('loop:done');
+export const LOOP_DONE_SIGNAL: unique symbol = Symbol("loop:done");
 export type LoopDoneSignal = typeof LOOP_DONE_SIGNAL;
 
 /** Options for ctx.loop.spawn() */
@@ -612,7 +628,7 @@ export interface SpawnOptions {
   /** AbortSignal to cancel execution (default: none) */
   signal?: AbortSignal;
   /** AI provider override (claude, acp, kimi, qwen, gemini) */
-  provider?: 'claude' | 'acp' | 'kimi' | 'qwen' | 'gemini';
+  provider?: "claude" | "acp" | "kimi" | "qwen" | "gemini";
   /** API key for the AI provider */
   apiKey?: string;
   /** Base URL for the AI API */
@@ -761,38 +777,41 @@ export interface PlanConfig {
  * Pass a skill name string (e.g. 'stitch-generate') to spawn via SKILL.md.
  */
 export type WbsSpawnTarget =
-  | string                                  // skill name — requires opts.id; writes a task that runs the skill
-  | TaskDefinitionBuilder                   // taskDef().id('...').skill('...')
-  | (() => TaskDefinition)                  // factory called at spawn time
-  | TaskDefinition                          // pre-built definition
-  | import('./task-md-definition.ts').TaskMdShape  // plain TASK.md-shaped object
-  | RawMarkdown                             // raw markdown string
-  | TemplateRef                             // template file reference
-  | ((ctx: WbsContext) => string);          // callback returning markdown string
+  | string // skill name — requires opts.id; writes a task that runs the skill
+  | TaskDefinitionBuilder // taskDef().id('...').skill('...')
+  | (() => TaskDefinition) // factory called at spawn time
+  | TaskDefinition // pre-built definition
+  | import("./task-md-definition.ts").TaskMdShape // plain TASK.md-shaped object
+  | RawMarkdown // raw markdown string
+  | TemplateRef // template file reference
+  | ((ctx: WbsContext) => string); // callback returning markdown string
 
 /* ── Tagged spawn helpers ──────────────────────────────────────────── */
 
 /** Tagged wrapper for raw TASK.md markdown strings */
 export interface RawMarkdown {
-  readonly _type: 'raw-markdown';
+  readonly _type: "raw-markdown";
   readonly content: string;
 }
 
 /** Create a raw markdown spawn target */
 export function rawMd(content: string): RawMarkdown {
-  return { _type: 'raw-markdown', content };
+  return { _type: "raw-markdown", content };
 }
 
 /** Tagged wrapper for template file references */
 export interface TemplateRef {
-  readonly _type: 'template-ref';
+  readonly _type: "template-ref";
   readonly path: string;
   readonly vars?: Record<string, unknown>;
 }
 
 /** Create a template file spawn target */
-export function template(path: string, vars?: Record<string, unknown>): TemplateRef {
-  return { _type: 'template-ref', path, vars };
+export function template(
+  path: string,
+  vars?: Record<string, unknown>,
+): TemplateRef {
+  return { _type: "template-ref", path, vars };
 }
 
 /**
@@ -847,7 +866,11 @@ export interface WbsContext {
   projectDir: string;
   /** Merged vars from parent task */
   vars: Record<string, unknown>;
-  log: { info(msg: string): void; warn(msg: string): void; error(msg: string): void };
+  log: {
+    info(msg: string): void;
+    warn(msg: string): void;
+    error(msg: string): void;
+  };
   /** Read-only list of tasks spawned so far in this wbs run */
   readonly spawnedTasks: ReadonlyArray<{ id: string; writeToPath?: string }>;
   /**
@@ -895,7 +918,7 @@ export interface WbsContext {
    * in the appropriate goals/ subdirectory. Only available in goal-level
    * WBS contexts (goal-planner). Task-level WBS writes to top-level goals.
    */
-  spawnGoal?(goalDef: import('./task-md-definition.ts').GoalDef): Promise<void>;
+  spawnGoal?(goalDef: import("./task-md-definition.ts").GoalDef): Promise<void>;
 }
 
 /**
@@ -924,9 +947,9 @@ export interface FromAIOpts {
    * - 'task'   → generate a task.ts (complex, full builder API)
    * - 'auto'   → AI decides based on complexity (default)
    */
-  output?: 'skill' | 'task' | 'auto';
+  output?: "skill" | "task" | "auto";
   /** Complexity hint passed to the generator */
-  complexity?: 'simple' | 'complex';
+  complexity?: "simple" | "complex";
 }
 
 /* ------------------------------------------------------------------ */
@@ -961,7 +984,7 @@ export interface InlineTaskTarget {
  * Spawn resolves and runs the .ts task file at call time.
  */
 export interface PathRefTarget {
-  readonly _type: 'path-ref';
+  readonly _type: "path-ref";
   /** Path to a .ts task file, relative to project root */
   readonly path: string;
 }
@@ -974,7 +997,7 @@ export type TaskDefFactory = () => TaskDefinition;
 /* ------------------------------------------------------------------ */
 
 export interface McpServerNeed {
-  type: 'mcp-server';
+  type: "mcp-server";
   /** Name prefix to look for in Claude Code MCP config (e.g. 'stitch') */
   name: string;
 }
@@ -990,7 +1013,7 @@ export type Need = McpServerNeed;
  * taskDef().prompt('...').skills(['stitch-loop']).need(mcpServer('stitch'))
  */
 export function mcpServer(name: string): McpServerNeed {
-  return { type: 'mcp-server', name };
+  return { type: "mcp-server", name };
 }
 
 /**
@@ -1001,22 +1024,34 @@ export function mcpServer(name: string): McpServerNeed {
  * - PathRefTarget           → loads a .ts task file and runs it as a child Unit
  * - InlineTaskTarget        → inline definition, runs as virtual child Unit
  */
-export type LoopSpawnTarget = string | TaskDefinitionBuilder | TaskDefFactory | PathRefTarget | InlineTaskTarget;
+export type LoopSpawnTarget =
+  | string
+  | TaskDefinitionBuilder
+  | TaskDefFactory
+  | PathRefTarget
+  | InlineTaskTarget;
 
-export function isBuilderTarget(t: LoopSpawnTarget): t is TaskDefinitionBuilder {
+export function isBuilderTarget(
+  t: LoopSpawnTarget,
+): t is TaskDefinitionBuilder {
   // Structural check instead of instanceof to handle dual-module instances
   // (task.ts loads @converge/core via package resolution; internals load directly from src).
   // Check for the internal `def` data property — always present regardless of instance.
-  return typeof t === 'object' && t !== null && 'def' in t && typeof (t as any).build === 'function';
+  return (
+    typeof t === "object" &&
+    t !== null &&
+    "def" in t &&
+    typeof (t as any).build === "function"
+  );
 }
 export function isPathRefTarget(t: LoopSpawnTarget): t is PathRefTarget {
-  return typeof t === 'object' && t !== null && (t as any)._type === 'path-ref';
+  return typeof t === "object" && t !== null && (t as any)._type === "path-ref";
 }
 export function isTaskDefFactory(t: LoopSpawnTarget): t is TaskDefFactory {
-  return typeof t === 'function';
+  return typeof t === "function";
 }
 export function isInlineTaskTarget(t: LoopSpawnTarget): t is InlineTaskTarget {
-  return typeof t === 'object' && t !== null && 'definition' in t;
+  return typeof t === "object" && t !== null && "definition" in t;
 }
 
 /**
@@ -1040,7 +1075,7 @@ export interface AskResult extends PromiseLike<boolean> {
    * console.log(info.remaining, info.names);
    * ```
    */
-  asJson<T>(schema: import('zod').ZodType<T>): Promise<T>;
+  asJson<T>(schema: import("zod").ZodType<T>): Promise<T>;
 }
 
 /**
@@ -1050,7 +1085,7 @@ export interface AiFnOpts<T> {
   /** Prompt sent to AI on each invocation. */
   prompt: string;
   /** Zod schema structuring the AI's JSON response. */
-  schema: import('zod').ZodType<T>;
+  schema: import("zod").ZodType<T>;
   /** Tools available to the AI (default: undefined — all tools allowed) */
   allowedTools?: string[];
   /** Timeout per invocation in ms (default: 60_000) */
@@ -1174,7 +1209,7 @@ export type ConvergeFn = (ctx: ConvergeContext) => Promise<ConvergeDecision>;
  * - 'ai'      : AI generates __converge__.ts in the task folder; loaded and run like custom
  */
 export interface ConvergeConfig {
-  mode?: 'default' | 'custom' | 'ai';
+  mode?: "default" | "custom" | "ai";
   /** Custom converge function — set automatically when passing fn to .converge(fn) */
   fn?: ConvergeFn;
   /** Outer loop cap (default 20) — converge fn is called up to this many times */
@@ -1294,12 +1329,14 @@ export class TaskDefinitionBuilder {
    * - 'manual': Only explicit task skills, no transitive resolution
    * - 'inherit': Only agent skills + transitive dependencies
    */
-  skillResolution(strategy: 'auto' | 'manual' | 'inherit'): this {
+  skillResolution(strategy: "auto" | "manual" | "inherit"): this {
     this.def.vars = { ...this.def.vars, skillResolution: strategy };
     return this;
   }
 
-  prompt(prompt: string | ((ctx: TaskContext) => string | Promise<string>)): this {
+  prompt(
+    prompt: string | ((ctx: TaskContext) => string | Promise<string>),
+  ): this {
     this.def.prompt = prompt;
     return this;
   }
@@ -1321,7 +1358,11 @@ export class TaskDefinitionBuilder {
    * - Mixed array:     `.checks([{ id: 'a' }, ctx => ({ id: 'b', cmd: `...${ctx.vars.x}` })])`
    * - Full callback:   `.checks(ctx => [{ id: 'a', cmd: `...${ctx.vars.x}` }])`
    */
-  checks(checks: CheckEntry[] | ((ctx: TaskContext) => CheckEntry[] | Promise<CheckEntry[]>)): this {
+  checks(
+    checks:
+      | CheckEntry[]
+      | ((ctx: TaskContext) => CheckEntry[] | Promise<CheckEntry[]>),
+  ): this {
     this.def.checks = checks;
     return this;
   }
@@ -1385,10 +1426,18 @@ export class TaskDefinitionBuilder {
    *   })
    * ```
    */
-  plan(promptOrConfig?: string | PlanConfig | ((ctx: TaskContext) => string | Promise<string>)): this {
-    if (typeof promptOrConfig === 'string' || typeof promptOrConfig === 'function') {
+  plan(
+    promptOrConfig?:
+      | string
+      | PlanConfig
+      | ((ctx: TaskContext) => string | Promise<string>),
+  ): this {
+    if (
+      typeof promptOrConfig === "string" ||
+      typeof promptOrConfig === "function"
+    ) {
       this.def.planConfig = { prompt: promptOrConfig };
-    } else if (promptOrConfig && typeof promptOrConfig === 'object') {
+    } else if (promptOrConfig && typeof promptOrConfig === "object") {
       this.def.planConfig = promptOrConfig;
     } else {
       this.def.planConfig = {};
@@ -1517,11 +1566,11 @@ export class TaskDefinitionBuilder {
    */
   converge(arg?: ConvergeFn | ConvergeConfig): this {
     if (!arg) {
-      this.def.convergeConfig = { mode: 'default' };
-    } else if (typeof arg === 'function') {
-      this.def.convergeConfig = { mode: 'custom', fn: arg };
+      this.def.convergeConfig = { mode: "default" };
+    } else if (typeof arg === "function") {
+      this.def.convergeConfig = { mode: "custom", fn: arg };
     } else {
-      this.def.convergeConfig = { mode: 'default', ...arg };
+      this.def.convergeConfig = { mode: "default", ...arg };
     }
     return this;
   }
@@ -1600,7 +1649,7 @@ export class TaskDefinitionBuilder {
     this.def.factsApi = async (ctx: FactsContext) => {
       const factsObj = await fn(ctx);
       for (const [id, def] of Object.entries(factsObj)) {
-        if (typeof def === 'string') {
+        if (typeof def === "string") {
           await ctx.collect(id, def);
         } else {
           await ctx.collect(id, def.cmd, def.description);
@@ -1630,7 +1679,9 @@ export class TaskDefinitionBuilder {
    */
   async(): this {
     if (this.def.backgroundConfig) {
-      throw new Error('.async() and .background() are mutually exclusive — async completes, background stays alive');
+      throw new Error(
+        ".async() and .background() are mutually exclusive — async completes, background stays alive",
+      );
     }
     this.def.isAsync = true;
     return this;
@@ -1650,9 +1701,11 @@ export class TaskDefinitionBuilder {
    *   .execute(async (ctx) => { await ctx.shell('npx next dev'); })
    *   .build()
    */
-  background(config: import('../process/types.ts').BackgroundConfig): this {
+  background(config: import("../process/types.ts").BackgroundConfig): this {
     if (this.def.isAsync) {
-      throw new Error('.async() and .background() are mutually exclusive — async completes, background stays alive');
+      throw new Error(
+        ".async() and .background() are mutually exclusive — async completes, background stays alive",
+      );
     }
     this.def.backgroundConfig = config;
     return this;
@@ -1671,7 +1724,10 @@ export class TaskDefinitionBuilder {
    *   .execute(async (ctx) => { ... })
    *   .build()
    */
-  schedule(interval: string, opts?: import('../schedule/types.ts').ScheduleOpts): this {
+  schedule(
+    interval: string,
+    opts?: import("../schedule/types.ts").ScheduleOpts,
+  ): this {
     this.def.scheduleConfig = {
       intervalMs: parseDurationString(interval),
       intervalStr: interval,
@@ -1696,14 +1752,14 @@ export class TaskDefinitionBuilder {
    *   })
    *   .build()
    */
-  sidecar(hooks: import('../sidecar/types.ts').SidecarHooks): this {
+  sidecar(hooks: import("../sidecar/types.ts").SidecarHooks): this {
     this.def.sidecarHooks = hooks;
     return this;
   }
 
   build(): TaskDefinition {
     if (!this.def.id) {
-      throw new Error('TaskDefinition requires an id');
+      throw new Error("TaskDefinition requires an id");
     }
     return this.def as TaskDefinition;
   }
@@ -1721,7 +1777,7 @@ export class TaskDefinitionBuilder {
    * await ctx.loop.spawn(taskDef().fromPath('.converge/epics/02-ux/003/task.ts'))
    */
   fromPath(path: string): PathRefTarget {
-    return { _type: 'path-ref', path };
+    return { _type: "path-ref", path };
   }
 }
 
@@ -1730,14 +1786,19 @@ export class TaskDefinitionBuilder {
 /* ------------------------------------------------------------------ */
 
 const DURATION_RE = /^(\d+(?:\.\d+)?)\s*(ms|s|m|h)$/;
-const DURATION_MULTIPLIERS: Record<string, number> = { ms: 1, s: 1_000, m: 60_000, h: 3_600_000 };
+const DURATION_MULTIPLIERS: Record<string, number> = {
+  ms: 1,
+  s: 1_000,
+  m: 60_000,
+  h: 3_600_000,
+};
 
 /** Parse a duration string like '5s', '1m', '500ms' into milliseconds. */
 function parseDurationString(input: string): number {
   const match = input.trim().match(DURATION_RE);
   if (!match) {
     throw new Error(
-      `Invalid duration: '${input}'. Expected: <number><unit> (ms, s, m, h). Examples: '5s', '1m'.`
+      `Invalid duration: '${input}'. Expected: <number><unit> (ms, s, m, h). Examples: '5s', '1m'.`,
     );
   }
   return Math.round(parseFloat(match[1]) * DURATION_MULTIPLIERS[match[2]]);

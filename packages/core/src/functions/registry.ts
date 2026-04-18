@@ -12,7 +12,7 @@ import type {
   TaskFnMeta,
   FunctionRegistry,
   FunctionRegistration,
-} from './types.ts';
+} from "./types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Global Function Registry                                          */
@@ -99,9 +99,9 @@ class FunctionRegistryImpl implements FunctionRegistration {
   /**
    * Get all checks by category
    */
-  getChecksByCategory(category: CheckFnMeta['category']): CheckFnMeta[] {
+  getChecksByCategory(category: CheckFnMeta["category"]): CheckFnMeta[] {
     return Array.from(this.registry.checks.values()).filter(
-      (check) => check.category === category
+      (check) => check.category === category,
     );
   }
 
@@ -118,7 +118,9 @@ class FunctionRegistryImpl implements FunctionRegistration {
    * Get all tasks that can run in parallel
    */
   getParallelTasks(): TaskFnMeta[] {
-    return Array.from(this.registry.tasks.values()).filter((task) => task.parallel);
+    return Array.from(this.registry.tasks.values()).filter(
+      (task) => task.parallel,
+    );
   }
 
   /**

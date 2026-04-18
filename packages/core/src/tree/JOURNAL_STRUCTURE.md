@@ -7,6 +7,7 @@ The journal structure **mirrors the epics folder structure exactly**. This allow
 ## Structure Comparison
 
 ### Epics Folder (Task Definitions)
+
 ```
 .converge/epics/
 ├── 01-prepare-requirements/
@@ -37,6 +38,7 @@ The journal structure **mirrors the epics folder structure exactly**. This allow
 ```
 
 ### Journal Folder (Execution History) - NEW STRUCTURE
+
 ```
 .converge/journal/tasks/
 ├── 01-prepare-requirements/
@@ -88,11 +90,13 @@ The journal structure **mirrors the epics folder structure exactly**. This allow
 ## Path Mapping
 
 Given a task path in epics:
+
 ```
 .converge/epics/03-implement-app/001-implement-design-system/SKILL.md
 ```
 
 The corresponding journal path is:
+
 ```
 .converge/journal/tasks/03-implement-app/001-implement-design-system/checkpoint.json
 ```
@@ -100,15 +104,17 @@ The corresponding journal path is:
 ## Benefits
 
 ### 1. Natural Tree Wiring
+
 Can wire TaskTree and JournalTree together by path:
+
 ```typescript
 const taskTree = await TaskTree.load(projectDir, config);
 const journalTree = await JournalTree.load(projectDir);
 
 // Wire them together
 for (const taskNode of taskTree.getAllNodes()) {
-  const taskPath = taskNode.unit.path;  // e.g., ".converge/epics/03-implement-app/001-task"
-  const journalPath = taskPath.replace('/epics/', '/journal/tasks/');
+  const taskPath = taskNode.unit.path; // e.g., ".converge/epics/03-implement-app/001-task"
+  const journalPath = taskPath.replace("/epics/", "/journal/tasks/");
   const journalNode = journalTree.getNodeByPath(journalPath);
 
   // Link them
@@ -118,23 +124,28 @@ for (const taskNode of taskTree.getAllNodes()) {
 ```
 
 ### 2. Simple Lookup
+
 Given a task unit, find its journal:
+
 ```typescript
-const unit = await Unit.fromPath('.converge/epics/03-implement-app/001-task');
-const journalPath = unit.path.replace('/epics/', '/journal/tasks/');
-const checkpoint = await readFile(path.join(journalPath, 'checkpoint.json'));
+const unit = await Unit.fromPath(".converge/epics/03-implement-app/001-task");
+const journalPath = unit.path.replace("/epics/", "/journal/tasks/");
+const checkpoint = await readFile(path.join(journalPath, "checkpoint.json"));
 ```
 
 ### 3. Consistent Navigation
+
 Both trees have identical structure - walk one, walk the other the same way.
 
 ### 4. Clear Separation
+
 - Epics folder = "what to do" (definitions)
 - Journal folder = "what was done" (execution history)
 
 ## Backward Compatibility
 
 The code supports both structures:
+
 - **Old**: `.converge/journal/tasks/03-implement-app/tasks/001-task/`
 - **New**: `.converge/journal/tasks/03-implement-app/001-task/`
 
@@ -145,6 +156,7 @@ When loading, it checks for `tasks/` subdirectory first (old structure) and fall
 New journals created with updated `UnitCheckpointManager` will use the mirrored structure. Old journals continue to work via backward compatibility.
 
 To migrate old journals to new structure:
+
 ```bash
 # Move tasks out of tasks/ subdirectory
 cd .converge/journal/tasks/03-implement-app
@@ -155,6 +167,7 @@ rmdir tasks
 ## Implementation
 
 ### UnitCheckpointManager
+
 ```typescript
 private getCheckpointPath(): string {
   const journalRoot = path.join(this.projectDir, '.converge', 'journal');
@@ -169,10 +182,11 @@ private getCheckpointPath(): string {
 ```
 
 ### JournalTree
+
 ```typescript
 // Support both old and new structures
-const tasksDir = path.join(epicDir, 'tasks');
-const searchDir = existsSync(tasksDir) ? tasksDir : epicDir;  // Backward compat
+const tasksDir = path.join(epicDir, "tasks");
+const searchDir = existsSync(tasksDir) ? tasksDir : epicDir; // Backward compat
 
 // Recursively find all checkpoints
 const checkpoints = await this.findCheckpoints(searchDir);

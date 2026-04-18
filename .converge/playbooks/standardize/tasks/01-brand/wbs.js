@@ -9,22 +9,20 @@
  */
 
 export async function run(ctx) {
-  const stateDir = '.converge/standardize-state/brand';
-
   // Phase 1: Source files (.ts)
   await ctx.spawn({
     id: '001-source-rename',
     title: 'Rename harness→converge in TypeScript source',
-    outputs: [`${stateDir}/001-source.json`],
+    outputs: ['.converge/artifacts/brand/001-source.md'],
     checks: [
       {
         id: 'no-harness-in-ts',
-        cmd: "! grep -ri 'harness' --include='*.ts' packages/core/src/ packages/agentfn/src/ packages/claudefn/src/ packages/acpfn/src/ packages/codets/src/ 2>/dev/null | grep -v node_modules | grep -v auto-verify | grep -v '.converge/' | head -1",
+        cmd: "test -z \"$(grep -ri 'harness' --include='*.ts' packages/core/src/ packages/agentfn/src/ packages/claudefn/src/ packages/acpfn/src/ packages/codets/src/ 2>/dev/null | grep -v node_modules | grep -v auto-verify | grep -v '.converge/')\"",
         description: 'No harness references in .ts source files',
       },
       {
         id: 'no-crew-in-ts',
-        cmd: "! grep -ri 'crew\\|crewadd\\|sheetsrun' --include='*.ts' packages/ 2>/dev/null | grep -v node_modules | grep -v '.converge/' | head -1",
+        cmd: "test -z \"$(grep -ri 'crew\\|crewadd\\|sheetsrun' --include='*.ts' packages/ 2>/dev/null | grep -v node_modules | grep -v '.converge/')\"",
         description: 'No crew/crewadd/sheetsrun references in .ts source files',
       },
     ],
@@ -51,14 +49,11 @@ export async function run(ctx) {
 1. Run \`grep -ri 'harness\\|crew\\|sheetsrun' --include='*.ts' packages/\` to find all occurrences
 2. Review each match for context — is it a product name or a generic word?
 3. Apply replacements file by file
-4. Write a manifest to \`${stateDir}/001-source.json\`:
-\`\`\`json
-{
+4. Write a manifest using \`ctx.artifact.set('brand/001-source', JSON.stringify({
   "filesModified": ["path/to/file.ts"],
   "replacements": 42,
   "skipped": ["path/to/exception.ts — reason"]
-}
-\`\`\``,
+}, null, 2))\``,
   });
 
   // Phase 2: Documentation (.md)
@@ -66,11 +61,11 @@ export async function run(ctx) {
     id: '002-docs-rename',
     title: 'Rename harness→converge in documentation',
     dependencies: ['001-source-rename'],
-    outputs: [`${stateDir}/002-docs.json`],
+    outputs: ['.converge/artifacts/brand/002-docs.md'],
     checks: [
       {
         id: 'no-harness-in-md',
-        cmd: "! grep -ri 'harness' --include='*.md' packages/ docs/ README.md CONTRIBUTING.md 2>/dev/null | grep -v node_modules | grep -v CHANGELOG | grep -v '.converge/' | grep -v auto-verify | head -1",
+        cmd: "test -z \"$(grep -ri 'harness' --include='*.md' packages/ docs/ README.md CONTRIBUTING.md 2>/dev/null | grep -v node_modules | grep -v CHANGELOG | grep -v '.converge/' | grep -v auto-verify)\"",
         description: 'No harness references in .md documentation files',
       },
     ],
@@ -98,7 +93,7 @@ export async function run(ctx) {
 1. Run grep to find all occurrences
 2. Review and replace contextually
 3. Pay special attention to README.md ASCII art banner
-4. Write manifest to \`${stateDir}/002-docs.json\``,
+4. Write manifest using \`ctx.artifact.set('brand/002-docs', JSON.stringify({...}, null, 2))\``,
   });
 
   // Phase 3: Config files (.json, .yml)
@@ -106,11 +101,11 @@ export async function run(ctx) {
     id: '003-config-rename',
     title: 'Rename harness→converge in config files',
     dependencies: ['002-docs-rename'],
-    outputs: [`${stateDir}/003-config.json`],
+    outputs: ['.converge/artifacts/brand/003-config.md'],
     checks: [
       {
         id: 'no-harness-in-config',
-        cmd: "! grep -ri 'harness' --include='*.json' --include='*.yml' --include='*.yaml' packages/ 2>/dev/null | grep -v node_modules | grep -v CHANGELOG | grep -v '.converge/' | grep -v package-lock | head -1",
+        cmd: "test -z \"$(grep -ri 'harness' --include='*.json' --include='*.yml' --include='*.yaml' packages/ 2>/dev/null | grep -v node_modules | grep -v CHANGELOG | grep -v '.converge/' | grep -v package-lock)\"",
         description: 'No harness references in config files',
       },
     ],
@@ -130,7 +125,7 @@ export async function run(ctx) {
 2. Be careful with JSON — maintain valid syntax
 3. Update package.json name, description, bin, scripts fields
 4. Update any playbook.yml files outside \`.converge/\`
-5. Write manifest to \`${stateDir}/003-config.json\``,
+5. Write manifest using \`ctx.artifact.set('brand/003-config', JSON.stringify({...}, null, 2))\``,
   });
 
   // Phase 4: License & Security
@@ -138,11 +133,11 @@ export async function run(ctx) {
     id: '004-license-security',
     title: 'Update license and security files',
     dependencies: ['003-config-rename'],
-    outputs: [`${stateDir}/004-license.json`],
+    outputs: ['.converge/artifacts/brand/004-license.md'],
     checks: [
       {
         id: 'no-harness-in-legal',
-        cmd: "! grep -i 'harness' SECURITY.md LICENSE 2>/dev/null | grep -v '.converge/' | head -1",
+        cmd: "test -z \"$(grep -i 'harness' SECURITY.md LICENSE 2>/dev/null | grep -v '.converge/')\"",
         description: 'No harness references in legal files',
       },
     ],
@@ -160,7 +155,7 @@ export async function run(ctx) {
 1. Read SECURITY.md — update project name and any CLI references
 2. Read LICENSE — update if it mentions harness by name
 3. Check for per-package LICENSE files
-4. Write manifest to \`${stateDir}/004-license.json\``,
+4. Write manifest using \`ctx.artifact.set('brand/004-license', JSON.stringify({...}, null, 2))\``,
   });
 
   // Phase 5: CLI references
@@ -168,11 +163,11 @@ export async function run(ctx) {
     id: '005-cli-rename',
     title: 'Update CLI help text and banner',
     dependencies: ['004-license-security'],
-    outputs: [`${stateDir}/005-cli.json`],
+    outputs: ['.converge/artifacts/brand/005-cli.md'],
     checks: [
       {
         id: 'no-harness-in-cli',
-        cmd: "! grep -i 'harness' packages/core/src/cli/*.ts 2>/dev/null | grep -v auto-verify | grep -v '.converge/' | head -1",
+        cmd: "test -z \"$(grep -i 'harness' packages/core/src/cli/*.ts 2>/dev/null | grep -v auto-verify | grep -v '.converge/')\"",
         description: 'No harness references in CLI source',
       },
     ],
@@ -191,7 +186,7 @@ export async function run(ctx) {
 1. Read \`packages/core/src/cli/main.ts\` — find and update banner art
 2. Read \`packages/core/src/cli/commands.ts\` — update all help descriptions
 3. Scan all \`commands-*.ts\` files for harness references
-4. Write manifest to \`${stateDir}/005-cli.json\``,
+4. Write manifest using \`ctx.artifact.set('brand/005-cli', JSON.stringify({...}, null, 2))\``,
   });
 
   // Phase 6: Final verification audit
@@ -199,11 +194,11 @@ export async function run(ctx) {
     id: '006-verification-audit',
     title: 'Final brand verification audit',
     dependencies: ['005-cli-rename'],
-    outputs: [`${stateDir}/006-audit.json`],
+    outputs: ['.converge/artifacts/brand/006-audit.md'],
     checks: [
       {
         id: 'audit-clean',
-        cmd: `node -e "const a=JSON.parse(require('fs').readFileSync('${stateDir}/006-audit.json','utf-8'));if(a.staleReferences>0)throw new Error(a.staleReferences+' stale refs remain')"`,
+        cmd: `node -e "const a=JSON.parse(require('fs').readFileSync('.converge/artifacts/brand/006-audit.md','utf-8'));if(a.staleReferences>0)throw new Error(a.staleReferences+' stale refs remain')"`,
         description: 'Audit confirms zero stale references',
       },
     ],
@@ -217,7 +212,7 @@ grep -ri 'harness' --include='*.ts' --include='*.md' --include='*.json' --includ
 grep -ri 'crew\\|crewadd\\|sheetsrun' --include='*.ts' --include='*.md' --include='*.json' . | grep -v node_modules | grep -v '.git/' | grep -v CHANGELOG | grep -v '.converge/'
 \`\`\`
 
-**Write audit report** to \`${stateDir}/006-audit.json\`:
+**Write audit report** using \`ctx.artifact.set('brand/006-audit', JSON.stringify(report, null, 2))\`:
 \`\`\`json
 {
   "timestamp": "ISO-8601",

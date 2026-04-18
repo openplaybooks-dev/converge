@@ -10,9 +10,7 @@ import type { GlobalQueueOptions } from "./queue.js";
 import { extractJson, resolvePrompt } from "./utils.js";
 
 /** Resolve the queue option to a GlobalQueue instance or null */
-function resolveQueue(
-  option: KimiFnOptions["queue"],
-): GlobalQueue | null {
+function resolveQueue(option: KimiFnOptions["queue"]): GlobalQueue | null {
   if (!option) return null;
   if (option === true) return getDefaultQueue();
   if (option instanceof GlobalQueue) return option;
@@ -40,9 +38,7 @@ function resolveQueue(
  * // data is typed as { name: string; age: number }
  * ```
  */
-export function kimifn<T = string>(
-  options?: KimiFnOptions<T>,
-): KimiFn<T> {
+export function kimifn<T = string>(options?: KimiFnOptions<T>): KimiFn<T> {
   const opts = options ?? ({} as KimiFnOptions<T>);
 
   const {
@@ -118,13 +114,7 @@ export async function executeViaCli<T>(
 
   const start = Date.now();
 
-  const args = [
-    "-y",
-    "--print",
-    "-p",
-    prompt,
-    ...cliFlags,
-  ];
+  const args = ["-y", "--print", "-p", prompt, ...cliFlags];
 
   const raw = await new Promise<string>((resolve, reject) => {
     const proc = spawn("kimi", args, {

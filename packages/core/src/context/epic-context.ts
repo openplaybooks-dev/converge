@@ -10,17 +10,22 @@ import type {
   EvalAPI,
   PlanAPI,
   CheckAPI,
-} from './types.ts';
-import type { JournalAPI } from '../journal/types.ts';
-import type { EpicConfig, EpicStatus, TaskConfig } from '../storage/types.ts';
-import type { Gap, CheckResult, EvalResult } from '../gap/types.ts';
-import { FileSystemAPIImpl, ShellAPIImpl, GitAPIImpl, LoggerAPIImpl } from './base.ts';
-import { ArtifactStore } from '../artifacts/index.ts';
-import { FilesystemStorage } from '../storage/filesystem.ts';
-import { StatusManager } from '../storage/status.ts';
-import { globalRegistry } from '../functions/registry.ts';
-import { join } from 'node:path';
-import { getJournalStructure } from '../journal/structure.ts';
+} from "./types.ts";
+import type { JournalAPI } from "../journal/types.ts";
+import type { EpicConfig, EpicStatus, TaskConfig } from "../storage/types.ts";
+import type { Gap, CheckResult, EvalResult } from "../gap/types.ts";
+import {
+  FileSystemAPIImpl,
+  ShellAPIImpl,
+  GitAPIImpl,
+  LoggerAPIImpl,
+} from "./base.ts";
+import { ArtifactStore } from "../artifacts/index.ts";
+import { FilesystemStorage } from "../storage/filesystem.ts";
+import { StatusManager } from "../storage/status.ts";
+import { globalRegistry } from "../functions/registry.ts";
+import { join } from "node:path";
+import { getJournalStructure } from "../journal/structure.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Eval API Implementation (Epic Level)                              */
@@ -29,7 +34,7 @@ import { getJournalStructure } from '../journal/structure.ts';
 class EpicEvalAPI implements EvalAPI {
   constructor(
     private ctx: EpicContextImpl,
-    private storage: FilesystemStorage
+    private storage: FilesystemStorage,
   ) {}
 
   async detectGaps(): Promise<EvalResult> {
@@ -44,7 +49,9 @@ class EpicEvalAPI implements EvalAPI {
     const allGaps = checkResults.flatMap((r) => r.gaps);
 
     // Filter gaps to only those in this epic's scope
-    const epicGaps = allGaps.filter((g) => g.scope === this.ctx.epicId || g.level === 'epic');
+    const epicGaps = allGaps.filter(
+      (g) => g.scope === this.ctx.epicId || g.level === "epic",
+    );
 
     const byType: Record<string, number> = {};
     const byLevel: Record<string, number> = {};
@@ -97,8 +104,8 @@ class EpicEvalAPI implements EvalAPI {
     // Get gaps for this epic from status
     return this.ctx.status.currentGaps.map((gapId) => ({
       id: gapId,
-      type: 'structural' as const,
-      level: 'epic' as const,
+      type: "structural" as const,
+      level: "epic" as const,
       scope: this.ctx.epicId,
       description: gapId,
       detected: new Date().toISOString(),
@@ -120,7 +127,7 @@ class EpicEvalAPI implements EvalAPI {
 class EpicPlanAPI implements PlanAPI {
   constructor(
     private ctx: EpicContextImpl,
-    private storage: FilesystemStorage
+    private storage: FilesystemStorage,
   ) {}
 
   async generateTasks(gaps: Gap[]): Promise<TaskConfig[]> {
@@ -140,7 +147,9 @@ class EpicPlanAPI implements PlanAPI {
         const tasks = await planMeta.fn(this.ctx, relevantGaps);
         allTasks.push(...tasks);
       } catch (error: any) {
-        this.ctx.log.error(`Plan function "${planMeta.name}" failed: ${error.message}`);
+        this.ctx.log.error(
+          `Plan function "${planMeta.name}" failed: ${error.message}`,
+        );
       }
     }
 
@@ -166,7 +175,9 @@ class EpicPlanAPI implements PlanAPI {
   }
 
   getPlanPath(relativePath: string): string {
-    throw new Error('getPlanPath() is only available in WBS task context. Use ctx.plan.getPlanPath() within .wbs() functions.');
+    throw new Error(
+      "getPlanPath() is only available in WBS task context. Use ctx.plan.getPlanPath() within .wbs() functions.",
+    );
   }
 }
 
@@ -175,7 +186,7 @@ class EpicPlanAPI implements PlanAPI {
 /* ------------------------------------------------------------------ */
 
 export class EpicContextImpl implements EpicContext {
-  readonly level = 'epic' as const;
+  readonly level = "epic" as const;
   readonly projectDir: string;
   readonly convergeDir: string;
   readonly epicId: string;
@@ -199,7 +210,7 @@ export class EpicContextImpl implements EpicContext {
     config: EpicConfig,
     status: EpicStatus,
     projectContext: ProjectContext,
-    storage: FilesystemStorage
+    storage: FilesystemStorage,
   ) {
     this.epicId = epicId;
     this.projectDir = projectContext.projectDir;
@@ -223,13 +234,23 @@ export class EpicContextImpl implements EpicContext {
     this.eval = new EpicEvalAPI(this, storage);
     this.plan = new EpicPlanAPI(this, storage);
     this.check = {
-      run: async () => ({ check: '', passed: true, gaps: [] }),
+      run: async () => ({ check: "", passed: true, gaps: [] }),
       runAll: async () => [],
-      validateOutputs: async () => ({ check: 'outputs', passed: true, gaps: [] }),
+      validateOutputs: async () => ({
+        check: "outputs",
+        passed: true,
+        gaps: [],
+      }),
     };
     this.journal = {
       getGaps: async () => [],
-      getSummary: async () => ({ total: 0, byType: {}, bySeverity: {}, updated: new Date().toISOString(), gaps: [] }),
+      getSummary: async () => ({
+        total: 0,
+        byType: {},
+        bySeverity: {},
+        updated: new Date().toISOString(),
+        gaps: [],
+      }),
       getRecentEvents: async () => [],
       findErrors: async () => [],
       searchLog: async () => [],
@@ -250,7 +271,7 @@ export function createEpicContext(
   config: EpicConfig,
   status: EpicStatus,
   projectContext: ProjectContext,
-  storage: FilesystemStorage
+  storage: FilesystemStorage,
 ): EpicContext {
   return new EpicContextImpl(epicId, config, status, projectContext, storage);
 }

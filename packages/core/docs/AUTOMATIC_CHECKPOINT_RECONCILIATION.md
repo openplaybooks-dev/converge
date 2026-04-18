@@ -21,18 +21,21 @@ Every command starts with a reconciliation phase that:
 **Detection**: Task marked `complete` but required output files missing
 
 **Action**:
+
 - Remove from `completedTasks` in checkpoint
 - Remove from `lockedTasks` (allow re-run)
 - Keep attempt count in `taskAttempts`
 - Log warning with missing file paths
 
 **Example**:
+
 ```
 ⚠️  Task 002-001-prompt-home-lesson-tree marked complete but missing outputs:
    - .stitch/prompts/home-lesson-tree.md
 ```
 
 **Checkpoint Update**:
+
 ```typescript
 // Before
 completedTasks: ['002-001-prompt-home-lesson-tree', ...]
@@ -48,11 +51,13 @@ lockedTasks: [...]     // task removed (can re-run)
 **Detection**: Task marked `failed` but all required outputs exist
 
 **Action**:
+
 - Move from `failedTasks` to `completedTasks`
 - Update checkpoint automatically
 - Log reconciliation message
 
 **Example**:
+
 ```
 ⚠️  Task 003-generate-html-designs marked failed but all outputs exist. Reconciling checkpoint...
 ```
@@ -62,11 +67,13 @@ lockedTasks: [...]     // task removed (can re-run)
 **Detection**: Parent marked `complete`/`failed` but children not all done
 
 **Action**:
+
 - Revert parent from `completedTasks`/`failedTasks` to `seededTasks`
 - Update checkpoint automatically
 - Log reversion message
 
 **Example**:
+
 ```
 ↻ Reverted parent to seeded: 002-generate-screen-prompts (0/3 children done)
 ```
@@ -78,12 +85,14 @@ lockedTasks: [...]     // task removed (can re-run)
 **Detection**: All children completed or failed
 
 **Action**:
+
 - If any child failed → mark parent as `failed`
 - If all children completed → mark parent as `completed`
 - Remove from `seededTasks`
 - Update checkpoint automatically
 
 **Example**:
+
 ```
 ↻ Auto-completed parent: 002-generate-screen-prompts (3/3 children done)
 ```
@@ -93,6 +102,7 @@ lockedTasks: [...]     // task removed (can re-run)
 ### CheckpointManager Methods
 
 **New Method**: `removeFromCompleted(taskId: string)`
+
 ```typescript
 async removeFromCompleted(taskId: string): Promise<void> {
   // Remove from completedTasks
@@ -102,6 +112,7 @@ async removeFromCompleted(taskId: string): Promise<void> {
 ```
 
 **Existing Methods** (used for automatic updates):
+
 - `markTaskCompleted(taskId)` - Move to completed
 - `markTaskFailed(taskId)` - Move to failed
 - `markTaskSeeded(taskId)` - Move to seeded
@@ -124,6 +135,7 @@ const { tree, states } = result;
 ### Integration Points
 
 **commands-tree.ts**:
+
 ```typescript
 export async function treeCommand(options: TreeCommandOptions = {}) {
   // Reconciliation phase runs first
@@ -137,6 +149,7 @@ export async function treeCommand(options: TreeCommandOptions = {}) {
 ```
 
 **next-task.ts** (inside `getTaskStates()`):
+
 ```typescript
 // Phase 1: Load checkpoint state
 // Phase 2: Validate outputs → auto-correct checkpoint
@@ -147,21 +160,25 @@ export async function treeCommand(options: TreeCommandOptions = {}) {
 ## Benefits
 
 ### 1. Self-Healing
+
 - System automatically recovers from state corruption
 - No manual checkpoint editing needed
 - Resilient to file deletions or moves
 
 ### 2. Always Correct
+
 - Checkpoint state always matches filesystem reality
 - No stale "completed" tasks with missing outputs
 - Parents reflect actual child state
 
 ### 3. Transparent
+
 - All corrections logged to console
 - User sees exactly what was fixed
 - Corrections summary after reconciliation
 
 ### 4. Idempotent
+
 - Running command multiple times is safe
 - Each run validates and corrects state
 - Convergent to correct state
@@ -201,6 +218,7 @@ $ pnpm converge tree 002-generate-screen-prompts
 ```
 
 **Second run** (after corrections persisted):
+
 ```bash
 $ pnpm converge tree 002-generate-screen-prompts
 
@@ -226,12 +244,14 @@ $ pnpm converge tree 002-generate-screen-prompts
 ### Consistency Guarantees
 
 Currently implemented:
+
 - ✅ Output validation
 - ✅ Parent-child state consistency
 - ✅ Automatic checkpoint updates
 - ✅ Idempotent reconciliation
 
 Future considerations:
+
 - 🔄 Distributed locking for parallel runs
 - 🔄 Transaction-based checkpoint updates
 - 🔄 Checkpoint versioning and rollback

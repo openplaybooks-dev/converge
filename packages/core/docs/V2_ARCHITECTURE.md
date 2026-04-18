@@ -92,33 +92,35 @@ converge run-v2 .converge/epics/02-ux-design/003-generate-screens/001-screen-hom
 ```typescript
 // .converge/epics/01-data-analysis/001-analyze.ts
 
-import { taskDef } from '@converge/core';
+import { taskDef } from "@converge/core";
 
 export default taskDef()
-  .id('analyze-sheets-data')
-  .title('Analyze Google Sheets Data')
-  .agent('business-analyst')
-  .prompt(`
+  .id("analyze-sheets-data")
+  .title("Analyze Google Sheets Data")
+  .agent("business-analyst")
+  .prompt(
+    `
     Analyze TSV files from data-sheets/ and generate:
     1. data-modeling/modeling.md (ER diagram)
     2. data-modeling/schema.sql (DDL)
     3. data-modeling/import.ts (import script)
-  `.trim())
-  .inputs(['data-sheets/spreadsheets/**/*.tsv'])
+  `.trim(),
+  )
+  .inputs(["data-sheets/spreadsheets/**/*.tsv"])
   .outputs([
-    'data-modeling/modeling.md',
-    'data-modeling/schema.sql',
-    'data-modeling/import.ts',
+    "data-modeling/modeling.md",
+    "data-modeling/schema.sql",
+    "data-modeling/import.ts",
   ])
   .check({
-    id: 'modeling-md-exists',
-    cmd: 'test -f ./data-modeling/modeling.md',
-    description: 'modeling.md exists',
+    id: "modeling-md-exists",
+    cmd: "test -f ./data-modeling/modeling.md",
+    description: "modeling.md exists",
   })
   .check({
-    id: 'schema-sql-exists',
-    cmd: 'test -f ./data-modeling/schema.sql',
-    description: 'schema.sql exists',
+    id: "schema-sql-exists",
+    cmd: "test -f ./data-modeling/schema.sql",
+    description: "schema.sql exists",
   })
   .build();
 ```
@@ -128,24 +130,26 @@ export default taskDef()
 ```typescript
 // .converge/epics/02-ux-design/003-generate-screens.ts
 
-import { taskDef } from '@converge/core';
+import { taskDef } from "@converge/core";
 
 export default taskDef()
-  .id('generate-all-screens')
-  .title('Generate All Screens')
-  .agent('ui-developer')
+  .id("generate-all-screens")
+  .title("Generate All Screens")
+  .agent("ui-developer")
   .yields({
-    plan: 'Create one screen task per page in .stitch/SITE.md sitemap',
-    outputDir: '.converge/epics/02-ux-design/003-generate-screens',
-    template: '.converge/epics/02-ux-design/003-generate-screens/000-screen-{slug}.ts.tpl',
+    plan: "Create one screen task per page in .stitch/SITE.md sitemap",
+    outputDir: ".converge/epics/02-ux-design/003-generate-screens",
+    template:
+      ".converge/epics/02-ux-design/003-generate-screens/000-screen-{slug}.ts.tpl",
     maxTasks: 20,
   })
-  .inputs(['.stitch/SITE.md', '.stitch/DESIGN.md'])
-  .outputs(['.converge/epics/02-ux-design/003-generate-screens/**/*.ts'])
+  .inputs([".stitch/SITE.md", ".stitch/DESIGN.md"])
+  .outputs([".converge/epics/02-ux-design/003-generate-screens/**/*.ts"])
   .build();
 ```
 
 When this runs, it uses AI to:
+
 1. Read `.stitch/SITE.md` to find all pages
 2. For each page, instantiate `000-screen-{slug}.ts.tpl`
 3. Write subtask files: `001-screen-home.ts`, `002-screen-about.ts`, etc.
@@ -274,18 +278,19 @@ async run(): Promise<boolean> {
 ```typescript
 // .converge/epics/02-ux-design/003-generate-screens.ts
 export default taskDef()
-  .id('generate-all-screens')
+  .id("generate-all-screens")
   .yields({
-    plan: 'Create one screen task per page in sitemap',
-    outputDir: '.converge/epics/02-ux-design/003-generate-screens',
-    template: '000-screen-{slug}.ts.tpl',
+    plan: "Create one screen task per page in sitemap",
+    outputDir: ".converge/epics/02-ux-design/003-generate-screens",
+    template: "000-screen-{slug}.ts.tpl",
   })
-  .inputs(['.stitch/SITE.md'])
-  .outputs(['.converge/epics/02-ux-design/003-generate-screens/**/*.ts'])
+  .inputs([".stitch/SITE.md"])
+  .outputs([".converge/epics/02-ux-design/003-generate-screens/**/*.ts"])
   .build();
 ```
 
 **What happens:**
+
 1. V2 loads this unit
 2. Finds gap: `outputs` don't exist
 3. Uses AI to generate subtask files from template
@@ -296,16 +301,17 @@ export default taskDef()
 ```typescript
 // .converge/epics/02-ux-design/003-generate-screens/001-screen-home.ts (AI-generated)
 export default taskDef()
-  .id('screen-home')
-  .title('Home Screen')
-  .agent('ui-developer')
-  .prompt('Generate src/pages/Home.tsx using design system tokens')
-  .inputs(['.stitch/DESIGN.md'])
-  .outputs(['src/pages/Home.tsx'])
+  .id("screen-home")
+  .title("Home Screen")
+  .agent("ui-developer")
+  .prompt("Generate src/pages/Home.tsx using design system tokens")
+  .inputs([".stitch/DESIGN.md"])
+  .outputs(["src/pages/Home.tsx"])
   .build();
 ```
 
 **What happens:**
+
 1. Parent task (003-generate-screens) discovers children
 2. For each child, V2 creates a Unit and runs it
 3. Child finds gap: `src/pages/Home.tsx` doesn't exist
@@ -314,13 +320,13 @@ export default taskDef()
 
 ## Code Metrics
 
-| Metric | V1 | V2 | Reduction |
-|--------|----|----|-----------|
-| Total lines | 3,800 | 400 | **89%** |
-| Main god function | 639 | 0 | **100%** |
-| Classes | 3+ | 1 | **67%** |
-| Type complexity | High | None | **100%** |
-| Abstraction overhead | High | None | **100%** |
+| Metric               | V1    | V2   | Reduction |
+| -------------------- | ----- | ---- | --------- |
+| Total lines          | 3,800 | 400  | **89%**   |
+| Main god function    | 639   | 0    | **100%**  |
+| Classes              | 3+    | 1    | **67%**   |
+| Type complexity      | High  | None | **100%**  |
+| Abstraction overhead | High  | None | **100%**  |
 
 ## Implementation Status
 

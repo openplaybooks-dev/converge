@@ -5,10 +5,7 @@
  * When issues are found, uses LLM to refine the converge code.
  */
 
-import type {
-  RefinementRequest,
-  RefinementResult,
-} from './types.ts';
+import type { RefinementRequest, RefinementResult } from "./types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Converge Refiner                                                   */
@@ -19,7 +16,9 @@ export class ConvergeRefiner {
    * Refine verification code based on execution issues
    */
   async refine(request: RefinementRequest): Promise<RefinementResult> {
-    console.log(`[ConvergeRefiner] Refining verification (iteration ${request.iteration})`);
+    console.log(
+      `[ConvergeRefiner] Refining verification (iteration ${request.iteration})`,
+    );
 
     // Build refinement prompt
     const prompt = this.buildRefinementPrompt(request);
@@ -52,9 +51,9 @@ export class ConvergeRefiner {
         if (issue.line) {
           prompt += `:${issue.line}`;
         }
-        prompt += ')';
+        prompt += ")";
       }
-      prompt += '\n';
+      prompt += "\n";
     }
 
     prompt += `\nTask Result:\n`;
@@ -63,7 +62,7 @@ export class ConvergeRefiner {
       prompt += `- Message: ${request.taskResult.message}\n`;
     }
     if (request.taskResult.filesModified) {
-      prompt += `- Files Modified: ${request.taskResult.filesModified.join(', ')}\n`;
+      prompt += `- Files Modified: ${request.taskResult.filesModified.join(", ")}\n`;
     }
 
     prompt += `\nRefine the converge to be more accurate and reduce false positives.\n`;
@@ -81,7 +80,7 @@ export class ConvergeRefiner {
     return `${request.currentCode}
 
 // Refinement iteration ${request.iteration}
-// Addressed issues: ${request.issues.map((i) => i.message).join(', ')}
+// Addressed issues: ${request.issues.map((i) => i.message).join(", ")}
 `;
   }
 }

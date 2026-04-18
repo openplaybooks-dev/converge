@@ -4,12 +4,12 @@
  * Provides access to task metadata and logs for repair strategies.
  */
 
-import { readFile, readdir } from 'node:fs/promises';
-import { existsSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
-import { getJournalStructure } from '../../journal/structure.js';
-import { parse as parseYaml } from 'yaml';
-import type { TaskHelper, TaskDefinition, AttemptRecord } from '../types.ts';
+import { readFile, readdir } from "node:fs/promises";
+import { existsSync, readdirSync } from "node:fs";
+import { join } from "node:path";
+import { getJournalStructure } from "../../journal/structure.js";
+import { parse as parseYaml } from "yaml";
+import type { TaskHelper, TaskDefinition, AttemptRecord } from "../types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Task Helper Implementation                                        */
@@ -18,7 +18,7 @@ import type { TaskHelper, TaskDefinition, AttemptRecord } from '../types.ts';
 export class TaskHelperImpl implements TaskHelper {
   constructor(
     private readonly projectDir: string,
-    private readonly epicId: string
+    private readonly epicId: string,
   ) {}
 
   /**
@@ -32,12 +32,14 @@ export class TaskHelperImpl implements TaskHelper {
         throw new Error(`TASK.md not found for task ${taskId}`);
       }
 
-      const content = await readFile(skillPath, 'utf-8');
+      const content = await readFile(skillPath, "utf-8");
       const { frontmatter } = this.parseTaskMd(content);
 
       return frontmatter;
     } catch (err: any) {
-      throw new Error(`Failed to get definition for task ${taskId}: ${err.message}`);
+      throw new Error(
+        `Failed to get definition for task ${taskId}: ${err.message}`,
+      );
     }
   }
 
@@ -54,8 +56,8 @@ export class TaskHelperImpl implements TaskHelper {
 
       // Get the most recent log file
       const latestLog = logFiles[logFiles.length - 1];
-      const content = await readFile(latestLog, 'utf-8');
-      const allLines = content.split('\n').filter(line => line.trim());
+      const content = await readFile(latestLog, "utf-8");
+      const allLines = content.split("\n").filter((line) => line.trim());
 
       // Return last N lines
       return allLines.slice(-lines);
@@ -76,10 +78,10 @@ export class TaskHelperImpl implements TaskHelper {
         return [];
       }
 
-      const content = await readFile(attemptsPath, 'utf-8');
-      const lines = content.split('\n').filter(line => line.trim());
+      const content = await readFile(attemptsPath, "utf-8");
+      const lines = content.split("\n").filter((line) => line.trim());
 
-      return lines.map(line => JSON.parse(line) as AttemptRecord);
+      return lines.map((line) => JSON.parse(line) as AttemptRecord);
     } catch (err: any) {
       console.warn(`Failed to read attempts for task ${taskId}:`, err.message);
       return [];
@@ -97,16 +99,16 @@ export class TaskHelperImpl implements TaskHelper {
     // Task ID can be a simple ID or a path-like ID (e.g., "002-001-subtask")
     // Try to find TASK.md in the task directory structure
 
-    const epicPath = join(this.projectDir, '.converge', 'epics', this.epicId);
+    const epicPath = join(this.projectDir, ".converge", "epics", this.epicId);
 
     // Try 1: direct path in epics directory
-    const directPath = join(epicPath, taskId, 'TASK.md');
+    const directPath = join(epicPath, taskId, "TASK.md");
     if (existsSync(directPath)) {
       return directPath;
     }
 
     // Try 2: WBS subtasks in tasks/ subdirectory (e.g., epics/{epicId}/tasks/{taskId}/TASK.md)
-    const tasksPath = join(epicPath, 'tasks', taskId, 'TASK.md');
+    const tasksPath = join(epicPath, "tasks", taskId, "TASK.md");
     if (existsSync(tasksPath)) {
       return tasksPath;
     }
@@ -114,7 +116,7 @@ export class TaskHelperImpl implements TaskHelper {
     // Try 3: nested task structure (recursive search for any subdirectory)
     const taskPath = this.findTaskPath(epicPath, taskId);
     if (taskPath) {
-      return join(taskPath, 'TASK.md');
+      return join(taskPath, "TASK.md");
     }
 
     // Default to direct path (will fail if doesn't exist)
@@ -152,13 +154,17 @@ export class TaskHelperImpl implements TaskHelper {
 
   private getAttemptsPath(taskId: string): string {
     const structure = getJournalStructure(this.projectDir, this.epicId, taskId);
-    return join(structure.task!, 'attempts.jsonl');
+    return join(structure.task!, "attempts.jsonl");
   }
 
   private async findLogFiles(taskId: string): Promise<string[]> {
     try {
-      const structure = getJournalStructure(this.projectDir, this.epicId, taskId);
-      const attemptsDir = join(structure.task!, 'attempts');
+      const structure = getJournalStructure(
+        this.projectDir,
+        this.epicId,
+        taskId,
+      );
+      const attemptsDir = join(structure.task!, "attempts");
 
       if (!existsSync(attemptsDir)) {
         return [];
@@ -170,11 +176,11 @@ export class TaskHelperImpl implements TaskHelper {
       for (const attempt of attempts) {
         if (!attempt.isDirectory()) continue;
 
-        const logsDir = join(attemptsDir, attempt.name, 'logs');
+        const logsDir = join(attemptsDir, attempt.name, "logs");
         if (!existsSync(logsDir)) continue;
 
         const logs = await readdir(logsDir);
-        const logFile = logs.find(f => f.endsWith('.log'));
+        const logFile = logs.find((f) => f.endsWith(".log"));
 
         if (logFile) {
           logFiles.push(join(logsDir, logFile));
@@ -188,10 +194,13 @@ export class TaskHelperImpl implements TaskHelper {
     }
   }
 
-  private parseTaskMd(content: string): { frontmatter: TaskDefinition; body: string } {
+  private parseTaskMd(content: string): {
+    frontmatter: TaskDefinition;
+    body: string;
+  } {
     const match = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/);
     if (!match) {
-      throw new Error('Invalid TASK.md format: missing frontmatter');
+      throw new Error("Invalid TASK.md format: missing frontmatter");
     }
 
     const frontmatter = parseYaml(match[1]) as TaskDefinition;
@@ -205,6 +214,9 @@ export class TaskHelperImpl implements TaskHelper {
 /*  Factory                                                           */
 /* ------------------------------------------------------------------ */
 
-export function createTaskHelper(projectDir: string, epicId: string): TaskHelper {
+export function createTaskHelper(
+  projectDir: string,
+  epicId: string,
+): TaskHelper {
   return new TaskHelperImpl(projectDir, epicId);
 }

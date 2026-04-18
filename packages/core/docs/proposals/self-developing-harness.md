@@ -117,6 +117,7 @@ One run of a workflow with a specific input. Gets its own directory under `execu
 ### Facts (per-execution + cross-execution)
 
 Same `Fact` type the framework already uses. Collected during execution, written to both:
+
 - `executions/{id}/facts.jsonl` — facts from this run
 - `workflows/{slug}/facts.jsonl` — all facts across all runs (append-only, tagged with executionId)
 
@@ -129,6 +130,7 @@ Same `ArtifactAPI` the framework already uses. Each execution gets its own artif
 ### Gaps (per-execution + cross-execution)
 
 Gaps detected during the run. Written to:
+
 - `executions/{id}/gaps.jsonl` — gaps from this run
 - `workflows/{slug}/gaps.jsonl` — all gaps across all runs (tagged with executionId)
 
@@ -139,7 +141,21 @@ Cross-execution gap data answers: "which gaps keep recurring?" and "which gaps a
 One line per execution in `trends.jsonl`. Aggregated metrics — not specific to any use case, just numbers the framework can compute from any run:
 
 ```jsonl
-{"executionId":"exec-001","timestamp":"...","input":"todo-app.md","tasksTotal":24,"tasksComplete":22,"tasksFailed":2,"totalAttempts":31,"avgAttempts":1.29,"gapsDetected":8,"gapsResolved":5,"checksTotal":6,"checksPassed":4,"durationMs":1053000}
+{
+  "executionId": "exec-001",
+  "timestamp": "...",
+  "input": "todo-app.md",
+  "tasksTotal": 24,
+  "tasksComplete": 22,
+  "tasksFailed": 2,
+  "totalAttempts": 31,
+  "avgAttempts": 1.29,
+  "gapsDetected": 8,
+  "gapsResolved": 5,
+  "checksTotal": 6,
+  "checksPassed": 4,
+  "durationMs": 1053000
+}
 ```
 
 ---
@@ -200,8 +216,8 @@ Post-execution check results. Uses the workflow's `checks:` definition.
   "executionId": "exec-001",
   "timestamp": "2026-04-12T02:47:40Z",
   "checks": [
-    {"id": "builds-clean", "passed": true, "output": "tsc: 0 errors"},
-    {"id": "stores-connected", "passed": false, "output": "3 stores unused"}
+    { "id": "builds-clean", "passed": true, "output": "tsc: 0 errors" },
+    { "id": "stores-connected", "passed": false, "output": "3 stores unused" }
   ]
 }
 ```
@@ -319,15 +335,16 @@ name: self-dev
 description: Run the react-app workflow, evaluate results, improve framework
 input: idea.md
 pipeline:
-  - workflow: react-app     # runs the inner workflow
-  - epic: evaluate          # runs post-workflow checks
-  - epic: diagnose          # traces failures to framework files
-  - epic: fix               # applies fixes
-  - workflow: react-app     # re-runs to verify
+  - workflow: react-app # runs the inner workflow
+  - epic: evaluate # runs post-workflow checks
+  - epic: diagnose # traces failures to framework files
+  - epic: fix # applies fixes
+  - workflow: react-app # re-runs to verify
 ---
 ```
 
 The workflow journal makes this possible because it provides:
+
 - **Facts** — "which checks pass/fail across runs?" drives diagnosis
 - **Gaps** — "which gaps recur?" identifies systemic framework issues
 - **Trends** — "are things getting better?" validates fixes work
@@ -364,6 +381,7 @@ The existing `SessionLogger` creates `journal/sessions/{sessionId}/`. When runni
 ## Implementation
 
 ### What exists (no changes)
+
 - Facts API (`src/facts/api.ts`)
 - Artifact store (`src/artifacts/index.ts`)
 - Gap detection (`src/gap/detector.ts`)
@@ -386,14 +404,14 @@ The existing `SessionLogger` creates `journal/sessions/{sessionId}/`. When runni
 
 The workflow journal is a general-purpose layer that gives any reusable pipeline:
 
-| Capability | How |
-|---|---|
-| **Identity** | `workflows/{slug}/` — named, not anonymous |
-| **History** | `executions/{id}/` — each run preserved |
-| **Facts** | Same `Fact` type, per-execution + cross-execution |
-| **Artifacts** | Same `ArtifactAPI`, scoped per-execution |
-| **Gaps** | Same `Gap` type, per-execution + cross-execution |
-| **Trends** | `trends.jsonl` — one line per execution |
+| Capability     | How                                                 |
+| -------------- | --------------------------------------------------- |
+| **Identity**   | `workflows/{slug}/` — named, not anonymous          |
+| **History**    | `executions/{id}/` — each run preserved             |
+| **Facts**      | Same `Fact` type, per-execution + cross-execution   |
+| **Artifacts**  | Same `ArtifactAPI`, scoped per-execution            |
+| **Gaps**       | Same `Gap` type, per-execution + cross-execution    |
+| **Trends**     | `trends.jsonl` — one line per execution             |
 | **Comparison** | Query facts/gaps across executions to find patterns |
 
 It wraps the existing session and epic layers without replacing them. Any workflow — app generation, data processing, self-development, testing — gets the same structure.

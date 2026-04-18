@@ -109,7 +109,7 @@ Gap-driven convergence framework for AI agent orchestration.
 **Pros:**
 - Semantically accurate — the framework literally converges on completion
 - Memorable, single-word, strong verb
-- Distinct from crowded naming patterns: no "agent," "crew," "graph," "chain," "flow," or "gen" in the name
+- Distinct from crowded naming patterns: no "agent," "graph," "chain," "flow," or "gen" in the name
 - Works as both noun ("Converge framework") and verb ("let it converge")
 - Domain-relevant without being jargon — business users understand "converge" intuitively
 - Good search differentiation from LangChain/LangGraph/CrewAI namespace
@@ -204,20 +204,20 @@ After 30 days of being public, evaluate these signals to decide next steps:
 
 | Package/Directory | Reason |
 |-------------------|--------|
-| `apps/` (SheetsRun app) | Commercial product, not part of the framework |
-| `packages/sheets-*` | SheetsRun-specific, Google Sheets integration |
-| `packages/stitch-*` | SheetsRun-specific, UI generation pipeline |
+| `apps/` | Commercial product, not part of the framework |
+| `packages/sheets-*` | Application-specific, Google Sheets integration |
+| `packages/stitch-*` | Application-specific, UI generation pipeline |
 | `packages/claude-web-api/` | Unofficial API wrapper, potential ToS issues |
 | `.env`, credentials, API keys | Obviously |
-| `artifacts/` | SheetsRun project artifacts |
-| Internal playbooks referencing SheetsRun | Commercial context |
+| `artifacts/` | Application project artifacts |
+| Internal playbooks referencing application | Commercial context |
 
 ### Pre-OSS Cleanup Checklist
 
 **Code Rename (completed)**
 - [ ] Rename `packages/core/` → `packages/core/`
-- [x] Update `package.json`: name `harness` → `@converge/core`
-- [x] Update `package.json`: bin `harness` → `converge`
+- [x] Update `package.json`: name → `@converge/core`
+- [x] Update `package.json`: bin → `converge`
 - [ ] Rename `@converge/agentfn` → `@converge/agentfn`
 - [ ] Rename `@converge/claudefn` → `@converge/claudefn` (and all providers)
 - [x] Update all import paths: `from '@converge/core'` → `from '@converge/core'`
@@ -231,7 +231,7 @@ After 30 days of being public, evaluate these signals to decide next steps:
 **Repository Setup**
 - [ ] Create new GitHub repo under chosen org
 - [ ] Extract packages to standalone repo with clean git history (`git filter-repo` or fresh init)
-- [ ] Verify no SheetsRun references remain: `grep -r "sheetsrun\|SheetsRun\|sheets-run\|sheets_run" .`
+- [ ] Verify no application-specific references remain
 - [ ] Verify no credentials: `grep -r "sk-\|ANTHROPIC_API_KEY\|GOOGLE_API_KEY" .`
 - [ ] Verify no internal URLs or private references
 - [ ] Set up branch protection on `main`
@@ -845,7 +845,7 @@ This analogy resonates with DevOps teams and business users who already think in
 
 **1. Gap-driven convergence (primary differentiator)**
 - "Define what done looks like. Converge measures the gap and closes it."
-- Not another graph framework. Not another role-based crew. A fundamentally different paradigm.
+- Not another graph framework. Not another role-based agent system. A fundamentally different paradigm.
 - For business audiences: "You describe the deliverable. Converge figures out how to produce it."
 
 **2. Self-correcting LEARN.md loops**
@@ -941,15 +941,15 @@ The AI framework space is overwhelmingly Python. This is both a challenge and an
 | **Mitigation** | The fail-fast approach is itself a mitigation: don't invest months of community management energy unless the paradigm is validated. If validation passes, use consulting/playbook revenue to fund a part-time contributor within 90 days. Automate CI, npm publish, issue triage. Batch community engagement (1 hour/day). Revenue-generating activities (consulting, playbook sales) take priority over free community support. |
 | **Monitoring** | Track personal energy levels weekly. If issue response time exceeds 72 hours consistently, actively recruit a co-maintainer funded by revenue. |
 
-### 7. SheetsRun IP Leakage
+### 7. Application IP Leakage
 
 | | |
 |---|---|
 | **Impact** | High |
 | **Likelihood** | Low (if audited properly) |
-| **Description** | The framework was developed within the SheetsRun monorepo. References to SheetsRun, internal APIs, credentials, or proprietary logic could leak into the open-source release. |
-| **Mitigation** | Use `git filter-repo` to create a clean repo with no SheetsRun history. Run automated scans: `grep -r "sheetsrun\|SheetsRun\|sheets-run\|sheets_run\|stitch\|claude-web-api" .` before going public. Manual review of every file in the npm publish tarball (`npm pack --dry-run`). Have a second person audit. |
-| **Monitoring** | GitHub Action that scans for SheetsRun-related strings on every push. |
+| **Description** | The framework was developed within an internal monorepo. References to internal applications, APIs, credentials, or proprietary logic could leak into the open-source release. |
+| **Mitigation** | Use `git filter-repo` to create a clean repo with no internal history. Run automated scans for internal references before going public. Manual review of every file in the npm publish tarball (`npm pack --dry-run`). Have a second person audit. |
+| **Monitoring** | GitHub Action that scans for internal-application-related strings on every push. |
 
 ### 8. Pricing Enterprise Playbooks Wrong
 

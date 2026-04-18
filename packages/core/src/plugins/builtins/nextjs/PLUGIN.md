@@ -17,15 +17,15 @@ with an additional `lint` check.
 
 ## Options
 
-| Option      | Default | Description                    |
-|-------------|---------|--------------------------------|
+| Option      | Default | Description                     |
+| ----------- | ------- | ------------------------------- |
 | `appDir`    | `true`  | Use App Router directory layout |
 | `turbopack` | `false` | Enable Turbopack builds         |
 
 ## Variables
 
 | Key         | Value       |
-|-------------|-------------|
+| ----------- | ----------- |
 | `framework` | `"nextjs"`  |
 | `appDir`    | from option |
 | `turbopack` | from option |

@@ -5,18 +5,23 @@
  * evaluate → plan → execute → checkpoint → repeat until complete or stalled
  */
 
-import type { ProjectContext, EpicContext } from '../context/types.ts';
-import type { Gap, ConvergenceState, EvalResult } from '../gap/types.ts';
-import type { TaskConfig, TaskStatus, Checkpoint, Cursor } from '../storage/types.ts';
-import type { TaskResult } from '../functions/types.ts';
-import type { GoalStatus, GoalEvaluationContext } from '../goal/types.ts';
-import { GapDetector, ConvergenceAnalyzer } from '../gap/detector.ts';
-import { FilesystemStorage } from '../storage/filesystem.ts';
-import { StatusManager } from '../storage/status.ts';
-import { createTaskContext } from '../context/task-context.ts';
-import { globalRegistry } from '../functions/registry.ts';
-import { GoalEvaluatorImpl } from '../goal/evaluator.ts';
-import type { HookRegistry } from '../hooks/registry.ts';
+import type { ProjectContext, EpicContext } from "../context/types.ts";
+import type { Gap, ConvergenceState, EvalResult } from "../gap/types.ts";
+import type {
+  TaskConfig,
+  TaskStatus,
+  Checkpoint,
+  Cursor,
+} from "../storage/types.ts";
+import type { TaskResult } from "../functions/types.ts";
+import type { GoalStatus, GoalEvaluationContext } from "../goal/types.ts";
+import { GapDetector, ConvergenceAnalyzer } from "../gap/detector.ts";
+import { FilesystemStorage } from "../storage/filesystem.ts";
+import { StatusManager } from "../storage/status.ts";
+import { createTaskContext } from "../context/task-context.ts";
+import { globalRegistry } from "../functions/registry.ts";
+import { GoalEvaluatorImpl } from "../goal/evaluator.ts";
+import type { HookRegistry } from "../hooks/registry.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Convergence Configuration                                         */
@@ -65,19 +70,19 @@ export interface ConvergenceResult {
   finalState: ConvergenceState;
 
   /** Reason for termination */
-  terminationReason: 'converged' | 'stalled' | 'max-iterations' | 'error';
+  terminationReason: "converged" | "stalled" | "max-iterations" | "error";
 
   /** Error details if terminated due to error */
   error?: {
     message: string;
     iteration: number;
-    phase: 'evaluate' | 'plan' | 'execute' | 'checkpoint';
+    phase: "evaluate" | "plan" | "execute" | "checkpoint";
   };
 
   /** Goal-centric metrics (if goals are present) */
   goalsSatisfied?: number;
   totalGoals?: number;
-  goalStatuses?: import('../goal/types.ts').GoalStatus[];
+  goalStatuses?: import("../goal/types.ts").GoalStatus[];
 
   /** Execution summary */
   summary: {
@@ -106,7 +111,7 @@ export class ConvergenceOrchestrator {
   constructor(
     storage: FilesystemStorage,
     statusManager: StatusManager,
-    hooks?: HookRegistry
+    hooks?: HookRegistry,
   ) {
     this.storage = storage;
     this.statusManager = statusManager;
@@ -129,7 +134,7 @@ export class ConvergenceOrchestrator {
    */
   async runEpicConvergence(
     ctx: EpicContext,
-    config: ConvergenceConfig = DEFAULT_CONVERGENCE_CONFIG
+    config: ConvergenceConfig = DEFAULT_CONVERGENCE_CONFIG,
   ): Promise<ConvergenceResult> {
     const startTime = Date.now();
     let iteration = 0;
@@ -143,10 +148,14 @@ export class ConvergenceOrchestrator {
     ctx.log.info(`Starting convergence loop for epic: ${ctx.epicId}`);
 
     // Fire epic:start hook
-    await this.hooks?.fire('epic:start', { ctx });
+    await this.hooks?.fire("epic:start", { ctx });
 
     // Transition epic to active
-    this.statusManager.transitionEpic(ctx.epicId, 'active', 'Starting convergence loop');
+    this.statusManager.transitionEpic(
+      ctx.epicId,
+      "active",
+      "Starting convergence loop",
+    );
 
     while (iteration < config.maxIterations && !this._stopRequested) {
       iteration++;
@@ -162,12 +171,12 @@ export class ConvergenceOrchestrator {
 
         ctx.log.info(
           `Iteration ${iteration}: Detected ${currentGaps.length} gaps ` +
-            `(${evalResult.summary.total} total, ${currentGaps.filter((g) => !g.resolved).length} unresolved)`
+            `(${evalResult.summary.total} total, ${currentGaps.filter((g) => !g.resolved).length} unresolved)`,
         );
 
         // Fire gap:detected hook when there are unresolved gaps
         if (currentGaps.filter((g) => !g.resolved).length > 0) {
-          await this.hooks?.fire('gap:detected', {
+          await this.hooks?.fire("gap:detected", {
             gaps: currentGaps.filter((g) => !g.resolved),
             epicId: ctx.epicId,
             iteration,
@@ -177,7 +186,7 @@ export class ConvergenceOrchestrator {
         // Record gaps in status
         this.statusManager.recordEpicGaps(
           ctx.epicId,
-          currentGaps.map((g) => g.id)
+          currentGaps.map((g) => g.id),
         );
 
         // ─────────── ANALYZE CONVERGENCE ─────────────
@@ -185,7 +194,7 @@ export class ConvergenceOrchestrator {
           iteration,
           previousGaps,
           currentGaps,
-          config.maxStallCount
+          config.maxStallCount,
         );
 
         ctx.log.info(this.analyzer.generateReport(convergenceState));
@@ -193,14 +202,18 @@ export class ConvergenceOrchestrator {
         // Check for convergence
         if (this.analyzer.hasConverged(convergenceState)) {
           ctx.log.info(`✅ Convergence achieved! All gaps resolved.`);
-          this.statusManager.transitionEpic(ctx.epicId, 'completed', 'All gaps resolved');
+          this.statusManager.transitionEpic(
+            ctx.epicId,
+            "completed",
+            "All gaps resolved",
+          );
 
           const convResult: ConvergenceResult = {
             converged: true,
             stalled: false,
             iterations: iteration,
             finalState: convergenceState,
-            terminationReason: 'converged',
+            terminationReason: "converged",
             summary: {
               totalGapsDetected: allGapsDetected.size,
               totalGapsResolved: allGapsDetected.size,
@@ -211,12 +224,12 @@ export class ConvergenceOrchestrator {
             },
           };
 
-          await this.hooks?.fire('convergence:achieved', {
+          await this.hooks?.fire("convergence:achieved", {
             epicId: ctx.epicId,
             iterations: iteration,
             gapsResolved: allGapsDetected.size,
           });
-          await this.hooks?.fire('epic:complete', { ctx, result: convResult });
+          await this.hooks?.fire("epic:complete", { ctx, result: convResult });
 
           return convResult;
         }
@@ -225,15 +238,17 @@ export class ConvergenceOrchestrator {
         if (convergenceState.stalled) {
           consecutiveStalls++;
           ctx.log.warn(
-            `⚠️  Stall detected (${consecutiveStalls}/${config.maxStallCount}): ${convergenceState.stallReason}`
+            `⚠️  Stall detected (${consecutiveStalls}/${config.maxStallCount}): ${convergenceState.stallReason}`,
           );
 
           if (consecutiveStalls >= config.maxStallCount) {
-            ctx.log.error(`❌ Convergence stalled after ${consecutiveStalls} consecutive stalls`);
+            ctx.log.error(
+              `❌ Convergence stalled after ${consecutiveStalls} consecutive stalls`,
+            );
             this.statusManager.transitionEpic(
               ctx.epicId,
-              'failed',
-              `Stalled: ${convergenceState.stallReason}`
+              "failed",
+              `Stalled: ${convergenceState.stallReason}`,
             );
 
             const stallResult: ConvergenceResult = {
@@ -241,7 +256,7 @@ export class ConvergenceOrchestrator {
               stalled: true,
               iterations: iteration,
               finalState: convergenceState,
-              terminationReason: 'stalled',
+              terminationReason: "stalled",
               summary: {
                 totalGapsDetected: allGapsDetected.size,
                 totalGapsResolved: allGapsDetected.size - currentGaps.length,
@@ -252,13 +267,13 @@ export class ConvergenceOrchestrator {
               },
             };
 
-            await this.hooks?.fire('convergence:stalled', {
+            await this.hooks?.fire("convergence:stalled", {
               epicId: ctx.epicId,
-              reason: convergenceState.stallReason ?? 'unknown',
+              reason: convergenceState.stallReason ?? "unknown",
               stallCount: consecutiveStalls,
               gaps: currentGaps,
             });
-            await this.hooks?.fire('epic:fail', {
+            await this.hooks?.fire("epic:fail", {
               ctx,
               error: new Error(`Stalled: ${convergenceState.stallReason}`),
             });
@@ -281,13 +296,15 @@ export class ConvergenceOrchestrator {
         }
 
         // ─────────── PHASE 3: EXECUTE ─────────────
-        ctx.log.info(`Iteration ${iteration}: Executing ${tasks.length} tasks...`);
+        ctx.log.info(
+          `Iteration ${iteration}: Executing ${tasks.length} tasks...`,
+        );
 
         const executionResults = await this.executeTasks(
           ctx,
           tasks,
           config.parallelExecution,
-          config.maxParallelTasks
+          config.maxParallelTasks,
         );
 
         totalTasksExecuted += executionResults.length;
@@ -296,13 +313,18 @@ export class ConvergenceOrchestrator {
 
         ctx.log.info(
           `Iteration ${iteration}: Executed ${executionResults.length} tasks ` +
-            `(${totalTasksSucceeded} succeeded, ${totalTasksFailed} failed)`
+            `(${totalTasksSucceeded} succeeded, ${totalTasksFailed} failed)`,
         );
 
         // ─────────── PHASE 4: CHECKPOINT ─────────────
         if (config.enableCheckpoints) {
-          const checkpointId = await this.createCheckpoint(ctx, iteration, currentGaps, convergenceState);
-          await this.hooks?.fire('checkpoint:created', {
+          const checkpointId = await this.createCheckpoint(
+            ctx,
+            iteration,
+            currentGaps,
+            convergenceState,
+          );
+          await this.hooks?.fire("checkpoint:created", {
             checkpointId,
             iteration,
             epicId: ctx.epicId,
@@ -313,7 +335,7 @@ export class ConvergenceOrchestrator {
         previousGaps = currentGaps;
       } catch (error: any) {
         ctx.log.error(`Error in iteration ${iteration}: ${error.message}`);
-        this.statusManager.transitionEpic(ctx.epicId, 'failed', error.message);
+        this.statusManager.transitionEpic(ctx.epicId, "failed", error.message);
 
         return {
           converged: false,
@@ -327,18 +349,18 @@ export class ConvergenceOrchestrator {
             resolvedGaps: [],
             unchangedGaps: previousGaps,
             stalled: true,
-            stallReason: 'Error during execution',
+            stallReason: "Error during execution",
             metrics: {
               gapReductionRate: 0,
               stallThreshold: config.maxStallCount,
               stallCount: config.maxStallCount,
             },
           },
-          terminationReason: 'error',
+          terminationReason: "error",
           error: {
             message: error.message,
             iteration,
-            phase: 'execute', // Could be more specific
+            phase: "execute", // Could be more specific
           },
           summary: {
             totalGapsDetected: allGapsDetected.size,
@@ -353,11 +375,13 @@ export class ConvergenceOrchestrator {
     }
 
     // Max iterations reached
-    ctx.log.error(`❌ Max iterations (${config.maxIterations}) reached without convergence`);
+    ctx.log.error(
+      `❌ Max iterations (${config.maxIterations}) reached without convergence`,
+    );
     this.statusManager.transitionEpic(
       ctx.epicId,
-      'failed',
-      `Max iterations (${config.maxIterations}) reached`
+      "failed",
+      `Max iterations (${config.maxIterations}) reached`,
     );
 
     return {
@@ -372,14 +396,14 @@ export class ConvergenceOrchestrator {
         resolvedGaps: [],
         unchangedGaps: previousGaps,
         stalled: true,
-        stallReason: 'Max iterations reached',
+        stallReason: "Max iterations reached",
         metrics: {
           gapReductionRate: 0,
           stallThreshold: config.maxStallCount,
           stallCount: config.maxStallCount,
         },
       },
-      terminationReason: 'max-iterations',
+      terminationReason: "max-iterations",
       summary: {
         totalGapsDetected: allGapsDetected.size,
         totalGapsResolved: allGapsDetected.size - previousGaps.length,
@@ -402,7 +426,7 @@ export class ConvergenceOrchestrator {
     epicCtx: EpicContext,
     tasks: TaskConfig[],
     parallel: boolean,
-    maxParallel: number
+    maxParallel: number,
   ): Promise<TaskResult[]> {
     if (parallel) {
       return this.executeTasksParallel(epicCtx, tasks, maxParallel);
@@ -416,7 +440,7 @@ export class ConvergenceOrchestrator {
    */
   private async executeTasksSequential(
     epicCtx: EpicContext,
-    tasks: TaskConfig[]
+    tasks: TaskConfig[],
   ): Promise<TaskResult[]> {
     const results: TaskResult[] = [];
 
@@ -434,7 +458,7 @@ export class ConvergenceOrchestrator {
   private async executeTasksParallel(
     epicCtx: EpicContext,
     tasks: TaskConfig[],
-    maxParallel: number
+    maxParallel: number,
   ): Promise<TaskResult[]> {
     const results: TaskResult[] = [];
     const executing: Promise<TaskResult>[] = [];
@@ -461,7 +485,10 @@ export class ConvergenceOrchestrator {
   /**
    * Execute a single task
    */
-  private async executeTask(epicCtx: EpicContext, taskConfig: TaskConfig): Promise<TaskResult> {
+  private async executeTask(
+    epicCtx: EpicContext,
+    taskConfig: TaskConfig,
+  ): Promise<TaskResult> {
     const taskId = taskConfig.id;
 
     // Get or create task status
@@ -473,19 +500,28 @@ export class ConvergenceOrchestrator {
       taskConfig,
       taskStatus,
       epicCtx,
-      this.storage
+      this.storage,
     );
 
     // Transition to active
-    this.statusManager.transitionTask(epicCtx.epicId, taskId, 'active', 'Starting execution');
-    this.statusManager.startTaskAttempt(epicCtx.epicId, taskId, taskStatus.attempts + 1);
+    this.statusManager.transitionTask(
+      epicCtx.epicId,
+      taskId,
+      "active",
+      "Starting execution",
+    );
+    this.statusManager.startTaskAttempt(
+      epicCtx.epicId,
+      taskId,
+      taskStatus.attempts + 1,
+    );
 
     // Fire task:start hook
-    await this.hooks?.fire('task:start', { ctx: taskCtx });
+    await this.hooks?.fire("task:start", { ctx: taskCtx });
 
     try {
       // Get task function
-      const taskMeta = globalRegistry.getTask(taskConfig.type || 'default');
+      const taskMeta = globalRegistry.getTask(taskConfig.type || "default");
       if (!taskMeta) {
         throw new Error(`Task type "${taskConfig.type}" not found in registry`);
       }
@@ -506,18 +542,18 @@ export class ConvergenceOrchestrator {
         this.statusManager.transitionTask(
           epicCtx.epicId,
           taskId,
-          'completed',
-          result.message || 'Task completed successfully'
+          "completed",
+          result.message || "Task completed successfully",
         );
         taskCtx.log.info(`✅ Task completed: ${taskConfig.title}`);
 
         // Fire task:complete hook
-        await this.hooks?.fire('task:complete', { ctx: taskCtx, result });
+        await this.hooks?.fire("task:complete", { ctx: taskCtx, result });
 
         // Fire gap:resolved for each resolved gap
         if (result.gapsResolved) {
           for (const gapId of result.gapsResolved) {
-            await this.hooks?.fire('gap:resolved', {
+            await this.hooks?.fire("gap:resolved", {
               gapId,
               taskId,
               epicId: epicCtx.epicId,
@@ -528,15 +564,17 @@ export class ConvergenceOrchestrator {
         this.statusManager.transitionTask(
           epicCtx.epicId,
           taskId,
-          'failed',
-          result.error?.message || 'Task failed'
+          "failed",
+          result.error?.message || "Task failed",
         );
-        taskCtx.log.error(`❌ Task failed: ${taskConfig.title} - ${result.error?.message}`);
+        taskCtx.log.error(
+          `❌ Task failed: ${taskConfig.title} - ${result.error?.message}`,
+        );
 
         // Fire task:fail hook
-        await this.hooks?.fire('task:fail', {
+        await this.hooks?.fire("task:fail", {
           ctx: taskCtx,
-          error: new Error(result.error?.message ?? 'Task failed'),
+          error: new Error(result.error?.message ?? "Task failed"),
         });
       }
 
@@ -549,11 +587,18 @@ export class ConvergenceOrchestrator {
         error: error.message,
       });
 
-      this.statusManager.transitionTask(epicCtx.epicId, taskId, 'failed', error.message);
-      taskCtx.log.error(`❌ Task error: ${taskConfig.title} - ${error.message}`);
+      this.statusManager.transitionTask(
+        epicCtx.epicId,
+        taskId,
+        "failed",
+        error.message,
+      );
+      taskCtx.log.error(
+        `❌ Task error: ${taskConfig.title} - ${error.message}`,
+      );
 
       // Fire task:fail hook
-      await this.hooks?.fire('task:fail', { ctx: taskCtx, error });
+      await this.hooks?.fire("task:fail", { ctx: taskCtx, error });
 
       return {
         success: false,
@@ -581,7 +626,7 @@ export class ConvergenceOrchestrator {
     ctx: EpicContext,
     iteration: number,
     gaps: Gap[],
-    convergenceState: ConvergenceState
+    convergenceState: ConvergenceState,
   ): Promise<string> {
     const checkpointId = `checkpoint-${ctx.epicId}-${iteration}`;
 
@@ -589,14 +634,16 @@ export class ConvergenceOrchestrator {
     const cursor = this.buildCursorFromContext(ctx);
 
     if (!cursor) {
-      ctx.log.warn('No execution stack available, skipping checkpoint');
+      ctx.log.warn("No execution stack available, skipping checkpoint");
       return checkpointId;
     }
 
     // Get completed tasks
     const completedTasks = this.storage
       .listTasks(ctx.epicId)
-      .filter((taskId) => this.statusManager.isTaskCompleted(ctx.epicId, taskId));
+      .filter((taskId) =>
+        this.statusManager.isTaskCompleted(ctx.epicId, taskId),
+      );
 
     const checkpoint: Checkpoint = {
       version: 3,
@@ -606,11 +653,11 @@ export class ConvergenceOrchestrator {
       context: {
         iteration,
         completedUnits: completedTasks,
-        rootPath: ctx.executionStack?.[0]?.filePath || '',
+        rootPath: ctx.executionStack?.[0]?.filePath || "",
       },
       metadata: {
         created: new Date().toISOString(),
-        machine: process.env.HOSTNAME || 'unknown',
+        machine: process.env.HOSTNAME || "unknown",
       },
     };
 
@@ -650,7 +697,7 @@ export class ConvergenceOrchestrator {
 export function createConvergenceOrchestrator(
   storage: FilesystemStorage,
   statusManager: StatusManager,
-  hooks?: HookRegistry
+  hooks?: HookRegistry,
 ): ConvergenceOrchestrator {
   return new ConvergenceOrchestrator(storage, statusManager, hooks);
 }

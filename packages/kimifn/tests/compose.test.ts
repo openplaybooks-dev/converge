@@ -14,7 +14,7 @@ import { z } from "zod";
 // compose() invocation return different outputs.
 
 vi.mock("node:child_process", async (importOriginal) => {
-  const actual = await importOriginal() as any;
+  const actual = (await importOriginal()) as any;
   const { EventEmitter } = require("node:events");
   const { Readable } = require("node:stream");
 
@@ -97,12 +97,12 @@ describe("extractCode", () => {
   });
 
   it("extracts from ```javascript fence", () => {
-    const text = '```javascript\nconst x = 1;\nreturn x;\n```';
+    const text = "```javascript\nconst x = 1;\nreturn x;\n```";
     expect(extractCode(text)).toBe("const x = 1;\nreturn x;");
   });
 
   it("extracts from ```ts fence", () => {
-    const text = '```ts\nreturn 42;\n```';
+    const text = "```ts\nreturn 42;\n```";
     expect(extractCode(text)).toBe("return 42;");
   });
 
@@ -180,9 +180,9 @@ describe("executeCode", () => {
   });
 
   it("throws when code has a runtime error", async () => {
-    await expect(
-      executeCode("throw new Error('boom');", {}),
-    ).rejects.toThrow("boom");
+    await expect(executeCode("throw new Error('boom');", {})).rejects.toThrow(
+      "boom",
+    );
   });
 });
 
@@ -268,9 +268,7 @@ describe("compose — code mode (default)", () => {
   });
 
   it("sends code preamble in the prompt", async () => {
-    mockCp.__setQueue([
-      { stdout: '```js\nreturn "ok";\n```' },
-    ]);
+    mockCp.__setQueue([{ stdout: '```js\nreturn "ok";\n```' }]);
     const fn = compose({
       prompt: "Do something",
       tools: {
@@ -410,8 +408,7 @@ describe("compose — code mode (default)", () => {
 
     mockCp.__setQueue([
       {
-        stdout:
-          '```js\nconst r = await myTool("input");\nreturn r.data;\n```',
+        stdout: '```js\nconst r = await myTool("input");\nreturn r.data;\n```',
       },
     ]);
 
@@ -436,8 +433,7 @@ describe("compose — code mode (default)", () => {
   it("validates code result against zod schema", async () => {
     mockCp.__setQueue([
       {
-        stdout:
-          '```js\nreturn { name: "Alice", age: 30 };\n```',
+        stdout: '```js\nreturn { name: "Alice", age: 30 };\n```',
       },
     ]);
 
@@ -640,8 +636,7 @@ describe("compose — tool_call mode", () => {
   it("handles unknown tool names gracefully", async () => {
     mockCp.__setQueue([
       {
-        stdout:
-          '<tool_call>{"name": "nonexistent", "input": "x"}</tool_call>',
+        stdout: '<tool_call>{"name": "nonexistent", "input": "x"}</tool_call>',
       },
       { stdout: "Tool not found, heres my answer" },
     ]);
@@ -674,8 +669,7 @@ describe("compose — tool_call mode", () => {
           'Thinking... <tool_call>{"name": "t", "input": "1"}</tool_call>',
       },
       {
-        stdout:
-          'Still... <tool_call>{"name": "t", "input": "2"}</tool_call>',
+        stdout: 'Still... <tool_call>{"name": "t", "input": "2"}</tool_call>',
       },
     ]);
 
@@ -706,8 +700,7 @@ describe("compose — tool_call mode", () => {
 
     mockCp.__setQueue([
       {
-        stdout:
-          '<tool_call>{"name": "lookup", "input": "q"}</tool_call>',
+        stdout: '<tool_call>{"name": "lookup", "input": "q"}</tool_call>',
       },
       { stdout: "Final answer" },
     ]);

@@ -148,8 +148,8 @@ function parseFrontmatter(content: string): Record<string, string> {
   if (!match) return result;
 
   const yaml = match[1];
-  for (const line of yaml.split('\n')) {
-    const colonIndex = line.indexOf(':');
+  for (const line of yaml.split("\n")) {
+    const colonIndex = line.indexOf(":");
     if (colonIndex > 0) {
       const key = line.slice(0, colonIndex).trim();
       const value = line.slice(colonIndex + 1).trim();
@@ -189,8 +189,10 @@ export function enhancePrompt(prompt: string, cwd?: string): string {
     const skillPath = getSkillPath(ref, cwd);
     if (skillPath) {
       const meta = getSkillMeta(skillPath);
-      const desc = meta?.description || 'No description';
-      footnotes.push(`[^skill:${ref}]: **${meta?.name || ref}** — ${desc} [Load: ${skillPath}]`);
+      const desc = meta?.description || "No description";
+      footnotes.push(
+        `[^skill:${ref}]: **${meta?.name || ref}** — ${desc} [Load: ${skillPath}]`,
+      );
     }
   }
 
@@ -204,8 +206,10 @@ export function enhancePrompt(prompt: string, cwd?: string): string {
 
     if (skillPath) {
       const meta = getSkillMeta(skillPath);
-      const desc = meta?.description || 'No description';
-      footnotes.push(`[^skill:${ref}]: **${meta?.name || ref}** — ${desc} [Load: ${skillPath}]`);
+      const desc = meta?.description || "No description";
+      footnotes.push(
+        `[^skill:${ref}]: **${meta?.name || ref}** — ${desc} [Load: ${skillPath}]`,
+      );
     }
   }
 
@@ -217,7 +221,9 @@ export function enhancePrompt(prompt: string, cwd?: string): string {
   const parts: string[] = [];
 
   parts.push("<!-- REFERENCED SKILLS -->");
-  parts.push("The following skills are referenced. Load the file if you need the full instructions:");
+  parts.push(
+    "The following skills are referenced. Load the file if you need the full instructions:",
+  );
   parts.push("");
   parts.push(...footnotes);
   parts.push("");

@@ -5,9 +5,9 @@
  * Shows tasks with their attempts, outcomes, and execution times.
  */
 
-import { resolve } from 'node:path';
-import { JournalTree } from '../tree/journal-tree.ts';
-import type { JournalNode } from '../tree/journal-tree.ts';
+import { resolve } from "node:path";
+import { JournalTree } from "../tree/journal-tree.ts";
+import type { JournalNode } from "../tree/journal-tree.ts";
 
 export interface JournalCommandOptions {
   /** Override project directory (defaults to cwd) */
@@ -18,7 +18,9 @@ export interface JournalCommandOptions {
   onlyRetries?: boolean;
 }
 
-export async function journalCommand(options: JournalCommandOptions = {}): Promise<void> {
+export async function journalCommand(
+  options: JournalCommandOptions = {},
+): Promise<void> {
   try {
     const projectDir = resolve(options.root || process.cwd());
 
@@ -39,16 +41,16 @@ export async function journalCommand(options: JournalCommandOptions = {}): Promi
     console.log(`⏱  Total Execution Time: ${totalTimeSec}s\n`);
 
     // Filter nodes (task nodes only for display)
-    let nodes = journalTree.getAllNodes().filter(n => n.type === 'task');
+    let nodes = journalTree.getAllNodes().filter((n) => n.type === "task");
     if (options.epic) {
-      nodes = nodes.filter(n => n.epicId === options.epic);
+      nodes = nodes.filter((n) => n.epicId === options.epic);
     }
     if (options.onlyRetries) {
-      nodes = nodes.filter(n => (n.task?.totalAttempts || 0) > 1);
+      nodes = nodes.filter((n) => (n.task?.totalAttempts || 0) > 1);
     }
 
     if (nodes.length === 0) {
-      console.log('No execution history found.\n');
+      console.log("No execution history found.\n");
       return;
     }
 
@@ -62,17 +64,17 @@ export async function journalCommand(options: JournalCommandOptions = {}): Promi
     }
 
     // Print tree
-    console.log('📁 Execution Log:\n');
+    console.log("📁 Execution Log:\n");
 
     for (const [epicId, epicNodes] of epicMap) {
       console.log(`├── 📂 ${epicId}`);
 
       // Get top-level tasks (filter out WBS children - they'll be rendered via node.children)
-      const topLevel = epicNodes.filter(n => !n.parentId);
+      const topLevel = epicNodes.filter((n) => !n.parentId);
 
       topLevel.forEach((node, idx) => {
         const isLast = idx === topLevel.length - 1;
-        printNode(node, '│   ', isLast ? '└── ' : '├── ');
+        printNode(node, "│   ", isLast ? "└── " : "├── ");
       });
     }
 
@@ -80,65 +82,71 @@ export async function journalCommand(options: JournalCommandOptions = {}): Promi
   } catch (error: any) {
     console.error(`\n❌ Journal command failed: ${error.message}`);
     if (process.env.CONVERGE_DEBUG) {
-      console.error('Stack trace:', error.stack);
+      console.error("Stack trace:", error.stack);
     }
     process.exit(1);
   }
 }
 
-function printNode(
-  node: JournalNode,
-  prefix: string,
-  branch: string
-): void {
-  if (node.type === 'task') {
+function printNode(node: JournalNode, prefix: string, branch: string): void {
+  if (node.type === "task") {
     // Task node
     let icon: string;
     switch (node.status) {
-      case 'complete':
-        icon = '✓';
+      case "complete":
+        icon = "✓";
         break;
-      case 'failed':
-        icon = '✗';
+      case "failed":
+        icon = "✗";
         break;
-      case 'running':
-        icon = '⟳';
+      case "running":
+        icon = "⟳";
         break;
-      case 'seeded':
-        icon = '◑';
+      case "seeded":
+        icon = "◑";
         break;
       default:
-        icon = '○';
+        icon = "○";
     }
 
     // Attempt info
-    const attemptInfo = (node.task?.totalAttempts || 0) > 1 ? ` (${node.task?.totalAttempts} attempts)` : '';
+    const attemptInfo =
+      (node.task?.totalAttempts || 0) > 1
+        ? ` (${node.task?.totalAttempts} attempts)`
+        : "";
 
     // Duration info (total across all attempt children)
     const totalDuration = node.children
-      .filter(c => c.type === 'attempt')
+      .filter((c) => c.type === "attempt")
       .reduce((sum, c) => sum + (c.attempt?.durationMs || 0), 0);
-    const durationInfo = totalDuration > 0 ? ` [${(totalDuration / 1000).toFixed(1)}s]` : '';
+    const durationInfo =
+      totalDuration > 0 ? ` [${(totalDuration / 1000).toFixed(1)}s]` : "";
 
     // Progress info (for WBS parent tasks)
     const progressInfo = node.task?.progress
       ? ` [${node.task.progress.completedChildren}/${node.task.progress.totalChildren} done]`
-      : '';
+      : "";
 
-    console.log(`${prefix}${branch}${icon}  ${node.id}${attemptInfo}${durationInfo}${progressInfo}`);
+    console.log(
+      `${prefix}${branch}${icon}  ${node.id}${attemptInfo}${durationInfo}${progressInfo}`,
+    );
 
     // Print children (attempts first, then WBS subtasks)
-    const childPrefix = prefix + (branch === '└── ' ? '    ' : '│   ');
+    const childPrefix = prefix + (branch === "└── " ? "    " : "│   ");
     node.children.forEach((child, idx) => {
       const isLast = idx === node.children.length - 1;
-      printNode(child, childPrefix, isLast ? '└── ' : '├── ');
+      printNode(child, childPrefix, isLast ? "└── " : "├── ");
     });
   } else {
     // Attempt node
-    const icon = node.attempt?.outcome === 'success' ? '✓' : '✗';
-    const duration = node.attempt?.durationMs ? `${(node.attempt.durationMs / 1000).toFixed(1)}s` : 'N/A';
-    const outcome = node.attempt?.outcome || 'unknown';
+    const icon = node.attempt?.outcome === "success" ? "✓" : "✗";
+    const duration = node.attempt?.durationMs
+      ? `${(node.attempt.durationMs / 1000).toFixed(1)}s`
+      : "N/A";
+    const outcome = node.attempt?.outcome || "unknown";
 
-    console.log(`${prefix}${branch}${icon}  Attempt ${node.attempt?.attemptNumber}: ${outcome} (${duration})`);
+    console.log(
+      `${prefix}${branch}${icon}  Attempt ${node.attempt?.attemptNumber}: ${outcome} (${duration})`,
+    );
   }
 }

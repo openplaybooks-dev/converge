@@ -1,0 +1,16 @@
+name: default
+description: Fullstack app with WBS-driven task decomposition
+
+run:
+  mode: autonomous
+  maxIterations: 50
+  maxTaskAttempts: 3
+
+tasks:
+  - id: scaffold
+
+checks:
+  - id: has-frontend
+    cmd: test -f src/app.ts
+  - id: has-backend
+    cmd: test -f src/server.ts

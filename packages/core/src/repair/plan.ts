@@ -7,9 +7,9 @@
  * unified registry.
  */
 
-import { z } from 'zod';
-import type { Gap } from '../gap/types.ts';
-import type { GraphNode } from './navigator/types.ts';
+import { z } from "zod";
+import type { Gap } from "../gap/types.ts";
+import type { GraphNode } from "./navigator/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Runtime context (kept for backward compat with callers)            */
@@ -18,7 +18,7 @@ import type { GraphNode } from './navigator/types.ts';
 export interface PlanContext {
   lastActionSucceeded: boolean;
   lastActionName: string | null;
-  lastActionRetryMode?: import('./types.ts').RetryMode;
+  lastActionRetryMode?: import("./types.ts").RetryMode;
   gap: Gap;
   attemptsCount: number;
 }
@@ -30,8 +30,10 @@ export interface PlanContext {
 const GraphNodeSchema = z.object({
   id: z.string(),
   handler: z.string(),
-  status: z.enum(['buffered', 'executing', 'done', 'failed', 'skipped']).default('buffered'),
-  origin: z.enum(['initial', 'planned', 'reactive']).default('planned'),
+  status: z
+    .enum(["buffered", "executing", "done", "failed", "skipped"])
+    .default("buffered"),
+  origin: z.enum(["initial", "planned", "reactive"]).default("planned"),
   data: z.record(z.unknown()).optional(),
 });
 
@@ -49,7 +51,7 @@ export type RepairPlan = z.infer<typeof RepairPlanSchema>;
 /*  Predicate re-exports (unified registry)                            */
 /* ------------------------------------------------------------------ */
 
-export { evalPredicate, listPredicates } from './navigator/predicates.ts';
+export { evalPredicate, listPredicates } from "./navigator/predicates.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Confidence check                                                    */
@@ -59,9 +61,14 @@ export { evalPredicate, listPredicates } from './navigator/predicates.ts';
  * Returns true when there is enough evidence to generate a multi-step plan.
  * If false, the pipeline falls back to single-strategy selection (unchanged).
  */
-export function isConfidentToPlan(history: Array<{ strategy: string; succeeded: boolean }>, gap: Gap): boolean {
+export function isConfidentToPlan(
+  history: Array<{ strategy: string; succeeded: boolean }>,
+  gap: Gap,
+): boolean {
   if (history.length > 0) return true; // evidence from prior attempts
   const gapKind = gap.metadata?.gapKind as string | undefined;
   // Well-known sequences for these gap types
-  return gapKind === 'input' || gapKind === 'blocker' || gapKind === 'check-failed';
+  return (
+    gapKind === "input" || gapKind === "blocker" || gapKind === "check-failed"
+  );
 }

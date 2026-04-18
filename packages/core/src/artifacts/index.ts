@@ -1,51 +1,29 @@
 /**
  * Artifacts Module
  *
- * Manages named file artifacts with folder-based versioning.
- * Each set() writes into a timestamped folder; getPath() returns the latest.
+ * Manages named file artifacts with flat layout by default.
+ * set() overwrites directly; put() moves existing to _history first.
  *
- * Layout: .converge/artifacts/<keyDir>/<timestamp>/<file>.md
- *         .converge/artifacts/<keyDir>/<timestamp>/manifest.json
- *
- * Folder names are epoch-millis timestamps (e.g. 1712764800000).
- * Largest number = latest version. No central manifest, no sequential
- * counters — parallel writers to different keyDirs never conflict.
+ * Layout: .converge/artifacts/<keyDir>/<file>.md          (current)
+ *         .converge/artifacts/<keyDir>/_history/<ts>/<file>.md  (previous)
  */
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
-import { basename, dirname, join } from 'node:path';
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  renameSync,
+  writeFileSync,
+} from "node:fs";
+import { basename, dirname, join } from "node:path";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
-export interface ArtifactRevision {
-  revision: number;
-  /** Path relative to projectDir */
-  path: string;
-  createdAt: string;
-}
-
-export interface ArtifactEntry {
-  /** Latest revision number */
-  revision: number;
-  /** Latest file path, relative to projectDir */
-  path: string;
-  updatedAt: string;
-  history: ArtifactRevision[];
-}
-
-export type ArtifactManifest = Record<string, ArtifactEntry>;
-
-/** Per-version manifest stored alongside artifact files */
-interface VersionManifest {
-  createdAt: string;
-  files: Record<string, string>; // fileBasename → relative path
-}
-
 export interface ArtifactAPI {
   /**
-   * Return the absolute path for a key (latest version).
+   * Return the absolute path for a key.
    * Returns undefined if the key has never been set.
    */
   getPath(key: string): string | undefined;
@@ -58,16 +36,16 @@ export interface ArtifactAPI {
   getRelPath(key: string): string | undefined;
 
   /**
-   * Write content into a timestamped version folder.
+   * Write content directly, overwriting any existing file.
    * Returns the absolute path of the written file.
    */
   set(key: string, content: string): string;
 
   /**
-   * Register an existing file under key as a new version.
-   * Path is relative to projectDir.
+   * Write content, moving any existing file to _history/<timestamp>/ first.
+   * Returns the absolute path of the written file.
    */
-  register(key: string, relativePath: string): void;
+  put(key: string, content: string): string;
 
   /**
    * Return all keys mapped to their latest absolute path.
@@ -79,14 +57,11 @@ export interface ArtifactAPI {
 /*  Implementation                                                     */
 /* ------------------------------------------------------------------ */
 
-const ARTIFACTS_ROOT = '.converge/artifacts';
-
-/** Regex matching timestamp folder names (epoch millis, 13+ digits) */
-const TS_DIR_RE = /^\d{13,}$/;
+const ARTIFACTS_ROOT = ".converge/artifacts";
 
 /** Convert a key basename to a filename. Append .md only if no extension present. */
 function toFileName(keyFile: string): string {
-  return keyFile.includes('.') ? keyFile : `${keyFile}.md`;
+  return keyFile.includes(".") ? keyFile : `${keyFile}.md`;
 }
 
 export class ArtifactStore implements ArtifactAPI {
@@ -98,76 +73,57 @@ export class ArtifactStore implements ArtifactAPI {
   }
 
   getRelPath(key: string): string | undefined {
-    const keyDir = dirname(key);
-    const keyFile = basename(key);
-    const latest = this.latestFolder(keyDir);
-    if (!latest) return undefined;
-
-    const relPath = join(ARTIFACTS_ROOT, keyDir, latest, toFileName(keyFile)).replace(/\\/g, '/');
-    const absPath = join(this.projectDir, relPath);
-    if (!existsSync(absPath)) return undefined;
-    return relPath;
+    const relPath = join(
+      ARTIFACTS_ROOT,
+      dirname(key),
+      toFileName(basename(key)),
+    );
+    return existsSync(join(this.projectDir, relPath))
+      ? relPath.replace(/\\/g, "/")
+      : undefined;
   }
 
   set(key: string, content: string): string {
-    const keyDir = dirname(key);
-    const keyFile = basename(key);
-    const fileName = `${keyFile}.md`;
-
-    // Reuse the latest folder if this file isn't in it yet.
-    // This lets multiple keys with the same keyDir (e.g. report + report.json)
-    // land in the same version folder within a single run.
-    const latest = this.latestFolder(keyDir);
-    let folder: string;
-    if (latest) {
-      const existingPath = join(this.projectDir, ARTIFACTS_ROOT, keyDir, latest, fileName);
-      folder = existsSync(existingPath) ? String(Date.now()) : latest;
-    } else {
-      folder = String(Date.now());
-    }
-
-    const relPath = join(ARTIFACTS_ROOT, keyDir, folder, fileName).replace(/\\/g, '/');
+    const relPath = join(
+      ARTIFACTS_ROOT,
+      dirname(key),
+      toFileName(basename(key)),
+    );
     const absPath = join(this.projectDir, relPath);
-    const versionDir = dirname(absPath);
-
-    mkdirSync(versionDir, { recursive: true });
-    writeFileSync(absPath, content, 'utf8');
-
-    // Write per-version manifest
-    this.writeVersionManifest(versionDir, fileName, relPath);
-
+    mkdirSync(dirname(absPath), { recursive: true });
+    writeFileSync(absPath, content, "utf8");
     return absPath;
   }
 
-  register(key: string, relativePath: string): void {
+  put(key: string, content: string): string {
     const keyDir = dirname(key);
-    const keyFile = basename(key);
-    const fileName = `${keyFile}.md`;
-    const relPath = relativePath.replace(/\\/g, '/');
+    const fileName = toFileName(basename(key));
+    const relPath = join(ARTIFACTS_ROOT, keyDir, fileName);
+    const absPath = join(this.projectDir, relPath);
 
-    // Reuse latest folder if this file isn't in it yet
-    const latest = this.latestFolder(keyDir);
-    let folder: string;
-    if (latest) {
-      const vManifest = this.loadVersionManifest(
-        join(this.projectDir, ARTIFACTS_ROOT, keyDir, latest, 'manifest.json'),
+    // Move existing file to _history/<timestamp>/
+    if (existsSync(absPath)) {
+      const histDir = join(
+        this.projectDir,
+        ARTIFACTS_ROOT,
+        keyDir,
+        "_history",
+        String(Date.now()),
       );
-      folder = vManifest?.files[fileName] ? String(Date.now()) : latest;
-    } else {
-      folder = String(Date.now());
+      mkdirSync(histDir, { recursive: true });
+      renameSync(absPath, join(histDir, fileName));
     }
 
-    const versionDir = join(this.projectDir, ARTIFACTS_ROOT, keyDir, folder);
-    mkdirSync(versionDir, { recursive: true });
-
-    this.writeVersionManifest(versionDir, fileName, relPath);
+    mkdirSync(dirname(absPath), { recursive: true });
+    writeFileSync(absPath, content, "utf8");
+    return absPath;
   }
 
   list(): Record<string, string> {
     const result: Record<string, string> = {};
     const rootDir = join(this.projectDir, ARTIFACTS_ROOT);
     if (!existsSync(rootDir)) return result;
-    this.scanDir(rootDir, '', result);
+    this.scanDir(rootDir, "", result);
     return result;
   }
 
@@ -175,75 +131,31 @@ export class ArtifactStore implements ArtifactAPI {
   /*  Internal helpers                                                 */
   /* ---------------------------------------------------------------- */
 
-  /** Return the name of the latest timestamp folder under keyDir, or undefined. */
-  private latestFolder(keyDir: string): string | undefined {
-    const dir = join(this.projectDir, ARTIFACTS_ROOT, keyDir);
-    if (!existsSync(dir)) return undefined;
-
-    let max = '';
-    for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      if (!entry.isDirectory()) continue;
-      if (TS_DIR_RE.test(entry.name) && entry.name > max) {
-        max = entry.name;
-      }
-    }
-    return max || undefined;
-  }
-
-  /** Write or merge a per-version manifest.json */
-  private writeVersionManifest(versionDir: string, fileName: string, relPath: string): void {
-    const manifestPath = join(versionDir, 'manifest.json');
-    const existing = this.loadVersionManifest(manifestPath);
-    const now = new Date().toISOString();
-    const manifest: VersionManifest = {
-      createdAt: existing?.createdAt ?? now,
-      files: { ...(existing?.files ?? {}), [fileName]: relPath },
-    };
-    writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
-  }
-
-  /** Recursively scan artifact dirs for timestamp folders with manifest.json */
-  private scanDir(absDir: string, relKeyDir: string, result: Record<string, string>): void {
+  /** Recursively scan artifact dirs for .md files, skipping _history */
+  private scanDir(
+    absDir: string,
+    relKeyDir: string,
+    result: Record<string, string>,
+  ): void {
     let entries;
-    try { entries = readdirSync(absDir, { withFileTypes: true }); } catch { return; }
+    try {
+      entries = readdirSync(absDir, { withFileTypes: true });
+    } catch {
+      return;
+    }
 
     for (const entry of entries) {
-      if (!entry.isDirectory()) continue;
-
-      if (TS_DIR_RE.test(entry.name)) {
-        // This is a version folder — read its manifest
-        const manifestPath = join(absDir, entry.name, 'manifest.json');
-        const vm = this.loadVersionManifest(manifestPath);
-        if (!vm) continue;
-
-        for (const [fileName] of Object.entries(vm.files)) {
-          const keyFile = fileName.replace(/\.md$/, '');
-          const key = relKeyDir ? `${relKeyDir}/${keyFile}` : keyFile;
-          const existingTs = result[key] ? this.tsFromPath(result[key]) : '';
-          if (entry.name > existingTs) {
-            result[key] = join(this.projectDir, ARTIFACTS_ROOT, relKeyDir, entry.name, fileName);
-          }
-        }
-      } else {
-        // Recurse into non-version subdirectory
-        const childRel = relKeyDir ? `${relKeyDir}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) {
+        if (entry.name === "_history") continue;
+        const childRel = relKeyDir
+          ? `${relKeyDir}/${entry.name}`
+          : entry.name;
         this.scanDir(join(absDir, entry.name), childRel, result);
+      } else if (entry.isFile() && entry.name.endsWith(".md")) {
+        const keyFile = entry.name.replace(/\.md$/, "");
+        const key = relKeyDir ? `${relKeyDir}/${keyFile}` : keyFile;
+        result[key] = join(absDir, entry.name);
       }
-    }
-  }
-
-  /** Extract timestamp folder name from an absolute path */
-  private tsFromPath(absPath: string): string {
-    const m = absPath.match(/\/(\d{13,})\//);
-    return m ? m[1] : '';
-  }
-
-  private loadVersionManifest(manifestPath: string): VersionManifest | undefined {
-    if (!existsSync(manifestPath)) return undefined;
-    try {
-      return JSON.parse(readFileSync(manifestPath, 'utf8')) as VersionManifest;
-    } catch {
-      return undefined;
     }
   }
 }

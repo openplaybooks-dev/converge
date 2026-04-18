@@ -11,18 +11,23 @@
  * - Tree is reloaded (shaken) after each task execution
  */
 
-import path from 'node:path';
-import { existsSync } from 'node:fs';
-import { readFile, readdir } from 'node:fs/promises';
-import type { ConvergeConfig } from '../config/types.ts';
-import { CheckpointManager } from '../checkpoint/manager.ts';
-import { createDiscoveryScanner } from '../discovery/scanner.ts';
-import { Unit } from '../unit/unit.ts';
-import { TreeNode } from './tree-node.ts';
-import type { TreeNodeData, TaskStates, NextTaskResult, WbsProgress } from './types.ts';
-import { parseTaskMd } from '../config/task-md-definition.ts';
-import { getJournalStructure, getEpicsDir } from '../journal/structure.ts';
-import { extractJournalTaskId } from '../unit/path-utils.ts';
+import path from "node:path";
+import { existsSync } from "node:fs";
+import { readFile, readdir } from "node:fs/promises";
+import type { ConvergeConfig } from "../config/types.ts";
+import { CheckpointManager } from "../checkpoint/manager.ts";
+import { createDiscoveryScanner } from "../discovery/scanner.ts";
+import { Unit } from "../unit/unit.ts";
+import { TreeNode } from "./tree-node.ts";
+import type {
+  TreeNodeData,
+  TaskStates,
+  NextTaskResult,
+  WbsProgress,
+} from "./types.ts";
+import { parseTaskMd } from "../config/task-md-definition.ts";
+import { getJournalStructure, getEpicsDir } from "../journal/structure.ts";
+import { extractJournalTaskId } from "../unit/path-utils.ts";
 
 /**
  * TaskTree - unified tree data structure.
@@ -67,27 +72,40 @@ export class TaskTree {
    * Scans for tasks, builds tree structure with edges, resolves dependencies.
    * Optionally accepts a pre-scanned discovery result to avoid duplicate scanning.
    */
-  static async load(projectDir: string, convergeConfig: ConvergeConfig, preScannedDiscovery?: import('../discovery/types.ts').DiscoveryResult): Promise<TaskTree> {
+  static async load(
+    projectDir: string,
+    convergeConfig: ConvergeConfig,
+    preScannedDiscovery?: import("../discovery/types.ts").DiscoveryResult,
+  ): Promise<TaskTree> {
     const checkpoint = new CheckpointManager(projectDir);
 
     // 1. Scan filesystem for all tasks (or use pre-scanned result)
-    let discovery: import('../discovery/types.ts').DiscoveryResult;
+    let discovery: import("../discovery/types.ts").DiscoveryResult;
     if (preScannedDiscovery) {
       discovery = preScannedDiscovery;
     } else {
-      const scanner = createDiscoveryScanner(convergeConfig.discovery || { epics: [], tasks: [] }, projectDir);
+      const scanner = createDiscoveryScanner(
+        convergeConfig.discovery || { epics: [], tasks: [] },
+        projectDir,
+      );
       discovery = await scanner.scan();
     }
 
     // Fail fast on discovery errors
     if (discovery.errors.length > 0) {
-      const errorMessages = discovery.errors.map(({ file, error }) => `  - ${file}: ${error}`).join('\n');
-      throw new Error(`Discovery errors found:\n${errorMessages}\n\nFix these errors and try again.`);
+      const errorMessages = discovery.errors
+        .map(({ file, error }) => `  - ${file}: ${error}`)
+        .join("\n");
+      throw new Error(
+        `Discovery errors found:\n${errorMessages}\n\nFix these errors and try again.`,
+      );
     }
 
-    const epics = discovery.files.filter(f => f.type === 'epic');
-    const epicPaths = new Set(epics.map(e => e.filePath));
-    const tasks = discovery.files.filter(f => f.type === 'task' && !epicPaths.has(f.filePath));
+    const epics = discovery.files.filter((f) => f.type === "epic");
+    const epicPaths = new Set(epics.map((e) => e.filePath));
+    const tasks = discovery.files.filter(
+      (f) => f.type === "task" && !epicPaths.has(f.filePath),
+    );
 
     // Sort epics by sort index (will be set when Unit is created)
     // Note: This sorts by file path for discovery, actual Unit sorting happens after loading
@@ -98,18 +116,19 @@ export class TaskTree {
     // Create virtual root node (wraps a virtual Unit)
     const rootUnit = Unit.fromDefinition(
       {
-        id: '__root__',
-        title: 'Root',
+        id: "__root__",
+        title: "Root",
       },
       null as any, // Root has no parent
     );
     const root = new TreeNode(rootUnit, checkpoint);
 
     // Load all tasks and create nodes (parallel)
-    const allEpicTasks: Array<{ task: typeof tasks[0]; epicDir: string }> = [];
+    const allEpicTasks: Array<{ task: (typeof tasks)[0]; epicDir: string }> =
+      [];
     for (const epic of epics) {
       const epicDir = path.dirname(epic.filePath);
-      const epicTasks = tasks.filter(t => t.filePath.startsWith(epicDir));
+      const epicTasks = tasks.filter((t) => t.filePath.startsWith(epicDir));
       for (const task of epicTasks) {
         allEpicTasks.push({ task, epicDir });
       }
@@ -124,10 +143,12 @@ export class TaskTree {
           const unit = await Unit.fromPath(task.filePath);
           return { journalTaskId, unit, taskId };
         } catch (err) {
-          console.warn(`⚠️  Failed to load ${taskId}: ${(err as Error).message}`);
+          console.warn(
+            `⚠️  Failed to load ${taskId}: ${(err as Error).message}`,
+          );
           return null;
         }
-      })
+      }),
     );
 
     for (const result of epicResults) {
@@ -138,9 +159,9 @@ export class TaskTree {
     }
 
     // Handle orphaned tasks (not under any epic)
-    const epicDirs = new Set(epics.map(e => path.dirname(e.filePath)));
+    const epicDirs = new Set(epics.map((e) => path.dirname(e.filePath)));
     const orphans = tasks
-      .filter(t => ![...epicDirs].some(d => t.filePath.startsWith(d)))
+      .filter((t) => ![...epicDirs].some((d) => t.filePath.startsWith(d)))
       .sort((a, b) => a.filePath.localeCompare(b.filePath));
 
     const orphanResults = await Promise.all(
@@ -161,7 +182,7 @@ export class TaskTree {
         } catch {
           return null;
         }
-      })
+      }),
     );
 
     for (const result of orphanResults) {
@@ -178,9 +199,9 @@ export class TaskTree {
 
     for (const node of nodes.values()) {
       // Check if journalTaskId contains "/" (indicates WBS subtask)
-      const parts = node.id.split('/');
+      const parts = node.id.split("/");
       if (parts.length >= 2) {
-        const parentId = parts.slice(0, -1).join('/');
+        const parentId = parts.slice(0, -1).join("/");
         if (!childrenMap.has(parentId)) {
           childrenMap.set(parentId, []);
         }
@@ -210,14 +231,14 @@ export class TaskTree {
     for (const node of nodes.values()) {
       const deps = node.unit.dependencies || [];
       for (const depId of deps) {
-        if (depId.startsWith('tag:')) {
+        if (depId.startsWith("tag:")) {
           // Tag dependency - find all nodes with this tag
           const tag = depId.substring(4);
-          const taggedNodes = Array.from(nodes.values()).filter(n =>
-            n.unit.tags?.includes(tag)
+          const taggedNodes = Array.from(nodes.values()).filter((n) =>
+            n.unit.tags?.includes(tag),
           );
           node.dependencies.push(...taggedNodes);
-          taggedNodes.forEach(t => t.dependents.push(node));
+          taggedNodes.forEach((t) => t.dependents.push(node));
         } else {
           // Direct dependency - resolve by unit.id
           const dep = nodes.get(depId);
@@ -226,9 +247,8 @@ export class TaskTree {
             dep.dependents.push(node);
           } else {
             // Try finding by matching unit.id patterns
-            const byTaskId = Array.from(nodes.values()).find(n =>
-              n.unit.id === depId ||
-              n.unit.id.endsWith(`/${depId}`)
+            const byTaskId = Array.from(nodes.values()).find(
+              (n) => n.unit.id === depId || n.unit.id.endsWith(`/${depId}`),
             );
             if (byTaskId) {
               node.dependencies.push(byTaskId);
@@ -290,7 +310,10 @@ export class TaskTree {
    * Returns first epic that has work to do.
    * Consumer then calls epic.findNextTask() to get task within that epic.
    */
-  async findNextTask(filter?: string, force?: boolean): Promise<NextTaskResult | null> {
+  async findNextTask(
+    filter?: string,
+    force?: boolean,
+  ): Promise<NextTaskResult | null> {
     this.populateStatusCache();
     try {
       return await this._findNextTaskInner(filter, force);
@@ -299,13 +322,18 @@ export class TaskTree {
     }
   }
 
-  private async _findNextTaskInner(filter?: string, force?: boolean): Promise<NextTaskResult | null> {
+  private async _findNextTaskInner(
+    filter?: string,
+    force?: boolean,
+  ): Promise<NextTaskResult | null> {
     let nextNode: TreeNode | null;
 
     if (filter) {
-      const slashIdx = filter.indexOf('/');
-      const filterEpicPart = slashIdx >= 0 ? filter.substring(0, slashIdx) : filter;
-      const filterTaskPart = slashIdx >= 0 ? filter.substring(slashIdx + 1) : undefined;
+      const slashIdx = filter.indexOf("/");
+      const filterEpicPart =
+        slashIdx >= 0 ? filter.substring(0, slashIdx) : filter;
+      const filterTaskPart =
+        slashIdx >= 0 ? filter.substring(slashIdx + 1) : undefined;
 
       nextNode = null;
 
@@ -317,12 +345,20 @@ export class TaskTree {
         // Explicit epic/task filter — search root's children matching the epic part
         for (const node of this.root.getChildren()) {
           if (filterEpicPart) {
-            const epicId = node.epicId ?? '';
-            if (!epicId.includes(filterEpicPart) && !node.id.includes(filterEpicPart)) continue;
+            const epicId = node.epicId ?? "";
+            if (
+              !epicId.includes(filterEpicPart) &&
+              !node.id.includes(filterEpicPart)
+            )
+              continue;
           }
           if (filterTaskPart) {
-            const leafId = node.id.split('/').pop() ?? node.id;
-            if (!leafId.includes(filterTaskPart) && !node.id.includes(filterTaskPart)) continue;
+            const leafId = node.id.split("/").pop() ?? node.id;
+            if (
+              !leafId.includes(filterTaskPart) &&
+              !node.id.includes(filterTaskPart)
+            )
+              continue;
           }
           if (!force) {
             const completed = await node.isComplete();
@@ -346,8 +382,10 @@ export class TaskTree {
     // Get task states for progress counting
     const allNodes = Array.from(this.nodes.values());
     const completedCount = await Promise.all(
-      allNodes.map(async n => (await n.isComplete()) ? 1 : 0)
-    ).then(counts => counts.reduce((sum: number, c: number) => sum + c, 0 as number));
+      allNodes.map(async (n) => ((await n.isComplete()) ? 1 : 0)),
+    ).then((counts) =>
+      counts.reduce((sum: number, c: number) => sum + c, 0 as number),
+    );
 
     // Convert TreeNode to TreeNodeData (lightweight API response)
     return {
@@ -368,12 +406,15 @@ export class TaskTree {
    * Find the first runnable node matching a filter string, searching the entire tree.
    * When a matching node is a WBS parent, drills into its children via findNextTask().
    */
-  private async findFirstRunnableMatch(filter: string, force?: boolean): Promise<TreeNode | null> {
+  private async findFirstRunnableMatch(
+    filter: string,
+    force?: boolean,
+  ): Promise<TreeNode | null> {
     // BFS to find matching nodes in tree order
     const queue: TreeNode[] = [...this.root.getChildren()];
     while (queue.length > 0) {
       const node = queue.shift()!;
-      const leafId = node.id.split('/').pop() ?? '';
+      const leafId = node.id.split("/").pop() ?? "";
       const idMatch = node.id.includes(filter) || leafId.includes(filter);
 
       if (idMatch) {
@@ -409,12 +450,12 @@ export class TaskTree {
    * Generic tree traversal with visitor pattern.
    */
   async traverse(
-    visitor: (node: TreeNode) => void | Promise<void> | 'stop',
-    order: 'pre' | 'post' | 'bfs' = 'pre'
+    visitor: (node: TreeNode) => void | Promise<void> | "stop",
+    order: "pre" | "post" | "bfs" = "pre",
   ): Promise<void> {
-    if (order === 'bfs') {
+    if (order === "bfs") {
       await this.bfs(this.root, visitor);
-    } else if (order === 'pre') {
+    } else if (order === "pre") {
       await this.preOrder(this.root, visitor);
     } else {
       await this.postOrder(this.root, visitor);
@@ -425,12 +466,12 @@ export class TaskTree {
    * Generic tree traversal with visitor (sync version).
    */
   traverseSync(
-    visitor: (node: TreeNode) => void | 'stop',
-    order: 'pre' | 'post' | 'bfs' = 'pre'
+    visitor: (node: TreeNode) => void | "stop",
+    order: "pre" | "post" | "bfs" = "pre",
   ): void {
-    if (order === 'bfs') {
+    if (order === "bfs") {
       this.bfsSync(this.root, visitor);
-    } else if (order === 'pre') {
+    } else if (order === "pre") {
       this.preOrderSync(this.root, visitor);
     } else {
       this.postOrderSync(this.root, visitor);
@@ -439,40 +480,40 @@ export class TaskTree {
 
   private async preOrder(
     node: TreeNode,
-    visitor: (node: TreeNode) => void | Promise<void> | 'stop'
-  ): Promise<'stop' | void> {
+    visitor: (node: TreeNode) => void | Promise<void> | "stop",
+  ): Promise<"stop" | void> {
     const result = await visitor(node);
-    if (result === 'stop') return 'stop';
+    if (result === "stop") return "stop";
 
     for (const child of node.children) {
       const childResult = await this.preOrder(child, visitor);
-      if (childResult === 'stop') return 'stop';
+      if (childResult === "stop") return "stop";
     }
   }
 
   private async postOrder(
     node: TreeNode,
-    visitor: (node: TreeNode) => void | Promise<void> | 'stop'
-  ): Promise<'stop' | void> {
+    visitor: (node: TreeNode) => void | Promise<void> | "stop",
+  ): Promise<"stop" | void> {
     for (const child of node.children) {
       const childResult = await this.postOrder(child, visitor);
-      if (childResult === 'stop') return 'stop';
+      if (childResult === "stop") return "stop";
     }
 
     const result = await visitor(node);
-    if (result === 'stop') return 'stop';
+    if (result === "stop") return "stop";
   }
 
   private async bfs(
     root: TreeNode,
-    visitor: (node: TreeNode) => void | Promise<void> | 'stop'
+    visitor: (node: TreeNode) => void | Promise<void> | "stop",
   ): Promise<void> {
     const queue: TreeNode[] = [root];
 
     while (queue.length > 0) {
       const node = queue.shift()!;
       const result = await visitor(node);
-      if (result === 'stop') return;
+      if (result === "stop") return;
 
       queue.push(...node.children);
     }
@@ -480,40 +521,40 @@ export class TaskTree {
 
   private preOrderSync(
     node: TreeNode,
-    visitor: (node: TreeNode) => void | 'stop'
-  ): 'stop' | void {
+    visitor: (node: TreeNode) => void | "stop",
+  ): "stop" | void {
     const result = visitor(node);
-    if (result === 'stop') return 'stop';
+    if (result === "stop") return "stop";
 
     for (const child of node.children) {
       const childResult = this.preOrderSync(child, visitor);
-      if (childResult === 'stop') return 'stop';
+      if (childResult === "stop") return "stop";
     }
   }
 
   private postOrderSync(
     node: TreeNode,
-    visitor: (node: TreeNode) => void | 'stop'
-  ): 'stop' | void {
+    visitor: (node: TreeNode) => void | "stop",
+  ): "stop" | void {
     for (const child of node.children) {
       const childResult = this.postOrderSync(child, visitor);
-      if (childResult === 'stop') return 'stop';
+      if (childResult === "stop") return "stop";
     }
 
     const result = visitor(node);
-    if (result === 'stop') return 'stop';
+    if (result === "stop") return "stop";
   }
 
   private bfsSync(
     root: TreeNode,
-    visitor: (node: TreeNode) => void | 'stop'
+    visitor: (node: TreeNode) => void | "stop",
   ): void {
     const queue: TreeNode[] = [root];
 
     while (queue.length > 0) {
       const node = queue.shift()!;
       const result = visitor(node);
-      if (result === 'stop') return;
+      if (result === "stop") return;
 
       queue.push(...node.children);
     }
@@ -522,9 +563,11 @@ export class TaskTree {
   /**
    * Filter nodes via traversal.
    */
-  async filter(predicate: (node: TreeNode) => boolean | Promise<boolean>): Promise<TreeNode[]> {
+  async filter(
+    predicate: (node: TreeNode) => boolean | Promise<boolean>,
+  ): Promise<TreeNode[]> {
     const results: TreeNode[] = [];
-    await this.traverse(async node => {
+    await this.traverse(async (node) => {
       if (await predicate(node)) {
         results.push(node);
       }
@@ -537,7 +580,7 @@ export class TaskTree {
    */
   filterSync(predicate: (node: TreeNode) => boolean): TreeNode[] {
     const results: TreeNode[] = [];
-    this.traverseSync(node => {
+    this.traverseSync((node) => {
       if (predicate(node)) {
         results.push(node);
       }
@@ -606,9 +649,20 @@ export class TaskTree {
    * Individual checkpoints win over flat checkpoint for tasks that have them.
    * Flat checkpoint is preserved as fallback for tasks without individual files.
    */
-  async reconcileFromJournal(): Promise<{ added: string[]; removed: string[]; autoCompleted: string[]; completed: Set<string>; failed: Set<string>; seeded: Set<string> }> {
+  async reconcileFromJournal(): Promise<{
+    added: string[];
+    removed: string[];
+    autoCompleted: string[];
+    completed: Set<string>;
+    failed: Set<string>;
+    seeded: Set<string>;
+  }> {
     const journalEpicsDir = getEpicsDir(this.projectDir);
-    const corrections = { added: [] as string[], removed: [] as string[], autoCompleted: [] as string[] };
+    const corrections = {
+      added: [] as string[],
+      removed: [] as string[],
+      autoCompleted: [] as string[],
+    };
 
     // Load individual task checkpoints from journal directory tree
     const journalCompleted = new Set<string>();
@@ -625,19 +679,21 @@ export class TaskTree {
           const full = path.join(dir, entry.name);
           if (entry.isDirectory()) {
             // Skip directories that don't contain task checkpoints
-            const skipDirs = ['sessions', 'logs', 'attempts'];
+            const skipDirs = ["sessions", "logs", "attempts"];
             if (skipDirs.includes(entry.name)) {
               continue;
             }
-            results.push(...await collectCheckpoints(full));
-          } else if (entry.name === 'checkpoint.json') {
+            results.push(...(await collectCheckpoints(full)));
+          } else if (entry.name === "checkpoint.json") {
             results.push(full);
           }
         }
         return results;
       };
 
-      const epicEntries = await readdir(journalEpicsDir, { withFileTypes: true });
+      const epicEntries = await readdir(journalEpicsDir, {
+        withFileTypes: true,
+      });
       for (const epicEntry of epicEntries) {
         if (!epicEntry.isDirectory()) continue;
         const epicDir = path.join(journalEpicsDir, epicEntry.name);
@@ -646,19 +702,21 @@ export class TaskTree {
         for (const ckptPath of ckptPaths) {
           // journalTaskId = path relative to epic dir, with forward slashes
           const taskDir = path.dirname(ckptPath);
-          const rel = path.relative(epicDir, taskDir).replace(/\\/g, '/');
+          const rel = path.relative(epicDir, taskDir).replace(/\\/g, "/");
 
           try {
-            const raw = JSON.parse(await readFile(ckptPath, 'utf-8'));
+            const raw = JSON.parse(await readFile(ckptPath, "utf-8"));
 
             // Epic-level checkpoint (rel === '.' or '') — the epic IS the task.
             // Use epicId as the journalTaskId.
-            const journalId = (!rel || rel === '.') ? epicEntry.name : rel;
+            const journalId = !rel || rel === "." ? epicEntry.name : rel;
 
-            if (raw.status === 'complete') journalCompleted.add(journalId);
-            else if (raw.status === 'failed') journalFailed.add(journalId);
-            else if (raw.status === 'seeded') journalSeeded.add(journalId);
-          } catch { /* ignore corrupt files */ }
+            if (raw.status === "complete") journalCompleted.add(journalId);
+            else if (raw.status === "failed") journalFailed.add(journalId);
+            else if (raw.status === "seeded") journalSeeded.add(journalId);
+          } catch {
+            /* ignore corrupt files */
+          }
         }
       }
     }
@@ -687,8 +745,12 @@ export class TaskTree {
 
     // Merge: individual checkpoint wins; flat checkpoint fills gaps
     const allKnownIds = new Set([
-      ...journalCompleted, ...journalFailed, ...journalSeeded,
-      ...flatCompleted, ...flatFailed, ...flatSeeded,
+      ...journalCompleted,
+      ...journalFailed,
+      ...journalSeeded,
+      ...flatCompleted,
+      ...flatFailed,
+      ...flatSeeded,
     ]);
 
     const completed = new Set<string>();
@@ -696,7 +758,10 @@ export class TaskTree {
     const seeded = new Set<string>();
 
     for (const id of allKnownIds) {
-      const hasIndividual = journalCompleted.has(id) || journalFailed.has(id) || journalSeeded.has(id);
+      const hasIndividual =
+        journalCompleted.has(id) ||
+        journalFailed.has(id) ||
+        journalSeeded.has(id);
       if (hasIndividual) {
         if (journalCompleted.has(id)) completed.add(id);
         else if (journalFailed.has(id)) failed.add(id);
@@ -715,7 +780,9 @@ export class TaskTree {
       if (node.children.length === 0) continue;
       if (!seeded.has(node.id) && !completed.has(node.id)) continue;
 
-      const allChildrenComplete = node.children.every(c => completed.has(c.id));
+      const allChildrenComplete = node.children.every((c) =>
+        completed.has(c.id),
+      );
       if (allChildrenComplete && seeded.has(node.id)) {
         seeded.delete(node.id);
         completed.add(node.id);
@@ -785,22 +852,22 @@ export class TaskTree {
     // Also strip "epicId/" prefix to match tree node IDs for V2-style keys.
     for (const id of reconciled.completed) {
       completed.add(id);
-      if (id.includes('/')) {
-        const taskPart = id.split('/').slice(1).join('/');
+      if (id.includes("/")) {
+        const taskPart = id.split("/").slice(1).join("/");
         if (taskPart) completed.add(taskPart);
       }
     }
     for (const id of reconciled.failed) {
       failed.add(id);
-      if (id.includes('/')) {
-        const taskPart = id.split('/').slice(1).join('/');
+      if (id.includes("/")) {
+        const taskPart = id.split("/").slice(1).join("/");
         if (taskPart) failed.add(taskPart);
       }
     }
     for (const id of reconciled.seeded) {
       seeded.add(id);
-      if (id.includes('/')) {
-        const taskPart = id.split('/').slice(1).join('/');
+      if (id.includes("/")) {
+        const taskPart = id.split("/").slice(1).join("/");
         if (taskPart) seeded.add(taskPart);
       }
     }
@@ -857,7 +924,11 @@ export class TaskTree {
         if (!completed.has(dep.id)) {
           blocked.add(node.id);
           // Only failure-block when the dep actually failed (not just incomplete/running)
-          if (failed.has(dep.id) || blockingFailures.has(dep.id) || failureBlocked.has(dep.id)) {
+          if (
+            failed.has(dep.id) ||
+            blockingFailures.has(dep.id) ||
+            failureBlocked.has(dep.id)
+          ) {
             failureBlocked.add(node.id);
           }
           break;
@@ -869,7 +940,7 @@ export class TaskTree {
     // Group nodes by epic
     const epicNodesMap = new Map<string, TreeNode[]>();
     for (const node of this.nodes.values()) {
-      const epicId = node.epicId || 'unknown';
+      const epicId = node.epicId || "unknown";
       if (!epicNodesMap.has(epicId)) {
         epicNodesMap.set(epicId, []);
       }
@@ -894,20 +965,19 @@ export class TaskTree {
       // Sort nodes by Unit.sortIndex (execution order within epic)
       // Only consider top-level tasks (not children) - children are handled separately
       const topLevelNodes = epicNodes
-        .filter(n => !n.parent || n.parent.id === '__root__')
+        .filter((n) => !n.parent || n.parent.id === "__root__")
         .sort((a, b) => {
           // Sort by ID (e.g., "001-task" < "002-task")
           return a.id.localeCompare(b.id);
         });
 
-
       for (const node of topLevelNodes) {
         // If global blocking failure encountered, block this and all subsequent tasks
         // EXCEPT if this is a child task (ID starts with a parent's ID + /)
         // Children should be runnable to complete their parent
-        const isChild = epicNodes.some(parent =>
-          parent.id !== node.id &&
-          node.id.startsWith(parent.id + '/')
+        const isChild = epicNodes.some(
+          (parent) =>
+            parent.id !== node.id && node.id.startsWith(parent.id + "/"),
         );
 
         if (globalBlockingFailure && !isChild) {
@@ -923,7 +993,8 @@ export class TaskTree {
           // If task has children, check if all children are done
           const wbs = wbsProgress.get(node.id);
           if (wbs && wbs.spawnCount > 0) {
-            const allChildrenDone = wbs.completedSubtasks + wbs.failedSubtasks === wbs.spawnCount;
+            const allChildrenDone =
+              wbs.completedSubtasks + wbs.failedSubtasks === wbs.spawnCount;
             if (!allChildrenDone) {
               // Parent incomplete (children still pending) - block subsequent siblings
               globalBlockingFailure = true;
@@ -931,21 +1002,29 @@ export class TaskTree {
               if (failed.has(node.id)) {
                 globalFailureBlocked = true;
               }
-              const icon = failed.has(node.id) ? '🚫' : '⟳';
-              console.log(`${icon} Blocking task (incomplete): ${node.id} - children (${wbs.completedSubtasks}/${wbs.spawnCount} done), subsequent siblings blocked`);
+              const icon = failed.has(node.id) ? "🚫" : "⟳";
+              console.log(
+                `${icon} Blocking task (incomplete): ${node.id} - children (${wbs.completedSubtasks}/${wbs.spawnCount} done), subsequent siblings blocked`,
+              );
               continue;
             }
           }
 
           // Task has no children but is incomplete (failed/seeded/locked)
-          if (failed.has(node.id) || seeded.has(node.id) || locked.has(node.id)) {
+          if (
+            failed.has(node.id) ||
+            seeded.has(node.id) ||
+            locked.has(node.id)
+          ) {
             globalBlockingFailure = true;
             // Only failure-block if the task actually failed
             if (failed.has(node.id)) {
               globalFailureBlocked = true;
             }
-            const icon = failed.has(node.id) ? '🚫' : '⟳';
-            console.log(`${icon} Blocking task (incomplete): ${node.id} - subsequent siblings blocked`);
+            const icon = failed.has(node.id) ? "🚫" : "⟳";
+            console.log(
+              `${icon} Blocking task (incomplete): ${node.id} - subsequent siblings blocked`,
+            );
             continue;
           }
         }
@@ -956,7 +1035,9 @@ export class TaskTree {
     // The first non-completed blocking sibling blocks all subsequent siblings.
     for (const parentNode of this.nodes.values()) {
       if (parentNode.children.length === 0) continue;
-      const sortedChildren = [...parentNode.children].sort((a, b) => a.id.localeCompare(b.id));
+      const sortedChildren = [...parentNode.children].sort((a, b) =>
+        a.id.localeCompare(b.id),
+      );
       let siblingBlocker = false;
       let siblingFailureBlocker = false;
       for (const child of sortedChildren) {
@@ -980,8 +1061,8 @@ export class TaskTree {
     // Block children whose parent tasks are blocked (slash-separated IDs)
     for (const node of Array.from(this.nodes.values())) {
       // Check if this is a child task (ID contains /)
-      if (node.id.includes('/')) {
-        const parentId = node.id.split('/')[0];
+      if (node.id.includes("/")) {
+        const parentId = node.id.split("/")[0];
         // If parent is blocked, block the child too
         if (blocked.has(parentId)) {
           blocked.add(node.id);
@@ -995,16 +1076,20 @@ export class TaskTree {
     // Step 3: Block ALL children of blocked tasks
     // UNLESS the parent is a WBS parent with incomplete children - in that case, children should run
     for (const node of this.nodes.values()) {
-      if (node.parent && node.parent.id !== '__root__') {
+      if (node.parent && node.parent.id !== "__root__") {
         // Find parent node
-        const parentNode = Array.from(this.nodes.values()).find(n => n.unit === node.parent);
+        const parentNode = Array.from(this.nodes.values()).find(
+          (n) => n.unit === node.parent,
+        );
 
         // Check if parent is blocked
         if (parentNode && blocked.has(parentNode.id)) {
           // Check if parent is a WBS parent with incomplete children (partial failure or seeded)
           const parentWbs = wbsProgress.get(parentNode.id);
-          const isWbsPartialState = parentWbs && parentWbs.spawnCount > 0 &&
-                                   (failed.has(parentNode.id) || seeded.has(parentNode.id));
+          const isWbsPartialState =
+            parentWbs &&
+            parentWbs.spawnCount > 0 &&
+            (failed.has(parentNode.id) || seeded.has(parentNode.id));
 
           if (!isWbsPartialState) {
             // Normal case: parent is blocked, block all children
@@ -1033,14 +1118,23 @@ export class TaskTree {
 
     this.clearStatusCache();
 
-    return { completed, failed, seeded, locked, blocked, blockingFailures, failureBlocked, wbsProgress };
+    return {
+      completed,
+      failed,
+      seeded,
+      locked,
+      blocked,
+      blockingFailures,
+      failureBlocked,
+      wbsProgress,
+    };
   }
 
   /**
    * Get blocked tasks.
    */
   async getBlockedTasks(): Promise<TreeNode[]> {
-    return await this.filter(async node => await node.isBlocked());
+    return await this.filter(async (node) => await node.isBlocked());
   }
 
   /**
@@ -1048,7 +1142,7 @@ export class TaskTree {
    */
   async getBlockingFailures(): Promise<TreeNode[]> {
     return await this.filter(async (node: TreeNode) => {
-      return node.blocking && await node.isFailed();
+      return node.blocking && (await node.isFailed());
     });
   }
 
@@ -1058,10 +1152,12 @@ export class TaskTree {
    */
   findAncestorNodes(node: TreeNode): TreeNode[] {
     const ancestors: TreeNode[] = [];
-    let current = node.parent;  // Unit
+    let current = node.parent; // Unit
 
-    while (current && current.id !== '__root__') {
-      const ancestorNode = Array.from(this.nodes.values()).find(n => n.unit === current);
+    while (current && current.id !== "__root__") {
+      const ancestorNode = Array.from(this.nodes.values()).find(
+        (n) => n.unit === current,
+      );
       if (ancestorNode) {
         ancestors.push(ancestorNode);
       }
@@ -1074,17 +1170,23 @@ export class TaskTree {
   /**
    * Get progress (completed vs total).
    */
-  async getProgress(): Promise<{ completed: number; total: number; byEpic: Map<string, number> }> {
+  async getProgress(): Promise<{
+    completed: number;
+    total: number;
+    byEpic: Map<string, number>;
+  }> {
     this.populateStatusCache();
     try {
       const allNodes = Array.from(this.nodes.values());
       const completedCount = await Promise.all(
-        allNodes.map(async n => (await n.isComplete()) ? 1 : 0)
-      ).then(counts => counts.reduce((sum: number, c: number) => sum + c, 0 as number));
+        allNodes.map(async (n) => ((await n.isComplete()) ? 1 : 0)),
+      ).then((counts) =>
+        counts.reduce((sum: number, c: number) => sum + c, 0 as number),
+      );
 
       const byEpic = new Map<string, number>();
       for (const node of allNodes) {
-        if (await node.isComplete() && node.epicId) {
+        if ((await node.isComplete()) && node.epicId) {
           byEpic.set(node.epicId, (byEpic.get(node.epicId) || 0) + 1);
         }
       }
@@ -1114,12 +1216,14 @@ export class TaskTree {
           const completed = await c.isComplete();
           const failed = await c.isFailed();
           return completed || failed;
-        })
+        }),
       ).then((results: boolean[]) => results.every((r: boolean) => r));
 
       if (!allChildrenDone) {
         // Don't mark parent complete — children still pending
-        console.log(`  ↻ Skipping completion of ${node.id}: ${node.children.length} children not all done`);
+        console.log(
+          `  ↻ Skipping completion of ${node.id}: ${node.children.length} children not all done`,
+        );
         return;
       }
     }
@@ -1128,19 +1232,21 @@ export class TaskTree {
 
     // Check if parent should auto-complete
     // node.parent is a Unit - need to find its TreeNode
-    if (node.parent && node.parent.id !== '__root__') {
-      const parentNode = Array.from(this.nodes.values()).find(n => n.unit === node.parent);
+    if (node.parent && node.parent.id !== "__root__") {
+      const parentNode = Array.from(this.nodes.values()).find(
+        (n) => n.unit === node.parent,
+      );
       if (parentNode && parentNode.children.length > 0) {
         const allChildrenDone = await Promise.all(
           parentNode.children.map(async (c: TreeNode) => {
             const completed = await c.isComplete();
             const failed = await c.isFailed();
             return completed || failed;
-          })
+          }),
         ).then((results: boolean[]) => results.every((r: boolean) => r));
 
         if (allChildrenDone) {
-          await this.markCompleted(parentNode);  // Recursive
+          await this.markCompleted(parentNode); // Recursive
         }
       }
     }

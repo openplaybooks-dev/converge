@@ -3,7 +3,8 @@
 ## Before (Problematic)
 
 ### Agent Output (markdown with code block)
-```markdown
+
+````markdown
 # Analysis Complete
 
 Based on the animation analysis, here are the follow-up tasks:
@@ -20,6 +21,7 @@ Based on the animation analysis, here are the follow-up tasks:
   }
 ]
 ```
+````
 
 Summary: Created 1 task for implementing scroll animations.
 
@@ -35,6 +37,7 @@ Summary: Created 1 task for implementing scroll animations.
   }
 ]
 ```
+
 ```
 
 ### Problems
@@ -50,9 +53,11 @@ Summary: Created 1 task for implementing scroll animations.
 
 ### Prompt to Agent
 ```
+
 Use the Write tool to create a file at apps/steep_app/.converge/epics/02-page-homepage/tasks/01-analyze-animations-for-homepage/yields.json with a JSON array of tasks.
 
 Each task object must have these fields:
+
 - "id": short-kebab-id
 - "title": Human readable title (one deliverable)
 - "inputs": Array of file paths the agent needs to read
@@ -62,16 +67,17 @@ Each task object must have these fields:
 
 Example:
 [
-  {
-    "id": "task-1",
-    "title": "Do something",
-    "inputs": ["file.md"],
-    "outputs": ["output.tsx"],
-    "checks": ["build"],
-    "prompt": "Instructions here"
-  }
+{
+"id": "task-1",
+"title": "Do something",
+"inputs": ["file.md"],
+"outputs": ["output.tsx"],
+"checks": ["build"],
+"prompt": "Instructions here"
+}
 ]
-```
+
+````
 
 ### Agent Actions
 1. Agent uses Write tool to create `yields.json`
@@ -99,9 +105,10 @@ Example:
     "prompt": "Implement the scroll-pinned hero animation using GSAP ScrollTrigger as specified in the animations doc. The hero should pin while content scrolls beneath it."
   }
 ]
-```
+````
 
 ### System Processing
+
 ```typescript
 // Read the JSON file
 const yieldsJsonPath = `${taskDir}/yields.json`;
@@ -118,22 +125,27 @@ const tasks = JSON.parse(jsonContent);
 ## Benefits Demonstrated
 
 ### 1. No Parsing Ambiguity
+
 - **Before**: "Is this the right code block? Are there multiple? Is there text outside?"
 - **After**: File contains only JSON, JSON.parse() handles it
 
 ### 2. Better Error Messages
+
 - **Before**: "Failed to extract JSON from markdown" (unclear where the problem is)
 - **After**: "SyntaxError: Unexpected token } in JSON at position 142" (exact location)
 
 ### 3. Easier Debugging
+
 - **Before**: Have to inspect agent output logs, search for code blocks
 - **After**: `cat yields.json` shows exactly what was generated
 
 ### 4. Consistent with Other Workflows
+
 - **Before**: Yields used special markdown parsing, different from other tools
 - **After**: Yields uses Write tool just like everything else
 
 ### 5. Agent Can Still Be Conversational
+
 - **Before**: Agent had to ONLY output JSON, nothing else (restrictive)
 - **After**: Agent writes JSON to file, can still provide summaries/explanations in conversation
 
@@ -149,6 +161,7 @@ The change is **backward compatible**:
 4. No changes needed to task validation or spawning logic
 
 When a task with yields runs:
+
 ```
 1. Agent receives prompt with {{yieldsJsonPath}} placeholder filled in
 2. Agent uses Write tool to create yields.json

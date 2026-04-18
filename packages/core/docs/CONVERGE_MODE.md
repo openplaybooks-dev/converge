@@ -10,14 +10,14 @@ Compound convergence mode. Each run closes more gaps than the last. Progress is 
 
 Use `--converge` when you want Converge to **keep getting closer to done** across multiple runs, not just execute tasks once and hope for the best.
 
-| Scenario | Use `run` | Use `run --converge` |
-|----------|-----------|---------------------|
-| Fresh project, first execution | ✅ | |
-| Tasks fail and you want progress preserved | | ✅ |
-| Static analysis backlogs (tsc, eslint, TODOs) should drive fixes | | ✅ |
-| You need to see "are gaps going up or down across runs?" | | ✅ |
-| One-shot: run tasks, stop | ✅ | |
-| Iterative: run, fix, run again, fewer gaps each time | | ✅ |
+| Scenario                                                         | Use `run` | Use `run --converge` |
+| ---------------------------------------------------------------- | --------- | -------------------- |
+| Fresh project, first execution                                   | ✅        |                      |
+| Tasks fail and you want progress preserved                       |           | ✅                   |
+| Static analysis backlogs (tsc, eslint, TODOs) should drive fixes |           | ✅                   |
+| You need to see "are gaps going up or down across runs?"         |           | ✅                   |
+| One-shot: run tasks, stop                                        | ✅        |                      |
+| Iterative: run, fix, run again, fewer gaps each time             |           | ✅                   |
 
 **Rule of thumb**: If you'll run Converge more than once on the same project, use `--converge`.
 
@@ -49,11 +49,11 @@ Backlog:low (TODOs)       │     1  │ Nice to fix eventually
 Severity multiplies the base weight:
 
 | Severity | Multiplier |
-|----------|-----------|
-| critical | 4x |
-| high | 2x |
-| medium | 1x |
-| low | 0.5x |
+| -------- | ---------- |
+| critical | 4x         |
+| high     | 2x         |
+| medium   | 1x         |
+| low      | 0.5x       |
 
 **Why this matters**: Fixing 1 missing feature moves the convergence score by 1000 points. Fixing 100 TODO comments moves it by 100 points. The system naturally prioritizes what matters.
 
@@ -90,6 +90,7 @@ View the trend with `converge trend`:
 ```
 
 **Trend classification**:
+
 - `improving` — 3+ consecutive negative deltas (score going down)
 - `stalled` — delta near zero
 - `degrading` — score went up (new gaps appeared faster than old ones closed)
@@ -191,11 +192,13 @@ converge run --converge --restart
 ```
 
 What `--resume` does on startup:
+
 1. **Stuck task recovery**: Scans all checkpoints for `running` or `interrupted` status. For each, checks if outputs exist on disk (task may have finished before the crash). Outputs exist → marks complete. Missing → resets to pending.
 2. **Ledger recovery**: `closeOrphanedRuns()` finds "start" entries without a matching "end" and closes them with `trend: 'crashed'`. The trend table stays consistent.
 3. **Normal converge loop**: Continues with recovered state. Completed tasks stay completed. Partial tasks resume from their saved gap list.
 
 What happens without `--resume` when stuck tasks exist:
+
 ```
 ⛔ Found 1 task(s) in interrupted/running state:
 
@@ -325,22 +328,22 @@ converge run --converge [--resume|--restart]
 
 ### Files
 
-| File | Purpose |
-|------|---------|
-| `src/converge/weights.ts` | Weight map, scoring functions, sort by weight |
-| `src/converge/gap-ledger.ts` | JSONL append, read, orphan recovery, trend classification, CLI table |
-| `src/converge/backlog-bridge.ts` | `BacklogItem[]` → `Gap[]` converter |
-| `src/converge/converge-runner.ts` | Orchestrator: ledger + execute + partial + signal handling |
-| `src/converge/index.ts` | Barrel exports |
+| File                              | Purpose                                                              |
+| --------------------------------- | -------------------------------------------------------------------- |
+| `src/converge/weights.ts`         | Weight map, scoring functions, sort by weight                        |
+| `src/converge/gap-ledger.ts`      | JSONL append, read, orphan recovery, trend classification, CLI table |
+| `src/converge/backlog-bridge.ts`  | `BacklogItem[]` → `Gap[]` converter                                  |
+| `src/converge/converge-runner.ts` | Orchestrator: ledger + execute + partial + signal handling           |
+| `src/converge/index.ts`           | Barrel exports                                                       |
 
 ### Modified files
 
-| File | Change |
-|------|--------|
-| `checkpoint/unit-checkpoint.ts` | Added `partial` status + `remainingGapIds` + `markPartial()` |
-| `checkpoint/manager.ts` | Added `markTaskPartial()` |
-| `checkpoint/filesystem-status.ts` | Added `partial` to status union |
-| `tree/journal-tree.ts` | Added `partial` to status union |
-| `cli/commands-run.ts` | Added `--converge` dispatch with `resume`/`restart` passthrough |
-| `cli/main.ts` | Added `--converge` flag, `converge trend` command |
-| `cli/autonomous-run.ts` | Exported `detectStuckTasks`, `recoverStuckTasks`, `resetAllTasks` for reuse |
+| File                              | Change                                                                      |
+| --------------------------------- | --------------------------------------------------------------------------- |
+| `checkpoint/unit-checkpoint.ts`   | Added `partial` status + `remainingGapIds` + `markPartial()`                |
+| `checkpoint/manager.ts`           | Added `markTaskPartial()`                                                   |
+| `checkpoint/filesystem-status.ts` | Added `partial` to status union                                             |
+| `tree/journal-tree.ts`            | Added `partial` to status union                                             |
+| `cli/commands-run.ts`             | Added `--converge` dispatch with `resume`/`restart` passthrough             |
+| `cli/main.ts`                     | Added `--converge` flag, `converge trend` command                           |
+| `cli/autonomous-run.ts`           | Exported `detectStuckTasks`, `recoverStuckTasks`, `resetAllTasks` for reuse |

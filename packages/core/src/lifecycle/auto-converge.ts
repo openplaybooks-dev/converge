@@ -12,15 +12,18 @@
  *  - 'script' : A shell script prints a YAML patch to stdout
  */
 
-import { writeFile } from 'node:fs/promises';
-import { READONLY_TOOLS } from '../ai/context.ts';
-import { existsSync } from 'node:fs';
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
-import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
-import type { TaskMdDef } from '../config/task-md-definition.ts';
-import type { AutoConvergePolicy, EnrichField } from '../config/skill-definition.ts';
-import type { CheckDef } from './after.ts';
+import { writeFile } from "node:fs/promises";
+import { READONLY_TOOLS } from "../ai/context.ts";
+import { existsSync } from "node:fs";
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
+import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
+import type { TaskMdDef } from "../config/task-md-definition.ts";
+import type {
+  AutoConvergePolicy,
+  EnrichField,
+} from "../config/skill-definition.ts";
+import type { CheckDef } from "./after.ts";
 
 const execAsync = promisify(exec);
 
@@ -60,16 +63,20 @@ export async function runAutoConvergePhase(
   }
 
   const policy = normalizePolicy(policyInput);
-  const fieldsToEnrich: EnrichField[] = policy.enrich ?? ['inputs', 'outputs', 'checks'];
+  const fieldsToEnrich: EnrichField[] = policy.enrich ?? [
+    "inputs",
+    "outputs",
+    "checks",
+  ];
   const overwrite = policy.overwrite ?? false;
 
   // Determine which fields actually need filling
-  const missing = fieldsToEnrich.filter(field => {
+  const missing = fieldsToEnrich.filter((field) => {
     if (overwrite) return true;
-    if (field === 'inputs') return !def.inputs?.length;
-    if (field === 'outputs') return !def.outputs?.length;
-    if (field === 'checks') return !def.checks?.length;
-    if (field === 'diagnosis-hints') return !def['diagnosis-hints']?.length;
+    if (field === "inputs") return !def.inputs?.length;
+    if (field === "outputs") return !def.outputs?.length;
+    if (field === "checks") return !def.checks?.length;
+    if (field === "diagnosis-hints") return !def["diagnosis-hints"]?.length;
     return false;
   });
 
@@ -80,7 +87,7 @@ export async function runAutoConvergePhase(
 
   // Fetch enrichment patch via the selected mode
   let patch: Partial<TaskMdDef>;
-  if (policy.mode === 'script' && policy.script) {
+  if (policy.mode === "script" && policy.script) {
     patch = await enrichFromScript(policy.script, def, projectDir, missing);
   } else {
     patch = await enrichFromAi(def, body, missing, projectDir);
@@ -89,17 +96,20 @@ export async function runAutoConvergePhase(
   // Merge patch into def — only for the fields that were missing
   const merged: TaskMdDef = { ...def };
   for (const field of missing) {
-    if (field === 'inputs' && (patch.inputs?.length ?? 0) > 0) {
+    if (field === "inputs" && (patch.inputs?.length ?? 0) > 0) {
       merged.inputs = patch.inputs;
     }
-    if (field === 'outputs' && (patch.outputs?.length ?? 0) > 0) {
+    if (field === "outputs" && (patch.outputs?.length ?? 0) > 0) {
       merged.outputs = patch.outputs;
     }
-    if (field === 'checks' && (patch.checks?.length ?? 0) > 0) {
+    if (field === "checks" && (patch.checks?.length ?? 0) > 0) {
       merged.checks = patch.checks as CheckDef[];
     }
-    if (field === 'diagnosis-hints' && (patch['diagnosis-hints']?.length ?? 0) > 0) {
-      merged['diagnosis-hints'] = patch['diagnosis-hints'];
+    if (
+      field === "diagnosis-hints" &&
+      (patch["diagnosis-hints"]?.length ?? 0) > 0
+    ) {
+      merged["diagnosis-hints"] = patch["diagnosis-hints"];
     }
   }
 
@@ -124,9 +134,9 @@ async function enrichFromScript(
       cwd: projectDir,
       env: {
         ...process.env,
-        TASK_NAME: def.title ?? '',
-        TASK_DESCRIPTION: def.description ?? '',
-        ENRICH_FIELDS: fields.join(','),
+        TASK_NAME: def.title ?? "",
+        TASK_DESCRIPTION: def.description ?? "",
+        ENRICH_FIELDS: fields.join(","),
       },
       timeout: 30_000,
     });
@@ -147,7 +157,7 @@ async function enrichFromAi(
   projectDir: string,
 ): Promise<Partial<TaskMdDef>> {
   try {
-    const { agentfn } = await import('@converge/agentfn');
+    const { agentfn } = await import("@converge/agentfn");
 
     const existingPartial = {
       ...(def.inputs?.length ? { inputs: def.inputs } : {}),
@@ -158,17 +168,17 @@ async function enrichFromAi(
     const agentResult: any = await agentfn<string>({
       prompt: `You are enriching a TASK.md task definition with missing validation fields.
 
-TASK TITLE: ${def.title ?? '(none)'}
-DESCRIPTION: ${def.description ?? '(none)'}
-AGENT: ${def.agent ?? '(none)'}
+TASK TITLE: ${def.title ?? "(none)"}
+DESCRIPTION: ${def.description ?? "(none)"}
+AGENT: ${def.agent ?? "(none)"}
 
 TASK BODY (instructions for the agent):
 ${body.slice(0, 2000)}
 
 EXISTING FRONTMATTER (partial):
-${Object.keys(existingPartial).length > 0 ? stringifyYaml(existingPartial) : '(none)'}
+${Object.keys(existingPartial).length > 0 ? stringifyYaml(existingPartial) : "(none)"}
 
-FIELDS TO FILL: ${fields.join(', ')}
+FIELDS TO FILL: ${fields.join(", ")}
 
 Use Read and Glob tools to inspect the project structure, then respond with ONLY a YAML block containing the missing fields.
 
@@ -197,8 +207,10 @@ Rules:
     })();
 
     // Extract YAML from code block
-    const result = agentResult.data ?? agentResult.raw ?? '';
-    const yamlMatch = result.match(/```yaml\n([\s\S]*?)```/) ?? result.match(/```\n([\s\S]*?)```/);
+    const result = agentResult.data ?? agentResult.raw ?? "";
+    const yamlMatch =
+      result.match(/```yaml\n([\s\S]*?)```/) ??
+      result.match(/```\n([\s\S]*?)```/);
     const yamlStr = yamlMatch ? yamlMatch[1] : result;
     return (parseYaml(yamlStr.trim()) as Partial<TaskMdDef>) ?? {};
   } catch {
@@ -226,26 +238,36 @@ async function writeBackTaskMd(
   if (def.checks?.length) fm.checks = def.checks;
   if (def.dependencies?.length) fm.dependencies = def.dependencies;
   if (def.tags?.length) fm.tags = def.tags;
-  if (def['diagnosis-hints']?.length) fm['diagnosis-hints'] = def['diagnosis-hints'];
-  if (def['correction-budget'] !== undefined) fm['correction-budget'] = def['correction-budget'];
-  if (def['context-depth'] !== undefined) fm['context-depth'] = def['context-depth'];
-  if (def['auto-converge'] !== undefined) fm['auto-converge'] = def['auto-converge'];
+  if (def["diagnosis-hints"]?.length)
+    fm["diagnosis-hints"] = def["diagnosis-hints"];
+  if (def["correction-budget"] !== undefined)
+    fm["correction-budget"] = def["correction-budget"];
+  if (def["context-depth"] !== undefined)
+    fm["context-depth"] = def["context-depth"];
+  if (def["auto-converge"] !== undefined)
+    fm["auto-converge"] = def["auto-converge"];
 
   const yaml = stringifyYaml(fm, { lineWidth: 0 });
   const content = `---\n${yaml}---\n\n${body.trimStart()}`;
-  await writeFile(taskMdPath, content, 'utf8');
+  await writeFile(taskMdPath, content, "utf8");
 }
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                             */
 /* ------------------------------------------------------------------ */
 
-function normalizePolicy(input: boolean | AutoConvergePolicy): AutoConvergePolicy {
+function normalizePolicy(
+  input: boolean | AutoConvergePolicy,
+): AutoConvergePolicy {
   if (input === true) {
-    return { mode: 'ai', enrich: ['inputs', 'outputs', 'checks'], overwrite: false };
+    return {
+      mode: "ai",
+      enrich: ["inputs", "outputs", "checks"],
+      overwrite: false,
+    };
   }
   if (input === false) {
-    return { mode: 'ai', enrich: [], overwrite: false };
+    return { mode: "ai", enrich: [], overwrite: false };
   }
   return input;
 }

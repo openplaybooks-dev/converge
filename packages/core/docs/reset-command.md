@@ -73,6 +73,7 @@ When you run `converge reset <taskId>`:
 ### With `--outputs` Flag
 
 Additionally deletes:
+
 - All output files declared in `outputs: [...]`
 - WBS output directories
 - Glob-matched output files
@@ -87,6 +88,7 @@ converge reset 003-generate-html-designs --outputs
 ### With `--wbs` Flag
 
 Additionally deletes:
+
 - WBS-generated task files in `.converge/epics/{epicId}/{taskId}/task/`
 - All dynamically-spawned subtask definitions
 
@@ -103,6 +105,7 @@ converge reset 003-generate-html-designs --wbs
 ### With `--all` Flag (Full Reset)
 
 Equivalent to `--outputs --wbs`:
+
 - Removes journals
 - Removes WBS-generated tasks
 - Removes output files
@@ -119,6 +122,7 @@ converge reset --all
 ```
 
 Deletes:
+
 - Entire `.converge/journal/` directory (all epics, all tasks)
 - All WBS-generated task files across all epics
 - Recreates empty journal structure
@@ -221,6 +225,7 @@ After resetting a task:
 **IMPORTANT:** Resetting a task does NOT automatically reset its dependents.
 
 If task A depends on task B, and you reset task B:
+
 - Task B will re-run
 - Task A will NOT automatically re-run (it's still marked complete)
 - If task B produces different outputs, task A may have stale inputs
@@ -279,6 +284,7 @@ WBS-generated files are typically gitignored:
 ```
 
 This means:
+
 - Resetting is safe (files are not in git)
 - Can regenerate from source of truth
 - No merge conflicts from dynamic files
@@ -299,11 +305,13 @@ This means:
 ### Task Still Completed After Reset
 
 **Possible Causes:**
+
 1. Wrong task ID (check with `converge tree`)
 2. Task ID doesn't match journal structure
 3. Checkpoint not saving correctly
 
 **Debug:**
+
 ```bash
 # Check checkpoint
 converge checkpoint
@@ -320,6 +328,7 @@ converge reset 02-prepare-designs/003-generate-html-designs
 **Cause:** Used `reset` without `--wbs` flag.
 
 **Solution:**
+
 ```bash
 converge reset 003-generate-html-designs --wbs
 ```
@@ -329,6 +338,7 @@ converge reset 003-generate-html-designs --wbs
 **Cause:** Used `reset` without `--outputs` flag.
 
 **Solution:**
+
 ```bash
 converge reset 003-generate-html-designs --outputs
 ```
@@ -357,13 +367,13 @@ EXAMPLES:
 
 ## Comparison with Other Commands
 
-| Command | Purpose | Journal | WBS Tasks | Outputs |
-|---------|---------|---------|-----------|---------|
-| `reset <taskId>` | Unlock task | ✅ Delete | ❌ Keep | ❌ Keep |
-| `reset <taskId> --outputs` | Reset + delete outputs | ✅ Delete | ❌ Keep | ✅ Delete |
-| `reset <taskId> --wbs` | Reset + delete WBS | ✅ Delete | ✅ Delete | ❌ Keep |
-| `reset <taskId> --all` | Full task reset | ✅ Delete | ✅ Delete | ✅ Delete |
-| `reset --all` | Project reset | ✅ Delete All | ✅ Delete All | ❌ Keep |
+| Command                    | Purpose                | Journal       | WBS Tasks     | Outputs   |
+| -------------------------- | ---------------------- | ------------- | ------------- | --------- |
+| `reset <taskId>`           | Unlock task            | ✅ Delete     | ❌ Keep       | ❌ Keep   |
+| `reset <taskId> --outputs` | Reset + delete outputs | ✅ Delete     | ❌ Keep       | ✅ Delete |
+| `reset <taskId> --wbs`     | Reset + delete WBS     | ✅ Delete     | ✅ Delete     | ❌ Keep   |
+| `reset <taskId> --all`     | Full task reset        | ✅ Delete     | ✅ Delete     | ✅ Delete |
+| `reset --all`              | Project reset          | ✅ Delete All | ✅ Delete All | ❌ Keep   |
 
 ## Best Practices
 

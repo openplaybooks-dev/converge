@@ -73,7 +73,6 @@
     "build": "tsup",
     "prepublishOnly": "pnpm build && pnpm typecheck",
     "converge": "tsx src/cli/main.ts",
-    "crew": "tsx src/cli/index.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:unit": "vitest run tests/*.test.ts",

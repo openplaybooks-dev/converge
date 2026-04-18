@@ -27,7 +27,7 @@ context:
       5. `allowed-tools` not being an array
       6. Missing or very short body (< 50 chars of instructions)
       7. Malformed YAML syntax
-      
+
       For each issue found, state: what's wrong, where it is, and what the fix should be.
       Be specific — include the exact YAML that needs to change.
     label: issue-analysis
@@ -50,15 +50,15 @@ Fix structural issues in a SKILL.md task definition file.
 
 Apply fixes based on the issue analysis. Common fixes:
 
-| Issue | Fix |
-|-------|-----|
-| Missing `name` | Extract from directory name |
-| Missing `outputs` | Read the task body to infer what it should produce |
-| Missing `checks` | Add `test -f` checks for each output |
-| Invalid check format | Add missing id/cmd/description fields |
-| `allowed-tools` not array | Convert to `[Read, Write, Edit, Bash]` |
-| Missing body | Keep existing body, add structure if completely empty |
-| Malformed YAML | Fix the YAML syntax — ensure proper indentation and quoting |
+| Issue                     | Fix                                                         |
+| ------------------------- | ----------------------------------------------------------- |
+| Missing `name`            | Extract from directory name                                 |
+| Missing `outputs`         | Read the task body to infer what it should produce          |
+| Missing `checks`          | Add `test -f` checks for each output                        |
+| Invalid check format      | Add missing id/cmd/description fields                       |
+| `allowed-tools` not array | Convert to `[Read, Write, Edit, Bash]`                      |
+| Missing body              | Keep existing body, add structure if completely empty       |
+| Malformed YAML            | Fix the YAML syntax — ensure proper indentation and quoting |
 
 ## Step 3: Edit the File
 
@@ -70,6 +70,7 @@ cp "{unitPath}" "{unitPath}.backup"
 ```
 
 **Rules**:
+
 - Preserve the existing body content — don't rewrite instructions
 - Only fix the frontmatter issues identified in the analysis
 - Ensure the `---` delimiters are present and correct

@@ -7,6 +7,7 @@ Completely removed the old timer-based logging system that was printing verbose 
 ## The Problem
 
 Every minute during AI execution, you saw this:
+
 ```
    ────────────────────────────────────────────────────────────
    ⏳ 1m 0s  │  AI  │  Generate Design: undefined
@@ -20,6 +21,7 @@ Every minute during AI execution, you saw this:
 ```
 
 This was:
+
 - ❌ **Verbose**: 10+ lines of JSON noise every minute
 - ❌ **Redundant**: Event-driven logging already shows progress
 - ❌ **Confusing**: Made it look like the system was hanging
@@ -43,6 +45,7 @@ const heartbeat: NodeJS.Timeout | null = null;
 ```
 
 Also disabled the final heartbeat on error:
+
 ```typescript
 // DISABLED: Final heartbeat (replaced by event-driven logging)
 // await printHeartbeat(heartbeatOpts);
@@ -87,6 +90,7 @@ Resolved 1/1 gap(s) in 145.2s
 ### src/repair/agent-runner.ts
 
 **Lines 549-551**: Disabled setInterval heartbeat
+
 ```typescript
 - const heartbeat = setInterval(() => {
 -   void printHeartbeat(heartbeatOpts);
@@ -95,18 +99,21 @@ Resolved 1/1 gap(s) in 145.2s
 ```
 
 **Line 587**: Added null check
+
 ```typescript
 - clearInterval(heartbeat);
 + if (heartbeat) clearInterval(heartbeat);
 ```
 
 **Line 593**: Added null check
+
 ```typescript
 - clearInterval(heartbeat);
 + if (heartbeat) clearInterval(heartbeat);
 ```
 
 **Line 596**: Disabled final heartbeat
+
 ```typescript
 - await printHeartbeat(heartbeatOpts);
 + // DISABLED: Final heartbeat (replaced by event-driven logging)
@@ -116,12 +123,14 @@ Resolved 1/1 gap(s) in 145.2s
 ## What Remains
 
 ### Still Active (Good)
+
 - ✅ Event-driven logging (🎬 🔍 ✅ icons)
 - ✅ Strategy progress (`[1] Trying strategy: task-run`)
 - ✅ Resolution summaries (`Resolved 1/1 gap(s)`)
 - ✅ Verification steps (`Verifying outputs...`)
 
 ### Removed (Good)
+
 - ❌ 60-second timer heartbeat
 - ❌ JSON dump every minute
 - ❌ Last activity timestamps
@@ -137,6 +146,7 @@ Resolved 1/1 gap(s) in 145.2s
 **Before**: You saw verbose JSON dumps every 60 seconds, making you think it was stuck.
 
 **After**: Clean silence while AI works, with only meaningful events shown:
+
 - Initial gap detection
 - Strategy attempt
 - AI running message
@@ -146,14 +156,14 @@ Resolved 1/1 gap(s) in 145.2s
 
 ## Summary of All Logging Improvements
 
-| Component | Before | After | Status |
-|-----------|--------|-------|--------|
-| **Timer heartbeat** | Every 60s | Disabled | ✅ Removed |
-| **Console logs (unit/run.ts)** | Duplicated events | Only progress indicators | ✅ Cleaned |
-| **Console logs (pipeline.ts)** | Duplicated events | Only strategy progress | ✅ Cleaned |
-| **Event-driven logging** | None | All events to JSONL | ✅ Added |
-| **Console formatter** | None | Reads events, formats output | ✅ Added |
-| **AI lifecycle events** | None | ai_planning, ai_thinking | ✅ Added |
+| Component                      | Before            | After                        | Status     |
+| ------------------------------ | ----------------- | ---------------------------- | ---------- |
+| **Timer heartbeat**            | Every 60s         | Disabled                     | ✅ Removed |
+| **Console logs (unit/run.ts)** | Duplicated events | Only progress indicators     | ✅ Cleaned |
+| **Console logs (pipeline.ts)** | Duplicated events | Only strategy progress       | ✅ Cleaned |
+| **Event-driven logging**       | None              | All events to JSONL          | ✅ Added   |
+| **Console formatter**          | None              | Reads events, formats output | ✅ Added   |
+| **AI lifecycle events**        | None              | ai_planning, ai_thinking     | ✅ Added   |
 
 ## Task Completion
 

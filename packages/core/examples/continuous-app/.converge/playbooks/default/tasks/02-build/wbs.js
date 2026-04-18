@@ -3,10 +3,14 @@
  */
 
 const components = [
-  { id: 'todo-list', name: 'TodoList', file: 'src/components/TodoList.tsx' },
-  { id: 'todo-item', name: 'TodoItem', file: 'src/components/TodoItem.tsx' },
-  { id: 'add-form', name: 'AddTodoForm', file: 'src/components/AddTodoForm.tsx' },
-  { id: 'filter', name: 'TodoFilter', file: 'src/components/TodoFilter.tsx' },
+  { id: "todo-list", name: "TodoList", file: "src/components/TodoList.tsx" },
+  { id: "todo-item", name: "TodoItem", file: "src/components/TodoItem.tsx" },
+  {
+    id: "add-form",
+    name: "AddTodoForm",
+    file: "src/components/AddTodoForm.tsx",
+  },
+  { id: "filter", name: "TodoFilter", file: "src/components/TodoFilter.tsx" },
 ];
 
 export async function run(ctx) {
@@ -14,7 +18,7 @@ export async function run(ctx) {
 
   for (let i = 0; i < components.length; i++) {
     const comp = components[i];
-    const id = `${String(i + 1).padStart(3, '0')}-${comp.id}`;
+    const id = `${String(i + 1).padStart(3, "0")}-${comp.id}`;
 
     await ctx.spawn({
       id,

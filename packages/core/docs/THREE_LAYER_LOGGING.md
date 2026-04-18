@@ -38,6 +38,7 @@ The Converge framework uses a **three-layer logging architecture** where each la
 **Location**: `.converge/journal/sessions/{sessionId}/`
 
 **Files**:
+
 ```
 sessions/2026-04-04T09-44-30-rot6k8/
 ├── metadata.json          # Session config, environment, outcomes
@@ -48,6 +49,7 @@ sessions/2026-04-04T09-44-30-rot6k8/
 ```
 
 ### metadata.json
+
 ```json
 {
   "sessionId": "2026-04-04T09-44-30-rot6k8",
@@ -70,6 +72,7 @@ sessions/2026-04-04T09-44-30-rot6k8/
 ```
 
 ### events.jsonl (Session Events)
+
 ```jsonl
 {"timestamp":"2026-04-04T09:44:30.768Z","eventType":"SESSION_START","message":"Session started"}
 {"timestamp":"2026-04-04T09:44:30.805Z","eventType":"ITERATION_START","message":"Iteration 1 started","metadata":{"iteration":1,"tasksComplete":5,"tasksTotal":25}}
@@ -81,6 +84,7 @@ sessions/2026-04-04T09-44-30-rot6k8/
 ```
 
 ### Session Event Types
+
 - `SESSION_START`, `SESSION_END`
 - `ITERATION_START`, `ITERATION_END`
 - `TASK_SELECTED`, `TASK_SKIPPED`
@@ -89,6 +93,7 @@ sessions/2026-04-04T09-44-30-rot6k8/
 - `MAX_ITERATIONS_REACHED`, `EMERGENCY_STOP`
 
 ### When to Use Session Logger
+
 - Autonomous runs (`converge run`)
 - Multi-task orchestration
 - Iteration-based execution
@@ -101,6 +106,7 @@ sessions/2026-04-04T09-44-30-rot6k8/
 **Location**: `.converge/journal/epics/{epic}/tasks/{task}/attempts/{n}/`
 
 **Files**:
+
 ```
 attempts/01/
 ├── events.jsonl           # Task execution events (NEW - file-first)
@@ -111,6 +117,7 @@ attempts/01/
 ```
 
 ### events.jsonl (Task Events)
+
 ```jsonl
 {"timestamp":"2026-04-04T15:27:13.576Z","type":"task_start","taskId":"003-001-design-home-lesson-tree","inputs":[".stitch/prompts/home-lesson-tree.md"]}
 {"timestamp":"2026-04-04T15:27:14.123Z","type":"tool_use_start","toolName":"Read","params":{"file":".stitch/prompts/home-lesson-tree.md"}}
@@ -124,6 +131,7 @@ attempts/01/
 ```
 
 ### Task Event Types
+
 - `task_start`, `task_complete`, `task_failed`, `retry_start`
 - `tool_use_start`, `tool_use_complete`, `tool_use_error`
 - `file_created`, `file_modified`, `file_deleted`, `file_verified`
@@ -132,6 +140,7 @@ attempts/01/
 - `gap_detected`, `gap_resolved`, `strategy_applied`, `strategy_failed`
 
 ### When to Use Task Event Logger
+
 - Individual task execution
 - AI agent tool calls
 - File operations
@@ -143,6 +152,7 @@ attempts/01/
 **Purpose**: Format events for human consumption
 
 **Reads From**:
+
 - Layer 1: Session events (orchestration-level progress)
 - Layer 2: Task events (task-level details)
 
@@ -211,23 +221,23 @@ sessionLogger.writeSessionStart();
 // Session event: SESSION_START
 
 // Iteration 1: Select and run task-1
-sessionLogger.logEvent('ITERATION_START', { iteration: 1 });
-sessionLogger.logEvent('TASK_SELECTED', { taskId: 'task-1' });
-sessionLogger.logEvent('TASK_ATTEMPT_START', { attempt: 1 });
+sessionLogger.logEvent("ITERATION_START", { iteration: 1 });
+sessionLogger.logEvent("TASK_SELECTED", { taskId: "task-1" });
+sessionLogger.logEvent("TASK_ATTEMPT_START", { attempt: 1 });
 
-  // Layer 2 logs task-1 execution details...
+// Layer 2 logs task-1 execution details...
 
-sessionLogger.logEvent('TASK_ATTEMPT_COMPLETE', { success: true });
-sessionLogger.logEvent('CONVERGENCE_ACHIEVED', { taskId: 'task-1' });
+sessionLogger.logEvent("TASK_ATTEMPT_COMPLETE", { success: true });
+sessionLogger.logEvent("CONVERGENCE_ACHIEVED", { taskId: "task-1" });
 
 // Iteration 2: Select and run task-2
-sessionLogger.logEvent('ITERATION_START', { iteration: 2 });
-sessionLogger.logEvent('TASK_SELECTED', { taskId: 'task-2' });
-sessionLogger.logEvent('TASK_ATTEMPT_START', { attempt: 1 });
+sessionLogger.logEvent("ITERATION_START", { iteration: 2 });
+sessionLogger.logEvent("TASK_SELECTED", { taskId: "task-2" });
+sessionLogger.logEvent("TASK_ATTEMPT_START", { attempt: 1 });
 
-  // Layer 2 logs task-2 execution details...
+// Layer 2 logs task-2 execution details...
 
-sessionLogger.logEvent('TASK_ATTEMPT_COMPLETE', { success: true });
+sessionLogger.logEvent("TASK_ATTEMPT_COMPLETE", { success: true });
 
 // End session
 sessionLogger.writeSessionEnd({ totalIterations: 2, tasksCompleted: 2 });
@@ -239,17 +249,19 @@ sessionLogger.writeSessionEnd({ totalIterations: 2, tasksCompleted: 2 });
 ```typescript
 // For each task execution
 const taskEvents = new TaskEventWriter(
-  `.converge/journal/epics/03-implement-app/tasks/task-1/attempts/01/events.jsonl`
+  `.converge/journal/epics/03-implement-app/tasks/task-1/attempts/01/events.jsonl`,
 );
 
-taskEvents.taskStart({ taskId: 'task-1', taskName: 'Generate Asset: Logo' });
-taskEvents.toolUseStart('Read', { file: '.stitch/DESIGN.md' });
-taskEvents.toolUseComplete('Read', true, { size: 1800 });
-taskEvents.aiReasoning('Generating SVG logo with spring green color palette');
-taskEvents.toolUseStart('Write', { file: 'src/assets/logo.svg' });
-taskEvents.fileCreated('src/assets/logo.svg', 2300, 47, true);
-taskEvents.validationResult('src/assets/logo.svg', true, [{ id: 'asset-exists', passed: true }]);
-taskEvents.taskComplete('task-1', 72000, ['src/assets/logo.svg']);
+taskEvents.taskStart({ taskId: "task-1", taskName: "Generate Asset: Logo" });
+taskEvents.toolUseStart("Read", { file: ".stitch/DESIGN.md" });
+taskEvents.toolUseComplete("Read", true, { size: 1800 });
+taskEvents.aiReasoning("Generating SVG logo with spring green color palette");
+taskEvents.toolUseStart("Write", { file: "src/assets/logo.svg" });
+taskEvents.fileCreated("src/assets/logo.svg", 2300, 47, true);
+taskEvents.validationResult("src/assets/logo.svg", true, [
+  { id: "asset-exists", passed: true },
+]);
+taskEvents.taskComplete("task-1", 72000, ["src/assets/logo.svg"]);
 
 taskEvents.close();
 ```
@@ -261,12 +273,12 @@ taskEvents.close();
 
 // Read session events for high-level structure
 const sessionFormatter = new ConsoleFormatter(
-  `.converge/journal/sessions/2026-04-04T09-44-30-rot6k8/events.jsonl`
+  `.converge/journal/sessions/2026-04-04T09-44-30-rot6k8/events.jsonl`,
 );
 
 // Read task events for execution details
 const taskFormatter = new ConsoleFormatter(
-  `.converge/journal/epics/03-implement-app/tasks/task-1/attempts/01/events.jsonl`
+  `.converge/journal/epics/03-implement-app/tasks/task-1/attempts/01/events.jsonl`,
 );
 
 // Both formatters tail their respective files and output to console
@@ -301,61 +313,68 @@ const taskFormatter = new ConsoleFormatter(
 
 ## Event Type Segregation
 
-| Event Type | Layer 1 (Session) | Layer 2 (Task) |
-|-----------|-------------------|----------------|
-| Session lifecycle | ✅ SESSION_START, SESSION_END | ❌ |
-| Iterations | ✅ ITERATION_START, ITERATION_END | ❌ |
-| Task selection | ✅ TASK_SELECTED, TASK_SKIPPED | ❌ |
-| Task attempts | ✅ TASK_ATTEMPT_START, TASK_ATTEMPT_COMPLETE | ❌ |
-| Convergence | ✅ CONVERGENCE_ACHIEVED | ❌ |
-| Task execution | ❌ | ✅ task_start, task_complete |
-| Tool calls | ❌ | ✅ tool_use_start, tool_use_complete |
-| File operations | ❌ | ✅ file_created, file_modified |
-| AI reasoning | ❌ | ✅ ai_reasoning, ai_planning |
-| Validation | ❌ | ✅ validation_result, check_passed |
-| Gap resolution | ❌ | ✅ gap_detected, gap_resolved |
+| Event Type        | Layer 1 (Session)                            | Layer 2 (Task)                       |
+| ----------------- | -------------------------------------------- | ------------------------------------ |
+| Session lifecycle | ✅ SESSION_START, SESSION_END                | ❌                                   |
+| Iterations        | ✅ ITERATION_START, ITERATION_END            | ❌                                   |
+| Task selection    | ✅ TASK_SELECTED, TASK_SKIPPED               | ❌                                   |
+| Task attempts     | ✅ TASK_ATTEMPT_START, TASK_ATTEMPT_COMPLETE | ❌                                   |
+| Convergence       | ✅ CONVERGENCE_ACHIEVED                      | ❌                                   |
+| Task execution    | ❌                                           | ✅ task_start, task_complete         |
+| Tool calls        | ❌                                           | ✅ tool_use_start, tool_use_complete |
+| File operations   | ❌                                           | ✅ file_created, file_modified       |
+| AI reasoning      | ❌                                           | ✅ ai_reasoning, ai_planning         |
+| Validation        | ❌                                           | ✅ validation_result, check_passed   |
+| Gap resolution    | ❌                                           | ✅ gap_detected, gap_resolved        |
 
 ## Benefits of Three-Layer Architecture
 
 ### 1. Separation of Concerns
+
 - **Layer 1**: "Which tasks ran and in what order?"
 - **Layer 2**: "What did this specific task do?"
 - **Layer 3**: "Show me in a way I can understand"
 
 ### 2. Different Time Scales
+
 - **Layer 1**: Session duration (minutes to hours)
 - **Layer 2**: Task duration (seconds to minutes)
 - **Layer 3**: Real-time display (immediate)
 
 ### 3. Different Audiences
+
 - **Layer 1**: Orchestration debugging, performance analysis
 - **Layer 2**: Task debugging, AI behavior analysis
 - **Layer 3**: User monitoring, progress tracking
 
 ### 4. Independent Consumption
+
 - Can analyze session without reading all task logs
 - Can debug specific task without loading entire session
 - Can format output differently for different contexts
 
 ### 5. Replay Capability
+
 ```typescript
 // Replay session at high level
-replaySession('2026-04-04T09-44-30-rot6k8');
+replaySession("2026-04-04T09-44-30-rot6k8");
 // Shows: Iteration 1 → task-1 → success → Iteration 2 → task-2 → success
 
 // Drill down into specific task
-replayTask('03-implement-app', '003-001-asset-logo', 1);
+replayTask("03-implement-app", "003-001-asset-logo", 1);
 // Shows: Read file → AI reasoning → Write file → Validation → Complete
 ```
 
 ## Migration Path
 
 ### Current State
+
 - ✅ Layer 1: Session logger exists
 - ⚠️ Layer 2: Legacy log.log files (timer-based, JSON dumps)
 - ❌ Layer 3: No formatter (direct console.log calls)
 
 ### Target State
+
 - ✅ Layer 1: Session logger (keep as-is)
 - ✅ Layer 2: Task event logger (file-first events.jsonl)
 - ✅ Layer 3: Console formatter (reads from layers 1 & 2)
@@ -363,22 +382,26 @@ replayTask('03-implement-app', '003-001-asset-logo', 1);
 ### Migration Steps
 
 **Phase 1**: Add Layer 2 event logging
+
 - Create `events.jsonl` alongside existing `log.log`
 - Write events using `TaskEventWriter`
 - Keep old logs during transition
 
 **Phase 2**: Add Layer 3 formatter
+
 - Create `ConsoleFormatter` that reads from layers 1 & 2
 - Run in parallel with old console.log calls
 - Verify output matches
 
 **Phase 3**: Replace old logging
+
 - Remove timer-based polling
 - Remove JSON dumps to console
 - Remove direct console.log calls
 - Delete legacy `log.log` files
 
 **Phase 4**: Polish
+
 - Enhanced formatting
 - Concurrent task display
 - Progress bars

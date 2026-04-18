@@ -1,4 +1,4 @@
-import type { ImportSpec } from './types.ts';
+import type { ImportSpec } from "./types.ts";
 
 interface ImportEntry {
   default?: string;
@@ -51,7 +51,7 @@ export class ImportRegistry {
   }
 
   /** Register an npm dependency for downstream package.json generation. */
-  addDependency(name: string, version = '*'): void {
+  addDependency(name: string, version = "*"): void {
     this._deps.set(name, version);
   }
 
@@ -75,25 +75,29 @@ export class ImportRegistry {
     const sideEffects: string[] = [];
 
     for (const [mod, entry] of this._imports) {
-      const isLocal = mod.startsWith('.') || mod.startsWith('@/');
+      const isLocal = mod.startsWith(".") || mod.startsWith("@/");
 
       const valueParts: string[] = [];
       if (entry.default) valueParts.push(entry.default);
       if (entry.named.size > 0) {
-        valueParts.push(`{ ${[...entry.named].sort().join(', ')} }`);
+        valueParts.push(`{ ${[...entry.named].sort().join(", ")} }`);
       }
 
       if (valueParts.length > 0) {
-        const line = `import ${valueParts.join(', ')} from '${mod}';`;
+        const line = `import ${valueParts.join(", ")} from '${mod}';`;
         (isLocal ? valueLocal : valueExternal).push(line);
       }
 
       if (entry.types.size > 0) {
-        const line = `import type { ${[...entry.types].sort().join(', ')} } from '${mod}';`;
+        const line = `import type { ${[...entry.types].sort().join(", ")} } from '${mod}';`;
         (isLocal ? typeLocal : typeExternal).push(line);
       }
 
-      if (entry.sideEffect && valueParts.length === 0 && entry.types.size === 0) {
+      if (
+        entry.sideEffect &&
+        valueParts.length === 0 &&
+        entry.types.size === 0
+      ) {
         sideEffects.push(`import '${mod}';`);
       }
     }
@@ -104,11 +108,11 @@ export class ImportRegistry {
       valueLocal.sort(),
       typeLocal.sort(),
       sideEffects.sort(),
-    ].filter(g => g.length > 0);
+    ].filter((g) => g.length > 0);
 
     const result: string[] = [];
     for (let i = 0; i < groups.length; i++) {
-      if (i > 0) result.push('');
+      if (i > 0) result.push("");
       result.push(...groups[i]);
     }
 

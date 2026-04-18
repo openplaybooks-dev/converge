@@ -13,16 +13,16 @@
  *   pnpm add -D chokidar
  */
 
-import type { HookRegistry } from '../hooks/registry.ts';
-import type { DiscoveryChangeEvent, DiscoveredFileType } from './types.ts';
+import type { HookRegistry } from "../hooks/registry.ts";
+import type { DiscoveryChangeEvent, DiscoveredFileType } from "./types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Optional Chokidar Import                                          */
 /* ------------------------------------------------------------------ */
 
-async function tryLoadChokidar(): Promise<typeof import('chokidar') | null> {
+async function tryLoadChokidar(): Promise<typeof import("chokidar") | null> {
   try {
-    return await import('chokidar');
+    return await import("chokidar");
   } catch {
     return null;
   }
@@ -62,35 +62,35 @@ export class DiscoveryWatcher {
   async start(
     patterns: string[],
     projectDir: string,
-    onChange: (event: DiscoveryChangeEvent) => void | Promise<void>
+    onChange: (event: DiscoveryChangeEvent) => void | Promise<void>,
   ): Promise<boolean> {
     const chokidar = await tryLoadChokidar();
 
     if (!chokidar) {
       console.warn(
-        '\n[DiscoveryWatcher] Watch mode is unavailable — chokidar is not installed.\n' +
-        '  To enable watch mode, install it as a dev dependency:\n' +
-        '    npm install --save-dev chokidar\n' +
-        '    pnpm add -D chokidar\n'
+        "\n[DiscoveryWatcher] Watch mode is unavailable — chokidar is not installed.\n" +
+          "  To enable watch mode, install it as a dev dependency:\n" +
+          "    npm install --save-dev chokidar\n" +
+          "    pnpm add -D chokidar\n",
       );
       return false;
     }
 
     this.watcher = chokidar.watch(patterns, {
       cwd: projectDir,
-      ignoreInitial: true,           // Don't fire events for files found at startup
-      ignored: ['**/node_modules/**', '**/*.d.ts', '**/*.js'],
+      ignoreInitial: true, // Don't fire events for files found at startup
+      ignored: ["**/node_modules/**", "**/*.d.ts", "**/*.js"],
       persistent: true,
       awaitWriteFinish: {
-        stabilityThreshold: 150,     // Wait 150ms after last write before firing
+        stabilityThreshold: 150, // Wait 150ms after last write before firing
         pollInterval: 50,
       },
     });
 
-    const emit = async (type: DiscoveryChangeEvent['type'], file: string) => {
+    const emit = async (type: DiscoveryChangeEvent["type"], file: string) => {
       const event: DiscoveryChangeEvent = {
         type,
-        file: file.startsWith('/') ? file : `${projectDir}/${file}`,
+        file: file.startsWith("/") ? file : `${projectDir}/${file}`,
         discoveryType: inferDiscoveryType(file),
       };
 
@@ -104,19 +104,19 @@ export class DiscoveryWatcher {
       // Fire discovery:changed hook
       if (this.hooks) {
         const payload = {
-          added:    type === 'added'    ? [event.file] : [],
-          removed:  type === 'removed'  ? [event.file] : [],
-          modified: type === 'modified' ? [event.file] : [],
+          added: type === "added" ? [event.file] : [],
+          removed: type === "removed" ? [event.file] : [],
+          modified: type === "modified" ? [event.file] : [],
         };
-        await this.hooks.fire('discovery:changed', payload);
+        await this.hooks.fire("discovery:changed", payload);
       }
     };
 
-    this.watcher.on('add',    (file: string) => emit('added', file));
-    this.watcher.on('change', (file: string) => emit('modified', file));
-    this.watcher.on('unlink', (file: string) => emit('removed', file));
+    this.watcher.on("add", (file: string) => emit("added", file));
+    this.watcher.on("change", (file: string) => emit("modified", file));
+    this.watcher.on("unlink", (file: string) => emit("removed", file));
 
-    this.watcher.on('error', (err: any) => {
+    this.watcher.on("error", (err: any) => {
       console.warn(`[DiscoveryWatcher] Watcher error: ${err?.message}`);
     });
 
@@ -144,11 +144,11 @@ export class DiscoveryWatcher {
 /* ------------------------------------------------------------------ */
 
 function inferDiscoveryType(file: string): DiscoveredFileType {
-  if (file.includes('/tasks/') || file.endsWith('.task.ts')) return 'task';
-  if (file.includes('/epics/') || file.endsWith('.epic.ts'))  return 'epic';
-  if (file.includes('/checks/') || file.endsWith('.check.ts')) return 'check';
-  if (file.includes('/plans/') || file.endsWith('.plan.ts'))  return 'plan';
-  return 'task'; // fallback
+  if (file.includes("/tasks/") || file.endsWith(".task.ts")) return "task";
+  if (file.includes("/epics/") || file.endsWith(".epic.ts")) return "epic";
+  if (file.includes("/checks/") || file.endsWith(".check.ts")) return "check";
+  if (file.includes("/plans/") || file.endsWith(".plan.ts")) return "plan";
+  return "task"; // fallback
 }
 
 /* ------------------------------------------------------------------ */

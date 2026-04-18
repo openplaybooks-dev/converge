@@ -9,6 +9,7 @@ Successfully implemented the complete three-layer logging system as requested. A
 ### 1. Core Event Infrastructure ✅
 
 **Files Created/Modified**:
+
 - `src/journal/event-writer.ts` ✅ Created - File-first event writer
 - `src/journal/console-formatter.ts` ✅ Created - Read-only console formatter
 - `src/lifecycle/task-runner.ts` ✅ Modified - Task lifecycle event logging
@@ -34,6 +35,7 @@ Events available for replay, analysis, debugging
 **Problem**: Unit execution is deeply nested (Unit → execute → fixGaps → pipeline)
 
 **Solution**: Global context pattern
+
 ```typescript
 // task-runner.ts sets global reference
 (global as any).__CONVERGE_EVENT_WRITER__ = eventWriter;
@@ -52,21 +54,25 @@ This allows the entire execution tree to log events without passing the writer t
 ### 4. Events Captured ✅
 
 **Task Lifecycle**:
+
 - ✅ `task_start` - Task begins execution
 - ✅ `task_complete` - Task succeeds
 - ✅ `task_failed` - Task fails
 - ✅ `ai_error` - Uncaught errors during execution
 
 **AI Reasoning**:
+
 - ✅ `ai_reasoning` - AI reasoning about task execution (context, strategy)
 
 **Gap Resolution**:
+
 - ✅ `gap_detected` - Gap found during validation
 - ✅ `gap_resolved` - Gap successfully fixed
 - ✅ `strategy_applied` - Resolution strategy applied
 - ✅ `strategy_failed` - Strategy failed (with retry info)
 
 **Validation**:
+
 - ✅ `validation_start` - Output validation begins
 - ✅ `validation_result` - Validation results (pass/fail with checks)
 
@@ -91,21 +97,23 @@ This allows the entire execution tree to log events without passing the writer t
 ### task-runner.ts (Lines 102-187)
 
 **Before**:
+
 ```typescript
 success = await unit.run();
 ```
 
 **After**:
+
 ```typescript
 // Initialize event logging
-const eventsFile = path.join(attemptDir, 'events.jsonl');
+const eventsFile = path.join(attemptDir, "events.jsonl");
 const eventWriter = new TaskEventWriter(eventsFile);
 const formatter = new ConsoleFormatter(eventsFile, {
-  minLevel: 'info',
+  minLevel: "info",
   useColor: true,
   useIcons: true,
 });
-formatter.start().catch(err => {
+formatter.start().catch((err) => {
   console.warn(`⚠️  Console formatter failed to start: ${err.message}`);
 });
 
@@ -127,7 +135,11 @@ success = await unit.run();
 if (success && unit) {
   eventWriter.taskComplete(ctx.journalTaskId, durationMs, unit.outputs || []);
 } else {
-  eventWriter.taskFailed(ctx.journalTaskId, 'Convergence not achieved', durationMs);
+  eventWriter.taskFailed(
+    ctx.journalTaskId,
+    "Convergence not achieved",
+    durationMs,
+  );
 }
 
 // Cleanup
@@ -139,6 +151,7 @@ delete (global as any).__CONVERGE_EVENT_WRITER__;
 ### unit/run.ts (Lines 1-159)
 
 **Changes**:
+
 - Added `getEventWriter()` helper function
 - Log AI reasoning at convergence loop start
 - Log gap detection events for each gap found
@@ -146,41 +159,59 @@ delete (global as any).__CONVERGE_EVENT_WRITER__;
 - Log gap resolution attempts and results
 
 **Key Integration Points**:
+
 ```typescript
 // At start of convergence loop
 if (eventWriter) {
-  eventWriter.aiReasoning(
-    `Starting convergence loop for task: ${taskTitle}`,
-    { taskId, maxIterations, isWbs, hasInputs, hasOutputs }
-  );
+  eventWriter.aiReasoning(`Starting convergence loop for task: ${taskTitle}`, {
+    taskId,
+    maxIterations,
+    isWbs,
+    hasInputs,
+    hasOutputs,
+  });
 }
 
 // When gaps are detected
 for (const gap of gaps) {
   if (eventWriter) {
-    eventWriter.gapDetected(gap.id, gap.description, gap.metadata?.gapKind || gap.type);
+    eventWriter.gapDetected(
+      gap.id,
+      gap.description,
+      gap.metadata?.gapKind || gap.type,
+    );
   }
 }
 
 // When gaps are resolved
 if (i < resolved) {
-  eventWriter.gapResolved(gap.id, 'gap_fix_iteration', fixDuration / gaps.length);
+  eventWriter.gapResolved(
+    gap.id,
+    "gap_fix_iteration",
+    fixDuration / gaps.length,
+  );
 }
 ```
 
 ### repair/pipeline.ts (Lines 1-161)
 
 **Changes**:
+
 - Added `getEventWriter()` helper function
 - Log gap detection when pipeline starts
 - Log gap resolution on success
 - Log strategy failures with retry information
 
 **Key Integration Points**:
+
 ```typescript
 // When gap enters pipeline
 if (eventWriter) {
-  eventWriter.gapDetected(gap.id, gap.description, gap.metadata?.gapKind ?? gap.type);
+  eventWriter.gapDetected(
+    gap.id,
+    gap.description,
+    gap.metadata?.gapKind ?? gap.type,
+  );
 }
 
 // When strategy succeeds
@@ -193,8 +224,8 @@ if (outcome.success) {
 // When strategy fails
 if (eventWriter) {
   eventWriter.write({
-    type: 'strategy_failed',
-    level: 'warning',
+    type: "strategy_failed",
+    level: "warning",
     gapId: gap.id,
     strategy: strategy.name,
     reason,
@@ -207,6 +238,7 @@ if (eventWriter) {
 ## Testing & Verification
 
 ### Build Status ✅
+
 ```bash
 npm run build
 # ✅ ESM Build success in 934ms
@@ -228,24 +260,28 @@ All TypeScript compilation succeeded with no errors.
 ## Benefits Delivered
 
 ### 1. File-First Architecture ✅
+
 - All events written to `events.jsonl` FIRST
 - Console reads from file (never writes)
 - Files are source of truth
 - Console is just a view layer
 
 ### 2. Event-Driven Logging ✅
+
 - Logs when important things happen (not on timer)
 - Captures every event (no gaps between polling intervals)
 - Instant feedback (0s delay vs 60s timer ticks)
 - 90% less noise (only meaningful events, no JSON dumps)
 
 ### 3. Replay Capability ✅
+
 - Can recreate console output from events file
 - Can analyze events programmatically
 - Can build custom visualizations
 - Can debug failed runs by reading events
 
 ### 4. Analysis Friendly ✅
+
 - Structured JSONL format
 - Each event has timestamp, type, level, metadata
 - Easy to parse and analyze
@@ -254,34 +290,43 @@ All TypeScript compilation succeeded with no errors.
 ## What's Next (Future Work)
 
 ### Phase 1: Tool Call Logging 🔄
+
 Hook into agentfn to capture:
+
 - Tool calls (Read, Write, Bash, Skill, etc.)
 - AI reasoning during tool selection
 - File operations (create, modify, delete)
 - Tool execution results
 
 **Implementation Approach**:
+
 - Modify agentfn to emit events during execution
 - Pass event writer to agentfn via options
 - Log tool_use_start / tool_use_complete events
 - Log file_created / file_modified events
 
 ### Phase 2: Session Integration 🔄
+
 Connect task events to session logger:
+
 - Session logger already exists (Layer 1)
 - Link task events to session timeline
 - Show task progress in session view
 - Track task dependencies and parallelism
 
 ### Phase 3: Enhanced Console Output 🔄
+
 Improve console formatter:
+
 - Progress bars for long operations
 - Collapsible sections for verbose data
 - Real-time task tree view with status
 - Color coding by event severity
 
 ### Phase 4: Deprecate Legacy Logging 🔄
+
 Remove old timer-based system:
+
 - Remove 60s polling ticks
 - Remove JSON dumps to console
 - Delete legacy log.log files

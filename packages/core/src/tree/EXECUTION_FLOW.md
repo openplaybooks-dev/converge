@@ -7,12 +7,14 @@ When executing a task, the journal path mirrors the epics structure exactly. Thi
 ## Execution Flow
 
 ### 1. Load Task from Epics
+
 ```typescript
-const taskPath = '.converge/epics/03-implement-app/001-implement-design-system';
+const taskPath = ".converge/epics/03-implement-app/001-implement-design-system";
 const unit = await Unit.fromPath(taskPath);
 ```
 
 ### 2. Compute Journal Path (Automatic)
+
 ```typescript
 // TaskContext automatically computes journalPath by mirroring epics structure
 const context = createTaskContext(taskPath);
@@ -24,6 +26,7 @@ console.log(context.journalPath);
 **Simple rule**: Replace `/epics/` with `/journal/tasks/` - that's it!
 
 ### 3. Execute Task - All Artifacts Go to Journal Path
+
 ```typescript
 const journalPath = context.journalPath;
 // → .converge/journal/tasks/03-implement-app/001-implement-design-system
@@ -48,6 +51,7 @@ journalPath/
 ```
 
 ### 4. No Confusion
+
 - **Task definition**: `.converge/epics/03-implement-app/001-task/`
 - **Task execution**: `.converge/journal/tasks/03-implement-app/001-task/`
 
@@ -56,6 +60,7 @@ Same path, different root. Simple!
 ## Example: WBS Parent with Children
 
 ### Task Structure
+
 ```
 .converge/epics/03-implement-app/
 └── 003-generate-svg-assets/
@@ -68,6 +73,7 @@ Same path, different root. Simple!
 ```
 
 ### Journal Structure (Mirrors Exactly)
+
 ```
 .converge/journal/tasks/03-implement-app/
 └── 003-generate-svg-assets/
@@ -91,7 +97,7 @@ Same path, different root. Simple!
 
 ```typescript
 // 1. Load task from epics
-const taskPath = '.converge/epics/03-implement-app/001-implement-design-system';
+const taskPath = ".converge/epics/03-implement-app/001-implement-design-system";
 const unit = await Unit.fromPath(taskPath);
 
 // 2. Get journal path (automatic via context)
@@ -102,29 +108,32 @@ const journalPath = unit.context.journalPath;
 const result = await unit.run();
 
 // 4. Find checkpoint
-const checkpointPath = path.join(journalPath, 'checkpoint.json');
-const checkpoint = JSON.parse(await readFile(checkpointPath, 'utf-8'));
+const checkpointPath = path.join(journalPath, "checkpoint.json");
+const checkpoint = JSON.parse(await readFile(checkpointPath, "utf-8"));
 
 // 5. Find latest attempt logs
-const attemptDir = path.join(journalPath, 'attempts', '01');
-const eventsLog = path.join(attemptDir, 'logs/events.jsonl');
+const attemptDir = path.join(journalPath, "attempts", "01");
+const eventsLog = path.join(attemptDir, "logs/events.jsonl");
 ```
 
 ## Benefits
 
 ### 1. No Path Confusion
+
 Same structure everywhere - if you know the task path, you know the journal path.
 
 ### 2. Simple Lookup
+
 ```typescript
 // From task path to journal path
-const journalPath = taskPath.replace('/epics/', '/journal/tasks/');
+const journalPath = taskPath.replace("/epics/", "/journal/tasks/");
 
 // From journal path back to task path
-const taskPath = journalPath.replace('/journal/tasks/', '/epics/');
+const taskPath = journalPath.replace("/journal/tasks/", "/epics/");
 ```
 
 ### 3. Natural Tree Wiring
+
 ```typescript
 const taskTree = await TaskTree.load(projectDir, config);
 const journalTree = await JournalTree.load(projectDir);
@@ -142,7 +151,9 @@ for (const taskNode of taskTree.getAllNodes()) {
 ```
 
 ### 4. Clean Execution
+
 All execution artifacts stay in their mirrored journal folder:
+
 - No mixing of definition and execution
 - Easy to clean (delete journal, keep definitions)
 - Easy to archive (zip journal per epic)
@@ -155,9 +166,9 @@ The `UnitCheckpointManager` already uses the mirrored structure:
 ```typescript
 const ckpt = new UnitCheckpointManager(
   projectDir,
-  'task',
-  '03-implement-app',        // epicId
-  '001-implement-design-system'  // taskId
+  "task",
+  "03-implement-app", // epicId
+  "001-implement-design-system", // taskId
 );
 
 // Checkpoint path:
@@ -165,12 +176,13 @@ const ckpt = new UnitCheckpointManager(
 ```
 
 For WBS children:
+
 ```typescript
 const ckpt = new UnitCheckpointManager(
   projectDir,
-  'task',
-  '03-implement-app',
-  '003-generate-svg-assets/task/003-001-asset-logo'  // nested taskId
+  "task",
+  "03-implement-app",
+  "003-generate-svg-assets/task/003-001-asset-logo", // nested taskId
 );
 
 // Checkpoint path:
@@ -182,6 +194,7 @@ Perfect mirror!
 ## Summary
 
 **Execution flow is simple:**
+
 1. Load task from epics folder
 2. Get mirrored journal path (automatic)
 3. Execute task - all artifacts go to journal path

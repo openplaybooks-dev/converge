@@ -7,6 +7,7 @@ How to write `wbs.js` scripts that dynamically decompose complex problems into s
 WBS is for **gap-driven decomposition** — when a task is too coarse to execute directly, WBS decomposes it into finer-grained subtasks, each with its own inputs, outputs, and checks.
 
 **Use WBS when:**
+
 - A task contains N similar items that each need their own work (one per epic, one per entity, one per endpoint). The count isn't known until runtime.
 - A task is too complex to execute atomically — it needs to be broken into steps where each step's output feeds the next.
 - The decomposition requires reading data (JSON artifacts, code files) to decide what subtasks to spawn.
@@ -25,32 +26,31 @@ wbs:
   path: ./wbs.js
 blocking: true
 ---
-
 Parent task body — describes what the WBS does at a high level.
 ```
 
 ### WBS types
 
-| Type | Script | Use when |
-|------|--------|----------|
-| `nodejs` | Hand-written `wbs.js` | Task list is derivable from data files |
-| `shell` | Shell script | Simple file-based spawning |
-| `ai` | AI-generated script | Task list requires AI analysis to determine |
+| Type     | Script                | Use when                                    |
+| -------- | --------------------- | ------------------------------------------- |
+| `nodejs` | Hand-written `wbs.js` | Task list is derivable from data files      |
+| `shell`  | Shell script          | Simple file-based spawning                  |
+| `ai`     | AI-generated script   | Task list requires AI analysis to determine |
 
 ## The `ctx` API
 
 Every WBS script exports an async `run(ctx)` function. The `ctx` object provides:
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `ctx.projectDir` | string | Absolute path to the project root |
-| `ctx.vars` | object | Variables from TASK.md frontmatter `vars:` field |
-| `ctx.spawn(shape)` | function | Create a child task (returns Promise) |
-| `ctx.log` | object | Logger — `ctx.log.info(msg)`, `ctx.log.warn(msg)`, `ctx.log.error(msg)` |
-| `ctx.spawnedTasks` | array | Read-only list of tasks spawned so far: `[{ id, writeToPath? }]` |
-| `ctx.ai.ask(prompt)` | function | Ask AI a question — returns boolean or use `.asJson(schema)` for structured data |
-| `ctx.plan.getPlanPath(relativePath)` | function | Resolve absolute path to a plan file from another task |
-| `ctx.artifact` | object | Artifact store — `ctx.artifact.getPath(key)` resolves a file path by key |
+| Property                             | Type     | Description                                                                      |
+| ------------------------------------ | -------- | -------------------------------------------------------------------------------- |
+| `ctx.projectDir`                     | string   | Absolute path to the project root                                                |
+| `ctx.vars`                           | object   | Variables from TASK.md frontmatter `vars:` field                                 |
+| `ctx.spawn(shape)`                   | function | Create a child task (returns Promise)                                            |
+| `ctx.log`                            | object   | Logger — `ctx.log.info(msg)`, `ctx.log.warn(msg)`, `ctx.log.error(msg)`          |
+| `ctx.spawnedTasks`                   | array    | Read-only list of tasks spawned so far: `[{ id, writeToPath? }]`                 |
+| `ctx.ai.ask(prompt)`                 | function | Ask AI a question — returns boolean or use `.asJson(schema)` for structured data |
+| `ctx.plan.getPlanPath(relativePath)` | function | Resolve absolute path to a plan file from another task                           |
+| `ctx.artifact`                       | object   | Artifact store — `ctx.artifact.getPath(key)` resolves a file path by key         |
 
 ### `ctx.ai.ask()`
 
@@ -58,16 +58,21 @@ Available in all WBS types. Two usage modes:
 
 ```javascript
 // Boolean question (yes/no)
-const ready = await ctx.ai.ask('Is the database schema complete?');
+const ready = await ctx.ai.ask("Is the database schema complete?");
 
 // Structured response with Zod schema
-const analysis = await ctx.ai.ask('Analyze the API spec and list endpoint groups')
-  .asJson(z.object({
-    groups: z.array(z.object({
-      name: z.string(),
-      endpoints: z.array(z.string()),
-    })),
-  }));
+const analysis = await ctx.ai
+  .ask("Analyze the API spec and list endpoint groups")
+  .asJson(
+    z.object({
+      groups: z.array(
+        z.object({
+          name: z.string(),
+          endpoints: z.array(z.string()),
+        }),
+      ),
+    }),
+  );
 ```
 
 Use `ctx.ai.ask()` when you need AI judgment to determine what subtasks to spawn (e.g., analyzing code complexity to decide decomposition strategy). Use `readFileSync` when the data is in a structured file (JSON, YAML).
@@ -77,8 +82,8 @@ Use `ctx.ai.ask()` when you need AI judgment to determine what subtasks to spawn
 Access plan artifacts from sibling or ancestor tasks:
 
 ```javascript
-const planPath = ctx.plan.getPlanPath('../001-analyze/plan.md');
-const plan = JSON.parse(readFileSync(planPath, 'utf-8'));
+const planPath = ctx.plan.getPlanPath("../001-analyze/plan.md");
+const plan = JSON.parse(readFileSync(planPath, "utf-8"));
 ```
 
 ### `ctx.artifact`
@@ -86,8 +91,8 @@ const plan = JSON.parse(readFileSync(planPath, 'utf-8'));
 Access named file artifacts shared across the project:
 
 ```javascript
-const schemaPath = ctx.artifact.getPath('database-schema');
-const schema = readFileSync(schemaPath, 'utf-8');
+const schemaPath = ctx.artifact.getPath("database-schema");
+const schema = readFileSync(schemaPath, "utf-8");
 ```
 
 ## `ctx.spawn()` Shape
@@ -96,42 +101,42 @@ The `spawn()` function accepts a `TaskMdShape` object. Only `id` is required —
 
 ### Required
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | string | Unique task identifier (three-digit prefix + kebab-case) |
+| Field | Type   | Description                                              |
+| ----- | ------ | -------------------------------------------------------- |
+| `id`  | string | Unique task identifier (three-digit prefix + kebab-case) |
 
 ### Common fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `title` | string | Human-readable task title |
-| `description` | string | One-line summary |
-| `dependencies` | string[] | Task ids that must complete first |
-| `inputs` | string[] | File paths this task reads |
-| `outputs` | string[] | File paths this task produces |
-| `checks` | CheckDef[] | Validation commands (id + cmd + description) |
-| `body` | string | Markdown instructions for the AI executor |
-| `skills` | string[] | Required converge skills |
+| Field          | Type       | Description                                  |
+| -------------- | ---------- | -------------------------------------------- |
+| `title`        | string     | Human-readable task title                    |
+| `description`  | string     | One-line summary                             |
+| `dependencies` | string[]   | Task ids that must complete first            |
+| `inputs`       | string[]   | File paths this task reads                   |
+| `outputs`      | string[]   | File paths this task produces                |
+| `checks`       | CheckDef[] | Validation commands (id + cmd + description) |
+| `body`         | string     | Markdown instructions for the AI executor    |
+| `skills`       | string[]   | Required converge skills                     |
 
 ### Advanced fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `agent` | string | Specific AI agent/model |
-| `executor` | object | Custom executor (type: ai/script/function) |
-| `wbs` | object | Nested WBS config (for recursive decomposition) |
-| `plan` | object | Planning config |
-| `tags` | string[] | Metadata tags |
-| `materials` | string[] | Files to load as AI context |
-| `vars` | object | Custom variables |
-| `blocking` | boolean | Block all downstream tasks |
-| `goalDefs` | GoalDef[] | Goal definitions produced on completion |
-| `needs` | CheckDef[] | Precondition checks |
-| `diagnosis-hints` | object[] | Hints for diagnosing failures |
-| `correction-budget` | number | Max correction attempts |
-| `auto-converge` | boolean/object | Auto-convergence policy |
-| `context` | object[] | Context-building steps |
-| `backlogs` | object[] | Backlog items to track |
+| Field               | Type           | Description                                     |
+| ------------------- | -------------- | ----------------------------------------------- |
+| `agent`             | string         | Specific AI agent/model                         |
+| `executor`          | object         | Custom executor (type: ai/script/function)      |
+| `wbs`               | object         | Nested WBS config (for recursive decomposition) |
+| `plan`              | object         | Planning config                                 |
+| `tags`              | string[]       | Metadata tags                                   |
+| `materials`         | string[]       | Files to load as AI context                     |
+| `vars`              | object         | Custom variables                                |
+| `blocking`          | boolean        | Block all downstream tasks                      |
+| `goalDefs`          | GoalDef[]      | Goal definitions produced on completion         |
+| `needs`             | CheckDef[]     | Precondition checks                             |
+| `diagnosis-hints`   | object[]       | Hints for diagnosing failures                   |
+| `correction-budget` | number         | Max correction attempts                         |
+| `auto-converge`     | boolean/object | Auto-convergence policy                         |
+| `context`           | object[]       | Context-building steps                          |
+| `backlogs`          | object[]       | Backlog items to track                          |
 
 ## Pattern: Data-Driven Spawning
 
@@ -140,32 +145,32 @@ Read a JSON file, loop items, spawn one task per item.
 This is the most common WBS pattern. The canonical example is `decompose-epics-wbs.js`:
 
 ```javascript
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { readFileSync } from "fs";
+import { join } from "path";
 
 export async function run(ctx) {
-  const name = ctx.vars?.name || 'default';
+  const name = ctx.vars?.name || "default";
   const stateDir = `.converge/plan-state/${name}`;
-  const outlinePath = join(ctx.projectDir, stateDir, 'outline.json');
+  const outlinePath = join(ctx.projectDir, stateDir, "outline.json");
 
   // Read data
   let outline;
   try {
-    outline = JSON.parse(readFileSync(outlinePath, 'utf-8'));
+    outline = JSON.parse(readFileSync(outlinePath, "utf-8"));
   } catch (err) {
     throw new Error(`Cannot read outline: ${outlinePath} — ${err.message}`);
   }
 
   // Guard against empty data
   if (!outline.epics || outline.epics.length === 0) {
-    throw new Error('Outline has no epics — nothing to decompose');
+    throw new Error("Outline has no epics — nothing to decompose");
   }
 
   // Spawn one subtask per item
   let prevId = null;
   for (let i = 0; i < outline.epics.length; i++) {
     const epic = outline.epics[i];
-    const padded = String(i + 1).padStart(3, '0');
+    const padded = String(i + 1).padStart(3, "0");
     const taskId = `003-${padded}-${epic.id}`;
     const outputPath = `${stateDir}/epics/${epic.id}.json`;
 
@@ -179,7 +184,7 @@ export async function run(ctx) {
         `${stateDir}/analysis.json`,
       ],
       outputs: [outputPath],
-      skills: ['converge-planning'],
+      skills: ["converge-planning"],
       needs: [
         {
           id: `${epic.id}-outline-ready`,
@@ -209,13 +214,13 @@ export async function run(ctx) {
 Epic context:
 - ID: ${epic.id}
 - Description: ${epic.description}
-- Complexity: ${epic.complexity || 'medium'}
+- Complexity: ${epic.complexity || "medium"}
 
 Read requirements.json and analysis.json for full context.
 For each task, specify id, title, outputs, checks, and body.`,
     });
 
-    prevId = taskId;  // sequential execution
+    prevId = taskId; // sequential execution
   }
 }
 ```
@@ -238,15 +243,15 @@ Check a condition, spawn only if needed, return early if nothing to do.
 The canonical example is `deepen-tasks-wbs.js`:
 
 ```javascript
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { readFileSync } from "fs";
+import { join } from "path";
 
 export async function run(ctx) {
-  const name = ctx.vars?.name || 'default';
+  const name = ctx.vars?.name || "default";
   const stateDir = `.converge/plan-state/${name}`;
-  const planPath = join(ctx.projectDir, stateDir, 'plan.json');
+  const planPath = join(ctx.projectDir, stateDir, "plan.json");
 
-  const plan = JSON.parse(readFileSync(planPath, 'utf-8'));
+  const plan = JSON.parse(readFileSync(planPath, "utf-8"));
   const toDeepen = plan.needsDeepening || [];
 
   // Nothing to deepen — return immediately (zero subtasks)
@@ -255,7 +260,7 @@ export async function run(ctx) {
   let prevId = null;
   for (let i = 0; i < toDeepen.length; i++) {
     const item = toDeepen[i];
-    const padded = String(i + 1).padStart(3, '0');
+    const padded = String(i + 1).padStart(3, "0");
     const taskId = `003-d-${padded}-${item.epicId}-${item.taskId}`;
     const outputPath = `${stateDir}/deepened/${item.epicId}-${item.taskId}.json`;
 
@@ -267,7 +272,10 @@ export async function run(ctx) {
       outputs: [outputPath],
       checks: [
         { id: `deep-${padded}-exists`, cmd: `test -f ${outputPath}` },
-        { id: `deep-${padded}-valid`, cmd: `node -e "JSON.parse(require('fs').readFileSync('${outputPath}','utf-8'))"` },
+        {
+          id: `deep-${padded}-valid`,
+          cmd: `node -e "JSON.parse(require('fs').readFileSync('${outputPath}','utf-8'))"`,
+        },
       ],
       body: `Sub-decompose task ${item.taskId} in epic ${item.epicId}.
 Reason: ${item.reason}
@@ -302,7 +310,6 @@ wbs:
   maxAttempts: 3
 blocking: true
 ---
-
 AI-driven WBS parent — AI generates a script that reads the API spec
 and spawns per-endpoint-group subtasks.
 ```
@@ -330,17 +337,23 @@ export async function run(ctx) {
   const routes = JSON.parse(analysis);
   for (const route of routes) {
     await ctx.spawn({
-      id: `001-${route.file.replace(/\.\w+$/, '')}`,
+      id: `001-${route.file.replace(/\.\w+$/, "")}`,
       title: `Implement ${route.file}`,
       outputs: [`src/api/routes/${route.file}`],
-      checks: [{ id: `${route.file}-exists`, cmd: `test -f src/api/routes/${route.file}` }],
-      body: `Implement endpoints: ${route.endpoints.join(', ')}`,
+      checks: [
+        {
+          id: `${route.file}-exists`,
+          cmd: `test -f src/api/routes/${route.file}`,
+        },
+      ],
+      body: `Implement endpoints: ${route.endpoints.join(", ")}`,
     });
   }
 }
 ```
 
 **When to use `ctx.ai.ask()` vs reading files directly:**
+
 - Use `readFileSync` when the data is in a structured file (JSON, YAML)
 - Use `ctx.ai.ask()` when you need to analyze unstructured content (source code, docs) or make judgment calls about complexity and decomposition strategy
 

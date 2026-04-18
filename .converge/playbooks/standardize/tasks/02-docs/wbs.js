@@ -10,8 +10,6 @@
  */
 
 export async function run(ctx) {
-  const stateDir = '.converge/standardize-state/docs';
-
   // 1. Move packages/core/README.md to root
   await ctx.spawn({
     id: '001-move-readme',

@@ -2,7 +2,7 @@
 
 export interface ActivityLog {
   timestamp: number;
-  type: 'stdout' | 'stderr' | 'tool-call' | 'heartbeat';
+  type: "stdout" | "stderr" | "tool-call" | "heartbeat";
   size?: number;
   content?: string;
 }
@@ -20,7 +20,7 @@ export class AgentMonitor {
   private maxActivityLogSize = 1000; // Keep last 1000 activity entries
   private maxResourceSnapshots = 100; // Keep last 100 resource snapshots
 
-  logActivity(type: ActivityLog['type'], content?: string): void {
+  logActivity(type: ActivityLog["type"], content?: string): void {
     const entry: ActivityLog = {
       timestamp: Date.now(),
       type,
@@ -38,7 +38,7 @@ export class AgentMonitor {
 
   getRecentActivity(windowMs: number): ActivityLog[] {
     const cutoff = Date.now() - windowMs;
-    return this.activityLog.filter(log => log.timestamp >= cutoff);
+    return this.activityLog.filter((log) => log.timestamp >= cutoff);
   }
 
   getAllActivity(): ActivityLog[] {
@@ -63,17 +63,19 @@ export class AgentMonitor {
 
       // Trim snapshots if too large
       if (this.resourceSnapshots.length > this.maxResourceSnapshots) {
-        this.resourceSnapshots = this.resourceSnapshots.slice(-this.maxResourceSnapshots);
+        this.resourceSnapshots = this.resourceSnapshots.slice(
+          -this.maxResourceSnapshots,
+        );
       }
     } catch (error) {
       // Silently ignore - resource monitoring is optional
     }
   }
 
-  getResourceTrend(): { cpu: number[], memory: number[] } {
+  getResourceTrend(): { cpu: number[]; memory: number[] } {
     return {
-      cpu: this.resourceSnapshots.map(s => s.cpuPercent ?? 0),
-      memory: this.resourceSnapshots.map(s => s.memoryMB ?? 0),
+      cpu: this.resourceSnapshots.map((s) => s.cpuPercent ?? 0),
+      memory: this.resourceSnapshots.map((s) => s.memoryMB ?? 0),
     };
   }
 
@@ -106,9 +108,13 @@ export class AgentMonitor {
   }
 
   // Helper: Try to import pidusage (optional dependency)
-  private async tryImportPidusage(): Promise<((pid: number) => Promise<any>) | null> {
+  private async tryImportPidusage(): Promise<
+    ((pid: number) => Promise<any>) | null
+  > {
     try {
-      const pidusage = await import(/* webpackIgnore: true */ 'pidusage' as string) as any;
+      const pidusage = (await import(
+        /* webpackIgnore: true */ "pidusage" as string
+      )) as any;
       return pidusage.default || pidusage;
     } catch {
       return null;
@@ -135,13 +141,21 @@ export class AgentMonitor {
       activityTypes[log.type] = (activityTypes[log.type] || 0) + 1;
     }
 
-    const avgCpuPercent = this.resourceSnapshots.length > 0
-      ? this.resourceSnapshots.reduce((sum, s) => sum + (s.cpuPercent ?? 0), 0) / this.resourceSnapshots.length
-      : undefined;
+    const avgCpuPercent =
+      this.resourceSnapshots.length > 0
+        ? this.resourceSnapshots.reduce(
+            (sum, s) => sum + (s.cpuPercent ?? 0),
+            0,
+          ) / this.resourceSnapshots.length
+        : undefined;
 
-    const avgMemoryMB = this.resourceSnapshots.length > 0
-      ? this.resourceSnapshots.reduce((sum, s) => sum + (s.memoryMB ?? 0), 0) / this.resourceSnapshots.length
-      : undefined;
+    const avgMemoryMB =
+      this.resourceSnapshots.length > 0
+        ? this.resourceSnapshots.reduce(
+            (sum, s) => sum + (s.memoryMB ?? 0),
+            0,
+          ) / this.resourceSnapshots.length
+        : undefined;
 
     return {
       totalActivities: this.activityLog.length,

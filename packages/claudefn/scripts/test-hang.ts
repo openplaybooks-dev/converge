@@ -13,11 +13,15 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 
-async function testClaudeStartup(testName: string, args: string[], prompt: string): Promise<void> {
-  console.log(`\n${'='.repeat(70)}`);
+async function testClaudeStartup(
+  testName: string,
+  args: string[],
+  prompt: string,
+): Promise<void> {
+  console.log(`\n${"=".repeat(70)}`);
   console.log(`TEST: ${testName}`);
-  console.log(`${'='.repeat(70)}`);
-  console.log(`Command: claude ${args.join(' ')}`);
+  console.log(`${"=".repeat(70)}`);
+  console.log(`Command: claude ${args.join(" ")}`);
   console.log(`Prompt: ${prompt}`);
   console.log(`Starting at: ${new Date().toISOString()}`);
 
@@ -29,8 +33,8 @@ async function testClaudeStartup(testName: string, args: string[], prompt: strin
       stdio: ["pipe", "pipe", "pipe"],
       env: {
         ...process.env,
-        CLAUDE_CODE_DISABLE_BACKGROUND_TASKS: '1',
-      }
+        CLAUDE_CODE_DISABLE_BACKGROUND_TASKS: "1",
+      },
     });
 
     proc.stdin!.write(prompt);
@@ -72,7 +76,9 @@ async function testClaudeStartup(testName: string, args: string[], prompt: strin
 
       if (code === 0) {
         console.log(`\n✅ SUCCESS in ${elapsed}s`);
-        console.log(`   Time to first output: ${firstOutputTime ? ((firstOutputTime - startTime) / 1000).toFixed(1) : 'N/A'}s`);
+        console.log(
+          `   Time to first output: ${firstOutputTime ? ((firstOutputTime - startTime) / 1000).toFixed(1) : "N/A"}s`,
+        );
         resolve();
       } else {
         console.log(`\n❌ FAILED with exit code ${code} after ${elapsed}s`);
@@ -86,13 +92,15 @@ async function testClaudeStartup(testName: string, args: string[], prompt: strin
 }
 
 async function main() {
-  console.log('Claude CLI Hang Reproduction Script');
-  console.log('====================================\n');
+  console.log("Claude CLI Hang Reproduction Script");
+  console.log("====================================\n");
 
   const testPrompt = 'Say "Hello" and nothing else.';
 
   // Test 1: WITH MCP bypass (the problematic scenario)
-  console.log('\n📋 Test 1: WITH --strict-mcp-config and --mcp-config (EXPECTED TO HANG)');
+  console.log(
+    "\n📋 Test 1: WITH --strict-mcp-config and --mcp-config (EXPECTED TO HANG)",
+  );
   const sessionId1 = randomUUID();
   const tempMcpConfig1 = join(tmpdir(), `test-mcp-${sessionId1}.json`);
   writeFileSync(tempMcpConfig1, '{"mcpServers":{}}', "utf-8");
@@ -106,44 +114,42 @@ async function main() {
         "--no-session-persistence",
         "--strict-mcp-config",
         "--mcp-config",
-        tempMcpConfig1
+        tempMcpConfig1,
       ],
-      testPrompt
+      testPrompt,
     );
   } catch (err: any) {
     console.log(`\n⚠️  Test 1 result: ${err.message}`);
   } finally {
-    try { unlinkSync(tempMcpConfig1); } catch { }
+    try {
+      unlinkSync(tempMcpConfig1);
+    } catch {}
   }
 
   // Wait a bit between tests
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  await new Promise((resolve) => setTimeout(resolve, 2000));
 
   // Test 2: WITHOUT MCP bypass (the working scenario)
-  console.log('\n\n📋 Test 2: WITHOUT --strict-mcp-config (EXPECTED TO WORK)');
+  console.log("\n\n📋 Test 2: WITHOUT --strict-mcp-config (EXPECTED TO WORK)");
 
   try {
     await testClaudeStartup(
       "WITHOUT MCP bypass flags",
-      [
-        "--dangerously-skip-permissions",
-        "-p",
-        "--no-session-persistence"
-      ],
-      testPrompt
+      ["--dangerously-skip-permissions", "-p", "--no-session-persistence"],
+      testPrompt,
     );
   } catch (err: any) {
     console.log(`\n⚠️  Test 2 result: ${err.message}`);
   }
 
-  console.log('\n\n' + '='.repeat(70));
-  console.log('CONCLUSION');
-  console.log('='.repeat(70));
-  console.log('If Test 1 timed out and Test 2 succeeded, this confirms that');
-  console.log('the --strict-mcp-config flag causes Claude CLI to hang.');
-  console.log('');
-  console.log('FIX: Remove the MCP bypass mechanism from claudefn.ts');
-  console.log('='.repeat(70));
+  console.log("\n\n" + "=".repeat(70));
+  console.log("CONCLUSION");
+  console.log("=".repeat(70));
+  console.log("If Test 1 timed out and Test 2 succeeded, this confirms that");
+  console.log("the --strict-mcp-config flag causes Claude CLI to hang.");
+  console.log("");
+  console.log("FIX: Remove the MCP bypass mechanism from claudefn.ts");
+  console.log("=".repeat(70));
 }
 
 main().catch(console.error);

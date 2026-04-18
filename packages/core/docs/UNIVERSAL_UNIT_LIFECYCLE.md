@@ -10,25 +10,27 @@ All units use the same `UnitCheckpoint` interface:
 
 ```typescript
 interface UnitCheckpoint {
-  type: 'project' | 'epic' | 'task';
+  type: "project" | "epic" | "task";
   id: string;
   parentId?: string;
-  currentAttempt?: number;        // For executable units
-  status: 'pending' | 'running' | 'complete' | 'failed' | 'seeded';
-  attempts?: AttemptRecord[];     // Execution history
-  progress?: UnitProgress;        // Child tracking
+  currentAttempt?: number; // For executable units
+  status: "pending" | "running" | "complete" | "failed" | "seeded";
+  attempts?: AttemptRecord[]; // Execution history
+  progress?: UnitProgress; // Child tracking
   lastUpdated: string;
   createdAt: string;
 }
 ```
 
 ### Project
+
 - **Location**: `.converge/journal/project/checkpoint.json`
 - **Purpose**: Top-level container tracking overall project progress
 - **Children**: Epics
 - **Executable**: No (aggregates epic progress only)
 
 ### Epic
+
 - **Location**: `.converge/journal/epics/{epicId}/checkpoint.json`
 - **Definition**: `.converge/epics/{epicId}/epic.ts` (uses `taskDef()`)
 - **Purpose**: Grouping of related tasks, **executable unit**
@@ -37,6 +39,7 @@ interface UnitCheckpoint {
 - **Example**: `02-prepare-designs` epic spawns design tasks
 
 ### Task
+
 - **Location**: `.converge/journal/epics/{epicId}/tasks/{taskId}/checkpoint.json`
 - **Definition**: `.converge/epics/{epicId}/{taskId}/task.ts` or `SKILL.md`
 - **Purpose**: Unit of work, **executable unit**
@@ -44,6 +47,7 @@ interface UnitCheckpoint {
 - **Executable**: **Yes** - runs AI agents, executes checks, spawns subtasks
 
 ### Subtask
+
 - **Location**: `.converge/journal/epics/{epicId}/tasks/{parentId}/{childId}/checkpoint.json`
 - **Definition**: `.converge/epics/{epicId}/{parentId}/{childId}/SKILL.md`
 - **Purpose**: Child unit of work under a parent task
@@ -53,6 +57,7 @@ interface UnitCheckpoint {
 ## Folder Structure (Source of Truth)
 
 ### Task Hierarchy
+
 ```
 .converge/
 ├── epics/
@@ -73,6 +78,7 @@ interface UnitCheckpoint {
 ```
 
 ### Journal Structure (Mirroring Hierarchy)
+
 ```
 .converge/journal/
 ├── project/
@@ -98,11 +104,13 @@ interface UnitCheckpoint {
 ## Lifecycle Phases
 
 ### 1. Discovery
+
 - Scan `.converge/epics/` for `epic.ts` and `task.ts`/`SKILL.md` files
 - Build hierarchy from folder structure (NOT from WBS metadata)
 - Parent-child relationships determined by filesystem nesting
 
 ### 2. Execution
+
 ```typescript
 // ALL units follow the same execution flow:
 1. startAttempt(n)              // Create attempt record
@@ -112,6 +120,7 @@ interface UnitCheckpoint {
 ```
 
 ### 3. Progress Tracking
+
 ```typescript
 // For units with children:
 progress: {
@@ -124,6 +133,7 @@ progress: {
 ```
 
 ### 4. Auto-Completion
+
 ```typescript
 // When all children done:
 if (completedChildren + failedChildren === totalChildren) {
@@ -139,9 +149,14 @@ if (completedChildren + failedChildren === totalChildren) {
 
 ```typescript
 // Works for ANY unit type:
-const epic = new UnitCheckpointManager(projectDir, 'epic', 'epicId');
-const task = new UnitCheckpointManager(projectDir, 'task', 'epicId', 'taskId');
-const subtask = new UnitCheckpointManager(projectDir, 'task', 'epicId', 'parent/child');
+const epic = new UnitCheckpointManager(projectDir, "epic", "epicId");
+const task = new UnitCheckpointManager(projectDir, "task", "epicId", "taskId");
+const subtask = new UnitCheckpointManager(
+  projectDir,
+  "task",
+  "epicId",
+  "parent/child",
+);
 
 // Same interface for all:
 await unit.startAttempt(1);
@@ -163,33 +178,32 @@ await unit.markComplete();
 ## Examples
 
 ### Epic as Executable Unit
+
 ```typescript
 // .converge/epics/02-prepare-designs/epic.ts
 export default taskDef()
-  .id('02-prepare-designs')
+  .id("02-prepare-designs")
   .wbs(async (ctx) => {
     await ctx.spawn(
-      taskDef()
-        .id('001-breakdown-ux-to-screens')
-        .skill('ux-breakdown')
-        .build()
+      taskDef().id("001-breakdown-ux-to-screens").skill("ux-breakdown").build(),
     );
   })
   .build();
 ```
 
 ### Task with Subtasks
+
 ```typescript
 // .converge/epics/02-prepare-designs/002-generate-screen-prompts/task.ts
 export default taskDef()
-  .id('002-generate-screen-prompts')
+  .id("002-generate-screen-prompts")
   .wbs(async (ctx) => {
     for (const screen of screens) {
       await ctx.spawn(
         taskDef()
           .id(`002-${index}-prompt-${screen.id}`)
-          .skill('stitch-prompt')
-          .build()
+          .skill("stitch-prompt")
+          .build(),
       );
     }
   })

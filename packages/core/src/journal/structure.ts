@@ -12,9 +12,9 @@
  * The internal task hierarchy is identical either way — only the root changes.
  */
 
-import { join } from 'node:path';
-import { existsSync } from 'node:fs';
-import type { PlaybookContext } from '../playbook/types.ts';
+import { join } from "node:path";
+import { existsSync } from "node:fs";
+import type { PlaybookContext } from "../playbook/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                           */
@@ -37,14 +37,20 @@ function resolveFirstSegmentPrefix(
   segment: string,
 ): string[] {
   // Source epic structure is the ground truth — check it first.
-  const sourceEpicDir = join(projectDir, '.converge', 'epics', epicId);
-  if (existsSync(join(sourceEpicDir, 'tasks', segment))) return ['tasks'];
+  const sourceEpicDir = join(projectDir, ".converge", "epics", epicId);
+  if (existsSync(join(sourceEpicDir, "tasks", segment))) return ["tasks"];
   if (existsSync(join(sourceEpicDir, segment))) return [];
   // Also check playbook source: .converge/playbooks/{epicId}/tasks/{segment}
-  const sourcePlaybookDir = join(projectDir, '.converge', 'playbooks', epicId, 'tasks');
+  const sourcePlaybookDir = join(
+    projectDir,
+    ".converge",
+    "playbooks",
+    epicId,
+    "tasks",
+  );
   if (existsSync(join(sourcePlaybookDir, segment))) return [];
   // Fall back to existing journal entries when source is absent.
-  if (existsSync(join(epicJournalDir, 'tasks', segment))) return ['tasks'];
+  if (existsSync(join(epicJournalDir, "tasks", segment))) return ["tasks"];
   return [];
 }
 
@@ -110,18 +116,19 @@ export function getTaskAttemptDir(
   taskId: string,
   attemptNumber: number | string,
 ): string {
-  const padded = typeof attemptNumber === 'number'
-    ? String(attemptNumber).padStart(2, '0')
-    : attemptNumber;
+  const padded =
+    typeof attemptNumber === "number"
+      ? String(attemptNumber).padStart(2, "0")
+      : attemptNumber;
   const structure = getJournalStructure(projectDir, epicId, taskId);
-  return join(structure.task!, 'attempts', padded);
+  return join(structure.task!, "attempts", padded);
 }
 
 /**
  * Per-attempt file types that are routed to the attempt directory when active.
  * Task-level aggregated files (status, summary) always stay at the task directory.
  */
-const PER_ATTEMPT_FILE_TYPES = new Set(['events', 'log', 'gaps']);
+const PER_ATTEMPT_FILE_TYPES = new Set(["events", "log", "gaps"]);
 
 /* ------------------------------------------------------------------ */
 /*  Epic Root Resolution                                               */
@@ -134,8 +141,8 @@ const PER_ATTEMPT_FILE_TYPES = new Set(['events', 'log', 'gaps']);
  * Defaults to 'default' when no playbook context.
  */
 function getEpicsRoot(journalRoot: string, ctx?: PlaybookContext): string {
-  const name = ctx?.playbook ?? 'default';
-  return join(journalRoot, name, 'tasks');
+  const name = ctx?.playbook ?? "default";
+  return join(journalRoot, name, "tasks");
 }
 
 /* ------------------------------------------------------------------ */
@@ -156,8 +163,8 @@ export function getJournalStructure(
   taskId?: string,
   playbookCtx?: PlaybookContext,
 ): JournalStructure {
-  const root = join(projectDir, '.converge', 'journal');
-  const project = join(root, 'project');
+  const root = join(projectDir, ".converge", "journal");
+  const project = join(root, "project");
 
   const structure: JournalStructure = {
     root,
@@ -172,21 +179,26 @@ export function getJournalStructure(
     // When running under a playbook, the playbook name IS the epic namespace.
     // If epicId matches the playbook name, don't add it again — epicsRoot already
     // includes it: journal/{playbook}/tasks/ is the epic root.
-    const playbookName = ctx?.playbook ?? 'default';
+    const playbookName = ctx?.playbook ?? "default";
     const skipEpicSegment = ctx && epicId === playbookName;
     structure.epic = skipEpicSegment ? epicsRoot : join(epicsRoot, epicId);
 
     if (taskId) {
-      const segments = taskId.split('/').filter(Boolean);
+      const segments = taskId.split("/").filter(Boolean);
 
       // Playbook tasks: epicId is already baked into epicsRoot, so skip it.
       // Use the same tasks/ separator logic as the non-skip path to mirror the
       // actual filesystem structure: journal/{playbook}/tasks/{a}/tasks/{b}/tasks/{c}
       if (skipEpicSegment) {
-        const prefix = resolveFirstSegmentPrefix(structure.epic!, projectDir, epicId, segments[0]);
+        const prefix = resolveFirstSegmentPrefix(
+          structure.epic!,
+          projectDir,
+          epicId,
+          segments[0],
+        );
         const pathSegments: string[] = [...prefix, segments[0]];
         for (let i = 1; i < segments.length; i++) {
-          pathSegments.push('tasks', segments[i]);
+          pathSegments.push("tasks", segments[i]);
         }
         structure.task = join(structure.epic!, ...pathSegments);
       }
@@ -197,19 +209,24 @@ export function getJournalStructure(
           structure.task = structure.epic;
         } else {
           const childSegments = segments.slice(1);
-          const pathSegments: string[] = ['tasks', childSegments[0]];
+          const pathSegments: string[] = ["tasks", childSegments[0]];
           for (let i = 1; i < childSegments.length; i++) {
-            pathSegments.push('tasks', childSegments[i]);
+            pathSegments.push("tasks", childSegments[i]);
           }
           structure.task = join(structure.epic, ...pathSegments);
         }
       } else {
         // Determine whether segments[0] lives directly under the epic root or
         // inside the epic's tasks/ subdirectory, then mirror that structure.
-        const prefix = resolveFirstSegmentPrefix(structure.epic!, projectDir, epicId, segments[0]);
+        const prefix = resolveFirstSegmentPrefix(
+          structure.epic!,
+          projectDir,
+          epicId,
+          segments[0],
+        );
         const pathSegments: string[] = [...prefix, segments[0]];
         for (let i = 1; i < segments.length; i++) {
-          pathSegments.push('tasks', segments[i]);
+          pathSegments.push("tasks", segments[i]);
         }
         structure.task = join(structure.epic!, ...pathSegments);
       }
@@ -221,7 +238,7 @@ export function getJournalStructure(
       } else {
         const activeAttempt = getActiveAttemptNumber();
         if (activeAttempt) {
-          structure.attempt = join(structure.task, 'attempts', activeAttempt);
+          structure.attempt = join(structure.task, "attempts", activeAttempt);
         }
       }
     }
@@ -235,36 +252,40 @@ export function getJournalStructure(
  */
 export function getJournalFilePath(
   projectDir: string,
-  level: 'project' | 'epic' | 'task',
-  fileType: 'gaps' | 'events' | 'log' | 'summary' | 'status',
+  level: "project" | "epic" | "task",
+  fileType: "gaps" | "events" | "log" | "summary" | "status",
   epicId?: string,
-  taskId?: string
+  taskId?: string,
 ): string {
   const structure = getJournalStructure(projectDir, epicId, taskId);
 
   const extension =
-    fileType === 'gaps' ? 'yml' :
-    fileType === 'summary' ? 'md' :
-    fileType === 'events' ? 'jsonl' :
-    fileType === 'status' ? 'json' :
-    'log';
+    fileType === "gaps"
+      ? "yml"
+      : fileType === "summary"
+        ? "md"
+        : fileType === "events"
+          ? "jsonl"
+          : fileType === "status"
+            ? "json"
+            : "log";
 
   const filename = `${fileType}.${extension}`;
 
   switch (level) {
-    case 'project':
+    case "project":
       return join(structure.project, filename);
-    case 'epic':
+    case "epic":
       if (!structure.epic) {
-        throw new Error('Epic ID required for epic-level journal');
+        throw new Error("Epic ID required for epic-level journal");
       }
       return join(structure.epic, filename);
-    case 'task':
+    case "task":
       if (!structure.task) {
-        throw new Error('Epic ID and Task ID required for task-level journal');
+        throw new Error("Epic ID and Task ID required for task-level journal");
       }
       if (structure.attempt && PER_ATTEMPT_FILE_TYPES.has(fileType)) {
-        return join(structure.attempt, 'logs', filename);
+        return join(structure.attempt, "logs", filename);
       }
       return join(structure.task, filename);
   }
@@ -283,7 +304,7 @@ export function getEpicTasksDir(projectDir: string, epicId: string): string {
  * Playbook-aware: returns journal/{playbook}/tasks/ or journal/tasks/.
  */
 export function getEpicsDir(projectDir: string): string {
-  const root = join(projectDir, '.converge', 'journal');
+  const root = join(projectDir, ".converge", "journal");
   const ctx = getPlaybookContextFromEnv();
   return getEpicsRoot(root, ctx);
 }
@@ -293,9 +314,9 @@ export function getEpicsDir(projectDir: string): string {
  * Defaults to 'default' when no playbook context.
  */
 export function getSessionsDir(projectDir: string): string {
-  const root = join(projectDir, '.converge', 'journal');
-  const name = getPlaybookContextFromEnv()?.playbook ?? 'default';
-  return join(root, name, 'sessions');
+  const root = join(projectDir, ".converge", "journal");
+  const name = getPlaybookContextFromEnv()?.playbook ?? "default";
+  return join(root, name, "sessions");
 }
 
 /**
@@ -303,28 +324,40 @@ export function getSessionsDir(projectDir: string): string {
  * Defaults to 'default' when no playbook context.
  */
 export function getJournalRoot(projectDir: string): string {
-  const root = join(projectDir, '.converge', 'journal');
-  const name = getPlaybookContextFromEnv()?.playbook ?? 'default';
+  const root = join(projectDir, ".converge", "journal");
+  const name = getPlaybookContextFromEnv()?.playbook ?? "default";
   return join(root, name);
 }
 
 /**
  * Get subdirectory paths for the lifecycle phases.
  */
-export function getTaskBeforeDir(projectDir: string, epicId: string, taskId: string): string {
+export function getTaskBeforeDir(
+  projectDir: string,
+  epicId: string,
+  taskId: string,
+): string {
   const s = getJournalStructure(projectDir, epicId, taskId);
-  return join(s.attempt ?? s.task!, 'before');
+  return join(s.attempt ?? s.task!, "before");
 }
 
-export function getTaskAfterDir(projectDir: string, epicId: string, taskId: string): string {
+export function getTaskAfterDir(
+  projectDir: string,
+  epicId: string,
+  taskId: string,
+): string {
   const s = getJournalStructure(projectDir, epicId, taskId);
-  return join(s.attempt ?? s.task!, 'after');
+  return join(s.attempt ?? s.task!, "after");
 }
 
 /** @deprecated Corrections no longer exist — each retry is a new attempt. */
-export function getTaskCorrectionsDir(projectDir: string, epicId: string, taskId: string): string {
+export function getTaskCorrectionsDir(
+  projectDir: string,
+  epicId: string,
+  taskId: string,
+): string {
   const s = getJournalStructure(projectDir, epicId, taskId);
-  return join(s.task!, 'corrections');
+  return join(s.task!, "corrections");
 }
 
 /**
@@ -335,10 +368,10 @@ export function getAncestorJournalPaths(
   epicId: string,
   taskId: string,
 ): string[] {
-  const segments = taskId.split('/').filter(Boolean);
+  const segments = taskId.split("/").filter(Boolean);
   const paths: string[] = [];
   for (let depth = 1; depth < segments.length; depth++) {
-    const ancestorId = segments.slice(0, depth).join('/');
+    const ancestorId = segments.slice(0, depth).join("/");
     const s = getJournalStructure(projectDir, epicId, ancestorId);
     paths.push(s.task!);
   }
@@ -349,7 +382,7 @@ export function getAncestorJournalPaths(
  * Get breadcrumb path for context
  */
 export interface Breadcrumb {
-  level: 'project' | 'epic' | 'task';
+  level: "project" | "epic" | "task";
   name: string;
   path: string;
 }
@@ -360,19 +393,19 @@ export function getBreadcrumbs(
   epicId?: string,
   epicName?: string,
   taskId?: string,
-  taskName?: string
+  taskName?: string,
 ): Breadcrumb[] {
   const breadcrumbs: Breadcrumb[] = [
     {
-      level: 'project',
+      level: "project",
       name: projectName,
-      path: join(projectDir, '.converge', 'journal', 'project'),
+      path: join(projectDir, ".converge", "journal", "project"),
     },
   ];
 
   if (epicId) {
     breadcrumbs.push({
-      level: 'epic',
+      level: "epic",
       name: epicName || epicId,
       path: join(getEpicsDir(projectDir), epicId),
     });
@@ -381,7 +414,7 @@ export function getBreadcrumbs(
   if (taskId && epicId) {
     const structure = getJournalStructure(projectDir, epicId, taskId);
     breadcrumbs.push({
-      level: 'task',
+      level: "task",
       name: taskName || taskId,
       path: structure.task!,
     });

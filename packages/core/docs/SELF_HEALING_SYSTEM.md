@@ -47,11 +47,11 @@ A **gap** is a mismatch between what a task expects and what actually exists.
 ```typescript
 type Gap = {
   id: string;
-  type: 'structural' | 'blocker' | 'corrupted';
+  type: "structural" | "blocker" | "corrupted";
   description: string;
-  severity?: 'low' | 'medium' | 'high' | 'critical';
+  severity?: "low" | "medium" | "high" | "critical";
   metadata: {
-    gapKind: 'output' | 'input' | 'check-failed' | 'blocker';
+    gapKind: "output" | "input" | "check-failed" | "blocker";
     taskId: string;
     epicId?: string;
     expectedOutput?: string;
@@ -148,15 +148,16 @@ type Gap = {
 ```typescript
 // From buildDefaultPipeline() in src/repair/index.ts
 const strategies = [
-  new WBSGeneratorRepairStrategy(),          // Priority: 10
-  new ToolEnvironmentRepairStrategy(),       // Priority: 8
-  new TaskDefinitionRepairStrategy(),        // Priority: 7
-  new MissingIntermediateTaskStrategy(),     // Priority: 5
-  new TaskRunStrategy(),                     // Priority: 5 (last resort)
+  new WBSGeneratorRepairStrategy(), // Priority: 10
+  new ToolEnvironmentRepairStrategy(), // Priority: 8
+  new TaskDefinitionRepairStrategy(), // Priority: 7
+  new MissingIntermediateTaskStrategy(), // Priority: 5
+  new TaskRunStrategy(), // Priority: 5 (last resort)
 ];
 ```
 
 **Execution order** (after `canHandle()` filtering):
+
 1. **WBSGeneratorRepairStrategy** (10) - Fixes root cause in task generators
 2. **ToolEnvironmentRepairStrategy** (8) - Handles external tool/env configuration
 3. **TaskDefinitionRepairStrategy** (7) - AI-driven definition repair + check fixes
@@ -164,6 +165,7 @@ const strategies = [
 5. **TaskRunStrategy** (5) - Simple retry for transient failures
 
 **Removed Strategies** (consolidated):
+
 - ✂️ CheckCommandRepairStrategy → TaskDefinitionRepairStrategy
 - ✂️ UpstreamRerunStrategy → MissingIntermediateTaskStrategy
 - ✂️ ToolIntegrationRepairStrategy → ToolEnvironmentRepairStrategy
@@ -175,12 +177,14 @@ const strategies = [
 ### Why Simplify?
 
 **Before** (9 strategies):
+
 - Overlapping responsibilities (4+ strategies handled tool/check issues)
 - High cost ($0.05-$0.10 per AIBlockerAnalysis call)
 - High risk (SelfRepair modifies code without rollback)
 - Confusing documentation (1,305 lines to understand system)
 
 **After** (5 strategies):
+
 - Clear, non-overlapping responsibilities
 - Lower cost (removed expensive AI analysis)
 - Lower risk (only safe strategies remain)
@@ -198,6 +202,7 @@ All functionality preserved - removed strategies' logic consolidated into remain
 **Consolidates**: CheckCommandRepairStrategy (check fixes now in PHASE 2)
 
 **When it runs:**
+
 ```typescript
 canHandle(gap: Gap): boolean {
   return gap.metadata?.gapKind === 'output' ||
@@ -211,6 +216,7 @@ AI-driven two-phase repair for task definition mismatches.
 Now includes check command repair (previously CheckCommandRepairStrategy).
 
 **PHASE 1: LEARN**
+
 1. Gathers evidence:
    - Task logs (last 50 lines)
    - Filesystem state (actual outputs)
@@ -228,6 +234,7 @@ Now includes check command repair (previously CheckCommandRepairStrategy).
    - Both saved to: `.converge/journal/epics/{epic}/tasks/{task}/attempts/{n}/`
 
 **PHASE 2: FIX**
+
 1. Reads LEARN.md analysis
 2. AI selects best repair strategy
 3. Executes repair actions:
@@ -238,23 +245,27 @@ Now includes check command repair (previously CheckCommandRepairStrategy).
 4. Updates REPAIR.md with repair notes and outcome
 
 **Example LEARN.md (findings only):**
+
 ```markdown
 # Gap Analysis: 003-001-design-home-output
 
 > **Findings Only** - For repair notes, see REPAIR.md
 
 ## Root Cause Analysis
+
 Stitch CLI changed output format from flat files to directory structure.
 The task definition at line 45 hardcodes flat file paths, but Stitch CLI
 now outputs to {screenId}/design.html.
 
 ## Hypotheses
+
 1. **Tool Integration Change** (confidence: high)
    - Stitch CLI updated output format
    - Task definition not updated to match
    - Evidence: Logs show "stitch generate completed successfully"
 
 ## Recommended Repair Strategies
+
 1. **update-task-definition** (confidence: high)
    - Action: Update SKILL.md outputs to expect directory structure
    - Rationale: Aligns task definition with actual tool behavior
@@ -262,12 +273,14 @@ now outputs to {screenId}/design.html.
 ```
 
 **Example REPAIR.md (repair notes only):**
+
 ```markdown
 # Repair Notes: 003-001-design-home-output
 
 > **Repair Actions Only** - For gap analysis, see LEARN.md
 
 ## Root Cause (Summary)
+
 Stitch CLI changed output format from flat files to directory structure...
 
 ## Repair History
@@ -280,6 +293,7 @@ Stitch CLI changed output format from flat files to directory structure...
 Highest confidence strategy from analysis. Updates definition to match actual Stitch CLI behavior.
 
 **Actions Taken**:
+
 - Updated SKILL.md with new outputs/checks
 - Created symlink: .stitch/designs/home-lesson-tree.html → home-lesson-tree/design.html
 
@@ -293,12 +307,14 @@ Highest confidence strategy from analysis. Updates definition to match actual St
 ```
 
 **Pros:**
+
 - ✅ Transparent AI reasoning (LEARN.md)
 - ✅ Two-phase pattern is safer
 - ✅ Complete audit trail
 - ✅ Backward compatible (symlinks)
 
 **Cons:**
+
 - ⚠️ Requires 2 AI calls (expensive ~$0.02-0.05)
 - ⚠️ Slower (~3-5 seconds)
 - ⚠️ LEARN.md files accumulate in journal
@@ -311,6 +327,7 @@ Highest confidence strategy from analysis. Updates definition to match actual St
 **Handles**: Systemic issues across multiple tasks
 
 **When it runs:**
+
 ```typescript
 canHandle(gap: Gap): boolean {
   return gap.metadata?.isSystemicIssue === true;
@@ -322,6 +339,7 @@ canHandle(gap: Gap): boolean {
 Detects when multiple tasks fail with the same pattern and fixes the root cause in the WBS generator.
 
 **Process:**
+
 1. Detects pattern: 2+ related tasks with identical gaps
 2. AI analyzes WBS generator code
 3. Identifies bug location (e.g., line 45)
@@ -330,6 +348,7 @@ Detects when multiple tasks fail with the same pattern and fixes the root cause 
 6. Regenerates all affected tasks
 
 **Example:**
+
 ```
 3 tasks fail: 003-001-design-X, 003-002-design-Y, 003-003-design-Z
 All have: output path mismatch (.stitch/designs/{id}.html vs {id}/design.html)
@@ -345,11 +364,13 @@ Gap Detected → WBSGeneratorRepairStrategy
 ```
 
 **Pros:**
+
 - ✅ Fixes root cause, not symptoms
 - ✅ Prevents future tasks from failing
 - ✅ One fix resolves multiple gaps
 
 **Cons:**
+
 - ⚠️ Requires `isSystemicIssue: true` in gap metadata
 - ⚠️ Regenerating tasks loses attempt history
 - 🔴 Dangerous - modifies generator code
@@ -364,6 +385,7 @@ Gap Detected → WBSGeneratorRepairStrategy
 **Replaces**: ToolIntegrationRepairStrategy (expanded scope)
 
 **When it runs:**
+
 ```typescript
 canHandle(gap: Gap): boolean {
   return (
@@ -377,12 +399,14 @@ canHandle(gap: Gap): boolean {
 **What it does:**
 
 Detects and repairs issues related to external tools and environment configuration:
+
 1. **Tool format changes** - External tool changed output format
 2. **Missing tools** - Required CLI tool not installed
 3. **Tool version mismatch** - Tool version incompatibility
 4. **Environment config** - Missing environment variables or configuration
 
 **Process:**
+
 1. Analyzes task logs for tool invocations and environment issues
 2. Detects tool format changes OR missing dependencies
 3. AI determines issue type and adaptation strategy
@@ -393,6 +417,7 @@ Detects and repairs issues related to external tools and environment configurati
    - (Future) Creates wrapper scripts for version compatibility
 
 **Example 1: Tool Format Change**
+
 ```
 Stitch CLI updated: now outputs to directories instead of flat files
 
@@ -411,6 +436,7 @@ Gap Detected → ToolEnvironmentRepairStrategy
 ```
 
 **Example 2: Missing Tool**
+
 ```
 Task logs: "command not found: stitch"
 
@@ -423,12 +449,14 @@ Gap Detected → ToolEnvironmentRepairStrategy
 ```
 
 **Pros:**
+
 - ✅ Handles both tool changes AND environment issues
 - ✅ Creates compatibility layers (symlinks)
 - ✅ Provides clear setup instructions
 - ✅ Expanded scope vs ToolIntegrationRepairStrategy
 
 **Cons:**
+
 - ⚠️ Only detects changes after first failure
 - ⚠️ Can't auto-install missing tools (security)
 - ⚠️ Symlinks can accumulate over time
@@ -442,6 +470,7 @@ Gap Detected → ToolEnvironmentRepairStrategy
 **Consolidates**: UpstreamRerunStrategy (upstream rerun logic added)
 
 **When it runs:**
+
 ```typescript
 canHandle(gap: Gap): boolean {
   return gap.metadata?.gapKind === 'check-failed';
@@ -453,12 +482,14 @@ canHandle(gap: Gap): boolean {
 Fixes broken validation check commands that don't match actual outputs.
 
 **Process:**
+
 1. Analyzes failed check command
 2. Lists actual files in output directory
 3. AI generates corrected check command
 4. Updates SKILL.md with new check
 
 **Example:**
+
 ```
 Check fails: test -f .stitch/designs/home.html
 File exists: .stitch/designs/home/design.html
@@ -473,11 +504,13 @@ Gap Detected → CheckCommandRepairStrategy
 ```
 
 **Pros:**
+
 - ✅ Quick - single AI call
 - ✅ Supports fallback patterns (||)
 - ✅ Doesn't modify outputs
 
 **Cons:**
+
 - ⚠️ Band-aid fix - doesn't address root cause
 - ⚠️ Can generate overly permissive checks
 - ⚠️ Check commands can become complex
@@ -490,6 +523,7 @@ Gap Detected → CheckCommandRepairStrategy
 **Handles**: Missing inputs that should be generated
 
 **When it runs:**
+
 ```typescript
 canHandle(gap: Gap): boolean {
   return gap.type === 'missing-intermediate';
@@ -501,6 +535,7 @@ canHandle(gap: Gap): boolean {
 Automatically spawns gap-fixer tasks to generate missing inputs.
 
 **Process:**
+
 1. Detects when task needs input that no prior task produces
 2. AI analyzes what's needed and how to create it
 3. Spawns gap-fixer task with prompt to generate missing file
@@ -508,6 +543,7 @@ Automatically spawns gap-fixer tasks to generate missing inputs.
 5. Retries original task after gap-fixer succeeds
 
 **Example:**
+
 ```
 Task B needs: src/components/Button.tsx
 But no task produced it!
@@ -521,11 +557,13 @@ Gap Detected → MissingIntermediateTaskStrategy
 ```
 
 **Pros:**
+
 - ✅ Automatically fills missing dependencies
 - ✅ AI generates intelligent gap-fixer tasks
 - ✅ Reduces manual task creation
 
 **Cons:**
+
 - ⚠️ Can spawn incorrect gap-fixers if AI misunderstands
 - ⚠️ Gap-fixer might create file in wrong format
 - ⚠️ Max 3 attempts before giving up
@@ -539,6 +577,7 @@ Gap Detected → MissingIntermediateTaskStrategy
 **Handles**: Blocker gaps from upstream failures
 
 **When it runs:**
+
 ```typescript
 canHandle(gap: Gap): boolean {
   return gap.metadata?.gapKind === 'blocker';
@@ -550,11 +589,13 @@ canHandle(gap: Gap): boolean {
 Re-runs upstream tasks that failed, unblocking dependent tasks.
 
 **Process:**
+
 1. Identifies upstream task that should have produced the input
 2. Re-runs the upstream task
 3. Retries current task if upstream succeeds
 
 **Example:**
+
 ```
 Task B depends on: output from Task A
 Task A failed → Task B blocked
@@ -567,11 +608,13 @@ Gap Detected → UpstreamRerunStrategy
 ```
 
 **Pros:**
+
 - ✅ Fast - just re-runs existing task
 - ✅ No AI required (deterministic)
 - ✅ Works for transient failures
 
 **Cons:**
+
 - ⚠️ Won't help if upstream has fundamental issue
 - ⚠️ Can cause cascading re-runs
 - 🔴 Doesn't fix root cause
@@ -584,6 +627,7 @@ Gap Detected → UpstreamRerunStrategy
 **Handles**: Transient failures
 
 **When it runs:**
+
 ```typescript
 canHandle(gap: Gap): boolean {
   return gap.metadata?.gapKind === 'output' ||
@@ -597,10 +641,12 @@ canHandle(gap: Gap): boolean {
 Simply re-runs the task that failed (blind retry).
 
 **Process:**
+
 1. Re-executes task without any changes
 2. Hopes transient issue resolved (network, timeout, etc.)
 
 **Example:**
+
 ```
 Task fails: network timeout during npm install
 
@@ -611,11 +657,13 @@ Gap Detected → TaskRunStrategy
 ```
 
 **Pros:**
+
 - ✅ Fast - no AI overhead
 - ✅ Works for transient failures
 - ✅ Simple and reliable
 
 **Cons:**
+
 - ⚠️ Won't fix fundamental issues
 - ⚠️ Wastes time if issue persists
 - 🔴 No intelligence - blind retry
@@ -628,6 +676,7 @@ Gap Detected → TaskRunStrategy
 **Handles**: Unknown blockers
 
 **When it runs:**
+
 ```typescript
 canHandle(gap: Gap): boolean {
   return gap.metadata?.gapKind === 'blocker';
@@ -639,6 +688,7 @@ canHandle(gap: Gap): boolean {
 Deep AI analysis for complex, unknown blocker issues.
 
 **Process:**
+
 1. Reads task code, logs, filesystem
 2. AI diagnoses root cause
 3. AI suggests fix strategy:
@@ -649,6 +699,7 @@ Deep AI analysis for complex, unknown blocker issues.
 4. Executes suggested fix
 
 **Example:**
+
 ```
 Task blocked: mysterious dependency issue
 
@@ -661,11 +712,13 @@ Gap Detected → AIBlockerAnalysisStrategy
 ```
 
 **Pros:**
+
 - ✅ Handles complex, unknown issues
 - ✅ AI can diagnose subtle problems
 - ✅ Comprehensive analysis
 
 **Cons:**
+
 - ⚠️ Very slow (30-60 seconds)
 - ⚠️ Expensive (high token usage)
 - 🔴 Can hallucinate incorrect fixes
@@ -679,6 +732,7 @@ Gap Detected → AIBlockerAnalysisStrategy
 **Handles**: Code bugs in task outputs
 
 **When it runs:**
+
 ```typescript
 canHandle(gap: Gap): boolean {
   return gap.metadata?.gapKind === 'check-failed' ||
@@ -691,12 +745,14 @@ canHandle(gap: Gap): boolean {
 Targeted AI code repair for check failures caused by bugs.
 
 **Process:**
+
 1. AI reads generated task code
 2. Identifies syntax errors, bugs, typos
 3. Generates corrected code
 4. Applies fix to task files
 
 **Example:**
+
 ```
 Task check fails: generated code has syntax error
 
@@ -709,11 +765,13 @@ Gap Detected → SelfRepairStrategy
 ```
 
 **Pros:**
+
 - ✅ Fixes actual code bugs
 - ✅ Learns from error messages
 - ✅ Can fix typos, syntax errors
 
 **Cons:**
+
 - ⚠️ Only works if task code is accessible
 - 🔴 Modifying task code is risky
 - 🔴 AI might introduce new bugs
@@ -726,6 +784,7 @@ Gap Detected → SelfRepairStrategy
 ### Enable/Disable Strategies
 
 **Globally** (in `src/repair/index.ts`):
+
 ```typescript
 export function buildDefaultPipeline(projectDir, journalCtx) {
   const strategies = [
@@ -733,11 +792,18 @@ export function buildDefaultPipeline(projectDir, journalCtx) {
     // new TaskDefinitionRepairStrategy(), // ❌ Disabled
     new TaskRunStrategy(),
   ];
-  return new GapResolutionPipeline(strategies, projectDir, journalCtx, timeline, tracker);
+  return new GapResolutionPipeline(
+    strategies,
+    projectDir,
+    journalCtx,
+    timeline,
+    tracker,
+  );
 }
 ```
 
 **Per-Task** (in `SKILL.md`):
+
 ```yaml
 ---
 name: My Task
@@ -749,25 +815,25 @@ metadata:
 ### Adjust Strategy Priority
 
 ```typescript
-import { TaskDefinitionRepairStrategy } from '@converge/core/repair';
+import { TaskDefinitionRepairStrategy } from "@converge/core/repair";
 
 const strategy = new TaskDefinitionRepairStrategy();
 (strategy as any).priority = 10; // Higher = runs earlier
 
 // Register in custom pipeline
-const strategies = [strategy, /* ... */];
+const strategies = [strategy /* ... */];
 ```
 
 ### AI Configuration
 
 ```typescript
-import { createAIContext } from '@converge/core/ai';
+import { createAIContext } from "@converge/core/ai";
 
 const ai = createAIContext(projectDir, journalCtx);
 
 await ai.ask(prompt, {
-  phase: 'analyze',
-  allowedTools: ['Read', 'Glob', 'Bash'],
+  phase: "analyze",
+  allowedTools: ["Read", "Glob", "Bash"],
   timeoutMs: 180_000, // 3 minutes
   schema: MyZodSchema, // Optional zod validation
 });
@@ -801,6 +867,7 @@ pnpm converge run --epic 02-prepare-designs
 ```
 
 **Result**:
+
 - SKILL.md updated with correct output path
 - Symlink created for backward compatibility
 - Task validation passes on retry
@@ -831,6 +898,7 @@ pnpm converge run --epic 02-prepare-designs
 ```
 
 **Result**:
+
 - Generator code fixed at line 45
 - All 3 affected tasks regenerated
 - Future spawned tasks use correct format
@@ -859,6 +927,7 @@ pnpm converge run --epic 02-prepare-designs
 ```
 
 **Result**:
+
 - Health check detected mismatch proactively
 - Issue logged to journal
 - Self-healing triggered automatically
@@ -874,6 +943,7 @@ pnpm converge run --epic 02-prepare-designs
 Analyzes completed tasks for potential issues that might cause downstream failures.
 
 **Checks:**
+
 - Output path mismatches (expected vs actual)
 - Warnings about deprecated formats
 - Tool version changes
@@ -881,9 +951,10 @@ Analyzes completed tasks for potential issues that might cause downstream failur
 - Suspicious warnings in logs
 
 **Configuration**:
+
 ```typescript
 // In converge.ts
-import { registerHealthCheckHooks } from '@converge/core/repair';
+import { registerHealthCheckHooks } from "@converge/core/repair";
 
 export default defineConverge({
   hooks: {
@@ -899,12 +970,14 @@ export default defineConverge({
 Reviews task definitions spawned by WBS generators before execution.
 
 **Checks:**
+
 - Consistent output path formats across all tasks
 - Realistic output paths for tools being used
 - Check commands match output paths
 - Common mistakes (e.g., flat files when tool outputs directories)
 
 **Usage**:
+
 ```typescript
 // In WBS context
 await ctx.spawn(taskDef);
@@ -928,6 +1001,7 @@ await wbsSpawnReview({
 **Symptom**: `Strategy failed: AI analysis timed out`
 
 **Solution**:
+
 ```typescript
 // Increase timeout in ai.ask()
 await ai.ask(prompt, {
@@ -940,6 +1014,7 @@ await ai.ask(prompt, {
 **Symptom**: `Strategy returns: Low confidence repair - skipping for safety`
 
 **Solution**:
+
 - Review LEARN.md for AI reasoning
 - Provide more context in gap metadata
 - Adjust prompts to be more specific
@@ -949,6 +1024,7 @@ await ai.ask(prompt, {
 **Symptom**: No LEARN.md file in journal directory
 
 **Solutions**:
+
 - Check permissions on `.converge/journal` directory
 - Check available disk space
 - Review journal events for errors:
@@ -961,6 +1037,7 @@ await ai.ask(prompt, {
 **Symptom**: `Failed to create symlink: EACCES permission denied`
 
 **Solutions**:
+
 - Check file permissions in output directory
 - Ensure target file exists before creating symlink
 - Use absolute paths in `createSymlink()`
@@ -970,10 +1047,12 @@ await ai.ask(prompt, {
 **Symptom**: Expected strategy doesn't execute
 
 **Debug steps**:
+
 1. Check `canHandle()` logic:
+
    ```typescript
-   console.log('Gap metadata:', JSON.stringify(gap.metadata, null, 2));
-   console.log('Can handle?', strategy.canHandle(gap));
+   console.log("Gap metadata:", JSON.stringify(gap.metadata, null, 2));
+   console.log("Can handle?", strategy.canHandle(gap));
    ```
 
 2. Check strategy priority (higher priority runs first)
@@ -1027,21 +1106,18 @@ class AIContext {
       allowedTools?: string[];
       timeoutMs?: number;
       schema?: ZodSchema<T>;
-    }
+    },
   ): Promise<AIResponse<T>>;
 
   // Ask AI and parse as JSON
   async askJson<T>(
     prompt: string,
     schema: ZodSchema<T>,
-    options?: AskOptions
+    options?: AskOptions,
   ): Promise<T>;
 
   // Ask yes/no question
-  async askBool(
-    prompt: string,
-    options?: AskOptions
-  ): Promise<boolean>;
+  async askBool(prompt: string, options?: AskOptions): Promise<boolean>;
 
   // Create child context
   withJournalContext(journalCtx: JournalContext): AIContext;
@@ -1086,10 +1162,7 @@ interface FilesystemHelper {
   createSymlink(target: string, link: string): Promise<void>;
 
   // Update SKILL.md frontmatter
-  updateSkillMd(
-    path: string,
-    updates: Partial<TaskDefinition>
-  ): Promise<void>;
+  updateSkillMd(path: string, updates: Partial<TaskDefinition>): Promise<void>;
 
   // Remove directory recursively
   removeDirectory(path: string): Promise<void>;
@@ -1123,10 +1196,7 @@ interface FixStrategy {
   canHandle(gap: Gap): boolean;
 
   // Execute repair
-  tryFix(
-    gap: Gap,
-    ctx: StrategyContext
-  ): Promise<StrategyOutcome>;
+  tryFix(gap: Gap, ctx: StrategyContext): Promise<StrategyOutcome>;
 }
 
 interface StrategyContext {
@@ -1140,13 +1210,13 @@ type StrategyOutcome =
   | {
       success: true;
       reason?: string;
-      metadata?: Record<string, unknown>
+      metadata?: Record<string, unknown>;
     }
   | {
       success: false;
       reason: string;
       shouldRetry?: boolean;
-      metadata?: Record<string, unknown>
+      metadata?: Record<string, unknown>;
     };
 ```
 
@@ -1159,10 +1229,10 @@ type StrategyOutcome =
 Track API usage in journal events:
 
 ```typescript
-import { logTaskEvent } from '@converge/core/journal';
+import { logTaskEvent } from "@converge/core/journal";
 
-await logTaskEvent(projectDir, epicId, taskId, 'AI_API_CALL', 'Analysis', {
-  phase: 'analyze',
+await logTaskEvent(projectDir, epicId, taskId, "AI_API_CALL", "Analysis", {
+  phase: "analyze",
   tokenCount: result.usage?.total_tokens,
   estimatedCost: (result.usage?.total_tokens || 0) * 0.00001,
 });
@@ -1173,10 +1243,10 @@ await logTaskEvent(projectDir, epicId, taskId, 'AI_API_CALL', 'Analysis', {
 Skip low-confidence repairs for safety:
 
 ```typescript
-if (analysis.confidence === 'low') {
+if (analysis.confidence === "low") {
   return {
     success: false,
-    reason: 'Low confidence - skipping for safety',
+    reason: "Low confidence - skipping for safety",
     shouldRetry: false,
   };
 }
@@ -1188,7 +1258,7 @@ Keep all LEARN.md files for debugging:
 
 ```typescript
 // Don't delete old attempts
-const learnPath = `attempts/${attempt.toString().padStart(2, '0')}/LEARN.md`;
+const learnPath = `attempts/${attempt.toString().padStart(2, "0")}/LEARN.md`;
 ```
 
 ### 4. Test Strategies Independently
@@ -1196,11 +1266,15 @@ const learnPath = `attempts/${attempt.toString().padStart(2, '0')}/LEARN.md`;
 Unit test strategies with mock gaps:
 
 ```typescript
-import { TaskDefinitionRepairStrategy } from '@converge/core/repair';
+import { TaskDefinitionRepairStrategy } from "@converge/core/repair";
 
 const strategy = new TaskDefinitionRepairStrategy();
-const mockGap = { /* gap object */ };
-const mockCtx = { /* context */ };
+const mockGap = {
+  /* gap object */
+};
+const mockCtx = {
+  /* context */
+};
 
 const result = await strategy.tryFix(mockGap, mockCtx);
 expect(result.success).toBe(true);
@@ -1211,10 +1285,10 @@ expect(result.success).toBe(true);
 Preview repairs without applying them:
 
 ```typescript
-const DRY_RUN = process.env.CONVERGE_DRY_RUN === 'true';
+const DRY_RUN = process.env.CONVERGE_DRY_RUN === "true";
 
 if (DRY_RUN) {
-  console.log('Would execute:', action);
+  console.log("Would execute:", action);
 } else {
   await executeAction(action);
 }
@@ -1272,12 +1346,16 @@ console.log(`   ✅ Fixed: ${result.reason}`);
 Create your own repair strategy:
 
 ```typescript
-import { FixStrategy, StrategyContext, StrategyOutcome } from '@converge/core/repair';
-import { createAIContext } from '@converge/core/ai';
+import {
+  FixStrategy,
+  StrategyContext,
+  StrategyOutcome,
+} from "@converge/core/repair";
+import { createAIContext } from "@converge/core/ai";
 
 export class CustomRepairStrategy implements FixStrategy {
-  readonly name = 'custom-repair';
-  readonly description = 'My custom repair logic';
+  readonly name = "custom-repair";
+  readonly description = "My custom repair logic";
   readonly priority = 9;
 
   canHandle(gap: Gap): boolean {
@@ -1295,7 +1373,7 @@ export class CustomRepairStrategy implements FixStrategy {
 
     return {
       success: true,
-      reason: 'Custom fix applied',
+      reason: "Custom fix applied",
       metadata: { analysis },
     };
   }
@@ -1321,7 +1399,7 @@ export function buildDefaultPipeline(projectDir, journalCtx) {
 Use the registry for dynamic strategy management:
 
 ```typescript
-import { StrategyRegistry } from '@converge/core/repair';
+import { StrategyRegistry } from "@converge/core/repair";
 
 const registry = new StrategyRegistry();
 
@@ -1336,7 +1414,7 @@ const applicable = await registry.findApplicableStrategies(gap);
 const all = registry.getAll();
 
 // Get strategy by name
-const strategy = registry.get('custom-repair');
+const strategy = registry.get("custom-repair");
 ```
 
 ---
@@ -1367,6 +1445,7 @@ To add a new strategy:
 ## Support
 
 For issues or questions:
+
 1. Check LEARN.md for detailed analysis
 2. Review journal events for strategy execution
 3. Enable verbose logging for debugging

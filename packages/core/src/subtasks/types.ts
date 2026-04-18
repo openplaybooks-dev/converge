@@ -1,6 +1,6 @@
-import type { TaskContext } from '../context/types.ts';
-import type { TaskResult } from '../functions/types.ts';
-import type { TaskConfig } from '../storage/types.ts';
+import type { TaskContext } from "../context/types.ts";
+import type { TaskResult } from "../functions/types.ts";
+import type { TaskConfig } from "../storage/types.ts";
 
 /**
  * Subtasks generator function
@@ -8,7 +8,7 @@ import type { TaskConfig } from '../storage/types.ts';
  */
 export type SubtasksGeneratorFn = (
   ctx: TaskContext,
-  result: TaskResult
+  result: TaskResult,
 ) => Promise<TaskConfig[]> | TaskConfig[];
 
 /**
@@ -24,5 +24,5 @@ export interface SubtasksConfig {
   /**
    * Execution mode - always sequential for now
    */
-  mode?: 'sequential';
+  mode?: "sequential";
 }

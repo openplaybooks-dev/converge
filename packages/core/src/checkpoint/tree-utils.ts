@@ -5,8 +5,8 @@
  * Supports the tree traversal cursor system.
  */
 
-import { glob } from 'glob';
-import path from 'node:path';
+import { glob } from "glob";
+import path from "node:path";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                             */
@@ -38,7 +38,7 @@ export function hashTaskTree(taskPaths: string[]): string {
   const sorted = taskPaths.slice().sort();
 
   // Create stable representation
-  const treeString = sorted.join('|');
+  const treeString = sorted.join("|");
 
   // Simple hash (32-bit FNV-1a variant)
   let hash = 0x811c9dc5;
@@ -48,7 +48,7 @@ export function hashTaskTree(taskPaths: string[]): string {
   }
 
   // Convert to hex string
-  return (hash >>> 0).toString(16).padStart(8, '0');
+  return (hash >>> 0).toString(16).padStart(8, "0");
 }
 
 /* ------------------------------------------------------------------ */
@@ -61,20 +61,20 @@ export function hashTaskTree(taskPaths: string[]): string {
  * Walks the epic directory tree and finds all TASK.md files.
  * Returns a TaskTree with hash and paths.
  */
-export async function discoverTaskHierarchy(epicPath: string): Promise<TaskTree> {
+export async function discoverTaskHierarchy(
+  epicPath: string,
+): Promise<TaskTree> {
   const taskPaths: string[] = [];
 
   // Find all TASK.md files
-  const taskMdFiles = await glob('**/TASK.md', {
+  const taskMdFiles = await glob("**/TASK.md", {
     cwd: epicPath,
     absolute: false,
-    ignore: ['node_modules/**', '.git/**', '**/subtask/**'],
+    ignore: ["node_modules/**", ".git/**", "**/subtask/**"],
   });
 
   // Make absolute
-  taskPaths.push(
-    ...taskMdFiles.map((f) => path.join(epicPath, f))
-  );
+  taskPaths.push(...taskMdFiles.map((f) => path.join(epicPath, f)));
 
   return {
     hash: hashTaskTree(taskPaths),
@@ -87,9 +87,11 @@ export async function discoverTaskHierarchy(epicPath: string): Promise<TaskTree>
  *
  * Walks the entire .converge/epics directory and discovers task trees.
  */
-export async function discoverAllTaskHierarchies(convergeDir: string): Promise<Map<string, TaskTree>> {
-  const epicsDir = path.join(convergeDir, 'epics');
-  const epicDirs = await glob('*/', {
+export async function discoverAllTaskHierarchies(
+  convergeDir: string,
+): Promise<Map<string, TaskTree>> {
+  const epicsDir = path.join(convergeDir, "epics");
+  const epicDirs = await glob("*/", {
     cwd: epicsDir,
     absolute: false,
   });
@@ -97,7 +99,7 @@ export async function discoverAllTaskHierarchies(convergeDir: string): Promise<M
   const trees = new Map<string, TaskTree>();
 
   for (const epicDir of epicDirs) {
-    const epicId = epicDir.replace(/\/$/, '');
+    const epicId = epicDir.replace(/\/$/, "");
     const epicPath = path.join(epicsDir, epicDir);
     const tree = await discoverTaskHierarchy(epicPath);
     trees.set(epicId, tree);
@@ -139,7 +141,10 @@ export function extractTaskIdFromPath(filePath: string): string {
  *
  * Walks up the directory tree to find the parent TASK.md.
  */
-export function getParentTaskPath(taskPath: string, epicPath: string): string | null {
+export function getParentTaskPath(
+  taskPath: string,
+  epicPath: string,
+): string | null {
   const relativePath = path.relative(epicPath, taskPath);
   const parts = relativePath.split(path.sep);
 
@@ -158,7 +163,7 @@ export function getParentTaskPath(taskPath: string, epicPath: string): string | 
     const parentDir = path.join(epicPath, ...parts);
 
     // Check for TASK.md
-    const taskMdPath = path.join(parentDir, 'TASK.md');
+    const taskMdPath = path.join(parentDir, "TASK.md");
     if (taskMdPath !== taskPath) {
       return taskMdPath;
     }

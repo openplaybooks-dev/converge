@@ -4,10 +4,10 @@
  * Install skills from the converge to target directories like .claude/skills
  */
 
-import { existsSync } from 'node:fs';
-import { resolve, join, basename, dirname } from 'node:path';
-import { readdir, mkdir, copyFile, rm } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
+import { existsSync } from "node:fs";
+import { resolve, join, basename, dirname } from "node:path";
+import { readdir, mkdir, copyFile, rm } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Command Options                                                    */
@@ -66,11 +66,11 @@ function getConvergeSkillsDir(): string {
 
   // If we're in dist/ (built), go up 1 level to package root
   // If we're in src/cli/ (development), go up 2 levels to package root
-  const packageRoot = currentDir.includes('/dist')
-    ? resolve(currentDir, '..')
-    : resolve(currentDir, '../..');
+  const packageRoot = currentDir.includes("/dist")
+    ? resolve(currentDir, "..")
+    : resolve(currentDir, "../..");
 
-  return join(packageRoot, 'skills');
+  return join(packageRoot, "skills");
 }
 
 /**
@@ -85,16 +85,16 @@ async function listAvailableSkills(): Promise<string[]> {
 
   const entries = await readdir(skillsDir, { withFileTypes: true });
   return entries
-    .filter(entry => entry.isDirectory())
-    .map(entry => entry.name);
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name);
 }
 
 /**
  * Check if a skill directory is valid (contains SKILL.md or README.md)
  */
 async function isValidSkill(skillPath: string): Promise<boolean> {
-  const skillMd = join(skillPath, 'SKILL.md');
-  const readmeMd = join(skillPath, 'README.md');
+  const skillMd = join(skillPath, "SKILL.md");
+  const readmeMd = join(skillPath, "README.md");
   return existsSync(skillMd) || existsSync(readmeMd);
 }
 
@@ -105,8 +105,10 @@ async function isValidSkill(skillPath: string): Promise<boolean> {
 /**
  * List available skills
  */
-export async function skillsListCommand(options: SkillsListOptions = {}): Promise<void> {
-  console.log('📚 Available Converge Skills:\n');
+export async function skillsListCommand(
+  options: SkillsListOptions = {},
+): Promise<void> {
+  console.log("📚 Available Converge Skills:\n");
 
   const skillsDir = getConvergeSkillsDir();
   if (!existsSync(skillsDir)) {
@@ -117,7 +119,7 @@ export async function skillsListCommand(options: SkillsListOptions = {}): Promis
   const skills = await listAvailableSkills();
 
   if (skills.length === 0) {
-    console.log('   No skills found.');
+    console.log("   No skills found.");
     return;
   }
 
@@ -126,7 +128,7 @@ export async function skillsListCommand(options: SkillsListOptions = {}): Promis
   for (const skill of skills) {
     const skillPath = join(skillsDir, skill);
     const isValid = await isValidSkill(skillPath);
-    const icon = isValid ? '✅' : '⚠️';
+    const icon = isValid ? "✅" : "⚠️";
     console.log(`   ${icon} ${skill}`);
 
     if (options.verbose) {
@@ -144,13 +146,15 @@ export async function skillsListCommand(options: SkillsListOptions = {}): Promis
 /**
  * Install skill(s) to a target directory
  */
-export async function skillsInstallCommand(options: SkillsInstallOptions = {}): Promise<void> {
+export async function skillsInstallCommand(
+  options: SkillsInstallOptions = {},
+): Promise<void> {
   const cwd = process.cwd();
-  const targetBase = options.target || '.claude/skills';
+  const targetBase = options.target || ".claude/skills";
   const targetDir = resolve(cwd, targetBase);
   const skillsDir = getConvergeSkillsDir();
 
-  console.log('📦 Installing Converge Skills\n');
+  console.log("📦 Installing Converge Skills\n");
 
   if (!existsSync(skillsDir)) {
     console.error(`❌ Skills directory not found: ${skillsDir}`);
@@ -171,7 +175,7 @@ export async function skillsInstallCommand(options: SkillsInstallOptions = {}): 
     // Install specific skill
     if (!availableSkills.includes(options.skill)) {
       console.error(`❌ Skill not found: ${options.skill}`);
-      console.error(`\nAvailable skills: ${availableSkills.join(', ')}`);
+      console.error(`\nAvailable skills: ${availableSkills.join(", ")}`);
       process.exit(1);
     }
     skillsToInstall = [options.skill];
@@ -180,7 +184,9 @@ export async function skillsInstallCommand(options: SkillsInstallOptions = {}): 
     skillsToInstall = availableSkills;
   }
 
-  console.log(`Installing ${skillsToInstall.length} skill(s) to ${targetBase}:\n`);
+  console.log(
+    `Installing ${skillsToInstall.length} skill(s) to ${targetBase}:\n`,
+  );
 
   let installedCount = 0;
   let skippedCount = 0;
@@ -212,7 +218,9 @@ export async function skillsInstallCommand(options: SkillsInstallOptions = {}): 
     }
 
     if (hasContent && !options.force) {
-      console.log(`   ⏭  ${skill} (already exists - use --force to overwrite)`);
+      console.log(
+        `   ⏭  ${skill} (already exists - use --force to overwrite)`,
+      );
       skippedCount++;
       continue;
     }
@@ -220,12 +228,19 @@ export async function skillsInstallCommand(options: SkillsInstallOptions = {}): 
     // Delete existing directory if it exists
     if (destExists) {
       try {
-        await rm(destPath, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
+        await rm(destPath, {
+          recursive: true,
+          force: true,
+          maxRetries: 3,
+          retryDelay: 100,
+        });
         if (options.verbose) {
           console.log(`      Deleted existing directory`);
         }
       } catch (error: any) {
-        console.log(`   ❌ ${skill} (error deleting existing directory: ${error.message})`);
+        console.log(
+          `   ❌ ${skill} (error deleting existing directory: ${error.message})`,
+        );
         errorCount++;
         continue;
       }
@@ -256,7 +271,7 @@ export async function skillsInstallCommand(options: SkillsInstallOptions = {}): 
   }
 
   console.log();
-  console.log('📊 Summary:');
+  console.log("📊 Summary:");
   console.log(`   Installed: ${installedCount}`);
   console.log(`   Skipped:   ${skippedCount}`);
   console.log(`   Errors:    ${errorCount}`);

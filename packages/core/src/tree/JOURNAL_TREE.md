@@ -70,7 +70,7 @@ Each task has a `checkpoint.json` with execution history:
 ### Load Journal Tree
 
 ```typescript
-import { JournalTree } from '@converge/core/tree';
+import { JournalTree } from "@converge/core/tree";
 
 const journalTree = await JournalTree.load(projectDir);
 ```
@@ -113,13 +113,13 @@ console.log(`Total: ${(totalMs / 1000).toFixed(1)}s`);
 ### Filter by Epic
 
 ```typescript
-const epicNodes = journalTree.getEpicNodes('03-implement-app');
+const epicNodes = journalTree.getEpicNodes("03-implement-app");
 ```
 
 ### Get Specific Node
 
 ```typescript
-const node = journalTree.getNode('001-implement-design-system');
+const node = journalTree.getNode("001-implement-design-system");
 if (node) {
   console.log(`Status: ${node.status}`);
   console.log(`Attempts: ${node.attempts.length}`);

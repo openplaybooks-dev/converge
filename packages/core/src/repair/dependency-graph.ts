@@ -6,7 +6,7 @@
  * when files are missing.
  */
 
-import type { Unit } from '../unit/unit.ts';
+import type { Unit } from "../unit/unit.ts";
 
 /* ------------------------------------------------------------------ */
 /*  File Dependency Graph                                             */
@@ -20,7 +20,10 @@ export class FileDependencyGraph {
   private consumers = new Map<string, string[]>();
 
   // Map: task ID -> { inputs, outputs }
-  private taskFiles = new Map<string, { inputs: string[]; outputs: string[] }>();
+  private taskFiles = new Map<
+    string,
+    { inputs: string[]; outputs: string[] }
+  >();
 
   /**
    * Build the dependency graph from a collection of units
@@ -118,7 +121,9 @@ export class FileDependencyGraph {
   /**
    * Find all upstream tasks (tasks that produce inputs for this task)
    */
-  findUpstreamTasks(taskId: string): Array<{ taskId: string; producedFile: string }> {
+  findUpstreamTasks(
+    taskId: string,
+  ): Array<{ taskId: string; producedFile: string }> {
     const inputs = this.getTaskInputs(taskId);
     const upstream: Array<{ taskId: string; producedFile: string }> = [];
 
@@ -135,7 +140,9 @@ export class FileDependencyGraph {
   /**
    * Find all downstream tasks (tasks that consume outputs from this task)
    */
-  findDownstreamTasks(taskId: string): Array<{ taskId: string; consumedFile: string }> {
+  findDownstreamTasks(
+    taskId: string,
+  ): Array<{ taskId: string; consumedFile: string }> {
     const outputs = this.getTaskOutputs(taskId);
     const downstream: Array<{ taskId: string; consumedFile: string }> = [];
 
@@ -156,9 +163,9 @@ export class FileDependencyGraph {
    */
   generateReport(): string {
     const lines: string[] = [
-      'File Dependency Graph',
-      '====================',
-      '',
+      "File Dependency Graph",
+      "====================",
+      "",
     ];
 
     // Group by producer task
@@ -174,18 +181,18 @@ export class FileDependencyGraph {
 
     for (const [taskId, outputs] of tasksByProducer.entries()) {
       lines.push(`Task: ${taskId}`);
-      lines.push('  Produces:');
+      lines.push("  Produces:");
       for (const output of outputs) {
         const consumers = this.findConsumers(output);
         lines.push(`    - ${output}`);
         if (consumers.length > 0) {
-          lines.push(`      Consumed by: ${consumers.join(', ')}`);
+          lines.push(`      Consumed by: ${consumers.join(", ")}`);
         }
       }
-      lines.push('');
+      lines.push("");
     }
 
-    return lines.join('\n');
+    return lines.join("\n");
   }
 
   /**
@@ -196,9 +203,9 @@ export class FileDependencyGraph {
     // Convert glob pattern to regex
     // Simple implementation - just handle * and **
     const regexPattern = pattern
-      .replace(/\./g, '\\.')
-      .replace(/\*\*/g, '.*')
-      .replace(/\*/g, '[^/]*');
+      .replace(/\./g, "\\.")
+      .replace(/\*\*/g, ".*")
+      .replace(/\*/g, "[^/]*");
 
     const regex = new RegExp(`^${regexPattern}$`);
     return regex.test(filePath);

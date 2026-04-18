@@ -8,9 +8,9 @@
  * Satisfaction: All checks pass = goal satisfied
  */
 
-import type { Gap, CheckResult } from '../gap/types.ts';
-import type { CheckFnMeta } from '../functions/types.ts';
-import type { TaskConfig } from '../storage/types.ts';
+import type { Gap, CheckResult } from "../gap/types.ts";
+import type { CheckFnMeta } from "../functions/types.ts";
+import type { TaskConfig } from "../storage/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Goal Definition                                                   */
@@ -124,7 +124,10 @@ export interface GoalEvaluator {
   /**
    * Evaluate goal hierarchy (goal + all sub-goals recursively)
    */
-  evaluateHierarchy(goal: Goal, ctx: GoalEvaluationContext): Promise<GoalStatus>;
+  evaluateHierarchy(
+    goal: Goal,
+    ctx: GoalEvaluationContext,
+  ): Promise<GoalStatus>;
 
   /**
    * Check if goal is satisfied (all checks pass)
@@ -140,7 +143,7 @@ export interface GoalEvaluationContext {
   projectDir: string;
 
   /** .converge/ directory */
-  crewDir: string;
+  convergeDir: string;
 
   /** Variables */
   vars: Record<string, unknown>;
@@ -215,7 +218,7 @@ export interface GoalSatisfactionStrategy {
   plan(
     goal: Goal,
     status: GoalStatus,
-    ctx: GoalEvaluationContext
+    ctx: GoalEvaluationContext,
   ): Promise<GoalSatisfactionPlan>;
 }
 

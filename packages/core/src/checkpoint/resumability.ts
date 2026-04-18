@@ -5,12 +5,12 @@
  * Implements graceful degradation when tree structure has changed.
  */
 
-import type { Checkpoint, Cursor } from '../storage/types.ts';
-import type { TaskTree } from './tree-utils.ts';
-import { discoverTaskHierarchy, hashTaskTree } from './tree-utils.ts';
-import { migrateCheckpointV1toV2, needsMigration } from './migration.ts';
-import fs from 'node:fs/promises';
-import path from 'node:path';
+import type { Checkpoint, Cursor } from "../storage/types.ts";
+import type { TaskTree } from "./tree-utils.ts";
+import { discoverTaskHierarchy, hashTaskTree } from "./tree-utils.ts";
+import { migrateCheckpointV1toV2, needsMigration } from "./migration.ts";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 /* ------------------------------------------------------------------ */
 /*  Resume Point                                                      */
@@ -20,11 +20,11 @@ import path from 'node:path';
  * Resume strategy type
  */
 export type ResumeStrategy =
-  | 'exact-restore' // Tree unchanged, restore cursor exactly
-  | 'reconciled' // Tree changed, validated and restored
-  | 'parent-fallback' // Current node deleted, resume at parent
-  | 'restart' // Epic deleted or major structure change
-  | 'legacy'; // V1 checkpoint, no cursor available
+  | "exact-restore" // Tree unchanged, restore cursor exactly
+  | "reconciled" // Tree changed, validated and restored
+  | "parent-fallback" // Current node deleted, resume at parent
+  | "restart" // Epic deleted or major structure change
+  | "legacy"; // V1 checkpoint, no cursor available
 
 /**
  * Resume point with reconciliation info
@@ -61,15 +61,15 @@ export interface ResumePoint {
  */
 export async function resumeFromCheckpoint(
   checkpoint: Checkpoint,
-  convergeDir: string
+  convergeDir: string,
 ): Promise<ResumePoint> {
   // Migrate v1 checkpoint if needed
   if (needsMigration(checkpoint)) {
     const migrated = migrateCheckpointV1toV2(checkpoint as any);
     return {
       cursor: migrated.cursor || null,
-      resumeStrategy: 'legacy',
-      warnings: ['Checkpoint migrated from v1 to v2, cursor may be inaccurate'],
+      resumeStrategy: "legacy",
+      warnings: ["Checkpoint migrated from v1 to v2, cursor may be inaccurate"],
     };
   }
 
@@ -77,8 +77,8 @@ export async function resumeFromCheckpoint(
   if (!checkpoint.cursor) {
     return {
       cursor: null,
-      resumeStrategy: 'legacy',
-      warnings: ['V2 checkpoint has no cursor, restarting from beginning'],
+      resumeStrategy: "legacy",
+      warnings: ["V2 checkpoint has no cursor, restarting from beginning"],
     };
   }
 
@@ -87,12 +87,12 @@ export async function resumeFromCheckpoint(
   if (!epicId) {
     return {
       cursor: null,
-      resumeStrategy: 'restart',
-      warnings: ['No current epic in checkpoint'],
+      resumeStrategy: "restart",
+      warnings: ["No current epic in checkpoint"],
     };
   }
 
-  const epicPath = path.join(convergeDir, 'epics', epicId);
+  const epicPath = path.join(convergeDir, "epics", epicId);
   let currentTree: TaskTree;
 
   try {
@@ -100,21 +100,22 @@ export async function resumeFromCheckpoint(
   } catch (error) {
     return {
       cursor: null,
-      resumeStrategy: 'restart',
+      resumeStrategy: "restart",
       warnings: [`Failed to discover task hierarchy: ${error}`],
     };
   }
 
   // Compare with checkpoint tree
-  const snapshot = checkpoint.treeSnapshot as { structureHash: string } | undefined;
-  const treeChanged =
-    snapshot && currentTree.hash !== snapshot.structureHash;
+  const snapshot = checkpoint.treeSnapshot as
+    | { structureHash: string }
+    | undefined;
+  const treeChanged = snapshot && currentTree.hash !== snapshot.structureHash;
 
   if (!treeChanged) {
     // Fast path: tree unchanged, restore cursor exactly
     return {
       cursor: checkpoint.cursor,
-      resumeStrategy: 'exact-restore',
+      resumeStrategy: "exact-restore",
       treeChanged: false,
     };
   }
@@ -135,7 +136,7 @@ export async function resumeFromCheckpoint(
 async function reconcileCursor(
   cursor: Cursor,
   currentTree: TaskTree,
-  epicPath: string
+  epicPath: string,
 ): Promise<ResumePoint> {
   const breadcrumbs = cursor.breadcrumbs;
   const reconciledPath: string[] = [];
@@ -157,7 +158,9 @@ async function reconcileCursor(
     if (!nodeExists) {
       // Node deleted/moved, fall back to parent
       if (i > 0) {
-        warnings.push(`Task ${crumb.id} no longer exists, resuming at parent ${breadcrumbs[i - 1].id}`);
+        warnings.push(
+          `Task ${crumb.id} no longer exists, resuming at parent ${breadcrumbs[i - 1].id}`,
+        );
 
         return {
           cursor: {
@@ -165,18 +168,18 @@ async function reconcileCursor(
             breadcrumbs: breadcrumbs.slice(0, i),
             depth: i - 1,
           },
-          resumeStrategy: 'parent-fallback',
+          resumeStrategy: "parent-fallback",
           lostDepth: breadcrumbs.length - i,
           treeChanged: true,
           warnings,
         };
       } else {
         // Even epic is gone, restart
-        warnings.push('Epic no longer exists, restarting from beginning');
+        warnings.push("Epic no longer exists, restarting from beginning");
 
         return {
           cursor: null,
-          resumeStrategy: 'restart',
+          resumeStrategy: "restart",
           treeChanged: true,
           warnings,
         };
@@ -193,7 +196,7 @@ async function reconcileCursor(
       breadcrumbs,
       depth: reconciledPath.length - 1,
     },
-    resumeStrategy: 'reconciled',
+    resumeStrategy: "reconciled",
     treeChanged: true,
     warnings: warnings.length > 0 ? warnings : undefined,
   };
@@ -207,38 +210,40 @@ async function reconcileCursor(
  * Get human-readable description of resume point
  */
 export function describeResumePoint(resumePoint: ResumePoint): string {
-  const { cursor, resumeStrategy, treeChanged, lostDepth, warnings } = resumePoint;
+  const { cursor, resumeStrategy, treeChanged, lostDepth, warnings } =
+    resumePoint;
 
-  let description = '';
+  let description = "";
 
   switch (resumeStrategy) {
-    case 'exact-restore':
-      description = `Resuming at exact checkpoint position: ${cursor?.path.join(' → ')}`;
+    case "exact-restore":
+      description = `Resuming at exact checkpoint position: ${cursor?.path.join(" → ")}`;
       break;
 
-    case 'reconciled':
-      description = `Resuming at position: ${cursor?.path.join(' → ')} (tree changed, reconciled)`;
+    case "reconciled":
+      description = `Resuming at position: ${cursor?.path.join(" → ")} (tree changed, reconciled)`;
       break;
 
-    case 'parent-fallback':
-      description = `Resuming at parent level: ${cursor?.path.join(' → ')} (${lostDepth} level${
-        lostDepth === 1 ? '' : 's'
+    case "parent-fallback":
+      description = `Resuming at parent level: ${cursor?.path.join(" → ")} (${lostDepth} level${
+        lostDepth === 1 ? "" : "s"
       } lost)`;
       break;
 
-    case 'restart':
-      description = 'Restarting from beginning (checkpoint position no longer valid)';
+    case "restart":
+      description =
+        "Restarting from beginning (checkpoint position no longer valid)";
       break;
 
-    case 'legacy':
+    case "legacy":
       description = cursor
-        ? `Resuming from v1 checkpoint at: ${cursor.path.join(' → ')}`
-        : 'Restarting from beginning (legacy checkpoint)';
+        ? `Resuming from v1 checkpoint at: ${cursor.path.join(" → ")}`
+        : "Restarting from beginning (legacy checkpoint)";
       break;
   }
 
   if (warnings && warnings.length > 0) {
-    description += `\nWarnings:\n${warnings.map((w) => `  - ${w}`).join('\n')}`;
+    description += `\nWarnings:\n${warnings.map((w) => `  - ${w}`).join("\n")}`;
   }
 
   return description;

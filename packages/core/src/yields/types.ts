@@ -6,10 +6,10 @@
  * 2. Return-driven pattern: return TaskConfig[] (backward compatible)
  */
 
-import type { TaskConfig } from '../storage/types.ts';
-import type { TaskContext, EpicContext } from '../context/types.ts';
-import type { TaskDefinition } from '../config/task-definition.ts';
-import type { TaskResult } from '../functions/types.ts';
+import type { TaskConfig } from "../storage/types.ts";
+import type { TaskContext, EpicContext } from "../context/types.ts";
+import type { TaskDefinition } from "../config/task-definition.ts";
+import type { TaskResult } from "../functions/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Spawn Target Types                                                */
@@ -20,10 +20,10 @@ import type { TaskResult } from '../functions/types.ts';
  * Supports multiple input formats for flexibility
  */
 export type YieldsSpawnTarget =
-  | TaskConfig                    // Plain config object
-  | TaskDefinition                // Built task definition
-  | TaskDefinitionBuilder         // Builder (will be built automatically)
-  | (() => TaskDefinition);       // Factory function
+  | TaskConfig // Plain config object
+  | TaskDefinition // Built task definition
+  | TaskDefinitionBuilder // Builder (will be built automatically)
+  | (() => TaskDefinition); // Factory function
 
 /**
  * Task definition builder interface (minimal)
@@ -48,7 +48,7 @@ export interface YieldsSpawnOptions {
   writeToPath?: string;
 
   /** Target epic for task placement */
-  target?: 'current-epic' | 'next-epic';
+  target?: "current-epic" | "next-epic";
 }
 
 /* ------------------------------------------------------------------ */
@@ -101,7 +101,7 @@ export interface YieldsContext extends TaskContext {
  */
 export type YieldsFn = (
   ctx: YieldsContext,
-  result?: TaskResult
+  result?: TaskResult,
 ) => Promise<TaskConfig[] | void> | TaskConfig[] | void;
 
 /* ------------------------------------------------------------------ */
@@ -128,7 +128,7 @@ export interface YieldsDeclarative {
   maxTasks?: number;
 
   /** Where to spawn tasks */
-  target?: 'current-epic' | 'next-epic' | 'new-epic';
+  target?: "current-epic" | "next-epic" | "new-epic";
 
   /** Default task type for spawned tasks */
   taskType?: string;
@@ -137,7 +137,7 @@ export interface YieldsDeclarative {
   checks?: string[];
 
   /** Approval mode */
-  approval?: 'immediate' | 'review';
+  approval?: "immediate" | "review";
 }
 
 /* ------------------------------------------------------------------ */

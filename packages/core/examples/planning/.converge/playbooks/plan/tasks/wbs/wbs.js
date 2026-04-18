@@ -29,25 +29,41 @@
 export async function run(ctx) {
   const prompt = ctx.vars?.prompt;
   if (!prompt) {
-    throw new Error('Missing required input: prompt');
+    throw new Error("Missing required input: prompt");
   }
 
   const name = ctx.vars?.name || slugify(prompt);
-  const update = ctx.vars?.update === 'true' || ctx.vars?.update === true;
+  const update = ctx.vars?.update === "true" || ctx.vars?.update === true;
   const stateDir = `.converge/plan-state/${name}`;
 
   // ── Phase 0: Setup Skills ──────────────────────────────────────
   // Install the converge-planning skill into .converge/skills so that
   // all subsequent tasks can load playbooks and preferences from it.
   await ctx.spawn({
-    id: '000-setup-skills',
-    title: 'Install converge-planning skill',
-    outputs: ['.converge/skills/converge-planning/SKILL.md'],
+    id: "000-setup-skills",
+    title: "Install converge-planning skill",
+    outputs: [".converge/skills/converge-planning/SKILL.md"],
     checks: [
-      { id: 'skill-installed', cmd: 'test -f .converge/skills/converge-planning/SKILL.md', description: 'converge-planning skill installed' },
-      { id: 'task-format-exists', cmd: 'test -f .converge/skills/converge-planning/task-format.md', description: 'Task format reference exists' },
-      { id: 'pipeline-exists', cmd: 'test -f .converge/skills/converge-planning/pipeline.md', description: 'Pipeline reference exists' },
-      { id: 'wbs-guide-exists', cmd: 'test -f .converge/skills/converge-planning/wbs-guide.md', description: 'WBS guide exists' },
+      {
+        id: "skill-installed",
+        cmd: "test -f .converge/skills/converge-planning/SKILL.md",
+        description: "converge-planning skill installed",
+      },
+      {
+        id: "task-format-exists",
+        cmd: "test -f .converge/skills/converge-planning/task-format.md",
+        description: "Task format reference exists",
+      },
+      {
+        id: "pipeline-exists",
+        cmd: "test -f .converge/skills/converge-planning/pipeline.md",
+        description: "Pipeline reference exists",
+      },
+      {
+        id: "wbs-guide-exists",
+        cmd: "test -f .converge/skills/converge-planning/wbs-guide.md",
+        description: "WBS guide exists",
+      },
     ],
     body: `Install the converge-planning skill into \`.converge/skills/\`.
 
@@ -75,14 +91,22 @@ all subsequent planning tasks use. It must be installed before any other task ru
 
   // ── Phase 1: Scan ──────────────────────────────────────────────
   await ctx.spawn({
-    id: '001-scan',
-    title: 'Scan project state',
-    dependencies: ['000-setup-skills'],
+    id: "001-scan",
+    title: "Scan project state",
+    dependencies: ["000-setup-skills"],
     outputs: [`${stateDir}/analysis.json`],
-    skills: ['converge-planning'],
+    skills: ["converge-planning"],
     checks: [
-      { id: 'analysis-exists', cmd: `test -f ${stateDir}/analysis.json`, description: 'Analysis file created' },
-      { id: 'analysis-valid', cmd: `node -e "JSON.parse(require('fs').readFileSync('${stateDir}/analysis.json','utf-8'))"`, description: 'Valid JSON' },
+      {
+        id: "analysis-exists",
+        cmd: `test -f ${stateDir}/analysis.json`,
+        description: "Analysis file created",
+      },
+      {
+        id: "analysis-valid",
+        cmd: `node -e "JSON.parse(require('fs').readFileSync('${stateDir}/analysis.json','utf-8'))"`,
+        description: "Valid JSON",
+      },
     ],
     body: `Scan the current project directory to understand what already exists.
 
@@ -117,15 +141,23 @@ If \`${stateDir}/analysis.json\` already exists and nothing has changed, you may
 
   // ── Phase 2: Research ──────────────────────────────────────────
   await ctx.spawn({
-    id: '002-research',
-    title: 'Research requirements from prompt',
-    dependencies: ['001-scan'],
+    id: "002-research",
+    title: "Research requirements from prompt",
+    dependencies: ["001-scan"],
     inputs: [`${stateDir}/analysis.json`],
     outputs: [`${stateDir}/requirements.json`],
-    skills: ['converge-planning'],
+    skills: ["converge-planning"],
     checks: [
-      { id: 'requirements-exists', cmd: `test -f ${stateDir}/requirements.json`, description: 'Requirements file created' },
-      { id: 'requirements-valid', cmd: `node -e "JSON.parse(require('fs').readFileSync('${stateDir}/requirements.json','utf-8'))"`, description: 'Valid JSON' },
+      {
+        id: "requirements-exists",
+        cmd: `test -f ${stateDir}/requirements.json`,
+        description: "Requirements file created",
+      },
+      {
+        id: "requirements-valid",
+        cmd: `node -e "JSON.parse(require('fs').readFileSync('${stateDir}/requirements.json','utf-8'))"`,
+        description: "Valid JSON",
+      },
     ],
     body: `Parse the user's prompt and project analysis into structured requirements.
 
@@ -163,15 +195,23 @@ Write to \`${stateDir}/requirements.json\`:
   // Identify epics at a high level. Does NOT detail-decompose tasks —
   // that's delegated to per-epic subtasks in the next step.
   await ctx.spawn({
-    id: '003-outline',
-    title: 'Identify epics (high-level outline)',
-    dependencies: ['002-research'],
+    id: "003-outline",
+    title: "Identify epics (high-level outline)",
+    dependencies: ["002-research"],
     inputs: [`${stateDir}/analysis.json`, `${stateDir}/requirements.json`],
     outputs: [`${stateDir}/outline.json`],
-    skills: ['converge-planning'],
+    skills: ["converge-planning"],
     checks: [
-      { id: 'outline-exists', cmd: `test -f ${stateDir}/outline.json`, description: 'Outline file created' },
-      { id: 'outline-valid', cmd: `node -e "const o=JSON.parse(require('fs').readFileSync('${stateDir}/outline.json','utf-8'));if(!o.epics||!o.epics.length)throw new Error('no epics')"`, description: 'Outline has epics' },
+      {
+        id: "outline-exists",
+        cmd: `test -f ${stateDir}/outline.json`,
+        description: "Outline file created",
+      },
+      {
+        id: "outline-valid",
+        cmd: `node -e "const o=JSON.parse(require('fs').readFileSync('${stateDir}/outline.json','utf-8'));if(!o.epics||!o.epics.length)throw new Error('no epics')"`,
+        description: "Outline has epics",
+      },
     ],
     body: `Create a high-level outline of epics for the project. Do NOT detail-decompose tasks yet — each epic will be delegated to a separate subtask for detailed breakdown.
 
@@ -221,14 +261,14 @@ Write to \`${stateDir}/outline.json\`:
   // AI reads outline.json and generates a wbs.js that spawns one
   // subtask per epic. Each subtask does the detailed task breakdown.
   await ctx.spawn({
-    id: '003-decompose',
-    title: 'Decompose each epic into tasks',
-    dependencies: ['003-outline'],
+    id: "003-decompose",
+    title: "Decompose each epic into tasks",
+    dependencies: ["003-outline"],
     inputs: [`${stateDir}/outline.json`],
     outputs: [`${stateDir}/epics/`],
     blocking: true,
     wbs: {
-      type: 'ai',
+      type: "ai",
       prompt: `Read \`${stateDir}/outline.json\` which contains an array of epics.
 
 Generate a wbs.js that spawns ONE subtask per epic. Each subtask should:
@@ -256,15 +296,23 @@ and spawns one subtask per epic for detailed task breakdown.`,
 
   // ── Phase 3c: Merge epic plans ────────────────────────────────
   await ctx.spawn({
-    id: '003-merge',
-    title: 'Merge epic plans into master plan',
-    dependencies: ['003-decompose'],
+    id: "003-merge",
+    title: "Merge epic plans into master plan",
+    dependencies: ["003-decompose"],
     inputs: [`${stateDir}/outline.json`, `${stateDir}/epics/`],
     outputs: [`${stateDir}/plan.json`],
-    skills: ['converge-planning'],
+    skills: ["converge-planning"],
     checks: [
-      { id: 'plan-exists', cmd: `test -f ${stateDir}/plan.json`, description: 'Plan file created' },
-      { id: 'plan-valid', cmd: `node -e "const p=JSON.parse(require('fs').readFileSync('${stateDir}/plan.json','utf-8'));if(!p.epics||!p.epics.length)throw new Error('no epics')"`, description: 'Plan has epics' },
+      {
+        id: "plan-exists",
+        cmd: `test -f ${stateDir}/plan.json`,
+        description: "Plan file created",
+      },
+      {
+        id: "plan-valid",
+        cmd: `node -e "const p=JSON.parse(require('fs').readFileSync('${stateDir}/plan.json','utf-8'));if(!p.epics||!p.epics.length)throw new Error('no epics')"`,
+        description: "Plan has epics",
+      },
     ],
     body: `Combine all per-epic plan files into a single master plan.
 
@@ -313,14 +361,14 @@ Verify no circular dependencies exist across the merged plan.`,
   // per oversized task. If nothing needs deepening, generates a
   // wbs.js that returns immediately (zero subtasks).
   await ctx.spawn({
-    id: '003-deepen',
-    title: 'Sub-decompose complex tasks (if needed)',
-    dependencies: ['003-merge'],
+    id: "003-deepen",
+    title: "Sub-decompose complex tasks (if needed)",
+    dependencies: ["003-merge"],
     inputs: [`${stateDir}/plan.json`],
     outputs: [`${stateDir}/deepened/`],
     blocking: true,
     wbs: {
-      type: 'ai',
+      type: "ai",
       prompt: `Read \`${stateDir}/plan.json\` and check the \`needsDeepening\` array.
 
 If needsDeepening is empty or missing:
@@ -349,15 +397,23 @@ as too complex. Spawns zero tasks if nothing needs deepening.`,
 
   // ── Phase 3e: Finalize plan ────────────────────────────────────
   await ctx.spawn({
-    id: '003-finalize',
-    title: 'Finalize plan with deepened tasks',
-    dependencies: ['003-deepen'],
+    id: "003-finalize",
+    title: "Finalize plan with deepened tasks",
+    dependencies: ["003-deepen"],
     inputs: [`${stateDir}/plan.json`, `${stateDir}/deepened/`],
     outputs: [`${stateDir}/plan.json`],
-    skills: ['converge-planning'],
+    skills: ["converge-planning"],
     checks: [
-      { id: 'plan-exists', cmd: `test -f ${stateDir}/plan.json`, description: 'Plan file exists' },
-      { id: 'plan-valid', cmd: `node -e "const p=JSON.parse(require('fs').readFileSync('${stateDir}/plan.json','utf-8'));if(!p.epics||!p.epics.length)throw new Error('no epics')"`, description: 'Plan has epics' },
+      {
+        id: "plan-exists",
+        cmd: `test -f ${stateDir}/plan.json`,
+        description: "Plan file exists",
+      },
+      {
+        id: "plan-valid",
+        cmd: `node -e "const p=JSON.parse(require('fs').readFileSync('${stateDir}/plan.json','utf-8'));if(!p.epics||!p.epics.length)throw new Error('no epics')"`,
+        description: "Plan has epics",
+      },
     ],
     body: `Merge any deepening results back into the master plan.
 
@@ -379,15 +435,23 @@ After finalizing, the plan should have:
 
   // ── Phase 4: Validate ──────────────────────────────────────────
   await ctx.spawn({
-    id: '004-validate',
-    title: 'Validate plan completeness',
-    dependencies: ['003-finalize'],
+    id: "004-validate",
+    title: "Validate plan completeness",
+    dependencies: ["003-finalize"],
     inputs: [`${stateDir}/plan.json`, `${stateDir}/requirements.json`],
     outputs: [`${stateDir}/validation.json`],
-    skills: ['converge-planning'],
+    skills: ["converge-planning"],
     checks: [
-      { id: 'validation-exists', cmd: `test -f ${stateDir}/validation.json`, description: 'Validation file created' },
-      { id: 'validation-passes', cmd: `node -e "const v=JSON.parse(require('fs').readFileSync('${stateDir}/validation.json','utf-8'));if(!v.valid)throw new Error(v.errors.join(', '))"`, description: 'Validation passes' },
+      {
+        id: "validation-exists",
+        cmd: `test -f ${stateDir}/validation.json`,
+        description: "Validation file created",
+      },
+      {
+        id: "validation-passes",
+        cmd: `node -e "const v=JSON.parse(require('fs').readFileSync('${stateDir}/validation.json','utf-8'));if(!v.valid)throw new Error(v.errors.join(', '))"`,
+        description: "Validation passes",
+      },
     ],
     body: `Verify the plan is complete, consistent, and executable.
 
@@ -429,14 +493,22 @@ Do NOT proceed to emit until validation passes.`,
 
   // ── Phase 5: Emit ──────────────────────────────────────────────
   await ctx.spawn({
-    id: '005-emit',
+    id: "005-emit",
     title: `Emit playbook: ${name}`,
-    dependencies: ['004-validate'],
+    dependencies: ["004-validate"],
     inputs: [`${stateDir}/plan.json`, `${stateDir}/validation.json`],
     outputs: [`.converge/playbooks/${name}/playbook.yml`],
     checks: [
-      { id: 'playbook-yml-exists', cmd: `test -f .converge/playbooks/${name}/playbook.yml`, description: 'playbook.yml created' },
-      { id: 'has-tasks', cmd: `test -d .converge/playbooks/${name}/tasks`, description: 'Tasks directory created' },
+      {
+        id: "playbook-yml-exists",
+        cmd: `test -f .converge/playbooks/${name}/playbook.yml`,
+        description: "playbook.yml created",
+      },
+      {
+        id: "has-tasks",
+        cmd: `test -d .converge/playbooks/${name}/tasks`,
+        description: "Tasks directory created",
+      },
     ],
     body: `Convert the validated plan into runnable playbook files.
 
@@ -498,11 +570,15 @@ skills: <task.skills>
 
 **For WBS epics**, generate a \`wbs.js\` that reads the plan data and spawns subtasks using \`ctx.spawn()\`.
 
-${update ? `UPDATE MODE:
+${
+  update
+    ? `UPDATE MODE:
 - Read existing playbook at .converge/playbooks/${name}/
 - Preserve TASK.md files for completed tasks (check journal)
 - Add new tasks, update changed tasks
-- Do NOT delete completed tasks` : `Create all files from scratch.`}
+- Do NOT delete completed tasks`
+    : `Create all files from scratch.`
+}
 
 After writing all files, print a summary:
 - Number of epics and tasks created
@@ -517,9 +593,9 @@ After writing all files, print a summary:
 function slugify(text) {
   return text
     .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
     .slice(0, 40);
 }

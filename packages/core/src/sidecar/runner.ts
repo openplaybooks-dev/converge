@@ -5,18 +5,24 @@
  * optionally runs init .execute() logic, and cleans up on epic end.
  */
 
-import type { HookRegistry } from '../hooks/registry.ts';
-import type { HookEvent, HookPayloads } from '../hooks/types.ts';
-import type { SidecarHooks, SidecarHookEvent, SidecarContext, ReactiveGapInput, ShellResult } from './types.ts';
-import type { ExecutorFn } from '../config/task-definition.ts';
-import { exec } from 'node:child_process';
+import type { HookRegistry } from "../hooks/registry.ts";
+import type { HookEvent, HookPayloads } from "../hooks/types.ts";
+import type {
+  SidecarHooks,
+  SidecarHookEvent,
+  SidecarContext,
+  ReactiveGapInput,
+  ShellResult,
+} from "./types.ts";
+import type { ExecutorFn } from "../config/task-definition.ts";
+import { exec } from "node:child_process";
 
 export class SidecarRunner {
   private activeSidecars = new Map<string, SidecarRegistration>();
 
   constructor(
     private registry: HookRegistry,
-    private projectDir: string
+    private projectDir: string,
   ) {}
 
   /**
@@ -31,7 +37,7 @@ export class SidecarRunner {
     taskId: string,
     hooks: SidecarHooks,
     initFn?: ExecutorFn,
-    buildCtx?: () => any
+    buildCtx?: () => any,
   ): Promise<void> {
     if (this.activeSidecars.has(taskId)) {
       throw new Error(`Sidecar '${taskId}' already registered`);
@@ -47,7 +53,10 @@ export class SidecarRunner {
     const sidecarCtx = this.buildSidecarContext(taskId);
 
     // Subscribe each hook to the registry
-    for (const [event, fn] of Object.entries(hooks) as [SidecarHookEvent, any][]) {
+    for (const [event, fn] of Object.entries(hooks) as [
+      SidecarHookEvent,
+      any,
+    ][]) {
       if (!fn) continue;
 
       // Wrap the sidecar callback to inject SidecarContext as second arg
@@ -55,18 +64,23 @@ export class SidecarRunner {
         try {
           await fn(payload, sidecarCtx);
         } catch (err: any) {
-          console.warn(`[SidecarRunner] Error in sidecar '${taskId}' hook '${event}': ${err?.message ?? err}`);
+          console.warn(
+            `[SidecarRunner] Error in sidecar '${taskId}' hook '${event}': ${err?.message ?? err}`,
+          );
         }
       };
 
       // Register with low priority so sidecars run after user hooks
       this.registry.register(event as HookEvent, wrappedFn as any, {
         priority: 150, // After user hooks (100) but before legacy plugins (200)
-        source: 'plugin',
+        source: "plugin",
       });
 
       // Track for cleanup — we store the event name for bulk clear
-      registration.unsubscribers.push({ event: event as HookEvent, fn: wrappedFn as any });
+      registration.unsubscribers.push({
+        event: event as HookEvent,
+        fn: wrappedFn as any,
+      });
     }
 
     this.activeSidecars.set(taskId, registration);
@@ -77,7 +91,9 @@ export class SidecarRunner {
         const ctx = buildCtx();
         await initFn(ctx);
       } catch (err: any) {
-        console.warn(`[SidecarRunner] Init error for sidecar '${taskId}': ${err?.message ?? err}`);
+        console.warn(
+          `[SidecarRunner] Init error for sidecar '${taskId}': ${err?.message ?? err}`,
+        );
       }
     }
   }
@@ -128,20 +144,26 @@ export class SidecarRunner {
     return {
       shell: (cmd: string): Promise<ShellResult> => {
         return new Promise((resolve) => {
-          exec(cmd, { cwd: projectDir, maxBuffer: 10 * 1024 * 1024 }, (error, stdout, stderr) => {
-            resolve({
-              stdout: stdout?.toString() ?? '',
-              stderr: stderr?.toString() ?? '',
-              exitCode: error?.code ?? (error ? 1 : 0),
-            });
-          });
+          exec(
+            cmd,
+            { cwd: projectDir, maxBuffer: 10 * 1024 * 1024 },
+            (error, stdout, stderr) => {
+              resolve({
+                stdout: stdout?.toString() ?? "",
+                stderr: stderr?.toString() ?? "",
+                exitCode: error?.code ?? (error ? 1 : 0),
+              });
+            },
+          );
         });
       },
 
       ai: {
         fn: async (opts: { prompt: string; [key: string]: unknown }) => {
           // Placeholder — in real implementation, this would invoke the AI runner
-          console.warn(`[SidecarRunner] ai.fn() called by sidecar '${taskId}' — not yet wired to AI runner`);
+          console.warn(
+            `[SidecarRunner] ai.fn() called by sidecar '${taskId}' — not yet wired to AI runner`,
+          );
           return undefined;
         },
       },
@@ -149,7 +171,9 @@ export class SidecarRunner {
       emitGap: (gap: ReactiveGapInput): string => {
         const id = `sidecar-${taskId}-gap-${++gapCounter}`;
         gaps.push({ id, gap });
-        console.log(`[SidecarRunner] Gap emitted by '${taskId}': ${gap.description}`);
+        console.log(
+          `[SidecarRunner] Gap emitted by '${taskId}': ${gap.description}`,
+        );
         return id;
       },
 
@@ -163,7 +187,9 @@ export class SidecarRunner {
         }
         const removed = before - gaps.length;
         if (removed > 0) {
-          console.log(`[SidecarRunner] Resolved ${removed} gap(s) with tag '${tag}' in sidecar '${taskId}'`);
+          console.log(
+            `[SidecarRunner] Resolved ${removed} gap(s) with tag '${tag}' in sidecar '${taskId}'`,
+          );
         }
       },
 

@@ -18,11 +18,11 @@ import type {
   YieldsContext,
   YieldsSpawnTarget,
   YieldsSpawnOptions,
-} from './types.ts';
-import type { TaskConfig } from '../storage/types.ts';
-import type { TaskContext, EpicContext } from '../context/types.ts';
-import type { TaskDefinition } from '../config/task-definition.ts';
-import type { TaskResult } from '../functions/types.ts';
+} from "./types.ts";
+import type { TaskConfig } from "../storage/types.ts";
+import type { TaskContext, EpicContext } from "../context/types.ts";
+import type { TaskDefinition } from "../config/task-definition.ts";
+import type { TaskResult } from "../functions/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Yields Processor                                                  */
@@ -35,12 +35,12 @@ export class YieldsProcessor {
   async processs(
     config: YieldsConfig,
     ctx: TaskContext | EpicContext,
-    result: TaskResult
+    result: TaskResult,
   ): Promise<TaskConfig[]> {
     // Determine type of yields config
-    if (typeof config === 'string') {
+    if (typeof config === "string") {
       return this.processStringReference(config, ctx, result);
-    } else if (typeof config === 'function') {
+    } else if (typeof config === "function") {
       return this.processProgrammaticFunction(config, ctx, result);
     } else if (this.isDeclarative(config)) {
       return this.processDeclarative(config, ctx, result);
@@ -57,7 +57,7 @@ export class YieldsProcessor {
   private async processStringReference(
     fnName: string,
     ctx: TaskContext | EpicContext,
-    result: TaskResult
+    result: TaskResult,
   ): Promise<TaskConfig[]> {
     // In real impl, would look up function by name and execute
     console.log(`[YieldsProcessor] Processing string reference: ${fnName}`);
@@ -70,7 +70,7 @@ export class YieldsProcessor {
   private async processProgrammaticFunction(
     fn: YieldsFn,
     ctx: TaskContext | EpicContext,
-    result: TaskResult
+    result: TaskResult,
   ): Promise<TaskConfig[]> {
     console.log(`[YieldsProcessor] Processing programmatic function`);
 
@@ -83,7 +83,10 @@ export class YieldsProcessor {
       ...ctx,
 
       // Spawn method - adds task to internal array
-      spawn: async (target: YieldsSpawnTarget, opts?: YieldsSpawnOptions): Promise<void> => {
+      spawn: async (
+        target: YieldsSpawnTarget,
+        opts?: YieldsSpawnOptions,
+      ): Promise<void> => {
         const taskConfig = this.resolveSpawnTarget(target);
 
         // Apply options
@@ -128,17 +131,17 @@ export class YieldsProcessor {
    */
   private resolveSpawnTarget(target: YieldsSpawnTarget): TaskConfig {
     // Handle different target types
-    if (typeof target === 'function') {
+    if (typeof target === "function") {
       // Factory function
       const taskDef = target();
       return this.taskDefToConfig(taskDef);
-    } else if ('build' in target && typeof target.build === 'function') {
+    } else if ("build" in target && typeof target.build === "function") {
       // TaskDefinitionBuilder
       const taskDef = target.build();
       return this.taskDefToConfig(taskDef);
-    } else if ('id' in target && 'title' in target) {
+    } else if ("id" in target && "title" in target) {
       // TaskDefinition or TaskConfig
-      if ('inputs' in target || 'outputs' in target || 'vars' in target) {
+      if ("inputs" in target || "outputs" in target || "vars" in target) {
         // Likely TaskDefinition
         return this.taskDefToConfig(target as TaskDefinition);
       } else {
@@ -157,11 +160,12 @@ export class YieldsProcessor {
     const now = new Date().toISOString();
     return {
       id: taskDef.id,
-      title: taskDef.title || '',
+      title: taskDef.title || "",
       description: taskDef.description,
-      type: 'spawned',
+      type: "spawned",
       deps: [],
-      checks: (taskDef.vars?.inlineChecks as any[])?.map((c: any) => c.id) || [],
+      checks:
+        (taskDef.vars?.inlineChecks as any[])?.map((c: any) => c.id) || [],
       inputs: taskDef.inputs,
       outputs: taskDef.outputs,
       vars: taskDef.vars,
@@ -178,7 +182,7 @@ export class YieldsProcessor {
   private async processDeclarative(
     config: YieldsDeclarative,
     ctx: TaskContext | EpicContext,
-    result: TaskResult
+    result: TaskResult,
   ): Promise<TaskConfig[]> {
     console.log(`[YieldsProcessor] Processing declarative: ${config.plan}`);
 
@@ -186,7 +190,7 @@ export class YieldsProcessor {
     if (config.when) {
       const shouldExecute = await config.when(result);
       if (!shouldExecute) {
-        console.log('[YieldsProcessor] Condition not met, skipping');
+        console.log("[YieldsProcessor] Condition not met, skipping");
         return [];
       }
     }
@@ -204,7 +208,7 @@ export class YieldsProcessor {
         id: `spawned-task-${i}`,
         title: `Spawned Task ${i}`,
         description: `Generated from plan: ${config.plan}`,
-        type: config.taskType || 'spawned',
+        type: config.taskType || "spawned",
         deps: [],
         checks: config.checks,
         metadata: {
@@ -222,7 +226,9 @@ export class YieldsProcessor {
    * Process static template
    */
   private processStatic(config: YieldsStatic): TaskConfig[] {
-    console.log(`[YieldsProcessor] Processing static template (${config.tasks.length} tasks)`);
+    console.log(
+      `[YieldsProcessor] Processing static template (${config.tasks.length} tasks)`,
+    );
 
     const now = new Date().toISOString();
     return config.tasks.map((partial, index) => ({
@@ -245,14 +251,19 @@ export class YieldsProcessor {
    * Type guard for declarative config
    */
   private isDeclarative(config: any): config is YieldsDeclarative {
-    return config && typeof config === 'object' && 'plan' in config;
+    return config && typeof config === "object" && "plan" in config;
   }
 
   /**
    * Type guard for static config
    */
   private isStatic(config: any): config is YieldsStatic {
-    return config && typeof config === 'object' && 'tasks' in config && Array.isArray(config.tasks);
+    return (
+      config &&
+      typeof config === "object" &&
+      "tasks" in config &&
+      Array.isArray(config.tasks)
+    );
   }
 }
 

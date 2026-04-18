@@ -10,9 +10,7 @@ import type { GlobalQueueOptions } from "./queue.js";
 import { extractJson, resolvePrompt } from "./utils.js";
 
 /** Resolve the queue option to a GlobalQueue instance or null */
-function resolveQueue(
-  option: GeminiFnOptions["queue"],
-): GlobalQueue | null {
+function resolveQueue(option: GeminiFnOptions["queue"]): GlobalQueue | null {
   if (!option) return null;
   if (option === true) return getDefaultQueue();
   if (option instanceof GlobalQueue) return option;
@@ -118,11 +116,7 @@ export async function executeViaCli<T>(
 
   const start = Date.now();
 
-  const args = [
-    "-p",
-    prompt,
-    ...cliFlags,
-  ];
+  const args = ["-p", prompt, ...cliFlags];
 
   const raw = await new Promise<string>((resolve, reject) => {
     const proc = spawn("gemini", args, {

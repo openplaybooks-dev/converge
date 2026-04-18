@@ -3,9 +3,9 @@
  * by examining the task execution logs
  */
 
-import { readFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 
 export interface UserQuestionDetection {
   awaitingUserInput: boolean;
@@ -19,29 +19,29 @@ export interface UserQuestionDetection {
 export async function detectUserQuestion(
   projectDir: string,
   epicId: string,
-  taskId: string
+  taskId: string,
 ): Promise<UserQuestionDetection> {
   try {
     // Check task execution log
     const logPath = join(
       projectDir,
-      '.converge',
-      'journal',
-      'epics',
+      ".converge",
+      "journal",
+      "epics",
       epicId,
-      'tasks',
+      "tasks",
       taskId,
-      'attempts',
-      'wip',
-      'logs',
-      'log.log'
+      "attempts",
+      "wip",
+      "logs",
+      "log.log",
     );
 
     if (!existsSync(logPath)) {
       return { awaitingUserInput: false };
     }
 
-    const logContent = await readFile(logPath, 'utf-8');
+    const logContent = await readFile(logPath, "utf-8");
 
     // Check for AskUserQuestion tool use in logs
     // Look for patterns like:
@@ -50,14 +50,14 @@ export async function detectUserQuestion(
     // - Could you please provide
 
     const hasAskUserQuestion =
-      logContent.includes('[tool:AskUserQuestion]') ||
+      logContent.includes("[tool:AskUserQuestion]") ||
       logContent.includes('"name":"AskUserQuestion"') ||
       logContent.includes('"name": "AskUserQuestion"');
 
     if (!hasAskUserQuestion) {
       // Also check for common question patterns in final output
-      const lines = logContent.split('\n');
-      const lastLines = lines.slice(-50).join('\n');
+      const lines = logContent.split("\n");
+      const lastLines = lines.slice(-50).join("\n");
 
       const questionPatterns = [
         /Could you (?:please )?provide/i,
@@ -66,8 +66,8 @@ export async function detectUserQuestion(
         /Which (?:of the following|option)/i,
       ];
 
-      const hasQuestionPattern = questionPatterns.some(pattern =>
-        pattern.test(lastLines)
+      const hasQuestionPattern = questionPatterns.some((pattern) =>
+        pattern.test(lastLines),
       );
 
       if (!hasQuestionPattern) {
@@ -95,7 +95,7 @@ export async function detectUserQuestion(
  */
 function extractQuestion(logContent: string): string | undefined {
   // Try to find question in final text output
-  const lines = logContent.split('\n');
+  const lines = logContent.split("\n");
   const lastLines = lines.slice(-100);
 
   // Look for question patterns
@@ -103,19 +103,23 @@ function extractQuestion(logContent: string): string | undefined {
     const line = lastLines[i];
 
     // Skip log metadata lines
-    if (line.includes('[2026-') || line.includes('[INFO]') || line.includes('[TOOL')) {
+    if (
+      line.includes("[2026-") ||
+      line.includes("[INFO]") ||
+      line.includes("[TOOL")
+    ) {
       continue;
     }
 
     // Check if line contains a question
     if (
-      line.includes('?') ||
+      line.includes("?") ||
       /Could you|What |Which |Please provide|Please specify/i.test(line)
     ) {
       // Extract text, removing markdown formatting
       let question = line
-        .replace(/^\d+→/, '') // Remove line numbers
-        .replace(/^[*#\s]+/, '') // Remove markdown
+        .replace(/^\d+→/, "") // Remove line numbers
+        .replace(/^[*#\s]+/, "") // Remove markdown
         .trim();
 
       if (question.length > 10) {
@@ -124,15 +128,19 @@ function extractQuestion(logContent: string): string | undefined {
     }
   }
 
-  return 'User input required (question detected in task output)';
+  return "User input required (question detected in task output)";
 }
 
 /**
  * Extract question options from logs if present
  */
-function extractOptions(logContent: string): Array<{ label: string; description: string }> | undefined {
+function extractOptions(
+  logContent: string,
+): Array<{ label: string; description: string }> | undefined {
   // Look for AskUserQuestion tool use with options
-  const toolMatch = logContent.match(/\[tool:AskUserQuestion\]\s*\{[\s\S]*?"options":\s*(\[[\s\S]*?\])/);
+  const toolMatch = logContent.match(
+    /\[tool:AskUserQuestion\]\s*\{[\s\S]*?"options":\s*(\[[\s\S]*?\])/,
+  );
   if (!toolMatch) {
     return undefined;
   }
@@ -142,9 +150,9 @@ function extractOptions(logContent: string): Array<{ label: string; description:
     const options = JSON.parse(optionsJson);
 
     if (Array.isArray(options) && options.length > 0) {
-      return options.map(opt => ({
+      return options.map((opt) => ({
         label: opt.label || opt.name || String(opt),
-        description: opt.description || '',
+        description: opt.description || "",
       }));
     }
   } catch {

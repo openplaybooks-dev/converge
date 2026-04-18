@@ -182,9 +182,9 @@ describe("agent — core API", () => {
 
 describe("agent — kimi provider", () => {
   it("throws when provider is kimi", () => {
-    expect(() =>
-      agent({ prompt: "test", provider: "kimi" }),
-    ).toThrow(/agent.*not supported.*kimi/i);
+    expect(() => agent({ prompt: "test", provider: "kimi" })).toThrow(
+      /agent.*not supported.*kimi/i,
+    );
   });
 
   it("throws when default provider is kimi", () => {
@@ -195,9 +195,9 @@ describe("agent — kimi provider", () => {
   });
 
   it("error message suggests alternatives", () => {
-    expect(() =>
-      agent({ prompt: "test", provider: "kimi" }),
-    ).toThrow(/agentfn\(\)|compose\(\)/);
+    expect(() => agent({ prompt: "test", provider: "kimi" })).toThrow(
+      /agentfn\(\)|compose\(\)/,
+    );
   });
 });
 
@@ -205,9 +205,9 @@ describe("agent — kimi provider", () => {
 
 describe("agent — qwen provider", () => {
   it("throws when provider is qwen", () => {
-    expect(() =>
-      agent({ prompt: "test", provider: "qwen" }),
-    ).toThrow(/agent.*not supported.*qwen/i);
+    expect(() => agent({ prompt: "test", provider: "qwen" })).toThrow(
+      /agent.*not supported.*qwen/i,
+    );
   });
 
   it("throws when default provider is qwen", () => {
@@ -218,9 +218,9 @@ describe("agent — qwen provider", () => {
   });
 
   it("error message suggests alternatives", () => {
-    expect(() =>
-      agent({ prompt: "test", provider: "qwen" }),
-    ).toThrow(/agentfn\(\)|compose\(\)/);
+    expect(() => agent({ prompt: "test", provider: "qwen" })).toThrow(
+      /agentfn\(\)|compose\(\)/,
+    );
   });
 });
 
@@ -228,9 +228,9 @@ describe("agent — qwen provider", () => {
 
 describe("agent — gemini provider", () => {
   it("throws when provider is gemini", () => {
-    expect(() =>
-      agent({ prompt: "test", provider: "gemini" }),
-    ).toThrow(/agent.*not supported.*gemini/i);
+    expect(() => agent({ prompt: "test", provider: "gemini" })).toThrow(
+      /agent.*not supported.*gemini/i,
+    );
   });
 
   it("throws when default provider is gemini", () => {
@@ -241,9 +241,9 @@ describe("agent — gemini provider", () => {
   });
 
   it("error message suggests alternatives", () => {
-    expect(() =>
-      agent({ prompt: "test", provider: "gemini" }),
-    ).toThrow(/agentfn\(\)|compose\(\)/);
+    expect(() => agent({ prompt: "test", provider: "gemini" })).toThrow(
+      /agentfn\(\)|compose\(\)/,
+    );
   });
 });
 

@@ -15,10 +15,10 @@
  * Each sub-goal has its own metric, requirements, and plan strategy.
  */
 
-import { readFile } from 'node:fs/promises';
-import { existsSync, readdirSync, statSync } from 'node:fs';
-import { basename, dirname, join } from 'node:path';
-import { parse as parseYaml } from 'yaml';
+import { readFile } from "node:fs/promises";
+import { existsSync, readdirSync, statSync } from "node:fs";
+import { basename, dirname, join } from "node:path";
+import { parse as parseYaml } from "yaml";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -29,7 +29,7 @@ export interface GoalMetricConfig {
   script?: string;
   target: number;
   total?: number;
-  direction: 'min' | 'max';
+  direction: "min" | "max";
 }
 
 export interface GoalDetailConfig {
@@ -41,7 +41,7 @@ export interface GoalDodConfig {
   script: string;
 }
 
-export type GoalPlanStrategy = 'split' | 'single' | 'custom' | 'wbs';
+export type GoalPlanStrategy = "split" | "single" | "custom" | "wbs";
 
 export interface GoalPlanConfig {
   strategy: GoalPlanStrategy;
@@ -83,12 +83,14 @@ const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/;
  * Parse a GOAL.md file into a GoalDefinition.
  * Also discovers and parses sub-goals from a goals/ subdirectory.
  */
-export async function parseGoalMd(filePath: string): Promise<GoalDefinition | null> {
+export async function parseGoalMd(
+  filePath: string,
+): Promise<GoalDefinition | null> {
   if (!existsSync(filePath)) return null;
 
   let raw: string;
   try {
-    raw = await readFile(filePath, 'utf8');
+    raw = await readFile(filePath, "utf8");
   } catch {
     return null;
   }
@@ -103,18 +105,22 @@ export async function parseGoalMd(filePath: string): Promise<GoalDefinition | nu
     return null;
   }
 
-  if (!frontmatter || typeof frontmatter !== 'object' || Array.isArray(frontmatter)) {
+  if (
+    !frontmatter ||
+    typeof frontmatter !== "object" ||
+    Array.isArray(frontmatter)
+  ) {
     return null;
   }
 
   const title = frontmatter.title;
-  if (!title || typeof title !== 'string') return null;
+  if (!title || typeof title !== "string") return null;
 
   // Parse dod config
   let dod: GoalDodConfig | undefined;
-  if (frontmatter.dod && typeof frontmatter.dod === 'object') {
+  if (frontmatter.dod && typeof frontmatter.dod === "object") {
     const dodObj = frontmatter.dod as Record<string, unknown>;
-    if (typeof dodObj.script === 'string') {
+    if (typeof dodObj.script === "string") {
       dod = { script: dodObj.script };
     }
   }
@@ -122,34 +128,38 @@ export async function parseGoalMd(filePath: string): Promise<GoalDefinition | nu
   // Parse metric — required unless dod is present
   let metricConfig: GoalMetricConfig;
   const metric = frontmatter.metric;
-  if (metric && typeof metric === 'object') {
+  if (metric && typeof metric === "object") {
     const metricObj = metric as Record<string, unknown>;
-    const hasCmd = typeof metricObj.cmd === 'string';
-    const hasScript = typeof metricObj.script === 'string';
+    const hasCmd = typeof metricObj.cmd === "string";
+    const hasScript = typeof metricObj.script === "string";
     if (!hasCmd && !hasScript && !dod) return null;
-    if (typeof metricObj.target !== 'number' && !dod) return null;
-    if (metricObj.direction !== 'min' && metricObj.direction !== 'max' && !dod) return null;
+    if (typeof metricObj.target !== "number" && !dod) return null;
+    if (metricObj.direction !== "min" && metricObj.direction !== "max" && !dod)
+      return null;
 
     metricConfig = {
-      cmd: hasCmd ? metricObj.cmd as string : undefined,
-      script: hasScript ? metricObj.script as string : undefined,
-      target: typeof metricObj.target === 'number' ? metricObj.target : 0,
-      total: typeof metricObj.total === 'number' ? metricObj.total : undefined,
-      direction: (metricObj.direction === 'min' || metricObj.direction === 'max') ? metricObj.direction : 'min',
+      cmd: hasCmd ? (metricObj.cmd as string) : undefined,
+      script: hasScript ? (metricObj.script as string) : undefined,
+      target: typeof metricObj.target === "number" ? metricObj.target : 0,
+      total: typeof metricObj.total === "number" ? metricObj.total : undefined,
+      direction:
+        metricObj.direction === "min" || metricObj.direction === "max"
+          ? metricObj.direction
+          : "min",
     };
   } else if (dod) {
     // Synthesize default metric when only dod is present
-    metricConfig = { target: 0, direction: 'min' };
+    metricConfig = { target: 0, direction: "min" };
   } else {
     return null;
   }
 
   let detail: GoalDetailConfig | undefined;
-  if (frontmatter.detail && typeof frontmatter.detail === 'object') {
+  if (frontmatter.detail && typeof frontmatter.detail === "object") {
     const detailObj = frontmatter.detail as Record<string, unknown>;
-    if (typeof detailObj.script === 'string') {
+    if (typeof detailObj.script === "string") {
       detail = { script: detailObj.script };
-    } else if (typeof detailObj.cmd === 'string') {
+    } else if (typeof detailObj.cmd === "string") {
       detail = { cmd: detailObj.cmd };
     }
   }
@@ -165,20 +175,28 @@ export async function parseGoalMd(filePath: string): Promise<GoalDefinition | nu
   }
 
   let plan: GoalPlanConfig | undefined;
-  if (frontmatter.plan && typeof frontmatter.plan === 'object') {
+  if (frontmatter.plan && typeof frontmatter.plan === "object") {
     const planObj = frontmatter.plan as Record<string, unknown>;
     const strategy = planObj.strategy;
-    if (strategy === 'split' || strategy === 'single' || strategy === 'custom' || strategy === 'wbs') {
+    if (
+      strategy === "split" ||
+      strategy === "single" ||
+      strategy === "custom" ||
+      strategy === "wbs"
+    ) {
       plan = {
         strategy,
-        instructions: typeof planObj.instructions === 'string' ? planObj.instructions : undefined,
+        instructions:
+          typeof planObj.instructions === "string"
+            ? planObj.instructions
+            : undefined,
       };
     }
   }
 
   // Parse requirements
   let requirements: string | undefined;
-  if (typeof frontmatter.requirements === 'string') {
+  if (typeof frontmatter.requirements === "string") {
     requirements = frontmatter.requirements;
   }
 
@@ -190,7 +208,7 @@ export async function parseGoalMd(filePath: string): Promise<GoalDefinition | nu
 
   // Derive ID
   const folderName = basename(dirname(filePath));
-  const id = folderName.replace(/^\d+-/, '');
+  const id = folderName.replace(/^\d+-/, "");
 
   const body = raw.slice(match[0].length).trim();
 
@@ -200,7 +218,10 @@ export async function parseGoalMd(filePath: string): Promise<GoalDefinition | nu
   return {
     id,
     title,
-    description: typeof frontmatter.description === 'string' ? frontmatter.description : undefined,
+    description:
+      typeof frontmatter.description === "string"
+        ? frontmatter.description
+        : undefined,
     metric: metricConfig,
     detail,
     dod,
@@ -225,7 +246,7 @@ export async function parseGoalMd(filePath: string): Promise<GoalDefinition | nu
  *       └── settings/GOAL.md
  */
 async function discoverSubGoals(goalDir: string): Promise<GoalDefinition[]> {
-  const subGoalsDir = join(goalDir, 'goals');
+  const subGoalsDir = join(goalDir, "goals");
   if (!existsSync(subGoalsDir)) return [];
 
   const subGoals: GoalDefinition[] = [];
@@ -235,7 +256,7 @@ async function discoverSubGoals(goalDir: string): Promise<GoalDefinition[]> {
     const entryPath = join(subGoalsDir, entry);
     if (!statSync(entryPath).isDirectory()) continue;
 
-    const goalMd = join(entryPath, 'GOAL.md');
+    const goalMd = join(entryPath, "GOAL.md");
     if (!existsSync(goalMd)) continue;
 
     const subGoal = await parseGoalMd(goalMd);

@@ -23,7 +23,7 @@
  *   2  — usage/IO error
  */
 
-import { readFileSync } from 'node:fs';
+import { readFileSync } from "node:fs";
 
 /* ------------------------------------------------------------------ */
 /*  Argument parsing                                                   */
@@ -46,7 +46,7 @@ const files: string[] = [];
 for (let i = 0; i < argv.length; i++) {
   const arg = argv[i];
 
-  if (endOfFlags || !arg.startsWith('-') || arg === '-') {
+  if (endOfFlags || !arg.startsWith("-") || arg === "-") {
     // First non-flag is the pattern, rest are files
     if (pattern === null) {
       pattern = arg;
@@ -56,23 +56,41 @@ for (let i = 0; i < argv.length; i++) {
     continue;
   }
 
-  if (arg === '--') {
+  if (arg === "--") {
     endOfFlags = true;
     continue;
   }
 
   // Long flags
-  if (arg.startsWith('--')) {
+  if (arg.startsWith("--")) {
     switch (arg) {
-      case '--quiet': case '--silent': quiet = true; break;
-      case '--ignore-case': ignoreCase = true; break;
-      case '--count': countOnly = true; break;
-      case '--line-number': lineNumbers = true; break;
-      case '--files-with-matches': filesWithMatches = true; break;
-      case '--files-without-match': filesWithoutMatch = true; break;
-      case '--invert-match': invertMatch = true; break;
-      case '--extended-regexp': break; // default in JS anyway
-      case '--fixed-strings': fixedStrings = true; break;
+      case "--quiet":
+      case "--silent":
+        quiet = true;
+        break;
+      case "--ignore-case":
+        ignoreCase = true;
+        break;
+      case "--count":
+        countOnly = true;
+        break;
+      case "--line-number":
+        lineNumbers = true;
+        break;
+      case "--files-with-matches":
+        filesWithMatches = true;
+        break;
+      case "--files-without-match":
+        filesWithoutMatch = true;
+        break;
+      case "--invert-match":
+        invertMatch = true;
+        break;
+      case "--extended-regexp":
+        break; // default in JS anyway
+      case "--fixed-strings":
+        fixedStrings = true;
+        break;
       default:
         process.stderr.write(`grep: unknown option: ${arg}\n`);
     }
@@ -82,15 +100,32 @@ for (let i = 0; i < argv.length; i++) {
   // Short flags (possibly combined: -qi, -qn, etc.)
   for (const ch of arg.slice(1)) {
     switch (ch) {
-      case 'q': quiet = true; break;
-      case 'i': ignoreCase = true; break;
-      case 'c': countOnly = true; break;
-      case 'n': lineNumbers = true; break;
-      case 'l': filesWithMatches = true; break;
-      case 'L': filesWithoutMatch = true; break;
-      case 'v': invertMatch = true; break;
-      case 'E': break; // default in JS
-      case 'F': fixedStrings = true; break;
+      case "q":
+        quiet = true;
+        break;
+      case "i":
+        ignoreCase = true;
+        break;
+      case "c":
+        countOnly = true;
+        break;
+      case "n":
+        lineNumbers = true;
+        break;
+      case "l":
+        filesWithMatches = true;
+        break;
+      case "L":
+        filesWithoutMatch = true;
+        break;
+      case "v":
+        invertMatch = true;
+        break;
+      case "E":
+        break; // default in JS
+      case "F":
+        fixedStrings = true;
+        break;
       default:
         process.stderr.write(`grep: invalid option -- '${ch}'\n`);
     }
@@ -98,12 +133,12 @@ for (let i = 0; i < argv.length; i++) {
 }
 
 if (pattern === null) {
-  process.stderr.write('grep: missing pattern\n');
+  process.stderr.write("grep: missing pattern\n");
   process.exit(2);
 }
 
 if (files.length === 0) {
-  process.stderr.write('grep: no files specified\n');
+  process.stderr.write("grep: no files specified\n");
   process.exit(2);
 }
 
@@ -114,13 +149,13 @@ if (files.length === 0) {
 let regex: RegExp;
 try {
   const src = fixedStrings
-    ? pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    ? pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
     : pattern;
-  regex = new RegExp(src, ignoreCase ? 'gi' : 'g');
+  regex = new RegExp(src, ignoreCase ? "gi" : "g");
 } catch {
   // Invalid regex — fall back to literal match
-  const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  regex = new RegExp(escaped, ignoreCase ? 'gi' : 'g');
+  const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  regex = new RegExp(escaped, ignoreCase ? "gi" : "g");
 }
 
 /* ------------------------------------------------------------------ */
@@ -133,13 +168,13 @@ const multiFile = files.length > 1;
 for (const file of files) {
   let content: string;
   try {
-    content = readFileSync(file, 'utf8');
+    content = readFileSync(file, "utf8");
   } catch (err: any) {
     process.stderr.write(`grep: ${file}: ${err.message}\n`);
     continue;
   }
 
-  const lines = content.split('\n');
+  const lines = content.split("\n");
   let fileMatchCount = 0;
 
   for (let ln = 0; ln < lines.length; ln++) {
@@ -153,8 +188,8 @@ for (const file of files) {
       anyMatch = true;
 
       if (!quiet && !countOnly && !filesWithMatches && !filesWithoutMatch) {
-        const filePfx = multiFile ? `${file}:` : '';
-        const linePfx = lineNumbers ? `${ln + 1}:` : '';
+        const filePfx = multiFile ? `${file}:` : "";
+        const linePfx = lineNumbers ? `${ln + 1}:` : "";
         process.stdout.write(`${filePfx}${linePfx}${line}\n`);
       }
     }
@@ -168,7 +203,7 @@ for (const file of files) {
     anyMatch = true; // -L: "matched" means file had no lines matching
   }
   if (countOnly) {
-    const filePfx = multiFile ? `${file}:` : '';
+    const filePfx = multiFile ? `${file}:` : "";
     process.stdout.write(`${filePfx}${fileMatchCount}\n`);
     if (fileMatchCount > 0) anyMatch = true;
   }

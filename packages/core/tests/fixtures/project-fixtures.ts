@@ -4,15 +4,19 @@
  * Pre-configured project scenarios for testing different workflows.
  */
 
-import type { ProjectConfig, EpicConfig, TaskConfig } from '../../src/storage/types.ts';
-import type { Gap } from '../../src/gap/types.ts';
+import type {
+  ProjectConfig,
+  EpicConfig,
+  TaskConfig,
+} from "../../src/storage/types.ts";
+import type { Gap } from "../../src/gap/types.ts";
 import {
   createTestProjectConfig,
   createTestEpicConfig,
   createTestTask,
   createStructuralGap,
   createQualityGap,
-} from '../helpers/test-builders.ts';
+} from "../helpers/test-builders.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Fixture Interface                                                 */
@@ -56,28 +60,28 @@ export interface ProjectFixture {
  */
 export const minimalProjectFixture: ProjectFixture = {
   config: createTestProjectConfig({
-    name: 'Minimal Project',
-    description: 'Simple project with minimal setup',
-    goals: ['Dependencies installed'],
-    epics: ['setup'],
+    name: "Minimal Project",
+    description: "Simple project with minimal setup",
+    goals: ["Dependencies installed"],
+    epics: ["setup"],
   }),
 
   epics: [
     createTestEpicConfig({
-      id: 'setup',
-      name: 'Setup',
-      description: 'Install dependencies',
+      id: "setup",
+      name: "Setup",
+      description: "Install dependencies",
       goals: [],
-      tasks: ['install'],
+      tasks: ["install"],
     }),
   ],
 
   tasks: [
     createTestTask({
-      id: 'install',
-      title: 'Install Dependencies',
-      type: 'install',
-      fn: 'install',
+      id: "install",
+      title: "Install Dependencies",
+      type: "install",
+      fn: "install",
     }),
   ],
 
@@ -98,17 +102,17 @@ export const minimalProjectFixture: ProjectFixture = {
  */
 export const gapDrivenProjectFixture: ProjectFixture = {
   config: createTestProjectConfig({
-    name: 'Gap-Driven Project',
-    description: 'Project driven by gap detection and resolution',
-    goals: ['All required files exist', 'Code quality meets standards'],
-    epics: ['build'],
+    name: "Gap-Driven Project",
+    description: "Project driven by gap detection and resolution",
+    goals: ["All required files exist", "Code quality meets standards"],
+    epics: ["build"],
   }),
 
   epics: [
     createTestEpicConfig({
-      id: 'build',
-      name: 'Build Application',
-      description: 'Create application structure and implement features',
+      id: "build",
+      name: "Build Application",
+      description: "Create application structure and implement features",
       goals: [],
       tasks: [],
     }),
@@ -117,9 +121,9 @@ export const gapDrivenProjectFixture: ProjectFixture = {
   tasks: [],
 
   initialGaps: [
-    createStructuralGap('Missing package.json'),
-    createStructuralGap('Missing src directory'),
-    createStructuralGap('Missing README.md'),
+    createStructuralGap("Missing package.json"),
+    createStructuralGap("Missing src directory"),
+    createStructuralGap("Missing README.md"),
   ],
 
   expectedIterations: 3,
@@ -138,40 +142,40 @@ export const gapDrivenProjectFixture: ProjectFixture = {
  */
 export const qualityProjectFixture: ProjectFixture = {
   config: createTestProjectConfig({
-    name: 'Quality Project',
-    description: 'Project focused on code quality',
-    goals: ['All tests pass', 'No linting errors'],
-    epics: ['quality'],
+    name: "Quality Project",
+    description: "Project focused on code quality",
+    goals: ["All tests pass", "No linting errors"],
+    epics: ["quality"],
   }),
 
   epics: [
     createTestEpicConfig({
-      id: 'quality',
-      name: 'Code Quality',
-      description: 'Ensure code meets quality standards',
+      id: "quality",
+      name: "Code Quality",
+      description: "Ensure code meets quality standards",
       goals: [],
-      tasks: ['lint', 'test'],
+      tasks: ["lint", "test"],
     }),
   ],
 
   tasks: [
     createTestTask({
-      id: 'lint',
-      title: 'Run Linter',
-      type: 'lint',
-      fn: 'lint',
+      id: "lint",
+      title: "Run Linter",
+      type: "lint",
+      fn: "lint",
     }),
     createTestTask({
-      id: 'test',
-      title: 'Run Tests',
-      type: 'test',
-      fn: 'test',
+      id: "test",
+      title: "Run Tests",
+      type: "test",
+      fn: "test",
     }),
   ],
 
   initialGaps: [
-    createQualityGap('ESLint violations found'),
-    createQualityGap('Test failures detected'),
+    createQualityGap("ESLint violations found"),
+    createQualityGap("Test failures detected"),
   ],
 
   expectedIterations: 2,
@@ -189,17 +193,17 @@ export const qualityProjectFixture: ProjectFixture = {
  */
 export const stalledProjectFixture: ProjectFixture = {
   config: createTestProjectConfig({
-    name: 'Stalled Project',
-    description: 'Project with unresolvable gaps',
-    goals: ['Impossible goal'],
-    epics: ['stalled'],
+    name: "Stalled Project",
+    description: "Project with unresolvable gaps",
+    goals: ["Impossible goal"],
+    epics: ["stalled"],
   }),
 
   epics: [
     createTestEpicConfig({
-      id: 'stalled',
-      name: 'Stalled Epic',
-      description: 'Epic that cannot converge',
+      id: "stalled",
+      name: "Stalled Epic",
+      description: "Epic that cannot converge",
       goals: [],
       tasks: [],
     }),
@@ -210,7 +214,7 @@ export const stalledProjectFixture: ProjectFixture = {
   initialGaps: [],
 
   unresolvedGaps: [
-    createStructuralGap('Permanent gap that cannot be resolved'),
+    createStructuralGap("Permanent gap that cannot be resolved"),
   ],
 
   shouldStall: true,
@@ -229,65 +233,65 @@ export const stalledProjectFixture: ProjectFixture = {
  */
 export const multiEpicProjectFixture: ProjectFixture = {
   config: createTestProjectConfig({
-    name: 'Multi-Epic Project',
-    description: 'Project with multiple epics and dependencies',
-    goals: ['Setup complete', 'Features implemented', 'Tests passing'],
-    epics: ['setup', 'implementation', 'testing'],
+    name: "Multi-Epic Project",
+    description: "Project with multiple epics and dependencies",
+    goals: ["Setup complete", "Features implemented", "Tests passing"],
+    epics: ["setup", "implementation", "testing"],
   }),
 
   epics: [
     createTestEpicConfig({
-      id: 'setup',
-      name: 'Setup',
-      description: 'Initial project setup',
+      id: "setup",
+      name: "Setup",
+      description: "Initial project setup",
       goals: [],
       deps: [],
-      tasks: ['install', 'configure'],
+      tasks: ["install", "configure"],
     }),
     createTestEpicConfig({
-      id: 'implementation',
-      name: 'Implementation',
-      description: 'Implement features',
+      id: "implementation",
+      name: "Implementation",
+      description: "Implement features",
       goals: [],
-      deps: ['setup'],
-      tasks: ['code'],
+      deps: ["setup"],
+      tasks: ["code"],
     }),
     createTestEpicConfig({
-      id: 'testing',
-      name: 'Testing',
-      description: 'Test implementation',
+      id: "testing",
+      name: "Testing",
+      description: "Test implementation",
       goals: [],
-      deps: ['implementation'],
-      tasks: ['test'],
+      deps: ["implementation"],
+      tasks: ["test"],
     }),
   ],
 
   tasks: [
     createTestTask({
-      id: 'install',
-      title: 'Install Dependencies',
-      type: 'install',
-      fn: 'install',
+      id: "install",
+      title: "Install Dependencies",
+      type: "install",
+      fn: "install",
     }),
     createTestTask({
-      id: 'configure',
-      title: 'Configure Project',
-      type: 'configure',
-      fn: 'configure',
+      id: "configure",
+      title: "Configure Project",
+      type: "configure",
+      fn: "configure",
     }),
     createTestTask({
-      id: 'code',
-      title: 'Write Code',
-      type: 'coding',
-      fn: 'coding',
-      deps: ['install', 'configure'],
+      id: "code",
+      title: "Write Code",
+      type: "coding",
+      fn: "coding",
+      deps: ["install", "configure"],
     }),
     createTestTask({
-      id: 'test',
-      title: 'Run Tests',
-      type: 'test',
-      fn: 'test',
-      deps: ['code'],
+      id: "test",
+      title: "Run Tests",
+      type: "test",
+      fn: "test",
+      deps: ["code"],
     }),
   ],
 
@@ -308,43 +312,43 @@ export const multiEpicProjectFixture: ProjectFixture = {
  */
 export const parallelTasksProjectFixture: ProjectFixture = {
   config: createTestProjectConfig({
-    name: 'Parallel Project',
-    description: 'Project with parallel task execution',
-    goals: ['All modules built'],
-    epics: ['parallel'],
+    name: "Parallel Project",
+    description: "Project with parallel task execution",
+    goals: ["All modules built"],
+    epics: ["parallel"],
   }),
 
   epics: [
     createTestEpicConfig({
-      id: 'parallel',
-      name: 'Parallel Execution',
-      description: 'Execute tasks in parallel',
+      id: "parallel",
+      name: "Parallel Execution",
+      description: "Execute tasks in parallel",
       goals: [],
-      tasks: ['module-a', 'module-b', 'module-c'],
+      tasks: ["module-a", "module-b", "module-c"],
     }),
   ],
 
   tasks: [
     createTestTask({
-      id: 'module-a',
-      title: 'Build Module A',
-      type: 'build',
-      fn: 'build',
-      vars: { module: 'a' },
+      id: "module-a",
+      title: "Build Module A",
+      type: "build",
+      fn: "build",
+      vars: { module: "a" },
     }),
     createTestTask({
-      id: 'module-b',
-      title: 'Build Module B',
-      type: 'build',
-      fn: 'build',
-      vars: { module: 'b' },
+      id: "module-b",
+      title: "Build Module B",
+      type: "build",
+      fn: "build",
+      vars: { module: "b" },
     }),
     createTestTask({
-      id: 'module-c',
-      title: 'Build Module C',
-      type: 'build',
-      fn: 'build',
-      vars: { module: 'c' },
+      id: "module-c",
+      title: "Build Module C",
+      type: "build",
+      fn: "build",
+      vars: { module: "c" },
     }),
   ],
 

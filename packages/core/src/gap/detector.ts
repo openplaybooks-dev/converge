@@ -11,10 +11,14 @@ import type {
   EvalResult,
   GapDetectionConfig,
   ConvergenceState,
-} from './types.ts';
-import type { ProjectContext, EpicContext, TaskContext } from '../context/types.ts';
-import { globalRegistry } from '../functions/registry.ts';
-import { v4 as uuidv4 } from 'uuid';
+} from "./types.ts";
+import type {
+  ProjectContext,
+  EpicContext,
+  TaskContext,
+} from "../context/types.ts";
+import { globalRegistry } from "../functions/registry.ts";
+import { v4 as uuidv4 } from "uuid";
 
 /* ------------------------------------------------------------------ */
 /*  Gap Detector                                                      */
@@ -26,7 +30,7 @@ export class GapDetector {
    */
   async detectProjectGaps(
     ctx: ProjectContext,
-    config?: GapDetectionConfig
+    config?: GapDetectionConfig,
   ): Promise<EvalResult> {
     const checksToRun = config?.checks || this.getProjectChecks(ctx);
     const checkResults = await this.runChecks(ctx, checksToRun, config);
@@ -39,7 +43,7 @@ export class GapDetector {
    */
   async detectEpicGaps(
     ctx: EpicContext,
-    config?: GapDetectionConfig
+    config?: GapDetectionConfig,
   ): Promise<EvalResult> {
     const checksToRun = config?.checks || this.getEpicChecks(ctx);
     const checkResults = await this.runChecks(ctx, checksToRun, config);
@@ -47,7 +51,7 @@ export class GapDetector {
     // Filter to epic-scoped gaps
     const epicResults = checkResults.map((r) => ({
       ...r,
-      gaps: r.gaps.filter((g) => g.level === 'epic' || g.scope === ctx.epicId),
+      gaps: r.gaps.filter((g) => g.level === "epic" || g.scope === ctx.epicId),
     }));
 
     return this.buildEvalResult(epicResults, checksToRun);
@@ -58,7 +62,7 @@ export class GapDetector {
    */
   async detectTaskGaps(
     ctx: TaskContext,
-    config?: GapDetectionConfig
+    config?: GapDetectionConfig,
   ): Promise<EvalResult> {
     const checksToRun = config?.checks || this.getTaskChecks(ctx);
     const checkResults = await this.runChecks(ctx, checksToRun, config);
@@ -66,7 +70,7 @@ export class GapDetector {
     // Filter to task-scoped gaps
     const taskResults = checkResults.map((r) => ({
       ...r,
-      gaps: r.gaps.filter((g) => g.level === 'task' || g.scope === ctx.taskId),
+      gaps: r.gaps.filter((g) => g.level === "task" || g.scope === ctx.taskId),
     }));
 
     return this.buildEvalResult(taskResults, checksToRun);
@@ -78,7 +82,7 @@ export class GapDetector {
   private async runChecks(
     ctx: ProjectContext | EpicContext | TaskContext,
     checks: string[],
-    config?: GapDetectionConfig
+    config?: GapDetectionConfig,
   ): Promise<CheckResult[]> {
     const results: CheckResult[] = [];
     const timeout = config?.timeout || 30000;
@@ -87,13 +91,13 @@ export class GapDetector {
     if (parallel) {
       // Run checks in parallel
       const promises = checks.map((checkName) =>
-        this.runCheckWithTimeout(ctx, checkName, timeout)
+        this.runCheckWithTimeout(ctx, checkName, timeout),
       );
       const settled = await Promise.allSettled(promises);
 
       for (let i = 0; i < settled.length; i++) {
         const result = settled[i];
-        if (result.status === 'fulfilled') {
+        if (result.status === "fulfilled") {
           results.push(result.value);
         } else {
           ctx.log.error(`Check "${checks[i]}" failed: ${result.reason}`);
@@ -101,7 +105,7 @@ export class GapDetector {
             check: checks[i],
             passed: false,
             gaps: [],
-            message: result.reason?.message || 'Check execution failed',
+            message: result.reason?.message || "Check execution failed",
           });
         }
       }
@@ -109,7 +113,11 @@ export class GapDetector {
       // Run checks sequentially
       for (const checkName of checks) {
         try {
-          const result = await this.runCheckWithTimeout(ctx, checkName, timeout);
+          const result = await this.runCheckWithTimeout(
+            ctx,
+            checkName,
+            timeout,
+          );
           results.push(result);
         } catch (error: any) {
           ctx.log.error(`Check "${checkName}" failed: ${error.message}`);
@@ -132,7 +140,7 @@ export class GapDetector {
   private async runCheckWithTimeout(
     ctx: ProjectContext | EpicContext | TaskContext,
     checkName: string,
-    timeout: number
+    timeout: number,
   ): Promise<CheckResult> {
     const checkMeta = globalRegistry.getCheck(checkName);
     if (!checkMeta) {
@@ -142,7 +150,10 @@ export class GapDetector {
     return Promise.race([
       checkMeta.fn(ctx),
       new Promise<CheckResult>((_, reject) =>
-        setTimeout(() => reject(new Error(`Check "${checkName}" timed out`)), timeout)
+        setTimeout(
+          () => reject(new Error(`Check "${checkName}" timed out`)),
+          timeout,
+        ),
       ),
     ]);
   }
@@ -150,7 +161,10 @@ export class GapDetector {
   /**
    * Build evaluation result from check results
    */
-  private buildEvalResult(checkResults: CheckResult[], checksRun: string[]): EvalResult {
+  private buildEvalResult(
+    checkResults: CheckResult[],
+    checksRun: string[],
+  ): EvalResult {
     const allGaps = checkResults.flatMap((r) => r.gaps);
     const errors = checkResults
       .filter((r) => !r.passed && r.message)
@@ -219,21 +233,21 @@ export class ConvergenceAnalyzer {
     iteration: number,
     previousGaps: Gap[],
     currentGaps: Gap[],
-    stallThreshold: number = 3
+    stallThreshold: number = 3,
   ): ConvergenceState {
     // Find resolved gaps
     const resolvedGaps = previousGaps.filter(
-      (prevGap) => !currentGaps.some((currGap) => currGap.id === prevGap.id)
+      (prevGap) => !currentGaps.some((currGap) => currGap.id === prevGap.id),
     );
 
     // Find new gaps
     const newGaps = currentGaps.filter(
-      (currGap) => !previousGaps.some((prevGap) => prevGap.id === currGap.id)
+      (currGap) => !previousGaps.some((prevGap) => prevGap.id === currGap.id),
     );
 
     // Find unchanged gaps
     const unchangedGaps = currentGaps.filter((currGap) =>
-      previousGaps.some((prevGap) => prevGap.id === currGap.id)
+      previousGaps.some((prevGap) => prevGap.id === currGap.id),
     );
 
     // Calculate gap reduction rate
@@ -249,9 +263,9 @@ export class ConvergenceAnalyzer {
     let stallReason: string | undefined;
     if (stalled) {
       if (unchangedGaps.length === currentGaps.length) {
-        stallReason = 'No progress: All gaps unchanged from previous iteration';
+        stallReason = "No progress: All gaps unchanged from previous iteration";
       } else if (newGaps.length > 0 && resolvedGaps.length === 0) {
-        stallReason = 'Negative progress: New gaps introduced, none resolved';
+        stallReason = "Negative progress: New gaps introduced, none resolved";
       }
     }
 
@@ -308,14 +322,14 @@ export class ConvergenceAnalyzer {
     ];
 
     if (state.stalled) {
-      lines.push(`⚠️  Stalled: ${state.stallReason || 'No progress detected'}`);
+      lines.push(`⚠️  Stalled: ${state.stallReason || "No progress detected"}`);
     } else if (this.hasConverged(state)) {
       lines.push(`✅ Converged: All gaps resolved!`);
     } else {
       lines.push(`🔄 In Progress: ${state.currentGaps.length} gaps remaining`);
     }
 
-    return lines.join('\n');
+    return lines.join("\n");
   }
 }
 
@@ -351,7 +365,7 @@ export function createConvergenceAnalyzer(): ConvergenceAnalyzer {
  */
 export async function detectInputGaps(
   unit: { id: string; title?: string; inputs?: string[] },
-  projectDir: string
+  projectDir: string,
 ): Promise<Gap[]> {
   const gaps: Gap[] = [];
 
@@ -360,15 +374,15 @@ export async function detectInputGaps(
   }
 
   // Dynamically import glob to avoid circular dependencies
-  const { glob } = await import('glob');
+  const { glob } = await import("glob");
 
   for (const inputPattern of unit.inputs) {
     // If the pattern has no glob special chars, use existsSync directly to avoid
     // glob misinterpreting literal brackets (e.g. [id] in Next.js dynamic routes).
     const hasGlobChars = /[*?{]/.test(inputPattern);
     if (!hasGlobChars) {
-      const { existsSync: fsExists } = await import('node:fs');
-      const { join } = await import('node:path');
+      const { existsSync: fsExists } = await import("node:fs");
+      const { join } = await import("node:path");
       if (fsExists(join(projectDir, inputPattern))) continue;
       // fall through to gap creation below with files = []
     }
@@ -378,47 +392,49 @@ export async function detectInputGaps(
 
     if (files.length === 0) {
       // Provide helpful context about what typically produces this file
-      let suggestedUpstreamTask = '';
-      let suggestedFix = '';
+      let suggestedUpstreamTask = "";
+      let suggestedFix = "";
 
-      if (inputPattern.includes('.stitch/screens-plan.json')) {
-        suggestedUpstreamTask = '001-generate-design-system';
+      if (inputPattern.includes(".stitch/screens-plan.json")) {
+        suggestedUpstreamTask = "001-generate-design-system";
         suggestedFix = `Ensure task '001-generate-design-system' completed successfully and produced screens-plan.json. Check that the 'taste-design' skill generated all expected outputs.`;
-      } else if (inputPattern.includes('.stitch/DESIGN.md')) {
-        suggestedUpstreamTask = '001-generate-design-system';
+      } else if (inputPattern.includes(".stitch/DESIGN.md")) {
+        suggestedUpstreamTask = "001-generate-design-system";
         suggestedFix = `Ensure task '001-generate-design-system' completed successfully and produced DESIGN.md.`;
-      } else if (inputPattern.includes('.stitch/UX.md')) {
-        suggestedUpstreamTask = '001-gather-idea-generate-ux';
+      } else if (inputPattern.includes(".stitch/UX.md")) {
+        suggestedUpstreamTask = "001-gather-idea-generate-ux";
         suggestedFix = `Ensure task '001-gather-idea-generate-ux' completed successfully and produced UX.md.`;
-      } else if (inputPattern.includes('.stitch/prompts/')) {
-        suggestedUpstreamTask = '002-generate-screen-prompts';
+      } else if (inputPattern.includes(".stitch/prompts/")) {
+        suggestedUpstreamTask = "002-generate-screen-prompts";
         suggestedFix = `Ensure task '002-generate-screen-prompts' completed successfully and produced prompt files.`;
-      } else if (inputPattern.includes('.stitch/designs/')) {
-        suggestedUpstreamTask = '003-generate-html-designs';
+      } else if (inputPattern.includes(".stitch/designs/")) {
+        suggestedUpstreamTask = "003-generate-html-designs";
         suggestedFix = `Ensure task '003-generate-html-designs' completed successfully and produced HTML design files.`;
       } else {
         suggestedFix = `Ensure the upstream task that produces ${inputPattern} has completed successfully.`;
       }
 
       gaps.push({
-        id: `missing-input-${unit.id}-${inputPattern.replace(/[^\w-]/g, '_')}`,
-        type: 'structural',
-        level: 'task',
+        id: `missing-input-${unit.id}-${inputPattern.replace(/[^\w-]/g, "_")}`,
+        type: "structural",
+        level: "task",
         scope: unit.id,
         description: `Required input missing: ${inputPattern}`,
         detected: new Date().toISOString(),
         resolved: false,
         checks: [],
-        severity: 'critical',
+        severity: "critical",
         metadata: {
-          gapKind: 'blocker',
+          gapKind: "blocker",
           inputPattern,
           taskId: unit.id,
           taskTitle: unit.title,
           suggestedUpstreamTask,
-          errorType: 'missing-input',
+          errorType: "missing-input",
         },
-        suggestedFix: suggestedFix || `Ensure upstream task that produces ${inputPattern} has completed successfully`,
+        suggestedFix:
+          suggestedFix ||
+          `Ensure upstream task that produces ${inputPattern} has completed successfully`,
       });
     }
   }

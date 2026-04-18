@@ -4,10 +4,15 @@
  * Writes summary.md files with navigation and context overview.
  */
 
-import { writeFile, mkdir, readdir } from 'node:fs/promises';
-import { dirname } from 'node:path';
-import { getJournalFilePath, getBreadcrumbs, getEpicTasksDir, getEpicsDir } from './structure.ts';
-import type { Gap } from '../gap/types.ts';
+import { writeFile, mkdir, readdir } from "node:fs/promises";
+import { dirname } from "node:path";
+import {
+  getJournalFilePath,
+  getBreadcrumbs,
+  getEpicTasksDir,
+  getEpicsDir,
+} from "./structure.ts";
+import type { Gap } from "../gap/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Summary Generation                                                */
@@ -20,9 +25,9 @@ export async function writeProjectSummary(
   projectDir: string,
   projectName: string,
   gaps: Gap[],
-  epicIds: string[] = []
+  epicIds: string[] = [],
 ): Promise<void> {
-  const filePath = getJournalFilePath(projectDir, 'project', 'summary');
+  const filePath = getJournalFilePath(projectDir, "project", "summary");
   await mkdir(dirname(filePath), { recursive: true });
 
   const breadcrumbs = getBreadcrumbs(projectDir, projectName);
@@ -34,7 +39,7 @@ export async function writeProjectSummary(
 **Current Location**: Project Root
 
 ### Epics
-${epicIds.length > 0 ? epicIds.map(id => `- [${id}](../epics/${id}/summary.md)`).join('\n') : '*No epics yet*'}
+${epicIds.length > 0 ? epicIds.map((id) => `- [${id}](../epics/${id}/summary.md)`).join("\n") : "*No epics yet*"}
 
 ---
 
@@ -42,13 +47,17 @@ ${epicIds.length > 0 ? epicIds.map(id => `- [${id}](../epics/${id}/summary.md)`)
 
 **Total Gaps**: ${gaps.length}
 
-${gaps.length > 0 ? `
+${
+  gaps.length > 0
+    ? `
 ### Gaps by Type
 ${getGapsByType(gaps)}
 
 ### Gaps by Severity
 ${getGapsBySeverity(gaps)}
-` : '*All gaps resolved ✅*'}
+`
+    : "*All gaps resolved ✅*"
+}
 
 ---
 
@@ -61,14 +70,14 @@ See [log.log](./log.log) for human-readable logs.
 
 ## Gap Details
 
-${gaps.length > 0 ? gaps.map(g => formatGap(g)).join('\n\n') : '*No gaps to resolve*'}
+${gaps.length > 0 ? gaps.map((g) => formatGap(g)).join("\n\n") : "*No gaps to resolve*"}
 
 ---
 
 *Last updated: ${new Date().toISOString()}*
 `;
 
-  await writeFile(filePath, content, 'utf-8');
+  await writeFile(filePath, content, "utf-8");
 }
 
 /**
@@ -80,9 +89,9 @@ export async function writeEpicSummary(
   epicId: string,
   epicName: string,
   gaps: Gap[],
-  taskIds: string[] = []
+  taskIds: string[] = [],
 ): Promise<void> {
-  const filePath = getJournalFilePath(projectDir, 'epic', 'summary', epicId);
+  const filePath = getJournalFilePath(projectDir, "epic", "summary", epicId);
   await mkdir(dirname(filePath), { recursive: true });
 
   const breadcrumbs = getBreadcrumbs(projectDir, projectName, epicId, epicName);
@@ -97,7 +106,7 @@ export async function writeEpicSummary(
 - [← Back to Project](../../project/summary.md)
 
 ### Tasks
-${taskIds.length > 0 ? taskIds.map(id => `- [${id}](./tasks/${id}/summary.md)`).join('\n') : '*No tasks yet*'}
+${taskIds.length > 0 ? taskIds.map((id) => `- [${id}](./tasks/${id}/summary.md)`).join("\n") : "*No tasks yet*"}
 
 ---
 
@@ -106,13 +115,17 @@ ${taskIds.length > 0 ? taskIds.map(id => `- [${id}](./tasks/${id}/summary.md)`).
 **Epic ID**: \`${epicId}\`
 **Total Gaps**: ${gaps.length}
 
-${gaps.length > 0 ? `
+${
+  gaps.length > 0
+    ? `
 ### Gaps by Type
 ${getGapsByType(gaps)}
 
 ### Gaps by Severity
 ${getGapsBySeverity(gaps)}
-` : '*All gaps resolved ✅*'}
+`
+    : "*All gaps resolved ✅*"
+}
 
 ---
 
@@ -125,14 +138,14 @@ See [log.log](./log.log) for human-readable logs.
 
 ## Gap Details
 
-${gaps.length > 0 ? gaps.map(g => formatGap(g)).join('\n\n') : '*No gaps to resolve*'}
+${gaps.length > 0 ? gaps.map((g) => formatGap(g)).join("\n\n") : "*No gaps to resolve*"}
 
 ---
 
 *Last updated: ${new Date().toISOString()}*
 `;
 
-  await writeFile(filePath, content, 'utf-8');
+  await writeFile(filePath, content, "utf-8");
 }
 
 /**
@@ -145,12 +158,25 @@ export async function writeTaskSummary(
   epicName: string,
   taskId: string,
   taskName: string,
-  gaps: Gap[]
+  gaps: Gap[],
 ): Promise<void> {
-  const filePath = getJournalFilePath(projectDir, 'task', 'summary', epicId, taskId);
+  const filePath = getJournalFilePath(
+    projectDir,
+    "task",
+    "summary",
+    epicId,
+    taskId,
+  );
   await mkdir(dirname(filePath), { recursive: true });
 
-  const breadcrumbs = getBreadcrumbs(projectDir, projectName, epicId, epicName, taskId, taskName);
+  const breadcrumbs = getBreadcrumbs(
+    projectDir,
+    projectName,
+    epicId,
+    epicName,
+    taskId,
+    taskName,
+  );
 
   const content = `# ${taskName}
 
@@ -170,13 +196,17 @@ export async function writeTaskSummary(
 **Epic**: \`${epicId}\`
 **Total Gaps**: ${gaps.length}
 
-${gaps.length > 0 ? `
+${
+  gaps.length > 0
+    ? `
 ### Gaps by Type
 ${getGapsByType(gaps)}
 
 ### Gaps by Severity
 ${getGapsBySeverity(gaps)}
-` : '*All gaps resolved ✅*'}
+`
+    : "*All gaps resolved ✅*"
+}
 
 ---
 
@@ -189,14 +219,14 @@ See [log.log](./log.log) for human-readable logs.
 
 ## Gap Details
 
-${gaps.length > 0 ? gaps.map(g => formatGap(g)).join('\n\n') : '*No gaps to resolve*'}
+${gaps.length > 0 ? gaps.map((g) => formatGap(g)).join("\n\n") : "*No gaps to resolve*"}
 
 ---
 
 *Last updated: ${new Date().toISOString()}*
 `;
 
-  await writeFile(filePath, content, 'utf-8');
+  await writeFile(filePath, content, "utf-8");
 }
 
 /* ------------------------------------------------------------------ */
@@ -211,7 +241,7 @@ function getGapsByType(gaps: Gap[]): string {
 
   return Object.entries(byType)
     .map(([type, count]) => `- **${type}**: ${count}`)
-    .join('\n');
+    .join("\n");
 }
 
 function getGapsBySeverity(gaps: Gap[]): string {
@@ -223,26 +253,26 @@ function getGapsBySeverity(gaps: Gap[]): string {
   }
 
   if (Object.keys(bySeverity).length === 0) {
-    return '*No severity specified*';
+    return "*No severity specified*";
   }
 
   return Object.entries(bySeverity)
     .map(([severity, count]) => `- **${severity}**: ${count}`)
-    .join('\n');
+    .join("\n");
 }
 
 function formatGap(gap: Gap): string {
-  const severity = gap.severity ? ` [${gap.severity.toUpperCase()}]` : '';
-  const resolved = gap.resolved ? ' ✅' : '';
+  const severity = gap.severity ? ` [${gap.severity.toUpperCase()}]` : "";
+  const resolved = gap.resolved ? " ✅" : "";
 
   return `### ${gap.description}${severity}${resolved}
 
 - **ID**: \`${gap.id}\`
 - **Type**: ${gap.type}
 - **Detected**: ${new Date(gap.detected).toLocaleString()}
-- **Checks**: ${gap.checks.join(', ')}
-${gap.suggestedFix ? `- **Suggested Fix**: ${gap.suggestedFix}` : ''}
-${gap.resolvedAt ? `- **Resolved**: ${new Date(gap.resolvedAt).toLocaleString()}` : ''}`;
+- **Checks**: ${gap.checks.join(", ")}
+${gap.suggestedFix ? `- **Suggested Fix**: ${gap.suggestedFix}` : ""}
+${gap.resolvedAt ? `- **Resolved**: ${new Date(gap.resolvedAt).toLocaleString()}` : ""}`;
 }
 
 /* ------------------------------------------------------------------ */
@@ -257,8 +287,8 @@ export async function discoverEpicIds(projectDir: string): Promise<string[]> {
     const epicsDir = getEpicsDir(projectDir);
     const entries = await readdir(epicsDir, { withFileTypes: true });
     return entries
-      .filter(entry => entry.isDirectory())
-      .map(entry => entry.name);
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name);
   } catch {
     return [];
   }
@@ -267,13 +297,16 @@ export async function discoverEpicIds(projectDir: string): Promise<string[]> {
 /**
  * Get list of all task IDs for an epic
  */
-export async function discoverTaskIds(projectDir: string, epicId: string): Promise<string[]> {
+export async function discoverTaskIds(
+  projectDir: string,
+  epicId: string,
+): Promise<string[]> {
   try {
     const tasksDir = getEpicTasksDir(projectDir, epicId);
     const entries = await readdir(tasksDir, { withFileTypes: true });
     return entries
-      .filter(entry => entry.isDirectory())
-      .map(entry => entry.name);
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name);
   } catch {
     return [];
   }

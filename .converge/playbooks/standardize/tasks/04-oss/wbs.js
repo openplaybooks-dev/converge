@@ -8,8 +8,6 @@
  */
 
 export async function run(ctx) {
-  const stateDir = '.converge/standardize-state/oss';
-
   // 1. Community health files
   await ctx.spawn({
     id: '001-community-health',
@@ -120,11 +118,11 @@ jobs:
     id: '003-npm-config',
     title: 'Audit npm publish configuration',
     dependencies: ['001-community-health'],
-    outputs: [`${stateDir}/npm-audit.json`],
+    outputs: ['.converge/artifacts/oss/npm-audit.md'],
     checks: [
       {
         id: 'npm-audit-exists',
-        cmd: `test -f ${stateDir}/npm-audit.json`,
+        cmd: 'test -f .converge/artifacts/oss/npm-audit.md',
         description: 'npm audit report exists',
       },
     ],
@@ -143,7 +141,7 @@ jobs:
 10. \`engines\` — minimum Node.js version specified
 11. \`publishConfig\` — access: public (for scoped packages)
 
-**Write report** to \`${stateDir}/npm-audit.json\`:
+**Write report** using \`ctx.artifact.set('oss/npm-audit', JSON.stringify(report, null, 2))\`:
 \`\`\`json
 {
   "packages": [
@@ -198,11 +196,11 @@ Fix any issues found — don't just report them.`,
     id: '005-security-scan',
     title: 'Pre-release security scan',
     dependencies: ['003-npm-config'],
-    outputs: [`${stateDir}/security-scan.json`],
+    outputs: ['.converge/artifacts/oss/security-scan.md'],
     checks: [
       {
         id: 'security-scan-exists',
-        cmd: `test -f ${stateDir}/security-scan.json`,
+        cmd: 'test -f .converge/artifacts/oss/security-scan.md',
         description: 'Security scan report exists',
       },
     ],
@@ -218,7 +216,7 @@ Fix any issues found — don't just report them.`,
 4. **SECURITY.md** — verify it has responsible disclosure instructions
 5. **License compliance** — verify all dependencies have compatible licenses
 
-**Write report** to \`${stateDir}/security-scan.json\`:
+**Write report** using \`ctx.artifact.set('oss/security-scan', JSON.stringify(report, null, 2))\`:
 \`\`\`json
 {
   "npmAudit": { "vulnerabilities": 0, "details": [] },

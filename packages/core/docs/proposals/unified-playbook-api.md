@@ -7,7 +7,7 @@
 
 ## One Sentence
 
-Replace the separate `workflow` and `run` APIs with a single **Playbook** concept — a named, reusable unit that defines both *what to do* and *how to run it*, and can be executed many times or run indefinitely.
+Replace the separate `workflow` and `run` APIs with a single **Playbook** concept — a named, reusable unit that defines both _what to do_ and _how to run it_, and can be executed many times or run indefinitely.
 
 ---
 
@@ -46,21 +46,21 @@ AutoRunOptions       { step, dry, analyze, converge, wbs, maxIterations, filter,
 
 ### Where they overlap
 
-| Field | WorkflowRunOptions | AutonomousRunConfig | ConvergeRunConfig | AutoRunOptions |
-|-------|-------------------|--------------------|--------------------|---------------|
-| projectDir / dir | ✓ | ✓ | ✓ | ✓ |
-| verbose | ✓ | ✓ | ✓ | ✓ |
-| filter | — | ✓ | ✓ | ✓ |
-| force | — | ✓ | ✓ | ✓ |
-| resume | — | ✓ | ✓ | ✓ |
-| restart | — | ✓ | ✓ | ✓ |
-| maxIterations | — | ✓ | ✓ | ✓ |
-| maxTaskAttempts | — | ✓ | ✓ | — |
-| maxRunDurationMs | — | ✓ | ✓ | ✓ (maxDuration) |
-| convergeConfig | — | ✓ | ✓ | ✓ |
-| hookRegistry | — | ✓ | ✓ | ✓ |
+| Field            | WorkflowRunOptions | AutonomousRunConfig | ConvergeRunConfig | AutoRunOptions  |
+| ---------------- | ------------------ | ------------------- | ----------------- | --------------- |
+| projectDir / dir | ✓                  | ✓                   | ✓                 | ✓               |
+| verbose          | ✓                  | ✓                   | ✓                 | ✓               |
+| filter           | —                  | ✓                   | ✓                 | ✓               |
+| force            | —                  | ✓                   | ✓                 | ✓               |
+| resume           | —                  | ✓                   | ✓                 | ✓               |
+| restart          | —                  | ✓                   | ✓                 | ✓               |
+| maxIterations    | —                  | ✓                   | ✓                 | ✓               |
+| maxTaskAttempts  | —                  | ✓                   | ✓                 | —               |
+| maxRunDurationMs | —                  | ✓                   | ✓                 | ✓ (maxDuration) |
+| convergeConfig   | —                  | ✓                   | ✓                 | ✓               |
+| hookRegistry     | —                  | ✓                   | ✓                 | ✓               |
 
-The workflow defines *what* but not *how*. The run defines *how* but not *what*. Neither has identity or history. Users must manually chain them together.
+The workflow defines _what_ but not _how_. The run defines _how_ but not _what_. Neither has identity or history. Users must manually chain them together.
 
 ---
 
@@ -99,11 +99,11 @@ tasks:
 
 # ── HOW (replaces run config) ─────────────────────────
 run:
-  mode: autonomous              # autonomous | converge | step
+  mode: autonomous # autonomous | converge | step
   maxIterations: 100
   maxTaskAttempts: 3
-  maxDuration: 60m              # human-readable duration
-  resume: true                  # auto-resume on crash
+  maxDuration: 60m # human-readable duration
+  resume: true # auto-resume on crash
 ```
 
 ### Directory structure
@@ -145,6 +145,7 @@ converge playbook run react-app --idea="expense tracker"
 ```
 
 This single command:
+
 1. Loads `playbook.yml` (definition + run config)
 2. Resolves inputs → generates epicId
 3. Instantiates task templates into `.converge/epics/{epicId}/`
@@ -166,8 +167,8 @@ name: self-dev
 description: Continuously improve the framework
 run:
   mode: converge
-  maxDuration: infinite          # runs until manually stopped or converged
-  resume: true                   # picks up where it left off after crash
+  maxDuration: infinite # runs until manually stopped or converged
+  resume: true # picks up where it left off after crash
 ```
 
 ### 4. Playbooks can compose other playbooks
@@ -177,15 +178,15 @@ A playbook's task list can reference other playbooks:
 ```yaml
 name: self-dev
 tasks:
-  - playbook: react-app          # runs the inner playbook as a step
+  - playbook: react-app # runs the inner playbook as a step
     with:
       idea: ${idea}
-  - id: evaluate                 # then runs evaluation tasks
+  - id: evaluate # then runs evaluation tasks
   - id: diagnose
     depends_on: [evaluate]
   - id: fix
     depends_on: [diagnose]
-  - playbook: react-app          # re-runs to verify
+  - playbook: react-app # re-runs to verify
     with:
       idea: ${idea}
 ```
@@ -228,7 +229,7 @@ interface PlaybookDef {
 ```typescript
 interface PlaybookRunConfig {
   /** Execution mode */
-  mode?: 'autonomous' | 'converge' | 'step';
+  mode?: "autonomous" | "converge" | "step";
 
   /** Maximum task executions before stopping */
   maxIterations?: number;
@@ -284,7 +285,7 @@ interface PlaybookExecution {
   durationMs?: number;
 
   /** Outcome */
-  status: 'running' | 'complete' | 'failed' | 'cancelled' | 'stalled';
+  status: "running" | "complete" | "failed" | "cancelled" | "stalled";
 
   /** Task metrics */
   tasksTotal: number;
@@ -425,6 +426,7 @@ Today's journal has two top-level buckets with no playbook awareness:
 ```
 
 Problems:
+
 1. **No playbook identity** — sessions don't know which playbook spawned them
 2. **All epics in one bucket** — `journal/epics/` mixes epics from every playbook
 3. **No cross-run tracking** — can't compare run #1 vs run #5 of the same playbook
@@ -509,11 +511,11 @@ This means `getJournalStructure()` needs one new input: the active playbook + ex
 
 ```typescript
 // Before:
-getJournalStructure(projectDir, epicId, taskId)
+getJournalStructure(projectDir, epicId, taskId);
 // → .converge/journal/epics/{epicId}/{taskId}/...
 
 // After:
-getJournalStructure(projectDir, epicId, taskId, { playbook, executionId })
+getJournalStructure(projectDir, epicId, taskId, { playbook, executionId });
 // → .converge/journal/playbooks/{playbook}/executions/{executionId}/epics/{epicId}/{taskId}/...
 ```
 
@@ -527,12 +529,12 @@ Session data moves inside the execution. A single execution = a single session. 
 
 Each playbook gets cross-execution files:
 
-| File | Purpose |
-|------|---------|
-| `playbook.json` | Playbook metadata (name, created, last run time) |
-| `trends.jsonl` | One line per execution — task counts, duration, convergence |
-| `facts.jsonl` | Facts from all executions (tagged with executionId) |
-| `gaps.jsonl` | Gaps from all executions (tagged with executionId) |
+| File            | Purpose                                                     |
+| --------------- | ----------------------------------------------------------- |
+| `playbook.json` | Playbook metadata (name, created, last run time)            |
+| `trends.jsonl`  | One line per execution — task counts, duration, convergence |
+| `facts.jsonl`   | Facts from all executions (tagged with executionId)         |
+| `gaps.jsonl`    | Gaps from all executions (tagged with executionId)          |
 
 These enable cross-run queries: "which checks regressed?", "are gap counts trending down?", "average execution time?"
 
@@ -545,26 +547,31 @@ These enable cross-run queries: "which checks regressed?", "are gap counts trend
 The current function signature:
 
 ```typescript
-function getJournalStructure(projectDir: string, epicId?: string, taskId?: string): JournalStructure
+function getJournalStructure(
+  projectDir: string,
+  epicId?: string,
+  taskId?: string,
+): JournalStructure;
 ```
 
 Becomes:
 
 ```typescript
 interface PlaybookContext {
-  playbook: string;       // playbook name or '_default'
-  executionId: string;    // execution ID within the playbook
+  playbook: string; // playbook name or '_default'
+  executionId: string; // execution ID within the playbook
 }
 
 function getJournalStructure(
   projectDir: string,
   epicId?: string,
   taskId?: string,
-  ctx?: PlaybookContext,  // new optional param — defaults from env vars
-): JournalStructure
+  ctx?: PlaybookContext, // new optional param — defaults from env vars
+): JournalStructure;
 ```
 
 When `ctx` is omitted, falls back to:
+
 - `process.env.CONVERGE_PLAYBOOK` → playbook name
 - `process.env.CONVERGE_EXECUTION_ID` → execution ID
 - If neither set → legacy mode (reads from `journal/epics/` directly for backwards compat)
@@ -704,35 +711,35 @@ converge playbook run self-dev --idea="expense tracker"
 
 ## What Changes, What Doesn't
 
-| Layer | Changes? | Details |
-|-------|----------|---------|
-| **TASK.md** | No | Tasks are still TASK.md files. Playbooks don't change task format. |
-| **Epic definitions** | No | `.converge/epics/` still holds instantiated task definitions. |
-| **Discovery** | No | `DiscoveryScanner` still finds tasks via globs. |
-| **Task execution** | No | `executeTask`, `Unit`, convergence loops unchanged. |
-| **autonomousRun** | Minimal | Called by playbook executor instead of directly by CLI. |
-| **convergeRun** | Minimal | Called by playbook executor instead of directly by CLI. |
-| **Workflow types** | Replaced | `WorkflowDef` → `PlaybookDef`, `WorkflowSource` → `PlaybookSource`. |
-| **Workflow loader** | Replaced | `parseWorkflowYml` → `parsePlaybookYml`, same logic + `run:` section. |
-| **Workflow executor** | Extended | `generateEpicFromWorkflow` → `runPlaybook` (generate + execute). |
-| **CLI commands** | Unified | `commands-workflow.ts` + run parts of `commands-run.ts` → `commands-playbook.ts`. |
-| **Journal structure** | **Restructured** | `journal/epics/` → `journal/playbooks/{name}/executions/{id}/epics/`. Epic internal structure unchanged. |
-| **Journal sessions** | **Moved** | `journal/sessions/` → `journal/playbooks/{name}/executions/{id}/session/`. One session per execution. |
-| **Journal aggregation** | **New** | `journal/playbooks/{name}/trends.jsonl`, `facts.jsonl`, `gaps.jsonl` for cross-run tracking. |
-| **getJournalStructure()** | Extended | New optional `PlaybookContext` param. Defaults from env vars. Legacy mode when unset. |
+| Layer                     | Changes?         | Details                                                                                                  |
+| ------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------- |
+| **TASK.md**               | No               | Tasks are still TASK.md files. Playbooks don't change task format.                                       |
+| **Epic definitions**      | No               | `.converge/epics/` still holds instantiated task definitions.                                            |
+| **Discovery**             | No               | `DiscoveryScanner` still finds tasks via globs.                                                          |
+| **Task execution**        | No               | `executeTask`, `Unit`, convergence loops unchanged.                                                      |
+| **autonomousRun**         | Minimal          | Called by playbook executor instead of directly by CLI.                                                  |
+| **convergeRun**           | Minimal          | Called by playbook executor instead of directly by CLI.                                                  |
+| **Workflow types**        | Replaced         | `WorkflowDef` → `PlaybookDef`, `WorkflowSource` → `PlaybookSource`.                                      |
+| **Workflow loader**       | Replaced         | `parseWorkflowYml` → `parsePlaybookYml`, same logic + `run:` section.                                    |
+| **Workflow executor**     | Extended         | `generateEpicFromWorkflow` → `runPlaybook` (generate + execute).                                         |
+| **CLI commands**          | Unified          | `commands-workflow.ts` + run parts of `commands-run.ts` → `commands-playbook.ts`.                        |
+| **Journal structure**     | **Restructured** | `journal/epics/` → `journal/playbooks/{name}/executions/{id}/epics/`. Epic internal structure unchanged. |
+| **Journal sessions**      | **Moved**        | `journal/sessions/` → `journal/playbooks/{name}/executions/{id}/session/`. One session per execution.    |
+| **Journal aggregation**   | **New**          | `journal/playbooks/{name}/trends.jsonl`, `facts.jsonl`, `gaps.jsonl` for cross-run tracking.             |
+| **getJournalStructure()** | Extended         | New optional `PlaybookContext` param. Defaults from env vars. Legacy mode when unset.                    |
 
 ---
 
 ## Summary
 
-| Before | After |
-|--------|-------|
-| `WorkflowDef` defines what | `PlaybookDef` defines what + how |
-| `AutonomousRunConfig` / `ConvergeRunConfig` define how | `PlaybookRunConfig` inside `PlaybookDef` |
-| `converge workflow run` + `converge run` (two steps) | `converge playbook run` (one step) |
-| No execution identity | `journal/playbooks/{name}/` tracks all runs |
-| No composition | Playbooks can reference other playbooks |
-| `converge run` is anonymous | `converge run` = default playbook (with history) |
-| Three overlapping config types | One `PlaybookDef` + CLI overrides |
+| Before                                                 | After                                            |
+| ------------------------------------------------------ | ------------------------------------------------ |
+| `WorkflowDef` defines what                             | `PlaybookDef` defines what + how                 |
+| `AutonomousRunConfig` / `ConvergeRunConfig` define how | `PlaybookRunConfig` inside `PlaybookDef`         |
+| `converge workflow run` + `converge run` (two steps)   | `converge playbook run` (one step)               |
+| No execution identity                                  | `journal/playbooks/{name}/` tracks all runs      |
+| No composition                                         | Playbooks can reference other playbooks          |
+| `converge run` is anonymous                            | `converge run` = default playbook (with history) |
+| Three overlapping config types                         | One `PlaybookDef` + CLI overrides                |
 
 The playbook is the single abstraction for "something you run in Converge." It can be a one-off task board, a repeatable pipeline, or a long-running convergence loop. Define it once, run it many times, track it forever.

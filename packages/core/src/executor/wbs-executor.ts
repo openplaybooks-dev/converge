@@ -14,14 +14,14 @@
  * Dispatch order in unit.ts: wbsFn runs BEFORE loopFn / executorFn.
  */
 
-import { basename, dirname, join, relative } from 'node:path';
-import { ArtifactStore } from '../artifacts/index.ts';
-import { mkdir, writeFile } from 'node:fs/promises';
-import { existsSync, readdirSync } from 'node:fs';
-import { glob } from 'glob';
-import { z } from 'zod';
-import { agentfn } from '@converge/agentfn';
-import { READONLY_TOOLS } from '../ai/context.ts';
+import { basename, dirname, join, relative } from "node:path";
+import { ArtifactStore } from "../artifacts/index.ts";
+import { mkdir, writeFile } from "node:fs/promises";
+import { existsSync, readdirSync } from "node:fs";
+import { glob } from "glob";
+import { z } from "zod";
+import { agentfn } from "@converge/agentfn";
+import { READONLY_TOOLS } from "../ai/context.ts";
 import type {
   WbsFn,
   WbsContext,
@@ -32,14 +32,14 @@ import type {
   AskResult,
   RawMarkdown,
   TemplateRef,
-} from '../config/task-definition.ts';
-import { TaskDefinitionBuilder } from '../config/task-definition.ts';
-import type { TaskMdShape } from '../config/task-md-definition.ts';
-import { parseTaskMdString } from '../config/task-md-definition.ts';
-import type { JournalContext } from '../repair/types.ts';
-import { logTaskEvent } from '../journal/writer.ts';
-import { getJournalStructure } from '../journal/structure.ts';
-import type { Gap } from '../gap/types.ts';
+} from "../config/task-definition.ts";
+import { TaskDefinitionBuilder } from "../config/task-definition.ts";
+import type { TaskMdShape } from "../config/task-md-definition.ts";
+import { parseTaskMdString } from "../config/task-md-definition.ts";
+import type { JournalContext } from "../repair/types.ts";
+import { logTaskEvent } from "../journal/writer.ts";
+import { getJournalStructure } from "../journal/structure.ts";
+import type { Gap } from "../gap/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Result                                                            */
@@ -61,7 +61,11 @@ export class WbsExecutor {
     private journalCtx: JournalContext,
     /** Absolute path to the parent task's .ts file (used to derive tasks/ dir) */
     private taskFilePath: string,
-    private taskMeta: { id: string; title?: string; vars?: Record<string, unknown> },
+    private taskMeta: {
+      id: string;
+      title?: string;
+      vars?: Record<string, unknown>;
+    },
   ) {}
 
   /**
@@ -76,7 +80,10 @@ export class WbsExecutor {
     const missingInputs: string[] = [];
 
     for (const inputPattern of inputs) {
-      const files = await glob(inputPattern, { cwd: this.projectDir, absolute: false });
+      const files = await glob(inputPattern, {
+        cwd: this.projectDir,
+        absolute: false,
+      });
       if (files.length === 0) {
         missingInputs.push(inputPattern);
       }
@@ -99,7 +106,10 @@ export class WbsExecutor {
    * @param wbsFn - The WBS function to execute
    * @param attemptNumber - Current attempt number (default: 1)
    */
-  async run(wbsFn: WbsFn, attemptNumber: number = 1): Promise<WbsExecutorResult> {
+  async run(
+    wbsFn: WbsFn,
+    attemptNumber: number = 1,
+  ): Promise<WbsExecutorResult> {
     const start = Date.now();
     const seededAt = new Date().toISOString();
 
@@ -109,24 +119,28 @@ export class WbsExecutor {
     const structure = getJournalStructure(
       this.projectDir,
       this.journalCtx.epicId,
-      this.journalCtx.taskId
+      this.journalCtx.taskId,
     );
 
     // Create directories even if WBS crashes immediately
-    await mkdir(join(structure.task!, 'logs'), { recursive: true });
-    const attemptDir = join(structure.task!, 'attempts', String(attemptNumber).padStart(2, '0'));
-    await mkdir(join(attemptDir, 'data'), { recursive: true });
-    await mkdir(join(attemptDir, 'logs'), { recursive: true });
+    await mkdir(join(structure.task!, "logs"), { recursive: true });
+    const attemptDir = join(
+      structure.task!,
+      "attempts",
+      String(attemptNumber).padStart(2, "0"),
+    );
+    await mkdir(join(attemptDir, "data"), { recursive: true });
+    await mkdir(join(attemptDir, "logs"), { recursive: true });
 
     // ========================================================================
     // STEP 2: INITIALIZE FACTS LOGGER (before execution)
     // ========================================================================
-    const { FactsLogger } = await import('../facts/api.ts');
+    const { FactsLogger } = await import("../facts/api.ts");
     const factsLogger = new FactsLogger(
       this.projectDir,
       this.journalCtx.epicId,
       this.journalCtx.taskId,
-      attemptNumber
+      attemptNumber,
     );
 
     // ========================================================================
@@ -137,9 +151,10 @@ export class WbsExecutor {
     // Directory of the parent task — child tasks go into {parent}/tasks/ under it.
     // taskFilePath may be a directory (unit.path) or a file (TASK.md).
     // When it's a directory, use it directly; when it's a file, use its parent dir.
-    const parentTaskDir = (this.taskFilePath.endsWith('.ts') || this.taskFilePath.endsWith('.md'))
-      ? dirname(this.taskFilePath)
-      : this.taskFilePath;
+    const parentTaskDir =
+      this.taskFilePath.endsWith(".ts") || this.taskFilePath.endsWith(".md")
+        ? dirname(this.taskFilePath)
+        : this.taskFilePath;
     // Relative to projectDir for writeToPath
     const relParentDir = relative(this.projectDir, parentTaskDir);
 
@@ -149,10 +164,14 @@ export class WbsExecutor {
       log: {
         info: (msg) => console.log(`[wbs:${this.taskMeta.id}] ${msg}`),
         warn: (msg) => console.warn(`[wbs:${this.taskMeta.id}] WARN: ${msg}`),
-        error: (msg) => console.error(`[wbs:${this.taskMeta.id}] ERROR: ${msg}`),
+        error: (msg) =>
+          console.error(`[wbs:${this.taskMeta.id}] ERROR: ${msg}`),
       },
       get spawnedTasks() {
-        return spawnedTasks as ReadonlyArray<{ id: string; writeToPath: string }>;
+        return spawnedTasks as ReadonlyArray<{
+          id: string;
+          writeToPath: string;
+        }>;
       },
       ai: {
         ask: (question: string): AskResult => this.buildAiAsk(question),
@@ -169,7 +188,12 @@ export class WbsExecutor {
         // Write to tasks subdirectory: parent-dir/tasks/child-id/TASK.md
         // For task at epics/03-app/002-pages → epics/03-app/002-pages/tasks/002-001-home/TASK.md
         // Using "tasks" (plural) because there are always multiple subtasks
-        const autoWritePath = join(relParentDir, 'tasks', shape.id, 'TASK.md').replace(/\\/g, '/');
+        const autoWritePath = join(
+          relParentDir,
+          "tasks",
+          shape.id,
+          "TASK.md",
+        ).replace(/\\/g, "/");
         const writeToPath = opts?.writeToPath ?? autoWritePath;
 
         spawnedTasks.push({ id: shape.id, writeToPath });
@@ -178,7 +202,7 @@ export class WbsExecutor {
           this.projectDir,
           this.journalCtx.epicId,
           this.journalCtx.taskId,
-          'WBS_SEED',
+          "WBS_SEED",
           `seeded task: ${opts?.label ?? shape.id}`,
           { taskId: shape.id, writeToPath },
         );
@@ -189,31 +213,46 @@ export class WbsExecutor {
         // Skip WBS infrastructure files — these belong to the parent template, not
         // the spawned child task (TASK.md is already rendered, SUBTASK.md is the
         // template source, wbs.js is the parent's WBS script).
-        if (typeof target === 'object' && target !== null && (target as any)._type === 'template-ref') {
+        if (
+          typeof target === "object" &&
+          target !== null &&
+          (target as any)._type === "template-ref"
+        ) {
           const ref = target as TemplateRef;
-          const { resolve: resolvePath, dirname: dirnamePath, basename: basenamePath } = await import('node:path');
-          const { readdir, copyFile } = await import('node:fs/promises');
+          const {
+            resolve: resolvePath,
+            dirname: dirnamePath,
+            basename: basenamePath,
+          } = await import("node:path");
+          const { readdir, copyFile } = await import("node:fs/promises");
           const templateAbsPath = resolvePath(this.projectDir, ref.path);
           const templateDir = dirnamePath(templateAbsPath);
           const templateFileName = basenamePath(templateAbsPath);
           const destDir = dirnamePath(join(this.projectDir, writeToPath));
-          const skipFiles = new Set(['TASK.md', templateFileName, 'wbs.js']);
+          const skipFiles = new Set(["TASK.md", templateFileName, "wbs.js"]);
           try {
             const entries = await readdir(templateDir, { withFileTypes: true });
             for (const entry of entries) {
               if (!entry.isFile()) continue;
               if (skipFiles.has(entry.name)) continue;
-              await copyFile(join(templateDir, entry.name), join(destDir, entry.name));
+              await copyFile(
+                join(templateDir, entry.name),
+                join(destDir, entry.name),
+              );
             }
           } catch {
             // Template dir may not have siblings — that's fine
           }
         }
 
-        console.log(`[wbs:${this.taskMeta.id}] Seeded task: ${shape.id} → ${writeToPath}`);
+        console.log(
+          `[wbs:${this.taskMeta.id}] Seeded task: ${shape.id} → ${writeToPath}`,
+        );
       },
-      spawnGoal: async (goalDef: import('../config/task-md-definition.ts').GoalDef) => {
-        const { writeGoalDefs } = await import('../converge/goal-planner.ts');
+      spawnGoal: async (
+        goalDef: import("../config/task-md-definition.ts").GoalDef,
+      ) => {
+        const { writeGoalDefs } = await import("../converge/goal-planner.ts");
         writeGoalDefs(this.projectDir, [goalDef]);
         console.log(`[wbs:${this.taskMeta.id}] Spawned goal: ${goalDef.id}`);
       },
@@ -229,19 +268,27 @@ export class WbsExecutor {
       // Check any .ts files generated by this WBS for ESM/CommonJS issues
       await this.validateGeneratedFiles();
       const durationMs = Date.now() - start;
-      console.log(`[wbs] Seeded ${spawnedTasks.length} task(s) in ${durationMs}ms`);
+      console.log(
+        `[wbs] Seeded ${spawnedTasks.length} task(s) in ${durationMs}ms`,
+      );
 
       // If the WBS ran without error but seeded 0 tasks, treat as a script error.
       // The script likely has a logic bug (e.g., empty input data, wrong field names).
       if (spawnedTasks.length === 0) {
-        console.warn(`[wbs:${this.taskMeta.id}] ⚠️  WBS completed but spawned 0 tasks — triggering repair`);
+        console.warn(
+          `[wbs:${this.taskMeta.id}] ⚠️  WBS completed but spawned 0 tasks — triggering repair`,
+        );
         const zeroSpawnError = new Error(
           `WBS script completed successfully but spawned 0 tasks. ` +
-          `This usually means the script's input data is empty or the script has a logic error ` +
-          `(e.g., iterating over wrong field, filter excluding all entries).`
+            `This usually means the script's input data is empty or the script has a logic error ` +
+            `(e.g., iterating over wrong field, filter excluding all entries).`,
         );
-        zeroSpawnError.name = 'WbsZeroSpawnError';
-        const shouldRetry = await this.triggerSelfHealing(zeroSpawnError, attemptNumber, factsLogger);
+        zeroSpawnError.name = "WbsZeroSpawnError";
+        const shouldRetry = await this.triggerSelfHealing(
+          zeroSpawnError,
+          attemptNumber,
+          factsLogger,
+        );
         if (shouldRetry && attemptNumber < 3) {
           return await this.run(wbsFn, attemptNumber + 1);
         }
@@ -255,25 +302,33 @@ export class WbsExecutor {
           seeded: true,
           seededAt,
           spawnCount: spawnedTasks.length,
-          subtasks: spawnedTasks.map(t => ({ id: t.id, writeToPath: t.writeToPath })),
+          subtasks: spawnedTasks.map((t) => ({
+            id: t.id,
+            writeToPath: t.writeToPath,
+          })),
         };
-        await writeFile(join(structure.task, 'wbs.json'), JSON.stringify(wbsJson, null, 2), 'utf-8');
+        await writeFile(
+          join(structure.task, "wbs.json"),
+          JSON.stringify(wbsJson, null, 2),
+          "utf-8",
+        );
       }
 
       return { spawnCount: spawnedTasks.length, durationMs };
-
     } catch (error: any) {
       const durationMs = Date.now() - start;
 
-      console.error(`[wbs:${this.taskMeta.id}] ❌ WBS execution failed: ${error.message}`);
+      console.error(
+        `[wbs:${this.taskMeta.id}] ❌ WBS execution failed: ${error.message}`,
+      );
 
       // ======================================================================
       // STEP 5: LOG ERROR AS FACT (infrastructure exists now)
       // ======================================================================
       await factsLogger.logFact({
-        id: 'error:wbs-execution',
-        type: 'error',
-        cmd: 'wbs-execution',
+        id: "error:wbs-execution",
+        type: "error",
+        cmd: "wbs-execution",
         ok: false,
         output: error.stack || error.message,
         exitCode: 1,
@@ -286,7 +341,7 @@ export class WbsExecutor {
       // ======================================================================
       // STEP 6: WRITE ERROR LOG FILE
       // ======================================================================
-      const errorLogPath = join(structure.task!, 'logs', 'error.log');
+      const errorLogPath = join(structure.task!, "logs", "error.log");
       const errorLogContent = [
         `[${new Date().toISOString()}] WBS Execution Failed`,
         ``,
@@ -297,11 +352,11 @@ export class WbsExecutor {
         `Error: ${error.name}: ${error.message}`,
         ``,
         `Stack Trace:`,
-        error.stack || '(no stack trace available)',
+        error.stack || "(no stack trace available)",
         ``,
-      ].join('\n');
+      ].join("\n");
 
-      await writeFile(errorLogPath, errorLogContent, 'utf-8');
+      await writeFile(errorLogPath, errorLogContent, "utf-8");
 
       // ======================================================================
       // STEP 7: LOG EVENT TO JOURNAL
@@ -310,7 +365,7 @@ export class WbsExecutor {
         this.projectDir,
         this.journalCtx.epicId,
         this.journalCtx.taskId,
-        'CLAUDEFN_FAILED',
+        "CLAUDEFN_FAILED",
         `wbs failed: ${error.message}`,
         {
           error: error.message,
@@ -324,19 +379,34 @@ export class WbsExecutor {
       // ======================================================================
       // STEP 8: TRIGGER SELF-HEALING (if strategies available)
       // ======================================================================
-      const shouldRetry = await this.triggerSelfHealing(error, attemptNumber, factsLogger);
+      const shouldRetry = await this.triggerSelfHealing(
+        error,
+        attemptNumber,
+        factsLogger,
+      );
 
       if (shouldRetry) {
-        console.log(`[wbs:${this.taskMeta.id}] 🔄 Self-healing succeeded - retrying WBS execution...`);
+        console.log(
+          `[wbs:${this.taskMeta.id}] 🔄 Self-healing succeeded - retrying WBS execution...`,
+        );
 
         // Retry WBS execution (increment attempt number)
         const retryAttemptNumber = attemptNumber + 1;
-        if (retryAttemptNumber <= 3) {  // Max 3 attempts
-          console.log(`[wbs:${this.taskMeta.id}] ↻ Attempt #${retryAttemptNumber}`);
+        if (retryAttemptNumber <= 3) {
+          // Max 3 attempts
+          console.log(
+            `[wbs:${this.taskMeta.id}] ↻ Attempt #${retryAttemptNumber}`,
+          );
           return await this.run(wbsFn, retryAttemptNumber);
         } else {
-          console.log(`[wbs:${this.taskMeta.id}] ❌ Max retry attempts (3) exceeded`);
-          return { spawnCount: 0, durationMs, error: `Max retry attempts exceeded after auto-fix` };
+          console.log(
+            `[wbs:${this.taskMeta.id}] ❌ Max retry attempts (3) exceeded`,
+          );
+          return {
+            spawnCount: 0,
+            durationMs,
+            error: `Max retry attempts exceeded after auto-fix`,
+          };
         }
       }
 
@@ -373,7 +443,9 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
       if (!booleanPromise) {
         booleanPromise = (async (): Promise<boolean> => {
           const executor = agentfn<{ answer: boolean; reasoning: string }>({
-            prompt: basePrompt + `\n\nReturn a JSON object:\n- answer: true if the condition is fully met, false otherwise\n- reasoning: brief explanation (1-2 sentences)`,
+            prompt:
+              basePrompt +
+              `\n\nReturn a JSON object:\n- answer: true if the condition is fully met, false otherwise\n- reasoning: brief explanation (1-2 sentences)`,
             schema: AskSchema,
             allowedTools: [...READONLY_TOOLS],
             timeoutMs: 60_000,
@@ -394,13 +466,17 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
 
     return {
       then: <TResult1 = boolean, TResult2 = never>(
-        onfulfilled?: ((value: boolean) => TResult1 | PromiseLike<TResult1>) | null,
+        onfulfilled?:
+          | ((value: boolean) => TResult1 | PromiseLike<TResult1>)
+          | null,
         onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null,
       ) => getBooleanPromise().then(onfulfilled, onrejected),
 
-      asJson: <T>(schema: import('zod').ZodType<T>): Promise<T> => {
+      asJson: <T>(schema: import("zod").ZodType<T>): Promise<T> => {
         const executor = agentfn<T>({
-          prompt: basePrompt + `\n\nReturn a JSON object matching the requested schema.`,
+          prompt:
+            basePrompt +
+            `\n\nReturn a JSON object matching the requested schema.`,
           schema,
           allowedTools: [...READONLY_TOOLS],
           timeoutMs: 120_000,
@@ -408,7 +484,7 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
           logDir,
         });
 
-        return executor().then(r => r.data);
+        return executor().then((r) => r.data);
       },
     };
   }
@@ -419,7 +495,7 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
       this.journalCtx.epicId,
       this.journalCtx.taskId,
     );
-    return join(structure.task!, 'logs');
+    return join(structure.task!, "logs");
   }
 
   /**
@@ -436,47 +512,53 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
   private async triggerSelfHealing(
     error: Error,
     attemptNumber: number,
-    factsLogger: any
+    factsLogger: any,
   ): Promise<boolean> {
     console.log(`[wbs:${this.taskMeta.id}] 🔧 Triggering self-healing...`);
 
     // Strategy 1: Invalid skill reference (NEW - CRITICAL)
-    if (error.name === 'InvalidSkillReferenceError' || error.message.includes('Invalid skill reference')) {
-      console.log(`   → Strategy: Invalid skill reference - WBS code needs fixing`);
+    if (
+      error.name === "InvalidSkillReferenceError" ||
+      error.message.includes("Invalid skill reference")
+    ) {
+      console.log(
+        `   → Strategy: Invalid skill reference - WBS code needs fixing`,
+      );
 
       await factsLogger.logFact({
-        id: 'self-healing:invalid-skill',
-        type: 'self-healing',
-        cmd: 'validate-skills',
+        id: "self-healing:invalid-skill",
+        type: "self-healing",
+        cmd: "validate-skills",
         ok: false,
         output: `Detected invalid skill reference`,
         exitCode: 1,
         collectedAt: new Date().toISOString(),
-        strategy: 'invalid-skill-reference',
+        strategy: "invalid-skill-reference",
         errorMessage: error.message,
       });
 
       // Create gap and trigger resolution
       const gap: Gap = {
         id: `wbs-invalid-skill:${this.taskMeta.id}:${Date.now()}`,
-        type: 'semantic',
-        level: 'task',
+        type: "semantic",
+        level: "task",
         scope: this.taskMeta.id,
         description: `WBS generated invalid skill reference: ${error.message}`,
         detected: new Date().toISOString(),
         resolved: false,
-        checks: ['wbs-skill-validation'],
+        checks: ["wbs-skill-validation"],
         metadata: {
-          gapKind: 'wbs-invalid-skill',
+          gapKind: "wbs-invalid-skill",
           errorType: error.name,
           errorMessage: error.message,
           errorStack: error.stack,
-          source: 'wbs-executor',
+          source: "wbs-executor",
           taskFilePath: this.taskFilePath,
           attemptNumber,
         },
-        severity: 'critical',
-        suggestedFix: 'Remove the skill field from the WBS-generated task definition or create the missing skill',
+        severity: "critical",
+        suggestedFix:
+          "Remove the skill field from the WBS-generated task definition or create the missing skill",
       };
 
       const shouldRetry = await this.triggerGapResolution(gap, factsLogger);
@@ -484,20 +566,25 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
     }
 
     // Strategy 2: Missing file detection
-    if (error.message.includes('ENOENT') || error.message.includes('no such file')) {
+    if (
+      error.message.includes("ENOENT") ||
+      error.message.includes("no such file")
+    ) {
       const missingFile = this.extractFilePathFromError(error);
-      console.log(`   → Strategy: Missing dependency - file not found: ${missingFile}`);
+      console.log(
+        `   → Strategy: Missing dependency - file not found: ${missingFile}`,
+      );
 
       // Log self-healing attempt as fact
       await factsLogger.logFact({
-        id: 'self-healing:missing-file',
-        type: 'self-healing',
+        id: "self-healing:missing-file",
+        type: "self-healing",
         cmd: `test -f ${missingFile}`,
         ok: false,
         output: `Detected missing file: ${missingFile}`,
         exitCode: 1,
         collectedAt: new Date().toISOString(),
-        strategy: 'missing-dependency',
+        strategy: "missing-dependency",
         missingFile,
         errorMessage: error.message,
       });
@@ -505,23 +592,23 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
       // Create gap and trigger resolution
       const gap: Gap = {
         id: `wbs-missing-file:${this.taskMeta.id}:${Date.now()}`,
-        type: 'structural',
-        level: 'task',
+        type: "structural",
+        level: "task",
         scope: this.taskMeta.id,
         description: `WBS execution failed: missing required file ${missingFile}`,
         detected: new Date().toISOString(),
         resolved: false,
-        checks: ['wbs-execution'],
+        checks: ["wbs-execution"],
         metadata: {
-          gapKind: 'input',
+          gapKind: "input",
           missingFile,
           errorMessage: error.message,
           errorStack: error.stack,
-          source: 'wbs-executor',
+          source: "wbs-executor",
           taskFilePath: this.taskFilePath,
           attemptNumber,
         },
-        severity: 'critical',
+        severity: "critical",
       };
 
       const shouldRetry = await this.triggerGapResolution(gap, factsLogger);
@@ -529,21 +616,25 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
     }
 
     // Strategy 2.5: ESM/CommonJS module system errors
-    if (error.name === 'ReferenceError' &&
-        (error.message.includes('require is not defined') ||
-         error.message.includes('exports is not defined') ||
-         error.message.includes('module is not defined'))) {
-      console.log(`   → Strategy: ESM/CommonJS mismatch - module system fix needed`);
+    if (
+      error.name === "ReferenceError" &&
+      (error.message.includes("require is not defined") ||
+        error.message.includes("exports is not defined") ||
+        error.message.includes("module is not defined"))
+    ) {
+      console.log(
+        `   → Strategy: ESM/CommonJS mismatch - module system fix needed`,
+      );
 
       await factsLogger.logFact({
-        id: 'self-healing:module-system-error',
-        type: 'self-healing',
-        cmd: 'module-system-check',
+        id: "self-healing:module-system-error",
+        type: "self-healing",
+        cmd: "module-system-check",
         ok: false,
         output: `Detected module system error: ${error.message}`,
         exitCode: 1,
         collectedAt: new Date().toISOString(),
-        strategy: 'esm-commonjs-repair',
+        strategy: "esm-commonjs-repair",
         errorType: error.name,
         errorMessage: error.message,
       });
@@ -553,35 +644,36 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
       // Parent generator is .../task.ts (go up 2 levels from /task/...)
       let wbsGeneratorPath: string | undefined;
 
-      if (this.taskFilePath.includes('/task/')) {
+      if (this.taskFilePath.includes("/task/")) {
         // Remove the /task/002-001-.../task.ts part to get parent path
-        const parentPath = this.taskFilePath.split('/task/')[0] + '/task.ts';
+        const parentPath = this.taskFilePath.split("/task/")[0] + "/task.ts";
         wbsGeneratorPath = relative(this.projectDir, parentPath);
       }
 
       // Create gap and trigger resolution
       const gap: Gap = {
         id: `wbs-module-system:${this.taskMeta.id}:${Date.now()}`,
-        type: 'semantic',
-        level: 'task',
+        type: "semantic",
+        level: "task",
         scope: this.taskMeta.id,
         description: `Module system error in WBS-generated code: ${error.message}`,
         detected: new Date().toISOString(),
         resolved: false,
-        checks: ['wbs-execution'],
+        checks: ["wbs-execution"],
         metadata: {
-          gapKind: 'module-system-error',
+          gapKind: "module-system-error",
           errorType: error.name,
           errorMessage: error.message,
           errorStack: error.stack,
-          source: 'wbs-executor',
+          source: "wbs-executor",
           taskFilePath: this.taskFilePath,
           attemptNumber,
           isSystemicIssue: true, // This is a WBS generator bug
           wbsGeneratorPath, // Path to parent WBS that generated this task
         },
-        severity: 'critical',
-        suggestedFix: 'Convert CommonJS require() to ESM import statements in WBS-generated task code',
+        severity: "critical",
+        suggestedFix:
+          "Convert CommonJS require() to ESM import statements in WBS-generated task code",
       };
 
       const shouldRetry = await this.triggerGapResolution(gap, factsLogger);
@@ -589,18 +681,18 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
     }
 
     // Strategy 3: Syntax/Type errors
-    if (error.name === 'SyntaxError' || error.name === 'TypeError') {
+    if (error.name === "SyntaxError" || error.name === "TypeError") {
       console.log(`   → Strategy: Code error - AI review needed`);
 
       await factsLogger.logFact({
-        id: 'self-healing:code-error',
-        type: 'self-healing',
-        cmd: 'code-review',
+        id: "self-healing:code-error",
+        type: "self-healing",
+        cmd: "code-review",
         ok: false,
         output: `Code error detected: ${error.name}`,
         exitCode: 1,
         collectedAt: new Date().toISOString(),
-        strategy: 'code-review',
+        strategy: "code-review",
         errorType: error.name,
         errorMessage: error.message,
       });
@@ -608,23 +700,23 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
       // Create gap and trigger resolution
       const gap: Gap = {
         id: `wbs-definition-error:${this.taskMeta.id}:${Date.now()}`,
-        type: 'semantic',
-        level: 'task',
+        type: "semantic",
+        level: "task",
         scope: this.taskMeta.id,
         description: `WBS definition error: ${error.message}`,
         detected: new Date().toISOString(),
         resolved: false,
-        checks: ['wbs-execution'],
+        checks: ["wbs-execution"],
         metadata: {
-          gapKind: 'wbs-definition-error',
+          gapKind: "wbs-definition-error",
           errorType: error.name,
           errorMessage: error.message,
           errorStack: error.stack,
-          source: 'wbs-executor',
+          source: "wbs-executor",
           taskFilePath: this.taskFilePath,
           attemptNumber,
         },
-        severity: 'critical',
+        severity: "critical",
       };
 
       const shouldRetry = await this.triggerGapResolution(gap, factsLogger);
@@ -635,14 +727,14 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
     console.log(`   → Strategy: WBS script error - triggering AI repair`);
 
     await factsLogger.logFact({
-      id: 'self-healing:wbs-script-error',
-      type: 'self-healing',
-      cmd: 'wbs-script-repair',
+      id: "self-healing:wbs-script-error",
+      type: "self-healing",
+      cmd: "wbs-script-repair",
       ok: false,
       output: `WBS script error: ${error.name}: ${error.message}`,
       exitCode: 1,
       collectedAt: new Date().toISOString(),
-      strategy: 'wbs-script-repair',
+      strategy: "wbs-script-repair",
       errorType: error.name,
       errorMessage: error.message,
       errorStack: error.stack,
@@ -650,20 +742,20 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
 
     const gap: Gap = {
       id: `wbs-script-error:${this.taskMeta.id}:${Date.now()}`,
-      type: 'semantic',
-      level: 'task',
+      type: "semantic",
+      level: "task",
       scope: this.taskMeta.id,
       description: `WBS script failed: ${error.message}`,
       detected: new Date().toISOString(),
       resolved: false,
-      checks: ['wbs-execution'],
+      checks: ["wbs-execution"],
       metadata: {
-        gapKind: 'wbs-script-error',
+        gapKind: "wbs-script-error",
         scriptPath: this.taskFilePath,
         errorType: error.name,
         errorMessage: error.message,
         errorStack: error.stack,
-        source: 'wbs-executor',
+        source: "wbs-executor",
         attemptNumber,
       },
     };
@@ -677,22 +769,31 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
    *
    * @returns true if gap was resolved and retry is recommended, false otherwise
    */
-  private async triggerGapResolution(gap: Gap, factsLogger: any): Promise<boolean> {
+  private async triggerGapResolution(
+    gap: Gap,
+    factsLogger: any,
+  ): Promise<boolean> {
     try {
-      console.log(`[wbs:${this.taskMeta.id}] 🔧 Creating gap and triggering repair pipeline...`);
+      console.log(
+        `[wbs:${this.taskMeta.id}] 🔧 Creating gap and triggering repair pipeline...`,
+      );
 
-      console.log(`[wbs:${this.taskMeta.id}] 🔧 Attempting to fix gap: ${gap.id}`);
+      console.log(
+        `[wbs:${this.taskMeta.id}] 🔧 Attempting to fix gap: ${gap.id}`,
+      );
 
       // Use strategies directly (same as what GapFixer.fixGap did internally)
       const result = await this.runStrategiesForGap(gap);
 
       if (result.success) {
-        console.log(`[wbs:${this.taskMeta.id}] ✅ Gap resolved by strategy: ${result.strategyName}`);
+        console.log(
+          `[wbs:${this.taskMeta.id}] ✅ Gap resolved by strategy: ${result.strategyName}`,
+        );
 
         // Log success fact
         await factsLogger.logFact({
           id: `gap-resolved:${gap.id}`,
-          type: 'gap-resolution',
+          type: "gap-resolution",
           ok: true,
           output: `Gap resolved successfully`,
           strategyName: result.strategyName,
@@ -701,25 +802,33 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
         });
 
         // Handle retry mode
-        if (result.retryMode === 'full') {
-          console.log(`[wbs:${this.taskMeta.id}] 🔄 Retry mode: full - WBS will be re-executed`);
+        if (result.retryMode === "full") {
+          console.log(
+            `[wbs:${this.taskMeta.id}] 🔄 Retry mode: full - WBS will be re-executed`,
+          );
           return true; // Signal retry
-        } else if (result.retryMode === 'validate') {
-          console.log(`[wbs:${this.taskMeta.id}] ✓ Retry mode: validate - running checks only`);
+        } else if (result.retryMode === "validate") {
+          console.log(
+            `[wbs:${this.taskMeta.id}] ✓ Retry mode: validate - running checks only`,
+          );
           return true; // Signal retry
-        } else if (result.retryMode === 'none') {
-          console.log(`[wbs:${this.taskMeta.id}] ✓ Retry mode: none - gap fixed, no retry needed`);
+        } else if (result.retryMode === "none") {
+          console.log(
+            `[wbs:${this.taskMeta.id}] ✓ Retry mode: none - gap fixed, no retry needed`,
+          );
           return false; // No retry needed
         }
 
         return true; // Default to retry if retryMode is set
       } else {
-        console.log(`[wbs:${this.taskMeta.id}] ❌ Gap resolution failed - all strategies exhausted`);
+        console.log(
+          `[wbs:${this.taskMeta.id}] ❌ Gap resolution failed - all strategies exhausted`,
+        );
 
         // Log failure fact
         await factsLogger.logFact({
           id: `gap-failed:${gap.id}`,
-          type: 'gap-resolution',
+          type: "gap-resolution",
           ok: false,
           output: `Gap resolution failed after ${result.attempts?.length || 0} attempts`,
           attempts: result.attempts?.length || 0,
@@ -729,7 +838,10 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
         return false; // No retry - gap could not be fixed
       }
     } catch (err: any) {
-      console.error(`[wbs:${this.taskMeta.id}] ❌ Error during gap resolution:`, err.message);
+      console.error(
+        `[wbs:${this.taskMeta.id}] ❌ Error during gap resolution:`,
+        err.message,
+      );
       return false; // Error during gap resolution - no retry
     }
   }
@@ -737,15 +849,24 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
   /**
    * Run repair strategies directly against a gap (replaces GapFixer.fixGapWithResolution).
    */
-  private async runStrategiesForGap(gap: Gap): Promise<import('../repair/types.ts').Resolution> {
+  private async runStrategiesForGap(
+    gap: Gap,
+  ): Promise<import("../repair/types.ts").Resolution> {
     const start = Date.now();
-    const { TaskRunStrategy } = await import('../repair/strategies/task-run.ts');
-    const { UserQuestionResumeStrategy } = await import('../repair/strategies/user-question-resume.ts');
-    const { WBSGeneratorRepairStrategy } = await import('../repair/strategies/wbs-generator-repair.ts');
-    const { WbsScriptRepairStrategy } = await import('../repair/strategies/wbs-script-repair.ts');
-    const { DependencyBackoffStrategy } = await import('../repair/strategies/dependency-backoff.ts');
-    const { MissingInputPatternRepairStrategy } = await import('../repair/strategies/missing-input-pattern.ts');
-    const { ToolEnvironmentRepairStrategy } = await import('../repair/strategies/tool-environment-repair.ts');
+    const { TaskRunStrategy } =
+      await import("../repair/strategies/task-run.ts");
+    const { UserQuestionResumeStrategy } =
+      await import("../repair/strategies/user-question-resume.ts");
+    const { WBSGeneratorRepairStrategy } =
+      await import("../repair/strategies/wbs-generator-repair.ts");
+    const { WbsScriptRepairStrategy } =
+      await import("../repair/strategies/wbs-script-repair.ts");
+    const { DependencyBackoffStrategy } =
+      await import("../repair/strategies/dependency-backoff.ts");
+    const { MissingInputPatternRepairStrategy } =
+      await import("../repair/strategies/missing-input-pattern.ts");
+    const { ToolEnvironmentRepairStrategy } =
+      await import("../repair/strategies/tool-environment-repair.ts");
 
     const strategies = [
       new UserQuestionResumeStrategy(),
@@ -769,9 +890,16 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
       try {
         const outcome = await strategy.tryFix(gap, sCtx);
         if (outcome.success) {
-          return { success: true, attempts: [], durationMs: Date.now() - start, strategyName: strategy.name };
+          return {
+            success: true,
+            attempts: [],
+            durationMs: Date.now() - start,
+            strategyName: strategy.name,
+          };
         }
-      } catch { /* Strategy failed, try next */ }
+      } catch {
+        /* Strategy failed, try next */
+      }
     }
 
     return { success: false, attempts: [], durationMs: Date.now() - start };
@@ -783,7 +911,7 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
    */
   private async validateGeneratedFiles(): Promise<void> {
     // Find all .ts files in the task subdirectory
-    const parentBaseName = basename(this.taskFilePath, '.ts');
+    const parentBaseName = basename(this.taskFilePath, ".ts");
     const taskDir = join(dirname(this.taskFilePath), parentBaseName);
 
     if (!existsSync(taskDir)) {
@@ -791,7 +919,7 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
     }
 
     // Recursively find all .ts files
-    const { readFile } = await import('node:fs/promises');
+    const { readFile } = await import("node:fs/promises");
     const findTsFiles = (dir: string): string[] => {
       const results: string[] = [];
       const entries = readdirSync(dir, { withFileTypes: true });
@@ -800,7 +928,7 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
         const fullPath = join(dir, entry.name);
         if (entry.isDirectory()) {
           results.push(...findTsFiles(fullPath));
-        } else if (entry.name.endsWith('.ts')) {
+        } else if (entry.name.endsWith(".ts")) {
           results.push(fullPath);
         }
       }
@@ -812,21 +940,23 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
 
     // Check each TypeScript file for CommonJS patterns
     for (const filePath of tsFiles) {
-      const content = await readFile(filePath, 'utf-8');
+      const content = await readFile(filePath, "utf-8");
 
       // Detect CommonJS require() in ESM context
-      const requireMatch = content.match(/(?:const|let|var)\s+(?:\{[^}]+\}|\w+)\s*=\s*require\s*\(/);
+      const requireMatch = content.match(
+        /(?:const|let|var)\s+(?:\{[^}]+\}|\w+)\s*=\s*require\s*\(/,
+      );
 
       if (requireMatch) {
         // Found CommonJS in generated file - throw error to trigger self-healing
         const error = new Error(
           `Generated TypeScript file contains CommonJS require() statement.\n\n` +
-          `File: ${relative(this.projectDir, filePath)}\n` +
-          `Pattern: ${requireMatch[0]}\n\n` +
-          `This WBS generator is producing code with CommonJS syntax in an ESM context.\n` +
-          `The generator template needs to be fixed to use ES6 import statements instead.`
+            `File: ${relative(this.projectDir, filePath)}\n` +
+            `Pattern: ${requireMatch[0]}\n\n` +
+            `This WBS generator is producing code with CommonJS syntax in an ESM context.\n` +
+            `The generator template needs to be fixed to use ES6 import statements instead.`,
         );
-        error.name = 'ReferenceError'; // Use ReferenceError to match runtime error
+        error.name = "ReferenceError"; // Use ReferenceError to match runtime error
         throw error;
       }
     }
@@ -842,10 +972,10 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
   private extractFilePathFromError(error: Error): string {
     // Try to extract path from common error message patterns
     const patterns = [
-      /['"]([^'"]+\.(?:md|ts|js|json|txt))['"]/,  // Quoted file paths
-      /open ['"]([^'"]+)['"]/,                     // "open '/path/to/file'"
-      /find module ['"]([^'"]+)['"]/,              // "find module '/path/to/file'"
-      /ENOENT.*['"]([^'"]+)['"]/,                  // ENOENT errors
+      /['"]([^'"]+\.(?:md|ts|js|json|txt))['"]/, // Quoted file paths
+      /open ['"]([^'"]+)['"]/, // "open '/path/to/file'"
+      /find module ['"]([^'"]+)['"]/, // "find module '/path/to/file'"
+      /ENOENT.*['"]([^'"]+)['"]/, // ENOENT errors
     ];
 
     for (const pattern of patterns) {
@@ -853,7 +983,7 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
       if (match) return match[1];
     }
 
-    return 'unknown';
+    return "unknown";
   }
 
   /**
@@ -869,29 +999,34 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
     // → targetTaskId: '001-analyze-data-models'
     // → filename: 'plan.md'
 
-    const parts = relativePath.split('/');
-    const filename = parts.pop()!;  // 'plan.md'
-    const relativeTaskPath = parts.join('/');  // '../001-analyze-data-models'
+    const parts = relativePath.split("/");
+    const filename = parts.pop()!; // 'plan.md'
+    const relativeTaskPath = parts.join("/"); // '../001-analyze-data-models'
 
     // Resolve relative task ID against current task ID
     // Current: this.journalCtx.taskId (e.g., '004-implement-stores' or '002-pages/002-001-home')
     // Relative: '../001-analyze-data-models'
     // → '001-analyze-data-models'
 
-    const currentSegments = this.journalCtx.taskId.split('/');
+    const currentSegments = this.journalCtx.taskId.split("/");
     let targetTaskId: string;
 
-    if (relativeTaskPath.startsWith('../')) {
+    if (relativeTaskPath.startsWith("../")) {
       // Go up one level, then append the target
       const upLevels = (relativeTaskPath.match(/\.\.\//g) || []).length;
-      const remaining = relativeTaskPath.replace(/\.\.\//g, '');
-      const baseSegments = currentSegments.slice(0, currentSegments.length - upLevels);
-      targetTaskId = remaining ? [...baseSegments, remaining].join('/') : baseSegments.join('/');
-    } else if (relativeTaskPath.startsWith('./')) {
+      const remaining = relativeTaskPath.replace(/\.\.\//g, "");
+      const baseSegments = currentSegments.slice(
+        0,
+        currentSegments.length - upLevels,
+      );
+      targetTaskId = remaining
+        ? [...baseSegments, remaining].join("/")
+        : baseSegments.join("/");
+    } else if (relativeTaskPath.startsWith("./")) {
       // Same directory - join with current task's parent
-      const targetName = relativeTaskPath.replace('./', '');
+      const targetName = relativeTaskPath.replace("./", "");
       const parentSegments = currentSegments.slice(0, -1);
-      targetTaskId = [...parentSegments, targetName].join('/');
+      targetTaskId = [...parentSegments, targetName].join("/");
     } else if (relativeTaskPath) {
       // Direct path - use as is
       targetTaskId = relativeTaskPath;
@@ -904,12 +1039,12 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
     const structure = getJournalStructure(
       this.projectDir,
       this.journalCtx.epicId,
-      targetTaskId
+      targetTaskId,
     );
 
     if (!structure.task) {
       throw new Error(
-        `Task not found: ${targetTaskId} (resolved from ${relativePath} in context of ${this.journalCtx.taskId})`
+        `Task not found: ${targetTaskId} (resolved from ${relativePath} in context of ${this.journalCtx.taskId})`,
       );
     }
 
@@ -927,29 +1062,37 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
  */
 export function taskDefToMdShape(def: TaskDefinition): TaskMdShape {
   const skills = def.skill
-    ? (Array.isArray(def.skill) ? def.skill : [def.skill])
+    ? Array.isArray(def.skill)
+      ? def.skill
+      : [def.skill]
     : undefined;
 
   // Map planConfig → plan (TaskMdPlan)
-  let plan: TaskMdShape['plan'] | undefined;
+  let plan: TaskMdShape["plan"] | undefined;
   if (def.planConfig) {
     plan = {};
     if (def.planConfig.prompt) {
-      plan.prompt = typeof def.planConfig.prompt === 'string'
-        ? def.planConfig.prompt
-        : '[dynamic-function]';
+      plan.prompt =
+        typeof def.planConfig.prompt === "string"
+          ? def.planConfig.prompt
+          : "[dynamic-function]";
     }
     if (def.planConfig.output) plan.output = def.planConfig.output;
     if (def.planConfig.outputPrompt) {
-      plan.outputPrompt = typeof def.planConfig.outputPrompt === 'string'
-        ? def.planConfig.outputPrompt
-        : '[dynamic-function]';
+      plan.outputPrompt =
+        typeof def.planConfig.outputPrompt === "string"
+          ? def.planConfig.outputPrompt
+          : "[dynamic-function]";
     }
   }
 
   // Map checks — only static Check[] can be serialized
   const checks = Array.isArray(def.checks)
-    ? (def.checks as Check[]).map(c => ({ id: c.id, cmd: c.cmd, description: c.description }))
+    ? (def.checks as Check[]).map((c) => ({
+        id: c.id,
+        cmd: c.cmd,
+        description: c.description,
+      }))
     : undefined;
 
   return {
@@ -966,7 +1109,7 @@ export function taskDefToMdShape(def: TaskDefinition): TaskMdShape {
     tags: def.tags,
     vars: def.vars,
     plan,
-    body: typeof def.prompt === 'string' ? def.prompt : undefined,
+    body: typeof def.prompt === "string" ? def.prompt : undefined,
   };
 }
 
@@ -983,114 +1126,122 @@ async function writeTaskMdToFile(
   relPath: string,
 ): Promise<void> {
   // Normalize to TaskMdShape
-  const shape: TaskMdShape = isTaskMdShape(def) ? def : taskDefToMdShape(def as TaskDefinition);
+  const shape: TaskMdShape = isTaskMdShape(def)
+    ? def
+    : taskDefToMdShape(def as TaskDefinition);
 
   const absPath = join(projectDir, relPath);
   await mkdir(dirname(absPath), { recursive: true });
 
-  const fm: string[] = ['---'];
+  const fm: string[] = ["---"];
   if (shape.id) fm.push(`id: ${yamlStr(shape.id)}`);
   fm.push(`title: ${yamlStr(shape.title ?? shape.id)}`);
   if (shape.description) fm.push(`description: ${yamlStr(shape.description)}`);
   if (shape.agent) fm.push(`agent: ${yamlStr(shape.agent)}`);
   if (shape.skills?.length) {
-    fm.push('skills:');
-    shape.skills.forEach(s => fm.push(`  - ${yamlStr(s)}`));
+    fm.push("skills:");
+    shape.skills.forEach((s) => fm.push(`  - ${yamlStr(s)}`));
   }
   if (shape.dependencies?.length) {
-    fm.push('dependencies:');
-    shape.dependencies.forEach(d => fm.push(`  - ${yamlStr(d)}`));
+    fm.push("dependencies:");
+    shape.dependencies.forEach((d) => fm.push(`  - ${yamlStr(d)}`));
   }
   if (shape.blocking !== undefined) {
     fm.push(`blocking: ${shape.blocking}`);
   }
   if (shape.tags?.length) {
-    fm.push('tags:');
-    shape.tags.forEach(t => fm.push(`  - ${yamlStr(t)}`));
+    fm.push("tags:");
+    shape.tags.forEach((t) => fm.push(`  - ${yamlStr(t)}`));
   }
   if (shape.inputs?.length) {
-    fm.push('inputs:');
-    shape.inputs.forEach(i => fm.push(`  - ${yamlStr(i)}`));
+    fm.push("inputs:");
+    shape.inputs.forEach((i) => fm.push(`  - ${yamlStr(i)}`));
   }
   if (shape.outputs?.length) {
-    fm.push('outputs:');
-    shape.outputs.forEach(o => fm.push(`  - ${yamlStr(o)}`));
+    fm.push("outputs:");
+    shape.outputs.forEach((o) => fm.push(`  - ${yamlStr(o)}`));
   }
   if (shape.checks?.length) {
-    fm.push('checks:');
-    shape.checks.forEach(c => {
+    fm.push("checks:");
+    shape.checks.forEach((c) => {
       fm.push(`  - id: ${yamlStr(c.id)}`);
       if (c.description) fm.push(`    description: ${yamlStr(c.description)}`);
       if (c.cmd) fm.push(`    cmd: ${yamlStr(c.cmd)}`);
     });
   }
   if (shape.needs?.length) {
-    fm.push('needs:');
-    shape.needs.forEach(n => {
+    fm.push("needs:");
+    shape.needs.forEach((n) => {
       fm.push(`  - id: ${yamlStr(n.id)}`);
       if (n.description) fm.push(`    description: ${yamlStr(n.description)}`);
       if (n.cmd) fm.push(`    cmd: ${yamlStr(n.cmd)}`);
     });
   }
   if (shape.executor) {
-    fm.push('executor:');
+    fm.push("executor:");
     fm.push(`  type: ${shape.executor.type}`);
     if (shape.executor.path) fm.push(`  path: ${yamlStr(shape.executor.path)}`);
     if (shape.executor.args?.length) {
-      fm.push('  args:');
-      shape.executor.args.forEach(a => fm.push(`    - ${yamlStr(a)}`));
+      fm.push("  args:");
+      shape.executor.args.forEach((a) => fm.push(`    - ${yamlStr(a)}`));
     }
     if (shape.executor.env && Object.keys(shape.executor.env).length > 0) {
-      fm.push('  env:');
+      fm.push("  env:");
       for (const [k, v] of Object.entries(shape.executor.env)) {
         fm.push(`    ${k}: ${yamlStr(v)}`);
       }
     }
   }
   if (shape.wbs) {
-    fm.push('wbs:');
+    fm.push("wbs:");
     fm.push(`  type: ${shape.wbs.type}`);
     if (shape.wbs.path) fm.push(`  path: ${yamlStr(shape.wbs.path)}`);
-    if ((shape.wbs as any).prompt) fm.push(`  prompt: ${yamlStr((shape.wbs as any).prompt)}`);
+    if ((shape.wbs as any).prompt)
+      fm.push(`  prompt: ${yamlStr((shape.wbs as any).prompt)}`);
     if (shape.wbs.args?.length) {
-      fm.push('  args:');
-      shape.wbs.args.forEach(a => fm.push(`    - ${yamlStr(a)}`));
+      fm.push("  args:");
+      shape.wbs.args.forEach((a) => fm.push(`    - ${yamlStr(a)}`));
     }
     if (shape.wbs.env && Object.keys(shape.wbs.env).length > 0) {
-      fm.push('  env:');
+      fm.push("  env:");
       for (const [k, v] of Object.entries(shape.wbs.env)) {
         fm.push(`    ${k}: ${yamlStr(v)}`);
       }
     }
   }
   if (shape.plan) {
-    fm.push('plan:');
+    fm.push("plan:");
     if (shape.plan.prompt) fm.push(`  prompt: ${yamlStr(shape.plan.prompt)}`);
     if (shape.plan.output) fm.push(`  output: ${yamlStr(shape.plan.output)}`);
-    if (shape.plan.outputPrompt) fm.push(`  outputPrompt: ${yamlStr(shape.plan.outputPrompt)}`);
+    if (shape.plan.outputPrompt)
+      fm.push(`  outputPrompt: ${yamlStr(shape.plan.outputPrompt)}`);
   }
   if (shape.materials?.length) {
-    fm.push('materials:');
-    shape.materials.forEach(m => fm.push(`  - ${yamlStr(m)}`));
+    fm.push("materials:");
+    shape.materials.forEach((m) => fm.push(`  - ${yamlStr(m)}`));
   }
   if (shape.vars && Object.keys(shape.vars).length > 0) {
-    fm.push('vars:');
+    fm.push("vars:");
     for (const [k, v] of Object.entries(shape.vars)) {
       fm.push(`  ${k}: ${yamlScalar(v)}`);
     }
   }
 
-  fm.push('---');
+  fm.push("---");
 
-  const body = shape.body ?? shape.prompt ?? '';
-  const bodyStr = body ? `\n${body}\n` : '';
-  await writeFile(absPath, fm.join('\n') + '\n' + bodyStr, 'utf-8');
+  const body = shape.body ?? shape.prompt ?? "";
+  const bodyStr = body ? `\n${body}\n` : "";
+  await writeFile(absPath, fm.join("\n") + "\n" + bodyStr, "utf-8");
 }
 
 /** Minimal YAML scalar quoting — double-quotes strings that need it. */
 function yamlStr(value: string): string {
   // Quote if contains special YAML chars or starts with special chars
-  if (/[:#\[\]{}&*!|>'"%@`,]/.test(value) || /^\s/.test(value) || value.includes('\n')) {
+  if (
+    /[:#\[\]{}&*!|>'"%@`,]/.test(value) ||
+    /^\s/.test(value) ||
+    value.includes("\n")
+  ) {
     return JSON.stringify(value); // JSON double-quote is valid YAML double-quote
   }
   return value;
@@ -1098,19 +1249,23 @@ function yamlStr(value: string): string {
 
 /** Serialize an arbitrary value as a YAML scalar (inline). */
 function yamlScalar(value: unknown): string {
-  if (value === null || value === undefined) return 'null';
-  if (typeof value === 'boolean' || typeof value === 'number') return String(value);
-  if (typeof value === 'string') return yamlStr(value);
+  if (value === null || value === undefined) return "null";
+  if (typeof value === "boolean" || typeof value === "number")
+    return String(value);
+  if (typeof value === "string") return yamlStr(value);
   // For objects/arrays, use JSON inline (valid YAML)
   return JSON.stringify(value);
 }
 
 /** Type guard: is this a TaskMdShape (has `id` as string, no builder/function traits)? */
 function isTaskMdShape(t: unknown): t is TaskMdShape {
-  return typeof t === 'object' && t !== null
-    && typeof (t as any).id === 'string'
-    && typeof (t as any).build !== 'function'
-    && (t as any)._type === undefined;
+  return (
+    typeof t === "object" &&
+    t !== null &&
+    typeof (t as any).id === "string" &&
+    typeof (t as any).build !== "function" &&
+    (t as any)._type === undefined
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -1134,21 +1289,32 @@ export async function resolveWbsTarget(
   ctx: WbsContext,
 ): Promise<TaskMdShape> {
   // 1. RawMarkdown
-  if (typeof target === 'object' && target !== null && (target as any)._type === 'raw-markdown') {
+  if (
+    typeof target === "object" &&
+    target !== null &&
+    (target as any)._type === "raw-markdown"
+  ) {
     const raw = target as RawMarkdown;
     const shape = parseTaskMdString(raw.content);
     if (opts?.id) shape.id = opts.id;
-    if (!shape.id) throw new Error('rawMd() spawn requires an id (set in frontmatter or via opts.id)');
+    if (!shape.id)
+      throw new Error(
+        "rawMd() spawn requires an id (set in frontmatter or via opts.id)",
+      );
     return shape;
   }
 
   // 2. TemplateRef
-  if (typeof target === 'object' && target !== null && (target as any)._type === 'template-ref') {
+  if (
+    typeof target === "object" &&
+    target !== null &&
+    (target as any)._type === "template-ref"
+  ) {
     const ref = target as TemplateRef;
-    const { readFile: readFileAsync } = await import('node:fs/promises');
-    const { resolve: resolvePath } = await import('node:path');
+    const { readFile: readFileAsync } = await import("node:fs/promises");
+    const { resolve: resolvePath } = await import("node:path");
     const templatePath = resolvePath(ctx.projectDir, ref.path);
-    let raw = await readFileAsync(templatePath, 'utf-8');
+    let raw = await readFileAsync(templatePath, "utf-8");
 
     // Substitute {{var}} placeholders before parsing
     if (ref.vars && Object.keys(ref.vars).length > 0) {
@@ -1156,39 +1322,44 @@ export async function resolveWbsTarget(
         if (!(key in ref.vars!)) {
           throw new Error(
             `Template '${ref.path}' references undefined variable '{{${key}}}'. ` +
-            `Available vars: ${Object.keys(ref.vars!).join(', ')}`
+              `Available vars: ${Object.keys(ref.vars!).join(", ")}`,
           );
         }
         const value = ref.vars![key];
-        return value == null ? '' : String(value);
+        return value == null ? "" : String(value);
       });
     }
 
     const shape = parseTaskMdString(raw);
     if (opts?.id) shape.id = opts.id;
     if (ref.vars) shape.vars = { ...shape.vars, ...ref.vars };
-    if (!shape.id) throw new Error(`template('${ref.path}') spawn requires an id (set in frontmatter or via opts.id)`);
+    if (!shape.id)
+      throw new Error(
+        `template('${ref.path}') spawn requires an id (set in frontmatter or via opts.id)`,
+      );
     return shape;
   }
 
   // 3. String → skill name
-  if (typeof target === 'string') {
+  if (typeof target === "string") {
     let extractedId: string | undefined;
 
-    if (target.includes('/task/') || target.includes('/epics/')) {
-      const match = target.match(/[\\/]([^\\/]+)[\\/](?:task\.ts|TASK\.md|SKILL\.md)$/);
+    if (target.includes("/task/") || target.includes("/epics/")) {
+      const match = target.match(
+        /[\\/]([^\\/]+)[\\/](?:task\.ts|TASK\.md|SKILL\.md)$/,
+      );
       if (match) extractedId = match[1];
     }
 
     const id = opts?.id ?? extractedId;
     if (!id) {
       throw new Error(
-        `ctx.spawn('${target}', opts) requires opts.id when the target is a skill name or ID cannot be auto-extracted from path.`
+        `ctx.spawn('${target}', opts) requires opts.id when the target is a skill name or ID cannot be auto-extracted from path.`,
       );
     }
 
-    const skillName = target.includes('/skills/')
-      ? target.replace(/^.*[\\/]([^\\/]+)([\\/](?:TASK|SKILL)\.md)?$/, '$1')
+    const skillName = target.includes("/skills/")
+      ? target.replace(/^.*[\\/]([^\\/]+)([\\/](?:TASK|SKILL)\.md)?$/, "$1")
       : undefined;
 
     return {
@@ -1205,13 +1376,16 @@ export async function resolveWbsTarget(
   }
 
   // 4. Function → call it; if returns string treat as markdown, else TaskDefinition
-  if (typeof target === 'function') {
+  if (typeof target === "function") {
     const result = (target as Function)(ctx);
     const resolved = result instanceof Promise ? await result : result;
-    if (typeof resolved === 'string') {
+    if (typeof resolved === "string") {
       const shape = parseTaskMdString(resolved);
       if (opts?.id) shape.id = opts.id;
-      if (!shape.id) throw new Error('(ctx) => string spawn requires an id (set in frontmatter or via opts.id)');
+      if (!shape.id)
+        throw new Error(
+          "(ctx) => string spawn requires an id (set in frontmatter or via opts.id)",
+        );
       return shape;
     }
     // Factory returning TaskDefinition
@@ -1224,19 +1398,32 @@ export async function resolveWbsTarget(
   }
 
   // 6. Plain object with `id` — either TaskMdShape or TaskDefinition
-  if (typeof target === 'object' && target !== null && typeof (target as any).id === 'string') {
+  if (
+    typeof target === "object" &&
+    target !== null &&
+    typeof (target as any).id === "string"
+  ) {
     // If it has TaskDefinition-specific fields (skill, prompt as fn, etc.), convert
     const obj = target as any;
-    if (obj.skill !== undefined || obj.wbsFn !== undefined || obj.planConfig !== undefined) {
+    if (
+      obj.skill !== undefined ||
+      obj.wbsFn !== undefined ||
+      obj.planConfig !== undefined
+    ) {
       return taskDefToMdShape(obj as TaskDefinition);
     }
     // Treat as TaskMdShape directly
     return obj as TaskMdShape;
   }
 
-  throw new Error('ctx.spawn() received an unrecognized target type');
+  throw new Error("ctx.spawn() received an unrecognized target type");
 }
 
 function isBuilder(t: unknown): t is TaskDefinitionBuilder {
-  return typeof t === 'object' && t !== null && 'def' in t && typeof (t as any).build === 'function';
+  return (
+    typeof t === "object" &&
+    t !== null &&
+    "def" in t &&
+    typeof (t as any).build === "function"
+  );
 }

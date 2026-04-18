@@ -2,7 +2,7 @@
  * Unit module types.
  */
 
-import type { Gap } from '../gap/types.ts';
+import type { Gap } from "../gap/types.ts";
 
 export interface UnitConfig {
   /** Maximum iterations before stopping */

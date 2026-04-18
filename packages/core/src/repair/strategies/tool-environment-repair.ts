@@ -23,14 +23,18 @@
  *   4. Or provide setup instructions for missing tools
  */
 
-import { z } from 'zod';
-import { readdirSync } from 'node:fs';
-import type { Gap } from '../../gap/types.ts';
-import type { FixStrategy, StrategyContext, StrategyOutcome } from '../types.ts';
-import { createAIContext } from '../../ai/context.ts';
-import { createFilesystemHelper } from '../helpers/filesystem.ts';
-import { createTaskHelper } from '../helpers/task.ts';
-import { logTaskEvent } from '../../journal/writer.ts';
+import { z } from "zod";
+import { readdirSync } from "node:fs";
+import type { Gap } from "../../gap/types.ts";
+import type {
+  FixStrategy,
+  StrategyContext,
+  StrategyOutcome,
+} from "../types.ts";
+import { createAIContext } from "../../ai/context.ts";
+import { createFilesystemHelper } from "../helpers/filesystem.ts";
+import { createTaskHelper } from "../helpers/task.ts";
+import { logTaskEvent } from "../../journal/writer.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Schemas                                                           */
@@ -38,31 +42,49 @@ import { logTaskEvent } from '../../journal/writer.ts';
 
 const ToolEnvironmentAnalysisSchema = z.object({
   issueType: z.enum([
-    'broken-check-command',
-    'tool-format-change',
-    'missing-tool',
-    'tool-version-mismatch',
-    'environment-config',
-    'not-applicable',
+    "broken-check-command",
+    "tool-format-change",
+    "missing-tool",
+    "tool-version-mismatch",
+    "environment-config",
+    "not-applicable",
   ]),
-  toolName: z.string().describe('Name of tool or dependency (e.g., "Stitch CLI", "npm", "node")'),
-  oldFormat: z.string().optional().describe('Previous output format (for tool-format-change)'),
-  newFormat: z.string().optional().describe('Current output format (for tool-format-change)'),
-  missingDependency: z.string().optional().describe('What dependency is missing'),
+  toolName: z
+    .string()
+    .describe('Name of tool or dependency (e.g., "Stitch CLI", "npm", "node")'),
+  oldFormat: z
+    .string()
+    .optional()
+    .describe("Previous output format (for tool-format-change)"),
+  newFormat: z
+    .string()
+    .optional()
+    .describe("Current output format (for tool-format-change)"),
+  missingDependency: z
+    .string()
+    .optional()
+    .describe("What dependency is missing"),
   reasoning: z.string(),
   adaptationStrategy: z.enum([
-    'update-check-command',
-    'update-expectations',
-    'create-symlink',
-    'wrapper-script',
-    'install-instructions',
-    'both',
-    'none',
+    "update-check-command",
+    "update-expectations",
+    "create-symlink",
+    "wrapper-script",
+    "install-instructions",
+    "both",
+    "none",
   ]),
-  actions: z.array(z.object({
-    type: z.enum(['update-skill-md', 'create-symlink', 'create-wrapper', 'log-setup-instructions']),
-    details: z.record(z.unknown()),
-  })),
+  actions: z.array(
+    z.object({
+      type: z.enum([
+        "update-skill-md",
+        "create-symlink",
+        "create-wrapper",
+        "log-setup-instructions",
+      ]),
+      details: z.record(z.unknown()),
+    }),
+  ),
 });
 
 type ToolEnvironmentAnalysis = z.infer<typeof ToolEnvironmentAnalysisSchema>;
@@ -72,20 +94,27 @@ type ToolEnvironmentAnalysis = z.infer<typeof ToolEnvironmentAnalysisSchema>;
 /* ------------------------------------------------------------------ */
 
 export class ToolEnvironmentRepairStrategy implements FixStrategy {
-  readonly name = 'tool-environment-repair';
-  readonly description = 'Detects and repairs external tool/environment configuration issues, including broken check commands via AI healing';
+  readonly name = "tool-environment-repair";
+  readonly description =
+    "Detects and repairs external tool/environment configuration issues, including broken check commands via AI healing";
   readonly priority = 8;
 
   canHandle(gap: Gap): boolean {
-    // Handle check-failed gaps
-    if (gap.metadata?.gapKind === 'check-failed') {
-      // Broken command check (exit 127) — handled by this strategy
-      if (gap.metadata?.checkOutput?.includes('command not found') ||
-          gap.metadata?.checkOutput?.includes('not found') ||
-          gap.metadata?.checkExitCode === 127) {
+    if (gap.metadata?.gapKind === "check-failed") {
+      // Exit 127 / command not found
+      if (
+        gap.metadata?.checkOutput?.includes("command not found") ||
+        gap.metadata?.checkOutput?.includes("not found") ||
+        gap.metadata?.checkExitCode === 127
+      ) {
         return true;
       }
-      // Also handle check-failed where task completed (external tool issue)
+      // Structurally broken: `! cmd | cmd` negated pipeline
+      const cmd = gap.metadata?.checkCmd as string;
+      if (cmd && /^!\s+\S+.*\|/.test(cmd)) {
+        return true;
+      }
+      // Task completed but check still fails
       if (gap.metadata?.taskCompletedSuccessfully === true) {
         return true;
       }
@@ -98,12 +127,14 @@ export class ToolEnvironmentRepairStrategy implements FixStrategy {
 
     console.log(`   🔍 Analyzing for tool/environment issues...`);
 
-    // Check if this is a broken command (exit 127)
-    const isBrokenCommand = gap.metadata?.checkOutput?.includes('command not found') ||
-                          gap.metadata?.checkOutput?.includes('not found') ||
-                          gap.metadata?.checkExitCode === 127;
+    const cmd = gap.metadata?.checkCmd as string;
+    const isBrokenCmd =
+      gap.metadata?.checkOutput?.includes("command not found") ||
+      gap.metadata?.checkOutput?.includes("not found") ||
+      gap.metadata?.checkExitCode === 127;
+    const isStructurallyBroken = cmd && /^!\s+\S+.*\|/.test(cmd);
 
-    if (isBrokenCommand) {
+    if (isBrokenCmd || isStructurallyBroken) {
       return await this.fixBrokenCheckCommand(gap, ctx);
     }
 
@@ -119,7 +150,10 @@ export class ToolEnvironmentRepairStrategy implements FixStrategy {
    * When a check command is broken (command not found), use AI to analyze
    * and provide a replacement command that achieves the same validation goal.
    */
-  private async fixBrokenCheckCommand(gap: Gap, ctx: StrategyContext): Promise<StrategyOutcome> {
+  private async fixBrokenCheckCommand(
+    gap: Gap,
+    ctx: StrategyContext,
+  ): Promise<StrategyOutcome> {
     const { projectDir, journalCtx } = ctx;
 
     console.log(`   🔧 Broken check command detected — using AI to heal...`);
@@ -131,24 +165,26 @@ export class ToolEnvironmentRepairStrategy implements FixStrategy {
       const checkOutput = gap.metadata?.checkOutput as string;
 
       // Scan project root to give AI context
-      let projectFiles = '';
+      let projectFiles = "";
       try {
         const entries = readdirSync(projectDir);
-        projectFiles = entries.slice(0, 50).join(', ');
-      } catch { /* ignore */ }
+        projectFiles = entries.slice(0, 50).join(", ");
+      } catch {
+        /* ignore */
+      }
 
       // Create AI context
       const ai = createAIContext(projectDir, journalCtx);
 
-      const prompt = `A check command failed because the binary is not installed on this machine.
+      const prompt = `A check command failed — the binary is missing or the command is structurally broken.
 
 **Check Details:**
-- Check ID: ${gap.metadata?.checkId || 'unknown'}
-- Check Description: ${checkDescription || 'N/A'}
+- Check ID: ${gap.metadata?.checkId || "unknown"}
+- Check Description: ${checkDescription || "N/A"}
 - Failed Command: ${checkCmd}
 - Error Output: ${checkOutput}
 
-**Platform:** ${process.platform === 'win32' ? 'Windows (Git Bash)' : process.platform}
+**Platform:** ${process.platform === "win32" ? "Windows (Git Bash)" : process.platform}
 **Working directory:** ${projectDir}
 
 **Project files (first 50):** ${projectFiles}
@@ -161,27 +197,36 @@ export class ToolEnvironmentRepairStrategy implements FixStrategy {
 - If the check cannot be replicated simply, use: echo "check skipped" && exit 0
 - Return ONLY the single command string — no explanation, no markdown, no backticks
 
+**Common structural issues:**
+- \`! grep ... | head -1\` — The \`!\` negates the entire pipeline's exit code
+  (last command = \`head\`, which exits 0 on empty input). So \`! 0\` = exit 1 =
+  always fails, even when grep finds nothing. Fix: \`test -z "$(grep ...)"\`
+- Negated pipelines in general — \`!\` applies to the LAST command's exit code
+
 **Examples of valid replacements:**
 - \`node -e "require('fs').readFileSync('file','utf8')"\` — file existence via node
 - \`grep -q "pattern" file && exit 0 || exit 1\` — pattern match via grep
 - \`test -f path && test -d path\` — file/dir check via test builtin
+- \`test -z "$(grep pattern file)"\` — assert pattern NOT found (replaces \`! grep | head\`)
 - \`echo "check skipped" && exit 0\` — skip if too complex
 
 Return your replacement command now:`;
 
       const result = await ai.askString(prompt, {
-        phase: 'heal-check',
-        label: 'Broken Check Command Healing',
+        phase: "heal-check",
+        label: "Broken Check Command Healing",
         timeoutMs: 60_000,
       });
 
-      const healedCmd = result.trim().replace(/^`+|`+$/g, '');
+      const healedCmd = result.trim().replace(/^`+|`+$/g, "");
 
-      if (!healedCmd || healedCmd.includes('\n') || healedCmd.length > 2000) {
-        console.log(`   ⚠️  AI returned invalid response, cannot heal broken command`);
+      if (!healedCmd || healedCmd.includes("\n") || healedCmd.length > 2000) {
+        console.log(
+          `   ⚠️  AI returned invalid response, cannot heal broken command`,
+        );
         return {
           success: false,
-          reason: 'AI did not provide a valid replacement command',
+          reason: "AI did not provide a valid replacement command",
           shouldRetry: false,
         };
       }
@@ -194,33 +239,35 @@ Return your replacement command now:`;
       const filesystem = createFilesystemHelper(projectDir);
 
       await filesystem.updateSkillMd(skillPath, {
-        checks: [{
-          id: (gap.metadata?.checkId as string) || 'unknown',
-          cmd: healedCmd,
-          description: checkDescription,
-        }],
+        checks: [
+          {
+            id: (gap.metadata?.checkId as string) || "unknown",
+            cmd: healedCmd,
+            description: checkDescription,
+          },
+        ],
       });
 
       await logTaskEvent(
         projectDir,
         journalCtx.epicId,
         journalCtx.taskId,
-        'BROKEN_CHECK_HEALED',
+        "BROKEN_CHECK_HEALED",
         `Healed broken check command via AI: ${healedCmd}`,
         {
           strategyName: this.name,
           originalCmd: checkCmd,
           healedCmd,
           checkId: gap.metadata?.checkId,
-        }
+        },
       );
 
       return {
         success: true,
         reason: `Healed broken check command via AI: ${healedCmd}`,
-        retryMode: 'validate',
+        retryMode: "validate",
         metadata: {
-          issueType: 'broken-check-command',
+          issueType: "broken-check-command",
           originalCmd: checkCmd,
           healedCmd,
         },
@@ -239,7 +286,10 @@ Return your replacement command now:`;
   /*  Tool/Environment Analysis & Fix                                     */
   /* ------------------------------------------------------------------ */
 
-  private async analyzeAndFix(gap: Gap, ctx: StrategyContext): Promise<StrategyOutcome> {
+  private async analyzeAndFix(
+    gap: Gap,
+    ctx: StrategyContext,
+  ): Promise<StrategyOutcome> {
     const { projectDir, journalCtx } = ctx;
 
     try {
@@ -254,12 +304,12 @@ Return your replacement command now:`;
       const taskDefinition = await task.getDefinition(taskId);
 
       // Get filesystem state
-      const outputDir = gap.metadata?.outputDir as string || '.';
+      const outputDir = (gap.metadata?.outputDir as string) || ".";
       let filesystemState: string[] = [];
       try {
         filesystemState = await filesystem.listDirectory(outputDir);
       } catch {
-        filesystemState = ['<directory not found>'];
+        filesystemState = ["<directory not found>"];
       }
 
       // Analyze for tool/environment issues
@@ -270,11 +320,13 @@ Return your replacement command now:`;
         taskLogs,
         filesystemState,
         taskDefinition,
-        ai
+        ai,
       );
 
-      if (analysis.issueType === 'not-applicable') {
-        console.log(`   ↩  Not a tool/environment issue: ${analysis.reasoning}`);
+      if (analysis.issueType === "not-applicable") {
+        console.log(
+          `   ↩  Not a tool/environment issue: ${analysis.reasoning}`,
+        );
         return {
           success: false,
           reason: analysis.reasoning,
@@ -296,14 +348,14 @@ Return your replacement command now:`;
       }
 
       // Determine retry mode based on issue type and actions
-      let retryMode: 'full' | 'validate' | 'none' = 'full';
+      let retryMode: "full" | "validate" | "none" = "full";
 
-      if (analysis.issueType === 'missing-tool') {
-        retryMode = 'none';  // User must install manually
-      } else if (actionTypes.size === 1 && actionTypes.has('create-symlink')) {
-        retryMode = 'validate';  // Symlink-only: just validate
-      } else if (actionTypes.has('log-setup-instructions')) {
-        retryMode = 'none';  // Waiting for manual setup
+      if (analysis.issueType === "missing-tool") {
+        retryMode = "none"; // User must install manually
+      } else if (actionTypes.size === 1 && actionTypes.has("create-symlink")) {
+        retryMode = "validate"; // Symlink-only: just validate
+      } else if (actionTypes.has("log-setup-instructions")) {
+        retryMode = "none"; // Waiting for manual setup
       }
       // Otherwise: full rerun (definition updated)
 
@@ -312,7 +364,7 @@ Return your replacement command now:`;
         projectDir,
         journalCtx.epicId,
         journalCtx.taskId,
-        'TOOL_ENVIRONMENT_REPAIRED',
+        "TOOL_ENVIRONMENT_REPAIRED",
         `Adapted to ${analysis.issueType}: ${analysis.toolName}`,
         {
           strategyName: this.name,
@@ -324,12 +376,12 @@ Return your replacement command now:`;
           adaptationStrategy: analysis.adaptationStrategy,
           actions: results,
           retryMode,
-        }
+        },
       );
 
       return {
         success: true,
-        reason: `Fixed ${analysis.issueType} for ${analysis.toolName}: ${results.join(', ')}`,
+        reason: `Fixed ${analysis.issueType} for ${analysis.toolName}: ${results.join(", ")}`,
         retryMode,
         metadata: {
           issueType: analysis.issueType,
@@ -357,24 +409,24 @@ Return your replacement command now:`;
     taskLogs: string[],
     filesystemState: string[],
     taskDefinition: any,
-    ai: ReturnType<typeof createAIContext>
+    ai: ReturnType<typeof createAIContext>,
   ): Promise<ToolEnvironmentAnalysis> {
     const prompt = `You are analyzing a potential tool or environment configuration issue.
 
 **Task Details:**
 - Task: ${taskId}
 - Gap Type: ${gap.metadata?.gapKind || gap.type}
-- Expected Output: ${gap.metadata?.expectedOutput || 'N/A'}
-- Actual Output: ${gap.metadata?.actualOutput || 'N/A'}
+- Expected Output: ${gap.metadata?.expectedOutput || "N/A"}
+- Actual Output: ${gap.metadata?.actualOutput || "N/A"}
 
 **Task Logs (last 100 lines):**
 \`\`\`
-${taskLogs.slice(-100).join('\n')}
+${taskLogs.slice(-100).join("\n")}
 \`\`\`
 
 **Filesystem State:**
 \`\`\`
-${filesystemState.join('\n')}
+${filesystemState.join("\n")}
 \`\`\`
 
 **Task Definition:**
@@ -459,10 +511,10 @@ Focus on detecting external tool/environment issues, not task logic bugs.`;
       prompt,
       ToolEnvironmentAnalysisSchema,
       {
-        phase: 'analyze',
-        label: 'Tool/Environment Analysis',
+        phase: "analyze",
+        label: "Tool/Environment Analysis",
         timeoutMs: 180_000,
-      }
+      },
     );
   }
 
@@ -474,37 +526,39 @@ Focus on detecting external tool/environment issues, not task logic bugs.`;
     action: { type: string; details: Record<string, any> },
     gap: Gap,
     ctx: StrategyContext,
-    filesystem: ReturnType<typeof createFilesystemHelper>
+    filesystem: ReturnType<typeof createFilesystemHelper>,
   ): Promise<string> {
     switch (action.type) {
-      case 'update-task-md': {
-        const { createTaskHelper } = await import('../helpers/task.ts');
+      case "update-task-md": {
+        const { createTaskHelper } = await import("../helpers/task.ts");
         const task = createTaskHelper(ctx.projectDir, ctx.journalCtx.epicId);
         const skillPath = task.getSkillPath(ctx.journalCtx.taskId);
         await filesystem.updateTaskMd(skillPath, action.details);
         return `Updated TASK.md to match new tool format`;
       }
 
-      case 'create-symlink': {
+      case "create-symlink": {
         const { from, to } = action.details;
         await filesystem.createSymlink(from, to);
         return `Created compatibility symlink: ${to} → ${from}`;
       }
 
-      case 'create-wrapper': {
+      case "create-wrapper": {
         const { scriptPath, content } = action.details;
         return `Wrapper script creation not fully implemented (would create: ${scriptPath})`;
       }
 
-      case 'log-setup-instructions': {
+      case "log-setup-instructions": {
         const { message, requiredTools, setupCommands } = action.details;
         console.log(`\n   📋 Setup Required:`);
         console.log(`      ${message}`);
         if (setupCommands && Array.isArray(setupCommands)) {
           console.log(`      Commands:`);
-          setupCommands.forEach((cmd: string) => console.log(`        $ ${cmd}`));
+          setupCommands.forEach((cmd: string) =>
+            console.log(`        $ ${cmd}`),
+          );
         }
-        return `Logged setup instructions for missing tools: ${requiredTools?.join(', ') || 'N/A'}`;
+        return `Logged setup instructions for missing tools: ${requiredTools?.join(", ") || "N/A"}`;
       }
 
       default:

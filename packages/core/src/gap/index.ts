@@ -14,7 +14,7 @@ export type {
   GapDetectionConfig,
   GapPriority,
   PrioritizationStrategy,
-} from './types.ts';
+} from "./types.ts";
 
 export {
   GapSchema,
@@ -23,7 +23,7 @@ export {
   ConvergenceStateSchema,
   toCompactGap,
   formatCompactGaps,
-} from './types.ts';
+} from "./types.ts";
 
 // Detector
 export {
@@ -31,7 +31,7 @@ export {
   ConvergenceAnalyzer,
   createGapDetector,
   createConvergenceAnalyzer,
-} from './detector.ts';
+} from "./detector.ts";
 
 // Utilities
 export {
@@ -49,4 +49,4 @@ export {
   gapsIntersection,
   calculateGapStats,
   formatGapStats,
-} from './utils.ts';
+} from "./utils.ts";

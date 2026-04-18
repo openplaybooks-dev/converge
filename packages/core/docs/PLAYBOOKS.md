@@ -4,10 +4,10 @@ A playbook is the root unit of organization in Converge. Everything — tasks, g
 
 There are two patterns:
 
-| Pattern | Description | Example |
-|---------|-------------|---------|
-| **Continuous** | Long-lived, tasks evolve over time. You add, remove, and update tasks as the project grows. Runs many times over the same task set. | App development, default playbook |
-| **Keyed** | Runs many times with different inputs. Each run generates a fresh task set via top-level WBS based on the key. The playbook is a template — the WBS is the entry point. | Fix issue, review PR, process data |
+| Pattern        | Description                                                                                                                                                             | Example                            |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| **Continuous** | Long-lived, tasks evolve over time. You add, remove, and update tasks as the project grows. Runs many times over the same task set.                                     | App development, default playbook  |
+| **Keyed**      | Runs many times with different inputs. Each run generates a fresh task set via top-level WBS based on the key. The playbook is a template — the WBS is the entry point. | Fix issue, review PR, process data |
 
 ## Continuous Playbook
 
@@ -77,7 +77,7 @@ export async function run(ctx) {
   const issue = ctx.vars.issue;
 
   await ctx.spawn({
-    id: '001-investigate',
+    id: "001-investigate",
     title: `Investigate issue #${issue}`,
     body: `Read issue #${issue}, reproduce the bug, identify root cause.
            Write findings to .converge/fix-${issue}/analysis.json.`,
@@ -85,18 +85,18 @@ export async function run(ctx) {
   });
 
   await ctx.spawn({
-    id: '002-implement',
+    id: "002-implement",
     title: `Fix issue #${issue}`,
-    dependencies: ['001-investigate'],
+    dependencies: ["001-investigate"],
     inputs: [`.converge/fix-${issue}/analysis.json`],
     body: `Read analysis.json and implement the fix.`,
   });
 
   await ctx.spawn({
-    id: '003-verify',
+    id: "003-verify",
     title: `Verify fix for #${issue}`,
-    dependencies: ['002-implement'],
-    checks: [{ id: 'tests-pass', cmd: 'npm test' }],
+    dependencies: ["002-implement"],
+    checks: [{ id: "tests-pass", cmd: "npm test" }],
     body: `Run tests and verify the fix.`,
   });
 }
@@ -114,6 +114,7 @@ Each run is independent. The WBS reads the issue, decides what tasks to create, 
 ### More keyed playbook examples
 
 **PR Review:**
+
 ```yaml
 name: review-pr
 inputs:
@@ -127,6 +128,7 @@ wbs:
 The WBS reads the PR diff, spawns tasks per changed file or concern area.
 
 **Data Pipeline:**
+
 ```yaml
 name: process-batch
 inputs:
@@ -141,14 +143,14 @@ The WBS reads the batch manifest, spawns one task per data file.
 
 ## Key Difference
 
-| | Continuous | Keyed |
-|---|---|---|
-| Tasks | Authored manually + WBS children | Generated entirely by top-level WBS |
-| Identity | One long-lived task set | Fresh task set per key |
-| Runs | Same tasks, advancing progress | Different tasks each time |
-| WBS | Optional, at task level | Required, at playbook level |
-| Journal | Single timeline | One timeline per key run |
-| Example | `converge run` | `converge run --playbook=X --key=Y` |
+|          | Continuous                       | Keyed                               |
+| -------- | -------------------------------- | ----------------------------------- |
+| Tasks    | Authored manually + WBS children | Generated entirely by top-level WBS |
+| Identity | One long-lived task set          | Fresh task set per key              |
+| Runs     | Same tasks, advancing progress   | Different tasks each time           |
+| WBS      | Optional, at task level          | Required, at playbook level         |
+| Journal  | Single timeline                  | One timeline per key run            |
+| Example  | `converge run`                   | `converge run --playbook=X --key=Y` |
 
 ## Directory Structure
 
@@ -229,10 +231,10 @@ tasks:
 
 # Run configuration — how the playbook executes
 run:
-  mode: autonomous          # autonomous | converge | step
+  mode: autonomous # autonomous | converge | step
   maxIterations: 100
   maxTaskAttempts: 3
-  maxDuration: 30m          # supports: 30m, 2h, 90s, 1h30m, infinite
+  maxDuration: 30m # supports: 30m, 2h, 90s, 1h30m, infinite
   resume: true
 
 # Post-execution checks
@@ -344,11 +346,11 @@ Variables are substituted in TASK.md files, playbook.yml defaults, and epic IDs.
 
 ## Run Modes
 
-| Mode | Flag | Behavior |
-|------|------|----------|
-| `autonomous` | (default) | Snap → find → execute → commit loop |
-| `converge` | `--converge` | Wave-based: evaluate goals → plan → execute → score |
-| `step` | `--step` | Execute one task then exit |
+| Mode         | Flag         | Behavior                                            |
+| ------------ | ------------ | --------------------------------------------------- |
+| `autonomous` | (default)    | Snap → find → execute → commit loop                 |
+| `converge`   | `--converge` | Wave-based: evaluate goals → plan → execute → score |
+| `step`       | `--step`     | Execute one task then exit                          |
 
 The playbook's `run.mode` sets the default. CLI flags override.
 
@@ -377,6 +379,7 @@ journal/{playbook}/
 ```
 
 **trends.jsonl** enables cross-run comparison:
+
 ```jsonl
 {"sessionId":"sess-001","timestamp":"...","tasksTotal":5,"tasksComplete":5,"tasksFailed":0,"durationMs":60000}
 {"sessionId":"sess-002","timestamp":"...","tasksTotal":5,"tasksComplete":5,"tasksFailed":0,"durationMs":45000}
@@ -387,19 +390,19 @@ journal/{playbook}/
 All paths are resolved through `PlaybookPaths`:
 
 ```typescript
-import { resolvePlaybookPaths } from '@converge/core';
+import { resolvePlaybookPaths } from "@converge/core";
 
-const paths = resolvePlaybookPaths(projectDir, 'fix-issue');
-paths.tasks        // .converge/playbooks/fix-issue/tasks/
-paths.goals        // .converge/playbooks/fix-issue/goals/
-paths.journal      // .converge/journal/fix-issue/
-paths.journalTasks // .converge/journal/fix-issue/tasks/
-paths.sessions     // .converge/journal/fix-issue/sessions/
-paths.config       // .converge/playbooks/fix-issue/playbook.yml
+const paths = resolvePlaybookPaths(projectDir, "fix-issue");
+paths.tasks; // .converge/playbooks/fix-issue/tasks/
+paths.goals; // .converge/playbooks/fix-issue/goals/
+paths.journal; // .converge/journal/fix-issue/
+paths.journalTasks; // .converge/journal/fix-issue/tasks/
+paths.sessions; // .converge/journal/fix-issue/sessions/
+paths.config; // .converge/playbooks/fix-issue/playbook.yml
 
 const defaults = resolvePlaybookPaths(projectDir);
-paths.tasks        // .converge/playbooks/default/tasks/
-paths.journal      // .converge/journal/default/
+paths.tasks; // .converge/playbooks/default/tasks/
+paths.journal; // .converge/journal/default/
 ```
 
 ## Quick Start

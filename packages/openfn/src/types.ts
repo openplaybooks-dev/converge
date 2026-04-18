@@ -113,9 +113,7 @@ export interface OpenFnResult<T = string> {
 }
 
 /** A callable function created by openfn() */
-export type OpenFn<T = string> = (
-  input?: string,
-) => Promise<OpenFnResult<T>>;
+export type OpenFn<T = string> = (input?: string) => Promise<OpenFnResult<T>>;
 
 // ─── Composition Types ─────────────────────────────────────
 

@@ -13,18 +13,18 @@
  * existing behavior — backward compatible).
  */
 
-import { existsSync } from 'node:fs';
-import { readFile } from 'node:fs/promises';
-import { resolve, dirname } from 'node:path';
-import { execFile } from 'node:child_process';
-import { parse as parseYaml } from 'yaml';
-import type { ConvergeConfig } from './types.ts';
-import type { ConvergeHooks, HookEvent } from '../hooks/types.ts';
+import { existsSync } from "node:fs";
+import { readFile } from "node:fs/promises";
+import { resolve, dirname } from "node:path";
+import { execFile } from "node:child_process";
+import { parse as parseYaml } from "yaml";
+import type { ConvergeConfig } from "./types.ts";
+import type { ConvergeHooks, HookEvent } from "../hooks/types.ts";
 
 /** Legacy config file name inside .converge/ (with YAML frontmatter) */
-const LEGACY_CONFIG_NAME = '.converge/PROJECT.md';
+const LEGACY_CONFIG_NAME = ".converge/PROJECT.md";
 /** V2 storage config file name inside .converge/ (pure YAML) */
-const V2_CONFIG_NAME = '.converge/project.yaml';
+const V2_CONFIG_NAME = ".converge/project.yaml";
 
 /* ------------------------------------------------------------------ */
 /*  Discovery                                                          */
@@ -33,7 +33,7 @@ const V2_CONFIG_NAME = '.converge/project.yaml';
 /**
  * Config file type
  */
-export type ConfigFileType = 'PROJECT.md' | 'project.yaml';
+export type ConfigFileType = "PROJECT.md" | "project.yaml";
 
 /**
  * Find `.converge/PROJECT.md` or `.converge/project.yaml` by walking up from `startDir`.
@@ -45,20 +45,22 @@ export type ConfigFileType = 'PROJECT.md' | 'project.yaml';
  * const result = await findConvergeConfig(process.cwd());
  * // → { path: '/my-project/.converge/PROJECT.md', type: 'PROJECT.md' } or null
  */
-export async function findConvergeConfig(startDir: string): Promise<{ path: string; type: ConfigFileType } | null> {
+export async function findConvergeConfig(
+  startDir: string,
+): Promise<{ path: string; type: ConfigFileType } | null> {
   let dir = resolve(startDir);
 
   while (true) {
     // Try legacy PROJECT.md first
     const legacyCandidate = resolve(dir, LEGACY_CONFIG_NAME);
     if (existsSync(legacyCandidate)) {
-      return { path: legacyCandidate, type: 'PROJECT.md' };
+      return { path: legacyCandidate, type: "PROJECT.md" };
     }
 
     // Fall back to V2 project.yaml
     const v2Candidate = resolve(dir, V2_CONFIG_NAME);
     if (existsSync(v2Candidate)) {
-      return { path: v2Candidate, type: 'project.yaml' };
+      return { path: v2Candidate, type: "project.yaml" };
     }
 
     const parent = dirname(dir);
@@ -85,13 +87,15 @@ const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/;
  *
  * @throws If the file cannot be read or the YAML is invalid.
  */
-async function loadProjectMdConfig(configPath: string): Promise<ConvergeConfig> {
+async function loadProjectMdConfig(
+  configPath: string,
+): Promise<ConvergeConfig> {
   let raw: string;
   try {
-    raw = await readFile(configPath, 'utf-8');
+    raw = await readFile(configPath, "utf-8");
   } catch (err: any) {
     throw new Error(
-      `Failed to read config from ${configPath}:\n  ${err.message}`
+      `Failed to read config from ${configPath}:\n  ${err.message}`,
     );
   }
 
@@ -99,7 +103,7 @@ async function loadProjectMdConfig(configPath: string): Promise<ConvergeConfig> 
   if (!match) {
     throw new Error(
       `${configPath} must contain YAML frontmatter (---\\n...\\n---).\n` +
-      `See PROJECT.md format reference.`
+        `See PROJECT.md format reference.`,
     );
   }
 
@@ -107,15 +111,17 @@ async function loadProjectMdConfig(configPath: string): Promise<ConvergeConfig> 
   try {
     frontmatter = parseYaml(match[1]) as Record<string, unknown>;
   } catch (err: any) {
-    throw new Error(
-      `Invalid YAML in ${configPath}:\n  ${err.message}`
-    );
+    throw new Error(`Invalid YAML in ${configPath}:\n  ${err.message}`);
   }
 
-  if (!frontmatter || typeof frontmatter !== 'object' || Array.isArray(frontmatter)) {
+  if (
+    !frontmatter ||
+    typeof frontmatter !== "object" ||
+    Array.isArray(frontmatter)
+  ) {
     throw new Error(
       `${configPath} frontmatter must be a YAML mapping.\n` +
-      `See PROJECT.md format reference.`
+        `See PROJECT.md format reference.`,
     );
   }
 
@@ -134,13 +140,15 @@ async function loadProjectMdConfig(configPath: string): Promise<ConvergeConfig> 
  *
  * @throws If the file cannot be read or the YAML is invalid.
  */
-async function loadProjectYamlConfig(configPath: string): Promise<ConvergeConfig> {
+async function loadProjectYamlConfig(
+  configPath: string,
+): Promise<ConvergeConfig> {
   let raw: string;
   try {
-    raw = await readFile(configPath, 'utf-8');
+    raw = await readFile(configPath, "utf-8");
   } catch (err: any) {
     throw new Error(
-      `Failed to read config from ${configPath}:\n  ${err.message}`
+      `Failed to read config from ${configPath}:\n  ${err.message}`,
     );
   }
 
@@ -148,15 +156,13 @@ async function loadProjectYamlConfig(configPath: string): Promise<ConvergeConfig
   try {
     data = parseYaml(raw) as Record<string, unknown>;
   } catch (err: any) {
-    throw new Error(
-      `Invalid YAML in ${configPath}:\n  ${err.message}`
-    );
+    throw new Error(`Invalid YAML in ${configPath}:\n  ${err.message}`);
   }
 
-  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
     throw new Error(
       `${configPath} must be a YAML mapping (object).\n` +
-      `See project.yaml format reference.`
+        `See project.yaml format reference.`,
     );
   }
 
@@ -171,23 +177,23 @@ async function loadProjectYamlConfig(configPath: string): Promise<ConvergeConfig
 function buildConfigFromData(
   data: Record<string, unknown>,
   projectDir: string,
-  body?: string
+  body?: string,
 ): ConvergeConfig {
   const config: ConvergeConfig = {
     name: data.name as string,
     description: (data.description as string) || body || undefined,
     dir: (data.dir as string) || projectDir,
-    discovery: data.discovery as ConvergeConfig['discovery'],
-    plugins: data.plugins as ConvergeConfig['plugins'],
-    variables: data.variables as ConvergeConfig['variables'],
-    runtime: data.runtime as ConvergeConfig['runtime'],
-    agents: data.agents as ConvergeConfig['agents'],
-    skills: data.skills as ConvergeConfig['skills'],
-    ai: data.ai as ConvergeConfig['ai'],
+    discovery: data.discovery as ConvergeConfig["discovery"],
+    plugins: data.plugins as ConvergeConfig["plugins"],
+    variables: data.variables as ConvergeConfig["variables"],
+    runtime: data.runtime as ConvergeConfig["runtime"],
+    agents: data.agents as ConvergeConfig["agents"],
+    skills: data.skills as ConvergeConfig["skills"],
+    ai: data.ai as ConvergeConfig["ai"],
   };
 
   // Convert hook strings to async functions
-  if (data.hooks && typeof data.hooks === 'object') {
+  if (data.hooks && typeof data.hooks === "object") {
     config.hooks = convertScriptHooks(
       data.hooks as Record<string, string>,
       projectDir,
@@ -213,11 +219,16 @@ function buildConfigFromData(
  *
  * @throws If the file cannot be read or the YAML is invalid.
  */
-export async function loadConvergeConfig(configPath: string, type?: ConfigFileType): Promise<ConvergeConfig> {
+export async function loadConvergeConfig(
+  configPath: string,
+  type?: ConfigFileType,
+): Promise<ConvergeConfig> {
   // Auto-detect type from path if not provided
-  const configType = type || (configPath.endsWith('project.yaml') ? 'project.yaml' : 'PROJECT.md');
+  const configType =
+    type ||
+    (configPath.endsWith("project.yaml") ? "project.yaml" : "PROJECT.md");
 
-  if (configType === 'project.yaml') {
+  if (configType === "project.yaml") {
     return loadProjectYamlConfig(configPath);
   } else {
     return loadProjectMdConfig(configPath);
@@ -247,28 +258,35 @@ function convertScriptHooks(
   const result: ConvergeHooks = {};
 
   for (const [event, script] of Object.entries(hooks)) {
-    if (typeof script !== 'string') continue;
+    if (typeof script !== "string") continue;
 
     const hookEvent = event as HookEvent;
     const resolvedScript = resolve(projectDir, script);
 
-    (result as Record<string, Function>)[hookEvent] = async (payload: unknown) => {
+    (result as Record<string, Function>)[hookEvent] = async (
+      payload: unknown,
+    ) => {
       const safePayload = buildSafePayload(hookEvent, payload);
 
       try {
         await new Promise<void>((res, rej) => {
-          const child = execFile(resolvedScript, [], {
-            cwd: projectDir,
-            timeout: HOOK_TIMEOUT_MS,
-            env: {
-              ...process.env,
-              HOOK_EVENT: hookEvent,
-              HOOK_PAYLOAD: JSON.stringify(safePayload),
+          const child = execFile(
+            resolvedScript,
+            [],
+            {
+              cwd: projectDir,
+              timeout: HOOK_TIMEOUT_MS,
+              env: {
+                ...process.env,
+                HOOK_EVENT: hookEvent,
+                HOOK_PAYLOAD: JSON.stringify(safePayload),
+              },
             },
-          }, (err) => {
-            if (err) rej(err);
-            else res();
-          });
+            (err) => {
+              if (err) rej(err);
+              else res();
+            },
+          );
           child.unref();
         });
       } catch {
@@ -284,19 +302,24 @@ function convertScriptHooks(
  * Build a safe, serializable payload subset for hook scripts.
  * Strips non-serializable values (functions, circular refs).
  */
-function buildSafePayload(event: string, payload: unknown): Record<string, unknown> {
-  if (!payload || typeof payload !== 'object') {
+function buildSafePayload(
+  event: string,
+  payload: unknown,
+): Record<string, unknown> {
+  if (!payload || typeof payload !== "object") {
     return { event };
   }
 
   const safe: Record<string, unknown> = { event };
 
-  for (const [key, value] of Object.entries(payload as Record<string, unknown>)) {
-    if (typeof value === 'function') continue;
-    if (typeof value === 'object' && value !== null) {
+  for (const [key, value] of Object.entries(
+    payload as Record<string, unknown>,
+  )) {
+    if (typeof value === "function") continue;
+    if (typeof value === "object" && value !== null) {
       // Only include simple scalar properties from nested objects
-      if ('taskId' in value) safe.taskId = (value as any).taskId;
-      if ('epicId' in value) safe.epicId = (value as any).epicId;
+      if ("taskId" in value) safe.taskId = (value as any).taskId;
+      if ("epicId" in value) safe.epicId = (value as any).epicId;
       if (value instanceof Error) safe.error = value.message;
       continue;
     }
@@ -322,9 +345,11 @@ function buildSafePayload(event: string, payload: unknown): Record<string, unkno
  *   // use config.hooks, config.discovery, etc.
  * }
  */
-export async function resolveConvergeConfig(
-  startDir: string
-): Promise<{ config: ConvergeConfig; configPath: string; type: ConfigFileType } | null> {
+export async function resolveConvergeConfig(startDir: string): Promise<{
+  config: ConvergeConfig;
+  configPath: string;
+  type: ConfigFileType;
+} | null> {
   const result = await findConvergeConfig(startDir);
   if (!result) return null;
 

@@ -23,7 +23,7 @@
  * ```
  */
 
-import { z } from 'zod';
+import { z } from "zod";
 
 /* ------------------------------------------------------------------ */
 /*  Metrics & Pricing Configuration                                   */
@@ -76,32 +76,36 @@ export type MetricsConfig = z.infer<typeof MetricsConfigSchema>;
 /**
  * AI provider configuration for a single provider
  */
-export const AIProviderConfigSchema = z.object({
-  provider: z.enum(['claude', 'acp', 'kimi', 'qwen', 'gemini']).optional(),
-  apiKey: z.string().optional(),
-  baseUrl: z.string().optional(),
-  model: z.string().optional(),
-  timeoutMs: z.number().optional(),
-  maxRetries: z.number().optional(),
-  /** Environment variables to set when running this provider (e.g., for Claude CLI with Kimi) */
-  env: z.record(z.string()).optional(),
-}).passthrough();
+export const AIProviderConfigSchema = z
+  .object({
+    provider: z.enum(["claude", "acp", "kimi", "qwen", "gemini"]).optional(),
+    apiKey: z.string().optional(),
+    baseUrl: z.string().optional(),
+    model: z.string().optional(),
+    timeoutMs: z.number().optional(),
+    maxRetries: z.number().optional(),
+    /** Environment variables to set when running this provider (e.g., for Claude CLI with Kimi) */
+    env: z.record(z.string()).optional(),
+  })
+  .passthrough();
 
 export type AIProviderConfig = z.infer<typeof AIProviderConfigSchema>;
 
 /**
  * Multi-provider AI configuration
  */
-export const AIMultiProviderConfigSchema = z.object({
-  default: z.string(),
-  providers: z.record(z.string(), AIProviderConfigSchema.passthrough()),
-}).passthrough();
+export const AIMultiProviderConfigSchema = z
+  .object({
+    default: z.string(),
+    providers: z.record(z.string(), AIProviderConfigSchema.passthrough()),
+  })
+  .passthrough();
 
 export type AIMultiProviderConfig = z.infer<typeof AIMultiProviderConfigSchema>;
 
 /**
  * AI configuration - can be single provider or multi-provider
- * 
+ *
  * Uses a discriminated approach: if 'providers' field exists, it's multi-provider.
  * Otherwise, it's single-provider.
  */
@@ -128,7 +132,7 @@ export const ProjectConfigSchema = z.object({
   description: z.string().optional(),
 
   /** Project goals (invariants to achieve) */
-  goals: z.array(z.string()),
+  goals: z.array(z.string()).default([]),
 
   /** Variables accessible to all tasks */
   variables: z.record(z.unknown()).default({}),
@@ -139,8 +143,11 @@ export const ProjectConfigSchema = z.object({
       z.union([
         z.string(), // "typescript"
         z.tuple([z.string(), z.record(z.unknown())]), // ["nextjs", { appDir: true }]
-        z.object({ name: z.string(), options: z.record(z.unknown()).optional() }),
-      ])
+        z.object({
+          name: z.string(),
+          options: z.record(z.unknown()).optional(),
+        }),
+      ]),
     )
     .default([]),
 
@@ -211,7 +218,7 @@ export type EpicConfig = z.infer<typeof EpicConfigSchema>;
  */
 export const EpicStatusSchema = z.object({
   id: z.string(),
-  status: z.enum(['planned', 'active', 'completed', 'blocked', 'failed']),
+  status: z.enum(["planned", "active", "completed", "blocked", "failed"]),
   currentGaps: z.array(z.string()).default([]),
   lastEvaluation: z.string().optional(),
   attempts: z.number().default(0),
@@ -304,7 +311,14 @@ export type TaskConfig = z.infer<typeof TaskConfigSchema>;
  */
 export const TaskStatusSchema = z.object({
   id: z.string(),
-  status: z.enum(['pending', 'active', 'completed', 'blocked', 'failed', 'skipped']),
+  status: z.enum([
+    "pending",
+    "active",
+    "completed",
+    "blocked",
+    "failed",
+    "skipped",
+  ]),
   currentGaps: z.array(z.string()).default([]),
   lastEvaluation: z.string().optional(),
   attempts: z.number().default(0),
@@ -336,13 +350,13 @@ export type TaskStatus = z.infer<typeof TaskStatusSchema>;
  * Gap type enumeration
  */
 export const GapTypeSchema = z.enum([
-  'structural', // Missing files, directories, modules
-  'semantic', // Logic errors, incorrect implementation
-  'quality', // Style, performance, maintainability issues
-  'integration', // Integration failures, API mismatches
-  'missing-intermediate', // Missing intermediate task in pipeline
-  'incomplete', // Task not fully completed
-  'missing-dependency', // Required dependency not available
+  "structural", // Missing files, directories, modules
+  "semantic", // Logic errors, incorrect implementation
+  "quality", // Style, performance, maintainability issues
+  "integration", // Integration failures, API mismatches
+  "missing-intermediate", // Missing intermediate task in pipeline
+  "incomplete", // Task not fully completed
+  "missing-dependency", // Required dependency not available
 ]);
 
 export type GapType = z.infer<typeof GapTypeSchema>;
@@ -353,7 +367,7 @@ export type GapType = z.infer<typeof GapTypeSchema>;
 export const GapSchema = z.object({
   id: z.string(),
   type: GapTypeSchema,
-  level: z.enum(['project', 'epic', 'task']),
+  level: z.enum(["project", "epic", "task"]),
   scope: z.string(), // Project/epic/task ID
   description: z.string(),
   detected: z.string(),
@@ -391,7 +405,7 @@ export type GapSnapshot = z.infer<typeof GapSnapshotSchema>;
  */
 export const ExecutionLevelSchema = z.object({
   id: z.string(),
-  type: z.enum(['epic', 'task', 'subtask']),
+  type: z.enum(["epic", "task", "subtask"]),
   filePath: z.string(),
   depth: z.number(),
 });
@@ -459,24 +473,30 @@ export const CheckpointSchema = z.object({
   context: ExecutionContextSchema.optional(),
 
   /** Metadata */
-  metadata: z.object({
-    created: z.string(),
-    machine: z.string().optional(),
-    commit: z.string().optional(),
-  }).optional(),
+  metadata: z
+    .object({
+      created: z.string(),
+      machine: z.string().optional(),
+      commit: z.string().optional(),
+    })
+    .optional(),
 
   /* -- Legacy V1/V2 fields (kept for migration/compat) -- */
-  state: z.object({
-    currentEpic: z.string().optional(),
-    currentTask: z.string().optional(),
-    phase: z.enum(['evaluate', 'plan', 'execute', 'verify']).optional(),
-  }).optional(),
+  state: z
+    .object({
+      currentEpic: z.string().optional(),
+      currentTask: z.string().optional(),
+      phase: z.enum(["evaluate", "plan", "execute", "verify"]).optional(),
+    })
+    .optional(),
   gaps: z.array(GapSchema).optional(),
   iteration: z.number().optional(),
-  completed: z.object({
-    epics: z.array(z.string()),
-    tasks: z.array(z.string()),
-  }).optional(),
+  completed: z
+    .object({
+      epics: z.array(z.string()),
+      tasks: z.array(z.string()),
+    })
+    .optional(),
   treeSnapshot: z.unknown().optional(),
   completionTree: z.unknown().optional(),
   completedTasks: z.array(z.string()).optional(),
@@ -520,7 +540,7 @@ export const CheckpointV1Schema = z.object({
   state: z.object({
     currentEpic: z.string().optional(),
     currentTask: z.string().optional(),
-    phase: z.enum(['evaluate', 'plan', 'execute', 'verify']),
+    phase: z.enum(["evaluate", "plan", "execute", "verify"]),
   }),
   gaps: z.array(GapSchema),
   completed: z.object({
@@ -546,14 +566,14 @@ export type CheckpointV1 = z.infer<typeof CheckpointV1Schema>;
  */
 export const ProvenanceRecordSchema = z.object({
   entityId: z.string(),
-  entityType: z.enum(['epic', 'task', 'file', 'check']),
+  entityType: z.enum(["epic", "task", "file", "check"]),
   created: z.string(),
-  createdBy: z.enum(['user', 'planner', 'executor', 'migrator']),
+  createdBy: z.enum(["user", "planner", "executor", "migrator"]),
 
   /** What triggered creation */
   trigger: z
     .object({
-      type: z.enum(['gap', 'dependency', 'manual', 'migration']),
+      type: z.enum(["gap", "dependency", "manual", "migration"]),
       source: z.string().optional(),
       reason: z.string().optional(),
     })
@@ -577,7 +597,7 @@ export const ProvenanceRecordSchema = z.object({
         oldValue: z.unknown().optional(),
         newValue: z.unknown().optional(),
         reason: z.string().optional(),
-      })
+      }),
     )
     .optional(),
 });
@@ -621,24 +641,29 @@ export interface StoragePaths {
 /**
  * Create storage paths helper
  */
-export function createStoragePaths(crewDir: string = '.crew'): StoragePaths {
+export function createStoragePaths(
+  convergeDir: string = ".converge",
+): StoragePaths {
   return {
-    root: crewDir,
-    project: `${crewDir}/project.yaml`,
-    epics: `${crewDir}/epics`,
-    checkpoints: `${crewDir}/checkpoints`,
-    gaps: `${crewDir}/gaps`,
-    provenance: `${crewDir}/provenance`,
+    root: convergeDir,
+    project: `${convergeDir}/project.yaml`,
+    epics: `${convergeDir}/epics`,
+    checkpoints: `${convergeDir}/checkpoints`,
+    gaps: `${convergeDir}/gaps`,
+    provenance: `${convergeDir}/provenance`,
 
-    epicConfig: (epicId: string) => `${crewDir}/epics/${epicId}.yaml`,
-    epicStatus: (epicId: string) => `${crewDir}/epics/${epicId}.status.yaml`,
-    epicDeps: (epicId: string) => `${crewDir}/epics/${epicId}.deps.yaml`,
-    epicLog: (epicId: string) => `${crewDir}/epics/${epicId}.log.md`,
-    epicTasks: (epicId: string) => `${crewDir}/epics/${epicId}/tasks`,
+    epicConfig: (epicId: string) => `${convergeDir}/epics/${epicId}.yaml`,
+    epicStatus: (epicId: string) =>
+      `${convergeDir}/epics/${epicId}.status.yaml`,
+    epicDeps: (epicId: string) => `${convergeDir}/epics/${epicId}.deps.yaml`,
+    epicLog: (epicId: string) => `${convergeDir}/epics/${epicId}.log.md`,
+    epicTasks: (epicId: string) => `${convergeDir}/epics/${epicId}/tasks`,
 
-    taskConfig: (epicId: string, taskId: string) => `${crewDir}/epics/${epicId}/tasks/${taskId}.yaml`,
+    taskConfig: (epicId: string, taskId: string) =>
+      `${convergeDir}/epics/${epicId}/tasks/${taskId}.yaml`,
     taskStatus: (epicId: string, taskId: string) =>
-      `${crewDir}/epics/${epicId}/tasks/${taskId}.status.yaml`,
-    taskLog: (epicId: string, taskId: string) => `${crewDir}/epics/${epicId}/tasks/${taskId}.log.md`,
+      `${convergeDir}/epics/${epicId}/tasks/${taskId}.status.yaml`,
+    taskLog: (epicId: string, taskId: string) =>
+      `${convergeDir}/epics/${epicId}/tasks/${taskId}.log.md`,
   };
 }

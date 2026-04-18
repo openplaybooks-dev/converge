@@ -16,31 +16,35 @@
  *   - `commands-run.ts` `--unblock` mode (invoked directly from CLI)
  */
 
-import type { Gap } from '../../gap/types.ts';
-import type { FixStrategy, StrategyContext, StrategyOutcome } from '../types.ts';
-import { MissingInputPatternRepairStrategy } from './missing-input-pattern.ts';
-import { DependencyBackoffStrategy } from './dependency-backoff.ts';
-import { IncompleteProducerOutputStrategy } from './incomplete-producer-output.ts';
+import type { Gap } from "../../gap/types.ts";
+import type {
+  FixStrategy,
+  StrategyContext,
+  StrategyOutcome,
+} from "../types.ts";
+import { MissingInputPatternRepairStrategy } from "./missing-input-pattern.ts";
+import { DependencyBackoffStrategy } from "./dependency-backoff.ts";
+import { IncompleteProducerOutputStrategy } from "./incomplete-producer-output.ts";
 
 export class UnblockStrategy implements FixStrategy {
-  readonly name = 'unblock-coordinator';
+  readonly name = "unblock-coordinator";
   readonly priority = 10;
 
   private readonly subStrategies: FixStrategy[];
 
   constructor() {
     this.subStrategies = [
-      new MissingInputPatternRepairStrategy(),     // fast: no AI, fix glob pattern mismatches
-      new DependencyBackoffStrategy(),             // AI: find declared upstream producers
-      new IncompleteProducerOutputStrategy(),      // sibling-based: patch undeclared producers
+      new MissingInputPatternRepairStrategy(), // fast: no AI, fix glob pattern mismatches
+      new DependencyBackoffStrategy(), // AI: find declared upstream producers
+      new IncompleteProducerOutputStrategy(), // sibling-based: patch undeclared producers
     ];
   }
 
   canHandle(gap: Gap): boolean {
     return (
-      gap.metadata?.gapKind === 'blocker' ||
-      gap.metadata?.gapKind === 'input' ||
-      gap.type === 'missing-intermediate'
+      gap.metadata?.gapKind === "blocker" ||
+      gap.metadata?.gapKind === "input" ||
+      gap.type === "missing-intermediate"
     );
   }
 
@@ -56,12 +60,14 @@ export class UnblockStrategy implements FixStrategy {
           };
         }
       } catch (err: any) {
-        console.warn(`   ⚠️  Sub-strategy ${strategy.name} threw: ${err.message}`);
+        console.warn(
+          `   ⚠️  Sub-strategy ${strategy.name} threw: ${err.message}`,
+        );
       }
     }
     return {
       success: false,
-      reason: 'No sub-strategy could identify a path to unblock this task',
+      reason: "No sub-strategy could identify a path to unblock this task",
     };
   }
 }
