@@ -1,0 +1,13 @@
+name: research
+description: Autonomous scientific research following standard methodology — literature review, hypothesis formulation, experimentation, analysis, and synthesis.
+key: question
+inputs:
+  question: { required: true, description: The research question }
+  maxDepth: { default: "5", description: Maximum recursive decomposition depth }
+
+run:
+  mode: converge
+  maxIterations: 50
+  maxTaskAttempts: 5
+  maxGoals: 100
+  resume: true
