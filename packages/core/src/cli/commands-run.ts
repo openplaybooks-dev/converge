@@ -146,7 +146,7 @@ export async function runAutonomousCommand(
     const tree = treeNodesToTaskNodes(taskTree, projectDir);
 
     console.log(`📊 Tasks: ${tree.length}\n`);
-    const states = await getTaskStates(projectDir, tree);
+    const states = await getTaskStates(projectDir, tree, { skipAutoComplete: true });
     const completedIds = states.completed;
     // Exclude tasks that are done (completed, failed, or seeded/locked WBS parents WITH children)
     // CRITICAL: Seeded/locked tasks with NO spawned children should remain pending (they failed to spawn)

@@ -27,6 +27,7 @@ import type {
   StrategyOutcome,
 } from "../types.ts";
 import { logTaskEvent } from "../../journal/writer.ts";
+import { getSourceTaskDirs } from "../../playbook/paths.ts";
 
 /* ------------------------------------------------------------------ */
 /*  MissingInputPatternRepairStrategy                                */
@@ -169,27 +170,27 @@ export class MissingInputPatternRepairStrategy implements FixStrategy {
     const { join } = await import("node:path");
     const { existsSync } = await import("node:fs");
 
-    // Find the task file (SKILL.md or task.ts)
-    const taskDir = join(
-      projectDir,
-      ".converge",
-      "epics",
-      journalCtx.epicId,
-      journalCtx.taskId,
-    );
-    const skillPath = join(taskDir, "SKILL.md");
-    const taskPath = join(taskDir, "task.ts");
+    // Find the task file (TASK.md, SKILL.md, or task.ts) across all source dirs
+    const sourceDirs = getSourceTaskDirs(projectDir);
+    const filenames = ["TASK.md", "SKILL.md", "task.ts"];
 
-    let targetPath: string;
-    let content: string;
+    let targetPath: string | undefined;
+    let content: string | undefined;
 
-    if (existsSync(skillPath)) {
-      targetPath = skillPath;
-      content = await readFile(skillPath, "utf-8");
-    } else if (existsSync(taskPath)) {
-      targetPath = taskPath;
-      content = await readFile(taskPath, "utf-8");
-    } else {
+    for (const sourceDir of sourceDirs) {
+      const taskDir = join(sourceDir, journalCtx.epicId, journalCtx.taskId);
+      for (const filename of filenames) {
+        const candidate = join(taskDir, filename);
+        if (existsSync(candidate)) {
+          targetPath = candidate;
+          content = await readFile(candidate, "utf-8");
+          break;
+        }
+      }
+      if (targetPath) break;
+    }
+
+    if (!targetPath || !content) {
       console.log(`   ⚠️  Could not find task file to auto-fix`);
       return;
     }

@@ -30,6 +30,9 @@ const KIND_WEIGHTS: Record<string, number> = {
   blocker: 200,
   "check-failed": 100,
   corrupted: 50,
+  "insufficient-evidence": 300,
+  "contradictory-finding": 400,
+  "untested-hypothesis": 150,
   backlog: 10, // default for backlog items; refined by severity
 };
 

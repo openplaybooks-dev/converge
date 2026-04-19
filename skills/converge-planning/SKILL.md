@@ -1,6 +1,6 @@
 ---
 name: converge-planning
-description: Use when starting a fresh project, onboarding an existing codebase, or creating a comprehensive project plan with epics, tasks, WBS, facts, checks, and skills
+description: Use when starting a fresh project, onboarding an existing codebase, or creating a comprehensive project plan with tasks, WBS, facts, checks, and skills
 ---
 
 # Converge Planning
@@ -19,11 +19,12 @@ Structured project planning for fresh or existing projects. Analyze codebase, di
 | Existing codebase, no `.converge/` | Code exists but no converge | `guides/analyze.md` → then discovery |
 | Existing codebase + converge, need new plan | `.converge/` exists, user wants replanning | `guides/analyze.md` → then architect |
 | User described idea, need plan | User gave requirements | `guides/architect.md` |
-| Plan exists, need validation | `.converge/plan.md` or epics exist | `guides/validate.md` |
+| Plan exists, need validation | `playbook.yml` or tasks exist | `guides/validate.md` |
 | Generate playbook from prompt | `converge plan --prompt "..."` (new playbook) | `guides/plan-new-playbook.md` |
 | Modify/extend existing playbook | `converge plan --prompt "..." --update` | `guides/plan-existing-playbook.md` |
 | Need artifact format reference | Creating plan manually | `preferences/plan-schema.md` |
 | Need project template | Common project type | `preferences/project-patterns.md` |
+| Need context principles reference | Designing context flow | `preferences/context-principles.md` |
 
 ## Playbook Generation Modes
 
@@ -53,8 +54,8 @@ Understand what the user wants: goals, constraints, priorities, non-functional r
 **Output:** `.converge/requirements.md` — structured requirements.
 
 ### Phase 3 — Architect (`guides/architect.md`)
-Create the plan: epics, nested tasks, WBS, API needs, facts, checks, skills.
-**Output:** `.converge/plan.md` + `.converge/epics/` structure.
+Create the plan: task hierarchies, WBS, API needs, facts, checks, skills.
+**Output:** `playbook.yml` + `.converge/playbooks/{name}/tasks/` structure.
 
 ### Phase 4 — Validate (`guides/validate.md`)
 Verify completeness, consistency, executability. Present to user for approval.
@@ -64,7 +65,7 @@ Verify completeness, consistency, executability. Present to user for approval.
 
 - **Skipping analysis on existing codebase** — You'll duplicate work or miss constraints.
 - **Planning without understanding user goals** — Plans without requirements are guesswork.
-- **Creating 20+ tasks in one epic** — Break into smaller epics. Max ~7 tasks per epic.
+- **Creating 20+ children in one task** — Break into smaller tasks. Max ~7 children per task.
 - **No checks on tasks** — Every task needs validation. No exceptions.
 - **No facts documented** — Assumptions become bugs. Write facts down.
 - **Copying a template without adapting** — Templates are starting points, not solutions.
@@ -82,29 +83,31 @@ Verify completeness, consistency, executability. Present to user for approval.
 
 ```
 .converge/
-├── analysis.md          # Phase 1 output: project snapshot
-├── requirements.md      # Phase 2 output: user needs
-├── plan.md              # Phase 3 output: master plan
-└── epics/               # Phase 3 output: executable structure
-    ├── 01-epic-name/
-    │   ├── EPIC.md
-    │   ├── 001-task/TASK.md
-    │   └── 002-task/TASK.md
-    └── 02-epic-name/
-        └── ...
+├── project.yml                 # Project config
+├── playbooks/
+│   └── default/
+│       ├── playbook.yml        # Manifest: task list, deps, run config, checks
+│       └── tasks/
+│           ├── 01-phase-name/
+│           │   ├── TASK.md         # Task (any task can have children)
+│           │   ├── 001-task/TASK.md
+│           │   └── 002-task/
+│           │       ├── TASK.md
+│           │       └── 001-sub/TASK.md  # Nests arbitrarily deep
+│           └── 02-phase-name/
+│               └── ...
 ```
 
 ### Plan Components
 
 | Component | Purpose | Where Defined |
 |-----------|---------|---------------|
-| **Epics** | High-level work packages | `.converge/epics/NN-name/EPIC.md` |
-| **Tasks** | Atomic units of work | `.converge/epics/NN-name/NNN-task/TASK.md` |
-| **WBS** | Dynamic subtask spawning | `wbs.js` inside task directory |
-| **Facts** | Known truths about the project | `.converge/plan.md` § Facts |
-| **Checks** | Validation commands per task | TASK.md frontmatter `checks:` |
+| **Tasks** | Units of work (nest arbitrarily deep) | `TASK.md` in any task directory |
+| **WBS** | Dynamic child task spawning | `wbs/index.js` inside task directory |
+| **Facts** | Known truths about the project | `playbook.yml` or task TASK.md body |
+| **Checks** | Validation commands per task | TASK.md frontmatter `checks:` or `playbook.yml` |
 | **Skills** | Converge skills each task needs | TASK.md frontmatter `skills:` |
-| **API Needs** | External APIs/integrations | `.converge/plan.md` § API Needs |
+| **API Needs** | External APIs/integrations | Task TASK.md body or `playbook.yml` |
 
 ## Layer Map
 
@@ -112,7 +115,7 @@ Verify completeness, consistency, executability. Present to user for approval.
 Layer 0: SKILL.md (this file) — navigation hub
 Layer 1: guides/  — phase guides (analyze, discovery, architect, validate)
          guides/  — playbook generation (plan-new-playbook, plan-existing-playbook)
-Layer 2: preferences/ — reference (plan-schema, project-patterns)
+Layer 2: preferences/ — reference (plan-schema, project-patterns, context-principles)
 ```
 
 **Planning:** Load ONE guide per phase. Return here between phases.

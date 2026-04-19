@@ -210,9 +210,9 @@ export class WbsExecutor {
         await writeTaskMdToFile(this.projectDir, shape, writeToPath);
 
         // Copy sibling files from template source directory to rendered task directory.
-        // Skip WBS infrastructure files — these belong to the parent template, not
-        // the spawned child task (TASK.md is already rendered, SUBTASK.md is the
-        // template source, wbs.js is the parent's WBS script).
+        // Skip the template source file and rendered TASK.md.
+        // Note: wbs.js is copied if the template has a wbs section that references it,
+        // because the spawned child task may need its own WBS script (e.g., for splitting widgets).
         if (
           typeof target === "object" &&
           target !== null &&
@@ -224,12 +224,32 @@ export class WbsExecutor {
             dirname: dirnamePath,
             basename: basenamePath,
           } = await import("node:path");
-          const { readdir, copyFile } = await import("node:fs/promises");
+          const { readdir, copyFile, readFile: readFileAsync } = await import("node:fs/promises");
           const templateAbsPath = resolvePath(this.projectDir, ref.path);
           const templateDir = dirnamePath(templateAbsPath);
           const templateFileName = basenamePath(templateAbsPath);
           const destDir = dirnamePath(join(this.projectDir, writeToPath));
-          const skipFiles = new Set(["TASK.md", templateFileName, "wbs.js"]);
+          
+          // Check if the template's TASK.md has a wbs section referencing ./wbs.js
+          // If so, we need to copy it because the child task uses its own WBS script
+          const templateTaskMdPath = join(templateDir, "TASK.md");
+          let needsWbsJs = false;
+          try {
+            const templateContent = await readFileAsync(templateTaskMdPath, "utf-8");
+            // Simple check: if the template TASK.md has "wbs:" and references "./wbs.js"
+            if (templateContent.includes("wbs:") && templateContent.includes("./wbs.js")) {
+              needsWbsJs = true;
+            }
+          } catch {
+            // Template TASK.md may not exist — that's fine
+          }
+          
+          const skipFiles = new Set(["TASK.md", templateFileName]);
+          // Only skip wbs.js if the template doesn't need it for its own WBS
+          if (!needsWbsJs) {
+            skipFiles.add("wbs.js");
+          }
+          
           try {
             const entries = await readdir(templateDir, { withFileTypes: true });
             for (const entry of entries) {

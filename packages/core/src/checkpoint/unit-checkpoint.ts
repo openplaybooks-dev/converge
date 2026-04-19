@@ -395,4 +395,36 @@ export class UnitCheckpointManager {
   getPath(): string {
     return this.filePath;
   }
+
+  /**
+   * Get the number of completed attempts from checkpoint history.
+   * Returns 0 if no checkpoint exists or no attempts recorded.
+   */
+  async getAttemptCount(): Promise<number> {
+    const checkpoint = await this.load();
+    if (!checkpoint || !checkpoint.attempts) {
+      return 0;
+    }
+    // Count attempts with a completed outcome (success, failed, or interrupted)
+    return checkpoint.attempts.filter(
+      (a) => a.outcome === "success" || a.outcome === "failed" || a.outcome === "interrupted"
+    ).length;
+  }
+
+  /**
+   * Reset a failed task to pending status for retry.
+   * Preserves attempt history but changes status to allow re-execution.
+   */
+  async resetToPending(): Promise<void> {
+    const checkpoint = await this.load();
+    if (!checkpoint) {
+      return;
+    }
+
+    // Only reset if currently in a terminal state (failed or interrupted)
+    if (checkpoint.status === "failed" || checkpoint.status === "interrupted") {
+      checkpoint.status = "pending";
+      await this.save(checkpoint);
+    }
+  }
 }

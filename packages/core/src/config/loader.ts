@@ -23,8 +23,8 @@ import type { ConvergeHooks, HookEvent } from "../hooks/types.ts";
 
 /** Legacy config file name inside .converge/ (with YAML frontmatter) */
 const LEGACY_CONFIG_NAME = ".converge/PROJECT.md";
-/** V2 storage config file name inside .converge/ (pure YAML) */
-const V2_CONFIG_NAME = ".converge/project.yaml";
+/** V2 storage config file names inside .converge/ (pure YAML) */
+const V2_CONFIG_NAMES = [".converge/project.yaml", ".converge/project.yml"];
 
 /* ------------------------------------------------------------------ */
 /*  Discovery                                                          */
@@ -57,10 +57,12 @@ export async function findConvergeConfig(
       return { path: legacyCandidate, type: "PROJECT.md" };
     }
 
-    // Fall back to V2 project.yaml
-    const v2Candidate = resolve(dir, V2_CONFIG_NAME);
-    if (existsSync(v2Candidate)) {
-      return { path: v2Candidate, type: "project.yaml" };
+    // Fall back to V2 project.yaml / project.yml
+    for (const v2Name of V2_CONFIG_NAMES) {
+      const v2Candidate = resolve(dir, v2Name);
+      if (existsSync(v2Candidate)) {
+        return { path: v2Candidate, type: "project.yaml" };
+      }
     }
 
     const parent = dirname(dir);
@@ -226,7 +228,7 @@ export async function loadConvergeConfig(
   // Auto-detect type from path if not provided
   const configType =
     type ||
-    (configPath.endsWith("project.yaml") ? "project.yaml" : "PROJECT.md");
+    (configPath.endsWith("project.yaml") || configPath.endsWith("project.yml") ? "project.yaml" : "PROJECT.md");
 
   if (configType === "project.yaml") {
     return loadProjectYamlConfig(configPath);

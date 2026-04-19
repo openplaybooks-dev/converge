@@ -191,7 +191,7 @@ OPTIONS (for 'run' command):
   --wbs                 Run only the WBS seeding phase (use with filter)
   --inc                 With --wbs, allow re-seeding already-seeded WBS parents
   --max-iterations=N    Maximum iterations (default: 100)
-  --max-duration=N      Maximum duration in ms (default: 3600000 / 1 hour)
+  --max-duration=N      Maximum duration in ms (default: 259200000 / 72 hours)
   --check-interval=N    Check interval in ms (default: 5000 / 5 seconds)
   --auto-fix=BOOL       Enable auto-fixing (default: true)
   --self-plan=BOOL      Enable self-planning (default: true)

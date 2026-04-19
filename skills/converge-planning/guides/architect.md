@@ -2,35 +2,35 @@
 
 ## Mission
 
-Transform requirements into an executable converge plan: epics, nested tasks, WBS, API needs, facts, checks, and skills.
+Transform requirements into an executable converge plan: task hierarchies, WBS, API needs, facts, checks, and skills.
 
 **Inputs:**
 - `.converge/analysis.md` (from Phase 1)
 - `.converge/requirements.md` (from Phase 2)
 
 **Outputs:**
-- `.converge/plan.md` (master plan)
-- `.converge/epics/` (executable task structure)
+- `playbook.yml` (manifest)
+- `.converge/playbooks/{name}/tasks/` (executable task structure)
 
 ---
 
-## Step 3.1: Define Epics
+## Step 3.1: Define Top-Level Tasks
 
-Break the project into 3-7 epics. Each epic is a logical phase of work.
+Break the project into 3-7 top-level tasks. Each is a logical phase of work.
 
-### Epic Naming Convention
+### Naming Convention
 ```
-01-{phase-name}     # Two-digit prefix + kebab-case
-02-{phase-name}
-03-{phase-name}
+NN-{name}           # Two-digit prefix for top-level tasks
+NNN-{name}          # Three-digit prefix for children
 ```
 
-### Epic Sizing Rules
-- **3-7 tasks per epic** — More means split it
-- **Clear deliverable** — Each epic produces something usable
-- **Sequential or parallel** — Epics can depend on each other or run independently
+### Task Sizing Rules
+- **3-7 children per task** — More means split it
+- **Clear deliverable** — Each task produces something usable
+- **Sequential or parallel** — Tasks can depend on each other or run independently
+- **Nest as deep as needed** — A child task can itself have children
 
-### Common Epic Patterns
+### Common Decomposition Patterns
 
 **Full-Stack App:**
 ```
@@ -64,47 +64,64 @@ Break the project into 3-7 epics. Each epic is a logical phase of work.
 06-monitoring            # Alerts, dashboards
 ```
 
-### Write EPIC.md for Each
+### Write TASK.md for Each Task
+
+Every task — at any nesting level — gets a `TASK.md` with the same schema. A task with children defines scope, outputs, and checks for the group. A leaf task defines its own work.
 
 ```yaml
 ---
-id: 02-foundation
-title: Foundation
-description: Set up project structure, design system, and core configuration
+id: 01-prepare-requirements
+title: Prepare Requirements
+description: Validate app idea, generate PRD, generate UX spec, extract screen definitions
+blocking: true
+outputs:
+  - PRD.md
+  - .stitch/UX.md
+  - .stitch/screens.json
+checks:
+  - id: ux-spec-exists
+    cmd: test -f .stitch/UX.md
+    description: UX specification exists
 ---
 
-# Foundation
+# Prepare Requirements
 
-This epic establishes the foundational elements:
-1. Project scaffolding and configuration
-2. Design system generation
-3. Design token implementation
+Gathers requirements and produces foundational artifacts:
+1. Validate app idea
+2. Generate PRD
+3. Generate UX overview
+4. Breakdown UX to screens
 ```
 
 ---
 
-## Step 3.2: Define Tasks per Epic
+## Step 3.2: Define Child Tasks
 
-For each epic, create tasks with full metadata.
+For each top-level task, create children. Children can themselves have children — nest as deep as the problem requires.
 
 ### Task Structure
 
-Each task needs a `TASK.md` with YAML frontmatter:
+Every task uses the same `TASK.md` schema regardless of nesting depth:
 
 ```yaml
+# Location: .converge/playbooks/{name}/tasks/{NN-task}/{NNN-child}/TASK.md
 ---
 id: 001-task-name
 title: Human-Readable Title
 description: What this task accomplishes
 dependencies:
-  - upstream-task-id              # Same-epic dep
-  - 01-requirements.002-spec      # Cross-epic dep
+  - upstream-task-id              # Sibling dep (same level)
+  - 01-requirements.002-spec      # Cross-branch dep
 inputs:
   - path/to/input/file
 outputs:
   - path/to/output/file
 skills:
   - skill-name                    # Converge skill to invoke
+references:
+  - skill-library-name            # Skill libraries to reference
+vars:
+  key: value                      # Template variables (passed to WBS/children)
 tags:
   - category
 checks:
@@ -122,7 +139,35 @@ checks:
 - **Single responsibility** — One task, one purpose
 - **Clear outputs** — Specific files, not vague deliverables
 - **Testable** — Every output has a check
-- **15-45 min AI execution** — If longer, split into subtasks
+- **15-45 min AI execution** — If longer, split into children
+
+---
+
+### Designing Context Contracts
+
+Every task defines a context contract via `inputs` (Context In) and `outputs` (Context Out). When designing tasks, follow these rules:
+
+**Every input must be an upstream output.** If a task reads `screens.json`, some prior task must produce it in its `outputs`. Orphan inputs break the context chain.
+
+**Every output should be consumed downstream.** If a task produces a file nothing reads, flag it. It may still be valid (documentation, final deliverable) but should be a conscious choice.
+
+**Minimal context rule.** List only the specific files a task needs — not broad globs like `src/**/*`. Narrow inputs make the task's boundary clear and reduce wasted context for the executor.
+
+Example context chain for a screen build pipeline:
+
+```
+001-spec:    outputs: [screen-spec.md]
+                ↓
+002-design:  inputs:  [screen-spec.md]    outputs: [design.html]
+                                              ↓
+003-convert: inputs:  [design.html]       outputs: [Screen.tsx]
+                                              ↓
+004-split:   inputs:  [Screen.tsx]        outputs: [components/*.tsx]
+```
+
+Each task reads exactly what the prior task produced. No hidden dependencies, no over-broad inputs.
+
+See `preferences/context-principles.md` (Principle 2) for the full reference.
 
 ---
 
@@ -176,7 +221,7 @@ checks:
 
 ## Step 3.4: Identify WBS Candidates
 
-Use WBS when a task spawns N similar subtasks from data.
+Use WBS when a task spawns N similar children from data.
 
 ### When to Use WBS
 
@@ -188,7 +233,7 @@ Use WBS when a task spawns N similar subtasks from data.
 | Setup database schema | No | Single task |
 | Generate tests for each endpoint | Yes | N similar items from data |
 
-### WBS Template (wbs.js)
+### WBS Template (wbs/index.js)
 
 ```javascript
 export async function run(ctx) {
@@ -222,6 +267,8 @@ export async function run(ctx) {
 
 ### WBS in TASK.md
 
+The task has `wbs:` pointing to `wbs/index.js`, and WBS-spawned children go into a `tasks/` subdirectory:
+
 ```yaml
 ---
 id: 003-generate-screens
@@ -229,7 +276,7 @@ title: Generate UI Screens
 description: Spawn one task per screen from screens.json
 wbs:
   type: nodejs
-  path: ./wbs.js
+  path: ./wbs/index.js
 inputs:
   - .stitch/screens.json
 outputs:
@@ -238,8 +285,18 @@ outputs:
 
 # Generate UI Screens
 
-This task reads screens.json and spawns a subtask for each screen.
-Each subtask generates the page component.
+This task reads screens.json and spawns a child task for each screen.
+Each child generates the page component.
+
+# Directory structure after WBS runs:
+# 003-generate-screens/
+# ├── TASK.md
+# ├── wbs/
+# │   └── index.js
+# └── tasks/          ← WBS-spawned children
+#     ├── 001-home/TASK.md
+#     ├── 002-dashboard/TASK.md
+#     └── 003-settings/TASK.md
 ```
 
 ---
@@ -275,7 +332,7 @@ List all APIs and integrations the project requires.
 ## API Needs
 
 ### Internal APIs (to build)
-| Endpoint | Method | Purpose | Epic/Task |
+| Endpoint | Method | Purpose | Task |
 |----------|--------|---------|-----------|
 | `/api/users` | GET | List users | 03-api.001 |
 | `/api/users/:id` | GET | Get user | 03-api.001 |
@@ -326,81 +383,62 @@ Gather all facts from analysis, discovery, and architecture phases.
 
 ---
 
-## Step 3.8: Write plan.md
-
-Compile everything into `.converge/plan.md`:
-
-```markdown
-# Project Plan
-
-## Overview
-[One paragraph: what we're building and approach]
-
-## Facts
-[All facts from Step 3.7]
-
-## Epic Structure
-[Overview of all epics with dependency flow]
-
-## Epic Flow
-\```
-01-requirements
-   ↓
-02-foundation
-   ↓
-03-data-layer ──┐
-   ↓            │
-04-ui-screens ──┤
-   ↓            │
-05-behavior ────┘
-   ↓
-06-integration
-   ↓
-07-polish
-\```
-
-## API Needs
-[From Step 3.6]
-
-## WBS Summary
-| Task | Data Source | Spawns |
-|------|-----------|--------|
-| 04.003-generate-screens | screens.json | 1 per screen |
-| 03.004-generate-endpoints | api-spec.json | 1 per endpoint |
-
-## Skills Used
-| Skill | Used By | Purpose |
-|-------|---------|---------|
-| ux-design | 01.001 | Generate UX spec |
-| taste-design | 02.002 | Generate design system |
-
-## Risk Register
-- [Risk]: [Mitigation]
-- [Risk]: [Mitigation]
-```
+Facts are the primary **context interpolation** mechanism across task hierarchies. While `inputs`/`outputs` pass files between tasks, facts pass knowledge. A fact discovered in one task group (e.g., "Auth uses JWT with RS256") is available to all downstream tasks without needing to thread it through individual task inputs.
 
 ---
 
-## Step 3.9: Create Epic/Task Files
+## Step 3.8: Write playbook.yml
 
-Create the actual `.converge/epics/` directory structure:
+Create the playbook manifest at `.converge/playbooks/{name}/playbook.yml`:
+
+```yaml
+name: default
+description: End-to-end app generation
+run:
+  mode: autonomous
+  maxIterations: 50
+  maxTaskAttempts: 3
+tasks:
+  - id: 01-prepare-requirements
+  - id: 02-design-system
+    depends_on: [01-prepare-requirements]
+  - id: 03-build-screens
+    depends_on: [02-design-system]
+checks:
+  - id: type-check
+    cmd: npx tsc --noEmit
+```
+
+Facts, API needs, WBS summaries, skills used, and risk register are documentation conventions. They go into:
+- Task TASK.md bodies at any level (scoped facts and API needs)
+- The playbook `description` field (high-level overview)
+- Individual task TASK.md bodies (task-specific details)
+
+There is no separate `plan.md` file.
+
+---
+
+## Step 3.9: Create Task Files
+
+Create the actual `.converge/playbooks/{name}/tasks/` directory structure:
 
 ```bash
-mkdir -p .converge/epics/01-requirements/001-gather-needs
-mkdir -p .converge/epics/02-foundation/001-setup-project
-mkdir -p .converge/epics/02-foundation/002-design-system
+mkdir -p .converge/playbooks/default/tasks/01-requirements/001-gather-needs
+mkdir -p .converge/playbooks/default/tasks/02-foundation/001-setup-project
+mkdir -p .converge/playbooks/default/tasks/02-foundation/002-design-system
 # ... etc
 ```
 
-Write `EPIC.md` and `TASK.md` for each.
+Write `TASK.md` for every task at every level.
 
 ---
 
 ## Dependency Mapping
 
 ### Rules
-- **Same-epic:** Use task ID only: `001-setup`
-- **Cross-epic:** Use `epic-id.task-id`: `01-requirements.002-spec`
+- **Sibling:** Use task ID only: `001-setup`
+- **Cross-branch:** Use dotted path: `01-requirements.002-spec`
+- **Top-level deps:** Defined in `playbook.yml` via `depends_on`
 - **No circular deps** — If you find a cycle, split the task
 - **Minimize deps** — Only depend on what you actually consume
 
@@ -422,8 +460,8 @@ Write `EPIC.md` and `TASK.md` for each.
 
 ## Success Criteria
 
-- `.converge/plan.md` exists with all sections
-- `.converge/epics/` structure created with EPIC.md and TASK.md files
+- `playbook.yml` exists with task list and dependencies
+- `.converge/playbooks/{name}/tasks/` structure created with TASK.md at every level
 - Every task has: id, title, outputs, checks
 - Dependencies are explicit and acyclic
 - Facts documented (minimum 5)

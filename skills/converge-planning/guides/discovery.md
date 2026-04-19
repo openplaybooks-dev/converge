@@ -245,6 +245,17 @@ Facts are **known truths** about the project. They prevent bad assumptions durin
 
 ---
 
+## Context Flow (Progressive Enrichment)
+
+This is the **second enrichment layer** in the planning pipeline.
+
+- **Context In:** `.converge/analysis.md` (what exists — from Phase 1)
+- **Context Out:** `.converge/requirements.md` (what matters — user needs, priorities, constraints)
+
+Analysis tells us what exists in the project. Discovery narrows that to what matters for the user's goals. The output — `requirements.md` — becomes the primary input for the Architect phase, which structures it into an executable plan.
+
+---
+
 ## Adapting to Project Type
 
 ### Fresh Project (No Code)

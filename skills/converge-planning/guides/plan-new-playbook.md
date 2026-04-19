@@ -2,7 +2,7 @@
 
 ## Mission
 
-Transform a user's prompt into a complete, runnable converge playbook with epics, tasks, dependencies, checks, and WBS.
+Transform a user's prompt into a complete, runnable converge playbook with tasks, dependencies, checks, and WBS.
 
 **Inputs:**
 - User prompt (what to build)
@@ -11,7 +11,7 @@ Transform a user's prompt into a complete, runnable converge playbook with epics
 
 **Outputs:**
 - `.converge/playbooks/{name}/playbook.yml`
-- `.converge/playbooks/{name}/tasks/` (epic and task structure)
+- `.converge/playbooks/{name}/tasks/` (task hierarchy)
 
 ---
 
@@ -129,20 +129,21 @@ Based on prompt + scan, select the closest pattern:
 
 Adapt as needed — these are starting points.
 
-### Step 3.2: Define Epics (3-7)
+### Step 3.2: Define Top-Level Tasks (3-7)
 
-Each epic:
+Each top-level task:
 - Has a clear deliverable
-- Contains 2-5 tasks
+- Contains 2-5 children
 - Uses 2-digit prefix: `01-name`, `02-name`
+- Can nest children arbitrarily deep
 
-### Step 3.3: Define Tasks per Epic
+### Step 3.3: Define Children
 
-Each task needs:
+Each child task uses the same TASK.md schema:
 - **id** — 3-digit prefix: `001-name`
 - **title** — Human-readable
 - **description** — What it accomplishes
-- **dependencies** — Upstream task IDs (same-epic or cross-epic `epic-id.task-id`)
+- **dependencies** — Upstream task IDs (sibling or cross-branch `task-id.child-id`)
 - **inputs** — Files/data consumed
 - **outputs** — Files produced
 - **checks** — Shell commands that return 0 on success
@@ -177,15 +178,15 @@ checks:
 
 ### Step 3.5: Identify WBS Candidates
 
-Use WBS when a task spawns N similar subtasks from data:
+Use WBS when a task spawns N similar children from data:
 - Generate N pages from a list → WBS
 - Process each entity in a data model → WBS
 - Create one config file → No WBS
 
 ### Step 3.6: Map Dependencies
 
-- **Same-epic:** Use task ID only: `001-setup`
-- **Cross-epic:** Use `epic-id.task-id`: `01-foundation.002-config`
+- **Sibling:** Use task ID only: `001-setup`
+- **Cross-branch:** Use dotted path: `01-foundation.002-config`
 - **No circular deps** — If you find a cycle, split the task
 - **Minimize deps** — Only depend on what you actually consume
 
@@ -199,17 +200,15 @@ Use WBS when a task spawns N similar subtasks from data:
 .converge/playbooks/{name}/
 ├── playbook.yml
 └── tasks/
-    ├── 01-<epic>/
-    │   ├── TASK.md              ← epic parent
-    │   └── tasks/
-    │       ├── 001-<task>/
-    │       │   └── TASK.md
-    │       └── 002-<task>/
-    │           └── TASK.md
-    ├── 02-<epic>/
+    ├── 01-<task>/
     │   ├── TASK.md
-    │   └── tasks/
-    │       └── ...
+    │   ├── 001-<child>/
+    │   │   └── TASK.md
+    │   └── 002-<child>/
+    │       └── TASK.md
+    ├── 02-<task>/
+    │   ├── TASK.md
+    │   └── ...
     └── ...
 ```
 
@@ -256,7 +255,7 @@ checks:
 - Every output file must have at least one check (file exists + non-empty)
 - Dependencies must reference valid task IDs — no circular deps
 - Task IDs use 3-digit prefix: `001-name`, `002-name`
-- Epic IDs use 2-digit prefix: `01-name`, `02-name`
+- Top-level task IDs use 2-digit prefix: `01-name`, `02-name`
 - Task bodies should have concrete instructions, not vague descriptions
 - For code tasks, include a compilation check
 - Keep tasks focused: one task, one purpose
@@ -268,17 +267,17 @@ checks:
 After writing all files:
 
 1. Confirm `playbook.yml` exists and is valid YAML
-2. Confirm each epic has a TASK.md and at least one subtask
+2. Confirm each top-level task has a TASK.md and at least one child
 3. Confirm no broken dependency references
 4. Confirm every task has outputs and checks
-5. Print summary: number of epics, tasks, and how to run
+5. Print summary: number of tasks and how to run
 
 ---
 
 ## Success Criteria
 
 - `playbook.yml` exists with name, description, and run config
-- Task directory structure is valid (epics with subtasks)
+- Task directory structure is valid (tasks with children)
 - Every task has: id, title, outputs, checks
 - Dependencies are explicit and acyclic
-- At least 2 epics with at least 2 tasks each
+- At least 2 top-level tasks with at least 2 children each

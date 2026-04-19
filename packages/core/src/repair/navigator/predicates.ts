@@ -38,7 +38,31 @@ const PREDICATES: Record<string, (s: Snapshot) => boolean> = {
       return (
         kind === GapKind.output ||
         kind === GapKind.checkFailed ||
-        kind === GapKind.corrupted
+        kind === GapKind.corrupted ||
+        kind === GapKind.insufficientEvidence ||
+        kind === GapKind.contradictoryFinding ||
+        kind === GapKind.untestedHypothesis
+      );
+    }),
+  hasInsufficientEvidence: (s) =>
+    s.gaps.some(
+      (g) => g.metadata?.gapKind === GapKind.insufficientEvidence,
+    ),
+  hasContradiction: (s) =>
+    s.gaps.some(
+      (g) => g.metadata?.gapKind === GapKind.contradictoryFinding,
+    ),
+  hasUntestedHypothesis: (s) =>
+    s.gaps.some(
+      (g) => g.metadata?.gapKind === GapKind.untestedHypothesis,
+    ),
+  hasKnowledgeGap: (s) =>
+    s.gaps.some((g) => {
+      const kind = g.metadata?.gapKind as string | undefined;
+      return (
+        kind === GapKind.insufficientEvidence ||
+        kind === GapKind.contradictoryFinding ||
+        kind === GapKind.untestedHypothesis
       );
     }),
 

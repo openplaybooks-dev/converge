@@ -26,6 +26,29 @@ import type {
 } from "../storage/types.ts";
 
 /**
+ * Expand environment variable references in a string.
+ * Supports ${VAR} syntax.
+ * @example expandEnvVars("Hello ${USER}") -> "Hello john" (if USER=john)
+ */
+function expandEnvVars(value: string): string {
+  return value.replace(/\$\{([^}]+)\}/g, (match, varName) => {
+    const envValue = process.env[varName];
+    return envValue !== undefined ? envValue : match;
+  });
+}
+
+/**
+ * Expand environment variables in all string values of an object.
+ */
+function expandEnvVarsInObject(obj: Record<string, string>): Record<string, string> {
+  const result: Record<string, string> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    result[key] = expandEnvVars(value);
+  }
+  return result;
+}
+
+/**
  * Provider type alias for cleaner code
  */
 export type AIProvider = "claude" | "acp" | "kimi" | "qwen" | "gemini";
@@ -129,6 +152,10 @@ export function resolveAIConfig(
       name: providerName,
       resolvedProvider,
       ...providerConfig,
+      // Expand env var references like ${VAR} in env values
+      ...(providerConfig.env && {
+        env: expandEnvVarsInObject(providerConfig.env),
+      }),
     };
   }
 
@@ -143,6 +170,10 @@ export function resolveAIConfig(
     name: singleConfig.provider,
     resolvedProvider: singleConfig.provider,
     ...singleConfig,
+    // Expand env var references like ${VAR} in env values
+    ...(singleConfig.env && {
+      env: expandEnvVarsInObject(singleConfig.env),
+    }),
   };
 }
 
@@ -221,6 +252,9 @@ export function createAIFactory(
           ...(resolved.model && { model: resolved.model }),
           ...(resolved.timeoutMs && { timeoutMs: resolved.timeoutMs }),
           ...(resolved.maxRetries && { maxRetries: resolved.maxRetries }),
+          // Pass env vars directly to agentfn for Claude CLI
+          // This ensures they're set when the process is spawned
+          ...(resolved.env && { env: resolved.env }),
           // Call-level options (highest priority)
           ...options,
           // Prompt always from call

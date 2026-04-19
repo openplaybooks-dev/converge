@@ -258,6 +258,19 @@ export interface AgentFnOptions<T = string> {
    * Passed through to claudefn when using the Claude provider.
    */
   logDir?: string;
+
+  /**
+   * Environment variables to set when spawning the AI process.
+   * These are merged with process.env, with these values taking precedence.
+   * Useful for configuring Claude CLI to use custom API endpoints (e.g., MiniMax).
+   *
+   * @example
+   * env: {
+   *   ANTHROPIC_BASE_URL: "https://api.minimax.io/anthropic",
+   *   ANTHROPIC_AUTH_TOKEN: "sk-api-your-key"
+   * }
+   */
+  env?: Record<string, string>;
 }
 
 // ─── Unified Tool Definition ────────────────────────────────

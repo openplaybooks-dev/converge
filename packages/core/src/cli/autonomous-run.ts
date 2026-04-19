@@ -60,7 +60,7 @@ export interface AutonomousRunConfig {
   /** Max attempts per individual task before permanently skipping it (default: 2) */
   maxTaskAttempts?: number;
 
-  /** Global wall-clock timeout for the entire run in ms (default: 60 min) */
+  /** Global wall-clock timeout for the entire run in ms (default: 72 hours) */
   maxRunDurationMs?: number;
 
   /** Verbose logging */
@@ -420,6 +420,72 @@ async function collectCheckpointsRecursive(dir: string): Promise<string[]> {
   return results;
 }
 
+/**
+ * Recover failed tasks for retry.
+ * 
+ * Scans all failed tasks and resets them to pending if they haven't exceeded max attempts.
+ * This ensures failed tasks are retried on subsequent runs instead of being skipped forever.
+ * 
+ * Returns a map of taskId → attempt count for all failed tasks that were reset.
+ */
+export async function recoverFailedTasks(
+  projectDir: string,
+  tree: TaskTree,
+  maxTaskAttempts: number,
+): Promise<Map<string, number>> {
+  const taskAttempts = new Map<string, number>();
+  const journalEpicsDir = getEpicsDir(projectDir);
+  if (!existsSync(journalEpicsDir)) return taskAttempts;
+
+  let resetCount = 0;
+  const allNodes = tree.getAllNodes();
+
+  for (const node of allNodes) {
+    // Only consider leaf tasks (not parents with children)
+    if (node.children.length > 0) continue;
+
+    const epicId = node.epicId || "unknown";
+    const taskId = node.id;
+
+    const unitCkpt = new UnitCheckpointManager(
+      projectDir,
+      "task",
+      epicId,
+      taskId,
+    );
+
+    const checkpoint = await unitCkpt.load();
+    if (!checkpoint) continue;
+
+    // Only process failed or interrupted tasks
+    if (checkpoint.status !== "failed" && checkpoint.status !== "interrupted") {
+      continue;
+    }
+
+    // Get the number of completed attempts from history
+    const attemptCount = checkpoint.attempts
+      ? checkpoint.attempts.filter(
+          (a) => a.outcome === "success" || a.outcome === "failed" || a.outcome === "interrupted"
+        ).length
+      : 0;
+
+    // If attempts haven't exceeded max, reset to pending for retry
+    if (attemptCount < maxTaskAttempts) {
+      await unitCkpt.resetToPending();
+      taskAttempts.set(taskId, attemptCount);
+      resetCount++;
+    }
+  }
+
+  if (resetCount > 0) {
+    console.log(
+      `\n🔄 Reset ${resetCount} failed task(s) for retry (attempts < ${maxTaskAttempts})\n`,
+    );
+  }
+
+  return taskAttempts;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Previous Session Guard                                             */
 /* ------------------------------------------------------------------ */
@@ -534,7 +600,7 @@ export async function autonomousRun(
   const { projectDir, verbose } = config;
   const maxIterations = config.maxIterations ?? 100;
   const maxTaskAttempts = config.maxTaskAttempts ?? 2;
-  const maxRunDurationMs = config.maxRunDurationMs ?? 60 * 60 * 1000; // 60 min default
+  const maxRunDurationMs = config.maxRunDurationMs ?? 72 * 60 * 60 * 1000; // 72 hours default
   const checkpointMgr = new CheckpointManager(projectDir);
 
   // Initialize session logger
@@ -595,6 +661,18 @@ export async function autonomousRun(
     await tree.reload();
   }
 
+  // ── Detect and recover failed tasks for retry ─────────────────────────
+  // Failed tasks that haven't exceeded max attempts should be retried
+  // This ensures failed tasks from previous runs are not skipped forever
+  const recoveredTaskAttempts = await recoverFailedTasks(
+    projectDir,
+    tree,
+    maxTaskAttempts,
+  );
+  if (recoveredTaskAttempts.size > 0) {
+    await tree.reload();
+  }
+
   const runStartedAt = Date.now();
   let iteration = 0;
   let consecutiveFailures = 0;
@@ -602,7 +680,8 @@ export async function autonomousRun(
   let tasksFailed = 0;
   let gapsResolved = 0;
   // Per-task failure tracking: taskId → attempt count
-  const taskAttempts = new Map<string, number>();
+  // Initialize with recovered failed tasks' attempt counts
+  const taskAttempts = new Map<string, number>(recoveredTaskAttempts);
 
   // Track consecutive selections to detect infinite loops
   let lastSelectedTaskId: string | null = null;

@@ -121,6 +121,20 @@ export interface ClaudeFnOptions<T = string> {
    * - Only built-in Claude tools available
    */
   enableMCP?: boolean;
+
+  /**
+   * Environment variables to set when spawning the Claude CLI process.
+   * These are merged with process.env, with these values taking precedence.
+   * Useful for configuring Claude CLI to use custom API endpoints (e.g., MiniMax).
+   *
+   * @example
+   * env: {
+   *   ANTHROPIC_BASE_URL: "https://api.minimax.io/anthropic",
+   *   ANTHROPIC_AUTH_TOKEN: "sk-api-your-key",
+   *   ANTHROPIC_MODEL: "MiniMax-M2.7"
+   * }
+   */
+  env?: Record<string, string>;
 }
 
 /** The result returned by a claudefn invocation */
