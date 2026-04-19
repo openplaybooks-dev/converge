@@ -1,0 +1,23 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-18T17:28:34.919Z",
+  "spawnCount": 4,
+  "subtasks": [
+    {
+      "id": "001-lift-TopicChipBar",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/009-education/tasks/009-06-lift/tasks/001-lift-TopicChipBar/TASK.md"
+    },
+    {
+      "id": "002-lift-ArticleCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/009-education/tasks/009-06-lift/tasks/002-lift-ArticleCard/TASK.md"
+    },
+    {
+      "id": "003-lift-BookmarkedArticleCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/009-education/tasks/009-06-lift/tasks/003-lift-BookmarkedArticleCard/TASK.md"
+    },
+    {
+      "id": "004-lift-BottomNavBar",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/009-education/tasks/009-06-lift/tasks/004-lift-BottomNavBar/TASK.md"
+    }
+  ]
+}

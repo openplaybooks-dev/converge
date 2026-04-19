@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-add-behavior/004-implement-providers/011-provider-Article",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T19:09:31.594Z",
+  "createdAt": "2026-04-18T19:07:21.051Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T19:07:21.051Z",
+      "completedAt": "2026-04-18T19:09:31.590Z",
+      "outcome": "success",
+      "durationMs": 130539
+    }
+  ],
+  "currentAttempt": 1
+}

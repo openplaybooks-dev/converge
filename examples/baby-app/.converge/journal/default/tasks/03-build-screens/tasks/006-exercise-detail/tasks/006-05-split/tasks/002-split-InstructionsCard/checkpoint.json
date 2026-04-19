@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "03-build-screens/006-exercise-detail/006-05-split/002-split-InstructionsCard",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T17:00:34.225Z",
+  "createdAt": "2026-04-18T16:37:16.905Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T16:37:16.905Z",
+      "completedAt": "2026-04-18T16:39:17.313Z",
+      "outcome": "success",
+      "durationMs": 120408
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-18T16:59:01.053Z",
+      "completedAt": "2026-04-18T17:00:34.222Z",
+      "outcome": "success",
+      "durationMs": 93169
+    }
+  ],
+  "currentAttempt": 2
+}

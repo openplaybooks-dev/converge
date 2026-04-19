@@ -1,0 +1,15 @@
+{
+  "taskId": "07-build-overlays/002-weight-entry/002-01-spec",
+  "checks": [
+    {
+      "id": "spec-exists",
+      "description": "SPEC.md exists for weight-entry",
+      "cmd": "test -f .stitch/designs/weight-entry/SPEC.md"
+    },
+    {
+      "id": "spec-has-content",
+      "description": "SPEC.md has >30 lines",
+      "cmd": "test $(wc -l < .stitch/designs/weight-entry/SPEC.md) -gt 30"
+    }
+  ]
+}

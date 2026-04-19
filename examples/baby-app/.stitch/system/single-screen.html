@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bloom — Home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Background */
+  --color-canvas: #EDE8F7;
+  --color-canvas-alt: #FDEEEE;
+  --color-surface: #FFFFFF;
+  --color-surface-tertiary: #FDF9F8;
+
+  /* Text */
+  --color-text-primary: #2A2A3A;
+  --color-text-secondary: #8B8B9C;
+
+  /* Accent */
+  --color-accent-coral: #F28B8B;
+  --color-accent-coral-tint: rgba(242, 139, 139, 0.12);
+  --color-accent-lilac: #8B7ED8;
+  --color-accent-lilac-tint: rgba(139, 126, 216, 0.14);
+
+  /* Structural */
+  --color-divider: rgba(42, 42, 58, 0.06);
+  --color-chip-bg: rgba(139, 126, 216, 0.08);
+  --color-overlay: rgba(42, 42, 58, 0.24);
+
+  /* Functional */
+  --color-success: #6DC48A;
+  --color-error: #E85C5C;
+  --color-warning: #F4C84D;
+
+  /* Shadows */
+  --shadow-subtle: 0 2px 8px rgba(139, 126, 216, 0.08);
+  --shadow-standard: 0 4px 20px rgba(139, 126, 216, 0.12);
+  --shadow-prominent: 0 8px 32px rgba(139, 126, 216, 0.14);
+  --shadow-nav: 0 -4px 20px rgba(139, 126, 216, 0.08);
+
+  /* Typography */
+  --font-ui: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --fs-display: 2rem;
+  --fs-stat: 2.25rem;
+  --fs-heading: 1.5rem;
+  --fs-subheading: 1.125rem;
+  --fs-body: 1rem;
+  --fs-data: 0.875rem;
+  --fs-caption: 0.8125rem;
+  --fs-micro: 0.6875rem;
+
+  /* Spacing */
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1.25rem;
+  --space-lg: 1.75rem;
+  --space-xl: 2rem;
+
+  /* Radius */
+  --radius-sm: 0.5rem;
+  --radius-md: 1rem;
+  --radius-card: 1.5rem;
+  --radius-hero: 2rem;
+  --radius-pill: 9999px;
+
+  /* Motion */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-exit: cubic-bezier(0.25, 0, 0, 1);
+  --duration-card: 450ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-ui);
+  background: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.phone {
+  width: 375px;
+  min-height: 812px;
+  background: var(--color-canvas);
+  border-radius: 2.5rem;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.screen-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-md);
+  padding-top: 3.5rem;
+  padding-bottom: 5.5rem;
+}
+
+/* Greeting Header */
+.greeting-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+}
+
+.greeting-text h1 {
+  font-size: var(--fs-heading);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+
+.greeting-text p {
+  font-size: var(--fs-caption);
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+  margin-top: 0.125rem;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-coral-tint);
+  color: var(--color-accent-coral);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: var(--fs-data);
+  border: 2px solid var(--color-surface);
+  box-shadow: 0 2px 8px rgba(139, 126, 216, 0.16);
+  flex-shrink: 0;
+}
+
+/* Mode Selector Pill */
+.mode-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  width: fit-content;
+  margin: 0 auto var(--space-lg);
+  padding: var(--space-xs) var(--space-md);
+  background: var(--color-accent-coral-tint);
+  border-radius: var(--radius-pill);
+  border: none;
+  cursor: pointer;
+}
+
+.mode-pill span {
+  font-size: var(--fs-subheading);
+  font-weight: 600;
+  color: var(--color-accent-coral);
+}
+
+.mode-pill svg {
+  width: 16px;
+  height: 16px;
+  color: var(--color-accent-coral);
+}
+
+/* Hero Card */
+.hero-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-hero);
+  box-shadow: var(--shadow-prominent);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-lg);
+  text-align: center;
+}
+
+.hero-illustration {
+  width: 70%;
+  margin: 0 auto var(--space-md);
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-illustration svg {
+  width: 100%;
+  height: 100%;
+}
+
+.hero-card h2 {
+  font-size: var(--fs-heading);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.hero-card p {
+  font-size: var(--fs-data);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+/* Primary CTA */
+.primary-cta {
+  display: block;
+  width: fit-content;
+  margin: 0 auto var(--space-md);
+  padding: 0.875rem 2rem;
+  background: var(--color-accent-coral);
+  color: var(--color-surface);
+  border: none;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-ui);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter var(--duration-card) var(--ease-spring);
+  min-height: 44px;
+}
+
+/* Pagination Dots */
+.pagination-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: var(--space-lg);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-chip-bg);
+}
+
+.dot.active {
+  width: 16px;
+  background: var(--color-accent-coral);
+}
+
+/* Stat Cards Grid */
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.stat-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-standard);
+  padding: var(--space-md);
+  text-align: center;
+}
+
+.stat-card .stat-icon {
+  width: 36px;
+  height: 36px;
+  margin: 0 auto 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-card .stat-value {
+  font-size: var(--fs-stat);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  margin-bottom: 0.125rem;
+}
+
+.stat-card .stat-value.coral { color: var(--color-accent-coral); }
+.stat-card .stat-value.lilac { color: var(--color-accent-lilac); }
+
+.stat-card .stat-unit {
+  font-size: var(--fs-data);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-left: 0.25em;
+}
+
+.stat-card .stat-label {
+  font-size: var(--fs-caption);
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+/* Bottom Nav */
+.bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-nav);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0.5rem 0;
+  padding-bottom: 1.5rem;
+  z-index: 50;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--radius-md);
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.nav-item.active {
+  background: var(--color-accent-coral-tint);
+}
+
+.nav-item svg {
+  width: 22px;
+  height: 22px;
+  color: var(--color-text-secondary);
+}
+
+.nav-item.active svg {
+  color: var(--color-accent-coral);
+}
+
+.nav-item span {
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+}
+
+.nav-item.active span {
+  color: var(--color-accent-coral);
+}
+</style>
+</head>
+<body>
+
+<div class="phone" role="application" aria-label="Bloom pregnancy tracker home screen">
+  <main class="screen-content">
+
+    <!-- Greeting Header -->
+    <header class="greeting-header">
+      <div class="greeting-text">
+        <h1>Good morning, Mira</h1>
+        <p>Thursday, 17 April</p>
+      </div>
+      <div class="avatar" role="img" aria-label="User avatar">M</div>
+    </header>
+
+    <!-- Mode Selector -->
+    <button class="mode-pill" aria-label="Current mode: Pregnancy. Tap to change.">
+      <span>Pregnancy Mode</span>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+
+    <!-- Hero Illustration Card -->
+    <section class="hero-card" aria-label="Pregnancy progress">
+      <div class="hero-illustration">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="100" cy="90" r="60" fill="#FDEEEE" />
+          <ellipse cx="100" cy="90" rx="42" ry="46" fill="#F7D9DC" />
+          <ellipse cx="100" cy="88" rx="24" ry="28" fill="#F28B8B" opacity="0.3" />
+          <circle cx="92" cy="80" r="3" fill="#2A2A3A" opacity="0.6" />
+          <circle cx="108" cy="80" r="3" fill="#2A2A3A" opacity="0.6" />
+          <path d="M94 90 Q100 96 106 90" stroke="#2A2A3A" stroke-width="1.5" fill="none" opacity="0.5" stroke-linecap="round"/>
+          <text x="100" y="155" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="11" fill="#8B8B9C" font-weight="500">About the size of a mango</text>
+        </svg>
+      </div>
+      <h2>Week 22</h2>
+      <p>Your baby is about the size of a mango</p>
+    </section>
+
+    <!-- Primary CTA -->
+    <button class="primary-cta" aria-label="Track today's data">Track Today</button>
+
+    <!-- Pagination Dots -->
+    <div class="pagination-dots" role="tablist" aria-label="Weekly highlights navigation">
+      <div class="dot active" role="tab" aria-selected="true" aria-label="Week 22"></div>
+      <div class="dot" role="tab" aria-selected="false" aria-label="Week 21"></div>
+      <div class="dot" role="tab" aria-selected="false" aria-label="Week 20"></div>
+    </div>
+
+    <!-- Stat Cards Grid -->
+    <section class="stat-grid" aria-label="Quick stats">
+      <article class="stat-card" role="button" tabindex="0" aria-label="Your weight: 58.3 kilograms">
+        <div class="stat-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#F28B8B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5h11a1 1 0 0 1 1 1v2a5.5 5.5 0 0 1-5.5 5.5h-2A5.5 5.5 0 0 1 5.5 9.5v-2a1 1 0 0 1 1-1z"/><line x1="12" y1="15" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/></svg>
+        </div>
+        <div class="stat-value coral">58.3<span class="stat-unit">Kg</span></div>
+        <div class="stat-label">Your weight</div>
+      </article>
+
+      <article class="stat-card" role="button" tabindex="0" aria-label="Baby size: mango">
+        <div class="stat-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#8B7ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3c-1 4-1 8 0 12"/><path d="M8 6c2 2 4 2 6 0"/></svg>
+        </div>
+        <div class="stat-value lilac">22<span class="stat-unit">wk</span></div>
+        <div class="stat-label">Baby size</div>
+      </article>
+
+      <article class="stat-card" role="button" tabindex="0" aria-label="Current mood: happy">
+        <div class="stat-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#F28B8B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        </div>
+        <div class="stat-value coral">4<span class="stat-unit">/5</span></div>
+        <div class="stat-label">Mood today</div>
+      </article>
+
+      <article class="stat-card" role="button" tabindex="0" aria-label="Next checkup in 5 days">
+        <div class="stat-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#8B7ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="stat-value lilac">5<span class="stat-unit">days</span></div>
+        <div class="stat-label">Next checkup</div>
+      </article>
+    </section>
+
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <button class="nav-item active" aria-label="Home" aria-current="page">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="nav-item" aria-label="Progress">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Progress</span>
+    </button>
+    <button class="nav-item" aria-label="Health">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span>Health</span>
+    </button>
+    <button class="nav-item" aria-label="Wellness">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+      <span>Wellness</span>
+    </button>
+    <button class="nav-item" aria-label="Learn">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <span>Learn</span>
+    </button>
+  </nav>
+</div>
+
+</body>
+</html>

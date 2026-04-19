@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/001-mode-selector/001-01-spec",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T02:11:10.401Z",
+  "createdAt": "2026-04-19T02:09:30.814Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T02:09:30.814Z",
+      "completedAt": "2026-04-19T02:11:10.398Z",
+      "outcome": "success",
+      "durationMs": 99584
+    }
+  ],
+  "currentAttempt": 1
+}

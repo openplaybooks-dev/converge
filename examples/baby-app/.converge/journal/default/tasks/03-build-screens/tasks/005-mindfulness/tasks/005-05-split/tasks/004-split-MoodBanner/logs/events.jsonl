@@ -1,0 +1,18 @@
+{"ts":"2026-04-18T16:30:09.971Z","type":"action","iter":1,"handler":"check-wbs-seeded","result":"continue","ms":0}
+{"ts":"2026-04-18T16:30:09.972Z","type":"action","iter":1,"handler":"check-outputs-exist","result":"continue","ms":0}
+{"ts":"2026-04-18T16:30:10.073Z","type":"gaps-detected","iter":1,"count":3,"kinds":["output","check-failed"],"delta":3}
+{"ts":"2026-04-18T16:30:10.073Z","type":"action","iter":1,"handler":"detect-gaps","result":"continue","ms":101}
+{"ts":"2026-04-18T16:30:10.074Z","type":"action","iter":1,"handler":"run-executor","result":"continue","ms":1}
+{"ts":"2026-04-18T16:30:10.265Z","type":"action","iter":1,"handler":"repair-loop","result":"continue","ms":191}
+{"ts":"2026-04-18T16:31:41.788Z","type":"action","iter":1,"handler":"run-strategy","result":"continue","ms":91522}
+{"ts":"2026-04-18T16:31:42.763Z","type":"action","iter":1,"handler":"verify","result":"done","ms":974,"reason":"All gaps resolved"}
+{"ts":"2026-04-18T16:31:42.764Z","type":"outcome","iter":1,"result":"done","reason":"All gaps resolved"}
+{"ts":"2026-04-18T17:54:47.228Z","type":"action","iter":1,"handler":"check-wbs-seeded","result":"continue","ms":0}
+{"ts":"2026-04-18T17:54:47.325Z","type":"action","iter":1,"handler":"check-outputs-exist","result":"continue","ms":97}
+{"ts":"2026-04-18T17:54:47.422Z","type":"gaps-detected","iter":1,"count":3,"kinds":["output","check-failed"],"delta":3}
+{"ts":"2026-04-18T17:54:47.422Z","type":"action","iter":1,"handler":"detect-gaps","result":"continue","ms":97}
+{"ts":"2026-04-18T17:54:47.423Z","type":"action","iter":1,"handler":"run-executor","result":"continue","ms":1}
+{"ts":"2026-04-18T17:54:47.611Z","type":"action","iter":1,"handler":"repair-loop","result":"continue","ms":186}
+{"ts":"2026-04-18T17:56:40.312Z","type":"action","iter":1,"handler":"run-strategy","result":"continue","ms":112700}
+{"ts":"2026-04-18T17:56:41.271Z","type":"action","iter":1,"handler":"verify","result":"done","ms":959,"reason":"All gaps resolved"}
+{"ts":"2026-04-18T17:56:41.272Z","type":"outcome","iter":1,"result":"done","reason":"All gaps resolved"}

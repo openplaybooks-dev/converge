@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/010-article-reader/010-06-lift/001-lift-TipCalloutBlock",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/article_reader/widgets/tip_callout_block.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/article_reader/widgets/tip_callout_block.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/tip_callout_block.dart"
+  ],
+  "blocked": false
+}

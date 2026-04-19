@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-build-screens/002-cycle-tracking/002-01-spec",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T12:38:55.684Z",
+  "createdAt": "2026-04-18T12:36:25.903Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T12:36:25.903Z",
+      "completedAt": "2026-04-18T12:38:55.675Z",
+      "outcome": "success",
+      "durationMs": 149772
+    }
+  ],
+  "currentAttempt": 1
+}

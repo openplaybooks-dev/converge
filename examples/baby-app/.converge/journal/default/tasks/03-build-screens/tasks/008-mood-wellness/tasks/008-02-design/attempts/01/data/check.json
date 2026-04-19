@@ -1,0 +1,25 @@
+{
+  "taskId": "03-build-screens/008-mood-wellness/008-02-design",
+  "checks": [
+    {
+      "id": "design-exists",
+      "description": "design.html exists for mood-wellness",
+      "cmd": "test -f .stitch/designs/mood-wellness/design.html"
+    },
+    {
+      "id": "meta-exists",
+      "description": "META.md exists for mood-wellness",
+      "cmd": "test -f .stitch/designs/mood-wellness/META.md"
+    },
+    {
+      "id": "uses-glossary",
+      "description": "HTML uses Flutter HTML Glossary vocabulary",
+      "cmd": "grep -q 'class=\"scaffold\"' .stitch/designs/mood-wellness/design.html"
+    },
+    {
+      "id": "has-data-attributes",
+      "description": "HTML uses data-* attributes for Flutter conversion",
+      "cmd": "grep -q 'data-color=' .stitch/designs/mood-wellness/design.html"
+    }
+  ]
+}

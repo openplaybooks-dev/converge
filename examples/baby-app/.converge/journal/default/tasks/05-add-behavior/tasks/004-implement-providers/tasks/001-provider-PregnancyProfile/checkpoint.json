@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-add-behavior/004-implement-providers/001-provider-PregnancyProfile",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T18:51:40.932Z",
+  "createdAt": "2026-04-18T18:49:22.113Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T18:49:22.113Z",
+      "completedAt": "2026-04-18T18:51:40.930Z",
+      "outcome": "success",
+      "durationMs": 138817
+    }
+  ],
+  "currentAttempt": 1
+}

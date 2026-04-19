@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/003-wire-per-screen/001-ExportData-onTap-1",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T00:52:41.722Z",
+  "createdAt": "2026-04-19T00:50:14.698Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T00:50:14.698Z",
+      "completedAt": "2026-04-19T00:52:41.719Z",
+      "outcome": "success",
+      "durationMs": 147021
+    }
+  ],
+  "currentAttempt": 1
+}

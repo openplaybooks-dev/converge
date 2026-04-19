@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/003-wire-per-screen/005-mindfulness",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T01:10:18.449Z",
+  "createdAt": "2026-04-19T01:10:18.443Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T01:10:18.443Z",
+      "completedAt": "2026-04-19T01:10:18.447Z",
+      "outcome": "success",
+      "durationMs": 4
+    }
+  ],
+  "currentAttempt": 1
+}

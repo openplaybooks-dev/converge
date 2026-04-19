@@ -1,6 +1,6 @@
 # Task Journal: 01-brand/002-docs-rename
 
-## Current attempt — `attempts/02/`
+## Current attempt — `attempts/wip/`
 
 | File | Purpose |
 |------|---------|

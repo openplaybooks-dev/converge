@@ -1,0 +1,288 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/002-cycle-tracking/002-06-lift/001-lift-BottomNavBar-missing-output-lib/widgets/bottom_nav_bar.dart",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/002-cycle-tracking/002-06-lift/001-lift-BottomNavBar",
+            "severity": "high",
+            "description": "[03-build-screens/002-cycle-tracking/002-06-lift/001-lift-BottomNavBar] Task output not created: lib/widgets/bottom_nav_bar.dart",
+            "source": "unit",
+            "detected": "2026-04-18T15:55:33.306Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/002-cycle-tracking/tasks/002-06-lift/tasks/001-lift-BottomNavBar",
+              "taskId": "03-build-screens/002-cycle-tracking/002-06-lift/001-lift-BottomNavBar",
+              "taskTitle": "Lift: BottomNavBar",
+              "taskPrompt": "# Lift: BottomNavBar\n\nMove `BottomNavBar` from local screen widgets to the shared widgets directory.\n\n## Steps\n\n1. **Move file** — `lib/screens/cycle_tracking/widgets/bottom_nav_bar.dart` → `lib/widgets/bottom_nav_bar.dart`\n2. **Update package import** — Change relative import to package import: `package:folio/widgets/bottom_nav_bar.dart`\n3. **Update all references** — Find all files importing the old path and update them\n4. **Verify** — Run `dart analyze` on affected files",
+              "taskInputs": [
+                "lib/screens/cycle_tracking/widgets/bottom_nav_bar.dart"
+              ],
+              "factId": "file-exists:test -f \"lib/widgets/bottom_nav_bar.dart\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-build-screens/002-cycle-tracking/002-06-lift/001-lift-BottomNavBar-check-failed-widget-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/002-cycle-tracking/002-06-lift/001-lift-BottomNavBar",
+            "severity": "high",
+            "description": "[03-build-screens/002-cycle-tracking/002-06-lift/001-lift-BottomNavBar] Check failed: Shared widget file exists",
+            "source": "unit",
+            "detected": "2026-04-18T15:55:33.308Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "widget-exists",
+              "checkCmd": "test -f lib/widgets/bottom_nav_bar.dart",
+              "checkDescription": "Shared widget file exists",
+              "checkOutput": "Command failed: test -f lib/widgets/bottom_nav_bar.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Lift: BottomNavBar\n\nMove `BottomNavBar` from local screen widgets to the shared widgets directory.\n\n## Steps\n\n1. **Move file** — `lib/screens/cycle_tracking/widgets/bottom_nav_bar.dart` → `lib/widgets/bottom_nav_bar.dart`\n2. **Update package import** — Change relative import to package import: `package:folio/widgets/bottom_nav_bar.dart`\n3. **Update all references** — Find all files importing the old path and update them\n4. **Verify** — Run `dart analyze` on affected files",
+              "taskId": "03-build-screens/002-cycle-tracking/002-06-lift/001-lift-BottomNavBar",
+              "taskTitle": "Lift: BottomNavBar",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/002-cycle-tracking/tasks/002-06-lift/tasks/001-lift-BottomNavBar",
+              "factId": "check:widget-exists"
+            }
+          },
+          {
+            "id": "03-build-screens/002-cycle-tracking/002-06-lift/001-lift-BottomNavBar-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/002-cycle-tracking/002-06-lift/001-lift-BottomNavBar",
+            "severity": "high",
+            "description": "[03-build-screens/002-cycle-tracking/002-06-lift/001-lift-BottomNavBar] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-18T15:55:33.398Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "dart analyze lib/widgets/bottom_nav_bar.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "Directory or file doesn't exist: lib/widgets/bottom_nav_bar.dart\n\nUsage: dart analyze [arguments] [<directory>]\n-h, --help                   Print this usage information.\n    --fatal-infos            Treat info level issues as fatal.\n    --[no-]fatal-warnings    Treat warning level issues as fatal.\n                             (defaults to on)\n\nRun \"dart help\" to see global options.",
+              "checkExitCode": 64,
+              "taskPrompt": "# Lift: BottomNavBar\n\nMove `BottomNavBar` from local screen widgets to the shared widgets directory.\n\n## Steps\n\n1. **Move file** — `lib/screens/cycle_tracking/widgets/bottom_nav_bar.dart` → `lib/widgets/bottom_nav_bar.dart`\n2. **Update package import** — Change relative import to package import: `package:folio/widgets/bottom_nav_bar.dart`\n3. **Update all references** — Find all files importing the old path and update them\n4. **Verify** — Run `dart analyze` on affected files",
+              "taskId": "03-build-screens/002-cycle-tracking/002-06-lift/001-lift-BottomNavBar",
+              "taskTitle": "Lift: BottomNavBar",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/002-cycle-tracking/tasks/002-06-lift/tasks/001-lift-BottomNavBar",
+              "factId": "check:dart-valid"
+            }
+          }
+        ],
+        "durationMs": 96
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 194
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/002-cycle-tracking/002-06-lift/001-lift-BottomNavBar-missing-input-lib/screens/cycle_tracking/widgets/bottom_nav_bar.dart",
+            "type": "missing-dependency",
+            "level": "task",
+            "scope": "03-build-screens/002-cycle-tracking/002-06-lift/001-lift-BottomNavBar",
+            "severity": "high",
+            "description": "[03-build-screens/002-cycle-tracking/002-06-lift/001-lift-BottomNavBar] Missing required input: lib/screens/cycle_tracking/widgets/bottom_nav_bar.dart",
+            "source": "unit",
+            "detected": "2026-04-18T15:57:00.332Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "blocker",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/002-cycle-tracking/tasks/002-06-lift/tasks/001-lift-BottomNavBar",
+              "taskId": "03-build-screens/002-cycle-tracking/002-06-lift/001-lift-BottomNavBar",
+              "taskTitle": "Lift: BottomNavBar",
+              "factId": "file-exists:test -f \"lib/screens/cycle_tracking/widgets/bottom_nav_bar.dart\""
+            }
+          }
+        ],
+        "durationMs": 973
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#5",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 86729
+      }
+    },
+    {
+      "id": "resolve-blockers",
+      "handler": "resolve-blockers",
+      "status": "failed",
+      "origin": "initial",
+      "data": {
+        "priority": 80
+      },
+      "result": {
+        "action": "bail",
+        "success": false,
+        "reason": "1 unresolvable blockers",
+        "durationMs": 975
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-18T15:55:33.301Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-18T15:55:33.301Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-18T15:55:33.398Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-18T15:55:33.400Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-18T15:55:33.594Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#5",
+      "iteration": 1,
+      "ts": "2026-04-18T15:57:00.325Z"
+    },
+    {
+      "from": "run-strategy:task-run#5",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-18T15:57:01.298Z"
+    },
+    {
+      "from": "verify",
+      "to": "resolve-blockers",
+      "iteration": 1,
+      "ts": "2026-04-18T15:57:02.274Z"
+    }
+  ]
+}

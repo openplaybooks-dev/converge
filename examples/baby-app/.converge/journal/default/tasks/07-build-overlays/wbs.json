@@ -1,0 +1,175 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-19T02:08:15.442Z",
+  "spawnCount": 42,
+  "subtasks": [
+    {
+      "id": "001-mode-selector",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/001-mode-selector/TASK.md"
+    },
+    {
+      "id": "001-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/001-mode-selector/tasks/001-01-spec/TASK.md"
+    },
+    {
+      "id": "001-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/001-mode-selector/tasks/001-02-design/TASK.md"
+    },
+    {
+      "id": "001-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/001-mode-selector/tasks/001-03-convert/TASK.md"
+    },
+    {
+      "id": "001-04-connect",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/001-mode-selector/tasks/001-04-connect/TASK.md"
+    },
+    {
+      "id": "001-05-mount",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/001-mode-selector/tasks/001-05-mount/TASK.md"
+    },
+    {
+      "id": "002-weight-entry",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/002-weight-entry/TASK.md"
+    },
+    {
+      "id": "002-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/002-weight-entry/tasks/002-01-spec/TASK.md"
+    },
+    {
+      "id": "002-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/002-weight-entry/tasks/002-02-design/TASK.md"
+    },
+    {
+      "id": "002-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/002-weight-entry/tasks/002-03-convert/TASK.md"
+    },
+    {
+      "id": "002-04-connect",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/002-weight-entry/tasks/002-04-connect/TASK.md"
+    },
+    {
+      "id": "002-05-mount",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/002-weight-entry/tasks/002-05-mount/TASK.md"
+    },
+    {
+      "id": "003-mood-log",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/003-mood-log/TASK.md"
+    },
+    {
+      "id": "003-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/003-mood-log/tasks/003-01-spec/TASK.md"
+    },
+    {
+      "id": "003-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/003-mood-log/tasks/003-02-design/TASK.md"
+    },
+    {
+      "id": "003-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/003-mood-log/tasks/003-03-convert/TASK.md"
+    },
+    {
+      "id": "003-04-connect",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/003-mood-log/tasks/003-04-connect/TASK.md"
+    },
+    {
+      "id": "003-05-mount",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/003-mood-log/tasks/003-05-mount/TASK.md"
+    },
+    {
+      "id": "004-health-log-entry",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/004-health-log-entry/TASK.md"
+    },
+    {
+      "id": "004-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/004-health-log-entry/tasks/004-01-spec/TASK.md"
+    },
+    {
+      "id": "004-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/004-health-log-entry/tasks/004-02-design/TASK.md"
+    },
+    {
+      "id": "004-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/004-health-log-entry/tasks/004-03-convert/TASK.md"
+    },
+    {
+      "id": "004-04-connect",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/004-health-log-entry/tasks/004-04-connect/TASK.md"
+    },
+    {
+      "id": "004-05-mount",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/004-health-log-entry/tasks/004-05-mount/TASK.md"
+    },
+    {
+      "id": "005-cycle-entry",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/005-cycle-entry/TASK.md"
+    },
+    {
+      "id": "005-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/005-cycle-entry/tasks/005-01-spec/TASK.md"
+    },
+    {
+      "id": "005-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/005-cycle-entry/tasks/005-02-design/TASK.md"
+    },
+    {
+      "id": "005-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/005-cycle-entry/tasks/005-03-convert/TASK.md"
+    },
+    {
+      "id": "005-04-connect",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/005-cycle-entry/tasks/005-04-connect/TASK.md"
+    },
+    {
+      "id": "005-05-mount",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/005-cycle-entry/tasks/005-05-mount/TASK.md"
+    },
+    {
+      "id": "006-due-date-picker",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/006-due-date-picker/TASK.md"
+    },
+    {
+      "id": "006-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/006-due-date-picker/tasks/006-01-spec/TASK.md"
+    },
+    {
+      "id": "006-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/006-due-date-picker/tasks/006-02-design/TASK.md"
+    },
+    {
+      "id": "006-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/006-due-date-picker/tasks/006-03-convert/TASK.md"
+    },
+    {
+      "id": "006-04-connect",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/006-due-date-picker/tasks/006-04-connect/TASK.md"
+    },
+    {
+      "id": "006-05-mount",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/006-due-date-picker/tasks/006-05-mount/TASK.md"
+    },
+    {
+      "id": "007-delete-entry",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/007-delete-entry/TASK.md"
+    },
+    {
+      "id": "007-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/007-delete-entry/tasks/007-01-spec/TASK.md"
+    },
+    {
+      "id": "007-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/007-delete-entry/tasks/007-02-design/TASK.md"
+    },
+    {
+      "id": "007-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/007-delete-entry/tasks/007-03-convert/TASK.md"
+    },
+    {
+      "id": "007-04-connect",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/007-delete-entry/tasks/007-04-connect/TASK.md"
+    },
+    {
+      "id": "007-05-mount",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/007-delete-entry/tasks/007-05-mount/TASK.md"
+    }
+  ]
+}

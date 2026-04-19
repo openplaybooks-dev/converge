@@ -1,0 +1,352 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/002-cycle-tracking/002-02-design-missing-output-.stitch/designs/cycle-tracking/META.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/002-cycle-tracking/002-02-design",
+            "severity": "high",
+            "description": "[03-build-screens/002-cycle-tracking/002-02-design] Task output not created: .stitch/designs/cycle-tracking/META.md",
+            "source": "unit",
+            "detected": "2026-04-18T12:49:59.326Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/002-cycle-tracking/tasks/002-02-design",
+              "taskId": "03-build-screens/002-cycle-tracking/002-02-design",
+              "taskTitle": "Design: Cycle Tracking",
+              "taskPrompt": "# Design: Cycle Tracking\n\nGenerate the HTML design mockup for **Cycle Tracking** using the **Flutter HTML Glossary** constrained vocabulary.\n\n## Critical Constraint\n\nThe HTML MUST use ONLY elements from the **Flutter HTML Glossary** (`stitch-flutter/references/flutter-html-glossary.md`). This ensures the `stitch-flutter` converter can produce pixel-perfect Flutter widgets mechanically.\n\n## Inputs\n- `.stitch/designs/cycle-tracking/SPEC.md` — Screen specification\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/system/META.md` — Reference examples metadata\n\n## Steps\n\n1. **Read spec** — Load `.stitch/designs/cycle-tracking/SPEC.md` to understand layout, sections, data\n2. **Read glossary** — Load `stitch-flutter/references/flutter-html-glossary.md` to understand the constrained vocabulary\n3. **Select best example match** — Read `.stitch/system/META.md` and score against examples per `stitch-generate/references/selecting-examples.md`\n4. **Read matched reference** — Study the matching example's patterns\n5. **Generate META.md** — Write `.stitch/designs/cycle-tracking/META.md` with example selection and scoring table\n6. **Generate design.html** — Write `.stitch/designs/cycle-tracking/design.html` following `stitch-generate` skill using ONLY glossary elements\n\n## Glossary Quick Reference\n\n- Layout: `.column`, `.row`, `.stack`, `.wrap`, `.expanded`, `.padding`, `.sized-box`\n- Scaffold: `.scaffold`, `.app-bar`, `.body`, `.bottom-nav`, `.fab`\n- Text: `.title-large`, `.body-medium`, `.label-small` (Material 3 TextTheme classes)\n- Components: `.card`, `.chip`, `.list-tile`, `.divider`, `.badge`, `.avatar`\n- Buttons: `.elevated-btn`, `.filled-btn`, `.text-btn`, `.icon-btn`\n- Images: `.network-image`, `.placeholder-image`\n- Icons: `<svg class=\"icon\" data-name=\"{material_icon}\" data-size=\"24\">`\n- Colors: `data-color=\"primary\"`, `data-bg=\"surface\"` (ColorScheme roles)\n- Spacing: `data-spacing=\"md\"`, `data-p=\"lg\"` (token names)\n- Animation: `data-animate=\"fade-in\"`, `data-animate-delay=\"100\"`\n- Navigation: `.ink-well` with `data-route=\"/path\"`\n\n## Output\n\n- `.stitch/designs/cycle-tracking/META.md` — Example selection and scoring\n- `.stitch/designs/cycle-tracking/design.html` — Self-contained HTML mockup at 375px using glossary vocabulary",
+              "taskSkill": "stitch-generate",
+              "taskInputs": [
+                ".stitch/designs/cycle-tracking/SPEC.md",
+                ".stitch/system/DESIGN.md",
+                ".stitch/system/META.md"
+              ],
+              "factId": "file-exists:test -f \".stitch/designs/cycle-tracking/META.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-build-screens/002-cycle-tracking/002-02-design-missing-output-.stitch/designs/cycle-tracking/design.html",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/002-cycle-tracking/002-02-design",
+            "severity": "high",
+            "description": "[03-build-screens/002-cycle-tracking/002-02-design] Task output not created: .stitch/designs/cycle-tracking/design.html",
+            "source": "unit",
+            "detected": "2026-04-18T12:49:59.327Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/002-cycle-tracking/tasks/002-02-design",
+              "taskId": "03-build-screens/002-cycle-tracking/002-02-design",
+              "taskTitle": "Design: Cycle Tracking",
+              "taskPrompt": "# Design: Cycle Tracking\n\nGenerate the HTML design mockup for **Cycle Tracking** using the **Flutter HTML Glossary** constrained vocabulary.\n\n## Critical Constraint\n\nThe HTML MUST use ONLY elements from the **Flutter HTML Glossary** (`stitch-flutter/references/flutter-html-glossary.md`). This ensures the `stitch-flutter` converter can produce pixel-perfect Flutter widgets mechanically.\n\n## Inputs\n- `.stitch/designs/cycle-tracking/SPEC.md` — Screen specification\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/system/META.md` — Reference examples metadata\n\n## Steps\n\n1. **Read spec** — Load `.stitch/designs/cycle-tracking/SPEC.md` to understand layout, sections, data\n2. **Read glossary** — Load `stitch-flutter/references/flutter-html-glossary.md` to understand the constrained vocabulary\n3. **Select best example match** — Read `.stitch/system/META.md` and score against examples per `stitch-generate/references/selecting-examples.md`\n4. **Read matched reference** — Study the matching example's patterns\n5. **Generate META.md** — Write `.stitch/designs/cycle-tracking/META.md` with example selection and scoring table\n6. **Generate design.html** — Write `.stitch/designs/cycle-tracking/design.html` following `stitch-generate` skill using ONLY glossary elements\n\n## Glossary Quick Reference\n\n- Layout: `.column`, `.row`, `.stack`, `.wrap`, `.expanded`, `.padding`, `.sized-box`\n- Scaffold: `.scaffold`, `.app-bar`, `.body`, `.bottom-nav`, `.fab`\n- Text: `.title-large`, `.body-medium`, `.label-small` (Material 3 TextTheme classes)\n- Components: `.card`, `.chip`, `.list-tile`, `.divider`, `.badge`, `.avatar`\n- Buttons: `.elevated-btn`, `.filled-btn`, `.text-btn`, `.icon-btn`\n- Images: `.network-image`, `.placeholder-image`\n- Icons: `<svg class=\"icon\" data-name=\"{material_icon}\" data-size=\"24\">`\n- Colors: `data-color=\"primary\"`, `data-bg=\"surface\"` (ColorScheme roles)\n- Spacing: `data-spacing=\"md\"`, `data-p=\"lg\"` (token names)\n- Animation: `data-animate=\"fade-in\"`, `data-animate-delay=\"100\"`\n- Navigation: `.ink-well` with `data-route=\"/path\"`\n\n## Output\n\n- `.stitch/designs/cycle-tracking/META.md` — Example selection and scoring\n- `.stitch/designs/cycle-tracking/design.html` — Self-contained HTML mockup at 375px using glossary vocabulary",
+              "taskSkill": "stitch-generate",
+              "taskInputs": [
+                ".stitch/designs/cycle-tracking/SPEC.md",
+                ".stitch/system/DESIGN.md",
+                ".stitch/system/META.md"
+              ],
+              "factId": "file-exists:test -f \".stitch/designs/cycle-tracking/design.html\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-build-screens/002-cycle-tracking/002-02-design-check-failed-design-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/002-cycle-tracking/002-02-design",
+            "severity": "high",
+            "description": "[03-build-screens/002-cycle-tracking/002-02-design] Check failed: design.html exists for cycle-tracking",
+            "source": "unit",
+            "detected": "2026-04-18T12:49:59.329Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "design-exists",
+              "checkCmd": "test -f .stitch/designs/cycle-tracking/design.html",
+              "checkDescription": "design.html exists for cycle-tracking",
+              "checkOutput": "Command failed: test -f .stitch/designs/cycle-tracking/design.html\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Design: Cycle Tracking\n\nGenerate the HTML design mockup for **Cycle Tracking** using the **Flutter HTML Glossary** constrained vocabulary.\n\n## Critical Constraint\n\nThe HTML MUST use ONLY elements from the **Flutter HTML Glossary** (`stitch-flutter/references/flutter-html-glossary.md`). This ensures the `stitch-flutter` converter can produce pixel-perfect Flutter widgets mechanically.\n\n## Inputs\n- `.stitch/designs/cycle-tracking/SPEC.md` — Screen specification\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/system/META.md` — Reference examples metadata\n\n## Steps\n\n1. **Read spec** — Load `.stitch/designs/cycle-tracking/SPEC.md` to understand layout, sections, data\n2. **Read glossary** — Load `stitch-flutter/references/flutter-html-glossary.md` to understand the constrained vocabulary\n3. **Select best example match** — Read `.stitch/system/META.md` and score against examples per `stitch-generate/references/selecting-examples.md`\n4. **Read matched reference** — Study the matching example's patterns\n5. **Generate META.md** — Write `.stitch/designs/cycle-tracking/META.md` with example selection and scoring table\n6. **Generate design.html** — Write `.stitch/designs/cycle-tracking/design.html` following `stitch-generate` skill using ONLY glossary elements\n\n## Glossary Quick Reference\n\n- Layout: `.column`, `.row`, `.stack`, `.wrap`, `.expanded`, `.padding`, `.sized-box`\n- Scaffold: `.scaffold`, `.app-bar`, `.body`, `.bottom-nav`, `.fab`\n- Text: `.title-large`, `.body-medium`, `.label-small` (Material 3 TextTheme classes)\n- Components: `.card`, `.chip`, `.list-tile`, `.divider`, `.badge`, `.avatar`\n- Buttons: `.elevated-btn`, `.filled-btn`, `.text-btn`, `.icon-btn`\n- Images: `.network-image`, `.placeholder-image`\n- Icons: `<svg class=\"icon\" data-name=\"{material_icon}\" data-size=\"24\">`\n- Colors: `data-color=\"primary\"`, `data-bg=\"surface\"` (ColorScheme roles)\n- Spacing: `data-spacing=\"md\"`, `data-p=\"lg\"` (token names)\n- Animation: `data-animate=\"fade-in\"`, `data-animate-delay=\"100\"`\n- Navigation: `.ink-well` with `data-route=\"/path\"`\n\n## Output\n\n- `.stitch/designs/cycle-tracking/META.md` — Example selection and scoring\n- `.stitch/designs/cycle-tracking/design.html` — Self-contained HTML mockup at 375px using glossary vocabulary",
+              "taskSkill": "stitch-generate",
+              "taskId": "03-build-screens/002-cycle-tracking/002-02-design",
+              "taskTitle": "Design: Cycle Tracking",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/002-cycle-tracking/tasks/002-02-design",
+              "factId": "check:design-exists"
+            }
+          },
+          {
+            "id": "03-build-screens/002-cycle-tracking/002-02-design-check-failed-meta-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/002-cycle-tracking/002-02-design",
+            "severity": "high",
+            "description": "[03-build-screens/002-cycle-tracking/002-02-design] Check failed: META.md exists for cycle-tracking",
+            "source": "unit",
+            "detected": "2026-04-18T12:49:59.331Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "meta-exists",
+              "checkCmd": "test -f .stitch/designs/cycle-tracking/META.md",
+              "checkDescription": "META.md exists for cycle-tracking",
+              "checkOutput": "Command failed: test -f .stitch/designs/cycle-tracking/META.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Design: Cycle Tracking\n\nGenerate the HTML design mockup for **Cycle Tracking** using the **Flutter HTML Glossary** constrained vocabulary.\n\n## Critical Constraint\n\nThe HTML MUST use ONLY elements from the **Flutter HTML Glossary** (`stitch-flutter/references/flutter-html-glossary.md`). This ensures the `stitch-flutter` converter can produce pixel-perfect Flutter widgets mechanically.\n\n## Inputs\n- `.stitch/designs/cycle-tracking/SPEC.md` — Screen specification\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/system/META.md` — Reference examples metadata\n\n## Steps\n\n1. **Read spec** — Load `.stitch/designs/cycle-tracking/SPEC.md` to understand layout, sections, data\n2. **Read glossary** — Load `stitch-flutter/references/flutter-html-glossary.md` to understand the constrained vocabulary\n3. **Select best example match** — Read `.stitch/system/META.md` and score against examples per `stitch-generate/references/selecting-examples.md`\n4. **Read matched reference** — Study the matching example's patterns\n5. **Generate META.md** — Write `.stitch/designs/cycle-tracking/META.md` with example selection and scoring table\n6. **Generate design.html** — Write `.stitch/designs/cycle-tracking/design.html` following `stitch-generate` skill using ONLY glossary elements\n\n## Glossary Quick Reference\n\n- Layout: `.column`, `.row`, `.stack`, `.wrap`, `.expanded`, `.padding`, `.sized-box`\n- Scaffold: `.scaffold`, `.app-bar`, `.body`, `.bottom-nav`, `.fab`\n- Text: `.title-large`, `.body-medium`, `.label-small` (Material 3 TextTheme classes)\n- Components: `.card`, `.chip`, `.list-tile`, `.divider`, `.badge`, `.avatar`\n- Buttons: `.elevated-btn`, `.filled-btn`, `.text-btn`, `.icon-btn`\n- Images: `.network-image`, `.placeholder-image`\n- Icons: `<svg class=\"icon\" data-name=\"{material_icon}\" data-size=\"24\">`\n- Colors: `data-color=\"primary\"`, `data-bg=\"surface\"` (ColorScheme roles)\n- Spacing: `data-spacing=\"md\"`, `data-p=\"lg\"` (token names)\n- Animation: `data-animate=\"fade-in\"`, `data-animate-delay=\"100\"`\n- Navigation: `.ink-well` with `data-route=\"/path\"`\n\n## Output\n\n- `.stitch/designs/cycle-tracking/META.md` — Example selection and scoring\n- `.stitch/designs/cycle-tracking/design.html` — Self-contained HTML mockup at 375px using glossary vocabulary",
+              "taskSkill": "stitch-generate",
+              "taskId": "03-build-screens/002-cycle-tracking/002-02-design",
+              "taskTitle": "Design: Cycle Tracking",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/002-cycle-tracking/tasks/002-02-design",
+              "factId": "check:meta-exists"
+            }
+          },
+          {
+            "id": "03-build-screens/002-cycle-tracking/002-02-design-check-failed-uses-glossary",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/002-cycle-tracking/002-02-design",
+            "severity": "high",
+            "description": "[03-build-screens/002-cycle-tracking/002-02-design] Check failed: HTML uses Flutter HTML Glossary vocabulary",
+            "source": "unit",
+            "detected": "2026-04-18T12:49:59.334Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "uses-glossary",
+              "checkCmd": "grep -q 'class=\"scaffold\"' .stitch/designs/cycle-tracking/design.html",
+              "checkDescription": "HTML uses Flutter HTML Glossary vocabulary",
+              "checkOutput": "grep: .stitch/designs/cycle-tracking/design.html: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Design: Cycle Tracking\n\nGenerate the HTML design mockup for **Cycle Tracking** using the **Flutter HTML Glossary** constrained vocabulary.\n\n## Critical Constraint\n\nThe HTML MUST use ONLY elements from the **Flutter HTML Glossary** (`stitch-flutter/references/flutter-html-glossary.md`). This ensures the `stitch-flutter` converter can produce pixel-perfect Flutter widgets mechanically.\n\n## Inputs\n- `.stitch/designs/cycle-tracking/SPEC.md` — Screen specification\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/system/META.md` — Reference examples metadata\n\n## Steps\n\n1. **Read spec** — Load `.stitch/designs/cycle-tracking/SPEC.md` to understand layout, sections, data\n2. **Read glossary** — Load `stitch-flutter/references/flutter-html-glossary.md` to understand the constrained vocabulary\n3. **Select best example match** — Read `.stitch/system/META.md` and score against examples per `stitch-generate/references/selecting-examples.md`\n4. **Read matched reference** — Study the matching example's patterns\n5. **Generate META.md** — Write `.stitch/designs/cycle-tracking/META.md` with example selection and scoring table\n6. **Generate design.html** — Write `.stitch/designs/cycle-tracking/design.html` following `stitch-generate` skill using ONLY glossary elements\n\n## Glossary Quick Reference\n\n- Layout: `.column`, `.row`, `.stack`, `.wrap`, `.expanded`, `.padding`, `.sized-box`\n- Scaffold: `.scaffold`, `.app-bar`, `.body`, `.bottom-nav`, `.fab`\n- Text: `.title-large`, `.body-medium`, `.label-small` (Material 3 TextTheme classes)\n- Components: `.card`, `.chip`, `.list-tile`, `.divider`, `.badge`, `.avatar`\n- Buttons: `.elevated-btn`, `.filled-btn`, `.text-btn`, `.icon-btn`\n- Images: `.network-image`, `.placeholder-image`\n- Icons: `<svg class=\"icon\" data-name=\"{material_icon}\" data-size=\"24\">`\n- Colors: `data-color=\"primary\"`, `data-bg=\"surface\"` (ColorScheme roles)\n- Spacing: `data-spacing=\"md\"`, `data-p=\"lg\"` (token names)\n- Animation: `data-animate=\"fade-in\"`, `data-animate-delay=\"100\"`\n- Navigation: `.ink-well` with `data-route=\"/path\"`\n\n## Output\n\n- `.stitch/designs/cycle-tracking/META.md` — Example selection and scoring\n- `.stitch/designs/cycle-tracking/design.html` — Self-contained HTML mockup at 375px using glossary vocabulary",
+              "taskSkill": "stitch-generate",
+              "taskId": "03-build-screens/002-cycle-tracking/002-02-design",
+              "taskTitle": "Design: Cycle Tracking",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/002-cycle-tracking/tasks/002-02-design",
+              "factId": "check:uses-glossary"
+            }
+          },
+          {
+            "id": "03-build-screens/002-cycle-tracking/002-02-design-check-failed-has-data-attributes",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/002-cycle-tracking/002-02-design",
+            "severity": "high",
+            "description": "[03-build-screens/002-cycle-tracking/002-02-design] Check failed: HTML uses data-* attributes for Flutter conversion",
+            "source": "unit",
+            "detected": "2026-04-18T12:49:59.338Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "has-data-attributes",
+              "checkCmd": "grep -q 'data-color=' .stitch/designs/cycle-tracking/design.html",
+              "checkDescription": "HTML uses data-* attributes for Flutter conversion",
+              "checkOutput": "grep: .stitch/designs/cycle-tracking/design.html: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Design: Cycle Tracking\n\nGenerate the HTML design mockup for **Cycle Tracking** using the **Flutter HTML Glossary** constrained vocabulary.\n\n## Critical Constraint\n\nThe HTML MUST use ONLY elements from the **Flutter HTML Glossary** (`stitch-flutter/references/flutter-html-glossary.md`). This ensures the `stitch-flutter` converter can produce pixel-perfect Flutter widgets mechanically.\n\n## Inputs\n- `.stitch/designs/cycle-tracking/SPEC.md` — Screen specification\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/system/META.md` — Reference examples metadata\n\n## Steps\n\n1. **Read spec** — Load `.stitch/designs/cycle-tracking/SPEC.md` to understand layout, sections, data\n2. **Read glossary** — Load `stitch-flutter/references/flutter-html-glossary.md` to understand the constrained vocabulary\n3. **Select best example match** — Read `.stitch/system/META.md` and score against examples per `stitch-generate/references/selecting-examples.md`\n4. **Read matched reference** — Study the matching example's patterns\n5. **Generate META.md** — Write `.stitch/designs/cycle-tracking/META.md` with example selection and scoring table\n6. **Generate design.html** — Write `.stitch/designs/cycle-tracking/design.html` following `stitch-generate` skill using ONLY glossary elements\n\n## Glossary Quick Reference\n\n- Layout: `.column`, `.row`, `.stack`, `.wrap`, `.expanded`, `.padding`, `.sized-box`\n- Scaffold: `.scaffold`, `.app-bar`, `.body`, `.bottom-nav`, `.fab`\n- Text: `.title-large`, `.body-medium`, `.label-small` (Material 3 TextTheme classes)\n- Components: `.card`, `.chip`, `.list-tile`, `.divider`, `.badge`, `.avatar`\n- Buttons: `.elevated-btn`, `.filled-btn`, `.text-btn`, `.icon-btn`\n- Images: `.network-image`, `.placeholder-image`\n- Icons: `<svg class=\"icon\" data-name=\"{material_icon}\" data-size=\"24\">`\n- Colors: `data-color=\"primary\"`, `data-bg=\"surface\"` (ColorScheme roles)\n- Spacing: `data-spacing=\"md\"`, `data-p=\"lg\"` (token names)\n- Animation: `data-animate=\"fade-in\"`, `data-animate-delay=\"100\"`\n- Navigation: `.ink-well` with `data-route=\"/path\"`\n\n## Output\n\n- `.stitch/designs/cycle-tracking/META.md` — Example selection and scoring\n- `.stitch/designs/cycle-tracking/design.html` — Self-contained HTML mockup at 375px using glossary vocabulary",
+              "taskSkill": "stitch-generate",
+              "taskId": "03-build-screens/002-cycle-tracking/002-02-design",
+              "taskTitle": "Design: Cycle Tracking",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/002-cycle-tracking/tasks/002-02-design",
+              "factId": "check:has-data-attributes"
+            }
+          }
+        ],
+        "durationMs": 21
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 47
+      }
+    },
+    {
+      "id": "run-skill",
+      "handler": "run-skill",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 64
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 54
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#6",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 356498
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-18T12:49:59.316Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-18T12:49:59.317Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-18T12:49:59.338Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-18T12:49:59.339Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "run-skill",
+      "iteration": 1,
+      "ts": "2026-04-18T12:49:59.348Z"
+    },
+    {
+      "from": "run-skill",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-18T12:49:59.396Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#6",
+      "iteration": 1,
+      "ts": "2026-04-18T12:55:55.896Z"
+    },
+    {
+      "from": "run-strategy:task-run#6",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-18T12:55:55.951Z"
+    }
+  ]
+}

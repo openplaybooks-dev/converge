@@ -1,0 +1,31 @@
+{
+  "taskId": "07-build-overlays/003-mood-log/003-05-mount",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/widgets/overlays/mood_log/mood_log.dart",
+      "count": 1,
+      "samples": [
+        "lib/widgets/overlays/mood_log/mood_log.dart"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/mood-log/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/mood-log/SPEC.md"
+      ]
+    },
+    {
+      "pattern": "lib/screens/mood_wellness/mood_wellness_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/mood_wellness/mood_wellness_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/mood_wellness/mood_wellness_screen.dart"
+  ],
+  "blocked": false
+}

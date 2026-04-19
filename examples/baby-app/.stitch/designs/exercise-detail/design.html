@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bloom — Exercise Detail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Background */
+  --color-canvas: #EDE8F7;
+  --color-surface: #FFFFFF;
+
+  /* Text */
+  --color-text-primary: #2A2A3A;
+  --color-text-secondary: #8B8B9C;
+
+  /* Accent */
+  --color-accent-coral: #F28B8B;
+  --color-accent-coral-tint: rgba(242, 139, 139, 0.12);
+  --color-accent-lilac: #8B7ED8;
+  --color-accent-lilac-tint: rgba(139, 126, 216, 0.14);
+
+  /* Structural */
+  --color-divider: rgba(42, 42, 58, 0.06);
+  --color-chip-bg: rgba(139, 126, 216, 0.08);
+
+  /* Functional */
+  --color-success: #6DC48A;
+
+  /* Shadows */
+  --shadow-subtle: 0 2px 8px rgba(139, 126, 216, 0.08);
+  --shadow-standard: 0 4px 20px rgba(139, 126, 216, 0.12);
+  --shadow-prominent: 0 8px 32px rgba(139, 126, 216, 0.14);
+
+  /* Typography */
+  --font-ui: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --fs-display: 2rem;
+  --fs-heading: 1.5rem;
+  --fs-subheading: 1.125rem;
+  --fs-body: 1rem;
+  --fs-data: 0.875rem;
+  --fs-caption: 0.8125rem;
+  --fs-micro: 0.6875rem;
+
+  /* Spacing */
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1.25rem;
+  --space-section: 1.5rem;
+
+  /* Radius */
+  --radius-card: 1.5rem;
+  --radius-hero: 2rem;
+  --radius-pill: 9999px;
+
+  /* Motion */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-exit: cubic-bezier(0.25, 0, 0, 1);
+  --duration-card: 450ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-ui);
+  background: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.phone {
+  width: 375px;
+  min-height: 812px;
+  background: var(--color-canvas);
+  border-radius: 2.5rem;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+/* App Bar */
+.app-bar {
+  background: var(--color-surface);
+  padding: 3rem var(--space-md) 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  z-index: 10;
+}
+
+.back-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.back-btn svg {
+  width: 22px;
+  height: 22px;
+  color: var(--color-text-primary);
+}
+
+.app-bar h1 {
+  font-size: var(--fs-subheading);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Screen Content */
+.screen-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-md);
+  padding-bottom: 6rem;
+}
+
+.section-gap {
+  height: 1.5rem;
+}
+
+/* Hero Illustration Card */
+.hero-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-hero);
+  box-shadow: var(--shadow-prominent);
+  padding: 2rem;
+  text-align: center;
+  animation: slideUp var(--duration-card) var(--ease-spring) both;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1.0); }
+  50% { transform: scale(1.015); }
+}
+
+.hero-illustration {
+  width: 70%;
+  margin: 0 auto var(--space-md);
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: breathe 4s ease-in-out infinite;
+}
+
+.hero-illustration svg {
+  width: 100%;
+  height: 100%;
+}
+
+.hero-card .exercise-name {
+  font-size: var(--fs-heading);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 0.375rem;
+}
+
+.hero-card .category-tag {
+  display: inline-block;
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-accent-lilac);
+  background: var(--color-chip-bg);
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--radius-pill);
+}
+
+/* Instructions Card */
+.instructions-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-standard);
+  padding: var(--space-md);
+  animation: slideUp var(--duration-card) var(--ease-spring) 80ms both;
+}
+
+.section-title {
+  font-size: var(--fs-heading);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-md);
+}
+
+.step-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.step-number {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-accent-lilac);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: var(--color-surface);
+  margin-top: 0.125rem;
+}
+
+.step-text {
+  font-size: var(--fs-body);
+  font-weight: 400;
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  flex: 1;
+}
+
+.step-divider {
+  height: 1px;
+  background: var(--color-divider);
+  margin: 0.75rem 0;
+  margin-left: 2.5rem;
+}
+
+/* Duration & Difficulty Chips */
+.chips-row {
+  display: flex;
+  gap: 8px;
+  animation: slideUp 300ms var(--ease-spring) 160ms both;
+}
+
+.meta-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: var(--space-xs) var(--space-md);
+  background: var(--color-chip-bg);
+  border-radius: var(--radius-pill);
+  min-height: 44px;
+}
+
+.meta-chip svg {
+  width: 16px;
+  height: 16px;
+  color: var(--color-accent-lilac);
+  flex-shrink: 0;
+}
+
+.meta-chip span {
+  font-size: var(--fs-data);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+/* Benefits Card */
+.benefits-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-standard);
+  padding: var(--space-md);
+  animation: slideUp var(--duration-card) var(--ease-spring) 240ms both;
+}
+
+.benefit-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+}
+
+.benefit-row + .benefit-row {
+  margin-top: 0.75rem;
+}
+
+.benefit-row svg {
+  width: 18px;
+  height: 18px;
+  color: var(--color-success);
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.benefit-text {
+  font-size: var(--fs-body);
+  font-weight: 400;
+  color: var(--color-text-primary);
+  line-height: 1.5;
+}
+
+/* Footer Button */
+.footer-bar {
+  padding: 0.75rem var(--space-md);
+  padding-bottom: 2rem;
+  background: var(--color-canvas);
+  z-index: 10;
+  animation: fadeIn 300ms ease-out 400ms both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.start-btn {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.875rem;
+  background: var(--color-accent-coral);
+  color: var(--color-surface);
+  border: none;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-ui);
+  font-size: var(--fs-subheading);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 100ms ease-out;
+}
+
+.start-btn:active {
+  transform: translateY(1px);
+}
+</style>
+</head>
+<body>
+
+<div class="phone" role="application" aria-label="Exercise detail: Deep Breathing">
+<div class="scaffold" data-flutter="scaffold">
+
+  <!-- App Bar -->
+  <header class="app-bar" data-flutter="app-bar" data-color="surface">
+    <button class="back-btn" aria-label="Go back to mindfulness">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- arrow-left --><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </button>
+    <h1 data-color="primary">Deep Breathing</h1>
+  </header>
+
+  <main class="screen-content">
+
+    <!-- 7.1 Illustration Card -->
+    <section class="hero-card" aria-label="Illustration for Deep Breathing" data-color="surface">
+      <div class="hero-illustration">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- Breathing figure illustration -->
+          <circle cx="100" cy="75" r="60" fill="#EDE8F7"/>
+          <ellipse cx="100" cy="72" rx="42" ry="46" fill="#D9D3F2"/>
+          <!-- Seated figure -->
+          <circle cx="100" cy="50" r="15" fill="#8B7ED8" opacity="0.4"/>
+          <ellipse cx="100" cy="84" rx="22" ry="26" fill="#8B7ED8" opacity="0.25"/>
+          <!-- Arms in meditation pose -->
+          <path d="M78 78 Q70 90 76 96" stroke="#8B7ED8" stroke-width="1.5" fill="none" opacity="0.3" stroke-linecap="round"/>
+          <path d="M122 78 Q130 90 124 96" stroke="#8B7ED8" stroke-width="1.5" fill="none" opacity="0.3" stroke-linecap="round"/>
+          <!-- Breath rings -->
+          <circle cx="100" cy="68" r="30" fill="none" stroke="#8B7ED8" stroke-width="1" opacity="0.3"/>
+          <circle cx="100" cy="68" r="42" fill="none" stroke="#8B7ED8" stroke-width="0.75" opacity="0.2"/>
+          <circle cx="100" cy="68" r="54" fill="none" stroke="#8B7ED8" stroke-width="0.5" opacity="0.12"/>
+          <!-- Decorative leaves -->
+          <path d="M50 130 Q55 115 65 125" stroke="#6DC48A" stroke-width="1.5" fill="none" opacity="0.5" stroke-linecap="round"/>
+          <path d="M150 130 Q145 115 135 125" stroke="#6DC48A" stroke-width="1.5" fill="none" opacity="0.5" stroke-linecap="round"/>
+          <path d="M42 140 Q48 128 55 136" stroke="#6DC48A" stroke-width="1" fill="none" opacity="0.35" stroke-linecap="round"/>
+          <path d="M158 140 Q152 128 145 136" stroke="#6DC48A" stroke-width="1" fill="none" opacity="0.35" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h2 class="exercise-name">Deep Breathing</h2>
+      <span class="category-tag" aria-label="Category: Breathing" data-color="secondary">Breathing</span>
+    </section>
+
+    <div class="section-gap"></div>
+
+    <!-- 7.2 Instructions -->
+    <section class="instructions-card" aria-label="Instructions" data-color="surface">
+      <h2 class="section-title">Instructions</h2>
+
+      <div class="step-row" aria-label="Step 1: Find a comfortable seated position with your back straight and shoulders relaxed">
+        <span class="step-number" data-color="secondary">1</span>
+        <p class="step-text">Find a comfortable seated position with your back straight and shoulders relaxed</p>
+      </div>
+      <div class="step-divider" role="separator"></div>
+
+      <div class="step-row" aria-label="Step 2: Close your eyes gently and bring attention to your natural breath">
+        <span class="step-number" data-color="secondary">2</span>
+        <p class="step-text">Close your eyes gently and bring attention to your natural breath</p>
+      </div>
+      <div class="step-divider" role="separator"></div>
+
+      <div class="step-row" aria-label="Step 3: Inhale slowly through your nose for 4 counts, feeling your belly expand">
+        <span class="step-number" data-color="secondary">3</span>
+        <p class="step-text">Inhale slowly through your nose for 4 counts, feeling your belly expand</p>
+      </div>
+      <div class="step-divider" role="separator"></div>
+
+      <div class="step-row" aria-label="Step 4: Hold your breath gently for 4 counts">
+        <span class="step-number" data-color="secondary">4</span>
+        <p class="step-text">Hold your breath gently for 4 counts</p>
+      </div>
+      <div class="step-divider" role="separator"></div>
+
+      <div class="step-row" aria-label="Step 5: Exhale slowly through your mouth for 6 counts, releasing tension">
+        <span class="step-number" data-color="secondary">5</span>
+        <p class="step-text">Exhale slowly through your mouth for 6 counts, releasing tension</p>
+      </div>
+    </section>
+
+    <div class="section-gap"></div>
+
+    <!-- 7.3 Duration & Difficulty Chips -->
+    <div class="chips-row" aria-label="Exercise metadata">
+      <div class="meta-chip" aria-label="Duration: 5 minutes">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- clock --><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span data-color="secondary">5 min</span>
+      </div>
+      <div class="meta-chip" aria-label="Difficulty: Beginner">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- signal --><path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/></svg>
+        <span data-color="secondary">Beginner</span>
+      </div>
+    </div>
+
+    <div class="section-gap"></div>
+
+    <!-- 7.4 Benefits -->
+    <section class="benefits-card" aria-label="Benefits" data-color="surface">
+      <h2 class="section-title">Benefits</h2>
+
+      <div class="benefit-row" aria-label="Reduces stress and anxiety levels">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- check-circle --><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span class="benefit-text">Reduces stress and anxiety levels</span>
+      </div>
+
+      <div class="benefit-row" aria-label="Improves oxygen flow to you and baby">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- check-circle --><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span class="benefit-text">Improves oxygen flow to you and baby</span>
+      </div>
+
+      <div class="benefit-row" aria-label="Promotes better sleep quality">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- check-circle --><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span class="benefit-text">Promotes better sleep quality</span>
+      </div>
+
+      <div class="benefit-row" aria-label="Helps prepare for labor breathing techniques">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- check-circle --><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span class="benefit-text">Helps prepare for labor breathing techniques</span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Persistent Footer Button -->
+  <div class="footer-bar" data-flutter="safe-area">
+    <button class="start-btn" aria-label="Start Deep Breathing exercise" data-color="accent">Start Exercise</button>
+  </div>
+
+</div>
+</div>
+
+</body>
+</html>

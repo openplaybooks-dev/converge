@@ -33,6 +33,7 @@ import { join, dirname, basename, relative } from "node:path";
 import { existsSync } from "node:fs";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { getEpicsDir } from "../../journal/structure.ts";
+import { getSourceTaskDirs } from "../../playbook/paths.ts";
 import type { Gap } from "../../gap/types.ts";
 import type {
   FixStrategy,
@@ -188,45 +189,60 @@ export class IncompleteProducerOutputStrategy implements FixStrategy {
     const { readdirSync, statSync } =
       (await import("node:fs")) as typeof import("node:fs");
 
-    const epicsDir = join(projectDir, ".converge", "epics");
-    if (!existsSync(epicsDir)) return null;
+    const sourceDirs = getSourceTaskDirs(projectDir);
+    if (sourceDirs.length === 0) return null;
 
-    const epicDirs = readdirSync(epicsDir).filter((e) => {
-      try {
-        return statSync(join(epicsDir, e)).isDirectory();
-      } catch {
-        return false;
-      }
-    });
-
-    for (const epicId of epicDirs) {
-      const epicPath = join(epicsDir, epicId);
-      const skillFiles = await glob("**/SKILL.md", {
-        cwd: epicPath,
-        absolute: true,
+    for (const sourceDir of sourceDirs) {
+      const epicDirs = readdirSync(sourceDir).filter((e) => {
+        try {
+          return statSync(join(sourceDir, e)).isDirectory();
+        } catch {
+          return false;
+        }
       });
 
-      for (const skillPath of skillFiles) {
-        const outputs = await this.getOutputs(skillPath);
-
-        // Check if this task produces files in the same directory as the missing file
-        // but does NOT already declare the missing file
-        const producesSiblingFile = outputs.some((out) => {
-          const outDir = dirname(out);
-          return outDir === missingDir && out !== missingFile;
+      for (const epicId of epicDirs) {
+        const epicPath = join(sourceDir, epicId);
+        const taskFiles = await glob("**/{SKILL,TASK}.md", {
+          cwd: epicPath,
+          absolute: true,
         });
-        const alreadyDeclared = outputs.includes(missingFile);
 
-        if (!producesSiblingFile || alreadyDeclared) continue;
+        for (const skillPath of taskFiles) {
+          const outputs = await this.getOutputs(skillPath);
 
-        // Task must have already run (has a journal entry)
-        const taskId = this.extractTaskId(skillPath, epicPath);
-        const journalTaskId = this.extractJournalTaskId(skillPath, epicPath);
+          // Check if this task produces files in the same directory as the missing file
+          // but does NOT already declare the missing file
+          const producesSiblingFile = outputs.some((out) => {
+            const outDir = dirname(out);
+            return outDir === missingDir && out !== missingFile;
+          });
+          const alreadyDeclared = outputs.includes(missingFile);
 
-        const hasRun = await this.hasTaskRun(epicId, journalTaskId, projectDir);
-        if (!hasRun) continue;
+          if (!producesSiblingFile || alreadyDeclared) continue;
 
-        return { taskId, epicId, journalTaskId, filePath: skillPath, outputs };
+          // Task must have already run (has a journal entry)
+          const taskId = this.extractTaskId(skillPath, epicPath);
+          const journalTaskId = this.extractJournalTaskId(
+            skillPath,
+            epicPath,
+          );
+
+          const hasRun = await this.hasTaskRun(
+            epicId,
+            journalTaskId,
+            projectDir,
+          );
+          if (!hasRun) continue;
+
+          return {
+            taskId,
+            epicId,
+            journalTaskId,
+            filePath: skillPath,
+            outputs,
+          };
+        }
       }
     }
 
@@ -438,19 +454,26 @@ export class IncompleteProducerOutputStrategy implements FixStrategy {
     }
   }
 
-  private extractTaskId(skillPath: string, epicPath: string): string {
-    const rel = relative(epicPath, skillPath).replace(/\\/g, "/");
+  private extractTaskId(taskFilePath: string, epicPath: string): string {
+    const rel = relative(epicPath, taskFilePath).replace(/\\/g, "/");
     const parts = rel
       .split("/")
-      .filter((p) => p !== "SKILL.md" && p !== "tasks");
+      .filter(
+        (p) => p !== "SKILL.md" && p !== "TASK.md" && p !== "tasks",
+      );
     return parts[parts.length - 1];
   }
 
-  private extractJournalTaskId(skillPath: string, epicPath: string): string {
-    const rel = relative(epicPath, skillPath).replace(/\\/g, "/");
+  private extractJournalTaskId(
+    taskFilePath: string,
+    epicPath: string,
+  ): string {
+    const rel = relative(epicPath, taskFilePath).replace(/\\/g, "/");
     const parts = rel
       .split("/")
-      .filter((p) => p !== "SKILL.md" && p !== "tasks");
+      .filter(
+        (p) => p !== "SKILL.md" && p !== "TASK.md" && p !== "tasks",
+      );
     return parts.join("/");
   }
 }

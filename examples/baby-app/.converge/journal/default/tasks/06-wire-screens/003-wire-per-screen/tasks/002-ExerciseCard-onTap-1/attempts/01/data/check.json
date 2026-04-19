@@ -1,0 +1,10 @@
+{
+  "taskId": "06-wire-screens/003-wire-per-screen/002-ExerciseCard-onTap-1",
+  "checks": [
+    {
+      "id": "handler-wired",
+      "description": "GestureDetector.onTap has real logic at lib/screens/mindfulness/widgets/exercise_card.dart:30",
+      "cmd": "node .converge/playbooks/default/tasks/06-wire-screens/check-handler.mjs lib/screens/mindfulness/widgets/exercise_card.dart 30 onTap"
+    }
+  ]
+}

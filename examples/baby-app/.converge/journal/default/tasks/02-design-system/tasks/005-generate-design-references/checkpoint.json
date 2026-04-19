@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "02-design-system/005-generate-design-references",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T11:32:21.552Z",
+  "createdAt": "2026-04-18T11:26:31.883Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T11:26:31.883Z",
+      "completedAt": "2026-04-18T11:32:21.550Z",
+      "outcome": "success",
+      "durationMs": 349667
+    }
+  ],
+  "currentAttempt": 1
+}

@@ -138,6 +138,7 @@ export function claudefn<T = string>(
     logDir,
     onProcessSpawned,
     enableMCP = false,
+    env: customEnv,
   } = opts;
 
   const queue = resolveQueue(queueOption);
@@ -172,6 +173,7 @@ export function claudefn<T = string>(
             logDir,
             onProcessSpawned,
             enableMCP,
+            customEnv,
           );
         return queue ? await queue.wrap(run) : await run();
       } catch (err: unknown) {
@@ -222,6 +224,7 @@ export async function executeViaCli<T>(
   logDir?: string,
   onProcessSpawned?: (proc: any, logPath: string) => void,
   enableMCP = false,
+  customEnv?: Record<string, string>,
 ): Promise<ClaudeFnResult<T>> {
   let prompt: string;
   if (promptTemplate) {
@@ -554,6 +557,14 @@ Return ONLY the JSON object inside a code fence. After the JSON, you may include
     // Without this, Claude runs commands in background and writes to temp files
     // instead of stdout, causing claudefn to hang waiting for output
     spawnEnv["CLAUDE_CODE_DISABLE_BACKGROUND_TASKS"] = "1";
+
+    // Merge custom environment variables from config (e.g., for MiniMax API)
+    // Custom env vars take precedence over process.env
+    if (customEnv) {
+      for (const [key, value] of Object.entries(customEnv)) {
+        spawnEnv[key] = value;
+      }
+    }
 
     const proc = spawn("claude", args, {
       cwd,

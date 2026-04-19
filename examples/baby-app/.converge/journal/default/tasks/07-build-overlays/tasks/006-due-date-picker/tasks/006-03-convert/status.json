@@ -1,0 +1,19 @@
+{
+  "taskId": "07-build-overlays/006-due-date-picker/006-03-convert",
+  "epicId": "default",
+  "focusPath": "default/07-build-overlays/006-due-date-picker/006-03-convert",
+  "status": "running",
+  "startedAt": "2026-04-19T02:58:26.156Z",
+  "attempt": 1,
+  "gapsResolved": 0,
+  "gapsFailed": 0,
+  "checklist": [
+    {
+      "id": "subtask:spawn-1",
+      "type": "subtask",
+      "description": "stitch-flutter",
+      "details": ".converge/skills/stitch-flutter/SKILL.md",
+      "done": false
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+{"name": "WeightChartCard", "grep": "Weight Trend", "description": "Card with a custom-painted line chart showing weight trend over weeks, with gradient fill and data point markers", "shared": false}
+{"name": "BmiGaugeCard", "grep": "BMI gauge showing 22.4", "description": "Card displaying BMI value with a segmented color gauge, needle indicator, threshold labels, height row, and health category label", "shared": false}
+{"name": "QuickStatsRow", "grep": "Weight quick stats", "description": "Horizontal row of three stat cards showing current weight, weekly change, and target range", "shared": false}
+{"name": "NutritionTipsCard", "grep": "Nutrition Tips", "description": "Card listing nutrition tips for the current pregnancy week, each with an icon and descriptive text", "shared": false}
+{"name": "WeightHistorySection", "grep": "Recent Entries", "description": "Section with a title and a card containing a list of dated weight history entries with chevron navigation", "shared": false}

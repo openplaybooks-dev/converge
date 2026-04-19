@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/004-health-log-entry/004-03-convert",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T02:43:19.417Z",
+  "createdAt": "2026-04-19T02:40:11.039Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T02:40:11.039Z",
+      "completedAt": "2026-04-19T02:43:19.413Z",
+      "outcome": "success",
+      "durationMs": 188374
+    }
+  ],
+  "currentAttempt": 1
+}

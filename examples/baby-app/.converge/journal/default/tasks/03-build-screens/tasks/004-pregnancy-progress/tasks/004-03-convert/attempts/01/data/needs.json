@@ -1,0 +1,31 @@
+{
+  "taskId": "03-build-screens/004-pregnancy-progress/004-03-convert",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/pregnancy-progress/design.html",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/pregnancy-progress/design.html"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/pregnancy-progress/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/pregnancy-progress/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/pregnancy_progress/pregnancy_progress_screen.dart"
+  ],
+  "blocked": false
+}

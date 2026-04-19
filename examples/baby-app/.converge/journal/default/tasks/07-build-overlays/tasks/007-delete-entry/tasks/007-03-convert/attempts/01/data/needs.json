@@ -1,0 +1,31 @@
+{
+  "taskId": "07-build-overlays/007-delete-entry/007-03-convert",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/delete-entry/design.html",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/delete-entry/design.html"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/delete-entry/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/delete-entry/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/overlays/delete_entry/delete_entry.dart"
+  ],
+  "blocked": false
+}

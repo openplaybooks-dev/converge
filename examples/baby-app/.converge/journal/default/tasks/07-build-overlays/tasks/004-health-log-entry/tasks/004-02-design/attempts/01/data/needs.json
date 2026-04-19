@@ -1,0 +1,32 @@
+{
+  "taskId": "07-build-overlays/004-health-log-entry/004-02-design",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/health-log-entry/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/health-log-entry/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/META.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/META.md"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/health-log-entry/META.md",
+    ".stitch/designs/health-log-entry/design.html"
+  ],
+  "blocked": false
+}

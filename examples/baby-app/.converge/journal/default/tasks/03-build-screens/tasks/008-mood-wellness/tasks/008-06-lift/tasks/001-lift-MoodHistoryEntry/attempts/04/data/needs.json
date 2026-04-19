@@ -1,0 +1,16 @@
+{
+  "taskId": "03-build-screens/008-mood-wellness/008-06-lift/001-lift-MoodHistoryEntry",
+  "attemptNumber": 4,
+  "inputs": [
+    {
+      "pattern": "lib/screens/mood_wellness/widgets/mood_history_entry.dart",
+      "count": 0,
+      "samples": []
+    }
+  ],
+  "outputs": [
+    "lib/widgets/mood_history_entry.dart"
+  ],
+  "blocked": true,
+  "blockedReason": "Missing required inputs: lib/screens/mood_wellness/widgets/mood_history_entry.dart"
+}

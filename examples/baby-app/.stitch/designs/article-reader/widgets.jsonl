@@ -1,0 +1,6 @@
+{"name": "HeroImageCard", "grep": "_buildHeroCard", "description": "Full-width rounded card with 16:9 custom-painted nutrition illustration, fade-in and slide-up animation", "shared": false}
+{"name": "ArticleTitleBlock", "grep": "_buildTitleBlock", "description": "Article title heading with category chip (NUTRITION) and read-time indicator row, fade-in animation", "shared": false}
+{"name": "ArticleBodyCard", "grep": "_buildBodyCard", "description": "Rounded card containing article sections with headings, body paragraphs, and a highlighted tip callout block with left border accent", "shared": false}
+{"name": "TipCalloutBlock", "grep": "Tip', style: textTheme.labelLarge", "description": "Highlighted callout box with left lilac border, bold tip label, and body text for inline advice", "shared": true}
+{"name": "RelatedArticlesSection", "grep": "_buildRelatedSection", "description": "Section with heading and horizontal scrolling list of related article cards with thumbnail, title, and topic", "shared": false}
+{"name": "RelatedArticleCard", "grep": "_buildRelatedCard", "description": "Tappable card with custom-painted thumbnail, article title, and topic label used in horizontal list", "shared": true}

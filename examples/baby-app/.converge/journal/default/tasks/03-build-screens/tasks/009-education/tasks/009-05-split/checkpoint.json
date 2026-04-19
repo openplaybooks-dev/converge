@@ -1,0 +1,22 @@
+{
+  "type": "task",
+  "id": "009-education/009-05-split",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T03:40:23.399Z",
+  "createdAt": "2026-04-18T14:27:31.400Z",
+  "resetAt": "2026-04-18T15:22:17.375Z",
+  "resetReason": "wbs.js was missing, now fixed",
+  "progress": {
+    "totalChildren": 5,
+    "completedChildren": 5,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-split-TopicChipBar",
+      "002-split-FeaturedArticleCard",
+      "003-split-ArticleCard",
+      "004-split-BookmarkedArticleCard",
+      "005-split-BottomNavBar"
+    ],
+    "lastProgressUpdate": "2026-04-19T03:40:23.396Z"
+  }
+}

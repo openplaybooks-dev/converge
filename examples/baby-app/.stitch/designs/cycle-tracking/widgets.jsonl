@@ -1,0 +1,5 @@
+{"name": "CalendarCard", "grep": "_buildCalendarCard", "description": "Monthly calendar view with period/fertile/ovulation day markers, month navigation, day-of-week headers, calendar grid, and color legend", "shared": false}
+{"name": "CurrentCycleCard", "grep": "_buildCurrentCycleCard", "description": "Summary card showing current cycle day, cycle length, next predicted period date, and estimated ovulation date", "shared": false}
+{"name": "CycleHistoryCard", "grep": "_buildHistoryCard", "description": "List of past cycle entries with date ranges, durations, and irregular cycle badges", "shared": false}
+{"name": "IrregularNotesCard", "grep": "_buildIrregularNotesCard", "description": "Informational card about irregular cycles with count badge, explanation text, and latest user note", "shared": false}
+{"name": "BottomNavBar", "grep": "_buildBottomNav", "description": "Five-tab bottom navigation bar with Home, Progress, Health, Wellness, and Learn destinations", "shared": true}

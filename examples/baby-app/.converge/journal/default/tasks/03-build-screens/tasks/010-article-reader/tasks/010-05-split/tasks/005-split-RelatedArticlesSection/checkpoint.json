@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-build-screens/010-article-reader/010-05-split/005-split-RelatedArticlesSection",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T17:41:02.030Z",
+  "createdAt": "2026-04-18T17:38:51.148Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T17:38:51.148Z",
+      "completedAt": "2026-04-18T17:41:02.024Z",
+      "outcome": "success",
+      "durationMs": 130876
+    }
+  ],
+  "currentAttempt": 1
+}

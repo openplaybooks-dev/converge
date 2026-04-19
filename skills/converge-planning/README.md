@@ -14,7 +14,7 @@ Architect → Validate          Plan tasks → Verify          Route strategy �
                                                            Repair
 ```
 
-**Handoff:** `converge-planning` creates the `.converge/epics/` structure, then `converge-control` takes over for execution.
+**Handoff:** `converge-planning` creates the `.converge/playbooks/{name}/tasks/` structure, then `converge-control` takes over for execution.
 
 ---
 
@@ -30,15 +30,16 @@ SKILL.md (entry point) → playbooks (phase guides) → preferences (reference)
 |------|-------|---------|
 | `analyze.md` | 1 | Scan codebase, detect tech stack, map current state |
 | `discovery.md` | 2 | Structured user interview, requirements capture |
-| `architect.md` | 3 | Create epics, tasks, WBS, facts, checks, skills |
+| `architect.md` | 3 | Create task hierarchies, WBS, facts, checks, skills |
 | `validate.md` | 4 | Verify plan completeness and consistency |
 
 ### Preferences (Layer 2)
 
 | File | Purpose |
 |------|---------|
-| `plan-schema.md` | Complete artifact format reference (epics, tasks, facts, checks, WBS, API needs) |
+| `plan-schema.md` | Complete artifact format reference (tasks, facts, checks, WBS, API needs) |
 | `project-patterns.md` | Common project archetypes with starter templates |
+| `context-principles.md` | Three foundational principles: progressive enrichment, context interpolation, context offloading |
 
 ---
 
@@ -60,28 +61,45 @@ SKILL.md (entry point) → playbooks (phase guides) → preferences (reference)
 
 ```
 .converge/
-├── analysis.md              # Project snapshot (tech stack, state, patterns)
-├── requirements.md          # User needs (goals, constraints, priorities)
-├── plan.md                  # Master plan (epics overview, facts, API needs, dependency flow)
-└── epics/
-    ├── 01-epic/
-    │   ├── EPIC.md          # Epic metadata
-    │   ├── 001-task/
-    │   │   └── TASK.md      # Task with checks, skills, inputs, outputs
-    │   └── 002-task/
-    │       ├── TASK.md
-    │       └── wbs.js       # Dynamic subtask spawning (if needed)
-    └── 02-epic/
-        └── ...
+├── project.yml                 # Project config
+├── playbooks/
+│   └── default/
+│       ├── playbook.yml        # Manifest: task list, deps, run config, checks
+│       └── tasks/
+│           ├── 01-phase-name/
+│           │   ├── TASK.md     # Task definition
+│           │   ├── 001-task/
+│           │   │   └── TASK.md
+│           │   └── 002-task/
+│           │       ├── TASK.md
+│           │       ├── 001-sub/    # Tasks nest arbitrarily deep
+│           │       │   └── TASK.md
+│           │       └── 002-sub/
+│           │           └── TASK.md
+│           └── 02-phase-name/
+│               ├── TASK.md
+│               ├── wbs/        # WBS scripts (if dynamic children)
+│               │   └── index.js
+│               └── tasks/      # WBS-spawned children
+│                   └── ...
+└── journal/                    # Execution history (runtime, not planning)
 ```
 
 ---
 
-## Design Principles
+## Foundational Principles
+
+Three principles govern how converge-planning decomposes problems and manages context. See `preferences/context-principles.md` for full reference.
+
+1. **Progressive Enrichment** — Decompose complex problems recursively; each phase refines context from the previous.
+2. **Context Interpolation** — Explicit context contracts (inputs/outputs) between tasks so each executor has exactly what it needs.
+3. **Context Offloading** — Use files (MD for specs, JSON for state, skills for instructions) instead of large prompts.
+
+## Operational Guidelines
 
 1. **Analysis before planning** — Understand the terrain before mapping the route.
 2. **Discovery before architecture** — User needs drive the plan, not the other way around.
 3. **Facts over assumptions** — Write down what you know. Flag what you don't.
 4. **Checks on everything** — If you can't validate it, you can't trust it.
-5. **Right-sized epics** — 3-7 tasks per epic. More means you need to split.
+5. **Right-sized tasks** — 3-7 children per task. More means you need to split.
 6. **WBS for repetition only** — Use WBS when spawning N similar tasks. Not for everything.

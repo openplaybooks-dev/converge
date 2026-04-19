@@ -1,0 +1,23 @@
+{
+  "self-healing:wbs-script-error": {
+    "id": "self-healing:wbs-script-error",
+    "type": "self-healing",
+    "cmd": "wbs-script-repair",
+    "ok": false,
+    "output": "WBS script error: WbsZeroSpawnError: WBS script completed successfully but spawned 0 tasks. This usually means the script's input data is empty or the script has a logic error (e.g., iterating over wrong field, filter excluding all entries).",
+    "exitCode": 1,
+    "collectedAt": "2026-04-18T18:47:10.228Z",
+    "strategy": "wbs-script-repair",
+    "errorType": "WbsZeroSpawnError",
+    "errorMessage": "WBS script completed successfully but spawned 0 tasks. This usually means the script's input data is empty or the script has a logic error (e.g., iterating over wrong field, filter excluding all entries).",
+    "errorStack": "WbsZeroSpawnError: WBS script completed successfully but spawned 0 tasks. This usually means the script's input data is empty or the script has a logic error (e.g., iterating over wrong field, filter excluding all entries).\n    at WbsExecutor.run (/Users/minh/Documents/converge/packages/core/src/executor/wbs-executor.ts:301:32)\n    at async executeTask (/Users/minh/Documents/converge/packages/core/src/lifecycle/task-runner.ts:302:26)\n    at async autonomousRun (/Users/minh/Documents/converge/packages/core/src/cli/autonomous-run.ts:983:26)\n    at async runAutonomousCommand (/Users/minh/Documents/converge/packages/core/src/cli/commands-run.ts:243:22)\n    at async main (/Users/minh/Documents/converge/packages/core/src/cli/main.ts:712:11)"
+  },
+  "gap-resolved:wbs-script-error:05-add-behavior/004-implement-providers:1776538030235": {
+    "id": "gap-resolved:wbs-script-error:05-add-behavior/004-implement-providers:1776538030235",
+    "type": "gap-resolution",
+    "ok": true,
+    "output": "Gap resolved successfully",
+    "strategyName": "wbs-script-repair",
+    "collectedAt": "2026-04-18T18:49:21.984Z"
+  }
+}

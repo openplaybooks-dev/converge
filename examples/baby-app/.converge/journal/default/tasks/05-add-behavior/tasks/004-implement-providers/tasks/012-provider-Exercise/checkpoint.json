@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-add-behavior/004-implement-providers/012-provider-Exercise",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T19:11:18.881Z",
+  "createdAt": "2026-04-18T19:09:31.725Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T19:09:31.725Z",
+      "completedAt": "2026-04-18T19:11:18.878Z",
+      "outcome": "success",
+      "durationMs": 107153
+    }
+  ],
+  "currentAttempt": 1
+}

@@ -1,0 +1,15 @@
+{
+  "taskId": "05-add-behavior/004-implement-providers/001-provider-PregnancyProfile",
+  "checks": [
+    {
+      "id": "file-exists",
+      "description": "pregnancy_profile_provider.dart exists",
+      "cmd": "test -f lib/providers/pregnancy_profile_provider.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/providers/pregnancy_profile_provider.dart"
+    }
+  ]
+}

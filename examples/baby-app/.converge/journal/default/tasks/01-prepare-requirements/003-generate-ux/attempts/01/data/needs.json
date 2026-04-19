@@ -1,0 +1,17 @@
+{
+  "taskId": "01-prepare-requirements/003-generate-ux",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "PRD.md",
+      "count": 1,
+      "samples": [
+        "PRD.md"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/UX.md"
+  ],
+  "blocked": false
+}

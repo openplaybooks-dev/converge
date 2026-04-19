@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bloom — Mood &amp; Wellness</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Background */
+  --color-canvas: #EDE8F7;
+  --color-surface: #FFFFFF;
+  --color-surface-tertiary: #FDF9F8;
+
+  /* Text */
+  --color-text-primary: #2A2A3A;
+  --color-text-secondary: #8B8B9C;
+
+  /* Accent */
+  --color-accent-coral: #F28B8B;
+  --color-accent-coral-tint: rgba(242, 139, 139, 0.12);
+  --color-accent-lilac: #8B7ED8;
+  --color-accent-lilac-tint: rgba(139, 126, 216, 0.14);
+
+  /* Structural */
+  --color-divider: rgba(42, 42, 58, 0.06);
+  --color-chip-bg: rgba(139, 126, 216, 0.08);
+
+  /* Functional */
+  --color-success: #6DC48A;
+  --color-warning: #F4C84D;
+  --color-error: #E85C5C;
+
+  /* Shadows */
+  --shadow-subtle: 0 2px 8px rgba(139, 126, 216, 0.08);
+  --shadow-standard: 0 4px 20px rgba(139, 126, 216, 0.12);
+  --shadow-prominent: 0 8px 32px rgba(139, 126, 216, 0.14);
+  --shadow-nav: 0 -4px 20px rgba(139, 126, 216, 0.08);
+
+  /* Typography */
+  --font-ui: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --fs-display: 2rem;
+  --fs-heading: 1.5rem;
+  --fs-subheading: 1.125rem;
+  --fs-body: 1rem;
+  --fs-data: 0.875rem;
+  --fs-caption: 0.8125rem;
+  --fs-micro: 0.6875rem;
+
+  /* Spacing */
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1.25rem;
+  --space-lg: 1.75rem;
+  --space-section: 1.75rem;
+
+  /* Radius */
+  --radius-card: 1.5rem;
+  --radius-pill: 9999px;
+
+  /* Motion */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-exit: cubic-bezier(0.25, 0, 0, 1);
+  --duration-card: 450ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-ui);
+  background: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.phone {
+  width: 375px;
+  min-height: 812px;
+  background: var(--color-canvas);
+  border-radius: 2.5rem;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+/* App Bar */
+.app-bar {
+  background: var(--color-surface);
+  padding: 3rem var(--space-md) 1rem;
+  z-index: 10;
+}
+
+.app-bar h1 {
+  font-size: var(--fs-display);
+  font-weight: 800;
+  color: var(--color-text-primary);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+/* Screen Content */
+.screen-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-md);
+  padding-top: 1.5rem;
+  padding-bottom: 6rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-section);
+}
+
+/* Section Card */
+.section-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-standard);
+  padding: var(--space-md);
+}
+
+.section-heading {
+  font-size: var(--fs-heading);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-md);
+}
+
+/* Today's Mood Card */
+.mood-icons-row {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 0.75rem;
+}
+
+.mood-icon-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.375rem;
+  border-radius: var(--radius-pill);
+}
+
+.mood-icon-btn.selected {
+  background: var(--color-accent-coral-tint);
+}
+
+.mood-icon-btn svg {
+  width: 28px;
+  height: 28px;
+  color: var(--color-text-secondary);
+}
+
+.mood-icon-btn.selected svg {
+  color: var(--color-accent-coral);
+}
+
+.mood-icon-label {
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+}
+
+.mood-icon-btn.selected .mood-icon-label {
+  color: var(--color-accent-coral);
+}
+
+.mood-status {
+  text-align: center;
+}
+
+.mood-status .mood-label {
+  font-size: var(--fs-data);
+  font-weight: 500;
+  color: var(--color-success);
+  margin-bottom: 0.125rem;
+}
+
+.mood-status .mood-notes {
+  font-size: var(--fs-body);
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 0.25rem;
+}
+
+.mood-status .mood-time {
+  font-size: var(--fs-caption);
+  color: var(--color-text-secondary);
+}
+
+/* Mood Chart */
+.chart-container {
+  margin-top: 0.5rem;
+}
+
+.chart-container svg {
+  width: 100%;
+  height: auto;
+}
+
+/* Energy Level Bar */
+.energy-bar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 0.75rem;
+}
+
+.energy-segment {
+  flex: 1;
+  height: 18px;
+  border-radius: var(--radius-pill);
+  background: var(--color-chip-bg);
+  border: none;
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.energy-segment .energy-fill {
+  width: 100%;
+  height: 18px;
+  border-radius: var(--radius-pill);
+}
+
+.energy-segment.filled .energy-fill {
+  background: var(--color-accent-lilac);
+}
+
+.energy-label {
+  font-size: var(--fs-data);
+  font-weight: 500;
+  color: var(--color-accent-lilac);
+  text-align: center;
+}
+
+/* Recommendations */
+.recommendation-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.recommendation-row + .recommendation-row {
+  border-top: 1px solid var(--color-divider);
+}
+
+.recommendation-row .rec-icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  color: var(--color-accent-lilac);
+}
+
+.recommendation-row .rec-content {
+  flex: 1;
+}
+
+.recommendation-row .rec-title {
+  font-size: var(--fs-subheading);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.recommendation-row .rec-desc {
+  font-size: var(--fs-caption);
+  color: var(--color-text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.recommendation-row .rec-chevron {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: var(--color-text-secondary);
+}
+
+/* Mood History */
+.history-entry {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-standard);
+  padding: var(--space-md);
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.history-entry + .history-entry {
+  margin-top: 12px;
+}
+
+.mood-dot {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-pill);
+  margin-top: 0.25rem;
+}
+
+.mood-dot.great { background: var(--color-success); }
+.mood-dot.neutral { background: var(--color-warning); }
+.mood-dot.low { background: var(--color-error); }
+
+.history-content {
+  flex: 1;
+}
+
+.history-content .history-mood {
+  font-size: var(--fs-subheading);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.history-content .history-energy {
+  font-size: var(--fs-data);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.history-content .history-date {
+  font-size: var(--fs-caption);
+  color: var(--color-text-secondary);
+}
+
+.history-content .history-notes {
+  font-size: var(--fs-body);
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: 0.25rem;
+}
+
+/* FAB */
+.fab {
+  position: absolute;
+  bottom: 5.5rem;
+  right: var(--space-md);
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-coral);
+  box-shadow: 0 8px 32px rgba(139, 126, 216, 0.14);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;
+}
+
+.fab svg {
+  width: 22px;
+  height: 22px;
+  color: var(--color-surface);
+}
+
+/* Bottom Nav */
+.bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-nav);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0.5rem 0;
+  padding-bottom: 1.5rem;
+  z-index: 50;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 0.375rem 0.75rem;
+  border-radius: 1rem;
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.nav-item.active {
+  background: var(--color-accent-coral-tint);
+}
+
+.nav-item svg {
+  width: 22px;
+  height: 22px;
+  color: var(--color-text-secondary);
+}
+
+.nav-item.active svg {
+  color: var(--color-accent-coral);
+}
+
+.nav-item span {
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+}
+
+.nav-item.active span {
+  color: var(--color-accent-coral);
+}
+
+/* Entry Animations */
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.section-card,
+.history-entry {
+  animation: card-enter var(--duration-card) var(--ease-spring) both;
+}
+
+.section-card:nth-child(1) { animation-delay: 0ms; }
+.section-card:nth-child(2) { animation-delay: 80ms; }
+.section-card:nth-child(3) { animation-delay: 160ms; }
+.section-card:nth-child(4) { animation-delay: 240ms; }
+
+.history-entry:nth-child(1) { animation-delay: 320ms; }
+.history-entry:nth-child(2) { animation-delay: 400ms; }
+.history-entry:nth-child(3) { animation-delay: 480ms; }
+
+@keyframes fab-enter {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.fab {
+  animation: fab-enter 400ms var(--ease-spring) 200ms both;
+}
+</style>
+</head>
+<body>
+
+<div class="phone" role="application" aria-label="Bloom mood and wellness screen">
+<div class="scaffold" data-flutter="scaffold">
+
+  <!-- App Bar -->
+  <header class="app-bar" data-flutter="sliver-app-bar" data-pinned="true" data-color="surface">
+    <h1 data-color="primary">Mood &amp; Wellness</h1>
+  </header>
+
+  <main class="screen-content" data-flutter="custom-scroll">
+
+    <!-- Today's Mood Card -->
+    <section class="section-card" role="button" tabindex="0" aria-label="Today's mood: Feeling Great" data-color="surface">
+      <h2 class="section-heading">Today's Mood</h2>
+      <div class="mood-icons-row" role="radiogroup" aria-label="Mood level selector">
+        <button class="mood-icon-btn" role="radio" aria-checked="false" aria-label="Mood level 1: Very Low">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- frown --><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          <span class="mood-icon-label">1</span>
+        </button>
+        <button class="mood-icon-btn" role="radio" aria-checked="false" aria-label="Mood level 2: Low">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- meh --><circle cx="12" cy="12" r="10"/><line x1="8" y1="15" x2="16" y2="15"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          <span class="mood-icon-label">2</span>
+        </button>
+        <button class="mood-icon-btn" role="radio" aria-checked="false" aria-label="Mood level 3: Neutral">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- meh --><circle cx="12" cy="12" r="10"/><line x1="8" y1="15" x2="16" y2="15"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          <span class="mood-icon-label">3</span>
+        </button>
+        <button class="mood-icon-btn" role="radio" aria-checked="false" aria-label="Mood level 4: Good">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- smile --><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          <span class="mood-icon-label">4</span>
+        </button>
+        <button class="mood-icon-btn selected" role="radio" aria-checked="true" aria-label="Mood level 5: Great, selected">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- smile --><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          <span class="mood-icon-label">5</span>
+        </button>
+      </div>
+      <div class="mood-status">
+        <div class="mood-label">Feeling Great</div>
+        <p class="mood-notes">Had a wonderful morning walk and feeling energized for the day ahead.</p>
+        <div class="mood-time">Logged at 9:15 AM</div>
+      </div>
+    </section>
+
+    <!-- Mood Trends Chart -->
+    <section class="section-card" aria-label="Mood trends chart for the past 14 days" data-color="surface">
+      <h2 class="section-heading">Mood Trends</h2>
+      <div class="chart-container">
+        <svg viewBox="0 0 295 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- Y-axis labels -->
+          <text x="8" y="18" font-family="Plus Jakarta Sans, sans-serif" font-size="9" font-weight="700" fill="#8B8B9C" text-anchor="start" letter-spacing="0.04em">5</text>
+          <text x="8" y="50" font-family="Plus Jakarta Sans, sans-serif" font-size="9" font-weight="700" fill="#8B8B9C" text-anchor="start" letter-spacing="0.04em">4</text>
+          <text x="8" y="82" font-family="Plus Jakarta Sans, sans-serif" font-size="9" font-weight="700" fill="#8B8B9C" text-anchor="start" letter-spacing="0.04em">3</text>
+          <text x="8" y="114" font-family="Plus Jakarta Sans, sans-serif" font-size="9" font-weight="700" fill="#8B8B9C" text-anchor="start" letter-spacing="0.04em">2</text>
+          <text x="8" y="146" font-family="Plus Jakarta Sans, sans-serif" font-size="9" font-weight="700" fill="#8B8B9C" text-anchor="start" letter-spacing="0.04em">1</text>
+
+          <!-- Horizontal gridlines -->
+          <line x1="24" y1="14" x2="285" y2="14" stroke="rgba(42,42,58,0.06)" stroke-width="1" stroke-dasharray="4 3"/>
+          <line x1="24" y1="46" x2="285" y2="46" stroke="rgba(42,42,58,0.06)" stroke-width="1" stroke-dasharray="4 3"/>
+          <line x1="24" y1="78" x2="285" y2="78" stroke="rgba(42,42,58,0.06)" stroke-width="1" stroke-dasharray="4 3"/>
+          <line x1="24" y1="110" x2="285" y2="110" stroke="rgba(42,42,58,0.06)" stroke-width="1" stroke-dasharray="4 3"/>
+          <line x1="24" y1="142" x2="285" y2="142" stroke="rgba(42,42,58,0.06)" stroke-width="1" stroke-dasharray="4 3"/>
+
+          <!-- Fill area -->
+          <defs>
+            <linearGradient id="chart-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#8B7ED8" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#8B7ED8" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M44 78 L63 46 L82 62 L101 46 L120 78 L139 46 L158 14 L177 46 L196 14 L215 46 L234 14 L253 46 L272 14 L272 142 L44 142 Z" fill="url(#chart-fill)"/>
+
+          <!-- Line stroke -->
+          <polyline points="44,78 63,46 82,62 101,46 120,78 139,46 158,14 177,46 196,14 215,46 234,14 253,46 272,14" fill="none" stroke="#8B7ED8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+          <!-- Data points -->
+          <circle cx="44" cy="78" r="4" fill="#8B7ED8" stroke="#FFFFFF" stroke-width="2"/>
+          <circle cx="63" cy="46" r="4" fill="#8B7ED8" stroke="#FFFFFF" stroke-width="2"/>
+          <circle cx="82" cy="62" r="4" fill="#8B7ED8" stroke="#FFFFFF" stroke-width="2"/>
+          <circle cx="101" cy="46" r="4" fill="#8B7ED8" stroke="#FFFFFF" stroke-width="2"/>
+          <circle cx="120" cy="78" r="4" fill="#8B7ED8" stroke="#FFFFFF" stroke-width="2"/>
+          <circle cx="139" cy="46" r="4" fill="#8B7ED8" stroke="#FFFFFF" stroke-width="2"/>
+          <circle cx="158" cy="14" r="4" fill="#8B7ED8" stroke="#FFFFFF" stroke-width="2"/>
+          <circle cx="177" cy="46" r="4" fill="#8B7ED8" stroke="#FFFFFF" stroke-width="2"/>
+          <circle cx="196" cy="14" r="4" fill="#8B7ED8" stroke="#FFFFFF" stroke-width="2"/>
+          <circle cx="215" cy="46" r="4" fill="#8B7ED8" stroke="#FFFFFF" stroke-width="2"/>
+          <circle cx="234" cy="14" r="4" fill="#8B7ED8" stroke="#FFFFFF" stroke-width="2"/>
+          <circle cx="253" cy="46" r="4" fill="#8B7ED8" stroke="#FFFFFF" stroke-width="2"/>
+          <circle cx="272" cy="14" r="5" fill="#8B7ED8" stroke="#FFFFFF" stroke-width="2"/>
+
+          <!-- X-axis labels (every other day) -->
+          <text x="44" y="157" font-family="Plus Jakarta Sans, sans-serif" font-size="9" font-weight="700" fill="#8B8B9C" text-anchor="middle" letter-spacing="0.04em">5</text>
+          <text x="82" y="157" font-family="Plus Jakarta Sans, sans-serif" font-size="9" font-weight="700" fill="#8B8B9C" text-anchor="middle" letter-spacing="0.04em">7</text>
+          <text x="120" y="157" font-family="Plus Jakarta Sans, sans-serif" font-size="9" font-weight="700" fill="#8B8B9C" text-anchor="middle" letter-spacing="0.04em">9</text>
+          <text x="158" y="157" font-family="Plus Jakarta Sans, sans-serif" font-size="9" font-weight="700" fill="#8B8B9C" text-anchor="middle" letter-spacing="0.04em">11</text>
+          <text x="196" y="157" font-family="Plus Jakarta Sans, sans-serif" font-size="9" font-weight="700" fill="#8B8B9C" text-anchor="middle" letter-spacing="0.04em">13</text>
+          <text x="234" y="157" font-family="Plus Jakarta Sans, sans-serif" font-size="9" font-weight="700" fill="#8B8B9C" text-anchor="middle" letter-spacing="0.04em">15</text>
+          <text x="272" y="157" font-family="Plus Jakarta Sans, sans-serif" font-size="9" font-weight="700" fill="#8B8B9C" text-anchor="middle" letter-spacing="0.04em">18</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- Energy Level Tracker -->
+    <section class="section-card" aria-label="Energy level: High" data-color="surface">
+      <h2 class="section-heading">Energy Level</h2>
+      <div class="energy-bar" role="group" aria-label="Energy level segments">
+        <button class="energy-segment filled" aria-label="Set energy level to 1" data-color="secondary"><div class="energy-fill"></div></button>
+        <button class="energy-segment filled" aria-label="Set energy level to 2" data-color="secondary"><div class="energy-fill"></div></button>
+        <button class="energy-segment filled" aria-label="Set energy level to 3" data-color="secondary"><div class="energy-fill"></div></button>
+        <button class="energy-segment filled" aria-label="Set energy level to 4" data-color="secondary"><div class="energy-fill"></div></button>
+        <button class="energy-segment" aria-label="Set energy level to 5"><div class="energy-fill"></div></button>
+      </div>
+      <div class="energy-label">High</div>
+    </section>
+
+    <!-- Wellness Recommendations -->
+    <section class="section-card" aria-label="Wellness recommendations" data-color="surface">
+      <h2 class="section-heading">Recommendations</h2>
+
+      <div class="recommendation-row" role="button" tabindex="0" aria-label="Try a breathing exercise: A few minutes of deep breathing can help center your thoughts">
+        <svg class="rec-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- wind --><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg>
+        <div class="rec-content">
+          <div class="rec-title">Try a breathing exercise</div>
+          <div class="rec-desc">A few minutes of deep breathing can help center your thoughts</div>
+        </div>
+        <svg class="rec-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- chevron-right --><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <div class="recommendation-row" role="button" tabindex="0" aria-label="Take a gentle walk: Fresh air and light movement boost energy and mood">
+        <svg class="rec-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- footprints --><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5 10 7.16 10 8 10 10a39 39 0 0 0 .5 5"/><path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 1.66 0 2.5 0 4.5a39 39 0 0 1-.5 5"/></svg>
+        <div class="rec-content">
+          <div class="rec-title">Take a gentle walk</div>
+          <div class="rec-desc">Fresh air and light movement boost energy and mood</div>
+        </div>
+        <svg class="rec-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- chevron-right --><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <div class="recommendation-row" role="button" tabindex="0" aria-label="Log your gratitude today: Writing down three things you're grateful for improves outlook">
+        <svg class="rec-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- heart --><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <div class="rec-content">
+          <div class="rec-title">Log your gratitude today</div>
+          <div class="rec-desc">Writing down three things you're grateful for improves outlook</div>
+        </div>
+        <svg class="rec-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- chevron-right --><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </section>
+
+    <!-- Mood History -->
+    <h2 class="section-heading" style="margin-top: 0;">Recent Entries</h2>
+    <div data-flutter="sliver-list">
+
+      <article class="history-entry" role="button" tabindex="0" aria-label="Mood entry on April 18: Feeling Great, energy High" data-color="surface">
+        <div class="mood-dot great" aria-hidden="true"></div>
+        <div class="history-content">
+          <div class="history-mood">Feeling Great</div>
+          <div class="history-energy">Energy: High</div>
+          <div class="history-date">April 18</div>
+          <p class="history-notes">Had a wonderful morning walk and feeling energized for the day ahead.</p>
+        </div>
+      </article>
+
+      <article class="history-entry" role="button" tabindex="0" aria-label="Mood entry on April 17: Feeling Good, energy Moderate" data-color="surface">
+        <div class="mood-dot great" aria-hidden="true"></div>
+        <div class="history-content">
+          <div class="history-mood">Feeling Good</div>
+          <div class="history-energy">Energy: Moderate</div>
+          <div class="history-date">April 17</div>
+        </div>
+      </article>
+
+      <article class="history-entry" role="button" tabindex="0" aria-label="Mood entry on April 16: Neutral, energy Low" data-color="surface">
+        <div class="mood-dot neutral" aria-hidden="true"></div>
+        <div class="history-content">
+          <div class="history-mood">Neutral</div>
+          <div class="history-energy">Energy: Low</div>
+          <div class="history-date">April 16</div>
+          <p class="history-notes">Feeling a bit tired today, but managing well overall.</p>
+        </div>
+      </article>
+
+    </div>
+
+  </main>
+
+  <!-- FAB -->
+  <button class="fab" data-flutter="fab" data-icon="add" aria-label="Log mood" data-color="accent">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- plus --><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav" data-flutter="bottom-nav" aria-label="Main navigation">
+    <button class="nav-item" data-flutter="nav-destination" data-icon="home" data-label="Home" aria-label="Home">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- home --><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="nav-item" data-flutter="nav-destination" data-icon="calendar" data-label="Progress" aria-label="Progress">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- calendar --><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Progress</span>
+    </button>
+    <button class="nav-item" data-flutter="nav-destination" data-icon="heart" data-label="Health" aria-label="Health">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- heart --><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span>Health</span>
+    </button>
+    <button class="nav-item active" data-flutter="nav-destination" data-icon="activity" data-label="Wellness" data-selected="true" aria-label="Wellness" aria-current="page">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- activity --><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+      <span>Wellness</span>
+    </button>
+    <button class="nav-item" data-flutter="nav-destination" data-icon="book-open" data-label="Learn" aria-label="Learn">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><!-- book-open --><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <span>Learn</span>
+    </button>
+  </nav>
+
+</div>
+</div>
+
+</body>
+</html>

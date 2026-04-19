@@ -1,0 +1,225 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "05-add-behavior/004-implement-providers/003-provider-CycleEntry-check-failed-file-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-add-behavior/004-implement-providers/003-provider-CycleEntry",
+            "severity": "high",
+            "description": "[05-add-behavior/004-implement-providers/003-provider-CycleEntry] Check failed: cycle_entry_provider.dart exists",
+            "source": "unit",
+            "detected": "2026-04-18T18:53:17.488Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "file-exists",
+              "checkCmd": "test -f lib/providers/cycle_entry_provider.dart",
+              "checkDescription": "cycle_entry_provider.dart exists",
+              "checkOutput": "Command failed: test -f lib/providers/cycle_entry_provider.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Create a Riverpod provider for the **CycleEntry** entity in `lib/providers/cycle_entry_provider.dart`.\n\nRead `data-models.md` for the entity definition and relationships.\n\nReferences: flutter-riverpod-patterns\n\n**Instructions:**\n1. Import the CycleEntry model from `package:folio/models/models.dart`\n2. Import mock data from `package:folio/data/mock_data.dart`\n3. Use `@riverpod` annotation\n4. Initialize with mock data\n5. Export from a barrel file at `lib/providers/providers.dart`\n\nVerify with: `dart analyze lib/providers/cycle_entry_provider.dart`",
+              "taskId": "05-add-behavior/004-implement-providers/003-provider-CycleEntry",
+              "taskTitle": "Create CycleEntry Provider",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/05-add-behavior/004-implement-providers/tasks/003-provider-CycleEntry",
+              "factId": "check:file-exists"
+            }
+          },
+          {
+            "id": "05-add-behavior/004-implement-providers/003-provider-CycleEntry-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-add-behavior/004-implement-providers/003-provider-CycleEntry",
+            "severity": "high",
+            "description": "[05-add-behavior/004-implement-providers/003-provider-CycleEntry] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-18T18:53:17.577Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "dart analyze lib/providers/cycle_entry_provider.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "Directory or file doesn't exist: lib/providers/cycle_entry_provider.dart\n\nUsage: dart analyze [arguments] [<directory>]\n-h, --help                   Print this usage information.\n    --fatal-infos            Treat info level issues as fatal.\n    --[no-]fatal-warnings    Treat warning level issues as fatal.\n                             (defaults to on)\n\nRun \"dart help\" to see global options.",
+              "checkExitCode": 64,
+              "taskPrompt": "Create a Riverpod provider for the **CycleEntry** entity in `lib/providers/cycle_entry_provider.dart`.\n\nRead `data-models.md` for the entity definition and relationships.\n\nReferences: flutter-riverpod-patterns\n\n**Instructions:**\n1. Import the CycleEntry model from `package:folio/models/models.dart`\n2. Import mock data from `package:folio/data/mock_data.dart`\n3. Use `@riverpod` annotation\n4. Initialize with mock data\n5. Export from a barrel file at `lib/providers/providers.dart`\n\nVerify with: `dart analyze lib/providers/cycle_entry_provider.dart`",
+              "taskId": "05-add-behavior/004-implement-providers/003-provider-CycleEntry",
+              "taskTitle": "Create CycleEntry Provider",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/05-add-behavior/004-implement-providers/tasks/003-provider-CycleEntry",
+              "factId": "check:dart-valid"
+            }
+          }
+        ],
+        "durationMs": 92
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 191
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 657
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#3",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 101580
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-18T18:53:17.484Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-18T18:53:17.485Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-18T18:53:17.578Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-18T18:53:17.579Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-18T18:53:17.770Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#3",
+      "iteration": 1,
+      "ts": "2026-04-18T18:54:59.352Z"
+    },
+    {
+      "from": "run-strategy:task-run#3",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-18T18:55:00.009Z"
+    }
+  ]
+}

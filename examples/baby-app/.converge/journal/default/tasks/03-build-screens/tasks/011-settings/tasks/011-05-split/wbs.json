@@ -1,0 +1,31 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-18T23:10:06.139Z",
+  "spawnCount": 6,
+  "subtasks": [
+    {
+      "id": "001-split-ProfileSection",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/011-settings/tasks/011-05-split/tasks/001-split-ProfileSection/TASK.md"
+    },
+    {
+      "id": "002-split-PregnancySection",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/011-settings/tasks/011-05-split/tasks/002-split-PregnancySection/TASK.md"
+    },
+    {
+      "id": "003-split-NotificationsSection",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/011-settings/tasks/011-05-split/tasks/003-split-NotificationsSection/TASK.md"
+    },
+    {
+      "id": "004-split-DisplaySection",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/011-settings/tasks/011-05-split/tasks/004-split-DisplaySection/TASK.md"
+    },
+    {
+      "id": "005-split-DataSection",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/011-settings/tasks/011-05-split/tasks/005-split-DataSection/TASK.md"
+    },
+    {
+      "id": "006-split-AboutSection",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/011-settings/tasks/011-05-split/tasks/006-split-AboutSection/TASK.md"
+    }
+  ]
+}

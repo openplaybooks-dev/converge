@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-add-behavior/004-implement-providers/010-provider-SelfCareCheckState",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T19:07:20.937Z",
+  "createdAt": "2026-04-18T19:05:45.919Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T19:05:45.919Z",
+      "completedAt": "2026-04-18T19:07:20.933Z",
+      "outcome": "success",
+      "durationMs": 95014
+    }
+  ],
+  "currentAttempt": 1
+}

@@ -1,0 +1,30 @@
+{
+  "taskId": "07-build-overlays/005-cycle-entry/005-03-convert",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Overlay widget file exists",
+      "cmd": "test -f lib/widgets/overlays/cycle_entry/cycle_entry.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/widgets/overlays/cycle_entry/cycle_entry.dart"
+    },
+    {
+      "id": "uses-theme",
+      "description": "Uses Theme.of(context) for styling",
+      "cmd": "grep -q 'Theme.of(context)' lib/widgets/overlays/cycle_entry/cycle_entry.dart"
+    },
+    {
+      "id": "no-hardcoded-colors",
+      "description": "No hardcoded colors — uses colorScheme",
+      "cmd": "! grep -qE 'Color\\(0x|Colors\\.' lib/widgets/overlays/cycle_entry/cycle_entry.dart"
+    },
+    {
+      "id": "no-router-registration",
+      "description": "Overlay does NOT register a GoRoute",
+      "cmd": "! grep -q 'GoRoute' lib/widgets/overlays/cycle_entry/cycle_entry.dart"
+    }
+  ]
+}

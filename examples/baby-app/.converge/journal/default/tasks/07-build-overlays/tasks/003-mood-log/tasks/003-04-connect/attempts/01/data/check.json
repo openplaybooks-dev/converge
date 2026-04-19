@@ -1,0 +1,10 @@
+{
+  "taskId": "07-build-overlays/003-mood-log/003-04-connect",
+  "checks": [
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes after connecting providers",
+      "cmd": "dart analyze lib/widgets/overlays/mood_log/mood_log.dart"
+    }
+  ]
+}

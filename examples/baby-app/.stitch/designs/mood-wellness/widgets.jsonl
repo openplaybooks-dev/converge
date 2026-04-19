@@ -1,0 +1,5 @@
+{"name": "TodaysMoodCard", "grep": "_buildTodaysMoodCard", "description": "Card displaying today's mood with a 1-5 level selector, mood label, note text, and logged-at timestamp", "shared": false}
+{"name": "MoodTrendsCard", "grep": "_buildMoodTrendsCard", "description": "Card with a custom-painted line chart showing mood trends over the past 14 days", "shared": false}
+{"name": "EnergyLevelCard", "grep": "_buildEnergyLevelCard", "description": "Card with a segmented energy bar (1-5) and energy level label", "shared": false}
+{"name": "RecommendationsCard", "grep": "_buildRecommendationsCard", "description": "Card listing wellness recommendations with icon, title, description, and chevron navigation", "shared": false}
+{"name": "MoodHistoryEntry", "grep": "_buildHistoryEntry", "description": "Card showing a past mood log entry with color-coded dot, mood label, energy level, date, and optional notes", "shared": true}

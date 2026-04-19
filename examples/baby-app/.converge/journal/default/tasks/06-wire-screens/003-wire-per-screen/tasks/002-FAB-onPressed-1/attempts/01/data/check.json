@@ -1,0 +1,10 @@
+{
+  "taskId": "06-wire-screens/003-wire-per-screen/002-FAB-onPressed-1",
+  "checks": [
+    {
+      "id": "handler-wired",
+      "description": "FloatingActionButton.onPressed has real logic at lib/screens/weight_nutrition/weight_nutrition_screen.dart:68",
+      "cmd": "node .converge/playbooks/default/tasks/06-wire-screens/check-handler.mjs lib/screens/weight_nutrition/weight_nutrition_screen.dart 68 onPressed"
+    }
+  ]
+}

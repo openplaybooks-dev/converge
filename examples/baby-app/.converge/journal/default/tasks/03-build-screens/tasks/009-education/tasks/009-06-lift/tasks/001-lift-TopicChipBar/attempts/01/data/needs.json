@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/009-education/009-06-lift/001-lift-TopicChipBar",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/education/widgets/topic_chip_bar.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/education/widgets/topic_chip_bar.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/topic_chip_bar.dart"
+  ],
+  "blocked": false
+}

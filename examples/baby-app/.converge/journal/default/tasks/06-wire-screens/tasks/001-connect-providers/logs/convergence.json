@@ -1,0 +1,223 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "06-wire-screens/001-connect-providers-check-failed-screens-use-consumer-widget",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-wire-screens/001-connect-providers",
+            "severity": "high",
+            "description": "[06-wire-screens/001-connect-providers] Check failed: At least 3 screens use ConsumerWidget",
+            "source": "unit",
+            "detected": "2026-04-18T23:42:54.304Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "screens-use-consumer-widget",
+              "checkCmd": "grep -r 'ConsumerWidget' lib/screens/ --include='*.dart' | wc -l | awk '{if ($1 >= 3) exit 0; exit 1}'",
+              "checkDescription": "At least 3 screens use ConsumerWidget",
+              "checkOutput": "Command failed: grep -r 'ConsumerWidget' lib/screens/ --include='*.dart' | wc -l | awk '{if ($1 >= 3) exit 0; exit 1}'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Connect Providers — Get Data Flowing\n\nRead the **flutter-managing-state** skill for state architecture patterns — ephemeral vs app state, unidirectional data flow, and `ConsumerWidget` consumption patterns.\n\nReplace hardcoded data in every screen with Riverpod provider state. No new features — just swap the data source.\n\nFor each screen:\n1. Convert `StatelessWidget` to `ConsumerWidget` (or use `ConsumerStatefulWidget` if needed)\n2. Import relevant providers\n3. Use `ref.watch(provider)` to read state\n4. Handle `AsyncValue` states: `.when(data:, loading:, error:)`\n5. Replace hardcoded strings/arrays with provider state\n6. Pass entity data as props to child widgets\n\n## Example\n\n```dart\nclass HomeFeedScreen extends ConsumerWidget {\n  const HomeFeedScreen({super.key});\n\n  @override\n  Widget build(BuildContext context, WidgetRef ref) {\n    final novels = ref.watch(novelsProvider);\n    return novels.when(\n      data: (data) => ListView.builder(...),\n      loading: () => const Center(child: CircularProgressIndicator()),\n      error: (e, st) => Center(child: Text('Error: $e')),\n    );\n  }\n}\n```\n\nDo NOT change navigation or wire buttons/tabs/interactions.",
+              "taskSkill": "flutter-managing-state",
+              "taskId": "06-wire-screens/001-connect-providers",
+              "taskTitle": "Connect Providers — Get Data Flowing",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/06-wire-screens/001-connect-providers",
+              "factId": "check:screens-use-consumer-widget"
+            }
+          },
+          {
+            "id": "06-wire-screens/001-connect-providers-check-failed-screens-watch-providers",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-wire-screens/001-connect-providers",
+            "severity": "high",
+            "description": "[06-wire-screens/001-connect-providers] Check failed: At least 3 screens use ref.watch to read providers",
+            "source": "unit",
+            "detected": "2026-04-18T23:42:54.311Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "screens-watch-providers",
+              "checkCmd": "grep -r 'ref.watch' lib/screens/ --include='*.dart' | wc -l | awk '{if ($1 >= 3) exit 0; exit 1}'",
+              "checkDescription": "At least 3 screens use ref.watch to read providers",
+              "checkOutput": "Command failed: grep -r 'ref.watch' lib/screens/ --include='*.dart' | wc -l | awk '{if ($1 >= 3) exit 0; exit 1}'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Connect Providers — Get Data Flowing\n\nRead the **flutter-managing-state** skill for state architecture patterns — ephemeral vs app state, unidirectional data flow, and `ConsumerWidget` consumption patterns.\n\nReplace hardcoded data in every screen with Riverpod provider state. No new features — just swap the data source.\n\nFor each screen:\n1. Convert `StatelessWidget` to `ConsumerWidget` (or use `ConsumerStatefulWidget` if needed)\n2. Import relevant providers\n3. Use `ref.watch(provider)` to read state\n4. Handle `AsyncValue` states: `.when(data:, loading:, error:)`\n5. Replace hardcoded strings/arrays with provider state\n6. Pass entity data as props to child widgets\n\n## Example\n\n```dart\nclass HomeFeedScreen extends ConsumerWidget {\n  const HomeFeedScreen({super.key});\n\n  @override\n  Widget build(BuildContext context, WidgetRef ref) {\n    final novels = ref.watch(novelsProvider);\n    return novels.when(\n      data: (data) => ListView.builder(...),\n      loading: () => const Center(child: CircularProgressIndicator()),\n      error: (e, st) => Center(child: Text('Error: $e')),\n    );\n  }\n}\n```\n\nDo NOT change navigation or wire buttons/tabs/interactions.",
+              "taskSkill": "flutter-managing-state",
+              "taskId": "06-wire-screens/001-connect-providers",
+              "taskTitle": "Connect Providers — Get Data Flowing",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/06-wire-screens/001-connect-providers",
+              "factId": "check:screens-watch-providers"
+            }
+          }
+        ],
+        "durationMs": 997
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1962
+      }
+    },
+    {
+      "id": "run-skill",
+      "handler": "run-skill",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 64
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 8
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "buffered",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-18T23:42:54.278Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-18T23:42:54.279Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-18T23:42:55.276Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-18T23:42:55.279Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "run-skill",
+      "iteration": 1,
+      "ts": "2026-04-18T23:42:55.288Z"
+    },
+    {
+      "from": "run-skill",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-18T23:42:57.250Z"
+    }
+  ]
+}

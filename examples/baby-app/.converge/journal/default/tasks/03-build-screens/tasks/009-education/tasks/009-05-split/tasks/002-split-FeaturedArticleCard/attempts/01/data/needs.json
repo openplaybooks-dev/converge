@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/009-education/009-05-split/002-split-FeaturedArticleCard",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/education/education_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/education/education_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/education/widgets/featured_article_card.dart"
+  ],
+  "blocked": false
+}

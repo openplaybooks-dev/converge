@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-add-behavior/004-implement-providers/008-provider-WeekContent",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T19:04:11.415Z",
+  "createdAt": "2026-04-18T19:01:27.115Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T19:01:27.115Z",
+      "completedAt": "2026-04-18T19:04:11.410Z",
+      "outcome": "success",
+      "durationMs": 164295
+    }
+  ],
+  "currentAttempt": 1
+}

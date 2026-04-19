@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/004-pregnancy-progress/004-05-split/005-split-ExerciseGuideCard",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/pregnancy_progress/pregnancy_progress_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/pregnancy_progress/pregnancy_progress_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/pregnancy_progress/widgets/exercise_guide_card.dart"
+  ],
+  "blocked": false
+}

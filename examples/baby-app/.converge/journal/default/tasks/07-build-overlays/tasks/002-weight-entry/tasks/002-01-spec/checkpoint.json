@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/002-weight-entry/002-01-spec",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T02:19:49.626Z",
+  "createdAt": "2026-04-19T02:17:46.426Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T02:17:46.426Z",
+      "completedAt": "2026-04-19T02:19:49.623Z",
+      "outcome": "success",
+      "durationMs": 123197
+    }
+  ],
+  "currentAttempt": 1
+}

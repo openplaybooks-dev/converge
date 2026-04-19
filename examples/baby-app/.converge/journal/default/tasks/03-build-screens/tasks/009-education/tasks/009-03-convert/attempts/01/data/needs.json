@@ -1,0 +1,31 @@
+{
+  "taskId": "03-build-screens/009-education/009-03-convert",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/education/design.html",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/education/design.html"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/education/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/education/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/education/education_screen.dart"
+  ],
+  "blocked": false
+}

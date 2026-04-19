@@ -1,0 +1,10 @@
+{
+  "taskId": "07-build-overlays/006-due-date-picker/006-04-connect",
+  "checks": [
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes after connecting providers",
+      "cmd": "dart analyze lib/widgets/overlays/due_date_picker/due_date_picker.dart"
+    }
+  ]
+}

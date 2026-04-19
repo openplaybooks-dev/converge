@@ -91,7 +91,10 @@ export function buildResponseNodes(
     return (
       kind === GapKind.output ||
       kind === GapKind.checkFailed ||
-      kind === GapKind.corrupted
+      kind === GapKind.corrupted ||
+      kind === GapKind.insufficientEvidence ||
+      kind === GapKind.contradictoryFinding ||
+      kind === GapKind.untestedHypothesis
     );
   });
 

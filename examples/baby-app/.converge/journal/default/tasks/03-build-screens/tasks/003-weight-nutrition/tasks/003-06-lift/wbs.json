@@ -1,0 +1,11 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-18T16:10:44.119Z",
+  "spawnCount": 1,
+  "subtasks": [
+    {
+      "id": "001-lift-noop",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/003-weight-nutrition/tasks/003-06-lift/tasks/001-lift-noop/TASK.md"
+    }
+  ]
+}

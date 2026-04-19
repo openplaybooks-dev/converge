@@ -1,0 +1,19 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-18T16:33:05.591Z",
+  "spawnCount": 3,
+  "subtasks": [
+    {
+      "id": "001-lift-ExerciseCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/005-mindfulness/tasks/005-06-lift/tasks/001-lift-ExerciseCard/TASK.md"
+    },
+    {
+      "id": "002-lift-MoodBanner",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/005-mindfulness/tasks/005-06-lift/tasks/002-lift-MoodBanner/TASK.md"
+    },
+    {
+      "id": "003-lift-BottomNavBar",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/005-mindfulness/tasks/005-06-lift/tasks/003-lift-BottomNavBar/TASK.md"
+    }
+  ]
+}

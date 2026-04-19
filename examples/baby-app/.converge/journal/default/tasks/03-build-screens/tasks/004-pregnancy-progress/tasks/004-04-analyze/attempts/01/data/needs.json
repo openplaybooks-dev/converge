@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/004-pregnancy-progress/004-04-analyze",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/pregnancy_progress/pregnancy_progress_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/pregnancy_progress/pregnancy_progress_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/pregnancy-progress/widgets.jsonl"
+  ],
+  "blocked": false
+}

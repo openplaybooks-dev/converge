@@ -1,0 +1,23 @@
+{
+  "type": "task",
+  "id": "010-article-reader/010-05-split",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T03:40:23.399Z",
+  "createdAt": "2026-04-18T14:37:41.825Z",
+  "resetAt": "2026-04-18T15:22:17.376Z",
+  "resetReason": "wbs.js was missing, now fixed",
+  "progress": {
+    "totalChildren": 6,
+    "completedChildren": 6,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-split-HeroImageCard",
+      "002-split-ArticleTitleBlock",
+      "003-split-ArticleBodyCard",
+      "004-split-TipCalloutBlock",
+      "005-split-RelatedArticlesSection",
+      "006-split-RelatedArticleCard"
+    ],
+    "lastProgressUpdate": "2026-04-19T03:40:23.396Z"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "taskId": "03-build-screens/004-pregnancy-progress/004-06-lift/001-lift-SelfCareCard",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "lib/screens/pregnancy_progress/widgets/self_care_card.dart",
+      "count": 0,
+      "samples": []
+    }
+  ],
+  "outputs": [
+    "lib/widgets/self_care_card.dart"
+  ],
+  "blocked": true,
+  "blockedReason": "Missing required inputs: lib/screens/pregnancy_progress/widgets/self_care_card.dart"
+}

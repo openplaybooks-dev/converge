@@ -1,0 +1,5 @@
+{"name": "CategoryChips", "grep": "_buildCategoryChips", "description": "Horizontal scrollable list of category filter chips (All, Breathing, Stretching, Meditation) with selection state", "shared": false}
+{"name": "FeaturedExerciseCard", "grep": "_buildFeaturedCard", "description": "Hero card showcasing a featured exercise with animated breathing icon, title, category badge, and duration", "shared": false}
+{"name": "ExerciseCard", "grep": "_buildExerciseCard", "description": "Grid card for an individual exercise showing category icon, name, category label, and duration with staggered entrance animation", "shared": true}
+{"name": "MoodBanner", "grep": "_buildMoodBanner", "description": "Call-to-action banner prompting the user to log their mood with icon, text, and action button", "shared": true}
+{"name": "BottomNavBar", "grep": "_buildBottomNav", "description": "Bottom navigation bar with Home, Progress, Health, Wellness, and Learn tabs", "shared": true}

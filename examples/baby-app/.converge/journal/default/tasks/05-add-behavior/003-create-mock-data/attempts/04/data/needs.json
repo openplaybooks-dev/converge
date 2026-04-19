@@ -1,0 +1,33 @@
+{
+  "taskId": "05-add-behavior/003-create-mock-data",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "data-models.md",
+      "count": 1,
+      "samples": [
+        "data-models.md"
+      ]
+    },
+    {
+      "pattern": "lib/models/**/*.dart",
+      "count": 41,
+      "samples": [
+        "lib/models/symptom_entry.g.dart",
+        "lib/models/user_preferences.dart",
+        "lib/models/user_preferences.freezed.dart",
+        "lib/models/user_preferences.g.dart",
+        "lib/models/week_content.dart",
+        "lib/models/week_content.freezed.dart",
+        "lib/models/week_content.g.dart",
+        "lib/models/weight_entry.dart",
+        "lib/models/weight_entry.freezed.dart",
+        "lib/models/weight_entry.g.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/data/mock_data.dart"
+  ],
+  "blocked": false
+}

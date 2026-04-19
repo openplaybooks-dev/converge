@@ -1,0 +1,25 @@
+{
+  "taskId": "03-build-screens/004-pregnancy-progress/004-02-design",
+  "checks": [
+    {
+      "id": "design-exists",
+      "description": "design.html exists for pregnancy-progress",
+      "cmd": "test -f .stitch/designs/pregnancy-progress/design.html"
+    },
+    {
+      "id": "meta-exists",
+      "description": "META.md exists for pregnancy-progress",
+      "cmd": "test -f .stitch/designs/pregnancy-progress/META.md"
+    },
+    {
+      "id": "uses-glossary",
+      "description": "HTML uses Flutter HTML Glossary vocabulary",
+      "cmd": "grep -q 'class=\"scaffold\"' .stitch/designs/pregnancy-progress/design.html"
+    },
+    {
+      "id": "has-data-attributes",
+      "description": "HTML uses data-* attributes for Flutter conversion",
+      "cmd": "grep -q 'data-color=' .stitch/designs/pregnancy-progress/design.html"
+    }
+  ]
+}

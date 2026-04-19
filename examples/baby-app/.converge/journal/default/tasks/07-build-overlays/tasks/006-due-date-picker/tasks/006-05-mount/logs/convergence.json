@@ -1,0 +1,225 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "07-build-overlays/006-due-date-picker/006-05-mount-check-failed-parent-imports-overlay",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-build-overlays/006-due-date-picker/006-05-mount",
+            "severity": "high",
+            "description": "[07-build-overlays/006-due-date-picker/006-05-mount] Check failed: Parent screen imports the overlay widget",
+            "source": "unit",
+            "detected": "2026-04-19T03:01:08.683Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "parent-imports-overlay",
+              "checkCmd": "grep -q 'due_date_picker' lib/screens/settings/settings_screen.dart",
+              "checkDescription": "Parent screen imports the overlay widget",
+              "checkOutput": "Command failed: grep -q 'due_date_picker' lib/screens/settings/settings_screen.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Mount: Due Date Picker\n\nMount the **Due Date Picker** overlay in its parent screen (**settings**) and wire the trigger.\n\n## Inputs\n- `lib/widgets/overlays/due_date_picker/due_date_picker.dart` — The overlay widget file\n- `.stitch/designs/due-date-picker/SPEC.md` — Overlay specification (describes trigger and dismiss behavior)\n- `lib/screens/settings/settings_screen.dart` — The parent screen file to modify\n\n## Task\n\n1. **Read the spec** — Identify:\n   - What UI element triggers the overlay (which button, tap area, etc.)\n   - The overlay type (dialog)\n   - Any return value handling\n\n2. **Read the parent screen** — Find the trigger element described in the spec.\n\n   **The `03-build-screens` pipeline typically generates screens with placeholder triggers** — buttons, FABs, or tap areas that stub out overlay behavior. Identify the placeholder pattern:\n\n   | Placeholder Pattern | What It Means | Action |\n   |---|---|---|\n   | `showModalBottomSheet(builder: (_) => const Placeholder())` | Trigger exists, builder is stub | Replace builder body only |\n   | `showModalBottomSheet(builder: (_) => ...)` with inline widget tree | Trigger exists, builder has temp content | Replace builder body only |\n   | `ScaffoldMessenger.of(context).showSnackBar(...)` | Trigger exists, action is stub | Replace entire callback body |\n   | `debugPrint(...)` in `onTap`/`onPressed` | Trigger exists, action is stub | Replace callback body |\n   | Widget with `Semantics(label: ...)` but no `onTap` | Trigger UI exists, no handler | Wrap in `InkWell`/`GestureDetector` |\n   | No matching trigger element | Nothing exists | Create trigger per spec |\n\n   If a trigger already exists, **replace the placeholder body** — do NOT duplicate the `showModalBottomSheet`/`showDialog` call.\n\n3. **Add import** — Add the overlay widget import to the parent screen (use the project's package name from `pubspec.yaml`):\n   ```dart\n   import 'package:<pkg>/widgets/overlays/due_date_picker/due_date_picker.dart';\n   ```\n\n4. **Wire the trigger** — Apply the appropriate replacement from the table above:\n\n   ### Replace builder body (existing `showModalBottomSheet`/`showDialog`):\n   ```dart\n   // BEFORE:\n   builder: (_) => const Placeholder(),\n   // AFTER:\n   builder: (_) => const DueDatePicker(),\n   ```\n\n   ### Replace stub callback (existing `SnackBar`/`debugPrint`):\n   ```dart\n   onPressed: () async {\n     final result = await showModalBottomSheet<ReturnType>(\n       context: context,\n       isScrollControlled: true,\n       builder: (_) => const DueDatePicker(),\n     );\n     if (result != null && context.mounted) {\n       // Handle result per spec\n     }\n   },\n   ```\n\n   ### Add new trigger (no existing handler):\n   Wrap the element in `InkWell` or `GestureDetector` with the overlay call.\n\n5. **Verify** — Run `dart analyze lib/screens/settings/settings_screen.dart`\n\n## Important Notes\n\n- Do NOT create a new button or trigger if one already exists — reuse it\n- Do NOT duplicate `showModalBottomSheet`/`showDialog` calls — if one already exists, replace its builder content only\n- If the spec defines a return value, handle it in the parent after `await`\n- Use `context.mounted` check after any `await` before using context\n\n## Quality Gates\n\n- Parent screen imports the overlay widget\n- Trigger element calls `showModalBottomSheet` or `showDialog`\n- No hardcoded colors or styles introduced\n- `dart analyze` passes for the parent screen\n\n## Success Criteria\n\n- `lib/screens/settings/settings_screen.dart` updated with overlay import\n- Trigger element wired to show the overlay\n- Return value handled if spec requires it\n- `dart analyze` passes",
+              "taskId": "07-build-overlays/006-due-date-picker/006-05-mount",
+              "taskTitle": "Mount: Due Date Picker",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/07-build-overlays/tasks/006-due-date-picker/tasks/006-05-mount",
+              "factId": "check:parent-imports-overlay"
+            }
+          },
+          {
+            "id": "07-build-overlays/006-due-date-picker/006-05-mount-check-failed-parent-shows-overlay",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-build-overlays/006-due-date-picker/006-05-mount",
+            "severity": "high",
+            "description": "[07-build-overlays/006-due-date-picker/006-05-mount] Check failed: Parent screen calls showModalBottomSheet or showDialog",
+            "source": "unit",
+            "detected": "2026-04-19T03:01:08.687Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "parent-shows-overlay",
+              "checkCmd": "grep -qE 'showModalBottomSheet|showDialog' lib/screens/settings/settings_screen.dart",
+              "checkDescription": "Parent screen calls showModalBottomSheet or showDialog",
+              "checkOutput": "Command failed: grep -qE 'showModalBottomSheet|showDialog' lib/screens/settings/settings_screen.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Mount: Due Date Picker\n\nMount the **Due Date Picker** overlay in its parent screen (**settings**) and wire the trigger.\n\n## Inputs\n- `lib/widgets/overlays/due_date_picker/due_date_picker.dart` — The overlay widget file\n- `.stitch/designs/due-date-picker/SPEC.md` — Overlay specification (describes trigger and dismiss behavior)\n- `lib/screens/settings/settings_screen.dart` — The parent screen file to modify\n\n## Task\n\n1. **Read the spec** — Identify:\n   - What UI element triggers the overlay (which button, tap area, etc.)\n   - The overlay type (dialog)\n   - Any return value handling\n\n2. **Read the parent screen** — Find the trigger element described in the spec.\n\n   **The `03-build-screens` pipeline typically generates screens with placeholder triggers** — buttons, FABs, or tap areas that stub out overlay behavior. Identify the placeholder pattern:\n\n   | Placeholder Pattern | What It Means | Action |\n   |---|---|---|\n   | `showModalBottomSheet(builder: (_) => const Placeholder())` | Trigger exists, builder is stub | Replace builder body only |\n   | `showModalBottomSheet(builder: (_) => ...)` with inline widget tree | Trigger exists, builder has temp content | Replace builder body only |\n   | `ScaffoldMessenger.of(context).showSnackBar(...)` | Trigger exists, action is stub | Replace entire callback body |\n   | `debugPrint(...)` in `onTap`/`onPressed` | Trigger exists, action is stub | Replace callback body |\n   | Widget with `Semantics(label: ...)` but no `onTap` | Trigger UI exists, no handler | Wrap in `InkWell`/`GestureDetector` |\n   | No matching trigger element | Nothing exists | Create trigger per spec |\n\n   If a trigger already exists, **replace the placeholder body** — do NOT duplicate the `showModalBottomSheet`/`showDialog` call.\n\n3. **Add import** — Add the overlay widget import to the parent screen (use the project's package name from `pubspec.yaml`):\n   ```dart\n   import 'package:<pkg>/widgets/overlays/due_date_picker/due_date_picker.dart';\n   ```\n\n4. **Wire the trigger** — Apply the appropriate replacement from the table above:\n\n   ### Replace builder body (existing `showModalBottomSheet`/`showDialog`):\n   ```dart\n   // BEFORE:\n   builder: (_) => const Placeholder(),\n   // AFTER:\n   builder: (_) => const DueDatePicker(),\n   ```\n\n   ### Replace stub callback (existing `SnackBar`/`debugPrint`):\n   ```dart\n   onPressed: () async {\n     final result = await showModalBottomSheet<ReturnType>(\n       context: context,\n       isScrollControlled: true,\n       builder: (_) => const DueDatePicker(),\n     );\n     if (result != null && context.mounted) {\n       // Handle result per spec\n     }\n   },\n   ```\n\n   ### Add new trigger (no existing handler):\n   Wrap the element in `InkWell` or `GestureDetector` with the overlay call.\n\n5. **Verify** — Run `dart analyze lib/screens/settings/settings_screen.dart`\n\n## Important Notes\n\n- Do NOT create a new button or trigger if one already exists — reuse it\n- Do NOT duplicate `showModalBottomSheet`/`showDialog` calls — if one already exists, replace its builder content only\n- If the spec defines a return value, handle it in the parent after `await`\n- Use `context.mounted` check after any `await` before using context\n\n## Quality Gates\n\n- Parent screen imports the overlay widget\n- Trigger element calls `showModalBottomSheet` or `showDialog`\n- No hardcoded colors or styles introduced\n- `dart analyze` passes for the parent screen\n\n## Success Criteria\n\n- `lib/screens/settings/settings_screen.dart` updated with overlay import\n- Trigger element wired to show the overlay\n- Return value handled if spec requires it\n- `dart analyze` passes",
+              "taskId": "07-build-overlays/006-due-date-picker/006-05-mount",
+              "taskTitle": "Mount: Due Date Picker",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/07-build-overlays/tasks/006-due-date-picker/tasks/006-05-mount",
+              "factId": "check:parent-shows-overlay"
+            }
+          }
+        ],
+        "durationMs": 1450
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2066
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 1108
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#23",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 103557
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-19T03:01:08.668Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-19T03:01:08.669Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-19T03:01:10.119Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-19T03:01:10.121Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-19T03:01:12.188Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#23",
+      "iteration": 1,
+      "ts": "2026-04-19T03:02:55.745Z"
+    },
+    {
+      "from": "run-strategy:task-run#23",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-19T03:02:56.854Z"
+    }
+  ]
+}

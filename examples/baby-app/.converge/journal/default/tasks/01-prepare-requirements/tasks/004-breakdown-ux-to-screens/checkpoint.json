@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "01-prepare-requirements/004-breakdown-ux-to-screens",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T11:26:31.863Z",
+  "createdAt": "2026-04-18T11:24:43.335Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T11:24:43.335Z",
+      "completedAt": "2026-04-18T11:26:31.861Z",
+      "outcome": "success",
+      "durationMs": 108526
+    }
+  ],
+  "currentAttempt": 1
+}

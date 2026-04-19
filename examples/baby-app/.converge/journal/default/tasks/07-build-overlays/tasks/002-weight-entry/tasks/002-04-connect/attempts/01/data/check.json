@@ -1,0 +1,10 @@
+{
+  "taskId": "07-build-overlays/002-weight-entry/002-04-connect",
+  "checks": [
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes after connecting providers",
+      "cmd": "dart analyze lib/widgets/overlays/weight_entry/weight_entry.dart"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/010-article-reader/010-05-split/004-split-TipCalloutBlock",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Widget file exists",
+      "cmd": "test -f lib/screens/article_reader/widgets/tip_callout_block.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/screens/article_reader/widgets/tip_callout_block.dart"
+    }
+  ]
+}

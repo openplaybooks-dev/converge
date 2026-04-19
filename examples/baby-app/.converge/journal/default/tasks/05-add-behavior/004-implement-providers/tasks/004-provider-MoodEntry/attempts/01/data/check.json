@@ -1,0 +1,15 @@
+{
+  "taskId": "05-add-behavior/004-implement-providers/004-provider-MoodEntry",
+  "checks": [
+    {
+      "id": "file-exists",
+      "description": "mood_entry_provider.dart exists",
+      "cmd": "test -f lib/providers/mood_entry_provider.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/providers/mood_entry_provider.dart"
+    }
+  ]
+}

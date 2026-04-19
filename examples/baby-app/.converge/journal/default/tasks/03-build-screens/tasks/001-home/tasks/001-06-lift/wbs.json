@@ -1,0 +1,23 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-18T12:37:45.369Z",
+  "spawnCount": 4,
+  "subtasks": [
+    {
+      "id": "001-lift-GreetingHeader",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/001-home/tasks/001-06-lift/tasks/001-lift-GreetingHeader/TASK.md"
+    },
+    {
+      "id": "002-lift-ModeSelectorPill",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/001-home/tasks/001-06-lift/tasks/002-lift-ModeSelectorPill/TASK.md"
+    },
+    {
+      "id": "003-lift-StatCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/001-home/tasks/001-06-lift/tasks/003-lift-StatCard/TASK.md"
+    },
+    {
+      "id": "004-lift-PaginationDots",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/001-home/tasks/001-06-lift/tasks/004-lift-PaginationDots/TASK.md"
+    }
+  ]
+}

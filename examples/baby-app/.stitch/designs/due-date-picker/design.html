@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=375, initial-scale=1.0">
+<title>Due Date Picker — Design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        canvas: '#EDE8F7',
+        surface: '#FFFFFF',
+        ink: '#2A2A3A',
+        quartz: '#8B8B9C',
+        coral: '#F28B8B',
+        'coral-tint': 'rgba(242, 139, 139, 0.12)',
+        lilac: '#8B7ED8',
+        'lilac-tint': 'rgba(139, 126, 216, 0.14)',
+        'chip-bg': 'rgba(139, 126, 216, 0.08)',
+        divider: 'rgba(42, 42, 58, 0.06)',
+        backdrop: 'rgba(42, 42, 58, 0.24)',
+      },
+      fontFamily: {
+        'jakarta': ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+      },
+      boxShadow: {
+        'subtle': '0 2px 8px rgba(139, 126, 216, 0.08)',
+        'standard': '0 4px 20px rgba(139, 126, 216, 0.12)',
+        'prominent': '0 8px 32px rgba(139, 126, 216, 0.14)',
+      },
+    }
+  }
+}
+</script>
+<style>
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  background: #E8E8E8;
+  display: flex;
+  justify-content: center;
+  padding: 32px 16px;
+  min-height: 100vh;
+}
+.phone {
+  width: 375px;
+  min-height: 812px;
+  border-radius: 40px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+}
+@keyframes dialog-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.anim-dialog { animation: dialog-in 250ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.anim-backdrop { animation: fade-in 200ms ease-out backwards; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="phone" role="application" aria-label="Bloom due date picker overlay">
+  <div data-flutter="scaffold">
+  <div class="flex flex-col min-h-screen bg-canvas">
+
+    <!-- Dim backdrop -->
+    <div class="absolute inset-0 z-[65] anim-backdrop" style="background: rgba(42, 42, 58, 0.24);"
+         aria-hidden="true"></div>
+
+    <!-- Dialog -->
+    <div class="dialog" data-flutter="dialog" data-bg="surface" data-radius="lg"
+         role="dialog" aria-modal="true" aria-label="Due date picker dialog">
+    <div class="absolute inset-0 z-[70] flex items-center justify-center px-2">
+    <div class="bg-surface rounded-[24px] shadow-prominent w-full max-w-[360px] anim-dialog">
+
+      <div class="column flex flex-col p-6">
+
+        <!-- 9.1 Title -->
+        <h2 class="text-[1.125rem] font-semibold text-ink leading-snug"
+            data-color="primary">Set Due Date</h2>
+
+        <!-- 9.2 Month Navigation Row -->
+        <div class="row flex items-center justify-between mt-5">
+          <!-- Left arrow -->
+          <button class="flex items-center justify-center w-11 h-11 rounded-full min-w-[44px] min-h-[44px]"
+                  aria-label="Previous month">
+            <svg class="w-[22px] h-[22px] text-lilac" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-name="chevron_left" data-size="22">
+              <!-- chevron_left -->
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+          <!-- Month/year label -->
+          <span class="text-base font-semibold text-ink">August 2026</span>
+          <!-- Right arrow -->
+          <button class="flex items-center justify-center w-11 h-11 rounded-full min-w-[44px] min-h-[44px]"
+                  aria-label="Next month">
+            <svg class="w-[22px] h-[22px] text-lilac" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-name="chevron_right" data-size="22">
+              <!-- chevron_right -->
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- 9.3 Weekday Header Row -->
+        <div class="row grid grid-cols-7 gap-1 mt-4" aria-hidden="true">
+          <span class="text-[0.6875rem] font-bold text-quartz uppercase tracking-wider text-center">Sun</span>
+          <span class="text-[0.6875rem] font-bold text-quartz uppercase tracking-wider text-center">Mon</span>
+          <span class="text-[0.6875rem] font-bold text-quartz uppercase tracking-wider text-center">Tue</span>
+          <span class="text-[0.6875rem] font-bold text-quartz uppercase tracking-wider text-center">Wed</span>
+          <span class="text-[0.6875rem] font-bold text-quartz uppercase tracking-wider text-center">Thu</span>
+          <span class="text-[0.6875rem] font-bold text-quartz uppercase tracking-wider text-center">Fri</span>
+          <span class="text-[0.6875rem] font-bold text-quartz uppercase tracking-wider text-center">Sat</span>
+        </div>
+
+        <!-- 9.4 Calendar Day Grid — August 2026 -->
+        <div class="grid grid-cols-7 gap-1 mt-2" role="grid" aria-label="August 2026 calendar">
+
+          <!-- Week 1: Aug 1 is Saturday -->
+          <div class="col-span-6" aria-hidden="true"></div>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="1 August 2026">1</button>
+
+          <!-- Week 2 -->
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="2 August 2026">2</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="3 August 2026">3</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="4 August 2026">4</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="5 August 2026">5</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="6 August 2026">6</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="7 August 2026">7</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="8 August 2026">8</button>
+
+          <!-- Week 3 -->
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="9 August 2026">9</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="10 August 2026">10</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="11 August 2026">11</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="12 August 2026">12</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="13 August 2026">13</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="14 August 2026">14</button>
+          <!-- Selected day: 15 -->
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-bold bg-coral text-surface min-w-[44px] min-h-[44px]"
+                  aria-label="15 August 2026, selected" aria-pressed="true">15</button>
+
+          <!-- Week 4 -->
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="16 August 2026">16</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="17 August 2026">17</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="18 August 2026">18</button>
+          <!-- Today: 19 (unselected) -->
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-coral min-w-[44px] min-h-[44px]"
+                  style="background: rgba(242, 139, 139, 0.12);"
+                  aria-label="19 August 2026, today">19</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="20 August 2026">20</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="21 August 2026">21</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="22 August 2026">22</button>
+
+          <!-- Week 5 -->
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="23 August 2026">23</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="24 August 2026">24</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="25 August 2026">25</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="26 August 2026">26</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="27 August 2026">27</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="28 August 2026">28</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="29 August 2026">29</button>
+
+          <!-- Week 6 -->
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="30 August 2026">30</button>
+          <button class="flex items-center justify-center w-10 h-10 rounded-full text-[0.875rem] font-medium text-ink min-w-[44px] min-h-[44px]"
+                  aria-label="31 August 2026">31</button>
+
+        </div>
+
+        <!-- Divider -->
+        <div class="divider h-px mt-4" style="background: rgba(42, 42, 58, 0.06);" aria-hidden="true"></div>
+
+        <!-- 9.5 Action Row -->
+        <div class="row flex items-center justify-end gap-3 mt-4">
+          <!-- Cancel -->
+          <button class="flex items-center justify-center h-11 px-6 rounded-full border-[1.5px] text-base font-semibold text-ink min-h-[44px]"
+                  style="border-color: rgba(42, 42, 58, 0.06);"
+                  aria-label="Cancel and keep current due date">Cancel</button>
+          <!-- Confirm -->
+          <button class="flex items-center justify-center h-11 px-6 rounded-full bg-coral text-surface text-base font-semibold min-h-[44px]"
+                  aria-label="Confirm selected due date">Confirm</button>
+        </div>
+
+      </div>
+
+    </div>
+    </div>
+    </div>
+
+  </div>
+  </div>
+</div>
+
+</body>
+</html>

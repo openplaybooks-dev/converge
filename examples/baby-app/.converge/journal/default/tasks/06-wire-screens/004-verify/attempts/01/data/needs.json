@@ -1,0 +1,63 @@
+{
+  "taskId": "06-wire-screens/004-verify",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/**/*.dart",
+      "count": 68,
+      "samples": [
+        "lib/screens/article_reader/article_reader_screen.dart",
+        "lib/screens/cycle_tracking/cycle_tracking_screen.dart",
+        "lib/screens/education/education_screen.dart",
+        "lib/screens/exercise_detail/exercise_detail_screen.dart",
+        "lib/screens/health_log/health_log_screen.dart",
+        "lib/screens/home/home_screen.dart",
+        "lib/screens/mood_wellness/mood_wellness_screen.dart",
+        "lib/screens/settings/settings_screen.dart",
+        "lib/screens/weight_nutrition/weight_nutrition_screen.dart",
+        "lib/screens/weight_nutrition/widgets/weight_history_section.dart"
+      ]
+    },
+    {
+      "pattern": "lib/widgets/**/*.dart",
+      "count": 18,
+      "samples": [
+        "lib/widgets/instructions_card.dart",
+        "lib/widgets/mode_selector_pill.dart",
+        "lib/widgets/mood_banner.dart",
+        "lib/widgets/mood_history_entry.dart",
+        "lib/widgets/pagination_dots.dart",
+        "lib/widgets/related_article_card.dart",
+        "lib/widgets/self_care_card.dart",
+        "lib/widgets/stat_card.dart",
+        "lib/widgets/tip_callout_block.dart",
+        "lib/widgets/topic_chip_bar.dart"
+      ]
+    },
+    {
+      "pattern": "lib/providers/**/*.dart",
+      "count": 27,
+      "samples": [
+        "lib/providers/self_care_check_state_provider.dart",
+        "lib/providers/self_care_check_state_provider.g.dart",
+        "lib/providers/symptom_entry_provider.dart",
+        "lib/providers/symptom_entry_provider.g.dart",
+        "lib/providers/user_preferences_provider.dart",
+        "lib/providers/user_preferences_provider.g.dart",
+        "lib/providers/week_content_provider.dart",
+        "lib/providers/week_content_provider.g.dart",
+        "lib/providers/weight_entry_provider.dart",
+        "lib/providers/weight_entry_provider.g.dart"
+      ]
+    },
+    {
+      "pattern": "navigations.json",
+      "count": 1,
+      "samples": [
+        "navigations.json"
+      ]
+    }
+  ],
+  "outputs": [],
+  "blocked": false
+}

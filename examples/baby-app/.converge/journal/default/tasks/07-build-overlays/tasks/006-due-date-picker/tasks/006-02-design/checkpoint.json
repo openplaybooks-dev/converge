@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/006-due-date-picker/006-02-design",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T02:58:25.907Z",
+  "createdAt": "2026-04-19T02:55:02.713Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T02:55:02.713Z",
+      "completedAt": "2026-04-19T02:58:25.901Z",
+      "outcome": "success",
+      "durationMs": 203188
+    }
+  ],
+  "currentAttempt": 1
+}

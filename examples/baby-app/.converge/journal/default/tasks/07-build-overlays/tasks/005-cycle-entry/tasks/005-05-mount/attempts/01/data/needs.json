@@ -1,0 +1,31 @@
+{
+  "taskId": "07-build-overlays/005-cycle-entry/005-05-mount",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/widgets/overlays/cycle_entry/cycle_entry.dart",
+      "count": 1,
+      "samples": [
+        "lib/widgets/overlays/cycle_entry/cycle_entry.dart"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/cycle-entry/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/cycle-entry/SPEC.md"
+      ]
+    },
+    {
+      "pattern": "lib/screens/cycle_tracking/cycle_tracking_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/cycle_tracking/cycle_tracking_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/cycle_tracking/cycle_tracking_screen.dart"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,19 @@
+{
+  "taskId": "06-wire-screens/001-connect-providers",
+  "epicId": "default",
+  "focusPath": "default/06-wire-screens/001-connect-providers",
+  "status": "running",
+  "startedAt": "2026-04-18T23:42:55.286Z",
+  "attempt": 1,
+  "gapsResolved": 0,
+  "gapsFailed": 0,
+  "checklist": [
+    {
+      "id": "subtask:spawn-1",
+      "type": "subtask",
+      "description": "flutter-managing-state",
+      "details": ".converge/skills/flutter-managing-state/SKILL.md",
+      "done": false
+    }
+  ]
+}

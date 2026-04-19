@@ -1,0 +1,38 @@
+{
+  "type": "task",
+  "id": "03-build-screens/008-mood-wellness/008-06-lift/001-lift-MoodHistoryEntry",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T18:28:41.527Z",
+  "createdAt": "2026-04-18T17:17:18.763Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T17:17:18.763Z",
+      "completedAt": "2026-04-18T17:18:36.785Z",
+      "outcome": "failed",
+      "durationMs": 78022
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-18T17:19:30.708Z",
+      "completedAt": "2026-04-18T17:19:30.710Z",
+      "outcome": "failed",
+      "durationMs": 2
+    },
+    {
+      "attempt": 3,
+      "startedAt": "2026-04-18T18:16:23.764Z",
+      "completedAt": "2026-04-18T18:18:09.296Z",
+      "outcome": "failed",
+      "durationMs": 105532
+    },
+    {
+      "attempt": 4,
+      "startedAt": "2026-04-18T18:19:20.669Z",
+      "completedAt": "2026-04-18T18:19:20.671Z",
+      "outcome": "failed",
+      "durationMs": 2
+    }
+  ],
+  "currentAttempt": 3
+}

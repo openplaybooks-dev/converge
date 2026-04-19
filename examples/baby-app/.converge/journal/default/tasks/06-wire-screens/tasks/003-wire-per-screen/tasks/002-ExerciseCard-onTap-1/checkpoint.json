@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/003-wire-per-screen/002-ExerciseCard-onTap-1",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T01:00:44.123Z",
+  "createdAt": "2026-04-19T00:59:20.486Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T00:59:20.486Z",
+      "completedAt": "2026-04-19T01:00:44.119Z",
+      "outcome": "success",
+      "durationMs": 83633
+    }
+  ],
+  "currentAttempt": 1
+}

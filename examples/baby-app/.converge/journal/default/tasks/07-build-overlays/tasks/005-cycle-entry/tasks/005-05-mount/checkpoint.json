@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/005-cycle-entry/005-05-mount",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T02:53:01.252Z",
+  "createdAt": "2026-04-19T02:52:01.890Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T02:52:01.890Z",
+      "completedAt": "2026-04-19T02:53:01.248Z",
+      "outcome": "success",
+      "durationMs": 59358
+    }
+  ],
+  "currentAttempt": 1
+}

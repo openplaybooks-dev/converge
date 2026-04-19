@@ -1,0 +1,20 @@
+{"ts":"2026-04-18T11:47:07.472Z","type":"action","iter":1,"handler":"check-wbs-seeded","result":"continue","ms":0}
+{"ts":"2026-04-18T11:47:07.473Z","type":"action","iter":1,"handler":"check-outputs-exist","result":"continue","ms":0}
+{"ts":"2026-04-18T11:47:07.488Z","type":"gaps-detected","iter":1,"count":3,"kinds":["output","check-failed"],"delta":3}
+{"ts":"2026-04-18T11:47:07.488Z","type":"action","iter":1,"handler":"detect-gaps","result":"continue","ms":15}
+{"ts":"2026-04-18T11:47:07.490Z","type":"action","iter":1,"handler":"run-executor","result":"continue","ms":1}
+{"ts":"2026-04-18T11:47:07.507Z","type":"action","iter":1,"handler":"repair-loop","result":"continue","ms":17}
+{"ts":"2026-04-18T12:06:12.141Z","type":"action","iter":1,"handler":"check-wbs-seeded","result":"continue","ms":0}
+{"ts":"2026-04-18T12:06:12.253Z","type":"action","iter":1,"handler":"check-outputs-exist","result":"continue","ms":111}
+{"ts":"2026-04-18T12:06:12.354Z","type":"gaps-detected","iter":1,"count":3,"kinds":["output","check-failed"],"delta":3}
+{"ts":"2026-04-18T12:06:12.354Z","type":"action","iter":1,"handler":"detect-gaps","result":"continue","ms":101}
+{"ts":"2026-04-18T12:06:12.357Z","type":"action","iter":1,"handler":"run-executor","result":"continue","ms":2}
+{"ts":"2026-04-18T12:06:12.565Z","type":"action","iter":1,"handler":"repair-loop","result":"continue","ms":208}
+{"ts":"2026-04-18T12:10:47.140Z","type":"action","iter":1,"handler":"run-strategy","result":"continue","ms":274574}
+{"ts":"2026-04-18T12:10:47.270Z","type":"action","iter":1,"handler":"verify","result":"continue","ms":129}
+{"ts":"2026-04-18T12:10:47.271Z","type":"action","iter":1,"handler":"check-stall","result":"continue","ms":0}
+{"ts":"2026-04-18T12:10:47.273Z","type":"attempt-advanced","iter":1,"to":"03"}
+{"ts":"2026-04-18T12:10:47.273Z","type":"action","iter":1,"handler":"advance-attempt","result":"continue","ms":1}
+{"ts":"2026-04-18T12:10:47.273Z","type":"action","iter":2,"handler":"check-wbs-seeded","result":"continue","ms":0}
+{"ts":"2026-04-18T12:10:47.386Z","type":"action","iter":2,"handler":"check-outputs-exist","result":"done","ms":112,"reason":"Outputs already present"}
+{"ts":"2026-04-18T12:10:47.387Z","type":"outcome","iter":2,"result":"done","reason":"Outputs already present"}

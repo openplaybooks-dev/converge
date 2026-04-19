@@ -1,0 +1,16 @@
+{
+  "taskId": "03-build-screens/004-pregnancy-progress/004-06-lift/002-lift-ExerciseGuideCard",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "lib/screens/pregnancy_progress/widgets/exercise_guide_card.dart",
+      "count": 0,
+      "samples": []
+    }
+  ],
+  "outputs": [
+    "lib/widgets/exercise_guide_card.dart"
+  ],
+  "blocked": true,
+  "blockedReason": "Missing required inputs: lib/screens/pregnancy_progress/widgets/exercise_guide_card.dart"
+}

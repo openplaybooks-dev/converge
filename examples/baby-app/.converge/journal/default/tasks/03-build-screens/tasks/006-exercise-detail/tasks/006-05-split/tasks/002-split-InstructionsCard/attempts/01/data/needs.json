@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/006-exercise-detail/006-05-split/002-split-InstructionsCard",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/exercise_detail/exercise_detail_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/exercise_detail/exercise_detail_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/exercise_detail/widgets/instructions_card.dart"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/004-health-log-entry/004-05-mount",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T02:44:32.891Z",
+  "createdAt": "2026-04-19T02:43:21.676Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T02:43:21.676Z",
+      "completedAt": "2026-04-19T02:44:32.888Z",
+      "outcome": "success",
+      "durationMs": 71212
+    }
+  ],
+  "currentAttempt": 1
+}

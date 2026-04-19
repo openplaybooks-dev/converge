@@ -1,0 +1,31 @@
+{
+  "taskId": "03-build-screens/009-education/009-01-spec",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/UX.md",
+      "count": 1,
+      "samples": [
+        ".stitch/UX.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/screens.json",
+      "count": 1,
+      "samples": [
+        ".stitch/screens.json"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/education/SPEC.md"
+  ],
+  "blocked": false
+}

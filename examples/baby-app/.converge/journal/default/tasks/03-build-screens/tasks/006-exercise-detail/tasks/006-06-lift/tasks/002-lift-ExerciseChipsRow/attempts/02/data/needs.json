@@ -1,0 +1,16 @@
+{
+  "taskId": "03-build-screens/006-exercise-detail/006-06-lift/002-lift-ExerciseChipsRow",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "lib/screens/exercise_detail/widgets/exercise_chips_row.dart",
+      "count": 0,
+      "samples": []
+    }
+  ],
+  "outputs": [
+    "lib/widgets/exercise_chips_row.dart"
+  ],
+  "blocked": true,
+  "blockedReason": "Missing required inputs: lib/screens/exercise_detail/widgets/exercise_chips_row.dart"
+}

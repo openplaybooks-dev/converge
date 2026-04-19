@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/001-mode-selector/001-05-mount",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T02:17:46.307Z",
+  "createdAt": "2026-04-19T02:17:43.721Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T02:17:43.721Z",
+      "completedAt": "2026-04-19T02:17:46.305Z",
+      "outcome": "success",
+      "durationMs": 2584
+    }
+  ],
+  "currentAttempt": 1
+}

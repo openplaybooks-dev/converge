@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/003-wire-per-screen/010-article-reader",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T01:10:18.974Z",
+  "createdAt": "2026-04-19T01:10:18.969Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T01:10:18.969Z",
+      "completedAt": "2026-04-19T01:10:18.972Z",
+      "outcome": "success",
+      "durationMs": 3
+    }
+  ],
+  "currentAttempt": 1
+}

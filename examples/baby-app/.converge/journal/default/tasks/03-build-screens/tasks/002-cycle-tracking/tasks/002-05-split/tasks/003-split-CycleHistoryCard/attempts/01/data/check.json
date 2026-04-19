@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/002-cycle-tracking/002-05-split/003-split-CycleHistoryCard",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Widget file exists",
+      "cmd": "test -f lib/screens/cycle_tracking/widgets/cycle_history_card.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/screens/cycle_tracking/widgets/cycle_history_card.dart"
+    }
+  ]
+}

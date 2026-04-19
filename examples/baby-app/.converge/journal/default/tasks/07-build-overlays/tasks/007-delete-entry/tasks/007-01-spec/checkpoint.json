@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/007-delete-entry/007-01-spec",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T03:04:45.447Z",
+  "createdAt": "2026-04-19T03:02:58.053Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T03:02:58.053Z",
+      "completedAt": "2026-04-19T03:04:45.441Z",
+      "outcome": "success",
+      "durationMs": 107388
+    }
+  ],
+  "currentAttempt": 1
+}

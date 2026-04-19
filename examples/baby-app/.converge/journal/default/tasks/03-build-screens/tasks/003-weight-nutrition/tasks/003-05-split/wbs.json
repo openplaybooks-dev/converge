@@ -1,0 +1,27 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-18T15:58:15.583Z",
+  "spawnCount": 5,
+  "subtasks": [
+    {
+      "id": "001-split-WeightChartCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/003-weight-nutrition/tasks/003-05-split/tasks/001-split-WeightChartCard/TASK.md"
+    },
+    {
+      "id": "002-split-BmiGaugeCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/003-weight-nutrition/tasks/003-05-split/tasks/002-split-BmiGaugeCard/TASK.md"
+    },
+    {
+      "id": "003-split-QuickStatsRow",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/003-weight-nutrition/tasks/003-05-split/tasks/003-split-QuickStatsRow/TASK.md"
+    },
+    {
+      "id": "004-split-NutritionTipsCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/003-weight-nutrition/tasks/003-05-split/tasks/004-split-NutritionTipsCard/TASK.md"
+    },
+    {
+      "id": "005-split-WeightHistorySection",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/003-weight-nutrition/tasks/003-05-split/tasks/005-split-WeightHistorySection/TASK.md"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/002-weight-entry/002-05-mount",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T02:26:26.105Z",
+  "createdAt": "2026-04-19T02:25:35.547Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T02:25:35.547Z",
+      "completedAt": "2026-04-19T02:26:26.101Z",
+      "outcome": "success",
+      "durationMs": 50554
+    }
+  ],
+  "currentAttempt": 1
+}

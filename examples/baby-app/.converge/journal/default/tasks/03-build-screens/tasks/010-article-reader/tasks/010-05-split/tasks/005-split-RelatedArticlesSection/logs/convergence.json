@@ -1,0 +1,249 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/010-article-reader/010-05-split/005-split-RelatedArticlesSection-missing-output-lib/screens/article_reader/widgets/related_articles_section.dart",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/010-article-reader/010-05-split/005-split-RelatedArticlesSection",
+            "severity": "high",
+            "description": "[03-build-screens/010-article-reader/010-05-split/005-split-RelatedArticlesSection] Task output not created: lib/screens/article_reader/widgets/related_articles_section.dart",
+            "source": "unit",
+            "detected": "2026-04-18T17:38:51.155Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/010-article-reader/tasks/010-05-split/tasks/005-split-RelatedArticlesSection",
+              "taskId": "03-build-screens/010-article-reader/010-05-split/005-split-RelatedArticlesSection",
+              "taskTitle": "Split: RelatedArticlesSection",
+              "taskPrompt": "# Split: RelatedArticlesSection\n\nExtract the `RelatedArticlesSection` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/article_reader/article_reader_screen.dart` using grep string: `_buildRelatedSection`\n2. **Create file** — Write `lib/screens/article_reader/widgets/related_articles_section.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `RelatedArticlesSection()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass RelatedArticlesSection extends StatelessWidget {\n  const RelatedArticlesSection({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskInputs": [
+                "lib/screens/article_reader/article_reader_screen.dart"
+              ],
+              "factId": "file-exists:test -f \"lib/screens/article_reader/widgets/related_articles_section.dart\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-build-screens/010-article-reader/010-05-split/005-split-RelatedArticlesSection-check-failed-widget-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/010-article-reader/010-05-split/005-split-RelatedArticlesSection",
+            "severity": "high",
+            "description": "[03-build-screens/010-article-reader/010-05-split/005-split-RelatedArticlesSection] Check failed: Widget file exists",
+            "source": "unit",
+            "detected": "2026-04-18T17:38:51.157Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "widget-exists",
+              "checkCmd": "test -f lib/screens/article_reader/widgets/related_articles_section.dart",
+              "checkDescription": "Widget file exists",
+              "checkOutput": "Command failed: test -f lib/screens/article_reader/widgets/related_articles_section.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Split: RelatedArticlesSection\n\nExtract the `RelatedArticlesSection` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/article_reader/article_reader_screen.dart` using grep string: `_buildRelatedSection`\n2. **Create file** — Write `lib/screens/article_reader/widgets/related_articles_section.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `RelatedArticlesSection()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass RelatedArticlesSection extends StatelessWidget {\n  const RelatedArticlesSection({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskId": "03-build-screens/010-article-reader/010-05-split/005-split-RelatedArticlesSection",
+              "taskTitle": "Split: RelatedArticlesSection",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/010-article-reader/tasks/010-05-split/tasks/005-split-RelatedArticlesSection",
+              "factId": "check:widget-exists"
+            }
+          },
+          {
+            "id": "03-build-screens/010-article-reader/010-05-split/005-split-RelatedArticlesSection-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/010-article-reader/010-05-split/005-split-RelatedArticlesSection",
+            "severity": "high",
+            "description": "[03-build-screens/010-article-reader/010-05-split/005-split-RelatedArticlesSection] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-18T17:38:51.257Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "dart analyze lib/screens/article_reader/widgets/related_articles_section.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "Directory or file doesn't exist: lib/screens/article_reader/widgets/related_articles_section.dart\n\nUsage: dart analyze [arguments] [<directory>]\n-h, --help                   Print this usage information.\n    --fatal-infos            Treat info level issues as fatal.\n    --[no-]fatal-warnings    Treat warning level issues as fatal.\n                             (defaults to on)\n\nRun \"dart help\" to see global options.",
+              "checkExitCode": 64,
+              "taskPrompt": "# Split: RelatedArticlesSection\n\nExtract the `RelatedArticlesSection` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/article_reader/article_reader_screen.dart` using grep string: `_buildRelatedSection`\n2. **Create file** — Write `lib/screens/article_reader/widgets/related_articles_section.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `RelatedArticlesSection()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass RelatedArticlesSection extends StatelessWidget {\n  const RelatedArticlesSection({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskId": "03-build-screens/010-article-reader/010-05-split/005-split-RelatedArticlesSection",
+              "taskTitle": "Split: RelatedArticlesSection",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/010-article-reader/tasks/010-05-split/tasks/005-split-RelatedArticlesSection",
+              "factId": "check:dart-valid"
+            }
+          }
+        ],
+        "durationMs": 107
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 240
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 1014
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#26",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 128538
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-18T17:38:51.149Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-18T17:38:51.150Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-18T17:38:51.258Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-18T17:38:51.266Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-18T17:38:51.516Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#26",
+      "iteration": 1,
+      "ts": "2026-04-18T17:41:00.054Z"
+    },
+    {
+      "from": "run-strategy:task-run#26",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-18T17:41:01.068Z"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "taskId": "07-build-overlays/002-weight-entry/002-01-spec",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/UX.md",
+      "count": 1,
+      "samples": [
+        ".stitch/UX.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/screens.json",
+      "count": 1,
+      "samples": [
+        ".stitch/screens.json"
+      ]
+    },
+    {
+      "pattern": "lib/screens/weight_nutrition/weight_nutrition_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/weight_nutrition/weight_nutrition_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/weight-entry/SPEC.md"
+  ],
+  "blocked": false
+}

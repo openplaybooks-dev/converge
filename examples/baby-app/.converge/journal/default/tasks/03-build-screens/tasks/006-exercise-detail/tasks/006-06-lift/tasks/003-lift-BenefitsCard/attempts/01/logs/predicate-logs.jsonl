@@ -1,0 +1,16 @@
+{"ts":"2026-04-18T17:58:03.615Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"check-wbs-seeded","status":"start"}
+{"ts":"2026-04-18T17:58:03.615Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"check-wbs-seeded","status":"done","result":"continue"}
+{"ts":"2026-04-18T17:58:03.615Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"check-outputs-exist","status":"start"}
+{"ts":"2026-04-18T17:58:03.615Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"check-outputs-exist","status":"done","result":"continue"}
+{"ts":"2026-04-18T17:58:03.616Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"detect-gaps","status":"start"}
+{"ts":"2026-04-18T17:58:03.717Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"detect-gaps","status":"done","result":"continue","newGaps":3}
+{"ts":"2026-04-18T17:58:03.717Z","iter":1,"gaps":3,"stall":0,"node":"action","handler":"run-executor","status":"start"}
+{"ts":"2026-04-18T17:58:03.718Z","iter":1,"gaps":3,"stall":0,"node":"action","handler":"run-executor","status":"done","result":"continue"}
+{"ts":"2026-04-18T17:58:03.719Z","iter":1,"gaps":3,"stall":0,"node":"action","handler":"repair-loop","status":"start"}
+{"ts":"2026-04-18T17:58:03.914Z","iter":1,"gaps":3,"stall":0,"node":"action","handler":"repair-loop","status":"done","result":"continue"}
+{"ts":"2026-04-18T17:58:03.915Z","iter":1,"gaps":3,"stall":0,"node":"action","handler":"run-strategy","status":"start"}
+{"ts":"2026-04-18T17:59:27.639Z","iter":1,"gaps":3,"stall":0,"node":"action","handler":"run-strategy","status":"done","result":"continue"}
+{"ts":"2026-04-18T17:59:27.641Z","iter":1,"gaps":3,"stall":0,"node":"action","handler":"verify","status":"start"}
+{"ts":"2026-04-18T17:59:28.637Z","iter":1,"gaps":3,"stall":0,"node":"action","handler":"verify","status":"done","result":"continue","newGaps":1}
+{"ts":"2026-04-18T17:59:28.638Z","iter":1,"gaps":1,"stall":0,"node":"action","handler":"resolve-blockers","status":"start"}
+{"ts":"2026-04-18T17:59:29.625Z","iter":1,"gaps":1,"stall":0,"node":"action","handler":"resolve-blockers","status":"done","result":"bail","reason":"1 unresolvable blockers"}

@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-add-behavior/004-implement-providers/007-provider-Reminder",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T19:01:27.023Z",
+  "createdAt": "2026-04-18T18:59:33.611Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T18:59:33.611Z",
+      "completedAt": "2026-04-18T19:01:27.020Z",
+      "outcome": "success",
+      "durationMs": 113409
+    }
+  ],
+  "currentAttempt": 1
+}

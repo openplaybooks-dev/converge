@@ -1,0 +1,31 @@
+{
+  "taskId": "07-build-overlays/003-mood-log/003-03-convert",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/mood-log/design.html",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/mood-log/design.html"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/mood-log/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/mood-log/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/overlays/mood_log/mood_log.dart"
+  ],
+  "blocked": false
+}

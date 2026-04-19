@@ -1,0 +1,31 @@
+{
+  "taskId": "07-build-overlays/002-weight-entry/002-05-mount",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/widgets/overlays/weight_entry/weight_entry.dart",
+      "count": 1,
+      "samples": [
+        "lib/widgets/overlays/weight_entry/weight_entry.dart"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/weight-entry/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/weight-entry/SPEC.md"
+      ]
+    },
+    {
+      "pattern": "lib/screens/weight_nutrition/weight_nutrition_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/weight_nutrition/weight_nutrition_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/weight_nutrition/weight_nutrition_screen.dart"
+  ],
+  "blocked": false
+}

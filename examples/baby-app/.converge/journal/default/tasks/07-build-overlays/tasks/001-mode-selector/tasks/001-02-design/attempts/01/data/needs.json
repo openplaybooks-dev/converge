@@ -1,0 +1,32 @@
+{
+  "taskId": "07-build-overlays/001-mode-selector/001-02-design",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/mode-selector/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/mode-selector/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/META.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/META.md"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/mode-selector/META.md",
+    ".stitch/designs/mode-selector/design.html"
+  ],
+  "blocked": false
+}

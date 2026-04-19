@@ -1,0 +1,19 @@
+{
+  "taskId": "07-build-overlays/007-delete-entry/007-02-design",
+  "epicId": "default",
+  "focusPath": "default/07-build-overlays/007-delete-entry/007-02-design",
+  "status": "running",
+  "startedAt": "2026-04-19T03:04:45.595Z",
+  "attempt": 1,
+  "gapsResolved": 0,
+  "gapsFailed": 0,
+  "checklist": [
+    {
+      "id": "subtask:spawn-1",
+      "type": "subtask",
+      "description": "stitch-generate",
+      "details": ".converge/skills/stitch-generate/SKILL.md",
+      "done": false
+    }
+  ]
+}

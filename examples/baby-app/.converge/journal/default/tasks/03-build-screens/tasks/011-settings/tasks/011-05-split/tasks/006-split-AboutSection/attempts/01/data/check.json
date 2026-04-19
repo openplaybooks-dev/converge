@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/011-settings/011-05-split/006-split-AboutSection",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Widget file exists",
+      "cmd": "test -f lib/screens/settings/widgets/about_section.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/screens/settings/widgets/about_section.dart"
+    }
+  ]
+}

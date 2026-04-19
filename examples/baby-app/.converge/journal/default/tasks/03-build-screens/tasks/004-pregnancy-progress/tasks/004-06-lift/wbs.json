@@ -1,0 +1,15 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-18T16:22:55.248Z",
+  "spawnCount": 2,
+  "subtasks": [
+    {
+      "id": "001-lift-SelfCareCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/004-pregnancy-progress/tasks/004-06-lift/tasks/001-lift-SelfCareCard/TASK.md"
+    },
+    {
+      "id": "002-lift-ExerciseGuideCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/004-pregnancy-progress/tasks/004-06-lift/tasks/002-lift-ExerciseGuideCard/TASK.md"
+    }
+  ]
+}

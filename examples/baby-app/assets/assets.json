@@ -1,0 +1,43 @@
+{
+  "version": "1.0.0",
+  "description": "Asset manifest for Bloom baby app",
+  "categories": {
+    "icons": {
+      "path": "assets/icons/",
+      "format": "svg",
+      "count": 0,
+      "description": "UI icons for navigation and actions"
+    },
+    "images": {
+      "path": "assets/images/",
+      "format": "png|webp",
+      "count": 0,
+      "description": "Photos and complex raster images"
+    },
+    "illustrations": {
+      "baby-sizes": {
+        "path": "assets/illustrations/baby-sizes/",
+        "format": "svg",
+        "count": 0,
+        "expected": 40,
+        "description": "Weekly baby size comparison illustrations"
+      },
+      "empty-states": {
+        "path": "assets/illustrations/empty-states/",
+        "format": "svg",
+        "count": 0,
+        "description": "Empty state and error illustrations"
+      },
+      "exercises": {
+        "path": "assets/illustrations/exercises/",
+        "format": "svg",
+        "count": 0,
+        "description": "Exercise and mindfulness illustrations"
+      }
+    }
+  },
+  "metadata": {
+    "generated_by": "04-generate-assets task",
+    "last_updated": null
+  }
+}

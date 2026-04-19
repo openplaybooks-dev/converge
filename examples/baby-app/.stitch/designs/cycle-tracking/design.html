@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=375, initial-scale=1.0">
+<title>Cycle Tracking — Design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        canvas: '#EDE8F7',
+        surface: '#FFFFFF',
+        'surface-tertiary': '#FDF9F8',
+        ink: '#2A2A3A',
+        quartz: '#8B8B9C',
+        coral: '#F28B8B',
+        'coral-tint': 'rgba(242, 139, 139, 0.12)',
+        lilac: '#8B7ED8',
+        'lilac-tint': 'rgba(139, 126, 216, 0.14)',
+        'chip-bg': 'rgba(139, 126, 216, 0.08)',
+        divider: 'rgba(42, 42, 58, 0.06)',
+        success: '#6DC48A',
+        error: '#E85C5C',
+        warning: '#F4C84D',
+      },
+      fontFamily: {
+        'jakarta': ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+      },
+      boxShadow: {
+        'subtle': '0 2px 8px rgba(139, 126, 216, 0.08)',
+        'standard': '0 4px 20px rgba(139, 126, 216, 0.12)',
+        'prominent': '0 8px 32px rgba(139, 126, 216, 0.14)',
+        'nav': '0 -4px 20px rgba(139, 126, 216, 0.08)',
+      },
+    }
+  }
+}
+</script>
+<style>
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  background: #E8E8E8;
+  display: flex;
+  justify-content: center;
+  padding: 32px 16px;
+  min-height: 100vh;
+}
+.phone {
+  width: 375px;
+  min-height: 812px;
+  border-radius: 40px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.anim-card { animation: fade-up 450ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+@keyframes fab-pop {
+  from { opacity: 0; transform: scale(0); }
+  to { opacity: 1; transform: scale(1); }
+}
+.anim-fab { animation: fab-pop 400ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="phone" role="application" aria-label="Bloom cycle tracking screen">
+  <div class="scaffold" data-bg="surface">
+  <div class="flex flex-col min-h-screen bg-canvas">
+
+    <!-- App Bar -->
+    <header data-flutter="app-bar" class="flex items-center h-14 px-5 bg-canvas pt-10">
+      <h1 class="text-2xl font-extrabold text-ink tracking-tight">Cycle Tracker</h1>
+    </header>
+
+    <!-- Body -->
+    <main class="flex-1 overflow-y-auto">
+      <div data-flutter="safe-area" class="flex flex-col gap-6 px-5 pt-4 pb-24">
+
+        <!-- 7.1 Calendar View Card -->
+        <section class="bg-surface rounded-3xl shadow-standard p-5 anim-card" style="animation-delay: 0ms"
+                 aria-label="Cycle calendar for April 2026">
+
+          <!-- Month Header -->
+          <div class="flex items-center justify-between mb-4">
+            <button class="w-11 h-11 flex items-center justify-center rounded-full" aria-label="Previous month">
+              <svg class="w-5 h-5 text-quartz" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </button>
+            <h2 class="text-lg font-bold text-ink" data-color="primary">April 2026</h2>
+            <button class="w-11 h-11 flex items-center justify-center rounded-full" aria-label="Next month">
+              <svg class="w-5 h-5 text-quartz" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Day-of-week Headers -->
+          <div class="grid grid-cols-7 gap-1 mb-2 text-center">
+            <span class="text-xs font-medium text-quartz">Mon</span>
+            <span class="text-xs font-medium text-quartz">Tue</span>
+            <span class="text-xs font-medium text-quartz">Wed</span>
+            <span class="text-xs font-medium text-quartz">Thu</span>
+            <span class="text-xs font-medium text-quartz">Fri</span>
+            <span class="text-xs font-medium text-quartz">Sat</span>
+            <span class="text-xs font-medium text-quartz">Sun</span>
+          </div>
+
+          <!-- Calendar Grid — April 2026 starts on Wednesday -->
+          <div class="grid grid-cols-7 gap-1 text-center" role="grid" aria-label="April 2026 calendar">
+
+            <!-- Row 1: Mar 30-31 (outside), Apr 1-5 -->
+            <span class="w-10 h-10 flex items-center justify-center text-sm text-quartz/40 font-medium rounded-full" aria-hidden="true">30</span>
+            <span class="w-10 h-10 flex items-center justify-center text-sm text-quartz/40 font-medium rounded-full" aria-hidden="true">31</span>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-coral text-surface" aria-label="1, period day" data-color="coral">1</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-coral text-surface" aria-label="2, period day" data-color="coral">2</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-coral text-surface" aria-label="3, period day" data-color="coral">3</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-coral text-surface" aria-label="4, period day" data-color="coral">4</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-coral text-surface" aria-label="5, period day" data-color="coral">5</button>
+
+            <!-- Row 2: Apr 6-12 -->
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full text-ink" aria-label="6, no data">6</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full text-ink" aria-label="7, no data">7</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full text-ink" aria-label="8, no data">8</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full text-ink" aria-label="9, no data">9</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full text-ink" aria-label="10, no data">10</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full text-ink" aria-label="11, no data">11</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-coral-tint text-ink" aria-label="12, fertile window">12</button>
+
+            <!-- Row 3: Apr 13-19 — fertile window and ovulation -->
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-coral-tint text-ink" aria-label="13, fertile window">13</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-coral-tint text-ink" aria-label="14, fertile window">14</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-coral-tint text-ink" aria-label="15, fertile window">15</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-lilac text-surface" aria-label="16, ovulation day (estimated)" data-color="lilac">16</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-coral-tint text-ink" aria-label="17, fertile window">17</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full border-2 border-lilac-tint text-ink" aria-label="18, today" data-color="today">18</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full text-ink" aria-label="19, no data">19</button>
+
+            <!-- Row 4: Apr 20-26 -->
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full text-ink" aria-label="20, no data">20</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full text-ink" aria-label="21, no data">21</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full text-ink" aria-label="22, no data">22</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full text-ink" aria-label="23, no data">23</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full text-ink" aria-label="24, no data">24</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full text-ink" aria-label="25, no data">25</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full text-ink" aria-label="26, no data">26</button>
+
+            <!-- Row 5: Apr 27-30, May 1-3 (outside) -->
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full text-ink" aria-label="27, no data">27</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full text-ink" aria-label="28, no data">28</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-coral text-surface" aria-label="29, predicted period" data-color="coral">29</button>
+            <button class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-coral text-surface" aria-label="30, predicted period" data-color="coral">30</button>
+            <span class="w-10 h-10 flex items-center justify-center text-sm text-quartz/40 font-medium rounded-full" aria-hidden="true">1</span>
+            <span class="w-10 h-10 flex items-center justify-center text-sm text-quartz/40 font-medium rounded-full" aria-hidden="true">2</span>
+            <span class="w-10 h-10 flex items-center justify-center text-sm text-quartz/40 font-medium rounded-full" aria-hidden="true">3</span>
+          </div>
+
+          <!-- Legend -->
+          <div class="flex items-center gap-4 mt-4 justify-center">
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded-full bg-coral"></span>
+              <span class="text-xs text-quartz">Period</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded-full bg-coral-tint"></span>
+              <span class="text-xs text-quartz">Fertile</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded-full bg-lilac"></span>
+              <span class="text-xs text-quartz">Ovulation</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7.2 Current Cycle Summary Card -->
+        <section class="bg-surface rounded-3xl shadow-standard p-5 anim-card" style="animation-delay: 80ms"
+                 aria-label="Current cycle summary">
+          <h2 class="text-lg font-bold text-ink mb-4">Current Cycle</h2>
+
+          <!-- Stat Rows -->
+          <div class="flex flex-col">
+            <!-- Cycle Day -->
+            <div class="flex items-center justify-between py-3" aria-label="Cycle Day: Day 18">
+              <span class="text-sm text-quartz font-normal">Cycle Day</span>
+              <span class="text-lg font-semibold text-ink">Day 18</span>
+            </div>
+            <div class="h-px bg-divider"></div>
+            <!-- Cycle Length -->
+            <div class="flex items-center justify-between py-3" aria-label="Cycle Length: 28 days">
+              <span class="text-sm text-quartz font-normal">Cycle Length</span>
+              <span class="text-lg font-semibold text-ink">28 days</span>
+            </div>
+            <div class="h-px bg-divider"></div>
+            <!-- Next Period -->
+            <div class="flex items-center justify-between py-3" aria-label="Next Period: Apr 29">
+              <span class="text-sm text-quartz font-normal">Next Period</span>
+              <span class="text-lg font-semibold text-coral">Apr 29</span>
+            </div>
+            <div class="h-px bg-divider"></div>
+            <!-- Ovulation -->
+            <div class="flex items-center justify-between py-3" aria-label="Ovulation: Apr 16 (estimated)">
+              <span class="text-sm text-quartz font-normal">Ovulation</span>
+              <span class="text-lg font-semibold text-lilac">Apr 16</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7.3 Cycle History List -->
+        <section class="bg-surface rounded-3xl shadow-standard p-5 anim-card" style="animation-delay: 160ms"
+                 aria-label="Cycle history">
+          <h2 class="text-lg font-bold text-ink mb-4">History</h2>
+
+          <div class="flex flex-col">
+            <!-- Cycle 1 -->
+            <div class="flex items-center justify-between py-3" role="button" tabindex="0"
+                 aria-label="Cycle from Mar 4 to Mar 8, 28 days, regular">
+              <div class="flex flex-col gap-0.5">
+                <span class="text-sm font-medium text-ink">Mar 4 – Mar 8</span>
+                <span class="text-xs text-quartz">28 days</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <svg class="w-[18px] h-[18px] text-quartz" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </div>
+            </div>
+            <div class="h-px bg-divider"></div>
+
+            <!-- Cycle 2 — irregular -->
+            <div class="flex items-center justify-between py-3" role="button" tabindex="0"
+                 aria-label="Cycle from Feb 1 to Feb 6, 32 days, irregular">
+              <div class="flex flex-col gap-0.5">
+                <span class="text-sm font-medium text-ink">Feb 1 – Feb 6</span>
+                <span class="text-xs text-quartz">32 days</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 bg-warning/20 text-warning text-xs font-medium rounded-full" aria-label="Irregular cycle">Irregular</span>
+                <svg class="w-[18px] h-[18px] text-quartz" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </div>
+            </div>
+            <div class="h-px bg-divider"></div>
+
+            <!-- Cycle 3 -->
+            <div class="flex items-center justify-between py-3" role="button" tabindex="0"
+                 aria-label="Cycle from Jan 1 to Jan 5, 27 days, regular">
+              <div class="flex flex-col gap-0.5">
+                <span class="text-sm font-medium text-ink">Jan 1 – Jan 5</span>
+                <span class="text-xs text-quartz">27 days</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <svg class="w-[18px] h-[18px] text-quartz" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </div>
+            </div>
+            <div class="h-px bg-divider"></div>
+
+            <!-- Cycle 4 -->
+            <div class="flex items-center justify-between py-3" role="button" tabindex="0"
+                 aria-label="Cycle from Dec 5 to Dec 9, 28 days, regular">
+              <div class="flex flex-col gap-0.5">
+                <span class="text-sm font-medium text-ink">Dec 5 – Dec 9</span>
+                <span class="text-xs text-quartz">28 days</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <svg class="w-[18px] h-[18px] text-quartz" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7.4 Irregular Cycle Notes Card -->
+        <section class="bg-surface rounded-3xl shadow-standard p-5 anim-card" style="animation-delay: 240ms"
+                 aria-label="Irregular cycles information">
+          <div class="flex items-center gap-2 mb-3">
+            <h2 class="text-lg font-semibold text-ink">Irregular Cycles</h2>
+            <span class="px-2 py-0.5 bg-warning/20 text-warning text-xs font-bold rounded-full">1</span>
+          </div>
+          <p class="text-sm text-quartz leading-relaxed mb-2">Cycles shorter than 21 days or longer than 35 days are flagged as irregular. This is common and usually not a concern.</p>
+          <p class="text-xs text-quartz">Latest note: "Stressful month, traveled across time zones."</p>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- FAB — Log new cycle -->
+    <button data-flutter="fab" data-icon="add"
+            class="absolute bottom-24 right-5 w-14 h-14 rounded-full bg-coral shadow-standard flex items-center justify-center anim-fab" style="animation-delay: 320ms"
+            aria-label="Log new cycle start">
+      <svg class="w-[22px] h-[22px] text-surface" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+    </button>
+
+    <!-- Bottom Navigation -->
+    <nav data-flutter="bottom-nav" class="flex justify-around items-center bg-surface shadow-nav px-0 py-2 pb-6" aria-label="Main navigation">
+      <button data-flutter="nav-destination" data-icon="home" data-label="Home"
+              class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[44px] min-h-[44px] justify-center" aria-label="Home">
+        <svg class="w-[22px] h-[22px] text-quartz" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span class="text-[11px] font-bold uppercase tracking-widest text-quartz">Home</span>
+      </button>
+      <button data-flutter="nav-destination" data-icon="calendar_today" data-label="Progress"
+              class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[44px] min-h-[44px] justify-center" aria-label="Progress">
+        <svg class="w-[22px] h-[22px] text-quartz" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <span class="text-[11px] font-bold uppercase tracking-widest text-quartz">Progress</span>
+      </button>
+      <button data-flutter="nav-destination" data-icon="favorite" data-label="Health" data-selected="true"
+              class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl bg-coral-tint min-w-[44px] min-h-[44px] justify-center" aria-label="Health" aria-current="page">
+        <svg class="w-[22px] h-[22px] text-coral" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+        <span class="text-[11px] font-bold uppercase tracking-widest text-coral">Health</span>
+      </button>
+      <button data-flutter="nav-destination" data-icon="self_improvement" data-label="Wellness"
+              class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[44px] min-h-[44px] justify-center" aria-label="Wellness">
+        <svg class="w-[22px] h-[22px] text-quartz" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+        </svg>
+        <span class="text-[11px] font-bold uppercase tracking-widest text-quartz">Wellness</span>
+      </button>
+      <button data-flutter="nav-destination" data-icon="menu_book" data-label="Learn"
+              class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[44px] min-h-[44px] justify-center" aria-label="Learn">
+        <svg class="w-[22px] h-[22px] text-quartz" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+        <span class="text-[11px] font-bold uppercase tracking-widest text-quartz">Learn</span>
+      </button>
+    </nav>
+
+  </div>
+  </div>
+</div>
+
+</body>
+</html>

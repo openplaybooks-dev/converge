@@ -1,0 +1,10 @@
+{
+  "taskId": "06-wire-screens/003-wire-per-screen/001-BookmarkButton-onPressed-1",
+  "checks": [
+    {
+      "id": "handler-wired",
+      "description": "IconButton.onPressed has real logic at lib/screens/article_reader/article_reader_screen.dart:47",
+      "cmd": "node .converge/playbooks/default/tasks/06-wire-screens/check-handler.mjs lib/screens/article_reader/article_reader_screen.dart 47 onPressed"
+    }
+  ]
+}

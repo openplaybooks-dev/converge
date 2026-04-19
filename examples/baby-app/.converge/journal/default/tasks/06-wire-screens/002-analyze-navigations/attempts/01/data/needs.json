@@ -1,0 +1,56 @@
+{
+  "taskId": "06-wire-screens/002-analyze-navigations",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/screens.json",
+      "count": 1,
+      "samples": [
+        ".stitch/screens.json"
+      ]
+    },
+    {
+      "pattern": "lib/screens/**/*.dart",
+      "count": 68,
+      "samples": [
+        "lib/screens/article_reader/article_reader_screen.dart",
+        "lib/screens/cycle_tracking/cycle_tracking_screen.dart",
+        "lib/screens/education/education_screen.dart",
+        "lib/screens/exercise_detail/exercise_detail_screen.dart",
+        "lib/screens/health_log/health_log_screen.dart",
+        "lib/screens/home/home_screen.dart",
+        "lib/screens/mood_wellness/mood_wellness_screen.dart",
+        "lib/screens/pregnancy_progress/pregnancy_progress_screen.dart",
+        "lib/screens/settings/settings_screen.dart",
+        "lib/screens/weight_nutrition/weight_nutrition_screen.dart"
+      ]
+    },
+    {
+      "pattern": "lib/widgets/**/*.dart",
+      "count": 18,
+      "samples": [
+        "lib/widgets/instructions_card.dart",
+        "lib/widgets/mode_selector_pill.dart",
+        "lib/widgets/mood_banner.dart",
+        "lib/widgets/mood_history_entry.dart",
+        "lib/widgets/pagination_dots.dart",
+        "lib/widgets/related_article_card.dart",
+        "lib/widgets/self_care_card.dart",
+        "lib/widgets/stat_card.dart",
+        "lib/widgets/tip_callout_block.dart",
+        "lib/widgets/topic_chip_bar.dart"
+      ]
+    },
+    {
+      "pattern": "lib/router/app_router.dart",
+      "count": 1,
+      "samples": [
+        "lib/router/app_router.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "navigations.json"
+  ],
+  "blocked": false
+}

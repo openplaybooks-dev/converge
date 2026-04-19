@@ -1,0 +1,32 @@
+{
+  "taskId": "03-build-screens/008-mood-wellness/008-02-design",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/mood-wellness/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/mood-wellness/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/META.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/META.md"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/mood-wellness/META.md",
+    ".stitch/designs/mood-wellness/design.html"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,25 @@
+{
+  "taskId": "06-wire-screens/002-analyze-navigations",
+  "checks": [
+    {
+      "id": "manifest-exists",
+      "description": "navigations.json was created",
+      "cmd": "test -f navigations.json"
+    },
+    {
+      "id": "manifest-has-screens",
+      "description": "Manifest contains at least 5 screens",
+      "cmd": "node -e \"const n=JSON.parse(require('fs').readFileSync('navigations.json','utf-8')); process.exit(n.screens && n.screens.length >= 5 ? 0 : 1)\""
+    },
+    {
+      "id": "manifest-has-elements",
+      "description": "Manifest contains at least 10 interactive elements total",
+      "cmd": "node -e \"const n=JSON.parse(require('fs').readFileSync('navigations.json','utf-8')); const total=n.screens.reduce((s,sc)=>s+sc.elements.length,0); process.exit(total >= 10 ? 0 : 1)\""
+    },
+    {
+      "id": "every-element-has-id",
+      "description": "Every element has a unique elementId",
+      "cmd": "node -e \"const n=JSON.parse(require('fs').readFileSync('navigations.json','utf-8')); const ok=n.screens.every(s=>s.elements.every(e=>e.elementId)); process.exit(ok ? 0 : 1)\""
+    }
+  ]
+}

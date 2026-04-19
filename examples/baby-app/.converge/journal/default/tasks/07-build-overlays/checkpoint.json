@@ -1,0 +1,22 @@
+{
+  "type": "task",
+  "id": "07-build-overlays",
+  "status": "seeded",
+  "lastUpdated": "2026-04-19T03:40:23.399Z",
+  "createdAt": "2026-04-19T02:09:30.608Z",
+  "progress": {
+    "totalChildren": 7,
+    "completedChildren": 6,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-mode-selector",
+      "002-weight-entry",
+      "003-mood-log",
+      "004-health-log-entry",
+      "005-cycle-entry",
+      "006-due-date-picker",
+      "007-delete-entry"
+    ],
+    "lastProgressUpdate": "2026-04-19T03:40:23.397Z"
+  }
+}

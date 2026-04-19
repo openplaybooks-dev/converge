@@ -1,0 +1,32 @@
+{
+  "taskId": "07-build-overlays/007-delete-entry/007-02-design",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/delete-entry/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/delete-entry/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/META.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/META.md"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/delete-entry/META.md",
+    ".stitch/designs/delete-entry/design.html"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/003-wire-per-screen/001-BottomNav-onDestinationSelected-1",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T00:49:22.934Z",
+  "createdAt": "2026-04-19T00:49:22.866Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T00:49:22.866Z",
+      "completedAt": "2026-04-19T00:49:22.930Z",
+      "outcome": "success",
+      "durationMs": 64
+    }
+  ],
+  "currentAttempt": 1
+}

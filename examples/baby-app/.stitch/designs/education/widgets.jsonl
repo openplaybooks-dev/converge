@@ -1,0 +1,5 @@
+{"name": "TopicChipBar", "grep": "_buildTopicChips", "description": "Horizontal scrollable list of topic filter chips with selection state", "shared": true}
+{"name": "FeaturedArticleCard", "grep": "_buildFeaturedCard", "description": "Large hero card with breathing animation icon, title, topic badge, and description", "shared": false}
+{"name": "ArticleCard", "grep": "_buildArticleCard", "description": "List-item card with thumbnail icon, article title, topic label, and bookmark indicator", "shared": true}
+{"name": "BookmarkedArticleCard", "grep": "_buildBookmarkedCard", "description": "Compact card with tall thumbnail area and article info for horizontal bookmarked scroll", "shared": true}
+{"name": "BottomNavBar", "grep": "_buildBottomNav", "description": "Five-tab bottom navigation bar with Home, Progress, Health, Wellness, and Learn destinations", "shared": true}

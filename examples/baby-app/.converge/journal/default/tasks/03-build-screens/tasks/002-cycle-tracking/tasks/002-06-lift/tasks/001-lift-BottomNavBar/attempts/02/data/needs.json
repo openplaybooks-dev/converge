@@ -1,0 +1,16 @@
+{
+  "taskId": "03-build-screens/002-cycle-tracking/002-06-lift/001-lift-BottomNavBar",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "lib/screens/cycle_tracking/widgets/bottom_nav_bar.dart",
+      "count": 0,
+      "samples": []
+    }
+  ],
+  "outputs": [
+    "lib/widgets/bottom_nav_bar.dart"
+  ],
+  "blocked": true,
+  "blockedReason": "Missing required inputs: lib/screens/cycle_tracking/widgets/bottom_nav_bar.dart"
+}

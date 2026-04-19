@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/007-health-log/007-04-analyze",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/health_log/health_log_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/health_log/health_log_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/health-log/widgets.jsonl"
+  ],
+  "blocked": false
+}

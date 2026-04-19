@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-build-screens/007-health-log/007-03-convert",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T14:05:05.507Z",
+  "createdAt": "2026-04-18T14:02:06.512Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T14:02:06.512Z",
+      "completedAt": "2026-04-18T14:05:05.504Z",
+      "outcome": "success",
+      "durationMs": 178992
+    }
+  ],
+  "currentAttempt": 1
+}

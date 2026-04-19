@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/011-settings/011-05-split/001-split-ProfileSection",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/settings/settings_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/settings/settings_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/settings/widgets/profile_section.dart"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "03-build-screens/004-pregnancy-progress/004-05-split/005-split-ExerciseGuideCard",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T17:54:47.129Z",
+  "createdAt": "2026-04-18T16:18:33.222Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T16:18:33.222Z",
+      "completedAt": "2026-04-18T16:20:46.244Z",
+      "outcome": "success",
+      "durationMs": 133022
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-18T17:53:34.001Z",
+      "completedAt": "2026-04-18T17:54:47.127Z",
+      "outcome": "success",
+      "durationMs": 73127
+    }
+  ],
+  "currentAttempt": 2
+}

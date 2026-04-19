@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/003-wire-per-screen/009-education",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T01:10:18.865Z",
+  "createdAt": "2026-04-19T01:10:18.860Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T01:10:18.860Z",
+      "completedAt": "2026-04-19T01:10:18.863Z",
+      "outcome": "success",
+      "durationMs": 3
+    }
+  ],
+  "currentAttempt": 1
+}

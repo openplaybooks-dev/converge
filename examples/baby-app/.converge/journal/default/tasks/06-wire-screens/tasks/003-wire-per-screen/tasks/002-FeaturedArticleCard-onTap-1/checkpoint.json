@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/003-wire-per-screen/002-FeaturedArticleCard-onTap-1",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T01:02:03.927Z",
+  "createdAt": "2026-04-19T01:01:14.877Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T01:01:14.877Z",
+      "completedAt": "2026-04-19T01:02:03.923Z",
+      "outcome": "success",
+      "durationMs": 49046
+    }
+  ],
+  "currentAttempt": 1
+}

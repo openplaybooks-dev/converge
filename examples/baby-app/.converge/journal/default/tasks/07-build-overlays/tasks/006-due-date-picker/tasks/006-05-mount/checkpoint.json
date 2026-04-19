@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/006-due-date-picker/006-05-mount",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T03:02:57.917Z",
+  "createdAt": "2026-04-19T03:01:08.668Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T03:01:08.668Z",
+      "completedAt": "2026-04-19T03:02:57.910Z",
+      "outcome": "success",
+      "durationMs": 109242
+    }
+  ],
+  "currentAttempt": 1
+}

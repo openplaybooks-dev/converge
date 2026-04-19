@@ -81,6 +81,7 @@ ls README.md ARCHITECTURE.md DESIGN.md TODO.md CHANGELOG.md docs/ 2>/dev/null
 
 # Existing converge
 ls -la .converge/ 2>/dev/null
+ls .converge/playbooks/ 2>/dev/null
 ```
 
 **Capture:**
@@ -91,7 +92,7 @@ ls -la .converge/ 2>/dev/null
 - **Last commit:** "feat: add user dashboard" (2 days ago)
 - **Uncommitted:** 4 modified files
 - **Documentation:** README.md exists, no architecture docs
-- **Converge:** Not initialized / Exists with 3 epics
+- **Converge:** Not initialized / Exists with playbook "default"
 ```
 
 ---
@@ -192,6 +193,17 @@ Combine all findings into `.converge/analysis.md`:
 - Current state assessed (build status, test status)
 - File structure mapped (key directories, file counts)
 - External dependencies listed
+
+---
+
+## Context Flow (Progressive Enrichment)
+
+This is the **first enrichment layer** in the planning pipeline.
+
+- **Context In:** Raw project directory (no prior converge analysis)
+- **Context Out:** `.converge/analysis.md` — project snapshot (tech stack, state, patterns, dependencies)
+
+Analysis performs a broad scan — everything about the project as it exists today. The next phase (Discovery) will narrow this down to what matters for the user's goals. Analysis answers "what exists?"; Discovery answers "what matters?"
 
 ---
 

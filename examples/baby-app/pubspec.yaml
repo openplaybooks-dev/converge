@@ -1,0 +1,46 @@
+name: folio
+description: A mobile-first novel reader application built with Flutter.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.0
+  flutter: ^3.24.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.1.0
+  riverpod_annotation: ^4.0.0
+  go_router: ^17.2.1
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.9.0
+  dio: ^5.7.0
+  cached_network_image: ^3.4.1
+  flutter_animate: ^4.5.2
+  google_fonts: ^8.0.2
+  gap: ^3.0.1
+  intl: ^0.20.2
+  flutter_svg: ^2.0.17
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.4.13
+  freezed: ^3.2.3
+  json_serializable: ^6.8.0
+  riverpod_generator: ^4.0.0+1
+  riverpod_lint: ^3.1.0
+  custom_lint: ^0.8.1
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/icons/
+    - assets/images/
+    - assets/illustrations/
+    - assets/illustrations/baby-sizes/
+    - assets/illustrations/empty-states/
+    - assets/illustrations/exercises/

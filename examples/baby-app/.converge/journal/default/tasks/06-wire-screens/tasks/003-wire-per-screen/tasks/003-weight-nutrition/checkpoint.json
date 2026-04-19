@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/003-wire-per-screen/003-weight-nutrition",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T01:09:36.025Z",
+  "createdAt": "2026-04-19T01:09:36.019Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T01:09:36.019Z",
+      "completedAt": "2026-04-19T01:09:36.023Z",
+      "outcome": "success",
+      "durationMs": 4
+    }
+  ],
+  "currentAttempt": 1
+}

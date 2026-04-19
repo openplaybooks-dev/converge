@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/008-mood-wellness/008-06-lift/001-lift-MoodHistoryEntry",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Shared widget file exists",
+      "cmd": "test -f lib/widgets/mood_history_entry.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/widgets/mood_history_entry.dart"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "taskId": "03-build-screens/010-article-reader/010-02-design",
+  "epicId": "default",
+  "focusPath": "default/03-build-screens/010-article-reader/010-02-design",
+  "status": "running",
+  "startedAt": "2026-04-18T14:29:47.312Z",
+  "attempt": 1,
+  "gapsResolved": 0,
+  "gapsFailed": 0,
+  "checklist": [
+    {
+      "id": "subtask:spawn-1",
+      "type": "subtask",
+      "description": "stitch-generate",
+      "details": ".converge/skills/stitch-generate/SKILL.md",
+      "done": false
+    }
+  ]
+}

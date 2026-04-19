@@ -1,0 +1,5 @@
+{"name": "GreetingHeader", "grep": "_buildGreetingHeader", "description": "Row with user name heading, date caption, and circular avatar with initials", "shared": true}
+{"name": "ModeSelectorPill", "grep": "_buildModeSelectorPill", "description": "Centered pill button showing current mode with chevron-down, opens bottom sheet on tap", "shared": true}
+{"name": "HeroIllustrationCard", "grep": "_buildHeroCard", "description": "Full-width card with fetal development illustration, week number, and baby size comparison text with breathing animation", "shared": false}
+{"name": "StatCard", "grep": "class _StatCard", "description": "Tappable stat card with icon, large numeric value with unit, and label — used in 2-column grid", "shared": true}
+{"name": "PaginationDots", "grep": "class _PaginationDot", "description": "Row of animated pagination dots indicating swipeable content position", "shared": true}

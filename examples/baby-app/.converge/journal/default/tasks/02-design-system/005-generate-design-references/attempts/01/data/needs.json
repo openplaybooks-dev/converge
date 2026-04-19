@@ -1,0 +1,34 @@
+{
+  "taskId": "02-design-system/005-generate-design-references",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/screens.json",
+      "count": 1,
+      "samples": [
+        ".stitch/screens.json"
+      ]
+    },
+    {
+      "pattern": ".stitch/UX.md",
+      "count": 1,
+      "samples": [
+        ".stitch/UX.md"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/system/META.md",
+    ".stitch/system/single-screen.html",
+    ".stitch/system/multi-state-screen.html",
+    ".stitch/system/celebration-screen.html"
+  ],
+  "blocked": false
+}

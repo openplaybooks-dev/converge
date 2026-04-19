@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/006-due-date-picker/006-04-connect",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T03:01:08.545Z",
+  "createdAt": "2026-04-19T03:01:06.598Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T03:01:06.598Z",
+      "completedAt": "2026-04-19T03:01:08.541Z",
+      "outcome": "success",
+      "durationMs": 1943
+    }
+  ],
+  "currentAttempt": 1
+}

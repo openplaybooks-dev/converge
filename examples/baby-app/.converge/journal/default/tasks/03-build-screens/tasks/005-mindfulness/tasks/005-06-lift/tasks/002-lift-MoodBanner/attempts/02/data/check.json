@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/005-mindfulness/005-06-lift/002-lift-MoodBanner",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Shared widget file exists",
+      "cmd": "test -f lib/widgets/mood_banner.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/widgets/mood_banner.dart"
+    }
+  ]
+}

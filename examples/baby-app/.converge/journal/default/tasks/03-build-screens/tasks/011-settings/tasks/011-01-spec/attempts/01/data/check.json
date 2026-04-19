@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/011-settings/011-01-spec",
+  "checks": [
+    {
+      "id": "spec-exists",
+      "description": "SPEC.md exists for settings",
+      "cmd": "test -f .stitch/designs/settings/SPEC.md"
+    },
+    {
+      "id": "spec-has-content",
+      "description": "SPEC.md has >50 lines",
+      "cmd": "test $(wc -l < .stitch/designs/settings/SPEC.md) -gt 50"
+    }
+  ]
+}

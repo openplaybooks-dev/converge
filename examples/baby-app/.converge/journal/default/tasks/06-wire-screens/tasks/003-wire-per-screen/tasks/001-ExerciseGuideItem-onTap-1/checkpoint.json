@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/003-wire-per-screen/001-ExerciseGuideItem-onTap-1",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T00:50:14.589Z",
+  "createdAt": "2026-04-19T00:49:23.047Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T00:49:23.047Z",
+      "completedAt": "2026-04-19T00:50:14.586Z",
+      "outcome": "success",
+      "durationMs": 51540
+    }
+  ],
+  "currentAttempt": 1
+}

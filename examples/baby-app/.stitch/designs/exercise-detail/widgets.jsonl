@@ -1,0 +1,5 @@
+{"name": "ExerciseHeroCard", "grep": "_buildHeroCard", "description": "Hero illustration card with breathing animation, exercise name, and category chip", "shared": false}
+{"name": "InstructionsCard", "grep": "_buildInstructionsCard", "description": "Numbered step-by-step instructions list in a card with dividers", "shared": true}
+{"name": "ExerciseChipsRow", "grep": "_buildChipsRow", "description": "Row of duration and difficulty info chips with icons", "shared": true}
+{"name": "BenefitsCard", "grep": "_buildBenefitsCard", "description": "Benefits list card with check-circle icons for each benefit item", "shared": true}
+{"name": "StartExerciseButton", "grep": "Start Exercise", "description": "Full-width elevated CTA button in bottom navigation bar with fade-in animation", "shared": false}

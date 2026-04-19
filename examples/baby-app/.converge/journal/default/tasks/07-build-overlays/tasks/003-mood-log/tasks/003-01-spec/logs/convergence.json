@@ -1,0 +1,252 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "07-build-overlays/003-mood-log/003-01-spec-missing-output-.stitch/designs/mood-log/SPEC.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-build-overlays/003-mood-log/003-01-spec",
+            "severity": "high",
+            "description": "[07-build-overlays/003-mood-log/003-01-spec] Task output not created: .stitch/designs/mood-log/SPEC.md",
+            "source": "unit",
+            "detected": "2026-04-19T02:26:26.304Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/07-build-overlays/tasks/003-mood-log/tasks/003-01-spec",
+              "taskId": "07-build-overlays/003-mood-log/003-01-spec",
+              "taskTitle": "Spec: Mood Logging",
+              "taskPrompt": "# Spec: Mood Logging\n\nGenerate the overlay specification for **Mood Logging** (`mood-log`).\n\n## Inputs\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/UX.md` — UX overview\n- `.stitch/screens.json` — Screen and overlay definitions\n- `lib/screens/mood_wellness/mood_wellness_screen.dart` — Parent screen (check for existing trigger placeholders)\n\n## Context\n\nThis is an **overlay** (bottom-sheet), not a full screen. It is triggered from the **mood-wellness** screen. Overlays are presented using `showModalBottomSheet()`, `showDialog()`, or persistent bar patterns — never via GoRouter navigation.\n\n**IMPORTANT:** Read the parent screen file (`lib/screens/mood_wellness/mood_wellness_screen.dart`) — the `03-build-screens` pipeline typically generates screens with placeholder triggers (e.g., `Placeholder()` builder, `SnackBar` stub, `debugPrint` stub) where overlays should be wired. Document the existing trigger location and placeholder pattern in the spec so the `05-mount` step knows exactly what to replace.\n\n## Task\n\nRead inputs and produce `.stitch/designs/mood-log/SPEC.md` containing:\n\n1. **Overlay Title** — Mood Logging\n2. **Overlay Type** — bottom-sheet (bottom-sheet | dialog | persistent-bar)\n3. **Parent Screen** — mood-wellness\n4. **Trigger** — What user action opens this overlay (e.g., tap button, long press)\n5. **Purpose** — What this overlay does and why it exists\n6. **Widget Name** — `MoodLog`\n7. **Design Tokens** — Colors, typography, spacing from DESIGN.md\n8. **Layout** — Container structure:\n   - For bottom-sheet: drag handle, content area, action buttons, max height\n   - For dialog: title bar, content, action row, max width\n   - For persistent-bar: height, background, content layout\n9. **Sections** — Each visual section with:\n   - Description of content\n   - Widget type (ListView, Column, Wrap, etc.)\n   - Interactive elements (buttons, toggles, inputs)\n10. **Data** — Entities and fields displayed/edited\n11. **Dismiss Behavior** — How the overlay closes (swipe down, tap outside, confirm button, cancel)\n12. **Return Value** — What data (if any) the overlay passes back to the parent when dismissed\n13. **Accessibility** — Semantics labels, focus trapping, screen reader announcements\n\n## Success Criteria\n\n- `.stitch/designs/mood-log/SPEC.md` exists and has >30 lines\n- All required sections present\n- Overlay type and parent screen clearly identified\n- Trigger and dismiss behavior documented\n- Design tokens reference DESIGN.md values",
+              "taskInputs": [
+                ".stitch/system/DESIGN.md",
+                ".stitch/UX.md",
+                ".stitch/screens.json",
+                "lib/screens/mood_wellness/mood_wellness_screen.dart"
+              ],
+              "factId": "file-exists:test -f \".stitch/designs/mood-log/SPEC.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "07-build-overlays/003-mood-log/003-01-spec-check-failed-spec-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-build-overlays/003-mood-log/003-01-spec",
+            "severity": "high",
+            "description": "[07-build-overlays/003-mood-log/003-01-spec] Check failed: SPEC.md exists for mood-log",
+            "source": "unit",
+            "detected": "2026-04-19T02:26:26.306Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "spec-exists",
+              "checkCmd": "test -f .stitch/designs/mood-log/SPEC.md",
+              "checkDescription": "SPEC.md exists for mood-log",
+              "checkOutput": "Command failed: test -f .stitch/designs/mood-log/SPEC.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Spec: Mood Logging\n\nGenerate the overlay specification for **Mood Logging** (`mood-log`).\n\n## Inputs\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/UX.md` — UX overview\n- `.stitch/screens.json` — Screen and overlay definitions\n- `lib/screens/mood_wellness/mood_wellness_screen.dart` — Parent screen (check for existing trigger placeholders)\n\n## Context\n\nThis is an **overlay** (bottom-sheet), not a full screen. It is triggered from the **mood-wellness** screen. Overlays are presented using `showModalBottomSheet()`, `showDialog()`, or persistent bar patterns — never via GoRouter navigation.\n\n**IMPORTANT:** Read the parent screen file (`lib/screens/mood_wellness/mood_wellness_screen.dart`) — the `03-build-screens` pipeline typically generates screens with placeholder triggers (e.g., `Placeholder()` builder, `SnackBar` stub, `debugPrint` stub) where overlays should be wired. Document the existing trigger location and placeholder pattern in the spec so the `05-mount` step knows exactly what to replace.\n\n## Task\n\nRead inputs and produce `.stitch/designs/mood-log/SPEC.md` containing:\n\n1. **Overlay Title** — Mood Logging\n2. **Overlay Type** — bottom-sheet (bottom-sheet | dialog | persistent-bar)\n3. **Parent Screen** — mood-wellness\n4. **Trigger** — What user action opens this overlay (e.g., tap button, long press)\n5. **Purpose** — What this overlay does and why it exists\n6. **Widget Name** — `MoodLog`\n7. **Design Tokens** — Colors, typography, spacing from DESIGN.md\n8. **Layout** — Container structure:\n   - For bottom-sheet: drag handle, content area, action buttons, max height\n   - For dialog: title bar, content, action row, max width\n   - For persistent-bar: height, background, content layout\n9. **Sections** — Each visual section with:\n   - Description of content\n   - Widget type (ListView, Column, Wrap, etc.)\n   - Interactive elements (buttons, toggles, inputs)\n10. **Data** — Entities and fields displayed/edited\n11. **Dismiss Behavior** — How the overlay closes (swipe down, tap outside, confirm button, cancel)\n12. **Return Value** — What data (if any) the overlay passes back to the parent when dismissed\n13. **Accessibility** — Semantics labels, focus trapping, screen reader announcements\n\n## Success Criteria\n\n- `.stitch/designs/mood-log/SPEC.md` exists and has >30 lines\n- All required sections present\n- Overlay type and parent screen clearly identified\n- Trigger and dismiss behavior documented\n- Design tokens reference DESIGN.md values",
+              "taskId": "07-build-overlays/003-mood-log/003-01-spec",
+              "taskTitle": "Spec: Mood Logging",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/07-build-overlays/tasks/003-mood-log/tasks/003-01-spec",
+              "factId": "check:spec-exists"
+            }
+          },
+          {
+            "id": "07-build-overlays/003-mood-log/003-01-spec-check-failed-spec-has-content",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-build-overlays/003-mood-log/003-01-spec",
+            "severity": "high",
+            "description": "[07-build-overlays/003-mood-log/003-01-spec] Check failed: SPEC.md has >30 lines",
+            "source": "unit",
+            "detected": "2026-04-19T02:26:26.309Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "spec-has-content",
+              "checkCmd": "test $(wc -l < .stitch/designs/mood-log/SPEC.md) -gt 30",
+              "checkDescription": "SPEC.md has >30 lines",
+              "checkOutput": "/bin/bash: .stitch/designs/mood-log/SPEC.md: No such file or directory\n/bin/bash: line 0: test: -gt: unary operator expected",
+              "checkExitCode": 2,
+              "taskPrompt": "# Spec: Mood Logging\n\nGenerate the overlay specification for **Mood Logging** (`mood-log`).\n\n## Inputs\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/UX.md` — UX overview\n- `.stitch/screens.json` — Screen and overlay definitions\n- `lib/screens/mood_wellness/mood_wellness_screen.dart` — Parent screen (check for existing trigger placeholders)\n\n## Context\n\nThis is an **overlay** (bottom-sheet), not a full screen. It is triggered from the **mood-wellness** screen. Overlays are presented using `showModalBottomSheet()`, `showDialog()`, or persistent bar patterns — never via GoRouter navigation.\n\n**IMPORTANT:** Read the parent screen file (`lib/screens/mood_wellness/mood_wellness_screen.dart`) — the `03-build-screens` pipeline typically generates screens with placeholder triggers (e.g., `Placeholder()` builder, `SnackBar` stub, `debugPrint` stub) where overlays should be wired. Document the existing trigger location and placeholder pattern in the spec so the `05-mount` step knows exactly what to replace.\n\n## Task\n\nRead inputs and produce `.stitch/designs/mood-log/SPEC.md` containing:\n\n1. **Overlay Title** — Mood Logging\n2. **Overlay Type** — bottom-sheet (bottom-sheet | dialog | persistent-bar)\n3. **Parent Screen** — mood-wellness\n4. **Trigger** — What user action opens this overlay (e.g., tap button, long press)\n5. **Purpose** — What this overlay does and why it exists\n6. **Widget Name** — `MoodLog`\n7. **Design Tokens** — Colors, typography, spacing from DESIGN.md\n8. **Layout** — Container structure:\n   - For bottom-sheet: drag handle, content area, action buttons, max height\n   - For dialog: title bar, content, action row, max width\n   - For persistent-bar: height, background, content layout\n9. **Sections** — Each visual section with:\n   - Description of content\n   - Widget type (ListView, Column, Wrap, etc.)\n   - Interactive elements (buttons, toggles, inputs)\n10. **Data** — Entities and fields displayed/edited\n11. **Dismiss Behavior** — How the overlay closes (swipe down, tap outside, confirm button, cancel)\n12. **Return Value** — What data (if any) the overlay passes back to the parent when dismissed\n13. **Accessibility** — Semantics labels, focus trapping, screen reader announcements\n\n## Success Criteria\n\n- `.stitch/designs/mood-log/SPEC.md` exists and has >30 lines\n- All required sections present\n- Overlay type and parent screen clearly identified\n- Trigger and dismiss behavior documented\n- Design tokens reference DESIGN.md values",
+              "taskId": "07-build-overlays/003-mood-log/003-01-spec",
+              "taskTitle": "Spec: Mood Logging",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/07-build-overlays/tasks/003-mood-log/tasks/003-01-spec",
+              "factId": "check:spec-has-content"
+            }
+          }
+        ],
+        "durationMs": 21
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 15
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 31
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#8",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 112234
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-19T02:26:26.288Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-19T02:26:26.289Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-19T02:26:26.310Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-19T02:26:26.311Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-19T02:26:26.326Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#8",
+      "iteration": 1,
+      "ts": "2026-04-19T02:28:18.560Z"
+    },
+    {
+      "from": "run-strategy:task-run#8",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-19T02:28:18.593Z"
+    }
+  ]
+}

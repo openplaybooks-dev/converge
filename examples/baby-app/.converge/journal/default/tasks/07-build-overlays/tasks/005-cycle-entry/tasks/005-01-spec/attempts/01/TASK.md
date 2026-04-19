@@ -1,0 +1,49 @@
+# Task: 07-build-overlays/005-cycle-entry/005-01-spec
+
+# Spec: Cycle Entry
+
+Generate the overlay specification for **Cycle Entry** (`cycle-entry`).
+
+## Inputs
+- `.stitch/system/DESIGN.md` — Design system
+- `.stitch/UX.md` — UX overview
+- `.stitch/screens.json` — Screen and overlay definitions
+- `lib/screens/cycle_tracking/cycle_tracking_screen.dart` — Parent screen (check for existing trigger placeholders)
+
+## Context
+
+This is an **overlay** (bottom-sheet), not a full screen. It is triggered from the **cycle-tracking** screen. Overlays are presented using `showModalBottomSheet()`, `showDialog()`, or persistent bar patterns — never via GoRouter navigation.
+
+**IMPORTANT:** Read the parent screen file (`lib/screens/cycle_tracking/cycle_tracking_screen.dart`) — the `03-build-screens` pipeline typically generates screens with placeholder triggers (e.g., `Placeholder()` builder, `SnackBar` stub, `debugPrint` stub) where overlays should be wired. Document the existing trigger location and placeholder pattern in the spec so the `05-mount` step knows exactly what to replace.
+
+## Task
+
+Read inputs and produce `.stitch/designs/cycle-entry/SPEC.md` containing:
+
+1. **Overlay Title** — Cycle Entry
+2. **Overlay Type** — bottom-sheet (bottom-sheet | dialog | persistent-bar)
+3. **Parent Screen** — cycle-tracking
+4. **Trigger** — What user action opens this overlay (e.g., tap button, long press)
+5. **Purpose** — What this overlay does and why it exists
+6. **Widget Name** — `CycleEntry`
+7. **Design Tokens** — Colors, typography, spacing from DESIGN.md
+8. **Layout** — Container structure:
+   - For bottom-sheet: drag handle, content area, action buttons, max height
+   - For dialog: title bar, content, action row, max width
+   - For persistent-bar: height, background, content layout
+9. **Sections** — Each visual section with:
+   - Description of content
+   - Widget type (ListView, Column, Wrap, etc.)
+   - Interactive elements (buttons, toggles, inputs)
+10. **Data** — Entities and fields displayed/edited
+11. **Dismiss Behavior** — How the overlay closes (swipe down, tap outside, confirm button, cancel)
+12. **Return Value** — What data (if any) the overlay passes back to the parent when dismissed
+13. **Accessibility** — Semantics labels, focus trapping, screen reader announcements
+
+## Success Criteria
+
+- `.stitch/designs/cycle-entry/SPEC.md` exists and has >30 lines
+- All required sections present
+- Overlay type and parent screen clearly identified
+- Trigger and dismiss behavior documented
+- Design tokens reference DESIGN.md values

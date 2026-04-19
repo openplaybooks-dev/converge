@@ -1,0 +1,31 @@
+{
+  "taskId": "07-build-overlays/004-health-log-entry/004-05-mount",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/widgets/overlays/health_log_entry/health_log_entry.dart",
+      "count": 1,
+      "samples": [
+        "lib/widgets/overlays/health_log_entry/health_log_entry.dart"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/health-log-entry/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/health-log-entry/SPEC.md"
+      ]
+    },
+    {
+      "pattern": "lib/screens/health_log/health_log_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/health_log/health_log_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/health_log/health_log_screen.dart"
+  ],
+  "blocked": false
+}

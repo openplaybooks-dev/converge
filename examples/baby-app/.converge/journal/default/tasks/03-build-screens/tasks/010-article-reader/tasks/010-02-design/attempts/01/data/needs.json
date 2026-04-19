@@ -1,0 +1,32 @@
+{
+  "taskId": "03-build-screens/010-article-reader/010-02-design",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/article-reader/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/article-reader/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/META.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/META.md"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/article-reader/META.md",
+    ".stitch/designs/article-reader/design.html"
+  ],
+  "blocked": false
+}

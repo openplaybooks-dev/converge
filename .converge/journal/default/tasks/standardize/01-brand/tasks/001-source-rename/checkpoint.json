@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "01-brand/001-source-rename",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T11:13:20.622Z",
+  "createdAt": "2026-04-18T11:11:47.551Z",
+  "attempts": [
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-18T11:11:47.710Z",
+      "completedAt": "2026-04-18T11:13:20.622Z",
+      "outcome": "success",
+      "durationMs": 92912
+    }
+  ],
+  "currentAttempt": 2
+}

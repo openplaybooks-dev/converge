@@ -1,0 +1,15 @@
+{
+  "taskId": "07-build-overlays/006-due-date-picker/006-01-spec",
+  "checks": [
+    {
+      "id": "spec-exists",
+      "description": "SPEC.md exists for due-date-picker",
+      "cmd": "test -f .stitch/designs/due-date-picker/SPEC.md"
+    },
+    {
+      "id": "spec-has-content",
+      "description": "SPEC.md has >30 lines",
+      "cmd": "test $(wc -l < .stitch/designs/due-date-picker/SPEC.md) -gt 30"
+    }
+  ]
+}

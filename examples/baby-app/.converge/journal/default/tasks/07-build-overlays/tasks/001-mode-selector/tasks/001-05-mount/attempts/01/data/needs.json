@@ -1,0 +1,31 @@
+{
+  "taskId": "07-build-overlays/001-mode-selector/001-05-mount",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/widgets/overlays/mode_selector/mode_selector.dart",
+      "count": 1,
+      "samples": [
+        "lib/widgets/overlays/mode_selector/mode_selector.dart"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/mode-selector/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/mode-selector/SPEC.md"
+      ]
+    },
+    {
+      "pattern": "lib/screens/home/home_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/home/home_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/home/home_screen.dart"
+  ],
+  "blocked": false
+}

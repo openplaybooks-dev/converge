@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/004-pregnancy-progress/004-05-split/001-split-HeroHeader",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Widget file exists",
+      "cmd": "test -f lib/screens/pregnancy_progress/widgets/hero_header.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/screens/pregnancy_progress/widgets/hero_header.dart"
+    }
+  ]
+}

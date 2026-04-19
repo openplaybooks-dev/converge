@@ -1,0 +1,352 @@
+{
+  "iteration": 2,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 111
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "05-add-behavior/002-create-models-missing-output-lib/models/**/*.dart",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-add-behavior/002-create-models",
+            "severity": "high",
+            "description": "[05-add-behavior/002-create-models] Task output not created: lib/models/**/*.dart",
+            "source": "unit",
+            "detected": "2026-04-18T12:06:12.261Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/05-add-behavior/002-create-models",
+              "taskId": "05-add-behavior/002-create-models",
+              "taskTitle": "Create Dart Data Models",
+              "taskPrompt": "# Create Dart Data Models\n\nRead **flutter-architecting-apps** for layered architecture patterns (domain models in the Data layer) and **flutter-handling-http-and-json** for JSON serialization with `json_serializable` and `freezed`.\n\nCreate Dart data models from the data model specification using Freezed.\n\n**Read the data model specification:**\n\n```bash\ncat data-models.md\n```\n\n**Your Task:**\n\nCreate Freezed data classes in `lib/models/` for all entities in the data model.\n\n**Instructions:**\n\n1. Read the data model specification\n2. For each entity, create a Freezed data class with:\n   - All fields with correct Dart types\n   - Optional fields marked with `?`\n   - Enum types for fields with specific values\n   - `DateTime` for timestamps\n   - `@freezed` annotation for immutability\n   - `fromJson` / `toJson` factory via `json_serializable`\n3. Export all models from `lib/models/models.dart` barrel file\n4. Run `dart run build_runner build` to generate `.freezed.dart` and `.g.dart` files\n\n## Example Model\n\n```dart\nimport 'package:freezed_annotation/freezed_annotation.dart';\n\npart 'novel.freezed.dart';\npart 'novel.g.dart';\n\n@freezed\nclass Novel with _$Novel {\n  const factory Novel({\n    required String id,\n    required String title,\n    required String author,\n    String? coverUrl,\n    @Default(0) int chapterCount,\n    @Default(0.0) double rating,\n  }) = _Novel;\n\n  factory Novel.fromJson(Map<String, dynamic> json) => _$NovelFromJson(json);\n}\n```\n\n## Success Criteria\n\n- All entities from data-models.md converted to Freezed classes\n- Correct Dart types (no `dynamic`)\n- Optional fields marked with `?`\n- Enum types for constrained values\n- Barrel export file exists at `lib/models/models.dart`\n- Dart analysis passes",
+              "taskInputs": [
+                "data-models.md"
+              ],
+              "factId": "glob-check:ls lib/models/**/*.dart 2>/dev/null | head -1",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "05-add-behavior/002-create-models-check-failed-models-dir-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-add-behavior/002-create-models",
+            "severity": "high",
+            "description": "[05-add-behavior/002-create-models] Check failed: Model files exist",
+            "source": "unit",
+            "detected": "2026-04-18T12:06:12.265Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "models-dir-exists",
+              "checkCmd": "find lib/models -name '*.dart' -type f | wc -l | awk '{if ($1 > 0) exit 0; exit 1}'",
+              "checkDescription": "Model files exist",
+              "checkOutput": "Command failed: find lib/models -name '*.dart' -type f | wc -l | awk '{if ($1 > 0) exit 0; exit 1}'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Create Dart Data Models\n\nRead **flutter-architecting-apps** for layered architecture patterns (domain models in the Data layer) and **flutter-handling-http-and-json** for JSON serialization with `json_serializable` and `freezed`.\n\nCreate Dart data models from the data model specification using Freezed.\n\n**Read the data model specification:**\n\n```bash\ncat data-models.md\n```\n\n**Your Task:**\n\nCreate Freezed data classes in `lib/models/` for all entities in the data model.\n\n**Instructions:**\n\n1. Read the data model specification\n2. For each entity, create a Freezed data class with:\n   - All fields with correct Dart types\n   - Optional fields marked with `?`\n   - Enum types for fields with specific values\n   - `DateTime` for timestamps\n   - `@freezed` annotation for immutability\n   - `fromJson` / `toJson` factory via `json_serializable`\n3. Export all models from `lib/models/models.dart` barrel file\n4. Run `dart run build_runner build` to generate `.freezed.dart` and `.g.dart` files\n\n## Example Model\n\n```dart\nimport 'package:freezed_annotation/freezed_annotation.dart';\n\npart 'novel.freezed.dart';\npart 'novel.g.dart';\n\n@freezed\nclass Novel with _$Novel {\n  const factory Novel({\n    required String id,\n    required String title,\n    required String author,\n    String? coverUrl,\n    @Default(0) int chapterCount,\n    @Default(0.0) double rating,\n  }) = _Novel;\n\n  factory Novel.fromJson(Map<String, dynamic> json) => _$NovelFromJson(json);\n}\n```\n\n## Success Criteria\n\n- All entities from data-models.md converted to Freezed classes\n- Correct Dart types (no `dynamic`)\n- Optional fields marked with `?`\n- Enum types for constrained values\n- Barrel export file exists at `lib/models/models.dart`\n- Dart analysis passes",
+              "taskId": "05-add-behavior/002-create-models",
+              "taskTitle": "Create Dart Data Models",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/05-add-behavior/002-create-models",
+              "factId": "check:models-dir-exists"
+            }
+          },
+          {
+            "id": "05-add-behavior/002-create-models-check-failed-dart-analysis",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-add-behavior/002-create-models",
+            "severity": "high",
+            "description": "[05-add-behavior/002-create-models] Check failed: Dart analysis passes on models",
+            "source": "unit",
+            "detected": "2026-04-18T12:06:12.354Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-analysis",
+              "checkCmd": "dart analyze --no-fatal-infos lib/models/",
+              "checkDescription": "Dart analysis passes on models",
+              "checkOutput": "Cannot negate option \"--no-fatal-infos\".\n\nUsage: dart analyze [arguments] [<directory>]\n-h, --help                   Print this usage information.\n    --fatal-infos            Treat info level issues as fatal.\n    --[no-]fatal-warnings    Treat warning level issues as fatal.\n                             (defaults to on)\n\nRun \"dart help\" to see global options.",
+              "checkExitCode": 64,
+              "taskPrompt": "# Create Dart Data Models\n\nRead **flutter-architecting-apps** for layered architecture patterns (domain models in the Data layer) and **flutter-handling-http-and-json** for JSON serialization with `json_serializable` and `freezed`.\n\nCreate Dart data models from the data model specification using Freezed.\n\n**Read the data model specification:**\n\n```bash\ncat data-models.md\n```\n\n**Your Task:**\n\nCreate Freezed data classes in `lib/models/` for all entities in the data model.\n\n**Instructions:**\n\n1. Read the data model specification\n2. For each entity, create a Freezed data class with:\n   - All fields with correct Dart types\n   - Optional fields marked with `?`\n   - Enum types for fields with specific values\n   - `DateTime` for timestamps\n   - `@freezed` annotation for immutability\n   - `fromJson` / `toJson` factory via `json_serializable`\n3. Export all models from `lib/models/models.dart` barrel file\n4. Run `dart run build_runner build` to generate `.freezed.dart` and `.g.dart` files\n\n## Example Model\n\n```dart\nimport 'package:freezed_annotation/freezed_annotation.dart';\n\npart 'novel.freezed.dart';\npart 'novel.g.dart';\n\n@freezed\nclass Novel with _$Novel {\n  const factory Novel({\n    required String id,\n    required String title,\n    required String author,\n    String? coverUrl,\n    @Default(0) int chapterCount,\n    @Default(0.0) double rating,\n  }) = _Novel;\n\n  factory Novel.fromJson(Map<String, dynamic> json) => _$NovelFromJson(json);\n}\n```\n\n## Success Criteria\n\n- All entities from data-models.md converted to Freezed classes\n- Correct Dart types (no `dynamic`)\n- Optional fields marked with `?`\n- Enum types for constrained values\n- Barrel export file exists at `lib/models/models.dart`\n- Dart analysis passes",
+              "taskId": "05-add-behavior/002-create-models",
+              "taskTitle": "Create Dart Data Models",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/05-add-behavior/002-create-models",
+              "factId": "check:dart-analysis"
+            }
+          }
+        ],
+        "durationMs": 101
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 208
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "05-add-behavior/002-create-models-check-failed-dart-analysis",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-add-behavior/002-create-models",
+            "severity": "high",
+            "description": "[05-add-behavior/002-create-models] Check failed: Dart analysis passes on models",
+            "source": "unit",
+            "detected": "2026-04-18T12:10:47.270Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-analysis",
+              "checkCmd": "dart analyze --no-fatal-infos lib/models/",
+              "checkDescription": "Dart analysis passes on models",
+              "checkOutput": "Cannot negate option \"--no-fatal-infos\".\n\nUsage: dart analyze [arguments] [<directory>]\n-h, --help                   Print this usage information.\n    --fatal-infos            Treat info level issues as fatal.\n    --[no-]fatal-warnings    Treat warning level issues as fatal.\n                             (defaults to on)\n\nRun \"dart help\" to see global options.",
+              "checkExitCode": 64,
+              "taskPrompt": "# Create Dart Data Models\n\nRead **flutter-architecting-apps** for layered architecture patterns (domain models in the Data layer) and **flutter-handling-http-and-json** for JSON serialization with `json_serializable` and `freezed`.\n\nCreate Dart data models from the data model specification using Freezed.\n\n**Read the data model specification:**\n\n```bash\ncat data-models.md\n```\n\n**Your Task:**\n\nCreate Freezed data classes in `lib/models/` for all entities in the data model.\n\n**Instructions:**\n\n1. Read the data model specification\n2. For each entity, create a Freezed data class with:\n   - All fields with correct Dart types\n   - Optional fields marked with `?`\n   - Enum types for fields with specific values\n   - `DateTime` for timestamps\n   - `@freezed` annotation for immutability\n   - `fromJson` / `toJson` factory via `json_serializable`\n3. Export all models from `lib/models/models.dart` barrel file\n4. Run `dart run build_runner build` to generate `.freezed.dart` and `.g.dart` files\n\n## Example Model\n\n```dart\nimport 'package:freezed_annotation/freezed_annotation.dart';\n\npart 'novel.freezed.dart';\npart 'novel.g.dart';\n\n@freezed\nclass Novel with _$Novel {\n  const factory Novel({\n    required String id,\n    required String title,\n    required String author,\n    String? coverUrl,\n    @Default(0) int chapterCount,\n    @Default(0.0) double rating,\n  }) = _Novel;\n\n  factory Novel.fromJson(Map<String, dynamic> json) => _$NovelFromJson(json);\n}\n```\n\n## Success Criteria\n\n- All entities from data-models.md converted to Freezed classes\n- Correct Dart types (no `dynamic`)\n- Optional fields marked with `?`\n- Enum types for constrained values\n- Barrel export file exists at `lib/models/models.dart`\n- Dart analysis passes",
+              "taskId": "05-add-behavior/002-create-models",
+              "taskTitle": "Create Dart Data Models",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/05-add-behavior/002-create-models",
+              "factId": "check:dart-analysis"
+            }
+          }
+        ],
+        "durationMs": 129
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 274574
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "Outputs already present",
+        "durationMs": 112
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-18T12:06:12.141Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-18T12:06:12.253Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-18T12:06:12.354Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-18T12:06:12.357Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-18T12:06:12.565Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-04-18T12:10:47.140Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-18T12:10:47.270Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-18T12:10:47.271Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-18T12:10:47.273Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-18T12:10:47.273Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-18T12:10:47.386Z"
+    }
+  ]
+}

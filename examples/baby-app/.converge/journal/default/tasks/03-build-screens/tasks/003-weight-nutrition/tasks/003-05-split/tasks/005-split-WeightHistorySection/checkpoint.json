@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-build-screens/003-weight-nutrition/003-05-split/005-split-WeightHistorySection",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T16:08:53.166Z",
+  "createdAt": "2026-04-18T16:06:58.054Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T16:06:58.054Z",
+      "completedAt": "2026-04-18T16:08:53.163Z",
+      "outcome": "success",
+      "durationMs": 115109
+    }
+  ],
+  "currentAttempt": 1
+}

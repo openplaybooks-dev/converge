@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/003-weight-nutrition/003-05-split/001-split-WeightChartCard",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/weight_nutrition/weight_nutrition_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/weight_nutrition/weight_nutrition_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/weight_nutrition/widgets/weight_chart_card.dart"
+  ],
+  "blocked": false
+}

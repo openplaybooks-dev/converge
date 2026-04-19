@@ -1,0 +1,32 @@
+{
+  "taskId": "07-build-overlays/003-mood-log/003-02-design",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/mood-log/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/mood-log/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/META.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/META.md"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/mood-log/META.md",
+    ".stitch/designs/mood-log/design.html"
+  ],
+  "blocked": false
+}

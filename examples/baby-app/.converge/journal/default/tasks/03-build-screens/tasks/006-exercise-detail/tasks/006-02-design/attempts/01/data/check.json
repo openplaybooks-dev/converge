@@ -1,0 +1,25 @@
+{
+  "taskId": "03-build-screens/006-exercise-detail/006-02-design",
+  "checks": [
+    {
+      "id": "design-exists",
+      "description": "design.html exists for exercise-detail",
+      "cmd": "test -f .stitch/designs/exercise-detail/design.html"
+    },
+    {
+      "id": "meta-exists",
+      "description": "META.md exists for exercise-detail",
+      "cmd": "test -f .stitch/designs/exercise-detail/META.md"
+    },
+    {
+      "id": "uses-glossary",
+      "description": "HTML uses Flutter HTML Glossary vocabulary",
+      "cmd": "grep -q 'class=\"scaffold\"' .stitch/designs/exercise-detail/design.html"
+    },
+    {
+      "id": "has-data-attributes",
+      "description": "HTML uses data-* attributes for Flutter conversion",
+      "cmd": "grep -q 'data-color=' .stitch/designs/exercise-detail/design.html"
+    }
+  ]
+}

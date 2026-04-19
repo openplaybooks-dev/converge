@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/009-education/009-05-split/003-split-ArticleCard",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Widget file exists",
+      "cmd": "test -f lib/screens/education/widgets/article_card.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/screens/education/widgets/article_card.dart"
+    }
+  ]
+}

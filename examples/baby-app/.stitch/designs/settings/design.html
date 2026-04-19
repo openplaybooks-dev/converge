@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=375, initial-scale=1.0">
+<title>Settings — Design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        canvas: '#EDE8F7',
+        surface: '#FFFFFF',
+        'surface-tertiary': '#FDF9F8',
+        ink: '#2A2A3A',
+        quartz: '#8B8B9C',
+        coral: '#F28B8B',
+        'coral-tint': 'rgba(242, 139, 139, 0.12)',
+        lilac: '#8B7ED8',
+        'lilac-tint': 'rgba(139, 126, 216, 0.14)',
+        'chip-bg': 'rgba(139, 126, 216, 0.08)',
+        divider: 'rgba(42, 42, 58, 0.06)',
+        success: '#6DC48A',
+        error: '#E85C5C',
+        warning: '#F4C84D',
+      },
+      fontFamily: {
+        'jakarta': ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+      },
+      boxShadow: {
+        'subtle': '0 2px 8px rgba(139, 126, 216, 0.08)',
+        'standard': '0 4px 20px rgba(139, 126, 216, 0.12)',
+        'prominent': '0 8px 32px rgba(139, 126, 216, 0.14)',
+        'nav': '0 -4px 20px rgba(139, 126, 216, 0.08)',
+      },
+    }
+  }
+}
+</script>
+<style>
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  background: #E8E8E8;
+  display: flex;
+  justify-content: center;
+  padding: 32px 16px;
+  min-height: 100vh;
+}
+.phone {
+  width: 375px;
+  min-height: 812px;
+  border-radius: 40px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.anim-card { animation: fade-up 450ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="phone" role="application" aria-label="Bloom settings screen">
+  <div class="scaffold" data-flutter="scaffold">
+  <div class="flex flex-col min-h-screen bg-canvas">
+
+    <!-- App Bar -->
+    <header data-flutter="app-bar" class="flex items-center gap-3 h-14 px-5 bg-surface pt-10" aria-label="Settings">
+      <button class="w-10 h-10 flex items-center justify-center rounded-full min-w-[44px] min-h-[44px]"
+              aria-label="Go back">
+        <svg class="w-[22px] h-[22px] text-ink" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <!-- arrow_back -->
+          <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+        </svg>
+      </button>
+      <h1 class="text-2xl font-extrabold text-ink tracking-tight" data-color="primary">Settings</h1>
+    </header>
+
+    <!-- Body -->
+    <main class="flex-1 overflow-y-auto">
+      <div data-flutter="safe-area" class="flex flex-col gap-6 px-5 pt-5 pb-8">
+
+        <!-- 7.1 Profile Section -->
+        <section class="bg-surface rounded-3xl shadow-standard p-5 anim-card" style="animation-delay: 0ms"
+                 aria-label="Profile section">
+          <div class="flex items-center gap-4 mb-4">
+            <!-- Avatar -->
+            <button class="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0 min-w-[44px] min-h-[44px]"
+                    style="background: rgba(242, 139, 139, 0.12); border: 2px solid #FFFFFF; box-shadow: 0 2px 8px rgba(139, 126, 216, 0.16);"
+                    aria-label="Edit profile name" data-color="coral">
+              <span class="text-lg font-bold text-coral">M</span>
+            </button>
+            <!-- Name + Due Date -->
+            <div class="flex flex-col gap-0.5">
+              <span class="text-lg font-semibold text-ink" aria-label="Name: Mira">Mira</span>
+              <span class="text-sm font-medium text-quartz" aria-label="Due date: 15 August 2026, tap to change">Due: 15 Aug 2026</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7.2 Pregnancy Settings -->
+        <section class="bg-surface rounded-3xl shadow-standard p-5 anim-card" style="animation-delay: 80ms"
+                 aria-label="Pregnancy settings">
+          <h2 class="text-2xl font-bold text-ink tracking-tight mb-4" data-color="primary">Pregnancy</h2>
+
+          <!-- Due Date Row -->
+          <button class="flex items-center justify-between w-full py-3 min-h-[44px]"
+                  aria-label="Due date: 15 August 2026, tap to change">
+            <span class="text-lg font-semibold text-ink">Due Date</span>
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium text-quartz">15 Aug 2026</span>
+              <svg class="w-[18px] h-[18px] text-quartz" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <!-- chevron_right -->
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </div>
+          </button>
+
+          <div class="h-px bg-divider"></div>
+
+          <!-- Trimester Display Row -->
+          <div class="flex items-center justify-between py-3 min-h-[44px]"
+               aria-label="Current trimester: 2">
+            <span class="text-lg font-semibold text-ink">Current Trimester</span>
+            <span class="text-[11px] font-bold uppercase tracking-widest text-lilac px-3 py-1 rounded-full"
+                  style="background: rgba(139, 126, 216, 0.08);" data-color="secondary">2ND</span>
+          </div>
+        </section>
+
+        <!-- 7.3 Notifications -->
+        <section class="bg-surface rounded-3xl shadow-standard p-5 anim-card" style="animation-delay: 160ms"
+                 aria-label="Notification settings">
+          <h2 class="text-2xl font-bold text-ink tracking-tight mb-4" data-color="primary">Notifications</h2>
+
+          <!-- Daily Reminders Toggle -->
+          <div class="flex items-center justify-between py-3 min-h-[44px]">
+            <span class="text-lg font-semibold text-ink">Daily Reminders</span>
+            <button class="relative w-[52px] h-[30px] rounded-full flex-shrink-0 transition-colors duration-200"
+                    style="background: #8B7ED8;"
+                    role="switch" aria-checked="true" aria-label="Daily Reminders, on">
+              <span class="absolute top-[2px] right-[2px] w-[26px] h-[26px] bg-surface rounded-full"
+                    style="box-shadow: 0 2px 6px rgba(42, 42, 58, 0.12);"></span>
+            </button>
+          </div>
+
+          <div class="h-px bg-divider"></div>
+
+          <!-- Checkup Alerts Toggle -->
+          <div class="flex items-center justify-between py-3 min-h-[44px]">
+            <span class="text-lg font-semibold text-ink">Checkup Alerts</span>
+            <button class="relative w-[52px] h-[30px] rounded-full flex-shrink-0 transition-colors duration-200"
+                    style="background: #8B7ED8;"
+                    role="switch" aria-checked="true" aria-label="Checkup Alerts, on">
+              <span class="absolute top-[2px] right-[2px] w-[26px] h-[26px] bg-surface rounded-full"
+                    style="box-shadow: 0 2px 6px rgba(42, 42, 58, 0.12);"></span>
+            </button>
+          </div>
+
+          <div class="h-px bg-divider"></div>
+
+          <!-- Self-Care Nudges Toggle -->
+          <div class="flex items-center justify-between py-3 min-h-[44px]">
+            <span class="text-lg font-semibold text-ink">Self-Care Nudges</span>
+            <button class="relative w-[52px] h-[30px] rounded-full flex-shrink-0 transition-colors duration-200"
+                    style="background: rgba(139, 126, 216, 0.08);"
+                    role="switch" aria-checked="false" aria-label="Self-Care Nudges, off">
+              <span class="absolute top-[2px] left-[2px] w-[26px] h-[26px] bg-surface rounded-full"
+                    style="box-shadow: 0 2px 6px rgba(42, 42, 58, 0.12);"></span>
+            </button>
+          </div>
+        </section>
+
+        <!-- 7.4 Display -->
+        <section class="bg-surface rounded-3xl shadow-standard p-5 anim-card" style="animation-delay: 240ms"
+                 aria-label="Display settings">
+          <h2 class="text-2xl font-bold text-ink tracking-tight mb-4" data-color="primary">Display</h2>
+
+          <!-- Reduced Motion Toggle -->
+          <div class="flex items-center justify-between py-3 min-h-[44px]">
+            <span class="text-lg font-semibold text-ink">Reduced Motion</span>
+            <button class="relative w-[52px] h-[30px] rounded-full flex-shrink-0 transition-colors duration-200"
+                    style="background: rgba(139, 126, 216, 0.08);"
+                    role="switch" aria-checked="false" aria-label="Reduced Motion, off">
+              <span class="absolute top-[2px] left-[2px] w-[26px] h-[26px] bg-surface rounded-full"
+                    style="box-shadow: 0 2px 6px rgba(42, 42, 58, 0.12);"></span>
+            </button>
+          </div>
+
+          <div class="h-px bg-divider"></div>
+
+          <!-- Weight Units Segmented Control -->
+          <div class="flex items-center justify-between py-3 min-h-[44px]"
+               aria-label="Weight units: kilograms">
+            <span class="text-lg font-semibold text-ink">Weight Units</span>
+            <div class="flex rounded-full overflow-hidden" role="radiogroup" aria-label="Weight unit selector">
+              <button class="px-4 py-1.5 text-sm font-semibold rounded-full min-h-[36px]"
+                      style="background: rgba(139, 126, 216, 0.14); color: #8B7ED8;"
+                      role="radio" aria-checked="true" data-color="secondary">kg</button>
+              <button class="px-4 py-1.5 text-sm font-medium rounded-full text-quartz min-h-[36px]"
+                      style="background: rgba(139, 126, 216, 0.08);"
+                      role="radio" aria-checked="false">lbs</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7.5 Data -->
+        <section class="bg-surface rounded-3xl shadow-standard p-5 anim-card" style="animation-delay: 320ms"
+                 aria-label="Data management">
+          <h2 class="text-2xl font-bold text-ink tracking-tight mb-4" data-color="primary">Data</h2>
+
+          <!-- Export Data Row -->
+          <button class="flex items-center justify-between w-full py-3 min-h-[44px]"
+                  aria-label="Export data">
+            <span class="text-lg font-semibold text-ink">Export Data</span>
+            <svg class="w-[18px] h-[18px] text-quartz" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <!-- chevron_right -->
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+
+          <div class="h-px bg-divider"></div>
+
+          <!-- Clear All Data Row -->
+          <button class="flex items-center justify-between w-full py-3 min-h-[44px]"
+                  aria-label="Clear all data, destructive action">
+            <span class="text-lg font-semibold text-error">Clear All Data</span>
+            <svg class="w-[18px] h-[18px] text-error" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <!-- chevron_right -->
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </section>
+
+        <!-- 7.6 About -->
+        <section class="bg-surface rounded-3xl shadow-standard p-5 anim-card" style="animation-delay: 400ms"
+                 aria-label="About section">
+          <h2 class="text-2xl font-bold text-ink tracking-tight mb-4" data-color="primary">About</h2>
+
+          <!-- Version Row -->
+          <div class="flex items-center justify-between py-3 min-h-[44px]"
+               aria-label="App version 1.0.0">
+            <span class="text-lg font-semibold text-ink">Version</span>
+            <span class="text-sm font-medium text-quartz">1.0.0</span>
+          </div>
+
+          <div class="h-px bg-divider"></div>
+
+          <!-- Privacy Notice Row -->
+          <button class="flex items-center justify-between w-full py-3 min-h-[44px]"
+                  aria-label="Privacy notice">
+            <span class="text-lg font-semibold text-ink">Privacy Notice</span>
+            <svg class="w-[18px] h-[18px] text-quartz" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <!-- chevron_right -->
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- Confirmation Dialog (hidden by default, shown on "Clear All Data" tap) -->
+    <div data-flutter="dialog" class="hidden absolute inset-0 z-[70] items-center justify-center"
+         style="background: rgba(42, 42, 58, 0.24);" aria-modal="true" role="dialog" aria-label="Clear all data confirmation">
+      <div class="bg-surface rounded-3xl shadow-prominent p-6 mx-8 max-w-sm">
+        <h2 class="text-2xl font-bold text-ink tracking-tight mb-2">Clear All Data?</h2>
+        <p class="text-base text-quartz leading-relaxed mb-6">This will permanently delete all your entries and preferences.</p>
+        <div class="flex gap-3 justify-end">
+          <button class="px-5 py-2.5 rounded-full border border-divider text-ink font-semibold text-base min-h-[44px]">Cancel</button>
+          <button class="px-5 py-2.5 rounded-full bg-error text-surface font-semibold text-base min-h-[44px]" data-color="error">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  </div>
+</div>
+
+</body>
+</html>

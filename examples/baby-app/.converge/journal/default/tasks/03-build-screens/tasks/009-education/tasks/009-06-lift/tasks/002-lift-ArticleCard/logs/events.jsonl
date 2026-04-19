@@ -1,0 +1,10 @@
+{"ts":"2026-04-18T18:03:09.224Z","type":"action","iter":1,"handler":"check-wbs-seeded","result":"continue","ms":0}
+{"ts":"2026-04-18T18:03:09.224Z","type":"action","iter":1,"handler":"check-outputs-exist","result":"continue","ms":0}
+{"ts":"2026-04-18T18:03:09.322Z","type":"gaps-detected","iter":1,"count":3,"kinds":["output","check-failed"],"delta":3}
+{"ts":"2026-04-18T18:03:09.322Z","type":"action","iter":1,"handler":"detect-gaps","result":"continue","ms":98}
+{"ts":"2026-04-18T18:03:09.323Z","type":"action","iter":1,"handler":"run-executor","result":"continue","ms":1}
+{"ts":"2026-04-18T18:03:09.520Z","type":"action","iter":1,"handler":"repair-loop","result":"continue","ms":197}
+{"ts":"2026-04-18T18:04:27.075Z","type":"action","iter":1,"handler":"run-strategy","result":"continue","ms":77555}
+{"ts":"2026-04-18T18:04:28.067Z","type":"action","iter":1,"handler":"verify","result":"continue","ms":991}
+{"ts":"2026-04-18T18:04:29.022Z","type":"action","iter":1,"handler":"resolve-blockers","result":"bail","ms":954,"reason":"1 unresolvable blockers"}
+{"ts":"2026-04-18T18:04:29.022Z","type":"outcome","iter":1,"result":"bail","reason":"1 unresolvable blockers"}

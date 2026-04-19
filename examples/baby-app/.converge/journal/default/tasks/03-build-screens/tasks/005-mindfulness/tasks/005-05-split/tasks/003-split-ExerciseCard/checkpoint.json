@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "03-build-screens/005-mindfulness/005-05-split/003-split-ExerciseCard",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T16:56:27.556Z",
+  "createdAt": "2026-04-18T16:27:56.740Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T16:27:56.740Z",
+      "completedAt": "2026-04-18T16:30:09.897Z",
+      "outcome": "success",
+      "durationMs": 133157
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-18T16:55:17.057Z",
+      "completedAt": "2026-04-18T16:56:27.553Z",
+      "outcome": "success",
+      "durationMs": 70496
+    }
+  ],
+  "currentAttempt": 2
+}

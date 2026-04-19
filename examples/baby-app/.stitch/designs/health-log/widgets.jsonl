@@ -1,0 +1,3 @@
+{"name": "DoctorVisitCard", "grep": "Doctor visit on ${visit.date}", "description": "Card displaying a single doctor visit entry with date, doctor name, summary, and notes", "shared": false}
+{"name": "HealthLogTabBar", "grep": "indicatorSize: TabBarIndicatorSize.tab", "description": "Styled tab bar with Visits, Symptoms, and Reminders tabs with icons", "shared": false}
+{"name": "BottomNavBar", "grep": "NavigationBar(", "description": "Bottom navigation bar with Home, Progress, Health, Wellness, and Learn destinations", "shared": true}

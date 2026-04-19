@@ -1,0 +1,19 @@
+{
+  "taskId": "02-design-system/005-generate-design-references",
+  "epicId": "default",
+  "focusPath": "default/02-design-system/005-generate-design-references",
+  "status": "running",
+  "startedAt": "2026-04-18T11:26:31.914Z",
+  "attempt": 1,
+  "gapsResolved": 0,
+  "gapsFailed": 0,
+  "checklist": [
+    {
+      "id": "subtask:spawn-1",
+      "type": "subtask",
+      "description": "stitch-generate",
+      "details": ".converge/skills/stitch-generate/SKILL.md",
+      "done": false
+    }
+  ]
+}

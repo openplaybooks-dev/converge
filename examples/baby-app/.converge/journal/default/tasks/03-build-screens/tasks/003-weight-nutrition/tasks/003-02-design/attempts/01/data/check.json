@@ -1,0 +1,25 @@
+{
+  "taskId": "03-build-screens/003-weight-nutrition/003-02-design",
+  "checks": [
+    {
+      "id": "design-exists",
+      "description": "design.html exists for weight-nutrition",
+      "cmd": "test -f .stitch/designs/weight-nutrition/design.html"
+    },
+    {
+      "id": "meta-exists",
+      "description": "META.md exists for weight-nutrition",
+      "cmd": "test -f .stitch/designs/weight-nutrition/META.md"
+    },
+    {
+      "id": "uses-glossary",
+      "description": "HTML uses Flutter HTML Glossary vocabulary",
+      "cmd": "grep -q 'class=\"scaffold\"' .stitch/designs/weight-nutrition/design.html"
+    },
+    {
+      "id": "has-data-attributes",
+      "description": "HTML uses data-* attributes for Flutter conversion",
+      "cmd": "grep -q 'data-color=' .stitch/designs/weight-nutrition/design.html"
+    }
+  ]
+}

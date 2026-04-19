@@ -1,0 +1,32 @@
+{
+  "taskId": "07-build-overlays/006-due-date-picker/006-02-design",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/due-date-picker/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/due-date-picker/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/META.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/META.md"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/due-date-picker/META.md",
+    ".stitch/designs/due-date-picker/design.html"
+  ],
+  "blocked": false
+}

@@ -230,6 +230,7 @@ function toClaudeOptions<T>(opts: AgentFnOptions<T>): ClaudeFnOptions<T> {
     systemPromptFile: opts.systemPromptFile,
     signal: opts.signal,
     logDir: opts.logDir,
+    env: opts.env,
     // Deprecated SDK-only options — passed through for backward compat
     ...(opts.backend && { backend: opts.backend }),
     ...(opts.model && { model: opts.model }),

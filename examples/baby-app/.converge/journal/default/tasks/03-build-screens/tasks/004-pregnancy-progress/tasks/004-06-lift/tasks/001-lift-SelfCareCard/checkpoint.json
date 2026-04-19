@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "03-build-screens/004-pregnancy-progress/004-06-lift/001-lift-SelfCareCard",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T16:48:58.242Z",
+  "createdAt": "2026-04-18T16:22:55.317Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T16:22:55.317Z",
+      "completedAt": "2026-04-18T16:24:01.867Z",
+      "outcome": "failed",
+      "durationMs": 66550
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-18T16:24:47.658Z",
+      "completedAt": "2026-04-18T16:24:47.660Z",
+      "outcome": "failed",
+      "durationMs": 2
+    }
+  ],
+  "currentAttempt": 1
+}

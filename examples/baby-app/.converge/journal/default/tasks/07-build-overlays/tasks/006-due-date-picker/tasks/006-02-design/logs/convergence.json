@@ -1,0 +1,326 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "07-build-overlays/006-due-date-picker/006-02-design-missing-output-.stitch/designs/due-date-picker/META.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-build-overlays/006-due-date-picker/006-02-design",
+            "severity": "high",
+            "description": "[07-build-overlays/006-due-date-picker/006-02-design] Task output not created: .stitch/designs/due-date-picker/META.md",
+            "source": "unit",
+            "detected": "2026-04-19T02:55:02.723Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/07-build-overlays/tasks/006-due-date-picker/tasks/006-02-design",
+              "taskId": "07-build-overlays/006-due-date-picker/006-02-design",
+              "taskTitle": "Design: Due Date Picker",
+              "taskPrompt": "# Design: Due Date Picker\n\nGenerate the HTML design mockup for the **Due Date Picker** overlay using the **Flutter HTML Glossary** constrained vocabulary.\n\n## Critical Constraint\n\nThe HTML MUST use ONLY elements from the **Flutter HTML Glossary** (`stitch-flutter/references/flutter-html-glossary.md`). This ensures the `stitch-flutter` converter can produce pixel-perfect Flutter widgets mechanically.\n\n## Inputs\n- `.stitch/designs/due-date-picker/SPEC.md` — Overlay specification\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/system/META.md` — Reference examples metadata\n\n## Overlay Type: dialog\n\nDesign the overlay container appropriate for its type:\n\n### Bottom Sheet\n- Root element: `<div class=\"bottom-sheet\" data-bg=\"surface\">`\n- Include drag handle: `<div class=\"drag-handle\">`\n- Content area with scrollable body\n- Optional action buttons at bottom\n- Max height ~60% of viewport\n\n### Dialog\n- Root element: `<div class=\"dialog\" data-bg=\"surface\" data-radius=\"lg\">`\n- Title bar with close icon\n- Content body\n- Action row (cancel + confirm buttons)\n- Fixed width ~320px\n\n### Persistent Bar\n- Root element: `<div class=\"persistent-bar\" data-bg=\"surface-container\">`\n- Fixed height row layout\n- Compact controls\n\n## Steps\n\n1. **Read spec** — Load `.stitch/designs/due-date-picker/SPEC.md` to understand layout, sections, data\n2. **Read glossary** — Load `stitch-flutter/references/flutter-html-glossary.md` for constrained vocabulary\n3. **Select best example match** — Read `.stitch/system/META.md` and score against examples per `stitch-generate/references/selecting-examples.md`\n4. **Read matched reference** — Study the matching example's patterns\n5. **Generate META.md** — Write `.stitch/designs/due-date-picker/META.md` with example selection and scoring table\n6. **Generate design.html** — Write `.stitch/designs/due-date-picker/design.html` following `stitch-generate` skill using ONLY glossary elements\n\n## Glossary Quick Reference\n\n- Layout: `.column`, `.row`, `.stack`, `.wrap`, `.expanded`, `.padding`, `.sized-box`\n- Text: `.title-large`, `.body-medium`, `.label-small` (Material 3 TextTheme classes)\n- Components: `.card`, `.chip`, `.list-tile`, `.divider`, `.badge`, `.avatar`\n- Buttons: `.elevated-btn`, `.filled-btn`, `.text-btn`, `.icon-btn`\n- Icons: `<svg class=\"icon\" data-name=\"{material_icon}\" data-size=\"24\">`\n- Colors: `data-color=\"primary\"`, `data-bg=\"surface\"` (ColorScheme roles)\n- Spacing: `data-spacing=\"md\"`, `data-p=\"lg\"` (token names)\n\n## Output\n\n- `.stitch/designs/due-date-picker/META.md` — Example selection and scoring\n- `.stitch/designs/due-date-picker/design.html` — Self-contained HTML mockup using glossary vocabulary",
+              "taskSkill": "stitch-generate",
+              "taskInputs": [
+                ".stitch/designs/due-date-picker/SPEC.md",
+                ".stitch/system/DESIGN.md",
+                ".stitch/system/META.md"
+              ],
+              "factId": "file-exists:test -f \".stitch/designs/due-date-picker/META.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "07-build-overlays/006-due-date-picker/006-02-design-missing-output-.stitch/designs/due-date-picker/design.html",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-build-overlays/006-due-date-picker/006-02-design",
+            "severity": "high",
+            "description": "[07-build-overlays/006-due-date-picker/006-02-design] Task output not created: .stitch/designs/due-date-picker/design.html",
+            "source": "unit",
+            "detected": "2026-04-19T02:55:02.725Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/07-build-overlays/tasks/006-due-date-picker/tasks/006-02-design",
+              "taskId": "07-build-overlays/006-due-date-picker/006-02-design",
+              "taskTitle": "Design: Due Date Picker",
+              "taskPrompt": "# Design: Due Date Picker\n\nGenerate the HTML design mockup for the **Due Date Picker** overlay using the **Flutter HTML Glossary** constrained vocabulary.\n\n## Critical Constraint\n\nThe HTML MUST use ONLY elements from the **Flutter HTML Glossary** (`stitch-flutter/references/flutter-html-glossary.md`). This ensures the `stitch-flutter` converter can produce pixel-perfect Flutter widgets mechanically.\n\n## Inputs\n- `.stitch/designs/due-date-picker/SPEC.md` — Overlay specification\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/system/META.md` — Reference examples metadata\n\n## Overlay Type: dialog\n\nDesign the overlay container appropriate for its type:\n\n### Bottom Sheet\n- Root element: `<div class=\"bottom-sheet\" data-bg=\"surface\">`\n- Include drag handle: `<div class=\"drag-handle\">`\n- Content area with scrollable body\n- Optional action buttons at bottom\n- Max height ~60% of viewport\n\n### Dialog\n- Root element: `<div class=\"dialog\" data-bg=\"surface\" data-radius=\"lg\">`\n- Title bar with close icon\n- Content body\n- Action row (cancel + confirm buttons)\n- Fixed width ~320px\n\n### Persistent Bar\n- Root element: `<div class=\"persistent-bar\" data-bg=\"surface-container\">`\n- Fixed height row layout\n- Compact controls\n\n## Steps\n\n1. **Read spec** — Load `.stitch/designs/due-date-picker/SPEC.md` to understand layout, sections, data\n2. **Read glossary** — Load `stitch-flutter/references/flutter-html-glossary.md` for constrained vocabulary\n3. **Select best example match** — Read `.stitch/system/META.md` and score against examples per `stitch-generate/references/selecting-examples.md`\n4. **Read matched reference** — Study the matching example's patterns\n5. **Generate META.md** — Write `.stitch/designs/due-date-picker/META.md` with example selection and scoring table\n6. **Generate design.html** — Write `.stitch/designs/due-date-picker/design.html` following `stitch-generate` skill using ONLY glossary elements\n\n## Glossary Quick Reference\n\n- Layout: `.column`, `.row`, `.stack`, `.wrap`, `.expanded`, `.padding`, `.sized-box`\n- Text: `.title-large`, `.body-medium`, `.label-small` (Material 3 TextTheme classes)\n- Components: `.card`, `.chip`, `.list-tile`, `.divider`, `.badge`, `.avatar`\n- Buttons: `.elevated-btn`, `.filled-btn`, `.text-btn`, `.icon-btn`\n- Icons: `<svg class=\"icon\" data-name=\"{material_icon}\" data-size=\"24\">`\n- Colors: `data-color=\"primary\"`, `data-bg=\"surface\"` (ColorScheme roles)\n- Spacing: `data-spacing=\"md\"`, `data-p=\"lg\"` (token names)\n\n## Output\n\n- `.stitch/designs/due-date-picker/META.md` — Example selection and scoring\n- `.stitch/designs/due-date-picker/design.html` — Self-contained HTML mockup using glossary vocabulary",
+              "taskSkill": "stitch-generate",
+              "taskInputs": [
+                ".stitch/designs/due-date-picker/SPEC.md",
+                ".stitch/system/DESIGN.md",
+                ".stitch/system/META.md"
+              ],
+              "factId": "file-exists:test -f \".stitch/designs/due-date-picker/design.html\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "07-build-overlays/006-due-date-picker/006-02-design-check-failed-design-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-build-overlays/006-due-date-picker/006-02-design",
+            "severity": "high",
+            "description": "[07-build-overlays/006-due-date-picker/006-02-design] Check failed: design.html exists for due-date-picker",
+            "source": "unit",
+            "detected": "2026-04-19T02:55:02.728Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "design-exists",
+              "checkCmd": "test -f .stitch/designs/due-date-picker/design.html",
+              "checkDescription": "design.html exists for due-date-picker",
+              "checkOutput": "Command failed: test -f .stitch/designs/due-date-picker/design.html\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Design: Due Date Picker\n\nGenerate the HTML design mockup for the **Due Date Picker** overlay using the **Flutter HTML Glossary** constrained vocabulary.\n\n## Critical Constraint\n\nThe HTML MUST use ONLY elements from the **Flutter HTML Glossary** (`stitch-flutter/references/flutter-html-glossary.md`). This ensures the `stitch-flutter` converter can produce pixel-perfect Flutter widgets mechanically.\n\n## Inputs\n- `.stitch/designs/due-date-picker/SPEC.md` — Overlay specification\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/system/META.md` — Reference examples metadata\n\n## Overlay Type: dialog\n\nDesign the overlay container appropriate for its type:\n\n### Bottom Sheet\n- Root element: `<div class=\"bottom-sheet\" data-bg=\"surface\">`\n- Include drag handle: `<div class=\"drag-handle\">`\n- Content area with scrollable body\n- Optional action buttons at bottom\n- Max height ~60% of viewport\n\n### Dialog\n- Root element: `<div class=\"dialog\" data-bg=\"surface\" data-radius=\"lg\">`\n- Title bar with close icon\n- Content body\n- Action row (cancel + confirm buttons)\n- Fixed width ~320px\n\n### Persistent Bar\n- Root element: `<div class=\"persistent-bar\" data-bg=\"surface-container\">`\n- Fixed height row layout\n- Compact controls\n\n## Steps\n\n1. **Read spec** — Load `.stitch/designs/due-date-picker/SPEC.md` to understand layout, sections, data\n2. **Read glossary** — Load `stitch-flutter/references/flutter-html-glossary.md` for constrained vocabulary\n3. **Select best example match** — Read `.stitch/system/META.md` and score against examples per `stitch-generate/references/selecting-examples.md`\n4. **Read matched reference** — Study the matching example's patterns\n5. **Generate META.md** — Write `.stitch/designs/due-date-picker/META.md` with example selection and scoring table\n6. **Generate design.html** — Write `.stitch/designs/due-date-picker/design.html` following `stitch-generate` skill using ONLY glossary elements\n\n## Glossary Quick Reference\n\n- Layout: `.column`, `.row`, `.stack`, `.wrap`, `.expanded`, `.padding`, `.sized-box`\n- Text: `.title-large`, `.body-medium`, `.label-small` (Material 3 TextTheme classes)\n- Components: `.card`, `.chip`, `.list-tile`, `.divider`, `.badge`, `.avatar`\n- Buttons: `.elevated-btn`, `.filled-btn`, `.text-btn`, `.icon-btn`\n- Icons: `<svg class=\"icon\" data-name=\"{material_icon}\" data-size=\"24\">`\n- Colors: `data-color=\"primary\"`, `data-bg=\"surface\"` (ColorScheme roles)\n- Spacing: `data-spacing=\"md\"`, `data-p=\"lg\"` (token names)\n\n## Output\n\n- `.stitch/designs/due-date-picker/META.md` — Example selection and scoring\n- `.stitch/designs/due-date-picker/design.html` — Self-contained HTML mockup using glossary vocabulary",
+              "taskSkill": "stitch-generate",
+              "taskId": "07-build-overlays/006-due-date-picker/006-02-design",
+              "taskTitle": "Design: Due Date Picker",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/07-build-overlays/tasks/006-due-date-picker/tasks/006-02-design",
+              "factId": "check:design-exists"
+            }
+          },
+          {
+            "id": "07-build-overlays/006-due-date-picker/006-02-design-check-failed-meta-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-build-overlays/006-due-date-picker/006-02-design",
+            "severity": "high",
+            "description": "[07-build-overlays/006-due-date-picker/006-02-design] Check failed: META.md exists for due-date-picker",
+            "source": "unit",
+            "detected": "2026-04-19T02:55:02.730Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "meta-exists",
+              "checkCmd": "test -f .stitch/designs/due-date-picker/META.md",
+              "checkDescription": "META.md exists for due-date-picker",
+              "checkOutput": "Command failed: test -f .stitch/designs/due-date-picker/META.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Design: Due Date Picker\n\nGenerate the HTML design mockup for the **Due Date Picker** overlay using the **Flutter HTML Glossary** constrained vocabulary.\n\n## Critical Constraint\n\nThe HTML MUST use ONLY elements from the **Flutter HTML Glossary** (`stitch-flutter/references/flutter-html-glossary.md`). This ensures the `stitch-flutter` converter can produce pixel-perfect Flutter widgets mechanically.\n\n## Inputs\n- `.stitch/designs/due-date-picker/SPEC.md` — Overlay specification\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/system/META.md` — Reference examples metadata\n\n## Overlay Type: dialog\n\nDesign the overlay container appropriate for its type:\n\n### Bottom Sheet\n- Root element: `<div class=\"bottom-sheet\" data-bg=\"surface\">`\n- Include drag handle: `<div class=\"drag-handle\">`\n- Content area with scrollable body\n- Optional action buttons at bottom\n- Max height ~60% of viewport\n\n### Dialog\n- Root element: `<div class=\"dialog\" data-bg=\"surface\" data-radius=\"lg\">`\n- Title bar with close icon\n- Content body\n- Action row (cancel + confirm buttons)\n- Fixed width ~320px\n\n### Persistent Bar\n- Root element: `<div class=\"persistent-bar\" data-bg=\"surface-container\">`\n- Fixed height row layout\n- Compact controls\n\n## Steps\n\n1. **Read spec** — Load `.stitch/designs/due-date-picker/SPEC.md` to understand layout, sections, data\n2. **Read glossary** — Load `stitch-flutter/references/flutter-html-glossary.md` for constrained vocabulary\n3. **Select best example match** — Read `.stitch/system/META.md` and score against examples per `stitch-generate/references/selecting-examples.md`\n4. **Read matched reference** — Study the matching example's patterns\n5. **Generate META.md** — Write `.stitch/designs/due-date-picker/META.md` with example selection and scoring table\n6. **Generate design.html** — Write `.stitch/designs/due-date-picker/design.html` following `stitch-generate` skill using ONLY glossary elements\n\n## Glossary Quick Reference\n\n- Layout: `.column`, `.row`, `.stack`, `.wrap`, `.expanded`, `.padding`, `.sized-box`\n- Text: `.title-large`, `.body-medium`, `.label-small` (Material 3 TextTheme classes)\n- Components: `.card`, `.chip`, `.list-tile`, `.divider`, `.badge`, `.avatar`\n- Buttons: `.elevated-btn`, `.filled-btn`, `.text-btn`, `.icon-btn`\n- Icons: `<svg class=\"icon\" data-name=\"{material_icon}\" data-size=\"24\">`\n- Colors: `data-color=\"primary\"`, `data-bg=\"surface\"` (ColorScheme roles)\n- Spacing: `data-spacing=\"md\"`, `data-p=\"lg\"` (token names)\n\n## Output\n\n- `.stitch/designs/due-date-picker/META.md` — Example selection and scoring\n- `.stitch/designs/due-date-picker/design.html` — Self-contained HTML mockup using glossary vocabulary",
+              "taskSkill": "stitch-generate",
+              "taskId": "07-build-overlays/006-due-date-picker/006-02-design",
+              "taskTitle": "Design: Due Date Picker",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/07-build-overlays/tasks/006-due-date-picker/tasks/006-02-design",
+              "factId": "check:meta-exists"
+            }
+          },
+          {
+            "id": "07-build-overlays/006-due-date-picker/006-02-design-check-failed-uses-glossary",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-build-overlays/006-due-date-picker/006-02-design",
+            "severity": "high",
+            "description": "[07-build-overlays/006-due-date-picker/006-02-design] Check failed: HTML uses Flutter HTML Glossary vocabulary",
+            "source": "unit",
+            "detected": "2026-04-19T02:55:02.734Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "uses-glossary",
+              "checkCmd": "grep -qE 'class=\"(column|row|card|bottom-sheet|dialog)\"' .stitch/designs/due-date-picker/design.html",
+              "checkDescription": "HTML uses Flutter HTML Glossary vocabulary",
+              "checkOutput": "grep: .stitch/designs/due-date-picker/design.html: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Design: Due Date Picker\n\nGenerate the HTML design mockup for the **Due Date Picker** overlay using the **Flutter HTML Glossary** constrained vocabulary.\n\n## Critical Constraint\n\nThe HTML MUST use ONLY elements from the **Flutter HTML Glossary** (`stitch-flutter/references/flutter-html-glossary.md`). This ensures the `stitch-flutter` converter can produce pixel-perfect Flutter widgets mechanically.\n\n## Inputs\n- `.stitch/designs/due-date-picker/SPEC.md` — Overlay specification\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/system/META.md` — Reference examples metadata\n\n## Overlay Type: dialog\n\nDesign the overlay container appropriate for its type:\n\n### Bottom Sheet\n- Root element: `<div class=\"bottom-sheet\" data-bg=\"surface\">`\n- Include drag handle: `<div class=\"drag-handle\">`\n- Content area with scrollable body\n- Optional action buttons at bottom\n- Max height ~60% of viewport\n\n### Dialog\n- Root element: `<div class=\"dialog\" data-bg=\"surface\" data-radius=\"lg\">`\n- Title bar with close icon\n- Content body\n- Action row (cancel + confirm buttons)\n- Fixed width ~320px\n\n### Persistent Bar\n- Root element: `<div class=\"persistent-bar\" data-bg=\"surface-container\">`\n- Fixed height row layout\n- Compact controls\n\n## Steps\n\n1. **Read spec** — Load `.stitch/designs/due-date-picker/SPEC.md` to understand layout, sections, data\n2. **Read glossary** — Load `stitch-flutter/references/flutter-html-glossary.md` for constrained vocabulary\n3. **Select best example match** — Read `.stitch/system/META.md` and score against examples per `stitch-generate/references/selecting-examples.md`\n4. **Read matched reference** — Study the matching example's patterns\n5. **Generate META.md** — Write `.stitch/designs/due-date-picker/META.md` with example selection and scoring table\n6. **Generate design.html** — Write `.stitch/designs/due-date-picker/design.html` following `stitch-generate` skill using ONLY glossary elements\n\n## Glossary Quick Reference\n\n- Layout: `.column`, `.row`, `.stack`, `.wrap`, `.expanded`, `.padding`, `.sized-box`\n- Text: `.title-large`, `.body-medium`, `.label-small` (Material 3 TextTheme classes)\n- Components: `.card`, `.chip`, `.list-tile`, `.divider`, `.badge`, `.avatar`\n- Buttons: `.elevated-btn`, `.filled-btn`, `.text-btn`, `.icon-btn`\n- Icons: `<svg class=\"icon\" data-name=\"{material_icon}\" data-size=\"24\">`\n- Colors: `data-color=\"primary\"`, `data-bg=\"surface\"` (ColorScheme roles)\n- Spacing: `data-spacing=\"md\"`, `data-p=\"lg\"` (token names)\n\n## Output\n\n- `.stitch/designs/due-date-picker/META.md` — Example selection and scoring\n- `.stitch/designs/due-date-picker/design.html` — Self-contained HTML mockup using glossary vocabulary",
+              "taskSkill": "stitch-generate",
+              "taskId": "07-build-overlays/006-due-date-picker/006-02-design",
+              "taskTitle": "Design: Due Date Picker",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/07-build-overlays/tasks/006-due-date-picker/tasks/006-02-design",
+              "factId": "check:uses-glossary"
+            }
+          }
+        ],
+        "durationMs": 19
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 26
+      }
+    },
+    {
+      "id": "run-skill",
+      "handler": "run-skill",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 64
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 50
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#21",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 203063
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-19T02:55:02.714Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-19T02:55:02.715Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-19T02:55:02.734Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-19T02:55:02.735Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "run-skill",
+      "iteration": 1,
+      "ts": "2026-04-19T02:55:02.738Z"
+    },
+    {
+      "from": "run-skill",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-19T02:55:02.764Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#21",
+      "iteration": 1,
+      "ts": "2026-04-19T02:58:25.827Z"
+    },
+    {
+      "from": "run-strategy:task-run#21",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-19T02:58:25.878Z"
+    }
+  ]
+}

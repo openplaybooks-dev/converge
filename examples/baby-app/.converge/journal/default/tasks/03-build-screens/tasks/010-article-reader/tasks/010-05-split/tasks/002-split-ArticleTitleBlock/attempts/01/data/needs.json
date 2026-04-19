@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/010-article-reader/010-05-split/002-split-ArticleTitleBlock",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/article_reader/article_reader_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/article_reader/article_reader_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/article_reader/widgets/article_title_block.dart"
+  ],
+  "blocked": false
+}

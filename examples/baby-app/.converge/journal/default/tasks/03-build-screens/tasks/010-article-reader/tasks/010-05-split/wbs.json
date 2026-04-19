@@ -1,0 +1,31 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-18T17:31:08.945Z",
+  "spawnCount": 6,
+  "subtasks": [
+    {
+      "id": "001-split-HeroImageCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/010-article-reader/tasks/010-05-split/tasks/001-split-HeroImageCard/TASK.md"
+    },
+    {
+      "id": "002-split-ArticleTitleBlock",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/010-article-reader/tasks/010-05-split/tasks/002-split-ArticleTitleBlock/TASK.md"
+    },
+    {
+      "id": "003-split-ArticleBodyCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/010-article-reader/tasks/010-05-split/tasks/003-split-ArticleBodyCard/TASK.md"
+    },
+    {
+      "id": "004-split-TipCalloutBlock",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/010-article-reader/tasks/010-05-split/tasks/004-split-TipCalloutBlock/TASK.md"
+    },
+    {
+      "id": "005-split-RelatedArticlesSection",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/010-article-reader/tasks/010-05-split/tasks/005-split-RelatedArticlesSection/TASK.md"
+    },
+    {
+      "id": "006-split-RelatedArticleCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/010-article-reader/tasks/010-05-split/tasks/006-split-RelatedArticleCard/TASK.md"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/005-mindfulness/005-05-split/002-split-FeaturedExerciseCard",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Widget file exists",
+      "cmd": "test -f lib/screens/mindfulness/widgets/featured_exercise_card.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/screens/mindfulness/widgets/featured_exercise_card.dart"
+    }
+  ]
+}

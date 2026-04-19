@@ -1,0 +1,541 @@
+{
+  "generatedAt": "2026-04-19T00:00:00.000Z",
+  "bottomNavRoutes": ["/home", "/progress", "/health-log", "/mood", "/education"],
+  "screens": [
+    {
+      "id": "home",
+      "route": "/home",
+      "screenFile": "lib/screens/home/home_screen.dart",
+      "widgetFiles": [
+        "lib/screens/home/_widgets/stat_card.dart",
+        "lib/screens/home/_widgets/mode_selector_pill.dart",
+        "lib/screens/home/_widgets/greeting_header.dart",
+        "lib/screens/home/_widgets/hero_illustration_card.dart",
+        "lib/screens/home/_widgets/pagination_dots.dart"
+      ],
+      "elements": [
+        {
+          "elementId": "BottomNav-onDestinationSelected-1",
+          "file": "lib/screens/home/home_screen.dart",
+          "line": 238,
+          "type": "onDestinationSelected",
+          "widget": "NavigationBar",
+          "status": "wired",
+          "action": "context.go to route by index from [/home, /progress, /health-log, /mood, /education]",
+          "target": "/home, /progress, /health-log, /mood, /education"
+        },
+        {
+          "elementId": "ModeSelectorPill-onTap-1",
+          "file": "lib/screens/home/home_screen.dart",
+          "line": 69,
+          "type": "onTap",
+          "widget": "ModeSelectorPill",
+          "status": "empty",
+          "action": "Open mode selection bottom sheet",
+          "target": null
+        },
+        {
+          "elementId": "PrimaryCta-onPressed-1",
+          "file": "lib/screens/home/home_screen.dart",
+          "line": 105,
+          "type": "onPressed",
+          "widget": "ElevatedButton",
+          "status": "empty",
+          "action": "Navigate to tracking entry flow",
+          "target": null
+        },
+        {
+          "elementId": "WeightStatCard-onTap-1",
+          "file": "lib/screens/home/home_screen.dart",
+          "line": 147,
+          "type": "onTap",
+          "widget": "StatCard",
+          "status": "wired",
+          "action": "Navigate to weight screen",
+          "target": "/weight"
+        },
+        {
+          "elementId": "BabySizeStatCard-onTap-1",
+          "file": "lib/screens/home/home_screen.dart",
+          "line": 167,
+          "type": "onTap",
+          "widget": "StatCard",
+          "status": "wired",
+          "action": "Navigate to pregnancy progress screen",
+          "target": "/progress"
+        },
+        {
+          "elementId": "MoodStatCard-onTap-1",
+          "file": "lib/screens/home/home_screen.dart",
+          "line": 189,
+          "type": "onTap",
+          "widget": "StatCard",
+          "status": "wired",
+          "action": "Navigate to mood & wellness screen",
+          "target": "/mood"
+        },
+        {
+          "elementId": "CheckupStatCard-onTap-1",
+          "file": "lib/screens/home/home_screen.dart",
+          "line": 211,
+          "type": "onTap",
+          "widget": "StatCard",
+          "status": "wired",
+          "action": "Navigate to health log screen",
+          "target": "/health-log"
+        }
+      ]
+    },
+    {
+      "id": "cycle-tracking",
+      "route": "/cycle",
+      "screenFile": "lib/screens/cycle_tracking/cycle_tracking_screen.dart",
+      "widgetFiles": [
+        "lib/screens/cycle_tracking/widgets/calendar_card.dart",
+        "lib/screens/cycle_tracking/widgets/current_cycle_card.dart",
+        "lib/screens/cycle_tracking/widgets/cycle_history_card.dart",
+        "lib/screens/cycle_tracking/widgets/irregular_notes_card.dart",
+        "lib/screens/cycle_tracking/widgets/bottom_nav_bar.dart"
+      ],
+      "elements": [
+        {
+          "elementId": "BottomNav-onDestinationSelected-1",
+          "file": "lib/screens/cycle_tracking/widgets/bottom_nav_bar.dart",
+          "line": 18,
+          "type": "onDestinationSelected",
+          "widget": "NavigationBar",
+          "status": "wired",
+          "action": "context.go to route by index from [/home, /progress, /health-log, /mood, /education]",
+          "target": "/home, /progress, /health-log, /mood, /education"
+        },
+        {
+          "elementId": "FAB-onPressed-1",
+          "file": "lib/screens/cycle_tracking/cycle_tracking_screen.dart",
+          "line": 66,
+          "type": "onPressed",
+          "widget": "FloatingActionButton",
+          "status": "empty",
+          "action": "Log new cycle start",
+          "target": null
+        }
+      ]
+    },
+    {
+      "id": "weight-nutrition",
+      "route": "/weight",
+      "screenFile": "lib/screens/weight_nutrition/weight_nutrition_screen.dart",
+      "widgetFiles": [
+        "lib/screens/weight_nutrition/widgets/weight_chart_card.dart",
+        "lib/screens/weight_nutrition/widgets/bmi_gauge_card.dart",
+        "lib/screens/weight_nutrition/widgets/quick_stats_row.dart",
+        "lib/screens/weight_nutrition/widgets/nutrition_tips_card.dart",
+        "lib/screens/weight_nutrition/widgets/weight_history_section.dart"
+      ],
+      "elements": [
+        {
+          "elementId": "BackButton-onPressed-1",
+          "file": "lib/screens/weight_nutrition/weight_nutrition_screen.dart",
+          "line": 29,
+          "type": "onPressed",
+          "widget": "IconButton",
+          "status": "wired",
+          "action": "Navigate back via Navigator.maybePop",
+          "target": null
+        },
+        {
+          "elementId": "BottomNav-onDestinationSelected-1",
+          "file": "lib/screens/weight_nutrition/weight_nutrition_screen.dart",
+          "line": 97,
+          "type": "onDestinationSelected",
+          "widget": "NavigationBar",
+          "status": "empty",
+          "action": "context.go to route by index from [/home, /progress, /health-log, /mood, /education]",
+          "target": "/home, /progress, /health-log, /mood, /education"
+        },
+        {
+          "elementId": "FAB-onPressed-1",
+          "file": "lib/screens/weight_nutrition/weight_nutrition_screen.dart",
+          "line": 68,
+          "type": "onPressed",
+          "widget": "FloatingActionButton",
+          "status": "empty",
+          "action": "Open add weight entry form",
+          "target": null
+        }
+      ]
+    },
+    {
+      "id": "pregnancy-progress",
+      "route": "/progress",
+      "screenFile": "lib/screens/pregnancy_progress/pregnancy_progress_screen.dart",
+      "widgetFiles": [
+        "lib/screens/pregnancy_progress/widgets/hero_header.dart",
+        "lib/screens/pregnancy_progress/widgets/body_changes_card.dart",
+        "lib/screens/pregnancy_progress/widgets/baby_development_card.dart",
+        "lib/screens/pregnancy_progress/widgets/self_care_card.dart",
+        "lib/screens/pregnancy_progress/widgets/exercise_guide_card.dart",
+        "lib/screens/pregnancy_progress/widgets/due_date_card.dart"
+      ],
+      "elements": [
+        {
+          "elementId": "BackButton-onPressed-1",
+          "file": "lib/screens/pregnancy_progress/pregnancy_progress_screen.dart",
+          "line": 41,
+          "type": "onPressed",
+          "widget": "IconButton",
+          "status": "wired",
+          "action": "Navigate back via Navigator.maybePop",
+          "target": null
+        },
+        {
+          "elementId": "BottomNav-onDestinationSelected-1",
+          "file": "lib/screens/pregnancy_progress/pregnancy_progress_screen.dart",
+          "line": 94,
+          "type": "onDestinationSelected",
+          "widget": "NavigationBar",
+          "status": "wired",
+          "action": "context.go to route by index from [/home, /progress, /health-log, /mood, /education]",
+          "target": "/home, /progress, /health-log, /mood, /education"
+        },
+        {
+          "elementId": "ExerciseGuideItem-onTap-1",
+          "file": "lib/screens/pregnancy_progress/widgets/exercise_guide_card.dart",
+          "line": 91,
+          "type": "onTap",
+          "widget": "InkWell",
+          "status": "empty",
+          "action": "Navigate to exercise detail for selected exercise",
+          "target": "/mindfulness"
+        }
+      ]
+    },
+    {
+      "id": "mindfulness",
+      "route": "/mindfulness",
+      "screenFile": "lib/screens/mindfulness/mindfulness_screen.dart",
+      "widgetFiles": [
+        "lib/screens/mindfulness/widgets/category_chips.dart",
+        "lib/screens/mindfulness/widgets/featured_exercise_card.dart",
+        "lib/screens/mindfulness/widgets/exercise_card.dart",
+        "lib/screens/mindfulness/widgets/mood_banner.dart",
+        "lib/screens/mindfulness/widgets/bottom_nav_bar.dart"
+      ],
+      "elements": [
+        {
+          "elementId": "BottomNav-onDestinationSelected-1",
+          "file": "lib/screens/mindfulness/widgets/bottom_nav_bar.dart",
+          "line": 18,
+          "type": "onDestinationSelected",
+          "widget": "NavigationBar",
+          "status": "wired",
+          "action": "context.go to route by index from [/home, /progress, /health-log, /mood, /education]",
+          "target": "/home, /progress, /health-log, /mood, /education"
+        },
+        {
+          "elementId": "CategoryChips-onSelected-1",
+          "file": "lib/screens/mindfulness/mindfulness_screen.dart",
+          "line": 79,
+          "type": "onSelected",
+          "widget": "CategoryChips",
+          "status": "wired",
+          "action": "Filter exercises by selected category via setState",
+          "target": null
+        },
+        {
+          "elementId": "FeaturedExerciseCard-onTap-1",
+          "file": "lib/screens/mindfulness/widgets/featured_exercise_card.dart",
+          "line": 19,
+          "type": "onTap",
+          "widget": "GestureDetector",
+          "status": "empty",
+          "action": "Navigate to exercise detail screen for Deep Breathing",
+          "target": "/mindfulness/exercise/:id"
+        },
+        {
+          "elementId": "ExerciseCard-onTap-1",
+          "file": "lib/screens/mindfulness/widgets/exercise_card.dart",
+          "line": 30,
+          "type": "onTap",
+          "widget": "GestureDetector",
+          "status": "empty",
+          "action": "Navigate to exercise detail screen for selected exercise",
+          "target": "/mindfulness/exercise/:id"
+        },
+        {
+          "elementId": "MoodBanner-onTap-1",
+          "file": "lib/screens/mindfulness/widgets/mood_banner.dart",
+          "line": 17,
+          "type": "onTap",
+          "widget": "GestureDetector",
+          "status": "empty",
+          "action": "Open mood logging bottom sheet or navigate to mood screen",
+          "target": "/mood"
+        }
+      ]
+    },
+    {
+      "id": "exercise-detail",
+      "route": "/mindfulness/exercise/:id",
+      "screenFile": "lib/screens/exercise_detail/exercise_detail_screen.dart",
+      "widgetFiles": [
+        "lib/screens/exercise_detail/widgets/exercise_hero_card.dart",
+        "lib/screens/exercise_detail/widgets/exercise_chips_row.dart",
+        "lib/screens/exercise_detail/widgets/benefits_card.dart",
+        "lib/screens/exercise_detail/widgets/instructions_card.dart",
+        "lib/screens/exercise_detail/widgets/start_exercise_button.dart"
+      ],
+      "elements": [
+        {
+          "elementId": "BackButton-onPressed-1",
+          "file": "lib/screens/exercise_detail/exercise_detail_screen.dart",
+          "line": 49,
+          "type": "onPressed",
+          "widget": "IconButton",
+          "status": "wired",
+          "action": "Navigate back via context.pop",
+          "target": null
+        },
+        {
+          "elementId": "StartExerciseButton-onPressed-1",
+          "file": "lib/screens/exercise_detail/widgets/start_exercise_button.dart",
+          "line": 24,
+          "type": "onPressed",
+          "widget": "ElevatedButton",
+          "status": "empty",
+          "action": "Start the exercise timer/guided session",
+          "target": null
+        }
+      ]
+    },
+    {
+      "id": "health-log",
+      "route": "/health-log",
+      "screenFile": "lib/screens/health_log/health_log_screen.dart",
+      "widgetFiles": [
+        "lib/screens/health_log/widgets/doctor_visit_card.dart",
+        "lib/screens/health_log/widgets/health_log_tab_bar.dart",
+        "lib/screens/health_log/widgets/bottom_nav_bar.dart"
+      ],
+      "elements": [
+        {
+          "elementId": "BottomNav-onDestinationSelected-1",
+          "file": "lib/screens/health_log/widgets/bottom_nav_bar.dart",
+          "line": 18,
+          "type": "onDestinationSelected",
+          "widget": "NavigationBar",
+          "status": "wired",
+          "action": "context.go to route by index from [/home, /progress, /health-log, /mood, /education]",
+          "target": "/home, /progress, /health-log, /mood, /education"
+        },
+        {
+          "elementId": "FAB-onPressed-1",
+          "file": "lib/screens/health_log/health_log_screen.dart",
+          "line": 117,
+          "type": "onPressed",
+          "widget": "FloatingActionButton",
+          "status": "empty",
+          "action": "Open entry type selection bottom sheet for logging visits, symptoms, or reminders",
+          "target": null
+        }
+      ]
+    },
+    {
+      "id": "mood-wellness",
+      "route": "/mood",
+      "screenFile": "lib/screens/mood_wellness/mood_wellness_screen.dart",
+      "widgetFiles": [
+        "lib/screens/mood_wellness/widgets/todays_mood_card.dart",
+        "lib/screens/mood_wellness/widgets/mood_trends_card.dart",
+        "lib/screens/mood_wellness/widgets/energy_level_card.dart",
+        "lib/screens/mood_wellness/widgets/recommendations_card.dart",
+        "lib/screens/mood_wellness/widgets/mood_history_entry.dart"
+      ],
+      "elements": [
+        {
+          "elementId": "BottomNav-onDestinationSelected-1",
+          "file": "lib/screens/mood_wellness/mood_wellness_screen.dart",
+          "line": 229,
+          "type": "onDestinationSelected",
+          "widget": "NavigationBar",
+          "status": "wired",
+          "action": "context.go to route by index from [/home, /progress, /health-log, /mood, /education]",
+          "target": "/home, /progress, /health-log, /mood, /education"
+        },
+        {
+          "elementId": "FAB-onPressed-1",
+          "file": "lib/screens/mood_wellness/mood_wellness_screen.dart",
+          "line": 197,
+          "type": "onPressed",
+          "widget": "FloatingActionButton",
+          "status": "empty",
+          "action": "Open mood logging bottom sheet",
+          "target": null
+        }
+      ]
+    },
+    {
+      "id": "education",
+      "route": "/education",
+      "screenFile": "lib/screens/education/education_screen.dart",
+      "widgetFiles": [
+        "lib/screens/education/widgets/featured_article_card.dart",
+        "lib/screens/education/widgets/article_card.dart",
+        "lib/screens/education/widgets/bookmarked_article_card.dart",
+        "lib/screens/education/widgets/topic_chip_bar.dart",
+        "lib/screens/education/widgets/bottom_nav_bar.dart"
+      ],
+      "elements": [
+        {
+          "elementId": "BottomNav-onDestinationSelected-1",
+          "file": "lib/screens/education/widgets/bottom_nav_bar.dart",
+          "line": 18,
+          "type": "onDestinationSelected",
+          "widget": "NavigationBar",
+          "status": "wired",
+          "action": "context.go to route by index from [/home, /progress, /health-log, /mood, /education]",
+          "target": "/home, /progress, /health-log, /mood, /education"
+        },
+        {
+          "elementId": "SearchButton-onPressed-1",
+          "file": "lib/screens/education/education_screen.dart",
+          "line": 95,
+          "type": "onPressed",
+          "widget": "IconButton",
+          "status": "empty",
+          "action": "Open article search",
+          "target": null
+        },
+        {
+          "elementId": "TopicChipBar-onSelected-1",
+          "file": "lib/screens/education/education_screen.dart",
+          "line": 119,
+          "type": "onSelected",
+          "widget": "TopicChipBar",
+          "status": "wired",
+          "action": "Filter articles by selected topic via setState",
+          "target": null
+        },
+        {
+          "elementId": "FeaturedArticleCard-onTap-1",
+          "file": "lib/screens/education/widgets/featured_article_card.dart",
+          "line": 20,
+          "type": "onTap",
+          "widget": "GestureDetector",
+          "status": "empty",
+          "action": "Navigate to article reader for featured article",
+          "target": "/education/article/:id"
+        },
+        {
+          "elementId": "ArticleCard-onTap-1",
+          "file": "lib/screens/education/widgets/article_card.dart",
+          "line": 46,
+          "type": "onTap",
+          "widget": "GestureDetector",
+          "status": "empty",
+          "action": "Navigate to article reader for selected article",
+          "target": "/education/article/:id"
+        },
+        {
+          "elementId": "BookmarkedArticleCard-onTap-1",
+          "file": "lib/screens/education/widgets/bookmarked_article_card.dart",
+          "line": 40,
+          "type": "onTap",
+          "widget": "GestureDetector",
+          "status": "empty",
+          "action": "Navigate to article reader for bookmarked article",
+          "target": "/education/article/:id"
+        }
+      ]
+    },
+    {
+      "id": "article-reader",
+      "route": "/education/article/:id",
+      "screenFile": "lib/screens/article_reader/article_reader_screen.dart",
+      "widgetFiles": [
+        "lib/screens/article_reader/widgets/hero_image_card.dart",
+        "lib/screens/article_reader/widgets/article_title_block.dart",
+        "lib/screens/article_reader/widgets/article_body_card.dart",
+        "lib/screens/article_reader/widgets/related_articles_section.dart",
+        "lib/screens/article_reader/widgets/related_article_card.dart",
+        "lib/screens/article_reader/widgets/tip_callout_block.dart"
+      ],
+      "elements": [
+        {
+          "elementId": "BackButton-onPressed-1",
+          "file": "lib/screens/article_reader/article_reader_screen.dart",
+          "line": 27,
+          "type": "onPressed",
+          "widget": "IconButton",
+          "status": "wired",
+          "action": "Navigate back via Navigator.maybePop",
+          "target": null
+        },
+        {
+          "elementId": "BookmarkButton-onPressed-1",
+          "file": "lib/screens/article_reader/article_reader_screen.dart",
+          "line": 47,
+          "type": "onPressed",
+          "widget": "IconButton",
+          "status": "empty",
+          "action": "Toggle bookmark state for current article",
+          "target": null
+        },
+        {
+          "elementId": "RelatedArticleCard-onTap-1",
+          "file": "lib/screens/article_reader/widgets/related_article_card.dart",
+          "line": 27,
+          "type": "onTap",
+          "widget": "GestureDetector",
+          "status": "empty",
+          "action": "Navigate to article reader for selected related article",
+          "target": "/education/article/:id"
+        }
+      ]
+    },
+    {
+      "id": "settings",
+      "route": "/settings",
+      "screenFile": "lib/screens/settings/settings_screen.dart",
+      "widgetFiles": [
+        "lib/screens/settings/widgets/profile_section.dart",
+        "lib/screens/settings/widgets/pregnancy_section.dart",
+        "lib/screens/settings/widgets/notifications_section.dart",
+        "lib/screens/settings/widgets/display_section.dart",
+        "lib/screens/settings/widgets/data_section.dart",
+        "lib/screens/settings/widgets/about_section.dart"
+      ],
+      "elements": [
+        {
+          "elementId": "BackButton-onPressed-1",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "line": 31,
+          "type": "onPressed",
+          "widget": "IconButton",
+          "status": "wired",
+          "action": "Navigate back via context.pop",
+          "target": null
+        },
+        {
+          "elementId": "ExportData-onTap-1",
+          "file": "lib/screens/settings/widgets/data_section.dart",
+          "line": 44,
+          "type": "onTap",
+          "widget": "InkWell",
+          "status": "empty",
+          "action": "Export all user data",
+          "target": null
+        },
+        {
+          "elementId": "ClearAllData-onTap-1",
+          "file": "lib/screens/settings/widgets/data_section.dart",
+          "line": 79,
+          "type": "onTap",
+          "widget": "InkWell",
+          "status": "wired",
+          "action": "Show confirmation dialog to clear all user data",
+          "target": null
+        }
+      ]
+    }
+  ]
+}

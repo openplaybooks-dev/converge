@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/003-wire-per-screen/001-BookmarkButton-onPressed-1",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T00:49:22.746Z",
+  "createdAt": "2026-04-19T00:46:20.613Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T00:46:20.613Z",
+      "completedAt": "2026-04-19T00:49:22.743Z",
+      "outcome": "success",
+      "durationMs": 182130
+    }
+  ],
+  "currentAttempt": 1
+}

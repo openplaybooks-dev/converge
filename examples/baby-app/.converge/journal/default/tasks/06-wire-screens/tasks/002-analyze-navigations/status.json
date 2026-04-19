@@ -1,0 +1,19 @@
+{
+  "taskId": "06-wire-screens/002-analyze-navigations",
+  "epicId": "default",
+  "focusPath": "default/06-wire-screens/002-analyze-navigations",
+  "status": "running",
+  "startedAt": "2026-04-19T00:31:54.879Z",
+  "attempt": 1,
+  "gapsResolved": 0,
+  "gapsFailed": 0,
+  "checklist": [
+    {
+      "id": "subtask:spawn-1",
+      "type": "subtask",
+      "description": "flutter-implementing-navigation-and-routing",
+      "details": ".converge/skills/flutter-implementing-navigation-and-routing/SKILL.md",
+      "done": false
+    }
+  ]
+}

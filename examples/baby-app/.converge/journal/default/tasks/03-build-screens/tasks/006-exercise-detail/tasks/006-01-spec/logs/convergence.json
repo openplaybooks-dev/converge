@@ -1,0 +1,251 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/006-exercise-detail/006-01-spec-missing-output-.stitch/designs/exercise-detail/SPEC.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/006-exercise-detail/006-01-spec",
+            "severity": "high",
+            "description": "[03-build-screens/006-exercise-detail/006-01-spec] Task output not created: .stitch/designs/exercise-detail/SPEC.md",
+            "source": "unit",
+            "detected": "2026-04-18T13:46:47.586Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/006-exercise-detail/tasks/006-01-spec",
+              "taskId": "03-build-screens/006-exercise-detail/006-01-spec",
+              "taskTitle": "Spec: Exercise Detail",
+              "taskPrompt": "# Spec: Exercise Detail\n\nGenerate the screen specification for **Exercise Detail** (`/mindfulness/exercise/:id`).\n\n## Inputs\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/UX.md` — UX overview\n- `.stitch/screens.json` — Screen definitions\n\n## Task\n\nRead inputs and produce `.stitch/designs/exercise-detail/SPEC.md` containing:\n\n1. **Screen Title** — Exercise Detail\n2. **Purpose** — What this screen does and why\n3. **Route** — `/mindfulness/exercise/:id`\n4. **Widget Name** — `ExerciseDetailScreen`\n5. **Design Tokens** — Colors, typography, spacing from DESIGN.md\n6. **Layout Rules** — Scaffold structure, app bar, body, bottom nav\n7. **Sections** — Each visual section with:\n   - Description of content\n   - Widget type (ListView, GridView, Column, etc.)\n   - Data requirements\n   - Interactive elements\n8. **Data** — Entities and fields displayed on this screen\n9. **Motion** — Entry animations, transitions, hero animations\n10. **Accessibility** — Semantics labels, focus order, contrast notes\n11. **Anti-Patterns** — Things to avoid\n\n## Success Criteria\n\n- `.stitch/designs/exercise-detail/SPEC.md` exists and has >50 lines\n- All required sections present\n- Design tokens reference DESIGN.md values",
+              "taskInputs": [
+                ".stitch/system/DESIGN.md",
+                ".stitch/UX.md",
+                ".stitch/screens.json"
+              ],
+              "factId": "file-exists:test -f \".stitch/designs/exercise-detail/SPEC.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-build-screens/006-exercise-detail/006-01-spec-check-failed-spec-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/006-exercise-detail/006-01-spec",
+            "severity": "high",
+            "description": "[03-build-screens/006-exercise-detail/006-01-spec] Check failed: SPEC.md exists for exercise-detail",
+            "source": "unit",
+            "detected": "2026-04-18T13:46:47.588Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "spec-exists",
+              "checkCmd": "test -f .stitch/designs/exercise-detail/SPEC.md",
+              "checkDescription": "SPEC.md exists for exercise-detail",
+              "checkOutput": "Command failed: test -f .stitch/designs/exercise-detail/SPEC.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Spec: Exercise Detail\n\nGenerate the screen specification for **Exercise Detail** (`/mindfulness/exercise/:id`).\n\n## Inputs\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/UX.md` — UX overview\n- `.stitch/screens.json` — Screen definitions\n\n## Task\n\nRead inputs and produce `.stitch/designs/exercise-detail/SPEC.md` containing:\n\n1. **Screen Title** — Exercise Detail\n2. **Purpose** — What this screen does and why\n3. **Route** — `/mindfulness/exercise/:id`\n4. **Widget Name** — `ExerciseDetailScreen`\n5. **Design Tokens** — Colors, typography, spacing from DESIGN.md\n6. **Layout Rules** — Scaffold structure, app bar, body, bottom nav\n7. **Sections** — Each visual section with:\n   - Description of content\n   - Widget type (ListView, GridView, Column, etc.)\n   - Data requirements\n   - Interactive elements\n8. **Data** — Entities and fields displayed on this screen\n9. **Motion** — Entry animations, transitions, hero animations\n10. **Accessibility** — Semantics labels, focus order, contrast notes\n11. **Anti-Patterns** — Things to avoid\n\n## Success Criteria\n\n- `.stitch/designs/exercise-detail/SPEC.md` exists and has >50 lines\n- All required sections present\n- Design tokens reference DESIGN.md values",
+              "taskId": "03-build-screens/006-exercise-detail/006-01-spec",
+              "taskTitle": "Spec: Exercise Detail",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/006-exercise-detail/tasks/006-01-spec",
+              "factId": "check:spec-exists"
+            }
+          },
+          {
+            "id": "03-build-screens/006-exercise-detail/006-01-spec-check-failed-spec-has-content",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/006-exercise-detail/006-01-spec",
+            "severity": "high",
+            "description": "[03-build-screens/006-exercise-detail/006-01-spec] Check failed: SPEC.md has >50 lines",
+            "source": "unit",
+            "detected": "2026-04-18T13:46:47.591Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "spec-has-content",
+              "checkCmd": "test $(wc -l < .stitch/designs/exercise-detail/SPEC.md) -gt 50",
+              "checkDescription": "SPEC.md has >50 lines",
+              "checkOutput": "/bin/bash: .stitch/designs/exercise-detail/SPEC.md: No such file or directory\n/bin/bash: line 0: test: -gt: unary operator expected",
+              "checkExitCode": 2,
+              "taskPrompt": "# Spec: Exercise Detail\n\nGenerate the screen specification for **Exercise Detail** (`/mindfulness/exercise/:id`).\n\n## Inputs\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/UX.md` — UX overview\n- `.stitch/screens.json` — Screen definitions\n\n## Task\n\nRead inputs and produce `.stitch/designs/exercise-detail/SPEC.md` containing:\n\n1. **Screen Title** — Exercise Detail\n2. **Purpose** — What this screen does and why\n3. **Route** — `/mindfulness/exercise/:id`\n4. **Widget Name** — `ExerciseDetailScreen`\n5. **Design Tokens** — Colors, typography, spacing from DESIGN.md\n6. **Layout Rules** — Scaffold structure, app bar, body, bottom nav\n7. **Sections** — Each visual section with:\n   - Description of content\n   - Widget type (ListView, GridView, Column, etc.)\n   - Data requirements\n   - Interactive elements\n8. **Data** — Entities and fields displayed on this screen\n9. **Motion** — Entry animations, transitions, hero animations\n10. **Accessibility** — Semantics labels, focus order, contrast notes\n11. **Anti-Patterns** — Things to avoid\n\n## Success Criteria\n\n- `.stitch/designs/exercise-detail/SPEC.md` exists and has >50 lines\n- All required sections present\n- Design tokens reference DESIGN.md values",
+              "taskId": "03-build-screens/006-exercise-detail/006-01-spec",
+              "taskTitle": "Spec: Exercise Detail",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/006-exercise-detail/tasks/006-01-spec",
+              "factId": "check:spec-has-content"
+            }
+          }
+        ],
+        "durationMs": 14
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 21
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 23
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 129384
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-18T13:46:47.576Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-18T13:46:47.577Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-18T13:46:47.591Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-18T13:46:47.594Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-18T13:46:47.615Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-04-18T13:48:56.999Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-18T13:48:57.023Z"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/002-cycle-tracking/002-05-split/001-split-CalendarCard",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/cycle_tracking/cycle_tracking_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/cycle_tracking/cycle_tracking_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/cycle_tracking/widgets/calendar_card.dart"
+  ],
+  "blocked": false
+}

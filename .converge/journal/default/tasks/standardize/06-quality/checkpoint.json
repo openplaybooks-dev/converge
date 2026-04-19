@@ -1,0 +1,19 @@
+{
+  "type": "task",
+  "id": "06-quality",
+  "status": "pending",
+  "lastUpdated": "2026-04-18T11:11:47.258Z",
+  "createdAt": "2026-04-18T11:11:47.256Z",
+  "progress": {
+    "totalChildren": 4,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "001-lint-format",
+      "002-build-verify",
+      "003-test-coverage",
+      "004-type-coverage"
+    ],
+    "lastProgressUpdate": "2026-04-18T11:11:47.256Z"
+  }
+}

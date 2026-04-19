@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/007-delete-entry/007-02-design",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T03:07:29.149Z",
+  "createdAt": "2026-04-19T03:04:45.573Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T03:04:45.573Z",
+      "completedAt": "2026-04-19T03:07:29.143Z",
+      "outcome": "success",
+      "durationMs": 163570
+    }
+  ],
+  "currentAttempt": 1
+}

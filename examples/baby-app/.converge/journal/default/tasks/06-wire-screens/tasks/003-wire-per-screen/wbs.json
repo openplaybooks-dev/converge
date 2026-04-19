@@ -1,0 +1,127 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-19T00:46:20.489Z",
+  "spawnCount": 30,
+  "subtasks": [
+    {
+      "id": "001-home",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-home/TASK.md"
+    },
+    {
+      "id": "001-ModeSelectorPill-onTap-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-ModeSelectorPill-onTap-1/TASK.md"
+    },
+    {
+      "id": "002-PrimaryCta-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/002-PrimaryCta-onPressed-1/TASK.md"
+    },
+    {
+      "id": "002-cycle-tracking",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/002-cycle-tracking/TASK.md"
+    },
+    {
+      "id": "001-FAB-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-FAB-onPressed-1/TASK.md"
+    },
+    {
+      "id": "003-weight-nutrition",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/003-weight-nutrition/TASK.md"
+    },
+    {
+      "id": "001-BottomNav-onDestinationSelected-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-BottomNav-onDestinationSelected-1/TASK.md"
+    },
+    {
+      "id": "002-FAB-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/002-FAB-onPressed-1/TASK.md"
+    },
+    {
+      "id": "004-pregnancy-progress",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/004-pregnancy-progress/TASK.md"
+    },
+    {
+      "id": "001-ExerciseGuideItem-onTap-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-ExerciseGuideItem-onTap-1/TASK.md"
+    },
+    {
+      "id": "005-mindfulness",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/005-mindfulness/TASK.md"
+    },
+    {
+      "id": "001-FeaturedExerciseCard-onTap-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-FeaturedExerciseCard-onTap-1/TASK.md"
+    },
+    {
+      "id": "002-ExerciseCard-onTap-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/002-ExerciseCard-onTap-1/TASK.md"
+    },
+    {
+      "id": "003-MoodBanner-onTap-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/003-MoodBanner-onTap-1/TASK.md"
+    },
+    {
+      "id": "006-exercise-detail",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/006-exercise-detail/TASK.md"
+    },
+    {
+      "id": "001-StartExerciseButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-StartExerciseButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "007-health-log",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/007-health-log/TASK.md"
+    },
+    {
+      "id": "001-FAB-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-FAB-onPressed-1/TASK.md"
+    },
+    {
+      "id": "008-mood-wellness",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/008-mood-wellness/TASK.md"
+    },
+    {
+      "id": "001-FAB-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-FAB-onPressed-1/TASK.md"
+    },
+    {
+      "id": "009-education",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/009-education/TASK.md"
+    },
+    {
+      "id": "001-SearchButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-SearchButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "002-FeaturedArticleCard-onTap-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/002-FeaturedArticleCard-onTap-1/TASK.md"
+    },
+    {
+      "id": "003-ArticleCard-onTap-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/003-ArticleCard-onTap-1/TASK.md"
+    },
+    {
+      "id": "004-BookmarkedArticleCard-onTap-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/004-BookmarkedArticleCard-onTap-1/TASK.md"
+    },
+    {
+      "id": "010-article-reader",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/010-article-reader/TASK.md"
+    },
+    {
+      "id": "001-BookmarkButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-BookmarkButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "002-RelatedArticleCard-onTap-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/002-RelatedArticleCard-onTap-1/TASK.md"
+    },
+    {
+      "id": "011-settings",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/011-settings/TASK.md"
+    },
+    {
+      "id": "001-ExportData-onTap-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-ExportData-onTap-1/TASK.md"
+    }
+  ]
+}

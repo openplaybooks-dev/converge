@@ -23,18 +23,16 @@ Load and understand the current structure before making changes.
 # Read playbook config
 cat .converge/playbooks/{name}/playbook.yml
 
-# List existing epics and tasks
+# List existing tasks
 find .converge/playbooks/{name}/tasks -name "TASK.md" | sort
 
 # Read each TASK.md to understand scope, dependencies, outputs
 ```
 
 **Capture:**
-- List of epics with their IDs and titles
-- List of tasks per epic with IDs, dependencies, and status
+- List of tasks at each level with their IDs and titles
 - Dependency graph (what depends on what)
-- Highest epic number (for adding new epics)
-- Highest task number per epic (for adding new tasks)
+- Highest task number at each level (for adding new tasks)
 
 ---
 
@@ -44,11 +42,11 @@ Parse the user's prompt to determine the type of change:
 
 | Change Type | Example Prompt | Action |
 |-------------|---------------|--------|
-| **Add feature** | "Add authentication" | New epic or tasks in existing epic |
-| **Extend epic** | "Add more API endpoints" | New tasks in existing epic |
+| **Add feature** | "Add authentication" | New top-level task or children in existing task |
+| **Extend task** | "Add more API endpoints" | New children in existing task |
 | **Modify task** | "Change the database to PostgreSQL" | Update existing TASK.md |
-| **Add cross-cutting** | "Add tests for everything" | New epic with deps on existing tasks |
-| **Restructure** | "Split the backend epic" | Reorganize existing tasks |
+| **Add cross-cutting** | "Add tests for everything" | New task with deps on existing tasks |
+| **Restructure** | "Split the backend task" | Reorganize existing tasks |
 
 ---
 
@@ -60,10 +58,10 @@ Parse the user's prompt to determine the type of change:
 - Wire dependencies to existing tasks where needed
 - Follow the same conventions as existing tasks (check style, output patterns)
 
-### Adding New Epics
+### Adding New Top-Level Tasks
 
 - Use the next available 2-digit prefix
-- If the new epic depends on existing epics, add cross-epic dependencies: `{epic-id}.{task-id}`
+- If the new task depends on existing tasks, add cross-branch dependencies: `{task-id}.{child-id}`
 
 ### Modifying Existing Tasks
 

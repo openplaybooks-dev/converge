@@ -1,0 +1,31 @@
+{
+  "taskId": "07-build-overlays/003-mood-log/003-04-connect",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/widgets/overlays/mood_log/mood_log.dart",
+      "count": 1,
+      "samples": [
+        "lib/widgets/overlays/mood_log/mood_log.dart"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/mood-log/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/mood-log/SPEC.md"
+      ]
+    },
+    {
+      "pattern": "lib/providers/",
+      "count": 1,
+      "samples": [
+        "lib/providers/"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/overlays/mood_log/mood_log.dart"
+  ],
+  "blocked": false
+}

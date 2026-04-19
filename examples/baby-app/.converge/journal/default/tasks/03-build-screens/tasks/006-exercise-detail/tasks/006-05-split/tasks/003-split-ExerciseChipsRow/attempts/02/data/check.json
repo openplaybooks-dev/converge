@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/006-exercise-detail/006-05-split/003-split-ExerciseChipsRow",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Widget file exists",
+      "cmd": "test -f lib/screens/exercise_detail/widgets/exercise_chips_row.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/screens/exercise_detail/widgets/exercise_chips_row.dart"
+    }
+  ]
+}

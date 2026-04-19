@@ -1,0 +1,11 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-18T17:17:18.683Z",
+  "spawnCount": 1,
+  "subtasks": [
+    {
+      "id": "001-lift-MoodHistoryEntry",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/008-mood-wellness/tasks/008-06-lift/tasks/001-lift-MoodHistoryEntry/TASK.md"
+    }
+  ]
+}

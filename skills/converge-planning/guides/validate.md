@@ -5,8 +5,8 @@
 Verify the plan is complete, consistent, and executable before handing off to `converge-control`. Fix issues found.
 
 **Inputs:**
-- `.converge/plan.md`
-- `.converge/epics/` (all EPIC.md and TASK.md files)
+- `playbook.yml`
+- `.converge/playbooks/{name}/tasks/` (all TASK.md files)
 - `.converge/requirements.md`
 
 **Output:** Validated plan approved by user.
@@ -20,28 +20,28 @@ Run through each check. Fix issues before proceeding.
 ### 4.1: Structural Completeness
 
 ```bash
-# Every epic has EPIC.md
-for dir in .converge/epics/*/; do
-  test -f "$dir/EPIC.md" || echo "MISSING: $dir/EPIC.md"
+# Every task directory has TASK.md (at all nesting levels)
+find .converge/playbooks/*/tasks -type d | while read dir; do
+  # Skip the root tasks/ dir itself
+  [ "$dir" = ".converge/playbooks/*/tasks" ] && continue
+  [ -f "$dir/TASK.md" ] || echo "MISSING: $dir/TASK.md"
 done
 
-# Every task has TASK.md
-for dir in .converge/epics/*/*/; do
-  test -f "$dir/TASK.md" || echo "MISSING: $dir/TASK.md"
-done
+# playbook.yml exists
+test -f .converge/playbooks/*/playbook.yml || echo "MISSING: playbook.yml"
 
-# WBS tasks have wbs.js
-grep -rl "wbs:" .converge/epics/*/*/TASK.md | while read f; do
+# WBS tasks have wbs/index.js
+grep -rl "wbs:" .converge/playbooks/*/tasks/*/TASK.md .converge/playbooks/*/tasks/*/*/TASK.md 2>/dev/null | while read f; do
   dir=$(dirname "$f")
-  test -f "$dir/wbs.js" || echo "MISSING: $dir/wbs.js (referenced in TASK.md)"
+  test -f "$dir/wbs/index.js" || echo "MISSING: $dir/wbs/index.js (referenced in TASK.md)"
 done
 ```
 
 **Check:**
-- [ ] Every epic directory has `EPIC.md`
-- [ ] Every task directory has `TASK.md`
-- [ ] WBS references have corresponding `wbs.js` files
-- [ ] Numbering is sequential (01-, 02-... for epics; 001-, 002-... for tasks)
+- [ ] Every task directory has `TASK.md` (at all nesting levels)
+- [ ] `playbook.yml` exists
+- [ ] WBS references have corresponding `wbs/index.js` files
+- [ ] Numbering is sequential within each level
 
 ---
 
@@ -51,7 +51,7 @@ For each TASK.md, verify frontmatter:
 
 | Field | Required | Check |
 |-------|----------|-------|
-| `id` | Yes | Unique across epic, matches directory name |
+| `id` | Yes | Unique among siblings, matches directory name |
 | `title` | Yes | Human-readable, descriptive |
 | `outputs` | Yes | At least one specific file path |
 | `checks` | Yes | At least one check per output |
@@ -94,11 +94,11 @@ checks:
 
 ```bash
 # Collect all task IDs
-find .converge/epics -name "TASK.md" -exec grep -h "^id:" {} \; | sed 's/id: //' > /tmp/task-ids.txt
+find .converge/playbooks/*/tasks -name "TASK.md" -exec grep -h "^id:" {} \; | sed 's/id: //' > /tmp/task-ids.txt
 
 # Check all dependency references resolve
-find .converge/epics -name "TASK.md" -exec grep -h "dependencies:" -A 20 {} \; | grep "^ *- " | sed 's/^ *- //' | while read dep; do
-  # Same-epic deps
+find .converge/playbooks/*/tasks -name "TASK.md" -exec grep -h "dependencies:" -A 20 {} \; | grep "^ *- " | sed 's/^ *- //' | while read dep; do
+  # Sibling or cross-branch deps
   grep -q "^$dep$" /tmp/task-ids.txt || echo "BROKEN DEP: $dep"
 done
 ```
@@ -106,31 +106,32 @@ done
 **Check:**
 - [ ] All dependency references point to existing tasks
 - [ ] No circular dependencies
-- [ ] Cross-epic deps use `epic-id.task-id` format
+- [ ] Cross-branch deps use dotted path format (e.g. `01-requirements.002-spec`)
 - [ ] Input files are produced by upstream task outputs
 
 ---
 
-### 4.4: Input/Output Chain
+### 4.4: Context Flow Integrity (Context Interpolation)
 
-Trace the data flow through epics:
+Trace the context flow through the task hierarchy. Every task's `inputs` (Context In) must be produced by an upstream task's `outputs` (Context Out). This is the context chain — see `preferences/context-principles.md` (Principle 2).
 
 ```
-Epic 01 outputs → Epic 02 inputs (do they match?)
-Epic 02 outputs → Epic 03 inputs (do they match?)
+Task 01 outputs → Task 02 inputs (do they match?)
+Task 02 outputs → Task 03 inputs (do they match?)
 ...
 ```
 
 **Check:**
-- [ ] Every input file is produced by a prior task's output
+- [ ] Every input file is produced by a prior task's output (no orphan inputs)
 - [ ] No orphan outputs (files produced but never consumed — acceptable but flag)
 - [ ] No missing inputs (files consumed but never produced — error)
+- [ ] No over-broad inputs (e.g., `src/**/*` when only one file is needed)
 
 ---
 
 ### 4.5: Facts Verification
 
-Review `.converge/plan.md` facts section:
+Review facts in playbook description and task TASK.md bodies:
 
 - [ ] At least 5 facts documented
 - [ ] Facts are specific and measurable (not "app should be fast")
@@ -142,7 +143,7 @@ Review `.converge/plan.md` facts section:
 
 ### 4.6: Requirements Coverage
 
-Cross-reference requirements with epics:
+Cross-reference requirements with tasks:
 
 ```markdown
 | Requirement | Covered By | Status |
@@ -156,7 +157,7 @@ Cross-reference requirements with epics:
 **Check:**
 - [ ] Every "must have" requirement maps to at least one task
 - [ ] Every "should have" requirement is either mapped or explicitly deferred
-- [ ] Deferred items are documented in plan.md
+- [ ] Deferred items are documented in `playbook.yml` or task structure
 
 ---
 
@@ -167,11 +168,11 @@ Present the validated plan to the user:
 ```markdown
 ## Plan Summary
 
-**Epics:** [N] epics with [M] total tasks
+**Tasks:** [N] top-level, [M] total across all levels
 **Estimated steps:** [X] sequential, [Y] parallelizable
-**WBS tasks:** [Z] tasks will spawn subtasks dynamically
+**WBS tasks:** [Z] tasks will spawn children dynamically
 
-### Epic Overview
+### Task Overview
 1. **01-requirements** — [description] — [N tasks]
 2. **02-foundation** — [description] — [N tasks]
 3. ...
@@ -226,11 +227,11 @@ Fix: Split B into B1 (no deps) and B2 (deps: [A])
 Then: A deps: [B1], B2 deps: [A]
 ```
 
-### Too Many Tasks in Epic
+### Too Many Children
 ```
-Epic 03 has 12 tasks  ← Too many
+Task 03 has 12 children  ← Too many
 
-Fix: Split into 03a (6 tasks) and 03b (6 tasks)
+Fix: Split into 03a (6 children) and 03b (6 children)
 ```
 
 ### Missing Checks

@@ -893,6 +893,8 @@ async function buildTsStrategies(): Promise<
     await import("../strategies/wbs-generator-repair.ts");
   const { WbsScriptRepairStrategy } =
     await import("../strategies/wbs-script-repair.ts");
+  const { MissingWbsScriptStrategy } =
+    await import("../strategies/missing-wbs-script.ts");
   const { DependencyBackoffStrategy } =
     await import("../strategies/dependency-backoff.ts");
   const { MissingInputPatternRepairStrategy } =
@@ -903,6 +905,7 @@ async function buildTsStrategies(): Promise<
     await import("../strategies/tool-environment-repair.ts");
   return [
     new UserQuestionResumeStrategy(),
+    new MissingWbsScriptStrategy(), // Run before WbsScriptRepairStrategy to catch missing scripts
     new WBSGeneratorRepairStrategy(),
     new WbsScriptRepairStrategy(),
     new DependencyBackoffStrategy(),

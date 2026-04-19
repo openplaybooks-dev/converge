@@ -4,92 +4,82 @@ Complete format specification for all planning artifacts.
 
 ---
 
-## File: `.converge/plan.md`
+## File: `playbook.yml`
 
-Master plan document. Top-level overview of the entire project plan.
+Playbook manifest. Defines the task list, dependencies, run config, and top-level checks.
 
-```markdown
-# Project Plan
-
-## Overview
-[1-3 sentences: what we're building, tech approach, scope]
-
-## Facts
-[Known truths — see Facts section below]
-
-## Epic Structure
-| Epic | Title | Tasks | Dependencies |
-|------|-------|-------|-------------|
-| 01-requirements | Gather Requirements | 2 | None |
-| 02-foundation | Project Foundation | 3 | 01 |
-| 03-data-layer | Data & API | 4 | 02 |
-
-## Epic Flow
-[ASCII dependency diagram]
-
-## API Needs
-[Internal + External API table — see API Needs section below]
-
-## WBS Summary
-| Task | Data Source | Pattern | Spawns |
-|------|-----------|---------|--------|
-| 04.003 | screens.json | 1 per screen | ~8 |
-
-## Skills Used
-| Skill | Used By | Purpose |
-|-------|---------|---------|
-| ux-design | 01.001 | Generate UX spec |
-
-## Risk Register
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| [description] | High/Med/Low | [mitigation] |
-```
-
----
-
-## File: `EPIC.md`
-
-Epic metadata. One per epic directory.
-
-**Location:** `.converge/epics/{NN-epic-name}/EPIC.md`
+**Location:** `.converge/playbooks/{name}/playbook.yml`
 
 ```yaml
----
-id: 02-foundation
-title: Foundation
-description: Set up project structure, design system, and core configuration
----
+name: default
+description: |
+  End-to-end app generation.
 
-# Foundation
+  ## Facts
+  - FACT: Uses React 19 + TypeScript 5.4
+  - FACT: Tailwind CSS with custom design tokens
 
-This epic establishes the foundational elements:
-1. Project scaffolding and configuration
-2. Design system generation
-3. Design token implementation
+  ## API Needs
+  - Internal: /api/users (GET, POST)
+  - External: Stripe for payments
+
+run:
+  mode: autonomous
+  maxIterations: 50
+  maxTaskAttempts: 3
+
+tasks:
+  - id: 01-prepare-requirements
+  - id: 02-design-system
+    depends_on: [01-prepare-requirements]
+  - id: 03-build-screens
+    depends_on: [02-design-system]
+
+checks:
+  - id: type-check
+    cmd: npx tsc --noEmit
+  - id: tests-pass
+    cmd: npm test -- --passWithNoTests
 ```
-
-### EPIC.md Fields
-
-| Field | Required | Description |
-|-------|----------|-------------|
-| `id` | Yes | Epic identifier: `NN-kebab-case` |
-| `title` | Yes | Human-readable title |
-| `description` | Yes | One-line purpose |
-
-### Body Content
-- Brief overview of what the epic accomplishes
-- Numbered list of tasks (for human reference)
-- No execution instructions (those go in TASK.md)
 
 ---
 
 ## File: `TASK.md`
 
-Task definition. One per task directory.
+Task definition. One per task directory. The same schema applies at every nesting level — a top-level task and a deeply nested child use identical TASK.md format. Tasks nest arbitrarily deep.
 
-**Location:** `.converge/epics/{NN-epic}/{NNN-task}/TASK.md`
+**Location:** `.converge/playbooks/{name}/tasks/{path-to-task}/TASK.md`
 
+**Example: Task with children (any level)**
+```yaml
+---
+id: 01-prepare-requirements
+title: Prepare Requirements
+description: Validate app idea, generate PRD, generate UX spec, extract screen definitions
+blocking: true
+dependencies: []
+outputs:
+  - PRD.md
+  - .stitch/UX.md
+  - .stitch/screens.json
+checks:
+  - id: ux-spec-exists
+    cmd: test -f .stitch/UX.md
+    description: UX specification exists
+references:
+  - ux-design
+---
+
+# Prepare Requirements
+
+Gathers requirements and produces foundational artifacts:
+1. Validate app idea
+2. Generate PRD
+3. Generate UX overview
+4. Breakdown UX to screens
+```
+
+**Example: Leaf task (any level)**
 ```yaml
 ---
 id: 001-task-name
@@ -97,34 +87,17 @@ title: Human-Readable Title
 description: What this task accomplishes in one sentence
 dependencies:
   - upstream-task-id
-  - 01-epic.002-cross-epic-dep
+  - 01-requirements.002-spec       # Cross-branch dep (dotted path)
 inputs:
   - path/to/input.md
-  - src/**/*.tsx
 outputs:
   - path/to/output.md
-  - src/generated/file.ts
 skills:
   - skill-name
-tags:
-  - category
-  - phase
-blocking: true
-executor:
-  type: ai
-  prompt: |
-    Inline prompt (alternative to body instructions)
-wbs:
-  type: nodejs
-  path: ./wbs.js
 checks:
   - id: check-identifier
     cmd: shell-command-returns-0
     description: Human-readable check description
-allowed-tools:
-  - Read
-  - Write
-  - Bash
 ---
 
 # Task Title
@@ -132,9 +105,6 @@ allowed-tools:
 [Step-by-step instructions for the AI executor]
 
 ## Step 1: ...
-...
-
-## Step 2: ...
 ...
 
 ## Success Criteria
@@ -145,14 +115,18 @@ allowed-tools:
 
 | Field | Required | Type | Description |
 |-------|----------|------|-------------|
-| `id` | Yes | string | Unique within epic: `NNN-kebab-case` |
+| `id` | Yes | string | Unique among siblings: `NN-kebab-case` or `NNN-kebab-case` |
 | `title` | Yes | string | Human-readable title |
 | `description` | Recommended | string | One-line purpose |
-| `outputs` | Yes | string[] | File paths this task creates |
+| `outputs` | Yes | string[] | Context Out: file paths this task produces for downstream consumption |
 | `checks` | Yes | Check[] | Validation commands |
 | `dependencies` | If needed | string[] | Task IDs that must complete first |
-| `inputs` | If needed | string[] | File paths/globs this task reads |
+| `inputs` | If needed | string[] | Context In: file paths/globs this task reads from upstream (context contract) |
 | `skills` | If needed | string[] | Converge skills to invoke |
+| `references` | Optional | string[] | Skill libraries to reference |
+| `vars` | Optional | object | Template variables (passed to WBS/children) |
+| `plan` | Optional | string | Execution plan hint |
+| `backlogs` | Optional | Backlog[] | Non-blocking quality issues to track |
 | `tags` | Optional | string[] | Categorization labels |
 | `blocking` | Optional | boolean | If true, blocks all downstream |
 | `executor` | Optional | object | Execution method override |
@@ -162,11 +136,11 @@ allowed-tools:
 ### Dependency Formats
 
 ```yaml
-# Same-epic
+# Sibling (same level)
 dependencies:
   - 001-upstream-task
 
-# Cross-epic
+# Cross-branch (dotted path)
 dependencies:
   - 01-requirements.002-spec
 
@@ -194,11 +168,41 @@ executor:
   prompt: |
     Create the config file with these settings...
 
-# WBS-based (dynamic subtask spawning)
+# WBS-based (dynamic child spawning)
 wbs:
   type: nodejs
-  path: ./wbs.js
+  path: ./wbs/index.js
 ```
+
+### Context Contract
+
+Every task's `inputs` and `outputs` form a **context contract** — an explicit declaration of what context flows in and out. See `preferences/context-principles.md` (Principle 2) for the full reference.
+
+**Rules:**
+- Every `input` must be an upstream task's `output` (no orphan inputs)
+- Every `output` should be consumed by a downstream task's `input` (flag orphans)
+- Use specific paths, not broad globs — narrow inputs make task boundaries clear
+
+**Example: Context flow through a screen build pipeline**
+
+```yaml
+# 001-spec
+outputs: [screen-spec.md]
+
+# 002-design (reads spec, produces design)
+inputs:  [screen-spec.md]
+outputs: [design.html]
+
+# 003-convert (reads design, produces component)
+inputs:  [design.html]
+outputs: [src/screens/Home.tsx]
+
+# 004-split (reads component, produces sub-components)
+inputs:  [src/screens/Home.tsx]
+outputs: [src/components/Header.tsx, src/components/Footer.tsx]
+```
+
+Each task reads exactly what the prior task produced. The chain is traceable from first input to final output.
 
 ---
 
@@ -283,7 +287,7 @@ checks:
 
 ## Facts Schema
 
-Facts are documented in `.converge/plan.md` under the `## Facts` section.
+Facts can live in the playbook `description` field, any TASK.md body, or `data/facts.json` in the journal.
 
 ### Format
 
@@ -307,7 +311,7 @@ Facts are documented in `.converge/plan.md` under the `## Facts` section.
 - **Specific:** "Uses React 19" not "Uses React"
 - **Measurable:** "Max 100 concurrent users" not "Should handle users"
 - **Sourced:** Always note where the fact came from
-- **Stable:** Facts don't change during execution (if they do, update plan.md)
+- **Stable:** Facts don't change during execution (if they do, update the playbook or task)
 
 ### Fact Categories
 
@@ -324,7 +328,7 @@ Facts are documented in `.converge/plan.md` under the `## Facts` section.
 
 ## API Needs Schema
 
-Documented in `.converge/plan.md` under `## API Needs`.
+Documented in task TASK.md bodies or the playbook `description` field.
 
 ### Internal APIs
 
@@ -349,55 +353,24 @@ Documented in `.converge/plan.md` under `## API Needs`.
 
 ---
 
-## WBS Script Schema (`wbs.js`)
+## WBS API
 
-```javascript
-import { readFileSync } from 'fs';
-import { join } from 'path';
+WBS spawns N child tasks dynamically. Two patterns: from JSON data, or from AI analysis.
 
-export async function run(ctx) {
-  // ctx.projectDir — project root path
-  // ctx.spawn(task, opts) — spawn a subtask
-
-  const data = JSON.parse(
-    readFileSync(join(ctx.projectDir, 'data.json'), 'utf-8')
-  );
-
-  for (const [index, item] of data.entries()) {
-    await ctx.spawn({
-      id: `NNN-${String(index + 1).padStart(3, '0')}-${item.id}`,
-      title: `Process ${item.name}`,
-      dependencies: [],
-      inputs: [`source/${item.id}.json`],
-      outputs: [`output/${item.id}.txt`],
-      skills: [],
-      tags: [],
-      vars: { itemId: item.id, itemName: item.name },
-      checks: [{
-        id: 'exists',
-        cmd: `test -f output/${item.id}.txt`,
-        description: `${item.name} output exists`
-      }],
-      body: `Instructions for processing ${item.name}.`,
-    });
-  }
-}
-```
-
-### WBS Context API
+### ctx API
 
 | Property/Method | Description |
 |----------------|-------------|
 | `ctx.projectDir` | Absolute path to project root |
-| `ctx.spawn(task, opts)` | Spawn a subtask |
+| `ctx.spawn(task)` | Spawn a child task |
+| `ctx.ai.askJson(prompt, schema)` | Ask AI to analyze and return structured JSON |
 | `ctx.log(message)` | Write to execution log |
-| `ctx.data` | Shared data between WBS calls |
 
-### Spawn Task Shape
+### ctx.spawn(task) Shape
 
 ```typescript
 {
-  id: string;              // Required: subtask ID
+  id: string;              // Required: NNN-kebab-case
   title?: string;          // Display name
   dependencies?: string[]; // Task IDs
   inputs?: string[];       // Input file paths
@@ -407,22 +380,88 @@ export async function run(ctx) {
   vars?: Record<string, string>;  // Template variables
   checks?: Check[];        // Validation checks
   body?: string;           // Markdown instructions
-  plan?: string;           // Execution plan
 }
 ```
+
+### Pattern 1: WBS from JSON
+
+Read a data file, spawn one task per item.
+
+```js
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+export async function run(ctx) {
+  const items = JSON.parse(
+    readFileSync(join(ctx.projectDir, 'data.json'), 'utf-8')
+  );
+
+  for (const [i, item] of items.entries()) {
+    await ctx.spawn({
+      id: `${String(i + 1).padStart(3, '0')}-${item.id}`,
+      title: item.name,
+      dependencies: [],             // parallel — use [prevId] for sequential
+      outputs: [`output/${item.id}.json`],
+      checks: [{ id: 'exists', cmd: `test -f output/${item.id}.json`, description: `${item.name} exists` }],
+      body: `Process ${item.name}.\n\n${JSON.stringify(item, null, 2)}`,
+    });
+  }
+}
+```
+
+### Pattern 2: WBS from AI analysis
+
+Use `ctx.ai.askJson()` when the task list isn't in a file — AI must analyze code/data to decide what to spawn.
+
+```js
+import { z } from 'zod';
+
+export async function run(ctx) {
+  const items = await ctx.ai.askJson(
+    'Scan src/api/ and list all route handlers that lack tests.',
+    z.array(z.object({
+      path: z.string(),
+      name: z.string(),
+    }))
+  );
+
+  for (const [i, item] of items.entries()) {
+    await ctx.spawn({
+      id: `${String(i + 1).padStart(3, '0')}-test-${item.name}`,
+      title: `Write tests for ${item.name}`,
+      inputs: [item.path],
+      outputs: [`${item.path.replace('.ts', '.test.ts')}`],
+      checks: [{ id: 'tests', cmd: `npx vitest run ${item.path.replace('.ts', '.test.ts')}`, description: 'Tests pass' }],
+      body: `Write unit tests for ${item.path}.`,
+    });
+  }
+}
+```
+
+### Rules
+
+- Always `export async function run(ctx)` — ESM only
+- Every `ctx.spawn()` must have a unique `id` (NNN-kebab-case)
+- Every spawn must have at least one `check`
+- Use `dependencies: []` for parallel, `dependencies: [prevId]` for sequential
+- Use `ctx.ai.askJson()` only when data isn't in a file — it's slower
 
 ---
 
 ## Directory Naming Conventions
 
+All task directories live under `.converge/playbooks/{name}/tasks/`.
+
 ```
-Epics:    NN-kebab-case    → 01-requirements, 02-foundation
-Tasks:    NNN-kebab-case   → 001-gather-needs, 002-create-spec
-Subtasks: NNN-NNN-kebab    → 003-001-screen-dashboard
+Top-level:  NN-kebab-case    → 01-requirements, 02-foundation
+Children:   NNN-kebab-case   → 001-gather-needs, 002-create-spec
+WBS-spawned: NNN-NNN-kebab   → 003-001-screen-dashboard
 ```
 
-- Epics: Two-digit prefix (01-99)
-- Tasks: Three-digit prefix (001-999)
-- Subtasks: Parent prefix + three-digit suffix
+- Top-level tasks: Two-digit prefix (01-99)
+- Children: Three-digit prefix (001-999)
+- WBS-spawned: Task prefix + three-digit suffix
 - Always kebab-case after the number
 - Sort order matches execution order (when sequential)
+- WBS scripts go in `wbs/index.js` within the task directory
+- WBS-spawned children go in `tasks/` within the task directory

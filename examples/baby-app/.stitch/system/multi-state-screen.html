@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bloom — Weight &amp; Nutrition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Background */
+  --color-canvas: #EDE8F7;
+  --color-canvas-alt: #FDEEEE;
+  --color-surface: #FFFFFF;
+  --color-surface-tertiary: #FDF9F8;
+
+  /* Text */
+  --color-text-primary: #2A2A3A;
+  --color-text-secondary: #8B8B9C;
+
+  /* Accent */
+  --color-accent-coral: #F28B8B;
+  --color-accent-coral-tint: rgba(242, 139, 139, 0.12);
+  --color-accent-lilac: #8B7ED8;
+  --color-accent-lilac-tint: rgba(139, 126, 216, 0.14);
+
+  /* Structural */
+  --color-divider: rgba(42, 42, 58, 0.06);
+  --color-chip-bg: rgba(139, 126, 216, 0.08);
+
+  /* Functional */
+  --color-success: #6DC48A;
+  --color-error: #E85C5C;
+  --color-warning: #F4C84D;
+
+  /* BMI Gauge */
+  --color-bmi-underweight: #5BB4E5;
+  --color-bmi-healthy: #6DC48A;
+  --color-bmi-caution: #F4C84D;
+  --color-bmi-warning: #F59052;
+  --color-bmi-alert: #E85C5C;
+
+  /* Shadows */
+  --shadow-subtle: 0 2px 8px rgba(139, 126, 216, 0.08);
+  --shadow-standard: 0 4px 20px rgba(139, 126, 216, 0.12);
+  --shadow-prominent: 0 8px 32px rgba(139, 126, 216, 0.14);
+  --shadow-nav: 0 -4px 20px rgba(139, 126, 216, 0.08);
+
+  /* Typography */
+  --font-ui: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --fs-display: 2rem;
+  --fs-stat: 2.25rem;
+  --fs-heading: 1.5rem;
+  --fs-subheading: 1.125rem;
+  --fs-body: 1rem;
+  --fs-data: 0.875rem;
+  --fs-caption: 0.8125rem;
+  --fs-micro: 0.6875rem;
+
+  /* Spacing */
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1.25rem;
+  --space-lg: 1.75rem;
+  --space-xl: 2rem;
+
+  /* Radius */
+  --radius-sm: 0.5rem;
+  --radius-md: 1rem;
+  --radius-card: 1.5rem;
+  --radius-hero: 2rem;
+  --radius-pill: 9999px;
+
+  /* Motion */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-exit: cubic-bezier(0.25, 0, 0, 1);
+  --duration-card: 450ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-ui);
+  background: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.phone {
+  width: 375px;
+  min-height: 812px;
+  background: var(--color-canvas);
+  border-radius: 2.5rem;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+/* App Bar */
+.app-bar {
+  padding: 3rem var(--space-md) var(--space-sm);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.app-bar .back-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.app-bar .back-btn svg {
+  width: 22px;
+  height: 22px;
+  color: var(--color-text-primary);
+}
+
+.app-bar h1 {
+  font-size: var(--fs-subheading);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.screen-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 var(--space-md) 5.5rem;
+}
+
+/* Weight Chart Card */
+.chart-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-standard);
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.chart-card h2 {
+  font-size: var(--fs-subheading);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.chart-area {
+  width: 100%;
+  height: 180px;
+  position: relative;
+}
+
+.chart-area svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* BMI Gauge Card */
+.bmi-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-standard);
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.bmi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+
+.bmi-header h2 {
+  font-size: var(--fs-subheading);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.bmi-value {
+  font-size: var(--fs-heading);
+  font-weight: 800;
+  color: var(--color-accent-lilac);
+}
+
+.bmi-gauge {
+  display: flex;
+  gap: 4px;
+  margin-bottom: var(--space-xs);
+  position: relative;
+}
+
+.bmi-segment {
+  flex: 1;
+  height: 18px;
+  border-radius: var(--radius-pill);
+}
+
+.bmi-labels {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 0.25rem;
+}
+
+.bmi-labels span {
+  font-size: var(--fs-micro);
+  color: var(--color-text-secondary);
+  font-weight: 700;
+}
+
+.bmi-needle {
+  position: absolute;
+  top: -8px;
+  width: 2px;
+  height: 34px;
+  background: var(--color-text-primary);
+  border-radius: 1px;
+}
+
+.bmi-needle-label {
+  position: absolute;
+  top: -24px;
+  transform: translateX(-50%);
+  font-size: var(--fs-subheading);
+  font-weight: 800;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+/* Quick Stats Row */
+.quick-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+
+.quick-stat-item {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-standard);
+  padding: var(--space-sm);
+  text-align: center;
+}
+
+.quick-stat-item .qs-value {
+  font-size: var(--fs-heading);
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.quick-stat-item .qs-value.coral { color: var(--color-accent-coral); }
+.quick-stat-item .qs-value.lilac { color: var(--color-accent-lilac); }
+.quick-stat-item .qs-value.green { color: var(--color-success); }
+
+.quick-stat-item .qs-label {
+  font-size: var(--fs-micro);
+  color: var(--color-text-secondary);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 0.125rem;
+}
+
+/* Nutrition Card */
+.nutrition-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-standard);
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.nutrition-card h2 {
+  font-size: var(--fs-subheading);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.tip-item {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: var(--space-xs) 0;
+}
+
+.tip-item + .tip-item {
+  border-top: 1px solid var(--color-divider);
+}
+
+.tip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-coral);
+  flex-shrink: 0;
+  margin-top: 0.375rem;
+}
+
+.tip-item p {
+  font-size: var(--fs-data);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Weight History */
+.history-section h2 {
+  font-size: var(--fs-subheading);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.history-item {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-standard);
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-xs);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.history-date {
+  font-size: var(--fs-caption);
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.history-value {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+/* FAB */
+.fab {
+  position: absolute;
+  bottom: 6rem;
+  right: var(--space-md);
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-coral);
+  color: var(--color-surface);
+  border: none;
+  box-shadow: var(--shadow-prominent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 40;
+}
+
+.fab svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Bottom Nav */
+.bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-nav);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0.5rem 0;
+  padding-bottom: 1.5rem;
+  z-index: 50;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--radius-md);
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.nav-item.active {
+  background: var(--color-accent-coral-tint);
+}
+
+.nav-item svg {
+  width: 22px;
+  height: 22px;
+  color: var(--color-text-secondary);
+}
+
+.nav-item.active svg {
+  color: var(--color-accent-coral);
+}
+
+.nav-item span {
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+}
+
+.nav-item.active span {
+  color: var(--color-accent-coral);
+}
+</style>
+</head>
+<body>
+
+<div class="phone" role="application" aria-label="Bloom weight and nutrition screen">
+
+  <!-- App Bar -->
+  <header class="app-bar">
+    <button class="back-btn" aria-label="Go back">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <h1>Weight &amp; Nutrition</h1>
+  </header>
+
+  <main class="screen-content">
+
+    <!-- Weight Chart Card -->
+    <section class="chart-card" aria-label="Weight over time chart">
+      <h2>Weight Trend</h2>
+      <div class="chart-area">
+        <svg viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg" aria-label="Line chart showing weight trend over 8 weeks" role="img">
+          <!-- Grid lines -->
+          <line x1="40" y1="20" x2="290" y2="20" stroke="rgba(42,42,58,0.06)" stroke-width="1" stroke-dasharray="4 4"/>
+          <line x1="40" y1="55" x2="290" y2="55" stroke="rgba(42,42,58,0.06)" stroke-width="1" stroke-dasharray="4 4"/>
+          <line x1="40" y1="90" x2="290" y2="90" stroke="rgba(42,42,58,0.06)" stroke-width="1" stroke-dasharray="4 4"/>
+          <line x1="40" y1="125" x2="290" y2="125" stroke="rgba(42,42,58,0.06)" stroke-width="1" stroke-dasharray="4 4"/>
+
+          <!-- Y-axis labels -->
+          <text x="32" y="24" text-anchor="end" font-family="Plus Jakarta Sans, sans-serif" font-size="9" fill="#8B8B9C" font-weight="700">62</text>
+          <text x="32" y="59" text-anchor="end" font-family="Plus Jakarta Sans, sans-serif" font-size="9" fill="#8B8B9C" font-weight="700">60</text>
+          <text x="32" y="94" text-anchor="end" font-family="Plus Jakarta Sans, sans-serif" font-size="9" fill="#8B8B9C" font-weight="700">58</text>
+          <text x="32" y="129" text-anchor="end" font-family="Plus Jakarta Sans, sans-serif" font-size="9" fill="#8B8B9C" font-weight="700">56</text>
+
+          <!-- X-axis labels -->
+          <text x="55" y="148" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="9" fill="#8B8B9C" font-weight="700">W15</text>
+          <text x="95" y="148" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="9" fill="#8B8B9C" font-weight="700">W16</text>
+          <text x="135" y="148" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="9" fill="#8B8B9C" font-weight="700">W17</text>
+          <text x="175" y="148" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="9" fill="#8B8B9C" font-weight="700">W18</text>
+          <text x="215" y="148" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="9" fill="#8B8B9C" font-weight="700">W19</text>
+          <text x="255" y="148" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="9" fill="#8B8B9C" font-weight="700">W20</text>
+
+          <!-- Gradient fill area -->
+          <defs>
+            <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#8B7ED8" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#8B7ED8" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M55 120 L95 108 L135 100 L175 90 L215 82 L255 72 L255 125 L55 125 Z" fill="url(#chartFill)"/>
+
+          <!-- Line -->
+          <polyline points="55,120 95,108 135,100 175,90 215,82 255,72" fill="none" stroke="#8B7ED8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+          <!-- Data points -->
+          <circle cx="55" cy="120" r="4" fill="#8B7ED8" stroke="#FFFFFF" stroke-width="2"/>
+          <circle cx="95" cy="108" r="4" fill="#8B7ED8" stroke="#FFFFFF" stroke-width="2"/>
+          <circle cx="135" cy="100" r="4" fill="#8B7ED8" stroke="#FFFFFF" stroke-width="2"/>
+          <circle cx="175" cy="90" r="4" fill="#8B7ED8" stroke="#FFFFFF" stroke-width="2"/>
+          <circle cx="215" cy="82" r="4" fill="#8B7ED8" stroke="#FFFFFF" stroke-width="2"/>
+
+          <!-- Active point -->
+          <circle cx="255" cy="72" r="6" fill="#8B7ED8" stroke="#FFFFFF" stroke-width="2"/>
+          <circle cx="255" cy="72" r="10" fill="none" stroke="#8B7ED8" stroke-width="1" opacity="0.3"/>
+
+          <!-- Current value label -->
+          <line x1="255" y1="72" x2="255" y2="125" stroke="#8B7ED8" stroke-width="1" stroke-dasharray="3 3" opacity="0.4"/>
+          <rect x="233" y="56" width="44" height="18" rx="9" fill="#8B7ED8"/>
+          <text x="255" y="68" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="10" fill="#FFFFFF" font-weight="700">58.3</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- BMI Gauge Card -->
+    <section class="bmi-card" aria-label="BMI gauge showing current BMI of 22.4">
+      <div class="bmi-header">
+        <h2>BMI</h2>
+        <span class="bmi-value">22.4</span>
+      </div>
+      <div class="bmi-gauge" role="img" aria-label="BMI gauge, current value 22.4 in healthy range">
+        <div class="bmi-segment" style="background: var(--color-bmi-underweight)"></div>
+        <div class="bmi-segment" style="background: var(--color-bmi-healthy)"></div>
+        <div class="bmi-segment" style="background: var(--color-bmi-caution)"></div>
+        <div class="bmi-segment" style="background: var(--color-bmi-warning)"></div>
+        <div class="bmi-segment" style="background: var(--color-bmi-alert)"></div>
+        <div class="bmi-needle" style="left: 35%" aria-hidden="true">
+          <span class="bmi-needle-label">22.4</span>
+        </div>
+      </div>
+      <div class="bmi-labels" aria-hidden="true">
+        <span>16</span>
+        <span>18.5</span>
+        <span>25</span>
+        <span>30</span>
+        <span>35</span>
+        <span>40</span>
+      </div>
+    </section>
+
+    <!-- Quick Stats Row -->
+    <section class="quick-stats" aria-label="Weight quick stats">
+      <div class="quick-stat-item">
+        <div class="qs-value coral">58.3<span style="font-size: var(--fs-micro); color: var(--color-text-secondary); font-weight: 500; margin-left: 0.125em;">kg</span></div>
+        <div class="qs-label">Current</div>
+      </div>
+      <div class="quick-stat-item">
+        <div class="qs-value green">+0.4<span style="font-size: var(--fs-micro); color: var(--color-text-secondary); font-weight: 500; margin-left: 0.125em;">kg</span></div>
+        <div class="qs-label">This week</div>
+      </div>
+      <div class="quick-stat-item">
+        <div class="qs-value lilac">55–65<span style="font-size: var(--fs-micro); color: var(--color-text-secondary); font-weight: 500; margin-left: 0.125em;">kg</span></div>
+        <div class="qs-label">Target</div>
+      </div>
+    </section>
+
+    <!-- Nutrition Tips Card -->
+    <section class="nutrition-card" aria-label="Nutrition tips for this week">
+      <h2>Nutrition Tips — Week 22</h2>
+      <div class="tip-item">
+        <div class="tip-dot" aria-hidden="true"></div>
+        <p>Increase iron-rich foods like leafy greens and lentils to support growing blood volume</p>
+      </div>
+      <div class="tip-item">
+        <div class="tip-dot" aria-hidden="true"></div>
+        <p>Stay hydrated with at least 2.3 litres of water daily for amniotic fluid balance</p>
+      </div>
+      <div class="tip-item">
+        <div class="tip-dot" aria-hidden="true"></div>
+        <p>Include omega-3 sources like walnuts or chia seeds for baby's brain development</p>
+      </div>
+    </section>
+
+    <!-- Weight History List -->
+    <section class="history-section" aria-label="Weight history">
+      <h2>Recent Entries</h2>
+      <div class="history-item" role="button" tabindex="0" aria-label="April 17: 58.3 kilograms">
+        <span class="history-date">17 Apr</span>
+        <span class="history-value">58.3 kg</span>
+      </div>
+      <div class="history-item" role="button" tabindex="0" aria-label="April 14: 57.9 kilograms">
+        <span class="history-date">14 Apr</span>
+        <span class="history-value">57.9 kg</span>
+      </div>
+      <div class="history-item" role="button" tabindex="0" aria-label="April 10: 57.6 kilograms">
+        <span class="history-date">10 Apr</span>
+        <span class="history-value">57.6 kg</span>
+      </div>
+      <div class="history-item" role="button" tabindex="0" aria-label="April 7: 57.2 kilograms">
+        <span class="history-date">7 Apr</span>
+        <span class="history-value">57.2 kg</span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FAB -->
+  <button class="fab" aria-label="Log new weight entry">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <button class="nav-item" aria-label="Home">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="nav-item" aria-label="Progress">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Progress</span>
+    </button>
+    <button class="nav-item active" aria-label="Health" aria-current="page">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span>Health</span>
+    </button>
+    <button class="nav-item" aria-label="Wellness">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+      <span>Wellness</span>
+    </button>
+    <button class="nav-item" aria-label="Learn">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <span>Learn</span>
+    </button>
+  </nav>
+</div>
+
+</body>
+</html>

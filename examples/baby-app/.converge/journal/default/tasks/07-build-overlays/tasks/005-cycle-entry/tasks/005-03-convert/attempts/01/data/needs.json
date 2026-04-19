@@ -1,0 +1,31 @@
+{
+  "taskId": "07-build-overlays/005-cycle-entry/005-03-convert",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/cycle-entry/design.html",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/cycle-entry/design.html"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/cycle-entry/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/cycle-entry/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/overlays/cycle_entry/cycle_entry.dart"
+  ],
+  "blocked": false
+}

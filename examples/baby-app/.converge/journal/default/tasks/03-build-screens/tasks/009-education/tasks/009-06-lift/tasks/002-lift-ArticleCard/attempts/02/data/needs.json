@@ -1,0 +1,16 @@
+{
+  "taskId": "03-build-screens/009-education/009-06-lift/002-lift-ArticleCard",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "lib/screens/education/widgets/article_card.dart",
+      "count": 0,
+      "samples": []
+    }
+  ],
+  "outputs": [
+    "lib/widgets/article_card.dart"
+  ],
+  "blocked": true,
+  "blockedReason": "Missing required inputs: lib/screens/education/widgets/article_card.dart"
+}

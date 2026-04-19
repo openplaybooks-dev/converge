@@ -1,0 +1,20 @@
+# Checks: 03-build-screens/004-pregnancy-progress/004-02-design
+
+All checks must pass for this task to be considered complete.
+Run each command from the project root. Fix failures and re-run.
+
+## design-exists
+**Description**: design.html exists for pregnancy-progress
+**Command**: `test -f .stitch/designs/pregnancy-progress/design.html`
+
+## meta-exists
+**Description**: META.md exists for pregnancy-progress
+**Command**: `test -f .stitch/designs/pregnancy-progress/META.md`
+
+## uses-glossary
+**Description**: HTML uses Flutter HTML Glossary vocabulary
+**Command**: `grep -q 'class="scaffold"' .stitch/designs/pregnancy-progress/design.html`
+
+## has-data-attributes
+**Description**: HTML uses data-* attributes for Flutter conversion
+**Command**: `grep -q 'data-color=' .stitch/designs/pregnancy-progress/design.html`

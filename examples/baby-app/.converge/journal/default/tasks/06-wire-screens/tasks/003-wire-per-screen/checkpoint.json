@@ -1,0 +1,43 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/003-wire-per-screen",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T03:40:23.399Z",
+  "createdAt": "2026-04-19T00:46:20.504Z",
+  "progress": {
+    "totalChildren": 28,
+    "completedChildren": 28,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-BookmarkButton-onPressed-1",
+      "001-BottomNav-onDestinationSelected-1",
+      "001-ExerciseGuideItem-onTap-1",
+      "001-ExportData-onTap-1",
+      "001-FAB-onPressed-1",
+      "001-FeaturedExerciseCard-onTap-1",
+      "001-ModeSelectorPill-onTap-1",
+      "001-SearchButton-onPressed-1",
+      "001-StartExerciseButton-onPressed-1",
+      "001-home",
+      "002-ExerciseCard-onTap-1",
+      "002-FAB-onPressed-1",
+      "002-FeaturedArticleCard-onTap-1",
+      "002-PrimaryCta-onPressed-1",
+      "002-RelatedArticleCard-onTap-1",
+      "002-cycle-tracking",
+      "003-ArticleCard-onTap-1",
+      "003-MoodBanner-onTap-1",
+      "003-weight-nutrition",
+      "004-BookmarkedArticleCard-onTap-1",
+      "004-pregnancy-progress",
+      "005-mindfulness",
+      "006-exercise-detail",
+      "007-health-log",
+      "008-mood-wellness",
+      "009-education",
+      "010-article-reader",
+      "011-settings"
+    ],
+    "lastProgressUpdate": "2026-04-19T03:40:23.397Z"
+  }
+}

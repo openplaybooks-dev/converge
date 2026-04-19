@@ -1,0 +1,6 @@
+{"name": "HeroHeader", "grep": "_buildHeroHeader", "description": "Gradient header with trimester badge, week number, baby size text, and animated baby illustration", "shared": false}
+{"name": "BodyChangesCard", "grep": "_buildBodyChangesCard", "description": "Card listing body changes for the current week with coral bullet points and dividers", "shared": false}
+{"name": "BabyDevelopmentCard", "grep": "_buildBabyDevelopmentCard", "description": "Card showing baby development milestones with icon badges and descriptions", "shared": false}
+{"name": "SelfCareCard", "grep": "_buildSelfCareCard", "description": "Checklist card with completion tracking showing self-care tasks with check/uncheck states", "shared": true}
+{"name": "ExerciseGuideCard", "grep": "_buildExerciseGuideCard", "description": "Card listing safe exercises with icon, name, description, and navigation chevron", "shared": true}
+{"name": "DueDateCard", "grep": "_buildDueDateCard", "description": "Countdown card showing days remaining, progress bar, estimated due date, and week progress", "shared": false}

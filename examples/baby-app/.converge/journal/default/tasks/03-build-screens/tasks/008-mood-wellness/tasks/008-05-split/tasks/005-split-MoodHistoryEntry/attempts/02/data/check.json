@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/008-mood-wellness/008-05-split/005-split-MoodHistoryEntry",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Widget file exists",
+      "cmd": "test -f lib/screens/mood_wellness/widgets/mood_history_entry.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/screens/mood_wellness/widgets/mood_history_entry.dart"
+    }
+  ]
+}

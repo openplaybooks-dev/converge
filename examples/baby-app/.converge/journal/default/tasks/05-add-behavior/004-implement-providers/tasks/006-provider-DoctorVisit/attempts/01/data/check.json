@@ -1,0 +1,15 @@
+{
+  "taskId": "05-add-behavior/004-implement-providers/006-provider-DoctorVisit",
+  "checks": [
+    {
+      "id": "file-exists",
+      "description": "doctor_visit_provider.dart exists",
+      "cmd": "test -f lib/providers/doctor_visit_provider.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/providers/doctor_visit_provider.dart"
+    }
+  ]
+}

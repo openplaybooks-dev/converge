@@ -1,0 +1,20 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/001-mode-selector",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T03:40:23.399Z",
+  "createdAt": "2026-04-19T03:17:16.866Z",
+  "progress": {
+    "totalChildren": 5,
+    "completedChildren": 5,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-01-spec",
+      "001-02-design",
+      "001-03-convert",
+      "001-04-connect",
+      "001-05-mount"
+    ],
+    "lastProgressUpdate": "2026-04-19T03:40:23.397Z"
+  }
+}

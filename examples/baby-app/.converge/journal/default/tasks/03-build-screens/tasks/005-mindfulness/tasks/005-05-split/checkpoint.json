@@ -1,0 +1,22 @@
+{
+  "type": "task",
+  "id": "005-mindfulness/005-05-split",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T03:40:23.398Z",
+  "createdAt": "2026-04-18T13:46:47.519Z",
+  "resetAt": "2026-04-18T15:22:17.374Z",
+  "resetReason": "wbs.js was missing, now fixed",
+  "progress": {
+    "totalChildren": 5,
+    "completedChildren": 5,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-split-CategoryChips",
+      "002-split-FeaturedExerciseCard",
+      "003-split-ExerciseCard",
+      "004-split-MoodBanner",
+      "005-split-BottomNavBar"
+    ],
+    "lastProgressUpdate": "2026-04-19T03:40:23.396Z"
+  }
+}

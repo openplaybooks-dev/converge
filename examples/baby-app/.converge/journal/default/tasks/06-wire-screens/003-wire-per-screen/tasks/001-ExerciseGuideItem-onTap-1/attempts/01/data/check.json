@@ -1,0 +1,10 @@
+{
+  "taskId": "06-wire-screens/003-wire-per-screen/001-ExerciseGuideItem-onTap-1",
+  "checks": [
+    {
+      "id": "handler-wired",
+      "description": "InkWell.onTap has real logic at lib/screens/pregnancy_progress/widgets/exercise_guide_card.dart:91",
+      "cmd": "node .converge/playbooks/default/tasks/06-wire-screens/check-handler.mjs lib/screens/pregnancy_progress/widgets/exercise_guide_card.dart 91 onTap"
+    }
+  ]
+}

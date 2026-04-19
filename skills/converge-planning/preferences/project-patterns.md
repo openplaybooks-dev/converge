@@ -6,7 +6,7 @@ Starter templates for common project types. Adapt to your specific needs — the
 
 ## Pattern 1: Full-Stack Web App (React + API)
 
-### Epic Structure
+### Task Structure
 ```
 01-requirements/
   001-gather-needs          # User interview → requirements.md
@@ -55,7 +55,7 @@ Starter templates for common project types. Adapt to your specific needs — the
 
 ## Pattern 2: API / Backend Service
 
-### Epic Structure
+### Task Structure
 ```
 01-requirements/
   001-api-specification     # Endpoint definitions → api-spec.md
@@ -101,7 +101,7 @@ Starter templates for common project types. Adapt to your specific needs — the
 
 ## Pattern 3: Static Site / Content Site
 
-### Epic Structure
+### Task Structure
 ```
 01-requirements/
   001-content-inventory     # Pages, sections → sitemap.md
@@ -128,7 +128,7 @@ Starter templates for common project types. Adapt to your specific needs — the
 
 ## Pattern 4: Mobile App (React Native / PWA)
 
-### Epic Structure
+### Task Structure
 ```
 01-requirements/
   001-user-stories          # User flows → user-stories.md
@@ -164,7 +164,7 @@ Starter templates for common project types. Adapt to your specific needs — the
 
 ## Pattern 5: Data Pipeline / ETL
 
-### Epic Structure
+### Task Structure
 ```
 01-requirements/
   001-source-inventory      # Data sources → sources.md
@@ -196,7 +196,7 @@ Starter templates for common project types. Adapt to your specific needs — the
 
 ## Pattern 6: CLI Tool / Library
 
-### Epic Structure
+### Task Structure
 ```
 01-requirements/
   001-command-spec          # Commands → cli-spec.md
@@ -239,36 +239,36 @@ Starter templates for common project types. Adapt to your specific needs — the
 
 ## Adapting Patterns
 
-### Adding Epics
+### Adding Tasks
 If the project needs something not in the template:
 ```
-# Add authentication epic between foundation and core
+# Add authentication task between foundation and core
 02-foundation/
 03-authentication/     ← NEW
 04-core-api/
 ```
 
-### Removing Epics
+### Removing Tasks
 If the project doesn't need something:
 ```
 # No deployment needed yet? Remove it
 06-deployment/         ← REMOVE (or defer)
 ```
 
-### Merging Epics
-If two epics are too small:
+### Merging Tasks
+If two tasks are too small:
 ```
-# Combine if <3 tasks each
+# Combine if <3 children each
 05-quality/            ← Merge testing + docs
   001-unit-tests
   002-integration-tests
   003-documentation
 ```
 
-### Splitting Epics
-If an epic has >7 tasks:
+### Splitting Tasks
+If a task has >7 children:
 ```
-# Split large epic
+# Split large task
 03-api-auth/           ← Auth endpoints
 04-api-crud/           ← CRUD endpoints
 05-api-business/       ← Business logic

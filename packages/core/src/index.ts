@@ -627,7 +627,7 @@ export type {
 } from "./playbook/types.ts";
 
 export type { PlaybookPaths } from "./playbook/paths.ts";
-export { resolvePlaybookPaths } from "./playbook/paths.ts";
+export { resolvePlaybookPaths, getSourceTaskDirs } from "./playbook/paths.ts";
 
 export {
   parsePlaybookYml,

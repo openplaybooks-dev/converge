@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-add-behavior/004-implement-providers/002-provider-WeightEntry",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T18:53:17.388Z",
+  "createdAt": "2026-04-18T18:51:41.069Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T18:51:41.069Z",
+      "completedAt": "2026-04-18T18:53:17.386Z",
+      "outcome": "success",
+      "durationMs": 96317
+    }
+  ],
+  "currentAttempt": 1
+}

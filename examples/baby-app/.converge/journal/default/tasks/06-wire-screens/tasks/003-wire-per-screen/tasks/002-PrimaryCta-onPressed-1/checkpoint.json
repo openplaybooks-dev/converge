@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/003-wire-per-screen/002-PrimaryCta-onPressed-1",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T01:06:19.556Z",
+  "createdAt": "2026-04-19T01:02:04.047Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T01:02:04.048Z",
+      "completedAt": "2026-04-19T01:06:19.385Z",
+      "outcome": "failed",
+      "durationMs": 255338
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-19T01:06:19.491Z",
+      "completedAt": "2026-04-19T01:06:19.554Z",
+      "outcome": "success",
+      "durationMs": 64
+    }
+  ],
+  "currentAttempt": 2
+}

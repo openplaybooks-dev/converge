@@ -1,0 +1,38 @@
+{
+  "taskId": "07-build-overlays/007-delete-entry/007-01-spec",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/UX.md",
+      "count": 1,
+      "samples": [
+        ".stitch/UX.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/screens.json",
+      "count": 1,
+      "samples": [
+        ".stitch/screens.json"
+      ]
+    },
+    {
+      "pattern": "lib/screens/health_log/health_log_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/health_log/health_log_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/delete-entry/SPEC.md"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,101 @@
+[
+  {
+    "id": "home",
+    "title": "Home",
+    "route": "/home",
+    "description": "Primary dashboard showing pregnancy progress, quick stats, and entry points to all features",
+    "features": ["greeting-header", "mode-selector-pill", "hero-illustration-card", "primary-cta", "pagination-dots", "stat-cards-grid", "pull-to-refresh"],
+    "navType": "tab",
+    "priority": 1
+  },
+  {
+    "id": "cycle-tracking",
+    "title": "Cycle Tracking",
+    "route": "/cycle",
+    "description": "Track menstrual cycles, view ovulation predictions and fertile windows",
+    "features": ["calendar-view", "cycle-summary-card", "cycle-history-list", "irregular-cycle-notes", "fab"],
+    "navType": "push",
+    "priority": 2
+  },
+  {
+    "id": "weight-nutrition",
+    "title": "Weight & Nutrition",
+    "route": "/weight",
+    "description": "Track pregnancy weight changes, view progress charts, access nutrition tips",
+    "features": ["weight-line-chart", "bmi-gauge", "quick-stats-row", "nutrition-tips-card", "weight-history-list", "fab", "sliver-app-bar"],
+    "navType": "tab",
+    "priority": 1
+  },
+  {
+    "id": "pregnancy-progress",
+    "title": "Pregnancy Progress",
+    "route": "/progress",
+    "description": "View weekly pregnancy updates, body changes, baby development milestones",
+    "features": ["sliver-app-bar", "week-hero", "body-changes-card", "baby-development-card", "self-care-checklist", "exercise-guide-card", "due-date-countdown", "page-view"],
+    "navType": "tab",
+    "priority": 1
+  },
+  {
+    "id": "mindfulness",
+    "title": "Mindfulness",
+    "route": "/mindfulness",
+    "description": "Access breathing exercises, stretching guides, and mindful activities for stress relief",
+    "features": ["category-chips", "featured-exercise-card", "exercise-grid", "mood-check-in-banner"],
+    "navType": "tab",
+    "priority": 1
+  },
+  {
+    "id": "exercise-detail",
+    "title": "Exercise Detail",
+    "route": "/mindfulness/exercise/:id",
+    "description": "Guide user through a specific breathing or stretching exercise",
+    "features": ["illustration-card", "step-by-step-instructions", "duration-difficulty-chips", "benefits-list", "persistent-footer-button"],
+    "navType": "push",
+    "priority": 1
+  },
+  {
+    "id": "health-log",
+    "title": "Health Log",
+    "route": "/health-log",
+    "description": "Central place for doctor visits, symptoms, and checkup reminders",
+    "features": ["tab-bar-view", "doctor-visits-list", "symptoms-list", "reminders-list", "fab", "swipe-to-delete"],
+    "navType": "push",
+    "priority": 2
+  },
+  {
+    "id": "mood-wellness",
+    "title": "Mood & Wellness",
+    "route": "/mood",
+    "description": "Log moods and energy levels, view emotional patterns over time",
+    "features": ["today-mood-card", "mood-chart", "energy-level-tracker", "wellness-recommendations", "mood-history-list", "fab", "pull-to-refresh"],
+    "navType": "push",
+    "priority": 2
+  },
+  {
+    "id": "education",
+    "title": "Education",
+    "route": "/education",
+    "description": "Browse trusted educational content about maternal care, nutrition, and body changes",
+    "features": ["topic-chips", "featured-article-card", "article-list", "bookmarked-section", "search-action"],
+    "navType": "tab",
+    "priority": 1
+  },
+  {
+    "id": "article-reader",
+    "title": "Article Reader",
+    "route": "/education/article/:id",
+    "description": "Read a single educational article in a focused, distraction-free view",
+    "features": ["hero-image", "title-metadata", "rich-text-body", "related-articles-scroll", "bookmark-action"],
+    "navType": "push",
+    "priority": 1
+  },
+  {
+    "id": "settings",
+    "title": "Settings",
+    "route": "/settings",
+    "description": "Configure app preferences, manage due date, toggle reminders and notifications",
+    "features": ["profile-section", "pregnancy-settings", "notification-toggles", "display-settings", "data-export", "clear-data-destructive"],
+    "navType": "push",
+    "priority": 2
+  }
+]

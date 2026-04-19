@@ -1,0 +1,27 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-18T17:06:47.780Z",
+  "spawnCount": 5,
+  "subtasks": [
+    {
+      "id": "001-split-TodaysMoodCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/008-mood-wellness/tasks/008-05-split/tasks/001-split-TodaysMoodCard/TASK.md"
+    },
+    {
+      "id": "002-split-MoodTrendsCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/008-mood-wellness/tasks/008-05-split/tasks/002-split-MoodTrendsCard/TASK.md"
+    },
+    {
+      "id": "003-split-EnergyLevelCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/008-mood-wellness/tasks/008-05-split/tasks/003-split-EnergyLevelCard/TASK.md"
+    },
+    {
+      "id": "004-split-RecommendationsCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/008-mood-wellness/tasks/008-05-split/tasks/004-split-RecommendationsCard/TASK.md"
+    },
+    {
+      "id": "005-split-MoodHistoryEntry",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/008-mood-wellness/tasks/008-05-split/tasks/005-split-MoodHistoryEntry/TASK.md"
+    }
+  ]
+}

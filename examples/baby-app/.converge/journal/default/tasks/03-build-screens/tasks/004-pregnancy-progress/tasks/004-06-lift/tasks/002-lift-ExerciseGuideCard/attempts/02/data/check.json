@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/004-pregnancy-progress/004-06-lift/002-lift-ExerciseGuideCard",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Shared widget file exists",
+      "cmd": "test -f lib/widgets/exercise_guide_card.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/widgets/exercise_guide_card.dart"
+    }
+  ]
+}

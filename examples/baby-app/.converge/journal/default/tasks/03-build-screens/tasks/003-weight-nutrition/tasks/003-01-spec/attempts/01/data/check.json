@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/003-weight-nutrition/003-01-spec",
+  "checks": [
+    {
+      "id": "spec-exists",
+      "description": "SPEC.md exists for weight-nutrition",
+      "cmd": "test -f .stitch/designs/weight-nutrition/SPEC.md"
+    },
+    {
+      "id": "spec-has-content",
+      "description": "SPEC.md has >50 lines",
+      "cmd": "test $(wc -l < .stitch/designs/weight-nutrition/SPEC.md) -gt 50"
+    }
+  ]
+}

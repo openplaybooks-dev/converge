@@ -9,6 +9,7 @@
  * TS strategies (registered as FixStrategy classes):
  *   UserQuestionResumeStrategy (10)           — Handle user input
  *   WBSGeneratorRepairStrategy (10)           — Fix systemic WBS generator bugs
+ *   MissingWbsScriptStrategy (10)             — Create missing wbs.js from templates
  *   DependencyBackoffStrategy (9)             — Defer to run upstream first
  *   MissingInputPatternRepairStrategy (8.5)   — Detect glob pattern mismatches
  *   ToolEnvironmentRepairStrategy (8)         — Handle tool/env issues
@@ -59,7 +60,7 @@ export {
 export type { ResolvedAIConfig } from "./agent-runner.ts";
 export { prepareFeedback } from "./feedback-writer.ts";
 
-// Active strategies (7)
+// Active strategies (8)
 export { TaskRunStrategy } from "./strategies/task-run.ts";
 export { WBSGeneratorRepairStrategy } from "./strategies/wbs-generator-repair.ts";
 export { ToolEnvironmentRepairStrategy } from "./strategies/tool-environment-repair.ts";
@@ -68,6 +69,7 @@ export { MissingInputPatternRepairStrategy } from "./strategies/missing-input-pa
 export { UserQuestionResumeStrategy } from "./strategies/user-question-resume.ts";
 export { SkillBasedRepairStrategy } from "./strategies/skill-based-repair.ts";
 export { WbsScriptRepairStrategy } from "./strategies/wbs-script-repair.ts";
+export { MissingWbsScriptStrategy } from "./strategies/missing-wbs-script.ts";
 
 // Unified Strategy System (AI-driven selection across TS + TASK.md)
 export {

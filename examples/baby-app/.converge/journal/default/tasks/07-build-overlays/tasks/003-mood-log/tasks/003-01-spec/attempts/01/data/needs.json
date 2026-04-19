@@ -1,0 +1,38 @@
+{
+  "taskId": "07-build-overlays/003-mood-log/003-01-spec",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/UX.md",
+      "count": 1,
+      "samples": [
+        ".stitch/UX.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/screens.json",
+      "count": 1,
+      "samples": [
+        ".stitch/screens.json"
+      ]
+    },
+    {
+      "pattern": "lib/screens/mood_wellness/mood_wellness_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/mood_wellness/mood_wellness_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/mood-log/SPEC.md"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=375, initial-scale=1.0">
+<title>Home — Design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        canvas: '#EDE8F7',
+        'canvas-alt': '#FDEEEE',
+        surface: '#FFFFFF',
+        'surface-tertiary': '#FDF9F8',
+        ink: '#2A2A3A',
+        quartz: '#8B8B9C',
+        coral: '#F28B8B',
+        'coral-tint': 'rgba(242, 139, 139, 0.12)',
+        lilac: '#8B7ED8',
+        'lilac-tint': 'rgba(139, 126, 216, 0.14)',
+        'chip-bg': 'rgba(139, 126, 216, 0.08)',
+        divider: 'rgba(42, 42, 58, 0.06)',
+        success: '#6DC48A',
+        error: '#E85C5C',
+        warning: '#F4C84D',
+      },
+      fontFamily: {
+        'jakarta': ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+      },
+      boxShadow: {
+        'subtle': '0 2px 8px rgba(139, 126, 216, 0.08)',
+        'standard': '0 4px 20px rgba(139, 126, 216, 0.12)',
+        'prominent': '0 8px 32px rgba(139, 126, 216, 0.14)',
+        'nav': '0 -4px 20px rgba(139, 126, 216, 0.08)',
+        'avatar': '0 2px 8px rgba(139, 126, 216, 0.16)',
+      },
+    }
+  }
+}
+</script>
+<style>
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  background: #E8E8E8;
+  display: flex;
+  justify-content: center;
+  padding: 32px 16px;
+  min-height: 100vh;
+}
+.phone {
+  width: 375px;
+  min-height: 812px;
+  border-radius: 40px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.015); }
+}
+.hero-breathe { animation: breathe 4s ease-in-out infinite; }
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.anim-card { animation: fade-up 450ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="phone" role="application" aria-label="Bloom pregnancy tracker home screen">
+  <div class="scaffold flex flex-col min-h-screen" data-bg="surface">
+
+    <!-- Body — scrollable main content -->
+    <main class="flex-1 overflow-y-auto">
+      <div data-flutter="safe-area" class="flex flex-col gap-7 px-5 pt-14 pb-24">
+
+        <!-- Greeting Header -->
+        <header class="flex justify-between items-center">
+          <div class="flex flex-col gap-0.5">
+            <h1 class="text-2xl font-bold text-ink tracking-tight leading-tight">Good morning, Mira</h1>
+            <p class="text-sm text-quartz font-normal">Thursday, 17 April</p>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-coral-tint flex items-center justify-center border-2 border-surface shadow-avatar flex-shrink-0"
+               role="img" aria-label="User avatar">
+            <span class="text-sm font-bold text-coral">M</span>
+          </div>
+        </header>
+
+        <!-- Mode Selector Pill -->
+        <div class="flex justify-center">
+          <button class="flex items-center gap-1.5 px-5 py-2 bg-coral-tint rounded-full"
+                  aria-label="Current mode: Pregnancy. Tap to change.">
+            <span class="text-lg font-semibold text-coral">Pregnancy Mode</span>
+            <svg class="w-4 h-4 text-coral" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Hero Illustration Card -->
+        <section class="bg-surface rounded-[32px] shadow-prominent p-8 text-center" aria-label="Pregnancy progress">
+          <div class="w-[70%] mx-auto aspect-square flex items-center justify-center mb-5 hero-breathe">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="100" cy="90" r="60" fill="#FDEEEE"/>
+              <ellipse cx="100" cy="90" rx="42" ry="46" fill="#F7D9DC"/>
+              <ellipse cx="100" cy="88" rx="24" ry="28" fill="#F28B8B" opacity="0.3"/>
+              <circle cx="92" cy="80" r="3" fill="#2A2A3A" opacity="0.6"/>
+              <circle cx="108" cy="80" r="3" fill="#2A2A3A" opacity="0.6"/>
+              <path d="M94 90 Q100 96 106 90" stroke="#2A2A3A" stroke-width="1.5" fill="none" opacity="0.5" stroke-linecap="round"/>
+              <text x="100" y="155" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="11" fill="#8B8B9C" font-weight="500">About the size of a mango</text>
+            </svg>
+          </div>
+          <h2 class="text-2xl font-bold text-ink mb-1">Week 22</h2>
+          <p class="text-sm font-medium text-quartz">Your baby is about the size of a mango</p>
+        </section>
+
+        <!-- Primary CTA -->
+        <div class="flex justify-center">
+          <button class="px-8 py-3.5 bg-coral text-surface font-semibold text-base rounded-full shadow-subtle min-h-[44px]"
+                  aria-label="Track today's data">
+            Track Today
+          </button>
+        </div>
+
+        <!-- Pagination Dots -->
+        <div class="flex justify-center gap-1.5" role="tablist" aria-label="Weekly highlights navigation">
+          <div class="w-4 h-2 rounded-full bg-coral" role="tab" aria-selected="true" aria-label="Week 22"></div>
+          <div class="w-2 h-2 rounded-full bg-chip-bg" role="tab" aria-selected="false" aria-label="Week 21"></div>
+          <div class="w-2 h-2 rounded-full bg-chip-bg" role="tab" aria-selected="false" aria-label="Week 20"></div>
+        </div>
+
+        <!-- Stat Cards Grid -->
+        <section class="grid grid-cols-2 gap-5" aria-label="Quick stats">
+          <!-- Weight Card -->
+          <article class="bg-surface rounded-3xl shadow-standard p-5 text-center anim-card" style="animation-delay: 0ms"
+                   role="button" tabindex="0" aria-label="Your weight: 58.3 kilograms">
+            <div class="w-9 h-9 mx-auto mb-2 flex items-center justify-center">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#F28B8B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M6.5 6.5h11a1 1 0 0 1 1 1v2a5.5 5.5 0 0 1-5.5 5.5h-2A5.5 5.5 0 0 1 5.5 9.5v-2a1 1 0 0 1 1-1z"/>
+                <line x1="12" y1="15" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/>
+              </svg>
+            </div>
+            <div class="text-4xl font-extrabold text-coral leading-none tracking-tight">58.3<span class="text-sm font-medium text-quartz ml-1">Kg</span></div>
+            <div class="text-sm text-quartz mt-0.5">Your weight</div>
+          </article>
+
+          <!-- Baby Size Card -->
+          <article class="bg-surface rounded-3xl shadow-standard p-5 text-center anim-card" style="animation-delay: 80ms"
+                   role="button" tabindex="0" aria-label="Baby size: week 22">
+            <div class="w-9 h-9 mx-auto mb-2 flex items-center justify-center">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#8B7ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/><path d="M12 3c-1 4-1 8 0 12"/><path d="M8 6c2 2 4 2 6 0"/>
+              </svg>
+            </div>
+            <div class="text-4xl font-extrabold text-lilac leading-none tracking-tight">22<span class="text-sm font-medium text-quartz ml-1">wk</span></div>
+            <div class="text-sm text-quartz mt-0.5">Baby size</div>
+          </article>
+
+          <!-- Mood Card -->
+          <article class="bg-surface rounded-3xl shadow-standard p-5 text-center anim-card" style="animation-delay: 160ms"
+                   role="button" tabindex="0" aria-label="Current mood: 4 out of 5">
+            <div class="w-9 h-9 mx-auto mb-2 flex items-center justify-center">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#F28B8B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>
+              </svg>
+            </div>
+            <div class="text-4xl font-extrabold text-coral leading-none tracking-tight">4<span class="text-sm font-medium text-quartz ml-1">/5</span></div>
+            <div class="text-sm text-quartz mt-0.5">Mood today</div>
+          </article>
+
+          <!-- Next Checkup Card -->
+          <article class="bg-surface rounded-3xl shadow-standard p-5 text-center anim-card" style="animation-delay: 240ms"
+                   role="button" tabindex="0" aria-label="Next checkup in 5 days">
+            <div class="w-9 h-9 mx-auto mb-2 flex items-center justify-center">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#8B7ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            </div>
+            <div class="text-4xl font-extrabold text-lilac leading-none tracking-tight">5<span class="text-sm font-medium text-quartz ml-1">days</span></div>
+            <div class="text-sm text-quartz mt-0.5">Next checkup</div>
+          </article>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav data-flutter="bottom-nav" class="flex justify-around items-center bg-surface shadow-nav px-0 py-2 pb-6" aria-label="Main navigation">
+      <button data-flutter="nav-destination" data-icon="home" data-label="Home" data-selected="true"
+              class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl bg-coral-tint min-w-[44px] min-h-[44px] justify-center" aria-label="Home" aria-current="page">
+        <svg class="w-[22px] h-[22px] text-coral" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span class="text-[11px] font-bold uppercase tracking-widest text-coral">Home</span>
+      </button>
+      <button data-flutter="nav-destination" data-icon="calendar_today" data-label="Progress"
+              class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[44px] min-h-[44px] justify-center" aria-label="Progress">
+        <svg class="w-[22px] h-[22px] text-quartz" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <span class="text-[11px] font-bold uppercase tracking-widest text-quartz">Progress</span>
+      </button>
+      <button data-flutter="nav-destination" data-icon="favorite" data-label="Health"
+              class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[44px] min-h-[44px] justify-center" aria-label="Health">
+        <svg class="w-[22px] h-[22px] text-quartz" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+        <span class="text-[11px] font-bold uppercase tracking-widest text-quartz">Health</span>
+      </button>
+      <button data-flutter="nav-destination" data-icon="self_improvement" data-label="Wellness"
+              class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[44px] min-h-[44px] justify-center" aria-label="Wellness">
+        <svg class="w-[22px] h-[22px] text-quartz" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+        </svg>
+        <span class="text-[11px] font-bold uppercase tracking-widest text-quartz">Wellness</span>
+      </button>
+      <button data-flutter="nav-destination" data-icon="menu_book" data-label="Learn"
+              class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[44px] min-h-[44px] justify-center" aria-label="Learn">
+        <svg class="w-[22px] h-[22px] text-quartz" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+        <span class="text-[11px] font-bold uppercase tracking-widest text-quartz">Learn</span>
+      </button>
+    </nav>
+
+  </div>
+</div>
+
+</body>
+</html>

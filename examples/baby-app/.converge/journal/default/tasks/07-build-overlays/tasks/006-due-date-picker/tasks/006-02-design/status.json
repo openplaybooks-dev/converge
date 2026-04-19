@@ -1,0 +1,19 @@
+{
+  "taskId": "07-build-overlays/006-due-date-picker/006-02-design",
+  "epicId": "default",
+  "focusPath": "default/07-build-overlays/006-due-date-picker/006-02-design",
+  "status": "running",
+  "startedAt": "2026-04-19T02:55:02.737Z",
+  "attempt": 1,
+  "gapsResolved": 0,
+  "gapsFailed": 0,
+  "checklist": [
+    {
+      "id": "subtask:spawn-1",
+      "type": "subtask",
+      "description": "stitch-generate",
+      "details": ".converge/skills/stitch-generate/SKILL.md",
+      "done": false
+    }
+  ]
+}

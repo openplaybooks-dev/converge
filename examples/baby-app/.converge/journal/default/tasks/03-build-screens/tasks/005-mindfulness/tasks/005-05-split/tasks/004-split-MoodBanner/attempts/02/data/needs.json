@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/005-mindfulness/005-05-split/004-split-MoodBanner",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "lib/screens/mindfulness/mindfulness_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/mindfulness/mindfulness_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/mindfulness/widgets/mood_banner.dart"
+  ],
+  "blocked": false
+}

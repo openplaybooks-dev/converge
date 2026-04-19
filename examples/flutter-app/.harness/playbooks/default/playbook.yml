@@ -1,0 +1,33 @@
+name: default
+description: End-to-end Flutter app generation — from idea to production-ready mobile app
+
+run:
+  mode: autonomous
+  maxIterations: 50
+  maxTaskAttempts: 3
+
+tasks:
+  - id: 01-prepare-requirements
+  - id: 02-design-system
+    depends_on:
+      - 01-prepare-requirements
+  - id: 03-build-screens
+    depends_on:
+      - 02-design-system
+  - id: 05-add-behavior
+    depends_on:
+      - 03-build-screens
+  - id: 06-wire-screens
+    depends_on:
+      - 05-add-behavior
+  - id: 07-build-overlays
+    depends_on:
+      - 06-wire-screens
+
+checks:
+  - id: dart-analyze
+    cmd: dart analyze --no-fatal-infos lib/
+  - id: has-theme
+    cmd: test -f lib/theme/app_theme.dart
+  - id: has-router
+    cmd: test -f lib/router/app_router.dart

@@ -1,0 +1,27 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-18T16:35:42.887Z",
+  "spawnCount": 5,
+  "subtasks": [
+    {
+      "id": "001-split-ExerciseHeroCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/006-exercise-detail/tasks/006-05-split/tasks/001-split-ExerciseHeroCard/TASK.md"
+    },
+    {
+      "id": "002-split-InstructionsCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/006-exercise-detail/tasks/006-05-split/tasks/002-split-InstructionsCard/TASK.md"
+    },
+    {
+      "id": "003-split-ExerciseChipsRow",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/006-exercise-detail/tasks/006-05-split/tasks/003-split-ExerciseChipsRow/TASK.md"
+    },
+    {
+      "id": "004-split-BenefitsCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/006-exercise-detail/tasks/006-05-split/tasks/004-split-BenefitsCard/TASK.md"
+    },
+    {
+      "id": "005-split-StartExerciseButton",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/006-exercise-detail/tasks/006-05-split/tasks/005-split-StartExerciseButton/TASK.md"
+    }
+  ]
+}

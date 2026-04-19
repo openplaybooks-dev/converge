@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/004-pregnancy-progress/004-06-lift/002-lift-ExerciseGuideCard",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/pregnancy_progress/widgets/exercise_guide_card.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/pregnancy_progress/widgets/exercise_guide_card.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/exercise_guide_card.dart"
+  ],
+  "blocked": false
+}

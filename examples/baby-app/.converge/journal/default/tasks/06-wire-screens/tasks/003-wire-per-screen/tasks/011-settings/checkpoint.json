@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/003-wire-per-screen/011-settings",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T01:10:19.077Z",
+  "createdAt": "2026-04-19T01:10:19.071Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T01:10:19.071Z",
+      "completedAt": "2026-04-19T01:10:19.075Z",
+      "outcome": "success",
+      "durationMs": 4
+    }
+  ],
+  "currentAttempt": 1
+}

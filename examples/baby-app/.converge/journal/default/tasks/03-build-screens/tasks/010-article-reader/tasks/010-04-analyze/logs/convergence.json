@@ -1,0 +1,224 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/010-article-reader/010-04-analyze-missing-output-.stitch/designs/article-reader/widgets.jsonl",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/010-article-reader/010-04-analyze",
+            "severity": "high",
+            "description": "[03-build-screens/010-article-reader/010-04-analyze] Task output not created: .stitch/designs/article-reader/widgets.jsonl",
+            "source": "unit",
+            "detected": "2026-04-18T14:36:42.277Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/010-article-reader/tasks/010-04-analyze",
+              "taskId": "03-build-screens/010-article-reader/010-04-analyze",
+              "taskTitle": "Analyze: Article Reader",
+              "taskPrompt": "# Analyze: Article Reader\n\nAnalyze the screen widget and identify extractable widget regions.\n\n## Input\n- `lib/screens/article_reader/article_reader_screen.dart` — The screen widget file\n\n## Task\n\nRead the screen file and identify widget subtrees that should be extracted into separate widget files.\n\nWrite `.stitch/designs/article-reader/widgets.jsonl` with one JSON object per line (JSONL format):\n\n```jsonl\n{\"name\": \"WidgetName\", \"grep\": \"unique string to locate in source\", \"description\": \"what it renders\", \"shared\": false}\n{\"name\": \"AnotherWidget\", \"grep\": \"unique string\", \"description\": \"what it renders\", \"shared\": true}\n```\n\n## Extraction Criteria\n\nExtract a region when:\n- It's a self-contained visual block (card, list item, section header)\n- It has 15+ lines of widget code\n- It could be reused across screens (`shared: true`)\n- It has its own data/state concerns\n\nDo NOT extract:\n- Simple `Text`, `Icon`, or `SizedBox` widgets\n- Layout wrappers (`Padding`, `Center`)\n- Anything under 10 lines\n\n## Success Criteria\n\n- `.stitch/designs/article-reader/widgets.jsonl` exists with valid JSONL\n- Each entry has: name, grep, description, shared\n- Widget names use PascalCase",
+              "taskInputs": [
+                "lib/screens/article_reader/article_reader_screen.dart"
+              ],
+              "factId": "file-exists:test -f \".stitch/designs/article-reader/widgets.jsonl\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-build-screens/010-article-reader/010-04-analyze-check-failed-widgets-json-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/010-article-reader/010-04-analyze",
+            "severity": "high",
+            "description": "[03-build-screens/010-article-reader/010-04-analyze] Check failed: widgets.jsonl exists for article-reader",
+            "source": "unit",
+            "detected": "2026-04-18T14:36:42.279Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "widgets-json-exists",
+              "checkCmd": "test -f .stitch/designs/article-reader/widgets.jsonl",
+              "checkDescription": "widgets.jsonl exists for article-reader",
+              "checkOutput": "Command failed: test -f .stitch/designs/article-reader/widgets.jsonl\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Analyze: Article Reader\n\nAnalyze the screen widget and identify extractable widget regions.\n\n## Input\n- `lib/screens/article_reader/article_reader_screen.dart` — The screen widget file\n\n## Task\n\nRead the screen file and identify widget subtrees that should be extracted into separate widget files.\n\nWrite `.stitch/designs/article-reader/widgets.jsonl` with one JSON object per line (JSONL format):\n\n```jsonl\n{\"name\": \"WidgetName\", \"grep\": \"unique string to locate in source\", \"description\": \"what it renders\", \"shared\": false}\n{\"name\": \"AnotherWidget\", \"grep\": \"unique string\", \"description\": \"what it renders\", \"shared\": true}\n```\n\n## Extraction Criteria\n\nExtract a region when:\n- It's a self-contained visual block (card, list item, section header)\n- It has 15+ lines of widget code\n- It could be reused across screens (`shared: true`)\n- It has its own data/state concerns\n\nDo NOT extract:\n- Simple `Text`, `Icon`, or `SizedBox` widgets\n- Layout wrappers (`Padding`, `Center`)\n- Anything under 10 lines\n\n## Success Criteria\n\n- `.stitch/designs/article-reader/widgets.jsonl` exists with valid JSONL\n- Each entry has: name, grep, description, shared\n- Widget names use PascalCase",
+              "taskId": "03-build-screens/010-article-reader/010-04-analyze",
+              "taskTitle": "Analyze: Article Reader",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/010-article-reader/tasks/010-04-analyze",
+              "factId": "check:widgets-json-exists"
+            }
+          }
+        ],
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 14
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#20",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 59396
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-18T14:36:42.272Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-18T14:36:42.272Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-18T14:36:42.279Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-18T14:36:42.280Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-18T14:36:42.286Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#20",
+      "iteration": 1,
+      "ts": "2026-04-18T14:37:41.683Z"
+    },
+    {
+      "from": "run-strategy:task-run#20",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-18T14:37:41.698Z"
+    }
+  ]
+}

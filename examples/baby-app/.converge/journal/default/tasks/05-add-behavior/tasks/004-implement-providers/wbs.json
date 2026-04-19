@@ -1,0 +1,59 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-18T18:49:21.984Z",
+  "spawnCount": 13,
+  "subtasks": [
+    {
+      "id": "001-provider-PregnancyProfile",
+      "writeToPath": ".converge/playbooks/default/tasks/05-add-behavior/004-implement-providers/tasks/001-provider-PregnancyProfile/TASK.md"
+    },
+    {
+      "id": "002-provider-WeightEntry",
+      "writeToPath": ".converge/playbooks/default/tasks/05-add-behavior/004-implement-providers/tasks/002-provider-WeightEntry/TASK.md"
+    },
+    {
+      "id": "003-provider-CycleEntry",
+      "writeToPath": ".converge/playbooks/default/tasks/05-add-behavior/004-implement-providers/tasks/003-provider-CycleEntry/TASK.md"
+    },
+    {
+      "id": "004-provider-MoodEntry",
+      "writeToPath": ".converge/playbooks/default/tasks/05-add-behavior/004-implement-providers/tasks/004-provider-MoodEntry/TASK.md"
+    },
+    {
+      "id": "005-provider-SymptomEntry",
+      "writeToPath": ".converge/playbooks/default/tasks/05-add-behavior/004-implement-providers/tasks/005-provider-SymptomEntry/TASK.md"
+    },
+    {
+      "id": "006-provider-DoctorVisit",
+      "writeToPath": ".converge/playbooks/default/tasks/05-add-behavior/004-implement-providers/tasks/006-provider-DoctorVisit/TASK.md"
+    },
+    {
+      "id": "007-provider-Reminder",
+      "writeToPath": ".converge/playbooks/default/tasks/05-add-behavior/004-implement-providers/tasks/007-provider-Reminder/TASK.md"
+    },
+    {
+      "id": "008-provider-WeekContent",
+      "writeToPath": ".converge/playbooks/default/tasks/05-add-behavior/004-implement-providers/tasks/008-provider-WeekContent/TASK.md"
+    },
+    {
+      "id": "009-provider-InfoItem",
+      "writeToPath": ".converge/playbooks/default/tasks/05-add-behavior/004-implement-providers/tasks/009-provider-InfoItem/TASK.md"
+    },
+    {
+      "id": "010-provider-SelfCareCheckState",
+      "writeToPath": ".converge/playbooks/default/tasks/05-add-behavior/004-implement-providers/tasks/010-provider-SelfCareCheckState/TASK.md"
+    },
+    {
+      "id": "011-provider-Article",
+      "writeToPath": ".converge/playbooks/default/tasks/05-add-behavior/004-implement-providers/tasks/011-provider-Article/TASK.md"
+    },
+    {
+      "id": "012-provider-Exercise",
+      "writeToPath": ".converge/playbooks/default/tasks/05-add-behavior/004-implement-providers/tasks/012-provider-Exercise/TASK.md"
+    },
+    {
+      "id": "013-provider-UserPreferences",
+      "writeToPath": ".converge/playbooks/default/tasks/05-add-behavior/004-implement-providers/tasks/013-provider-UserPreferences/TASK.md"
+    }
+  ]
+}

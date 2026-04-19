@@ -1,0 +1,10 @@
+{
+  "taskId": "03-build-screens/002-cycle-tracking/002-04-analyze",
+  "checks": [
+    {
+      "id": "widgets-json-exists",
+      "description": "widgets.jsonl exists for cycle-tracking",
+      "cmd": "test -f .stitch/designs/cycle-tracking/widgets.jsonl"
+    }
+  ]
+}

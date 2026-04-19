@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/010-article-reader/010-05-split/004-split-TipCalloutBlock",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "lib/screens/article_reader/article_reader_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/article_reader/article_reader_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/article_reader/widgets/tip_callout_block.dart"
+  ],
+  "blocked": false
+}

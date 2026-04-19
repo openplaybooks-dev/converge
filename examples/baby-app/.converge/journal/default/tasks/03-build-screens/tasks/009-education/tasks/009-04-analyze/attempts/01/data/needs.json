@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/009-education/009-04-analyze",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/education/education_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/education/education_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/education/widgets.jsonl"
+  ],
+  "blocked": false
+}

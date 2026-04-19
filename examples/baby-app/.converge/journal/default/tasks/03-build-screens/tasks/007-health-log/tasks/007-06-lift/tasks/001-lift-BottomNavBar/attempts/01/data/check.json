@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/007-health-log/007-06-lift/001-lift-BottomNavBar",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Shared widget file exists",
+      "cmd": "test -f lib/widgets/bottom_nav_bar.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/widgets/bottom_nav_bar.dart"
+    }
+  ]
+}

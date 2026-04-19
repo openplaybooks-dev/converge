@@ -1,0 +1,31 @@
+{
+  "taskId": "07-build-overlays/001-mode-selector/001-03-convert",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/mode-selector/design.html",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/mode-selector/design.html"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/mode-selector/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/mode-selector/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/overlays/mode_selector/mode_selector.dart"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/008-mood-wellness/008-04-analyze",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/mood_wellness/mood_wellness_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/mood_wellness/mood_wellness_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/mood-wellness/widgets.jsonl"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "03-build-screens/006-exercise-detail/006-05-split/004-split-BenefitsCard",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T18:16:23.665Z",
+  "createdAt": "2026-04-18T16:40:59.170Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T16:40:59.170Z",
+      "completedAt": "2026-04-18T16:42:54.855Z",
+      "outcome": "success",
+      "durationMs": 115685
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-18T18:14:58.714Z",
+      "completedAt": "2026-04-18T18:16:23.662Z",
+      "outcome": "success",
+      "durationMs": 84948
+    }
+  ],
+  "currentAttempt": 2
+}

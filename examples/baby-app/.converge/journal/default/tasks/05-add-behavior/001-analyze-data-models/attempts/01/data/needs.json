@@ -1,0 +1,48 @@
+{
+  "taskId": "05-add-behavior/001-analyze-data-models",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/**/*.dart",
+      "count": 6,
+      "samples": [
+        "lib/screens/home/_widgets/greeting_header.dart",
+        "lib/screens/home/_widgets/hero_illustration_card.dart",
+        "lib/screens/home/_widgets/mode_selector_pill.dart",
+        "lib/screens/home/_widgets/pagination_dots.dart",
+        "lib/screens/home/_widgets/stat_card.dart",
+        "lib/screens/home/home_screen.dart"
+      ]
+    },
+    {
+      "pattern": "lib/widgets/**/*.dart",
+      "count": 4,
+      "samples": [
+        "lib/widgets/greeting_header.dart",
+        "lib/widgets/mode_selector_pill.dart",
+        "lib/widgets/pagination_dots.dart",
+        "lib/widgets/stat_card.dart"
+      ]
+    },
+    {
+      "pattern": ".stitch/UX.md",
+      "count": 1,
+      "samples": [
+        ".stitch/UX.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/*.html",
+      "count": 3,
+      "samples": [
+        ".stitch/system/celebration-screen.html",
+        ".stitch/system/multi-state-screen.html",
+        ".stitch/system/single-screen.html"
+      ]
+    }
+  ],
+  "outputs": [
+    "data-models.md"
+  ],
+  "blocked": false
+}

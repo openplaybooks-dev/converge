@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/007-health-log/007-06-lift/001-lift-BottomNavBar",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/health_log/widgets/bottom_nav_bar.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/health_log/widgets/bottom_nav_bar.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/bottom_nav_bar.dart"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,15 @@
+{
+  "taskId": "07-build-overlays/001-mode-selector/001-01-spec",
+  "checks": [
+    {
+      "id": "spec-exists",
+      "description": "SPEC.md exists for mode-selector",
+      "cmd": "test -f .stitch/designs/mode-selector/SPEC.md"
+    },
+    {
+      "id": "spec-has-content",
+      "description": "SPEC.md has >30 lines",
+      "cmd": "test $(wc -l < .stitch/designs/mode-selector/SPEC.md) -gt 30"
+    }
+  ]
+}

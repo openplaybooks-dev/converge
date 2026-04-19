@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-build-screens/011-settings/011-05-split/006-split-AboutSection",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T23:21:39.717Z",
+  "createdAt": "2026-04-18T23:19:54.272Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T23:19:54.272Z",
+      "completedAt": "2026-04-18T23:21:39.714Z",
+      "outcome": "success",
+      "durationMs": 105442
+    }
+  ],
+  "currentAttempt": 1
+}

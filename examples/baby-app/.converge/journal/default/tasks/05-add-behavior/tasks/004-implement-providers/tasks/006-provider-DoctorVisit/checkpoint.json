@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-add-behavior/004-implement-providers/006-provider-DoctorVisit",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T18:59:33.515Z",
+  "createdAt": "2026-04-18T18:58:05.545Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T18:58:05.545Z",
+      "completedAt": "2026-04-18T18:59:33.512Z",
+      "outcome": "success",
+      "durationMs": 87967
+    }
+  ],
+  "currentAttempt": 1
+}

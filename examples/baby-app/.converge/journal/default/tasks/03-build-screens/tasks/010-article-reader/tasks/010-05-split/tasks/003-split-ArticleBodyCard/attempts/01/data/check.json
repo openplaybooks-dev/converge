@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/010-article-reader/010-05-split/003-split-ArticleBodyCard",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Widget file exists",
+      "cmd": "test -f lib/screens/article_reader/widgets/article_body_card.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/screens/article_reader/widgets/article_body_card.dart"
+    }
+  ]
+}

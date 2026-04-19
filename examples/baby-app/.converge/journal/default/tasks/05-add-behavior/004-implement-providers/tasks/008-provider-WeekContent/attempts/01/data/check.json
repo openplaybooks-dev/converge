@@ -1,0 +1,15 @@
+{
+  "taskId": "05-add-behavior/004-implement-providers/008-provider-WeekContent",
+  "checks": [
+    {
+      "id": "file-exists",
+      "description": "week_content_provider.dart exists",
+      "cmd": "test -f lib/providers/week_content_provider.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/providers/week_content_provider.dart"
+    }
+  ]
+}

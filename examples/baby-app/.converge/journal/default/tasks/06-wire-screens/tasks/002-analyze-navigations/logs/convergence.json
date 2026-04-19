@@ -1,0 +1,326 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "06-wire-screens/002-analyze-navigations-missing-output-navigations.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-wire-screens/002-analyze-navigations",
+            "severity": "high",
+            "description": "[06-wire-screens/002-analyze-navigations] Task output not created: navigations.json",
+            "source": "unit",
+            "detected": "2026-04-19T00:31:54.794Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/06-wire-screens/002-analyze-navigations",
+              "taskId": "06-wire-screens/002-analyze-navigations",
+              "taskTitle": "Analyze Navigations — Build Navigation Manifest",
+              "taskPrompt": "# Analyze Navigations — Build Navigation Manifest\n\nScan every screen and widget in `lib/screens/` and `lib/widgets/`, extract all interactive elements, and produce `navigations.json`.\n\n## Steps\n\n1. Read `lib/router/app_router.dart` to get the route table\n2. Read `.stitch/screens.json` for screen metadata (id, route, navType)\n3. For each screen directory in `lib/screens/`:\n   a. Read the screen file and all `widgets/*.dart` files\n   b. Find every interactive element:\n      - `onDestinationSelected` (bottom nav)\n      - `onPressed` (buttons, FABs, icon buttons)\n      - `onTap` (cards, list tiles, ink wells)\n      - `onChanged` / `onSelected` (tabs, chips, toggles)\n   c. Classify each element's current state:\n      - `\"wired\"` — has real logic (calls `context.go`, `context.push`, `ref.read`, `setState`, etc.)\n      - `\"empty\"` — is `null`, `() {}`, or comment-only body\n      - `\"stub\"` — has a TODO or placeholder comment\n   d. For elements that should navigate, determine the target route from context\n   e. Assign a unique `elementId` to each element using the pattern: `{widgetName}-{handlerType}-{index}`\n      - e.g. `StatCard-onTap-1`, `BottomNavBar-onDestinationSelected-1`, `FAB-onPressed-1`\n   f. Describe what the handler **should do** in the `action` field — this tells downstream tasks exactly what to implement\n\n4. Write `navigations.json` with this structure:\n\n```json\n{\n  \"generatedAt\": \"2026-04-19T...\",\n  \"bottomNavRoutes\": [\"/home\", \"/progress\", \"/health-log\", \"/mood\", \"/education\"],\n  \"screens\": [\n    {\n      \"id\": \"home\",\n      \"route\": \"/home\",\n      \"screenFile\": \"lib/screens/home/home_screen.dart\",\n      \"widgetFiles\": [\"lib/screens/home/widgets/stat_card.dart\"],\n      \"elements\": [\n        {\n          \"elementId\": \"BottomNav-onDestinationSelected-1\",\n          \"file\": \"lib/screens/home/home_screen.dart\",\n          \"line\": 238,\n          \"type\": \"onDestinationSelected\",\n          \"widget\": \"NavigationBar\",\n          \"status\": \"wired\",\n          \"action\": \"context.go to route by index\",\n          \"target\": \"/home, /progress, /health-log, /mood, /education\"\n        },\n        {\n          \"elementId\": \"WeightStatCard-onTap-1\",\n          \"file\": \"lib/screens/home/home_screen.dart\",\n          \"line\": 180,\n          \"type\": \"onTap\",\n          \"widget\": \"StatCard\",\n          \"status\": \"wired\",\n          \"action\": \"Navigate to weight screen\",\n          \"target\": \"/weight\"\n        },\n        {\n          \"elementId\": \"FAB-onPressed-1\",\n          \"file\": \"lib/screens/home/home_screen.dart\",\n          \"line\": 95,\n          \"type\": \"onPressed\",\n          \"widget\": \"FloatingActionButton\",\n          \"status\": \"empty\",\n          \"action\": \"Show quick-add bottom sheet\",\n          \"target\": null\n        }\n      ]\n    }\n  ]\n}\n```\n\n## Rules\n\n- Include ALL interactive elements, not just broken ones\n- Mark status honestly — if a handler is `(index) {}` that is `\"empty\"`, not `\"wired\"`\n- A handler containing only a comment like `// Handle tab navigation` is `\"empty\"`\n- Include line numbers so downstream tasks can find elements precisely\n- Include `bottomNavRoutes` — the ordered list of routes for bottom nav index mapping\n- Every element MUST have a unique `elementId` — downstream WBS uses this as the task ID\n- The `action` field MUST describe what the handler should do, not just its type\n- The `widget` field should name the enclosing widget class (e.g. `StatCard`, `FloatingActionButton`, `NavigationBar`)",
+              "taskSkill": "flutter-implementing-navigation-and-routing",
+              "taskInputs": [
+                ".stitch/screens.json",
+                "lib/screens/**/*.dart",
+                "lib/widgets/**/*.dart",
+                "lib/router/app_router.dart"
+              ],
+              "factId": "file-exists:test -f \"navigations.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "06-wire-screens/002-analyze-navigations-check-failed-manifest-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-wire-screens/002-analyze-navigations",
+            "severity": "high",
+            "description": "[06-wire-screens/002-analyze-navigations] Check failed: navigations.json was created",
+            "source": "unit",
+            "detected": "2026-04-19T00:31:54.797Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "manifest-exists",
+              "checkCmd": "test -f navigations.json",
+              "checkDescription": "navigations.json was created",
+              "checkOutput": "Command failed: test -f navigations.json\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Analyze Navigations — Build Navigation Manifest\n\nScan every screen and widget in `lib/screens/` and `lib/widgets/`, extract all interactive elements, and produce `navigations.json`.\n\n## Steps\n\n1. Read `lib/router/app_router.dart` to get the route table\n2. Read `.stitch/screens.json` for screen metadata (id, route, navType)\n3. For each screen directory in `lib/screens/`:\n   a. Read the screen file and all `widgets/*.dart` files\n   b. Find every interactive element:\n      - `onDestinationSelected` (bottom nav)\n      - `onPressed` (buttons, FABs, icon buttons)\n      - `onTap` (cards, list tiles, ink wells)\n      - `onChanged` / `onSelected` (tabs, chips, toggles)\n   c. Classify each element's current state:\n      - `\"wired\"` — has real logic (calls `context.go`, `context.push`, `ref.read`, `setState`, etc.)\n      - `\"empty\"` — is `null`, `() {}`, or comment-only body\n      - `\"stub\"` — has a TODO or placeholder comment\n   d. For elements that should navigate, determine the target route from context\n   e. Assign a unique `elementId` to each element using the pattern: `{widgetName}-{handlerType}-{index}`\n      - e.g. `StatCard-onTap-1`, `BottomNavBar-onDestinationSelected-1`, `FAB-onPressed-1`\n   f. Describe what the handler **should do** in the `action` field — this tells downstream tasks exactly what to implement\n\n4. Write `navigations.json` with this structure:\n\n```json\n{\n  \"generatedAt\": \"2026-04-19T...\",\n  \"bottomNavRoutes\": [\"/home\", \"/progress\", \"/health-log\", \"/mood\", \"/education\"],\n  \"screens\": [\n    {\n      \"id\": \"home\",\n      \"route\": \"/home\",\n      \"screenFile\": \"lib/screens/home/home_screen.dart\",\n      \"widgetFiles\": [\"lib/screens/home/widgets/stat_card.dart\"],\n      \"elements\": [\n        {\n          \"elementId\": \"BottomNav-onDestinationSelected-1\",\n          \"file\": \"lib/screens/home/home_screen.dart\",\n          \"line\": 238,\n          \"type\": \"onDestinationSelected\",\n          \"widget\": \"NavigationBar\",\n          \"status\": \"wired\",\n          \"action\": \"context.go to route by index\",\n          \"target\": \"/home, /progress, /health-log, /mood, /education\"\n        },\n        {\n          \"elementId\": \"WeightStatCard-onTap-1\",\n          \"file\": \"lib/screens/home/home_screen.dart\",\n          \"line\": 180,\n          \"type\": \"onTap\",\n          \"widget\": \"StatCard\",\n          \"status\": \"wired\",\n          \"action\": \"Navigate to weight screen\",\n          \"target\": \"/weight\"\n        },\n        {\n          \"elementId\": \"FAB-onPressed-1\",\n          \"file\": \"lib/screens/home/home_screen.dart\",\n          \"line\": 95,\n          \"type\": \"onPressed\",\n          \"widget\": \"FloatingActionButton\",\n          \"status\": \"empty\",\n          \"action\": \"Show quick-add bottom sheet\",\n          \"target\": null\n        }\n      ]\n    }\n  ]\n}\n```\n\n## Rules\n\n- Include ALL interactive elements, not just broken ones\n- Mark status honestly — if a handler is `(index) {}` that is `\"empty\"`, not `\"wired\"`\n- A handler containing only a comment like `// Handle tab navigation` is `\"empty\"`\n- Include line numbers so downstream tasks can find elements precisely\n- Include `bottomNavRoutes` — the ordered list of routes for bottom nav index mapping\n- Every element MUST have a unique `elementId` — downstream WBS uses this as the task ID\n- The `action` field MUST describe what the handler should do, not just its type\n- The `widget` field should name the enclosing widget class (e.g. `StatCard`, `FloatingActionButton`, `NavigationBar`)",
+              "taskSkill": "flutter-implementing-navigation-and-routing",
+              "taskId": "06-wire-screens/002-analyze-navigations",
+              "taskTitle": "Analyze Navigations — Build Navigation Manifest",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/06-wire-screens/002-analyze-navigations",
+              "factId": "check:manifest-exists"
+            }
+          },
+          {
+            "id": "06-wire-screens/002-analyze-navigations-check-failed-manifest-has-screens",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-wire-screens/002-analyze-navigations",
+            "severity": "high",
+            "description": "[06-wire-screens/002-analyze-navigations] Check failed: Manifest contains at least 5 screens",
+            "source": "unit",
+            "detected": "2026-04-19T00:31:54.821Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "manifest-has-screens",
+              "checkCmd": "node -e \"const n=JSON.parse(require('fs').readFileSync('navigations.json','utf-8')); process.exit(n.screens && n.screens.length >= 5 ? 0 : 1)\"",
+              "checkDescription": "Manifest contains at least 5 screens",
+              "checkOutput": "node:fs:441\n    return binding.readFileUtf8(path, stringToFlags(options.flag));\n                   ^\n\nError: ENOENT: no such file or directory, open 'navigations.json'\n    at Object.readFileSync (node:fs:441:20)\n    at [eval]:1:34\n    at runScriptInThisContext (node:internal/vm:209:10)\n    at node:internal/process/execution:446:12\n    at [eval]-wrapper:6:24\n    at runScriptInContext (node:internal/process/execution:444:60)\n    at evalFunction (node:internal/process/execution:279:30)\n    at evalTypeScript (node:internal/process/execution:291:3)\n    at node:internal/main/eval_string:74:3 {\n  errno: -2,\n  code: 'ENOENT',\n  syscall: 'open',\n  path: 'navigations.json'\n}\n\nNode.js v22.19.0",
+              "checkExitCode": 1,
+              "taskPrompt": "# Analyze Navigations — Build Navigation Manifest\n\nScan every screen and widget in `lib/screens/` and `lib/widgets/`, extract all interactive elements, and produce `navigations.json`.\n\n## Steps\n\n1. Read `lib/router/app_router.dart` to get the route table\n2. Read `.stitch/screens.json` for screen metadata (id, route, navType)\n3. For each screen directory in `lib/screens/`:\n   a. Read the screen file and all `widgets/*.dart` files\n   b. Find every interactive element:\n      - `onDestinationSelected` (bottom nav)\n      - `onPressed` (buttons, FABs, icon buttons)\n      - `onTap` (cards, list tiles, ink wells)\n      - `onChanged` / `onSelected` (tabs, chips, toggles)\n   c. Classify each element's current state:\n      - `\"wired\"` — has real logic (calls `context.go`, `context.push`, `ref.read`, `setState`, etc.)\n      - `\"empty\"` — is `null`, `() {}`, or comment-only body\n      - `\"stub\"` — has a TODO or placeholder comment\n   d. For elements that should navigate, determine the target route from context\n   e. Assign a unique `elementId` to each element using the pattern: `{widgetName}-{handlerType}-{index}`\n      - e.g. `StatCard-onTap-1`, `BottomNavBar-onDestinationSelected-1`, `FAB-onPressed-1`\n   f. Describe what the handler **should do** in the `action` field — this tells downstream tasks exactly what to implement\n\n4. Write `navigations.json` with this structure:\n\n```json\n{\n  \"generatedAt\": \"2026-04-19T...\",\n  \"bottomNavRoutes\": [\"/home\", \"/progress\", \"/health-log\", \"/mood\", \"/education\"],\n  \"screens\": [\n    {\n      \"id\": \"home\",\n      \"route\": \"/home\",\n      \"screenFile\": \"lib/screens/home/home_screen.dart\",\n      \"widgetFiles\": [\"lib/screens/home/widgets/stat_card.dart\"],\n      \"elements\": [\n        {\n          \"elementId\": \"BottomNav-onDestinationSelected-1\",\n          \"file\": \"lib/screens/home/home_screen.dart\",\n          \"line\": 238,\n          \"type\": \"onDestinationSelected\",\n          \"widget\": \"NavigationBar\",\n          \"status\": \"wired\",\n          \"action\": \"context.go to route by index\",\n          \"target\": \"/home, /progress, /health-log, /mood, /education\"\n        },\n        {\n          \"elementId\": \"WeightStatCard-onTap-1\",\n          \"file\": \"lib/screens/home/home_screen.dart\",\n          \"line\": 180,\n          \"type\": \"onTap\",\n          \"widget\": \"StatCard\",\n          \"status\": \"wired\",\n          \"action\": \"Navigate to weight screen\",\n          \"target\": \"/weight\"\n        },\n        {\n          \"elementId\": \"FAB-onPressed-1\",\n          \"file\": \"lib/screens/home/home_screen.dart\",\n          \"line\": 95,\n          \"type\": \"onPressed\",\n          \"widget\": \"FloatingActionButton\",\n          \"status\": \"empty\",\n          \"action\": \"Show quick-add bottom sheet\",\n          \"target\": null\n        }\n      ]\n    }\n  ]\n}\n```\n\n## Rules\n\n- Include ALL interactive elements, not just broken ones\n- Mark status honestly — if a handler is `(index) {}` that is `\"empty\"`, not `\"wired\"`\n- A handler containing only a comment like `// Handle tab navigation` is `\"empty\"`\n- Include line numbers so downstream tasks can find elements precisely\n- Include `bottomNavRoutes` — the ordered list of routes for bottom nav index mapping\n- Every element MUST have a unique `elementId` — downstream WBS uses this as the task ID\n- The `action` field MUST describe what the handler should do, not just its type\n- The `widget` field should name the enclosing widget class (e.g. `StatCard`, `FloatingActionButton`, `NavigationBar`)",
+              "taskSkill": "flutter-implementing-navigation-and-routing",
+              "taskId": "06-wire-screens/002-analyze-navigations",
+              "taskTitle": "Analyze Navigations — Build Navigation Manifest",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/06-wire-screens/002-analyze-navigations",
+              "factId": "check:manifest-has-screens"
+            }
+          },
+          {
+            "id": "06-wire-screens/002-analyze-navigations-check-failed-manifest-has-elements",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-wire-screens/002-analyze-navigations",
+            "severity": "high",
+            "description": "[06-wire-screens/002-analyze-navigations] Check failed: Manifest contains at least 10 interactive elements total",
+            "source": "unit",
+            "detected": "2026-04-19T00:31:54.846Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "manifest-has-elements",
+              "checkCmd": "node -e \"const n=JSON.parse(require('fs').readFileSync('navigations.json','utf-8')); const total=n.screens.reduce((s,sc)=>s+sc.elements.length,0); process.exit(total >= 10 ? 0 : 1)\"",
+              "checkDescription": "Manifest contains at least 10 interactive elements total",
+              "checkOutput": "node:fs:441\n    return binding.readFileUtf8(path, stringToFlags(options.flag));\n                   ^\n\nError: ENOENT: no such file or directory, open 'navigations.json'\n    at Object.readFileSync (node:fs:441:20)\n    at [eval]:1:34\n    at runScriptInThisContext (node:internal/vm:209:10)\n    at node:internal/process/execution:446:12\n    at [eval]-wrapper:6:24\n    at runScriptInContext (node:internal/process/execution:444:60)\n    at evalFunction (node:internal/process/execution:279:30)\n    at evalTypeScript (node:internal/process/execution:291:3)\n    at node:internal/main/eval_string:74:3 {\n  errno: -2,\n  code: 'ENOENT',\n  syscall: 'open',\n  path: 'navigations.json'\n}\n\nNode.js v22.19.0",
+              "checkExitCode": 1,
+              "taskPrompt": "# Analyze Navigations — Build Navigation Manifest\n\nScan every screen and widget in `lib/screens/` and `lib/widgets/`, extract all interactive elements, and produce `navigations.json`.\n\n## Steps\n\n1. Read `lib/router/app_router.dart` to get the route table\n2. Read `.stitch/screens.json` for screen metadata (id, route, navType)\n3. For each screen directory in `lib/screens/`:\n   a. Read the screen file and all `widgets/*.dart` files\n   b. Find every interactive element:\n      - `onDestinationSelected` (bottom nav)\n      - `onPressed` (buttons, FABs, icon buttons)\n      - `onTap` (cards, list tiles, ink wells)\n      - `onChanged` / `onSelected` (tabs, chips, toggles)\n   c. Classify each element's current state:\n      - `\"wired\"` — has real logic (calls `context.go`, `context.push`, `ref.read`, `setState`, etc.)\n      - `\"empty\"` — is `null`, `() {}`, or comment-only body\n      - `\"stub\"` — has a TODO or placeholder comment\n   d. For elements that should navigate, determine the target route from context\n   e. Assign a unique `elementId` to each element using the pattern: `{widgetName}-{handlerType}-{index}`\n      - e.g. `StatCard-onTap-1`, `BottomNavBar-onDestinationSelected-1`, `FAB-onPressed-1`\n   f. Describe what the handler **should do** in the `action` field — this tells downstream tasks exactly what to implement\n\n4. Write `navigations.json` with this structure:\n\n```json\n{\n  \"generatedAt\": \"2026-04-19T...\",\n  \"bottomNavRoutes\": [\"/home\", \"/progress\", \"/health-log\", \"/mood\", \"/education\"],\n  \"screens\": [\n    {\n      \"id\": \"home\",\n      \"route\": \"/home\",\n      \"screenFile\": \"lib/screens/home/home_screen.dart\",\n      \"widgetFiles\": [\"lib/screens/home/widgets/stat_card.dart\"],\n      \"elements\": [\n        {\n          \"elementId\": \"BottomNav-onDestinationSelected-1\",\n          \"file\": \"lib/screens/home/home_screen.dart\",\n          \"line\": 238,\n          \"type\": \"onDestinationSelected\",\n          \"widget\": \"NavigationBar\",\n          \"status\": \"wired\",\n          \"action\": \"context.go to route by index\",\n          \"target\": \"/home, /progress, /health-log, /mood, /education\"\n        },\n        {\n          \"elementId\": \"WeightStatCard-onTap-1\",\n          \"file\": \"lib/screens/home/home_screen.dart\",\n          \"line\": 180,\n          \"type\": \"onTap\",\n          \"widget\": \"StatCard\",\n          \"status\": \"wired\",\n          \"action\": \"Navigate to weight screen\",\n          \"target\": \"/weight\"\n        },\n        {\n          \"elementId\": \"FAB-onPressed-1\",\n          \"file\": \"lib/screens/home/home_screen.dart\",\n          \"line\": 95,\n          \"type\": \"onPressed\",\n          \"widget\": \"FloatingActionButton\",\n          \"status\": \"empty\",\n          \"action\": \"Show quick-add bottom sheet\",\n          \"target\": null\n        }\n      ]\n    }\n  ]\n}\n```\n\n## Rules\n\n- Include ALL interactive elements, not just broken ones\n- Mark status honestly — if a handler is `(index) {}` that is `\"empty\"`, not `\"wired\"`\n- A handler containing only a comment like `// Handle tab navigation` is `\"empty\"`\n- Include line numbers so downstream tasks can find elements precisely\n- Include `bottomNavRoutes` — the ordered list of routes for bottom nav index mapping\n- Every element MUST have a unique `elementId` — downstream WBS uses this as the task ID\n- The `action` field MUST describe what the handler should do, not just its type\n- The `widget` field should name the enclosing widget class (e.g. `StatCard`, `FloatingActionButton`, `NavigationBar`)",
+              "taskSkill": "flutter-implementing-navigation-and-routing",
+              "taskId": "06-wire-screens/002-analyze-navigations",
+              "taskTitle": "Analyze Navigations — Build Navigation Manifest",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/06-wire-screens/002-analyze-navigations",
+              "factId": "check:manifest-has-elements"
+            }
+          },
+          {
+            "id": "06-wire-screens/002-analyze-navigations-check-failed-every-element-has-id",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-wire-screens/002-analyze-navigations",
+            "severity": "high",
+            "description": "[06-wire-screens/002-analyze-navigations] Check failed: Every element has a unique elementId",
+            "source": "unit",
+            "detected": "2026-04-19T00:31:54.870Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "every-element-has-id",
+              "checkCmd": "node -e \"const n=JSON.parse(require('fs').readFileSync('navigations.json','utf-8')); const ok=n.screens.every(s=>s.elements.every(e=>e.elementId)); process.exit(ok ? 0 : 1)\"",
+              "checkDescription": "Every element has a unique elementId",
+              "checkOutput": "node:fs:441\n    return binding.readFileUtf8(path, stringToFlags(options.flag));\n                   ^\n\nError: ENOENT: no such file or directory, open 'navigations.json'\n    at Object.readFileSync (node:fs:441:20)\n    at [eval]:1:34\n    at runScriptInThisContext (node:internal/vm:209:10)\n    at node:internal/process/execution:446:12\n    at [eval]-wrapper:6:24\n    at runScriptInContext (node:internal/process/execution:444:60)\n    at evalFunction (node:internal/process/execution:279:30)\n    at evalTypeScript (node:internal/process/execution:291:3)\n    at node:internal/main/eval_string:74:3 {\n  errno: -2,\n  code: 'ENOENT',\n  syscall: 'open',\n  path: 'navigations.json'\n}\n\nNode.js v22.19.0",
+              "checkExitCode": 1,
+              "taskPrompt": "# Analyze Navigations — Build Navigation Manifest\n\nScan every screen and widget in `lib/screens/` and `lib/widgets/`, extract all interactive elements, and produce `navigations.json`.\n\n## Steps\n\n1. Read `lib/router/app_router.dart` to get the route table\n2. Read `.stitch/screens.json` for screen metadata (id, route, navType)\n3. For each screen directory in `lib/screens/`:\n   a. Read the screen file and all `widgets/*.dart` files\n   b. Find every interactive element:\n      - `onDestinationSelected` (bottom nav)\n      - `onPressed` (buttons, FABs, icon buttons)\n      - `onTap` (cards, list tiles, ink wells)\n      - `onChanged` / `onSelected` (tabs, chips, toggles)\n   c. Classify each element's current state:\n      - `\"wired\"` — has real logic (calls `context.go`, `context.push`, `ref.read`, `setState`, etc.)\n      - `\"empty\"` — is `null`, `() {}`, or comment-only body\n      - `\"stub\"` — has a TODO or placeholder comment\n   d. For elements that should navigate, determine the target route from context\n   e. Assign a unique `elementId` to each element using the pattern: `{widgetName}-{handlerType}-{index}`\n      - e.g. `StatCard-onTap-1`, `BottomNavBar-onDestinationSelected-1`, `FAB-onPressed-1`\n   f. Describe what the handler **should do** in the `action` field — this tells downstream tasks exactly what to implement\n\n4. Write `navigations.json` with this structure:\n\n```json\n{\n  \"generatedAt\": \"2026-04-19T...\",\n  \"bottomNavRoutes\": [\"/home\", \"/progress\", \"/health-log\", \"/mood\", \"/education\"],\n  \"screens\": [\n    {\n      \"id\": \"home\",\n      \"route\": \"/home\",\n      \"screenFile\": \"lib/screens/home/home_screen.dart\",\n      \"widgetFiles\": [\"lib/screens/home/widgets/stat_card.dart\"],\n      \"elements\": [\n        {\n          \"elementId\": \"BottomNav-onDestinationSelected-1\",\n          \"file\": \"lib/screens/home/home_screen.dart\",\n          \"line\": 238,\n          \"type\": \"onDestinationSelected\",\n          \"widget\": \"NavigationBar\",\n          \"status\": \"wired\",\n          \"action\": \"context.go to route by index\",\n          \"target\": \"/home, /progress, /health-log, /mood, /education\"\n        },\n        {\n          \"elementId\": \"WeightStatCard-onTap-1\",\n          \"file\": \"lib/screens/home/home_screen.dart\",\n          \"line\": 180,\n          \"type\": \"onTap\",\n          \"widget\": \"StatCard\",\n          \"status\": \"wired\",\n          \"action\": \"Navigate to weight screen\",\n          \"target\": \"/weight\"\n        },\n        {\n          \"elementId\": \"FAB-onPressed-1\",\n          \"file\": \"lib/screens/home/home_screen.dart\",\n          \"line\": 95,\n          \"type\": \"onPressed\",\n          \"widget\": \"FloatingActionButton\",\n          \"status\": \"empty\",\n          \"action\": \"Show quick-add bottom sheet\",\n          \"target\": null\n        }\n      ]\n    }\n  ]\n}\n```\n\n## Rules\n\n- Include ALL interactive elements, not just broken ones\n- Mark status honestly — if a handler is `(index) {}` that is `\"empty\"`, not `\"wired\"`\n- A handler containing only a comment like `// Handle tab navigation` is `\"empty\"`\n- Include line numbers so downstream tasks can find elements precisely\n- Include `bottomNavRoutes` — the ordered list of routes for bottom nav index mapping\n- Every element MUST have a unique `elementId` — downstream WBS uses this as the task ID\n- The `action` field MUST describe what the handler should do, not just its type\n- The `widget` field should name the enclosing widget class (e.g. `StatCard`, `FloatingActionButton`, `NavigationBar`)",
+              "taskSkill": "flutter-implementing-navigation-and-routing",
+              "taskId": "06-wire-screens/002-analyze-navigations",
+              "taskTitle": "Analyze Navigations — Build Navigation Manifest",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/06-wire-screens/002-analyze-navigations",
+              "factId": "check:every-element-has-id"
+            }
+          }
+        ],
+        "durationMs": 95
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 375
+      }
+    },
+    {
+      "id": "run-skill",
+      "handler": "run-skill",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 64
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 155
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 170827
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-19T00:31:54.774Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-19T00:31:54.774Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-19T00:31:54.871Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-19T00:31:54.873Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "run-skill",
+      "iteration": 1,
+      "ts": "2026-04-19T00:31:54.880Z"
+    },
+    {
+      "from": "run-skill",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-19T00:31:55.257Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-04-19T00:34:46.085Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-19T00:34:46.240Z"
+    }
+  ]
+}

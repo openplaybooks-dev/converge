@@ -1,0 +1,38 @@
+{
+  "taskId": "07-build-overlays/001-mode-selector/001-01-spec",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/UX.md",
+      "count": 1,
+      "samples": [
+        ".stitch/UX.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/screens.json",
+      "count": 1,
+      "samples": [
+        ".stitch/screens.json"
+      ]
+    },
+    {
+      "pattern": "lib/screens/home/home_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/home/home_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/mode-selector/SPEC.md"
+  ],
+  "blocked": false
+}

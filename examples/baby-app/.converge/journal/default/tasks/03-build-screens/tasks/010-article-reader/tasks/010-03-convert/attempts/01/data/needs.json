@@ -1,0 +1,31 @@
+{
+  "taskId": "03-build-screens/010-article-reader/010-03-convert",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/article-reader/design.html",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/article-reader/design.html"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/article-reader/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/article-reader/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/article_reader/article_reader_screen.dart"
+  ],
+  "blocked": false
+}

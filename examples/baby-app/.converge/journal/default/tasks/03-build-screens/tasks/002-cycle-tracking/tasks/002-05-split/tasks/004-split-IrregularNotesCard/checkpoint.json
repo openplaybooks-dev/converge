@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-build-screens/002-cycle-tracking/002-05-split/004-split-IrregularNotesCard",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T15:54:14.885Z",
+  "createdAt": "2026-04-18T15:52:25.699Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T15:52:25.699Z",
+      "completedAt": "2026-04-18T15:54:14.882Z",
+      "outcome": "success",
+      "durationMs": 109183
+    }
+  ],
+  "currentAttempt": 1
+}

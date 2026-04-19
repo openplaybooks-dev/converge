@@ -1,0 +1,249 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/006-exercise-detail/006-05-split/005-split-StartExerciseButton-missing-output-lib/screens/exercise_detail/widgets/start_exercise_button.dart",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/006-exercise-detail/006-05-split/005-split-StartExerciseButton",
+            "severity": "high",
+            "description": "[03-build-screens/006-exercise-detail/006-05-split/005-split-StartExerciseButton] Task output not created: lib/screens/exercise_detail/widgets/start_exercise_button.dart",
+            "source": "unit",
+            "detected": "2026-04-18T16:42:54.989Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/006-exercise-detail/tasks/006-05-split/tasks/005-split-StartExerciseButton",
+              "taskId": "03-build-screens/006-exercise-detail/006-05-split/005-split-StartExerciseButton",
+              "taskTitle": "Split: StartExerciseButton",
+              "taskPrompt": "# Split: StartExerciseButton\n\nExtract the `StartExerciseButton` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/exercise_detail/exercise_detail_screen.dart` using grep string: `Start Exercise`\n2. **Create file** — Write `lib/screens/exercise_detail/widgets/start_exercise_button.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `StartExerciseButton()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass StartExerciseButton extends StatelessWidget {\n  const StartExerciseButton({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskInputs": [
+                "lib/screens/exercise_detail/exercise_detail_screen.dart"
+              ],
+              "factId": "file-exists:test -f \"lib/screens/exercise_detail/widgets/start_exercise_button.dart\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-build-screens/006-exercise-detail/006-05-split/005-split-StartExerciseButton-check-failed-widget-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/006-exercise-detail/006-05-split/005-split-StartExerciseButton",
+            "severity": "high",
+            "description": "[03-build-screens/006-exercise-detail/006-05-split/005-split-StartExerciseButton] Check failed: Widget file exists",
+            "source": "unit",
+            "detected": "2026-04-18T16:42:54.995Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "widget-exists",
+              "checkCmd": "test -f lib/screens/exercise_detail/widgets/start_exercise_button.dart",
+              "checkDescription": "Widget file exists",
+              "checkOutput": "Command failed: test -f lib/screens/exercise_detail/widgets/start_exercise_button.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Split: StartExerciseButton\n\nExtract the `StartExerciseButton` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/exercise_detail/exercise_detail_screen.dart` using grep string: `Start Exercise`\n2. **Create file** — Write `lib/screens/exercise_detail/widgets/start_exercise_button.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `StartExerciseButton()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass StartExerciseButton extends StatelessWidget {\n  const StartExerciseButton({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskId": "03-build-screens/006-exercise-detail/006-05-split/005-split-StartExerciseButton",
+              "taskTitle": "Split: StartExerciseButton",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/006-exercise-detail/tasks/006-05-split/tasks/005-split-StartExerciseButton",
+              "factId": "check:widget-exists"
+            }
+          },
+          {
+            "id": "03-build-screens/006-exercise-detail/006-05-split/005-split-StartExerciseButton-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/006-exercise-detail/006-05-split/005-split-StartExerciseButton",
+            "severity": "high",
+            "description": "[03-build-screens/006-exercise-detail/006-05-split/005-split-StartExerciseButton] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-18T16:42:55.088Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "dart analyze lib/screens/exercise_detail/widgets/start_exercise_button.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "Directory or file doesn't exist: lib/screens/exercise_detail/widgets/start_exercise_button.dart\n\nUsage: dart analyze [arguments] [<directory>]\n-h, --help                   Print this usage information.\n    --fatal-infos            Treat info level issues as fatal.\n    --[no-]fatal-warnings    Treat warning level issues as fatal.\n                             (defaults to on)\n\nRun \"dart help\" to see global options.",
+              "checkExitCode": 64,
+              "taskPrompt": "# Split: StartExerciseButton\n\nExtract the `StartExerciseButton` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/exercise_detail/exercise_detail_screen.dart` using grep string: `Start Exercise`\n2. **Create file** — Write `lib/screens/exercise_detail/widgets/start_exercise_button.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `StartExerciseButton()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass StartExerciseButton extends StatelessWidget {\n  const StartExerciseButton({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskId": "03-build-screens/006-exercise-detail/006-05-split/005-split-StartExerciseButton",
+              "taskTitle": "Split: StartExerciseButton",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/006-exercise-detail/tasks/006-05-split/tasks/005-split-StartExerciseButton",
+              "factId": "check:dart-valid"
+            }
+          }
+        ],
+        "durationMs": 111
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 192
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 991
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#28",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 96754
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-18T16:42:54.976Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-18T16:42:54.977Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-18T16:42:55.088Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-18T16:42:55.090Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-18T16:42:55.283Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#28",
+      "iteration": 1,
+      "ts": "2026-04-18T16:44:32.037Z"
+    },
+    {
+      "from": "run-strategy:task-run#28",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-18T16:44:33.029Z"
+    }
+  ]
+}

@@ -1,0 +1,432 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "02-design-system/005-generate-design-references-missing-output-.stitch/system/META.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-design-system/005-generate-design-references",
+            "severity": "high",
+            "description": "[02-design-system/005-generate-design-references] Task output not created: .stitch/system/META.md",
+            "source": "unit",
+            "detected": "2026-04-18T11:26:31.893Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/02-design-system/005-generate-design-references",
+              "taskId": "02-design-system/005-generate-design-references",
+              "taskTitle": "Generate Design Reference HTML",
+              "taskPrompt": "# Generate Design Reference HTML\n\nGenerate project-specific HTML design mockups that serve as reference examples for `stitch-generate` when building all screens in `03-build-screens`.\n\n## Why\n\nThe `stitch-generate` skill matches new screens against reference examples to produce consistent HTML. By generating project-specific references that embody our design system, every screen generated in `03-build-screens` will inherit the correct visual language — which then converts cleanly to Flutter widgets.\n\n## Steps\n\n1. **Read inputs** — Load `.stitch/system/DESIGN.md`, `.stitch/screens.json`, and `.stitch/UX.md`\n\n2. **Select 3 representative screens** from `screens.json`:\n   - **Single Screen** — the most typical/common screen (e.g., a main content list or primary feature screen)\n   - **Multi-State** — a screen with multiple interaction states (e.g., form with empty/filling/complete states, or a list with loading/empty/populated)\n   - **Celebration** — an achievement or milestone screen (e.g., goal reached, streak milestone, completion)\n\n3. **Create `.stitch/system/META.md`** following this format:\n   ```markdown\n   # {App Name}\n\n   - **App Type:** {category}\n   - **Tags:** {comma-separated keywords}\n   - **Platform:** Mobile (375px base width)\n   - **Interaction Density:** {Low | Medium | High}\n   - **Target Framework:** Flutter (Material 3)\n\n   ## Screens\n\n   | File | Pattern | Description |\n   |------|---------|-------------|\n   | `single-screen.html` | Single Screen | {what it shows} |\n   | `multi-state-screen.html` | Multi-State | {what states it covers} |\n   | `celebration-screen.html` | Celebration | {what achievement it shows} |\n\n   ## Key Patterns\n\n   - {notable UI pattern 1}\n   - {notable UI pattern 2}\n   ```\n\n4. **Generate each HTML file** using `stitch-generate`:\n   - Each file must be self-contained (embedded `<style>`, inline SVG icons, Google Fonts via `<link>`)\n   - CSS custom properties in `:root` for all design tokens from DESIGN.md\n   - Semantic HTML (`<header>`, `<main>`, `<nav>`, `<section>`)\n   - ARIA attributes on interactive elements\n   - `@media (prefers-reduced-motion: reduce)` block\n   - Phone frame wrapper (`.phone` at 375px for mobile)\n\n## Output\n\n```\n.stitch/system/\n├── DESIGN.md              (created by task 002)\n├── META.md\n├── single-screen.html\n├── multi-state-screen.html\n└── celebration-screen.html\n```",
+              "taskSkill": "stitch-generate",
+              "taskInputs": [
+                ".stitch/system/DESIGN.md",
+                ".stitch/screens.json",
+                ".stitch/UX.md"
+              ],
+              "factId": "file-exists:test -f \".stitch/system/META.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-design-system/005-generate-design-references-missing-output-.stitch/system/single-screen.html",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-design-system/005-generate-design-references",
+            "severity": "high",
+            "description": "[02-design-system/005-generate-design-references] Task output not created: .stitch/system/single-screen.html",
+            "source": "unit",
+            "detected": "2026-04-18T11:26:31.895Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/02-design-system/005-generate-design-references",
+              "taskId": "02-design-system/005-generate-design-references",
+              "taskTitle": "Generate Design Reference HTML",
+              "taskPrompt": "# Generate Design Reference HTML\n\nGenerate project-specific HTML design mockups that serve as reference examples for `stitch-generate` when building all screens in `03-build-screens`.\n\n## Why\n\nThe `stitch-generate` skill matches new screens against reference examples to produce consistent HTML. By generating project-specific references that embody our design system, every screen generated in `03-build-screens` will inherit the correct visual language — which then converts cleanly to Flutter widgets.\n\n## Steps\n\n1. **Read inputs** — Load `.stitch/system/DESIGN.md`, `.stitch/screens.json`, and `.stitch/UX.md`\n\n2. **Select 3 representative screens** from `screens.json`:\n   - **Single Screen** — the most typical/common screen (e.g., a main content list or primary feature screen)\n   - **Multi-State** — a screen with multiple interaction states (e.g., form with empty/filling/complete states, or a list with loading/empty/populated)\n   - **Celebration** — an achievement or milestone screen (e.g., goal reached, streak milestone, completion)\n\n3. **Create `.stitch/system/META.md`** following this format:\n   ```markdown\n   # {App Name}\n\n   - **App Type:** {category}\n   - **Tags:** {comma-separated keywords}\n   - **Platform:** Mobile (375px base width)\n   - **Interaction Density:** {Low | Medium | High}\n   - **Target Framework:** Flutter (Material 3)\n\n   ## Screens\n\n   | File | Pattern | Description |\n   |------|---------|-------------|\n   | `single-screen.html` | Single Screen | {what it shows} |\n   | `multi-state-screen.html` | Multi-State | {what states it covers} |\n   | `celebration-screen.html` | Celebration | {what achievement it shows} |\n\n   ## Key Patterns\n\n   - {notable UI pattern 1}\n   - {notable UI pattern 2}\n   ```\n\n4. **Generate each HTML file** using `stitch-generate`:\n   - Each file must be self-contained (embedded `<style>`, inline SVG icons, Google Fonts via `<link>`)\n   - CSS custom properties in `:root` for all design tokens from DESIGN.md\n   - Semantic HTML (`<header>`, `<main>`, `<nav>`, `<section>`)\n   - ARIA attributes on interactive elements\n   - `@media (prefers-reduced-motion: reduce)` block\n   - Phone frame wrapper (`.phone` at 375px for mobile)\n\n## Output\n\n```\n.stitch/system/\n├── DESIGN.md              (created by task 002)\n├── META.md\n├── single-screen.html\n├── multi-state-screen.html\n└── celebration-screen.html\n```",
+              "taskSkill": "stitch-generate",
+              "taskInputs": [
+                ".stitch/system/DESIGN.md",
+                ".stitch/screens.json",
+                ".stitch/UX.md"
+              ],
+              "factId": "file-exists:test -f \".stitch/system/single-screen.html\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-design-system/005-generate-design-references-missing-output-.stitch/system/multi-state-screen.html",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-design-system/005-generate-design-references",
+            "severity": "high",
+            "description": "[02-design-system/005-generate-design-references] Task output not created: .stitch/system/multi-state-screen.html",
+            "source": "unit",
+            "detected": "2026-04-18T11:26:31.897Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/02-design-system/005-generate-design-references",
+              "taskId": "02-design-system/005-generate-design-references",
+              "taskTitle": "Generate Design Reference HTML",
+              "taskPrompt": "# Generate Design Reference HTML\n\nGenerate project-specific HTML design mockups that serve as reference examples for `stitch-generate` when building all screens in `03-build-screens`.\n\n## Why\n\nThe `stitch-generate` skill matches new screens against reference examples to produce consistent HTML. By generating project-specific references that embody our design system, every screen generated in `03-build-screens` will inherit the correct visual language — which then converts cleanly to Flutter widgets.\n\n## Steps\n\n1. **Read inputs** — Load `.stitch/system/DESIGN.md`, `.stitch/screens.json`, and `.stitch/UX.md`\n\n2. **Select 3 representative screens** from `screens.json`:\n   - **Single Screen** — the most typical/common screen (e.g., a main content list or primary feature screen)\n   - **Multi-State** — a screen with multiple interaction states (e.g., form with empty/filling/complete states, or a list with loading/empty/populated)\n   - **Celebration** — an achievement or milestone screen (e.g., goal reached, streak milestone, completion)\n\n3. **Create `.stitch/system/META.md`** following this format:\n   ```markdown\n   # {App Name}\n\n   - **App Type:** {category}\n   - **Tags:** {comma-separated keywords}\n   - **Platform:** Mobile (375px base width)\n   - **Interaction Density:** {Low | Medium | High}\n   - **Target Framework:** Flutter (Material 3)\n\n   ## Screens\n\n   | File | Pattern | Description |\n   |------|---------|-------------|\n   | `single-screen.html` | Single Screen | {what it shows} |\n   | `multi-state-screen.html` | Multi-State | {what states it covers} |\n   | `celebration-screen.html` | Celebration | {what achievement it shows} |\n\n   ## Key Patterns\n\n   - {notable UI pattern 1}\n   - {notable UI pattern 2}\n   ```\n\n4. **Generate each HTML file** using `stitch-generate`:\n   - Each file must be self-contained (embedded `<style>`, inline SVG icons, Google Fonts via `<link>`)\n   - CSS custom properties in `:root` for all design tokens from DESIGN.md\n   - Semantic HTML (`<header>`, `<main>`, `<nav>`, `<section>`)\n   - ARIA attributes on interactive elements\n   - `@media (prefers-reduced-motion: reduce)` block\n   - Phone frame wrapper (`.phone` at 375px for mobile)\n\n## Output\n\n```\n.stitch/system/\n├── DESIGN.md              (created by task 002)\n├── META.md\n├── single-screen.html\n├── multi-state-screen.html\n└── celebration-screen.html\n```",
+              "taskSkill": "stitch-generate",
+              "taskInputs": [
+                ".stitch/system/DESIGN.md",
+                ".stitch/screens.json",
+                ".stitch/UX.md"
+              ],
+              "factId": "file-exists:test -f \".stitch/system/multi-state-screen.html\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-design-system/005-generate-design-references-missing-output-.stitch/system/celebration-screen.html",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-design-system/005-generate-design-references",
+            "severity": "high",
+            "description": "[02-design-system/005-generate-design-references] Task output not created: .stitch/system/celebration-screen.html",
+            "source": "unit",
+            "detected": "2026-04-18T11:26:31.899Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/02-design-system/005-generate-design-references",
+              "taskId": "02-design-system/005-generate-design-references",
+              "taskTitle": "Generate Design Reference HTML",
+              "taskPrompt": "# Generate Design Reference HTML\n\nGenerate project-specific HTML design mockups that serve as reference examples for `stitch-generate` when building all screens in `03-build-screens`.\n\n## Why\n\nThe `stitch-generate` skill matches new screens against reference examples to produce consistent HTML. By generating project-specific references that embody our design system, every screen generated in `03-build-screens` will inherit the correct visual language — which then converts cleanly to Flutter widgets.\n\n## Steps\n\n1. **Read inputs** — Load `.stitch/system/DESIGN.md`, `.stitch/screens.json`, and `.stitch/UX.md`\n\n2. **Select 3 representative screens** from `screens.json`:\n   - **Single Screen** — the most typical/common screen (e.g., a main content list or primary feature screen)\n   - **Multi-State** — a screen with multiple interaction states (e.g., form with empty/filling/complete states, or a list with loading/empty/populated)\n   - **Celebration** — an achievement or milestone screen (e.g., goal reached, streak milestone, completion)\n\n3. **Create `.stitch/system/META.md`** following this format:\n   ```markdown\n   # {App Name}\n\n   - **App Type:** {category}\n   - **Tags:** {comma-separated keywords}\n   - **Platform:** Mobile (375px base width)\n   - **Interaction Density:** {Low | Medium | High}\n   - **Target Framework:** Flutter (Material 3)\n\n   ## Screens\n\n   | File | Pattern | Description |\n   |------|---------|-------------|\n   | `single-screen.html` | Single Screen | {what it shows} |\n   | `multi-state-screen.html` | Multi-State | {what states it covers} |\n   | `celebration-screen.html` | Celebration | {what achievement it shows} |\n\n   ## Key Patterns\n\n   - {notable UI pattern 1}\n   - {notable UI pattern 2}\n   ```\n\n4. **Generate each HTML file** using `stitch-generate`:\n   - Each file must be self-contained (embedded `<style>`, inline SVG icons, Google Fonts via `<link>`)\n   - CSS custom properties in `:root` for all design tokens from DESIGN.md\n   - Semantic HTML (`<header>`, `<main>`, `<nav>`, `<section>`)\n   - ARIA attributes on interactive elements\n   - `@media (prefers-reduced-motion: reduce)` block\n   - Phone frame wrapper (`.phone` at 375px for mobile)\n\n## Output\n\n```\n.stitch/system/\n├── DESIGN.md              (created by task 002)\n├── META.md\n├── single-screen.html\n├── multi-state-screen.html\n└── celebration-screen.html\n```",
+              "taskSkill": "stitch-generate",
+              "taskInputs": [
+                ".stitch/system/DESIGN.md",
+                ".stitch/screens.json",
+                ".stitch/UX.md"
+              ],
+              "factId": "file-exists:test -f \".stitch/system/celebration-screen.html\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-design-system/005-generate-design-references-check-failed-meta-md-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-design-system/005-generate-design-references",
+            "severity": "high",
+            "description": "[02-design-system/005-generate-design-references] Check failed: META.md exists",
+            "source": "unit",
+            "detected": "2026-04-18T11:26:31.901Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "meta-md-exists",
+              "checkCmd": "test -f .stitch/system/META.md",
+              "checkDescription": "META.md exists",
+              "checkOutput": "Command failed: test -f .stitch/system/META.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Generate Design Reference HTML\n\nGenerate project-specific HTML design mockups that serve as reference examples for `stitch-generate` when building all screens in `03-build-screens`.\n\n## Why\n\nThe `stitch-generate` skill matches new screens against reference examples to produce consistent HTML. By generating project-specific references that embody our design system, every screen generated in `03-build-screens` will inherit the correct visual language — which then converts cleanly to Flutter widgets.\n\n## Steps\n\n1. **Read inputs** — Load `.stitch/system/DESIGN.md`, `.stitch/screens.json`, and `.stitch/UX.md`\n\n2. **Select 3 representative screens** from `screens.json`:\n   - **Single Screen** — the most typical/common screen (e.g., a main content list or primary feature screen)\n   - **Multi-State** — a screen with multiple interaction states (e.g., form with empty/filling/complete states, or a list with loading/empty/populated)\n   - **Celebration** — an achievement or milestone screen (e.g., goal reached, streak milestone, completion)\n\n3. **Create `.stitch/system/META.md`** following this format:\n   ```markdown\n   # {App Name}\n\n   - **App Type:** {category}\n   - **Tags:** {comma-separated keywords}\n   - **Platform:** Mobile (375px base width)\n   - **Interaction Density:** {Low | Medium | High}\n   - **Target Framework:** Flutter (Material 3)\n\n   ## Screens\n\n   | File | Pattern | Description |\n   |------|---------|-------------|\n   | `single-screen.html` | Single Screen | {what it shows} |\n   | `multi-state-screen.html` | Multi-State | {what states it covers} |\n   | `celebration-screen.html` | Celebration | {what achievement it shows} |\n\n   ## Key Patterns\n\n   - {notable UI pattern 1}\n   - {notable UI pattern 2}\n   ```\n\n4. **Generate each HTML file** using `stitch-generate`:\n   - Each file must be self-contained (embedded `<style>`, inline SVG icons, Google Fonts via `<link>`)\n   - CSS custom properties in `:root` for all design tokens from DESIGN.md\n   - Semantic HTML (`<header>`, `<main>`, `<nav>`, `<section>`)\n   - ARIA attributes on interactive elements\n   - `@media (prefers-reduced-motion: reduce)` block\n   - Phone frame wrapper (`.phone` at 375px for mobile)\n\n## Output\n\n```\n.stitch/system/\n├── DESIGN.md              (created by task 002)\n├── META.md\n├── single-screen.html\n├── multi-state-screen.html\n└── celebration-screen.html\n```",
+              "taskSkill": "stitch-generate",
+              "taskId": "02-design-system/005-generate-design-references",
+              "taskTitle": "Generate Design Reference HTML",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/02-design-system/005-generate-design-references",
+              "factId": "check:meta-md-exists"
+            }
+          },
+          {
+            "id": "02-design-system/005-generate-design-references-check-failed-single-screen-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-design-system/005-generate-design-references",
+            "severity": "high",
+            "description": "[02-design-system/005-generate-design-references] Check failed: Single screen HTML exists",
+            "source": "unit",
+            "detected": "2026-04-18T11:26:31.903Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "single-screen-exists",
+              "checkCmd": "test -f .stitch/system/single-screen.html",
+              "checkDescription": "Single screen HTML exists",
+              "checkOutput": "Command failed: test -f .stitch/system/single-screen.html\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Generate Design Reference HTML\n\nGenerate project-specific HTML design mockups that serve as reference examples for `stitch-generate` when building all screens in `03-build-screens`.\n\n## Why\n\nThe `stitch-generate` skill matches new screens against reference examples to produce consistent HTML. By generating project-specific references that embody our design system, every screen generated in `03-build-screens` will inherit the correct visual language — which then converts cleanly to Flutter widgets.\n\n## Steps\n\n1. **Read inputs** — Load `.stitch/system/DESIGN.md`, `.stitch/screens.json`, and `.stitch/UX.md`\n\n2. **Select 3 representative screens** from `screens.json`:\n   - **Single Screen** — the most typical/common screen (e.g., a main content list or primary feature screen)\n   - **Multi-State** — a screen with multiple interaction states (e.g., form with empty/filling/complete states, or a list with loading/empty/populated)\n   - **Celebration** — an achievement or milestone screen (e.g., goal reached, streak milestone, completion)\n\n3. **Create `.stitch/system/META.md`** following this format:\n   ```markdown\n   # {App Name}\n\n   - **App Type:** {category}\n   - **Tags:** {comma-separated keywords}\n   - **Platform:** Mobile (375px base width)\n   - **Interaction Density:** {Low | Medium | High}\n   - **Target Framework:** Flutter (Material 3)\n\n   ## Screens\n\n   | File | Pattern | Description |\n   |------|---------|-------------|\n   | `single-screen.html` | Single Screen | {what it shows} |\n   | `multi-state-screen.html` | Multi-State | {what states it covers} |\n   | `celebration-screen.html` | Celebration | {what achievement it shows} |\n\n   ## Key Patterns\n\n   - {notable UI pattern 1}\n   - {notable UI pattern 2}\n   ```\n\n4. **Generate each HTML file** using `stitch-generate`:\n   - Each file must be self-contained (embedded `<style>`, inline SVG icons, Google Fonts via `<link>`)\n   - CSS custom properties in `:root` for all design tokens from DESIGN.md\n   - Semantic HTML (`<header>`, `<main>`, `<nav>`, `<section>`)\n   - ARIA attributes on interactive elements\n   - `@media (prefers-reduced-motion: reduce)` block\n   - Phone frame wrapper (`.phone` at 375px for mobile)\n\n## Output\n\n```\n.stitch/system/\n├── DESIGN.md              (created by task 002)\n├── META.md\n├── single-screen.html\n├── multi-state-screen.html\n└── celebration-screen.html\n```",
+              "taskSkill": "stitch-generate",
+              "taskId": "02-design-system/005-generate-design-references",
+              "taskTitle": "Generate Design Reference HTML",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/02-design-system/005-generate-design-references",
+              "factId": "check:single-screen-exists"
+            }
+          },
+          {
+            "id": "02-design-system/005-generate-design-references-check-failed-multi-state-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-design-system/005-generate-design-references",
+            "severity": "high",
+            "description": "[02-design-system/005-generate-design-references] Check failed: Multi-state screen HTML exists",
+            "source": "unit",
+            "detected": "2026-04-18T11:26:31.905Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "multi-state-exists",
+              "checkCmd": "test -f .stitch/system/multi-state-screen.html",
+              "checkDescription": "Multi-state screen HTML exists",
+              "checkOutput": "Command failed: test -f .stitch/system/multi-state-screen.html\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Generate Design Reference HTML\n\nGenerate project-specific HTML design mockups that serve as reference examples for `stitch-generate` when building all screens in `03-build-screens`.\n\n## Why\n\nThe `stitch-generate` skill matches new screens against reference examples to produce consistent HTML. By generating project-specific references that embody our design system, every screen generated in `03-build-screens` will inherit the correct visual language — which then converts cleanly to Flutter widgets.\n\n## Steps\n\n1. **Read inputs** — Load `.stitch/system/DESIGN.md`, `.stitch/screens.json`, and `.stitch/UX.md`\n\n2. **Select 3 representative screens** from `screens.json`:\n   - **Single Screen** — the most typical/common screen (e.g., a main content list or primary feature screen)\n   - **Multi-State** — a screen with multiple interaction states (e.g., form with empty/filling/complete states, or a list with loading/empty/populated)\n   - **Celebration** — an achievement or milestone screen (e.g., goal reached, streak milestone, completion)\n\n3. **Create `.stitch/system/META.md`** following this format:\n   ```markdown\n   # {App Name}\n\n   - **App Type:** {category}\n   - **Tags:** {comma-separated keywords}\n   - **Platform:** Mobile (375px base width)\n   - **Interaction Density:** {Low | Medium | High}\n   - **Target Framework:** Flutter (Material 3)\n\n   ## Screens\n\n   | File | Pattern | Description |\n   |------|---------|-------------|\n   | `single-screen.html` | Single Screen | {what it shows} |\n   | `multi-state-screen.html` | Multi-State | {what states it covers} |\n   | `celebration-screen.html` | Celebration | {what achievement it shows} |\n\n   ## Key Patterns\n\n   - {notable UI pattern 1}\n   - {notable UI pattern 2}\n   ```\n\n4. **Generate each HTML file** using `stitch-generate`:\n   - Each file must be self-contained (embedded `<style>`, inline SVG icons, Google Fonts via `<link>`)\n   - CSS custom properties in `:root` for all design tokens from DESIGN.md\n   - Semantic HTML (`<header>`, `<main>`, `<nav>`, `<section>`)\n   - ARIA attributes on interactive elements\n   - `@media (prefers-reduced-motion: reduce)` block\n   - Phone frame wrapper (`.phone` at 375px for mobile)\n\n## Output\n\n```\n.stitch/system/\n├── DESIGN.md              (created by task 002)\n├── META.md\n├── single-screen.html\n├── multi-state-screen.html\n└── celebration-screen.html\n```",
+              "taskSkill": "stitch-generate",
+              "taskId": "02-design-system/005-generate-design-references",
+              "taskTitle": "Generate Design Reference HTML",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/02-design-system/005-generate-design-references",
+              "factId": "check:multi-state-exists"
+            }
+          },
+          {
+            "id": "02-design-system/005-generate-design-references-check-failed-celebration-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-design-system/005-generate-design-references",
+            "severity": "high",
+            "description": "[02-design-system/005-generate-design-references] Check failed: Celebration screen HTML exists",
+            "source": "unit",
+            "detected": "2026-04-18T11:26:31.907Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "celebration-exists",
+              "checkCmd": "test -f .stitch/system/celebration-screen.html",
+              "checkDescription": "Celebration screen HTML exists",
+              "checkOutput": "Command failed: test -f .stitch/system/celebration-screen.html\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Generate Design Reference HTML\n\nGenerate project-specific HTML design mockups that serve as reference examples for `stitch-generate` when building all screens in `03-build-screens`.\n\n## Why\n\nThe `stitch-generate` skill matches new screens against reference examples to produce consistent HTML. By generating project-specific references that embody our design system, every screen generated in `03-build-screens` will inherit the correct visual language — which then converts cleanly to Flutter widgets.\n\n## Steps\n\n1. **Read inputs** — Load `.stitch/system/DESIGN.md`, `.stitch/screens.json`, and `.stitch/UX.md`\n\n2. **Select 3 representative screens** from `screens.json`:\n   - **Single Screen** — the most typical/common screen (e.g., a main content list or primary feature screen)\n   - **Multi-State** — a screen with multiple interaction states (e.g., form with empty/filling/complete states, or a list with loading/empty/populated)\n   - **Celebration** — an achievement or milestone screen (e.g., goal reached, streak milestone, completion)\n\n3. **Create `.stitch/system/META.md`** following this format:\n   ```markdown\n   # {App Name}\n\n   - **App Type:** {category}\n   - **Tags:** {comma-separated keywords}\n   - **Platform:** Mobile (375px base width)\n   - **Interaction Density:** {Low | Medium | High}\n   - **Target Framework:** Flutter (Material 3)\n\n   ## Screens\n\n   | File | Pattern | Description |\n   |------|---------|-------------|\n   | `single-screen.html` | Single Screen | {what it shows} |\n   | `multi-state-screen.html` | Multi-State | {what states it covers} |\n   | `celebration-screen.html` | Celebration | {what achievement it shows} |\n\n   ## Key Patterns\n\n   - {notable UI pattern 1}\n   - {notable UI pattern 2}\n   ```\n\n4. **Generate each HTML file** using `stitch-generate`:\n   - Each file must be self-contained (embedded `<style>`, inline SVG icons, Google Fonts via `<link>`)\n   - CSS custom properties in `:root` for all design tokens from DESIGN.md\n   - Semantic HTML (`<header>`, `<main>`, `<nav>`, `<section>`)\n   - ARIA attributes on interactive elements\n   - `@media (prefers-reduced-motion: reduce)` block\n   - Phone frame wrapper (`.phone` at 375px for mobile)\n\n## Output\n\n```\n.stitch/system/\n├── DESIGN.md              (created by task 002)\n├── META.md\n├── single-screen.html\n├── multi-state-screen.html\n└── celebration-screen.html\n```",
+              "taskSkill": "stitch-generate",
+              "taskId": "02-design-system/005-generate-design-references",
+              "taskTitle": "Generate Design Reference HTML",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/02-design-system/005-generate-design-references",
+              "factId": "check:celebration-exists"
+            }
+          },
+          {
+            "id": "02-design-system/005-generate-design-references-check-failed-html-has-tokens",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-design-system/005-generate-design-references",
+            "severity": "high",
+            "description": "[02-design-system/005-generate-design-references] Check failed: HTML uses CSS custom properties",
+            "source": "unit",
+            "detected": "2026-04-18T11:26:31.910Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "html-has-tokens",
+              "checkCmd": "grep -q ':root' .stitch/system/single-screen.html",
+              "checkDescription": "HTML uses CSS custom properties",
+              "checkOutput": "grep: .stitch/system/single-screen.html: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Generate Design Reference HTML\n\nGenerate project-specific HTML design mockups that serve as reference examples for `stitch-generate` when building all screens in `03-build-screens`.\n\n## Why\n\nThe `stitch-generate` skill matches new screens against reference examples to produce consistent HTML. By generating project-specific references that embody our design system, every screen generated in `03-build-screens` will inherit the correct visual language — which then converts cleanly to Flutter widgets.\n\n## Steps\n\n1. **Read inputs** — Load `.stitch/system/DESIGN.md`, `.stitch/screens.json`, and `.stitch/UX.md`\n\n2. **Select 3 representative screens** from `screens.json`:\n   - **Single Screen** — the most typical/common screen (e.g., a main content list or primary feature screen)\n   - **Multi-State** — a screen with multiple interaction states (e.g., form with empty/filling/complete states, or a list with loading/empty/populated)\n   - **Celebration** — an achievement or milestone screen (e.g., goal reached, streak milestone, completion)\n\n3. **Create `.stitch/system/META.md`** following this format:\n   ```markdown\n   # {App Name}\n\n   - **App Type:** {category}\n   - **Tags:** {comma-separated keywords}\n   - **Platform:** Mobile (375px base width)\n   - **Interaction Density:** {Low | Medium | High}\n   - **Target Framework:** Flutter (Material 3)\n\n   ## Screens\n\n   | File | Pattern | Description |\n   |------|---------|-------------|\n   | `single-screen.html` | Single Screen | {what it shows} |\n   | `multi-state-screen.html` | Multi-State | {what states it covers} |\n   | `celebration-screen.html` | Celebration | {what achievement it shows} |\n\n   ## Key Patterns\n\n   - {notable UI pattern 1}\n   - {notable UI pattern 2}\n   ```\n\n4. **Generate each HTML file** using `stitch-generate`:\n   - Each file must be self-contained (embedded `<style>`, inline SVG icons, Google Fonts via `<link>`)\n   - CSS custom properties in `:root` for all design tokens from DESIGN.md\n   - Semantic HTML (`<header>`, `<main>`, `<nav>`, `<section>`)\n   - ARIA attributes on interactive elements\n   - `@media (prefers-reduced-motion: reduce)` block\n   - Phone frame wrapper (`.phone` at 375px for mobile)\n\n## Output\n\n```\n.stitch/system/\n├── DESIGN.md              (created by task 002)\n├── META.md\n├── single-screen.html\n├── multi-state-screen.html\n└── celebration-screen.html\n```",
+              "taskSkill": "stitch-generate",
+              "taskId": "02-design-system/005-generate-design-references",
+              "taskTitle": "Generate Design Reference HTML",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/02-design-system/005-generate-design-references",
+              "factId": "check:html-has-tokens"
+            }
+          }
+        ],
+        "durationMs": 27
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 61
+      }
+    },
+    {
+      "id": "run-skill",
+      "handler": "run-skill",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 64
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 85
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#4",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 349452
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-18T11:26:31.884Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-18T11:26:31.884Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-18T11:26:31.911Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-18T11:26:31.912Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "run-skill",
+      "iteration": 1,
+      "ts": "2026-04-18T11:26:31.915Z"
+    },
+    {
+      "from": "run-skill",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-18T11:26:31.979Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#4",
+      "iteration": 1,
+      "ts": "2026-04-18T11:32:21.432Z"
+    },
+    {
+      "from": "run-strategy:task-run#4",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-18T11:32:21.518Z"
+    }
+  ]
+}

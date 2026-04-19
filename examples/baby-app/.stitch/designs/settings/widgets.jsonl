@@ -1,0 +1,6 @@
+{"name": "ProfileSection", "grep": "_buildProfileSection", "description": "Avatar circle with initial, user name, and due date in a card", "shared": false}
+{"name": "PregnancySection", "grep": "_buildPregnancySection", "description": "Due date row with chevron and current trimester badge in a card", "shared": false}
+{"name": "NotificationsSection", "grep": "_buildNotificationsSection", "description": "Card with toggle rows for daily reminders, checkup alerts, and self-care nudges", "shared": false}
+{"name": "DisplaySection", "grep": "_buildDisplaySection", "description": "Card with reduced motion toggle and kg/lbs segmented weight-unit selector", "shared": false}
+{"name": "DataSection", "grep": "_buildDataSection", "description": "Card with export data and clear all data action rows", "shared": false}
+{"name": "AboutSection", "grep": "_buildAboutSection", "description": "Card with version number display and privacy notice link", "shared": false}

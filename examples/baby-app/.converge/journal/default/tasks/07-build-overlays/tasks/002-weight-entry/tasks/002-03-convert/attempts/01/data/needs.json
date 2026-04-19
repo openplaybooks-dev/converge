@@ -1,0 +1,31 @@
+{
+  "taskId": "07-build-overlays/002-weight-entry/002-03-convert",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/weight-entry/design.html",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/weight-entry/design.html"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/weight-entry/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/weight-entry/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/overlays/weight_entry/weight_entry.dart"
+  ],
+  "blocked": false
+}

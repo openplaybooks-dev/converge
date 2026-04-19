@@ -1,0 +1,21 @@
+{
+  "type": "task",
+  "id": "01-brand",
+  "status": "pending",
+  "lastUpdated": "2026-04-18T13:28:15.939Z",
+  "createdAt": "2026-04-18T13:28:03.010Z",
+  "progress": {
+    "totalChildren": 6,
+    "completedChildren": 1,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-source-rename",
+      "002-docs-rename",
+      "003-config-rename",
+      "004-license-security",
+      "005-cli-rename",
+      "006-verification-audit"
+    ],
+    "lastProgressUpdate": "2026-04-18T13:28:15.939Z"
+  }
+}

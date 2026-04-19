@@ -1,0 +1,19 @@
+{
+  "taskId": "03-build-screens/009-education/009-03-convert",
+  "epicId": "default",
+  "focusPath": "default/03-build-screens/009-education/009-03-convert",
+  "status": "running",
+  "startedAt": "2026-04-18T14:23:15.132Z",
+  "attempt": 1,
+  "gapsResolved": 0,
+  "gapsFailed": 0,
+  "checklist": [
+    {
+      "id": "subtask:spawn-1",
+      "type": "subtask",
+      "description": "stitch-flutter",
+      "details": ".converge/skills/stitch-flutter/SKILL.md",
+      "done": false
+    }
+  ]
+}

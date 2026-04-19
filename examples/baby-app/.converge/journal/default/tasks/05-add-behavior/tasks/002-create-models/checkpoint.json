@@ -1,0 +1,23 @@
+{
+  "type": "task",
+  "id": "05-add-behavior/002-create-models",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T12:10:47.504Z",
+  "createdAt": "2026-04-18T11:47:07.471Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T11:47:07.471Z",
+      "completedAt": "2026-04-18T11:48:47.203Z",
+      "outcome": "interrupted"
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-18T12:06:12.138Z",
+      "completedAt": "2026-04-18T12:10:47.501Z",
+      "outcome": "success",
+      "durationMs": 275363
+    }
+  ],
+  "currentAttempt": 2
+}

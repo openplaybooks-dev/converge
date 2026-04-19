@@ -1,0 +1,173 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 37
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-brand/002-docs-rename-missing-output-.converge/standardize-state/brand/002-docs.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-brand/002-docs-rename",
+            "severity": "high",
+            "description": "[01-brand/002-docs-rename] Task output not created: .converge/standardize-state/brand/002-docs.json",
+            "source": "unit",
+            "detected": "2026-04-18T11:13:20.696Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/standardize/tasks/01-brand/tasks/002-docs-rename",
+              "taskId": "01-brand/002-docs-rename",
+              "taskTitle": "Rename harness→converge in documentation",
+              "taskPrompt": "Find and replace all stale brand references in Markdown documentation.\n\n**Scope**: All `.md` files under `packages/`, `docs/`, root `README.md`, `CONTRIBUTING.md`\n\n**Replacements** (case-preserving):\n- `harness` → `converge` (product name context)\n- `Harness` → `Converge`\n- `HARNESS` → `CONVERGE`\n- `.harness/` → `.converge/` (directory references)\n- `harness run` → `converge run` (CLI commands)\n- `harness-planning` → `converge-planning`\n- `harness-control` → `converge-control`\n- ASCII art banners containing \"HARNESS\" → replace with \"CONVERGE\"\n- `crew`/`crewadd`/`sheetsrun` → remove or replace contextually\n\n**Exceptions** — do NOT rename:\n- CHANGELOG entries documenting the rename itself\n- Files inside `.converge/` playbook directories\n- `auto-verify` references (internal module name)\n\n**Process**:\n1. Run grep to find all occurrences\n2. Review and replace contextually\n3. Pay special attention to README.md ASCII art banner\n4. Write manifest to `.converge/standardize-state/brand/002-docs.json`",
+              "factId": "file-exists:test -f \".converge/standardize-state/brand/002-docs.json\"",
+              "awaitingUserInput": false
+            }
+          }
+        ],
+        "durationMs": 36
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#2",
+      "handler": "run-strategy",
+      "status": "buffered",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-18T11:13:20.656Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-18T11:13:20.693Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-18T11:13:20.729Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-18T11:13:20.731Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-18T11:13:20.734Z"
+    }
+  ]
+}

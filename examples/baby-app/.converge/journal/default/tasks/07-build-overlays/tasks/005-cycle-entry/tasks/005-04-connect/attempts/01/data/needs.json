@@ -1,0 +1,31 @@
+{
+  "taskId": "07-build-overlays/005-cycle-entry/005-04-connect",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/widgets/overlays/cycle_entry/cycle_entry.dart",
+      "count": 1,
+      "samples": [
+        "lib/widgets/overlays/cycle_entry/cycle_entry.dart"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/cycle-entry/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/cycle-entry/SPEC.md"
+      ]
+    },
+    {
+      "pattern": "lib/providers/",
+      "count": 1,
+      "samples": [
+        "lib/providers/"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/overlays/cycle_entry/cycle_entry.dart"
+  ],
+  "blocked": false
+}

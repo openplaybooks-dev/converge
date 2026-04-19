@@ -1,0 +1,31 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-18T16:10:44.264Z",
+  "spawnCount": 6,
+  "subtasks": [
+    {
+      "id": "001-split-HeroHeader",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/004-pregnancy-progress/tasks/004-05-split/tasks/001-split-HeroHeader/TASK.md"
+    },
+    {
+      "id": "002-split-BodyChangesCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/004-pregnancy-progress/tasks/004-05-split/tasks/002-split-BodyChangesCard/TASK.md"
+    },
+    {
+      "id": "003-split-BabyDevelopmentCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/004-pregnancy-progress/tasks/004-05-split/tasks/003-split-BabyDevelopmentCard/TASK.md"
+    },
+    {
+      "id": "004-split-SelfCareCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/004-pregnancy-progress/tasks/004-05-split/tasks/004-split-SelfCareCard/TASK.md"
+    },
+    {
+      "id": "005-split-ExerciseGuideCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/004-pregnancy-progress/tasks/004-05-split/tasks/005-split-ExerciseGuideCard/TASK.md"
+    },
+    {
+      "id": "006-split-DueDateCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/004-pregnancy-progress/tasks/004-05-split/tasks/006-split-DueDateCard/TASK.md"
+    }
+  ]
+}

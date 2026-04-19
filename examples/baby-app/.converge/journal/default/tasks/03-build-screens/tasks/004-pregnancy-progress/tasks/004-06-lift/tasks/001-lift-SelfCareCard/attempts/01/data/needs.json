@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/004-pregnancy-progress/004-06-lift/001-lift-SelfCareCard",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/pregnancy_progress/widgets/self_care_card.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/pregnancy_progress/widgets/self_care_card.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/self_care_card.dart"
+  ],
+  "blocked": false
+}

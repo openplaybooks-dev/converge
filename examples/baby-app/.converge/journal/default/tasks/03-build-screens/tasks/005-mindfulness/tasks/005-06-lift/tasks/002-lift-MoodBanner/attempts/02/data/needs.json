@@ -1,0 +1,16 @@
+{
+  "taskId": "03-build-screens/005-mindfulness/005-06-lift/002-lift-MoodBanner",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "lib/screens/mindfulness/widgets/mood_banner.dart",
+      "count": 0,
+      "samples": []
+    }
+  ],
+  "outputs": [
+    "lib/widgets/mood_banner.dart"
+  ],
+  "blocked": true,
+  "blockedReason": "Missing required inputs: lib/screens/mindfulness/widgets/mood_banner.dart"
+}

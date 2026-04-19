@@ -1,0 +1,288 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/004-pregnancy-progress/004-06-lift/002-lift-ExerciseGuideCard-missing-output-lib/widgets/exercise_guide_card.dart",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/004-pregnancy-progress/004-06-lift/002-lift-ExerciseGuideCard",
+            "severity": "high",
+            "description": "[03-build-screens/004-pregnancy-progress/004-06-lift/002-lift-ExerciseGuideCard] Task output not created: lib/widgets/exercise_guide_card.dart",
+            "source": "unit",
+            "detected": "2026-04-18T16:51:52.066Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/004-pregnancy-progress/tasks/004-06-lift/tasks/002-lift-ExerciseGuideCard",
+              "taskId": "03-build-screens/004-pregnancy-progress/004-06-lift/002-lift-ExerciseGuideCard",
+              "taskTitle": "Lift: ExerciseGuideCard",
+              "taskPrompt": "# Lift: ExerciseGuideCard\n\nMove `ExerciseGuideCard` from local screen widgets to the shared widgets directory.\n\n## Steps\n\n1. **Move file** — `lib/screens/pregnancy_progress/widgets/exercise_guide_card.dart` → `lib/widgets/exercise_guide_card.dart`\n2. **Update package import** — Change relative import to package import: `package:folio/widgets/exercise_guide_card.dart`\n3. **Update all references** — Find all files importing the old path and update them\n4. **Verify** — Run `dart analyze` on affected files",
+              "taskInputs": [
+                "lib/screens/pregnancy_progress/widgets/exercise_guide_card.dart"
+              ],
+              "factId": "file-exists:test -f \"lib/widgets/exercise_guide_card.dart\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-build-screens/004-pregnancy-progress/004-06-lift/002-lift-ExerciseGuideCard-check-failed-widget-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/004-pregnancy-progress/004-06-lift/002-lift-ExerciseGuideCard",
+            "severity": "high",
+            "description": "[03-build-screens/004-pregnancy-progress/004-06-lift/002-lift-ExerciseGuideCard] Check failed: Shared widget file exists",
+            "source": "unit",
+            "detected": "2026-04-18T16:51:52.068Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "widget-exists",
+              "checkCmd": "test -f lib/widgets/exercise_guide_card.dart",
+              "checkDescription": "Shared widget file exists",
+              "checkOutput": "Command failed: test -f lib/widgets/exercise_guide_card.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Lift: ExerciseGuideCard\n\nMove `ExerciseGuideCard` from local screen widgets to the shared widgets directory.\n\n## Steps\n\n1. **Move file** — `lib/screens/pregnancy_progress/widgets/exercise_guide_card.dart` → `lib/widgets/exercise_guide_card.dart`\n2. **Update package import** — Change relative import to package import: `package:folio/widgets/exercise_guide_card.dart`\n3. **Update all references** — Find all files importing the old path and update them\n4. **Verify** — Run `dart analyze` on affected files",
+              "taskId": "03-build-screens/004-pregnancy-progress/004-06-lift/002-lift-ExerciseGuideCard",
+              "taskTitle": "Lift: ExerciseGuideCard",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/004-pregnancy-progress/tasks/004-06-lift/tasks/002-lift-ExerciseGuideCard",
+              "factId": "check:widget-exists"
+            }
+          },
+          {
+            "id": "03-build-screens/004-pregnancy-progress/004-06-lift/002-lift-ExerciseGuideCard-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/004-pregnancy-progress/004-06-lift/002-lift-ExerciseGuideCard",
+            "severity": "high",
+            "description": "[03-build-screens/004-pregnancy-progress/004-06-lift/002-lift-ExerciseGuideCard] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-18T16:51:52.158Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "dart analyze lib/widgets/exercise_guide_card.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "Directory or file doesn't exist: lib/widgets/exercise_guide_card.dart\n\nUsage: dart analyze [arguments] [<directory>]\n-h, --help                   Print this usage information.\n    --fatal-infos            Treat info level issues as fatal.\n    --[no-]fatal-warnings    Treat warning level issues as fatal.\n                             (defaults to on)\n\nRun \"dart help\" to see global options.",
+              "checkExitCode": 64,
+              "taskPrompt": "# Lift: ExerciseGuideCard\n\nMove `ExerciseGuideCard` from local screen widgets to the shared widgets directory.\n\n## Steps\n\n1. **Move file** — `lib/screens/pregnancy_progress/widgets/exercise_guide_card.dart` → `lib/widgets/exercise_guide_card.dart`\n2. **Update package import** — Change relative import to package import: `package:folio/widgets/exercise_guide_card.dart`\n3. **Update all references** — Find all files importing the old path and update them\n4. **Verify** — Run `dart analyze` on affected files",
+              "taskId": "03-build-screens/004-pregnancy-progress/004-06-lift/002-lift-ExerciseGuideCard",
+              "taskTitle": "Lift: ExerciseGuideCard",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/004-pregnancy-progress/tasks/004-06-lift/tasks/002-lift-ExerciseGuideCard",
+              "factId": "check:dart-valid"
+            }
+          }
+        ],
+        "durationMs": 97
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 189
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/004-pregnancy-progress/004-06-lift/002-lift-ExerciseGuideCard-missing-input-lib/screens/pregnancy_progress/widgets/exercise_guide_card.dart",
+            "type": "missing-dependency",
+            "level": "task",
+            "scope": "03-build-screens/004-pregnancy-progress/004-06-lift/002-lift-ExerciseGuideCard",
+            "severity": "high",
+            "description": "[03-build-screens/004-pregnancy-progress/004-06-lift/002-lift-ExerciseGuideCard] Missing required input: lib/screens/pregnancy_progress/widgets/exercise_guide_card.dart",
+            "source": "unit",
+            "detected": "2026-04-18T16:53:59.950Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "blocker",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/004-pregnancy-progress/tasks/004-06-lift/tasks/002-lift-ExerciseGuideCard",
+              "taskId": "03-build-screens/004-pregnancy-progress/004-06-lift/002-lift-ExerciseGuideCard",
+              "taskTitle": "Lift: ExerciseGuideCard",
+              "factId": "file-exists:test -f \"lib/screens/pregnancy_progress/widgets/exercise_guide_card.dart\""
+            }
+          }
+        ],
+        "durationMs": 978
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#3",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 127592
+      }
+    },
+    {
+      "id": "resolve-blockers",
+      "handler": "resolve-blockers",
+      "status": "failed",
+      "origin": "initial",
+      "data": {
+        "priority": 80
+      },
+      "result": {
+        "action": "bail",
+        "success": false,
+        "reason": "1 unresolvable blockers",
+        "durationMs": 961
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-18T16:51:52.061Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-18T16:51:52.061Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-18T16:51:52.158Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-18T16:51:52.160Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-18T16:51:52.349Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#3",
+      "iteration": 1,
+      "ts": "2026-04-18T16:53:59.943Z"
+    },
+    {
+      "from": "run-strategy:task-run#3",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-18T16:54:00.922Z"
+    },
+    {
+      "from": "verify",
+      "to": "resolve-blockers",
+      "iteration": 1,
+      "ts": "2026-04-18T16:54:01.884Z"
+    }
+  ]
+}

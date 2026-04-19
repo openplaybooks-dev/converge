@@ -1,0 +1,19 @@
+{
+  "taskId": "01-prepare-requirements/003-generate-ux",
+  "epicId": "default",
+  "focusPath": "default/01-prepare-requirements/003-generate-ux",
+  "status": "running",
+  "startedAt": "2026-04-18T11:21:35.999Z",
+  "attempt": 1,
+  "gapsResolved": 0,
+  "gapsFailed": 0,
+  "checklist": [
+    {
+      "id": "subtask:spawn-1",
+      "type": "subtask",
+      "description": "ux-design",
+      "details": ".converge/skills/ux-design/SKILL.md",
+      "done": false
+    }
+  ]
+}

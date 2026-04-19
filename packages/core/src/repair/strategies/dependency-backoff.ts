@@ -32,6 +32,8 @@ import { logTaskEvent } from "../../journal/writer.ts";
 import { generateDepsMap } from "../../journal/deps-map.ts";
 import { PromptBuilder } from "../system-prompts.ts";
 import { READONLY_TOOLS } from "../../ai/context.ts";
+import { getSourceTaskDirs } from "../../playbook/paths.ts";
+import { getEpicsDir } from "../../journal/structure.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Producer info (extended for cross-epic support)                    */
@@ -135,12 +137,26 @@ export class DependencyBackoffStrategy implements FixStrategy {
         }
       }
 
-      // If AI says to delegate to other strategies, signal that
+      // If AI says to spawn a new task, persist learnHints so subsequent
+      // attempts have context about what was discovered
       if (aiDecision?.strategy === "spawn-new-task") {
+        if (aiDecision.learnHints.length > 0) {
+          await this.writeLearnMdForBlockedTask(
+            projectDir,
+            journalCtx.epicId,
+            journalCtx.taskId,
+            aiDecision.learnHints,
+            aiDecision.reason,
+          );
+        }
         return {
           success: false,
           reason: `AI recommends spawning a new task (no producer exists): ${aiDecision.reason}`,
           shouldRetry: false,
+          metadata: {
+            learnHintsPersisted: aiDecision.learnHints.length > 0,
+            aiReason: aiDecision.reason,
+          },
         };
       }
       if (
@@ -162,16 +178,13 @@ export class DependencyBackoffStrategy implements FixStrategy {
           const pathParts: string[] = hasEpicPrefix
             ? segments.flatMap((s) => ["tasks", s])
             : [segments[0], ...segments.slice(1).flatMap((s) => ["tasks", s])];
-          const taskMdPath = join(
+          const taskMdPath = this.resolveTaskMdPath(
             projectDir,
-            ".converge",
-            "epics",
             journalCtx.epicId,
-            ...pathParts,
-            "TASK.md",
+            pathParts,
           );
 
-          if (existsSync(taskMdPath)) {
+          if (taskMdPath && existsSync(taskMdPath)) {
             let content = await readFile(taskMdPath, "utf-8");
             let replacements = 0;
 
@@ -429,43 +442,49 @@ export class DependencyBackoffStrategy implements FixStrategy {
     const producers: ProducerInfo[] = [];
     const { glob } = await import("glob");
 
-    const epicsDir = join(projectDir, ".converge", "epics");
-    if (!existsSync(epicsDir)) return producers;
+    const sourceDirs = getSourceTaskDirs(projectDir);
+    if (sourceDirs.length === 0) return producers;
 
     const { readdirSync, statSync } = await import("node:fs");
-    const epicDirs = readdirSync(epicsDir).filter((e) => {
-      try {
-        return statSync(join(epicsDir, e)).isDirectory();
-      } catch {
-        return false;
-      }
-    });
 
-    for (const epicId of epicDirs) {
-      const epicPath = join(epicsDir, epicId);
-      // Find all SKILL.md files in this epic (including nested WBS tasks)
-      const skillFiles = await glob("**/SKILL.md", {
-        cwd: epicPath,
-        absolute: true,
+    for (const sourceDir of sourceDirs) {
+      const epicDirs = readdirSync(sourceDir).filter((e) => {
+        try {
+          return statSync(join(sourceDir, e)).isDirectory();
+        } catch {
+          return false;
+        }
       });
 
-      for (const skillPath of skillFiles) {
-        const taskOutputs = await this.getTaskOutputs(skillPath);
-        const taskId = this.extractTaskId(skillPath, epicPath);
-        const journalTaskId = this.extractJournalTaskId(skillPath, epicPath);
+      for (const epicId of epicDirs) {
+        const epicPath = join(sourceDir, epicId);
+        // Find all SKILL.md and TASK.md files (including nested WBS tasks)
+        const taskFiles = await glob("**/{SKILL,TASK}.md", {
+          cwd: epicPath,
+          absolute: true,
+        });
 
-        const matches = missingPaths.filter((missing) =>
-          taskOutputs.some((output) => this.pathMatches(output, missing)),
-        );
+        for (const taskFilePath of taskFiles) {
+          const taskOutputs = await this.getTaskOutputs(taskFilePath);
+          const taskId = this.extractTaskId(taskFilePath, epicPath);
+          const journalTaskId = this.extractJournalTaskId(
+            taskFilePath,
+            epicPath,
+          );
 
-        if (matches.length > 0) {
-          producers.push({
-            taskId,
-            epicId,
-            journalTaskId,
-            filePath: skillPath,
-            outputs: taskOutputs,
-          });
+          const matches = missingPaths.filter((missing) =>
+            taskOutputs.some((output) => this.pathMatches(output, missing)),
+          );
+
+          if (matches.length > 0) {
+            producers.push({
+              taskId,
+              epicId,
+              journalTaskId,
+              filePath: taskFilePath,
+              outputs: taskOutputs,
+            });
+          }
         }
       }
     }
@@ -479,74 +498,123 @@ export class DependencyBackoffStrategy implements FixStrategy {
     projectDir: string,
   ): Promise<ProducerInfo | null> {
     const { glob } = await import("glob");
-    const epicsDir = join(projectDir, ".converge", "epics");
+    const sourceDirs = getSourceTaskDirs(projectDir);
 
-    // Try to find the SKILL.md for this epic/journalTaskId
-    // journalTaskId may be "parent/child" (WBS) or just "taskId"
     const parts = journalTaskId.split("/");
-    let skillPath: string;
 
-    if (parts.length === 1) {
-      // Simple task
-      skillPath = join(epicsDir, epicId, parts[0], "SKILL.md");
-    } else {
-      // WBS subtask: parent/tasks/child/SKILL.md
-      skillPath = join(
-        epicsDir,
-        epicId,
-        parts[0],
-        "tasks",
-        parts.slice(1).join("/tasks/"),
-        "SKILL.md",
-      );
+    for (const sourceDir of sourceDirs) {
+      const epicPath = join(sourceDir, epicId);
+      if (!existsSync(epicPath)) continue;
+
+      // Try to find the SKILL.md or TASK.md for this epic/journalTaskId
+      let taskFilePath: string | null = null;
+
+      if (parts.length === 1) {
+        // Simple task — try both SKILL.md and TASK.md
+        for (const filename of ["SKILL.md", "TASK.md"]) {
+          const candidate = join(epicPath, parts[0], filename);
+          if (existsSync(candidate)) {
+            taskFilePath = candidate;
+            break;
+          }
+        }
+      } else {
+        // WBS subtask: parent/tasks/child/{SKILL,TASK}.md
+        const subtaskDir = join(
+          epicPath,
+          parts[0],
+          "tasks",
+          parts.slice(1).join("/tasks/"),
+        );
+        for (const filename of ["SKILL.md", "TASK.md"]) {
+          const candidate = join(subtaskDir, filename);
+          if (existsSync(candidate)) {
+            taskFilePath = candidate;
+            break;
+          }
+        }
+      }
+
+      if (!taskFilePath) {
+        // Try a glob search as fallback
+        const matches = await glob(
+          `**/${parts[parts.length - 1]}/{SKILL,TASK}.md`,
+          { cwd: epicPath, absolute: true },
+        );
+        if (matches.length > 0) taskFilePath = matches[0];
+      }
+
+      if (taskFilePath) {
+        const outputs = await this.getTaskOutputs(taskFilePath);
+        const computedJournalTaskId = this.extractJournalTaskId(
+          taskFilePath,
+          epicPath,
+        );
+        return {
+          taskId: parts[parts.length - 1],
+          epicId,
+          journalTaskId: computedJournalTaskId,
+          filePath: taskFilePath,
+          outputs,
+        };
+      }
     }
 
-    if (!existsSync(skillPath)) {
-      // Try a glob search as fallback
-      const matches = await glob(`**/${parts[parts.length - 1]}/SKILL.md`, {
-        cwd: join(epicsDir, epicId),
-        absolute: true,
-      });
-      if (matches.length === 0) return null;
-      skillPath = matches[0];
-    }
-
-    const outputs = await this.getTaskOutputs(skillPath);
-    const epicPath = join(epicsDir, epicId);
-    // Always compute journalTaskId from actual file path (not AI-provided which may include epicId prefix)
-    const computedJournalTaskId = this.extractJournalTaskId(
-      skillPath,
-      epicPath,
-    );
-    return {
-      taskId: parts[parts.length - 1],
-      epicId,
-      journalTaskId: computedJournalTaskId,
-      filePath: skillPath,
-      outputs,
-    };
+    return null;
   }
 
-  private extractTaskId(skillPath: string, epicPath: string): string {
-    const rel = relative(epicPath, skillPath).replace(/\\/g, "/");
+  /**
+   * Resolve the path to a task's TASK.md source definition file.
+   * Searches both .converge/epics/ and .converge/playbooks/{name}/tasks/.
+   */
+  private resolveTaskMdPath(
+    projectDir: string,
+    epicId: string,
+    pathParts: string[],
+  ): string | null {
+    const sourceDirs = getSourceTaskDirs(projectDir);
+    for (const sourceDir of sourceDirs) {
+      const candidate = join(sourceDir, epicId, ...pathParts, "TASK.md");
+      if (existsSync(candidate)) return candidate;
+      // Also try SKILL.md for legacy tasks
+      const skillCandidate = join(
+        sourceDir,
+        epicId,
+        ...pathParts,
+        "SKILL.md",
+      );
+      if (existsSync(skillCandidate)) return skillCandidate;
+    }
+    return null;
+  }
+
+  private extractTaskId(taskFilePath: string, epicPath: string): string {
+    const rel = relative(epicPath, taskFilePath).replace(/\\/g, "/");
     const parts = rel
       .split("/")
-      .filter((p: string) => p !== "SKILL.md" && p !== "tasks");
+      .filter(
+        (p: string) => p !== "SKILL.md" && p !== "TASK.md" && p !== "tasks",
+      );
     return parts[parts.length - 1];
   }
 
-  private extractJournalTaskId(skillPath: string, epicPath: string): string {
-    const rel = relative(epicPath, skillPath).replace(/\\/g, "/");
+  private extractJournalTaskId(
+    taskFilePath: string,
+    epicPath: string,
+  ): string {
+    const rel = relative(epicPath, taskFilePath).replace(/\\/g, "/");
     const parts = rel
       .split("/")
-      .filter((p: string) => p !== "SKILL.md" && p !== "tasks");
+      .filter(
+        (p: string) => p !== "SKILL.md" && p !== "TASK.md" && p !== "tasks",
+      );
     return parts.join("/");
   }
 
-  private async getTaskOutputs(skillPath: string): Promise<string[]> {
+  private async getTaskOutputs(taskFilePath: string): Promise<string[]> {
     try {
       const { readFile } = await import("node:fs/promises");
-      const content = await readFile(skillPath, "utf-8");
+      const content = await readFile(taskFilePath, "utf-8");
       const match = content.match(/^---\s*\n([\s\S]*?)\n---/);
       if (!match) return [];
       const yaml = await import("yaml");
@@ -616,16 +684,12 @@ export class DependencyBackoffStrategy implements FixStrategy {
     for (let i = 1; i < segments.length; i++) {
       pathParts.push("tasks", segments[i]);
     }
-    const attemptsPath = join(
-      projectDir,
-      ".converge",
-      "journal",
-      "epics",
-      producer.epicId,
-      ...pathParts,
-      "attempts.jsonl",
-    );
-    return existsSync(attemptsPath);
+    const journalEpicsDir = getEpicsDir(projectDir);
+    const basePath = join(journalEpicsDir, producer.epicId, ...pathParts);
+    // Has a checkpoint → ran at least once
+    if (existsSync(join(basePath, "checkpoint.json"))) return true;
+    // Has attempts.jsonl → ran at least once
+    return existsSync(join(basePath, "attempts.jsonl"));
   }
 
   private async verifyOutputsExist(
@@ -661,11 +725,9 @@ export class DependencyBackoffStrategy implements FixStrategy {
     for (let i = 1; i < segments.length; i++) {
       pathParts.push("tasks", segments[i]);
     }
+    const journalEpicsDir = getEpicsDir(projectDir);
     const attemptsBaseDir = join(
-      projectDir,
-      ".converge",
-      "journal",
-      "epics",
+      journalEpicsDir,
       producer.epicId,
       ...pathParts,
       "attempts",
@@ -706,6 +768,74 @@ export class DependencyBackoffStrategy implements FixStrategy {
     await writeFile(join(targetDir, "LEARN.md"), learnContent, "utf-8");
     console.log(
       `   📝 LEARN.md written → ${join(targetDir, "LEARN.md").replace(projectDir, "")}`,
+    );
+  }
+
+  /**
+   * Write LEARN.md to the blocked task's own attempt directory.
+   * Called when AI returns spawn-new-task — persists the AI's analysis
+   * so subsequent attempts have context instead of repeating identical work.
+   */
+  private async writeLearnMdForBlockedTask(
+    projectDir: string,
+    epicId: string,
+    taskId: string,
+    learnHints: string[],
+    aiReason: string,
+  ): Promise<void> {
+    const segments = taskId.split("/").filter(Boolean);
+    const pathParts: string[] = [segments[0]];
+    for (let i = 1; i < segments.length; i++) {
+      pathParts.push("tasks", segments[i]);
+    }
+    const journalEpicsDir = getEpicsDir(projectDir);
+    const attemptsBaseDir = join(
+      journalEpicsDir,
+      epicId,
+      ...pathParts,
+      "attempts",
+    );
+
+    let targetDir: string;
+    if (existsSync(attemptsBaseDir)) {
+      const { readdirSync } =
+        (await import("node:fs")) as typeof import("node:fs");
+      const entries = readdirSync(attemptsBaseDir)
+        .filter((e) => /^\d+$/.test(e))
+        .sort()
+        .reverse();
+      targetDir =
+        entries.length > 0
+          ? join(attemptsBaseDir, entries[0])
+          : join(attemptsBaseDir, "wip");
+    } else {
+      targetDir = join(attemptsBaseDir, "wip");
+    }
+
+    await mkdir(targetDir, { recursive: true });
+
+    const content = [
+      `# LEARN.md — No Producer Found`,
+      ``,
+      `## AI Analysis`,
+      ``,
+      aiReason,
+      ``,
+      `## Hints for Next Attempt`,
+      ``,
+      ...learnHints.map((h) => `- ${h}`),
+      ``,
+      `## Recommended Action`,
+      ``,
+      `The missing inputs have no upstream producer task. Consider:`,
+      `- Removing the missing inputs from this task's declaration`,
+      `- Creating a new upstream task to produce the missing files`,
+      `- Using an alternative input that already exists`,
+    ].join("\n");
+
+    await writeFile(join(targetDir, "LEARN.md"), content, "utf-8");
+    console.log(
+      `   📝 LEARN.md persisted for blocked task → ${join(targetDir, "LEARN.md").replace(projectDir, "")}`,
     );
   }
 }

@@ -1,0 +1,27 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-18T16:24:47.737Z",
+  "spawnCount": 5,
+  "subtasks": [
+    {
+      "id": "001-split-CategoryChips",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/005-mindfulness/tasks/005-05-split/tasks/001-split-CategoryChips/TASK.md"
+    },
+    {
+      "id": "002-split-FeaturedExerciseCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/005-mindfulness/tasks/005-05-split/tasks/002-split-FeaturedExerciseCard/TASK.md"
+    },
+    {
+      "id": "003-split-ExerciseCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/005-mindfulness/tasks/005-05-split/tasks/003-split-ExerciseCard/TASK.md"
+    },
+    {
+      "id": "004-split-MoodBanner",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/005-mindfulness/tasks/005-05-split/tasks/004-split-MoodBanner/TASK.md"
+    },
+    {
+      "id": "005-split-BottomNavBar",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/005-mindfulness/tasks/005-05-split/tasks/005-split-BottomNavBar/TASK.md"
+    }
+  ]
+}

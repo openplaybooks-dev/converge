@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-add-behavior/004-implement-providers/005-provider-SymptomEntry",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T18:58:05.453Z",
+  "createdAt": "2026-04-18T18:56:26.515Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T18:56:26.515Z",
+      "completedAt": "2026-04-18T18:58:05.451Z",
+      "outcome": "success",
+      "durationMs": 98936
+    }
+  ],
+  "currentAttempt": 1
+}

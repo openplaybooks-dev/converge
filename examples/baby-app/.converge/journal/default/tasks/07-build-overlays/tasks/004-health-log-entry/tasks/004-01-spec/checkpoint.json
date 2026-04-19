@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/004-health-log-entry/004-01-spec",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T02:36:28.341Z",
+  "createdAt": "2026-04-19T02:34:13.610Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T02:34:13.610Z",
+      "completedAt": "2026-04-19T02:36:28.337Z",
+      "outcome": "success",
+      "durationMs": 134727
+    }
+  ],
+  "currentAttempt": 1
+}

@@ -1,0 +1,11 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-18T23:23:25.346Z",
+  "spawnCount": 1,
+  "subtasks": [
+    {
+      "id": "001-lift-noop",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/011-settings/tasks/011-06-lift/tasks/001-lift-noop/TASK.md"
+    }
+  ]
+}

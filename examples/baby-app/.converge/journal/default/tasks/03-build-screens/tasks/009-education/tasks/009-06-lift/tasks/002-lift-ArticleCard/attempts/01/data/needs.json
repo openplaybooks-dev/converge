@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/009-education/009-06-lift/002-lift-ArticleCard",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/education/widgets/article_card.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/education/widgets/article_card.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/article_card.dart"
+  ],
+  "blocked": false
+}

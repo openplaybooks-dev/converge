@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/005-mindfulness/005-05-split/001-split-CategoryChips",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/mindfulness/mindfulness_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/mindfulness/mindfulness_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/mindfulness/widgets/category_chips.dart"
+  ],
+  "blocked": false
+}

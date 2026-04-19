@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/002-weight-entry/002-03-convert",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T02:25:33.161Z",
+  "createdAt": "2026-04-19T02:22:36.601Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T02:22:36.601Z",
+      "completedAt": "2026-04-19T02:25:33.157Z",
+      "outcome": "success",
+      "durationMs": 176556
+    }
+  ],
+  "currentAttempt": 1
+}

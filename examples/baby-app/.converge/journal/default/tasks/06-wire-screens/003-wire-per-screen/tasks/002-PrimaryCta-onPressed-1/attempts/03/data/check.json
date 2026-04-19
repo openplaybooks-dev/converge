@@ -1,0 +1,10 @@
+{
+  "taskId": "06-wire-screens/003-wire-per-screen/002-PrimaryCta-onPressed-1",
+  "checks": [
+    {
+      "id": "handler-wired",
+      "description": "ElevatedButton.onPressed has real logic at lib/screens/home/home_screen.dart:136",
+      "cmd": "node .converge/playbooks/default/tasks/06-wire-screens/check-handler.mjs lib/screens/home/home_screen.dart 136 onPressed"
+    }
+  ]
+}

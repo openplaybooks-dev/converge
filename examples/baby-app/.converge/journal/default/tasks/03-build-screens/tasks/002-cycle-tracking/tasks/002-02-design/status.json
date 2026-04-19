@@ -1,0 +1,19 @@
+{
+  "taskId": "03-build-screens/002-cycle-tracking/002-02-design",
+  "epicId": "default",
+  "focusPath": "default/03-build-screens/002-cycle-tracking/002-02-design",
+  "status": "running",
+  "startedAt": "2026-04-18T12:49:59.347Z",
+  "attempt": 1,
+  "gapsResolved": 0,
+  "gapsFailed": 0,
+  "checklist": [
+    {
+      "id": "subtask:spawn-1",
+      "type": "subtask",
+      "description": "stitch-generate",
+      "details": ".converge/skills/stitch-generate/SKILL.md",
+      "done": false
+    }
+  ]
+}

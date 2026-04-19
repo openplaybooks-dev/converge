@@ -1,0 +1,16 @@
+{
+  "taskId": "03-build-screens/009-education/009-06-lift/003-lift-BookmarkedArticleCard",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "lib/screens/education/widgets/bookmarked_article_card.dart",
+      "count": 0,
+      "samples": []
+    }
+  ],
+  "outputs": [
+    "lib/widgets/bookmarked_article_card.dart"
+  ],
+  "blocked": true,
+  "blockedReason": "Missing required inputs: lib/screens/education/widgets/bookmarked_article_card.dart"
+}

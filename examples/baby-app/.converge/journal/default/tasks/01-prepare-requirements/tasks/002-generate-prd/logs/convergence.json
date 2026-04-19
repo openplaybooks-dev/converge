@@ -1,0 +1,274 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-prepare-requirements/002-generate-prd-missing-output-PRD.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-requirements/002-generate-prd",
+            "severity": "high",
+            "description": "[01-prepare-requirements/002-generate-prd] Task output not created: PRD.md",
+            "source": "unit",
+            "detected": "2026-04-18T11:20:37.322Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/01-prepare-requirements/002-generate-prd",
+              "taskId": "01-prepare-requirements/002-generate-prd",
+              "taskTitle": "Generate PRD",
+              "taskPrompt": "# Generate PRD\n\nRead `idea.md` and generate a structured Product Requirements Document (`PRD.md`) at the project root.\n\n## Inputs\n\n- `idea.md` — User's app idea with Purpose, Core Features, Target Audience, Technical Requirements\n\n## Constraints\n\n- **Source of truth is ONLY `idea.md`** — Do NOT read or reference existing source code in `lib/`\n\n## Task\n\nGenerate `PRD.md` containing these sections:\n\n### 1. Overview\nSummarize the app's purpose and value proposition from `idea.md`'s Purpose section. **Start the first sentence with the app name** (e.g., \"Folio is a Flutter application that...\").\n\n### 2. User Personas\nDerive user personas from the Target Audience section in `idea.md`. For each persona include a brief description and key goals.\n\n### 3. Features\nExpand Core Features from `idea.md` into detailed feature requirements with acceptance criteria for each feature.\n\n### 4. Non-Functional Requirements\nExtract and expand Technical Requirements from `idea.md` into specific non-functional requirements (performance, accessibility, platform support).\n\n## Success Criteria\n\n- `PRD.md` exists in root directory\n- `PRD.md` has Overview, Features, and Requirements sections\n- `PRD.md` references the app name from `idea.md`",
+              "taskInputs": [
+                "idea.md"
+              ],
+              "factId": "file-exists:test -f \"PRD.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "01-prepare-requirements/002-generate-prd-check-failed-prd-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-requirements/002-generate-prd",
+            "severity": "high",
+            "description": "[01-prepare-requirements/002-generate-prd] Check failed: PRD.md exists",
+            "source": "unit",
+            "detected": "2026-04-18T11:20:37.324Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "prd-exists",
+              "checkCmd": "test -f PRD.md",
+              "checkDescription": "PRD.md exists",
+              "checkOutput": "Command failed: test -f PRD.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Generate PRD\n\nRead `idea.md` and generate a structured Product Requirements Document (`PRD.md`) at the project root.\n\n## Inputs\n\n- `idea.md` — User's app idea with Purpose, Core Features, Target Audience, Technical Requirements\n\n## Constraints\n\n- **Source of truth is ONLY `idea.md`** — Do NOT read or reference existing source code in `lib/`\n\n## Task\n\nGenerate `PRD.md` containing these sections:\n\n### 1. Overview\nSummarize the app's purpose and value proposition from `idea.md`'s Purpose section. **Start the first sentence with the app name** (e.g., \"Folio is a Flutter application that...\").\n\n### 2. User Personas\nDerive user personas from the Target Audience section in `idea.md`. For each persona include a brief description and key goals.\n\n### 3. Features\nExpand Core Features from `idea.md` into detailed feature requirements with acceptance criteria for each feature.\n\n### 4. Non-Functional Requirements\nExtract and expand Technical Requirements from `idea.md` into specific non-functional requirements (performance, accessibility, platform support).\n\n## Success Criteria\n\n- `PRD.md` exists in root directory\n- `PRD.md` has Overview, Features, and Requirements sections\n- `PRD.md` references the app name from `idea.md`",
+              "taskId": "01-prepare-requirements/002-generate-prd",
+              "taskTitle": "Generate PRD",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/01-prepare-requirements/002-generate-prd",
+              "factId": "check:prd-exists"
+            }
+          },
+          {
+            "id": "01-prepare-requirements/002-generate-prd-check-failed-prd-has-sections",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-requirements/002-generate-prd",
+            "severity": "high",
+            "description": "[01-prepare-requirements/002-generate-prd] Check failed: PRD.md has expected sections",
+            "source": "unit",
+            "detected": "2026-04-18T11:20:37.328Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "prd-has-sections",
+              "checkCmd": "grep -qE \"## (Overview|Features|Requirements)\" PRD.md",
+              "checkDescription": "PRD.md has expected sections",
+              "checkOutput": "grep: PRD.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Generate PRD\n\nRead `idea.md` and generate a structured Product Requirements Document (`PRD.md`) at the project root.\n\n## Inputs\n\n- `idea.md` — User's app idea with Purpose, Core Features, Target Audience, Technical Requirements\n\n## Constraints\n\n- **Source of truth is ONLY `idea.md`** — Do NOT read or reference existing source code in `lib/`\n\n## Task\n\nGenerate `PRD.md` containing these sections:\n\n### 1. Overview\nSummarize the app's purpose and value proposition from `idea.md`'s Purpose section. **Start the first sentence with the app name** (e.g., \"Folio is a Flutter application that...\").\n\n### 2. User Personas\nDerive user personas from the Target Audience section in `idea.md`. For each persona include a brief description and key goals.\n\n### 3. Features\nExpand Core Features from `idea.md` into detailed feature requirements with acceptance criteria for each feature.\n\n### 4. Non-Functional Requirements\nExtract and expand Technical Requirements from `idea.md` into specific non-functional requirements (performance, accessibility, platform support).\n\n## Success Criteria\n\n- `PRD.md` exists in root directory\n- `PRD.md` has Overview, Features, and Requirements sections\n- `PRD.md` references the app name from `idea.md`",
+              "taskId": "01-prepare-requirements/002-generate-prd",
+              "taskTitle": "Generate PRD",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/01-prepare-requirements/002-generate-prd",
+              "factId": "check:prd-has-sections"
+            }
+          },
+          {
+            "id": "01-prepare-requirements/002-generate-prd-check-failed-prd-matches-idea",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-requirements/002-generate-prd",
+            "severity": "high",
+            "description": "[01-prepare-requirements/002-generate-prd] Check failed: PRD.md references the app name from idea.md",
+            "source": "unit",
+            "detected": "2026-04-18T11:20:37.334Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "prd-matches-idea",
+              "checkCmd": "first=$(head -1 idea.md | sed 's/^#* *//' | awk '{print $1}'); grep -qi \"$first\" PRD.md",
+              "checkDescription": "PRD.md references the app name from idea.md",
+              "checkOutput": "grep: PRD.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Generate PRD\n\nRead `idea.md` and generate a structured Product Requirements Document (`PRD.md`) at the project root.\n\n## Inputs\n\n- `idea.md` — User's app idea with Purpose, Core Features, Target Audience, Technical Requirements\n\n## Constraints\n\n- **Source of truth is ONLY `idea.md`** — Do NOT read or reference existing source code in `lib/`\n\n## Task\n\nGenerate `PRD.md` containing these sections:\n\n### 1. Overview\nSummarize the app's purpose and value proposition from `idea.md`'s Purpose section. **Start the first sentence with the app name** (e.g., \"Folio is a Flutter application that...\").\n\n### 2. User Personas\nDerive user personas from the Target Audience section in `idea.md`. For each persona include a brief description and key goals.\n\n### 3. Features\nExpand Core Features from `idea.md` into detailed feature requirements with acceptance criteria for each feature.\n\n### 4. Non-Functional Requirements\nExtract and expand Technical Requirements from `idea.md` into specific non-functional requirements (performance, accessibility, platform support).\n\n## Success Criteria\n\n- `PRD.md` exists in root directory\n- `PRD.md` has Overview, Features, and Requirements sections\n- `PRD.md` references the app name from `idea.md`",
+              "taskId": "01-prepare-requirements/002-generate-prd",
+              "taskTitle": "Generate PRD",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/01-prepare-requirements/002-generate-prd",
+              "factId": "check:prd-matches-idea"
+            }
+          }
+        ],
+        "durationMs": 18
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 56
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 32
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 58455
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-18T11:20:37.316Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-18T11:20:37.316Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-18T11:20:37.335Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-18T11:20:37.337Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-18T11:20:37.394Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-04-18T11:21:35.851Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-18T11:21:35.884Z"
+    }
+  ]
+}

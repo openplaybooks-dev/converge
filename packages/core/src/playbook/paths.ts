@@ -17,6 +17,7 @@
  */
 
 import { join } from "node:path";
+import { existsSync, readdirSync, statSync } from "node:fs";
 
 /**
  * All resolved paths for a playbook.
@@ -89,4 +90,47 @@ export function resolvePlaybookPaths(
     sessions: join(defJournal, "sessions"),
     config: join(defRoot, "playbook.yml"),
   };
+}
+
+/**
+ * Get all directories where task source definitions (TASK.md / SKILL.md) may live.
+ *
+ * Returns existing directories from both legacy and playbook structures:
+ *   - .converge/epics/           (legacy)
+ *   - .converge/playbooks/X/tasks/ (for each playbook X that has a tasks/ dir)
+ *
+ * Repair strategies use this to scan for producer tasks across all source locations.
+ */
+export function getSourceTaskDirs(projectDir: string): string[] {
+  const dirs: string[] = [];
+
+  // Legacy: .converge/epics/
+  const epicsDir = join(projectDir, ".converge", "epics");
+  if (existsSync(epicsDir)) {
+    dirs.push(epicsDir);
+  }
+
+  // Playbook API: .converge/playbooks/*/tasks/
+  const playbooksRoot = join(projectDir, ".converge", "playbooks");
+  if (existsSync(playbooksRoot)) {
+    try {
+      const entries = readdirSync(playbooksRoot).filter((e) => {
+        try {
+          return statSync(join(playbooksRoot, e)).isDirectory();
+        } catch {
+          return false;
+        }
+      });
+      for (const entry of entries) {
+        const tasksDir = join(playbooksRoot, entry, "tasks");
+        if (existsSync(tasksDir)) {
+          dirs.push(tasksDir);
+        }
+      }
+    } catch {
+      // Ignore read errors
+    }
+  }
+
+  return dirs;
 }

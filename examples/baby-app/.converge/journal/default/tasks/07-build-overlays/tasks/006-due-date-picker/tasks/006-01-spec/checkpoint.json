@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/006-due-date-picker/006-01-spec",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T02:55:02.578Z",
+  "createdAt": "2026-04-19T02:53:01.377Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T02:53:01.377Z",
+      "completedAt": "2026-04-19T02:55:02.570Z",
+      "outcome": "success",
+      "durationMs": 121193
+    }
+  ],
+  "currentAttempt": 1
+}

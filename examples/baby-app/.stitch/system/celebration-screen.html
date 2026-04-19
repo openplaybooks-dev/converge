@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bloom — Pregnancy Progress Milestone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Background */
+  --color-canvas: #EDE8F7;
+  --color-canvas-alt: #FDEEEE;
+  --color-surface: #FFFFFF;
+  --color-surface-tertiary: #FDF9F8;
+
+  /* Text */
+  --color-text-primary: #2A2A3A;
+  --color-text-secondary: #8B8B9C;
+
+  /* Accent */
+  --color-accent-coral: #F28B8B;
+  --color-accent-coral-tint: rgba(242, 139, 139, 0.12);
+  --color-accent-lilac: #8B7ED8;
+  --color-accent-lilac-tint: rgba(139, 126, 216, 0.14);
+
+  /* Structural */
+  --color-divider: rgba(42, 42, 58, 0.06);
+  --color-chip-bg: rgba(139, 126, 216, 0.08);
+
+  /* Functional */
+  --color-success: #6DC48A;
+  --color-error: #E85C5C;
+  --color-warning: #F4C84D;
+
+  /* Gradients */
+  --gradient-pregnancy: linear-gradient(180deg, #F7D9DC 0%, #FDEEEE 100%);
+
+  /* Shadows */
+  --shadow-subtle: 0 2px 8px rgba(139, 126, 216, 0.08);
+  --shadow-standard: 0 4px 20px rgba(139, 126, 216, 0.12);
+  --shadow-prominent: 0 8px 32px rgba(139, 126, 216, 0.14);
+  --shadow-nav: 0 -4px 20px rgba(139, 126, 216, 0.08);
+
+  /* Typography */
+  --font-ui: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --fs-display: 2rem;
+  --fs-stat: 2.25rem;
+  --fs-heading: 1.5rem;
+  --fs-subheading: 1.125rem;
+  --fs-body: 1rem;
+  --fs-data: 0.875rem;
+  --fs-caption: 0.8125rem;
+  --fs-micro: 0.6875rem;
+
+  /* Spacing */
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1.25rem;
+  --space-lg: 1.75rem;
+  --space-xl: 2rem;
+
+  /* Radius */
+  --radius-sm: 0.5rem;
+  --radius-md: 1rem;
+  --radius-card: 1.5rem;
+  --radius-hero: 2rem;
+  --radius-pill: 9999px;
+
+  /* Motion */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-exit: cubic-bezier(0.25, 0, 0, 1);
+  --duration-card: 450ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-ui);
+  background: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.phone {
+  width: 375px;
+  min-height: 812px;
+  background: var(--color-canvas);
+  border-radius: 2.5rem;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Collapsing Hero Header */
+.hero-header {
+  background: var(--gradient-pregnancy);
+  padding: 3rem var(--space-md) var(--space-lg);
+  text-align: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.hero-header .back-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--space-md);
+}
+
+.hero-header .back-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.hero-header .back-btn svg {
+  width: 22px;
+  height: 22px;
+  color: var(--color-text-primary);
+}
+
+.hero-header .back-row h1 {
+  font-size: var(--fs-subheading);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.milestone-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 1rem;
+  background: var(--color-accent-coral-tint);
+  border-radius: var(--radius-pill);
+  margin-bottom: var(--space-sm);
+}
+
+.milestone-badge svg {
+  width: 16px;
+  height: 16px;
+  color: var(--color-accent-coral);
+}
+
+.milestone-badge span {
+  font-size: var(--fs-data);
+  font-weight: 600;
+  color: var(--color-accent-coral);
+}
+
+.hero-week {
+  font-size: var(--fs-display);
+  font-weight: 800;
+  color: var(--color-text-primary);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.25rem;
+}
+
+.hero-trimester {
+  font-size: var(--fs-caption);
+  color: var(--color-text-secondary);
+  font-weight: 400;
+  margin-bottom: var(--space-md);
+}
+
+.hero-illustration {
+  width: 70%;
+  margin: 0 auto;
+  aspect-ratio: 1;
+}
+
+.hero-illustration svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Progress Ring */
+.progress-section {
+  display: flex;
+  justify-content: center;
+  margin-top: calc(-1 * var(--space-md));
+  margin-bottom: var(--space-md);
+  position: relative;
+  z-index: 2;
+}
+
+.progress-ring-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-hero);
+  box-shadow: var(--shadow-prominent);
+  padding: var(--space-md) var(--space-xl);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.progress-ring {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+}
+
+.progress-ring svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.progress-ring .track {
+  fill: none;
+  stroke: var(--color-chip-bg);
+  stroke-width: 5;
+}
+
+.progress-ring .fill {
+  fill: none;
+  stroke: var(--color-accent-coral);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 163.36;
+  stroke-dashoffset: 73.51;
+}
+
+.progress-info .days-left {
+  font-size: var(--fs-stat);
+  font-weight: 800;
+  color: var(--color-accent-coral);
+  line-height: 1.1;
+}
+
+.progress-info .days-left-unit {
+  font-size: var(--fs-data);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-left: 0.25em;
+}
+
+.progress-info .due-date {
+  font-size: var(--fs-caption);
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+/* Screen content */
+.screen-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 var(--space-md) 5.5rem;
+}
+
+/* Milestone Card */
+.milestone-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-standard);
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+  text-align: center;
+}
+
+.milestone-card .celebration-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto var(--space-xs);
+}
+
+.milestone-card h2 {
+  font-size: var(--fs-heading);
+  font-weight: 700;
+  color: var(--color-accent-coral);
+  margin-bottom: 0.25rem;
+}
+
+.milestone-card p {
+  font-size: var(--fs-body);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+/* Body Changes Card */
+.info-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-standard);
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.info-card h2 {
+  font-size: var(--fs-subheading);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.info-card p {
+  font-size: var(--fs-body);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.info-card .info-item {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: var(--space-xs) 0;
+}
+
+.info-card .info-item + .info-item {
+  border-top: 1px solid var(--color-divider);
+}
+
+.info-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.info-icon.coral { background: var(--color-accent-coral-tint); }
+.info-icon.lilac { background: var(--color-accent-lilac-tint); }
+
+.info-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.info-text h3 {
+  font-size: var(--fs-data);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 0.125rem;
+}
+
+.info-text p {
+  font-size: var(--fs-caption);
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+/* Self-Care Checklist */
+.checklist-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-standard);
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.checklist-card h2 {
+  font-size: var(--fs-subheading);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: var(--space-xs) 0;
+  min-height: 44px;
+}
+
+.checklist-item + .checklist-item {
+  border-top: 1px solid var(--color-divider);
+}
+
+.checkbox {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 2px solid var(--color-divider);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkbox.checked {
+  background: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.checkbox.checked svg {
+  width: 14px;
+  height: 14px;
+  color: var(--color-surface);
+}
+
+.checklist-item span {
+  font-size: var(--fs-body);
+  color: var(--color-text-primary);
+}
+
+.checklist-item.done span {
+  color: var(--color-text-secondary);
+  text-decoration: line-through;
+}
+
+/* Bottom Nav */
+.bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-nav);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0.5rem 0;
+  padding-bottom: 1.5rem;
+  z-index: 50;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--radius-md);
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.nav-item.active {
+  background: var(--color-accent-coral-tint);
+}
+
+.nav-item svg {
+  width: 22px;
+  height: 22px;
+  color: var(--color-text-secondary);
+}
+
+.nav-item.active svg {
+  color: var(--color-accent-coral);
+}
+
+.nav-item span {
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+}
+
+.nav-item.active span {
+  color: var(--color-accent-coral);
+}
+</style>
+</head>
+<body>
+
+<div class="phone" role="application" aria-label="Bloom pregnancy progress milestone screen">
+
+  <!-- Hero Header -->
+  <header class="hero-header">
+    <div class="back-row">
+      <button class="back-btn" aria-label="Go back">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <h1>Pregnancy Progress</h1>
+    </div>
+
+    <div class="milestone-badge" aria-label="Second trimester milestone">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      <span>Milestone reached</span>
+    </div>
+
+    <div class="hero-week">Week 22</div>
+    <div class="hero-trimester">Second Trimester</div>
+
+    <div class="hero-illustration">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="100" cy="90" r="65" fill="rgba(255,255,255,0.5)"/>
+        <ellipse cx="100" cy="88" rx="45" ry="50" fill="#FDEEEE"/>
+        <ellipse cx="100" cy="86" rx="28" ry="32" fill="#F28B8B" opacity="0.25"/>
+        <circle cx="90" cy="78" r="3.5" fill="#2A2A3A" opacity="0.55"/>
+        <circle cx="110" cy="78" r="3.5" fill="#2A2A3A" opacity="0.55"/>
+        <path d="M93 90 Q100 97 107 90" stroke="#2A2A3A" stroke-width="1.5" fill="none" opacity="0.4" stroke-linecap="round"/>
+        <!-- tiny hand -->
+        <ellipse cx="72" cy="95" rx="6" ry="4" fill="#F28B8B" opacity="0.2" transform="rotate(-20 72 95)"/>
+        <ellipse cx="128" cy="95" rx="6" ry="4" fill="#F28B8B" opacity="0.2" transform="rotate(20 128 95)"/>
+        <text x="100" y="165" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="11" fill="#8B8B9C" font-weight="500">About the size of a mango</text>
+      </svg>
+    </div>
+  </header>
+
+  <!-- Progress Ring / Countdown -->
+  <div class="progress-section">
+    <div class="progress-ring-card" aria-label="126 days until due date, August 21">
+      <div class="progress-ring">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <circle class="track" cx="32" cy="32" r="26"/>
+          <circle class="fill" cx="32" cy="32" r="26"/>
+        </svg>
+      </div>
+      <div class="progress-info">
+        <div class="days-left">126<span class="days-left-unit">days left</span></div>
+        <div class="due-date">Due 21 Aug</div>
+      </div>
+    </div>
+  </div>
+
+  <main class="screen-content">
+
+    <!-- Milestone Celebration Card -->
+    <section class="milestone-card" aria-label="Week 22 milestone achievement">
+      <div class="celebration-icon">
+        <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="24" cy="24" r="22" fill="var(--color-accent-coral-tint)"/>
+          <path d="M16 24l5 5 11-11" stroke="var(--color-accent-coral)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h2>Halfway there!</h2>
+      <p>You've passed the midpoint of your pregnancy. Your baby can now hear your voice and responds to sounds.</p>
+    </section>
+
+    <!-- Baby Development Card -->
+    <section class="info-card" aria-label="Baby development this week">
+      <h2>Baby Development</h2>
+      <div class="info-item">
+        <div class="info-icon lilac">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#8B7ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/></svg>
+        </div>
+        <div class="info-text">
+          <h3>Hearing develops</h3>
+          <p>Baby can hear your heartbeat and voice. Try talking or reading aloud.</p>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon lilac">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#8B7ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg>
+        </div>
+        <div class="info-text">
+          <h3>Taste buds forming</h3>
+          <p>Your baby is beginning to taste what you eat through the amniotic fluid.</p>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon lilac">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#8B7ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </div>
+        <div class="info-text">
+          <h3>Stronger movements</h3>
+          <p>Kicks and rolls are becoming more noticeable as muscles grow stronger.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Body Changes Card -->
+    <section class="info-card" aria-label="Body changes this week">
+      <h2>Your Body This Week</h2>
+      <div class="info-item">
+        <div class="info-icon coral">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#F28B8B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+        <div class="info-text">
+          <h3>Growing belly</h3>
+          <p>Your uterus is now about an inch above your belly button.</p>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon coral">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#F28B8B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="info-text">
+          <h3>Stretch marks may appear</h3>
+          <p>Keep skin moisturised. These are completely normal and often fade after birth.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Self-Care Checklist -->
+    <section class="checklist-card" aria-label="Daily self-care checklist">
+      <h2>Today's Self-Care</h2>
+      <div class="checklist-item done" role="checkbox" tabindex="0" aria-checked="true">
+        <div class="checkbox checked">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <span>Prenatal vitamins</span>
+      </div>
+      <div class="checklist-item done" role="checkbox" tabindex="0" aria-checked="true">
+        <div class="checkbox checked">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <span>Drink 8 glasses of water</span>
+      </div>
+      <div class="checklist-item" role="checkbox" tabindex="0" aria-checked="false">
+        <div class="checkbox"></div>
+        <span>Kegel exercises</span>
+      </div>
+      <div class="checklist-item" role="checkbox" tabindex="0" aria-checked="false">
+        <div class="checkbox"></div>
+        <span>Gentle stretching</span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <button class="nav-item" aria-label="Home">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="nav-item active" aria-label="Progress" aria-current="page">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Progress</span>
+    </button>
+    <button class="nav-item" aria-label="Health">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span>Health</span>
+    </button>
+    <button class="nav-item" aria-label="Wellness">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+      <span>Wellness</span>
+    </button>
+    <button class="nav-item" aria-label="Learn">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <span>Learn</span>
+    </button>
+  </nav>
+</div>
+
+</body>
+</html>

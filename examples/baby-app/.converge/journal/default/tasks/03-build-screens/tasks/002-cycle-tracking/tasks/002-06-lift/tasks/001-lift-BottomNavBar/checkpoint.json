@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "03-build-screens/002-cycle-tracking/002-06-lift/001-lift-BottomNavBar",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T16:48:58.233Z",
+  "createdAt": "2026-04-18T15:55:33.300Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T15:55:33.300Z",
+      "completedAt": "2026-04-18T15:57:04.219Z",
+      "outcome": "failed",
+      "durationMs": 90919
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-18T15:58:15.504Z",
+      "completedAt": "2026-04-18T15:58:15.506Z",
+      "outcome": "failed",
+      "durationMs": 2
+    }
+  ],
+  "currentAttempt": 1
+}

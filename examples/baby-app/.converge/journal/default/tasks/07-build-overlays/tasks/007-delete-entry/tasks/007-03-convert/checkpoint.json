@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/007-delete-entry/007-03-convert",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T03:09:10.856Z",
+  "createdAt": "2026-04-19T03:07:29.281Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T03:07:29.281Z",
+      "completedAt": "2026-04-19T03:09:10.850Z",
+      "outcome": "success",
+      "durationMs": 101569
+    }
+  ],
+  "currentAttempt": 1
+}

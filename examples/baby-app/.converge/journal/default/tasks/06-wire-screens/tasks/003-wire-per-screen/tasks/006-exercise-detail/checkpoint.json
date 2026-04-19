@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/003-wire-per-screen/006-exercise-detail",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T01:10:18.558Z",
+  "createdAt": "2026-04-19T01:10:18.552Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T01:10:18.552Z",
+      "completedAt": "2026-04-19T01:10:18.556Z",
+      "outcome": "success",
+      "durationMs": 4
+    }
+  ],
+  "currentAttempt": 1
+}

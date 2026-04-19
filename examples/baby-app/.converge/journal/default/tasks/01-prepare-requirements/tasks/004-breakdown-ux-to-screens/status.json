@@ -1,0 +1,19 @@
+{
+  "taskId": "01-prepare-requirements/004-breakdown-ux-to-screens",
+  "epicId": "default",
+  "focusPath": "default/01-prepare-requirements/004-breakdown-ux-to-screens",
+  "status": "running",
+  "startedAt": "2026-04-18T11:24:43.349Z",
+  "attempt": 1,
+  "gapsResolved": 0,
+  "gapsFailed": 0,
+  "checklist": [
+    {
+      "id": "subtask:spawn-1",
+      "type": "subtask",
+      "description": "ux-breakdown",
+      "details": ".converge/skills/ux-breakdown/SKILL.md",
+      "done": false
+    }
+  ]
+}

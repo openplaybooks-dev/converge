@@ -1,0 +1,32 @@
+{
+  "taskId": "07-build-overlays/005-cycle-entry/005-02-design",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/cycle-entry/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/cycle-entry/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/META.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/META.md"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/cycle-entry/META.md",
+    ".stitch/designs/cycle-entry/design.html"
+  ],
+  "blocked": false
+}

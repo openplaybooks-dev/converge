@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/008-mood-wellness/008-06-lift/001-lift-MoodHistoryEntry",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/mood_wellness/widgets/mood_history_entry.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/mood_wellness/widgets/mood_history_entry.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/mood_history_entry.dart"
+  ],
+  "blocked": false
+}

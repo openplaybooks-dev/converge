@@ -1,0 +1,244 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-prepare-requirements/004-breakdown-ux-to-screens-missing-output-.stitch/SITE.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-requirements/004-breakdown-ux-to-screens",
+            "severity": "high",
+            "description": "[01-prepare-requirements/004-breakdown-ux-to-screens] Task output not created: .stitch/SITE.md",
+            "source": "unit",
+            "detected": "2026-04-18T11:24:43.343Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/01-prepare-requirements/004-breakdown-ux-to-screens",
+              "taskId": "01-prepare-requirements/004-breakdown-ux-to-screens",
+              "taskTitle": "Breakdown UX to Screens",
+              "taskPrompt": "# Breakdown UX to Screens\n\nInvoke **/ux-breakdown** skill to extract structured screen definitions from the UX overview.\n\n## Purpose\n\nThis task transforms the high-level UX.md into machine-readable artifacts that downstream tasks can consume. It serves as the bridge between user experience design and implementation.\n\n## What Gets Generated\n\n### 1. `.stitch/SITE.md`\nA human-readable sitemap showing:\n- Navigation hierarchy\n- All routes and their purposes\n- User flow diagrams\n- Screen relationships\n\n### 2. `.stitch/screens.json`\nMachine-readable screen metadata for each screen:\n- Unique screen IDs (kebab-case)\n- Routes and paths (GoRouter format, e.g., `/novel/:id`)\n- Descriptions\n- Key features\n- Data requirements\n- Implementation priority\n\n## Flutter-Specific Notes\n\n- Routes use GoRouter path format: `/path/:param`\n- Bottom navigation screens use top-level routes: `/`, `/browse`, `/library`, `/profile`\n- Detail screens use nested routes: `/novel/:id`, `/novel/:id/chapter/:chapterId`\n- Overlay screens use `overlay:` prefix: `overlay:audio-player`\n\n## Success Criteria\n\nAfter completion:\n- `.stitch/SITE.md` exists with clear navigation structure\n- `.stitch/screens.json` exists with valid JSON schema\n- All screens from UX.md are represented\n- Screen IDs are unique and follow kebab-case convention\n- Each screen has required fields (id, title, route, description)",
+              "taskSkill": "ux-breakdown",
+              "taskInputs": [
+                ".stitch/UX.md"
+              ],
+              "factId": "file-exists:test -f \".stitch/SITE.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "01-prepare-requirements/004-breakdown-ux-to-screens-missing-output-.stitch/screens.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-requirements/004-breakdown-ux-to-screens",
+            "severity": "high",
+            "description": "[01-prepare-requirements/004-breakdown-ux-to-screens] Task output not created: .stitch/screens.json",
+            "source": "unit",
+            "detected": "2026-04-18T11:24:43.345Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/01-prepare-requirements/004-breakdown-ux-to-screens",
+              "taskId": "01-prepare-requirements/004-breakdown-ux-to-screens",
+              "taskTitle": "Breakdown UX to Screens",
+              "taskPrompt": "# Breakdown UX to Screens\n\nInvoke **/ux-breakdown** skill to extract structured screen definitions from the UX overview.\n\n## Purpose\n\nThis task transforms the high-level UX.md into machine-readable artifacts that downstream tasks can consume. It serves as the bridge between user experience design and implementation.\n\n## What Gets Generated\n\n### 1. `.stitch/SITE.md`\nA human-readable sitemap showing:\n- Navigation hierarchy\n- All routes and their purposes\n- User flow diagrams\n- Screen relationships\n\n### 2. `.stitch/screens.json`\nMachine-readable screen metadata for each screen:\n- Unique screen IDs (kebab-case)\n- Routes and paths (GoRouter format, e.g., `/novel/:id`)\n- Descriptions\n- Key features\n- Data requirements\n- Implementation priority\n\n## Flutter-Specific Notes\n\n- Routes use GoRouter path format: `/path/:param`\n- Bottom navigation screens use top-level routes: `/`, `/browse`, `/library`, `/profile`\n- Detail screens use nested routes: `/novel/:id`, `/novel/:id/chapter/:chapterId`\n- Overlay screens use `overlay:` prefix: `overlay:audio-player`\n\n## Success Criteria\n\nAfter completion:\n- `.stitch/SITE.md` exists with clear navigation structure\n- `.stitch/screens.json` exists with valid JSON schema\n- All screens from UX.md are represented\n- Screen IDs are unique and follow kebab-case convention\n- Each screen has required fields (id, title, route, description)",
+              "taskSkill": "ux-breakdown",
+              "taskInputs": [
+                ".stitch/UX.md"
+              ],
+              "factId": "file-exists:test -f \".stitch/screens.json\"",
+              "awaitingUserInput": false
+            }
+          }
+        ],
+        "durationMs": 8
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "run-skill",
+      "handler": "run-skill",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 64
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 85
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#3",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 108414
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-18T11:24:43.336Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-18T11:24:43.337Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-18T11:24:43.345Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-18T11:24:43.347Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "run-skill",
+      "iteration": 1,
+      "ts": "2026-04-18T11:24:43.351Z"
+    },
+    {
+      "from": "run-skill",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-18T11:24:43.355Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#3",
+      "iteration": 1,
+      "ts": "2026-04-18T11:26:31.769Z"
+    },
+    {
+      "from": "run-strategy:task-run#3",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-18T11:26:31.855Z"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-add-behavior/004-implement-providers/003-provider-CycleEntry",
+  "status": "complete",
+  "lastUpdated": "2026-04-18T18:55:00.636Z",
+  "createdAt": "2026-04-18T18:53:17.483Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-18T18:53:17.483Z",
+      "completedAt": "2026-04-18T18:55:00.634Z",
+      "outcome": "success",
+      "durationMs": 103151
+    }
+  ],
+  "currentAttempt": 1
+}

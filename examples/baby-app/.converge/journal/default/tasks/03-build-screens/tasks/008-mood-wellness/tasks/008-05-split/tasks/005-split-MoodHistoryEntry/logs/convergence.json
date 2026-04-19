@@ -1,0 +1,249 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 111
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/008-mood-wellness/008-05-split/005-split-MoodHistoryEntry-missing-output-lib/screens/mood_wellness/widgets/mood_history_entry.dart",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/008-mood-wellness/008-05-split/005-split-MoodHistoryEntry",
+            "severity": "high",
+            "description": "[03-build-screens/008-mood-wellness/008-05-split/005-split-MoodHistoryEntry] Task output not created: lib/screens/mood_wellness/widgets/mood_history_entry.dart",
+            "source": "unit",
+            "detected": "2026-04-18T18:28:49.389Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/008-mood-wellness/tasks/008-05-split/tasks/005-split-MoodHistoryEntry",
+              "taskId": "03-build-screens/008-mood-wellness/008-05-split/005-split-MoodHistoryEntry",
+              "taskTitle": "Split: MoodHistoryEntry",
+              "taskPrompt": "# Split: MoodHistoryEntry\n\nExtract the `MoodHistoryEntry` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/mood_wellness/mood_wellness_screen.dart` using grep string: `_buildHistoryEntry`\n2. **Create file** — Write `lib/screens/mood_wellness/widgets/mood_history_entry.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `MoodHistoryEntry()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass MoodHistoryEntry extends StatelessWidget {\n  const MoodHistoryEntry({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskInputs": [
+                "lib/screens/mood_wellness/mood_wellness_screen.dart"
+              ],
+              "factId": "file-exists:test -f \"lib/screens/mood_wellness/widgets/mood_history_entry.dart\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-build-screens/008-mood-wellness/008-05-split/005-split-MoodHistoryEntry-check-failed-widget-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/008-mood-wellness/008-05-split/005-split-MoodHistoryEntry",
+            "severity": "high",
+            "description": "[03-build-screens/008-mood-wellness/008-05-split/005-split-MoodHistoryEntry] Check failed: Widget file exists",
+            "source": "unit",
+            "detected": "2026-04-18T18:28:49.390Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "widget-exists",
+              "checkCmd": "test -f lib/screens/mood_wellness/widgets/mood_history_entry.dart",
+              "checkDescription": "Widget file exists",
+              "checkOutput": "Command failed: test -f lib/screens/mood_wellness/widgets/mood_history_entry.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Split: MoodHistoryEntry\n\nExtract the `MoodHistoryEntry` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/mood_wellness/mood_wellness_screen.dart` using grep string: `_buildHistoryEntry`\n2. **Create file** — Write `lib/screens/mood_wellness/widgets/mood_history_entry.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `MoodHistoryEntry()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass MoodHistoryEntry extends StatelessWidget {\n  const MoodHistoryEntry({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskId": "03-build-screens/008-mood-wellness/008-05-split/005-split-MoodHistoryEntry",
+              "taskTitle": "Split: MoodHistoryEntry",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/008-mood-wellness/tasks/008-05-split/tasks/005-split-MoodHistoryEntry",
+              "factId": "check:widget-exists"
+            }
+          },
+          {
+            "id": "03-build-screens/008-mood-wellness/008-05-split/005-split-MoodHistoryEntry-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/008-mood-wellness/008-05-split/005-split-MoodHistoryEntry",
+            "severity": "high",
+            "description": "[03-build-screens/008-mood-wellness/008-05-split/005-split-MoodHistoryEntry] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-18T18:28:49.480Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "dart analyze lib/screens/mood_wellness/widgets/mood_history_entry.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "Directory or file doesn't exist: lib/screens/mood_wellness/widgets/mood_history_entry.dart\n\nUsage: dart analyze [arguments] [<directory>]\n-h, --help                   Print this usage information.\n    --fatal-infos            Treat info level issues as fatal.\n    --[no-]fatal-warnings    Treat warning level issues as fatal.\n                             (defaults to on)\n\nRun \"dart help\" to see global options.",
+              "checkExitCode": 64,
+              "taskPrompt": "# Split: MoodHistoryEntry\n\nExtract the `MoodHistoryEntry` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/mood_wellness/mood_wellness_screen.dart` using grep string: `_buildHistoryEntry`\n2. **Create file** — Write `lib/screens/mood_wellness/widgets/mood_history_entry.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `MoodHistoryEntry()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass MoodHistoryEntry extends StatelessWidget {\n  const MoodHistoryEntry({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskId": "03-build-screens/008-mood-wellness/008-05-split/005-split-MoodHistoryEntry",
+              "taskTitle": "Split: MoodHistoryEntry",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/03-build-screens/tasks/008-mood-wellness/tasks/008-05-split/tasks/005-split-MoodHistoryEntry",
+              "factId": "check:dart-valid"
+            }
+          }
+        ],
+        "durationMs": 98
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 204
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 1013
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 83886
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-18T18:28:49.272Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-18T18:28:49.383Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-18T18:28:49.481Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-18T18:28:49.483Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-18T18:28:49.687Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-04-18T18:30:13.573Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-18T18:30:14.587Z"
+    }
+  ]
+}

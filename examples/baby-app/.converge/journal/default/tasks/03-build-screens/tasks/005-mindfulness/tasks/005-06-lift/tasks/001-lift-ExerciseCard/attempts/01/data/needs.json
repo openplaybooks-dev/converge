@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/005-mindfulness/005-06-lift/001-lift-ExerciseCard",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/mindfulness/widgets/exercise_card.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/mindfulness/widgets/exercise_card.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/exercise_card.dart"
+  ],
+  "blocked": false
+}

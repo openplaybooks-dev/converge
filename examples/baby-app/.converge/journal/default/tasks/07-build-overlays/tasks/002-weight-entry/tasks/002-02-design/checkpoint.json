@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/002-weight-entry/002-02-design",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T02:22:36.419Z",
+  "createdAt": "2026-04-19T02:19:49.766Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T02:19:49.766Z",
+      "completedAt": "2026-04-19T02:22:36.416Z",
+      "outcome": "success",
+      "durationMs": 166650
+    }
+  ],
+  "currentAttempt": 1
+}

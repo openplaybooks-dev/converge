@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/006-exercise-detail/006-05-split/005-split-StartExerciseButton",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Widget file exists",
+      "cmd": "test -f lib/screens/exercise_detail/widgets/start_exercise_button.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/screens/exercise_detail/widgets/start_exercise_button.dart"
+    }
+  ]
+}

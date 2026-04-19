@@ -27,6 +27,9 @@ export const GapKind = {
   corrupted: "corrupted",
   systemic: "systemic",
   userQuestion: "user-question",
+  insufficientEvidence: "insufficient-evidence",
+  contradictoryFinding: "contradictory-finding",
+  untestedHypothesis: "untested-hypothesis",
 } as const;
 
 export type GapKindValue = (typeof GapKind)[keyof typeof GapKind];
@@ -355,6 +358,11 @@ export function toCompactGap(gap: Gap): CompactGap {
       break;
     case "user-question":
       kind = "user-question";
+      break;
+    case "insufficient-evidence":
+    case "contradictory-finding":
+    case "untested-hypothesis":
+      kind = "check";
       break;
     default:
       kind = "structural";
