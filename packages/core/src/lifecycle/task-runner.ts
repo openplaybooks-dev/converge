@@ -121,6 +121,8 @@ export interface TaskExecutionContext {
    * Triggered by `--step` flag.
    */
   stepMode?: boolean;
+  /** Extra vars to merge into WBS context (e.g. epoch number from evolve runner) */
+  extraVars?: Record<string, unknown>;
 }
 
 export interface TaskExecutionResult {
@@ -299,7 +301,7 @@ export async function executeTask(
             ctx.projectDir,
             { epicId: ctx.epicId, taskId: ctx.journalTaskId },
             guardUnit.path,
-            { id: guardUnit.id, title: guardUnit.title, vars: guardUnit.vars },
+            { id: guardUnit.id, title: guardUnit.title, vars: { ...guardUnit.vars, ...ctx.extraVars } },
           );
           const result = await executor.run(guardUnit.wbsFn, 1);
 

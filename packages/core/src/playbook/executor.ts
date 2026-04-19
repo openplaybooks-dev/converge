@@ -73,10 +73,14 @@ export async function generateEpicFromPlaybook(
 
   await mkdir(epicDir, { recursive: true });
 
-  // Copy tasks/ with variable substitution
+  // Copy tasks/ with variable substitution into epicDir/tasks/
+  // The tasks/ subdirectory is required so extractJournalTaskId() produces
+  // hierarchical IDs like "evolve-01/improve" (epicId-prefixed) instead
+  // of colliding with playbook source tasks that share the same task name.
   const templateTasksDir = join(playbook.templateDir, "tasks");
   if (existsSync(templateTasksDir)) {
-    await copyWithSubstitution(templateTasksDir, epicDir, playbook.vars);
+    const destTasksDir = join(epicDir, "tasks");
+    await copyWithSubstitution(templateTasksDir, destTasksDir, playbook.vars);
   }
 
   return epicDir;

@@ -1,9 +1,0 @@
-{
-  "createdAt": "2026-04-18T01:08:05.525Z",
-  "files": {
-    "build-report.md": ".converge/artifacts/quality/1776474485524/build-report.md",
-    "lint-report.md": ".converge/artifacts/quality/1776474485524/lint-report.md",
-    "test-report.md": ".converge/artifacts/quality/1776474485524/test-report.md",
-    "type-report.md": ".converge/artifacts/quality/1776474485524/type-report.md"
-  }
-}

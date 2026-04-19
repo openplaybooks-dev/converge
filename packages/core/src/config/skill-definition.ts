@@ -373,6 +373,7 @@ export async function parseSkillMd(skillMdPath: string): Promise<{
 /* ------------------------------------------------------------------ */
 
 import { readdirSync } from "node:fs";
+import { join } from "node:path";
 
 /**
  * Get a list of available skills in the skills directory

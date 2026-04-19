@@ -100,9 +100,7 @@ export type {
   Checkpoint,
   ProvenanceRecord,
   StoragePaths,
-  AIConfig,
   AIProviderConfig,
-  AIMultiProviderConfig,
 } from "./storage/types.ts";
 
 export {

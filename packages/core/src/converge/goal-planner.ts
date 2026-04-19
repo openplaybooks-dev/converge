@@ -392,14 +392,18 @@ function stripPlanningSkillFromTasks(
       // Parse, filter, rewrite
       const parsed = parseYaml(yaml) as Record<string, unknown>;
       if (parsed && Array.isArray(parsed.skills)) {
-        parsed.skills = (parsed.skills as string[]).filter(
+        const skills = (parsed.skills as string[]).filter(
           (s) => !PLANNING_SKILLS.has(s),
         );
         // Add implementation skills if missing
         for (const is of implSkills) {
-          if (!parsed.skills.includes(is)) parsed.skills.push(is);
+          if (!skills.includes(is)) skills.push(is);
         }
-        if (parsed.skills.length === 0) delete parsed.skills;
+        if (skills.length === 0) {
+          delete parsed.skills;
+        } else {
+          parsed.skills = skills;
+        }
       }
 
       const body = content.slice(match[0].length);
