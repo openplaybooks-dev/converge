@@ -389,6 +389,7 @@ async function main(): Promise<void> {
         let runFilter = positional[0] || options.filter;
         let playbookName: string | undefined;
         let playbookRunCfg: PlaybookRunConfig | undefined;
+        let resolvedPb: import("../playbook/types.ts").ResolvedPlaybook | undefined;
         const runStartTime = Date.now();
 
         if (options.playbook) {
@@ -422,6 +423,7 @@ async function main(): Promise<void> {
             "resume",
             "restart",
             "converge",
+            "evolve",
             "unblock",
             "wbs",
             "inc",
@@ -446,7 +448,6 @@ async function main(): Promise<void> {
             }
           }
 
-          let resolvedPb;
           try {
             resolvedPb = resolvePlaybook(pb, vars);
           } catch (err: any) {
@@ -455,15 +456,22 @@ async function main(): Promise<void> {
           }
 
           // Generate epic from template
+          // Evolve mode skips this — it stamps a fresh epic each epoch
           console.log(`\n   Playbook: ${playbookName}`);
           console.log(`   Epic: ${resolvedPb.epicId}`);
-          await generateEpicFromPlaybook(resolvedPb, searchDir);
+          const effectiveMode = options.evolve ? "evolve"
+            : options.converge ? "converge"
+            : pb.def.run?.mode;
+          if (effectiveMode !== "evolve") {
+            await generateEpicFromPlaybook(resolvedPb, searchDir);
+          }
 
           // Merge playbook run config with CLI overrides
           const cliOverrides: Partial<PlaybookRunConfig> = {};
           if (options.mode)
             cliOverrides.mode = options.mode as PlaybookRunConfig["mode"];
           if (options.converge) cliOverrides.mode = "converge";
+          if (options.evolve) cliOverrides.mode = "evolve";
           if (options.step) cliOverrides.mode = "step";
           const durOpt = options["max-duration"] || options.maxDuration;
           if (durOpt !== undefined) {
@@ -502,6 +510,9 @@ async function main(): Promise<void> {
             unblock: options.unblock || false,
             converge:
               options.converge || playbookRunCfg?.mode === "converge" || false,
+            evolve:
+              options.evolve || playbookRunCfg?.mode === "evolve" || false,
+            evolvePlaybook: resolvedPb,
             wbs: options.wbs || false,
             inc: options.inc || false,
             maxIterations:

@@ -88,7 +88,7 @@ export interface PlaybookInput {
  * Execution configuration.
  */
 export interface PlaybookRunConfig {
-  mode?: "autonomous" | "converge" | "step";
+  mode?: "autonomous" | "converge" | "step" | "evolve";
   maxIterations?: number;
   maxTaskAttempts?: number;
   /** Wall-clock timeout in ms. YAML supports: "60m", "2h", "infinite". */

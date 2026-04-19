@@ -949,6 +949,11 @@ export async function autonomousRun(
         } else {
           const attempts = (taskAttempts.get(node.journalTaskId) ?? 0) + 1;
           taskAttempts.set(node.journalTaskId, attempts);
+          if (execResult.resetSiblings?.length) {
+            for (const siblingId of execResult.resetSiblings) {
+              taskAttempts.delete(siblingId);
+            }
+          }
           if (attempts >= maxTaskAttempts) {
             consecutiveFailures++;
             tasksFailed++;
@@ -1038,6 +1043,11 @@ export async function autonomousRun(
       } else {
         const attempts = (taskAttempts.get(node.journalTaskId) ?? 0) + 1;
         taskAttempts.set(node.journalTaskId, attempts);
+        if (execResult.resetSiblings?.length) {
+          for (const siblingId of execResult.resetSiblings) {
+            taskAttempts.delete(siblingId);
+          }
+        }
 
         console.log(
           `: ${node.taskId} (attempt ${attempts}/${maxTaskAttempts})`,
