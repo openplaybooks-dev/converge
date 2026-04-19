@@ -1,0 +1,48 @@
+name: flutter-app
+description: Autonomous Flutter mobile app generator using Stitch AI for UI design and Riverpod for state management
+
+
+# AI Provider Configuration
+# Provider types: claude, acp, kimi, qwen, gemini, opencode
+#
+# The 'env' configuration for Claude provider allows you to set environment variables
+# that will be passed to the Claude CLI process. This is useful for using custom
+# API endpoints like MiniMax.
+#
+ai:
+  default: claude
+  providers:
+    # Claude CLI - configured to use MiniMax's Anthropic-compatible API
+    claude: 
+      provider: claude
+      env:
+        ANTHROPIC_BASE_URL: "https://api.minimax.io/anthropic"
+        # ANTHROPIC_AUTH_TOKEN: "${MINIMAX_API_KEY}"
+        ANTHROPIC_AUTH_TOKEN: sk-api-DJxvtu5bNH2TqXZIwbNbhN7gEyb2-IWcbNeKmuZWW6_PnoZ3MA50CT5FkDlBakwtTVzxzc1B6aCr-UVZeZLF3MFxyvCcqUyqyWOnCx5eJeZBuY6rtFIh6Hw
+        API_TIMEOUT_MS: "3000000"
+        CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
+        ANTHROPIC_MODEL: "MiniMax-M2.7"
+        ANTHROPIC_SMALL_FAST_MODEL: "MiniMax-M2.7"
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "MiniMax-M2.7"
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "MiniMax-M2.7"
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: "MiniMax-M2.7"
+
+    # ACP (Agent SDK) - supports custom APIs (MiniMax, OpenAI-compatible, etc)
+    acp:
+      provider: acp
+      # Note: Set MINIMAX_API_KEY in your shell environment before running
+      apiKey: "${MINIMAX_API_KEY}"
+      baseUrl: https://api.minimax.io/anthropic
+      model: MiniMax-M2.7
+      timeoutMs: 3000000
+
+# Metrics and Pricing Configuration
+metrics:
+  # Subscription pricing for Plan Plus ($20/month, 4500 requests/5hrs)
+  subscription:
+    enabled: true
+    flatFee: 20.00
+    requestsIncluded: 4500
+
+variables: {}
+plugins: []
