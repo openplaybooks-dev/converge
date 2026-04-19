@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Manrope:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary": "#31332e",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary": "#5e5f5f",
+                    "tertiary": "#4f635e",
+                    "outline-variant": "#b1b3ab",
+                    "on-primary-fixed": "#3f3f3f",
+                    "surface-container": "#efeee8",
+                    "on-secondary-fixed": "#3e3f40",
+                    "on-primary-container": "#525252",
+                    "on-surface-variant": "#5e6059",
+                    "tertiary-fixed-dim": "#d1e7e0",
+                    "surface-container-high": "#e8e9e1",
+                    "surface-variant": "#e2e3db",
+                    "on-tertiary-fixed": "#384c47",
+                    "primary-fixed": "#e2e2e2",
+                    "surface": "#F4F2EE",
+                    "on-tertiary": "#e8fef7",
+                    "on-secondary-fixed-variant": "#5b5b5c",
+                    "tertiary-fixed": "#dff6ee",
+                    "inverse-primary": "#ffffff",
+                    "surface-tint": "#5e5e5e",
+                    "on-secondary-container": "#515252",
+                    "error-dim": "#5c1202",
+                    "error": "#9e422c",
+                    "surface-container-highest": "#e2e3db",
+                    "on-error-container": "#742410",
+                    "inverse-on-surface": "#9e9d99",
+                    "primary-container": "#e2e2e2",
+                    "tertiary-dim": "#435752",
+                    "surface-container-low": "#f5f4ee",
+                    "secondary-fixed-dim": "#d5d4d4",
+                    "background": "#F4F2EE",
+                    "primary-fixed-dim": "#d4d4d4",
+                    "tertiary-container": "#dff6ee",
+                    "surface-dim": "#d9dbd2",
+                    "on-tertiary-fixed-variant": "#546863",
+                    "on-primary-fixed-variant": "#5b5b5b",
+                    "inverse-surface": "#0e0e0c",
+                    "on-surface": "#31332e",
+                    "outline": "#797b75",
+                    "secondary-dim": "#525353",
+                    "secondary-container": "#e3e2e2",
+                    "surface-bright": "#fbf9f5",
+                    "on-background": "#31332e",
+                    "primary-dim": "#525252",
+                    "on-primary": "#f8f8f8",
+                    "on-error": "#fff7f6",
+                    "error-container": "#fe8b70",
+                    "secondary-fixed": "#e3e2e2",
+                    "on-secondary": "#faf8f8",
+                    "on-tertiary-container": "#4a5e59",
+                    "alert-peach": "#FCEEE9",
+                    "alert-coral": "#9e422c"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #F4F2EE;
+            color: #31332e;
+        }
+        .editorial-shadow {
+            box-shadow: 0 8px 24px rgba(231, 227, 220, 0.4);
+        }
+        .tactile-press:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-[#F4F2EE] dark:bg-stone-950 flex justify-between items-center w-full px-6 py-4 fixed top-0 z-40">
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-[#31332e] dark:text-stone-100 hover:bg-[#f5f4ee] dark:hover:bg-stone-800 transition-colors p-2 rounded-full">
+            menu
+        </button>
+<span class="text-xl font-bold tracking-tight text-[#31332e] dark:text-stone-100 font-headline">BabyGuard</span>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high ring-2 ring-white">
+<img alt="Parent Profile" class="w-full h-full object-cover" data-alt="Close up portrait of a young mother with a soft, caring expression, natural lighting, clean editorial photography style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnhvFzKXNqs5-9Js9xwXsQlKmzsROGXppOlopaTA9DXVye_e50XcJOvCZ6W000U0aZMoBe3tA4dUPHA8BQ-VSYdybdxx2V9MYz2OSZCWeR9FJ0brT3UC07IVjxFqNyh5conP50CnOtW1YrW63jkV5DWkj2A4RBBzYWdVgI45jaraFlGPkVi0Y8CMIl7bW2ORrMTd3EqQzk6eTuUXXTJpwSvMkqfRMGrtn1w3fbpz6drS9u85F7GREX0OGgpA_rjDsd_ExafkULAnqo"/>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-md mx-auto">
+<!-- Status & Headline -->
+<div class="mb-2">
+<span class="bg-[#FCEEE9] text-[#9e422c] px-4 py-1.5 rounded-full text-xs font-bold font-label tracking-wide flex items-center gap-2 w-fit mb-4">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">error</span>
+            Cảnh báo
+        </span>
+<h1 class="text-4xl font-extrabold font-headline text-on-surface tracking-tight mb-2 leading-[1.1]">
+            Kiểm tra ngay
+        </h1>
+<p class="text-on-surface-variant font-medium text-sm mb-8">Mẹ đang ở xa beacon</p>
+</div>
+<!-- Map View Container -->
+<div class="relative w-full aspect-[4/5] rounded-[2.5rem] overflow-hidden editorial-shadow mb-8 group ring-4 ring-[#FCEEE9]">
+<div class="absolute inset-0 bg-surface-container">
+<img alt="Map View" class="w-full h-full object-cover" data-alt="Clean minimal map view of a residential neighborhood with soft beige and grey tones, editorial aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClLDeh_glbBXLnz8njNNM8bx_WHce4UUCtSJMDeBDVfeooh1NAGffddo-akQ_Qrja64ZeM2gkoZ5qm_EnQpfftJX1YfDPuQworYRc5C6AWm7vbV-ez5Upx6vXHmbblz7256u2X2ChGOFTP7MMnE3BsqqYnlIoB1IQWyqQsTahlLPvaflpdRLUU-uNW0EUPqfx92g7yLsY6phPr3Bsqf2U8V5eyK3rwYHzw7IA--Ay2xubMAMeAa4TLqit7uXRNJTvAQawCiqWtc6ZR"/>
+</div>
+<!-- Pulse Effect & Pin -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+<div class="absolute w-32 h-32 bg-[#9e422c]/20 rounded-full animate-ping opacity-75"></div>
+<div class="absolute w-48 h-48 bg-[#9e422c]/10 rounded-full border-2 border-[#9e422c]/20"></div>
+<div class="relative w-20 h-20 bg-white rounded-full flex items-center justify-center editorial-shadow p-1">
+<div class="w-full h-full rounded-full overflow-hidden">
+<img alt="Baby Photo Alert" class="w-full h-full object-cover" data-alt="Urgent alert superhero kid pose, energetic and bright" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8eDzHZAxj2_6I_l-3CZcMiz-Ux6kegNIi95nIlGRbZuShU-I1W5dkN5sRR_HM0Yhqywf9NXQCzI4_ATqVPd5ivE_tT0us6EeELP47Aafcu0t9aSLwSWYfPZ7u4GuTC0Hsaxr0dcch3Kw7WjBgnce0tm5ID79nNsqxoscss9cMd5fmGWHVylyqX_b2Ut5_O1-HAPFbCTz8w0B_Fm0I3iBzL1Hq12X4rTz9Qy1t-H4GnoT8ZpIUxga0H-Vk8Peem1f6AJrAkYAU5M2N"/>
+</div>
+<!-- Icon Badge -->
+<div class="absolute -bottom-1 -right-1 bg-[#9e422c] text-white p-1.5 rounded-full border-2 border-white">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+</div>
+</div>
+<!-- Map Overlay Info -->
+<div class="absolute bottom-6 left-6 right-6 p-5 bg-surface-container-lowest/90 backdrop-blur-md rounded-2xl flex items-center justify-between shadow-lg">
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-[#9e422c] mb-1">Cảnh báo vị trí</p>
+<p class="text-base font-bold text-on-surface">Công viên Lê Văn Tám</p>
+</div>
+<div class="w-12 h-12 bg-[#9e422c] rounded-full flex items-center justify-center text-white shadow-md tactile-press cursor-pointer">
+<span class="material-symbols-outlined">near_me</span>
+</div>
+</div>
+</div>
+<!-- Device Info Card -->
+<section class="bg-surface-container-lowest rounded-2xl editorial-shadow overflow-hidden mb-12">
+<div class="p-6 flex items-center justify-between border-b border-surface-container">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-[#FCEEE9] rounded-full flex items-center justify-center text-[#9e422c]">
+<span class="material-symbols-outlined">bluetooth</span>
+</div>
+<div>
+<h3 class="font-bold text-on-surface">Beacon: Bé Na</h3>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+<span class="text-sm text-[#9e422c] font-bold">Xa (Far)</span>
+</div>
+</div>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-on-surface transition-colors p-2">
+                settings
+            </button>
+</div>
+<!-- Beacon Detail Action Row -->
+<button class="w-full px-6 py-4 flex items-center justify-between bg-white hover:bg-surface-container-low transition-colors tactile-press">
+<span class="text-sm font-semibold text-on-surface">Chi tiết beacon</span>
+<span class="material-symbols-outlined text-on-surface-variant text-xl">chevron_right</span>
+</button>
+</section>
+<!-- Primary Actions -->
+<div class="flex flex-col gap-4">
+<button class="w-full h-16 bg-[#31332e] text-[#fbf9f5] rounded-full font-bold text-base tracking-wide flex items-center justify-center gap-2 shadow-xl tactile-press">
+<span class="material-symbols-outlined">task_alt</span>
+            Tôi đã kiểm tra
+        </button>
+<button class="w-full h-16 bg-transparent border-2 border-[#FCEEE9] text-[#9e422c] rounded-full font-bold text-base flex items-center justify-center gap-2 tactile-press">
+<span class="material-symbols-outlined">notifications_off</span>
+            Tắt cảnh báo
+        </button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-8 pt-4 bg-white/90 dark:bg-stone-900/90 backdrop-blur-xl shadow-[0_-8px_24px_rgba(231,227,220,0.5)] rounded-t-[2.5rem]">
+<a class="flex flex-col items-center justify-center bg-[#31332e] text-[#fbf9f5] dark:bg-stone-100 dark:text-stone-950 rounded-full w-12 h-12 shadow-lg tactile-press" href="#">
+<span class="material-symbols-outlined" data-icon="home_health" style="font-variation-settings: 'FILL' 1;">home_health</span>
+<span class="sr-only">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#5e6059] dark:text-stone-400 px-4 py-2 hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined" data-icon="shield_with_heart">shield_with_heart</span>
+<span class="text-[11px] font-bold font-label mt-1">Safety</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#5e6059] dark:text-stone-400 px-4 py-2 hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="text-[11px] font-bold font-label mt-1">Activity</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#5e6059] dark:text-stone-400 px-4 py-2 hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-[11px] font-bold font-label mt-1">Settings</span>
+</a>
+</nav>
+</body></html>

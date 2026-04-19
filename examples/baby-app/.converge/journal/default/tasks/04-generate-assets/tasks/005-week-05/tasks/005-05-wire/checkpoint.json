@@ -1,0 +1,14 @@
+{
+  "type": "task",
+  "id": "04-generate-assets/005-week-05/005-05-wire",
+  "status": "running",
+  "lastUpdated": "2026-04-19T04:45:28.701Z",
+  "createdAt": "2026-04-19T04:45:28.700Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T04:45:28.700Z"
+    }
+  ],
+  "currentAttempt": 1
+}

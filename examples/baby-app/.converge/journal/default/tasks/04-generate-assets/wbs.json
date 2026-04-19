@@ -1,0 +1,1387 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-19T04:22:01.599Z",
+  "spawnCount": 345,
+  "subtasks": [
+    {
+      "id": "001-week-01",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/001-week-01/TASK.md"
+    },
+    {
+      "id": "001-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/001-week-01/tasks/001-01-analyze/TASK.md"
+    },
+    {
+      "id": "001-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/001-week-01/tasks/001-02-spec/TASK.md"
+    },
+    {
+      "id": "001-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/001-week-01/tasks/001-03-meta/TASK.md"
+    },
+    {
+      "id": "001-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/001-week-01/tasks/001-04-generate/TASK.md"
+    },
+    {
+      "id": "001-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/001-week-01/tasks/001-05-wire/TASK.md"
+    },
+    {
+      "id": "002-week-02",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/002-week-02/TASK.md"
+    },
+    {
+      "id": "002-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/002-week-02/tasks/002-01-analyze/TASK.md"
+    },
+    {
+      "id": "002-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/002-week-02/tasks/002-02-spec/TASK.md"
+    },
+    {
+      "id": "002-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/002-week-02/tasks/002-03-meta/TASK.md"
+    },
+    {
+      "id": "002-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/002-week-02/tasks/002-04-generate/TASK.md"
+    },
+    {
+      "id": "002-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/002-week-02/tasks/002-05-wire/TASK.md"
+    },
+    {
+      "id": "003-week-03",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/003-week-03/TASK.md"
+    },
+    {
+      "id": "003-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/003-week-03/tasks/003-01-analyze/TASK.md"
+    },
+    {
+      "id": "003-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/003-week-03/tasks/003-02-spec/TASK.md"
+    },
+    {
+      "id": "003-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/003-week-03/tasks/003-03-meta/TASK.md"
+    },
+    {
+      "id": "003-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/003-week-03/tasks/003-04-generate/TASK.md"
+    },
+    {
+      "id": "003-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/003-week-03/tasks/003-05-wire/TASK.md"
+    },
+    {
+      "id": "004-week-04",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/004-week-04/TASK.md"
+    },
+    {
+      "id": "004-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/004-week-04/tasks/004-01-analyze/TASK.md"
+    },
+    {
+      "id": "004-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/004-week-04/tasks/004-02-spec/TASK.md"
+    },
+    {
+      "id": "004-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/004-week-04/tasks/004-03-meta/TASK.md"
+    },
+    {
+      "id": "004-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/004-week-04/tasks/004-04-generate/TASK.md"
+    },
+    {
+      "id": "004-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/004-week-04/tasks/004-05-wire/TASK.md"
+    },
+    {
+      "id": "005-week-05",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/005-week-05/TASK.md"
+    },
+    {
+      "id": "005-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/005-week-05/tasks/005-01-analyze/TASK.md"
+    },
+    {
+      "id": "005-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/005-week-05/tasks/005-02-spec/TASK.md"
+    },
+    {
+      "id": "005-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/005-week-05/tasks/005-03-meta/TASK.md"
+    },
+    {
+      "id": "005-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/005-week-05/tasks/005-04-generate/TASK.md"
+    },
+    {
+      "id": "005-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/005-week-05/tasks/005-05-wire/TASK.md"
+    },
+    {
+      "id": "006-week-06",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/006-week-06/TASK.md"
+    },
+    {
+      "id": "006-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/006-week-06/tasks/006-01-analyze/TASK.md"
+    },
+    {
+      "id": "006-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/006-week-06/tasks/006-02-spec/TASK.md"
+    },
+    {
+      "id": "006-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/006-week-06/tasks/006-03-meta/TASK.md"
+    },
+    {
+      "id": "006-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/006-week-06/tasks/006-04-generate/TASK.md"
+    },
+    {
+      "id": "006-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/006-week-06/tasks/006-05-wire/TASK.md"
+    },
+    {
+      "id": "007-week-07",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/007-week-07/TASK.md"
+    },
+    {
+      "id": "007-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/007-week-07/tasks/007-01-analyze/TASK.md"
+    },
+    {
+      "id": "007-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/007-week-07/tasks/007-02-spec/TASK.md"
+    },
+    {
+      "id": "007-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/007-week-07/tasks/007-03-meta/TASK.md"
+    },
+    {
+      "id": "007-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/007-week-07/tasks/007-04-generate/TASK.md"
+    },
+    {
+      "id": "007-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/007-week-07/tasks/007-05-wire/TASK.md"
+    },
+    {
+      "id": "008-week-08",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/008-week-08/TASK.md"
+    },
+    {
+      "id": "008-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/008-week-08/tasks/008-01-analyze/TASK.md"
+    },
+    {
+      "id": "008-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/008-week-08/tasks/008-02-spec/TASK.md"
+    },
+    {
+      "id": "008-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/008-week-08/tasks/008-03-meta/TASK.md"
+    },
+    {
+      "id": "008-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/008-week-08/tasks/008-04-generate/TASK.md"
+    },
+    {
+      "id": "008-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/008-week-08/tasks/008-05-wire/TASK.md"
+    },
+    {
+      "id": "009-week-09",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/009-week-09/TASK.md"
+    },
+    {
+      "id": "009-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/009-week-09/tasks/009-01-analyze/TASK.md"
+    },
+    {
+      "id": "009-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/009-week-09/tasks/009-02-spec/TASK.md"
+    },
+    {
+      "id": "009-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/009-week-09/tasks/009-03-meta/TASK.md"
+    },
+    {
+      "id": "009-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/009-week-09/tasks/009-04-generate/TASK.md"
+    },
+    {
+      "id": "009-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/009-week-09/tasks/009-05-wire/TASK.md"
+    },
+    {
+      "id": "010-week-10",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/010-week-10/TASK.md"
+    },
+    {
+      "id": "010-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/010-week-10/tasks/010-01-analyze/TASK.md"
+    },
+    {
+      "id": "010-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/010-week-10/tasks/010-02-spec/TASK.md"
+    },
+    {
+      "id": "010-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/010-week-10/tasks/010-03-meta/TASK.md"
+    },
+    {
+      "id": "010-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/010-week-10/tasks/010-04-generate/TASK.md"
+    },
+    {
+      "id": "010-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/010-week-10/tasks/010-05-wire/TASK.md"
+    },
+    {
+      "id": "011-week-11",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/011-week-11/TASK.md"
+    },
+    {
+      "id": "011-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/011-week-11/tasks/011-01-analyze/TASK.md"
+    },
+    {
+      "id": "011-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/011-week-11/tasks/011-02-spec/TASK.md"
+    },
+    {
+      "id": "011-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/011-week-11/tasks/011-03-meta/TASK.md"
+    },
+    {
+      "id": "011-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/011-week-11/tasks/011-04-generate/TASK.md"
+    },
+    {
+      "id": "011-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/011-week-11/tasks/011-05-wire/TASK.md"
+    },
+    {
+      "id": "012-week-12",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/012-week-12/TASK.md"
+    },
+    {
+      "id": "012-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/012-week-12/tasks/012-01-analyze/TASK.md"
+    },
+    {
+      "id": "012-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/012-week-12/tasks/012-02-spec/TASK.md"
+    },
+    {
+      "id": "012-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/012-week-12/tasks/012-03-meta/TASK.md"
+    },
+    {
+      "id": "012-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/012-week-12/tasks/012-04-generate/TASK.md"
+    },
+    {
+      "id": "012-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/012-week-12/tasks/012-05-wire/TASK.md"
+    },
+    {
+      "id": "013-week-13",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/013-week-13/TASK.md"
+    },
+    {
+      "id": "013-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/013-week-13/tasks/013-01-analyze/TASK.md"
+    },
+    {
+      "id": "013-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/013-week-13/tasks/013-02-spec/TASK.md"
+    },
+    {
+      "id": "013-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/013-week-13/tasks/013-03-meta/TASK.md"
+    },
+    {
+      "id": "013-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/013-week-13/tasks/013-04-generate/TASK.md"
+    },
+    {
+      "id": "013-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/013-week-13/tasks/013-05-wire/TASK.md"
+    },
+    {
+      "id": "014-week-14",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/014-week-14/TASK.md"
+    },
+    {
+      "id": "014-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/014-week-14/tasks/014-01-analyze/TASK.md"
+    },
+    {
+      "id": "014-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/014-week-14/tasks/014-02-spec/TASK.md"
+    },
+    {
+      "id": "014-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/014-week-14/tasks/014-03-meta/TASK.md"
+    },
+    {
+      "id": "014-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/014-week-14/tasks/014-04-generate/TASK.md"
+    },
+    {
+      "id": "014-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/014-week-14/tasks/014-05-wire/TASK.md"
+    },
+    {
+      "id": "015-week-15",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/015-week-15/TASK.md"
+    },
+    {
+      "id": "015-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/015-week-15/tasks/015-01-analyze/TASK.md"
+    },
+    {
+      "id": "015-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/015-week-15/tasks/015-02-spec/TASK.md"
+    },
+    {
+      "id": "015-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/015-week-15/tasks/015-03-meta/TASK.md"
+    },
+    {
+      "id": "015-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/015-week-15/tasks/015-04-generate/TASK.md"
+    },
+    {
+      "id": "015-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/015-week-15/tasks/015-05-wire/TASK.md"
+    },
+    {
+      "id": "016-week-16",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/016-week-16/TASK.md"
+    },
+    {
+      "id": "016-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/016-week-16/tasks/016-01-analyze/TASK.md"
+    },
+    {
+      "id": "016-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/016-week-16/tasks/016-02-spec/TASK.md"
+    },
+    {
+      "id": "016-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/016-week-16/tasks/016-03-meta/TASK.md"
+    },
+    {
+      "id": "016-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/016-week-16/tasks/016-04-generate/TASK.md"
+    },
+    {
+      "id": "016-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/016-week-16/tasks/016-05-wire/TASK.md"
+    },
+    {
+      "id": "017-week-17",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/017-week-17/TASK.md"
+    },
+    {
+      "id": "017-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/017-week-17/tasks/017-01-analyze/TASK.md"
+    },
+    {
+      "id": "017-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/017-week-17/tasks/017-02-spec/TASK.md"
+    },
+    {
+      "id": "017-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/017-week-17/tasks/017-03-meta/TASK.md"
+    },
+    {
+      "id": "017-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/017-week-17/tasks/017-04-generate/TASK.md"
+    },
+    {
+      "id": "017-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/017-week-17/tasks/017-05-wire/TASK.md"
+    },
+    {
+      "id": "018-week-18",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/018-week-18/TASK.md"
+    },
+    {
+      "id": "018-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/018-week-18/tasks/018-01-analyze/TASK.md"
+    },
+    {
+      "id": "018-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/018-week-18/tasks/018-02-spec/TASK.md"
+    },
+    {
+      "id": "018-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/018-week-18/tasks/018-03-meta/TASK.md"
+    },
+    {
+      "id": "018-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/018-week-18/tasks/018-04-generate/TASK.md"
+    },
+    {
+      "id": "018-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/018-week-18/tasks/018-05-wire/TASK.md"
+    },
+    {
+      "id": "019-week-19",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/019-week-19/TASK.md"
+    },
+    {
+      "id": "019-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/019-week-19/tasks/019-01-analyze/TASK.md"
+    },
+    {
+      "id": "019-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/019-week-19/tasks/019-02-spec/TASK.md"
+    },
+    {
+      "id": "019-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/019-week-19/tasks/019-03-meta/TASK.md"
+    },
+    {
+      "id": "019-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/019-week-19/tasks/019-04-generate/TASK.md"
+    },
+    {
+      "id": "019-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/019-week-19/tasks/019-05-wire/TASK.md"
+    },
+    {
+      "id": "020-week-20",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/020-week-20/TASK.md"
+    },
+    {
+      "id": "020-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/020-week-20/tasks/020-01-analyze/TASK.md"
+    },
+    {
+      "id": "020-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/020-week-20/tasks/020-02-spec/TASK.md"
+    },
+    {
+      "id": "020-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/020-week-20/tasks/020-03-meta/TASK.md"
+    },
+    {
+      "id": "020-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/020-week-20/tasks/020-04-generate/TASK.md"
+    },
+    {
+      "id": "020-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/020-week-20/tasks/020-05-wire/TASK.md"
+    },
+    {
+      "id": "021-week-21",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/021-week-21/TASK.md"
+    },
+    {
+      "id": "021-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/021-week-21/tasks/021-01-analyze/TASK.md"
+    },
+    {
+      "id": "021-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/021-week-21/tasks/021-02-spec/TASK.md"
+    },
+    {
+      "id": "021-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/021-week-21/tasks/021-03-meta/TASK.md"
+    },
+    {
+      "id": "021-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/021-week-21/tasks/021-04-generate/TASK.md"
+    },
+    {
+      "id": "021-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/021-week-21/tasks/021-05-wire/TASK.md"
+    },
+    {
+      "id": "022-week-22",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/022-week-22/TASK.md"
+    },
+    {
+      "id": "022-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/022-week-22/tasks/022-01-analyze/TASK.md"
+    },
+    {
+      "id": "022-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/022-week-22/tasks/022-02-spec/TASK.md"
+    },
+    {
+      "id": "022-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/022-week-22/tasks/022-03-meta/TASK.md"
+    },
+    {
+      "id": "022-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/022-week-22/tasks/022-04-generate/TASK.md"
+    },
+    {
+      "id": "022-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/022-week-22/tasks/022-05-wire/TASK.md"
+    },
+    {
+      "id": "023-week-23",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/023-week-23/TASK.md"
+    },
+    {
+      "id": "023-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/023-week-23/tasks/023-01-analyze/TASK.md"
+    },
+    {
+      "id": "023-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/023-week-23/tasks/023-02-spec/TASK.md"
+    },
+    {
+      "id": "023-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/023-week-23/tasks/023-03-meta/TASK.md"
+    },
+    {
+      "id": "023-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/023-week-23/tasks/023-04-generate/TASK.md"
+    },
+    {
+      "id": "023-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/023-week-23/tasks/023-05-wire/TASK.md"
+    },
+    {
+      "id": "024-week-24",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/024-week-24/TASK.md"
+    },
+    {
+      "id": "024-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/024-week-24/tasks/024-01-analyze/TASK.md"
+    },
+    {
+      "id": "024-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/024-week-24/tasks/024-02-spec/TASK.md"
+    },
+    {
+      "id": "024-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/024-week-24/tasks/024-03-meta/TASK.md"
+    },
+    {
+      "id": "024-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/024-week-24/tasks/024-04-generate/TASK.md"
+    },
+    {
+      "id": "024-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/024-week-24/tasks/024-05-wire/TASK.md"
+    },
+    {
+      "id": "025-week-25",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/025-week-25/TASK.md"
+    },
+    {
+      "id": "025-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/025-week-25/tasks/025-01-analyze/TASK.md"
+    },
+    {
+      "id": "025-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/025-week-25/tasks/025-02-spec/TASK.md"
+    },
+    {
+      "id": "025-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/025-week-25/tasks/025-03-meta/TASK.md"
+    },
+    {
+      "id": "025-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/025-week-25/tasks/025-04-generate/TASK.md"
+    },
+    {
+      "id": "025-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/025-week-25/tasks/025-05-wire/TASK.md"
+    },
+    {
+      "id": "026-week-26",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/026-week-26/TASK.md"
+    },
+    {
+      "id": "026-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/026-week-26/tasks/026-01-analyze/TASK.md"
+    },
+    {
+      "id": "026-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/026-week-26/tasks/026-02-spec/TASK.md"
+    },
+    {
+      "id": "026-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/026-week-26/tasks/026-03-meta/TASK.md"
+    },
+    {
+      "id": "026-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/026-week-26/tasks/026-04-generate/TASK.md"
+    },
+    {
+      "id": "026-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/026-week-26/tasks/026-05-wire/TASK.md"
+    },
+    {
+      "id": "027-week-27",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/027-week-27/TASK.md"
+    },
+    {
+      "id": "027-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/027-week-27/tasks/027-01-analyze/TASK.md"
+    },
+    {
+      "id": "027-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/027-week-27/tasks/027-02-spec/TASK.md"
+    },
+    {
+      "id": "027-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/027-week-27/tasks/027-03-meta/TASK.md"
+    },
+    {
+      "id": "027-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/027-week-27/tasks/027-04-generate/TASK.md"
+    },
+    {
+      "id": "027-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/027-week-27/tasks/027-05-wire/TASK.md"
+    },
+    {
+      "id": "028-week-28",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/028-week-28/TASK.md"
+    },
+    {
+      "id": "028-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/028-week-28/tasks/028-01-analyze/TASK.md"
+    },
+    {
+      "id": "028-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/028-week-28/tasks/028-02-spec/TASK.md"
+    },
+    {
+      "id": "028-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/028-week-28/tasks/028-03-meta/TASK.md"
+    },
+    {
+      "id": "028-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/028-week-28/tasks/028-04-generate/TASK.md"
+    },
+    {
+      "id": "028-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/028-week-28/tasks/028-05-wire/TASK.md"
+    },
+    {
+      "id": "029-week-29",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/029-week-29/TASK.md"
+    },
+    {
+      "id": "029-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/029-week-29/tasks/029-01-analyze/TASK.md"
+    },
+    {
+      "id": "029-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/029-week-29/tasks/029-02-spec/TASK.md"
+    },
+    {
+      "id": "029-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/029-week-29/tasks/029-03-meta/TASK.md"
+    },
+    {
+      "id": "029-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/029-week-29/tasks/029-04-generate/TASK.md"
+    },
+    {
+      "id": "029-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/029-week-29/tasks/029-05-wire/TASK.md"
+    },
+    {
+      "id": "030-week-30",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/030-week-30/TASK.md"
+    },
+    {
+      "id": "030-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/030-week-30/tasks/030-01-analyze/TASK.md"
+    },
+    {
+      "id": "030-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/030-week-30/tasks/030-02-spec/TASK.md"
+    },
+    {
+      "id": "030-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/030-week-30/tasks/030-03-meta/TASK.md"
+    },
+    {
+      "id": "030-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/030-week-30/tasks/030-04-generate/TASK.md"
+    },
+    {
+      "id": "030-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/030-week-30/tasks/030-05-wire/TASK.md"
+    },
+    {
+      "id": "031-week-31",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/031-week-31/TASK.md"
+    },
+    {
+      "id": "031-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/031-week-31/tasks/031-01-analyze/TASK.md"
+    },
+    {
+      "id": "031-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/031-week-31/tasks/031-02-spec/TASK.md"
+    },
+    {
+      "id": "031-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/031-week-31/tasks/031-03-meta/TASK.md"
+    },
+    {
+      "id": "031-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/031-week-31/tasks/031-04-generate/TASK.md"
+    },
+    {
+      "id": "031-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/031-week-31/tasks/031-05-wire/TASK.md"
+    },
+    {
+      "id": "032-week-32",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/032-week-32/TASK.md"
+    },
+    {
+      "id": "032-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/032-week-32/tasks/032-01-analyze/TASK.md"
+    },
+    {
+      "id": "032-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/032-week-32/tasks/032-02-spec/TASK.md"
+    },
+    {
+      "id": "032-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/032-week-32/tasks/032-03-meta/TASK.md"
+    },
+    {
+      "id": "032-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/032-week-32/tasks/032-04-generate/TASK.md"
+    },
+    {
+      "id": "032-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/032-week-32/tasks/032-05-wire/TASK.md"
+    },
+    {
+      "id": "033-week-33",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/033-week-33/TASK.md"
+    },
+    {
+      "id": "033-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/033-week-33/tasks/033-01-analyze/TASK.md"
+    },
+    {
+      "id": "033-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/033-week-33/tasks/033-02-spec/TASK.md"
+    },
+    {
+      "id": "033-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/033-week-33/tasks/033-03-meta/TASK.md"
+    },
+    {
+      "id": "033-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/033-week-33/tasks/033-04-generate/TASK.md"
+    },
+    {
+      "id": "033-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/033-week-33/tasks/033-05-wire/TASK.md"
+    },
+    {
+      "id": "034-week-34",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/034-week-34/TASK.md"
+    },
+    {
+      "id": "034-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/034-week-34/tasks/034-01-analyze/TASK.md"
+    },
+    {
+      "id": "034-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/034-week-34/tasks/034-02-spec/TASK.md"
+    },
+    {
+      "id": "034-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/034-week-34/tasks/034-03-meta/TASK.md"
+    },
+    {
+      "id": "034-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/034-week-34/tasks/034-04-generate/TASK.md"
+    },
+    {
+      "id": "034-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/034-week-34/tasks/034-05-wire/TASK.md"
+    },
+    {
+      "id": "035-week-35",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/035-week-35/TASK.md"
+    },
+    {
+      "id": "035-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/035-week-35/tasks/035-01-analyze/TASK.md"
+    },
+    {
+      "id": "035-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/035-week-35/tasks/035-02-spec/TASK.md"
+    },
+    {
+      "id": "035-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/035-week-35/tasks/035-03-meta/TASK.md"
+    },
+    {
+      "id": "035-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/035-week-35/tasks/035-04-generate/TASK.md"
+    },
+    {
+      "id": "035-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/035-week-35/tasks/035-05-wire/TASK.md"
+    },
+    {
+      "id": "036-week-36",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/036-week-36/TASK.md"
+    },
+    {
+      "id": "036-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/036-week-36/tasks/036-01-analyze/TASK.md"
+    },
+    {
+      "id": "036-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/036-week-36/tasks/036-02-spec/TASK.md"
+    },
+    {
+      "id": "036-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/036-week-36/tasks/036-03-meta/TASK.md"
+    },
+    {
+      "id": "036-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/036-week-36/tasks/036-04-generate/TASK.md"
+    },
+    {
+      "id": "036-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/036-week-36/tasks/036-05-wire/TASK.md"
+    },
+    {
+      "id": "037-week-37",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/037-week-37/TASK.md"
+    },
+    {
+      "id": "037-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/037-week-37/tasks/037-01-analyze/TASK.md"
+    },
+    {
+      "id": "037-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/037-week-37/tasks/037-02-spec/TASK.md"
+    },
+    {
+      "id": "037-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/037-week-37/tasks/037-03-meta/TASK.md"
+    },
+    {
+      "id": "037-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/037-week-37/tasks/037-04-generate/TASK.md"
+    },
+    {
+      "id": "037-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/037-week-37/tasks/037-05-wire/TASK.md"
+    },
+    {
+      "id": "038-week-38",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/038-week-38/TASK.md"
+    },
+    {
+      "id": "038-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/038-week-38/tasks/038-01-analyze/TASK.md"
+    },
+    {
+      "id": "038-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/038-week-38/tasks/038-02-spec/TASK.md"
+    },
+    {
+      "id": "038-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/038-week-38/tasks/038-03-meta/TASK.md"
+    },
+    {
+      "id": "038-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/038-week-38/tasks/038-04-generate/TASK.md"
+    },
+    {
+      "id": "038-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/038-week-38/tasks/038-05-wire/TASK.md"
+    },
+    {
+      "id": "039-week-39",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/039-week-39/TASK.md"
+    },
+    {
+      "id": "039-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/039-week-39/tasks/039-01-analyze/TASK.md"
+    },
+    {
+      "id": "039-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/039-week-39/tasks/039-02-spec/TASK.md"
+    },
+    {
+      "id": "039-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/039-week-39/tasks/039-03-meta/TASK.md"
+    },
+    {
+      "id": "039-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/039-week-39/tasks/039-04-generate/TASK.md"
+    },
+    {
+      "id": "039-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/039-week-39/tasks/039-05-wire/TASK.md"
+    },
+    {
+      "id": "040-week-40",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/040-week-40/TASK.md"
+    },
+    {
+      "id": "040-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/040-week-40/tasks/040-01-analyze/TASK.md"
+    },
+    {
+      "id": "040-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/040-week-40/tasks/040-02-spec/TASK.md"
+    },
+    {
+      "id": "040-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/040-week-40/tasks/040-03-meta/TASK.md"
+    },
+    {
+      "id": "040-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/040-week-40/tasks/040-04-generate/TASK.md"
+    },
+    {
+      "id": "040-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/040-week-40/tasks/040-05-wire/TASK.md"
+    },
+    {
+      "id": "041-icon-nav-home",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/041-icon-nav-home/TASK.md"
+    },
+    {
+      "id": "041-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/041-icon-nav-home/tasks/041-01-analyze/TASK.md"
+    },
+    {
+      "id": "041-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/041-icon-nav-home/tasks/041-02-spec/TASK.md"
+    },
+    {
+      "id": "041-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/041-icon-nav-home/tasks/041-04-generate/TASK.md"
+    },
+    {
+      "id": "041-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/041-icon-nav-home/tasks/041-05-wire/TASK.md"
+    },
+    {
+      "id": "042-icon-nav-progress",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/042-icon-nav-progress/TASK.md"
+    },
+    {
+      "id": "042-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/042-icon-nav-progress/tasks/042-01-analyze/TASK.md"
+    },
+    {
+      "id": "042-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/042-icon-nav-progress/tasks/042-02-spec/TASK.md"
+    },
+    {
+      "id": "042-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/042-icon-nav-progress/tasks/042-04-generate/TASK.md"
+    },
+    {
+      "id": "042-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/042-icon-nav-progress/tasks/042-05-wire/TASK.md"
+    },
+    {
+      "id": "043-icon-nav-health",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/043-icon-nav-health/TASK.md"
+    },
+    {
+      "id": "043-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/043-icon-nav-health/tasks/043-01-analyze/TASK.md"
+    },
+    {
+      "id": "043-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/043-icon-nav-health/tasks/043-02-spec/TASK.md"
+    },
+    {
+      "id": "043-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/043-icon-nav-health/tasks/043-04-generate/TASK.md"
+    },
+    {
+      "id": "043-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/043-icon-nav-health/tasks/043-05-wire/TASK.md"
+    },
+    {
+      "id": "044-icon-nav-wellness",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/044-icon-nav-wellness/TASK.md"
+    },
+    {
+      "id": "044-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/044-icon-nav-wellness/tasks/044-01-analyze/TASK.md"
+    },
+    {
+      "id": "044-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/044-icon-nav-wellness/tasks/044-02-spec/TASK.md"
+    },
+    {
+      "id": "044-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/044-icon-nav-wellness/tasks/044-04-generate/TASK.md"
+    },
+    {
+      "id": "044-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/044-icon-nav-wellness/tasks/044-05-wire/TASK.md"
+    },
+    {
+      "id": "045-icon-nav-learn",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/045-icon-nav-learn/TASK.md"
+    },
+    {
+      "id": "045-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/045-icon-nav-learn/tasks/045-01-analyze/TASK.md"
+    },
+    {
+      "id": "045-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/045-icon-nav-learn/tasks/045-02-spec/TASK.md"
+    },
+    {
+      "id": "045-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/045-icon-nav-learn/tasks/045-04-generate/TASK.md"
+    },
+    {
+      "id": "045-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/045-icon-nav-learn/tasks/045-05-wire/TASK.md"
+    },
+    {
+      "id": "046-icon-action-add",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/046-icon-action-add/TASK.md"
+    },
+    {
+      "id": "046-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/046-icon-action-add/tasks/046-01-analyze/TASK.md"
+    },
+    {
+      "id": "046-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/046-icon-action-add/tasks/046-02-spec/TASK.md"
+    },
+    {
+      "id": "046-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/046-icon-action-add/tasks/046-04-generate/TASK.md"
+    },
+    {
+      "id": "046-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/046-icon-action-add/tasks/046-05-wire/TASK.md"
+    },
+    {
+      "id": "047-icon-action-edit",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/047-icon-action-edit/TASK.md"
+    },
+    {
+      "id": "047-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/047-icon-action-edit/tasks/047-01-analyze/TASK.md"
+    },
+    {
+      "id": "047-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/047-icon-action-edit/tasks/047-02-spec/TASK.md"
+    },
+    {
+      "id": "047-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/047-icon-action-edit/tasks/047-04-generate/TASK.md"
+    },
+    {
+      "id": "047-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/047-icon-action-edit/tasks/047-05-wire/TASK.md"
+    },
+    {
+      "id": "048-icon-action-delete",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/048-icon-action-delete/TASK.md"
+    },
+    {
+      "id": "048-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/048-icon-action-delete/tasks/048-01-analyze/TASK.md"
+    },
+    {
+      "id": "048-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/048-icon-action-delete/tasks/048-02-spec/TASK.md"
+    },
+    {
+      "id": "048-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/048-icon-action-delete/tasks/048-04-generate/TASK.md"
+    },
+    {
+      "id": "048-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/048-icon-action-delete/tasks/048-05-wire/TASK.md"
+    },
+    {
+      "id": "049-icon-action-share",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/049-icon-action-share/TASK.md"
+    },
+    {
+      "id": "049-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/049-icon-action-share/tasks/049-01-analyze/TASK.md"
+    },
+    {
+      "id": "049-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/049-icon-action-share/tasks/049-02-spec/TASK.md"
+    },
+    {
+      "id": "049-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/049-icon-action-share/tasks/049-04-generate/TASK.md"
+    },
+    {
+      "id": "049-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/049-icon-action-share/tasks/049-05-wire/TASK.md"
+    },
+    {
+      "id": "050-icon-action-bookmark",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/050-icon-action-bookmark/TASK.md"
+    },
+    {
+      "id": "050-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/050-icon-action-bookmark/tasks/050-01-analyze/TASK.md"
+    },
+    {
+      "id": "050-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/050-icon-action-bookmark/tasks/050-02-spec/TASK.md"
+    },
+    {
+      "id": "050-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/050-icon-action-bookmark/tasks/050-04-generate/TASK.md"
+    },
+    {
+      "id": "050-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/050-icon-action-bookmark/tasks/050-05-wire/TASK.md"
+    },
+    {
+      "id": "051-icon-status-mood",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/051-icon-status-mood/TASK.md"
+    },
+    {
+      "id": "051-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/051-icon-status-mood/tasks/051-01-analyze/TASK.md"
+    },
+    {
+      "id": "051-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/051-icon-status-mood/tasks/051-02-spec/TASK.md"
+    },
+    {
+      "id": "051-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/051-icon-status-mood/tasks/051-04-generate/TASK.md"
+    },
+    {
+      "id": "051-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/051-icon-status-mood/tasks/051-05-wire/TASK.md"
+    },
+    {
+      "id": "052-icon-status-weight",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/052-icon-status-weight/TASK.md"
+    },
+    {
+      "id": "052-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/052-icon-status-weight/tasks/052-01-analyze/TASK.md"
+    },
+    {
+      "id": "052-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/052-icon-status-weight/tasks/052-02-spec/TASK.md"
+    },
+    {
+      "id": "052-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/052-icon-status-weight/tasks/052-04-generate/TASK.md"
+    },
+    {
+      "id": "052-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/052-icon-status-weight/tasks/052-05-wire/TASK.md"
+    },
+    {
+      "id": "053-icon-status-cycle",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/053-icon-status-cycle/TASK.md"
+    },
+    {
+      "id": "053-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/053-icon-status-cycle/tasks/053-01-analyze/TASK.md"
+    },
+    {
+      "id": "053-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/053-icon-status-cycle/tasks/053-02-spec/TASK.md"
+    },
+    {
+      "id": "053-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/053-icon-status-cycle/tasks/053-04-generate/TASK.md"
+    },
+    {
+      "id": "053-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/053-icon-status-cycle/tasks/053-05-wire/TASK.md"
+    },
+    {
+      "id": "054-icon-status-symptom",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/054-icon-status-symptom/TASK.md"
+    },
+    {
+      "id": "054-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/054-icon-status-symptom/tasks/054-01-analyze/TASK.md"
+    },
+    {
+      "id": "054-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/054-icon-status-symptom/tasks/054-02-spec/TASK.md"
+    },
+    {
+      "id": "054-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/054-icon-status-symptom/tasks/054-04-generate/TASK.md"
+    },
+    {
+      "id": "054-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/054-icon-status-symptom/tasks/054-05-wire/TASK.md"
+    },
+    {
+      "id": "055-icon-status-reminder",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/055-icon-status-reminder/TASK.md"
+    },
+    {
+      "id": "055-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/055-icon-status-reminder/tasks/055-01-analyze/TASK.md"
+    },
+    {
+      "id": "055-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/055-icon-status-reminder/tasks/055-02-spec/TASK.md"
+    },
+    {
+      "id": "055-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/055-icon-status-reminder/tasks/055-04-generate/TASK.md"
+    },
+    {
+      "id": "055-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/055-icon-status-reminder/tasks/055-05-wire/TASK.md"
+    },
+    {
+      "id": "056-empty-empty-data",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/056-empty-empty-data/TASK.md"
+    },
+    {
+      "id": "056-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/056-empty-empty-data/tasks/056-01-analyze/TASK.md"
+    },
+    {
+      "id": "056-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/056-empty-empty-data/tasks/056-02-spec/TASK.md"
+    },
+    {
+      "id": "056-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/056-empty-empty-data/tasks/056-03-meta/TASK.md"
+    },
+    {
+      "id": "056-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/056-empty-empty-data/tasks/056-04-generate/TASK.md"
+    },
+    {
+      "id": "056-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/056-empty-empty-data/tasks/056-05-wire/TASK.md"
+    },
+    {
+      "id": "057-empty-empty-search",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/057-empty-empty-search/TASK.md"
+    },
+    {
+      "id": "057-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/057-empty-empty-search/tasks/057-01-analyze/TASK.md"
+    },
+    {
+      "id": "057-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/057-empty-empty-search/tasks/057-02-spec/TASK.md"
+    },
+    {
+      "id": "057-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/057-empty-empty-search/tasks/057-03-meta/TASK.md"
+    },
+    {
+      "id": "057-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/057-empty-empty-search/tasks/057-04-generate/TASK.md"
+    },
+    {
+      "id": "057-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/057-empty-empty-search/tasks/057-05-wire/TASK.md"
+    },
+    {
+      "id": "058-empty-error-generic",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/058-empty-error-generic/TASK.md"
+    },
+    {
+      "id": "058-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/058-empty-error-generic/tasks/058-01-analyze/TASK.md"
+    },
+    {
+      "id": "058-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/058-empty-error-generic/tasks/058-02-spec/TASK.md"
+    },
+    {
+      "id": "058-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/058-empty-error-generic/tasks/058-03-meta/TASK.md"
+    },
+    {
+      "id": "058-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/058-empty-error-generic/tasks/058-04-generate/TASK.md"
+    },
+    {
+      "id": "058-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/058-empty-error-generic/tasks/058-05-wire/TASK.md"
+    },
+    {
+      "id": "059-empty-success-celebration",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/059-empty-success-celebration/TASK.md"
+    },
+    {
+      "id": "059-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/059-empty-success-celebration/tasks/059-01-analyze/TASK.md"
+    },
+    {
+      "id": "059-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/059-empty-success-celebration/tasks/059-02-spec/TASK.md"
+    },
+    {
+      "id": "059-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/059-empty-success-celebration/tasks/059-03-meta/TASK.md"
+    },
+    {
+      "id": "059-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/059-empty-success-celebration/tasks/059-04-generate/TASK.md"
+    },
+    {
+      "id": "059-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/059-empty-success-celebration/tasks/059-05-wire/TASK.md"
+    },
+    {
+      "id": "060-empty-offline",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/060-empty-offline/TASK.md"
+    },
+    {
+      "id": "060-01-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/060-empty-offline/tasks/060-01-analyze/TASK.md"
+    },
+    {
+      "id": "060-02-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/060-empty-offline/tasks/060-02-spec/TASK.md"
+    },
+    {
+      "id": "060-03-meta",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/060-empty-offline/tasks/060-03-meta/TASK.md"
+    },
+    {
+      "id": "060-04-generate",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/060-empty-offline/tasks/060-04-generate/TASK.md"
+    },
+    {
+      "id": "060-05-wire",
+      "writeToPath": ".converge/playbooks/default/tasks/04-generate-assets/tasks/060-empty-offline/tasks/060-05-wire/TASK.md"
+    }
+  ]
+}

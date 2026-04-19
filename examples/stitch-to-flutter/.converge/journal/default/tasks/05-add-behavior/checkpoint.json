@@ -1,0 +1,19 @@
+{
+  "type": "task",
+  "id": "05-add-behavior",
+  "status": "pending",
+  "lastUpdated": "2026-04-19T04:45:01.993Z",
+  "createdAt": "2026-04-19T04:40:46.470Z",
+  "progress": {
+    "totalChildren": 4,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-analyze-data-models",
+      "002-create-models",
+      "003-create-mock-data",
+      "004-implement-providers"
+    ],
+    "lastProgressUpdate": "2026-04-19T04:45:01.992Z"
+  }
+}

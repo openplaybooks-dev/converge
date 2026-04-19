@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-dim": "#435752",
+                    "on-error": "#fff7f6",
+                    "inverse-on-surface": "#9e9d99",
+                    "surface-variant": "#e2e3db",
+                    "on-primary-container": "#525252",
+                    "error": "#9e422c",
+                    "surface-bright": "#fbf9f5",
+                    "surface": "#fbf9f5",
+                    "inverse-primary": "#ffffff",
+                    "primary-fixed-dim": "#d4d4d4",
+                    "on-primary": "#f8f8f8",
+                    "on-secondary-fixed": "#3e3f40",
+                    "on-error-container": "#742410",
+                    "tertiary-fixed": "#dff6ee",
+                    "error-dim": "#5c1202",
+                    "surface-container-high": "#e8e9e1",
+                    "on-secondary": "#faf8f8",
+                    "surface-container": "#efeee8",
+                    "background": "#fbf9f5",
+                    "on-tertiary-fixed": "#384c47",
+                    "on-surface-variant": "#5e6059",
+                    "surface-dim": "#d9dbd2",
+                    "outline": "#797b75",
+                    "on-surface": "#31332e",
+                    "on-background": "#31332e",
+                    "secondary-container": "#e3e2e2",
+                    "on-tertiary-fixed-variant": "#546863",
+                    "primary-fixed": "#e2e2e2",
+                    "on-tertiary-container": "#4a5e59",
+                    "tertiary": "#4f635e",
+                    "secondary-dim": "#525353",
+                    "surface-tint": "#5e5e5e",
+                    "on-secondary-fixed-variant": "#5b5b5c",
+                    "outline-variant": "#b1b3ab",
+                    "surface-container-highest": "#e2e3db",
+                    "primary-container": "#e2e2e2",
+                    "secondary-fixed": "#e3e2e2",
+                    "error-container": "#fe8b70",
+                    "primary": "#5e5e5e",
+                    "on-primary-fixed-variant": "#5b5b5b",
+                    "on-primary-fixed": "#3f3f3f",
+                    "surface-container-low": "#f5f4ee",
+                    "on-tertiary": "#e8fef7",
+                    "secondary-fixed-dim": "#d5d4d4",
+                    "on-secondary-container": "#515252",
+                    "tertiary-container": "#dff6ee",
+                    "primary-dim": "#525252",
+                    "tertiary-fixed-dim": "#d1e7e0",
+                    "inverse-surface": "#0e0e0c",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary": "#5e5f5f"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #F4F2EE;
+            font-family: 'Manrope', sans-serif;
+        }
+        .editorial-headline {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            letter-spacing: -0.02em;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .soft-shadow {
+            box-shadow: 0 8px 24px rgba(231, 227, 220, 0.4);
+        }
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="text-on-surface antialiased min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-[#FBF9F5] dark:bg-[#1A1C19] docked full-width top-0 sticky z-50 flex justify-between items-center w-full px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container border border-outline-variant/10">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a kind looking man in a casual sweater, warm editorial lighting, clean background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYqHZ3fB8FT-fm-b-gVPiHvGTeypRVCCn6qxyh1dLEMS3gEs5ZZ-Qkzt4EjbTcNFw2rfZcshGEUY43fbdKvm9kLmyuHFk2Lujy0XlI4DT4k_Y4h6QyRwKNHpyBkqzlzqSYbGooHFMLYzVzGDgEXcdb_HUWdSQXyxtewUk7LxsTv1q5eGI766zG0forUajcEqJMFcLXKcNpgfzQ1EManwwe-iFxQdxbgZjKwE2B8Obxp5IPO9KuuIlhkNdH8lO1hRsuRIwNH7NmguU6"/>
+</div>
+<span class="font-['Plus_Jakarta_Sans'] text-2xl font-extrabold text-[#31332E] dark:text-[#E2E3DE]">Serenity</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center text-[#5E6059] dark:text-[#C7C7C0] hover:bg-[#F5F4EE] dark:hover:bg-[#2A2C29] transition-colors rounded-full scale-95 active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="max-w-md mx-auto px-6 pt-8 space-y-10">
+<!-- Header Section with Asymmetric Breathing Room -->
+<section class="space-y-4 pr-12">
+<div class="inline-flex items-center px-4 py-1.5 rounded-full bg-[#FEF9E7] text-[#91711B] text-xs font-bold uppercase tracking-widest border border-[#F9F0D1]">
+<span class="material-symbols-outlined text-sm mr-2" style="font-variation-settings: 'FILL' 1;">signal_cellular_0_bar</span>
+                Tín hiệu yếu
+            </div>
+<h1 class="editorial-headline text-4xl font-bold text-on-surface leading-tight">
+                Giám sát <br/>đang gián đoạn
+            </h1>
+<p class="text-on-surface-variant text-sm font-medium">Còn Bố đang gần beacon</p>
+</section>
+<!-- Map Section (Large White Card) -->
+<section class="relative">
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden soft-shadow border border-outline-variant/5">
+<div class="h-64 w-full relative">
+<img alt="Map" class="w-full h-full object-cover grayscale-[0.2] opacity-80" data-alt="Clean minimalist map view of a suburban neighborhood with soft muted colors and a single location pin" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhzdtV7nQE09FxOx0ifZvhCuQLcaF2XK12AwG7o7XEYsinL1Wf6vpCrPJTIVBl0vj9UKAuTLsCVZZcqDpjfr54GLJWUP9-Cq7FUH9l3Mfgc3I7cPbsMwERZipBQhZXYWsF-D51L8Hv6w7nWuCyIUpenJ3884lejoCT_dRf12wDviPSHmfFgRSZU7oNZCmqpdBPAz4eVHgeuQK02oS73ROjO7YnazB5oyB3r5wUcPeLf00-5L9IxdijYnbaXDXr4tzep_69hv4DKV81"/>
+<!-- Pulsing Last Seen Marker -->
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="relative">
+<div class="absolute inset-0 bg-error/20 rounded-full animate-ping"></div>
+<div class="relative bg-white p-1 rounded-full shadow-lg border-2 border-error">
+<div class="w-10 h-10 rounded-full overflow-hidden">
+<img alt="Kid" data-alt="Softer calmer portrait of a toddler in a superhero cape, gentle expression, natural warm light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9Y0Q3uB_YV4_HhTq3T7vU6B_V8W4_H9T6vU3B_W4_T7vU6B_V8W4_H9T6vU3B_W4_T7vU6B_V8W4_H9T6vU3B_W4_T7vU6B_V8W4_H9T6vU3B_W4_T7vU6B_V8W4_H9T6vU3B_W4_T7vU6B_V8W4_H9T6vU3B_W4_T7vU6B_V8W4_H9T6vU3B_W4_"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Overlay Legend -->
+<div class="absolute bottom-4 left-4 bg-white/80 backdrop-blur-md px-3 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">
+                        Vị trí cuối cùng: 2 phút trước
+                    </div>
+</div>
+</div>
+</section>
+<!-- Beacon & Status Grid -->
+<section class="grid grid-cols-1 gap-6">
+<!-- Beacon Info Card -->
+<div class="bg-surface-container-lowest rounded-lg soft-shadow overflow-hidden group">
+<div class="p-6 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 bg-surface-container rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="child_care">child_care</span>
+</div>
+<div>
+<p class="font-headline font-bold text-xl text-on-surface">Bé Na</p>
+<p class="text-on-surface-variant text-sm font-medium">Apple AirTag • Beacon</p>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-error font-bold tracking-tighter text-2xl">Xa (Yếu)</span>
+<span class="text-[10px] uppercase font-bold text-on-surface-variant tracking-widest opacity-60">Khoảng cách</span>
+</div>
+</div>
+<!-- Action Row -->
+<button class="w-full flex items-center justify-between px-6 py-4 border-t border-outline-variant/10 hover:bg-surface-container-low transition-colors text-left">
+<span class="text-sm font-bold text-on-surface">Chi tiết beacon</span>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+<!-- Push Notification Mute -->
+<div class="bg-surface-container-low p-6 rounded-lg space-y-4 border border-outline-variant/10">
+<div class="flex justify-between items-center">
+<h3 class="font-headline font-semibold text-on-surface">Tạm dừng thông báo</h3>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="notifications_off">notifications_off</span>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-3 px-2 bg-surface-container-lowest rounded-full text-sm font-bold text-on-surface hover:bg-on-surface hover:text-surface transition-all active:scale-95">5m</button>
+<button class="flex-1 py-3 px-2 bg-surface-container-lowest rounded-full text-sm font-bold text-on-surface hover:bg-on-surface hover:text-surface transition-all active:scale-95">10m</button>
+<button class="flex-1 py-3 px-2 bg-surface-container-lowest rounded-full text-sm font-bold text-on-surface hover:bg-on-surface hover:text-surface transition-all active:scale-95">15m</button>
+</div>
+</div>
+</section>
+<!-- Primary Action -->
+<section class="pt-4">
+<button class="w-full bg-on-surface text-surface py-5 rounded-full font-headline font-bold text-lg flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="radar" style="font-variation-settings: 'FILL' 1;">radar</span>
+                Đang theo dõi
+            </button>
+<p class="text-center mt-6 text-on-surface-variant text-sm font-medium px-8 opacity-80">
+                Chúng tôi sẽ tự động thông báo khi kết nối ổn định trở lại.
+            </p>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-8 pt-4 bg-white/80 dark:bg-[#1A1C19]/80 backdrop-blur-md shadow-[0_-8px_24px_rgba(231,227,220,0.4)] z-50 border-t-[0.5px] border-black/5">
+<a class="flex flex-col items-center justify-center bg-[#31332E] dark:bg-[#E2E3DE] text-white dark:text-[#1A1C19] rounded-full px-5 py-2.5 transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-wider mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#5E6059] dark:text-[#C7C7C0] px-5 py-2.5 hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-wider mt-1">Safety</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#5E6059] dark:text-[#C7C7C0] px-5 py-2.5 hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined" data-icon="event_note">event_note</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-wider mt-1">Logs</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#5E6059] dark:text-[#C7C7C0] px-5 py-2.5 hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-wider mt-1">Settings</span>
+</a>
+</nav>
+</body></html>

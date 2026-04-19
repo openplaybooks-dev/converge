@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary": "#5e5f5f",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-surface": "#0e0e0c",
+                    "tertiary-fixed-dim": "#d1e7e0",
+                    "primary-dim": "#525252",
+                    "tertiary-container": "#dff6ee",
+                    "secondary-fixed-dim": "#d5d4d4",
+                    "on-secondary-container": "#515252",
+                    "surface-container-low": "#f5f4ee",
+                    "on-tertiary": "#e8fef7",
+                    "on-primary-fixed-variant": "#5b5b5b",
+                    "primary": "#5e5e5e",
+                    "on-primary-fixed": "#3f3f3f",
+                    "error-container": "#fe8b70",
+                    "secondary-fixed": "#e3e2e2",
+                    "surface-container-highest": "#e2e3db",
+                    "outline-variant": "#b1b3ab",
+                    "primary-container": "#e2e2e2",
+                    "surface-tint": "#5e5e5e",
+                    "on-secondary-fixed-variant": "#5b5b5c",
+                    "secondary-dim": "#525353",
+                    "primary-fixed": "#e2e2e2",
+                    "secondary-container": "#e3e2e2",
+                    "on-tertiary-fixed-variant": "#546863",
+                    "tertiary": "#4f635e",
+                    "on-tertiary-container": "#4a5e59",
+                    "on-background": "#31332e",
+                    "on-surface": "#31332e",
+                    "surface-dim": "#d9dbd2",
+                    "outline": "#797b75",
+                    "surface-container": "#efeee8",
+                    "background": "#fbf9f5",
+                    "on-surface-variant": "#5e6059",
+                    "on-tertiary-fixed": "#384c47",
+                    "surface-container-high": "#e8e9e1",
+                    "on-secondary": "#faf8f8",
+                    "error-dim": "#5c1202",
+                    "tertiary-fixed": "#dff6ee",
+                    "on-secondary-fixed": "#3e3f40",
+                    "on-error-container": "#742410",
+                    "primary-fixed-dim": "#d4d4d4",
+                    "on-primary": "#f8f8f8",
+                    "surface-bright": "#fbf9f5",
+                    "surface": "#fbf9f5",
+                    "inverse-primary": "#ffffff",
+                    "surface-variant": "#e2e3db",
+                    "on-primary-container": "#525252",
+                    "error": "#9e422c",
+                    "inverse-on-surface": "#9e9d99",
+                    "on-error": "#fff7f6",
+                    "tertiary-dim": "#435752"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; background-color: #fbf9f5; }
+        .plus-jakarta { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .map-gradient {
+            background: linear-gradient(135deg, rgba(223, 246, 238, 0.4) 0%, rgba(226, 227, 219, 0.2) 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface selection:bg-tertiary-fixed-dim">
+<!-- TopAppBar -->
+<header class="fixed top-0 z-40 w-full bg-[#fbf9f5] dark:bg-stone-950 flex justify-between items-center px-6 py-4">
+<div class="flex items-center gap-4">
+<button class="hover:bg-[#f5f4ee] dark:hover:bg-stone-900 transition-colors p-2 rounded-full scale-95 active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined text-[#31332e] dark:text-stone-100" data-icon="menu">menu</span>
+</button>
+</div>
+<h1 class="font-['Plus_Jakarta_Sans'] font-bold tracking-tight text-xl text-[#31332e] dark:text-stone-100">Safe Zones</h1>
+<div class="flex items-center">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-surface-container-highest">
+<img alt="Parent Profile" class="w-full h-full object-cover" data-alt="Portrait of a smiling parent in soft natural light against a neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFY4MgXwlozxAoqZPzg8_5mhpch_h7zaZMK7p1sradwAn73iTsdyqsbgJpr2m2O7ZkPiv12aW3DOQSqjn0kaCcMBWpFTqu-AcHNvBn0s6ZlrgkGaHYi5iFJRkjeeGxO7lDn-Uy_rO5xinsVhzum07gsgEQh-KEDXmw_upl9pB7XyPv7h4yFEEWZxiwth40CG0SwS-qseysiHrsGgFjUWlBM7L4UYPqIND_pYjk1HJ-vc9RAg0cFO5lykl-Cb3c5KFROOn5z1436wT0"/>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto space-y-10">
+<!-- Hero Editorial Section -->
+<section class="space-y-4">
+<span class="font-label text-on-surface-variant tracking-widest text-[10px] uppercase font-bold">Guardian Overlook</span>
+<h2 class="font-headline text-4xl font-extrabold tracking-tight text-on-background leading-tight">
+                Peace of mind, <br/>defined by boundaries.
+            </h2>
+</section>
+<!-- Mini Map Card -->
+<section class="relative group">
+<div class="bg-surface-container-lowest rounded-lg overflow-hidden shadow-[0_8px_24px_rgba(231,227,220,0.4)] transition-transform duration-500 hover:scale-[1.01]">
+<div class="relative h-64 w-full bg-surface-container">
+<!-- Map Visualization -->
+<img class="w-full h-full object-cover opacity-60 grayscale-[0.3]" data-alt="Abstract minimal map view of a residential neighborhood with clean streets and soft colors" data-location="Hanoi" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCP3WAqpEniQ7Z6u5lJcCIE6RJvIlgiYl7ubjE8qKiFJS0Xqd5bw2ABeepRagTr86Hfjez7C19sQO_XNfVtLuoX6aRh9O97AFVw2pKcGNkldyDm2NXRkjyDZ2f8mECaQwSadLqiTkU329PTy2aCSySXlyYIEe5E8IVW8AoJ2ZtSyFHCSAC9EbhZrwxudrCLEcgD_WtJmYZ_cA5GL9vMS3CzU9X3bXXAtqmEnGjOxewkg1nmiq4L9FEIhdWkzeutPDCiWC1APpqduZsf"/>
+<!-- Overlapping Safe Zones Visual -->
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="relative w-48 h-48">
+<!-- Safe Zone A -->
+<div class="absolute top-0 left-0 w-32 h-32 bg-tertiary/20 border-2 border-tertiary rounded-full animate-pulse"></div>
+<!-- Safe Zone B -->
+<div class="absolute bottom-4 right-0 w-28 h-28 bg-primary/10 border-2 border-primary/30 rounded-full"></div>
+<!-- Safe Zone C -->
+<div class="absolute top-10 right-4 w-24 h-24 bg-tertiary-fixed-dim/40 border-2 border-tertiary-dim rounded-full"></div>
+<!-- Baby Avatar Marker -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+<div class="w-10 h-10 bg-on-surface rounded-full p-1 shadow-xl">
+<img class="w-full h-full object-cover rounded-full" data-alt="Close-up of a cute toddler face looking into camera with soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCz-clyJYBlQmqBRUaSg7q3rYd_pc-LnKXy_AJqyydyBnCBfsrVJwtukLiV60vScbG-IzvwYR-QhS76dNToeZY5kA0OTPTospWDBa1-tBphK7QA-Amrl9pL7f-OpoLJL5nzuexwWEqOUrq8KWpjWlzPwJgiUSzPWvOOTR7FuywdWRJ_DPr5Yv9_lpWtHLxB1vtGcfQwqtxVUZExmTYcxypfZKjGDLwrYNrTTYHiqN1Yhnu8WLuA82zbkyzTESsjO2SS5SxskJT6MQD3"/>
+</div>
+<div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-on-surface rotate-45"></div>
+</div>
+</div>
+</div>
+<!-- Glassmorphism Overlay -->
+<div class="absolute bottom-4 left-4 right-4 bg-white/80 backdrop-blur-xl p-4 rounded-md flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-tertiary" data-icon="verified_user" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<div>
+<p class="text-[12px] font-bold text-on-surface">Tracking Active</p>
+<p class="text-[10px] text-on-surface-variant">3 Active Zones Monitored</p>
+</div>
+</div>
+<span class="text-[10px] font-bold py-1 px-3 bg-tertiary-container text-tertiary rounded-full">LIVE</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Safe Zone List -->
+<section class="space-y-6">
+<div class="flex items-end justify-between px-2">
+<h3 class="font-headline text-2xl font-bold tracking-tight">Active Zones</h3>
+<span class="font-label text-on-surface-variant text-xs">Scroll to explore</span>
+</div>
+<div class="grid gap-4">
+<!-- Zone Card 1: Home -->
+<div class="bg-surface-container-lowest p-6 rounded-lg flex items-center justify-between shadow-[0_4px_12px_rgba(231,227,220,0.2)] hover:shadow-[0_8px_24px_rgba(231,227,220,0.3)] transition-all">
+<div class="flex gap-4 items-center">
+<div class="w-12 h-12 bg-surface-container-low rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface" data-icon="home">home</span>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<h4 class="font-headline font-bold text-on-surface">Home</h4>
+<span class="bg-tertiary-container text-tertiary text-[10px] font-bold px-2 py-0.5 rounded-full">200m</span>
+</div>
+<p class="text-on-surface-variant text-sm max-w-[180px] truncate">123 Calm Valley Street, Serenity District</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-12 h-6 bg-tertiary rounded-full relative flex items-center transition-colors">
+<div class="w-4 h-4 bg-surface-container-lowest rounded-full absolute right-1"></div>
+</button>
+<button class="text-outline-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+</div>
+</div>
+<!-- Zone Card 2: School -->
+<div class="bg-surface-container-lowest p-6 rounded-lg flex items-center justify-between shadow-[0_4px_12px_rgba(231,227,220,0.2)] hover:shadow-[0_8px_24px_rgba(231,227,220,0.3)] transition-all">
+<div class="flex gap-4 items-center">
+<div class="w-12 h-12 bg-surface-container-low rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface" data-icon="school">school</span>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<h4 class="font-headline font-bold text-on-surface">School</h4>
+<span class="bg-tertiary-container text-tertiary text-[10px] font-bold px-2 py-0.5 rounded-full">500m</span>
+</div>
+<p class="text-on-surface-variant text-sm max-w-[180px] truncate">456 Bright Minds Academy, Knowledge Ave</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-12 h-6 bg-tertiary rounded-full relative flex items-center transition-colors">
+<div class="w-4 h-4 bg-surface-container-lowest rounded-full absolute right-1"></div>
+</button>
+<button class="text-outline-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+</div>
+</div>
+<!-- Zone Card 3: Grandma's House -->
+<div class="bg-surface-container-lowest p-6 rounded-lg flex items-center justify-between shadow-[0_4px_12px_rgba(231,227,220,0.2)] hover:shadow-[0_8px_24px_rgba(231,227,220,0.3)] transition-all">
+<div class="flex gap-4 items-center">
+<div class="w-12 h-12 bg-surface-container-low rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface" data-icon="favorite">favorite</span>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<h4 class="font-headline font-bold text-on-surface">Grandma's House</h4>
+<span class="bg-surface-container-highest text-on-surface-variant text-[10px] font-bold px-2 py-0.5 rounded-full">150m</span>
+</div>
+<p class="text-on-surface-variant text-sm max-w-[180px] truncate">789 Orchard Grove, Heritage Park</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<!-- Inactive State -->
+<button class="w-12 h-6 bg-outline-variant rounded-full relative flex items-center transition-colors">
+<div class="w-4 h-4 bg-surface-container-lowest rounded-full absolute left-1"></div>
+</button>
+<button class="text-outline-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Insights Bento Preview -->
+<section class="grid grid-cols-2 gap-4 pb-12">
+<div class="bg-surface-container-low p-6 rounded-lg space-y-2">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="notifications_active">notifications_active</span>
+<p class="font-headline font-bold text-xl leading-tight">24 Alerts</p>
+<p class="text-on-surface-variant text-xs">This week's entry/exit events</p>
+</div>
+<div class="bg-tertiary-container p-6 rounded-lg space-y-2">
+<span class="material-symbols-outlined text-tertiary" data-icon="battery_full" style="font-variation-settings: 'FILL' 1;">battery_full</span>
+<p class="font-headline font-bold text-xl leading-tight text-on-tertiary-container">98% Secure</p>
+<p class="text-on-tertiary-fixed-variant text-xs">Optimal zone coverage</p>
+</div>
+</section>
+</main>
+<!-- FAB -->
+<button class="fixed bottom-28 right-6 z-50 bg-[#31332e] text-white flex items-center gap-3 px-6 py-4 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all group">
+<span class="material-symbols-outlined group-hover:rotate-90 transition-transform duration-300" data-icon="add">add</span>
+<span class="font-headline font-bold text-sm tracking-wide">Thêm vùng an toàn</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-8 pt-4 bg-white/80 dark:bg-stone-900/80 backdrop-blur-xl rounded-t-[2rem]">
+<a class="flex flex-col items-center justify-center text-[#5e6059] dark:text-stone-400 px-5 py-2 hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-['Manrope'] font-medium text-[11px] tracking-wide uppercase">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#31332e] dark:bg-stone-100 text-white dark:text-stone-950 rounded-full px-5 py-2 scale-95 transition-all duration-300 ease-out" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="location_on" style="font-variation-settings: 'FILL' 1;">location_on</span>
+<span class="font-['Manrope'] font-medium text-[11px] tracking-wide uppercase">Zones</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#5e6059] dark:text-stone-400 px-5 py-2 hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="event_note">event_note</span>
+<span class="font-['Manrope'] font-medium text-[11px] tracking-wide uppercase">Activity</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#5e6059] dark:text-stone-400 px-5 py-2 hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="person">person</span>
+<span class="font-['Manrope'] font-medium text-[11px] tracking-wide uppercase">Account</span>
+</a>
+</nav>
+</body></html>

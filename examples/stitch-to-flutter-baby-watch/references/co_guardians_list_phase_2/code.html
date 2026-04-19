@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-dim": "#435752",
+                        "tertiary-container": "#dff6ee",
+                        "inverse-primary": "#ffffff",
+                        "on-tertiary-fixed": "#384c47",
+                        "on-error-container": "#742410",
+                        "on-surface-variant": "#5e6059",
+                        "surface": "#fbf9f5",
+                        "tertiary": "#4f635e",
+                        "on-primary-fixed": "#3f3f3f",
+                        "on-secondary-fixed": "#3e3f40",
+                        "on-primary-container": "#525252",
+                        "secondary-dim": "#525353",
+                        "surface-container": "#efeee8",
+                        "background": "#fbf9f5",
+                        "primary-dim": "#525252",
+                        "on-primary": "#f8f8f8",
+                        "primary": "#5e5e5e",
+                        "inverse-on-surface": "#9e9d99",
+                        "secondary": "#5e5f5f",
+                        "error-dim": "#5c1202",
+                        "on-secondary-fixed-variant": "#5b5b5c",
+                        "surface-container-high": "#e8e9e1",
+                        "on-secondary": "#faf8f8",
+                        "primary-fixed-dim": "#d4d4d4",
+                        "tertiary-fixed": "#dff6ee",
+                        "surface-container-low": "#f5f4ee",
+                        "surface-bright": "#fbf9f5",
+                        "secondary-fixed": "#e3e2e2",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#515252",
+                        "tertiary-fixed-dim": "#d1e7e0",
+                        "secondary-fixed-dim": "#d5d4d4",
+                        "primary-fixed": "#e2e2e2",
+                        "error": "#9e422c",
+                        "on-background": "#31332e",
+                        "on-tertiary-container": "#4a5e59",
+                        "on-surface": "#31332e",
+                        "on-error": "#fff7f6",
+                        "on-tertiary": "#e8fef7",
+                        "surface-dim": "#d9dbd2",
+                        "on-primary-fixed-variant": "#5b5b5b",
+                        "secondary-container": "#e3e2e2",
+                        "outline-variant": "#b1b3ab",
+                        "outline": "#797b75",
+                        "inverse-surface": "#0e0e0c",
+                        "surface-container-highest": "#e2e3db",
+                        "surface-variant": "#e2e3db",
+                        "error-container": "#fe8b70",
+                        "primary-container": "#e2e2e2",
+                        "surface-tint": "#5e5e5e",
+                        "on-tertiary-fixed-variant": "#546863"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #fbf9f5;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface antialiased pb-32">
+<!-- TopAppBar -->
+<header class="bg-[#fbf9f5] flex items-center justify-between px-6 py-4 w-full sticky top-0 z-40">
+<div class="flex items-center gap-4">
+<button class="hover:bg-[#f5f4ee] transition-colors p-2 rounded-full active:scale-95 duration-150">
+<span class="material-symbols-outlined text-[#31332e]" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="text-xl font-['Plus_Jakarta_Sans'] font-bold tracking-tight text-[#31332e]">Co-guardians</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="bg-on-surface text-surface px-6 py-2 rounded-full font-label font-semibold text-sm hover:opacity-90 active:scale-95 transition-all">
+                Invite
+            </button>
+</div>
+</header>
+<main class="max-w-2xl mx-auto px-6">
+<!-- Page Introduction -->
+<section class="mt-8 mb-12">
+<h2 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface mb-2">
+                Người cùng theo dõi - Bé Na
+            </h2>
+<div class="flex items-center gap-2 text-on-surface-variant font-label text-sm">
+<span class="material-symbols-outlined text-base" data-icon="expand_more">expand_more</span>
+<span>Kéo xuống để cập nhật</span>
+</div>
+</section>
+<!-- Secondary Toolbar -->
+<div class="flex justify-between items-center mb-6">
+<span class="font-headline font-bold text-on-surface-variant uppercase tracking-widest text-xs">Danh sách thành viên</span>
+<div class="flex gap-1">
+<button class="bg-surface-container-high p-3 rounded-full hover:bg-surface-variant transition-colors flex items-center gap-2 pr-5">
+<span class="material-symbols-outlined text-on-surface" data-icon="add">add</span>
+<span class="text-sm font-bold text-on-surface">Mời người</span>
+</button>
+<button class="bg-surface-container-high p-3 rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-on-surface" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Guardians List Card -->
+<div class="bg-surface-container-lowest rounded-lg shadow-[0_8px_24px_rgba(231,227,220,0.4)] overflow-hidden">
+<div class="flex flex-col">
+<!-- Row 1: Mẹ -->
+<div class="p-6 flex items-center justify-between transition-all hover:bg-surface-container-low cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 rounded-full bg-secondary-container flex items-center justify-center font-headline font-bold text-on-secondary-container text-lg border-2 border-surface">
+                            M
+                        </div>
+<div class="flex flex-col gap-1">
+<span class="font-headline font-bold text-lg text-on-surface">Mẹ</span>
+<span class="text-sm text-on-surface-variant">Cập nhật 2 phút trước</span>
+</div>
+</div>
+<div class="bg-tertiary-container text-tertiary px-4 py-1.5 rounded-full text-xs font-bold font-label">
+                        Đang gần beacon
+                    </div>
+</div>
+<!-- Row 2: Bố -->
+<div class="p-6 flex items-center justify-between transition-all hover:bg-surface-container-low cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 rounded-full bg-surface-variant flex items-center justify-center font-headline font-bold text-on-surface-variant text-lg border-2 border-surface">
+                            B
+                        </div>
+<div class="flex flex-col gap-1">
+<span class="font-headline font-bold text-lg text-on-surface">Bố</span>
+<span class="text-sm text-on-surface-variant">Cập nhật 10 phút trước</span>
+</div>
+</div>
+<div class="bg-surface-container-high text-on-surface-variant px-4 py-1.5 rounded-full text-xs font-bold font-label">
+                        Xa
+                    </div>
+</div>
+<!-- Row 3: Ông nội -->
+<div class="p-6 flex items-center justify-between transition-all hover:bg-surface-container-low cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 rounded-full bg-surface-dim flex items-center justify-center font-headline font-bold text-on-surface text-lg border-2 border-surface">
+                            ON
+                        </div>
+<div class="flex flex-col gap-1">
+<span class="font-headline font-bold text-lg text-on-surface">Ông nội</span>
+<span class="text-sm text-on-surface-variant">Cập nhật 1 giờ trước</span>
+</div>
+</div>
+<div class="bg-error-container text-on-error-container px-4 py-1.5 rounded-full text-xs font-bold font-label">
+                        Ngoại tuyến
+                    </div>
+</div>
+<!-- Row 4: Bà ngoại -->
+<div class="p-6 flex items-center justify-between transition-all hover:bg-surface-container-low cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 rounded-full bg-primary-container flex items-center justify-center font-headline font-bold text-on-primary-container text-lg border-2 border-surface">
+                            BN
+                        </div>
+<div class="flex flex-col gap-1">
+<span class="font-headline font-bold text-lg text-on-surface">Bà ngoại</span>
+<span class="text-sm text-on-surface-variant">Cập nhật 5 phút trước</span>
+</div>
+</div>
+<div class="bg-[#fef3c7] text-[#92400e] px-4 py-1.5 rounded-full text-xs font-bold font-label">
+                        Tạm dừng
+                    </div>
+</div>
+</div>
+</div>
+<!-- Asymmetric Breathing Section -->
+<div class="mt-16 flex flex-col md:flex-row gap-8 items-start">
+<div class="bg-surface-container-low p-8 rounded-lg flex-1">
+<span class="material-symbols-outlined text-primary mb-4 text-3xl" data-icon="verified_user">verified_user</span>
+<h3 class="font-headline font-bold text-xl text-on-surface mb-2">Quyền truy cập</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed">
+                    Tất cả người cùng theo dõi có thể xem vị trí thời gian thực của Bé Na qua beacon gắn trên quần áo.
+                </p>
+</div>
+<div class="bg-tertiary-container/30 p-8 rounded-lg flex-1 md:mt-12">
+<span class="material-symbols-outlined text-tertiary mb-4 text-3xl" data-icon="auto_awesome">auto_awesome</span>
+<h3 class="font-headline font-bold text-xl text-tertiary mb-2">Lịch sử an toàn</h3>
+<p class="text-on-tertiary-container text-sm leading-relaxed">
+                    Xem lại các mốc thời gian Bé Na ở gần người thân trong mục Hoạt động.
+                </p>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pt-3 pb-8 bg-[#ffffff]/80 backdrop-blur-xl rounded-t-[32px] shadow-[0_-8px_24px_rgba(231,227,220,0.4)]">
+<a class="flex flex-col items-center justify-center text-[#5e6059] px-5 py-2 hover:opacity-80 transition-opacity active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="child_care">child_care</span>
+<span class="font-['Manrope'] text-[11px] font-semibold tracking-wide">Monitor</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#31332e] bg-[#f5f4ee] rounded-[24px] px-5 py-2 hover:opacity-80 transition-opacity active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-['Manrope'] text-[11px] font-semibold tracking-wide">Guardians</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#5e6059] px-5 py-2 hover:opacity-80 transition-opacity active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="history">history</span>
+<span class="font-['Manrope'] text-[11px] font-semibold tracking-wide">Activity</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#5e6059] px-5 py-2 hover:opacity-80 transition-opacity active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="settings">settings</span>
+<span class="font-['Manrope'] text-[11px] font-semibold tracking-wide">Settings</span>
+</a>
+</nav>
+</body></html>

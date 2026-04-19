@@ -1,0 +1,246 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-generate-assets/003-week-03/003-05-wire-missing-output-lib/widgets/assets/week-03_asset.dart",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-generate-assets/003-week-03/003-05-wire",
+            "severity": "high",
+            "description": "[04-generate-assets/003-week-03/003-05-wire] Task output not created: lib/widgets/assets/week-03_asset.dart",
+            "source": "unit",
+            "detected": "2026-04-19T04:35:41.265Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/04-generate-assets/tasks/003-week-03/tasks/003-05-wire",
+              "taskId": "04-generate-assets/003-week-03/003-05-wire",
+              "taskTitle": "Wire — baby-size: Week 3",
+              "taskPrompt": "# Wire Asset to Code\n\nConnect the generated asset to the Flutter application.\n\n## Tasks\n\n1. **Create Asset Widget** — Wrapper widget for this asset\n2. **Update pubspec.yaml** — Add asset path (if not already present)\n3. **Update Usage Sites** — Replace placeholders with actual asset\n\n## Asset Widget\n\nCreate `lib/widgets/assets/week-03_asset.dart`:\n\n```dart\nimport 'package:flutter/material.dart';\nimport 'package:flutter_svg/flutter_svg.dart';\n\n/// Week 3 baby size illustration showing a poppy seed.\nclass Week03Asset extends StatelessWidget {\n  const Week03Asset({\n    super.key,\n    this.width,\n    this.height,\n  });\n\n  final double? width;\n  final double? height;\n\n  @override\n  Widget build(BuildContext context) {\n    return SvgPicture.asset(\n      'assets/illustrations/baby-sizes/week-03.svg',\n      width: width ?? 200.0,\n      height: height ?? 200.0,\n    );\n  }\n}\n```\n\n## Update HeroIllustrationCard\n\nReplace the CustomPainter placeholder in `lib/screens/home/_widgets/hero_illustration_card.dart`:\n\n```dart\n// OLD:\nCustomPaint(\n  painter: _HeroIllustrationPainter(sizeComparison: sizeComparison),\n)\n\n// NEW:\nWeek03Asset(\n  width: 140,\n  height: 140,\n)\n```\n\nNote: The card should look up the appropriate asset based on `weekNumber`.\n\n## Verify\n\nRun checks to ensure:\n1. Widget compiles without errors\n2. Asset displays correctly\n3. No placeholder code remains",
+              "taskSkill": "flutter-asset-integration",
+              "taskInputs": [
+                "assets/illustrations/baby-sizes/week-03.svg",
+                "assets/illustrations/baby-sizes/week-03.svg.meta.json"
+              ],
+              "factId": "file-exists:test -f \"lib/widgets/assets/week-03_asset.dart\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-generate-assets/003-week-03/003-05-wire-check-failed-widget-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-generate-assets/003-week-03/003-05-wire",
+            "severity": "high",
+            "description": "[04-generate-assets/003-week-03/003-05-wire] Check failed: Asset widget was created",
+            "source": "unit",
+            "detected": "2026-04-19T04:35:41.267Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "widget-exists",
+              "checkCmd": "test -f lib/widgets/assets/week-03_asset.dart",
+              "checkDescription": "Asset widget was created",
+              "checkOutput": "Command failed: test -f lib/widgets/assets/week-03_asset.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Wire Asset to Code\n\nConnect the generated asset to the Flutter application.\n\n## Tasks\n\n1. **Create Asset Widget** — Wrapper widget for this asset\n2. **Update pubspec.yaml** — Add asset path (if not already present)\n3. **Update Usage Sites** — Replace placeholders with actual asset\n\n## Asset Widget\n\nCreate `lib/widgets/assets/week-03_asset.dart`:\n\n```dart\nimport 'package:flutter/material.dart';\nimport 'package:flutter_svg/flutter_svg.dart';\n\n/// Week 3 baby size illustration showing a poppy seed.\nclass Week03Asset extends StatelessWidget {\n  const Week03Asset({\n    super.key,\n    this.width,\n    this.height,\n  });\n\n  final double? width;\n  final double? height;\n\n  @override\n  Widget build(BuildContext context) {\n    return SvgPicture.asset(\n      'assets/illustrations/baby-sizes/week-03.svg',\n      width: width ?? 200.0,\n      height: height ?? 200.0,\n    );\n  }\n}\n```\n\n## Update HeroIllustrationCard\n\nReplace the CustomPainter placeholder in `lib/screens/home/_widgets/hero_illustration_card.dart`:\n\n```dart\n// OLD:\nCustomPaint(\n  painter: _HeroIllustrationPainter(sizeComparison: sizeComparison),\n)\n\n// NEW:\nWeek03Asset(\n  width: 140,\n  height: 140,\n)\n```\n\nNote: The card should look up the appropriate asset based on `weekNumber`.\n\n## Verify\n\nRun checks to ensure:\n1. Widget compiles without errors\n2. Asset displays correctly\n3. No placeholder code remains",
+              "taskSkill": "flutter-asset-integration",
+              "taskId": "04-generate-assets/003-week-03/003-05-wire",
+              "taskTitle": "Wire — baby-size: Week 3",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/04-generate-assets/tasks/003-week-03/tasks/003-05-wire",
+              "factId": "check:widget-exists"
+            }
+          }
+        ],
+        "durationMs": 125
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 124
+      }
+    },
+    {
+      "id": "run-skill",
+      "handler": "run-skill",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 64
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 1431
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#15",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 42370
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-19T04:35:41.256Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-19T04:35:41.257Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-19T04:35:41.382Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-19T04:35:41.384Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "run-skill",
+      "iteration": 1,
+      "ts": "2026-04-19T04:35:41.386Z"
+    },
+    {
+      "from": "run-skill",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-19T04:35:41.510Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#15",
+      "iteration": 1,
+      "ts": "2026-04-19T04:36:23.881Z"
+    },
+    {
+      "from": "run-strategy:task-run#15",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-19T04:36:25.313Z"
+    }
+  ]
+}

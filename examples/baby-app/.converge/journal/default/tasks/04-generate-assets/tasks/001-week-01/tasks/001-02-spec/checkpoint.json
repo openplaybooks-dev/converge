@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "04-generate-assets/001-week-01/001-02-spec",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T04:24:46.996Z",
+  "createdAt": "2026-04-19T04:23:42.989Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T04:23:42.989Z",
+      "completedAt": "2026-04-19T04:24:46.992Z",
+      "outcome": "success",
+      "durationMs": 64003
+    }
+  ],
+  "currentAttempt": 1
+}

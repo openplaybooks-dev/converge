@@ -6,15 +6,27 @@
  * Level 3: Pipeline steps per asset (analyze, spec, meta, generate, wire)
  *
  * Categories run sequentially. Within a category, assets can be batched.
+ *
+ * Uses 2 template sets:
+ *   - templates/illustration  (baby-size + empty-state — 200x200 SVGs)
+ *   - templates/icon          (feature icons — 24x24 outlined SVGs, no meta step)
  */
 
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
+/** Convert kebab-case id to PascalCase widget name */
+function toPascalCase(str) {
+  return str.replace(/(^|-)(\w)/g, (_, _sep, c) => c.toUpperCase());
+}
+
+const WBS_ROOT = '.converge/playbooks/default/tasks/04-generate-assets/wbs/templates';
+
 /**
  * Generate asset tasks for baby size illustrations (40 weeks)
  */
-async function spawnBabySizeAssets(ctx, startIdx, templateBase, vars) {
+async function spawnBabySizeAssets(ctx, startIdx, vars) {
+  const templateBase = `${WBS_ROOT}/illustration`;
   const weeks = [
     { week: 1, comparison: 'poppy seed', emoji: '🌱', trimester: 1 },
     { week: 2, comparison: 'poppy seed', emoji: '🌱', trimester: 1 },
@@ -66,6 +78,7 @@ async function spawnBabySizeAssets(ctx, startIdx, templateBase, vars) {
     const assetId = `week-${String(week).padStart(2, '0')}`;
     const fileName = `${assetId}.svg`;
     const assetTaskId = `${prefix}-${assetId}`;
+    const outputPath = `assets/illustrations/baby-sizes/${fileName}`;
 
     const assetVars = {
       ...vars,
@@ -77,8 +90,57 @@ async function spawnBabySizeAssets(ctx, startIdx, templateBase, vars) {
       emoji,
       trimester,
       assetType: 'baby-size',
-      outputPath: `assets/illustrations/baby-sizes/${fileName}`,
+      outputPath,
       assetTaskId,
+      assetLabel: `Week ${week}`,
+      assetWidgetName: toPascalCase(assetId),
+      assetDescription: `Week ${week} baby size illustration showing a ${comparison}.`,
+      contextBlock: [
+        `**Baby Size Illustration — Week ${week}**`,
+        `- Size comparison: "${comparison}" ${emoji}`,
+        `- Trimester: ${trimester}`,
+        '- Used in: HeroIllustrationCard on HomeScreen',
+        '- Data source: WeekContent.sizeComparison field',
+      ].join('\n'),
+      specOverview: `Baby size comparison illustration showing a ${comparison} alongside a gestational sac/fetus at week ${week}.`,
+      metaTitle: `Week ${week} Baby Size`,
+      metaTags: `["baby-size", "pregnancy", "week-${week}", "${comparison}"]`,
+      generateGuidelines: [
+        '### Baby Size Illustration Specifics',
+        '',
+        'Create an SVG showing:',
+        `1. A cute, stylized ${comparison} (the fruit/vegetable)`,
+        '2. A subtle gestational sac or baby silhouette',
+        '3. Soft, friendly illustration style',
+        '4. Coral (#FF6B6B) and lilac (#9B59B6) accent colors',
+        '5. Clean vector lines suitable for scaling',
+        '',
+        'Design system:',
+        '- Use rounded, organic shapes',
+        '- Subtle gradient fills (if any) should be simple 2-color',
+        '- Background: transparent',
+        '- Style: Modern flat illustration with soft shadows',
+      ].join('\n'),
+      wireInstructions: [
+        '## Update HeroIllustrationCard',
+        '',
+        `Replace the CustomPainter placeholder in \`lib/screens/home/_widgets/hero_illustration_card.dart\`:`,
+        '',
+        '```dart',
+        '// OLD:',
+        'CustomPaint(',
+        '  painter: _HeroIllustrationPainter(sizeComparison: sizeComparison),',
+        ')',
+        '',
+        '// NEW:',
+        `${toPascalCase(assetId)}Asset(`,
+        '  width: 140,',
+        '  height: 140,',
+        ')',
+        '```',
+        '',
+        'Note: The card should look up the appropriate asset based on `weekNumber`.',
+      ].join('\n'),
     };
 
     // Level 1: Asset parent task
@@ -91,7 +153,7 @@ async function spawnBabySizeAssets(ctx, startIdx, templateBase, vars) {
       body: `Generate baby size illustration for week ${week} — baby is the size of a ${comparison}.`,
     });
 
-    // Level 2: Pipeline steps from templates
+    // Level 2: Pipeline steps from illustration templates
     const basePath = `.converge/playbooks/default/tasks/04-generate-assets/tasks/${assetTaskId}`;
     const steps = ['01-analyze', '02-spec', '03-meta', '04-generate', '05-wire'];
 
@@ -115,7 +177,8 @@ async function spawnBabySizeAssets(ctx, startIdx, templateBase, vars) {
 /**
  * Generate asset tasks for feature icons
  */
-async function spawnFeatureIcons(ctx, startIdx, templateBase, vars) {
+async function spawnFeatureIcons(ctx, startIdx, vars) {
+  const templateBase = `${WBS_ROOT}/icon`;
   const icons = [
     { id: 'nav-home', name: 'Home', category: 'navigation' },
     { id: 'nav-progress', name: 'Progress', category: 'navigation' },
@@ -141,6 +204,7 @@ async function spawnFeatureIcons(ctx, startIdx, templateBase, vars) {
     const prefix = String(startIdx + i).padStart(3, '0');
     const fileName = `${iconId}.svg`;
     const assetTaskId = `${prefix}-icon-${iconId}`;
+    const outputPath = `assets/icons/${fileName}`;
 
     const assetVars = {
       ...vars,
@@ -150,8 +214,9 @@ async function spawnFeatureIcons(ctx, startIdx, templateBase, vars) {
       iconName: name,
       category,
       assetType: 'icon',
-      outputPath: `assets/icons/${fileName}`,
+      outputPath,
       assetTaskId,
+      assetWidgetName: toPascalCase(iconId),
     };
 
     // Level 1: Icon parent task
@@ -164,9 +229,9 @@ async function spawnFeatureIcons(ctx, startIdx, templateBase, vars) {
       body: `Generate ${category} icon for "${name}" — 24x24px, outlined style, single stroke.`,
     });
 
-    // Level 2: Pipeline steps (simplified for icons: spec, generate, wire)
+    // Level 2: Pipeline steps from icon templates (no 03-meta step)
     const basePath = `.converge/playbooks/default/tasks/04-generate-assets/tasks/${assetTaskId}`;
-    const steps = ['01-analyze', '02-spec', '04-generate', '05-wire']; // Skip meta for icons
+    const steps = ['01-analyze', '02-spec', '04-generate', '05-wire'];
 
     for (const step of steps) {
       const id = `${prefix}-${step}`;
@@ -188,7 +253,8 @@ async function spawnFeatureIcons(ctx, startIdx, templateBase, vars) {
 /**
  * Generate asset tasks for empty state illustrations
  */
-async function spawnEmptyStates(ctx, startIdx, templateBase, vars) {
+async function spawnEmptyStates(ctx, startIdx, vars) {
+  const templateBase = `${WBS_ROOT}/illustration`;
   const states = [
     { id: 'empty-data', name: 'No Data', context: 'lists with no items' },
     { id: 'empty-search', name: 'No Search Results', context: 'search with no matches' },
@@ -204,6 +270,7 @@ async function spawnEmptyStates(ctx, startIdx, templateBase, vars) {
     const prefix = String(startIdx + i).padStart(3, '0');
     const fileName = `${stateId}.svg`;
     const assetTaskId = `${prefix}-empty-${stateId}`;
+    const outputPath = `assets/illustrations/empty-states/${fileName}`;
 
     const assetVars = {
       ...vars,
@@ -213,8 +280,31 @@ async function spawnEmptyStates(ctx, startIdx, templateBase, vars) {
       stateName: name,
       context,
       assetType: 'empty-state',
-      outputPath: `assets/illustrations/empty-states/${fileName}`,
+      outputPath,
       assetTaskId,
+      assetLabel: name,
+      assetWidgetName: toPascalCase(stateId),
+      assetDescription: `${name} empty state illustration.`,
+      contextBlock: [
+        `**Empty State — ${name}**`,
+        `- Context: ${context}`,
+        `- Usage: Displayed when ${context}`,
+        '- Style: Friendly, soft colors, encouraging',
+      ].join('\n'),
+      specOverview: `Empty state illustration for "${name}" — shown when ${context}.`,
+      metaTitle: `${name} Illustration`,
+      metaTags: `["empty-state", "feedback", "${stateId}"]`,
+      generateGuidelines: [
+        '### Empty State Illustration Specifics',
+        '',
+        `Create a friendly illustration for "${name}":`,
+        '1. Soft, encouraging mood',
+        '2. Character or scene that explains the state',
+        '3. Coral/lilac color palette',
+        '4. Generous whitespace',
+        '5. Suitable for 200x200 display',
+      ].join('\n'),
+      wireInstructions: '',
     };
 
     await ctx.spawn({
@@ -251,28 +341,26 @@ async function spawnEmptyStates(ctx, startIdx, templateBase, vars) {
  */
 export async function run(ctx) {
   const { projectDir } = ctx;
-  const templateBase = '.converge/playbooks/default/tasks/04-generate-assets/wbs/templates/asset';
 
   const vars = {
     projectDir,
-    templateBase,
   };
 
   let currentIdx = 1;
 
   // Category 1: Baby Size Illustrations (40 weeks)
   console.log('  📦 Spawning baby size illustrations (40 weeks)...');
-  const babySizeCount = await spawnBabySizeAssets(ctx, currentIdx, templateBase, vars);
+  const babySizeCount = await spawnBabySizeAssets(ctx, currentIdx, vars);
   currentIdx += babySizeCount;
 
   // Category 2: Feature Icons
   console.log('  📦 Spawning feature icons (15 icons)...');
-  const iconCount = await spawnFeatureIcons(ctx, currentIdx, templateBase, vars);
+  const iconCount = await spawnFeatureIcons(ctx, currentIdx, vars);
   currentIdx += iconCount;
 
   // Category 3: Empty State Illustrations
   console.log('  📦 Spawning empty state illustrations (5 states)...');
-  const emptyStateCount = await spawnEmptyStates(ctx, currentIdx, templateBase, vars);
+  const emptyStateCount = await spawnEmptyStates(ctx, currentIdx, vars);
   currentIdx += emptyStateCount;
 
   console.log(`  ✅ Total assets to generate: ${currentIdx - 1}`);

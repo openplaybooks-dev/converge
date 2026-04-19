@@ -1,0 +1,247 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-generate-assets/003-week-03/003-01-analyze-missing-output-.converge/playbooks/default/tasks/04-generate-assets/tasks/003-week-03/requirements.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-generate-assets/003-week-03/003-01-analyze",
+            "severity": "high",
+            "description": "[04-generate-assets/003-week-03/003-01-analyze] Task output not created: .converge/playbooks/default/tasks/04-generate-assets/tasks/003-week-03/requirements.json",
+            "source": "unit",
+            "detected": "2026-04-19T04:31:53.998Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/04-generate-assets/tasks/003-week-03/tasks/003-01-analyze",
+              "taskId": "04-generate-assets/003-week-03/003-01-analyze",
+              "taskTitle": "Analyze — baby-size: Week 3",
+              "taskPrompt": "# Analyze Asset Requirements\n\nAnalyze the design system, data models, and screen usage to define requirements for this asset.\n\n## Context\n\n**Baby Size Illustration — Week 3**\n- Size comparison: \"poppy seed\" 🌱\n- Trimester: 1\n- Used in: HeroIllustrationCard on HomeScreen\n- Data source: WeekContent.sizeComparison field\n\n## Analysis Tasks\n\n1. **Review DESIGN.md** — Extract color palette, corner radius, typography\n2. **Check model usage** — How is this asset referenced in code?\n3. **Identify constraints** — Dimensions, file format, naming conventions\n4. **Define variants** — Light/dark mode, states (active/inactive)\n\n## Output\n\nCreate `requirements.json`:\n\n```json\n{\n  \"assetId\": \"week-03\",\n  \"assetType\": \"baby-size\",\n  \"fileName\": \"week-03.svg\",\n  \"dimensions\": { \"width\": 200, \"height\": 200 },\n  \"style\": {\n    \"colorPalette\": [\"primary\", \"secondary\", \"accent\"],\n    \"strokeWidth\": 1.5,\n    \"cornerRadius\": \"8px\"\n  },\n  \"content\": {\n    \"subject\": \"...\",\n    \"mood\": \"friendly\",\n    \"background\": \"transparent\"\n  },\n  \"variants\": [\"light\", \"dark\"],\n  \"usage\": {\n    \"screens\": [\"HomeScreen\"],\n    \"widget\": \"HeroIllustrationCard\"\n  }\n}\n```",
+              "taskSkill": "asset-requirements-analysis",
+              "taskInputs": [
+                ".stitch/system/DESIGN.md",
+                "lib/models/*.dart",
+                "lib/screens/**/*.dart"
+              ],
+              "factId": "file-exists:test -f \".converge/playbooks/default/tasks/04-generate-assets/tasks/003-week-03/requirements.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-generate-assets/003-week-03/003-01-analyze-check-failed-requirements-exist",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-generate-assets/003-week-03/003-01-analyze",
+            "severity": "high",
+            "description": "[04-generate-assets/003-week-03/003-01-analyze] Check failed: Requirements analysis document exists",
+            "source": "unit",
+            "detected": "2026-04-19T04:31:54.000Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "requirements-exist",
+              "checkCmd": "test -f .converge/playbooks/default/tasks/04-generate-assets/tasks/003-week-03/requirements.json",
+              "checkDescription": "Requirements analysis document exists",
+              "checkOutput": "Command failed: test -f .converge/playbooks/default/tasks/04-generate-assets/tasks/003-week-03/requirements.json\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Analyze Asset Requirements\n\nAnalyze the design system, data models, and screen usage to define requirements for this asset.\n\n## Context\n\n**Baby Size Illustration — Week 3**\n- Size comparison: \"poppy seed\" 🌱\n- Trimester: 1\n- Used in: HeroIllustrationCard on HomeScreen\n- Data source: WeekContent.sizeComparison field\n\n## Analysis Tasks\n\n1. **Review DESIGN.md** — Extract color palette, corner radius, typography\n2. **Check model usage** — How is this asset referenced in code?\n3. **Identify constraints** — Dimensions, file format, naming conventions\n4. **Define variants** — Light/dark mode, states (active/inactive)\n\n## Output\n\nCreate `requirements.json`:\n\n```json\n{\n  \"assetId\": \"week-03\",\n  \"assetType\": \"baby-size\",\n  \"fileName\": \"week-03.svg\",\n  \"dimensions\": { \"width\": 200, \"height\": 200 },\n  \"style\": {\n    \"colorPalette\": [\"primary\", \"secondary\", \"accent\"],\n    \"strokeWidth\": 1.5,\n    \"cornerRadius\": \"8px\"\n  },\n  \"content\": {\n    \"subject\": \"...\",\n    \"mood\": \"friendly\",\n    \"background\": \"transparent\"\n  },\n  \"variants\": [\"light\", \"dark\"],\n  \"usage\": {\n    \"screens\": [\"HomeScreen\"],\n    \"widget\": \"HeroIllustrationCard\"\n  }\n}\n```",
+              "taskSkill": "asset-requirements-analysis",
+              "taskId": "04-generate-assets/003-week-03/003-01-analyze",
+              "taskTitle": "Analyze — baby-size: Week 3",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/04-generate-assets/tasks/003-week-03/tasks/003-01-analyze",
+              "factId": "check:requirements-exist"
+            }
+          }
+        ],
+        "durationMs": 20
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "run-skill",
+      "handler": "run-skill",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 64
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 94
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#11",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 84337
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-19T04:31:53.980Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-19T04:31:53.980Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-19T04:31:54.000Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-19T04:31:54.002Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "run-skill",
+      "iteration": 1,
+      "ts": "2026-04-19T04:31:54.004Z"
+    },
+    {
+      "from": "run-skill",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-19T04:31:54.010Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#11",
+      "iteration": 1,
+      "ts": "2026-04-19T04:33:18.347Z"
+    },
+    {
+      "from": "run-strategy:task-run#11",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-19T04:33:18.443Z"
+    }
+  ]
+}

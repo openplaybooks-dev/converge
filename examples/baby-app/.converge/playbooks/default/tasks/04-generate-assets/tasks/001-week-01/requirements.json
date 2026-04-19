@@ -1,0 +1,21 @@
+{
+  "assetId": "week-01",
+  "assetType": "baby-size",
+  "fileName": "week-01.svg",
+  "dimensions": { "width": 200, "height": 200 },
+  "style": {
+    "colorPalette": ["#F28B8B", "#8B7ED8", "#FDEEEE"],
+    "strokeWidth": 1.5,
+    "cornerRadius": "8px"
+  },
+  "content": {
+    "subject": "poppy seed",
+    "mood": "friendly",
+    "background": "transparent"
+  },
+  "variants": ["light", "dark"],
+  "usage": {
+    "screens": ["HomeScreen"],
+    "widget": "HeroIllustrationCard"
+  }
+}
