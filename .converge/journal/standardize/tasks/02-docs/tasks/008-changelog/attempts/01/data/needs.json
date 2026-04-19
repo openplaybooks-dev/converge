@@ -1,9 +1,0 @@
-{
-  "taskId": "02-docs/008-changelog",
-  "attemptNumber": 1,
-  "inputs": [],
-  "outputs": [
-    "CHANGELOG.md"
-  ],
-  "blocked": false
-}

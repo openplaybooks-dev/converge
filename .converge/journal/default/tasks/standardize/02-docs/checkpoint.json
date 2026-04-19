@@ -2,13 +2,13 @@
   "type": "task",
   "id": "02-docs",
   "status": "pending",
-  "lastUpdated": "2026-04-18T11:11:47.260Z",
-  "createdAt": "2026-04-18T11:11:47.256Z",
+  "lastUpdated": "2026-04-19T23:15:50.990Z",
+  "createdAt": "2026-04-19T23:07:22.947Z",
   "progress": {
     "totalChildren": 8,
-    "completedChildren": 8,
+    "completedChildren": 0,
     "failedChildren": 0,
-    "childIds": [
+    "childTaskIds": [
       "001-move-readme",
       "002-generate-banner",
       "003-root-readme",
@@ -18,6 +18,6 @@
       "007-adrs",
       "008-changelog"
     ],
-    "lastProgressUpdate": "2026-04-18T11:11:47.256Z"
+    "lastProgressUpdate": "2026-04-19T23:15:50.988Z"
   }
 }

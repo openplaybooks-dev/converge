@@ -1,9 +1,0 @@
-{
-  "taskId": "02-docs/002-generate-banner",
-  "attemptNumber": 1,
-  "inputs": [],
-  "outputs": [
-    "banner.svg"
-  ],
-  "blocked": false
-}

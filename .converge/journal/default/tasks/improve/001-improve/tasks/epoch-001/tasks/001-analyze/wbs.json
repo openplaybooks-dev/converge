@@ -1,0 +1,27 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-19T23:15:51.067Z",
+  "spawnCount": 5,
+  "subtasks": [
+    {
+      "id": "001-analyze-types",
+      "writeToPath": ".converge/playbooks/improve/tasks/001-improve/tasks/epoch-001/tasks/001-analyze/tasks/001-analyze-types/TASK.md"
+    },
+    {
+      "id": "001-analyze-structure",
+      "writeToPath": ".converge/playbooks/improve/tasks/001-improve/tasks/epoch-001/tasks/001-analyze/tasks/001-analyze-structure/TASK.md"
+    },
+    {
+      "id": "001-analyze-api",
+      "writeToPath": ".converge/playbooks/improve/tasks/001-improve/tasks/epoch-001/tasks/001-analyze/tasks/001-analyze-api/TASK.md"
+    },
+    {
+      "id": "001-analyze-tests",
+      "writeToPath": ".converge/playbooks/improve/tasks/001-improve/tasks/epoch-001/tasks/001-analyze/tasks/001-analyze-tests/TASK.md"
+    },
+    {
+      "id": "002-prioritize",
+      "writeToPath": ".converge/playbooks/improve/tasks/001-improve/tasks/epoch-001/tasks/001-analyze/tasks/002-prioritize/TASK.md"
+    }
+  ]
+}

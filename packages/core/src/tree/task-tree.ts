@@ -415,7 +415,8 @@ export class TaskTree {
     while (queue.length > 0) {
       const node = queue.shift()!;
       const leafId = node.id.split("/").pop() ?? "";
-      const idMatch = node.id.includes(filter) || leafId.includes(filter);
+      const epicId = node.epicId ?? "";
+      const idMatch = node.id.includes(filter) || leafId.includes(filter) || epicId.includes(filter);
 
       if (idMatch) {
         if (!force) {

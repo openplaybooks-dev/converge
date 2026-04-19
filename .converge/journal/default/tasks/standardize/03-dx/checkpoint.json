@@ -2,18 +2,18 @@
   "type": "task",
   "id": "03-dx",
   "status": "pending",
-  "lastUpdated": "2026-04-18T11:11:47.258Z",
-  "createdAt": "2026-04-18T11:11:47.256Z",
+  "lastUpdated": "2026-04-19T23:15:50.990Z",
+  "createdAt": "2026-04-19T23:07:22.947Z",
   "progress": {
     "totalChildren": 4,
-    "completedChildren": 3,
+    "completedChildren": 0,
     "failedChildren": 0,
-    "childIds": [
+    "childTaskIds": [
       "001-getting-started",
       "002-example-playbooks",
       "003-cli-help",
       "004-scaffold-command"
     ],
-    "lastProgressUpdate": "2026-04-18T11:11:47.256Z"
+    "lastProgressUpdate": "2026-04-19T23:15:50.988Z"
   }
 }

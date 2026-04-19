@@ -150,7 +150,7 @@ export class TreeNode {
    * - Children exist from a previous run but WBS hasn't re-run yet
    * - Parent was marked seeded but tree reload didn't pick up children
    */
-  get isSeeded(): boolean {
+  async isSeeded(): Promise<boolean> {
     // Fast path: has children in tree structure
     if (this.children.length > 0) {
       return true;
@@ -241,7 +241,7 @@ export class TreeNode {
    */
   async findNextTask(skipSiblingBlocking = false): Promise<TreeNode | null> {
     // If this is a WBS parent that hasn't seeded yet, return self
-    if (this.isWbsParent && !this.isSeeded) {
+    if (this.isWbsParent && !(await this.isSeeded())) {
       return this;
     }
 

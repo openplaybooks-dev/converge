@@ -1,9 +1,0 @@
-{
-  "taskId": "05-positioning/002-comparison-matrix",
-  "attemptNumber": 1,
-  "inputs": [],
-  "outputs": [
-    "docs/comparison-matrix.md"
-  ],
-  "blocked": false
-}

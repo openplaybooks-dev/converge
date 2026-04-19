@@ -77,6 +77,9 @@ export interface AutonomousRunConfig {
 
   /** Restart: reset all tasks to pending and start fresh */
   restart?: boolean;
+
+  /** Extra vars to pass to WBS contexts (e.g. epoch number from evolve runner) */
+  epochVars?: Record<string, string>;
 }
 
 /* ------------------------------------------------------------------ */
@@ -916,6 +919,9 @@ export async function autonomousRun(
       try {
         // Always use fromPath() - it handles both SKILL.md and task.ts
         unit = await Unit.fromPath(node.filePath);
+        if (config.epochVars) {
+          unit.vars = { ...unit.vars, ...config.epochVars };
+        }
       } catch (err: any) {
         console.error(
           `   ❌ Failed to load unit from ${node.filePath}: ${err.message}`,
@@ -928,6 +934,7 @@ export async function autonomousRun(
             journalTaskId: node.journalTaskId,
             filePath: node.filePath,
             sessionLogger,
+            extraVars: config.epochVars,
           },
           checkpointMgr,
         );

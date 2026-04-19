@@ -1,4 +1,0 @@
-{"type":"file-exists","path":"CONTRIBUTING.md","cmd":"test -f \"CONTRIBUTING.md\"","id":"file-exists:test -f \"CONTRIBUTING.md\"","ok":false,"output":"Command failed: test -f \"CONTRIBUTING.md\"\n","exitCode":1,"collectedAt":"2026-04-17T23:39:43.714Z"}
-{"type":"check","checkId":"contributing-exists","cmd":"test -f CONTRIBUTING.md","description":"CONTRIBUTING.md exists","id":"check:contributing-exists","ok":false,"output":"Command failed: test -f CONTRIBUTING.md\n","exitCode":1,"collectedAt":"2026-04-17T23:39:43.717Z"}
-{"type":"file-exists","path":"CONTRIBUTING.md","cmd":"test -f \"CONTRIBUTING.md\"","id":"file-exists:test -f \"CONTRIBUTING.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-17T23:40:29.375Z"}
-{"type":"check","checkId":"contributing-exists","cmd":"test -f CONTRIBUTING.md","description":"CONTRIBUTING.md exists","id":"check:contributing-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-17T23:40:29.379Z"}

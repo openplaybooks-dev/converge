@@ -65,7 +65,7 @@ export async function markAncestorsRunning(
       if (
         existing &&
         existing.status !== "complete" &&
-        existing.status !== "seeded"
+        (existing.status as string) !== "seeded"
       ) {
         existing.status = "running";
         await taskCkpt.save(existing);
@@ -95,7 +95,7 @@ export async function markAncestorsRunning(
     if (
       existing &&
       existing.status !== "complete" &&
-      existing.status !== "seeded"
+      (existing.status as string) !== "seeded"
     ) {
       existing.status = "running";
       await taskCkpt.save(existing);

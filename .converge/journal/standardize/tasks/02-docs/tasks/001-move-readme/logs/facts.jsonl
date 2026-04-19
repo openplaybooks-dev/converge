@@ -1,4 +1,0 @@
-{"type":"file-exists","path":"README.md","cmd":"test -f \"README.md\"","id":"file-exists:test -f \"README.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-17T23:37:21.305Z"}
-{"type":"check","checkId":"root-readme-exists","cmd":"test -f README.md","description":"Root README.md exists","id":"check:root-readme-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-17T23:37:21.307Z"}
-{"type":"check","checkId":"root-readme-has-converge","cmd":"grep -qi 'converge' README.md","description":"Root README mentions Converge","id":"check:root-readme-has-converge","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-17T23:37:21.310Z"}
-{"type":"check","checkId":"root-readme-not-harness-ascii","cmd":"! grep -q 'HARNESS' README.md","description":"Root README has no HARNESS ASCII art","id":"check:root-readme-not-harness-ascii","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-17T23:37:21.314Z"}

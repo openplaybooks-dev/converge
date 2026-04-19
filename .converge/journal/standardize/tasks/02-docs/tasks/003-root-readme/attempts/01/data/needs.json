@@ -1,9 +1,0 @@
-{
-  "taskId": "02-docs/003-root-readme",
-  "attemptNumber": 1,
-  "inputs": [],
-  "outputs": [
-    "README.md"
-  ],
-  "blocked": false
-}

@@ -1,9 +1,0 @@
-{
-  "taskId": "01-brand/006-verification-audit",
-  "attemptNumber": 1,
-  "inputs": [],
-  "outputs": [
-    ".converge/standardize-state/brand/006-audit.json"
-  ],
-  "blocked": false
-}

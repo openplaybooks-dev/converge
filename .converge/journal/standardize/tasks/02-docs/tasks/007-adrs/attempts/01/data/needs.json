@@ -1,9 +1,0 @@
-{
-  "taskId": "02-docs/007-adrs",
-  "attemptNumber": 1,
-  "inputs": [],
-  "outputs": [
-    "docs/adr/"
-  ],
-  "blocked": false
-}

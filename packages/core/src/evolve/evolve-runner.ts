@@ -2,21 +2,19 @@
  * Evolve Runner — epoch-based feedback loop.
  *
  * Each epoch:
- *   1. Stamp a fresh epic from the playbook template (with epoch vars)
- *   2. autonomousRun() seeds WBS + executes children
+ *   1. Reset playbook tasks to pending
+ *   2. autonomousRun() seeds WBS + executes children (with epoch vars)
  *   3. Check results: all tasks passed → converged; stalled → stop
  *
- * The playbook's root task uses `wbs:` to discover issues and spawn
- * child tasks. No special strategy — just the standard task API.
+ * Tasks live directly in .converge/playbooks/{name}/tasks/ — no epic
+ * stamping or copying. The WBS scripts receive the epoch number via vars.
  */
 
-import { join } from "node:path";
-import { readdirSync, existsSync } from "node:fs";
 import { autonomousRun } from "../cli/autonomous-run.ts";
-import { generateEpicFromPlaybook } from "../playbook/executor.ts";
 import type { ResolvedPlaybook } from "../playbook/types.ts";
 import type { ConvergeConfig } from "../config/types.ts";
 import type { HookRegistry } from "../hooks/registry.ts";
+import { CheckpointManager } from "../checkpoint/manager.ts";
 import {
   closeOrphanedEvolveRuns,
   appendEvolveEntry,
@@ -72,6 +70,12 @@ export async function evolveRun(config: EvolveRunConfig): Promise<EvolveResult> 
   const runId = `evolve-${Date.now().toString(36)}`;
   appendEvolveEntry(projectDir, runId, "start", 0, { total: 0, byCategory: {} });
 
+  // Derive the filter for playbook tasks.
+  // The playbook's root task ID comes from its directory name under tasks/.
+  // For improve: tasks/001-improve/ → journalTaskId "001-improve", epicId "improve"
+  const playbookName = playbook.def.name;
+  const rootTaskIds = playbook.def.tasks.map((t) => t.id).filter(Boolean) as string[];
+
   let epoch = 0;
   let consecutiveStalls = 0;
   let totalTasksCompleted = 0;
@@ -84,32 +88,20 @@ export async function evolveRun(config: EvolveRunConfig): Promise<EvolveResult> 
       `═══ Epoch ${epoch}/${maxEpochs} ═══════════════════════════════════════\n`,
     );
 
-    // Stamp a fresh epic from the playbook template
-    const epicId = nextEvolveEpicId(projectDir, epoch);
-    const epochPlaybook: ResolvedPlaybook = {
-      ...playbook,
-      epicId,
-      vars: { ...playbook.vars, epoch: String(epoch) },
-    };
-
-    try {
-      await generateEpicFromPlaybook(epochPlaybook, projectDir);
-    } catch (err: any) {
-      if (err.message?.includes("already exists")) {
-        console.log(`   Epic ${epicId} already exists — skipping generation.\n`);
-      } else {
-        throw err;
-      }
+    // Reset all playbook tasks to pending for this epoch
+    if (epoch > 1) {
+      await resetPlaybookTasks(projectDir, playbookName, rootTaskIds);
     }
 
-    console.log(`📋 Epic: ${epicId}\n`);
+    console.log(`📋 Playbook: ${playbookName} (epoch ${epoch})\n`);
 
     if (config.planOnly) {
       console.log("📋 Plan-only mode: skipping execution.\n");
       break;
     }
 
-    // Run: WBS seeds children, then autonomousRun executes them
+    // Run: autonomousRun discovers tasks from .converge/playbooks/{name}/tasks/
+    // and filters by the playbook name (epicId).
     const runResult = await autonomousRun({
       projectDir,
       convergeConfig,
@@ -118,10 +110,11 @@ export async function evolveRun(config: EvolveRunConfig): Promise<EvolveResult> 
       maxTaskAttempts: config.maxTaskAttempts ?? 2,
       maxRunDurationMs: config.maxRunDurationMs,
       verbose,
-      filter: epicId,
+      filter: playbookName,
       force: config.force,
-      resume: true,
+      resume: epoch === 1 ? config.resume : false,
       restart: epoch === 1 ? config.restart : undefined,
+      epochVars: { epoch: String(epoch) },
     });
 
     totalTasksCompleted += runResult.tasksCompleted;
@@ -154,7 +147,7 @@ export async function evolveRun(config: EvolveRunConfig): Promise<EvolveResult> 
   }
 
   // Summary
-  const endEntry = appendEvolveEntry(
+  appendEvolveEntry(
     projectDir, runId, "end", epoch,
     { total: totalTasksFailed, byCategory: {} },
   );
@@ -183,20 +176,24 @@ export async function evolveRun(config: EvolveRunConfig): Promise<EvolveResult> 
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
 
-function nextEvolveEpicId(projectDir: string, epoch: number): string {
-  const epicsDir = join(projectDir, ".converge", "epics");
-  if (!existsSync(epicsDir)) {
-    return `evolve-${String(epoch).padStart(2, "0")}`;
+/**
+ * Reset only root playbook tasks back to pending between epochs.
+ * WBS children have epoch-scoped IDs (e.g. 001-001-analyze, 002-001-analyze)
+ * so they're naturally isolated — only the root WBS parent needs resetting
+ * so it re-seeds new children for the next epoch.
+ */
+async function resetPlaybookTasks(
+  projectDir: string,
+  playbookName: string,
+  rootTaskIds: string[],
+): Promise<void> {
+  const checkpointMgr = new CheckpointManager(projectDir);
+
+  for (const taskId of rootTaskIds) {
+    try {
+      await checkpointMgr.removeFromCompleted(taskId, playbookName);
+    } catch {
+      // Ignore — may not have a checkpoint
+    }
   }
-
-  const existing = readdirSync(epicsDir)
-    .filter((d) => /^\d+-/.test(d) || d.startsWith("evolve-"))
-    .map((d) => {
-      const m = d.match(/^(\d+)/);
-      return m ? parseInt(m[1], 10) : 0;
-    })
-    .filter((n) => !isNaN(n));
-
-  const next = (Math.max(0, ...existing) + 1).toString().padStart(2, "0");
-  return `${next}-evolve-epoch-${epoch}`;
 }

@@ -1,9 +1,0 @@
-{
-  "taskId": "02-docs/004-core-readme",
-  "attemptNumber": 1,
-  "inputs": [],
-  "outputs": [
-    "packages/core/README.md"
-  ],
-  "blocked": false
-}

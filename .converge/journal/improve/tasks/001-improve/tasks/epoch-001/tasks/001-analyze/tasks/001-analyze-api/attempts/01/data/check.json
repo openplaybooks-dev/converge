@@ -1,0 +1,10 @@
+{
+  "taskId": "001-improve/epoch-001/001-analyze/001-analyze-api",
+  "checks": [
+    {
+      "id": "report-written",
+      "description": "API analysis report exists",
+      "cmd": "test -f /Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/analyze-api/report.json"
+    }
+  ]
+}
