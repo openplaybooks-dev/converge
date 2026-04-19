@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <title>Week 9 - Green Olive</title>
+  <defs>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FDEEEE" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#FDEEEE" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="oliveGrad" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#FF8A8A"/>
+      <stop offset="100%" stop-color="#FF6B6B"/>
+    </radialGradient>
+  </defs>
+  <!-- Halo glow -->
+  <circle cx="100" cy="108" r="70" fill="url(#halo)"/>
+  <!-- Olive body — elongated oval with tapered ends -->
+  <ellipse cx="100" cy="110" rx="28" ry="42" fill="url(#oliveGrad)" stroke="#E05555" stroke-width="1.5"/>
+  <!-- Highlight on upper-left surface -->
+  <ellipse cx="90" cy="94" rx="10" ry="18" fill="white" opacity="0.18" transform="rotate(-12 90 94)"/>
+  <!-- Pimento opening — circular hole -->
+  <ellipse cx="100" cy="112" rx="9" ry="8" fill="#E05555" stroke="#D04A4A" stroke-width="1"/>
+  <!-- Pimento dot -->
+  <circle cx="100" cy="112" r="5" fill="#9B59B6" stroke="#7D3C98" stroke-width="0.8"/>
+  <!-- Stem -->
+  <rect x="98" y="62" width="4" height="14" rx="2" fill="#9B59B6" stroke="#7D3C98" stroke-width="0.8"/>
+</svg>

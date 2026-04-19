@@ -1,0 +1,10 @@
+{
+  "taskId": "04-generate-assets/006-week-06/006-01-analyze",
+  "checks": [
+    {
+      "id": "requirements-exist",
+      "description": "Requirements analysis document exists",
+      "cmd": "test -f .converge/playbooks/default/tasks/04-generate-assets/tasks/006-week-06/requirements.json"
+    }
+  ]
+}

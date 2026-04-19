@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "02-design-system",
+  "status": "pending",
+  "lastUpdated": "2026-04-19T05:00:49.496Z",
+  "createdAt": "2026-04-19T05:00:49.494Z",
+  "progress": {
+    "totalChildren": 2,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "002-generate-design-system",
+      "005-generate-design-references"
+    ],
+    "lastProgressUpdate": "2026-04-19T05:00:49.493Z"
+  }
+}

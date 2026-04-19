@@ -1,0 +1,20 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/002-weight-entry",
+  "status": "pending",
+  "lastUpdated": "2026-04-19T05:00:49.496Z",
+  "createdAt": "2026-04-19T05:00:49.494Z",
+  "progress": {
+    "totalChildren": 5,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "002-01-spec",
+      "002-02-design",
+      "002-03-convert",
+      "002-04-connect",
+      "002-05-mount"
+    ],
+    "lastProgressUpdate": "2026-04-19T05:00:49.494Z"
+  }
+}

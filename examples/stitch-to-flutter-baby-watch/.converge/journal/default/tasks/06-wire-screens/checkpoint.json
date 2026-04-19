@@ -1,0 +1,19 @@
+{
+  "type": "task",
+  "id": "06-wire-screens",
+  "status": "pending",
+  "lastUpdated": "2026-04-19T05:00:49.496Z",
+  "createdAt": "2026-04-19T05:00:49.494Z",
+  "progress": {
+    "totalChildren": 4,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "001-connect-providers",
+      "002-analyze-navigations",
+      "003-wire-per-screen",
+      "004-verify"
+    ],
+    "lastProgressUpdate": "2026-04-19T05:00:49.493Z"
+  }
+}

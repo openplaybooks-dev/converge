@@ -1,0 +1,14 @@
+{
+  "type": "task",
+  "id": "04-generate-assets/010-week-10/010-02-spec",
+  "status": "running",
+  "lastUpdated": "2026-04-19T05:02:23.019Z",
+  "createdAt": "2026-04-19T05:02:23.018Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T05:02:23.018Z"
+    }
+  ],
+  "currentAttempt": 1
+}

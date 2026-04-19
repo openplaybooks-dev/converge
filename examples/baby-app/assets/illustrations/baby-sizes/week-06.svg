@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <title>Week 6 - Sweet Pea</title>
+  <defs>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FDEEEE" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#FDEEEE" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="podGrad" x1="0" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#FF6B6B"/>
+      <stop offset="100%" stop-color="#E05555"/>
+    </linearGradient>
+  </defs>
+  <!-- Halo glow -->
+  <circle cx="100" cy="100" r="72" fill="url(#halo)"/>
+  <!-- Pod body — curved crescent shape -->
+  <path d="M70 120c-4-18 0-38 12-50 8-8 18-12 26-10 6 2 10 6 12 14 3 12 1 28-6 42-6 12-14 20-24 22-8 2-16-4-20-18z" fill="url(#podGrad)" stroke="#D45050" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Central vein line -->
+  <path d="M82 72c4 14 6 32 4 52" stroke="#9B59B6" stroke-width="1" opacity="0.2" fill="none" stroke-linecap="round"/>
+  <!-- Pea 1 — peeking from top opening -->
+  <circle cx="96" cy="68" r="7" fill="#9B59B6" opacity="0.7"/>
+  <circle cx="96" cy="68" r="4" fill="#9B59B6" opacity="0.3"/>
+  <!-- Pea 2 — beside first pea -->
+  <circle cx="108" cy="72" r="6.5" fill="#9B59B6" opacity="0.65"/>
+  <circle cx="108" cy="72" r="3.5" fill="#9B59B6" opacity="0.25"/>
+  <!-- Pod opening edge near peas -->
+  <path d="M88 66c4-2 10-3 16-2 5 1 10 4 12 7" stroke="#D45050" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.5"/>
+  <!-- Tendril from stem end -->
+  <path d="M72 130c-6 4-10 10-8 16 2 4 6 4 8 0 2-6-2-10-6-8" stroke="#9B59B6" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.5"/>
+  <!-- Subtle pod surface details -->
+  <path d="M78 90c2 8 2 18 0 26" stroke="#9B59B6" stroke-width="0.7" opacity="0.12" fill="none" stroke-linecap="round"/>
+  <path d="M90 80c2 10 2 24 0 34" stroke="#9B59B6" stroke-width="0.7" opacity="0.12" fill="none" stroke-linecap="round"/>
+</svg>

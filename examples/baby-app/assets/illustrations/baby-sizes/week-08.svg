@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <title>Week 8 - Raspberry</title>
+  <defs>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FDEEEE" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#FDEEEE" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="drupeletGrad" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#FF8A8A"/>
+      <stop offset="100%" stop-color="#FF6B6B"/>
+    </radialGradient>
+  </defs>
+  <!-- Halo glow -->
+  <circle cx="100" cy="110" r="72" fill="url(#halo)"/>
+  <!-- Drupelets — clustered oval dome shape -->
+  <!-- Bottom row -->
+  <ellipse cx="88" cy="130" rx="10" ry="9" fill="url(#drupeletGrad)" stroke="#E05555" stroke-width="1.5"/>
+  <ellipse cx="112" cy="130" rx="10" ry="9" fill="url(#drupeletGrad)" stroke="#E05555" stroke-width="1.5"/>
+  <ellipse cx="100" cy="132" rx="10" ry="9" fill="url(#drupeletGrad)" stroke="#E05555" stroke-width="1.5"/>
+  <!-- Middle-lower row -->
+  <ellipse cx="82" cy="118" rx="10" ry="9" fill="url(#drupeletGrad)" stroke="#E05555" stroke-width="1.5"/>
+  <ellipse cx="96" cy="120" rx="10" ry="9" fill="url(#drupeletGrad)" stroke="#E05555" stroke-width="1.5"/>
+  <ellipse cx="110" cy="120" rx="10" ry="9" fill="url(#drupeletGrad)" stroke="#E05555" stroke-width="1.5"/>
+  <ellipse cx="120" cy="118" rx="10" ry="9" fill="url(#drupeletGrad)" stroke="#E05555" stroke-width="1.5"/>
+  <!-- Middle-upper row -->
+  <ellipse cx="86" cy="106" rx="10" ry="9" fill="url(#drupeletGrad)" stroke="#E05555" stroke-width="1.5"/>
+  <ellipse cx="100" cy="108" rx="10" ry="9" fill="url(#drupeletGrad)" stroke="#E05555" stroke-width="1.5"/>
+  <ellipse cx="114" cy="106" rx="10" ry="9" fill="url(#drupeletGrad)" stroke="#E05555" stroke-width="1.5"/>
+  <!-- Top row -->
+  <ellipse cx="92" cy="95" rx="9" ry="8" fill="url(#drupeletGrad)" stroke="#E05555" stroke-width="1.5"/>
+  <ellipse cx="108" cy="95" rx="9" ry="8" fill="url(#drupeletGrad)" stroke="#E05555" stroke-width="1.5"/>
+  <ellipse cx="100" cy="93" rx="9" ry="8" fill="url(#drupeletGrad)" stroke="#E05555" stroke-width="1.5"/>
+  <!-- Highlight on upper-left drupelets -->
+  <ellipse cx="89" cy="100" rx="6" ry="4" fill="white" opacity="0.18"/>
+  <ellipse cx="95" cy="90" rx="5" ry="3" fill="white" opacity="0.15"/>
+  <!-- Stem -->
+  <rect x="98" y="72" width="4" height="16" rx="2" fill="#9B59B6" stroke="#7D3C98" stroke-width="0.8"/>
+  <!-- Left leaf -->
+  <path d="M98 78c-4-2-14-6-16-2c-2 4 6 8 12 7c2 0 4-2 4-5z" fill="#9B59B6" stroke="#7D3C98" stroke-width="0.8" stroke-linejoin="round"/>
+  <!-- Left leaf serrations -->
+  <path d="M86 76l-2-1.5M89 74.5l-1.5-1.5M92 74l-1-1.5" stroke="#7D3C98" stroke-width="0.5" opacity="0.4" stroke-linecap="round"/>
+  <!-- Right leaf -->
+  <path d="M102 78c4-2 14-6 16-2c2 4-6 8-12 7c-2 0-4-2-4-5z" fill="#9B59B6" stroke="#7D3C98" stroke-width="0.8" stroke-linejoin="round"/>
+  <!-- Right leaf serrations -->
+  <path d="M114 76l2-1.5M111 74.5l1.5-1.5M108 74l1-1.5" stroke="#7D3C98" stroke-width="0.5" opacity="0.4" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,17 @@
+{
+  "taskId": "04-generate-assets/007-week-07/007-02-spec",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".converge/playbooks/default/tasks/04-generate-assets/tasks/007-week-07/requirements.json",
+      "count": 1,
+      "samples": [
+        ".converge/playbooks/default/tasks/04-generate-assets/tasks/007-week-07/requirements.json"
+      ]
+    }
+  ],
+  "outputs": [
+    ".converge/playbooks/default/tasks/04-generate-assets/tasks/007-week-07/SPEC.md"
+  ],
+  "blocked": false
+}

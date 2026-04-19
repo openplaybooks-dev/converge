@@ -11,3 +11,6 @@
 {"ts":"2026-04-19T04:45:28.816Z","iter":1,"gaps":2,"stall":0,"node":"action","handler":"repair-loop","status":"start"}
 {"ts":"2026-04-19T04:45:28.915Z","iter":1,"gaps":2,"stall":0,"node":"action","handler":"repair-loop","status":"done","result":"continue"}
 {"ts":"2026-04-19T04:45:28.915Z","iter":1,"gaps":2,"stall":0,"node":"action","handler":"run-strategy","status":"start"}
+{"ts":"2026-04-19T04:46:12.172Z","iter":1,"gaps":2,"stall":0,"node":"action","handler":"run-strategy","status":"done","result":"continue"}
+{"ts":"2026-04-19T04:46:12.173Z","iter":1,"gaps":2,"stall":0,"node":"action","handler":"verify","status":"start"}
+{"ts":"2026-04-19T04:46:13.139Z","iter":1,"gaps":2,"stall":0,"node":"action","handler":"verify","status":"done","result":"done","reason":"All gaps resolved","newGaps":0}

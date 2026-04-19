@@ -1,0 +1,10 @@
+{
+  "taskId": "04-generate-assets/006-week-06/006-03-meta",
+  "checks": [
+    {
+      "id": "meta-exists",
+      "description": "Metadata JSON file exists",
+      "cmd": "test -f assets/illustrations/baby-sizes/week-06.svg.meta.json"
+    }
+  ]
+}

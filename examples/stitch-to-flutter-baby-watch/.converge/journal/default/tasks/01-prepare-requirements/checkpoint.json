@@ -1,0 +1,20 @@
+{
+  "type": "task",
+  "id": "01-prepare-requirements",
+  "status": "pending",
+  "lastUpdated": "2026-04-19T05:00:49.496Z",
+  "createdAt": "2026-04-19T05:00:49.494Z",
+  "progress": {
+    "totalChildren": 5,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "001-gather-idea",
+      "002-generate-prd",
+      "003-generate-ux",
+      "004-breakdown-ux-to-screens",
+      "005-analyze-references"
+    ],
+    "lastProgressUpdate": "2026-04-19T05:00:49.493Z"
+  }
+}

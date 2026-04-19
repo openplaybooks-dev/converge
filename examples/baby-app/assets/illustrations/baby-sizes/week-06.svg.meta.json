@@ -1,0 +1,28 @@
+{
+  "id": "week-06",
+  "version": "1.0.0",
+  "type": "baby-size",
+  "format": "svg",
+  "fileName": "week-06.svg",
+  "semantic": {
+    "title": "Week 6 Baby Size",
+    "description": "A sweet pea pod illustration representing the embryo at week 6 of pregnancy, rendered in a soft, friendly style with gently curved shapes and peas peeking out.",
+    "tags": ["baby-size", "pregnancy", "week-6", "sweet pea"],
+    "alt": "A friendly sweet pea pod illustration showing the approximate size of an embryo at week 6 of pregnancy"
+  },
+  "usage": {
+    "screens": ["HomeScreen"],
+    "widgets": ["HeroIllustrationCard"],
+    "accessibility": {
+      "label": "Baby size at week 6: about the size of a sweet pea",
+      "role": "image"
+    }
+  },
+  "variants": {
+    "light": "week-06.svg",
+    "dark": null
+  },
+  "source": {
+    "spec": ".converge/playbooks/default/tasks/04-generate-assets/tasks/006-week-06/SPEC.md"
+  }
+}
