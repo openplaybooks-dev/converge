@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <title>Week 13 - Peach</title>
+  <defs>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FDEEEE" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#FDEEEE" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="peachGrad" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#FF8A8A"/>
+      <stop offset="100%" stop-color="#FF6B6B"/>
+    </radialGradient>
+  </defs>
+  <!-- Halo glow -->
+  <circle cx="100" cy="108" r="72" fill="url(#halo)"/>
+  <!-- Peach body — plump oval with subtle vertical crease -->
+  <ellipse cx="100" cy="108" rx="42" ry="46" fill="url(#peachGrad)" stroke="#E05555" stroke-width="1.5"/>
+  <!-- Vertical crease -->
+  <path d="M100 64 Q96 108 100 152" stroke="#9B59B6" stroke-width="1.2" fill="none" opacity="0.3" stroke-linecap="round"/>
+  <!-- Fuzzy tonal variation on skin -->
+  <ellipse cx="112" cy="118" rx="20" ry="24" fill="#FF6B6B" opacity="0.15"/>
+  <!-- Highlight on upper-left surface -->
+  <ellipse cx="84" cy="90" rx="15" ry="22" fill="white" opacity="0.18" transform="rotate(-15 84 90)"/>
+  <!-- Stem -->
+  <path d="M100 63 Q100 54 104 44" stroke="#9B59B6" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="104" cy="43" r="1.8" fill="#9B59B6"/>
+  <!-- Leaf left -->
+  <path d="M101 50 Q90 40 82 42" stroke="#9B59B6" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M101 50 Q91 44 82 42 Q89 52 101 50Z" fill="#9B59B6" opacity="0.55"/>
+  <!-- Leaf right -->
+  <path d="M104 48 Q114 40 122 42" stroke="#9B59B6" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M104 48 Q113 44 122 42 Q115 52 104 48Z" fill="#9B59B6" opacity="0.55"/>
+</svg>

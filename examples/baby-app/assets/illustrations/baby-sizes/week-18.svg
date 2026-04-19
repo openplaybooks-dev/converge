@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <title>Week 18 - Bell Pepper</title>
+  <defs>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FDEEEE" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#FDEEEE" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="pepperGrad" x1="0.3" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#FF8A8A"/>
+      <stop offset="50%" stop-color="#FF6B6B"/>
+      <stop offset="100%" stop-color="#E05555"/>
+    </linearGradient>
+    <linearGradient id="stemGrad" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#8E44AD"/>
+      <stop offset="100%" stop-color="#9B59B6"/>
+    </linearGradient>
+  </defs>
+  <!-- Halo glow -->
+  <circle cx="100" cy="105" r="72" fill="url(#halo)"/>
+  <!-- Bell pepper body — wide dome with subtle lobes -->
+  <path d="M100 56 Q68 60 54 82 Q42 102 44 124 Q46 142 58 152 Q66 158 76 162 Q88 166 100 166 Q112 166 124 162 Q134 158 142 152 Q154 142 156 124 Q158 102 146 82 Q132 60 100 56Z" fill="url(#pepperGrad)" stroke="#D94F4F" stroke-width="1.5"/>
+  <!-- Lobe crease left -->
+  <path d="M76 70 Q72 100 74 140" stroke="#D94F4F" stroke-width="1" stroke-opacity="0.35" stroke-linecap="round" fill="none"/>
+  <!-- Lobe crease right -->
+  <path d="M124 70 Q128 100 126 140" stroke="#D94F4F" stroke-width="1" stroke-opacity="0.35" stroke-linecap="round" fill="none"/>
+  <!-- Lobe crease center -->
+  <path d="M100 58 Q100 100 100 162" stroke="#D94F4F" stroke-width="0.8" stroke-opacity="0.2" stroke-linecap="round" fill="none"/>
+  <!-- Highlight on front-facing lobe -->
+  <ellipse cx="88" cy="108" rx="14" ry="28" fill="white" opacity="0.18" transform="rotate(-8 88 108)"/>
+  <!-- Calyx / sepals -->
+  <path d="M88 58 Q84 48 80 42 Q86 50 92 56Z" fill="url(#stemGrad)" stroke="#7D3C98" stroke-width="1"/>
+  <path d="M112 58 Q116 48 120 42 Q114 50 108 56Z" fill="url(#stemGrad)" stroke="#7D3C98" stroke-width="1"/>
+  <path d="M96 56 Q92 46 90 38 Q96 48 100 54Z" fill="url(#stemGrad)" stroke="#7D3C98" stroke-width="1"/>
+  <path d="M104 56 Q108 46 110 38 Q104 48 100 54Z" fill="url(#stemGrad)" stroke="#7D3C98" stroke-width="1"/>
+  <!-- Stem -->
+  <path d="M100 56 Q102 44 98 34" stroke="#9B59B6" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <!-- Shadow at base -->
+  <ellipse cx="100" cy="180" rx="28" ry="4" fill="#D94F4F" opacity="0.18"/>
+</svg>

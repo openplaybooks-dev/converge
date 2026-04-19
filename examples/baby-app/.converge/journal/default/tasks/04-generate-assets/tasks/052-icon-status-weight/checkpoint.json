@@ -1,0 +1,19 @@
+{
+  "type": "task",
+  "id": "04-generate-assets/052-icon-status-weight",
+  "status": "pending",
+  "lastUpdated": "2026-04-19T05:58:48.475Z",
+  "createdAt": "2026-04-19T05:58:48.473Z",
+  "progress": {
+    "totalChildren": 4,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "052-01-analyze",
+      "052-02-spec",
+      "052-04-generate",
+      "052-05-wire"
+    ],
+    "lastProgressUpdate": "2026-04-19T05:58:48.472Z"
+  }
+}

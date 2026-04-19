@@ -1,0 +1,28 @@
+{
+  "id": "week-15",
+  "version": "1.0.0",
+  "type": "baby-size",
+  "format": "svg",
+  "fileName": "week-15.svg",
+  "semantic": {
+    "title": "Week 15 Baby Size",
+    "description": "A friendly apple illustration representing the fetus at week 15 of pregnancy, rendered in a soft, rounded style with a plump spherical body, a short brown stem with a single rounded leaf, and a subtle highlight for depth.",
+    "tags": ["baby-size", "pregnancy", "week-15", "apple"],
+    "alt": "A friendly apple illustration showing the approximate size of a fetus at week 15 of pregnancy"
+  },
+  "usage": {
+    "screens": ["HomeScreen"],
+    "widgets": ["HeroIllustrationCard"],
+    "accessibility": {
+      "label": "Baby size at week 15: about the size of an apple",
+      "role": "image"
+    }
+  },
+  "variants": {
+    "light": "week-15.svg",
+    "dark": null
+  },
+  "source": {
+    "spec": ".converge/playbooks/default/tasks/04-generate-assets/tasks/015-week-15/SPEC.md"
+  }
+}

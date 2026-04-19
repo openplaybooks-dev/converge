@@ -1,0 +1,20 @@
+{
+  "type": "task",
+  "id": "04-generate-assets/030-week-30",
+  "status": "pending",
+  "lastUpdated": "2026-04-19T05:58:48.474Z",
+  "createdAt": "2026-04-19T05:58:48.473Z",
+  "progress": {
+    "totalChildren": 5,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "030-01-analyze",
+      "030-02-spec",
+      "030-03-meta",
+      "030-04-generate",
+      "030-05-wire"
+    ],
+    "lastProgressUpdate": "2026-04-19T05:58:48.472Z"
+  }
+}

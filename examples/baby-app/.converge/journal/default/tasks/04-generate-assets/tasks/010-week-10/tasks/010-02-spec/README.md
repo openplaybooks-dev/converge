@@ -1,6 +1,6 @@
 # Task Journal: 04-generate-assets/010-week-10/010-02-spec
 
-## Current attempt — `attempts/wip/`
+## Current attempt — `attempts/01/`
 
 | File | Purpose |
 |------|---------|

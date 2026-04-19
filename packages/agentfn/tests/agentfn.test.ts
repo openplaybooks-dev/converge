@@ -113,51 +113,55 @@ describe("agentfn — core API", () => {
     expect(typeof fn).toBe("function");
   });
 
-  it("delegates to claudefn by default", () => {
+  it("delegates to claudefn by default", async () => {
     (mockClaudefn as any).mockReturnValue(async () => ({
       data: "hi",
       raw: "hi",
       durationMs: 10,
     }));
 
-    agentfn({ prompt: "Say hello" });
+    const fn = agentfn({ prompt: "Say hello" });
+    await fn();
     expect(mockClaudefn).toHaveBeenCalledOnce();
     expect(mockKimifn).not.toHaveBeenCalled();
   });
 
-  it("delegates to kimifn when provider is kimi", () => {
+  it("delegates to kimifn when provider is kimi", async () => {
     (mockKimifn as any).mockReturnValue(async () => ({
       data: "hi",
       raw: "hi",
       durationMs: 10,
     }));
 
-    agentfn({ prompt: "Say hello", provider: "kimi" });
+    const fn = agentfn({ prompt: "Say hello", provider: "kimi" });
+    await fn();
     expect(mockKimifn).toHaveBeenCalledOnce();
     expect(mockClaudefn).not.toHaveBeenCalled();
   });
 
-  it("delegates to qwenfn when provider is qwen", () => {
+  it("delegates to qwenfn when provider is qwen", async () => {
     (mockQwenfn as any).mockReturnValue(async () => ({
       data: "hi",
       raw: "hi",
       durationMs: 10,
     }));
 
-    agentfn({ prompt: "Say hello", provider: "qwen" });
+    const fn = agentfn({ prompt: "Say hello", provider: "qwen" });
+    await fn();
     expect(mockQwenfn).toHaveBeenCalledOnce();
     expect(mockClaudefn).not.toHaveBeenCalled();
     expect(mockKimifn).not.toHaveBeenCalled();
   });
 
-  it("delegates to geminifn when provider is gemini", () => {
+  it("delegates to geminifn when provider is gemini", async () => {
     (mockGeminifn as any).mockReturnValue(async () => ({
       data: "hi",
       raw: "hi",
       durationMs: 10,
     }));
 
-    agentfn({ prompt: "Say hello", provider: "gemini" });
+    const fn = agentfn({ prompt: "Say hello", provider: "gemini" });
+    await fn();
     expect(mockGeminifn).toHaveBeenCalledOnce();
     expect(mockClaudefn).not.toHaveBeenCalled();
     expect(mockKimifn).not.toHaveBeenCalled();
@@ -258,20 +262,21 @@ describe("agentfn — core API", () => {
 // ─── Options Forwarding ─────────────────────────────────────
 
 describe("agentfn — options forwarding", () => {
-  it("forwards shared options to claudefn", () => {
+  it("forwards shared options to claudefn", async () => {
     (mockClaudefn as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
       durationMs: 0,
     }));
 
-    agentfn({
+    const fn = agentfn({
       prompt: "test",
       timeoutMs: 5000,
       maxRetries: 3,
       cwd: "/tmp",
       cliFlags: ["--model", "opus"],
     });
+    await fn();
 
     expect(mockClaudefn).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -284,14 +289,14 @@ describe("agentfn — options forwarding", () => {
     );
   });
 
-  it("forwards shared options to kimifn", () => {
+  it("forwards shared options to kimifn", async () => {
     (mockKimifn as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
       durationMs: 0,
     }));
 
-    agentfn({
+    const fn = agentfn({
       prompt: "test",
       provider: "kimi",
       timeoutMs: 5000,
@@ -299,6 +304,7 @@ describe("agentfn — options forwarding", () => {
       cwd: "/tmp",
       cliFlags: ["--model", "moonshot"],
     });
+    await fn();
 
     expect(mockKimifn).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -311,14 +317,14 @@ describe("agentfn — options forwarding", () => {
     );
   });
 
-  it("forwards claude-only options to claudefn", () => {
+  it("forwards claude-only options to claudefn", async () => {
     (mockClaudefn as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
       durationMs: 0,
     }));
 
-    agentfn({
+    const fn = agentfn({
       prompt: "test",
       backend: "sdk",
       model: "opus",
@@ -327,6 +333,7 @@ describe("agentfn — options forwarding", () => {
       maxTurns: 20,
       systemPrompt: "You are helpful",
     });
+    await fn();
 
     expect(mockClaudefn).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -340,20 +347,21 @@ describe("agentfn — options forwarding", () => {
     );
   });
 
-  it("does not pass claude-only options to kimifn", () => {
+  it("does not pass claude-only options to kimifn", async () => {
     (mockKimifn as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
       durationMs: 0,
     }));
 
-    agentfn({
+    const fn = agentfn({
       prompt: "test",
       provider: "kimi",
       backend: "sdk",
       model: "opus",
       allowedTools: ["Read"],
     });
+    await fn();
 
     const calledWith = (mockKimifn as any).mock.calls[0][0];
     expect(calledWith).not.toHaveProperty("backend");
@@ -361,14 +369,14 @@ describe("agentfn — options forwarding", () => {
     expect(calledWith).not.toHaveProperty("allowedTools");
   });
 
-  it("forwards shared options to qwenfn", () => {
+  it("forwards shared options to qwenfn", async () => {
     (mockQwenfn as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
       durationMs: 0,
     }));
 
-    agentfn({
+    const fn = agentfn({
       prompt: "test",
       provider: "qwen",
       timeoutMs: 5000,
@@ -376,6 +384,7 @@ describe("agentfn — options forwarding", () => {
       cwd: "/tmp",
       cliFlags: ["--model", "qwen-max"],
     });
+    await fn();
 
     expect(mockQwenfn).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -388,20 +397,21 @@ describe("agentfn — options forwarding", () => {
     );
   });
 
-  it("does not pass claude-only options to qwenfn", () => {
+  it("does not pass claude-only options to qwenfn", async () => {
     (mockQwenfn as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
       durationMs: 0,
     }));
 
-    agentfn({
+    const fn = agentfn({
       prompt: "test",
       provider: "qwen",
       backend: "sdk",
       model: "opus",
       allowedTools: ["Read"],
     });
+    await fn();
 
     const calledWith = (mockQwenfn as any).mock.calls[0][0];
     expect(calledWith).not.toHaveProperty("backend");
@@ -409,14 +419,14 @@ describe("agentfn — options forwarding", () => {
     expect(calledWith).not.toHaveProperty("allowedTools");
   });
 
-  it("forwards shared options to geminifn", () => {
+  it("forwards shared options to geminifn", async () => {
     (mockGeminifn as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
       durationMs: 0,
     }));
 
-    agentfn({
+    const fn = agentfn({
       prompt: "test",
       provider: "gemini",
       timeoutMs: 5000,
@@ -424,6 +434,7 @@ describe("agentfn — options forwarding", () => {
       cwd: "/tmp",
       cliFlags: ["--model", "gemini-2.5-pro"],
     });
+    await fn();
 
     expect(mockGeminifn).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -436,20 +447,21 @@ describe("agentfn — options forwarding", () => {
     );
   });
 
-  it("does not pass claude-only options to geminifn", () => {
+  it("does not pass claude-only options to geminifn", async () => {
     (mockGeminifn as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
       durationMs: 0,
     }));
 
-    agentfn({
+    const fn = agentfn({
       prompt: "test",
       provider: "gemini",
       backend: "sdk",
       model: "opus",
       allowedTools: ["Read"],
     });
+    await fn();
 
     const calledWith = (mockGeminifn as any).mock.calls[0][0];
     expect(calledWith).not.toHaveProperty("backend");
@@ -457,7 +469,7 @@ describe("agentfn — options forwarding", () => {
     expect(calledWith).not.toHaveProperty("allowedTools");
   });
 
-  it("forwards hooks to the underlying provider", () => {
+  it("forwards hooks to the underlying provider", async () => {
     const hooks = {
       before: vi.fn(),
       after: vi.fn(),
@@ -469,14 +481,15 @@ describe("agentfn — options forwarding", () => {
       durationMs: 0,
     }));
 
-    agentfn({ prompt: "test", hooks });
+    const fn = agentfn({ prompt: "test", hooks });
+    await fn();
 
     expect(mockClaudefn).toHaveBeenCalledWith(
       expect.objectContaining({ hooks }),
     );
   });
 
-  it("forwards schema to the underlying provider", () => {
+  it("forwards schema to the underlying provider", async () => {
     const schema = z.object({ name: z.string() });
     (mockClaudefn as any).mockReturnValue(async () => ({
       data: "",
@@ -484,7 +497,8 @@ describe("agentfn — options forwarding", () => {
       durationMs: 0,
     }));
 
-    agentfn({ prompt: "test", schema });
+    const fn = agentfn({ prompt: "test", schema });
+    await fn();
 
     expect(mockClaudefn).toHaveBeenCalledWith(
       expect.objectContaining({ schema }),
@@ -495,7 +509,7 @@ describe("agentfn — options forwarding", () => {
 // ─── Default Provider ───────────────────────────────────────
 
 describe("agentfn — default provider", () => {
-  it("uses global default provider when none specified", () => {
+  it("uses global default provider when none specified", async () => {
     (mockKimifn as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
@@ -503,13 +517,14 @@ describe("agentfn — default provider", () => {
     }));
 
     setDefaultProvider("kimi");
-    agentfn({ prompt: "test" });
+    const fn = agentfn({ prompt: "test" });
+    await fn();
 
     expect(mockKimifn).toHaveBeenCalledOnce();
     expect(mockClaudefn).not.toHaveBeenCalled();
   });
 
-  it("explicit provider overrides global default", () => {
+  it("explicit provider overrides global default", async () => {
     (mockClaudefn as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
@@ -517,7 +532,8 @@ describe("agentfn — default provider", () => {
     }));
 
     setDefaultProvider("kimi");
-    agentfn({ prompt: "test", provider: "claude" });
+    const fn = agentfn({ prompt: "test", provider: "claude" });
+    await fn();
 
     expect(mockClaudefn).toHaveBeenCalledOnce();
     expect(mockKimifn).not.toHaveBeenCalled();
@@ -527,12 +543,13 @@ describe("agentfn — default provider", () => {
 // ─── Stream Mode ────────────────────────────────────────────
 
 describe("agentfn — stream mode", () => {
-  it("delegates stream mode to claudefn", () => {
+  it("delegates stream mode to claudefn", async () => {
     const mockSession = { sessionId: "", send: vi.fn(), stream: vi.fn() };
     const mockStreamFn = vi.fn(() => mockSession);
     (mockClaudefn as any).mockReturnValue(mockStreamFn);
 
-    agentfn({ prompt: "Fix the bug", mode: "stream" });
+    const fn = agentfn({ prompt: "Fix the bug", mode: "stream" });
+    await fn();
 
     expect(mockClaudefn).toHaveBeenCalledWith(
       expect.objectContaining({ mode: "stream" }),
@@ -561,7 +578,7 @@ describe("agentfn — stream mode", () => {
 // ─── Promptless Usage ───────────────────────────────────────
 
 describe("agentfn — promptless usage", () => {
-  it("works without a prompt option", () => {
+  it("works without a prompt option", async () => {
     (mockClaudefn as any).mockReturnValue(async () => ({
       data: "result",
       raw: "result",
@@ -570,6 +587,7 @@ describe("agentfn — promptless usage", () => {
 
     const fn = agentfn();
     expect(typeof fn).toBe("function");
+    await fn();
     expect(mockClaudefn).toHaveBeenCalledWith(
       expect.objectContaining({ prompt: undefined }),
     );

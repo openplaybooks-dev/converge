@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <title>Week 19 - Tomato</title>
+  <defs>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FDEEEE" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#FDEEEE" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="tomatoGrad" x1="0.3" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#F9A8A8"/>
+      <stop offset="50%" stop-color="#F28B8B"/>
+      <stop offset="100%" stop-color="#D97070"/>
+    </linearGradient>
+    <linearGradient id="calyxGrad" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#7B6DC8"/>
+      <stop offset="100%" stop-color="#8B7ED8"/>
+    </linearGradient>
+  </defs>
+  <!-- Halo glow -->
+  <circle cx="100" cy="108" r="70" fill="url(#halo)"/>
+  <!-- Tomato body — wide, slightly flattened sphere with subtle ridges -->
+  <path d="M100 62 Q64 66 48 88 Q36 108 40 128 Q44 148 60 158 Q72 166 86 168 Q100 170 114 168 Q128 166 140 158 Q156 148 160 128 Q164 108 152 88 Q136 66 100 62Z" fill="url(#tomatoGrad)" stroke="#D97070" stroke-width="1.5"/>
+  <!-- Segment crease left -->
+  <path d="M72 72 Q66 105 70 152" stroke="#D97070" stroke-width="1" stroke-opacity="0.3" stroke-linecap="round" fill="none"/>
+  <!-- Segment crease center-left -->
+  <path d="M86 64 Q82 105 84 164" stroke="#D97070" stroke-width="0.8" stroke-opacity="0.2" stroke-linecap="round" fill="none"/>
+  <!-- Segment crease center-right -->
+  <path d="M114 64 Q118 105 116 164" stroke="#D97070" stroke-width="0.8" stroke-opacity="0.2" stroke-linecap="round" fill="none"/>
+  <!-- Segment crease right -->
+  <path d="M128 72 Q134 105 130 152" stroke="#D97070" stroke-width="1" stroke-opacity="0.3" stroke-linecap="round" fill="none"/>
+  <!-- Highlight -->
+  <ellipse cx="82" cy="106" rx="16" ry="30" fill="white" opacity="0.18" transform="rotate(-10 82 106)"/>
+  <!-- Calyx — five-pointed star sepals -->
+  <path d="M100 64 Q94 52 86 42 Q94 50 100 60Z" fill="url(#calyxGrad)" stroke="#6B5EB0" stroke-width="1"/>
+  <path d="M100 64 Q106 52 114 42 Q106 50 100 60Z" fill="url(#calyxGrad)" stroke="#6B5EB0" stroke-width="1"/>
+  <path d="M94 64 Q84 56 76 48 Q86 54 94 62Z" fill="url(#calyxGrad)" stroke="#6B5EB0" stroke-width="1"/>
+  <path d="M106 64 Q116 56 124 48 Q114 54 106 62Z" fill="url(#calyxGrad)" stroke="#6B5EB0" stroke-width="1"/>
+  <path d="M100 62 Q100 50 100 44 Q100 50 100 60Z" fill="url(#calyxGrad)" stroke="#6B5EB0" stroke-width="1"/>
+  <!-- Stem -->
+  <path d="M100 62 Q103 48 98 36" stroke="#8B7ED8" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <!-- Shadow at base -->
+  <ellipse cx="100" cy="182" rx="30" ry="4" fill="#D97070" opacity="0.18"/>
+</svg>

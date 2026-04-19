@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "04-generate-assets/017-week-17/017-05-wire",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T05:29:55.059Z",
+  "createdAt": "2026-04-19T05:29:16.563Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T05:29:16.563Z",
+      "completedAt": "2026-04-19T05:29:55.050Z",
+      "outcome": "success",
+      "durationMs": 38488
+    }
+  ],
+  "currentAttempt": 1
+}

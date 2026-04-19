@@ -1,13 +1,19 @@
-import { compose as claudeCompose } from "@converge/claudefn";
-import { compose as kimiCompose } from "@converge/kimifn";
-import { compose as qwenCompose } from "@converge/qwenfn";
-import { compose as geminiCompose } from "@converge/geminifn";
 import type { ComposeOptions, AgentFnResult, Provider } from "./types.js";
 import type { ComposeOptions as ClaudeComposeOptions } from "@converge/claudefn";
 import type { ComposeOptions as KimiComposeOptions } from "@converge/kimifn";
 import type { ComposeOptions as QwenComposeOptions } from "@converge/qwenfn";
 import type { ComposeOptions as GeminiComposeOptions } from "@converge/geminifn";
 import { getDefaultProvider } from "./provider.js";
+
+async function loadProvider<T>(pkg: string): Promise<T> {
+  try {
+    return await import(pkg);
+  } catch {
+    throw new Error(
+      `Provider "${pkg}" is not installed. Install it with: pnpm add ${pkg}`,
+    );
+  }
+}
 import { enhancePrompt } from "./prompting.js";
 import { ensureSkillSymlinks, cleanupSkillSymlinks } from "./skills.js";
 import { join, resolve } from "node:path";
@@ -58,8 +64,12 @@ export function compose<T = string>(
   const useLegacySkills = !useNewSkills && (options.enableSkills ?? true);
 
   if (provider === "kimi") {
-    const fn = kimiCompose<T>(toKimiComposeOptions(options));
+    let fn: ReturnType<typeof import("@converge/kimifn").compose<T>> | undefined;
     return async (input?: string) => {
+      if (!fn) {
+        const mod = await loadProvider<typeof import("@converge/kimifn")>("@converge/kimifn");
+        fn = mod.compose<T>(toKimiComposeOptions(options));
+      }
       let enhancedInput = input;
       if (useLegacySkills && input) {
         enhancedInput = enhancePrompt(input, { cwd: options.cwd });
@@ -70,8 +80,12 @@ export function compose<T = string>(
   }
 
   if (provider === "qwen") {
-    const fn = qwenCompose<T>(toQwenComposeOptions(options));
+    let fn: ReturnType<typeof import("@converge/qwenfn").compose<T>> | undefined;
     return async (input?: string) => {
+      if (!fn) {
+        const mod = await loadProvider<typeof import("@converge/qwenfn")>("@converge/qwenfn");
+        fn = mod.compose<T>(toQwenComposeOptions(options));
+      }
       let enhancedInput = input;
       if (useLegacySkills && input) {
         enhancedInput = enhancePrompt(input, { cwd: options.cwd });
@@ -82,8 +96,12 @@ export function compose<T = string>(
   }
 
   if (provider === "gemini") {
-    const fn = geminiCompose<T>(toGeminiComposeOptions(options));
+    let fn: ReturnType<typeof import("@converge/geminifn").compose<T>> | undefined;
     return async (input?: string) => {
+      if (!fn) {
+        const mod = await loadProvider<typeof import("@converge/geminifn")>("@converge/geminifn");
+        fn = mod.compose<T>(toGeminiComposeOptions(options));
+      }
       let enhancedInput = input;
       if (useLegacySkills && input) {
         enhancedInput = enhancePrompt(input, { cwd: options.cwd });
@@ -94,8 +112,12 @@ export function compose<T = string>(
   }
 
   // Claude provider — supports symlinks
-  const fn = claudeCompose<T>(toClaudeComposeOptions(options));
+  let fn: ReturnType<typeof import("@converge/claudefn").compose<T>> | undefined;
   return async (input?: string) => {
+    if (!fn) {
+      const mod = await loadProvider<typeof import("@converge/claudefn")>("@converge/claudefn");
+      fn = mod.compose<T>(toClaudeComposeOptions(options));
+    }
     let enhancedInput = input;
     if (useLegacySkills && input) {
       enhancedInput = enhancePrompt(input, { cwd: options.cwd });

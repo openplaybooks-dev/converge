@@ -1,0 +1,20 @@
+{
+  "type": "task",
+  "id": "04-generate-assets/001-week-01",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T05:58:48.508Z",
+  "createdAt": "2026-04-19T05:58:48.473Z",
+  "progress": {
+    "totalChildren": 5,
+    "completedChildren": 5,
+    "failedChildren": 0,
+    "childIds": [
+      "001-01-analyze",
+      "001-02-spec",
+      "001-03-meta",
+      "001-04-generate",
+      "001-05-wire"
+    ],
+    "lastProgressUpdate": "2026-04-19T05:58:48.471Z"
+  }
+}

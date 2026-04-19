@@ -1,0 +1,16 @@
+{
+  "type": "task",
+  "id": "04-generate-assets/021-week-21/021-04-generate",
+  "status": "interrupted",
+  "lastUpdated": "2026-04-19T06:07:09.639Z",
+  "createdAt": "2026-04-19T06:06:34.312Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T06:06:34.312Z",
+      "completedAt": "2026-04-19T06:07:09.639Z",
+      "outcome": "interrupted"
+    }
+  ],
+  "currentAttempt": 1
+}

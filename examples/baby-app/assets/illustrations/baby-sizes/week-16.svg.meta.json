@@ -1,0 +1,28 @@
+{
+  "id": "week-16",
+  "version": "1.0.0",
+  "type": "baby-size",
+  "format": "svg",
+  "fileName": "week-16.svg",
+  "semantic": {
+    "title": "Week 16 Baby Size",
+    "description": "A friendly avocado illustration representing the fetus at week 16 of pregnancy, rendered in a soft, rounded style with a rich green bumpy skin, pale yellow-green flesh interior, and a warm brown pit with a subtle highlight.",
+    "tags": ["baby-size", "pregnancy", "week-16", "avocado"],
+    "alt": "A friendly avocado illustration showing the approximate size of a fetus at week 16 of pregnancy"
+  },
+  "usage": {
+    "screens": ["HomeScreen"],
+    "widgets": ["HeroIllustrationCard"],
+    "accessibility": {
+      "label": "Baby size at week 16: about the size of an avocado",
+      "role": "image"
+    }
+  },
+  "variants": {
+    "light": "week-16.svg",
+    "dark": null
+  },
+  "source": {
+    "spec": ".converge/playbooks/default/tasks/04-generate-assets/tasks/016-week-16/SPEC.md"
+  }
+}

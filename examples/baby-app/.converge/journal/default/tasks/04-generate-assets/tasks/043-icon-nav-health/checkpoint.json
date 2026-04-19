@@ -1,0 +1,19 @@
+{
+  "type": "task",
+  "id": "04-generate-assets/043-icon-nav-health",
+  "status": "pending",
+  "lastUpdated": "2026-04-19T05:58:48.474Z",
+  "createdAt": "2026-04-19T05:58:48.473Z",
+  "progress": {
+    "totalChildren": 4,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "043-01-analyze",
+      "043-02-spec",
+      "043-04-generate",
+      "043-05-wire"
+    ],
+    "lastProgressUpdate": "2026-04-19T05:58:48.472Z"
+  }
+}

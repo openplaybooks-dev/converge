@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <title>Week 14 - Lemon</title>
+  <defs>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FDEEEE" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#FDEEEE" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="lemonGrad" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#FF8A8A"/>
+      <stop offset="100%" stop-color="#FF6B6B"/>
+    </radialGradient>
+  </defs>
+  <!-- Halo glow -->
+  <circle cx="100" cy="105" r="72" fill="url(#halo)"/>
+  <!-- Lemon body — elongated oval with tapered ends -->
+  <ellipse cx="100" cy="105" rx="52" ry="36" fill="url(#lemonGrad)" stroke="#E05555" stroke-width="1.5"/>
+  <!-- Tapered left tip -->
+  <path d="M48 105 Q40 105 36 103 Q40 107 48 105Z" fill="#FF6B6B" stroke="#E05555" stroke-width="1"/>
+  <!-- Tapered right tip -->
+  <path d="M152 105 Q160 103 164 105 Q160 107 152 105Z" fill="#FF6B6B" stroke="#E05555" stroke-width="1"/>
+  <!-- Dimpled texture dots -->
+  <circle cx="80" cy="98" r="1.2" fill="#9B59B6" opacity="0.2"/>
+  <circle cx="90" cy="115" r="1" fill="#9B59B6" opacity="0.18"/>
+  <circle cx="108" cy="95" r="1.1" fill="#9B59B6" opacity="0.2"/>
+  <circle cx="118" cy="112" r="1.2" fill="#9B59B6" opacity="0.18"/>
+  <circle cx="95" cy="102" r="0.9" fill="#9B59B6" opacity="0.15"/>
+  <circle cx="112" cy="105" r="1" fill="#9B59B6" opacity="0.17"/>
+  <circle cx="85" cy="110" r="1.1" fill="#9B59B6" opacity="0.16"/>
+  <circle cx="125" cy="100" r="1" fill="#9B59B6" opacity="0.19"/>
+  <!-- Highlight on upper-left surface -->
+  <ellipse cx="82" cy="95" rx="18" ry="14" fill="white" opacity="0.18" transform="rotate(-10 82 95)"/>
+  <!-- Stem at right end -->
+  <path d="M152 105 Q156 98 158 88" stroke="#9B59B6" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="158" cy="87" r="1.8" fill="#9B59B6"/>
+  <!-- Small leaf -->
+  <path d="M156 92 Q162 84 170 82" stroke="#9B59B6" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M156 92 Q163 86 170 82 Q165 93 156 92Z" fill="#9B59B6" opacity="0.55"/>
+</svg>

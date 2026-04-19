@@ -1,0 +1,19 @@
+{
+  "type": "task",
+  "id": "04-generate-assets/042-icon-nav-progress",
+  "status": "pending",
+  "lastUpdated": "2026-04-19T05:58:48.474Z",
+  "createdAt": "2026-04-19T05:58:48.473Z",
+  "progress": {
+    "totalChildren": 4,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "042-01-analyze",
+      "042-02-spec",
+      "042-04-generate",
+      "042-05-wire"
+    ],
+    "lastProgressUpdate": "2026-04-19T05:58:48.472Z"
+  }
+}

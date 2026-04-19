@@ -39,13 +39,22 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@converge/acpfn": "workspace:*",
+    "zod": "^3.24.0"
+  },
+  "peerDependencies": {
     "@converge/claudefn": "workspace:*",
     "@converge/kimifn": "workspace:*",
     "@converge/qwenfn": "workspace:*",
     "@converge/geminifn": "workspace:*",
-    "@converge/acpfn": "workspace:*",
-    "@converge/openfn": "workspace:*",
-    "zod": "^3.24.0"
+    "@converge/openfn": "workspace:*"
+  },
+  "peerDependenciesMeta": {
+    "@converge/claudefn": { "optional": true },
+    "@converge/kimifn": { "optional": true },
+    "@converge/qwenfn": { "optional": true },
+    "@converge/geminifn": { "optional": true },
+    "@converge/openfn": { "optional": true }
   },
   "devDependencies": {
     "typescript": "^5.9.0",

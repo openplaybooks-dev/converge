@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "04-generate-assets/015-week-15/015-01-analyze",
+  "status": "complete",
+  "lastUpdated": "2026-04-19T05:19:46.583Z",
+  "createdAt": "2026-04-19T05:19:09.972Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T05:19:09.972Z",
+      "completedAt": "2026-04-19T05:19:46.576Z",
+      "outcome": "success",
+      "durationMs": 36604
+    }
+  ],
+  "currentAttempt": 1
+}

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <title>Week 15 - Apple</title>
+  <defs>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FDEEEE" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#FDEEEE" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="appleGrad" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#FF8A8A"/>
+      <stop offset="100%" stop-color="#FF6B6B"/>
+    </radialGradient>
+  </defs>
+  <!-- Halo glow -->
+  <circle cx="100" cy="108" r="72" fill="url(#halo)"/>
+  <!-- Apple body — plump, slightly flattened sphere with top indent -->
+  <path d="M100 60 Q68 62 56 90 Q44 118 58 140 Q72 162 100 164 Q128 162 142 140 Q156 118 144 90 Q132 62 100 60Z" fill="url(#appleGrad)" stroke="#E05555" stroke-width="1.5"/>
+  <!-- Top indent -->
+  <path d="M88 64 Q94 72 100 72 Q106 72 112 64" fill="none" stroke="#E05555" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Highlight on upper-left surface -->
+  <ellipse cx="82" cy="92" rx="16" ry="22" fill="white" opacity="0.18" transform="rotate(-15 82 92)"/>
+  <!-- Shadow dimple at base -->
+  <ellipse cx="100" cy="160" rx="10" ry="3" fill="#E05555" opacity="0.25"/>
+  <!-- Stem -->
+  <path d="M100 64 Q98 52 102 42" stroke="#9B59B6" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Leaf -->
+  <path d="M102 48 Q112 38 122 36" stroke="#9B59B6" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M102 48 Q113 40 122 36 Q115 50 102 48Z" fill="#9B59B6" opacity="0.55"/>
+</svg>

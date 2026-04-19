@@ -1,0 +1,28 @@
+{
+  "id": "week-21",
+  "version": "1.0.0",
+  "type": "baby-size",
+  "format": "svg",
+  "fileName": "week-21.svg",
+  "semantic": {
+    "title": "Week 21 Baby Size",
+    "description": "A friendly carrot illustration representing the fetus at week 21 of pregnancy, rendered in a soft, rounded style with a tapered cone body and feathery green leaves.",
+    "tags": ["baby-size", "pregnancy", "week-21", "carrot"],
+    "alt": "A friendly carrot illustration showing the approximate size of a fetus at week 21 of pregnancy"
+  },
+  "usage": {
+    "screens": ["HomeScreen"],
+    "widgets": ["HeroIllustrationCard"],
+    "accessibility": {
+      "label": "Baby size at week 21: about the size of a carrot",
+      "role": "image"
+    }
+  },
+  "variants": {
+    "light": "week-21.svg",
+    "dark": null
+  },
+  "source": {
+    "spec": ".converge/playbooks/default/tasks/04-generate-assets/tasks/021-week-21/SPEC.md"
+  }
+}

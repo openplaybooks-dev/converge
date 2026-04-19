@@ -1,0 +1,245 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-generate-assets/010-week-10/010-03-meta-missing-output-assets/illustrations/baby-sizes/week-10.svg.meta.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-generate-assets/010-week-10/010-03-meta",
+            "severity": "high",
+            "description": "[04-generate-assets/010-week-10/010-03-meta] Task output not created: assets/illustrations/baby-sizes/week-10.svg.meta.json",
+            "source": "unit",
+            "detected": "2026-04-19T05:03:14.146Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/04-generate-assets/tasks/010-week-10/tasks/010-03-meta",
+              "taskId": "04-generate-assets/010-week-10/010-03-meta",
+              "taskTitle": "Meta — baby-size: Week 10",
+              "taskPrompt": "# Generate Asset Metadata\n\nCreate a machine-readable metadata file for this asset.\n\n## From Specification\n\nRead `SPEC.md` from the previous step.\n\n## Output\n\nCreate `assets/illustrations/baby-sizes/week-10.svg.meta.json`:\n\n```json\n{\n  \"id\": \"week-10\",\n  \"version\": \"1.0.0\",\n  \"type\": \"baby-size\",\n  \"format\": \"svg\",\n  \"fileName\": \"week-10.svg\",\n  \"semantic\": {\n    \"title\": \"Week 10 Baby Size\",\n    \"description\": \"...\",\n    \"tags\": [\"baby-size\", \"pregnancy\", \"week-10\", \"prune\"],\n    \"alt\": \"...\"\n  },\n  \"usage\": {\n    \"screens\": [\"HomeScreen\"],\n    \"widgets\": [\"HeroIllustrationCard\"],\n    \"accessibility\": {\n      \"label\": \"...\",\n      \"role\": \"image\"\n    }\n  },\n  \"variants\": {\n    \"light\": \"week-10.svg\",\n    \"dark\": null\n  },\n  \"source\": {\n    \"spec\": \".converge/playbooks/default/tasks/04-generate-assets/tasks/010-week-10/SPEC.md\"\n  }\n}\n```\n\nEnsure the metadata enables:\n1. Search/discovery by tags\n2. Accessibility labels\n3. Usage tracking\n4. Variant management",
+              "taskSkill": "metadata-generation",
+              "taskInputs": [
+                ".converge/playbooks/default/tasks/04-generate-assets/tasks/010-week-10/SPEC.md"
+              ],
+              "factId": "file-exists:test -f \"assets/illustrations/baby-sizes/week-10.svg.meta.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-generate-assets/010-week-10/010-03-meta-check-failed-meta-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-generate-assets/010-week-10/010-03-meta",
+            "severity": "high",
+            "description": "[04-generate-assets/010-week-10/010-03-meta] Check failed: Metadata JSON file exists",
+            "source": "unit",
+            "detected": "2026-04-19T05:03:14.148Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "meta-exists",
+              "checkCmd": "test -f assets/illustrations/baby-sizes/week-10.svg.meta.json",
+              "checkDescription": "Metadata JSON file exists",
+              "checkOutput": "Command failed: test -f assets/illustrations/baby-sizes/week-10.svg.meta.json\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Generate Asset Metadata\n\nCreate a machine-readable metadata file for this asset.\n\n## From Specification\n\nRead `SPEC.md` from the previous step.\n\n## Output\n\nCreate `assets/illustrations/baby-sizes/week-10.svg.meta.json`:\n\n```json\n{\n  \"id\": \"week-10\",\n  \"version\": \"1.0.0\",\n  \"type\": \"baby-size\",\n  \"format\": \"svg\",\n  \"fileName\": \"week-10.svg\",\n  \"semantic\": {\n    \"title\": \"Week 10 Baby Size\",\n    \"description\": \"...\",\n    \"tags\": [\"baby-size\", \"pregnancy\", \"week-10\", \"prune\"],\n    \"alt\": \"...\"\n  },\n  \"usage\": {\n    \"screens\": [\"HomeScreen\"],\n    \"widgets\": [\"HeroIllustrationCard\"],\n    \"accessibility\": {\n      \"label\": \"...\",\n      \"role\": \"image\"\n    }\n  },\n  \"variants\": {\n    \"light\": \"week-10.svg\",\n    \"dark\": null\n  },\n  \"source\": {\n    \"spec\": \".converge/playbooks/default/tasks/04-generate-assets/tasks/010-week-10/SPEC.md\"\n  }\n}\n```\n\nEnsure the metadata enables:\n1. Search/discovery by tags\n2. Accessibility labels\n3. Usage tracking\n4. Variant management",
+              "taskSkill": "metadata-generation",
+              "taskId": "04-generate-assets/010-week-10/010-03-meta",
+              "taskTitle": "Meta — baby-size: Week 10",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/04-generate-assets/tasks/010-week-10/tasks/010-03-meta",
+              "factId": "check:meta-exists"
+            }
+          }
+        ],
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 5
+      }
+    },
+    {
+      "id": "run-skill",
+      "handler": "run-skill",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 64
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 83
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#48",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 31392
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-19T05:03:14.141Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-19T05:03:14.141Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-19T05:03:14.148Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-19T05:03:14.149Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "run-skill",
+      "iteration": 1,
+      "ts": "2026-04-19T05:03:14.151Z"
+    },
+    {
+      "from": "run-skill",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-19T05:03:14.157Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#48",
+      "iteration": 1,
+      "ts": "2026-04-19T05:03:45.550Z"
+    },
+    {
+      "from": "run-strategy:task-run#48",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-19T05:03:45.634Z"
+    }
+  ]
+}

@@ -5,7 +5,6 @@
  * conversation and request structured output (status, summary, errors, etc.).
  */
 
-import { sendFeedback as claudeSendFeedback } from "@converge/claudefn";
 import type { AgentFnResult, Provider } from "./types.js";
 
 export interface AgentFeedbackOptions {
@@ -57,6 +56,16 @@ export async function agentSendFeedback(
 
   if (!opts.sessionId) {
     throw new Error("agentSendFeedback: sessionId is required");
+  }
+
+  let claudeSendFeedback: typeof import("@converge/claudefn").sendFeedback;
+  try {
+    const mod = await import("@converge/claudefn");
+    claudeSendFeedback = mod.sendFeedback;
+  } catch {
+    throw new Error(
+      `Provider "@converge/claudefn" is not installed. Install it with: pnpm add @converge/claudefn`,
+    );
   }
 
   const result = await claudeSendFeedback({

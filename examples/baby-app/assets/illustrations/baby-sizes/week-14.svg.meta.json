@@ -1,0 +1,28 @@
+{
+  "id": "week-14",
+  "version": "1.0.0",
+  "type": "baby-size",
+  "format": "svg",
+  "fileName": "week-14.svg",
+  "semantic": {
+    "title": "Week 14 Baby Size",
+    "description": "A friendly lemon illustration representing the fetus at week 14 of pregnancy, rendered in a soft, rounded style with an elongated oval body, tapered ends, a small stubby stem with a single rounded leaf, and subtle dimpled texture.",
+    "tags": ["baby-size", "pregnancy", "week-14", "lemon"],
+    "alt": "A friendly lemon illustration showing the approximate size of a fetus at week 14 of pregnancy"
+  },
+  "usage": {
+    "screens": ["HomeScreen"],
+    "widgets": ["HeroIllustrationCard"],
+    "accessibility": {
+      "label": "Baby size at week 14: about the size of a lemon",
+      "role": "image"
+    }
+  },
+  "variants": {
+    "light": "week-14.svg",
+    "dark": null
+  },
+  "source": {
+    "spec": ".converge/playbooks/default/tasks/04-generate-assets/tasks/014-week-14/SPEC.md"
+  }
+}

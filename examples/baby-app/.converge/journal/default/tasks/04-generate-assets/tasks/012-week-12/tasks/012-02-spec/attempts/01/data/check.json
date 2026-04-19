@@ -1,0 +1,10 @@
+{
+  "taskId": "04-generate-assets/012-week-12/012-02-spec",
+  "checks": [
+    {
+      "id": "spec-exists",
+      "description": "Visual specification document exists",
+      "cmd": "test -f .converge/playbooks/default/tasks/04-generate-assets/tasks/012-week-12/SPEC.md"
+    }
+  ]
+}

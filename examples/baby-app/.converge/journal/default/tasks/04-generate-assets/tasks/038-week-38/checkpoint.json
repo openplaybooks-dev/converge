@@ -1,0 +1,20 @@
+{
+  "type": "task",
+  "id": "04-generate-assets/038-week-38",
+  "status": "pending",
+  "lastUpdated": "2026-04-19T05:58:48.474Z",
+  "createdAt": "2026-04-19T05:58:48.473Z",
+  "progress": {
+    "totalChildren": 5,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "038-01-analyze",
+      "038-02-spec",
+      "038-03-meta",
+      "038-04-generate",
+      "038-05-wire"
+    ],
+    "lastProgressUpdate": "2026-04-19T05:58:48.472Z"
+  }
+}

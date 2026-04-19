@@ -1,0 +1,19 @@
+{
+  "type": "task",
+  "id": "04-generate-assets/049-icon-action-share",
+  "status": "pending",
+  "lastUpdated": "2026-04-19T05:58:48.474Z",
+  "createdAt": "2026-04-19T05:58:48.473Z",
+  "progress": {
+    "totalChildren": 4,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "049-01-analyze",
+      "049-02-spec",
+      "049-04-generate",
+      "049-05-wire"
+    ],
+    "lastProgressUpdate": "2026-04-19T05:58:48.472Z"
+  }
+}
