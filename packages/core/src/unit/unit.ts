@@ -22,6 +22,7 @@ import type {
   CheckEntry,
   TaskContext as CallbackContext,
   Check,
+  OnFailConfig,
 } from "../config/task-definition.ts";
 import type { TaskContext } from "./task-context.ts";
 import type { UnitConfig } from "./types.ts";
@@ -83,6 +84,9 @@ export class Unit implements TaskDefinition {
   // Backlog scan definitions
   backlogs?: import("../scan/types.ts").BacklogDef[];
 
+  // On-fail sibling reset config
+  onFail?: OnFailConfig;
+
   // Execution modifiers
   isAsync?: boolean;
   backgroundConfig?: import("../process/types.ts").BackgroundConfig;
@@ -128,6 +132,7 @@ export class Unit implements TaskDefinition {
     this.executorFn = config.taskDef.executorFn;
     this.convergeConfig = config.taskDef.convergeConfig;
     this.backlogs = config.taskDef.backlogs;
+    this.onFail = config.taskDef.onFail;
 
     // Copy execution modifiers
     this.isAsync = config.taskDef.isAsync;

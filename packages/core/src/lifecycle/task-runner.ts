@@ -134,6 +134,8 @@ export interface TaskExecutionResult {
   durationMs: number;
   /** Whether this task is a blocker (must complete successfully) */
   isBlocking: boolean;
+  /** Sibling task IDs that were reset to pending by on-fail config */
+  resetSiblings?: string[];
 }
 
 /* ------------------------------------------------------------------ */
@@ -883,6 +885,7 @@ export async function executeTask(
   let success = false;
   let isWbsTask = false;
   let isBlocking = false;
+  let resetSiblings: string[] | undefined;
   let unit: Unit | null = null;
   const executionStartTime = Date.now();
 
@@ -1077,6 +1080,31 @@ export async function executeTask(
       );
       throw err; // Re-throw to prevent rollUpCompletion with bad state
     }
+
+    // ── 6.5. On-Fail Sibling Reset ───────────────────────────────────
+    if (unit?.onFail?.reset?.length) {
+      resetSiblings = [];
+      for (const siblingId of unit.onFail.reset) {
+        try {
+          const siblingUnitCkpt = new UnitCheckpointManager(
+            ctx.projectDir, "task", ctx.epicId, siblingId,
+          );
+          const siblingCheckpoint = await siblingUnitCkpt.load();
+          if (!siblingCheckpoint) {
+            console.warn(`   ⚠️  on-fail reset: sibling "${siblingId}" not found — skipping`);
+            continue;
+          }
+          if (siblingCheckpoint.status === "pending") {
+            continue;
+          }
+          await checkpointMgr.removeFromCompleted(siblingId, ctx.epicId);
+          resetSiblings.push(siblingId);
+          console.log(`   ↩️  on-fail reset: "${siblingId}" → pending`);
+        } catch (err: any) {
+          console.warn(`   ⚠️  on-fail reset failed for "${siblingId}": ${err.message}`);
+        }
+      }
+    }
   }
 
   // ── 7. Propagate Completion/Failure Up the Tree ────────────────────
@@ -1148,5 +1176,6 @@ export async function executeTask(
     isWbsTask,
     durationMs,
     isBlocking,
+    resetSiblings,
   };
 }

@@ -134,6 +134,7 @@ export interface TaskMdDef {
   "auto-converge"?: boolean | AutoConvergePolicy;
   context?: SkillContextStep[];
   backlogs?: BacklogDef[];
+  "on-fail"?: { reset?: string[] };
   vars?: Record<string, unknown>;
 }
 
@@ -171,6 +172,7 @@ export interface TaskMdShape {
   "auto-converge"?: boolean | AutoConvergePolicy;
   context?: SkillContextStep[];
   backlogs?: BacklogDef[];
+  "on-fail"?: { reset?: string[] };
   /**
    * Goal definitions this task produces when completed.
    * Each entry becomes a GOAL.md file in .converge/goals/{NNN}-{id}/.
@@ -218,6 +220,7 @@ const RESERVED_KEYS = new Set([
   "backlogs",
   "goalDefs",
   "goal-defs",
+  "on-fail",
   "vars",
 ]);
 
@@ -442,6 +445,7 @@ export async function mapTaskMdToTaskDefinition(
     planConfig,
     wbsFn,
     backlogs: def.backlogs,
+    onFail: def["on-fail"] ? { reset: def["on-fail"].reset } : undefined,
   };
 
   return taskDef;
@@ -538,6 +542,14 @@ function parseBacklogs(raw: unknown): BacklogDef[] | undefined {
   return results.length > 0 ? results : undefined;
 }
 
+function parseOnFail(raw: unknown): { reset?: string[] } | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const obj = raw as Record<string, unknown>;
+  const reset = parseStringArray(obj.reset);
+  if (!reset) return undefined;
+  return { reset };
+}
+
 function parseStringRecord(raw: unknown): Record<string, string> | undefined {
   if (!raw || typeof raw !== "object") return undefined;
   const result: Record<string, string> = {};
@@ -610,6 +622,7 @@ export function parseTaskMdString(raw: string): TaskMdShape {
     "auto-converge": def["auto-converge"],
     context: def.context,
     backlogs: def.backlogs,
+    "on-fail": def["on-fail"],
     body: body || undefined,
   };
 }
@@ -655,6 +668,7 @@ function parseFrontmatterToTaskMdDef(
     "auto-converge": parseAutoConverge(parsed["auto-converge"]),
     context: parseContextSteps(parsed.context),
     backlogs: parseBacklogs(parsed.backlogs),
+    "on-fail": parseOnFail(parsed["on-fail"]),
     vars:
       parsed.vars && typeof parsed.vars === "object"
         ? (parsed.vars as Record<string, unknown>)

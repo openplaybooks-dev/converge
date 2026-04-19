@@ -1,0 +1,12 @@
+name: improve
+description: Continuously improve the converge framework — clean code, production readiness, proper package boundaries.
+
+run:
+  mode: evolve
+  maxIterations: 10
+  maxTaskAttempts: 3
+  maxDuration: 120m
+  resume: true
+
+tasks:
+  - id: improve

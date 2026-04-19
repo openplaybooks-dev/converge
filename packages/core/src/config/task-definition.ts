@@ -260,6 +260,14 @@ export interface TaskDefinition {
    * Set via .sidecar(hooks) on the builder.
    */
   sidecarHooks?: import("../sidecar/types.ts").SidecarHooks;
+
+  /** On-fail behavior: reset specified sibling tasks back to pending. */
+  onFail?: OnFailConfig;
+}
+
+export interface OnFailConfig {
+  /** Sibling task IDs to reset to pending when this task fails. */
+  reset?: string[];
 }
 
 /**

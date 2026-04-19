@@ -103,7 +103,7 @@ function parseRunConfig(raw: unknown): PlaybookRunConfig | undefined {
   const config: PlaybookRunConfig = {};
 
   if (obj.mode && typeof obj.mode === "string") {
-    if (["autonomous", "converge", "step"].includes(obj.mode)) {
+    if (["autonomous", "converge", "step", "evolve"].includes(obj.mode)) {
       config.mode = obj.mode as PlaybookRunConfig["mode"];
     }
   }
@@ -181,8 +181,10 @@ export async function parsePlaybookYml(
     ? String(parsed.name)
     : dirname(templateDir).split("/").pop() || "unknown";
 
-  // Every playbook needs a tasks/ directory — that's where TASK.md files live
-  if (!existsSync(join(templateDir, "tasks"))) {
+  // Every playbook needs a tasks/ directory — except evolve mode (creates tasks dynamically)
+  const mode = parsed.run && typeof parsed.run === "object"
+    ? (parsed.run as Record<string, unknown>).mode : undefined;
+  if (mode !== "evolve" && !existsSync(join(templateDir, "tasks"))) {
     throw new Error(`Playbook "${name}" has no tasks/ directory`);
   }
 
@@ -210,19 +212,21 @@ export function validatePlaybook(
 ): string[] {
   const errors: string[] = [];
 
-  // tasks/ directory must exist
-  const tasksDir = join(templateDir, "tasks");
-  if (!existsSync(tasksDir)) {
-    errors.push(`No tasks/ directory found at ${tasksDir}`);
+  // tasks/ directory must exist (except for evolve mode which creates tasks dynamically)
+  if (def.run?.mode !== "evolve") {
+    const tasksDir = join(templateDir, "tasks");
+    if (!existsSync(tasksDir)) {
+      errors.push(`No tasks/ directory found at ${tasksDir}`);
+    }
   }
 
   // Validate run config
   if (
     def.run?.mode &&
-    !["autonomous", "converge", "step"].includes(def.run.mode)
+    !["autonomous", "converge", "step", "evolve"].includes(def.run.mode)
   ) {
     errors.push(
-      `Invalid run mode: "${def.run.mode}" (expected: autonomous, converge, step)`,
+      `Invalid run mode: "${def.run.mode}" (expected: autonomous, converge, step, evolve)`,
     );
   }
 
