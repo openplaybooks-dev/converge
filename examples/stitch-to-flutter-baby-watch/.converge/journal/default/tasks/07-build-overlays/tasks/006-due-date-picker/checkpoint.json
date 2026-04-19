@@ -1,0 +1,20 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/006-due-date-picker",
+  "status": "pending",
+  "lastUpdated": "2026-04-19T05:03:45.301Z",
+  "createdAt": "2026-04-19T05:02:59.842Z",
+  "progress": {
+    "totalChildren": 5,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "006-01-spec",
+      "006-02-design",
+      "006-03-convert",
+      "006-04-connect",
+      "006-05-mount"
+    ],
+    "lastProgressUpdate": "2026-04-19T05:03:45.301Z"
+  }
+}

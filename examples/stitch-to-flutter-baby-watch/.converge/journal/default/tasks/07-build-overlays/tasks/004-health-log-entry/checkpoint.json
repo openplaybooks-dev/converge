@@ -1,0 +1,20 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/004-health-log-entry",
+  "status": "pending",
+  "lastUpdated": "2026-04-19T05:03:45.301Z",
+  "createdAt": "2026-04-19T05:02:59.842Z",
+  "progress": {
+    "totalChildren": 5,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "004-01-spec",
+      "004-02-design",
+      "004-03-convert",
+      "004-04-connect",
+      "004-05-mount"
+    ],
+    "lastProgressUpdate": "2026-04-19T05:03:45.301Z"
+  }
+}

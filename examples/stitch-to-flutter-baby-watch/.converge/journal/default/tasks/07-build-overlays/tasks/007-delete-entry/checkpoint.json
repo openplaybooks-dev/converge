@@ -1,0 +1,20 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/007-delete-entry",
+  "status": "pending",
+  "lastUpdated": "2026-04-19T05:03:45.302Z",
+  "createdAt": "2026-04-19T05:02:59.842Z",
+  "progress": {
+    "totalChildren": 5,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "007-01-spec",
+      "007-02-design",
+      "007-03-convert",
+      "007-04-connect",
+      "007-05-mount"
+    ],
+    "lastProgressUpdate": "2026-04-19T05:03:45.301Z"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/003-mood-log",
+  "status": "pending",
+  "lastUpdated": "2026-04-19T05:03:45.301Z",
+  "createdAt": "2026-04-19T05:02:59.842Z",
+  "progress": {
+    "totalChildren": 5,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "003-01-spec",
+      "003-02-design",
+      "003-03-convert",
+      "003-04-connect",
+      "003-05-mount"
+    ],
+    "lastProgressUpdate": "2026-04-19T05:03:45.301Z"
+  }
+}
