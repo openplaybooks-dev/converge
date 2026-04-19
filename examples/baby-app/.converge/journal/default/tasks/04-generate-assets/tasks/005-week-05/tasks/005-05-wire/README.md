@@ -1,6 +1,6 @@
 # Task Journal: 04-generate-assets/005-week-05/005-05-wire
 
-## Current attempt — `attempts/wip/`
+## Current attempt — `attempts/01/`
 
 | File | Purpose |
 |------|---------|

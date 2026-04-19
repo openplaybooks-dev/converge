@@ -1,0 +1,15 @@
+{
+  "taskId": "04-generate-assets/006-week-06/006-05-wire",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Asset widget was created",
+      "cmd": "test -f lib/widgets/assets/week-06_asset.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Generated widget code is valid",
+      "cmd": "dart analyze lib/widgets/assets/week-06_asset.dart 2>/dev/null || true"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "taskId": "04-generate-assets/006-week-06/006-02-spec",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".converge/playbooks/default/tasks/04-generate-assets/tasks/006-week-06/requirements.json",
+      "count": 1,
+      "samples": [
+        ".converge/playbooks/default/tasks/04-generate-assets/tasks/006-week-06/requirements.json"
+      ]
+    }
+  ],
+  "outputs": [
+    ".converge/playbooks/default/tasks/04-generate-assets/tasks/006-week-06/SPEC.md"
+  ],
+  "blocked": false
+}

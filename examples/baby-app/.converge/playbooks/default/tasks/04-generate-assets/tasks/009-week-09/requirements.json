@@ -1,0 +1,21 @@
+{
+  "assetId": "week-09",
+  "assetType": "baby-size",
+  "fileName": "week-09.svg",
+  "dimensions": { "width": 200, "height": 200 },
+  "style": {
+    "colorPalette": ["#FF6B6B", "#9B59B6", "#FDEEEE"],
+    "strokeWidth": 1.5,
+    "cornerRadius": "8px"
+  },
+  "content": {
+    "subject": "green olive",
+    "mood": "friendly",
+    "background": "transparent"
+  },
+  "variants": ["light", "dark"],
+  "usage": {
+    "screens": ["HomeScreen"],
+    "widget": "HeroIllustrationCard"
+  }
+}

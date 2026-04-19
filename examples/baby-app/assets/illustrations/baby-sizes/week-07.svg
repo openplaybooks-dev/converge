@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <title>Week 7 - Blueberry</title>
+  <defs>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FDEEEE" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#FDEEEE" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="berryGrad" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#B574D0"/>
+      <stop offset="100%" stop-color="#9B59B6"/>
+    </radialGradient>
+  </defs>
+  <!-- Halo glow -->
+  <circle cx="100" cy="105" r="72" fill="url(#halo)"/>
+  <!-- Berry body -->
+  <ellipse cx="100" cy="108" rx="36" ry="38" fill="url(#berryGrad)" stroke="#8244A0" stroke-width="1.5"/>
+  <!-- Bloom matte effect — subtle lighter patch -->
+  <ellipse cx="90" cy="96" rx="18" ry="16" fill="#C88FE0" opacity="0.18"/>
+  <!-- Highlight on upper-left -->
+  <ellipse cx="86" cy="90" rx="8" ry="6" fill="white" opacity="0.15"/>
+  <!-- Calyx (crown) — five small coral leaves at top -->
+  <path d="M92 72l-6-12c-1-2 1-4 3-3l5 5z" fill="#FF6B6B" stroke="#E05555" stroke-width="0.8" stroke-linejoin="round"/>
+  <path d="M97 70l-2-14c0-2 2-3 3-1l3 7z" fill="#FF6B6B" stroke="#E05555" stroke-width="0.8" stroke-linejoin="round"/>
+  <path d="M103 70l2-14c0-2-2-3-3-1l-3 7z" fill="#FF6B6B" stroke="#E05555" stroke-width="0.8" stroke-linejoin="round"/>
+  <path d="M108 72l6-12c1-2-1-4-3-3l-5 5z" fill="#FF6B6B" stroke="#E05555" stroke-width="0.8" stroke-linejoin="round"/>
+  <path d="M100 69l0-14c0-2 2-3 2-1l0 7z" fill="#FF6B6B" stroke="#E05555" stroke-width="0.8" stroke-linejoin="round"/>
+  <!-- Subtle surface details — berry texture lines -->
+  <path d="M80 100c4 16 10 28 20 34" stroke="#8244A0" stroke-width="0.7" opacity="0.15" fill="none" stroke-linecap="round"/>
+  <path d="M100 72c0 20-2 40-4 56" stroke="#8244A0" stroke-width="0.7" opacity="0.12" fill="none" stroke-linecap="round"/>
+  <path d="M120 100c-4 16-10 28-20 34" stroke="#8244A0" stroke-width="0.7" opacity="0.15" fill="none" stroke-linecap="round"/>
+</svg>
