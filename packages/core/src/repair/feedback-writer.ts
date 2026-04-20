@@ -35,6 +35,19 @@ function isBrokenCheck(r: {
   return false;
 }
 
+/**
+ * Tracks which `(attemptDir, gapKind)` pairs we've already written FEEDBACK.md
+ * for in the current repair cycle. `repair-loop` calls `prepareFeedback` once
+ * per gap; for task-scoped feedback (check-failed, output) all gaps collapse
+ * into the same aggregate report, so we only need to write once per attempt
+ * dir. The cache is cleared at the start of each repair cycle.
+ */
+const writtenKeys = new Set<string>();
+
+export function resetFeedbackDedupe(): void {
+  writtenKeys.clear();
+}
+
 export async function prepareFeedback(
   gap: Gap,
   projectDir: string,
@@ -42,6 +55,10 @@ export async function prepareFeedback(
   const gapKind = (gap.metadata?.gapKind as string) ?? "";
   const attemptDir = process.env.CONVERGE_TASK_ATTEMPT_DIR;
   if (!attemptDir) return;
+
+  const key = `${attemptDir}::${gapKind}`;
+  if (writtenKeys.has(key)) return;
+  writtenKeys.add(key);
 
   if (gapKind === "output") {
     await writeOutputFeedback(gap, projectDir, attemptDir);

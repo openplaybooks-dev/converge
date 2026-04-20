@@ -730,7 +730,9 @@ const runSkill: ActionHandler = async (snap) => {
  * then writes planned nodes directly into the graph as buffered actions.
  */
 const repairLoop: ActionHandler = async (snap, graph) => {
-  const { prepareFeedback } = await import("../feedback-writer.ts");
+  const { prepareFeedback, resetFeedbackDedupe } = await import(
+    "../feedback-writer.ts"
+  );
   const { GapRepairPredicate } = await import("../predicate.ts");
   const { UnifiedStrategyRegistry, getBuiltinDescriptors } =
     await import("../strategy-catalog.ts");
@@ -738,7 +740,11 @@ const repairLoop: ActionHandler = async (snap, graph) => {
 
   const jCtx = { epicId: snap.epicId, taskId: snap.unit.id };
 
-  // Write FEEDBACK.md for check-failed gaps before repair
+  // Write FEEDBACK.md for gaps that need it. The writer dedupes internally
+  // per attempt dir + gap kind, so many gaps of the same kind collapse to
+  // one write. Reset the dedupe cache at the start of each repair pass so
+  // stale entries don't leak across attempts.
+  resetFeedbackDedupe();
   for (const gap of snap.gaps) {
     await prepareFeedback(gap, snap.projectDir);
   }
