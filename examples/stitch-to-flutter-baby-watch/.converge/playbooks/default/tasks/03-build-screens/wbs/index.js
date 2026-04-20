@@ -9,6 +9,8 @@
  *
  * Task content comes from wbs/templates/screen/ — a folder of TASK.md files with
  * {{var}} placeholders substituted at render time by the framework.
+ * Each screen's `htmlReference` from `.stitch/screens.json` is passed as `htmlReference`
+ * and `htmlReferenceInput` (optional YAML inputs line when non-empty).
  */
 
 import { readFileSync, existsSync } from 'fs';
@@ -40,6 +42,11 @@ export async function run(ctx) {
   for (let idx = 0; idx < screens.length; idx++) {
     const screen = screens[idx];
     const { id: screenId, title, route } = screen;
+    const htmlReference =
+      typeof screen.htmlReference === 'string' ? screen.htmlReference.trim() : '';
+    const htmlReferenceInput = htmlReference
+      ? `  - "${htmlReference.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"\n`
+      : '';
     const prefix = String(idx + 1).padStart(3, '0');
     const widgetName = toPascalCase(screenId);
     const snakeName = toSnakeCase(screenId);
@@ -55,6 +62,8 @@ export async function run(ctx) {
       metaPath: `.stitch/designs/${screenId}/META.md`,
       designPath: `.stitch/designs/${screenId}/design.html`,
       prevScreenLastId: prevScreenLastId || '',
+      htmlReference,
+      htmlReferenceInput,
     };
 
     // ── Level 1: Screen parent task ──────────────────────────────
@@ -63,7 +72,7 @@ export async function run(ctx) {
       title: `Screen: ${title}`,
       dependencies: prevScreenLastId ? [prevScreenLastId] : [],
       tags: ['screen', `screen-${screenId}`],
-      vars: { screenId, screenTitle: title, widgetName, route },
+      vars: { screenId, screenTitle: title, widgetName, route, htmlReference },
       inputs: ['.stitch/screens.json', '.stitch/system/DESIGN.md', '.stitch/UX.md'],
       outputs: [screenPath],
       body: `Parent task for building the "${title}" screen through the full pipeline: spec → design → convert → analyze → split → lift.`,
