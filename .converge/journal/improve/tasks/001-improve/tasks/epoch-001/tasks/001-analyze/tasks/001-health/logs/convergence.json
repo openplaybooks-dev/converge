@@ -1,0 +1,200 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "001-improve/epoch-001/001-analyze/001-health-check-failed-report-written",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "001-improve/epoch-001/001-analyze/001-health",
+            "severity": "high",
+            "description": "[001-improve/epoch-001/001-analyze/001-health] Check failed: Health report exists",
+            "source": "unit",
+            "detected": "2026-04-19T23:52:43.917Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "report-written",
+              "checkCmd": "test -f /Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/health/report.md",
+              "checkDescription": "Health report exists",
+              "checkOutput": "Command failed: test -f /Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/health/report.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Health check\n\nGather concrete metrics about project health. No opinions — just facts and numbers.\n\n## What to measure\n\n1. **Type errors** — run `cd /Users/minh/Documents/converge && pnpm typecheck 2>&1`, count errors\n2. **Tests** — run `cd /Users/minh/Documents/converge && pnpm test 2>&1`, report pass/fail counts\n3. **Code smells** — grep for `any` casts, `@ts-ignore`, `@ts-expect-error`, `eslint-disable`\n4. **Dead exports** — exported symbols not imported anywhere else in the project\n5. **File sizes** — list files over 500 lines with line counts\n6. **Dependency count** — number of production and dev dependencies across all packages\n\n## Output\n\nWrite `/Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/health/report.md`:\n\n```markdown\n# Health Report\n\n## Type Errors\n- **Count:** N\n- **Files:** list of files with errors\n\n## Tests\n- **Passed:** N\n- **Failed:** N\n- **Skipped:** N\n\n## Code Smells\n- `any` casts: N occurrences\n- `@ts-ignore`: N occurrences\n- `@ts-expect-error`: N occurrences\n- `eslint-disable`: N occurrences\n\n## Dead Exports\n- list of exported symbols with no consumers\n\n## Large Files\n| File | Lines |\n|------|-------|\n| ... | ... |\n\n## Dependencies\n- **Production:** N\n- **Dev:** N\n```\n\nReport the numbers. The prioritize step will decide what matters.",
+              "taskId": "001-improve/epoch-001/001-analyze/001-health",
+              "taskTitle": "Health check — epoch 1",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/improve/tasks/001-improve/tasks/epoch-001/tasks/001-analyze/tasks/001-health",
+              "factId": "check:report-written"
+            }
+          }
+        ],
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#3",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 319369
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-19T23:52:43.914Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-19T23:52:43.914Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-19T23:52:43.918Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-19T23:52:43.919Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-19T23:52:43.926Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#3",
+      "iteration": 1,
+      "ts": "2026-04-19T23:58:03.295Z"
+    },
+    {
+      "from": "run-strategy:task-run#3",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-19T23:58:03.303Z"
+    }
+  ]
+}

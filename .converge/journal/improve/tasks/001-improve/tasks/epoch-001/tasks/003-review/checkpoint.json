@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "001-improve/epoch-001/003-review",
+  "status": "complete",
+  "lastUpdated": "2026-04-20T00:18:55.030Z",
+  "createdAt": "2026-04-20T00:16:24.976Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-20T00:16:24.976Z",
+      "completedAt": "2026-04-20T00:18:55.024Z",
+      "outcome": "success",
+      "durationMs": 150048
+    }
+  ],
+  "currentAttempt": 1
+}

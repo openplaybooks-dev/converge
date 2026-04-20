@@ -3,13 +3,13 @@ id: "{{taskId}}"
 title: "Implementation plan — epoch {{epoch}}"
 checks:
   - id: plan-written
-    cmd: "test -f {{artifactsDir}}/implement/plan.json"
-    description: "Implementation plan JSON exists"
+    cmd: "test -f {{artifactsDir}}/implement/plan.md"
+    description: "Implementation plan exists"
 ---
 
 # Create implementation plan
 
-Read the prioritized issue at `{{artifactsDir}}/prioritize/report.json` and create a step-by-step implementation plan.
+Read the prioritized issue at `{{artifactsDir}}/prioritize/report.md` and create a step-by-step implementation plan.
 
 ## Rules
 
@@ -21,24 +21,27 @@ Read the prioritized issue at `{{artifactsDir}}/prioritize/report.json` and crea
 
 ## Output
 
-Write `{{artifactsDir}}/implement/plan.json`:
-```json
-{
-  "issue": {
-    "id": "type-003",
-    "source": "types",
-    "file": "path/to/file.ts",
-    "description": "..."
-  },
-  "steps": [
-    {
-      "id": "step-001",
-      "description": "What to do",
-      "file": "path/to/file.ts",
-      "details": "Specific changes to make"
-    }
-  ]
-}
+Write `{{artifactsDir}}/implement/plan.md`:
+
+```markdown
+# Implementation Plan — Epoch {{epoch}}
+
+## Issue
+
+- **ID:** type-003
+- **Source:** types
+- **File:** `path/to/file.ts`
+- **Description:** ...
+
+## Steps
+
+### step-001
+- **File:** `path/to/file.ts`
+- **Description:** What to do
+- **Details:** Specific changes to make
+
+### step-002
+...
 ```
 
 Each step becomes a separate todo task. Keep steps small — one logical change per step.

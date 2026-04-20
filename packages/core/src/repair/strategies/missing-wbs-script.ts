@@ -254,8 +254,8 @@ export class MissingWbsScriptStrategy implements FixStrategy {
 
       if (tags1 && tags2) {
         // Simple tag overlap check
-        const tagList1 = tags1[1].match(/-\s+(\S+)/g) ?? [];
-        const tagList2 = tags2[1].match(/-\s+(\S+)/g) ?? [];
+        const tagList1: string[] = tags1[1].match(/-\s+(\S+)/g) ?? [];
+        const tagList2: string[] = tags2[1].match(/-\s+(\S+)/g) ?? [];
         return tagList1.some((t) => tagList2.includes(t));
       }
 

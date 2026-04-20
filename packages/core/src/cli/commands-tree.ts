@@ -86,8 +86,13 @@ export async function treeCommand(
       node.journalPath = journalPath;
 
       if (journalNode && journalNode.type === "task") {
+        const jStatus = journalNode.status;
         node.status =
-          journalNode.status === "interrupted" ? "failed" : journalNode.status;
+          jStatus === "interrupted"
+            ? "failed"
+            : jStatus === "partial"
+              ? "running"
+              : jStatus;
         node.attempts = journalNode.task?.totalAttempts || 0;
         node.journalNode = journalNode;
       }

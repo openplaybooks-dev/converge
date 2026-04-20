@@ -1,0 +1,10 @@
+{
+  "taskId": "001-improve/epoch-001/001-analyze/001-architecture",
+  "checks": [
+    {
+      "id": "report-written",
+      "description": "Architecture analysis report exists",
+      "cmd": "test -f /Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/architecture/report.md"
+    }
+  ]
+}

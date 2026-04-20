@@ -371,9 +371,9 @@ async function main(): Promise<void> {
                 milestone: (pb.def.run as any)?.milestone,
               },
               skills:
-                typeof pb.def.skills === "object" &&
-                !Array.isArray(pb.def.skills)
-                  ? (pb.def.skills as Record<string, string>)
+                typeof (pb.def as any).skills === "object" &&
+                !Array.isArray((pb.def as any).skills)
+                  ? ((pb.def as any).skills as Record<string, string>)
                   : undefined,
             };
             console.log(`\n📋 Loaded config from playbook: ${pbName}`);

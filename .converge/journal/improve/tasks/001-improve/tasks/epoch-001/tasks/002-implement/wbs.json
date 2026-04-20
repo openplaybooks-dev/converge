@@ -1,0 +1,19 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-19T23:58:50.806Z",
+  "spawnCount": 3,
+  "subtasks": [
+    {
+      "id": "001-plan",
+      "writeToPath": ".converge/playbooks/improve/tasks/001-improve/tasks/epoch-001/tasks/002-implement/tasks/001-plan/TASK.md"
+    },
+    {
+      "id": "002-todos",
+      "writeToPath": ".converge/playbooks/improve/tasks/001-improve/tasks/epoch-001/tasks/002-implement/tasks/002-todos/TASK.md"
+    },
+    {
+      "id": "003-verify",
+      "writeToPath": ".converge/playbooks/improve/tasks/001-improve/tasks/epoch-001/tasks/002-implement/tasks/003-verify/TASK.md"
+    }
+  ]
+}

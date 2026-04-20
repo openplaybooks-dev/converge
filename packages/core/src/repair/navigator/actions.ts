@@ -391,6 +391,7 @@ const resolveWbs: ActionHandler = async (snap) => {
   const fixStart = Date.now();
   const result = await executor.run(unit.wbsFn, 1);
 
+  const eventWriter = getEventWriter();
   if (eventWriter) {
     eventWriter.write({
       type: "strategy_applied" as any,

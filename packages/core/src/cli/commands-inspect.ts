@@ -304,8 +304,8 @@ export async function inspectCommand(
     if (options.sessions) {
       if (options.json) {
         const data = allSessions.map((s) => ({
-          sessionId: s.sessionId,
           ...s.metadata,
+          sessionId: s.sessionId,
         }));
         console.log(JSON.stringify(data, null, 2));
         return;
@@ -320,8 +320,8 @@ export async function inspectCommand(
     if (options.json) {
       const data = {
         sessions: allSessions.map((s) => ({
-          sessionId: s.sessionId,
           ...s.metadata,
+          sessionId: s.sessionId,
         })),
         tasks: taskTree,
       };

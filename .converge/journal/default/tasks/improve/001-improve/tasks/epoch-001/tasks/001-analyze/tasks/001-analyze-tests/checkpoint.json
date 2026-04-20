@@ -1,0 +1,16 @@
+{
+  "type": "task",
+  "id": "001-improve/epoch-001/001-analyze/001-analyze-tests",
+  "status": "interrupted",
+  "lastUpdated": "2026-04-19T23:28:32.244Z",
+  "createdAt": "2026-04-19T23:26:11.770Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-19T23:26:11.770Z",
+      "completedAt": "2026-04-19T23:28:32.244Z",
+      "outcome": "interrupted"
+    }
+  ],
+  "currentAttempt": 1
+}

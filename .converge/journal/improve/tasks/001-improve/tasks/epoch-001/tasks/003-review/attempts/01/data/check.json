@@ -1,0 +1,10 @@
+{
+  "taskId": "001-improve/epoch-001/003-review",
+  "checks": [
+    {
+      "id": "review-approved",
+      "description": "Code review passed",
+      "cmd": "grep -q 'APPROVED' /Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/review/report.md"
+    }
+  ]
+}

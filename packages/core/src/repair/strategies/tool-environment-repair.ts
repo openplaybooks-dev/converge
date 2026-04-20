@@ -103,8 +103,8 @@ export class ToolEnvironmentRepairStrategy implements FixStrategy {
     if (gap.metadata?.gapKind === "check-failed") {
       // Exit 127 / command not found
       if (
-        gap.metadata?.checkOutput?.includes("command not found") ||
-        gap.metadata?.checkOutput?.includes("not found") ||
+        (gap.metadata?.checkOutput as string)?.includes("command not found") ||
+        (gap.metadata?.checkOutput as string)?.includes("not found") ||
         gap.metadata?.checkExitCode === 127
       ) {
         return true;
@@ -129,8 +129,8 @@ export class ToolEnvironmentRepairStrategy implements FixStrategy {
 
     const cmd = gap.metadata?.checkCmd as string;
     const isBrokenCmd =
-      gap.metadata?.checkOutput?.includes("command not found") ||
-      gap.metadata?.checkOutput?.includes("not found") ||
+      (gap.metadata?.checkOutput as string)?.includes("command not found") ||
+      (gap.metadata?.checkOutput as string)?.includes("not found") ||
       gap.metadata?.checkExitCode === 127;
     const isStructurallyBroken = cmd && /^!\s+\S+.*\|/.test(cmd);
 
@@ -212,13 +212,13 @@ export class ToolEnvironmentRepairStrategy implements FixStrategy {
 
 Return your replacement command now:`;
 
-      const result = await ai.askString(prompt, {
+      const response = await ai.ask(prompt, {
         phase: "heal-check",
         label: "Broken Check Command Healing",
         timeoutMs: 60_000,
       });
 
-      const healedCmd = result.trim().replace(/^`+|`+$/g, "");
+      const healedCmd = response.asText().trim().replace(/^`+|`+$/g, "");
 
       if (!healedCmd || healedCmd.includes("\n") || healedCmd.length > 2000) {
         console.log(
@@ -252,7 +252,7 @@ Return your replacement command now:`;
         projectDir,
         journalCtx.epicId,
         journalCtx.taskId,
-        "BROKEN_CHECK_HEALED",
+        "CHECK_SELF_HEALED",
         `Healed broken check command via AI: ${healedCmd}`,
         {
           strategyName: this.name,
@@ -533,7 +533,7 @@ Focus on detecting external tool/environment issues, not task logic bugs.`;
         const { createTaskHelper } = await import("../helpers/task.ts");
         const task = createTaskHelper(ctx.projectDir, ctx.journalCtx.epicId);
         const skillPath = task.getSkillPath(ctx.journalCtx.taskId);
-        await filesystem.updateTaskMd(skillPath, action.details);
+        await filesystem.updateSkillMd(skillPath, action.details);
         return `Updated TASK.md to match new tool format`;
       }
 

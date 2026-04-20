@@ -1,0 +1,177 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "001-improve/epoch-001/001-analyze/001-analyze-tests-check-failed-report-written",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "001-improve/epoch-001/001-analyze/001-analyze-tests",
+            "severity": "high",
+            "description": "[001-improve/epoch-001/001-analyze/001-analyze-tests] Check failed: Test analysis report exists",
+            "source": "unit",
+            "detected": "2026-04-19T23:26:11.775Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "report-written",
+              "checkCmd": "test -f /Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/analyze-tests/report.json",
+              "checkDescription": "Test analysis report exists",
+              "checkOutput": "Command failed: test -f /Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/analyze-tests/report.json\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Analyze test coverage\n\nScan for gaps in test coverage across the project.\n\n## What to look for\n\n1. **Missing test files** — source directories with no corresponding tests\n2. **Untested public functions** — exported functions with no test coverage\n3. **Fragile tests** — tests that depend on implementation details\n4. **Missing edge cases** — error paths, boundary conditions not tested\n\n## Output\n\nWrite `/Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/analyze-tests/report.json`:\n```json\n{\n  \"aspect\": \"test-coverage\",\n  \"issues\": [\n    { \"id\": \"test-001\", \"file\": \"path/to/file.ts\",\n      \"description\": \"...\", \"severity\": \"warning\",\n      \"effort\": \"small|medium|large\" }\n  ]\n}\n```",
+              "taskId": "001-improve/epoch-001/001-analyze/001-analyze-tests",
+              "taskTitle": "Analyze test coverage — epoch 1",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/improve/tasks/001-improve/tasks/epoch-001/tasks/001-analyze/tasks/001-analyze-tests",
+              "factId": "check:report-written"
+            }
+          }
+        ],
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#3",
+      "handler": "run-strategy",
+      "status": "buffered",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-19T23:26:11.771Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-19T23:26:11.771Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-19T23:26:11.775Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-19T23:26:11.776Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-19T23:26:11.783Z"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-19T23:44:46.716Z",
+  "spawnCount": 1,
+  "subtasks": [
+    {
+      "id": "epoch-001",
+      "writeToPath": ".converge/playbooks/improve/tasks/001-improve/tasks/epoch-001/TASK.md"
+    }
+  ]
+}
