@@ -100,23 +100,20 @@ export async function treeCommand(
       }
     }
 
-    // Calculate states — skip expensive auto-complete checks for read-only tree display
-    const states = await getTaskStates(projectDir, tree, {
-      skipAutoComplete: true,
-    });
-
     if (tree.length === 0) {
       console.log("No tasks found. Run `converge init` to create a project.");
       return;
     }
 
-    // Scope to a playbook if requested (--playbook=<name> or CONVERGE_PLAYBOOK env)
+    // Scope to a playbook BEFORE computing state, so checkpoint entries from
+    // sibling playbooks don't bleed into the scoped view via colliding task ids
+    // (e.g. both `create-api` and `integrate-web-api` define `01-foundation`).
     const playbookScope = options.playbook || process.env.CONVERGE_PLAYBOOK;
     let filteredTree = tree;
     if (playbookScope) {
       const needle = `${path.sep}playbooks${path.sep}${playbookScope}${path.sep}`;
       const needlePosix = `/playbooks/${playbookScope}/`;
-      filteredTree = filteredTree.filter(
+      filteredTree = tree.filter(
         (n) => n.filePath.includes(needle) || n.filePath.includes(needlePosix),
       );
       if (filteredTree.length === 0) {
@@ -140,6 +137,13 @@ export async function treeCommand(
         return;
       }
     }
+
+    // Calculate states on the scoped tree — skip expensive auto-complete checks
+    // for read-only tree display. Scoping first keeps cross-playbook id collisions
+    // from polluting blocked/failed/completed sets.
+    const states = await getTaskStates(projectDir, filteredTree, {
+      skipAutoComplete: true,
+    });
 
     // Apply filter if provided
     if (options.filter) {
@@ -250,13 +254,15 @@ export async function treeCommand(
       console.log(
         `\nNext pending: ${formatNextLabel(nextNode, plan, filteredTree)}  ▶`,
       );
-    } else if (states.failed.size > 0) {
+    } else if (failedCount > 0) {
+      // Use scoped failedCount, not states.failed.size — the latter may include
+      // stale/global checkpoint entries even after getTaskStates is restricted.
       console.log(
-        `\n⚠️  No runnable tasks — ${states.failed.size} task(s) failed. Run --unblock to attempt repair.`,
+        `\n⚠️  No runnable tasks — ${failedCount} task(s) failed. Run --unblock to attempt repair.`,
       );
-    } else if (states.blocked.size > 0) {
+    } else if (blockedCount > 0) {
       console.log(
-        `\n⚠️  No runnable tasks — ${states.blocked.size} task(s) blocked.`,
+        `\n⚠️  No runnable tasks — ${blockedCount} task(s) blocked.`,
       );
     } else {
       console.log("\n✅ All tasks complete.");

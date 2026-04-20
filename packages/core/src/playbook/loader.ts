@@ -398,17 +398,18 @@ export function resolvePlaybook(
     undefined;
   const keyValue = keyInput ? vars[keyInput] : undefined;
 
-  let epicId: string;
-  if (keyValue) {
-    const slug = keyValue
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
-    epicId = `${def.name}-${slug}`;
-  } else {
-    const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-    epicId = `${def.name}-${ts}`;
-  }
+  // epicId is the per-run identifier used for journal paths and checkpoint keys.
+  // For a keyed playbook we suffix the key value so concurrent runs on
+  // different inputs don't collide. For a keyless playbook the epicId is just
+  // the playbook name — stable across re-runs, which keeps journal paths at
+  // `journal/{playbook}/...` instead of burying them under a timestamped
+  // subdir.
+  const epicId = keyValue
+    ? `${def.name}-${keyValue
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "")}`
+    : def.name;
 
   return { def, vars, epicId, templateDir };
 }

@@ -58,32 +58,39 @@ async function copyWithSubstitution(
 /* ------------------------------------------------------------------ */
 
 /**
- * Generate an epic from a playbook.
- * Copies tasks/ with variable substitution into .converge/epics/{epicId}/.
+ * Prepare a playbook for execution.
+ *
+ * Previously this copied the template into `.converge/epics/{epicId}/` to
+ * isolate runtime state. That dual-layout caused:
+ *   - double-discovery (scanner saw both playbook + epic copies)
+ *   - id collisions across concurrent runs
+ *   - a timestamp-suffixed epicId that nested journals as
+ *     `journal/{playbook}/tasks/{playbook}-{timestamp}/...`
+ *
+ * Runtime state now lives IN-PLACE in `.converge/playbooks/{name}/tasks/`.
+ * `installPlaybook` handles the initial copy+substitution; WBS spawns write
+ * their children back into that same tree. Nothing under `.converge/epics/`
+ * is read or written anymore.
+ *
+ * The returned path is the playbook's tasks root so callers expecting an
+ * "epic dir" receive a stable, collision-free location.
  */
 export async function generateEpicFromPlaybook(
   playbook: ResolvedPlaybook,
   projectDir: string,
 ): Promise<string> {
-  const epicDir = join(projectDir, ".converge", "epics", playbook.epicId);
+  const playbookDir = join(
+    projectDir,
+    ".converge",
+    "playbooks",
+    playbook.def.name,
+  );
 
-  if (existsSync(epicDir)) {
-    throw new Error(`Epic directory already exists: ${epicDir}`);
-  }
+  // Ensure the playbook is installed (copies template + substitutes vars once).
+  // Idempotent: installPlaybook skips if tasks/ already exists.
+  await installPlaybook(playbook, projectDir);
 
-  await mkdir(epicDir, { recursive: true });
-
-  // Copy tasks/ with variable substitution into epicDir/tasks/
-  // The tasks/ subdirectory is required so extractJournalTaskId() produces
-  // hierarchical IDs like "evolve-01/improve" (epicId-prefixed) instead
-  // of colliding with playbook source tasks that share the same task name.
-  const templateTasksDir = join(playbook.templateDir, "tasks");
-  if (existsSync(templateTasksDir)) {
-    const destTasksDir = join(epicDir, "tasks");
-    await copyWithSubstitution(templateTasksDir, destTasksDir, playbook.vars);
-  }
-
-  return epicDir;
+  return playbookDir;
 }
 
 /**
