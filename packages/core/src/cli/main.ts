@@ -605,6 +605,7 @@ async function main(): Promise<void> {
           await treeCommand({
             root: options.dir || options.root,
             filter: positional[0] || options.filter,
+            playbook: options.playbook ? String(options.playbook) : undefined,
             showPaths: options["show-paths"] || options.showPaths,
             showDescriptions:
               options["show-descriptions"] || options.showDescriptions,

@@ -165,7 +165,7 @@ IMPORTANT:
    * - SkillBasedRepairStrategy for definition fixes
    * ------------------------------------------------------------------ */
   static buildFileBasedTaskRunPrompt(
-    _gap: Gap,
+    gap: Gap,
     projectDir: string,
     snapshot: ContextSnapshotPaths,
     attemptNumber: number = 1,
@@ -216,31 +216,92 @@ Run all checks in ${d}/CHECK.md to verify.
 If stuck, update ${d}/LEARN.md and stop.`;
     }
 
-    // Fix check failure: prefer FEEDBACK.md (always fresh, written by prepareFeedback
-    // just before this prompt) over CHECK.result.md (from result-snapshot, can be stale)
+    // Inline verifier findings from the gap. This is always accurate because
+    // it comes directly from the gap that triggered this retry — no file I/O,
+    // no stale FEEDBACK.md, no dependency on intermediate persistence.
+    const gapKind = (gap.metadata?.gapKind as string) ?? "";
+    const isOutputGap = gapKind === "output";
+    const isCheckGap = gapKind === "check-failed";
     const feedbackMd = `${attemptDir}/FEEDBACK.md`;
     const checkResultMd = `${attemptDir}/CHECK.result.md`;
-    const errorFile = existsSync(feedbackMd)
-      ? "FEEDBACK.md"
-      : existsSync(checkResultMd)
-        ? "CHECK.result.md"
-        : null;
-    if (errorFile) {
-      return `Fixing check failure (attempt ${attemptNumber}).
+    const hasFeedbackFile = existsSync(feedbackMd);
+    const hasCheckResultFile = existsSync(checkResultMd);
 
-## Read these files in order
+    if (isOutputGap || isCheckGap || hasFeedbackFile || hasCheckResultFile) {
+      const sections: string[] = [
+        `Reconciling spec vs. reality (attempt ${attemptNumber}). Be fast and surgical — do NOT explore beyond the files listed.`,
+        "",
+      ];
 
-1. **${d}/${errorFile}** — Which checks failed, exact command, exit code, error output
-2. **${d}/TASK.md** — Task definition (source of check commands)
-3. **${d}/CHECK.md** — All check definitions
+      if (isOutputGap) {
+        const allItems =
+          (gap.metadata?.allMissingItems as string[] | undefined) ?? [];
+        const descriptions =
+          allItems.length > 0 ? allItems : [gap.description];
+        const unitPath = (gap.metadata?.unitPath as string | undefined) ?? "";
+        const specPath = unitPath || `${d}/TASK.md`;
+        sections.push(
+          "## Missing outputs",
+          "",
+          "The spec declares these outputs, but they do not exist on disk:",
+          "",
+          ...descriptions.map((line) => `- ${line}`),
+          "",
+          `Source spec to edit: \`${specPath}\``,
+          "",
+          "## Do exactly this",
+          "",
+          "For EACH missing output above, run this decision in order — STOP at the first branch that applies:",
+          "",
+          "1. **Check the parent directory of the missing path.** If a real artifact already serves the task's intent (e.g. scaffolder chose a different extension or filename), the task is effectively DONE — edit the source spec's frontmatter `outputs:` list to reference the on-disk filename. Use Edit on the file shown in \"Source spec to edit\". Change only the `outputs:` line, nothing else.",
+          "2. **If the artifact was truly not produced**, create it per the TASK.md body instructions.",
+          "3. **If the on-disk file should match the declared name**, rename it.",
+          "",
+          "### Hard rules",
+          "",
+          "- Do NOT create empty stub files just to satisfy the outputs list.",
+          "- Do NOT read session logs, journals, checkpoints, git history, or playbook YAML. None of that is needed here.",
+          "- Do NOT write LEARN.md unless you are actually stuck.",
+          "- The task body in TASK.md already told you the intent. Compare intent to disk, pick the branch, act, stop.",
+          "",
+        );
+      }
 
-## Execute
+      if (isCheckGap || hasCheckResultFile || hasFeedbackFile) {
+        sections.push(
+          "## Failed checks",
+          "",
+          isCheckGap ? `- ${gap.description}` : "See the report file below.",
+          "",
+          "For each failed check:",
+          "- If the check command itself is broken (e.g. exit 127, command not found), fix the `cmd` in the source TASK.md frontmatter.",
+          "- Otherwise, fix the code so the check passes.",
+          "",
+        );
+      }
 
-- Read ${errorFile} to see exactly which checks failed and why
-- If a check is marked **BROKEN COMMAND**, fix the \`cmd\` in the source TASK.md (in \`.converge/epics/\`)
-- If a check failed because of your code, fix the code
-- Run each failed check command to verify your fix
-- Do NOT skip checks — every check must pass`;
+      sections.push(
+        "## Context files (read only what you need, in this order)",
+        "",
+      );
+      let i = 1;
+      if (hasFeedbackFile) {
+        sections.push(
+          `${i++}. \`${d}/FEEDBACK.md\` — detailed verifier report`,
+        );
+      } else if (hasCheckResultFile) {
+        sections.push(
+          `${i++}. \`${d}/CHECK.result.md\` — check results from the last attempt`,
+        );
+      }
+      sections.push(
+        `${i++}. \`${d}/TASK.md\` — task intent (read the body once, then stop)`,
+        `${i++}. \`${d}/CHECK.md\` — check command definitions`,
+        "",
+        "Stop as soon as every declared output exists on disk and every check passes.",
+      );
+
+      return sections.join("\n");
     }
 
     // Retry with LEARN.md guidance (if exists - even on attempt 1 for incremental repairs)
