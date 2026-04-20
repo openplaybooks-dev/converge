@@ -1,17 +1,4 @@
----
-id: 001-analyze
-title: Analyze — epoch 1
-checks:
-  - id: report-written
-    description: Analysis report exists
-    cmd: test -f /Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/analyze/report.md
-vars:
-  taskId: 001-analyze
-  epoch: 1
-  projectDir: /Users/minh/Documents/converge
-  artifactsDir: /Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001
-  epochTemplateDir: /Users/minh/Documents/converge/.converge/playbooks/improve/tasks/001-improve/templates/epoch
----
+# Task: 001-improve/epoch-001/001-analyze
 
 # Analyze codebase
 

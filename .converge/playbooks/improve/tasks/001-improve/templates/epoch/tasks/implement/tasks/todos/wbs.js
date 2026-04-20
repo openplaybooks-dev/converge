@@ -14,16 +14,20 @@ export async function run(ctx) {
   const planMd = await readFile(planPath, 'utf8');
 
   // Parse steps from markdown: each ### step-NNN heading is a step
-  const stepRegex = /^### (step-\d+)\s*\n([\s\S]*?)(?=\n### step-|\n## |$)/gm;
+  // Append sentinel so the last step is captured by the lookahead
+  const planWithSentinel = planMd + '\n## END';
+  const stepRegex = /^### (step-\d+)\s*\n([\s\S]*?)(?=^### step-|^## )/gm;
   const steps = [];
   let match;
-  while ((match = stepRegex.exec(planMd)) !== null) {
+  while ((match = stepRegex.exec(planWithSentinel)) !== null) {
     const id = match[1];
     const body = match[2].trim();
     // Extract fields from bullet list
-    const file = body.match(/\*\*File:\*\*\s*`([^`]+)`/)?.[1] || '';
+    const file = body.match(/\*\*Files?:\*\*\s*`([^`]+)`/)?.[1] || '';
     const description = body.match(/\*\*Description:\*\*\s*(.*)/)?.[1] || id;
-    const details = body.match(/\*\*Details:\*\*\s*(.*)/)?.[1] || '';
+    // Capture everything after **Details:** (multi-line) until next bullet field or end
+    const detailsMatch = body.match(/\*\*Details:\*\*\s*([\s\S]*?)(?=\n-\s+\*\*\w+:\*\*|$)/);
+    const details = detailsMatch ? detailsMatch[1].trim() : '';
     steps.push({ id, file, description, details });
   }
 

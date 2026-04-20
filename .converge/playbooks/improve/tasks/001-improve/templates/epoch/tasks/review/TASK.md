@@ -12,14 +12,21 @@ on-fail:
 
 # Code review
 
-Review the changes made in this epoch.
+Review the changes made in this epoch against what was planned.
+
+## Inputs
+
+Read these to understand what was supposed to happen:
+- `{{artifactsDir}}/analyze/report.md` — the picked improvement
+- `{{artifactsDir}}/implement/plan.md` — the implementation plan
 
 ## Review criteria
 
-1. **Correctness**: Does the fix actually resolve the issue from the analysis?
-2. **Minimal change**: Only the reported issue was fixed, no unrelated changes
-3. **Style**: Matches existing codebase conventions
-4. **No regressions**: No new problems introduced
+1. **Alignment**: Do the actual code changes match what the prioritize report picked? If the implementation did something different from what was planned, REJECT.
+2. **Correctness**: Does the fix actually resolve the planned issue?
+3. **Minimal change**: Only the planned changes were made, no unrelated modifications
+4. **Style**: Matches existing codebase conventions
+5. **No regressions**: No new problems introduced
 
 ## Output
 
