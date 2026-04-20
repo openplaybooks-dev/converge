@@ -222,10 +222,9 @@ async function extractAllSessionsFromDir(
 ): Promise<SessionMetrics[]> {
   if (!existsSync(sessionsDir)) return [];
 
-  const entries = await glob("*", {
+  const entries = await glob("*/", {
     cwd: sessionsDir,
     absolute: true,
-    onlyDirectories: true,
   });
   const sessions: SessionMetrics[] = [];
 

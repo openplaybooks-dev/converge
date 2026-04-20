@@ -5,6 +5,7 @@
  *   002-implement → fix the picked issue
  *   003-review    → code review (rejects → retry with feedback)
  *   004-quality   → typecheck + test gate
+ *   005-changelog → summarize what changed for human review
  */
 
 import { join, relative } from 'path';
@@ -20,6 +21,7 @@ export async function run(ctx) {
     ['002', 'implement'],
     ['003', 'review'],
     ['004', 'quality'],
+    ['005', 'changelog'],
   ]) {
     const taskId = `${prefix}-${phase}`;
     const templatePath = relative(ctx.projectDir,

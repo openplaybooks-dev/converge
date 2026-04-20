@@ -2,11 +2,10 @@
  * WBS: Analyze codebase
  *
  * Spawns parallel analysis subtasks + a final prioritize task:
- *   001-analyze-types     → type errors
- *   001-analyze-structure → structural issues
- *   001-analyze-api       → API surface issues
- *   001-analyze-tests     → test coverage gaps
- *   002-prioritize        → pick the best issue from all analyses
+ *   001-health        → concrete metrics and project health data
+ *   001-architecture  → strategic architecture analysis
+ *   001-dx            → developer experience analysis
+ *   002-prioritize    → pick the best improvement from all analyses
  */
 
 import { join, relative } from 'path';
@@ -19,7 +18,7 @@ export async function run(ctx) {
   const analyzeTemplateDir = join(epochTemplateDir, 'tasks', 'analyze');
 
   // Parallel analysis subtasks (all prefix 001)
-  const analyses = ['analyze-types', 'analyze-structure', 'analyze-api', 'analyze-tests'];
+  const analyses = ['health', 'architecture', 'dx'];
   for (const phase of analyses) {
     const taskId = `001-${phase}`;
     const templatePath = relative(ctx.projectDir,

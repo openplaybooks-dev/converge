@@ -746,12 +746,12 @@ export async function runAgent<T = unknown>(
 
             if (convergeConfig.ai) {
               aiConfigSource = "PROJECT.md";
-              availableProviders = listAIProviders(convergeConfig.ai);
+              availableProviders = listAIProviders(convergeConfig.ai as any);
               const preferredProvider = agentOptions.provider as
                 | string
                 | undefined;
               resolvedAI = resolveAIConfig(
-                convergeConfig.ai,
+                convergeConfig.ai as any,
                 preferredProvider,
               );
 
