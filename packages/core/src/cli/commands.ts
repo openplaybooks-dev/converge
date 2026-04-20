@@ -5,7 +5,7 @@
  */
 
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
-import { resolve, join } from "node:path";
+import { resolve, join, basename } from "node:path";
 import { getEpicsDir } from "../journal/structure.ts";
 import {
   createFilesystemStorage,
@@ -50,47 +50,298 @@ export interface RunOptions extends CommonOptions {
 }
 
 export interface InitOptions extends CommonOptions {
-  /** Project name */
-  name: string;
-  /** Project description */
+  /** Project name (skips prompt if provided) */
+  name?: string;
+  /** Project description (skips prompt if provided) */
   description?: string;
+  /** Comma-separated list of providers to enable (skips prompt if provided) */
+  agents?: string;
+  /** Default provider (skips prompt if provided) */
+  defaultAgent?: string;
+  /** Skip all prompts and use defaults */
+  yes?: boolean;
+  /** Overwrite existing .converge/ directory */
+  force?: boolean;
 }
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Command: init                                                      */
 /* ────────────────────────────────────────────────────────────────── */
 
+type ProviderId = "claude" | "acp" | "kimi" | "qwen" | "gemini";
+
+interface ProviderMeta {
+  id: ProviderId;
+  label: string;
+  hint: string;
+}
+
+const PROVIDER_CATALOG: ProviderMeta[] = [
+  { id: "claude", label: "Claude (Anthropic CLI)", hint: "recommended" },
+  { id: "acp", label: "ACP (OpenAI / Kimi / any OpenAI-compatible)", hint: "custom endpoint" },
+  { id: "kimi", label: "Kimi (Moonshot, direct API)", hint: "kimifn" },
+  { id: "qwen", label: "Qwen (Alibaba)", hint: "" },
+  { id: "gemini", label: "Gemini (Google)", hint: "" },
+];
+
 /**
- * Initialize a new converge project
+ * Initialize a new converge project.
+ *
+ * Interactive by default: prompts for project name, AI providers, and default
+ * agent. Non-interactive when stdin is not a TTY or when --yes is passed, in
+ * which case sensible defaults are used (name=cwd basename, provider=claude).
+ * Individual flags (--name, --agents, --default-agent) skip their prompts.
  */
 export async function initCommand(options: InitOptions): Promise<void> {
   const projectDir = resolve(options.dir || process.cwd());
   const convergeDir = join(projectDir, ".converge");
+  const p = await import("@clack/prompts");
 
-  // Check if already initialized
+  const isTTY = Boolean(process.stdin.isTTY && process.stdout.isTTY);
+  const auto = options.yes === true || !isTTY;
+
+  p.intro("🌀 Converge — initialize a new project");
+
+  // ── Handle existing .converge/ ──────────────────────────────────
   if (existsSync(convergeDir)) {
-    console.error("❌ Error: Project already initialized (.converge/ exists)");
-    process.exit(1);
+    if (options.force) {
+      const { rmSync } = await import("node:fs");
+      rmSync(convergeDir, { recursive: true, force: true });
+      p.log.warn("Removed existing .converge/ (--force)");
+    } else if (auto) {
+      p.cancel(
+        "Project already initialized (.converge/ exists). Re-run with --force to overwrite.",
+      );
+      process.exit(1);
+    } else {
+      const overwrite = await p.confirm({
+        message: ".converge/ already exists. Overwrite it?",
+        initialValue: false,
+      });
+      if (p.isCancel(overwrite) || !overwrite) {
+        p.cancel("Aborted — existing project left untouched.");
+        process.exit(1);
+      }
+      const { rmSync } = await import("node:fs");
+      rmSync(convergeDir, { recursive: true, force: true });
+    }
   }
 
-  // Create playbook-based directory structure
+  const defaultName = basename(projectDir).replace(/[^a-zA-Z0-9_-]+/g, "-");
+
+  // ── Project name ─────────────────────────────────────────────────
+  let name = options.name?.trim();
+  if (!name) {
+    if (auto) {
+      name = defaultName;
+    } else {
+      const answer = await p.text({
+        message: "Project name",
+        placeholder: defaultName,
+        defaultValue: defaultName,
+        validate: (v) => {
+          const t = v.trim();
+          if (t && !/^[a-zA-Z0-9_.-]+$/.test(t)) {
+            return "Use letters, numbers, dashes, dots or underscores only.";
+          }
+          return undefined;
+        },
+      });
+      if (p.isCancel(answer)) {
+        p.cancel("Aborted.");
+        process.exit(1);
+      }
+      name = (answer || defaultName).trim();
+    }
+  }
+
+  // ── Description (optional) ───────────────────────────────────────
+  let description = options.description?.trim();
+  if (description === undefined) {
+    if (auto) {
+      description = "";
+    } else {
+      const answer = await p.text({
+        message: "Short description (optional)",
+        placeholder: "What does this project do?",
+        defaultValue: "",
+      });
+      if (p.isCancel(answer)) {
+        p.cancel("Aborted.");
+        process.exit(1);
+      }
+      description = (answer ?? "").trim();
+    }
+  }
+
+  // ── Coding agents ────────────────────────────────────────────────
+  let selected: ProviderId[] = [];
+  if (options.agents) {
+    selected = parseAgentList(options.agents);
+  } else if (auto) {
+    selected = ["claude"];
+  } else {
+    const answer = await p.multiselect({
+      message: "Coding agents to enable (space to toggle, enter to confirm)",
+      options: PROVIDER_CATALOG.map((m) => ({
+        value: m.id,
+        label: m.label,
+        hint: m.hint || undefined,
+      })),
+      initialValues: ["claude"],
+      required: true,
+    });
+    if (p.isCancel(answer)) {
+      p.cancel("Aborted.");
+      process.exit(1);
+    }
+    selected = answer as ProviderId[];
+  }
+  if (selected.length === 0) selected = ["claude"];
+
+  // ── Default agent ────────────────────────────────────────────────
+  let defaultAgent =
+    (options.defaultAgent?.trim() as ProviderId | undefined) ?? undefined;
+  if (defaultAgent && !selected.includes(defaultAgent)) {
+    p.log.warn(
+      `--default-agent=${defaultAgent} is not in the selected set; ignoring.`,
+    );
+    defaultAgent = undefined;
+  }
+  if (!defaultAgent) {
+    if (selected.length === 1 || auto) {
+      defaultAgent = selected[0];
+    } else {
+      const answer = await p.select({
+        message: "Which agent should be the default?",
+        options: selected.map((id) => ({
+          value: id,
+          label: PROVIDER_CATALOG.find((m) => m.id === id)?.label ?? id,
+        })),
+        initialValue: selected[0],
+      });
+      if (p.isCancel(answer)) {
+        p.cancel("Aborted.");
+        process.exit(1);
+      }
+      defaultAgent = answer as ProviderId;
+    }
+  }
+
+  // ── Scaffold files ───────────────────────────────────────────────
+  const s = p.spinner();
+  s.start("Writing project files");
+
   const tasksDir = join(convergeDir, "playbooks", "default", "tasks");
   mkdirSync(tasksDir, { recursive: true });
 
-  // Write minimal project.yaml
-  const projectYaml = [
-    `name: ${options.name}`,
-    options.description ? `description: ${options.description}` : "",
-  ]
-    .filter(Boolean)
-    .join("\n")
-    + "\n";
-  writeFileSync(join(convergeDir, "project.yaml"), projectYaml, "utf8");
+  writeFileSync(
+    join(convergeDir, "project.yaml"),
+    renderProjectYaml({ name, description, selected, defaultAgent }),
+    "utf8",
+  );
 
-  // Write default playbook.yml
-  const playbookYml = [
+  writeFileSync(
+    join(convergeDir, "playbooks", "default", "playbook.yml"),
+    renderPlaybookYml({ name, description }),
+    "utf8",
+  );
+
+  writeFileSync(join(convergeDir, ".gitignore"), "journal/\n", "utf8");
+
+  s.stop("Project scaffolded");
+
+  p.log.success(`Created .converge/project.yaml`);
+  p.log.info(`Enabled agents: ${selected.join(", ")} (default: ${defaultAgent})`);
+
+  const nextSteps = [
+    "Fill in any API keys referenced in .converge/project.yaml (as ${ENV_VARS})",
+    "Describe what you want to build:  converge plan \"…\"",
+    "Or add a task manually and run:   converge run",
+  ];
+  p.note(nextSteps.map((s, i) => `${i + 1}. ${s}`).join("\n"), "Next steps");
+  p.outro("All set.");
+}
+
+function parseAgentList(raw: string): ProviderId[] {
+  const valid = new Set(PROVIDER_CATALOG.map((m) => m.id));
+  const out: ProviderId[] = [];
+  for (const part of raw.split(/[,\s]+/)) {
+    const t = part.trim().toLowerCase();
+    if (!t) continue;
+    if (valid.has(t as ProviderId) && !out.includes(t as ProviderId)) {
+      out.push(t as ProviderId);
+    }
+  }
+  return out;
+}
+
+function renderProjectYaml(args: {
+  name: string;
+  description: string;
+  selected: ProviderId[];
+  defaultAgent: ProviderId;
+}): string {
+  const lines: string[] = [];
+  lines.push("version: 2");
+  lines.push(`name: ${args.name}`);
+  if (args.description) lines.push(`description: ${yamlEscape(args.description)}`);
+  lines.push("");
+  lines.push("# AI provider configuration — one default, multiple enabled.");
+  lines.push("# Replace ${ENV_VAR} placeholders with real keys or export them in your shell.");
+  lines.push("ai:");
+  lines.push(`  default: ${args.defaultAgent}`);
+  lines.push("  providers:");
+  for (const id of args.selected) {
+    lines.push(...renderProviderBlock(id));
+  }
+  lines.push("");
+  lines.push("variables: {}");
+  lines.push("plugins: []");
+  return lines.join("\n") + "\n";
+}
+
+function renderProviderBlock(id: ProviderId): string[] {
+  switch (id) {
+    case "claude":
+      return [
+        "    claude:",
+        "      provider: claude",
+        "      # Uses Anthropic's Claude CLI. Auth via ANTHROPIC_AUTH_TOKEN env var.",
+      ];
+    case "acp":
+      return [
+        "    acp:",
+        "      provider: acp",
+        "      apiKey: ${ACP_API_KEY}",
+        "      baseUrl: https://api.moonshot.cn/v1",
+        "      model: moonshot-v1-8k",
+      ];
+    case "kimi":
+      return [
+        "    kimi:",
+        "      provider: kimi",
+        "      apiKey: ${KIMI_API_KEY}",
+      ];
+    case "qwen":
+      return [
+        "    qwen:",
+        "      provider: qwen",
+        "      apiKey: ${QWEN_API_KEY}",
+      ];
+    case "gemini":
+      return [
+        "    gemini:",
+        "      provider: gemini",
+        "      apiKey: ${GEMINI_API_KEY}",
+      ];
+  }
+}
+
+function renderPlaybookYml(args: { name: string; description: string }): string {
+  return [
     "name: default",
-    `description: ${options.description || options.name}`,
+    `description: ${yamlEscape(args.description || args.name)}`,
     "",
     "run:",
     "  mode: autonomous",
@@ -98,30 +349,14 @@ export async function initCommand(options: InitOptions): Promise<void> {
     "  maxTaskAttempts: 3",
     "  resume: true",
   ].join("\n") + "\n";
-  writeFileSync(
-    join(convergeDir, "playbooks", "default", "playbook.yml"),
-    playbookYml,
-    "utf8",
-  );
+}
 
-  // Write .gitignore for runtime files
-  writeFileSync(
-    join(convergeDir, ".gitignore"),
-    "journal/\n",
-    "utf8",
-  );
-
-  console.log("\n🎉 Project initialized!\n");
-  console.log("Next steps:");
-  console.log("  1. Generate a playbook from a prompt:");
-  console.log('     converge plan "describe what you want to build"');
-  console.log("");
-  console.log("  2. Or create tasks manually:");
-  console.log("     mkdir .converge/playbooks/default/tasks/01-my-task");
-  console.log("     # then write TASK.md in that directory");
-  console.log("");
-  console.log("  3. Run:");
-  console.log("     converge run");
+function yamlEscape(v: string): string {
+  if (!v) return '""';
+  if (/[:#&*!|>'"%@`]/.test(v) || /^\s|\s$/.test(v)) {
+    return JSON.stringify(v);
+  }
+  return v;
 }
 
 /* ────────────────────────────────────────────────────────────────── */
