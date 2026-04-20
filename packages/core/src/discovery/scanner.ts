@@ -304,12 +304,21 @@ export class DiscoveryScanner {
     allFiles: DiscoveredFile[],
     allErrors: Array<{ file: string; error: string }>,
   ): Promise<void> {
-    // Find all TASK.md files in epic folders and playbook task folders
+    // Playbook-only discovery. Tasks live under playbooks/{name}/tasks/ and
+    // WBS-spawned children are written there by the executor. The legacy
+    // `.converge/epics/` layout is no longer a source of truth — discovering
+    // it caused double-counts (template + runtime copy) and id collisions
+    // across concurrent runs.
+    //
+    // When CONVERGE_PLAYBOOK is set, scope discovery to ONLY that playbook.
+    // Without scoping, tasks like `01-foundation` or `02-breakdown` that are
+    // shared across playbooks collide in the node map (last-write wins), which
+    // silently drops parents of whichever playbook was scanned first.
+    const playbookScope = process.env.CONVERGE_PLAYBOOK;
+    const playbookSegment =
+      playbookScope && playbookScope !== "default" ? playbookScope : "*";
     const mdPatterns = [
-      ".converge/epics/**/*/TASK.md", // Direct task folders
-      ".converge/epics/**/*/tasks/**/TASK.md", // Subtasks in tasks/ folder
-      // Playbook API: tasks live under playbooks/{name}/tasks/
-      ".converge/playbooks/*/tasks/**/TASK.md",
+      `.converge/playbooks/${playbookSegment}/tasks/**/TASK.md`,
     ];
 
     const mdFiles: string[] = [];

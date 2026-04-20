@@ -374,7 +374,25 @@ export async function getTaskStates(
   const checkpointMgr = new CheckpointManager(projectDir);
   const statusMap = checkpointMgr.getStatusMap();
 
+  // Build a set of ids the passed tree owns. Any checkpoint entry outside this
+  // set belongs to a sibling playbook / stale run and must NOT bleed into the
+  // scoped state — otherwise a task id shared across playbooks (e.g.
+  // `01-foundation`) gets its state merged and miscounted.
+  const treeIds = new Set<string>();
+  for (const node of tree) {
+    treeIds.add(node.journalTaskId);
+    treeIds.add(node.taskId);
+    if (node.epicId) treeIds.add(`${node.epicId}/${node.journalTaskId}`);
+  }
+  const inScope = (id: string): boolean => {
+    if (treeIds.has(id)) return true;
+    const taskIdOnly = id.includes("/") ? id.split("/").slice(1).join("/") : id;
+    return treeIds.has(taskIdOnly);
+  };
+
   for (const [id, status] of statusMap) {
+    if (!inScope(id)) continue;
+
     // Add both the full key and the stripped taskId-only key
     const taskIdOnly = id.includes("/") ? id.split("/").slice(1).join("/") : id;
 
@@ -395,13 +413,13 @@ export async function getTaskStates(
     }
   }
 
-  // Also check V1 checkpoint arrays for backward compat
+  // Also check V1 checkpoint arrays for backward compat — same scope filter.
   const checkpoint = await checkpointMgr.load();
   if (checkpoint && checkpoint.version === 1) {
-    for (const id of checkpoint.completedTasks) completed.add(id);
-    for (const id of checkpoint.failedTasks ?? []) failed.add(id);
-    for (const id of checkpoint.seededTasks ?? []) seeded.add(id);
-    for (const id of checkpoint.lockedTasks) locked.add(id);
+    for (const id of checkpoint.completedTasks) if (inScope(id)) completed.add(id);
+    for (const id of checkpoint.failedTasks ?? []) if (inScope(id)) failed.add(id);
+    for (const id of checkpoint.seededTasks ?? []) if (inScope(id)) seeded.add(id);
+    for (const id of checkpoint.lockedTasks) if (inScope(id)) locked.add(id);
   }
 
   // Source 3: Folder structure — derive parent-child relationships from the filesystem

@@ -591,26 +591,94 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
       error.message.includes("no such file")
     ) {
       const missingFile = this.extractFilePathFromError(error);
-      console.log(
-        `   → Strategy: Missing dependency - file not found: ${missingFile}`,
-      );
 
-      // Log self-healing attempt as fact
+      // Classify: a WBS script fully controls which files it opens, so an
+      // ENOENT during WBS execution is usually a bug in the script itself
+      // (unsubstituted template, wrong path, typo). Obvious script-bug
+      // signals: path contains a template placeholder like {{var}} or
+      // $VAR-style markers. Fall back to "missing input dependency" only when
+      // the path looks like a real concrete file that an upstream task should
+      // have produced.
+      const looksLikeScriptBug =
+        /\{\{.*?\}\}/.test(missingFile) ||
+        /\$\{[A-Z_][A-Z0-9_]*\}/.test(missingFile) ||
+        /<[a-zA-Z_][a-zA-Z0-9_]*>/.test(missingFile);
+
+      // Prefer the concrete script path when the runtime reported one — the
+      // error message format is "WBS script import failed: <path>\n<cause>".
+      // Fall back to the task file path so the strategy can still probe for
+      // wbs.js / wbs.ts in the task directory.
+      const scriptPathFromError = this.extractWbsScriptPathFromError(error);
+      const scriptPath = scriptPathFromError ?? this.taskFilePath;
+
       await factsLogger.logFact({
         id: "self-healing:missing-file",
         type: "self-healing",
         cmd: `test -f ${missingFile}`,
         ok: false,
-        output: `Detected missing file: ${missingFile}`,
+        output: `Detected missing file: ${missingFile} (script-bug=${looksLikeScriptBug})`,
         exitCode: 1,
         collectedAt: new Date().toISOString(),
-        strategy: "missing-dependency",
+        strategy: looksLikeScriptBug
+          ? "wbs-script-repair"
+          : "missing-dependency",
         missingFile,
         errorMessage: error.message,
       });
 
-      // Create gap and trigger resolution
-      const gap: Gap = {
+      // Always try wbs-script-repair first — the script has full control over
+      // which files it opens, so if it picks a bad path, the script is the
+      // root cause. This prevents the "missing input" strategy from looping
+      // on a phantom dependency and covers the common placeholder case.
+      console.log(
+        looksLikeScriptBug
+          ? `   → Strategy: WBS script bug detected (unresolved placeholder in ${missingFile})`
+          : `   → Strategy: Missing file ${missingFile} — trying WBS script repair first, then dependency resolution`,
+      );
+
+      const scriptGap: Gap = {
+        id: `wbs-script-error:${this.taskMeta.id}:${Date.now()}`,
+        type: "semantic",
+        level: "task",
+        scope: this.taskMeta.id,
+        description: `WBS script failed to resolve file ${missingFile}`,
+        detected: new Date().toISOString(),
+        resolved: false,
+        checks: ["wbs-execution"],
+        metadata: {
+          gapKind: "wbs-script-error",
+          scriptPath,
+          missingFile,
+          errorType: error.name,
+          errorMessage: error.message,
+          errorStack: error.stack,
+          source: "wbs-executor",
+          taskFilePath: this.taskFilePath,
+          attemptNumber,
+        },
+        severity: "critical",
+      };
+
+      const scriptRepaired = await this.triggerGapResolution(
+        scriptGap,
+        factsLogger,
+      );
+      if (scriptRepaired) return true;
+
+      // Script-repair didn't help. Fall back to dependency resolution for the
+      // case where the missing file really is an upstream task's output.
+      if (looksLikeScriptBug) {
+        // A placeholder path can't be a dependency — bail out.
+        console.log(
+          `[wbs:${this.taskMeta.id}] ❌ WBS script repair failed and path contains an unresolved placeholder; no dependency fallback possible.`,
+        );
+        return false;
+      }
+
+      console.log(
+        `[wbs:${this.taskMeta.id}] ↳ WBS script repair did not resolve the gap — retrying as missing-input`,
+      );
+      const inputGap: Gap = {
         id: `wbs-missing-file:${this.taskMeta.id}:${Date.now()}`,
         type: "structural",
         level: "task",
@@ -631,8 +699,7 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
         severity: "critical",
       };
 
-      const shouldRetry = await this.triggerGapResolution(gap, factsLogger);
-      return shouldRetry;
+      return await this.triggerGapResolution(inputGap, factsLogger);
     }
 
     // Strategy 2.5: ESM/CommonJS module system errors
@@ -1004,6 +1071,21 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
     }
 
     return "unknown";
+  }
+
+  /**
+   * Extract the WBS script's own path from the runtime error thrown by
+   * script-wbs-executor. It formats errors as:
+   *   "WBS script import failed: <absolute path to script>\n<cause>"
+   * Returns the script path or null if the pattern does not match.
+   */
+  private extractWbsScriptPathFromError(error: Error): string | null {
+    const match = error.message.match(
+      /WBS script import failed:\s*([^\n]+)/,
+    );
+    if (!match) return null;
+    const candidate = match[1].trim();
+    return candidate.length > 0 ? candidate : null;
   }
 
   /**

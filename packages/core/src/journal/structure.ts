@@ -321,12 +321,64 @@ export function getSessionsDir(projectDir: string): string {
 
 /**
  * Get the journal root for the active playbook: journal/{playbook}/
- * Defaults to 'default' when no playbook context.
+ *
+ * Resolution order:
+ *   1. process.env.CONVERGE_JOURNAL_ROOT — explicit override, used verbatim
+ *   2. projectDir + .converge/journal/ + CONVERGE_PLAYBOOK (or 'default')
+ *
+ * Callers that export CONVERGE_JOURNAL_ROOT should use `setPlaybookScope()`
+ * below so it stays in sync with CONVERGE_PLAYBOOK and CONVERGE_PLAYBOOK_DIR.
  */
 export function getJournalRoot(projectDir: string): string {
+  const override = process.env.CONVERGE_JOURNAL_ROOT;
+  if (override) return override;
   const root = join(projectDir, ".converge", "journal");
   const name = getPlaybookContextFromEnv()?.playbook ?? "default";
   return join(root, name);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Playbook Scope Helpers (shared process-level vars)                 */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Set all playbook-scope env vars together so every command (scanner, tree,
+ * journal, run) sees the same context. Use this instead of assigning
+ * CONVERGE_PLAYBOOK by hand — the bare assignment leaves the journal root
+ * and playbook dir unexported, which has bitten us before.
+ *
+ * Sets:
+ *   CONVERGE_PLAYBOOK      — playbook name (e.g. "create-api")
+ *   CONVERGE_PLAYBOOK_DIR  — {projectDir}/.converge/playbooks/{name}
+ *   CONVERGE_JOURNAL_ROOT  — {projectDir}/.converge/journal/{name}
+ */
+export function setPlaybookScope(
+  playbookName: string,
+  projectDir: string,
+): void {
+  process.env.CONVERGE_PLAYBOOK = playbookName;
+  process.env.CONVERGE_PLAYBOOK_DIR = join(
+    projectDir,
+    ".converge",
+    "playbooks",
+    playbookName,
+  );
+  process.env.CONVERGE_JOURNAL_ROOT = join(
+    projectDir,
+    ".converge",
+    "journal",
+    playbookName,
+  );
+}
+
+/**
+ * Clear all playbook-scope env vars. Use after a command finishes so later
+ * commands in the same process don't inherit stale context.
+ */
+export function clearPlaybookScope(): void {
+  delete process.env.CONVERGE_PLAYBOOK;
+  delete process.env.CONVERGE_PLAYBOOK_DIR;
+  delete process.env.CONVERGE_JOURNAL_ROOT;
 }
 
 /**

@@ -63,6 +63,10 @@ import {
   mergeRunConfig,
 } from "../playbook/executor.ts";
 import { initPlaybookJournal, appendTrend } from "../playbook/journal.ts";
+import {
+  setPlaybookScope,
+  clearPlaybookScope,
+} from "../journal/structure.ts";
 import type { PlaybookRunConfig } from "../playbook/types.ts";
 import { showCommandHelp } from "./help.ts";
 import { resolveConvergeConfig } from "../config/loader.ts";
@@ -237,36 +241,31 @@ async function main(): Promise<void> {
   setupGracefulShutdown();
 
   // ── Global --playbook context ────────────────────────────────────
-  // When --playbook is set on ANY command, set CONVERGE_PLAYBOOK so
-  // journal paths route through journal/{playbook}/tasks/.
-  // For 'run', the playbook also generates an epic from template.
-  if (options.playbook && command !== "run" && command !== "plan") {
-    process.env.CONVERGE_PLAYBOOK = String(options.playbook);
+  // When --playbook is set on ANY command, export the playbook scope so
+  // scanner, journal, status, run — every code path — sees the same context.
+  // Using setPlaybookScope() ensures CONVERGE_PLAYBOOK, CONVERGE_PLAYBOOK_DIR,
+  // and CONVERGE_JOURNAL_ROOT stay in sync. `run` and `plan` were previously
+  // excluded here and set the scope deep inside their handlers, which meant
+  // any discovery/scan that ran before that point saw the wrong scope.
+  const globalProjectDir = resolve(options.dir || process.cwd());
+  if (options.playbook) {
+    setPlaybookScope(String(options.playbook), globalProjectDir);
   }
 
-  // Auto-detect playbook context for ALL commands when no explicit --playbook.
-  // Scan the journal directory for playbook folders (e.g. journal/create-web/tasks/)
-  // so journal paths, tree, status, etc. all route correctly.
+  // Auto-detect playbook context when no explicit --playbook.
   if (!process.env.CONVERGE_PLAYBOOK) {
-    const autoSearchDir = resolve(options.dir || process.cwd());
-
     // Strategy 1: No project.yaml — try loading 'default' playbook
-    const autoResolved = await resolveConvergeConfig(autoSearchDir);
+    const autoResolved = await resolveConvergeConfig(globalProjectDir);
     if (!autoResolved) {
-      const autoPbName = "default";
-      const autoPb = await loadPlaybook(autoPbName, autoSearchDir);
-      if (autoPb) {
-        process.env.CONVERGE_PLAYBOOK = autoPbName;
-      }
+      const autoPb = await loadPlaybook("default", globalProjectDir);
+      if (autoPb) setPlaybookScope("default", globalProjectDir);
     }
 
     // Strategy 2: project.yaml exists but no playbook set — detect from journal
-    // When a previous playbook run created journal/{name}/tasks/, we need to
-    // set CONVERGE_PLAYBOOK so path resolution matches the existing structure.
     if (!process.env.CONVERGE_PLAYBOOK) {
       const { existsSync, readdirSync, statSync } = await import("node:fs");
       const { join } = await import("node:path");
-      const journalDir = join(autoSearchDir, ".converge", "journal");
+      const journalDir = join(globalProjectDir, ".converge", "journal");
       if (existsSync(journalDir)) {
         for (const entry of readdirSync(journalDir)) {
           if (entry === "epics" || entry === "project" || entry === "default")
@@ -275,19 +274,18 @@ async function main(): Promise<void> {
           if (!statSync(pbDir).isDirectory()) continue;
           const tasksDir = join(pbDir, "tasks");
           if (existsSync(tasksDir) && statSync(tasksDir).isDirectory()) {
-            process.env.CONVERGE_PLAYBOOK = entry;
+            setPlaybookScope(entry, globalProjectDir);
             break;
           }
         }
       }
     }
 
-    // Strategy 3: Discover from .converge/playbooks/ — auto-select sole playbook
-    // When there's exactly one playbook on disk, use it without requiring --playbook.
+    // Strategy 3: Sole playbook in .converge/playbooks/
     if (!process.env.CONVERGE_PLAYBOOK) {
-      const discovered = await discoverPlaybooks(autoSearchDir);
+      const discovered = await discoverPlaybooks(globalProjectDir);
       if (discovered.length === 1) {
-        process.env.CONVERGE_PLAYBOOK = discovered[0].def.name;
+        setPlaybookScope(discovered[0].def.name, globalProjectDir);
       }
     }
   }
@@ -377,9 +375,10 @@ async function main(): Promise<void> {
                   : undefined,
             };
             console.log(`\n📋 Loaded config from playbook: ${pbName}`);
-            // Set CONVERGE_PLAYBOOK so journal paths route correctly
-            // through journal/{playbook}/tasks/ even without --playbook flag
-            process.env.CONVERGE_PLAYBOOK = pbName;
+            // Export the full playbook scope (playbook, playbook dir, journal root)
+            // so journal paths route correctly through journal/{playbook}/ even
+            // without --playbook flag.
+            setPlaybookScope(pbName, searchDir);
           }
         }
 
@@ -490,7 +489,7 @@ async function main(): Promise<void> {
           await initPlaybookJournal(searchDir, playbookName);
           console.log(`   Mode: ${playbookRunCfg.mode}\n`);
 
-          process.env.CONVERGE_PLAYBOOK = playbookName;
+          setPlaybookScope(playbookName, searchDir);
           runFilter = resolvedPb.epicId;
         }
 
@@ -558,7 +557,7 @@ async function main(): Promise<void> {
           }
           throw err;
         } finally {
-          delete process.env.CONVERGE_PLAYBOOK;
+          clearPlaybookScope();
         }
         break;
       }
@@ -828,7 +827,7 @@ async function main(): Promise<void> {
         // Init journal + run
         const planPlaybookName = "plan";
         await initPlaybookJournal(planSearchDir, planPlaybookName);
-        process.env.CONVERGE_PLAYBOOK = planPlaybookName;
+        setPlaybookScope(planPlaybookName, planSearchDir);
         console.log(`   Mode: autonomous\n`);
 
         const planRunStartTime = Date.now();
@@ -892,7 +891,7 @@ async function main(): Promise<void> {
           });
           throw err;
         } finally {
-          delete process.env.CONVERGE_PLAYBOOK;
+          clearPlaybookScope();
         }
         break;
       }
@@ -1086,8 +1085,8 @@ async function main(): Promise<void> {
         });
 
         // Set playbook context and delegate to run
-        process.env.CONVERGE_PLAYBOOK = playbookName;
         const searchDir = resolve(options.dir || process.cwd());
+        setPlaybookScope(playbookName, searchDir);
         await initPlaybookJournal(searchDir, playbookName);
 
         await runAutonomousCommand({
@@ -1111,7 +1110,7 @@ async function main(): Promise<void> {
           verbose: options.verbose || options.v,
         });
 
-        delete process.env.CONVERGE_PLAYBOOK;
+        clearPlaybookScope();
         break;
       }
 
@@ -1133,8 +1132,8 @@ async function main(): Promise<void> {
         });
 
         // Set playbook context and delegate to run
-        process.env.CONVERGE_PLAYBOOK = playbookName;
         const tbSearchDir = resolve(options.dir || process.cwd());
+        setPlaybookScope(playbookName, tbSearchDir);
         await initPlaybookJournal(tbSearchDir, playbookName);
 
         await runAutonomousCommand({
@@ -1158,7 +1157,7 @@ async function main(): Promise<void> {
           verbose: options.verbose || options.v,
         });
 
-        delete process.env.CONVERGE_PLAYBOOK;
+        clearPlaybookScope();
         break;
       }
 
