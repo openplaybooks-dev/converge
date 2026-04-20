@@ -101,7 +101,6 @@ export class MissingInputPatternRepairStrategy implements FixStrategy {
               variant,
               projectDir,
               journalCtx,
-              ctx,
               gap,
             );
 
@@ -160,7 +159,7 @@ export class MissingInputPatternRepairStrategy implements FixStrategy {
   }
 
   /* ------------------------------------------------------------------ */
-  /*  AI-Powered Auto-Fix                                              */
+  /*  Auto-Fix Pattern                                                 */
   /* ------------------------------------------------------------------ */
 
   private async autoFixPattern(
@@ -168,7 +167,6 @@ export class MissingInputPatternRepairStrategy implements FixStrategy {
     correctedPattern: string,
     projectDir: string,
     journalCtx: { epicId: string; taskId: string },
-    ctx: StrategyContext,
     gap?: Gap,
   ): Promise<void> {
     const { readFile, writeFile } = await import("node:fs/promises");
@@ -231,81 +229,17 @@ export class MissingInputPatternRepairStrategy implements FixStrategy {
       return;
     }
 
-    // Use AI to fix the pattern intelligently
-    if (!ctx.ai) {
-      console.log(`   ⚠️  AI context not available, using programmatic fix`);
-      // Fallback to simple replacement
-      const updatedContent = content.replace(
-        new RegExp(originalPattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"),
-        correctedPattern,
-      );
-      if (updatedContent !== content) {
-        await writeFile(targetPath, updatedContent, "utf-8");
-        console.log(`   🔧 Auto-fixed pattern (programmatic): ${targetPath}`);
-      }
-      return;
-    }
-
-    console.log(`   🤖 Using AI to fix pattern mismatch...`);
-
-    const aiContext = ctx.ai();
-    const fixPrompt = `You are fixing a glob pattern mismatch in a task definition file.
-
-PROBLEM:
-- Current pattern: "${originalPattern}"
-- Actual files exist matching: "${correctedPattern}"
-- The pattern needs to be updated to match the real file structure
-
-FILE TO FIX:
-${targetPath}
-
-CURRENT FILE CONTENT:
-\`\`\`
-${content}
-\`\`\`
-
-TASK:
-Update the file to use the corrected pattern "${correctedPattern}" instead of "${originalPattern}".
-
-IMPORTANT RULES:
-1. ONLY change the pattern string - preserve everything else exactly
-2. Handle both YAML array format (inputs: - "pattern") and TypeScript (.inputs(['pattern']))
-3. If the pattern appears multiple times, update ALL occurrences
-4. Preserve exact formatting, indentation, and whitespace
-5. Return ONLY the complete updated file content, nothing else
-
-OUTPUT:
-Return the complete fixed file content as a single code block.`;
-
-    try {
-      const fixedContent = (await aiContext.ask(fixPrompt)).asText();
-
-      // Extract code block if AI wrapped it
-      let finalContent = fixedContent;
-      const codeBlockMatch = fixedContent.match(
-        /```(?:typescript|yaml|md)?\n([\s\S]*?)\n```/,
-      );
-      if (codeBlockMatch) {
-        finalContent = codeBlockMatch[1];
-      }
-
-      // Write the fixed content
-      await writeFile(targetPath, finalContent, "utf-8");
-      console.log(`   🔧 AI-fixed pattern in: ${targetPath}`);
+    // Programmatic find-and-replace — no AI needed for a simple string swap.
+    const updatedContent = content.replace(
+      new RegExp(originalPattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"),
+      correctedPattern,
+    );
+    if (updatedContent !== content) {
+      await writeFile(targetPath, updatedContent, "utf-8");
+      console.log(`   🔧 Auto-fixed pattern in: ${targetPath}`);
       console.log(`      "${originalPattern}" → "${correctedPattern}"`);
-    } catch (error: any) {
-      console.error(`   ❌ AI fix failed: ${error.message}`);
-      console.log(`   🔄 Falling back to programmatic fix...`);
-
-      // Fallback to regex replacement
-      const updatedContent = content.replace(
-        new RegExp(originalPattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"),
-        correctedPattern,
-      );
-      if (updatedContent !== content) {
-        await writeFile(targetPath, updatedContent, "utf-8");
-        console.log(`   🔧 Auto-fixed pattern (fallback): ${targetPath}`);
-      }
+    } else {
+      console.log(`   ⚠️  Pattern "${originalPattern}" not found in ${targetPath}`);
     }
   }
 
