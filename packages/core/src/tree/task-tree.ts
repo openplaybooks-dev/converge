@@ -329,47 +329,10 @@ export class TaskTree {
     let nextNode: TreeNode | null;
 
     if (filter) {
-      const slashIdx = filter.indexOf("/");
-      const filterEpicPart =
-        slashIdx >= 0 ? filter.substring(0, slashIdx) : filter;
-      const filterTaskPart =
-        slashIdx >= 0 ? filter.substring(slashIdx + 1) : undefined;
-
-      nextNode = null;
-
-      // When no slash, the filter may match a task inside an epic (not the epic itself).
-      // Search the entire tree for the first runnable node matching the filter.
-      if (slashIdx < 0) {
-        nextNode = await this.findFirstRunnableMatch(filterEpicPart, force);
-      } else {
-        // Explicit epic/task filter — search root's children matching the epic part
-        for (const node of this.root.getChildren()) {
-          if (filterEpicPart) {
-            const epicId = node.epicId ?? "";
-            if (
-              !epicId.includes(filterEpicPart) &&
-              !node.id.includes(filterEpicPart)
-            )
-              continue;
-          }
-          if (filterTaskPart) {
-            const leafId = node.id.split("/").pop() ?? node.id;
-            if (
-              !leafId.includes(filterTaskPart) &&
-              !node.id.includes(filterTaskPart)
-            )
-              continue;
-          }
-          if (!force) {
-            const completed = await node.isComplete();
-            const failed = await node.isFailed();
-            const blocked = await node.isBlocked();
-            if (completed || failed || blocked) continue;
-          }
-          nextNode = node;
-          break;
-        }
-      }
+      // Filter may match an epic, a task inside an epic, or a nested subtask.
+      // Slash-form ("epic/task") matches by full path substring on node.id;
+      // no-slash matches by leaf name.
+      nextNode = await this.findFirstRunnableMatch(filter, force);
     } else {
       // Get next epic (depth 1 from root)
       nextNode = await this.root.findNextTask();
@@ -433,7 +396,10 @@ export class TaskTree {
         // Skip sibling blocking — user explicitly targeted this task via filter,
         // so failed siblings shouldn't prevent running pending ones.
         if (node.children.length > 0) {
-          const leaf = await node.findNextTask(/* skipSiblingBlocking */ true);
+          const leaf = await node.findNextTask(
+            /* skipSiblingBlocking */ true,
+            force,
+          );
           if (leaf) return leaf;
           // No runnable children — continue searching siblings
           continue;

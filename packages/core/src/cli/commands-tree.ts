@@ -23,6 +23,8 @@ export interface TreeCommandOptions {
   root?: string;
   /** Filter to specific task or epic ID */
   filter?: string;
+  /** Scope to a named playbook (only show tasks from that playbook) */
+  playbook?: string;
   // legacy options kept for CLI compat — currently unused
   showPaths?: boolean;
   showDescriptions?: boolean;
@@ -108,10 +110,40 @@ export async function treeCommand(
       return;
     }
 
-    // Apply filter if provided
+    // Scope to a playbook if requested (--playbook=<name> or CONVERGE_PLAYBOOK env)
+    const playbookScope = options.playbook || process.env.CONVERGE_PLAYBOOK;
     let filteredTree = tree;
+    if (playbookScope) {
+      const needle = `${path.sep}playbooks${path.sep}${playbookScope}${path.sep}`;
+      const needlePosix = `/playbooks/${playbookScope}/`;
+      filteredTree = filteredTree.filter(
+        (n) => n.filePath.includes(needle) || n.filePath.includes(needlePosix),
+      );
+      if (filteredTree.length === 0) {
+        console.log(
+          `\n⚠️  No tasks found for playbook "${playbookScope}".\n`,
+        );
+        const available = [
+          ...new Set(
+            tree
+              .map((n) => {
+                const m = n.filePath.match(/[\\/]playbooks[\\/]([^\\/]+)[\\/]/);
+                return m?.[1];
+              })
+              .filter((s): s is string => Boolean(s)),
+          ),
+        ].sort();
+        if (available.length > 0) {
+          console.log("Available playbooks:");
+          available.forEach((p) => console.log(`  - ${p}`));
+        }
+        return;
+      }
+    }
+
+    // Apply filter if provided
     if (options.filter) {
-      filteredTree = filterTaskTree(tree, options.filter);
+      filteredTree = filterTaskTree(filteredTree, options.filter);
       if (filteredTree.length === 0) {
         console.log(
           `\n⚠️  No tasks found matching filter: "${options.filter}"\n`,

@@ -11,13 +11,15 @@
  *   - FEEDBACK.md — optional pre-retry context written here before the
  *     next attempt, so the AI knows what failed and how to fix it.
  *
- * Only acts on check-failed gaps — other gap types (missing output, input,
- * blocker) are fully described by TASK.md + gap metadata; no extra file needed.
+ * Handles two gap kinds:
+ *   - check-failed: runs checks fresh, reports pass/fail with commands
+ *   - output: reports missing declared outputs + sibling-file hints so
+ *     the AI can detect renames (e.g. next.config.js vs next.config.ts)
  */
 
-import { writeFile, readFile } from "node:fs/promises";
+import { writeFile, readFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, basename, join, relative } from "node:path";
 import type { Gap } from "../gap/types.ts";
 
 function isBrokenCheck(r: {
@@ -38,10 +40,15 @@ export async function prepareFeedback(
   projectDir: string,
 ): Promise<void> {
   const gapKind = (gap.metadata?.gapKind as string) ?? "";
-  if (gapKind !== "check-failed") return;
-
   const attemptDir = process.env.CONVERGE_TASK_ATTEMPT_DIR;
   if (!attemptDir) return;
+
+  if (gapKind === "output") {
+    await writeOutputFeedback(gap, projectDir, attemptDir);
+    return;
+  }
+
+  if (gapKind !== "check-failed") return;
 
   // Read check.json to get ALL check definitions for this task
   const checkJsonPath = join(attemptDir, "data", "check.json");
@@ -147,4 +154,127 @@ export async function prepareFeedback(
 
   await writeFile(join(attemptDir, "FEEDBACK.md"), lines.join("\n"));
   console.log(`   📋 FEEDBACK.md written (${failed.length} check(s) failed)`);
+}
+
+/**
+ * Write FEEDBACK.md for missing-output gaps.
+ *
+ * Derives the full outputs list from TASK.md (authoritative), checks each on
+ * disk, and reports all missing outputs with sibling-file hints so the AI can
+ * spot renames (e.g. declared `next.config.js` but scaffolder wrote
+ * `next.config.ts`). Emits clear repair guidance: create the file, rename,
+ * or update TASK.md's outputs list.
+ *
+ * Idempotent: each call re-derives state from disk, so repeated invocations
+ * (one per gap in the loop) produce the same content.
+ */
+async function writeOutputFeedback(
+  gap: Gap,
+  projectDir: string,
+  attemptDir: string,
+): Promise<void> {
+  const unitPath = gap.metadata?.unitPath as string | undefined;
+  if (!unitPath || !existsSync(unitPath)) return;
+
+  let outputs: string[] = [];
+  let taskTitle = (gap.metadata?.taskTitle as string | undefined) ?? "";
+  try {
+    const { parseTaskMd } = await import("../../config/task-md-definition.ts");
+    const parsed = await parseTaskMd(unitPath);
+    outputs = parsed?.def?.outputs ?? [];
+    taskTitle = parsed?.def?.title ?? taskTitle;
+  } catch {
+    return;
+  }
+  if (outputs.length === 0) return;
+
+  const presence = outputs.map((out) => ({
+    path: out,
+    exists: existsSync(join(projectDir, out)),
+  }));
+  const missing = presence.filter((p) => !p.exists);
+  if (missing.length === 0) return;
+
+  const relUnitPath = relative(projectDir, unitPath).replace(/\\/g, "/");
+  const lines: string[] = [
+    "# FEEDBACK.md — Missing Outputs",
+    "",
+    `**Task**: ${taskTitle || gap.scope}`,
+    `**Status**: ❌ ${missing.length}/${outputs.length} declared output(s) not found on disk`,
+    "",
+    "## Outputs",
+    "",
+  ];
+  for (const p of presence) {
+    lines.push(`- ${p.exists ? "✅" : "❌"} \`${p.path}\``);
+  }
+  lines.push("");
+
+  for (const m of missing) {
+    lines.push(`## ❌ Missing: \`${m.path}\``, "");
+    const parentDir = join(projectDir, dirname(m.path));
+    const missingBase = basename(m.path);
+    const missingStem = missingBase.replace(/\.[^.]+$/, "");
+    if (existsSync(parentDir)) {
+      let siblings: string[] = [];
+      try {
+        siblings = await readdir(parentDir);
+      } catch {
+        // dir unreadable
+      }
+      // Surface likely renames first: same stem, different extension
+      const likelyRenames = siblings.filter(
+        (s) => s.startsWith(missingStem + ".") && s !== missingBase,
+      );
+      if (likelyRenames.length > 0) {
+        lines.push(
+          `**Likely rename detected** — same basename, different extension:`,
+        );
+        for (const r of likelyRenames) {
+          lines.push(`- \`${dirname(m.path)}/${r}\``);
+        }
+        lines.push("");
+      }
+      if (siblings.length > 0) {
+        lines.push(
+          `Files present in \`${dirname(m.path)}/\` (up to 20):`,
+          "",
+          "```",
+          siblings.slice(0, 20).join("\n"),
+          "```",
+          "",
+        );
+      } else {
+        lines.push(
+          `Directory \`${dirname(m.path)}/\` exists but is empty.`,
+          "",
+        );
+      }
+    } else {
+      lines.push(
+        `Parent directory \`${dirname(m.path)}/\` does not exist.`,
+        "",
+      );
+    }
+  }
+
+  lines.push(
+    "## How to fix",
+    "",
+    "Pick ONE of these, based on what you find above:",
+    "",
+    "1. **If the file truly is missing** — create it per TASK.md instructions.",
+    `2. **If a sibling file satisfies the same purpose** (e.g. \`.ts\` variant of a declared \`.js\` output) — update the outputs list in the source TASK.md to match what actually exists:`,
+    `   - Edit \`${relUnitPath}\``,
+    `   - Replace the missing output path with the actual filename on disk.`,
+    `   - Do NOT change the task body — only the frontmatter \`outputs:\` list.`,
+    "3. **If the file should exist under a different name** — rename the on-disk file to match the declared output.",
+    "",
+    "After fixing, the verifier will re-check. Every declared output must exist on disk.",
+  );
+
+  await writeFile(join(attemptDir, "FEEDBACK.md"), lines.join("\n"));
+  console.log(
+    `   📋 FEEDBACK.md written (${missing.length} missing output(s))`,
+  );
 }
