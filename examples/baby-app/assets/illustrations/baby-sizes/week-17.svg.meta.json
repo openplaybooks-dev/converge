@@ -1,0 +1,28 @@
+{
+  "id": "week-17",
+  "version": "1.0.0",
+  "type": "baby-size",
+  "format": "svg",
+  "fileName": "week-17.svg",
+  "semantic": {
+    "title": "Week 17 Baby Size",
+    "description": "A friendly turnip illustration representing the fetus at week 17 of pregnancy, rendered in a soft, rounded style with a creamy white bulb transitioning to purple-magenta shoulders, fresh green leaves, and a thin tapered root.",
+    "tags": ["baby-size", "pregnancy", "week-17", "turnip"],
+    "alt": "A friendly turnip illustration showing the approximate size of a fetus at week 17 of pregnancy"
+  },
+  "usage": {
+    "screens": ["HomeScreen"],
+    "widgets": ["HeroIllustrationCard"],
+    "accessibility": {
+      "label": "Baby size at week 17: about the size of a turnip",
+      "role": "image"
+    }
+  },
+  "variants": {
+    "light": "week-17.svg",
+    "dark": null
+  },
+  "source": {
+    "spec": ".converge/playbooks/default/tasks/04-generate-assets/tasks/017-week-17/SPEC.md"
+  }
+}

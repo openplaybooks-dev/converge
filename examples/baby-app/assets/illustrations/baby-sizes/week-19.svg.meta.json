@@ -1,0 +1,28 @@
+{
+  "id": "week-19",
+  "version": "1.0.0",
+  "type": "baby-size",
+  "format": "svg",
+  "fileName": "week-19.svg",
+  "semantic": {
+    "title": "Week 19 Baby Size",
+    "description": "A friendly tomato illustration representing the fetus at week 19 of pregnancy, rendered in a soft, rounded style with a warm coral body, lilac stem and calyx, and a blush pink halo.",
+    "tags": ["baby-size", "pregnancy", "week-19", "tomato"],
+    "alt": "A friendly tomato illustration showing the approximate size of a fetus at week 19 of pregnancy"
+  },
+  "usage": {
+    "screens": ["HomeScreen"],
+    "widgets": ["HeroIllustrationCard"],
+    "accessibility": {
+      "label": "Baby size at week 19: about the size of a tomato",
+      "role": "image"
+    }
+  },
+  "variants": {
+    "light": "week-19.svg",
+    "dark": null
+  },
+  "source": {
+    "spec": ".converge/playbooks/default/tasks/04-generate-assets/tasks/019-week-19/SPEC.md"
+  }
+}

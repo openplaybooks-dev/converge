@@ -1,9 +1,0 @@
-{
-  "taskId": "06-quality/001-lint-format",
-  "attemptNumber": 1,
-  "inputs": [],
-  "outputs": [
-    ".converge/standardize-state/quality/lint-report.json"
-  ],
-  "blocked": false
-}

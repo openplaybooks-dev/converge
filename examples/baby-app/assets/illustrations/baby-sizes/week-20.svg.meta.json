@@ -1,0 +1,28 @@
+{
+  "id": "week-20",
+  "version": "1.0.0",
+  "type": "baby-size",
+  "format": "svg",
+  "fileName": "week-20.svg",
+  "semantic": {
+    "title": "Week 20 Baby Size",
+    "description": "A friendly banana illustration representing the fetus at week 20 of pregnancy, rendered in a soft, curved style with a gentle crescent arc and warm coral-tinted yellow gradient.",
+    "tags": ["baby-size", "pregnancy", "week-20", "banana"],
+    "alt": "A friendly banana illustration showing the approximate size of a fetus at week 20 of pregnancy"
+  },
+  "usage": {
+    "screens": ["HomeScreen"],
+    "widgets": ["HeroIllustrationCard"],
+    "accessibility": {
+      "label": "Baby size at week 20: about the size of a banana",
+      "role": "image"
+    }
+  },
+  "variants": {
+    "light": "week-20.svg",
+    "dark": null
+  },
+  "source": {
+    "spec": ".converge/playbooks/default/tasks/04-generate-assets/tasks/020-week-20/SPEC.md"
+  }
+}

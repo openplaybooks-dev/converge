@@ -35,11 +35,22 @@ export class WbsScriptRepairStrategy implements FixStrategy {
       return { success: false, reason: "No scriptPath in gap metadata" };
     }
 
-    // Resolve script path — may be a directory (unit.path) or a file
+    // Resolve script path — may already be a concrete file, or a task
+    // directory containing the script under a conventional layout.
     const candidates =
-      scriptPath.endsWith(".js") || scriptPath.endsWith(".ts")
+      scriptPath.endsWith(".js") ||
+      scriptPath.endsWith(".ts") ||
+      scriptPath.endsWith(".mjs") ||
+      scriptPath.endsWith(".cjs")
         ? [scriptPath]
-        : [join(scriptPath, "wbs.js"), join(scriptPath, "wbs.ts")];
+        : [
+            join(scriptPath, "wbs.js"),
+            join(scriptPath, "wbs.ts"),
+            join(scriptPath, "wbs", "index.js"),
+            join(scriptPath, "wbs", "index.ts"),
+            join(scriptPath, "wbs", "index.mjs"),
+            join(scriptPath, "wbs.mjs"),
+          ];
 
     let resolvedScriptPath: string | undefined;
     for (const c of candidates) {

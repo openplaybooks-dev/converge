@@ -32,7 +32,7 @@ interface GoalResult {
   goal: GoalDefinition;
   value: number;
   satisfied: boolean;
-  blocked: boolean;
+  blocked?: boolean;
   blockedBy?: string[];
   detailOutput?: string;
   reportData?: unknown;

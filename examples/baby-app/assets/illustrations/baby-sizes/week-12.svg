@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <title>Week 12 - Plum</title>
+  <defs>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FDEEEE" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#FDEEEE" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="plumGrad" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#FF8A8A"/>
+      <stop offset="100%" stop-color="#FF6B6B"/>
+    </radialGradient>
+  </defs>
+  <!-- Halo glow -->
+  <circle cx="100" cy="105" r="70" fill="url(#halo)"/>
+  <!-- Plum body — plump near-spherical with subtle vertical crease -->
+  <ellipse cx="100" cy="106" rx="40" ry="44" fill="url(#plumGrad)" stroke="#E05555" stroke-width="1.5"/>
+  <!-- Vertical crease -->
+  <path d="M100 64 Q97 106 100 148" stroke="#9B59B6" stroke-width="1" fill="none" opacity="0.3" stroke-linecap="round"/>
+  <!-- Highlight on upper-left surface -->
+  <ellipse cx="85" cy="88" rx="14" ry="20" fill="white" opacity="0.18" transform="rotate(-15 85 88)"/>
+  <!-- Stem -->
+  <path d="M100 62 Q100 54 103 46" stroke="#9B59B6" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="103" cy="45" r="1.8" fill="#9B59B6"/>
+  <!-- Leaf -->
+  <path d="M103 50 Q113 42 120 44" stroke="#9B59B6" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M103 50 Q112 46 120 44 Q114 52 103 50Z" fill="#9B59B6" opacity="0.6"/>
+</svg>

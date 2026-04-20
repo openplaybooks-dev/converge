@@ -121,6 +121,8 @@ export interface TaskExecutionContext {
    * Triggered by `--step` flag.
    */
   stepMode?: boolean;
+  /** Extra vars to merge into WBS context (e.g. epoch number from evolve runner) */
+  extraVars?: Record<string, unknown>;
 }
 
 export interface TaskExecutionResult {
@@ -134,6 +136,8 @@ export interface TaskExecutionResult {
   durationMs: number;
   /** Whether this task is a blocker (must complete successfully) */
   isBlocking: boolean;
+  /** Sibling task IDs that were reset to pending by on-fail config */
+  resetSiblings?: string[];
 }
 
 /* ------------------------------------------------------------------ */
@@ -297,7 +301,7 @@ export async function executeTask(
             ctx.projectDir,
             { epicId: ctx.epicId, taskId: ctx.journalTaskId },
             guardUnit.path,
-            { id: guardUnit.id, title: guardUnit.title, vars: guardUnit.vars },
+            { id: guardUnit.id, title: guardUnit.title, vars: { ...guardUnit.vars, ...ctx.extraVars } },
           );
           const result = await executor.run(guardUnit.wbsFn, 1);
 
@@ -585,6 +589,9 @@ export async function executeTask(
           missingInputs: snapshotPaths.blockedInputs,
           blockedInputs: snapshotPaths.blockedInputs,
           allMissingItems: snapshotPaths.blockedInputs,
+          // Absolute path to the source TASK.md, so repair strategies can patch it
+          // directly without reconstructing the path from epicId/taskId segments.
+          sourceTaskFile: ctx.filePath,
         },
       };
 
@@ -883,6 +890,7 @@ export async function executeTask(
   let success = false;
   let isWbsTask = false;
   let isBlocking = false;
+  let resetSiblings: string[] | undefined;
   let unit: Unit | null = null;
   const executionStartTime = Date.now();
 
@@ -1077,6 +1085,31 @@ export async function executeTask(
       );
       throw err; // Re-throw to prevent rollUpCompletion with bad state
     }
+
+    // ── 6.5. On-Fail Sibling Reset ───────────────────────────────────
+    if (unit?.onFail?.reset?.length) {
+      resetSiblings = [];
+      for (const siblingId of unit.onFail.reset) {
+        try {
+          const siblingUnitCkpt = new UnitCheckpointManager(
+            ctx.projectDir, "task", ctx.epicId, siblingId,
+          );
+          const siblingCheckpoint = await siblingUnitCkpt.load();
+          if (!siblingCheckpoint) {
+            console.warn(`   ⚠️  on-fail reset: sibling "${siblingId}" not found — skipping`);
+            continue;
+          }
+          if (siblingCheckpoint.status === "pending") {
+            continue;
+          }
+          await checkpointMgr.removeFromCompleted(siblingId, ctx.epicId);
+          resetSiblings.push(siblingId);
+          console.log(`   ↩️  on-fail reset: "${siblingId}" → pending`);
+        } catch (err: any) {
+          console.warn(`   ⚠️  on-fail reset failed for "${siblingId}": ${err.message}`);
+        }
+      }
+    }
   }
 
   // ── 7. Propagate Completion/Failure Up the Tree ────────────────────
@@ -1148,5 +1181,6 @@ export async function executeTask(
     isWbsTask,
     durationMs,
     isBlocking,
+    resetSiblings,
   };
 }

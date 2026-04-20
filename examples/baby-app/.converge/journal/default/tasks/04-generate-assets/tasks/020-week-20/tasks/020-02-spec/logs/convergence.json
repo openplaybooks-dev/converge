@@ -1,0 +1,245 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-generate-assets/020-week-20/020-02-spec-missing-output-.converge/playbooks/default/tasks/04-generate-assets/tasks/020-week-20/SPEC.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-generate-assets/020-week-20/020-02-spec",
+            "severity": "high",
+            "description": "[04-generate-assets/020-week-20/020-02-spec] Task output not created: .converge/playbooks/default/tasks/04-generate-assets/tasks/020-week-20/SPEC.md",
+            "source": "unit",
+            "detected": "2026-04-19T05:40:10.326Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/04-generate-assets/tasks/020-week-20/tasks/020-02-spec",
+              "taskId": "04-generate-assets/020-week-20/020-02-spec",
+              "taskTitle": "Spec — baby-size: Week 20",
+              "taskPrompt": "# Create Visual Specification\n\nWrite a detailed visual specification for generating this asset.\n\n## From Requirements\n\nRead `requirements.json` from the previous step.\n\n## Specification Tasks\n\n1. **Composition** — Layout, positioning, framing\n2. **Colors** — Specific hex values from design system\n3. **Shapes** — Geometric forms, organic shapes\n4. **Details** — Textures, patterns, highlights\n5. **Style Guide** — Flat, 3D, line art, etc.\n\n## Output\n\nCreate `SPEC.md` with these sections:\n\n```markdown\n# Asset Specification: week-20\n\n## Overview\nBaby size comparison illustration showing a banana alongside a gestational sac/fetus at week 20.\n\n## Visual Description\n[Detailed description for SVG generation]\n\n## Color Palette\n- Primary: #FF6B6B (coral)\n- Secondary: #9B59B6 (lilac)\n- Background: transparent\n\n## Dimensions\n- ViewBox: 0 0 200 200\n- Padding: 10%\n\n## Style Notes\n- Line weight: 3px\n- Rounded corners: 8px\n- Flat design with subtle shadows\n\n## Variants\n- Light mode: as specified\n- Dark mode: inverted colors\n```\n\nBe specific enough that an AI can generate the SVG from this description.",
+              "taskSkill": "visual-specification",
+              "taskInputs": [
+                ".converge/playbooks/default/tasks/04-generate-assets/tasks/020-week-20/requirements.json"
+              ],
+              "factId": "file-exists:test -f \".converge/playbooks/default/tasks/04-generate-assets/tasks/020-week-20/SPEC.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-generate-assets/020-week-20/020-02-spec-check-failed-spec-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-generate-assets/020-week-20/020-02-spec",
+            "severity": "high",
+            "description": "[04-generate-assets/020-week-20/020-02-spec] Check failed: Visual specification document exists",
+            "source": "unit",
+            "detected": "2026-04-19T05:40:10.327Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "spec-exists",
+              "checkCmd": "test -f .converge/playbooks/default/tasks/04-generate-assets/tasks/020-week-20/SPEC.md",
+              "checkDescription": "Visual specification document exists",
+              "checkOutput": "Command failed: test -f .converge/playbooks/default/tasks/04-generate-assets/tasks/020-week-20/SPEC.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Create Visual Specification\n\nWrite a detailed visual specification for generating this asset.\n\n## From Requirements\n\nRead `requirements.json` from the previous step.\n\n## Specification Tasks\n\n1. **Composition** — Layout, positioning, framing\n2. **Colors** — Specific hex values from design system\n3. **Shapes** — Geometric forms, organic shapes\n4. **Details** — Textures, patterns, highlights\n5. **Style Guide** — Flat, 3D, line art, etc.\n\n## Output\n\nCreate `SPEC.md` with these sections:\n\n```markdown\n# Asset Specification: week-20\n\n## Overview\nBaby size comparison illustration showing a banana alongside a gestational sac/fetus at week 20.\n\n## Visual Description\n[Detailed description for SVG generation]\n\n## Color Palette\n- Primary: #FF6B6B (coral)\n- Secondary: #9B59B6 (lilac)\n- Background: transparent\n\n## Dimensions\n- ViewBox: 0 0 200 200\n- Padding: 10%\n\n## Style Notes\n- Line weight: 3px\n- Rounded corners: 8px\n- Flat design with subtle shadows\n\n## Variants\n- Light mode: as specified\n- Dark mode: inverted colors\n```\n\nBe specific enough that an AI can generate the SVG from this description.",
+              "taskSkill": "visual-specification",
+              "taskId": "04-generate-assets/020-week-20/020-02-spec",
+              "taskTitle": "Spec — baby-size: Week 20",
+              "unitPath": "/Users/minh/Documents/converge/examples/baby-app/.converge/playbooks/default/tasks/04-generate-assets/tasks/020-week-20/tasks/020-02-spec",
+              "factId": "check:spec-exists"
+            }
+          }
+        ],
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "run-skill",
+      "handler": "run-skill",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 64
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 13
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#97",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 46100
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-19T05:40:10.320Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-19T05:40:10.321Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-19T05:40:10.328Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-19T05:40:10.329Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "run-skill",
+      "iteration": 1,
+      "ts": "2026-04-19T05:40:10.331Z"
+    },
+    {
+      "from": "run-skill",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-19T05:40:10.337Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#97",
+      "iteration": 1,
+      "ts": "2026-04-19T05:40:56.437Z"
+    },
+    {
+      "from": "run-strategy:task-run#97",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-19T05:40:56.452Z"
+    }
+  ]
+}

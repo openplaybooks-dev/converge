@@ -1,9 +1,0 @@
-{
-  "taskId": "01-brand/005-cli-rename",
-  "attemptNumber": 1,
-  "inputs": [],
-  "outputs": [
-    ".converge/standardize-state/brand/005-cli.json"
-  ],
-  "blocked": false
-}

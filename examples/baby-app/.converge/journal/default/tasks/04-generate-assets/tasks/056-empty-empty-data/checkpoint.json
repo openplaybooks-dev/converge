@@ -1,0 +1,20 @@
+{
+  "type": "task",
+  "id": "04-generate-assets/056-empty-empty-data",
+  "status": "pending",
+  "lastUpdated": "2026-04-19T05:58:48.475Z",
+  "createdAt": "2026-04-19T05:58:48.473Z",
+  "progress": {
+    "totalChildren": 5,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "056-01-analyze",
+      "056-02-spec",
+      "056-03-meta",
+      "056-04-generate",
+      "056-05-wire"
+    ],
+    "lastProgressUpdate": "2026-04-19T05:58:48.472Z"
+  }
+}

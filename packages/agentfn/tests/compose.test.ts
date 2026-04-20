@@ -111,7 +111,7 @@ describe("compose — core API", () => {
     expect(typeof fn).toBe("function");
   });
 
-  it("delegates to claudefn compose by default", () => {
+  it("delegates to claudefn compose by default", async () => {
     (mockClaudeCompose as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
@@ -128,12 +128,13 @@ describe("compose — core API", () => {
       description: "test",
     };
 
-    compose({ prompt: "test", tools: { t: dummyTool } });
+    const fn = compose({ prompt: "test", tools: { t: dummyTool } });
+    await fn();
     expect(mockClaudeCompose).toHaveBeenCalledOnce();
     expect(mockKimiCompose).not.toHaveBeenCalled();
   });
 
-  it("delegates to kimifn compose when provider is kimi", () => {
+  it("delegates to kimifn compose when provider is kimi", async () => {
     (mockKimiCompose as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
@@ -150,12 +151,13 @@ describe("compose — core API", () => {
       description: "test",
     };
 
-    compose({ prompt: "test", tools: { t: dummyTool }, provider: "kimi" });
+    const fn = compose({ prompt: "test", tools: { t: dummyTool }, provider: "kimi" });
+    await fn();
     expect(mockKimiCompose).toHaveBeenCalledOnce();
     expect(mockClaudeCompose).not.toHaveBeenCalled();
   });
 
-  it("delegates to qwenfn compose when provider is qwen", () => {
+  it("delegates to qwenfn compose when provider is qwen", async () => {
     (mockQwenCompose as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
@@ -172,13 +174,14 @@ describe("compose — core API", () => {
       description: "test",
     };
 
-    compose({ prompt: "test", tools: { t: dummyTool }, provider: "qwen" });
+    const fn = compose({ prompt: "test", tools: { t: dummyTool }, provider: "qwen" });
+    await fn();
     expect(mockQwenCompose).toHaveBeenCalledOnce();
     expect(mockClaudeCompose).not.toHaveBeenCalled();
     expect(mockKimiCompose).not.toHaveBeenCalled();
   });
 
-  it("delegates to geminifn compose when provider is gemini", () => {
+  it("delegates to geminifn compose when provider is gemini", async () => {
     (mockGeminiCompose as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
@@ -195,7 +198,8 @@ describe("compose — core API", () => {
       description: "test",
     };
 
-    compose({ prompt: "test", tools: { t: dummyTool }, provider: "gemini" });
+    const fn = compose({ prompt: "test", tools: { t: dummyTool }, provider: "gemini" });
+    await fn();
     expect(mockGeminiCompose).toHaveBeenCalledOnce();
     expect(mockClaudeCompose).not.toHaveBeenCalled();
     expect(mockKimiCompose).not.toHaveBeenCalled();
@@ -323,7 +327,7 @@ describe("compose — result augmentation", () => {
 // ─── Options Forwarding ─────────────────────────────────────
 
 describe("compose — options forwarding", () => {
-  it("forwards shared options to claude compose", () => {
+  it("forwards shared options to claude compose", async () => {
     (mockClaudeCompose as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
@@ -340,7 +344,7 @@ describe("compose — options forwarding", () => {
       description: "test",
     };
 
-    compose({
+    const fn = compose({
       prompt: "orchestrate",
       tools: { t: dummyTool },
       composeMode: "tool_call",
@@ -349,6 +353,7 @@ describe("compose — options forwarding", () => {
       maxIterations: 5,
       cwd: "/tmp",
     });
+    await fn();
 
     expect(mockClaudeCompose).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -362,7 +367,7 @@ describe("compose — options forwarding", () => {
     );
   });
 
-  it("forwards shared options to kimi compose", () => {
+  it("forwards shared options to kimi compose", async () => {
     (mockKimiCompose as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
@@ -379,7 +384,7 @@ describe("compose — options forwarding", () => {
       description: "test",
     };
 
-    compose({
+    const fn = compose({
       prompt: "orchestrate",
       tools: { t: dummyTool },
       provider: "kimi",
@@ -387,6 +392,7 @@ describe("compose — options forwarding", () => {
       timeoutMs: 30_000,
       maxIterations: 3,
     });
+    await fn();
 
     expect(mockKimiCompose).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -398,7 +404,7 @@ describe("compose — options forwarding", () => {
     );
   });
 
-  it("forwards claude-only options to claude compose", () => {
+  it("forwards claude-only options to claude compose", async () => {
     (mockClaudeCompose as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
@@ -415,7 +421,7 @@ describe("compose — options forwarding", () => {
       description: "test",
     };
 
-    compose({
+    const fn = compose({
       prompt: "test",
       tools: { t: dummyTool },
       backend: "sdk",
@@ -424,6 +430,7 @@ describe("compose — options forwarding", () => {
       permissionMode: "acceptEdits",
       systemPrompt: "Be concise",
     });
+    await fn();
 
     expect(mockClaudeCompose).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -436,7 +443,7 @@ describe("compose — options forwarding", () => {
     );
   });
 
-  it("does not pass claude-only options to kimi compose", () => {
+  it("does not pass claude-only options to kimi compose", async () => {
     (mockKimiCompose as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
@@ -453,7 +460,7 @@ describe("compose — options forwarding", () => {
       description: "test",
     };
 
-    compose({
+    const fn = compose({
       prompt: "test",
       tools: { t: dummyTool },
       provider: "kimi",
@@ -461,6 +468,7 @@ describe("compose — options forwarding", () => {
       model: "opus",
       allowedTools: ["Bash"],
     });
+    await fn();
 
     const calledWith = (mockKimiCompose as any).mock.calls[0][0];
     expect(calledWith).not.toHaveProperty("backend");
@@ -468,7 +476,7 @@ describe("compose — options forwarding", () => {
     expect(calledWith).not.toHaveProperty("allowedTools");
   });
 
-  it("forwards shared options to qwen compose", () => {
+  it("forwards shared options to qwen compose", async () => {
     (mockQwenCompose as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
@@ -485,7 +493,7 @@ describe("compose — options forwarding", () => {
       description: "test",
     };
 
-    compose({
+    const fn = compose({
       prompt: "orchestrate",
       tools: { t: dummyTool },
       provider: "qwen",
@@ -493,6 +501,7 @@ describe("compose — options forwarding", () => {
       timeoutMs: 30_000,
       maxIterations: 3,
     });
+    await fn();
 
     expect(mockQwenCompose).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -504,7 +513,7 @@ describe("compose — options forwarding", () => {
     );
   });
 
-  it("does not pass claude-only options to qwen compose", () => {
+  it("does not pass claude-only options to qwen compose", async () => {
     (mockQwenCompose as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
@@ -521,7 +530,7 @@ describe("compose — options forwarding", () => {
       description: "test",
     };
 
-    compose({
+    const fn = compose({
       prompt: "test",
       tools: { t: dummyTool },
       provider: "qwen",
@@ -529,6 +538,7 @@ describe("compose — options forwarding", () => {
       model: "opus",
       allowedTools: ["Bash"],
     });
+    await fn();
 
     const calledWith = (mockQwenCompose as any).mock.calls[0][0];
     expect(calledWith).not.toHaveProperty("backend");
@@ -536,7 +546,7 @@ describe("compose — options forwarding", () => {
     expect(calledWith).not.toHaveProperty("allowedTools");
   });
 
-  it("forwards shared options to gemini compose", () => {
+  it("forwards shared options to gemini compose", async () => {
     (mockGeminiCompose as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
@@ -553,7 +563,7 @@ describe("compose — options forwarding", () => {
       description: "test",
     };
 
-    compose({
+    const fn = compose({
       prompt: "orchestrate",
       tools: { t: dummyTool },
       provider: "gemini",
@@ -561,6 +571,7 @@ describe("compose — options forwarding", () => {
       timeoutMs: 30_000,
       maxIterations: 3,
     });
+    await fn();
 
     expect(mockGeminiCompose).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -572,7 +583,7 @@ describe("compose — options forwarding", () => {
     );
   });
 
-  it("does not pass claude-only options to gemini compose", () => {
+  it("does not pass claude-only options to gemini compose", async () => {
     (mockGeminiCompose as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
@@ -589,7 +600,7 @@ describe("compose — options forwarding", () => {
       description: "test",
     };
 
-    compose({
+    const fn = compose({
       prompt: "test",
       tools: { t: dummyTool },
       provider: "gemini",
@@ -597,6 +608,7 @@ describe("compose — options forwarding", () => {
       model: "opus",
       allowedTools: ["Bash"],
     });
+    await fn();
 
     const calledWith = (mockGeminiCompose as any).mock.calls[0][0];
     expect(calledWith).not.toHaveProperty("backend");
@@ -604,7 +616,7 @@ describe("compose — options forwarding", () => {
     expect(calledWith).not.toHaveProperty("allowedTools");
   });
 
-  it("passes tools through to the underlying compose", () => {
+  it("passes tools through to the underlying compose", async () => {
     (mockClaudeCompose as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
@@ -630,10 +642,11 @@ describe("compose — options forwarding", () => {
       description: "second tool",
     };
 
-    compose({
+    const fn = compose({
       prompt: "test",
       tools: { translate: tool1, summarize: tool2 },
     });
+    await fn();
 
     const calledWith = (mockClaudeCompose as any).mock.calls[0][0];
     expect(Object.keys(calledWith.tools)).toEqual(["translate", "summarize"]);
@@ -645,7 +658,7 @@ describe("compose — options forwarding", () => {
 // ─── Default Provider ───────────────────────────────────────
 
 describe("compose — default provider", () => {
-  it("uses global default provider", () => {
+  it("uses global default provider", async () => {
     (mockKimiCompose as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
@@ -664,12 +677,13 @@ describe("compose — default provider", () => {
       description: "test",
     };
 
-    compose({ prompt: "test", tools: { t: dummyTool } });
+    const fn = compose({ prompt: "test", tools: { t: dummyTool } });
+    await fn();
     expect(mockKimiCompose).toHaveBeenCalledOnce();
     expect(mockClaudeCompose).not.toHaveBeenCalled();
   });
 
-  it("explicit provider overrides default", () => {
+  it("explicit provider overrides default", async () => {
     (mockClaudeCompose as any).mockReturnValue(async () => ({
       data: "",
       raw: "",
@@ -688,7 +702,8 @@ describe("compose — default provider", () => {
       description: "test",
     };
 
-    compose({ prompt: "test", tools: { t: dummyTool }, provider: "claude" });
+    const fn = compose({ prompt: "test", tools: { t: dummyTool }, provider: "claude" });
+    await fn();
     expect(mockClaudeCompose).toHaveBeenCalledOnce();
     expect(mockKimiCompose).not.toHaveBeenCalled();
   });

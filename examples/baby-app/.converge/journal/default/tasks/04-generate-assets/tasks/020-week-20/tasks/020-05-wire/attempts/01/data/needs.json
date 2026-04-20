@@ -1,0 +1,24 @@
+{
+  "taskId": "04-generate-assets/020-week-20/020-05-wire",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "assets/illustrations/baby-sizes/week-20.svg",
+      "count": 1,
+      "samples": [
+        "assets/illustrations/baby-sizes/week-20.svg"
+      ]
+    },
+    {
+      "pattern": "assets/illustrations/baby-sizes/week-20.svg.meta.json",
+      "count": 1,
+      "samples": [
+        "assets/illustrations/baby-sizes/week-20.svg.meta.json"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/assets/week-20_asset.dart"
+  ],
+  "blocked": false
+}

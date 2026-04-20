@@ -150,7 +150,7 @@ export class TreeNode {
    * - Children exist from a previous run but WBS hasn't re-run yet
    * - Parent was marked seeded but tree reload didn't pick up children
    */
-  get isSeeded(): boolean {
+  async isSeeded(): Promise<boolean> {
     // Fast path: has children in tree structure
     if (this.children.length > 0) {
       return true;
@@ -239,9 +239,12 @@ export class TreeNode {
    *
    * This touches the full branch, not just finding a leaf.
    */
-  async findNextTask(skipSiblingBlocking = false): Promise<TreeNode | null> {
+  async findNextTask(
+    skipSiblingBlocking = false,
+    force = false,
+  ): Promise<TreeNode | null> {
     // If this is a WBS parent that hasn't seeded yet, return self
-    if (this.isWbsParent && !this.isSeeded) {
+    if (this.isWbsParent && !(await this.isSeeded())) {
       return this;
     }
 
@@ -251,11 +254,15 @@ export class TreeNode {
       const failed = await child.isFailed();
       const blocked = await child.isBlocked();
 
-      if (completed || failed || blocked) {
+      // With force, treat failed/blocked children as runnable — user explicitly
+      // asked to rerun. Completed siblings are still skipped (nothing to redo).
+      const skip = force ? completed : completed || failed || blocked;
+
+      if (skip) {
         // A failed blocking task stops the entire sibling chain —
         // no subsequent siblings should execute (unless explicitly overridden
-        // by a filter match, which sets skipSiblingBlocking=true).
-        if (failed && child.blocking && !skipSiblingBlocking) {
+        // by a filter match, which sets skipSiblingBlocking=true, or by force).
+        if (failed && child.blocking && !skipSiblingBlocking && !force) {
           return null;
         }
 
@@ -263,7 +270,7 @@ export class TreeNode {
         // that still need work (e.g. parent output exists but children are pending).
         // Recurse into it to find pending grandchildren.
         if (child.children.length > 0) {
-          const grandchild = await child.findNextTask();
+          const grandchild = await child.findNextTask(false, force);
           if (grandchild) {
             return grandchild;
           }
@@ -273,7 +280,7 @@ export class TreeNode {
 
       // If child has children (WBS parent or task with subtasks), recurse
       if (child.children.length > 0) {
-        const grandchild = await child.findNextTask();
+        const grandchild = await child.findNextTask(false, force);
         if (grandchild) {
           return grandchild;
         }

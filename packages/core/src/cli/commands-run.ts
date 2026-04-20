@@ -77,6 +77,12 @@ export interface AutoRunOptions extends CommonOptions {
   /** Enable self-planning */
   selfPlan?: boolean;
 
+  /** Evolve mode — epoch-based feedback loop using playbook WBS */
+  evolve?: boolean;
+
+  /** Resolved playbook for evolve mode */
+  evolvePlaybook?: import("../playbook/types.ts").ResolvedPlaybook;
+
   /** Loaded PROJECT.md or project.yaml config (auto-discovered by CLI) */
   convergeConfig?: ConvergeConfig;
 
@@ -116,6 +122,35 @@ export async function runAutonomousCommand(
         projectDir,
         convergeConfig: options.convergeConfig!,
         hookRegistry: options.hookRegistry,
+        maxIterations: options.maxIterations,
+        maxTaskAttempts: 2,
+        maxRunDurationMs: options.maxDuration,
+        verbose: options.verbose,
+        filter: options.filter,
+        force: options.force,
+        resume: options.resume,
+        restart: options.restart,
+        planOnly: options.dry,
+      });
+
+      if (!result.converged) {
+        process.exit(1);
+      }
+      return;
+    }
+
+    // ── Evolve mode (--evolve) ────────────────────────────────────────
+    if (options.evolve) {
+      if (!options.evolvePlaybook) {
+        console.error("❌ Evolve mode requires a playbook (--playbook=<name>).\n");
+        process.exit(1);
+      }
+      const { evolveRun } = await import("../evolve/evolve-runner.ts");
+      const result = await evolveRun({
+        projectDir,
+        convergeConfig: options.convergeConfig!,
+        hookRegistry: options.hookRegistry,
+        playbook: options.evolvePlaybook,
         maxIterations: options.maxIterations,
         maxTaskAttempts: 2,
         maxRunDurationMs: options.maxDuration,

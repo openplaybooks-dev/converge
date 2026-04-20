@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <title>Week 17 - Turnip</title>
+  <defs>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FDEEEE" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#FDEEEE" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bulbGrad" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#9B59B6"/>
+      <stop offset="40%" stop-color="#FF6B6B"/>
+      <stop offset="65%" stop-color="#FFEEDD"/>
+      <stop offset="100%" stop-color="#FFF5EE"/>
+    </linearGradient>
+    <radialGradient id="leafGrad" cx="50%" cy="80%" r="60%">
+      <stop offset="0%" stop-color="#7DCE82"/>
+      <stop offset="100%" stop-color="#5BAF60"/>
+    </radialGradient>
+  </defs>
+  <!-- Halo glow -->
+  <circle cx="100" cy="105" r="72" fill="url(#halo)"/>
+  <!-- Thin root at base -->
+  <path d="M100 158 Q99 168 98 178" stroke="#E0C8A8" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+  <!-- Turnip bulb — squat globe, wide middle, tapered bottom -->
+  <path d="M100 60 Q72 64 60 88 Q50 108 56 128 Q62 148 80 156 Q90 160 100 160 Q110 160 120 156 Q138 148 144 128 Q150 108 140 88 Q128 64 100 60Z" fill="url(#bulbGrad)" stroke="#E05555" stroke-width="1.5"/>
+  <!-- Highlight on upper-left bulb -->
+  <ellipse cx="82" cy="100" rx="12" ry="20" fill="white" opacity="0.15" transform="rotate(-10 82 100)"/>
+  <!-- Center leaf -->
+  <path d="M100 62 Q102 42 100 28 Q98 42 100 62Z" fill="url(#leafGrad)" stroke="#4A9E50" stroke-width="1"/>
+  <path d="M100 44 Q102 38 100 32" stroke="#A8E6A0" stroke-width="0.8" stroke-linecap="round" fill="none"/>
+  <!-- Left leaf -->
+  <path d="M96 62 Q82 38 74 30 Q80 42 96 62Z" fill="url(#leafGrad)" stroke="#4A9E50" stroke-width="1"/>
+  <path d="M86 46 Q82 40 78 34" stroke="#A8E6A0" stroke-width="0.8" stroke-linecap="round" fill="none"/>
+  <!-- Right leaf -->
+  <path d="M104 62 Q118 38 126 30 Q120 42 104 62Z" fill="url(#leafGrad)" stroke="#4A9E50" stroke-width="1"/>
+  <path d="M114 46 Q118 40 122 34" stroke="#A8E6A0" stroke-width="0.8" stroke-linecap="round" fill="none"/>
+  <!-- Shadow at base -->
+  <ellipse cx="100" cy="180" rx="24" ry="4" fill="#E05555" opacity="0.18"/>
+</svg>

@@ -1,9 +1,0 @@
-{
-  "taskId": "03-dx/001-getting-started",
-  "attemptNumber": 1,
-  "inputs": [],
-  "outputs": [
-    "docs/getting-started.md"
-  ],
-  "blocked": false
-}

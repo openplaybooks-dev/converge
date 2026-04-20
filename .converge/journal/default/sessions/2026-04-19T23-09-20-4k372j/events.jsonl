@@ -1,0 +1,7 @@
+{"timestamp":"2026-04-19T23:09:20.597Z","eventType":"SESSION_START","message":"Session started","metadata":{"projectName":"converge","config":{"maxIterations":100,"maxAttemptsPerTask":2}}}
+{"timestamp":"2026-04-19T23:09:20.618Z","eventType":"ITERATION_START","message":"Iteration 1 started","metadata":{"iteration":1,"tasksComplete":0,"tasksTotal":39}}
+{"timestamp":"2026-04-19T23:09:20.618Z","eventType":"TASK_SELECTED","message":"Task selected: 001-improve","metadata":{"taskId":"001-improve","epicId":"improve","attempt":1}}
+{"timestamp":"2026-04-19T23:09:20.619Z","eventType":"TASK_ATTEMPT_START","message":"Attempt 1 started","metadata":{"taskId":"001-improve","attempt":1}}
+{"timestamp":"2026-04-19T23:09:20.626Z","eventType":"TASK_ATTEMPT_COMPLETE","message":"Attempt 1 succeeded","metadata":{"taskId":"001-improve","attempt":1,"success":true,"duration":7}}
+{"timestamp":"2026-04-19T23:09:20.626Z","eventType":"CONVERGENCE_ACHIEVED","message":"Task converged","metadata":{"taskId":"001-improve"}}
+{"timestamp":"2026-04-19T23:09:20.644Z","eventType":"SESSION_END","message":"Session complete","metadata":{"status":"complete","outcomes":{"totalIterations":2,"tasksCompleted":1,"tasksFailed":0,"gapsResolved":0,"convergenceAchieved":true},"duration":48}}

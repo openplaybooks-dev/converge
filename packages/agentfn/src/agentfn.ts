@@ -1,9 +1,4 @@
-import { claudefn } from "@converge/claudefn";
-import { kimifn } from "@converge/kimifn";
-import { qwenfn } from "@converge/qwenfn";
-import { geminifn } from "@converge/geminifn";
 import { acpfn } from "@converge/acpfn";
-import { openfn } from "@converge/openfn";
 import type {
   AgentFnOptions,
   AgentFnResult,
@@ -17,6 +12,16 @@ import type { GeminiFnOptions } from "@converge/geminifn";
 import type { AcpFnOptions } from "@converge/acpfn";
 import type { OpenFnOptions } from "@converge/openfn";
 import { getDefaultProvider } from "./provider.js";
+
+async function loadProvider<T>(pkg: string): Promise<T> {
+  try {
+    return await import(pkg);
+  } catch {
+    throw new Error(
+      `Provider "${pkg}" is not installed. Install it with: pnpm add ${pkg}`,
+    );
+  }
+}
 import { enhancePrompt } from "./prompting.js";
 import { ensureSkillSymlinks, cleanupSkillSymlinks } from "./skills.js";
 import { join, resolve } from "node:path";
@@ -74,8 +79,12 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
   // ── Call mode ──────────────────────────────────────
 
   if (provider === "kimi") {
-    const fn = kimifn<T>(toKimiOptions(opts));
+    let fn: ReturnType<typeof import("@converge/kimifn").kimifn<T>> | undefined;
     return async (input?: string): Promise<AgentFnResult<T>> => {
+      if (!fn) {
+        const mod = await loadProvider<typeof import("@converge/kimifn")>("@converge/kimifn");
+        fn = mod.kimifn<T>(toKimiOptions(opts));
+      }
       let enhancedInput = input;
       if (useLegacySkills && input) {
         enhancedInput = enhancePrompt(input, { cwd: opts.cwd });
@@ -86,8 +95,12 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
   }
 
   if (provider === "qwen") {
-    const fn = qwenfn<T>(toQwenOptions(opts));
+    let fn: ReturnType<typeof import("@converge/qwenfn").qwenfn<T>> | undefined;
     return async (input?: string): Promise<AgentFnResult<T>> => {
+      if (!fn) {
+        const mod = await loadProvider<typeof import("@converge/qwenfn")>("@converge/qwenfn");
+        fn = mod.qwenfn<T>(toQwenOptions(opts));
+      }
       let enhancedInput = input;
       if (useLegacySkills && input) {
         enhancedInput = enhancePrompt(input, { cwd: opts.cwd });
@@ -98,8 +111,12 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
   }
 
   if (provider === "gemini") {
-    const fn = geminifn<T>(toGeminiOptions(opts));
+    let fn: ReturnType<typeof import("@converge/geminifn").geminifn<T>> | undefined;
     return async (input?: string): Promise<AgentFnResult<T>> => {
+      if (!fn) {
+        const mod = await loadProvider<typeof import("@converge/geminifn")>("@converge/geminifn");
+        fn = mod.geminifn<T>(toGeminiOptions(opts));
+      }
       let enhancedInput = input;
       if (useLegacySkills && input) {
         enhancedInput = enhancePrompt(input, { cwd: opts.cwd });
@@ -126,8 +143,12 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
   // ── Openfn provider ────────────────────────────────
 
   if (provider === "openfn") {
-    const fn = openfn<T>(toOpenfnOptions(opts));
+    let fn: ReturnType<typeof import("@converge/openfn").openfn<T>> | undefined;
     return async (input?: string): Promise<AgentFnResult<T>> => {
+      if (!fn) {
+        const mod = await loadProvider<typeof import("@converge/openfn")>("@converge/openfn");
+        fn = mod.openfn<T>(toOpenfnOptions(opts));
+      }
       let enhancedInput = input;
       if (useLegacySkills && input) {
         enhancedInput = enhancePrompt(input, { cwd: opts.cwd });
@@ -139,8 +160,12 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
 
   // ── Claude provider ────────────────────────────────
 
-  const fn = claudefn<T>(toClaudeOptions(opts));
+  let fn: ReturnType<typeof import("@converge/claudefn").claudefn<T>> | undefined;
   return async (input?: string): Promise<AgentFnResult<T>> => {
+    if (!fn) {
+      const mod = await loadProvider<typeof import("@converge/claudefn")>("@converge/claudefn");
+      fn = mod.claudefn<T>(toClaudeOptions(opts));
+    }
     // Legacy prompt enhancement (deprecated path)
     let enhancedInput = input;
     if (useLegacySkills && input) {

@@ -1,0 +1,17 @@
+{
+  "taskId": "04-generate-assets/017-week-17/017-03-meta",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".converge/playbooks/default/tasks/04-generate-assets/tasks/017-week-17/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".converge/playbooks/default/tasks/04-generate-assets/tasks/017-week-17/SPEC.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "assets/illustrations/baby-sizes/week-17.svg.meta.json"
+  ],
+  "blocked": false
+}

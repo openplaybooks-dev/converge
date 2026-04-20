@@ -1,4 +1,0 @@
-{"type":"file-exists","path":"CHANGELOG.md","cmd":"test -f \"CHANGELOG.md\"","id":"file-exists:test -f \"CHANGELOG.md\"","ok":false,"output":"Command failed: test -f \"CHANGELOG.md\"\n","exitCode":1,"collectedAt":"2026-04-17T23:46:16.537Z"}
-{"type":"check","checkId":"changelog-exists","cmd":"test -f CHANGELOG.md","description":"CHANGELOG.md exists","id":"check:changelog-exists","ok":false,"output":"Command failed: test -f CHANGELOG.md\n","exitCode":1,"collectedAt":"2026-04-17T23:46:16.539Z"}
-{"type":"file-exists","path":"CHANGELOG.md","cmd":"test -f \"CHANGELOG.md\"","id":"file-exists:test -f \"CHANGELOG.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-17T23:46:45.114Z"}
-{"type":"check","checkId":"changelog-exists","cmd":"test -f CHANGELOG.md","description":"CHANGELOG.md exists","id":"check:changelog-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-17T23:46:45.118Z"}

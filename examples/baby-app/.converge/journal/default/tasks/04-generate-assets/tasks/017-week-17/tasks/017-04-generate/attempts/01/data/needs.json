@@ -1,0 +1,24 @@
+{
+  "taskId": "04-generate-assets/017-week-17/017-04-generate",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".converge/playbooks/default/tasks/04-generate-assets/tasks/017-week-17/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".converge/playbooks/default/tasks/04-generate-assets/tasks/017-week-17/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "assets/illustrations/baby-sizes/week-17.svg"
+  ],
+  "blocked": false
+}

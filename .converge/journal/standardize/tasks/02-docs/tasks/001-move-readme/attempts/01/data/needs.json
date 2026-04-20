@@ -1,9 +1,0 @@
-{
-  "taskId": "02-docs/001-move-readme",
-  "attemptNumber": 1,
-  "inputs": [],
-  "outputs": [
-    "README.md"
-  ],
-  "blocked": false
-}

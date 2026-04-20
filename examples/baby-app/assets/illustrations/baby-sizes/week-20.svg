@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <title>Week 20 - Banana</title>
+  <defs>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FDEEEE" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#FDEEEE" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bananaGrad" x1="0.2" y1="0" x2="0.9" y2="1">
+      <stop offset="0%" stop-color="#F9A8A8"/>
+      <stop offset="50%" stop-color="#F28B8B"/>
+      <stop offset="100%" stop-color="#D97070"/>
+    </linearGradient>
+  </defs>
+  <!-- Halo glow -->
+  <circle cx="100" cy="108" r="70" fill="url(#halo)"/>
+  <!-- Banana body — gentle crescent arc -->
+  <path d="M68 58 Q42 90 44 120 Q46 150 66 168 Q74 158 78 140 Q82 120 80 100 Q78 78 68 58Z" fill="url(#bananaGrad)" stroke="#D97070" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Banana inner belly — lighter highlight side -->
+  <path d="M72 64 Q52 92 54 120 Q56 146 70 162 Q74 154 76 138 Q80 118 78 98 Q76 78 72 64Z" fill="white" opacity="0.18"/>
+  <!-- Longitudinal ridge 1 -->
+  <path d="M70 66 Q48 96 50 126 Q52 152 68 166" stroke="#D97070" stroke-width="0.8" stroke-opacity="0.3" stroke-linecap="round" fill="none"/>
+  <!-- Longitudinal ridge 2 -->
+  <path d="M74 62 Q56 94 58 124 Q60 150 72 164" stroke="#D97070" stroke-width="0.8" stroke-opacity="0.25" stroke-linecap="round" fill="none"/>
+  <!-- Stem nub at top -->
+  <path d="M68 58 Q66 50 70 44" stroke="#8B7ED8" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <circle cx="70" cy="43" r="2.5" fill="#8B7ED8"/>
+  <!-- Blossom tip at bottom -->
+  <path d="M66 168 Q64 174 66 178" stroke="#8B7ED8" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <!-- Shadow at base -->
+  <ellipse cx="72" cy="186" rx="24" ry="4" fill="#D97070" opacity="0.18"/>
+</svg>

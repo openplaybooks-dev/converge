@@ -1,0 +1,20 @@
+{
+  "type": "task",
+  "id": "04-generate-assets/060-empty-offline",
+  "status": "pending",
+  "lastUpdated": "2026-04-19T05:58:48.475Z",
+  "createdAt": "2026-04-19T05:58:48.474Z",
+  "progress": {
+    "totalChildren": 5,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "060-01-analyze",
+      "060-02-spec",
+      "060-03-meta",
+      "060-04-generate",
+      "060-05-wire"
+    ],
+    "lastProgressUpdate": "2026-04-19T05:58:48.473Z"
+  }
+}

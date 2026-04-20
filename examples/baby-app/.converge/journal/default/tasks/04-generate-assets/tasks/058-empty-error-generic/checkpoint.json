@@ -1,0 +1,20 @@
+{
+  "type": "task",
+  "id": "04-generate-assets/058-empty-error-generic",
+  "status": "pending",
+  "lastUpdated": "2026-04-19T05:58:48.475Z",
+  "createdAt": "2026-04-19T05:58:48.474Z",
+  "progress": {
+    "totalChildren": 5,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "058-01-analyze",
+      "058-02-spec",
+      "058-03-meta",
+      "058-04-generate",
+      "058-05-wire"
+    ],
+    "lastProgressUpdate": "2026-04-19T05:58:48.472Z"
+  }
+}

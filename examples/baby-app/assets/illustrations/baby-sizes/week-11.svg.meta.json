@@ -1,0 +1,28 @@
+{
+  "id": "week-11",
+  "version": "1.0.0",
+  "type": "baby-size",
+  "format": "svg",
+  "fileName": "week-11.svg",
+  "semantic": {
+    "title": "Week 11 Baby Size",
+    "description": "A friendly lime illustration representing the fetus at week 11 of pregnancy, rendered in a soft, rounded style with a plump, near-spherical body and a small stubby stem with a tiny curved leaf.",
+    "tags": ["baby-size", "pregnancy", "week-11", "lime"],
+    "alt": "A friendly lime illustration showing the approximate size of a fetus at week 11 of pregnancy"
+  },
+  "usage": {
+    "screens": ["HomeScreen"],
+    "widgets": ["HeroIllustrationCard"],
+    "accessibility": {
+      "label": "Baby size at week 11: about the size of a lime",
+      "role": "image"
+    }
+  },
+  "variants": {
+    "light": "week-11.svg",
+    "dark": null
+  },
+  "source": {
+    "spec": ".converge/playbooks/default/tasks/04-generate-assets/tasks/011-week-11/SPEC.md"
+  }
+}

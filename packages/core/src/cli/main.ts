@@ -27,7 +27,6 @@ import { evaluateCommand } from "./commands-goals.ts";
 import { verifyCommand as verifyFullCommand } from "./commands-validate.ts";
 import {
   inspectCommand,
-  timelineCommand,
   type InspectOptions,
 } from "./commands-inspect.ts";
 import { journalCommand } from "./commands-journal.ts";
@@ -35,7 +34,6 @@ import { JournalCleanup } from "../checkpoint/cleanup.ts";
 import {
   initCommand,
   runCommand,
-  statusCommand,
   pluginsCommand,
   checkpointCommand,
   type InitOptions,
@@ -65,7 +63,12 @@ import {
   mergeRunConfig,
 } from "../playbook/executor.ts";
 import { initPlaybookJournal, appendTrend } from "../playbook/journal.ts";
+import {
+  setPlaybookScope,
+  clearPlaybookScope,
+} from "../journal/structure.ts";
 import type { PlaybookRunConfig } from "../playbook/types.ts";
+import { showCommandHelp } from "./help.ts";
 import { resolveConvergeConfig } from "../config/loader.ts";
 import { validateConvergeConfig } from "../config/validator.ts";
 import { HookRegistry } from "../hooks/registry.ts";
@@ -141,283 +144,35 @@ function parseArgs(args: string[]): {
 
 function showHelp(): void {
   console.log(`
-🤖 Converge - AI-First Autonomous Framework
+Converge - Autonomous Agent Framework
 
-USAGE:
+USAGE
   converge <command> [options]
 
-COMMANDS:
-  run [epic/task]       Run autonomous agent loop (optionally filter to one epic or task)
-  run --wbs [filter]    Run only WBS seeding phase (errors if already seeded)
-  run --wbs --inc [f]   Incremental WBS re-seed (update + add tasks, keep progress)
-  init                  Initialize new converge project
-  verify                Verify config, structure, format, and detect issues
-  status                Show project status and progress
-  checkpoint            Show checkpoint (iteration, completed/locked tasks)
-  reset <taskId...>     Reset task(s) to re-run (removes journals + WBS tasks)
-  reset --all           Reset entire project to initial state
-  cleanup               Remove orphaned journal directories for deleted/renamed tasks
-  plugins               List loaded plugins
-  tree [taskId|epicId]  Visualize project task tree (optionally filter to one task/epic)
-  gantt                 Show Gantt chart timeline of execution order
-  graph [filter]        Show task dependency graph (add --detail for data flow)
-  journal [epicId]      Show execution history from logs (attempts, outcomes, timing)
-  backlog               Show accumulated backlog items (tech debt, TODOs, etc.)
-  trend                 Show weighted gap convergence trend across runs
-  goals                 Evaluate project goals and generate remediation tasks
-  validate              Validate checkpoint consistency with filesystem
-  metrics               Show cost, token, tool, and model metrics from journal logs
-  swebench              Run SWE-bench Lite evaluation (AI coding agent benchmark)
-  inspect [sessionId]   Inspect execution sessions (detailed navigation and logs)
-  timeline [sessionId]  DEPRECATED: Use 'inspect' instead
-  plan <prompt>         Generate a playbook from a prompt (shorthand for run --playbook=plan)
-  skills list           List available skills in the converge
-  skills install        Install skills to a target directory (default: .claude/skills)
-  playbook list         List available playbooks
-  playbook info <name>  Show playbook details (inputs, DAG, run config, checks)
-  playbook history <n>  Show execution history for a playbook
-  help                  Show this help
+WORKFLOW
+  init                        Initialize new project
+  plan <prompt>               Generate playbook from a prompt
+  run [filter]                Execute autonomous agent loop
+  reset <task...>             Reset task(s) for re-execution
+  status [filter]             Show project status and task tree
 
-OPTIONS (for 'run' command):
-  --playbook=NAME       Run a named playbook (generate epic + execute)
-  --step                Run only one iteration then exit (debug mode)
-  --force               Force-run the filtered task, bypassing blocked/completed state
-  --resume              Resume from interrupted state (recover stuck tasks)
-  --restart             Reset all tasks to pending and start fresh
-  --dry, --plan         Dry run mode - planning only, no execution
-  --preflight           Preflight mode - run AI strategy selection but stop before executing tasks
-  --unblock             With --step, find first blocked task and run through UnblockStrategy pipeline
-  --converge            Compound convergence mode: weighted scoring, gap ledger, partial progress
-  --wbs                 Run only the WBS seeding phase (use with filter)
-  --inc                 With --wbs, allow re-seeding already-seeded WBS parents
-  --max-iterations=N    Maximum iterations (default: 100)
-  --max-duration=N      Maximum duration in ms (default: 259200000 / 72 hours)
-  --check-interval=N    Check interval in ms (default: 5000 / 5 seconds)
-  --auto-fix=BOOL       Enable auto-fixing (default: true)
-  --self-plan=BOOL      Enable self-planning (default: true)
-  --verbose             Enable verbose logging
-  --dir=PATH            Project directory (default: current directory)
+INSPECTION
+  inspect [--task=PATH]       Inspect execution sessions and tasks
+  show <view>                 Visualize project data (gantt|graph|journal|backlog|trend)
+  metrics                     Show cost, token, and model metrics
 
-GLOBAL OPTIONS:
-  --playbook=NAME       Scope to a named playbook (works on any command)
-                        For 'run': generates epic from playbook template, then executes
-                        For other commands: reads from that playbook's journal
-  --dir=PATH            Project directory (default: current directory)
+MANAGEMENT
+  verify                      Verify config, structure, checkpoint consistency
+  playbook <sub>              Manage playbooks (list|info|history)
+  skills <sub>                Manage skills (list|install)
+  goals                       Evaluate project goals and plan remediation
 
-OPTIONS (for 'init' command):
-  --name=NAME           Project name (required)
-  --description=DESC    Project description
+GLOBAL OPTIONS
+  --dir=PATH                  Project directory (default: cwd)
+  --playbook=NAME             Scope to a named playbook
+  --verbose, -v               Verbose output
 
-OPTIONS (for 'skills install' command):
-  --target=PATH         Target directory (default: .claude/skills)
-  --skill=NAME          Specific skill to install (default: install all)
-  --force               Force overwrite existing skills
-  --verbose             Show detailed installation info
-
-OPTIONS (for 'plan' command):
-  --prompt=TEXT         What to build (can also be passed as first positional arg)
-  --name=NAME           Name for the generated playbook (default: derived from prompt)
-  --update              Update an existing playbook instead of creating new
-
-OPTIONS (for 'swebench' command):
-  --instance=ID         Filter to specific instance(s), comma-separated
-  --repo=REPO           Filter to specific repo(s), comma-separated
-  --limit=N             Maximum number of instances to run
-  --refresh             Force re-download of dataset
-
-OPTIONS (for 'inspect' command):
-  --session=ID          View specific session (omit to see all sessions)
-  --last-session        Show only the latest session
-  --last=N              Show last N sessions
-  --task=ID             Filter by task ID
-  --attempt=N           Drill into specific attempt number
-  --phase=NAME          Filter to specific phase
-  --events=TYPES        Show only specific event types (comma-separated)
-  --converge            Show convergence graph progress for a task (requires --task)
-  --dirs                Show directory structure
-  --tools               Show detailed tool usage
-  --toolDetails         Show full tool parameters and results
-  --ai                  Show AI activity details
-  --validation          Show validation check details
-  --json                Export to JSON format
-  --compact             Compact view (fewer details)
-  --tree                Tree view of session directories
-
-EXAMPLES:
-  # Initialize a new project
-  converge init --name="My Project"
-
-  # Run autonomous agent loop
-  converge run
-
-  # Run only a specific epic
-  converge run 02-ux-ui-design-screen-generation
-
-  # Run only a specific task within an epic
-  converge run 02-ux-ui-design-screen-generation/003-generate-all-screens
-
-  # Run one step only (debug mode)
-  converge run --step
-
-  # Dry run - planning only, no execution (for debugging)
-  converge run --step --dry
-
-  # Run with custom settings
-  converge run --max-iterations=50 --verbose
-
-  # Re-seed WBS (errors if already seeded)
-  converge run --wbs 03-build-screens
-
-  # Incremental WBS re-seed (preserves child progress)
-  converge run --wbs --inc 03-build-screens
-
-  # Run without auto-fix (manual mode)
-  converge run --auto-fix=false
-
-  # Verify config, structure, format, deps
-  converge verify
-
-  # Check status
-  converge status
-
-  # Reset a task (removes journal, keeps output files)
-  converge reset 003-generate-html-designs
-
-  # Reset and delete WBS-generated task files
-  converge reset 003-generate-html-designs --wbs
-
-  # Reset and delete output files
-  converge reset 003-generate-html-designs --outputs
-
-  # Full reset (journal + WBS + outputs)
-  converge reset 003-generate-html-designs --all
-
-  # Reset multiple tasks at once
-  converge reset 001-create-ux-overview 002-generate-design-system --all
-
-  # Reset entire project to initial state
-  converge reset --all
-
-  # Clean up orphaned journals (for deleted/renamed tasks)
-  converge cleanup
-
-  # Clean up with verbose output
-  converge cleanup --verbose
-
-  # List available skills
-  converge skills list
-
-  # Install all skills to .claude/skills
-  converge skills install
-
-  # Install a specific skill
-  converge skills install --skill=converge-control
-
-  # Install to a custom directory
-  converge skills install --target=custom-skills-dir
-
-  # Force overwrite existing skills
-  converge skills install --force
-
-  # List available workflows
-  converge workflow list
-
-  # Show details about a workflow
-  converge workflow info fix-issue
-
-  # Run a workflow (creates task on main board + executes)
-  converge workflow run fix-issue --issue=42
-  converge workflow run develop-feature --feature="add dark mode"
-
-  # Dry run — create task but don't execute
-  converge workflow run fix-issue --issue=42 --dry
-
-  # Show full task tree
-  converge tree
-
-  # Show only tasks in a specific epic
-  converge tree 02-prepare-designs
-
-  # Show a specific task and its WBS subtasks
-  converge tree 002-generate-screen-prompts
-
-  # Show Gantt chart timeline
-  converge gantt
-
-  # Show only blocked tasks
-  converge gantt --only-blocked
-
-  # Show only ready (runnable) tasks
-  converge gantt --only-ready
-
-  # Show execution history from journal
-  converge journal
-
-  # Show execution history for specific epic
-  converge journal 03-implement-app
-
-  # Show only tasks with retries (multiple attempts)
-  converge journal --only-retries
-
-  # Evaluate project goals
-  converge goals
-
-  # Evaluate with detail output for failed goals
-  converge goals --verbose
-
-  # Preview remediation plan without writing files
-  converge goals --plan --dry
-
-  # Auto-fix checkpoint inconsistencies
-  converge verify --fix
-
-  # Show all sessions timeline (default view)
-  converge inspect
-
-  # Show only the latest session
-  converge inspect --last-session
-
-  # Show last 5 sessions
-  converge inspect --last=5
-
-  # Inspect specific session
-  converge inspect --session=2026-04-05T05-07-19-abc123
-
-  # Show directory structure
-  converge inspect --dirs
-
-  # Filter by task
-  converge inspect --session=<id> --task=001-gather-idea-generate-ux
-
-  # Show detailed tool calls with parameters
-  converge inspect --session=<id> --toolDetails
-
-  # Show AI activity
-  converge inspect --session=<id> --ai
-
-  # Export to JSON
-  converge inspect --session=<id> --json > session.json
-
-AUTONOMOUS LOOP:
-  The 'converge run' command starts an autonomous agent loop that:
-  1. 🔍 Discovers gaps in the project
-  2. 🎯 Prioritizes work (tasks → epics → project)
-  3. 🧠 Self-plans approach based on gaps and history
-  4. ⚡ Executes fixes automatically (if auto-fix enabled)
-  5. 🔄 Re-evaluates and self-corrects
-  6. 📊 Auto-writes to journals at .converge/journal/
-  7. 🔁 Repeats until all gaps resolved or max iterations reached
-
-DIRECTORY STRUCTURE:
-  .converge/
-  ├── journal/          # Hierarchical gap tracking and event logs
-  │   ├── project/      # Project-level journal
-  │   └── epics/        # Epic and task journals
-  ├── config.yml        # Project configuration
-  ├── epics/            # Epic definitions
-  └── storage/          # Runtime storage
-
-For more: https://github.com/myanlabs/converge
+Run "converge <command> --help" for command-specific options and examples.
 `);
 }
 
@@ -486,36 +241,31 @@ async function main(): Promise<void> {
   setupGracefulShutdown();
 
   // ── Global --playbook context ────────────────────────────────────
-  // When --playbook is set on ANY command, set CONVERGE_PLAYBOOK so
-  // journal paths route through journal/{playbook}/tasks/.
-  // For 'run', the playbook also generates an epic from template.
-  if (options.playbook && command !== "run" && command !== "plan") {
-    process.env.CONVERGE_PLAYBOOK = String(options.playbook);
+  // When --playbook is set on ANY command, export the playbook scope so
+  // scanner, journal, status, run — every code path — sees the same context.
+  // Using setPlaybookScope() ensures CONVERGE_PLAYBOOK, CONVERGE_PLAYBOOK_DIR,
+  // and CONVERGE_JOURNAL_ROOT stay in sync. `run` and `plan` were previously
+  // excluded here and set the scope deep inside their handlers, which meant
+  // any discovery/scan that ran before that point saw the wrong scope.
+  const globalProjectDir = resolve(options.dir || process.cwd());
+  if (options.playbook) {
+    setPlaybookScope(String(options.playbook), globalProjectDir);
   }
 
-  // Auto-detect playbook context for ALL commands when no explicit --playbook.
-  // Scan the journal directory for playbook folders (e.g. journal/create-web/tasks/)
-  // so journal paths, tree, status, etc. all route correctly.
+  // Auto-detect playbook context when no explicit --playbook.
   if (!process.env.CONVERGE_PLAYBOOK) {
-    const autoSearchDir = resolve(options.dir || process.cwd());
-
     // Strategy 1: No project.yaml — try loading 'default' playbook
-    const autoResolved = await resolveConvergeConfig(autoSearchDir);
+    const autoResolved = await resolveConvergeConfig(globalProjectDir);
     if (!autoResolved) {
-      const autoPbName = "default";
-      const autoPb = await loadPlaybook(autoPbName, autoSearchDir);
-      if (autoPb) {
-        process.env.CONVERGE_PLAYBOOK = autoPbName;
-      }
+      const autoPb = await loadPlaybook("default", globalProjectDir);
+      if (autoPb) setPlaybookScope("default", globalProjectDir);
     }
 
     // Strategy 2: project.yaml exists but no playbook set — detect from journal
-    // When a previous playbook run created journal/{name}/tasks/, we need to
-    // set CONVERGE_PLAYBOOK so path resolution matches the existing structure.
     if (!process.env.CONVERGE_PLAYBOOK) {
       const { existsSync, readdirSync, statSync } = await import("node:fs");
       const { join } = await import("node:path");
-      const journalDir = join(autoSearchDir, ".converge", "journal");
+      const journalDir = join(globalProjectDir, ".converge", "journal");
       if (existsSync(journalDir)) {
         for (const entry of readdirSync(journalDir)) {
           if (entry === "epics" || entry === "project" || entry === "default")
@@ -524,21 +274,50 @@ async function main(): Promise<void> {
           if (!statSync(pbDir).isDirectory()) continue;
           const tasksDir = join(pbDir, "tasks");
           if (existsSync(tasksDir) && statSync(tasksDir).isDirectory()) {
-            process.env.CONVERGE_PLAYBOOK = entry;
+            setPlaybookScope(entry, globalProjectDir);
             break;
           }
         }
       }
     }
 
-    // Strategy 3: Discover from .converge/playbooks/ — auto-select sole playbook
-    // When there's exactly one playbook on disk, use it without requiring --playbook.
+    // Strategy 3: Sole playbook in .converge/playbooks/
     if (!process.env.CONVERGE_PLAYBOOK) {
-      const discovered = await discoverPlaybooks(autoSearchDir);
+      const discovered = await discoverPlaybooks(globalProjectDir);
       if (discovered.length === 1) {
-        process.env.CONVERGE_PLAYBOOK = discovered[0].def.name;
+        setPlaybookScope(discovered[0].def.name, globalProjectDir);
       }
     }
+  }
+
+  // ── Per-command --help ────────────────────────────────────────────
+  if (
+    (options.help || options.h) &&
+    command !== "help" &&
+    command !== "--help" &&
+    command !== "-h"
+  ) {
+    showCommandHelp(command);
+    process.exit(0);
+  }
+
+  // ── Backward-compat redirects ──────────────────────────────────
+  const REDIRECTS: Record<string, string> = {
+    tree: '"tree" has moved. Use "converge status" instead.',
+    checkpoint: 'Use "converge status --checkpoint" instead.',
+    gantt: 'Use "converge show gantt" instead.',
+    graph: 'Use "converge show graph" instead.',
+    journal: 'Use "converge show journal" instead.',
+    backlog: 'Use "converge show backlog" instead.',
+    trend: 'Use "converge show trend" instead.',
+    timeline: '"timeline" was removed. Use "converge inspect" instead.',
+    validate: 'Did you mean "converge verify"?',
+    workflow: '"workflow" does not exist. Use "converge playbook" instead.',
+  };
+
+  if (command in REDIRECTS) {
+    console.log(`\n  ${REDIRECTS[command]}\n`);
+    process.exit(0);
   }
 
   try {
@@ -590,15 +369,16 @@ async function main(): Promise<void> {
                 milestone: (pb.def.run as any)?.milestone,
               },
               skills:
-                typeof pb.def.skills === "object" &&
-                !Array.isArray(pb.def.skills)
-                  ? (pb.def.skills as Record<string, string>)
+                typeof (pb.def as any).skills === "object" &&
+                !Array.isArray((pb.def as any).skills)
+                  ? ((pb.def as any).skills as Record<string, string>)
                   : undefined,
             };
             console.log(`\n📋 Loaded config from playbook: ${pbName}`);
-            // Set CONVERGE_PLAYBOOK so journal paths route correctly
-            // through journal/{playbook}/tasks/ even without --playbook flag
-            process.env.CONVERGE_PLAYBOOK = pbName;
+            // Export the full playbook scope (playbook, playbook dir, journal root)
+            // so journal paths route correctly through journal/{playbook}/ even
+            // without --playbook flag.
+            setPlaybookScope(pbName, searchDir);
           }
         }
 
@@ -608,6 +388,7 @@ async function main(): Promise<void> {
         let runFilter = positional[0] || options.filter;
         let playbookName: string | undefined;
         let playbookRunCfg: PlaybookRunConfig | undefined;
+        let resolvedPb: import("../playbook/types.ts").ResolvedPlaybook | undefined;
         const runStartTime = Date.now();
 
         if (options.playbook) {
@@ -641,6 +422,7 @@ async function main(): Promise<void> {
             "resume",
             "restart",
             "converge",
+            "evolve",
             "unblock",
             "wbs",
             "inc",
@@ -665,7 +447,6 @@ async function main(): Promise<void> {
             }
           }
 
-          let resolvedPb;
           try {
             resolvedPb = resolvePlaybook(pb, vars);
           } catch (err: any) {
@@ -674,15 +455,22 @@ async function main(): Promise<void> {
           }
 
           // Generate epic from template
+          // Evolve mode skips this — it stamps a fresh epic each epoch
           console.log(`\n   Playbook: ${playbookName}`);
           console.log(`   Epic: ${resolvedPb.epicId}`);
-          await generateEpicFromPlaybook(resolvedPb, searchDir);
+          const effectiveMode = options.evolve ? "evolve"
+            : options.converge ? "converge"
+            : pb.def.run?.mode;
+          if (effectiveMode !== "evolve") {
+            await generateEpicFromPlaybook(resolvedPb, searchDir);
+          }
 
           // Merge playbook run config with CLI overrides
           const cliOverrides: Partial<PlaybookRunConfig> = {};
           if (options.mode)
             cliOverrides.mode = options.mode as PlaybookRunConfig["mode"];
           if (options.converge) cliOverrides.mode = "converge";
+          if (options.evolve) cliOverrides.mode = "evolve";
           if (options.step) cliOverrides.mode = "step";
           const durOpt = options["max-duration"] || options.maxDuration;
           if (durOpt !== undefined) {
@@ -701,7 +489,7 @@ async function main(): Promise<void> {
           await initPlaybookJournal(searchDir, playbookName);
           console.log(`   Mode: ${playbookRunCfg.mode}\n`);
 
-          process.env.CONVERGE_PLAYBOOK = playbookName;
+          setPlaybookScope(playbookName, searchDir);
           runFilter = resolvedPb.epicId;
         }
 
@@ -721,6 +509,9 @@ async function main(): Promise<void> {
             unblock: options.unblock || false,
             converge:
               options.converge || playbookRunCfg?.mode === "converge" || false,
+            evolve:
+              options.evolve || playbookRunCfg?.mode === "evolve" || false,
+            evolvePlaybook: resolvedPb,
             wbs: options.wbs || false,
             inc: options.inc || false,
             maxIterations:
@@ -766,21 +557,19 @@ async function main(): Promise<void> {
           }
           throw err;
         } finally {
-          delete process.env.CONVERGE_PLAYBOOK;
+          clearPlaybookScope();
         }
         break;
       }
 
       case "init": {
-        if (!options.name && positional.length === 0) {
-          console.error("❌ Error: Project name required");
-          console.error('Usage: converge init --name="Project Name"');
-          process.exit(1);
-        }
-
         await initCommand({
           name: options.name || positional[0],
           description: options.description,
+          agents: options.agents || options.agent,
+          defaultAgent: options["default-agent"] || options.defaultAgent,
+          yes: options.yes || options.y || false,
+          force: options.force || false,
           dir: options.dir,
           verbose: options.verbose || options.v,
         });
@@ -804,18 +593,28 @@ async function main(): Promise<void> {
       }
 
       case "status": {
-        await statusCommand({
-          dir: options.dir,
-          verbose: options.verbose || options.v,
-        });
-        break;
-      }
-
-      case "checkpoint": {
-        await checkpointCommand({
-          dir: options.dir,
-          verbose: options.verbose || options.v,
-        });
+        if (options.checkpoint) {
+          await checkpointCommand({
+            dir: options.dir,
+            verbose: options.verbose || options.v,
+          });
+        } else {
+          await treeCommand({
+            root: options.dir || options.root,
+            filter: positional[0] || options.filter,
+            playbook: options.playbook ? String(options.playbook) : undefined,
+            showPaths: options["show-paths"] || options.showPaths,
+            showDescriptions:
+              options["show-descriptions"] || options.showDescriptions,
+            onlyIncomplete:
+              options["only-incomplete"] || options.onlyIncomplete,
+            maxDepth: options["max-depth"]
+              ? Number(options["max-depth"])
+              : undefined,
+            showCursor: options["show-cursor"] || options.showCursor,
+            detail: options.detail || false,
+          });
+        }
         break;
       }
 
@@ -850,64 +649,60 @@ async function main(): Promise<void> {
         break;
       }
 
-      case "tree": {
-        await treeCommand({
-          root: options.dir || options.root,
-          filter: positional[0] || options.filter,
-          showPaths: options["show-paths"] || options.showPaths,
-          showDescriptions:
-            options["show-descriptions"] || options.showDescriptions,
-          onlyIncomplete: options["only-incomplete"] || options.onlyIncomplete,
-          maxDepth: options["max-depth"]
-            ? Number(options["max-depth"])
-            : undefined,
-          showCursor: options["show-cursor"] || options.showCursor,
-          detail: options.detail || false,
-        });
-        break;
-      }
+      case "show": {
+        const view = positional[0];
+        if (!view) {
+          console.log(
+            '\n  Usage: converge show <view>\n\n  Views: gantt, graph, journal, backlog, trend\n\n  Run "converge show --help" for details.\n',
+          );
+          process.exit(0);
+        }
 
-      case "gantt": {
-        await ganttCommand({
-          dir: options.dir,
-          onlyBlocked: options["only-blocked"] || options.onlyBlocked,
-          onlyReady: options["only-ready"] || options.onlyReady,
-        });
-        break;
-      }
-
-      case "graph": {
-        await graphCommand({
-          dir: options.dir,
-          detail: options.detail || false,
-          filter: positional[0] || options.filter,
-        });
-        break;
-      }
-
-      case "journal": {
-        await journalCommand({
-          root: options.dir || options.root,
-          epic: positional[0] || options.epic,
-          onlyRetries: options["only-retries"] || options.onlyRetries,
-        });
-        break;
-      }
-
-      case "backlog": {
-        await backlogCommand({
-          dir: options.dir,
-          epic: positional[0] || options.epic,
-          severity: options.severity as string,
-          json: options.json || false,
-        });
-        break;
-      }
-
-      case "trend": {
-        const { formatTrendTable } = await import("../converge/gap-ledger.ts");
-        const trendProjectDir = resolve(options.dir || process.cwd());
-        console.log("\n" + formatTrendTable(trendProjectDir) + "\n");
+        switch (view) {
+          case "gantt":
+            await ganttCommand({
+              dir: options.dir,
+              onlyBlocked: options["only-blocked"] || options.onlyBlocked,
+              onlyReady: options["only-ready"] || options.onlyReady,
+            });
+            break;
+          case "graph":
+            await graphCommand({
+              dir: options.dir,
+              detail: options.detail || false,
+              filter: positional[1] || options.filter,
+            });
+            break;
+          case "journal":
+            await journalCommand({
+              root: options.dir || options.root,
+              epic: positional[1] || options.epic,
+              onlyRetries: options["only-retries"] || options.onlyRetries,
+            });
+            break;
+          case "backlog":
+            await backlogCommand({
+              dir: options.dir,
+              epic: positional[1] || options.epic,
+              severity: options.severity as string,
+              json: options.json || false,
+            });
+            break;
+          case "trend": {
+            const { formatTrendTable } = await import(
+              "../converge/gap-ledger.ts"
+            );
+            const trendProjectDir = resolve(options.dir || process.cwd());
+            console.log("\n" + formatTrendTable(trendProjectDir) + "\n");
+            break;
+          }
+          default:
+            console.error(`  Unknown view: "${view}"`);
+            console.error(
+              "  Available views: gantt, graph, journal, backlog, trend",
+            );
+            process.exit(1);
+        }
         break;
       }
 
@@ -1032,7 +827,7 @@ async function main(): Promise<void> {
         // Init journal + run
         const planPlaybookName = "plan";
         await initPlaybookJournal(planSearchDir, planPlaybookName);
-        process.env.CONVERGE_PLAYBOOK = planPlaybookName;
+        setPlaybookScope(planPlaybookName, planSearchDir);
         console.log(`   Mode: autonomous\n`);
 
         const planRunStartTime = Date.now();
@@ -1096,7 +891,7 @@ async function main(): Promise<void> {
           });
           throw err;
         } finally {
-          delete process.env.CONVERGE_PLAYBOOK;
+          clearPlaybookScope();
         }
         break;
       }
@@ -1182,39 +977,11 @@ async function main(): Promise<void> {
       case "inspect": {
         await inspectCommand({
           dir: options.dir,
-          session: options.session || positional[0], // Support both --session=<id> and positional arg
-          last: options.last ? Number(options.last) : undefined,
-          lastSession: options["last-session"] as boolean,
           task: options.task as string,
-          attempt: options.attempt ? Number(options.attempt) : undefined,
-          phase: options.phase as string,
-          events: options.events as string,
           converge: options.converge as boolean,
-          dirs: options.dirs as boolean,
-          tools: options.tools as boolean,
-          toolDetails: options.toolDetails as boolean,
-          ai: options.ai as boolean,
-          validation: options.validation as boolean,
           json: options.json as boolean,
-          compact: options.compact as boolean,
-          tree: options.tree as boolean,
-          verbose: options.verbose || options.v,
-        });
-        break;
-      }
-
-      case "timeline": {
-        // Deprecated: redirect to inspect
-        await timelineCommand({
-          dir: options.dir,
-          session: positional[0],
-          last: options.last ? Number(options.last) : undefined,
-          task: options.task as string,
-          events: options.events as string,
-          tools: options.tools as boolean,
-          ai: options.ai as boolean,
-          json: options.json as boolean,
-          compact: options.compact as boolean,
+          depth: options.depth != null ? Number(options.depth) : undefined,
+          sessions: options.sessions as boolean,
           verbose: options.verbose || options.v,
         });
         break;
@@ -1318,8 +1085,8 @@ async function main(): Promise<void> {
         });
 
         // Set playbook context and delegate to run
-        process.env.CONVERGE_PLAYBOOK = playbookName;
         const searchDir = resolve(options.dir || process.cwd());
+        setPlaybookScope(playbookName, searchDir);
         await initPlaybookJournal(searchDir, playbookName);
 
         await runAutonomousCommand({
@@ -1343,16 +1110,68 @@ async function main(): Promise<void> {
           verbose: options.verbose || options.v,
         });
 
-        delete process.env.CONVERGE_PLAYBOOK;
+        clearPlaybookScope();
+        break;
+      }
+
+      case "tbench": {
+        const { tbenchCommand } = await import("@converge/tbench");
+        const tbTasksDir = options["tasks-dir"] || options.tasksDir;
+        if (!tbTasksDir) {
+          console.error("\n  --tasks-dir is required for tbench command.\n");
+          process.exit(1);
+        }
+        const { playbookName, epicId } = await tbenchCommand({
+          dir: options.dir,
+          tasksDir: tbTasksDir as string,
+          task: options.task as string,
+          category: options.category as string,
+          difficulty: options.difficulty as string,
+          limit: options.limit ? Number(options.limit) : undefined,
+          verbose: options.verbose || options.v,
+        });
+
+        // Set playbook context and delegate to run
+        const tbSearchDir = resolve(options.dir || process.cwd());
+        setPlaybookScope(playbookName, tbSearchDir);
+        await initPlaybookJournal(tbSearchDir, playbookName);
+
+        await runAutonomousCommand({
+          dir: options.dir,
+          filter: epicId,
+          force: options.force || false,
+          resume: options.resume || true,
+          restart: options.restart || false,
+          step: options.step || false,
+          dry: options.dry || false,
+          analyze: false,
+          unblock: false,
+          converge: false,
+          wbs: false,
+          inc: false,
+          maxIterations: options["max-iterations"] || options.maxIterations || 500,
+          maxDuration: options["max-duration"] || options.maxDuration,
+          checkInterval: options["check-interval"] || options.checkInterval,
+          autoFix: false,
+          selfPlan: false,
+          verbose: options.verbose || options.v,
+        });
+
+        clearPlaybookScope();
         break;
       }
 
       case "help":
       case "--help":
-      case "-h":
-      default: {
+      case "-h": {
         showHelp();
         process.exit(0);
+      }
+
+      default: {
+        console.error(`\n  Unknown command: "${command}"`);
+        console.error('  Run "converge help" to see all commands.\n');
+        process.exit(1);
       }
     }
 

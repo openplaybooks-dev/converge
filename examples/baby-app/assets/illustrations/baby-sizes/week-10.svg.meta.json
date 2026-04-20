@@ -1,0 +1,28 @@
+{
+  "id": "week-10",
+  "version": "1.0.0",
+  "type": "baby-size",
+  "format": "svg",
+  "fileName": "week-10.svg",
+  "semantic": {
+    "title": "Week 10 Baby Size",
+    "description": "A friendly prune illustration representing the fetus at week 10 of pregnancy, rendered in a soft, rounded style with a plump, slightly wrinkled oval body and a small curved stem.",
+    "tags": ["baby-size", "pregnancy", "week-10", "prune"],
+    "alt": "A friendly prune illustration showing the approximate size of a fetus at week 10 of pregnancy"
+  },
+  "usage": {
+    "screens": ["HomeScreen"],
+    "widgets": ["HeroIllustrationCard"],
+    "accessibility": {
+      "label": "Baby size at week 10: about the size of a prune",
+      "role": "image"
+    }
+  },
+  "variants": {
+    "light": "week-10.svg",
+    "dark": null
+  },
+  "source": {
+    "spec": ".converge/playbooks/default/tasks/04-generate-assets/tasks/010-week-10/SPEC.md"
+  }
+}

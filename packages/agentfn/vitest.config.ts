@@ -8,6 +8,12 @@ export default defineConfig({
       kimifn: resolve(__dirname, "../kimifn/src/index.ts"),
       qwenfn: resolve(__dirname, "../qwenfn/src/index.ts"),
       geminifn: resolve(__dirname, "../geminifn/src/index.ts"),
+      "@converge/claudefn": resolve(__dirname, "../claudefn/src/index.ts"),
+      "@converge/kimifn": resolve(__dirname, "../kimifn/src/index.ts"),
+      "@converge/qwenfn": resolve(__dirname, "../qwenfn/src/index.ts"),
+      "@converge/geminifn": resolve(__dirname, "../geminifn/src/index.ts"),
+      "@converge/openfn": resolve(__dirname, "../openfn/src/index.ts"),
+      "@converge/acpfn": resolve(__dirname, "../acpfn/src/index.ts"),
     },
   },
   test: {

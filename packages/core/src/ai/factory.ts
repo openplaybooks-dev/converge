@@ -242,7 +242,7 @@ export function createAIFactory(
 
       try {
         // Merge options: baseOptions < config < call options
-        const mergedOptions: AgentFnOptions<T> = {
+        const mergedOptions = {
           // Base options from factory
           ...baseOptions,
           // Config-level options
@@ -259,7 +259,7 @@ export function createAIFactory(
           ...options,
           // Prompt always from call
           prompt,
-        };
+        } as AgentFnOptions<T>;
 
         const fn = agentfn<T>(mergedOptions);
         return await fn();
@@ -307,11 +307,11 @@ export function createDefaultAI(
       prompt: string,
       options: Partial<AgentFnOptions<T>> = {},
     ): Promise<AgentFnResult<T>> {
-      const mergedOptions: AgentFnOptions<T> = {
+      const mergedOptions = {
         ...baseOptions,
         ...options,
         prompt,
-      };
+      } as AgentFnOptions<T>;
 
       const fn = agentfn<T>(mergedOptions);
       return await fn();

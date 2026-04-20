@@ -3,11 +3,10 @@
  *
  * Detects and fixes glob pattern mismatches in task input declarations.
  *
- * Common scenarios:
- *   - Pattern too restrictive: designs slash star.html vs designs slash star slash design.html
- *   - Missing directory level: src slash star.ts vs src slash components slash star.ts
- *   - Wrong wildcard depth: double-star slash star.html needed instead of star.html
- *   - Case sensitivity: assets slash Images slash star.png vs assets slash images slash star.png
+ * Common scenarios (all handled generically — no project-specific names):
+ *   - Pattern too restrictive, missing directory level, wrong wildcard
+ *     depth, case-sensitive segments, and directory renames recovered via
+ *     real on-disk sibling enumeration.
  *
  * Strategy:
  *   1. Detect gaps caused by glob pattern mismatches (not missing files)
@@ -19,7 +18,8 @@
  * Why: Runs after dependency detection but before execution-level fixes
  */
 
-import { join } from "node:path";
+import { join, dirname, basename } from "node:path";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import type { Gap } from "../../gap/types.ts";
 import type {
   FixStrategy,
@@ -40,13 +40,14 @@ export class MissingInputPatternRepairStrategy implements FixStrategy {
   readonly priority = 8.5;
 
   canHandle(gap: Gap): boolean {
-    // Only handle missing-dependency/blocker gaps with glob patterns
+    // Accept glob patterns AND bare paths — directory renames without a
+    // wildcard (e.g. a segment renamed between declaration and disk) are
+    // still recoverable via case flips and real on-disk sibling probes.
     return (
       (gap.metadata?.gapKind === "blocker" ||
         gap.metadata?.gapKind === "input") &&
-      gap.metadata?.missingInputs !== undefined &&
-      Array.isArray(gap.metadata.missingInputs) &&
-      gap.metadata.missingInputs.some((input: string) => input.includes("*"))
+      Array.isArray(gap.metadata?.missingInputs) &&
+      (gap.metadata.missingInputs as unknown[]).length > 0
     );
   }
 
@@ -57,32 +58,34 @@ export class MissingInputPatternRepairStrategy implements FixStrategy {
 
     try {
       const missingInputs = gap.metadata?.missingInputs as string[] | undefined;
-      if (!missingInputs) {
+      if (!missingInputs || missingInputs.length === 0) {
         return {
           success: false,
           reason: "No missingInputs in gap metadata",
           shouldRetry: false,
         };
       }
-      const globPatterns = missingInputs.filter((input) => input.includes("*"));
 
-      if (globPatterns.length === 0) {
-        return {
-          success: false,
-          reason: "No glob patterns found in missing inputs",
-          shouldRetry: false,
-        };
-      }
-
-      // Try to find files with pattern variations for each glob
-      for (const pattern of globPatterns) {
+      // Probe every missing input — globs get pattern-shape variations,
+      // bare directory/file paths get sibling-directory + case variations.
+      for (const pattern of missingInputs) {
         console.log(`   📐 Testing pattern variations for: ${pattern}`);
 
         const variations = this.generatePatternVariations(pattern);
+        // Bare paths (no wildcard) also get real on-disk sibling candidates.
+        if (!pattern.includes("*")) {
+          variations.push(...(await this.probeSiblings(pattern, projectDir)));
+        }
         const { glob } = await import("glob");
 
         for (const variant of variations) {
-          const matches = await glob(variant, { cwd: projectDir });
+          // For bare paths, existsSync is authoritative; glob would only
+          // expand wildcards and skip literal directory matches.
+          const matches = variant.includes("*")
+            ? await glob(variant, { cwd: projectDir })
+            : existsSync(join(projectDir, variant))
+              ? [variant]
+              : [];
 
           if (matches.length > 0) {
             // Found files with alternate pattern!
@@ -99,6 +102,7 @@ export class MissingInputPatternRepairStrategy implements FixStrategy {
               projectDir,
               journalCtx,
               ctx,
+              gap,
             );
 
             await logTaskEvent(
@@ -165,29 +169,61 @@ export class MissingInputPatternRepairStrategy implements FixStrategy {
     projectDir: string,
     journalCtx: { epicId: string; taskId: string },
     ctx: StrategyContext,
+    gap?: Gap,
   ): Promise<void> {
     const { readFile, writeFile } = await import("node:fs/promises");
     const { join } = await import("node:path");
     const { existsSync } = await import("node:fs");
 
-    // Find the task file (TASK.md, SKILL.md, or task.ts) across all source dirs
-    const sourceDirs = getSourceTaskDirs(projectDir);
-    const filenames = ["TASK.md", "SKILL.md", "task.ts"];
-
     let targetPath: string | undefined;
     let content: string | undefined;
 
-    for (const sourceDir of sourceDirs) {
-      const taskDir = join(sourceDir, journalCtx.epicId, journalCtx.taskId);
-      for (const filename of filenames) {
-        const candidate = join(taskDir, filename);
-        if (existsSync(candidate)) {
-          targetPath = candidate;
-          content = await readFile(candidate, "utf-8");
-          break;
+    // Prefer the absolute TASK.md path stashed on the gap by task-runner —
+    // it dodges all the epicId/taskId path-reconstruction footguns.
+    const sourceTaskFile =
+      typeof gap?.metadata?.sourceTaskFile === "string"
+        ? (gap.metadata.sourceTaskFile as string)
+        : undefined;
+    if (sourceTaskFile && existsSync(sourceTaskFile)) {
+      targetPath = sourceTaskFile;
+      content = await readFile(sourceTaskFile, "utf-8");
+    }
+
+    // Fallback: probe both source-dir shapes and both layout conventions.
+    if (!targetPath) {
+      const sourceDirs = getSourceTaskDirs(projectDir);
+      const filenames = ["TASK.md", "SKILL.md", "task.ts"];
+      const rawTaskId = journalCtx.taskId.startsWith(journalCtx.epicId + "/")
+        ? journalCtx.taskId.slice(journalCtx.epicId.length + 1)
+        : journalCtx.taskId;
+      const segments = rawTaskId.split("/").filter(Boolean);
+      const flat = [...segments];
+      const wbs = segments.length > 0 ? [segments[0]] : [];
+      for (let i = 1; i < segments.length; i++) wbs.push("tasks", segments[i]);
+      const layouts = segments.length > 1 ? [flat, wbs] : [flat];
+
+      outer: for (const sourceDir of sourceDirs) {
+        const sourceDirNorm = sourceDir.replace(/\\/g, "/");
+        const endsWithEpic = sourceDirNorm.endsWith(
+          `/${journalCtx.epicId}/tasks`,
+        );
+        const prefixes: string[][] = endsWithEpic
+          ? [[]]
+          : [[], [journalCtx.epicId]];
+        for (const prefix of prefixes) {
+          for (const layout of layouts) {
+            const taskDir = join(sourceDir, ...prefix, ...layout);
+            for (const filename of filenames) {
+              const candidate = join(taskDir, filename);
+              if (existsSync(candidate)) {
+                targetPath = candidate;
+                content = await readFile(candidate, "utf-8");
+                break outer;
+              }
+            }
+          }
         }
       }
-      if (targetPath) break;
     }
 
     if (!targetPath || !content) {
@@ -274,14 +310,74 @@ Return the complete fixed file content as a single code block.`;
   }
 
   /* ------------------------------------------------------------------ */
+  /*  Sibling Probing (bare paths only)                                 */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * For a bare path whose final segment does not exist on disk, enumerate
+   * real siblings of the first missing segment and return candidate
+   * replacement paths. Catches directory renames that static heuristics
+   * miss, without hard-coding any project-specific names.
+   */
+  private async probeSiblings(
+    pattern: string,
+    projectDir: string,
+  ): Promise<string[]> {
+    const candidates: string[] = [];
+    const parts = pattern.split("/").filter(Boolean);
+    if (parts.length === 0) return candidates;
+
+    // Walk from the deepest segment outward: whichever segment is the
+    // first non-existent one, that's the rename candidate.
+    for (let depth = parts.length; depth > 0; depth--) {
+      const parentParts = parts.slice(0, depth - 1);
+      const missingSegment = parts[depth - 1];
+      const parentAbs = join(projectDir, ...parentParts);
+      if (!existsSync(parentAbs)) continue;
+      try {
+        if (!statSync(parentAbs).isDirectory()) continue;
+      } catch {
+        continue;
+      }
+      const missingExists = existsSync(join(parentAbs, missingSegment));
+      if (missingExists) continue; // this level is fine — look deeper/shallower
+
+      let siblings: string[];
+      try {
+        siblings = readdirSync(parentAbs);
+      } catch {
+        continue;
+      }
+      for (const sibling of siblings) {
+        if (sibling === missingSegment) continue;
+        try {
+          if (!statSync(join(parentAbs, sibling)).isDirectory()) continue;
+        } catch {
+          continue;
+        }
+        const rebuilt = [
+          ...parentParts,
+          sibling,
+          ...parts.slice(depth),
+        ].join("/");
+        candidates.push(rebuilt);
+      }
+      // Only probe the first broken level — deeper levels are irrelevant
+      // once we found the one that diverges.
+      break;
+    }
+    return candidates;
+  }
+
+  /* ------------------------------------------------------------------ */
   /*  Pattern Variation Generation                                     */
   /* ------------------------------------------------------------------ */
 
   private generatePatternVariations(pattern: string): string[] {
     const variations: string[] = [];
 
-    // Variation 1: Add one directory level with wildcard
-    // .stitch/designs/*.html → .stitch/designs/*/*.html
+    // Variation 1: Add one directory level with a wildcard.
+    //   dir/*.ext → dir/*/*.ext
     if (pattern.includes("/*.")) {
       const oneDeeper = pattern.replace(/\/\*\./, "/*/*.");
       if (oneDeeper !== pattern) {
@@ -289,21 +385,10 @@ Return the complete fixed file content as a single code block.`;
       }
     }
 
-    // Variation 2: Add specific common filename
-    // .stitch/designs/*.html → .stitch/designs/*/design.html
-    if (pattern.includes("/*.html")) {
-      variations.push(pattern.replace("/*.html", "/*/design.html"));
-      variations.push(pattern.replace("/*.html", "/*/index.html"));
-    }
-    if (pattern.includes("/*.tsx")) {
-      variations.push(pattern.replace("/*.tsx", "/*/index.tsx"));
-    }
-    if (pattern.includes("/*.ts")) {
-      variations.push(pattern.replace("/*.ts", "/*/index.ts"));
-    }
-
-    // Variation 3: Use recursive wildcard
-    // .stitch/designs/*.html → .stitch/designs/**/*.html
+    // Variation 2: Widen file wildcard to "**".
+    //   dir/*.ext → dir/**/*.ext
+    // This covers renamed-filename cases generically without the framework
+    // hard-coding any project-specific filename conventions.
     const parts = pattern.split("/");
     if (parts.length > 1 && !pattern.includes("**")) {
       const dir = parts.slice(0, -1).join("/");
@@ -311,8 +396,8 @@ Return the complete fixed file content as a single code block.`;
       variations.push(`${dir}/**/${file}`);
     }
 
-    // Variation 4: Remove one directory level
-    // .stitch/designs/screens/*.html → .stitch/designs/*.html
+    // Variation 3: Remove one directory level.
+    //   dir/sub/*.ext → dir/*.ext
     const dirParts = pattern.split("/");
     if (dirParts.length > 2) {
       const shallower = [...dirParts];
@@ -323,7 +408,7 @@ Return the complete fixed file content as a single code block.`;
       }
     }
 
-    // Variation 5: Case variations for each path component
+    // Variation 4: Case variations for each path component.
     const caseVariants = this.generateCaseVariations(pattern);
     variations.push(...caseVariants);
 
