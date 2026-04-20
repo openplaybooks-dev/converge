@@ -589,6 +589,9 @@ export async function executeTask(
           missingInputs: snapshotPaths.blockedInputs,
           blockedInputs: snapshotPaths.blockedInputs,
           allMissingItems: snapshotPaths.blockedInputs,
+          // Absolute path to the source TASK.md, so repair strategies can patch it
+          // directly without reconstructing the path from epicId/taskId segments.
+          sourceTaskFile: ctx.filePath,
         },
       };
 

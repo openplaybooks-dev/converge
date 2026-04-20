@@ -564,15 +564,13 @@ async function main(): Promise<void> {
       }
 
       case "init": {
-        if (!options.name && positional.length === 0) {
-          console.error("❌ Error: Project name required");
-          console.error('Usage: converge init --name="Project Name"');
-          process.exit(1);
-        }
-
         await initCommand({
           name: options.name || positional[0],
           description: options.description,
+          agents: options.agents || options.agent,
+          defaultAgent: options["default-agent"] || options.defaultAgent,
+          yes: options.yes || options.y || false,
+          force: options.force || false,
           dir: options.dir,
           verbose: options.verbose || options.v,
         });

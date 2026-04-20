@@ -81,6 +81,7 @@
     "test:all": "vitest run"
   },
   "dependencies": {
+    "@clack/prompts": "^0.9.1",
     "@converge/agentfn": "workspace:*",
     "glob": "^11.0.0",
     "minimatch": "^10.2.5",

@@ -165,24 +165,23 @@ export class DependencyBackoffStrategy implements FixStrategy {
       ) {
         const patterns = aiDecision.suggestedPatterns;
         if (patterns && Object.keys(patterns).length > 0) {
-          // Build path to the blocked task's TASK.md.
-          // journalCtx.taskId may or may not include the epic prefix depending on task structure:
-          //   with prefix:    "06-wire-screens/002-nav/001-analyze/leaf"  → tasks/ before every segment
-          //   without prefix: "002-pages/002-001-home"                   → first segment is a direct epic child
-          const epicPrefix = journalCtx.epicId + "/";
-          const hasEpicPrefix = journalCtx.taskId.startsWith(epicPrefix);
-          const rawTaskId = hasEpicPrefix
-            ? journalCtx.taskId.slice(epicPrefix.length)
-            : journalCtx.taskId;
-          const segments = rawTaskId.split("/");
-          const pathParts: string[] = hasEpicPrefix
-            ? segments.flatMap((s) => ["tasks", s])
-            : [segments[0], ...segments.slice(1).flatMap((s) => ["tasks", s])];
-          const taskMdPath = this.resolveTaskMdPath(
-            projectDir,
-            journalCtx.epicId,
-            pathParts,
-          );
+          // Prefer the absolute TASK.md path that task-runner stashed in
+          // gap metadata — this avoids all the epicId/taskId reconstruction
+          // logic that has been a recurring source of bugs (doubled
+          // playbook names, stray "tasks/" segments, flat-vs-WBS layout).
+          const sourceTaskFile =
+            typeof gap.metadata?.sourceTaskFile === "string"
+              ? (gap.metadata.sourceTaskFile as string)
+              : undefined;
+
+          const taskMdPath =
+            sourceTaskFile && existsSync(sourceTaskFile)
+              ? sourceTaskFile
+              : this.resolveTaskMdPathForBlockedTask(
+                  projectDir,
+                  journalCtx.epicId,
+                  journalCtx.taskId,
+                );
 
           if (taskMdPath && existsSync(taskMdPath)) {
             let content = await readFile(taskMdPath, "utf-8");
@@ -584,6 +583,64 @@ export class DependencyBackoffStrategy implements FixStrategy {
         "SKILL.md",
       );
       if (existsSync(skillCandidate)) return skillCandidate;
+    }
+    return null;
+  }
+
+  /**
+   * Locate the blocked task's TASK.md by trying every known on-disk layout.
+   * Source dirs may already include the epic/playbook name (playbook API) or
+   * not (legacy epics), and task trees may be flat or use the WBS
+   * `parent/tasks/child/` convention — so we probe every candidate instead
+   * of assuming one convention.
+   */
+  private resolveTaskMdPathForBlockedTask(
+    projectDir: string,
+    epicId: string,
+    taskId: string,
+  ): string | null {
+    const sourceDirs = getSourceTaskDirs(projectDir);
+
+    // Strip optional leading "<epicId>/" — journal task ids sometimes carry it.
+    const rawTaskId = taskId.startsWith(epicId + "/")
+      ? taskId.slice(epicId.length + 1)
+      : taskId;
+    const segments = rawTaskId.split("/").filter(Boolean);
+    if (segments.length === 0) return null;
+
+    // Two layout conventions to try per segment chain:
+    //   flat:  parent/child/grandchild
+    //   WBS:   parent/tasks/child/tasks/grandchild
+    const flat = [...segments];
+    const wbs = [segments[0]];
+    for (let i = 1; i < segments.length; i++) wbs.push("tasks", segments[i]);
+
+    // Two source-dir shapes: .converge/epics/ (needs epicId) vs
+    // .converge/playbooks/<name>/tasks/ (epicId already baked in).
+    const epicPrefixes: string[][] = [[], [epicId]];
+    const filenames = ["TASK.md", "SKILL.md"];
+    const layouts = [flat, wbs];
+
+    for (const sourceDir of sourceDirs) {
+      const sourceDirNorm = sourceDir.replace(/\\/g, "/");
+      // If the source dir already ends with "/<epicId>/tasks", skip the
+      // prefix-with-epicId variant to avoid doubling.
+      const endsWithEpic = sourceDirNorm.endsWith(`/${epicId}/tasks`);
+      const prefixesToTry = endsWithEpic ? [[]] : epicPrefixes;
+
+      for (const prefix of prefixesToTry) {
+        for (const layout of layouts) {
+          for (const filename of filenames) {
+            const candidate = join(
+              sourceDir,
+              ...prefix,
+              ...layout,
+              filename,
+            );
+            if (existsSync(candidate)) return candidate;
+          }
+        }
+      }
     }
     return null;
   }

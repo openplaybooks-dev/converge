@@ -5,16 +5,25 @@
 const COMMAND_HELP: Record<string, string> = {
   init: `
 USAGE
-  converge init --name=NAME [options]
+  converge init                       (interactive wizard — default)
+  converge init --yes                 (accept all defaults, no prompts)
+  converge init [name] [options]      (prefill answers)
 
 OPTIONS
-  --name=NAME               Project name (required)
+  --name=NAME               Project name (default: current directory name)
   --description=DESC        Project description
+  --agents=LIST             Comma-separated providers to enable
+                              Valid: claude, acp, kimi, qwen, gemini
+  --default-agent=NAME      Which enabled provider is the default
+  --yes, -y                 Non-interactive: accept defaults for all prompts
+  --force                   Overwrite an existing .converge/ directory
   --dir=PATH                Project directory (default: cwd)
 
 EXAMPLES
-  converge init --name="My Project"
-  converge init --name="Web App" --description="Full-stack web application"
+  converge init                                        # interactive wizard
+  converge init --yes                                  # name=cwd, provider=claude
+  converge init my-app --agents=claude,kimi --default-agent=claude
+  converge init --name="Web App" --description="Full-stack app" --yes
 `,
 
   plan: `
