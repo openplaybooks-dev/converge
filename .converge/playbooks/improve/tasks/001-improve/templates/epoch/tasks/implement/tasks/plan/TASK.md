@@ -9,7 +9,7 @@ checks:
 
 # Create implementation plan
 
-Read the prioritized issue at `{{artifactsDir}}/prioritize/report.md` and create a step-by-step implementation plan.
+Read the analysis report at `{{artifactsDir}}/analyze/report.md` and create a step-by-step implementation plan for the picked improvement.
 
 ## Rules
 
