@@ -1,5 +1,9 @@
 # Design Proposal - Child Safety Beacon App
 
+## Purpose
+
+A child safety application that detects when a child is left behind by monitoring Bluetooth beacons. When the adult's device moves away from the beacon for a specified duration, the app triggers comprehensive alerts to prevent children from being accidentally left unattended.
+
 ## 📋 Overview
 
 ### Product Description
