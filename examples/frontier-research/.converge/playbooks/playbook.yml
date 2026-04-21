@@ -1,0 +1,19 @@
+name: frontier-research
+description: Beam-search frontier research — explores unknown solution spaces using parallel beams, multi-dimensional scoring, and gradient-descent convergence to discover novel insights on complex open-ended questions.
+key: question
+inputs:
+  question: { required: true, description: The complex research question to explore }
+  domain: { default: "general", description: Research domain for context }
+  beamWidth: { default: "5", description: Number of parallel beams per epoch }
+  selectionWidth: { default: "2", description: Number of top beams selected per epoch }
+  convergenceThreshold: { default: "0.15", description: Minimum insight delta to continue }
+
+run:
+  mode: loop
+  maxIterations: 20
+  maxTaskAttempts: 3
+  maxDuration: 8h
+  resume: true
+  stall:
+    maxConsecutive: 3
+    backoffMs: 30000
