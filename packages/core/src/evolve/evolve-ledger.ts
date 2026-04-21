@@ -192,7 +192,7 @@ function classifyEvolveTrend(
 export function formatEvolveTrendTable(projectDir: string): string {
   const entries = readEvolveLedger(projectDir).filter((e) => e.phase === "end");
 
-  if (entries.length === 0) return "No evolve epochs recorded yet.";
+  if (entries.length === 0) return "No converge epochs recorded yet.";
 
   const trendIcon: Record<string, string> = {
     improving: "↘",

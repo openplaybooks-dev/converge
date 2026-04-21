@@ -157,6 +157,7 @@ export async function validateProject(
   const mdPatterns = [
     ".converge/epics/**/*/TASK.md",
     ".converge/epics/**/*/tasks/**/TASK.md",
+    ".converge/playbooks/*/TASK.md",
     ".converge/playbooks/*/tasks/**/TASK.md",
   ];
 
