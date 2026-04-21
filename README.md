@@ -88,7 +88,7 @@ Write unit tests covering the success case and response shape.
 
 **Deep Research** — Multi-source literature reviews, competitive analyses, and synthesis reports. Tasks gather sources, extract findings, cross-reference, and synthesize — each step verified before the next begins.
 
-**Data Pipelines** — ETL workflows, data validation, and transformation chains. Checks enforce schema conformance, row counts, and data quality thresholds. Self-correction handles schema drift and upstream format changes.
+**Scientific Research** — Literature reviews, hypothesis formulation, experiments, and academic paper drafting. Checks enforce GRADE evidence ratings, statistical rigor, and contradiction resolution. Bayesian priors update across epochs; the loop stops when quality scores converge.
 
 **Content Production** — Blog posts, documentation, marketing copy with editorial checks. Checks enforce word counts, required sections, link validity, and brand voice consistency. Playbooks encode your editorial process for repeatable execution.
 
