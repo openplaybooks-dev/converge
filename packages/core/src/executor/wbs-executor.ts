@@ -209,10 +209,11 @@ export class WbsExecutor {
 
         await writeTaskMdToFile(this.projectDir, shape, writeToPath);
 
-        // Copy sibling files from template source directory to rendered task directory.
+        // Copy sibling files and directories from template source → rendered task dir.
         // Skip the template source file and rendered TASK.md.
         // Note: wbs.js is copied if the template has a wbs section that references it,
         // because the spawned child task may need its own WBS script (e.g., for splitting widgets).
+        // Directories (e.g. tasks/subtask/) are copied recursively for per-widget WBS templates.
         if (
           typeof target === "object" &&
           target !== null &&
@@ -224,7 +225,9 @@ export class WbsExecutor {
             dirname: dirnamePath,
             basename: basenamePath,
           } = await import("node:path");
-          const { readdir, copyFile, readFile: readFileAsync } = await import("node:fs/promises");
+          const { readdir, copyFile, cp, readFile: readFileAsync } = await import(
+            "node:fs/promises"
+          );
           const templateAbsPath = resolvePath(this.projectDir, ref.path);
           const templateDir = dirnamePath(templateAbsPath);
           const templateFileName = basenamePath(templateAbsPath);
@@ -253,12 +256,17 @@ export class WbsExecutor {
           try {
             const entries = await readdir(templateDir, { withFileTypes: true });
             for (const entry of entries) {
-              if (!entry.isFile()) continue;
-              if (skipFiles.has(entry.name)) continue;
-              await copyFile(
-                join(templateDir, entry.name),
-                join(destDir, entry.name),
-              );
+              if (entry.isFile()) {
+                if (skipFiles.has(entry.name)) continue;
+                await copyFile(
+                  join(templateDir, entry.name),
+                  join(destDir, entry.name),
+                );
+              } else if (entry.isDirectory()) {
+                await cp(join(templateDir, entry.name), join(destDir, entry.name), {
+                  recursive: true,
+                });
+              }
             }
           } catch {
             // Template dir may not have siblings — that's fine
