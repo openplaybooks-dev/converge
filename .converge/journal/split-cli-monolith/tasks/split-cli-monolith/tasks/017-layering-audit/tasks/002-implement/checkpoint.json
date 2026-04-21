@@ -2,17 +2,17 @@
   "type": "task",
   "id": "split-cli-monolith/017-layering-audit/002-implement",
   "status": "pending",
-  "lastUpdated": "2026-04-21T07:30:31.009Z",
+  "lastUpdated": "2026-04-21T12:22:57.487Z",
   "createdAt": "2026-04-21T07:30:31.009Z",
   "progress": {
     "totalChildren": 3,
     "completedChildren": 0,
     "failedChildren": 0,
-    "childIds": [
+    "childTaskIds": [
       "001-plan",
       "002-todos",
       "003-verify"
     ],
-    "lastProgressUpdate": "2026-04-21T07:30:31.006Z"
+    "lastProgressUpdate": "2026-04-21T12:22:57.484Z"
   }
 }

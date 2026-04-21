@@ -1,0 +1,275 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-delete-epic-files-check-failed-epic-manager-gone",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-delete-epic-files",
+            "severity": "high",
+            "description": "[01-delete-epic-files] Check failed: epic-manager.ts deleted",
+            "source": "unit",
+            "detected": "2026-04-21T11:55:39.480Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "epic-manager-gone",
+              "checkCmd": "test ! -f packages/core/src/runtime/epic-manager.ts",
+              "checkDescription": "epic-manager.ts deleted",
+              "checkOutput": "Command failed: test ! -f packages/core/src/runtime/epic-manager.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Delete these 4 files that exist solely for epic infrastructure:\n\n1. `packages/core/src/runtime/epic-manager.ts` — EpicManagerImpl class\n2. `packages/core/src/context/epic-context.ts` — EpicContextImpl, EpicEvalAPI, EpicPlanAPI\n3. `packages/core/src/planning/epic-scanner.ts` — EpicFileScanner, EpicMetadata\n4. `packages/core/src/checkpoint/ensure-epic-checkpoints.ts` — ensureEpicCheckpoints(), updateEpicProgress()\n\nThen remove all imports/usages of these deleted modules from:\n- `packages/core/src/runtime/runtime.ts` — remove EpicManagerImpl import/usage\n- `packages/core/src/context/index.ts` — remove EpicContextImpl, createEpicContext exports\n- `packages/core/src/index.ts` — remove all epic re-exports from these files\n- `packages/core/src/cli/next-task.ts` — remove ensureEpicCheckpoints/updateEpicProgress calls\n\nComment out broken downstream references temporarily (they'll be fixed in later tasks).",
+              "taskId": "01-delete-epic-files",
+              "taskTitle": "Delete epic-only infrastructure files",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/tasks/01-delete-epic-files",
+              "factId": "check:epic-manager-gone"
+            }
+          },
+          {
+            "id": "01-delete-epic-files-check-failed-epic-context-gone",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-delete-epic-files",
+            "severity": "high",
+            "description": "[01-delete-epic-files] Check failed: epic-context.ts deleted",
+            "source": "unit",
+            "detected": "2026-04-21T11:55:39.482Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "epic-context-gone",
+              "checkCmd": "test ! -f packages/core/src/context/epic-context.ts",
+              "checkDescription": "epic-context.ts deleted",
+              "checkOutput": "Command failed: test ! -f packages/core/src/context/epic-context.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Delete these 4 files that exist solely for epic infrastructure:\n\n1. `packages/core/src/runtime/epic-manager.ts` — EpicManagerImpl class\n2. `packages/core/src/context/epic-context.ts` — EpicContextImpl, EpicEvalAPI, EpicPlanAPI\n3. `packages/core/src/planning/epic-scanner.ts` — EpicFileScanner, EpicMetadata\n4. `packages/core/src/checkpoint/ensure-epic-checkpoints.ts` — ensureEpicCheckpoints(), updateEpicProgress()\n\nThen remove all imports/usages of these deleted modules from:\n- `packages/core/src/runtime/runtime.ts` — remove EpicManagerImpl import/usage\n- `packages/core/src/context/index.ts` — remove EpicContextImpl, createEpicContext exports\n- `packages/core/src/index.ts` — remove all epic re-exports from these files\n- `packages/core/src/cli/next-task.ts` — remove ensureEpicCheckpoints/updateEpicProgress calls\n\nComment out broken downstream references temporarily (they'll be fixed in later tasks).",
+              "taskId": "01-delete-epic-files",
+              "taskTitle": "Delete epic-only infrastructure files",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/tasks/01-delete-epic-files",
+              "factId": "check:epic-context-gone"
+            }
+          },
+          {
+            "id": "01-delete-epic-files-check-failed-epic-scanner-gone",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-delete-epic-files",
+            "severity": "high",
+            "description": "[01-delete-epic-files] Check failed: epic-scanner.ts deleted",
+            "source": "unit",
+            "detected": "2026-04-21T11:55:39.484Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "epic-scanner-gone",
+              "checkCmd": "test ! -f packages/core/src/planning/epic-scanner.ts",
+              "checkDescription": "epic-scanner.ts deleted",
+              "checkOutput": "Command failed: test ! -f packages/core/src/planning/epic-scanner.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Delete these 4 files that exist solely for epic infrastructure:\n\n1. `packages/core/src/runtime/epic-manager.ts` — EpicManagerImpl class\n2. `packages/core/src/context/epic-context.ts` — EpicContextImpl, EpicEvalAPI, EpicPlanAPI\n3. `packages/core/src/planning/epic-scanner.ts` — EpicFileScanner, EpicMetadata\n4. `packages/core/src/checkpoint/ensure-epic-checkpoints.ts` — ensureEpicCheckpoints(), updateEpicProgress()\n\nThen remove all imports/usages of these deleted modules from:\n- `packages/core/src/runtime/runtime.ts` — remove EpicManagerImpl import/usage\n- `packages/core/src/context/index.ts` — remove EpicContextImpl, createEpicContext exports\n- `packages/core/src/index.ts` — remove all epic re-exports from these files\n- `packages/core/src/cli/next-task.ts` — remove ensureEpicCheckpoints/updateEpicProgress calls\n\nComment out broken downstream references temporarily (they'll be fixed in later tasks).",
+              "taskId": "01-delete-epic-files",
+              "taskTitle": "Delete epic-only infrastructure files",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/tasks/01-delete-epic-files",
+              "factId": "check:epic-scanner-gone"
+            }
+          },
+          {
+            "id": "01-delete-epic-files-check-failed-epic-checkpoints-gone",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-delete-epic-files",
+            "severity": "high",
+            "description": "[01-delete-epic-files] Check failed: ensure-epic-checkpoints.ts deleted",
+            "source": "unit",
+            "detected": "2026-04-21T11:55:39.486Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "epic-checkpoints-gone",
+              "checkCmd": "test ! -f packages/core/src/checkpoint/ensure-epic-checkpoints.ts",
+              "checkDescription": "ensure-epic-checkpoints.ts deleted",
+              "checkOutput": "Command failed: test ! -f packages/core/src/checkpoint/ensure-epic-checkpoints.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Delete these 4 files that exist solely for epic infrastructure:\n\n1. `packages/core/src/runtime/epic-manager.ts` — EpicManagerImpl class\n2. `packages/core/src/context/epic-context.ts` — EpicContextImpl, EpicEvalAPI, EpicPlanAPI\n3. `packages/core/src/planning/epic-scanner.ts` — EpicFileScanner, EpicMetadata\n4. `packages/core/src/checkpoint/ensure-epic-checkpoints.ts` — ensureEpicCheckpoints(), updateEpicProgress()\n\nThen remove all imports/usages of these deleted modules from:\n- `packages/core/src/runtime/runtime.ts` — remove EpicManagerImpl import/usage\n- `packages/core/src/context/index.ts` — remove EpicContextImpl, createEpicContext exports\n- `packages/core/src/index.ts` — remove all epic re-exports from these files\n- `packages/core/src/cli/next-task.ts` — remove ensureEpicCheckpoints/updateEpicProgress calls\n\nComment out broken downstream references temporarily (they'll be fixed in later tasks).",
+              "taskId": "01-delete-epic-files",
+              "taskTitle": "Delete epic-only infrastructure files",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/tasks/01-delete-epic-files",
+              "factId": "check:epic-checkpoints-gone"
+            }
+          }
+        ],
+        "durationMs": 12
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 33
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 21
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 31990
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-21T11:55:39.474Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-21T11:55:39.475Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-21T11:55:39.487Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-21T11:55:39.489Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-21T11:55:39.522Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-04-21T11:56:11.513Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-21T11:56:11.535Z"
+    }
+  ]
+}

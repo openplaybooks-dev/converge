@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "01-delete-epic-files",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T11:56:11.563Z",
+  "createdAt": "2026-04-21T11:55:39.472Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T11:55:39.472Z",
+      "completedAt": "2026-04-21T11:56:11.560Z",
+      "outcome": "success",
+      "durationMs": 32088
+    }
+  ],
+  "currentAttempt": 1
+}

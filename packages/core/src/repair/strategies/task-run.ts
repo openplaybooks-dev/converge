@@ -252,6 +252,29 @@ export class TaskRunStrategy implements FixStrategy {
         skillName,
         agentName: taskAgent !== "Converge" ? taskAgent : undefined,
       });
+
+      // Re-check if the gap was actually resolved
+      const unitPath = gap.metadata?.unitPath as string | undefined;
+      if (unitPath) {
+        try {
+          const { fromPath } = await import("../../unit/factories.ts");
+          const { findGaps } = await import("../../unit/find-gaps.ts");
+          const unit = await fromPath(unitPath);
+          const postGaps = await findGaps(unit);
+          const stillHasGap = postGaps.some(
+            (g) => g.id === gap.id || g.description === gap.description
+          );
+          if (stillHasGap) {
+            return {
+              success: false,
+              reason: `Task executed but gap still exists: ${gap.description}`,
+            };
+          }
+        } catch {
+          // If we can't verify, proceed with success (fallback to old behavior)
+        }
+      }
+
       return { success: true, reason: "Task execution completed successfully" };
     } catch (err: any) {
       // Check if this is a retryable error (crash/timeout) or a logical error (should not retry)

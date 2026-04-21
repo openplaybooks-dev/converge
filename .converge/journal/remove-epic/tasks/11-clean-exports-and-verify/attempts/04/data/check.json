@@ -1,0 +1,15 @@
+{
+  "taskId": "11-clean-exports-and-verify",
+  "checks": [
+    {
+      "id": "no-epic-refs",
+      "description": "Zero epic references in packages/core/src",
+      "cmd": "test -z \"$(grep -rn 'export.*EpicConfig\\|export.*EpicStatus\\|export.*EpicContext\\|export.*EpicManager\\|export.*EpicDefinition\\|export.*EpicBuilder\\|export type Epic\\|from.*epicId\\|import.*EpicConfig\\|import.*EpicStatus\\|import.*EpicContext\\|import.*EpicManager\\|import.*EpicDefinition\\|import.*EpicBuilder' --include='*.ts' packages/core/src/ 2>/dev/null | grep -v node_modules | grep -v '.converge/')\""
+    },
+    {
+      "id": "tsc-clean",
+      "description": "TypeScript compiles clean",
+      "cmd": "cd packages/core && npx tsc --noEmit"
+    }
+  ]
+}

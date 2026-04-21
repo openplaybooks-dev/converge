@@ -1,31 +1,42 @@
 # split-cli-monolith
 
-One-off playbook that onion-splits `packages/core/src/` into 6 workspace packages over 17 PRs.
+One-off playbook that onion-splits `packages/core/src/` into 7 workspace packages over 18 PRs.
 
 ## Architectural intent
 
-End-state dependency flow: **`@converge/cli → @converge/engine → { @converge/core, @converge/navigator, @converge/journal, @converge/scheduler }`** (plus `@converge/cli → @converge/display` directly).
+End-state dependency flow:
+
+```
+@converge/cli → @converge/engine → @converge/task → @converge/core
+                    ↓                                      ↑
+              @converge/navigator (zero-dep)               |
+              @converge/journal ───────────────────────────┘
+              @converge/scheduler → @converge/journal
+              @converge/display (cli-only)
+```
 
 | Package               | Role                                                                    | Consumers                                         |
 | --------------------- | ----------------------------------------------------------------------- | ------------------------------------------------- |
 | `@converge/cli`       | Outer shell — bin, argv, dispatch, I/O                                  | end users                                         |
-| `@converge/engine`    | Middle layer — `autonomousRun`, orchestrator, repair actions, lifecycle, executor, planning, playbook loader, unit exec, goal/evolve/converge runners, dispatch | cli, future web UI, swebench, tbench              |
-| `@converge/core`      | Inner primitive — pure types/contracts (gap, goal types, config, hooks, functions, context, ai, validation, discovery, executor types for swebench/tbench) | engine, everyone else                             |
+| `@converge/engine`    | Middle layer — `autonomousRun`, orchestrator, repair actions, lifecycle, executor, planning, playbook loader, gap resolution, goal/evolve/converge runners, dispatch | cli, future web UI, swebench, tbench              |
+| `@converge/task`      | Domain model — Unit class, TreeNode, TaskTree, path-utils, task-context. Defines what a task is and how tasks form trees. RunStrategy + TaskStateProvider injected by engine at runtime | engine, cli, scheduler                            |
+| `@converge/core`      | Inner primitive — pure types/contracts (gap, goal types, config, hooks, functions, context, ai, validation, discovery, executor types for swebench/tbench) | task, engine, everyone else                       |
 | `@converge/navigator` | Inner primitive — reactive JIT-buffered graph engine, zero-dep          | engine (repair loop); future agent flows          |
 | `@converge/journal`   | Inner primitive — checkpoint + journal + storage + session logger       | engine, scheduler                                 |
-| `@converge/scheduler` | Inner primitive — task-tree, next-task, ensure-epic-checkpoints          | engine                                            |
+| `@converge/scheduler` | Inner primitive — task-tree scheduling, next-task, ensure-epic-checkpoints | engine                                            |
 | `@converge/display`   | Inner primitive — terminal/ANSI renderer, consumed **only** by cli       | cli                                               |
 
 **Invariants enforced by playbook checks and the final PR14 ESLint gate:**
 
 1. `@converge/core` never imports any other `@converge/*` package.
-2. `@converge/{navigator,journal,scheduler,display}` never import each other, engine, or cli.
-3. `@converge/engine` can import primitives but not cli or display.
-4. `@converge/cli` is allowed to import everything below it.
-5. `@converge/navigator` has zero runtime dependencies and zero filesystem/IO imports.
-6. `@converge/core` and `@converge/engine` have no CLI leakage (no `process.exit`, no stdout writes, no `console.*`, no ANSI escapes).
+2. `@converge/task` depends only on `@converge/core` — no journal, scheduler, navigator, engine, cli, or display imports.
+3. `@converge/{navigator,journal,scheduler,display}` never import each other, engine, or cli.
+4. `@converge/engine` can import task + primitives but not cli or display.
+5. `@converge/cli` is allowed to import everything below it.
+6. `@converge/navigator` has zero runtime dependencies and zero filesystem/IO imports.
+7. `@converge/core`, `@converge/task`, and `@converge/engine` have no CLI leakage (no `process.exit`, no stdout writes, no `console.*`, no ANSI escapes).
 
-A future web UI imports `@converge/engine` and wires its own renderer — it never depends on `@converge/cli` or `@converge/display`. The PR14 programmatic smoke test is the integration pattern.
+A future web UI imports `@converge/engine` (which pulls in `@converge/task`) and wires its own renderer — it never depends on `@converge/cli` or `@converge/display`. A simpler runner that doesn't need self-correction can import `@converge/task` directly for the Unit/TreeNode model without pulling in the full engine. The PR14 programmatic smoke test is the integration pattern.
 
 ### About `@converge/navigator`
 
@@ -38,7 +49,7 @@ The navigator is the **driver** for AI-influenced reactive flows: a graph of han
 converge run --playbook=split-cli-monolith
 ```
 
-Runs once; processes all 17 PR tasks in order. Resume-safe.
+Runs once; processes all 18 PR tasks in order. Resume-safe.
 
 ## PR sequence
 
@@ -77,7 +88,8 @@ Runs once; processes all 17 PR tasks in order. Resume-safe.
 
 | PR   | Task ID                        | Change                                                                  |
 | ---- | ------------------------------ | ----------------------------------------------------------------------- |
-| 11a  | 012-engine-leaf-dirs           | `executor`, `planning`, `playbook`, `unit`, `dispatch`, etc. → engine   |
+| 11a  | 012-engine-leaf-dirs           | `executor`, `planning`, `playbook`, `dispatch`, etc. → engine (15 dirs; unit/tree deferred) |
+| 11a′ | 012b-extract-task-pkg          | `@converge/task` — Unit, TreeNode, TaskTree, path-utils extracted with RunStrategy + TaskStateProvider injection |
 | 11b  | 013-engine-orchestration-hubs  | `orchestrator`, `lifecycle`, `loop`, `converge`, `evolve`, `repair` (sans navigator), `plugins` → engine |
 | 11c  | 014-rewire-engine-exports      | `@converge/engine/index.ts` with `autonomousRun`; core stops re-exporting engine symbols — HARD BREAK |
 | 12   | 015-slim-core                  | `@converge/core` becomes pure types/contracts                           |
@@ -96,7 +108,7 @@ Runs once; processes all 17 PR tasks in order. Resume-safe.
 
 ## Per-PR pipeline
 
-Each of the 17 PR tasks runs: **analyze → implement → review → quality**.
+Each of the 18 PR tasks runs: **analyze → implement → review → quality**.
 
 - **analyze** — read spec, inspect current code, write implementation plan
 - **implement** — plan → todos → execute each todo → verify (typecheck + tests)
@@ -112,7 +124,7 @@ split-cli-monolith/
   TASK.md               # root task declaring the WBS
   wbs/
     index.js            # reads prs.json, spawns items from templates
-    prs.json            # 17-PR data (id, title, tier/phase, summary, spec)
+    prs.json            # 18-PR data (id, title, tier/phase, summary, spec)
     templates/item/     # per-PR pipeline template (analyze→implement→review→quality)
   tasks/                # runtime-stamped task tree (153 TASK.md files at full depth)
 ```

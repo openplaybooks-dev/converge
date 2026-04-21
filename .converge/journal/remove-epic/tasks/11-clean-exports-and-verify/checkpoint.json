@@ -1,0 +1,29 @@
+{
+  "type": "task",
+  "id": "11-clean-exports-and-verify",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T13:15:00.000Z",
+  "createdAt": "2026-04-21T11:56:11.852Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T11:56:11.852Z",
+      "completedAt": "2026-04-21T12:35:51.498Z",
+      "outcome": "interrupted"
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-21T12:35:59.525Z",
+      "completedAt": "2026-04-21T13:07:23.276Z",
+      "outcome": "interrupted"
+    },
+    {
+      "attempt": 3,
+      "startedAt": "2026-04-21T13:07:23.276Z",
+      "completedAt": "2026-04-21T13:15:00.000Z",
+      "outcome": "success",
+      "durationMs": 458724
+    }
+  ],
+  "currentAttempt": 3
+}

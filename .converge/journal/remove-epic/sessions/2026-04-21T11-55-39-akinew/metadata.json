@@ -1,0 +1,23 @@
+{
+  "sessionId": "2026-04-21T11-55-39-akinew",
+  "projectName": "converge",
+  "startTime": "2026-04-21T11:55:39.442Z",
+  "status": "cancelled",
+  "config": {
+    "maxIterations": 100,
+    "maxAttemptsPerTask": 2
+  },
+  "environment": {
+    "nodeVersion": "v22.19.0",
+    "platform": "darwin"
+  },
+  "endTime": "2026-04-21T12:35:51.500Z",
+  "duration": 2412058,
+  "outcomes": {
+    "totalIterations": 11,
+    "tasksCompleted": 10,
+    "tasksFailed": 0,
+    "gapsResolved": 0,
+    "convergenceAchieved": false
+  }
+}

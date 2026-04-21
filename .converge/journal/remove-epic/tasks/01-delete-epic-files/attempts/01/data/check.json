@@ -1,0 +1,25 @@
+{
+  "taskId": "01-delete-epic-files",
+  "checks": [
+    {
+      "id": "epic-manager-gone",
+      "description": "epic-manager.ts deleted",
+      "cmd": "test ! -f packages/core/src/runtime/epic-manager.ts"
+    },
+    {
+      "id": "epic-context-gone",
+      "description": "epic-context.ts deleted",
+      "cmd": "test ! -f packages/core/src/context/epic-context.ts"
+    },
+    {
+      "id": "epic-scanner-gone",
+      "description": "epic-scanner.ts deleted",
+      "cmd": "test ! -f packages/core/src/planning/epic-scanner.ts"
+    },
+    {
+      "id": "epic-checkpoints-gone",
+      "description": "ensure-epic-checkpoints.ts deleted",
+      "cmd": "test ! -f packages/core/src/checkpoint/ensure-epic-checkpoints.ts"
+    }
+  ]
+}

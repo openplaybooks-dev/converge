@@ -1,0 +1,35 @@
+# Task: 06-refactor-storage-checkpoint
+
+Remove epicId from storage operations and checkpoint management.
+
+**`packages/core/src/storage/filesystem.ts`:**
+- Delete all epic operations: readEpicConfig, writeEpicConfig, readEpicStatus, writeEpicStatus, readEpicDeps, writeEpicDeps, appendEpicLog, listEpics
+- Change task operations from (epicId, taskId) to (taskPath) signatures
+- Remove `epics` from init() directory creation
+
+**`packages/core/src/checkpoint/manager.ts`:**
+- Remove parseTaskId() that splits epicId/taskPath
+- Remove epicId from all method signatures (markTaskCompleted, markTaskFailed, markTaskSeeded, removeFromCompleted, reconcileTask)
+
+**`packages/core/src/checkpoint/task-checkpoint.ts`:**
+- Remove epicId from TaskCheckpoint interface
+- Change TaskCheckpointManager constructor from (projectDir, epicId, taskId) to (projectDir, taskId)
+
+**`packages/core/src/checkpoint/unit-checkpoint.ts`:**
+- Remove "epic" from unit type enum: `"project" | "epic" | "task"` → `"project" | "task"`
+- Remove epicId parameter from constructor
+
+**`packages/core/src/checkpoint/filesystem-status.ts`:**
+- Remove epicId from all path construction
+
+**`packages/core/src/checkpoint/migration.ts`:**
+- Remove epic migration logic entirely (no backward compat)
+
+**`packages/core/src/checkpoint/resumability.ts`:**
+- Remove epicId references
+
+**`packages/core/src/checkpoint/tree-utils.ts`:**
+- Remove epicId references
+
+**`packages/core/src/checkpoint/cleanup.ts`:**
+- Remove epicId references

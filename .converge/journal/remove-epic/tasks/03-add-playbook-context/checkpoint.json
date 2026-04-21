@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-add-playbook-context",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T11:56:11.630Z",
+  "createdAt": "2026-04-21T11:56:11.625Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T11:56:11.625Z",
+      "completedAt": "2026-04-21T11:56:11.628Z",
+      "outcome": "success",
+      "durationMs": 3
+    }
+  ],
+  "currentAttempt": 1
+}
