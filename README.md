@@ -96,6 +96,55 @@ Write unit tests covering the success case and response shape.
 
 The domain doesn't matter. If you can describe what done looks like, Converge can get there.
 
+## Development
+
+Build Converge from source and run the `converge` CLI against your local checkout.
+
+### Prerequisites
+
+- **Node.js** >= 20
+- **pnpm** 10.29.3+ (specified via `packageManager` in `package.json`)
+
+### Clone, install, build
+
+```bash
+git clone https://github.com/myanlabs/converge.git
+cd converge
+pnpm install
+pnpm build
+```
+
+### Use the CLI locally
+
+From the repo root, run the CLI directly against source (no global install):
+
+```bash
+pnpm converge --help
+pnpm converge init --name="my-api"
+pnpm converge plan "REST API with health check endpoint and test suite"
+pnpm converge run
+```
+
+To expose the built CLI as a `converge` command on your `$PATH`, link the `@converge/core` package globally:
+
+```bash
+pnpm build
+pnpm --filter @converge/core link --global
+
+converge --help
+```
+
+Run `pnpm --filter @converge/core unlink --global` to remove the link.
+
+### Common tasks
+
+```bash
+pnpm test           # run all tests
+pnpm typecheck      # type-check the monorepo
+pnpm build          # rebuild after source changes
+pnpm clean          # remove build artifacts
+```
+
 ## Documentation
 
 - **[Getting Started](./docs/getting-started.md)** — Install, configure, and run your first workflow
