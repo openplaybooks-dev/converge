@@ -1,0 +1,39 @@
+name: remove-epic
+description: Remove all epic/epicId references from packages/core. Replace EpicContext with PlaybookContext. Flatten hierarchy to Project → Playbook → Task.
+
+run:
+  mode: oneoff
+  maxTaskAttempts: 3
+  maxDuration: 4h
+  resume: true
+
+tasks:
+  - id: 01-delete-epic-files
+  - id: 02-remove-epic-types
+    depends_on: [01-delete-epic-files]
+  - id: 03-add-playbook-context
+    depends_on: [02-remove-epic-types]
+  - id: 04-refactor-path-utils
+    depends_on: [03-add-playbook-context]
+  - id: 05-refactor-tree-and-dataflow
+    depends_on: [04-refactor-path-utils]
+  - id: 06-refactor-storage-checkpoint
+    depends_on: [05-refactor-tree-and-dataflow]
+  - id: 07-refactor-journal
+    depends_on: [06-refactor-storage-checkpoint]
+  - id: 08-refactor-lifecycle-executor-repair
+    depends_on: [07-refactor-journal]
+  - id: 09-refactor-cli
+    depends_on: [08-refactor-lifecycle-executor-repair]
+  - id: 10-refactor-remaining-systems
+    depends_on: [09-refactor-cli]
+  - id: 11-clean-exports-and-verify
+    depends_on: [10-refactor-remaining-systems]
+
+checks:
+  - id: no-epic-in-source
+    cmd: "test -z \"$(grep -rn 'epicId\\|EpicId\\|epic_id\\|EpicConfig\\|EpicStatus\\|EpicContext\\|EpicManager\\|EpicDefinition\\|EpicBuilder\\|EpicDeps\\|epicConfig\\|epicStatus\\|epicDeps\\|epicLog\\|epicTasks' --include='*.ts' packages/core/src/ 2>/dev/null | grep -v node_modules | grep -v '.converge/')\""
+    description: Zero epic references in packages/core/src TypeScript files
+  - id: tsc-passes
+    cmd: "cd packages/core && npx tsc --noEmit"
+    description: TypeScript compiles without errors

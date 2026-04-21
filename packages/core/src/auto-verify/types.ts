@@ -50,8 +50,8 @@ export interface ConvergeVerdict {
   /** Task ID this was executed for */
   taskId: string;
 
-  /** Epic ID */
-  epicId: string;
+  /** Playbook ID */
+  playbookId: string;
 }
 
 /**

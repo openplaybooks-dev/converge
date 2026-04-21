@@ -18,7 +18,6 @@ import {
   formatPluginListV2,
   DEFAULT_CONVERGENCE_CONFIG,
   type ProjectConfig,
-  type EpicConfig,
   type ConvergenceConfig,
 } from "../index.ts";
 import { autonomousRun, type AutonomousRunConfig } from "./autonomous-run.ts";
@@ -457,15 +456,9 @@ export async function runCommand(options: RunOptions = {}): Promise<void> {
   );
   console.log(`  Duration: ${duration.toFixed(2)}s`);
   console.log();
-  console.log("Epics:");
-  console.log(`  Total: ${result.summary.totalEpics}`);
-  console.log(`  Completed: ${result.summary.completedEpics}`);
-  console.log(`  Failed: ${result.summary.failedEpics}`);
-  console.log();
 
   if (result.error) {
     console.log("Error Details:");
-    console.log(`  Epic: ${result.error.epicId}`);
     console.log(`  Message: ${result.error.message}`);
     console.log();
   }
@@ -531,7 +524,6 @@ export async function resumeCommand(
   console.log("📍 Resume Point:");
   console.log(`   Checkpoint: ${resumePoint.checkpointId}`);
   console.log(`   Iteration: ${resumePoint.iteration}`);
-  console.log(`   Epic: ${resumePoint.epicId}`);
   console.log(`   Phase: ${resumePoint.phase}`);
   console.log();
   console.log("📊 State Comparison:");

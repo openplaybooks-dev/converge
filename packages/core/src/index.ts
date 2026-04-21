@@ -89,9 +89,6 @@ export { createLogger, createDefaultLogger } from "./runtime/logger.ts";
 
 export type {
   ProjectConfig,
-  EpicConfig,
-  EpicStatus,
-  EpicDeps,
   TaskConfig,
   TaskStatus,
   GapType,
@@ -105,8 +102,6 @@ export type {
 
 export {
   ProjectConfigSchema,
-  EpicConfigSchema,
-  EpicStatusSchema,
   TaskConfigSchema,
   TaskStatusSchema,
   createStoragePaths,
@@ -200,7 +195,6 @@ export type {
   Runtime,
   GoalManager,
   TaskManager,
-  EpicManager,
   ProjectManager,
 } from "./runtime/types.ts";
 
@@ -209,8 +203,6 @@ export { RuntimeImpl, createRuntime } from "./runtime/runtime.ts";
 export { GoalManagerImpl } from "./runtime/goal-manager.ts";
 
 export { TaskManagerImpl } from "./runtime/task-manager.ts";
-
-export { EpicManagerImpl } from "./runtime/epic-manager.ts";
 
 export { ProjectManagerImpl } from "./runtime/project-manager.ts";
 
@@ -236,7 +228,6 @@ export {
 export type {
   TaskDefinition as V2TaskDefinition,
   ProjectDefinition as V2ProjectDefinition,
-  EpicDefinition as V2EpicDefinition,
   TaskLevelDefinition as V2TaskLevelDefinition,
   SubtaskDefinition as V2SubtaskDefinition,
   ChecklistDefinition as V2ChecklistDefinition,
@@ -255,7 +246,6 @@ export type {
 
 export {
   isProjectDefinition as v2IsProjectDefinition,
-  isEpicDefinition as v2IsEpicDefinition,
   isTaskDefinition as v2IsTaskDefinition,
   hasYields as v2HasYields,
   isLeafDefinition as v2IsLeafDefinition,
@@ -285,7 +275,6 @@ export { exportBenchmarkResults } from "./metrics/extract.ts";
 export type {
   BaseContext,
   ProjectContext,
-  EpicContext,
   TaskContext,
   FileSystemAPI,
   ShellAPI,
@@ -301,7 +290,6 @@ export type {
 
 export {
   createProjectContext,
-  createEpicContext,
   createTaskContext,
 } from "./context/index.ts";
 
@@ -322,9 +310,7 @@ export type {
   FunctionRegistry,
   FunctionRegistration,
   TaskDefBuilder,
-  EpicBuilder,
   ProjectBuilder,
-  EpicDefinition,
   ProjectDefinition,
 } from "./functions/types.ts";
 
@@ -334,9 +320,7 @@ export {
   plan,
   task,
   taskDef as v1TaskDef, // Rename V1 to avoid conflict
-  epic,
   project,
-  defineEpic,
   defineProject,
 } from "./functions/builders.ts";
 
