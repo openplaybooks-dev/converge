@@ -768,8 +768,31 @@ export async function getTaskStates(
 
     const spawnCount = children.length;
 
-    // Case 1: Auto-complete parent if all children are done
-    if (currentCompletedSubtasks + currentFailedSubtasks === spawnCount) {
+    // Parents with declared outputs must have them on disk before auto-completing,
+    // even when every child is marked complete. This stops stale checkpoints from
+    // a prior run (children=complete) from cascading a parent to completed when
+    // the parent's own outputs have been deleted or were never materialized.
+    // WBS parents (wbs.js-driven) opt out — their completion lives in children.
+    const parentNode = tree.find(
+      (t) => t.journalTaskId === parentJournalTaskId,
+    );
+    const parentOutputs = parentNode?.outputs ?? [];
+    const parentIsWbs = parentNode?.isWbsParent === true;
+    let parentOutputsMissing = false;
+    if (!parentIsWbs && parentOutputs.length > 0) {
+      for (const output of parentOutputs) {
+        if (!(await pathExists(projectDir, output))) {
+          parentOutputsMissing = true;
+          break;
+        }
+      }
+    }
+
+    // Case 1: Auto-complete parent if all children are done AND parent outputs exist
+    if (
+      currentCompletedSubtasks + currentFailedSubtasks === spawnCount &&
+      !parentOutputsMissing
+    ) {
       if (currentFailedSubtasks > 0) {
         // Any child failed → parent failed
         if (!failed.has(parentJournalTaskId)) {

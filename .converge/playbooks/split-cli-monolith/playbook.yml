@@ -1,0 +1,29 @@
+name: split-cli-monolith
+description: Modularize packages/core/src/cli — reorganize within core (Tier A, PR1–PR9) then extract @converge/display, journal, scheduler, cli workspace packages (Tier B, PR10–PR13).
+
+run:
+  mode: oneoff
+  maxIterations: 100
+  maxTaskAttempts: 3
+  maxDuration: 6h
+  resume: true
+  stall:
+    maxConsecutive: 3
+    backoffMs: 30000
+
+checks:
+  - id: typecheck
+    cmd: "cd packages/core && pnpm typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    description: Zero TypeScript errors across core
+  - id: tests
+    cmd: "cd packages/core && pnpm test 2>&1 | tail -5"
+    description: All core tests pass
+  - id: cli-smoke
+    cmd: "node packages/core/dist/cli/main.js --help >/dev/null 2>&1 || node packages/cli/dist/main.js --help >/dev/null 2>&1"
+    description: converge --help runs without error (pre- or post-PR13 bin location)
+  - id: core-is-programmatic
+    cmd: "test -z \"$(grep -rln '@converge/display\\|@converge/cli' packages/core/src 2>/dev/null)\""
+    description: "@converge/core never imports CLI-layer packages (enforces programmatic-only core, web-UI-ready)"
+  - id: navigator-is-pure
+    cmd: "! test -d packages/navigator/src || test -z \"$(grep -rln '@converge/\\|from [\\\"'']\\(fs\\|path\\|os\\)[\\\"'']' packages/navigator/src 2>/dev/null)\""
+    description: "@converge/navigator (once extracted) has zero runtime deps and no filesystem imports — plug-in-driven engine"
