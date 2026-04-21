@@ -1,19 +1,31 @@
 name: default
 description: |
-  Idea → full narrative clip library. Develops story, casts characters, builds the world,
-  breaks down shots, generates references and keyframes, renders video clips, lays down
-  audio, and emits a clips.json manifest ready for a non-linear editor.
+  Idea → narrative clip library. Develops story, casts characters, builds the world,
+  breaks down shots, generates references and keyframes. Optionally renders videos,
+  lays down audio, and emits a clips.json manifest for an NLE.
+
+  ## Run modes
+
+  Stop point is controlled by `vars.stop_after`:
+    - "keyframes" (default)  → stop after 07-keyframes. Fast, cheap concept validation.
+    - "full"                 → run 08-shots + 09-audio + 10-assemble. Full production.
+
+  To switch to full mode:
+    1. set vars.stop_after: full
+    2. uncomment the entries inside the "# === FULL-MODE ONLY ===" blocks below
+       (in `tasks:` and `checks:`)
 
   ## Facts
 
   - FACT: Image model is Nano-banana (Gemini 2.5 Flash Image) — Source: project choice
   - FACT: Video model is adapter-layer; backend is configured under skills/video-generate/backends/ — Source: project choice
   - FACT: Full audio pipeline: dialogue TTS + SFX + score — Source: project choice
-  - FACT: Output is clips/ folder + clips.json (no auto-assembly) — Source: project choice
-  - FACT: Consistency enforced by locked refs + deterministic seeds + build-shot-prompt.js — Source: playbook design
+  - FACT: Output is clips/ folder + clips.json (no auto-assembly) when run in full mode — Source: project choice
+  - FACT: Consistency enforced by locked refs + compositing bridge (composition.json → preview → Nano-banana blend) — Source: playbook design
   - FACT: Shot count is derived from target_duration_minutes / avg_shot_duration_s — Source: playbook design
 
 vars:
+  stop_after: keyframes       # "keyframes" | "full"
   target_duration_minutes: 20
   avg_shot_duration_s: 6
   max_shots_hard_cap: 800
@@ -49,16 +61,22 @@ tasks:
   - id: 07-keyframes
     depends_on:
       - 06-storyboard
-  - id: 08-shots
-    depends_on:
-      - 07-keyframes
-  - id: 09-audio
-    depends_on:
-      - 05-breakdown
-  - id: 10-assemble
-    depends_on:
-      - 08-shots
-      - 09-audio
+
+  # === FULL-MODE ONLY ===
+  # Uncomment the three entries below to enable video rendering, audio, and final
+  # assembly. Also set vars.stop_after: full above.
+  #
+  # - id: 08-shots
+  #   depends_on:
+  #     - 07-keyframes
+  # - id: 09-audio
+  #   depends_on:
+  #     - 05-breakdown
+  # - id: 10-assemble
+  #   depends_on:
+  #     - 08-shots
+  #     - 09-audio
+  # === /FULL-MODE ONLY ===
 
 checks:
   - id: idea-exists
@@ -73,12 +91,18 @@ checks:
   - id: shots-within-cap
     cmd: node -e "const s=require('./shots.json');if(s.length>800){process.exit(1)}"
     description: Shot count is within max_shots_hard_cap
-  - id: clips-dir-exists
-    cmd: test -d clips
-    description: Clips folder was created
-  - id: clips-manifest-exists
-    cmd: test -f clips.json
-    description: Final clips manifest was emitted
-  - id: manifest-valid
-    cmd: node scripts/verify-manifest.js
-    description: clips.json matches shots.json and every referenced file exists
+  - id: keyframes-generated
+    cmd: find keyframes -name 'start.png' -type f | wc -l | awk '{if ($1 >= 1) exit 0; exit 1}'
+    description: At least one start keyframe was rendered (images-only mode passes here)
+
+  # === FULL-MODE ONLY ===
+  # - id: clips-dir-exists
+  #   cmd: test -d clips
+  #   description: Clips folder was created
+  # - id: clips-manifest-exists
+  #   cmd: test -f clips.json
+  #   description: Final clips manifest was emitted
+  # - id: manifest-valid
+  #   cmd: node scripts/verify-manifest.js
+  #   description: clips.json matches shots.json and every referenced file exists
+  # === /FULL-MODE ONLY ===

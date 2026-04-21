@@ -40,6 +40,17 @@ See `scripts/compose_preview.py` and `scripts/compose_blend.py` for the composit
 
 Stubs let you run the whole pipeline end-to-end (producing placeholder files) before you wire a single paid API call — so you debug the workflow, not the model.
 
+## Run modes
+
+Controlled by `vars.stop_after` in `playbook.yml`:
+
+| Mode        | Stops after  | Use when                                                  |
+| ----------- | ------------ | --------------------------------------------------------- |
+| `keyframes` | 07-keyframes | **default.** Concept validation — is the look right, do characters stay on-model? Cheap and fast. |
+| `full`      | 10-assemble  | Production. Adds video rendering, audio (TTS/SFX/score), and clips.json manifest. |
+
+To flip to full mode: set `vars.stop_after: full` **and** uncomment the two `# === FULL-MODE ONLY ===` blocks in `playbook.yml`.
+
 ## Usage
 
 ```bash
@@ -59,11 +70,23 @@ export GEMINI_API_KEY=...
 converge run
 ```
 
-Output lands in:
+### Output — images-only mode (default)
+
+- `compositions/{shot_id}/{start,end}.json` — scene graph per frame
+- `compositions/{shot_id}/{start,end}.preview.png` — PIL blueprint (layout only)
+- `compositions/{shot_id}/{start,end}.preview.debug.png` — blueprint with element labels
+- `keyframes/{shot_id}/{start,end}.png` — photoreal Nano-banana blend
+- `keyframes/{shot_id}/{start,end}.prompt.txt` — exact prompt sent
+- `keyframes/{shot_id}/{start,end}.seed.txt` — seed for reproducibility
+- Plus upstream artifacts: `screenplay.fountain`, `story-bible.md`, `characters.json`, `locations.json`, `scenes.json`, `shots.json`, `style-guide.md`, `palette.json`, `audio-style.md`, `storyboard/`, `characters/`, `locations/`
+
+### Output — full mode
+
+Everything above, plus:
 
 - `clips/{NNN}-{slug}/video.mp4` — one per shot
 - `clips/{NNN}-{slug}/{dialogue,sfx,music}.wav` — per-shot audio stems
-- `clips/{NNN}-{slug}/shot.json` — reference bundle used (for reproducibility)
+- `clips/{NNN}-{slug}/shot.json` — reference bundle used
 - `clips.json` — ordered manifest with in/out TC, scene grouping, transition hints
 - `REPORT.md` — runtime summary, cost estimate, continuity flags, failed shots
 
