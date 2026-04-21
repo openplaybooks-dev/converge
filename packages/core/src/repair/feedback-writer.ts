@@ -196,7 +196,7 @@ async function writeOutputFeedback(
   let outputs: string[] = [];
   let taskTitle = (gap.metadata?.taskTitle as string | undefined) ?? "";
   try {
-    const { parseTaskMd } = await import("../../config/task-md-definition.ts");
+    const { parseTaskMd } = await import("../config/task-md-definition.ts");
     const parsed = await parseTaskMd(unitPath);
     outputs = parsed?.def?.outputs ?? [];
     taskTitle = parsed?.def?.title ?? taskTitle;

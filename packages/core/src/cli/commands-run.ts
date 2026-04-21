@@ -12,7 +12,6 @@ import {
 } from "./next-task.ts";
 import type { TaskNode, TaskStates } from "./next-task.ts";
 import { TaskTree } from "../tree/index.ts";
-import { convergeRun } from "../converge/converge-runner.ts";
 import { printTaskTree } from "./tree-display.ts";
 import { autonomousRun, guardDirtySession } from "./autonomous-run.ts";
 import { CheckpointManager } from "../checkpoint/manager.ts";
@@ -56,8 +55,14 @@ export interface AutoRunOptions extends CommonOptions {
   /** Unblock mode — find first blocked task and run through UnblockStrategy pipeline */
   unblock?: boolean;
 
-  /** Converge mode — compound convergence with weighted scoring, gap ledger, partial progress */
-  converge?: boolean;
+  /** Playbook run mode (resolved from playbook.yml) */
+  mode?: "oneoff" | "converge" | "loop" | "dispatch";
+
+  /** Resolved playbook (for converge/loop modes) */
+  playbook?: import("../playbook/types.ts").ResolvedPlaybook;
+
+  /** Stall configuration from playbook */
+  stall?: { maxConsecutive?: number; backoffMs?: number };
 
   /** WBS-only mode — run only the WBS seeding phase */
   wbs?: boolean;
@@ -76,12 +81,6 @@ export interface AutoRunOptions extends CommonOptions {
 
   /** Enable self-planning */
   selfPlan?: boolean;
-
-  /** Evolve mode — epoch-based feedback loop using playbook WBS */
-  evolve?: boolean;
-
-  /** Resolved playbook for evolve mode */
-  evolvePlaybook?: import("../playbook/types.ts").ResolvedPlaybook;
 
   /** Loaded PROJECT.md or project.yaml config (auto-discovered by CLI) */
   convergeConfig?: ConvergeConfig;
@@ -116,12 +115,20 @@ export async function runAutonomousCommand(
       await guardDirtySession(projectDir, options.resume, options.restart);
     }
 
-    // ── Converge mode (--converge) ─────────────────────────────────────
-    if (options.converge) {
-      const result = await convergeRun({
+    // ── Mode dispatch (from playbook.yml run.mode) ─────────────────────
+    // For --dry, all modes share the same tree-display path below instead
+    // of entering the loop/evolve runners (which would spin stall/backoff).
+    if (options.mode === "loop" && !options.dry) {
+      if (!options.playbook) {
+        console.error("❌ Loop mode requires a playbook (--playbook=<name>).\n");
+        process.exit(1);
+      }
+      const { loopRun } = await import("../loop/loop-runner.ts");
+      await loopRun({
         projectDir,
         convergeConfig: options.convergeConfig!,
         hookRegistry: options.hookRegistry,
+        playbook: options.playbook,
         maxIterations: options.maxIterations,
         maxTaskAttempts: 2,
         maxRunDurationMs: options.maxDuration,
@@ -130,7 +137,31 @@ export async function runAutonomousCommand(
         force: options.force,
         resume: options.resume,
         restart: options.restart,
-        planOnly: options.dry,
+        stall: options.stall,
+      });
+      return;
+    }
+
+    if (options.mode === "converge" && !options.dry) {
+      if (!options.playbook) {
+        console.error("❌ Converge mode requires a playbook (--playbook=<name>).\n");
+        process.exit(1);
+      }
+      const { evolveRun } = await import("../evolve/evolve-runner.ts");
+      const result = await evolveRun({
+        projectDir,
+        convergeConfig: options.convergeConfig!,
+        hookRegistry: options.hookRegistry,
+        playbook: options.playbook,
+        maxIterations: options.maxIterations,
+        maxTaskAttempts: 2,
+        maxRunDurationMs: options.maxDuration,
+        verbose: options.verbose,
+        filter: options.filter,
+        force: options.force,
+        resume: options.resume,
+        restart: options.restart,
+        stall: options.stall,
       });
 
       if (!result.converged) {
@@ -139,18 +170,19 @@ export async function runAutonomousCommand(
       return;
     }
 
-    // ── Evolve mode (--evolve) ────────────────────────────────────────
-    if (options.evolve) {
-      if (!options.evolvePlaybook) {
-        console.error("❌ Evolve mode requires a playbook (--playbook=<name>).\n");
+    if (options.mode === "dispatch" && !options.dry) {
+      if (!options.playbook) {
+        console.error("❌ Dispatch mode requires a playbook (--playbook=<name>).\n");
         process.exit(1);
       }
+      // Dispatch mode: tasks are already stamped via --add.
+      // Run as converge to process all pending tasks.
       const { evolveRun } = await import("../evolve/evolve-runner.ts");
       const result = await evolveRun({
         projectDir,
         convergeConfig: options.convergeConfig!,
         hookRegistry: options.hookRegistry,
-        playbook: options.evolvePlaybook,
+        playbook: options.playbook,
         maxIterations: options.maxIterations,
         maxTaskAttempts: 2,
         maxRunDurationMs: options.maxDuration,
@@ -159,7 +191,7 @@ export async function runAutonomousCommand(
         force: options.force,
         resume: options.resume,
         restart: options.restart,
-        planOnly: options.dry,
+        stall: options.stall ?? { maxConsecutive: 2 },
       });
 
       if (!result.converged) {

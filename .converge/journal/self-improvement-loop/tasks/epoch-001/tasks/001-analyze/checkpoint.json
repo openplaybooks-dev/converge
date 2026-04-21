@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "epoch-001/001-analyze",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T00:16:00.809Z",
+  "createdAt": "2026-04-21T00:12:00.571Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T00:12:00.571Z",
+      "completedAt": "2026-04-21T00:16:00.806Z",
+      "outcome": "success",
+      "durationMs": 240235
+    }
+  ],
+  "currentAttempt": 1
+}

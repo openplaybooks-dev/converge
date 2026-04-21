@@ -2,7 +2,7 @@ name: default
 description: Sequential data pipeline with task dependencies
 
 run:
-  mode: autonomous
+  mode: oneoff
   maxTaskAttempts: 3
 
 tasks:

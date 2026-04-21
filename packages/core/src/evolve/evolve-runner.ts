@@ -10,6 +10,9 @@
  * stamping or copying. The WBS scripts receive the epoch number via vars.
  */
 
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { parse as parseYaml } from "yaml";
 import { autonomousRun } from "../cli/autonomous-run.ts";
 import type { ResolvedPlaybook } from "../playbook/types.ts";
 import type { ConvergeConfig } from "../config/types.ts";
@@ -39,6 +42,11 @@ export interface EvolveRunConfig {
   resume?: boolean;
   restart?: boolean;
   planOnly?: boolean;
+  /** Stall detection configuration */
+  stall?: {
+    maxConsecutive?: number;
+    backoffMs?: number;
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -59,8 +67,9 @@ export interface EvolveResult {
 export async function evolveRun(config: EvolveRunConfig): Promise<EvolveResult> {
   const { projectDir, convergeConfig, playbook, verbose } = config;
   const maxEpochs = config.maxIterations ?? 20;
+  const maxConsecutiveStalls = config.stall?.maxConsecutive ?? 2;
 
-  console.log(`🔄 Starting evolve run (max ${maxEpochs} epochs)\n`);
+  console.log(`🔄 Starting converge run (max ${maxEpochs} epochs)\n`);
 
   const orphansClosed = closeOrphanedEvolveRuns(projectDir);
   if (orphansClosed > 0) {
@@ -71,10 +80,27 @@ export async function evolveRun(config: EvolveRunConfig): Promise<EvolveResult> 
   appendEvolveEntry(projectDir, runId, "start", 0, { total: 0, byCategory: {} });
 
   // Derive the filter for playbook tasks.
-  // The playbook's root task ID comes from its directory name under tasks/.
-  // For improve: tasks/001-improve/ → journalTaskId "001-improve", epicId "improve"
+  // The playbook's root task ID comes from its directory name under tasks/,
+  // or from a root TASK.md's frontmatter id when tasks: is empty.
   const playbookName = playbook.def.name;
-  const rootTaskIds = playbook.def.tasks.map((t) => t.id).filter(Boolean) as string[];
+  let rootTaskIds = playbook.def.tasks.map((t) => t.id).filter(Boolean) as string[];
+
+  if (rootTaskIds.length === 0) {
+    // Check for root TASK.md at playbook directory
+    const playbookDir = join(projectDir, ".converge", "playbooks", playbookName);
+    const rootTaskMd = join(playbookDir, "TASK.md");
+    if (existsSync(rootTaskMd)) {
+      const content = readFileSync(rootTaskMd, "utf8");
+      const fmMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+      if (fmMatch) {
+        const fm = parseYaml(fmMatch[1]) as Record<string, unknown>;
+        const id = typeof fm.id === "string" ? fm.id : playbookName;
+        rootTaskIds = [id];
+      } else {
+        rootTaskIds = [playbookName];
+      }
+    }
+  }
 
   let epoch = 0;
   let consecutiveStalls = 0;
@@ -129,19 +155,25 @@ export async function evolveRun(config: EvolveRunConfig): Promise<EvolveResult> 
 
     if (runResult.tasksFailed > 0) {
       consecutiveStalls++;
-      console.log(
-        `\n⚠️  Epoch ${epoch}: ${runResult.tasksFailed} task(s) failed (stall ${consecutiveStalls}/2).\n`,
-      );
-      if (consecutiveStalls >= 2) {
-        console.log("⛔ Stalled: 2 consecutive epochs with failures. Stopping.\n");
-        break;
+      if (maxConsecutiveStalls > 0) {
+        console.log(
+          `\n⚠️  Epoch ${epoch}: ${runResult.tasksFailed} task(s) failed (stall ${consecutiveStalls}/${maxConsecutiveStalls}).\n`,
+        );
+        if (consecutiveStalls >= maxConsecutiveStalls) {
+          console.log(`⛔ Stalled: ${maxConsecutiveStalls} consecutive epochs with failures. Stopping.\n`);
+          break;
+        }
+      } else {
+        console.log(
+          `\n⚠️  Epoch ${epoch}: ${runResult.tasksFailed} task(s) failed (stall ${consecutiveStalls}, no limit).\n`,
+        );
       }
     } else {
       consecutiveStalls = 0;
     }
 
     if (runResult.stoppedReason === "timeout") {
-      console.log("⛔ Timeout. Stopping evolve loop.\n");
+      console.log("⛔ Timeout. Stopping converge loop.\n");
       break;
     }
   }
@@ -153,7 +185,7 @@ export async function evolveRun(config: EvolveRunConfig): Promise<EvolveResult> 
   );
 
   console.log("═══════════════════════════════════════════════════════");
-  console.log("  EVOLVE SUMMARY");
+  console.log("  CONVERGE SUMMARY");
   console.log("═══════════════════════════════════════════════════════");
   console.log(`  Epochs:          ${epoch}`);
   console.log(`  Tasks completed: ${totalTasksCompleted}`);

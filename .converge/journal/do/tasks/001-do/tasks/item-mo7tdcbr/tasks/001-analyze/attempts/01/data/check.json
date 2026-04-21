@@ -1,0 +1,10 @@
+{
+  "taskId": "001-do/item-mo7tdcbr/001-analyze",
+  "checks": [
+    {
+      "id": "plan-written",
+      "description": "Analysis plan exists",
+      "cmd": "test -f /Users/minh/Documents/converge/.converge/artifacts/do/item-mo7tdcbr/analyze/plan.md"
+    }
+  ]
+}

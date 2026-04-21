@@ -230,35 +230,38 @@ export class WbsExecutor {
           const templateFileName = basenamePath(templateAbsPath);
           const destDir = dirnamePath(join(this.projectDir, writeToPath));
           
-          // Check if the template's TASK.md has a wbs section referencing ./wbs.js
-          // If so, we need to copy it because the child task uses its own WBS script
+          // Check if the template's TASK.md has a wbs section
+          // If so, we need to copy the wbs directory/file for the child task
           const templateTaskMdPath = join(templateDir, "TASK.md");
-          let needsWbsJs = false;
+          let hasWbs = false;
           try {
             const templateContent = await readFileAsync(templateTaskMdPath, "utf-8");
-            // Simple check: if the template TASK.md has "wbs:" and references "./wbs.js"
-            if (templateContent.includes("wbs:") && templateContent.includes("./wbs.js")) {
-              needsWbsJs = true;
+            if (templateContent.includes("wbs:")) {
+              hasWbs = true;
             }
           } catch {
             // Template TASK.md may not exist — that's fine
           }
-          
-          const skipFiles = new Set(["TASK.md", templateFileName]);
-          // Only skip wbs.js if the template doesn't need it for its own WBS
-          if (!needsWbsJs) {
-            skipFiles.add("wbs.js");
+
+          const skipEntries = new Set(["TASK.md", templateFileName, "tasks"]);
+          // Only skip wbs entries if the template doesn't need them
+          if (!hasWbs) {
+            skipEntries.add("wbs.js");
+            skipEntries.add("wbs");
           }
-          
+
           try {
+            const { cp } = await import("node:fs/promises");
             const entries = await readdir(templateDir, { withFileTypes: true });
             for (const entry of entries) {
-              if (!entry.isFile()) continue;
-              if (skipFiles.has(entry.name)) continue;
-              await copyFile(
-                join(templateDir, entry.name),
-                join(destDir, entry.name),
-              );
+              if (skipEntries.has(entry.name)) continue;
+              const src = join(templateDir, entry.name);
+              const dst = join(destDir, entry.name);
+              if (entry.isFile()) {
+                await copyFile(src, dst);
+              } else if (entry.isDirectory()) {
+                await cp(src, dst, { recursive: true });
+              }
             }
           } catch {
             // Template dir may not have siblings — that's fine

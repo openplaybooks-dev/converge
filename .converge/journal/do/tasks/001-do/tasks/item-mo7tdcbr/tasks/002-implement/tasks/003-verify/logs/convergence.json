@@ -1,0 +1,177 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "001-do/item-mo7tdcbr/002-implement/003-verify-check-failed-typecheck",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "001-do/item-mo7tdcbr/002-implement/003-verify",
+            "severity": "high",
+            "description": "[001-do/item-mo7tdcbr/002-implement/003-verify] Check failed: Zero type errors",
+            "source": "unit",
+            "detected": "2026-04-20T23:17:22.583Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "typecheck",
+              "checkCmd": "cd /Users/minh/Documents/converge && pnpm typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq",
+              "checkDescription": "Zero type errors",
+              "checkOutput": "Command failed: cd /Users/minh/Documents/converge && pnpm typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Verify implementation\n\nQuick verification that the implementation doesn't break anything.\n\n## Steps\n\n1. Run `cd /Users/minh/Documents/converge && pnpm typecheck` — fix any type errors introduced\n2. Run `cd /Users/minh/Documents/converge && pnpm test` — fix any test failures introduced\n3. If fixes are needed, make them directly (don't just report)",
+              "taskId": "001-do/item-mo7tdcbr/002-implement/003-verify",
+              "taskTitle": "Verify implementation — unknown task",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/do/tasks/001-do/tasks/item-mo7tdcbr/tasks/002-implement/tasks/003-verify",
+              "factId": "check:typecheck"
+            }
+          }
+        ],
+        "durationMs": 6953
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 6775
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#3",
+      "handler": "run-strategy",
+      "status": "buffered",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-20T23:17:16.567Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-20T23:17:16.567Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-20T23:17:23.521Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-20T23:17:23.524Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-20T23:17:30.300Z"
+    }
+  ]
+}

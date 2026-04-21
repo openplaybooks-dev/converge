@@ -56,7 +56,6 @@ OPTIONS
   --dry, --plan             Dry run mode - planning only, no execution
   --preflight               Run AI strategy selection but stop before executing
   --unblock                 With --step, find first blocked task and run UnblockStrategy
-  --converge                Compound convergence mode: weighted scoring, gap ledger
   --wbs                     Run only WBS seeding phase
   --inc                     With --wbs, allow re-seeding already-seeded WBS parents
   --max-iterations=N        Maximum iterations (default: 100)
@@ -66,6 +65,10 @@ OPTIONS
   --self-plan=BOOL          Enable self-planning (default: true)
   --verbose, -v             Verbose output
   --dir=PATH                Project directory (default: cwd)
+
+MODE
+  Mode is configured in playbook.yml (run.mode: oneoff | converge | loop).
+  No CLI flags for mode — the playbook is the sole source of truth.
 
 EXAMPLES
   converge run

@@ -114,13 +114,14 @@ export async function installPlaybook(
     playbook.def.name,
   );
   const tasksDir = join(playbookDir, "tasks");
+  const rootTaskMd = join(playbookDir, "TASK.md");
 
   // Already installed — skip
-  if (existsSync(tasksDir)) {
+  if (existsSync(tasksDir) || existsSync(rootTaskMd)) {
     return playbookDir;
   }
 
-  await mkdir(tasksDir, { recursive: true });
+  await mkdir(playbookDir, { recursive: true });
 
   // Copy playbook.yml
   const srcYml = join(playbook.templateDir, "playbook.yml");
@@ -130,11 +131,39 @@ export async function installPlaybook(
     await writeFile(join(playbookDir, "playbook.yml"), ymlContent, "utf8");
   }
 
+  // Copy root TASK.md if present in template (root TASK.md pattern)
+  const templateRootTaskMd = join(playbook.templateDir, "TASK.md");
+  if (existsSync(templateRootTaskMd)) {
+    let content = await readFile(templateRootTaskMd, "utf8");
+    content = substituteVars(content, playbook.vars);
+    await writeFile(join(playbookDir, "TASK.md"), content, "utf8");
+    await injectVarsIntoTaskMd(join(playbookDir, "TASK.md"), playbook.vars);
+  }
+
+  // Copy non-tasks directories (templates/, wbs files, etc.) from template root
+  const templateEntries = await readdir(playbook.templateDir, { withFileTypes: true });
+  for (const entry of templateEntries) {
+    // Skip playbook.yml (already copied above), tasks/ (handled below), TASK.md (handled above)
+    if (entry.name === "playbook.yml" || entry.name === "tasks" || entry.name === "TASK.md") continue;
+    const srcPath = join(playbook.templateDir, entry.name);
+    const destPath = join(playbookDir, entry.name);
+    if (entry.isDirectory()) {
+      await copyWithSubstitution(srcPath, destPath, playbook.vars);
+    } else if (entry.isFile()) {
+      let content = await readFile(srcPath, "utf8");
+      if (entry.name.endsWith(".md") || entry.name.endsWith(".yml") || entry.name.endsWith(".yaml")) {
+        content = substituteVars(content, playbook.vars);
+      }
+      await writeFile(destPath, content, "utf8");
+    }
+  }
+
   // Copy tasks/ with variable substitution.
   // If the template has a root TASK.md directly in tasks/ (single-root playbook),
   // wrap contents into tasks/{epicId}/ so the scanner can derive a task ID.
   const templateTasksDir = join(playbook.templateDir, "tasks");
   if (existsSync(templateTasksDir)) {
+    await mkdir(tasksDir, { recursive: true });
     const hasRootTask = existsSync(join(templateTasksDir, "TASK.md"));
     const entries = await readdir(templateTasksDir, { withFileTypes: true });
     const hasSubdirTasks = entries.some(
@@ -202,11 +231,12 @@ export function mergeRunConfig(
   const overrides = cliOverrides || {};
 
   return {
-    mode: overrides.mode ?? base.mode ?? "autonomous",
+    mode: overrides.mode ?? base.mode ?? "oneoff",
     maxIterations: overrides.maxIterations ?? base.maxIterations,
     maxTaskAttempts: overrides.maxTaskAttempts ?? base.maxTaskAttempts,
     maxDuration: overrides.maxDuration ?? base.maxDuration,
     resume: overrides.resume ?? base.resume,
     maxGoals: overrides.maxGoals ?? base.maxGoals,
+    stall: overrides.stall ?? base.stall,
   };
 }

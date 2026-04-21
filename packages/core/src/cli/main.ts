@@ -421,13 +421,12 @@ async function main(): Promise<void> {
             "force",
             "resume",
             "restart",
-            "converge",
-            "evolve",
             "unblock",
             "wbs",
             "inc",
             "preflight",
             "analyze",
+            "add",
             "max-iterations",
             "maxIterations",
             "max-duration",
@@ -438,7 +437,6 @@ async function main(): Promise<void> {
             "autoFix",
             "self-plan",
             "selfPlan",
-            "mode",
           ]);
           const vars: Record<string, string> = {};
           for (const [key, value] of Object.entries(options)) {
@@ -447,31 +445,64 @@ async function main(): Promise<void> {
             }
           }
 
-          try {
-            resolvedPb = resolvePlaybook(pb, vars);
-          } catch (err: any) {
-            console.error(`\n   ${err.message}\n`);
-            process.exit(1);
+          // ── Dispatch --add: stamp task from wbs template and exit ──
+          if (options.add && pb.def.run?.mode === "dispatch") {
+            const { stampDispatchTask } = await import(
+              "../dispatch/dispatch-runner.ts"
+            );
+            const playbookDir = join(
+              searchDir,
+              ".converge",
+              "playbooks",
+              playbookName,
+            );
+            const taskDir = await stampDispatchTask(playbookDir, vars);
+            const relTask = taskDir.replace(searchDir + "/", "");
+            console.log(`\n   ✅ Task created: ${relTask}`);
+            console.log(`      Inputs: ${JSON.stringify(vars)}`);
+            console.log(
+              `\n   Run "converge run --playbook=${playbookName}" to process.\n`,
+            );
+            process.exit(0);
+          }
+
+          // For dispatch mode (queue processing), inputs come from each task's vars.
+          // Skip required input validation — just resolve with empty placeholders.
+          if (pb.def.run?.mode === "dispatch" && !options.add) {
+            const placeholderVars: Record<string, string> = {};
+            if (pb.def.inputs) {
+              for (const [key, input] of Object.entries(pb.def.inputs)) {
+                if (input.required && !vars[key]) {
+                  placeholderVars[key] = `{{${key}}}`;
+                }
+              }
+            }
+            try {
+              resolvedPb = resolvePlaybook(pb, { ...placeholderVars, ...vars });
+            } catch (err: any) {
+              console.error(`\n   ${err.message}\n`);
+              process.exit(1);
+            }
+          } else {
+            try {
+              resolvedPb = resolvePlaybook(pb, vars);
+            } catch (err: any) {
+              console.error(`\n   ${err.message}\n`);
+              process.exit(1);
+            }
           }
 
           // Generate epic from template
-          // Evolve mode skips this — it stamps a fresh epic each epoch
+          // Converge/loop modes skip this — they stamp a fresh epic each epoch
           console.log(`\n   Playbook: ${playbookName}`);
           console.log(`   Epic: ${resolvedPb.epicId}`);
-          const effectiveMode = options.evolve ? "evolve"
-            : options.converge ? "converge"
-            : pb.def.run?.mode;
-          if (effectiveMode !== "evolve") {
+          const effectiveMode = pb.def.run?.mode;
+          if (effectiveMode !== "converge" && effectiveMode !== "loop" && effectiveMode !== "dispatch") {
             await generateEpicFromPlaybook(resolvedPb, searchDir);
           }
 
           // Merge playbook run config with CLI overrides
           const cliOverrides: Partial<PlaybookRunConfig> = {};
-          if (options.mode)
-            cliOverrides.mode = options.mode as PlaybookRunConfig["mode"];
-          if (options.converge) cliOverrides.mode = "converge";
-          if (options.evolve) cliOverrides.mode = "evolve";
-          if (options.step) cliOverrides.mode = "step";
           const durOpt = options["max-duration"] || options.maxDuration;
           if (durOpt !== undefined) {
             const dur = parseDuration(durOpt);
@@ -503,15 +534,13 @@ async function main(): Promise<void> {
             force: options.force || false,
             resume: options.resume || playbookRunCfg?.resume || false,
             restart: options.restart || false,
-            step: options.step || playbookRunCfg?.mode === "step" || false,
+            step: options.step || false,
             dry: isDry,
             analyze: options.preflight || options.analyze || false,
             unblock: options.unblock || false,
-            converge:
-              options.converge || playbookRunCfg?.mode === "converge" || false,
-            evolve:
-              options.evolve || playbookRunCfg?.mode === "evolve" || false,
-            evolvePlaybook: resolvedPb,
+            mode: playbookRunCfg?.mode,
+            playbook: resolvedPb,
+            stall: playbookRunCfg?.stall,
             wbs: options.wbs || false,
             inc: options.inc || false,
             maxIterations:
@@ -809,7 +838,7 @@ async function main(): Promise<void> {
               `description: "Generate playbook: ${prompt}"`,
               "",
               "run:",
-              "  mode: autonomous",
+              "  mode: oneoff",
               "  maxIterations: 10",
               "  maxTaskAttempts: 3",
               "  resume: true",
@@ -828,7 +857,7 @@ async function main(): Promise<void> {
         const planPlaybookName = "plan";
         await initPlaybookJournal(planSearchDir, planPlaybookName);
         setPlaybookScope(planPlaybookName, planSearchDir);
-        console.log(`   Mode: autonomous\n`);
+        console.log(`   Mode: oneoff\n`);
 
         const planRunStartTime = Date.now();
         try {
@@ -842,7 +871,6 @@ async function main(): Promise<void> {
             dry: options.dry || false,
             analyze: false,
             unblock: false,
-            converge: false,
             wbs: false,
             inc: false,
             maxIterations: 10,
@@ -1099,7 +1127,6 @@ async function main(): Promise<void> {
           dry: options.dry || false,
           analyze: false,
           unblock: false,
-          converge: false,
           wbs: false,
           inc: false,
           maxIterations: options["max-iterations"] || options.maxIterations || 500,
@@ -1146,7 +1173,6 @@ async function main(): Promise<void> {
           dry: options.dry || false,
           analyze: false,
           unblock: false,
-          converge: false,
           wbs: false,
           inc: false,
           maxIterations: options["max-iterations"] || options.maxIterations || 500,

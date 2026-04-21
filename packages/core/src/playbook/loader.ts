@@ -103,7 +103,16 @@ function parseRunConfig(raw: unknown): PlaybookRunConfig | undefined {
   const config: PlaybookRunConfig = {};
 
   if (obj.mode && typeof obj.mode === "string") {
-    if (["autonomous", "converge", "step", "evolve"].includes(obj.mode)) {
+    // Backward compat: map deprecated mode names
+    const modeMap: Record<string, PlaybookRunConfig["mode"]> = {
+      autonomous: "oneoff",
+      evolve: "converge",
+      // "step" is no longer a playbook mode — it's CLI-only (--step)
+    };
+    if (modeMap[obj.mode]) {
+      console.warn(`⚠️  Deprecated mode "${obj.mode}" — use "${modeMap[obj.mode]}" instead.`);
+      config.mode = modeMap[obj.mode];
+    } else if (["oneoff", "converge", "loop", "dispatch"].includes(obj.mode)) {
       config.mode = obj.mode as PlaybookRunConfig["mode"];
     }
   }
@@ -116,6 +125,16 @@ function parseRunConfig(raw: unknown): PlaybookRunConfig | undefined {
 
   const duration = parseDuration(obj.maxDuration);
   if (duration !== undefined) config.maxDuration = duration;
+
+  // Parse stall config
+  if (obj.stall && typeof obj.stall === "object") {
+    const stallObj = obj.stall as Record<string, unknown>;
+    config.stall = {};
+    if (stallObj.maxConsecutive !== undefined)
+      config.stall.maxConsecutive = Number(stallObj.maxConsecutive);
+    if (stallObj.backoffMs !== undefined)
+      config.stall.backoffMs = Number(stallObj.backoffMs);
+  }
 
   return Object.keys(config).length > 0 ? config : undefined;
 }
@@ -181,11 +200,12 @@ export async function parsePlaybookYml(
     ? String(parsed.name)
     : dirname(templateDir).split("/").pop() || "unknown";
 
-  // Every playbook needs a tasks/ directory — except evolve mode (creates tasks dynamically)
+  // Every playbook needs a tasks/ directory or root TASK.md — except converge/loop mode (creates tasks dynamically)
   const mode = parsed.run && typeof parsed.run === "object"
     ? (parsed.run as Record<string, unknown>).mode : undefined;
-  if (mode !== "evolve" && !existsSync(join(templateDir, "tasks"))) {
-    throw new Error(`Playbook "${name}" has no tasks/ directory`);
+  if (mode !== "evolve" && mode !== "converge" && mode !== "loop" && mode !== "dispatch"
+    && !existsSync(join(templateDir, "tasks")) && !existsSync(join(templateDir, "TASK.md"))) {
+    throw new Error(`Playbook "${name}" has no tasks/ directory or root TASK.md`);
   }
 
   return {
@@ -212,21 +232,22 @@ export function validatePlaybook(
 ): string[] {
   const errors: string[] = [];
 
-  // tasks/ directory must exist (except for evolve mode which creates tasks dynamically)
-  if (def.run?.mode !== "evolve") {
+  // tasks/ directory or root TASK.md must exist (except for converge/loop/dispatch mode which creates tasks dynamically)
+  if (def.run?.mode !== "converge" && def.run?.mode !== "loop" && def.run?.mode !== "dispatch") {
     const tasksDir = join(templateDir, "tasks");
-    if (!existsSync(tasksDir)) {
-      errors.push(`No tasks/ directory found at ${tasksDir}`);
+    const rootTaskMd = join(templateDir, "TASK.md");
+    if (!existsSync(tasksDir) && !existsSync(rootTaskMd)) {
+      errors.push(`No tasks/ directory or root TASK.md found at ${templateDir}`);
     }
   }
 
   // Validate run config
   if (
     def.run?.mode &&
-    !["autonomous", "converge", "step", "evolve"].includes(def.run.mode)
+    !["oneoff", "converge", "loop", "dispatch"].includes(def.run.mode)
   ) {
     errors.push(
-      `Invalid run mode: "${def.run.mode}" (expected: autonomous, converge, step, evolve)`,
+      `Invalid run mode: "${def.run.mode}" (expected: oneoff, converge, loop)`,
     );
   }
 

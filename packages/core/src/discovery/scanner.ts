@@ -318,6 +318,7 @@ export class DiscoveryScanner {
     const playbookSegment =
       playbookScope && playbookScope !== "default" ? playbookScope : "*";
     const mdPatterns = [
+      `.converge/playbooks/${playbookSegment}/TASK.md`,
       `.converge/playbooks/${playbookSegment}/tasks/**/TASK.md`,
     ];
 
@@ -366,7 +367,7 @@ export class DiscoveryScanner {
         }
 
         // Create default TaskConfig from frontmatter
-        const taskId = path.basename(folder);
+        const taskId = (typeof frontmatter.id === "string" && frontmatter.id) || path.basename(folder);
         const title = frontmatter.title || taskId;
         const inputs = Array.isArray(frontmatter.inputs)
           ? frontmatter.inputs

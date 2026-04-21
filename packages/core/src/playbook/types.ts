@@ -88,13 +88,20 @@ export interface PlaybookInput {
  * Execution configuration.
  */
 export interface PlaybookRunConfig {
-  mode?: "autonomous" | "converge" | "step" | "evolve";
+  mode?: "oneoff" | "converge" | "loop" | "dispatch";
   maxIterations?: number;
   maxTaskAttempts?: number;
   /** Wall-clock timeout in ms. YAML supports: "60m", "2h", "infinite". */
   maxDuration?: number;
   resume?: boolean;
   maxGoals?: number;
+  /** Stall detection configuration */
+  stall?: {
+    /** Max consecutive stalled epochs before stopping. 0 = never stop. Default: 2 for converge, 0 for loop. */
+    maxConsecutive?: number;
+    /** Delay in ms between stalled cycles. Default: 30000. */
+    backoffMs?: number;
+  };
 }
 
 /**

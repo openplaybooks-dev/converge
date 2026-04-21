@@ -1,11 +1,11 @@
 # Scientific Research
 
-Autonomous scientific research following the standard methodology — literature review, hypothesis formulation, experimentation, analysis, and synthesis.
+Autonomous scientific research pipeline with iterative evidence synthesis, Bayesian reasoning, GRADE methodology, meta-analysis, and academic paper generation.
 
 ## Usage
 
 ```bash
-converge run --converge --playbook=research \
+converge run --playbook=scientific-research \
   --question="What causes transformer models to lose in-context learning ability during fine-tuning?"
 ```
 
@@ -13,55 +13,101 @@ converge run --converge --playbook=research \
 
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
-| `question` | yes | — | The research question |
-| `maxDepth` | no | `5` | Maximum recursive decomposition depth |
+| `question` | yes | — | The research question to investigate |
+| `domain` | no | `general` | Research domain for context |
+| `targetScore` | no | `70` | Minimum quality score (0-100) for convergence |
 
-## How It Works
+## Architecture
 
-The playbook runs a 5-phase pipeline, re-triggered by the convergence loop until all evidence criteria are met:
+**Run mode**: `loop` — each iteration spawns a new epoch (research iteration). Evidence accumulates across epochs. Bayesian priors update. The loop stops when quality thresholds are met and improvement plateaus.
+
+### Epoch Pipeline (8 phases)
 
 ```
-001-literature-review → 002-hypothesize → 003-experiment → 004-analyze → 005-synthesize
+001-literature → 002-hypothesize → 003-experiment → 004-statistical-analysis →
+005-evidence-synthesis → 006-contradiction-resolution → 007-paper-draft → 008-convergence-check
 ```
 
-1. **Literature Review** — survey existing knowledge, output structured findings
-2. **Hypothesize** — formulate testable hypotheses from the findings
-3. **Experiment** — test each hypothesis (spawns per-hypothesis tasks dynamically; complex hypotheses trigger recursive sub-pipelines)
-4. **Analyze** — cross-reference results, build evidence index
-5. **Synthesize** — produce final answer with evidence chain
+| # | Phase | Description |
+|---|-------|-------------|
+| 1 | **Literature** | Incremental literature search; reads prior epochs to avoid duplication |
+| 2 | **Hypothesize** | Bayesian hypothesis formulation with prior updating |
+| 3 | **Experiment** | Per-hypothesis structured experiments (dynamic WBS) |
+| 4 | **Statistical Analysis** | Effect sizes (Cohen's d), CIs, meta-analysis, I² heterogeneity |
+| 5 | **Evidence Synthesis** | GRADE methodology — rates claims A/B/C/D |
+| 6 | **Contradiction Resolution** | Systematic conflict resolution with strategy taxonomy |
+| 7 | **Paper Draft** | Academic paper with 8 sections (dynamic WBS per section) |
+| 8 | **Convergence Check** | Quality scoring, gap analysis, continue/stop decision |
 
 ### Convergence
 
-The `dod.js` checks 6 criteria:
-- Literature review exists with adequate sources
-- Testable hypotheses have been formulated
-- All hypotheses have been tested
-- All claims are backed by evidence
-- No unresolved contradictions remain
-- Synthesis document addresses the research question
+Quality score (0-100) based on weighted criteria:
 
-The loop re-runs when evidence is insufficient or contradictions remain.
+| Criterion | Weight |
+|-----------|--------|
+| Evidence Coverage | 25% |
+| GRADE Quality | 30% |
+| Contradiction Resolution | 15% |
+| Statistical Rigor | 15% |
+| Paper Completeness | 15% |
+
+Stops when score meets target AND improvement < 3 points from prior epoch.
+
+### Evidence Model
+
+Each claim carries a GRADE rating (A-D), effect size with confidence interval, and Bayesian posterior probability. Hypotheses track priors across epochs using Bayesian updating.
+
+## Artifacts
+
+```
+.converge/artifacts/scientific-research/
+  research-ledger.jsonl              # quality scores per epoch
+  epochs/
+    001/
+      literature/sources.json, prior-state.json
+      hypothesize/hypotheses.json
+      experiment/{H1,H2,...}.json, summary.json
+      statistical-analysis/statistics.json, meta-analysis.json
+      evidence-synthesis/evidence-grades.json
+      contradiction-resolution/contradictions.json
+      paper-draft/sections/{abstract,intro,...}.md, paper-draft.md
+      convergence/convergence.json, gap-analysis.md
+```
 
 ## File Structure
 
 ```
-.converge/playbooks/
-├── playbook.yml
-├── tasks/
-│   ├── TASK.md
-│   ├── wbs.js              # 5-phase sequential pipeline
-│   └── experiment-wbs.js   # Per-hypothesis dynamic spawner
+.converge/
 ├── skills/
-│   ├── research-survey/
-│   ├── research-hypothesize/
-│   ├── research-experiment/
-│   ├── research-analyze/
-│   ├── research-synthesize/
-│   └��─ research-evaluate/
-│       ├── SKILL.md
-│       └── check.js         # Deterministic evidence validator
-└── goals/
-    └── 001-research-complete/
-        ├── GOAL.md
-        └── dod.js            # 6-test convergence check
+│   ├── research-literature/SKILL.md
+│   ├── research-hypothesize/SKILL.md
+│   ├── research-experiment/SKILL.md
+│   ├── research-statistics/SKILL.md
+│   ├── research-grade/SKILL.md
+│   ├── research-contradictions/SKILL.md
+│   ├── research-draft-section/SKILL.md
+│   ├── research-assemble/SKILL.md
+│   └── research-convergence/SKILL.md
+└── playbooks/
+    ├── playbook.yml                              # loop mode config
+    ├── TASK.md                                   # root WBS entry point
+    └── wbs/
+        ├── wbs.js                                # epoch spawner
+        └── templates/
+            └── epoch/
+                ├── TASK.md                       # epoch template
+                ├── wbs/wbs.js                    # 8-phase pipeline spawner
+                └── tasks/
+                    ├── literature/TASK.md
+                    ├── hypothesize/TASK.md
+                    ├── experiment/
+                    │   ├── TASK.md               # WBS parent
+                    │   └── wbs/wbs.js            # per-hypothesis spawner
+                    ├── statistical-analysis/TASK.md
+                    ├── evidence-synthesis/TASK.md
+                    ├── contradiction-resolution/TASK.md
+                    ├── paper-draft/
+                    │   ├── TASK.md               # WBS parent
+                    │   └── wbs/wbs.js            # per-section spawner
+                    └── convergence-check/TASK.md
 ```
