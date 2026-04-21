@@ -1,10 +1,8 @@
 ---
 id: "{{taskId}}"
 title: "{{title}}"
-wbs:
-  type: nodejs
-  path: ./wbs.js
 blocking: true
+{{wbsSection}}
 ---
 
 # {{title}}

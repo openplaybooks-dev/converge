@@ -1,0 +1,18 @@
+{
+  "type": "task",
+  "id": "split-cli-monolith/011-extract-scheduler-pkg/002-implement",
+  "status": "pending",
+  "lastUpdated": "2026-04-21T07:30:31.008Z",
+  "createdAt": "2026-04-21T07:30:31.008Z",
+  "progress": {
+    "totalChildren": 3,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "001-plan",
+      "002-todos",
+      "003-verify"
+    ],
+    "lastProgressUpdate": "2026-04-21T07:30:31.003Z"
+  }
+}

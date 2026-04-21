@@ -1,0 +1,30 @@
+---
+id: 003-verify
+title: "Verify implementation — PR10 — Extract @converge/scheduler workspace package"
+checks:
+  - id: typecheck
+    description: Zero type errors
+    cmd: "cd D:/converge && pnpm typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+  - id: tests
+    description: Tests pass
+    cmd: "cd D:/converge && pnpm test 2>&1 | tail -1"
+vars:
+  taskId: 003-verify
+  title: "PR10 — Extract @converge/scheduler workspace package"
+  task: Directory-level git mv of packages/core/src/scheduler/ (from PR4) into packages/scheduler/. Plus ensure-epic-checkpoints.ts. Clean extraction.
+  spec: "Create `packages/scheduler/` workspace package. Because PR4 put `scheduler/*` in its final shape already, this PR is a directory-level `git mv` with zero reshuffle.\n\n**Source (git mv):**\n- `packages/core/src/scheduler/*` → `packages/scheduler/src/*`\n- `packages/core/src/checkpoint/ensure-epic-checkpoints.ts` → `packages/scheduler/src/ensure-epic-checkpoints.ts`\n\n**Deps:**\n- `@converge/journal` (workspace:*) — for `CheckpointManager`, `constructJournalPath`\n- `@converge/core` (workspace:*) — for shared types (post-PR12 slim core)\n\n**Exports:**\n- `findNextTask`, `buildTaskTree`, `getTaskStates`, `calculateExecutionPlan`\n- `ensureEpicCheckpoints`\n- Types: `TaskNode`, `WbsProgress`, `TaskStates`, `ExecutionSpan`, `NextTaskResult`\n\n**Core side:**\n- `packages/core/package.json` adds `\"@converge/scheduler\": \"workspace:*\"`\n- Update import sites: `../scheduler/X` → `@converge/scheduler`\n- `packages/core/src/scheduler/` directory deleted\n- `packages/core/src/checkpoint/` directory deleted (empty post-ensure-epic-checkpoints move)\n\n**Layering audit:**\n```bash\n# Scheduler depends only on journal + core types\ngrep -rn \"@converge/\" packages/scheduler/src | grep -vE \"@converge/(journal|core)\" && exit 1 || true\n```\n\n**Acceptance:**\n- PR1 scheduler suites still pass (imports re-resolve to `@converge/scheduler`)\n- swebench + tbench tests green\n- `@converge/scheduler` tests pass in isolation\n- `pnpm -r build` + `pnpm -r test` green\n- `madge --circular packages/scheduler/src` — no cycles"
+  projectDir: "D:/converge"
+  artifactsDir: "D:/converge/.converge/artifacts/split-cli/011-extract-scheduler-pkg"
+  subTemplateDir: "D:/converge/.converge/playbooks/split-cli-monolith/wbs/templates/item/tasks/implement/tasks/verify"
+  wbsSection: 
+---
+
+# Verify implementation — PR10 — Extract @converge/scheduler workspace package
+
+Quick verification that the PR's implementation doesn't break the build or tests.
+
+## Steps
+
+1. `cd D:/converge && pnpm typecheck` — fix any type errors introduced by this PR.
+2. `cd D:/converge && pnpm test` — fix any test failures introduced by this PR.
+3. If fixes are needed, apply them directly. Don't just report — converge.
