@@ -1,0 +1,27 @@
+{
+  "error:wbs-execution": {
+    "id": "error:wbs-execution",
+    "type": "error",
+    "cmd": "wbs-execution",
+    "ok": false,
+    "output": "Error: WBS script import failed: D:\\converge\\.converge\\playbooks\\split-cli-monolith\\tasks\\001-behavior-tests\\wbs.js\nInvalid escape sequence \\c at line 5, column 21:\n\n    cmd: \"test -f D:\\converge\\.converge\\artifacts\\split-cli\\001-behavior-tests/…\n                    ^\n\n    at tryImportAndRun (D:\\converge\\packages\\core\\src\\executor\\script-wbs-executor.ts:99:11)\n    at async <anonymous> (D:\\converge\\packages\\core\\src\\executor\\script-wbs-executor.ts:61:24)\n    at async WbsExecutor.run (D:\\converge\\packages\\core\\src\\executor\\wbs-executor.ts:288:7)\n    at async executeTask (D:\\converge\\packages\\core\\src\\lifecycle\\task-runner.ts:306:26)\n    at async runWbsOnly (D:\\converge\\packages\\core\\src\\cli\\commands-run.ts:946:20)\n    at async runAutonomousCommand (D:\\converge\\packages\\core\\src\\cli\\commands-run.ts:205:7)\n    at async main (D:\\converge\\packages\\core\\src\\cli\\main.ts:531:11)",
+    "exitCode": 1,
+    "collectedAt": "2026-04-21T04:56:54.867Z",
+    "errorType": "Error",
+    "errorMessage": "WBS script import failed: D:\\converge\\.converge\\playbooks\\split-cli-monolith\\tasks\\001-behavior-tests\\wbs.js\nInvalid escape sequence \\c at line 5, column 21:\n\n    cmd: \"test -f D:\\converge\\.converge\\artifacts\\split-cli\\001-behavior-tests/…\n                    ^\n",
+    "errorStack": "Error: WBS script import failed: D:\\converge\\.converge\\playbooks\\split-cli-monolith\\tasks\\001-behavior-tests\\wbs.js\nInvalid escape sequence \\c at line 5, column 21:\n\n    cmd: \"test -f D:\\converge\\.converge\\artifacts\\split-cli\\001-behavior-tests/…\n                    ^\n\n    at tryImportAndRun (D:\\converge\\packages\\core\\src\\executor\\script-wbs-executor.ts:99:11)\n    at async <anonymous> (D:\\converge\\packages\\core\\src\\executor\\script-wbs-executor.ts:61:24)\n    at async WbsExecutor.run (D:\\converge\\packages\\core\\src\\executor\\wbs-executor.ts:288:7)\n    at async executeTask (D:\\converge\\packages\\core\\src\\lifecycle\\task-runner.ts:306:26)\n    at async runWbsOnly (D:\\converge\\packages\\core\\src\\cli\\commands-run.ts:946:20)\n    at async runAutonomousCommand (D:\\converge\\packages\\core\\src\\cli\\commands-run.ts:205:7)\n    at async main (D:\\converge\\packages\\core\\src\\cli\\main.ts:531:11)"
+  },
+  "self-healing:wbs-script-error": {
+    "id": "self-healing:wbs-script-error",
+    "type": "self-healing",
+    "cmd": "wbs-script-repair",
+    "ok": false,
+    "output": "WBS script error: Error: WBS script import failed: D:\\converge\\.converge\\playbooks\\split-cli-monolith\\tasks\\001-behavior-tests\\wbs.js\nInvalid escape sequence \\c at line 5, column 21:\n\n    cmd: \"test -f D:\\converge\\.converge\\artifacts\\split-cli\\001-behavior-tests/…\n                    ^\n",
+    "exitCode": 1,
+    "collectedAt": "2026-04-21T04:56:54.889Z",
+    "strategy": "wbs-script-repair",
+    "errorType": "Error",
+    "errorMessage": "WBS script import failed: D:\\converge\\.converge\\playbooks\\split-cli-monolith\\tasks\\001-behavior-tests\\wbs.js\nInvalid escape sequence \\c at line 5, column 21:\n\n    cmd: \"test -f D:\\converge\\.converge\\artifacts\\split-cli\\001-behavior-tests/…\n                    ^\n",
+    "errorStack": "Error: WBS script import failed: D:\\converge\\.converge\\playbooks\\split-cli-monolith\\tasks\\001-behavior-tests\\wbs.js\nInvalid escape sequence \\c at line 5, column 21:\n\n    cmd: \"test -f D:\\converge\\.converge\\artifacts\\split-cli\\001-behavior-tests/…\n                    ^\n\n    at tryImportAndRun (D:\\converge\\packages\\core\\src\\executor\\script-wbs-executor.ts:99:11)\n    at async <anonymous> (D:\\converge\\packages\\core\\src\\executor\\script-wbs-executor.ts:61:24)\n    at async WbsExecutor.run (D:\\converge\\packages\\core\\src\\executor\\wbs-executor.ts:288:7)\n    at async executeTask (D:\\converge\\packages\\core\\src\\lifecycle\\task-runner.ts:306:26)\n    at async runWbsOnly (D:\\converge\\packages\\core\\src\\cli\\commands-run.ts:946:20)\n    at async runAutonomousCommand (D:\\converge\\packages\\core\\src\\cli\\commands-run.ts:205:7)\n    at async main (D:\\converge\\packages\\core\\src\\cli\\main.ts:531:11)"
+  }
+}

@@ -1,14 +1,23 @@
 /**
  * WBS: Implement — plan → todos → verify
+ *
+ * Template resolution note (see item/wbs.js for full explanation):
+ *   `__dirname` here points to the seeded implement task dir, not the template source.
+ *   We use `ctx.vars.phaseTemplateDir` (= absolute path to `wbs/templates/item/tasks/implement/`)
+ *   to locate plan/todos/verify sub-templates.
  */
 
-import { join, relative, dirname } from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
+import { join, relative } from 'path';
 
 export async function run(ctx) {
-  const { title, task, spec, projectDir, artifactsDir } = ctx.vars;
+  const { title, task, spec, projectDir, artifactsDir, phaseTemplateDir } = ctx.vars;
+
+  if (!phaseTemplateDir) {
+    throw new Error(
+      'implement/wbs.js: ctx.vars.phaseTemplateDir is required. ' +
+      'Parent item/wbs.js must pass it when spawning from implement/TASK.md.',
+    );
+  }
 
   for (const [prefix, phase] of [
     ['001', 'plan'],
@@ -16,10 +25,8 @@ export async function run(ctx) {
     ['003', 'verify'],
   ]) {
     const phaseId = `${prefix}-${phase}`;
-    const templatePath = relative(
-      ctx.projectDir,
-      join(__dirname, 'tasks', phase, 'TASK.md'),
-    );
+    const subTemplateDir = join(phaseTemplateDir, 'tasks', phase);
+    const templatePath = relative(ctx.projectDir, join(subTemplateDir, 'TASK.md'));
 
     await ctx.spawn(
       {
@@ -32,6 +39,9 @@ export async function run(ctx) {
           spec,
           projectDir,
           artifactsDir,
+          // Forward for any grandchild wbs that needs it (todos/wbs.js currently
+          // spawns inline, so it doesn't need this — but pass anyway for symmetry).
+          subTemplateDir,
         },
       },
       { id: phaseId },
