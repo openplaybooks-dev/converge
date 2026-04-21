@@ -19,7 +19,7 @@ checks:
     cmd: test -s locations.json
     description: locations.json written
   - id: location-refs-locked
-    cmd: find locations -name ref.json -type f | wc -l | awk '{if ($1 >= 1) exit 0; exit 1}'
+    cmd: find locations -name ref.json -type f | wc -l  | node -e "process.exit(+require('fs').readFileSync(0,'utf8').trim()>=1?0:1)"
     description: At least one location ref.json locked
 ---
 

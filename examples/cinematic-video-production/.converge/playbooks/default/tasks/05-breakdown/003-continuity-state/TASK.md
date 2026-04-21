@@ -13,7 +13,7 @@ outputs:
   - scenes/**/state.json
 checks:
   - id: state-files-exist
-    cmd: find scenes -name state.json -type f | wc -l | awk '{if ($1 >= 1) exit 0; exit 1}'
+    cmd: find scenes -name state.json -type f | wc -l  | node -e "process.exit(+require('fs').readFileSync(0,'utf8').trim()>=1?0:1)"
     description: At least one scene/state.json written
   - id: every-scene-has-state
     cmd: node -e "const s=require('./scenes.json');const fs=require('fs');for(const x of s){if(!fs.existsSync('scenes/'+x.id+'/state.json')){process.exit(1)}}"

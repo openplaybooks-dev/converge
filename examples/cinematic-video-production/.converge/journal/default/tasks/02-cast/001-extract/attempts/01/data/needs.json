@@ -1,0 +1,24 @@
+{
+  "taskId": "02-cast/001-extract",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "screenplay.fountain",
+      "count": 1,
+      "samples": [
+        "screenplay.fountain"
+      ]
+    },
+    {
+      "pattern": "story-bible.md",
+      "count": 1,
+      "samples": [
+        "story-bible.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "characters.json"
+  ],
+  "blocked": false
+}

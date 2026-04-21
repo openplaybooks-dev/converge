@@ -1,0 +1,15 @@
+{
+  "taskId": "01-story/005-story-bible",
+  "checks": [
+    {
+      "id": "bible-exists",
+      "description": "Story bible written and non-empty",
+      "cmd": "test -s story-bible.md"
+    },
+    {
+      "id": "bible-has-rules-section",
+      "description": "Story bible has a rules section",
+      "cmd": "grep -qE '^## (World Rules|Universe Rules|Rules)' story-bible.md"
+    }
+  ]
+}

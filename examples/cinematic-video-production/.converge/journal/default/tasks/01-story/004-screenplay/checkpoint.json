@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "01-story/004-screenplay",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T10:49:01.990Z",
+  "createdAt": "2026-04-21T10:49:01.424Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T10:49:01.424Z",
+      "completedAt": "2026-04-21T10:49:01.964Z",
+      "outcome": "success",
+      "durationMs": 540
+    }
+  ],
+  "currentAttempt": 1
+}

@@ -22,7 +22,7 @@ outputs:
   - characters/**/ref.json
 checks:
   - id: at-least-one-ref-locked
-    cmd: find characters -name ref.json -type f | wc -l | awk '{if ($1 >= 1) exit 0; exit 1}'
+    cmd: find characters -name ref.json -type f | wc -l  | node -e "process.exit(+require('fs').readFileSync(0,'utf8').trim()>=1?0:1)"
     description: At least one character reference was locked
   - id: every-character-has-ref
     cmd: node -e "const c=require('./characters.json');const fs=require('fs');for(const x of c){if(!fs.existsSync('characters/'+x.id+'/ref.json')){process.exit(1)}}"

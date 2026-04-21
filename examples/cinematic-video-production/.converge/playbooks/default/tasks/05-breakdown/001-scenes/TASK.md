@@ -16,7 +16,7 @@ checks:
     cmd: node -e "const s=require('./scenes.json');for(const x of s){if(!x.id||!x.order||!x.setting_location_id||!x.time_of_day||!x.beat){process.exit(1)}}"
     description: Every scene has required fields
   - id: scenes-reference-known-locations
-    cmd: node -e "const s=require('./scenes.json');const L=new Set(require('./locations.json').map(x=>x.id));for(const x of s){if(!L.has(x.setting_location_id)){console.error('Unknown location: '+x.setting_location_id);process.exit(1)}}"
+    cmd: "node -e \"const s=require('./scenes.json');const L=new Set(require('./locations.json').map(x=>x.id));for(const x of s){if(!L.has(x.setting_location_id)){console.error('Unknown location: '+x.setting_location_id);process.exit(1)}}\""
     description: Every scene references a known location_id
 ---
 

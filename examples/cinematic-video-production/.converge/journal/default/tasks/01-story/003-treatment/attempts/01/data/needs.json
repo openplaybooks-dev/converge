@@ -1,0 +1,17 @@
+{
+  "taskId": "01-story/003-treatment",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "synopsis.md",
+      "count": 1,
+      "samples": [
+        "synopsis.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "treatment.md"
+  ],
+  "blocked": false
+}

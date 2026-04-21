@@ -1,0 +1,17 @@
+{
+  "taskId": "01-story/001-logline",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "idea.md",
+      "count": 1,
+      "samples": [
+        "idea.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "logline.md"
+  ],
+  "blocked": false
+}

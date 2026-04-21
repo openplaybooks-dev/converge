@@ -1,0 +1,4 @@
+{"type":"file-exists","path":"characters.json","cmd":"test -f \"characters.json\"","id":"file-exists:test -f \"characters.json\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T10:49:04.807Z"}
+{"type":"file-exists","path":"story-bible.md","cmd":"test -f \"story-bible.md\"","id":"file-exists:test -f \"story-bible.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T10:49:04.847Z"}
+{"type":"file-exists","path":"characters/moran/description.md","cmd":"test -f \"characters/moran/description.md\"","id":"file-exists:test -f \"characters/moran/description.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T10:49:04.886Z"}
+{"type":"check","checkId":"description-exists","cmd":"test -s characters/moran/description.md","description":"Description file written","id":"check:description-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T10:49:04.925Z"}

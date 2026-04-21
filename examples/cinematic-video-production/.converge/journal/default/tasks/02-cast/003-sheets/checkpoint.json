@@ -1,0 +1,18 @@
+{
+  "type": "task",
+  "id": "02-cast/003-sheets",
+  "status": "pending",
+  "lastUpdated": "2026-04-21T10:48:04.470Z",
+  "createdAt": "2026-04-21T10:48:04.335Z",
+  "progress": {
+    "totalChildren": 3,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "001-moran",
+      "002-elsie",
+      "003-halloran"
+    ],
+    "lastProgressUpdate": "2026-04-21T10:48:04.334Z"
+  }
+}

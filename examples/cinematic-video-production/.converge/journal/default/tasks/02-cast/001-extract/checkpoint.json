@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "02-cast/001-extract",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T10:49:03.437Z",
+  "createdAt": "2026-04-21T10:49:02.467Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T10:49:02.467Z",
+      "completedAt": "2026-04-21T10:49:03.409Z",
+      "outcome": "success",
+      "durationMs": 942
+    }
+  ],
+  "currentAttempt": 1
+}

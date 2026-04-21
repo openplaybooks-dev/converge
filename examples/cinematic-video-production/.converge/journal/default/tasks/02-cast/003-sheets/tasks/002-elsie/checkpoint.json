@@ -1,0 +1,19 @@
+{
+  "type": "task",
+  "id": "02-cast/003-sheets/002-elsie",
+  "status": "pending",
+  "lastUpdated": "2026-04-21T10:48:04.473Z",
+  "createdAt": "2026-04-21T10:48:04.336Z",
+  "progress": {
+    "totalChildren": 4,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "002-01-visual-desc",
+      "002-02-turnaround",
+      "002-03-expressions",
+      "002-05-lock"
+    ],
+    "lastProgressUpdate": "2026-04-21T10:48:04.334Z"
+  }
+}

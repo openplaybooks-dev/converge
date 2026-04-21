@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-world",
+  "status": "pending",
+  "lastUpdated": "2026-04-21T10:48:04.479Z",
+  "createdAt": "2026-04-21T10:48:04.336Z",
+  "progress": {
+    "totalChildren": 2,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "001-extract",
+      "002-plates"
+    ],
+    "lastProgressUpdate": "2026-04-21T10:48:04.335Z"
+  }
+}

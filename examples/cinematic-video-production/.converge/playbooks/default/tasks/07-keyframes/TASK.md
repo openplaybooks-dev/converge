@@ -28,7 +28,7 @@ outputs:
   - keyframes/**/*.seed.txt
 checks:
   - id: at-least-one-start-frame
-    cmd: find keyframes -name 'start.png' -type f | wc -l | awk '{if ($1 >= 1) exit 0; exit 1}'
+    cmd: find keyframes -name 'start.png' -type f | wc -l  | node -e "process.exit(+require('fs').readFileSync(0,'utf8').trim()>=1?0:1)"
     description: At least one start keyframe rendered
   - id: every-shot-has-start
     cmd: node -e "const s=require('./shots.json');const fs=require('fs');for(const x of s){if(!fs.existsSync('keyframes/'+x.id+'/start.png')){console.error('Missing start for '+x.id);process.exit(1)}}"

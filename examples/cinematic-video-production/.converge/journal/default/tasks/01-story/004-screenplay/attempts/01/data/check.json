@@ -1,0 +1,20 @@
+{
+  "taskId": "01-story/004-screenplay",
+  "checks": [
+    {
+      "id": "screenplay-exists",
+      "description": "Screenplay file written and non-empty",
+      "cmd": "test -s screenplay.fountain"
+    },
+    {
+      "id": "screenplay-has-scene-headings",
+      "description": "Screenplay has at least 5 scene headings",
+      "cmd": "grep -cE '^(INT|EXT|INT/EXT|I/E)\\. ' screenplay.fountain  | node -e \"process.exit(+require('fs').readFileSync(0,'utf8').trim()>=5?0:1)\""
+    },
+    {
+      "id": "screenplay-has-dialogue",
+      "description": "Screenplay has at least 3 character cues (dialogue)",
+      "cmd": "grep -cE '^[A-Z][A-Z ]{2,}$' screenplay.fountain  | node -e \"process.exit(+require('fs').readFileSync(0,'utf8').trim()>=3?0:1)\""
+    }
+  ]
+}

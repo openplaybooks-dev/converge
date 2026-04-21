@@ -30,6 +30,11 @@ vars:
   avg_shot_duration_s: 6
   max_shots_hard_cap: 800
 
+  # Test-scope override: when set (not null), shots.json is capped to exactly
+  # this many shots regardless of duration math. Use for fast concept validation.
+  # Set to null or remove for full-length runs.
+  max_shots: 3
+
 run:
   mode: oneoff
   maxIterations: 2000
@@ -92,7 +97,7 @@ checks:
     cmd: node -e "const s=require('./shots.json');if(s.length>800){process.exit(1)}"
     description: Shot count is within max_shots_hard_cap
   - id: keyframes-generated
-    cmd: find keyframes -name 'start.png' -type f | wc -l | awk '{if ($1 >= 1) exit 0; exit 1}'
+    cmd: find keyframes -name 'start.png' -type f | wc -l | node -e "process.exit(+require('fs').readFileSync(0,'utf8').trim()>=1?0:1)"
     description: At least one start keyframe was rendered (images-only mode passes here)
 
   # === FULL-MODE ONLY ===

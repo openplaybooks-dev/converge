@@ -1,0 +1,249 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-story/001-logline-missing-output-logline.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-story/001-logline",
+            "severity": "high",
+            "description": "[01-story/001-logline] Task output not created: logline.md",
+            "source": "unit",
+            "detected": "2026-04-21T10:48:04.774Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "D:\\converge\\examples\\cinematic-video-production\\.converge\\playbooks\\default\\tasks\\01-story\\001-logline",
+              "taskId": "01-story/001-logline",
+              "taskTitle": "Write Logline",
+              "taskPrompt": "# Write Logline\r\n\r\nRead `idea.md` and write a one-sentence logline to `logline.md`.\r\n\r\n## Form\r\n\r\n```\r\n[Protagonist] + [inciting incident] + [goal] + [stakes/obstacle].\r\n```\r\n\r\n## Constraints\r\n\r\n- Single sentence. No more than 35 words.\r\n- Concrete nouns, active verbs.\r\n- Name what's at stake if the protagonist fails.\r\n- No genre labels (\"a thriller about…\") — show, don't tell.\r\n- Write the logline **and nothing else**. No preamble, no explanation.\r\n\r\n## Output shape\r\n\r\n```markdown\r\n# Logline\r\n\r\n<your one sentence here>\r\n```",
+              "taskInputs": [
+                "idea.md"
+              ],
+              "factId": "file-exists:test -f \"logline.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "01-story/001-logline-check-failed-logline-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-story/001-logline",
+            "severity": "high",
+            "description": "[01-story/001-logline] Check failed: Logline file written and non-empty",
+            "source": "unit",
+            "detected": "2026-04-21T10:48:04.815Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "logline-exists",
+              "checkCmd": "test -s logline.md",
+              "checkDescription": "Logline file written and non-empty",
+              "checkOutput": "Command failed: test -s logline.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Write Logline\r\n\r\nRead `idea.md` and write a one-sentence logline to `logline.md`.\r\n\r\n## Form\r\n\r\n```\r\n[Protagonist] + [inciting incident] + [goal] + [stakes/obstacle].\r\n```\r\n\r\n## Constraints\r\n\r\n- Single sentence. No more than 35 words.\r\n- Concrete nouns, active verbs.\r\n- Name what's at stake if the protagonist fails.\r\n- No genre labels (\"a thriller about…\") — show, don't tell.\r\n- Write the logline **and nothing else**. No preamble, no explanation.\r\n\r\n## Output shape\r\n\r\n```markdown\r\n# Logline\r\n\r\n<your one sentence here>\r\n```",
+              "taskId": "01-story/001-logline",
+              "taskTitle": "Write Logline",
+              "unitPath": "D:\\converge\\examples\\cinematic-video-production\\.converge\\playbooks\\default\\tasks\\01-story\\001-logline",
+              "factId": "check:logline-exists"
+            }
+          },
+          {
+            "id": "01-story/001-logline-check-failed-logline-one-sentence",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-story/001-logline",
+            "severity": "high",
+            "description": "[01-story/001-logline] Check failed: Logline body is ~1 sentence (≤2 non-header lines)",
+            "source": "unit",
+            "detected": "2026-04-21T10:48:04.925Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "logline-one-sentence",
+              "checkCmd": "node -e \"const L=require('fs').readFileSync('logline.md','utf8').split(/\\r?\\n/).filter(l=>l.trim()&&!l.startsWith('#')).length;if(L>2){process.exit(1)}\"",
+              "checkDescription": "Logline body is ~1 sentence (≤2 non-header lines)",
+              "checkOutput": "node:fs:441\r\n    return binding.readFileUtf8(path, stringToFlags(options.flag));\r\n                   ^\r\n\r\nError: ENOENT: no such file or directory, open 'D:\\converge\\examples\\cinematic-video-production\\logline.md'\r\n    at Object.readFileSync (node:fs:441:20)\r\n    at [eval]:1:23\r\n    at runScriptInThisContext (node:internal/vm:209:10)\r\n    at node:internal/process/execution:449:12\r\n    at [eval]-wrapper:6:24\r\n    at runScriptInContext (node:internal/process/execution:447:60)\r\n    at evalFunction (node:internal/process/execution:87:30)\r\n    at evalScript (node:internal/process/execution:99:3)\r\n    at node:internal/main/eval_string:74:3 {\r\n  errno: -4058,\r\n  code: 'ENOENT',\r\n  syscall: 'open',\r\n  path: 'D:\\\\converge\\\\examples\\\\cinematic-video-production\\\\logline.md'\r\n}\r\n\r\nNode.js v22.17.1",
+              "checkExitCode": 1,
+              "taskPrompt": "# Write Logline\r\n\r\nRead `idea.md` and write a one-sentence logline to `logline.md`.\r\n\r\n## Form\r\n\r\n```\r\n[Protagonist] + [inciting incident] + [goal] + [stakes/obstacle].\r\n```\r\n\r\n## Constraints\r\n\r\n- Single sentence. No more than 35 words.\r\n- Concrete nouns, active verbs.\r\n- Name what's at stake if the protagonist fails.\r\n- No genre labels (\"a thriller about…\") — show, don't tell.\r\n- Write the logline **and nothing else**. No preamble, no explanation.\r\n\r\n## Output shape\r\n\r\n```markdown\r\n# Logline\r\n\r\n<your one sentence here>\r\n```",
+              "taskId": "01-story/001-logline",
+              "taskTitle": "Write Logline",
+              "unitPath": "D:\\converge\\examples\\cinematic-video-production\\.converge\\playbooks\\default\\tasks\\01-story\\001-logline",
+              "factId": "check:logline-one-sentence"
+            }
+          }
+        ],
+        "durationMs": 271
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 171
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 280
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 80237
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-21T10:48:04.649Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-21T10:48:04.651Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-21T10:48:04.926Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-21T10:48:04.931Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-21T10:48:05.108Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-04-21T10:49:25.346Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-21T10:49:25.631Z"
+    }
+  ]
+}

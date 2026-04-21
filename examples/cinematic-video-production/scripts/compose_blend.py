@@ -38,7 +38,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from lib.composition import Composition, find_project_root  # noqa: E402
 
 
-MODEL = "gemini-2.5-flash-image"
+MODEL = "gemini-3.1-flash-image-preview"
 LOG_REL = ".converge/logs/image-generate.log"
 
 
@@ -166,29 +166,31 @@ def call_nano_banana(
     for p in reference_paths:
         data, mime = _load_image_bytes(p)
         parts.append(types.Part.from_bytes(data=data, mime_type=mime))
-    parts.append(prompt)
+    parts.append(types.Part.from_text(text=prompt))
 
+    contents = [types.Content(role="user", parts=parts)]
+
+    # gemini-3.1-flash-image-preview does not expose seed control at the API
+    # level (as of SDK 1.47). We still generate a local call-id for logs so
+    # failures and successes are traceable.
     used_seed = seed if seed is not None else random.randint(1, 2_000_000_000)
 
-    response = client.models.generate_content(
-        model=MODEL,
-        contents=parts,
-        config=types.GenerateContentConfig(
-            response_modalities=["IMAGE"],
-            seed=used_seed,
-        ),
+    config = types.GenerateContentConfig(
+        response_modalities=["IMAGE", "TEXT"],
     )
 
-    # extract the first image
-    for cand in response.candidates or []:
-        for part in cand.content.parts or []:
+    for chunk in client.models.generate_content_stream(
+        model=MODEL, contents=contents, config=config,
+    ):
+        if chunk.parts is None:
+            continue
+        for part in chunk.parts:
             inline = getattr(part, "inline_data", None)
             if inline and inline.data:
                 return inline.data, used_seed
 
     raise SystemExit(
-        "Gemini response contained no image. "
-        f"response.candidates[0].finish_reason={getattr(response.candidates[0], 'finish_reason', '?')}"
+        f"Gemini response contained no image. model={MODEL}, refs={len(reference_paths)}"
     )
 
 

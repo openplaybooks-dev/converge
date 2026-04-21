@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "02-cast/002-voice-casting",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T10:49:04.630Z",
+  "createdAt": "2026-04-21T10:49:03.510Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T10:49:03.510Z",
+      "completedAt": "2026-04-21T10:49:04.601Z",
+      "outcome": "success",
+      "durationMs": 1092
+    }
+  ],
+  "currentAttempt": 1
+}

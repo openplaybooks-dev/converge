@@ -1,0 +1,20 @@
+{
+  "type": "task",
+  "id": "01-story",
+  "status": "pending",
+  "lastUpdated": "2026-04-21T10:48:04.468Z",
+  "createdAt": "2026-04-21T10:48:04.335Z",
+  "progress": {
+    "totalChildren": 5,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "001-logline",
+      "002-synopsis",
+      "003-treatment",
+      "004-screenplay",
+      "005-story-bible"
+    ],
+    "lastProgressUpdate": "2026-04-21T10:48:04.333Z"
+  }
+}

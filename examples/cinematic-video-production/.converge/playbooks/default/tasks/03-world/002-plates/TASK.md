@@ -22,7 +22,7 @@ outputs:
   - locations/**/ref.json
 checks:
   - id: at-least-one-location-ref
-    cmd: find locations -name ref.json -type f | wc -l | awk '{if ($1 >= 1) exit 0; exit 1}'
+    cmd: find locations -name ref.json -type f | wc -l  | node -e "process.exit(+require('fs').readFileSync(0,'utf8').trim()>=1?0:1)"
     description: At least one location ref.json locked
   - id: every-location-has-ref
     cmd: node -e "const L=require('./locations.json');const fs=require('fs');for(const x of L){if(!fs.existsSync('locations/'+x.id+'/ref.json')){process.exit(1)}}"

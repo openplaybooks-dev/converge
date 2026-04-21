@@ -1,0 +1,19 @@
+{
+  "type": "task",
+  "id": "02-cast/003-sheets/001-moran",
+  "status": "pending",
+  "lastUpdated": "2026-04-21T10:48:04.471Z",
+  "createdAt": "2026-04-21T10:48:04.335Z",
+  "progress": {
+    "totalChildren": 4,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "001-01-visual-desc",
+      "001-02-turnaround",
+      "001-03-expressions",
+      "001-05-lock"
+    ],
+    "lastProgressUpdate": "2026-04-21T10:48:04.334Z"
+  }
+}

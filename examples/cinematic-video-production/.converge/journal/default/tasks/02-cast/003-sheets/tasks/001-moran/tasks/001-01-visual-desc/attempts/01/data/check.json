@@ -1,0 +1,10 @@
+{
+  "taskId": "02-cast/003-sheets/001-moran/001-01-visual-desc",
+  "checks": [
+    {
+      "id": "description-exists",
+      "description": "Description file written",
+      "cmd": "test -s characters/moran/description.md"
+    }
+  ]
+}

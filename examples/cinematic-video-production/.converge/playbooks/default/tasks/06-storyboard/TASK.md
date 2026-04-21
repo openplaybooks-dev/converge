@@ -23,7 +23,7 @@ outputs:
   - storyboard/index.html
 checks:
   - id: at-least-one-thumb
-    cmd: find storyboard -name '*.png' -type f | wc -l | awk '{if ($1 >= 1) exit 0; exit 1}'
+    cmd: find storyboard -name '*.png' -type f | wc -l  | node -e "process.exit(+require('fs').readFileSync(0,'utf8').trim()>=1?0:1)"
     description: At least one storyboard thumbnail generated
   - id: every-shot-has-thumb
     cmd: node -e "const s=require('./shots.json');const fs=require('fs');for(const x of s){if(!fs.existsSync('storyboard/'+x.id+'.png')){process.exit(1)}}"

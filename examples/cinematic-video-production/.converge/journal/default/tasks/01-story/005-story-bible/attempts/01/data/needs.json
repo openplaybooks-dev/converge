@@ -1,0 +1,24 @@
+{
+  "taskId": "01-story/005-story-bible",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "screenplay.fountain",
+      "count": 1,
+      "samples": [
+        "screenplay.fountain"
+      ]
+    },
+    {
+      "pattern": "idea.md",
+      "count": 1,
+      "samples": [
+        "idea.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "story-bible.md"
+  ],
+  "blocked": false
+}

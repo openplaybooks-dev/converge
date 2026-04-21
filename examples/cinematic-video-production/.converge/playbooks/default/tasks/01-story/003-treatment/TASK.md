@@ -13,7 +13,7 @@ checks:
     cmd: test -s treatment.md
     description: Treatment file written and non-empty
   - id: treatment-has-beats
-    cmd: grep -cE '^- ' treatment.md | awk '{if ($1 >= 10) exit 0; exit 1}'
+    cmd: grep -cE '^- ' treatment.md  | node -e "process.exit(+require('fs').readFileSync(0,'utf8').trim()>=10?0:1)"
     description: Treatment has at least 10 beats
 ---
 

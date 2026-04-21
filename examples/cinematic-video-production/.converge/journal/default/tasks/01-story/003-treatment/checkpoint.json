@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "01-story/003-treatment",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T10:49:01.346Z",
+  "createdAt": "2026-04-21T10:49:00.896Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T10:49:00.896Z",
+      "completedAt": "2026-04-21T10:49:01.316Z",
+      "outcome": "success",
+      "durationMs": 420
+    }
+  ],
+  "currentAttempt": 1
+}

@@ -18,7 +18,7 @@ outputs:
   - "{{locDir}}/variant-*.png"
 checks:
   - id: at-least-one-variant
-    cmd: ls {{locDir}}/variant-*.png 2>/dev/null | wc -l | awk '{if ($1 >= 1) exit 0; exit 1}'
+    cmd: ls {{locDir}}/variant-*.png 2>/dev/null | wc -l  | node -e "process.exit(+require('fs').readFileSync(0,'utf8').trim()>=1?0:1)"
     description: At least one time variant generated
 ---
 

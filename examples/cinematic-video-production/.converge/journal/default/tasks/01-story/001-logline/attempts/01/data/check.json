@@ -1,0 +1,15 @@
+{
+  "taskId": "01-story/001-logline",
+  "checks": [
+    {
+      "id": "logline-exists",
+      "description": "Logline file written and non-empty",
+      "cmd": "test -s logline.md"
+    },
+    {
+      "id": "logline-one-sentence",
+      "description": "Logline body is ~1 sentence (≤2 non-header lines)",
+      "cmd": "node -e \"const L=require('fs').readFileSync('logline.md','utf8').split(/\\r?\\n/).filter(l=>l.trim()&&!l.startsWith('#')).length;if(L>2){process.exit(1)}\""
+    }
+  ]
+}

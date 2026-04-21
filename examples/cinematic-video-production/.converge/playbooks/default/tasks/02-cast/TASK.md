@@ -23,7 +23,7 @@ checks:
     cmd: test -s voices.json
     description: voices.json written
   - id: character-refs-locked
-    cmd: find characters -name ref.json -type f | wc -l | awk '{if ($1 >= 1) exit 0; exit 1}'
+    cmd: find characters -name ref.json -type f | wc -l  | node -e "process.exit(+require('fs').readFileSync(0,'utf8').trim()>=1?0:1)"
     description: At least one character ref.json was locked
 ---
 

@@ -13,10 +13,10 @@ checks:
     cmd: test -s screenplay.fountain
     description: Screenplay file written and non-empty
   - id: screenplay-has-scene-headings
-    cmd: grep -cE '^(INT|EXT|INT/EXT|I/E)\. ' screenplay.fountain | awk '{if ($1 >= 5) exit 0; exit 1}'
+    cmd: grep -cE '^(INT|EXT|INT/EXT|I/E)\. ' screenplay.fountain  | node -e "process.exit(+require('fs').readFileSync(0,'utf8').trim()>=5?0:1)"
     description: Screenplay has at least 5 scene headings
   - id: screenplay-has-dialogue
-    cmd: grep -cE '^[A-Z][A-Z ]{2,}$' screenplay.fountain | awk '{if ($1 >= 3) exit 0; exit 1}'
+    cmd: grep -cE '^[A-Z][A-Z ]{2,}$' screenplay.fountain  | node -e "process.exit(+require('fs').readFileSync(0,'utf8').trim()>=3?0:1)"
     description: Screenplay has at least 3 character cues (dialogue)
 ---
 

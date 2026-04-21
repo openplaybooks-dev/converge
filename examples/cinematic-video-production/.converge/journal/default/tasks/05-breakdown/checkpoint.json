@@ -1,0 +1,18 @@
+{
+  "type": "task",
+  "id": "05-breakdown",
+  "status": "pending",
+  "lastUpdated": "2026-04-21T10:48:04.484Z",
+  "createdAt": "2026-04-21T10:48:04.336Z",
+  "progress": {
+    "totalChildren": 3,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "001-scenes",
+      "002-shots",
+      "003-continuity-state"
+    ],
+    "lastProgressUpdate": "2026-04-21T10:48:04.335Z"
+  }
+}

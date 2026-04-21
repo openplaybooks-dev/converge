@@ -11,7 +11,7 @@ checks:
     cmd: test -s logline.md
     description: Logline file written and non-empty
   - id: logline-one-sentence
-    cmd: awk '/^[^#[:space:]]/ && !/^$/' logline.md | wc -l | awk '{if ($1 <= 2) exit 0; exit 1}'
+    cmd: node -e "const L=require('fs').readFileSync('logline.md','utf8').split(/\r?\n/).filter(l=>l.trim()&&!l.startsWith('#')).length;if(L>2){process.exit(1)}"
     description: Logline body is ~1 sentence (≤2 non-header lines)
 ---
 

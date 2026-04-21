@@ -1,0 +1,18 @@
+{
+  "taskId": "02-cast/003-sheets/001-moran/001-02-turnaround",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "characters/moran/description.md",
+      "count": 1,
+      "samples": [
+        "characters/moran/description.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "characters/moran/turnaround.png",
+    "characters/moran/turnaround.seed.txt"
+  ],
+  "blocked": false
+}

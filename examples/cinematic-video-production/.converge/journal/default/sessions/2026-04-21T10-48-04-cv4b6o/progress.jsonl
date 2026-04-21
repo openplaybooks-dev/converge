@@ -1,0 +1,9 @@
+{"iteration":1,"timestamp":"2026-04-21T10:48:04.555Z","tasksComplete":0,"tasksTotal":38,"currentTask":{"id":"01-story/001-logline","epic":"default","attempt":1,"status":"running"},"gaps":[]}
+{"iteration":2,"timestamp":"2026-04-21T10:49:00.361Z","tasksComplete":1,"tasksTotal":38,"currentTask":{"id":"01-story/002-synopsis","epic":"default","attempt":1,"status":"running"},"gaps":[]}
+{"iteration":3,"timestamp":"2026-04-21T10:49:00.862Z","tasksComplete":2,"tasksTotal":38,"currentTask":{"id":"01-story/003-treatment","epic":"default","attempt":1,"status":"running"},"gaps":[]}
+{"iteration":4,"timestamp":"2026-04-21T10:49:01.393Z","tasksComplete":3,"tasksTotal":38,"currentTask":{"id":"01-story/004-screenplay","epic":"default","attempt":1,"status":"running"},"gaps":[]}
+{"iteration":5,"timestamp":"2026-04-21T10:49:02.027Z","tasksComplete":4,"tasksTotal":38,"currentTask":{"id":"01-story/005-story-bible","epic":"default","attempt":1,"status":"running"},"gaps":[]}
+{"iteration":6,"timestamp":"2026-04-21T10:49:02.427Z","tasksComplete":5,"tasksTotal":38,"currentTask":{"id":"02-cast/001-extract","epic":"default","attempt":1,"status":"running"},"gaps":[]}
+{"iteration":7,"timestamp":"2026-04-21T10:49:03.475Z","tasksComplete":6,"tasksTotal":38,"currentTask":{"id":"02-cast/002-voice-casting","epic":"default","attempt":1,"status":"running"},"gaps":[]}
+{"iteration":8,"timestamp":"2026-04-21T10:49:04.679Z","tasksComplete":7,"tasksTotal":38,"currentTask":{"id":"02-cast/003-sheets/001-moran/001-01-visual-desc","epic":"default","attempt":1,"status":"running"},"gaps":[]}
+{"iteration":9,"timestamp":"2026-04-21T10:49:05.073Z","tasksComplete":8,"tasksTotal":38,"currentTask":{"id":"02-cast/003-sheets/001-moran/001-02-turnaround","epic":"default","attempt":1,"status":"running"},"gaps":[]}

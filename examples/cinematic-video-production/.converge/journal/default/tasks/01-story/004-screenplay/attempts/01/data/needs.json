@@ -1,0 +1,17 @@
+{
+  "taskId": "01-story/004-screenplay",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "treatment.md",
+      "count": 1,
+      "samples": [
+        "treatment.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "screenplay.fountain"
+  ],
+  "blocked": false
+}

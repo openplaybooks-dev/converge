@@ -1,0 +1,5 @@
+{"type":"file-exists","path":"idea.md","cmd":"test -f \"idea.md\"","id":"file-exists:test -f \"idea.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T10:49:00.536Z"}
+{"type":"file-exists","path":"logline.md","cmd":"test -f \"logline.md\"","id":"file-exists:test -f \"logline.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T10:49:00.572Z"}
+{"type":"file-exists","path":"synopsis.md","cmd":"test -f \"synopsis.md\"","id":"file-exists:test -f \"synopsis.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T10:49:00.618Z"}
+{"type":"check","checkId":"synopsis-exists","cmd":"test -s synopsis.md","description":"Synopsis file written and non-empty","id":"check:synopsis-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T10:49:00.658Z"}
+{"type":"check","checkId":"synopsis-has-acts","cmd":"grep -E '^##? (Act|ACT) [1-3]' synopsis.md","description":"Synopsis covers all three acts","id":"check:synopsis-has-acts","ok":true,"output":"## Act 1 — Setup\n## Act 2 — Confrontation\n## Act 3 — Resolution","exitCode":0,"collectedAt":"2026-04-21T10:49:00.703Z"}

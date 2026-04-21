@@ -1,0 +1,5 @@
+{"type":"file-exists","path":"screenplay.fountain","cmd":"test -f \"screenplay.fountain\"","id":"file-exists:test -f \"screenplay.fountain\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T10:49:02.134Z"}
+{"type":"file-exists","path":"idea.md","cmd":"test -f \"idea.md\"","id":"file-exists:test -f \"idea.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T10:49:02.168Z"}
+{"type":"file-exists","path":"story-bible.md","cmd":"test -f \"story-bible.md\"","id":"file-exists:test -f \"story-bible.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T10:49:02.201Z"}
+{"type":"check","checkId":"bible-exists","cmd":"test -s story-bible.md","description":"Story bible written and non-empty","id":"check:bible-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T10:49:02.233Z"}
+{"type":"check","checkId":"bible-has-rules-section","cmd":"grep -qE '^## (World Rules|Universe Rules|Rules)' story-bible.md","description":"Story bible has a rules section","id":"check:bible-has-rules-section","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T10:49:02.276Z"}

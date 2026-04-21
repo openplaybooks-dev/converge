@@ -1,0 +1,24 @@
+{
+  "taskId": "01-story/002-synopsis",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "idea.md",
+      "count": 1,
+      "samples": [
+        "idea.md"
+      ]
+    },
+    {
+      "pattern": "logline.md",
+      "count": 1,
+      "samples": [
+        "logline.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "synopsis.md"
+  ],
+  "blocked": false
+}
