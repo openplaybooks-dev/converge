@@ -1,5 +1,5 @@
 name: split-cli-monolith
-description: Modularize packages/core/src/cli — reorganize within core (Tier A, PR1–PR9) then extract @converge/display, journal, scheduler, cli workspace packages (Tier B, PR10–PR13).
+description: Onion-split packages/core/src/ into @converge/cli → @converge/engine → { @converge/core, @converge/navigator, @converge/journal, @converge/scheduler, @converge/display }. Navigator extraction is the upper-front primitive; engine is the middle layer; core becomes pure types. 17 PRs across 6 phases.
 
 run:
   mode: oneoff

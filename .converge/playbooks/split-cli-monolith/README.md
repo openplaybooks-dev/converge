@@ -1,28 +1,35 @@
 # split-cli-monolith
 
-One-off playbook that executes the 13-PR plan to modularize `packages/core/src/cli/` and extract four workspace packages.
+One-off playbook that onion-splits `packages/core/src/` into 6 workspace packages over 17 PRs.
 
 ## Architectural intent
 
-After this split lands, the packages map to distinct **interface layers**:
+End-state dependency flow: **`@converge/cli → @converge/engine → { @converge/core, @converge/navigator, @converge/journal, @converge/scheduler }`** (plus `@converge/cli → @converge/display` directly).
 
-| Package               | Role                                          | Consumers                                           |
-| --------------------- | --------------------------------------------- | --------------------------------------------------- |
-| `@converge/core`      | **Programmatic interface** — pure library     | `@converge/cli`, future web UI, swebench, tbench    |
-| `@converge/cli`       | **CLI interface** — terminal-facing shell     | end users running `converge` in a terminal          |
-| `@converge/display`   | Terminal/ANSI renderer                        | `@converge/cli` **only**                            |
-| `@converge/journal`   | Persistence (checkpoint/session/storage)      | `@converge/core`, `@converge/scheduler`             |
-| `@converge/scheduler` | Task-tree primitives                          | `@converge/core`                                    |
-| `@converge/navigator` | AI-driven reactive engine — JIT-buffered node graph that drives plugged-in handlers/scenarios | `@converge/core` (repair loop); future agent flows  |
+| Package               | Role                                                                    | Consumers                                         |
+| --------------------- | ----------------------------------------------------------------------- | ------------------------------------------------- |
+| `@converge/cli`       | Outer shell — bin, argv, dispatch, I/O                                  | end users                                         |
+| `@converge/engine`    | Middle layer — `autonomousRun`, orchestrator, repair actions, lifecycle, executor, planning, playbook loader, unit exec, goal/evolve/converge runners, dispatch | cli, future web UI, swebench, tbench              |
+| `@converge/core`      | Inner primitive — pure types/contracts (gap, goal types, config, hooks, functions, context, ai, validation, discovery, executor types for swebench/tbench) | engine, everyone else                             |
+| `@converge/navigator` | Inner primitive — reactive JIT-buffered graph engine, zero-dep          | engine (repair loop); future agent flows          |
+| `@converge/journal`   | Inner primitive — checkpoint + journal + storage + session logger       | engine, scheduler                                 |
+| `@converge/scheduler` | Inner primitive — task-tree, next-task, ensure-epic-checkpoints          | engine                                            |
+| `@converge/display`   | Inner primitive — terminal/ANSI renderer, consumed **only** by cli       | cli                                               |
 
-**Invariants** (reviewed in every PR from PR10 onward):
+**Invariants enforced by playbook checks and the final PR14 ESLint gate:**
 
-1. **`@converge/core` has no CLI leakage.** No `process.exit`, no `console.log`/stdout writes, no TTY checks, no argv parsing, no ANSI escapes. Errors are `throw`n; results are `return`ed. A future web UI imports `@converge/core` and wires its own I/O — it must not need to touch `@converge/cli`.
-2. **`@converge/display` is never imported by `@converge/core`** or by `@converge/scheduler`/`@converge/journal`. It's a terminal renderer; a web UI supplies its own.
-3. **`@converge/cli` is the only package allowed to combine them** — it reads from core, renders via display, and handles stdin/stdout/signals.
-4. **`swebench` and `tbench` depend on `@converge/core` only.** If either needs a CLI behavior, the behavior was in the wrong place; expose it as a library function on core.
+1. `@converge/core` never imports any other `@converge/*` package.
+2. `@converge/{navigator,journal,scheduler,display}` never import each other, engine, or cli.
+3. `@converge/engine` can import primitives but not cli or display.
+4. `@converge/cli` is allowed to import everything below it.
+5. `@converge/navigator` has zero runtime dependencies and zero filesystem/IO imports.
+6. `@converge/core` and `@converge/engine` have no CLI leakage (no `process.exit`, no stdout writes, no `console.*`, no ANSI escapes).
 
-These invariants make the programmatic and CLI surfaces decouple-by-construction. Every Tier B PR's review phase checks for violations.
+A future web UI imports `@converge/engine` and wires its own renderer — it never depends on `@converge/cli` or `@converge/display`. The PR14 programmatic smoke test is the integration pattern.
+
+### About `@converge/navigator`
+
+The navigator is the **driver** for AI-influenced reactive flows: a graph of handler nodes that are **buffered just-in-time** (never pre-seeded), selected by **predicate applicability** against a live snapshot, and advanced one iteration at a time. AI doesn't live inside the engine — it enters through the handlers consumers plug in (repair strategies today; agent scenarios later). The engine is deterministic; the traversal shape is driven by what AI-capable handlers choose to buffer next.
 
 ## Usage
 
@@ -31,63 +38,81 @@ These invariants make the programmatic and CLI surfaces decouple-by-construction
 converge run --playbook=split-cli-monolith
 ```
 
-Runs once, processes all 13 PR tasks in order. Resume-safe — stops and restarts pick up where the last session ended.
+Runs once; processes all 17 PR tasks in order. Resume-safe.
 
-## Scope
+## PR sequence
 
-**Tier A — reorganize within `packages/core/src/` (PR1–PR9)**
+**Phase 0 — Safety net**
 
-| PR  | Change                                                                   |
-| --- | ------------------------------------------------------------------------ |
-| 1   | Add behavior-locking tests against current file paths                    |
-| 2   | Move `cli/next-task.ts` → `src/tree/next-task.ts` (single-file)          |
-| 3   | Split `src/tree/next-task.ts` into 5 files + barrel                      |
-| 4   | Move `cli/autonomous-run.ts` → `src/orchestrator/autonomous.ts`          |
-| 5   | Split `src/orchestrator/autonomous.ts` into 5 files + barrel             |
-| 6   | Split `cli/commands.ts` into `cli/commands/{init,plugins,checkpoint,…}.ts` |
-| 7   | Move `cli/{tree,inspect,progress}-*.ts` → `cli/display/`                 |
-| 8   | Extract `cli/args/` and `cli/bootstrap/` out of `main.ts`                |
-| 9   | Extract `cli/dispatch/*` handlers out of `main.ts` switch                |
+| PR  | Task ID                 | Change                                                           |
+| --- | ----------------------- | ---------------------------------------------------------------- |
+| 1   | 001-behavior-tests      | Behavior-locking tests + recorded-trace test of `converge()`     |
 
-**Tier B — extract workspace packages (PR10–PR13)**
+**Phase 1 — Navigator upper-front**
 
-| PR  | Package             | Source moved                                        |
-| --- | ------------------- | --------------------------------------------------- |
-| 10  | `@converge/display` | `packages/core/src/cli/display/*`                   |
-| 11  | `@converge/journal` | `packages/core/src/{journal,checkpoint,storage}/*`  |
-| 12  | `@converge/scheduler` | `packages/core/src/tree/next-task/*` + ensure-epic-checkpoints |
-| 13  | `@converge/cli`     | `packages/core/src/cli/*` + bin removed from core   |
+| PR   | Task ID                      | Change                                                                             |
+| ---- | ---------------------------- | ---------------------------------------------------------------------------------- |
+| 2    | 002-split-navigator-actions  | Split engine from 1236-line `actions.ts`; introduce `EventSink` injection          |
+| 3a   | 003-navigator-io-free        | Parameterize types; inject `getJournalStructure` callback; zero outside imports    |
+| 3b   | 004-extract-navigator-pkg    | Extract `@converge/navigator` workspace package (zero-dep)                         |
 
-**Tier C — extract the AI-driven reactive navigator (PR14–PR16)**
+**Phase 2 — In-core reorg**
 
-| PR  | Change                                                                            |
-| --- | --------------------------------------------------------------------------------- |
-| 14  | Behavior-locking tests for `repair/navigator/*` (safety net)                      |
-| 15  | Split navigator engine from repair-specific handlers inside core (`repair/actions/`) |
-| 16  | Extract `@converge/navigator` — zero-dep reactive engine driving JIT-buffered nodes |
+| PR  | Task ID                          | Change                                                              |
+| --- | -------------------------------- | ------------------------------------------------------------------- |
+| 4   | 005-next-task-scheduler-shape    | `cli/next-task.ts` → `src/scheduler/` (direct to scheduler-ready shape) |
+| 5   | 006-split-autonomous-run         | `cli/autonomous-run.ts` → `orchestrator/autonomous/` (split into 5 files) |
+| 6   | 007-split-commands-main          | Extract `cli/args/`, `cli/bootstrap/`, `cli/dispatch/`; split `commands.ts` |
+| 7   | 008-group-cli-display            | Group `cli/{tree,inspect,progress,show}*.ts` → `cli/display/`       |
 
-### About `@converge/navigator`
+**Phase 3 — Extract leaf primitives**
 
-The navigator is the driver for AI-influenced reactive flows: a graph of handler nodes that are **buffered just-in-time** (never pre-seeded), selected by **predicate applicability** against a live snapshot, and advanced one iteration at a time. AI doesn't live inside the engine — it enters through the handlers that the consumer plugs in (repair strategies today; agent scenarios later). The engine is deterministic; the traversal shape is shaped by what AI-capable handlers choose to buffer next.
+| PR  | Task ID                    | Change                                                                                                              |
+| --- | -------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 8   | 009-extract-display-pkg    | `@converge/display` (zero-dep, CLI-only)                                                                            |
+| 9   | 010-extract-journal-pkg    | `@converge/journal` (rename `journal/navigator.ts` → `navigator-reader.ts` to avoid collision with `@converge/navigator`) |
+| 10  | 011-extract-scheduler-pkg  | `@converge/scheduler` (directory-level `git mv` — clean thanks to PR4)                                              |
+
+**Phase 4 — Engine middle layer**
+
+| PR   | Task ID                        | Change                                                                  |
+| ---- | ------------------------------ | ----------------------------------------------------------------------- |
+| 11a  | 012-engine-leaf-dirs           | `executor`, `planning`, `playbook`, `unit`, `dispatch`, etc. → engine   |
+| 11b  | 013-engine-orchestration-hubs  | `orchestrator`, `lifecycle`, `loop`, `converge`, `evolve`, `repair` (sans navigator), `plugins` → engine |
+| 11c  | 014-rewire-engine-exports      | `@converge/engine/index.ts` with `autonomousRun`; core stops re-exporting engine symbols — HARD BREAK |
+| 12   | 015-slim-core                  | `@converge/core` becomes pure types/contracts                           |
+
+**Phase 5 — CLI outer shell**
+
+| PR  | Task ID                  | Change                                                            |
+| --- | ------------------------ | ----------------------------------------------------------------- |
+| 13  | 016-extract-cli-pkg      | `@converge/cli` with the `converge` bin; bin removed from core    |
+
+**Phase 6 — Audit**
+
+| PR  | Task ID                 | Change                                                                                                         |
+| --- | ----------------------- | -------------------------------------------------------------------------------------------------------------- |
+| 14  | 017-layering-audit      | ESLint `no-restricted-imports` enforcing onion direction; `madge --circular` in CI; programmatic smoke test proving future-web-UI integration works |
 
 ## Per-PR pipeline
 
-Each PR task runs: **analyze → implement → review → quality**.
+Each of the 17 PR tasks runs: **analyze → implement → review → quality**.
 
-- **analyze** — read `spec`, inspect current code, write implementation plan
+- **analyze** — read spec, inspect current code, write implementation plan
 - **implement** — plan → todos → execute each todo → verify (typecheck + tests)
 - **review** — diff vs. spec; `REJECTED` resets implement
-- **quality** — final typecheck + test gate; CLI smoke check
+- **quality** — final typecheck + test gate; CLI smoke check; `madge --circular`
 
 ## Structure
 
 ```
 split-cli-monolith/
-  playbook.yml          # mode: oneoff
-  README.md
+  playbook.yml          # mode: oneoff, 6h max, with layering-invariant checks
+  README.md             # this file
   TASK.md               # root task declaring the WBS
   wbs/
-    index.js            # seeds 13 PR items (data-driven from PRS array)
+    index.js            # reads prs.json, spawns items from templates
+    prs.json            # 17-PR data (id, title, tier/phase, summary, spec)
     templates/item/     # per-PR pipeline template (analyze→implement→review→quality)
-  tasks/                # runtime-stamped task tree lives here
+  tasks/                # runtime-stamped task tree (153 TASK.md files at full depth)
 ```

@@ -1,13 +1,12 @@
 /**
  * WBS: Implement — plan → todos → verify
  *
- * Template resolution note (see item/wbs.js for full explanation):
- *   `__dirname` here points to the seeded implement task dir, not the template source.
- *   We use `ctx.vars.phaseTemplateDir` (= absolute path to `wbs/templates/item/tasks/implement/`)
- *   to locate plan/todos/verify sub-templates.
+ * SHARED spawner for every implement phase. Lives in
+ * `wbs/templates/item/tasks/implement/wbs.js` and is referenced by
+ * every seeded implement TASK.md via absolute path (no sibling copies).
  */
 
-import { join, relative } from 'path';
+import { posix } from 'path';
 
 export async function run(ctx) {
   const { title, task, spec, projectDir, artifactsDir, phaseTemplateDir } = ctx.vars;
@@ -19,14 +18,22 @@ export async function run(ctx) {
     );
   }
 
+  const projectDirPosix = projectDir.split('\\').join('/');
+
   for (const [prefix, phase] of [
     ['001', 'plan'],
     ['002', 'todos'],
     ['003', 'verify'],
   ]) {
     const phaseId = `${prefix}-${phase}`;
-    const subTemplateDir = join(phaseTemplateDir, 'tasks', phase);
-    const templatePath = relative(ctx.projectDir, join(subTemplateDir, 'TASK.md'));
+    const subTemplateDir = posix.join(phaseTemplateDir, 'tasks', phase);
+    const templatePath = posix.relative(projectDirPosix, posix.join(subTemplateDir, 'TASK.md'));
+
+    // Only `todos` has a nested WBS (parses plan.md, spawns step tasks).
+    // plan/verify are leaves.
+    const wbsSection = phase === 'todos'
+      ? `wbs:\n  type: nodejs\n  path: "${subTemplateDir}/wbs.js"`
+      : '';
 
     await ctx.spawn(
       {
@@ -39,9 +46,8 @@ export async function run(ctx) {
           spec,
           projectDir,
           artifactsDir,
-          // Forward for any grandchild wbs that needs it (todos/wbs.js currently
-          // spawns inline, so it doesn't need this — but pass anyway for symmetry).
           subTemplateDir,
+          wbsSection,
         },
       },
       { id: phaseId },

@@ -1,9 +1,7 @@
 ---
 id: "{{taskId}}"
 title: "Execute todos — {{title}}"
-wbs:
-  type: nodejs
-  path: ./wbs.js
+{{wbsSection}}
 ---
 
 # Execute implementation — {{title}}

@@ -1,14 +1,17 @@
 /**
  * WBS: Per-PR pipeline — analyze → implement → review → quality
  *
+ * This file is the SINGLE shared spawner for every PR. It lives in
+ * `wbs/templates/item/wbs.js`. Every seeded per-PR TASK.md references this
+ * file by absolute path via the `wbsSection` var — no sibling copies.
+ *
  * Template resolution note:
- *   This file is copied verbatim into each seeded task directory, so `__dirname`
- *   here points to `tasks/<pr-id>/`, NOT to `wbs/templates/item/`.
- *   We rely on `ctx.vars.itemTemplateDir` (set by the root wbs/index.js) to
- *   locate the phase TASK.md templates. Do not use `__dirname` for template paths.
+ *   Even though this file is shared, converge may run it with __dirname
+ *   equal to its real disk location (always the template dir). For safety
+ *   we rely on `ctx.vars.itemTemplateDir` rather than __dirname.
  */
 
-import { join, relative } from 'path';
+import { posix } from 'path';
 
 export async function run(ctx) {
   const { taskId, title, tier, task, spec, projectDir, artifactsDir, itemTemplateDir } = ctx.vars;
@@ -20,6 +23,8 @@ export async function run(ctx) {
     );
   }
 
+  const projectDirPosix = projectDir.split('\\').join('/');
+
   for (const [prefix, phase] of [
     ['001', 'analyze'],
     ['002', 'implement'],
@@ -27,8 +32,15 @@ export async function run(ctx) {
     ['004', 'quality'],
   ]) {
     const phaseId = `${prefix}-${phase}`;
-    const phaseTemplateDir = join(itemTemplateDir, 'tasks', phase);
-    const templatePath = relative(ctx.projectDir, join(phaseTemplateDir, 'TASK.md'));
+    const phaseTemplateDir = posix.join(itemTemplateDir, 'tasks', phase);
+    const templatePath = posix.relative(projectDirPosix, posix.join(phaseTemplateDir, 'TASK.md'));
+
+    // Only the `implement` phase has a nested WBS (plan/todos/verify).
+    // analyze/review/quality are leaves. Pass empty wbsSection for leaves
+    // so their TASK.md doesn't declare a wbs: field.
+    const wbsSection = phase === 'implement'
+      ? `wbs:\n  type: nodejs\n  path: "${phaseTemplateDir}/wbs.js"`
+      : '';
 
     await ctx.spawn(
       {
@@ -46,6 +58,7 @@ export async function run(ctx) {
           // Pass the phase's own template dir so nested wbs.js (e.g. implement/wbs.js)
           // can find its own sub-templates.
           phaseTemplateDir,
+          wbsSection,
         },
       },
       { id: phaseId },
