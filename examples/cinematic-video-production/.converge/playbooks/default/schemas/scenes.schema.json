@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "scenes.json",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "order", "setting_location_id", "time_of_day", "present_character_ids", "beat"],
+    "properties": {
+      "id": { "type": "string", "pattern": "^sc-[0-9]{3}$" },
+      "order": { "type": "integer", "minimum": 1 },
+      "setting_location_id": { "type": "string" },
+      "time_of_day": { "enum": ["day", "golden-hour", "dusk", "night", "dawn", "overcast"] },
+      "present_character_ids": { "type": "array", "items": { "type": "string" } },
+      "beat": { "type": "string", "description": "One-sentence story beat this scene delivers" },
+      "emotional_tone": { "type": "string" },
+      "weather": { "type": "string" }
+    }
+  }
+}

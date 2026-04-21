@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "locations.json",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "name", "description", "time_variants"],
+    "properties": {
+      "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+      "name": { "type": "string" },
+      "description": {
+        "type": "string",
+        "maxLength": 320,
+        "description": "Locked short-text location description injected verbatim into every shot in this location."
+      },
+      "time_variants": {
+        "type": "array",
+        "items": { "enum": ["day", "golden-hour", "dusk", "night", "dawn", "overcast"] },
+        "minItems": 1
+      },
+      "props": {
+        "type": "array",
+        "items": { "type": "string" }
+      }
+    }
+  }
+}

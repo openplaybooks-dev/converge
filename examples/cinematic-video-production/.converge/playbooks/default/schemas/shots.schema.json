@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "shots.json",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "scene_id", "order", "shot_type", "duration_s", "action", "character_ids_in_frame", "location_ref"],
+    "properties": {
+      "id": { "type": "string", "pattern": "^sh-[0-9]{4}$" },
+      "scene_id": { "type": "string" },
+      "order": { "type": "integer", "minimum": 1 },
+      "shot_type": { "enum": ["ews", "ws", "ms", "mcu", "cu", "ecu", "ots", "pov", "insert", "two-shot"] },
+      "camera_move": { "enum": ["static", "pan", "tilt", "dolly-in", "dolly-out", "track", "handheld", "crane", "push"] },
+      "lens_mm": { "type": "integer" },
+      "duration_s": { "type": "number", "minimum": 0.5, "maximum": 15 },
+      "action": { "type": "string", "description": "What happens in-frame. One sentence." },
+      "dialogue": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["character_id", "text"],
+          "properties": {
+            "character_id": { "type": "string" },
+            "text": { "type": "string" }
+          }
+        }
+      },
+      "sfx_cues": { "type": "array", "items": { "type": "string" } },
+      "character_ids_in_frame": { "type": "array", "items": { "type": "string" } },
+      "wardrobe_refs": {
+        "type": "object",
+        "additionalProperties": { "type": "string" },
+        "description": "Map of character_id -> wardrobe variant id (must exist on that character's sheet)"
+      },
+      "location_ref": {
+        "type": "object",
+        "required": ["location_id", "variant"],
+        "properties": {
+          "location_id": { "type": "string" },
+          "variant": { "type": "string", "description": "e.g. wide, detail-1, night, golden-hour" }
+        }
+      },
+      "mood": { "type": "string" }
+    }
+  }
+}
