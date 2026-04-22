@@ -13,7 +13,7 @@ import type {
 } from "./types.ts";
 import type { JournalAPI } from "../journal/types.ts";
 import type { ProjectConfig } from "../storage/types.ts";
-import type { Gap, CheckResult, EvalResult } from "../gap/types.ts";
+import type { Gap, CheckResult, EvalResult } from "../task/gap/types.ts";
 import type { TaskConfig } from "../storage/types.ts";
 import {
   FileSystemAPIImpl,
@@ -23,7 +23,7 @@ import {
 } from "./base.ts";
 import { ArtifactStore } from "../artifacts/index.ts";
 import { FilesystemStorage } from "../storage/filesystem.ts";
-import { globalRegistry } from "../functions/registry.ts";
+import { globalRegistry } from "../task/checks/registry.ts";
 import { resolve } from "node:path";
 
 /* ------------------------------------------------------------------ */

@@ -13,7 +13,7 @@ import type {
   GapFillContext,
   GapFillResult,
 } from "./types.ts";
-import type { Gap } from "../gap/types.ts";
+import type { Gap } from "../task/gap/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Task File Generator                                               */

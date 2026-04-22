@@ -1,0 +1,21 @@
+{
+  "type": "task",
+  "id": "03-sprite-sheet-gen",
+  "status": "pending",
+  "lastUpdated": "2026-04-22T14:22:46.554Z",
+  "createdAt": "2026-04-22T13:40:58.730Z",
+  "progress": {
+    "totalChildren": 6,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-hero-knight-idle",
+      "002-hero-knight-walk",
+      "003-forest-elf-idle",
+      "004-forest-elf-walk",
+      "005-shadow-mage-idle",
+      "006-shadow-mage-walk"
+    ],
+    "lastProgressUpdate": "2026-04-22T14:22:46.554Z"
+  }
+}

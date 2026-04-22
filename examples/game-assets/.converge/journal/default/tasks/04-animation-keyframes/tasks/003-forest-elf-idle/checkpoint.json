@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "04-animation-keyframes/003-forest-elf-idle",
+  "status": "complete",
+  "lastUpdated": "2026-04-22T14:22:46.876Z",
+  "createdAt": "2026-04-22T14:22:46.871Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-22T14:22:46.871Z",
+      "completedAt": "2026-04-22T14:22:46.874Z",
+      "outcome": "success",
+      "durationMs": 3
+    }
+  ],
+  "currentAttempt": 1
+}

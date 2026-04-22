@@ -3,23 +3,23 @@
   "checks": [
     {
       "id": "sprites-json-exists",
-      "description": "sprites.json written",
-      "cmd": "test -s sprites.json"
+      "description": "assets/sprites.json written",
+      "cmd": "test -s assets/sprites.json"
     },
     {
       "id": "objects-json-exists",
-      "description": "objects.json written",
-      "cmd": "test -s objects.json"
+      "description": "assets/objects.json written",
+      "cmd": "test -s assets/objects.json"
     },
     {
       "id": "tilemaps-json-exists",
-      "description": "tile_maps.json written",
-      "cmd": "test -s tile_maps.json"
+      "description": "assets/tile_maps.json written",
+      "cmd": "test -s assets/tile_maps.json"
     },
     {
       "id": "backgrounds-json-exists",
-      "description": "backgrounds.json written",
-      "cmd": "test -s backgrounds.json"
+      "description": "assets/backgrounds.json written",
+      "cmd": "test -s assets/backgrounds.json"
     }
   ]
 }

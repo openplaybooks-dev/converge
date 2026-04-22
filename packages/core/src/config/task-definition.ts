@@ -192,7 +192,7 @@ export interface TaskDefinition {
   dependencies?: string[];
 
   /** Backlog scan definitions — commands whose output produces backlog items */
-  backlogs?: import("../scan/types.ts").BacklogDef[];
+  backlogs?: import("../backlog/types.ts").BacklogDef;
 
   /**
    * Facts API function. Collects project-level or task-specific facts before execution.

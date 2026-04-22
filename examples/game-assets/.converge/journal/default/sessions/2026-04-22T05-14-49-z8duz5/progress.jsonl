@@ -1,8 +1,0 @@
-{"iteration":1,"timestamp":"2026-04-22T05:14:49.138Z","tasksComplete":0,"tasksTotal":18,"currentTask":{"id":"01-define-assets","epic":"default","attempt":1,"status":"running"},"gaps":[]}
-{"iteration":2,"timestamp":"2026-04-22T05:14:51.093Z","tasksComplete":1,"tasksTotal":18,"currentTask":{"id":"02-background-refs/001-forest-path","epic":"default","attempt":1,"status":"running"},"gaps":[]}
-{"iteration":3,"timestamp":"2026-04-22T05:14:51.256Z","tasksComplete":2,"tasksTotal":18,"currentTask":{"id":"02-character-refs/001-hero-knight","epic":"default","attempt":1,"status":"running"},"gaps":[]}
-{"iteration":4,"timestamp":"2026-04-22T05:14:51.424Z","tasksComplete":3,"tasksTotal":18,"currentTask":{"id":"02-character-refs/002-forest-elf","epic":"default","attempt":1,"status":"running"},"gaps":[]}
-{"iteration":5,"timestamp":"2026-04-22T05:14:51.613Z","tasksComplete":4,"tasksTotal":18,"currentTask":{"id":"02-character-refs/003-shadow-mage","epic":"default","attempt":1,"status":"running"},"gaps":[]}
-{"iteration":6,"timestamp":"2026-04-22T05:14:51.765Z","tasksComplete":5,"tasksTotal":18,"currentTask":{"id":"02-object-refs/001-health-potion","epic":"default","attempt":1,"status":"running"},"gaps":[]}
-{"iteration":7,"timestamp":"2026-04-22T05:14:51.909Z","tasksComplete":6,"tasksTotal":18,"currentTask":{"id":"02-object-refs/002-gold-key","epic":"default","attempt":1,"status":"running"},"gaps":[]}
-{"iteration":8,"timestamp":"2026-04-22T05:14:52.106Z","tasksComplete":7,"tasksTotal":18,"currentTask":{"id":"03-object-sheet-gen/gold-key-collect","epic":"default","attempt":1,"status":"running"},"gaps":[]}

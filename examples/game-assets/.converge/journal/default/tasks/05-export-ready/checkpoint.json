@@ -1,0 +1,18 @@
+{
+  "type": "task",
+  "id": "05-export-ready",
+  "status": "pending",
+  "lastUpdated": "2026-04-22T14:22:46.554Z",
+  "createdAt": "2026-04-22T13:40:58.730Z",
+  "progress": {
+    "totalChildren": 3,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-hero-knight",
+      "002-forest-elf",
+      "003-shadow-mage"
+    ],
+    "lastProgressUpdate": "2026-04-22T14:22:46.554Z"
+  }
+}

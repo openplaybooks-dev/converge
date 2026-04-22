@@ -1,6 +1,6 @@
 # Task Journal: 02-character-refs/003-shadow-mage
 
-## Current attempt — `attempts/02/`
+## Current attempt — `attempts/01/`
 
 | File | Purpose |
 |------|---------|

@@ -1,61 +1,63 @@
 /**
  * WBS: Animation Keyframes
  *
- * For each character × animation_state × frame, generate
+ * For each character × animation_state, spawn a subtask to generate
  * animation keyframes using Nano-banana (Gemini 2.5 Flash Image).
- * Output: keyframes/{char_id}/{state}_{frame}.png
+ * Output: assets/characters/{char_id}/{state}/frames/*.png
  */
 
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
-import { spawn } from 'child_process';
 
 export async function run(ctx) {
   const { projectDir } = ctx;
 
   const spritesPath = join(projectDir, 'assets', 'sprites.json');
-  const sprites = JSON.parse(readFileSync(spritesPath, 'utf-8'));
 
-  let totalGenerated = 0;
+  if (!existsSync(spritesPath)) {
+    console.log('  assets/sprites.json not found — skipping animation keyframes generation');
+    return;
+  }
 
-  console.log(`  Generating animation keyframes`);
+  let sprites;
+  try {
+    sprites = JSON.parse(readFileSync(spritesPath, 'utf-8'));
+  } catch (err) {
+    console.error(`  Failed to read assets/sprites.json: ${err.message}`);
+    return;
+  }
 
-  const scriptPath = join(projectDir, 'scripts', 'generate_keyframes.py');
-  const pythonBin = process.env.PYTHON_BIN || (process.platform === 'win32' ? 'python' : 'python3');
+  if (!sprites || !sprites.length) {
+    console.log('  sprites.json is empty — nothing to generate');
+    return;
+  }
 
-  // Explicitly pass GEMINI_API_KEY — on Windows, spawn with shell:true doesn't inherit process.env correctly
-  const env = { ...process.env, GEMINI_API_KEY: process.env.GEMINI_API_KEY || '' };
+  console.log(`  Spawning animation keyframe tasks for ${sprites.length} character(s)`);
 
-  for (let i = 0; i < sprites.length; i++) {
-    const sprite = sprites[i];
+  let taskIndex = 0;
+
+  for (const sprite of sprites) {
     const animationStates = sprite.animation_states || ['idle'];
 
-    for (let j = 0; j < animationStates.length; j++) {
-      const state = animationStates[j];
+    for (const state of animationStates) {
+      taskIndex++;
+      const taskId = String(taskIndex).padStart(3, '0') + `-${sprite.id}-${state}`;
 
-      console.log(`    - ${sprite.id}/${state}: ${sprite.name}`);
+      console.log(`    - Spawning task: ${taskId} (${sprite.name}/${state})`);
 
-      try {
-        const cmd = `"${pythonBin}" "${scriptPath}" "${sprite.id}" "${sprite.name}" "${state}" "${sprite.palette}"`;
-
-        await new Promise((resolve, reject) => {
-          spawn(cmd, {
-            cwd: projectDir,
-            env,
-            stdio: 'inherit',
-            shell: true,
-          }).on('close', (code) => {
-            if (code === 0) resolve();
-            else reject(new Error(`python exited ${code}`));
-          }).on('error', reject);
-        });
-      } catch (err) {
-        console.error(`    Failed to generate keyframes for ${sprite.name}/${state}: ${err.message}`);
-      }
-
-      totalGenerated++;
+      await ctx.spawn({
+        id: taskId,
+        title: `Animation Keyframes: ${sprite.name} - ${state}`,
+        vars: {
+          id: taskId,
+          charId: sprite.id,
+          charName: sprite.name,
+          state: state,
+          palette: sprite.palette || '16-bit retro, limited to 16 colors',
+        },
+      });
     }
   }
 
-  console.log(`  Generated ${totalGenerated} animation sequence(s)`);
+  console.log(`  Spawned ${taskIndex} animation keyframe task(s)`);
 }

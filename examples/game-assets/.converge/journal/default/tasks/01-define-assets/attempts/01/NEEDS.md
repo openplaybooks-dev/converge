@@ -10,14 +10,14 @@ Read idea.md describing game and required assets. Parse into type-specific manif
 
 ## Expected Outputs
 
-- `sprites.json`
-- `objects.json`
-- `tile_maps.json`
-- `backgrounds.json`
+- `assets/sprites.json`
+- `assets/objects.json`
+- `assets/tile_maps.json`
+- `assets/backgrounds.json`
 
 ## Checks
 
-- **sprites-json-exists**: sprites.json written
-- **objects-json-exists**: objects.json written
-- **tilemaps-json-exists**: tile_maps.json written
-- **backgrounds-json-exists**: backgrounds.json written
+- **sprites-json-exists**: assets/sprites.json written
+- **objects-json-exists**: assets/objects.json written
+- **tilemaps-json-exists**: assets/tile_maps.json written
+- **backgrounds-json-exists**: assets/backgrounds.json written

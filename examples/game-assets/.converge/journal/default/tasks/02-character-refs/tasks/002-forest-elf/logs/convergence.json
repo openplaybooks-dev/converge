@@ -45,17 +45,11 @@
     {
       "id": "signal-done",
       "handler": "signal-done",
-      "status": "done",
+      "status": "buffered",
       "origin": "initial",
       "data": {
         "priority": 97,
-        "applicable": "noGaps"
-      },
-      "result": {
-        "action": "done",
-        "success": true,
-        "reason": "Converged",
-        "durationMs": 0
+        "applicable": "noGapsAndExecuted"
       }
     }
   ],
@@ -64,25 +58,19 @@
       "from": "_start",
       "to": "check-wbs-seeded",
       "iteration": 1,
-      "ts": "2026-04-22T05:14:51.491Z"
+      "ts": "2026-04-22T13:40:59.109Z"
     },
     {
       "from": "check-wbs-seeded",
       "to": "check-outputs-exist",
       "iteration": 1,
-      "ts": "2026-04-22T05:14:51.495Z"
+      "ts": "2026-04-22T13:40:59.110Z"
     },
     {
       "from": "check-outputs-exist",
       "to": "detect-gaps",
       "iteration": 1,
-      "ts": "2026-04-22T05:14:51.499Z"
-    },
-    {
-      "from": "detect-gaps",
-      "to": "signal-done",
-      "iteration": 1,
-      "ts": "2026-04-22T05:14:51.501Z"
+      "ts": "2026-04-22T13:40:59.111Z"
     }
   ]
 }

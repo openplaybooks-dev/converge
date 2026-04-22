@@ -5,7 +5,7 @@ Evolve LLM training configurations through iterative generation, evaluation, sel
 ## Usage
 
 ```bash
-converge run --converge --playbook=llm-training-evolve \
+converge .converge/playbooks/llm-training-evolve/playbook.yml run --converge \
   --trainingGoal="Train a 7B parameter model for code generation with strong HumanEval performance" \
   --modelScale=7B
 ```

@@ -10,7 +10,7 @@ import type {
   GoalHierarchy,
   GoalConvergenceConfig,
   GoalConvergenceResult,
-} from "../goal/types.ts";
+} from "../task/goal/types.ts";
 import type { TaskConfig, TaskStatus } from "../storage/types.ts";
 import type { ConvergenceConfig } from "../orchestrator/convergence.ts";
 import type { ProjectOrchestrationResult } from "../orchestrator/project-orchestrator.ts";

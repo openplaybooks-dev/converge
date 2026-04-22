@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-sprite-sheet-gen/003-forest-elf-idle",
+  "status": "complete",
+  "lastUpdated": "2026-04-22T14:22:46.723Z",
+  "createdAt": "2026-04-22T14:22:46.718Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-22T14:22:46.718Z",
+      "completedAt": "2026-04-22T14:22:46.722Z",
+      "outcome": "success",
+      "durationMs": 4
+    }
+  ],
+  "currentAttempt": 1
+}

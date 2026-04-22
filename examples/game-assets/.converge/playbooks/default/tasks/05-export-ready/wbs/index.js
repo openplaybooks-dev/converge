@@ -8,87 +8,51 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { spawn } from 'child_process';
 
 export async function run(ctx) {
   const { projectDir } = ctx;
 
   const spritesPath = join(projectDir, 'assets', 'sprites.json');
-  const sprites = JSON.parse(readFileSync(spritesPath, 'utf-8'));
-
-  console.log(`  Exporting sprite sheets and generating atlas metadata`);
-
-  const pythonBin = process.env.PYTHON_BIN || (process.platform === 'win32' ? 'python' : 'python3');
-
-  // Build env with explicit GEMINI_API_KEY
-  const env = { ...process.env, GEMINI_API_KEY: process.env.GEMINI_API_KEY || '' };
-
-  // Step 1: Export frame metadata (slice sprite sheets, generate frames.json)
-  const exportScript = join(projectDir, 'scripts', 'export_frames_meta.py');
-
-  for (let i = 0; i < sprites.length; i++) {
-    const sprite = sprites[i];
-    const animationStates = sprite.animation_states || ['idle'];
-
-    console.log(`    - ${sprite.id}: ${sprite.name}`);
-
-    // Check if spritesheets exist
-    const spritesheetDir = join(projectDir, 'assets', 'characters', sprite.id);
-    if (!existsSync(spritesheetDir)) {
-      console.log(`      assets/characters/${sprite.id}/ not found — skipping`);
-      continue;
-    }
-
-    try {
-      const cmd = `"${pythonBin}" "${exportScript}" "${sprite.id}"`;
-
-      await new Promise((resolve, reject) => {
-        spawn(cmd, {
-          cwd: projectDir,
-          env,
-          stdio: 'inherit',
-          shell: true,
-        }).on('close', (code) => {
-          if (code === 0) resolve();
-          else reject(new Error(`python exited ${code}`));
-        }).on('error', reject);
-      });
-    } catch (err) {
-      console.error(`      Failed to export frames for ${sprite.name}: ${err.message}`);
-    }
+  
+  if (!existsSync(spritesPath)) {
+    console.log('  assets/sprites.json not found — skipping export');
+    return;
   }
 
-  // Step 2: Export atlas metadata for each character
-  const exportMetaScript = join(projectDir, 'scripts', 'export_metadata.py');
-
-  for (let i = 0; i < sprites.length; i++) {
-    const sprite = sprites[i];
-    const charDir = join(projectDir, 'assets', 'characters', sprite.id);
-
-    if (!existsSync(charDir)) {
-      continue;
-    }
-
-    console.log(`    - ${sprite.id}: generating atlas files`);
-
-    try {
-      const cmd = `"${pythonBin}" "${exportMetaScript}" "${sprite.id}" characters --engine godot --engine unity --engine raw`;
-
-      await new Promise((resolve, reject) => {
-        spawn(cmd, {
-          cwd: projectDir,
-          env,
-          stdio: 'inherit',
-          shell: true,
-        }).on('close', (code) => {
-          if (code === 0) resolve();
-          else reject(new Error(`python exited ${code}`));
-        }).on('error', reject);
-      });
-    } catch (err) {
-      console.error(`      Failed to export atlas for ${sprite.name}: ${err.message}`);
-    }
+  let sprites;
+  try {
+    sprites = JSON.parse(readFileSync(spritesPath, 'utf-8'));
+  } catch (err) {
+    console.error(`  Failed to read assets/sprites.json: ${err.message}`);
+    return;
   }
 
-  console.log(`  Export complete`);
+  if (!sprites || !sprites.length) {
+    console.log('  sprites.json is empty — nothing to export');
+    return;
+  }
+
+  console.log(`  Spawning export tasks for ${sprites.length} character(s)`);
+
+  let taskIndex = 0;
+
+  for (const sprite of sprites) {
+    taskIndex++;
+    const taskId = String(taskIndex).padStart(3, '0') + `-${sprite.id}`;
+
+    console.log(`    - Spawning task: ${taskId} (${sprite.name})`);
+
+    await ctx.spawn({
+      id: taskId,
+      title: `Export Atlas: ${sprite.name}`,
+      vars: {
+        id: taskId,
+        charId: sprite.id,
+        charName: sprite.name,
+        animationStates: (sprite.animation_states || ['idle']).join(','),
+      },
+    });
+  }
+
+  console.log(`  Spawned ${taskIndex} export task(s)`);
 }

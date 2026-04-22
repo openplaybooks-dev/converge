@@ -7,8 +7,8 @@
 
 import type { TaskContext } from "../context/types.ts";
 import type { TaskConfig } from "../storage/types.ts";
-import type { TaskResult, TaskFnMeta } from "../functions/types.ts";
-import { globalRegistry } from "../functions/registry.ts";
+import type { TaskResult, TaskFnMeta } from "../task/checks/types.ts";
+import { globalRegistry } from "../task/checks/registry.ts";
 import { logTaskEvent, reEvaluateAfterTask } from "../journal/index.ts";
 import path from "node:path";
 import { existsSync } from "node:fs";

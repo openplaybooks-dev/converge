@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-sprite-sheet-gen/002-hero-knight-walk",
+  "status": "complete",
+  "lastUpdated": "2026-04-22T14:22:46.698Z",
+  "createdAt": "2026-04-22T14:22:46.693Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-22T14:22:46.693Z",
+      "completedAt": "2026-04-22T14:22:46.697Z",
+      "outcome": "success",
+      "durationMs": 4
+    }
+  ],
+  "currentAttempt": 1
+}

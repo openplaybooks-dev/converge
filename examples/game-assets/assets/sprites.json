@@ -1,29 +1,23 @@
 [
   {
-  "id": "hero-knight",
-  "name": "Sir Aldric",
-  "description": "Armored knight with blue steel armor, red cape, and sword and shield. Hero character with 8-directional movement.",
-  "palette": "16-bit retro, blue and silver armor, red accent, limited to 16 colors",
-  "animation_states": ["idle", "walk"],
-  "frames_per_state": 4,
-  "sprites_per_row": 4
-},
+    "id": "hero-knight",
+    "name": "Sir Aldric",
+    "description": "Armored knight with blue steel armor, red cape, and sword and shield. Hero character with 8-directional movement.",
+    "palette": "16-bit retro, blue and silver armor, red accent, limited to 16 colors",
+    "animation_states": ["idle", "walk"]
+  },
   {
     "id": "forest-elf",
     "name": "Lirael",
     "description": "Nimble elf with green cloak, pointed hat, and bow. Quick movements, graceful poses.",
     "palette": "16-bit retro, green and brown tones, natural forest colors, limited to 16 colors",
-    "animation_states": ["idle", "walk"],
-    "frames_per_state": 4,
-    "sprites_per_row": 4
+    "animation_states": ["idle", "walk"]
   },
   {
     "id": "shadow-mage",
     "name": "Malachar",
     "description": "Dark robed mage with glowing purple eyes and staff. Mysterious, flowing robe animations.",
     "palette": "16-bit retro, dark purple and black, magical glow effects, limited to 16 colors",
-    "animation_states": ["idle", "walk"],
-    "frames_per_state": 4,
-    "sprites_per_row": 4
+    "animation_states": ["idle", "walk"]
   }
 ]

@@ -5,7 +5,7 @@ Beam-search frontier research — explores unknown solution spaces using paralle
 ## Usage
 
 ```bash
-converge run --playbook=frontier-research \
+converge .converge/playbooks/frontier-research/playbook.yml run \
   --question="What are the fundamental limits of in-context learning in transformer architectures?"
 ```
 

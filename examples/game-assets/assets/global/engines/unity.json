@@ -1,6 +1,0 @@
-{
-  "format": "SpriteAtlas",
-  "pivot": {"x": 0.5, "y": 0.5},
-  "mesh_type": "tight",
-  "include_in_build": true
-}

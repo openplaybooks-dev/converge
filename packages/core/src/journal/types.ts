@@ -4,7 +4,7 @@
  * Simple journal system for AI self-planning and gap tracking.
  */
 
-import type { Gap } from "../gap/types.ts";
+import type { Gap } from "../task/gap/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Event Types                                                       */

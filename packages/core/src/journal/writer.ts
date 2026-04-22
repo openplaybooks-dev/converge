@@ -7,7 +7,7 @@
 import { mkdir, writeFile, appendFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { stringify as yamlStringify } from "yaml";
-import type { Gap } from "../gap/types.ts";
+import type { Gap } from "../task/gap/types.ts";
 import type {
   EventType,
   JournalEvent,

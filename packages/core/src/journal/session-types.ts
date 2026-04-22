@@ -4,7 +4,7 @@
  * Types for session-level logging that captures complete orchestration runs.
  */
 
-import type { Gap } from "../gap/types.ts";
+import type { Gap } from "../task/gap/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Session Event Types                                               */

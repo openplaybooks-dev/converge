@@ -11,10 +11,10 @@
     }
   ],
   "outputs": [
-    "sprites.json",
-    "objects.json",
-    "tile_maps.json",
-    "backgrounds.json"
+    "assets/sprites.json",
+    "assets/objects.json",
+    "assets/tile_maps.json",
+    "assets/backgrounds.json"
   ],
   "blocked": false
 }

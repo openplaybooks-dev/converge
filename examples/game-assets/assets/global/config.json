@@ -1,8 +1,0 @@
-{
-  "sprite_resolution": 128,
-  "sprites_per_row": 4,
-  "animation_states": ["idle", "walk"],
-  "asset_types": ["characters", "objects", "backgrounds", "maps"],
-  "engine_targets": ["godot", "unity", "raw"],
-  "art_style": "16-bit retro"
-}

@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "04-animation-keyframes/005-shadow-mage-idle",
+  "status": "complete",
+  "lastUpdated": "2026-04-22T14:22:46.924Z",
+  "createdAt": "2026-04-22T14:22:46.920Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-22T14:22:46.920Z",
+      "completedAt": "2026-04-22T14:22:46.923Z",
+      "outcome": "success",
+      "durationMs": 3
+    }
+  ],
+  "currentAttempt": 1
+}

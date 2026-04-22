@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-export-ready/002-forest-elf",
+  "status": "complete",
+  "lastUpdated": "2026-04-22T14:22:47.003Z",
+  "createdAt": "2026-04-22T14:22:46.998Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-22T14:22:46.998Z",
+      "completedAt": "2026-04-22T14:22:47.001Z",
+      "outcome": "success",
+      "durationMs": 3
+    }
+  ],
+  "currentAttempt": 1
+}

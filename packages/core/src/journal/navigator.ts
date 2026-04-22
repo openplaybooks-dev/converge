@@ -6,7 +6,7 @@
 
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
-import type { Gap } from "../gap/types.ts";
+import type { Gap } from "../task/gap/types.ts";
 import {
   getJournalStructure,
   getJournalFilePath,

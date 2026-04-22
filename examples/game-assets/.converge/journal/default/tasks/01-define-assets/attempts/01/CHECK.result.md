@@ -1,19 +1,19 @@
 # RESULT.md — Attempt 1
 
 **Outcome**: ✅ SUCCESS
-**Duration**: 2s
-**Completed**: 2026-04-22T05:14:51.028Z
+**Duration**: 247ms
+**Completed**: 2026-04-22T13:40:59.027Z
 
 ## Outputs
 
-- `sprites.json` — ✓ produced (960 B)
-- `objects.json` — ✓ produced (416 B)
-- `tile_maps.json` — ✓ produced (207 B)
-- `backgrounds.json` — ✓ produced (251 B)
+- `assets/sprites.json` — ✓ produced (937 B)
+- `assets/objects.json` — ✓ produced (400 B)
+- `assets/tile_maps.json` — ✓ produced (198 B)
+- `assets/backgrounds.json` — ✓ produced (242 B)
 
 ## Check Results — ✅ all passed
 
-- ✓ **sprites-json-exists**: sprites.json written
-- ✓ **objects-json-exists**: objects.json written
-- ✓ **tilemaps-json-exists**: tile_maps.json written
-- ✓ **backgrounds-json-exists**: backgrounds.json written
+- ✓ **sprites-json-exists**: assets/sprites.json written
+- ✓ **objects-json-exists**: assets/objects.json written
+- ✓ **tilemaps-json-exists**: assets/tile_maps.json written
+- ✓ **backgrounds-json-exists**: assets/backgrounds.json written

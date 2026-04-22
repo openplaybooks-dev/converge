@@ -7,10 +7,10 @@
 
 import type { ProjectContext } from "../context/types.ts";
 import type { Checkpoint, TaskStatus } from "../storage/types.ts";
-import type { Gap } from "../gap/types.ts";
+import type { Gap } from "../task/gap/types.ts";
 import { FilesystemStorage } from "../storage/filesystem.ts";
 import { StatusManager } from "../storage/status.ts";
-import { GapDetector } from "../gap/detector.ts";
+import { GapDetector } from "../task/gap/detector.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Resume Point                                                      */

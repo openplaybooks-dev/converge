@@ -24,8 +24,8 @@ pnpm converge run          # run all remaining tasks
 ## Verify checks manually
 
 ```bash
-  test -s sprites.json
-  test -s objects.json
-  test -s tile_maps.json
-  test -s backgrounds.json
+  test -s assets/sprites.json
+  test -s assets/objects.json
+  test -s assets/tile_maps.json
+  test -s assets/backgrounds.json
 ```
