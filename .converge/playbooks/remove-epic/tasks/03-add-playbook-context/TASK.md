@@ -1,15 +1,14 @@
 ---
 id: 03-add-playbook-context
-title: Add PlaybookContext to replace EpicContext
+title: Add PlaybookContext — wire into TaskContext and ExecutionStack
 blocking: true
 dependencies: [02-remove-epic-types]
 ---
 
-Create PlaybookContext as the replacement for EpicContext in the context hierarchy.
+Add PlaybookContext and wire it into the context hierarchy. **Note: EpicContext was already removed in Task 1.**
 
 **`packages/core/src/context/types.ts`:**
-- Delete the EpicContext interface (lines ~95-125)
-- Add PlaybookContext interface in its place:
+- Add PlaybookContext interface:
   ```typescript
   export interface PlaybookContext extends BaseContext {
     readonly level: "playbook";
@@ -22,15 +21,14 @@ Create PlaybookContext as the replacement for EpicContext in the context hierarc
     readonly journal: JournalAPI;
   }
   ```
-- Change TaskContext: replace `readonly epic: Readonly<EpicContext>` with `readonly playbook: Readonly<PlaybookContext>`
-- Change ExecutionStackLevel.type from `"epic" | "task" | "subtask"` to `"playbook" | "task" | "subtask"`
-- Remove EpicConfig, EpicStatus imports
+- TaskContext: replace `readonly epic: Readonly<EpicContext>` with `readonly playbook: Readonly<PlaybookContext>`
+- ExecutionStackLevel.type: replace `"epic" | "task" | "subtask"` with `"playbook" | "task" | "subtask"`
 
 **`packages/core/src/tree/types.ts`:**
-- Add `playbookId: string | undefined` to TreeNodeData (replacing the epicId removed in task 02)
+- TreeNodeData: replace `epicId` with `playbookId: string | undefined`
 
 **`packages/core/src/context/index.ts`:**
 - Export PlaybookContext
-- Remove any remaining EpicContext references
+- Remove EpicContext exports (already cleaned in task 01)
 
-Update `packages/core/src/functions/types.ts` to use PlaybookContext (replacing the placeholder from task 02).
+Update `packages/core/src/functions/types.ts` to use PlaybookContext in PlanFn/CheckFn/EvalFn signatures.

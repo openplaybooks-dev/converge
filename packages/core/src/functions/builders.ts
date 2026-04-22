@@ -379,10 +379,9 @@ export function task(): ITaskBuilder {
 
 import type {
   TaskDefBuilder as ITaskDefBuilder,
-  EpicBuilder as IEpicBuilder,
   ProjectBuilder as IProjectBuilder,
-  EpicDefinition,
   ProjectDefinition,
+  EpicDefinition,
 } from "./types.ts";
 import type { TaskConfig, ProjectConfig } from "../storage/types.ts";
 
@@ -641,179 +640,6 @@ export function taskDef(): ITaskDefBuilder {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Epic Builder                                                      */
-/* ------------------------------------------------------------------ */
-
-import type { Goal } from "../goal/types.ts";
-
-class EpicBuilderImpl implements IEpicBuilder {
-  private _id?: string;
-  private _name?: string;
-  private _description?: string;
-  private _goals: Goal[] = [];
-  private _deps: string[] = [];
-  private _checks: CheckFnMeta[] = [];
-  private _evals: EvalFnMeta[] = [];
-  private _planners: PlanFnMeta[] = [];
-  private _tasks: TaskConfig[] = [];
-
-  id(id: string): this {
-    this._id = id;
-    return this;
-  }
-
-  name(name: string): this {
-    this._name = name;
-    return this;
-  }
-
-  description(description: string): this {
-    this._description = description;
-    return this;
-  }
-
-  goals(goals: Goal[]): this {
-    this._goals = goals;
-    return this;
-  }
-
-  goal(goal: Goal): this {
-    this._goals.push(goal);
-    return this;
-  }
-
-  deps(deps: string[]): this {
-    this._deps = deps;
-    return this;
-  }
-
-  check(check: CheckFnMeta): this {
-    this._checks.push(check);
-    return this;
-  }
-
-  eval(evalMeta: EvalFnMeta): this {
-    this._evals.push(evalMeta);
-    return this;
-  }
-
-  planner(planner: PlanFnMeta): this {
-    this._planners.push(planner);
-    return this;
-  }
-
-  task(task: TaskConfig): this {
-    this._tasks.push(task);
-    return this;
-  }
-
-  build(): EpicDefinition {
-    if (!this._id) {
-      throw new Error("Epic ID is required. Call .id() before .build()");
-    }
-    if (!this._name) {
-      throw new Error("Epic name is required. Call .name() before .build()");
-    }
-
-    return {
-      id: this._id,
-      name: this._name,
-      description: this._description,
-      goals: this._goals,
-      deps: this._deps,
-      checks: this._checks,
-      evals: this._evals,
-      planners: this._planners,
-      tasks: this._tasks,
-    };
-  }
-}
-
-/**
- * Create a new epic builder
- *
- * @example
- * const dataAnalysisEpic = epic()
- *   .id('data-analysis')
- *   .name('Data Analysis & Schema Design')
- *   .goals([dataModelingGoal]) // Goals are Goal objects
- *   .check(dataModelingCheck)
- *   .eval(dataAnalysisEval)
- *   .planner(dataAnalysisPlanner)
- *   .task(analyzeSheets)
- *   .build();
- */
-export function epic(): IEpicBuilder {
-  return new EpicBuilderImpl();
-}
-
-/**
- * Define an epic (shorthand for builder pattern)
- *
- * @example
- * const dataAnalysisEpic = defineEpic({
- *   id: 'data-analysis',
- *   name: 'Data Analysis & Schema Design',
- *   goals: [dataModelingGoal],
- *   checks: [dataModelingCheck],
- *   evals: [dataAnalysisEval],
- *   planners: [dataAnalysisPlanner],
- *   tasks: [analyzeSheets],
- * });
- */
-export function defineEpic(config: {
-  id: string;
-  name: string;
-  description?: string;
-  goals?: Goal[];
-  deps?: string[];
-  checks?: CheckFnMeta[];
-  evals?: EvalFnMeta[];
-  planners?: PlanFnMeta[];
-  tasks?: TaskConfig[];
-}): EpicDefinition {
-  const builder = epic().id(config.id).name(config.name);
-
-  if (config.description) {
-    builder.description(config.description);
-  }
-
-  if (config.goals) {
-    builder.goals(config.goals);
-  }
-
-  if (config.deps) {
-    builder.deps(config.deps);
-  }
-
-  if (config.checks) {
-    for (const check of config.checks) {
-      builder.check(check);
-    }
-  }
-
-  if (config.evals) {
-    for (const evalFn of config.evals) {
-      builder.eval(evalFn);
-    }
-  }
-
-  if (config.planners) {
-    for (const planner of config.planners) {
-      builder.planner(planner);
-    }
-  }
-
-  if (config.tasks) {
-    for (const task of config.tasks) {
-      builder.task(task);
-    }
-  }
-
-  return builder.build();
-}
-
-/* ------------------------------------------------------------------ */
 /*  Project Builder                                                   */
 /* ------------------------------------------------------------------ */
 
@@ -856,7 +682,7 @@ class ProjectDefinitionImpl implements ProjectDefinition {
 
     // Write epic configs and register functions
     for (const epic of this.epics) {
-      storage.writeEpicConfig({
+      storage.writePlaybookConfig({
         id: epic.id,
         title: epic.name,
         description: epic.description,
@@ -892,7 +718,7 @@ class ProjectDefinitionImpl implements ProjectDefinition {
 
     // Write epic configs and register functions
     for (const epic of this.epics) {
-      storage.writeEpicConfig({
+      storage.writePlaybookConfig({
         id: epic.id,
         title: epic.name,
         description: epic.description,
@@ -1120,7 +946,6 @@ export function defineProject(config: {
   goals?: string[];
   variables?: Record<string, unknown>;
   plugins?: string[];
-  epics?: EpicDefinition[];
 }): ProjectDefinition {
   const builder = project().name(config.name).dir(config.dir);
 
@@ -1138,12 +963,6 @@ export function defineProject(config: {
 
   if (config.plugins) {
     builder.plugins(config.plugins);
-  }
-
-  if (config.epics) {
-    for (const epic of config.epics) {
-      builder.epic(epic);
-    }
   }
 
   return builder.build();

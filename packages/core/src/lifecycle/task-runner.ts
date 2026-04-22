@@ -382,48 +382,9 @@ export async function executeTask(
     // Create the real numbered directory for this attempt
     await fsMkdir(realAttemptDir, { recursive: true });
 
-    // Remove existing wip — could be a junction (new-style) or real dir (old-style)
-    if (existsSync(wipDir)) {
-      let wipStat: import("node:fs").Stats | null = null;
-      try {
-        wipStat = await lstat(wipDir);
-      } catch {
-        /* ignore */
-      }
-
-      if (wipStat?.isSymbolicLink()) {
-        // Junction/symlink from a previous run — unlink only (real numbered dir stays intact)
-        await fsRm(wipDir);
-      } else if (wipStat?.isDirectory()) {
-        // Old-style real directory — archive as previous attempt, then remove
-        if (attemptNumber > 1) {
-          const prevPadded = String(attemptNumber - 1).padStart(2, "0");
-          const prevDir = path.join(attemptsDir, prevPadded);
-          if (!existsSync(prevDir)) {
-            // One-time migration: rename real wip → numbered dir.
-            // Retry on EPERM (Windows tail -f may briefly hold file handles after kill).
-            const { rename: fsRename } = await import("node:fs/promises");
-            for (let i = 0; i < 5; i++) {
-              try {
-                await fsRename(wipDir, prevDir);
-                break;
-              } catch (err: any) {
-                if (err.code === "EPERM" && i < 4)
-                  await new Promise((r) => setTimeout(r, 300 * (i + 1)));
-                else throw err;
-              }
-            }
-            console.log(
-              `   📦 Archived attempt #${attemptNumber - 1} → attempts/${prevPadded}/ (migrated)`,
-            );
-          } else {
-            await fsRm(wipDir, { recursive: true, force: true });
-          }
-        } else {
-          await fsRm(wipDir, { recursive: true, force: true });
-        }
-      }
-    }
+    // Unconditionally remove any existing wip before creating the symlink.
+    // This handles: real directories (old-style), symlinks/junctions, and broken symlinks.
+    await fsRm(wipDir, { recursive: true, force: true });
 
     // Create wip as a junction (Windows) or dir symlink (other) → real attempt dir
     const linkType = process.platform === "win32" ? "junction" : "dir";

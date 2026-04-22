@@ -622,20 +622,20 @@ export async function statusCommand(
   console.log();
   console.log("Epics:");
   for (const epicId of projectConfig.epics) {
-    const epicConfig = storage.readEpicConfig(epicId);
-    const epicStatus = statusManager.getEpicStatus(epicId);
+    const playbookConfig = storage.readPlaybookConfig(epicId);
+    const playbookStatus = statusManager.getPlaybookStatus(epicId);
     const tasks = storage.listTasks(epicId);
     const completed = tasks.filter((t) =>
       statusManager.isTaskCompleted(epicId, t),
     ).length;
 
     console.log(
-      `  ${epicStatus.status === "completed" ? "✅" : "⏳"} ${epicConfig.title}`,
+      `  ${playbookStatus.status === "completed" ? "✅" : "⏳"} ${playbookConfig.title}`,
     );
-    console.log(`     Status: ${epicStatus.status}`);
+    console.log(`     Status: ${playbookStatus.status}`);
     console.log(`     Tasks: ${completed}/${tasks.length} completed`);
-    if (epicStatus.currentGaps.length > 0) {
-      console.log(`     Gaps: ${epicStatus.currentGaps.length}`);
+    if (playbookStatus.currentGaps.length > 0) {
+      console.log(`     Gaps: ${playbookStatus.currentGaps.length}`);
     }
   }
   console.log();

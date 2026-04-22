@@ -172,49 +172,25 @@ export const ProjectConfigSchema = z.object({
 export type ProjectConfig = z.infer<typeof ProjectConfigSchema>;
 
 /* ------------------------------------------------------------------ */
-/*  Epic Configuration (Authored)                                     */
+/*  Legacy Epic Types (internal, for runtime compatibility)             */
 /* ------------------------------------------------------------------ */
 
 /**
- * Epic configuration schema (epics/{id}.yaml)
- * Defines the epic goals and constraints.
+ * @internal For runtime compatibility only. Do not use in new code.
+ * @deprecated Use PlaybookConfig instead.
  */
 export const EpicConfigSchema = z.object({
   id: z.string(),
   title: z.string(),
   description: z.string().optional(),
-
-  /** Goals for this epic */
   goals: z.array(z.string()).default([]),
-
-  /** Task IDs in this epic */
   tasks: z.array(z.string()).default([]),
-
-  /** Execution constraints */
-  constraints: z
-    .object({
-      sequential: z.boolean().default(true),
-      autoResolve: z.boolean().default(true),
-      blocking: z.array(z.string()).optional(),
-      blockedBy: z.array(z.string()).optional(),
-      condition: z.string().optional(),
-    })
-    .optional(),
-
-  /** Metadata */
-  metadata: z
-    .object({
-      created: z.string(),
-      updated: z.string(),
-    })
-    .optional(),
 });
-
 export type EpicConfig = z.infer<typeof EpicConfigSchema>;
 
 /**
- * Epic status schema (epics/{id}.status.yaml)
- * Runtime execution state.
+ * @internal For runtime compatibility only. Do not use in new code.
+ * @deprecated Use PlaybookStatus instead.
  */
 export const EpicStatusSchema = z.object({
   id: z.string(),
@@ -230,12 +206,11 @@ export const EpicStatusSchema = z.object({
     })
     .optional(),
 });
-
 export type EpicStatus = z.infer<typeof EpicStatusSchema>;
 
 /**
- * Epic dependencies schema (epics/{id}.deps.yaml)
- * Runtime dependency tracking.
+ * @internal For runtime compatibility only. Do not use in new code.
+ * @deprecated Use PlaybookDeps instead.
  */
 export const EpicDepsSchema = z.object({
   id: z.string(),
@@ -244,8 +219,52 @@ export const EpicDepsSchema = z.object({
   resolvedDeps: z.array(z.string()).default([]),
   unresolvedDeps: z.array(z.string()).default([]),
 });
-
 export type EpicDeps = z.infer<typeof EpicDepsSchema>;
+
+/* ------------------------------------------------------------------ */
+/*  Playbook Configuration (Authored)                                   */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Playbook config schema (.converge/playbooks/{playbookId}.yaml)
+ * Authored playbook definition.
+ */
+export const PlaybookConfigSchema = z.object({
+  id: z.string(),
+  title: z.string().optional(),
+  description: z.string().optional(),
+  goals: z.array(z.string()).default([]),
+  tasks: z.array(z.string()).default([]),
+});
+export type PlaybookConfig = z.infer<typeof PlaybookConfigSchema>;
+
+/**
+ * Playbook status schema (.converge/playbooks/{playbookId}.status.yaml)
+ * Runtime execution state.
+ */
+export const PlaybookStatusSchema = z.object({
+  id: z.string(),
+  status: z.enum(["planned", "active", "completed", "blocked", "failed"]),
+  currentGaps: z.array(z.string()).default([]),
+  attempts: z.number().default(0),
+  metadata: z
+    .object({
+      lastUpdated: z.string(),
+      started: z.string().optional(),
+      completed: z.string().optional(),
+    })
+    .optional(),
+});
+export type PlaybookStatus = z.infer<typeof PlaybookStatusSchema>;
+
+/**
+ * Playbook deps schema (.converge/playbooks/{playbookId}.deps.yaml)
+ */
+export const PlaybookDepsSchema = z.object({
+  id: z.string(),
+  dependsOn: z.array(z.string()).default([]),
+});
+export type PlaybookDeps = z.infer<typeof PlaybookDepsSchema>;
 
 /* ------------------------------------------------------------------ */
 /*  Task Configuration (Authored)                                     */
@@ -367,7 +386,7 @@ export type GapType = z.infer<typeof GapTypeSchema>;
 export const GapSchema = z.object({
   id: z.string(),
   type: GapTypeSchema,
-  level: z.enum(["project", "epic", "task"]),
+  level: z.enum(["project", "task"]),
   scope: z.string(), // Project/epic/task ID
   description: z.string(),
   detected: z.string(),
@@ -405,7 +424,7 @@ export type GapSnapshot = z.infer<typeof GapSnapshotSchema>;
  */
 export const ExecutionLevelSchema = z.object({
   id: z.string(),
-  type: z.enum(["epic", "task", "subtask"]),
+  type: z.enum(["playbook", "task", "subtask"]),
   filePath: z.string(),
   depth: z.number(),
 });
@@ -566,7 +585,7 @@ export type CheckpointV1 = z.infer<typeof CheckpointV1Schema>;
  */
 export const ProvenanceRecordSchema = z.object({
   entityId: z.string(),
-  entityType: z.enum(["epic", "task", "file", "check"]),
+  entityType: z.enum(["task", "file", "check"]),
   created: z.string(),
   createdBy: z.enum(["user", "planner", "executor", "migrator"]),
 
@@ -614,28 +633,28 @@ export type ProvenanceRecord = z.infer<typeof ProvenanceRecordSchema>;
 export interface StoragePaths {
   root: string; // .converge/
   project: string; // .converge/project.yaml
-  epics: string; // .converge/epics/
+  playbooks: string; // .converge/playbooks/
   checkpoints: string; // .converge/checkpoints/
   gaps: string; // .converge/gaps/
   provenance: string; // .converge/provenance/
 
-  /** Get epic config path */
-  epicConfig: (epicId: string) => string;
-  /** Get epic status path */
-  epicStatus: (epicId: string) => string;
-  /** Get epic deps path */
-  epicDeps: (epicId: string) => string;
-  /** Get epic log path */
-  epicLog: (epicId: string) => string;
-  /** Get epic tasks directory */
-  epicTasks: (epicId: string) => string;
+  /** Get playbook config path */
+  playbookConfig: (playbookId: string) => string;
+  /** Get playbook status path */
+  playbookStatus: (playbookId: string) => string;
+  /** Get playbook deps path */
+  playbookDeps: (playbookId: string) => string;
+  /** Get playbook log path */
+  playbookLog: (playbookId: string) => string;
+  /** Get playbook tasks directory */
+  playbookTasks: (playbookId: string) => string;
 
   /** Get task config path */
-  taskConfig: (epicId: string, taskId: string) => string;
+  taskConfig: (playbookId: string, taskId: string) => string;
   /** Get task status path */
-  taskStatus: (epicId: string, taskId: string) => string;
+  taskStatus: (playbookId: string, taskId: string) => string;
   /** Get task log path */
-  taskLog: (epicId: string, taskId: string) => string;
+  taskLog: (playbookId: string, taskId: string) => string;
 }
 
 /**
@@ -647,23 +666,23 @@ export function createStoragePaths(
   return {
     root: convergeDir,
     project: `${convergeDir}/project.yaml`,
-    epics: `${convergeDir}/epics`,
+    playbooks: `${convergeDir}/playbooks`,
     checkpoints: `${convergeDir}/checkpoints`,
     gaps: `${convergeDir}/gaps`,
     provenance: `${convergeDir}/provenance`,
 
-    epicConfig: (epicId: string) => `${convergeDir}/epics/${epicId}.yaml`,
-    epicStatus: (epicId: string) =>
-      `${convergeDir}/epics/${epicId}.status.yaml`,
-    epicDeps: (epicId: string) => `${convergeDir}/epics/${epicId}.deps.yaml`,
-    epicLog: (epicId: string) => `${convergeDir}/epics/${epicId}.log.md`,
-    epicTasks: (epicId: string) => `${convergeDir}/epics/${epicId}/tasks`,
+    playbookConfig: (playbookId: string) => `${convergeDir}/playbooks/${playbookId}.yaml`,
+    playbookStatus: (playbookId: string) =>
+      `${convergeDir}/playbooks/${playbookId}.status.yaml`,
+    playbookDeps: (playbookId: string) => `${convergeDir}/playbooks/${playbookId}.deps.yaml`,
+    playbookLog: (playbookId: string) => `${convergeDir}/playbooks/${playbookId}.log.md`,
+    playbookTasks: (playbookId: string) => `${convergeDir}/playbooks/${playbookId}/tasks`,
 
-    taskConfig: (epicId: string, taskId: string) =>
-      `${convergeDir}/epics/${epicId}/tasks/${taskId}.yaml`,
-    taskStatus: (epicId: string, taskId: string) =>
-      `${convergeDir}/epics/${epicId}/tasks/${taskId}.status.yaml`,
-    taskLog: (epicId: string, taskId: string) =>
-      `${convergeDir}/epics/${epicId}/tasks/${taskId}.log.md`,
+    taskConfig: (playbookId: string, taskId: string) =>
+      `${convergeDir}/playbooks/${playbookId}/tasks/${taskId}.yaml`,
+    taskStatus: (playbookId: string, taskId: string) =>
+      `${convergeDir}/playbooks/${playbookId}/tasks/${taskId}.status.yaml`,
+    taskLog: (playbookId: string, taskId: string) =>
+      `${convergeDir}/playbooks/${playbookId}/tasks/${taskId}.log.md`,
   };
 }

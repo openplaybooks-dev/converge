@@ -10,7 +10,6 @@
 
 import type {
   ProjectContext,
-  EpicContext,
   TaskContext,
 } from "../context/types.ts";
 import type { Gap } from "../gap/types.ts";
@@ -31,12 +30,6 @@ export type HookEvent =
   | "project:start" // Before first epic runs
   | "project:complete" // All epics converged
   | "project:fail" // Project terminated with error
-
-  // ── Epic lifecycle ─────────────────────────────────────────────────
-  | "epic:start" // Before convergence loop for an epic
-  | "epic:complete" // Epic converged (all gaps resolved)
-  | "epic:fail" // Epic stalled or errored
-  | "epic:skip" // Epic skipped (already completed)
 
   // ── Task lifecycle ─────────────────────────────────────────────────
   | "task:start" // Before task function executes
@@ -99,12 +92,6 @@ export interface HookPayloads {
   };
   "project:fail": { ctx: ProjectContext; error: Error };
 
-  // Epic
-  "epic:start": { ctx: EpicContext };
-  "epic:complete": { ctx: EpicContext; result: ConvergenceResult };
-  "epic:fail": { ctx: EpicContext; error: Error };
-  "epic:skip": { ctx: EpicContext; reason: string };
-
   // Task
   "task:start": { ctx: TaskContext };
   "task:complete": { ctx: TaskContext; result: TaskResult };
@@ -113,7 +100,7 @@ export interface HookPayloads {
   "task:skip": { ctx: TaskContext; reason: string };
 
   // Gap
-  "gap:detected": { gaps: Gap[]; epicId?: string; iteration?: number };
+  "gap:detected": { gaps: Gap[]; iteration?: number; epicId?: string };
   "gap:resolved": { gapId: string; taskId: string; epicId?: string };
 
   // Convergence
