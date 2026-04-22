@@ -1,1 +1,1 @@
-# Game Assets lib
+__init__.py
