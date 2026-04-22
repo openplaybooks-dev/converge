@@ -35,13 +35,15 @@ import io
 
 def build_prompt(char_name: str, angle: str, angle_desc: str, char_palette: str) -> str:
     lines = []
-    lines.append(f"SINGLE CHARACTER POSE IMAGE: {char_name} - {angle}")
+    lines.append(f"SINGLE CHARACTER POSE: {char_name} - {angle}")
     lines.append(f"")
     lines.append(f"Angle: {angle_desc}")
     lines.append(f"Character: {char_name}")
     lines.append(f"")
-    lines.append(f"OUTPUT: ONE single {angle} pose image at 128x128 pixels.")
+    lines.append(f"BACKGROUND: Use pure green screen background (RGB: 0, 255, 0) for chroma key.")
+    lines.append(f"The green will be stripped to transparent in post-processing.")
     lines.append(f"Pixel art style, {char_palette}")
+    lines.append(f"Resolution: 128x128 pixels")
     lines.append(f"No text, labels, or watermarks.")
     return "\n".join(lines)
 
@@ -76,22 +78,18 @@ def main() -> int:
         print(f"Generating {angle} pose for {args.char_name}...")
         img_bytes, seed = generate_image(prompt, [], seed=None)
 
-        # Post-process: strip light background to transparent
+        # Post-process: strip green screen background to transparent
         img = Image.open(io.BytesIO(img_bytes)).convert("RGBA")
         pixels = img.load()
-        stripped = 0
         w, h = img.width, img.height
+
+        stripped = 0
         for y in range(h):
             for x in range(w):
                 p = pixels[x, y]
                 r, g, b, a = p[0], p[1], p[2], p[3]
-                max_val = max(r, g, b)
-                if max_val < 120:
-                    continue
-                min_val = min(r, g, b)
-                sat = (max_val - min_val) / (max_val + 1e-10)
-                # Strip background: bright (>120) and low saturation (<0.35)
-                if max_val > 120 and sat < 0.35:
+                # Strip pure green: g > 200 and r, b < 50
+                if g > 200 and r < 50 and b < 50:
                     pixels[x, y] = (0, 0, 0, 0)
                     stripped += 1
 

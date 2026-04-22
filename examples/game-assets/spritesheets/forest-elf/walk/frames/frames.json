@@ -1,0 +1,40 @@
+{
+  "frames": [
+    {
+      "filename": "walk_000.png",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      }
+    },
+    {
+      "filename": "walk_001.png",
+      "frame": {
+        "x": 256,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      }
+    },
+    {
+      "filename": "walk_002.png",
+      "frame": {
+        "x": 512,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      }
+    },
+    {
+      "filename": "walk_003.png",
+      "frame": {
+        "x": 768,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      }
+    }
+  ]
+}

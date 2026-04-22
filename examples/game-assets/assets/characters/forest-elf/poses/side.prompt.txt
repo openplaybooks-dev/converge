@@ -1,8 +1,10 @@
-SINGLE CHARACTER POSE IMAGE: Lirael - side
+SINGLE CHARACTER POSE: Lirael - side
 
 Angle: Side-facing view (character facing right), walking pose
 Character: Lirael
 
-OUTPUT: ONE single side pose image at 128x128 pixels.
+BACKGROUND: Use pure green screen background (RGB: 0, 255, 0) for chroma key.
+The green will be stripped to transparent in post-processing.
 Pixel art style, 16-bit retro, green and brown tones, natural forest colors, limited to 16 colors
+Resolution: 128x128 pixels
 No text, labels, or watermarks.
