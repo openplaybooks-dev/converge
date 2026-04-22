@@ -1,0 +1,21 @@
+{
+  "type": "task",
+  "id": "02-object-refs/002-gold-key",
+  "status": "complete",
+  "lastUpdated": "2026-04-22T05:14:52.080Z",
+  "createdAt": "2026-04-22T05:14:51.944Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-22T05:14:51.944Z",
+      "completedAt": "2026-04-22T05:14:52.034Z",
+      "outcome": "success",
+      "durationMs": 80
+    },
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-22T05:14:51.954Z"
+    }
+  ],
+  "currentAttempt": 1
+}

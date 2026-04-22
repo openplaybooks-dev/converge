@@ -1,0 +1,16 @@
+{
+  "taskId": "03-object-sheet-gen/health-potion-collect",
+  "epicId": "default",
+  "currentAttempt": 1,
+  "status": "complete",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-22T06:41:32.861Z",
+      "completedAt": "2026-04-22T06:41:32.920Z",
+      "outcome": "success",
+      "durationMs": 77
+    }
+  ],
+  "lastUpdated": "2026-04-22T06:41:32.952Z"
+}

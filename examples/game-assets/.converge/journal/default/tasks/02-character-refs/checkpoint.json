@@ -1,0 +1,18 @@
+{
+  "type": "task",
+  "id": "02-character-refs",
+  "status": "complete",
+  "lastUpdated": "2026-04-22T07:23:24.433Z",
+  "createdAt": "2026-04-22T05:14:49.060Z",
+  "progress": {
+    "totalChildren": 3,
+    "completedChildren": 3,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-hero-knight",
+      "002-forest-elf",
+      "003-shadow-mage"
+    ],
+    "lastProgressUpdate": "2026-04-22T07:23:24.428Z"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "taskId": "02-background-refs/001-forest-path",
+  "epicId": "default",
+  "currentAttempt": 1,
+  "status": "complete",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-22T05:14:51.159Z",
+      "completedAt": "2026-04-22T05:14:51.217Z",
+      "outcome": "success",
+      "durationMs": 69
+    }
+  ],
+  "lastUpdated": "2026-04-22T05:14:51.261Z"
+}

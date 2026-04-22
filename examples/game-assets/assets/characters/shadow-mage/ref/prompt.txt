@@ -1,0 +1,16 @@
+You are generating a GAME CHARACTER REFERENCE SHEET for: Malachar
+
+CHARACTER DETAILS:
+  - Name: Malachar
+  - Description: Shadow mage in dark robes with arcane staff, controls shadows
+  - Art Style/Palette: pixel art, dark purple and black palette
+
+OUTPUT REQUIREMENTS:
+  - Create a reference sheet showing the character in a clear, iconic pose
+  - Include front-facing view as the primary pose
+  - Show character clearly with all distinctive visual elements visible
+  - Pixel art style with the specified palette constraints
+  - Resolution: 128x128 pixels
+  - No text, labels, or watermarks
+
+Art direction: pixel art, dark purple and black palette

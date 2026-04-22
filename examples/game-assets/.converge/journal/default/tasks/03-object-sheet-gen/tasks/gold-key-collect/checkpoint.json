@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-object-sheet-gen/gold-key-collect",
+  "status": "complete",
+  "lastUpdated": "2026-04-22T06:35:19.915Z",
+  "createdAt": "2026-04-22T06:35:19.724Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-22T06:35:19.724Z",
+      "completedAt": "2026-04-22T06:35:19.857Z",
+      "outcome": "success",
+      "durationMs": 133
+    }
+  ],
+  "currentAttempt": 1
+}

@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "09-refactor-cli",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T22:53:58.859Z",
+  "createdAt": "2026-04-21T22:53:58.855Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T22:53:58.855Z",
+      "completedAt": "2026-04-21T22:53:58.858Z",
+      "outcome": "success",
+      "durationMs": 3
+    }
+  ],
+  "currentAttempt": 1
+}

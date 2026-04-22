@@ -1,0 +1,9 @@
+{
+  "char_id": "shadow-mage",
+  "char_name": "Malachar",
+  "state": "idle",
+  "frame_index": 0,
+  "total_frames": 4,
+  "resolution": 256,
+  "palette": "16-bit retro, dark purple and black, magical glow effects, limited to 16 colors"
+}

@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "02-object-refs",
+  "status": "complete",
+  "lastUpdated": "2026-04-22T07:23:24.433Z",
+  "createdAt": "2026-04-22T05:14:49.060Z",
+  "progress": {
+    "totalChildren": 2,
+    "completedChildren": 2,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-health-potion",
+      "002-gold-key"
+    ],
+    "lastProgressUpdate": "2026-04-22T07:23:24.428Z"
+  }
+}

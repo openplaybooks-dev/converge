@@ -1,0 +1,16 @@
+{
+  "taskId": "02-character-refs/001-hero-knight",
+  "epicId": "default",
+  "currentAttempt": 1,
+  "status": "complete",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-22T05:14:51.328Z",
+      "completedAt": "2026-04-22T05:14:51.383Z",
+      "outcome": "success",
+      "durationMs": 64
+    }
+  ],
+  "lastUpdated": "2026-04-22T05:14:51.410Z"
+}

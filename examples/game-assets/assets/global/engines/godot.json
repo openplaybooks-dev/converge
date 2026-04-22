@@ -1,0 +1,6 @@
+{
+  "format": "SpriteFrames",
+  "texture_path": "res://{category}/{id}/sprites/{filename}",
+  "animation_loop": true,
+  "frame_duration_ms": 100
+}

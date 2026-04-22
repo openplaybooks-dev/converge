@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "02-character-refs/002-forest-elf",
+  "status": "complete",
+  "lastUpdated": "2026-04-22T05:14:51.581Z",
+  "createdAt": "2026-04-22T05:14:51.471Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-22T05:14:51.471Z",
+      "completedAt": "2026-04-22T05:14:51.523Z",
+      "outcome": "success",
+      "durationMs": 44
+    }
+  ],
+  "currentAttempt": 1
+}

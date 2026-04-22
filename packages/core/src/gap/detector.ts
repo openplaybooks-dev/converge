@@ -14,7 +14,6 @@ import type {
 } from "./types.ts";
 import type {
   ProjectContext,
-  EpicContext,
   TaskContext,
 } from "../context/types.ts";
 import { globalRegistry } from "../functions/registry.ts";
@@ -42,7 +41,7 @@ export class GapDetector {
    * Detect gaps at epic level
    */
   async detectEpicGaps(
-    ctx: EpicContext,
+    ctx: ProjectContext,
     config?: GapDetectionConfig,
   ): Promise<EvalResult> {
     const checksToRun = config?.checks || this.getEpicChecks(ctx);
@@ -51,7 +50,7 @@ export class GapDetector {
     // Filter to epic-scoped gaps
     const epicResults = checkResults.map((r) => ({
       ...r,
-      gaps: r.gaps.filter((g) => g.level === "epic" || g.scope === ctx.epicId),
+      gaps: r.gaps.filter((g) => g.level === "epic" || g.scope === ctx.config.name),
     }));
 
     return this.buildEvalResult(epicResults, checksToRun);
@@ -80,7 +79,7 @@ export class GapDetector {
    * Run checks with optional timeout and parallel execution
    */
   private async runChecks(
-    ctx: ProjectContext | EpicContext | TaskContext,
+    ctx: ProjectContext | TaskContext,
     checks: string[],
     config?: GapDetectionConfig,
   ): Promise<CheckResult[]> {
@@ -138,7 +137,7 @@ export class GapDetector {
    * Run a single check with timeout
    */
   private async runCheckWithTimeout(
-    ctx: ProjectContext | EpicContext | TaskContext,
+    ctx: ProjectContext | TaskContext,
     checkName: string,
     timeout: number,
   ): Promise<CheckResult> {
@@ -207,7 +206,7 @@ export class GapDetector {
   /**
    * Get default checks for epic level
    */
-  private getEpicChecks(ctx: EpicContext): string[] {
+  private getEpicChecks(ctx: ProjectContext): string[] {
     // Parse checks from epic goals or use all checks
     return Array.from(globalRegistry.getRegistry().checks.keys());
   }

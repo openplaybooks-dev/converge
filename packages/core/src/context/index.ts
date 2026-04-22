@@ -8,7 +8,6 @@
 export type {
   BaseContext,
   ProjectContext,
-  EpicContext,
   TaskContext,
   FileSystemAPI,
   ShellAPI,
@@ -36,7 +35,5 @@ export {
 
 // Context implementations
 export { ProjectContextImpl, createProjectContext } from "./project-context.ts";
-
-export { EpicContextImpl, createEpicContext } from "./epic-context.ts";
 
 export { TaskContextImpl, createTaskContext } from "./task-context.ts";

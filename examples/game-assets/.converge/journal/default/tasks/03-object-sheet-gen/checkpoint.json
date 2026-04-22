@@ -1,0 +1,19 @@
+{
+  "type": "task",
+  "id": "03-object-sheet-gen",
+  "status": "complete",
+  "lastUpdated": "2026-04-22T07:23:24.492Z",
+  "createdAt": "2026-04-22T05:14:49.060Z",
+  "progress": {
+    "totalChildren": 4,
+    "completedChildren": 4,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "gold-key-collect",
+      "gold-key-idle",
+      "health-potion-collect",
+      "health-potion-idle"
+    ],
+    "lastProgressUpdate": "2026-04-22T07:23:24.428Z"
+  }
+}

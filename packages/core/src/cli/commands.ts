@@ -18,7 +18,6 @@ import {
   formatPluginListV2,
   DEFAULT_CONVERGENCE_CONFIG,
   type ProjectConfig,
-  type EpicConfig,
   type ConvergenceConfig,
 } from "../index.ts";
 import { autonomousRun, type AutonomousRunConfig } from "./autonomous-run.ts";
@@ -457,15 +456,9 @@ export async function runCommand(options: RunOptions = {}): Promise<void> {
   );
   console.log(`  Duration: ${duration.toFixed(2)}s`);
   console.log();
-  console.log("Epics:");
-  console.log(`  Total: ${result.summary.totalEpics}`);
-  console.log(`  Completed: ${result.summary.completedEpics}`);
-  console.log(`  Failed: ${result.summary.failedEpics}`);
-  console.log();
 
   if (result.error) {
     console.log("Error Details:");
-    console.log(`  Epic: ${result.error.epicId}`);
     console.log(`  Message: ${result.error.message}`);
     console.log();
   }
@@ -531,7 +524,6 @@ export async function resumeCommand(
   console.log("📍 Resume Point:");
   console.log(`   Checkpoint: ${resumePoint.checkpointId}`);
   console.log(`   Iteration: ${resumePoint.iteration}`);
-  console.log(`   Epic: ${resumePoint.epicId}`);
   console.log(`   Phase: ${resumePoint.phase}`);
   console.log();
   console.log("📊 State Comparison:");
@@ -630,20 +622,20 @@ export async function statusCommand(
   console.log();
   console.log("Epics:");
   for (const epicId of projectConfig.epics) {
-    const epicConfig = storage.readEpicConfig(epicId);
-    const epicStatus = statusManager.getEpicStatus(epicId);
+    const playbookConfig = storage.readPlaybookConfig(epicId);
+    const playbookStatus = statusManager.getPlaybookStatus(epicId);
     const tasks = storage.listTasks(epicId);
     const completed = tasks.filter((t) =>
       statusManager.isTaskCompleted(epicId, t),
     ).length;
 
     console.log(
-      `  ${epicStatus.status === "completed" ? "✅" : "⏳"} ${epicConfig.title}`,
+      `  ${playbookStatus.status === "completed" ? "✅" : "⏳"} ${playbookConfig.title}`,
     );
-    console.log(`     Status: ${epicStatus.status}`);
+    console.log(`     Status: ${playbookStatus.status}`);
     console.log(`     Tasks: ${completed}/${tasks.length} completed`);
-    if (epicStatus.currentGaps.length > 0) {
-      console.log(`     Gaps: ${epicStatus.currentGaps.length}`);
+    if (playbookStatus.currentGaps.length > 0) {
+      console.log(`     Gaps: ${playbookStatus.currentGaps.length}`);
     }
   }
   console.log();

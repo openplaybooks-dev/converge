@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "asset_type": "ref",
+  "asset_id": "forest-elf",
+  "role": "ref",
+  "output_path": "assets\\characters\\forest-elf\\ref\\ref.png",
+  "base_ref": null,
+  "art_style": {
+    "source": "assets/global/art-style.md",
+    "palette": "# Art Style: 16-bit Retro\n\n## Palette Constraints\n- Limited to 16 colors per sprite\n- Sharp, crisp pixel edges (no anti-aliasing)\n- NES/SNES era color palette inspiration\n\n## Color Guidelines\n- Blue and silver armor (hero knight)\n- Green and brown tones (forest elf)\n- Dark purple and black with magical glow accents (shadow mage)\n- Red accent colors for capes and highlights\n\n## Resolution Standards\n- Sprite frames: 128x128 pixels\n- Sprite sheets: 4 frames per row, 2 rows max\n- Backgrounds: 512x512 or 1024x1024 pixels\n\n## Style Notes\n- No gradients \u2014 use solid color fills\n- Bold outlines (1-2 pixels)\n- Distinct silhouettes for each character\n- Consistent eye/face proportions within a character family"
+  },
+  "pose_hint": null,
+  "prompt": "You are generating a SINGLE GAME CHARACTER REFERENCE IMAGE for: Lirael\n\nCHARACTER DETAILS:\n  - Name: Lirael\n  - Description: Nimble elf with green cloak, pointed hat, and bow. Quick movements, graceful poses.\n  - Art Style/Palette: 16-bit retro, green and brown tones, natural forest colors, limited to 16 colors\n\nOUTPUT REQUIREMENTS:\n  - Generate ONE single character portrait/ref image\n  - Character should be in a calm, neutral standing pose\n  - Front-facing view is preferred\n  - Show character clearly with all distinctive visual elements visible\n  - Pixel art style with the specified palette constraints\n  - Resolution: 128x128 pixels\n  - No multiple poses, no reference SHEET, just ONE image\n  - No text, labels, or watermarks\n\nArt direction: 16-bit retro, green and brown tones, natural forest colors, limited to 16 colors",
+  "seed": 277380878,
+  "model": "gemini-3.1-flash-image-preview",
+  "resolution": [
+    128,
+    128
+  ],
+  "inputs": [],
+  "parent": null
+}

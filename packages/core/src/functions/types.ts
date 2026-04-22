@@ -10,11 +10,7 @@
 
 import type { Gap, CheckResult, EvalResult } from "../gap/types.ts";
 import type { TaskConfig } from "../storage/types.ts";
-import type {
-  ProjectContext,
-  EpicContext,
-  TaskContext,
-} from "../context/types.ts";
+import type { ProjectContext, TaskContext } from "../context/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Check Function                                                    */
@@ -30,7 +26,7 @@ import type {
  * - Build verification
  */
 export type CheckFn = (
-  ctx: TaskContext | EpicContext | ProjectContext,
+  ctx: TaskContext | ProjectContext,
 ) => Promise<CheckResult> | CheckResult;
 
 /**
@@ -70,7 +66,7 @@ export interface CheckFnMeta {
  * - Task-level: Check if task outputs match expectations
  */
 export type EvalFn = (
-  ctx: ProjectContext | EpicContext | TaskContext,
+  ctx: ProjectContext | TaskContext,
 ) => Promise<EvalResult> | EvalResult;
 
 /**
@@ -107,7 +103,7 @@ export interface EvalFnMeta {
  * - Generate fix tasks for failing tests
  */
 export type PlanFn = (
-  ctx: EpicContext,
+  ctx: ProjectContext,
   gaps: Gap[],
 ) => Promise<TaskConfig[]> | TaskConfig[];
 
@@ -410,7 +406,7 @@ export interface YieldsDeclarative {
  * Programmatic yields function
  */
 export type YieldsFn = (
-  ctx: TaskContext | EpicContext,
+  ctx: TaskContext,
   result: TaskResult,
 ) => Promise<TaskConfig[]> | TaskConfig[];
 
@@ -596,60 +592,23 @@ export interface TaskDefBuilder {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Epic Definition Builder                                           */
+/*  Internal Epic Definition (for runtime compatibility)               */
 /* ------------------------------------------------------------------ */
 
 /**
- * Epic definition (built from EpicBuilder)
+ * @internal For runtime compatibility only. Do not use in new code.
+ * @deprecated This type is being phased out. Use PlaybookDefinition instead.
  */
 export interface EpicDefinition {
   id: string;
   name: string;
   description?: string;
-  goals: import("../goal/types.ts").Goal[]; // Hierarchical Goal objects (not strings)
+  goals: import("../goal/types.ts").Goal[];
   deps: string[];
   checks: CheckFnMeta[];
   evals: EvalFnMeta[];
   planners: PlanFnMeta[];
   tasks: TaskConfig[];
-}
-
-/**
- * Builder for creating epic definitions
- */
-export interface EpicBuilder {
-  /** Set epic ID */
-  id(id: string): this;
-
-  /** Set epic name */
-  name(name: string): this;
-
-  /** Set epic description */
-  description(description: string): this;
-
-  /** Set epic goals (hierarchical Goal objects) */
-  goals(goals: import("../goal/types.ts").Goal[]): this;
-
-  /** Add a single goal */
-  goal(goal: import("../goal/types.ts").Goal): this;
-
-  /** Set epic dependencies */
-  deps(deps: string[]): this;
-
-  /** Register a check function */
-  check(check: CheckFnMeta): this;
-
-  /** Register an evaluation function */
-  eval(evalMeta: EvalFnMeta): this;
-
-  /** Register a planner function */
-  planner(planner: PlanFnMeta): this;
-
-  /** Register a task definition */
-  task(task: TaskConfig): this;
-
-  /** Build the epic definition */
-  build(): EpicDefinition;
 }
 
 /* ------------------------------------------------------------------ */
@@ -661,7 +620,6 @@ export interface EpicBuilder {
  */
 export interface ProjectDefinition {
   config: ProjectConfig;
-  epics: EpicDefinition[];
 
   /** Initialize runtime (returns Runtime interface for goal-centric operations) */
   init(): Promise<import("../runtime/types.ts").Runtime>;
@@ -714,9 +672,6 @@ export interface ProjectBuilder {
 
   /** Set plugins to load */
   plugins(plugins: string[]): this;
-
-  /** Register an epic */
-  epic(epic: EpicDefinition): this;
 
   /** Build the project definition */
   build(): ProjectDefinition;

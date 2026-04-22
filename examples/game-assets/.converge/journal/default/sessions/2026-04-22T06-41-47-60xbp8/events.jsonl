@@ -1,0 +1,4 @@
+{"timestamp":"2026-04-22T06:41:47.253Z","eventType":"SESSION_START","message":"Session started","metadata":{"projectName":"game-assets","config":{"maxIterations":100,"maxAttemptsPerTask":2}}}
+{"timestamp":"2026-04-22T06:41:47.375Z","eventType":"ITERATION_START","message":"Iteration 1 started","metadata":{"iteration":1,"tasksComplete":15,"tasksTotal":18}}
+{"timestamp":"2026-04-22T06:41:47.377Z","eventType":"TASK_SELECTED","message":"Task selected: 03-sprite-sheet-gen","metadata":{"taskId":"03-sprite-sheet-gen","epicId":"default","attempt":1}}
+{"timestamp":"2026-04-22T06:41:47.378Z","eventType":"TASK_ATTEMPT_START","message":"Attempt 1 started","metadata":{"taskId":"03-sprite-sheet-gen","attempt":1}}

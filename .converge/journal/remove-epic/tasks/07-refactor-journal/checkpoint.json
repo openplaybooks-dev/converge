@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-refactor-journal",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T22:53:58.781Z",
+  "createdAt": "2026-04-21T22:53:58.776Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T22:53:58.776Z",
+      "completedAt": "2026-04-21T22:53:58.780Z",
+      "outcome": "success",
+      "durationMs": 4
+    }
+  ],
+  "currentAttempt": 1
+}

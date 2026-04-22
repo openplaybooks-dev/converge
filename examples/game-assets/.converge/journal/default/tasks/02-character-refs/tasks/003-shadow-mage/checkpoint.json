@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "02-character-refs/003-shadow-mage",
+  "status": "complete",
+  "lastUpdated": "2026-04-22T05:14:51.874Z",
+  "createdAt": "2026-04-22T05:14:51.636Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-22T05:14:51.636Z",
+      "completedAt": "2026-04-22T05:14:51.702Z",
+      "outcome": "success",
+      "durationMs": 58
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-22T05:14:51.782Z",
+      "completedAt": "2026-04-22T05:14:51.850Z",
+      "outcome": "success",
+      "durationMs": 68
+    }
+  ],
+  "currentAttempt": 2
+}

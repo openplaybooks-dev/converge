@@ -1,0 +1,16 @@
+You are generating a GAME CHARACTER REFERENCE SHEET for: Lirael
+
+CHARACTER DETAILS:
+  - Name: Lirael
+  - Description: Forest elf with green cloak, bow and arrows, nature magic abilities
+  - Art Style/Palette: pixel art, forest green and brown palette
+
+OUTPUT REQUIREMENTS:
+  - Create a reference sheet showing the character in a clear, iconic pose
+  - Include front-facing view as the primary pose
+  - Show character clearly with all distinctive visual elements visible
+  - Pixel art style with the specified palette constraints
+  - Resolution: 128x128 pixels
+  - No text, labels, or watermarks
+
+Art direction: pixel art, forest green and brown palette

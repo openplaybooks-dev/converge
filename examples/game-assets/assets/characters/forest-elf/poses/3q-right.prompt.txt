@@ -1,0 +1,8 @@
+SINGLE CHARACTER POSE IMAGE: Lirael - 3q-right
+
+Angle: Three-quarter right view
+Character: Lirael
+
+OUTPUT: ONE single 3q-right pose image at 128x128 pixels.
+Pixel art style, 16-bit retro, green and brown tones, natural forest colors, limited to 16 colors
+No text, labels, or watermarks.
