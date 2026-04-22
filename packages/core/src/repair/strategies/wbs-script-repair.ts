@@ -94,6 +94,9 @@ export class WbsScriptRepairStrategy implements FixStrategy {
     // Collect input files referenced by the script (scan for common patterns)
     const inputFiles = await this.collectInputFiles(scriptSource, projectDir);
 
+    // Also collect templates that will be referenced by the WBS
+    const templateFiles = await this.collectTemplateFiles(resolvedScriptPath, projectDir);
+
     const errorMessage =
       (gap.metadata?.errorMessage as string) ?? "Unknown error";
     const errorStack = (gap.metadata?.errorStack as string) ?? "";
@@ -107,6 +110,7 @@ export class WbsScriptRepairStrategy implements FixStrategy {
       errorStack,
       taskMdContent,
       inputFiles,
+      templateFiles,
       projectDir,
     });
 
@@ -114,6 +118,7 @@ export class WbsScriptRepairStrategy implements FixStrategy {
       `   [wbs-script-repair] Calling AI to fix script (attempt ${attemptNumber})...`,
     );
 
+    let agentSuccess = false;
     try {
       await runAgent({
         phase: "wbs_script_repair",
@@ -126,16 +131,123 @@ export class WbsScriptRepairStrategy implements FixStrategy {
         journalCtx,
         label: `Fix WBS script: ${resolvedScriptPath}`,
       });
-
+      agentSuccess = true;
       console.log(`   [wbs-script-repair] AI fix applied`);
-      return {
-        success: true,
-        reason: "WBS script repaired by AI",
-        retryMode: "full",
-      };
     } catch (err: any) {
       console.error(`   [wbs-script-repair] AI repair failed: ${err.message}`);
       return { success: false, reason: `AI repair failed: ${err.message}` };
+    }
+
+    // Self-test: validate the fixed script can be imported and basic context works
+    if (agentSuccess) {
+      console.log(`   [wbs-script-repair] Running self-test validation...`);
+      const testResult = await this.runSelfTest(resolvedScriptPath, projectDir);
+      if (!testResult.success) {
+        console.error(`   [wbs-script-repair] Self-test failed: ${testResult.error}`);
+        return { success: false, reason: `Self-test failed: ${testResult.error}` };
+      }
+      console.log(`   [wbs-script-repair] Self-test passed`);
+    }
+
+    return {
+      success: true,
+      reason: "WBS script repaired by AI",
+      retryMode: "full",
+    };
+  }
+
+  /**
+   * Self-test validation for fixed WBS script.
+   * Validates the script without executing it — checks placeholders, syntax,
+   * required exports, and referenced helper functions.
+   */
+  private async runSelfTest(
+    scriptPath: string,
+    projectDir: string,
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      const scriptContent = await readFile(scriptPath, "utf-8");
+      const { existsSync } = await import("fs");
+
+      const checks: Array<{ name: string; pass: boolean; msg: string }> = [];
+
+      // Check 1: No unresolved template placeholders
+      const placeholderMatch = scriptContent.match(/\{\{[^}]*\}\}/);
+      checks.push({
+        name: "no-placeholders",
+        pass: !placeholderMatch,
+        msg: placeholderMatch
+          ? `Unresolved placeholder: ${placeholderMatch[0]}`
+          : "OK",
+      });
+
+      // Check 2: Has required run function
+      const hasRunFn = scriptContent.includes("export async function run") ||
+                       scriptContent.includes("export function run");
+      checks.push({
+        name: "has-run-fn",
+        pass: hasRunFn,
+        msg: hasRunFn ? "OK" : "Missing 'export async function run'",
+      });
+
+      // Check 3: Expected vars are referenced in code (not just comments)
+      const codeOnly = scriptContent.split("//")[0].split("/*")[0];
+      for (const v of ["featureId", "featureTitle"]) {
+        const varPattern = new RegExp(`\\b${v}\\b`);
+        const found = varPattern.test(codeOnly);
+        checks.push({
+          name: `var-${v}`,
+          pass: found,
+          msg: found ? `OK` : `Variable '${v}' not found in code`,
+        });
+      }
+
+      // Check 4: helpers.js has joinPaths if script references it
+      const helpersPath = join(dirname(scriptPath), "helpers.js");
+      if (existsSync(helpersPath) && scriptContent.includes("./helpers")) {
+        const helpersContent = await readFile(helpersPath, "utf-8");
+        checks.push({
+          name: "helpers-joinPaths",
+          pass: helpersContent.includes("joinPaths"),
+          msg: helpersContent.includes("joinPaths") ? "OK" : "helpers.js missing joinPaths",
+        });
+      }
+
+      // Check 5: JavaScript syntax validity
+      let syntaxOk = false;
+      try {
+        new Function(scriptContent);
+        syntaxOk = true;
+      } catch (e: any) {
+        checks.push({
+          name: "syntax",
+          pass: false,
+          msg: `Syntax error: ${e.message}`,
+        });
+      }
+      if (syntaxOk) {
+        checks.push({ name: "syntax", pass: true, msg: "OK" });
+      }
+
+      // Report failures
+      for (const check of checks) {
+        if (!check.pass) {
+          console.error(`   [self-test] FAIL: ${check.name} - ${check.msg}`);
+        }
+      }
+
+      const failed = checks.filter(c => !c.pass);
+      if (failed.length > 0) {
+        return {
+          success: false,
+          error: failed.map(c => `${c.name}: ${c.msg}`).join("; "),
+        };
+      }
+
+      console.log(`   [self-test] All ${checks.length} checks passed`);
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message };
     }
   }
 
@@ -222,6 +334,61 @@ export class WbsScriptRepairStrategy implements FixStrategy {
     return results;
   }
 
+  /**
+   * Collect template files that the WBS script references.
+   * This ensures the AI sees the templates that will be spawned with {{vars}}.
+   */
+  private async collectTemplateFiles(
+    scriptPath: string,
+    projectDir: string,
+  ): Promise<Array<{ path: string; content: string }>> {
+    const results: Array<{ path: string; content: string }> = [];
+    const scriptContent = await readFile(scriptPath, "utf-8");
+
+    // Find TEMPLATE_BASE path construction
+    const templateBaseMatch = scriptContent.match(/TEMPLATE_BASE\s*=\s*([^;]+)/);
+    if (!templateBaseMatch) return results;
+
+    // Try to resolve the template base directory
+    const scriptDir = dirname(scriptPath);
+    const templateRelPath = templateBaseMatch[1]
+      .replace(/join\([^)]+\)/g, "templates")
+      .replace(/relative\([^)]+\)/g, "")
+      .replace(/['""]/g, "")
+      .trim();
+
+    // Glob for all TASK.md templates under the template directory
+    const templateDir = join(scriptDir, "templates", "feature");
+    if (!existsSync(templateDir)) return results;
+
+    try {
+      const templateFiles = await glob("**/TASK.md", {
+        cwd: templateDir,
+        absolute: true,
+      });
+
+      for (const tf of templateFiles) {
+        try {
+          const content = await readFile(tf, "utf-8");
+          const relPath = relative(projectDir, tf);
+          results.push({
+            path: relPath,
+            content:
+              content.length > 6144
+                ? content.slice(0, 6144) + "\n...(truncated)"
+                : content,
+          });
+        } catch {
+          /* skip */
+        }
+      }
+    } catch {
+      /* glob failed, skip */
+    }
+
+    return results;
+  }
+
   private buildPrompt(opts: {
     scriptPath: string;
     scriptSource: string;
@@ -229,6 +396,7 @@ export class WbsScriptRepairStrategy implements FixStrategy {
     errorStack: string;
     taskMdContent: string;
     inputFiles: Array<{ path: string; content: string }>;
+    templateFiles: Array<{ path: string; content: string }>;
     projectDir: string;
   }): string {
     const {
@@ -238,6 +406,7 @@ export class WbsScriptRepairStrategy implements FixStrategy {
       errorStack,
       taskMdContent,
       inputFiles,
+      templateFiles,
       projectDir,
     } = opts;
 
@@ -246,6 +415,15 @@ export class WbsScriptRepairStrategy implements FixStrategy {
       inputSection = "\n## Referenced Project Files\n\n";
       for (const f of inputFiles) {
         inputSection += `### ${f.path}\n\`\`\`\n${f.content}\n\`\`\`\n\n`;
+      }
+    }
+
+    let templateSection = "";
+    if (templateFiles.length > 0) {
+      templateSection = "\n## WBS Template Files (these use {{variables}})\n\n";
+      templateSection += "IMPORTANT: These templates use {{variable}} placeholders that the WBS script must populate via `vars` when calling `ctx.spawn()`.\n\n";
+      for (const f of templateFiles) {
+        templateSection += `### ${f.path}\n\`\`\`markdown\n${f.content}\n\`\`\`\n\n`;
       }
     }
 
@@ -272,19 +450,18 @@ ${errorMessage}
 
 ${errorStack}
 \`\`\`
-${taskMdSection}${inputSection}
+${taskMdSection}${templateSection}${inputSection}
 ## Instructions
 
 1. Read the script source and the error carefully.
-2. Use the Read and Glob tools to inspect any additional project files if needed.
-3. Diagnose the root cause of the runtime error.
-4. Write the corrected script back to: ${scriptPath}
+2. Read the WBS Template Files section above — these show the {{variable}} placeholders that MUST be provided in the vars object when calling ctx.spawn().
+3. Diagnose the root cause — the error "Available vars: X, Y, Z" means the script's vars object is missing some variables that the template references.
+4. Fix the vars object in the script to include ALL variables that the templates use (e.g., featurePath, routePaths, stepDeps).
+5. Write the corrected script back to: ${scriptPath}
    - Use the Write tool to write the complete fixed file.
    - The script must be valid JavaScript/ESM.
-   - Preserve the original intent and structure.
-   - Only fix what caused the error — do not refactor or add features.
-5. If the error is caused by missing data files, handle the missing case gracefully
-   (e.g., use empty defaults, skip missing entries, log warnings).
+   - The vars object passed to ctx.spawn() must include ALL variables referenced in the template TASK.md files.
+   - If a variable is optional, provide a sensible default (empty string, empty array, etc.).
 
 IMPORTANT: You MUST write the fixed script using the Write tool. Do not just explain the fix.`;
   }

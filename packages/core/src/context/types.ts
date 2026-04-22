@@ -2,19 +2,17 @@
  * Context Types - Immutable Context Hierarchy
  *
  * Provides clean, immutable contexts for function-driven execution.
- * Each level (Project → Epic → Task) has isolated state with read-only
+ * Each level (Project → Task) has isolated state with read-only
  * access to parent context.
  *
  * Context Hierarchy:
- *   ProjectContext → EpicContext → TaskContext
+ *   ProjectContext → TaskContext
  */
 
 import type { Gap, CheckResult, EvalResult } from "../gap/types.ts";
 import type {
   ProjectConfig,
-  EpicConfig,
   TaskConfig,
-  EpicStatus,
   TaskStatus,
 } from "../storage/types.ts";
 import type { JournalAPI } from "../journal/types.ts";
@@ -51,6 +49,15 @@ export interface BaseContext {
 
   /** Artifact store — named file artifacts with key→path lookup */
   readonly artifact: ArtifactAPI;
+
+  /** Execution stack for cursor tracking */
+  readonly executionStack?: ReadonlyArray<ExecutionStackLevel>;
+
+  /** Epic ID (for journal/event logging) */
+  readonly epicId: string;
+
+  /** Check execution API */
+  readonly check: CheckAPI;
 }
 
 /* ------------------------------------------------------------------ */
@@ -85,46 +92,6 @@ export interface ProjectContext extends BaseContext {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Epic Context                                                      */
-/* ------------------------------------------------------------------ */
-
-/**
- * Epic-level context
- * Inherits from ProjectContext with epic-specific state
- */
-export interface EpicContext extends BaseContext {
-  /** Context level */
-  readonly level: "epic";
-
-  /** Epic ID */
-  readonly epicId: string;
-
-  /** Epic configuration */
-  readonly config: Readonly<EpicConfig>;
-
-  /** Epic runtime status */
-  readonly status: Readonly<EpicStatus>;
-
-  /** Read-only reference to parent project context */
-  readonly project: Readonly<ProjectContext>;
-
-  /** Execution stack for cursor tracking (tree traversal position) */
-  readonly executionStack?: ReadonlyArray<ExecutionStackLevel>;
-
-  /** Evaluation API (epic-scoped) */
-  readonly eval: EvalAPI;
-
-  /** Planning API (epic-scoped) */
-  readonly plan: PlanAPI;
-
-  /** Check execution API */
-  readonly check: CheckAPI;
-
-  /** Journal API for reading gaps and logs */
-  readonly journal: JournalAPI;
-}
-
-/* ------------------------------------------------------------------ */
 /*  Task Context                                                      */
 /* ------------------------------------------------------------------ */
 
@@ -140,7 +107,7 @@ export interface ExecutionStackLevel {
 
 /**
  * Task-level context
- * Inherits from EpicContext with task-specific state
+ * Inherits from ProjectContext with task-specific state
  */
 export interface TaskContext extends BaseContext {
   /** Context level */
@@ -155,14 +122,14 @@ export interface TaskContext extends BaseContext {
   /** Task runtime status */
   readonly status: Readonly<TaskStatus>;
 
-  /** Read-only reference to parent epic context */
-  readonly epic: Readonly<EpicContext>;
-
-  /** Read-only reference to grandparent project context */
+  /** Read-only reference to parent project context */
   readonly project: Readonly<ProjectContext>;
 
   /** Execution stack for cursor tracking (tree traversal position) */
   readonly executionStack?: ReadonlyArray<ExecutionStackLevel>;
+
+  /** Epic ID (for journal/event logging) */
+  readonly epicId: string;
 
   /** Check execution API */
   readonly check: CheckAPI;

@@ -20,7 +20,7 @@ import type {
   YieldsSpawnOptions,
 } from "./types.ts";
 import type { TaskConfig } from "../storage/types.ts";
-import type { TaskContext, EpicContext } from "../context/types.ts";
+import type { TaskContext } from "../context/types.ts";
 import type { TaskDefinition } from "../config/task-definition.ts";
 import type { TaskResult } from "../functions/types.ts";
 
@@ -34,7 +34,7 @@ export class YieldsProcessor {
    */
   async processs(
     config: YieldsConfig,
-    ctx: TaskContext | EpicContext,
+    ctx: TaskContext,
     result: TaskResult,
   ): Promise<TaskConfig[]> {
     // Determine type of yields config
@@ -56,7 +56,7 @@ export class YieldsProcessor {
    */
   private async processStringReference(
     fnName: string,
-    ctx: TaskContext | EpicContext,
+    ctx: TaskContext,
     result: TaskResult,
   ): Promise<TaskConfig[]> {
     // In real impl, would look up function by name and execute
@@ -69,7 +69,7 @@ export class YieldsProcessor {
    */
   private async processProgrammaticFunction(
     fn: YieldsFn,
-    ctx: TaskContext | EpicContext,
+    ctx: TaskContext,
     result: TaskResult,
   ): Promise<TaskConfig[]> {
     console.log(`[YieldsProcessor] Processing programmatic function`);
@@ -181,7 +181,7 @@ export class YieldsProcessor {
    */
   private async processDeclarative(
     config: YieldsDeclarative,
-    ctx: TaskContext | EpicContext,
+    ctx: TaskContext,
     result: TaskResult,
   ): Promise<TaskConfig[]> {
     console.log(`[YieldsProcessor] Processing declarative: ${config.plan}`);

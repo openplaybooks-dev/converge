@@ -1,5 +1,5 @@
 name: split-cli-monolith
-description: Onion-split packages/core/src/ into @converge/cli → @converge/engine → { @converge/core, @converge/navigator, @converge/journal, @converge/scheduler, @converge/display }. Navigator extraction is the upper-front primitive; engine is the middle layer; core becomes pure types. 17 PRs across 6 phases.
+description: Onion-split packages/core/src/ into @converge/cli → @converge/engine → @converge/task → @converge/core, plus leaf primitives { @converge/navigator, @converge/journal, @converge/scheduler, @converge/display }. Task domain model (Unit, TreeNode, TaskTree) is its own package between core and engine. 18 PRs across 6 phases.
 
 run:
   mode: oneoff
@@ -24,6 +24,9 @@ checks:
   - id: core-is-programmatic
     cmd: "test -z \"$(grep -rln '@converge/display\\|@converge/cli' packages/core/src 2>/dev/null)\""
     description: "@converge/core never imports CLI-layer packages (enforces programmatic-only core, web-UI-ready)"
+  - id: task-depends-only-on-core
+    cmd: "! test -d packages/task/src || test -z \"$(grep -rln '@converge/\\(engine\\|cli\\|display\\|journal\\|scheduler\\|navigator\\)' packages/task/src 2>/dev/null)\""
+    description: "@converge/task (once extracted) depends only on @converge/core — no engine, journal, scheduler, navigator, cli, or display imports"
   - id: navigator-is-pure
     cmd: "! test -d packages/navigator/src || test -z \"$(grep -rln '@converge/\\|from [\\\"'']\\(fs\\|path\\|os\\)[\\\"'']' packages/navigator/src 2>/dev/null)\""
     description: "@converge/navigator (once extracted) has zero runtime deps and no filesystem imports — plug-in-driven engine"

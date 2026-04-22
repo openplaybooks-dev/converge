@@ -8,7 +8,6 @@ import type {
   Runtime,
   GoalManager,
   TaskManager,
-  EpicManager,
   ProjectManager,
 } from "./types.ts";
 import type { ProjectConfig } from "../storage/types.ts";
@@ -19,7 +18,6 @@ import type { GoalEvaluationContext } from "../goal/types.ts";
 
 import { GoalManagerImpl } from "./goal-manager.ts";
 import { TaskManagerImpl } from "./task-manager.ts";
-import { EpicManagerImpl } from "./epic-manager.ts";
 import { ProjectManagerImpl } from "./project-manager.ts";
 
 /* ------------------------------------------------------------------ */
@@ -29,11 +27,9 @@ import { ProjectManagerImpl } from "./project-manager.ts";
 export class RuntimeImpl implements Runtime {
   goals: GoalManager;
   tasks: TaskManager;
-  epics: EpicManager;
   project: ProjectManager;
 
   private config: ProjectConfig;
-  private epicDefinitions: EpicDefinition[];
   private workspaceDir: string;
 
   constructor(
@@ -43,13 +39,11 @@ export class RuntimeImpl implements Runtime {
     ctx: GoalEvaluationContext,
   ) {
     this.config = config;
-    this.epicDefinitions = epics;
     this.workspaceDir = workspaceDir;
 
     // Initialize managers
     this.goals = new GoalManagerImpl(epics, ctx);
     this.tasks = new TaskManagerImpl(epics);
-    this.epics = new EpicManagerImpl(epics, ctx);
     this.project = new ProjectManagerImpl(config, epics, ctx);
   }
 

@@ -5,13 +5,12 @@
  * Trust the codebase, not stale status.
  */
 
-import type { ProjectContext, EpicContext } from "../context/types.ts";
-import type { Checkpoint, EpicStatus, TaskStatus } from "../storage/types.ts";
+import type { ProjectContext } from "../context/types.ts";
+import type { Checkpoint, TaskStatus } from "../storage/types.ts";
 import type { Gap } from "../gap/types.ts";
 import { FilesystemStorage } from "../storage/filesystem.ts";
 import { StatusManager } from "../storage/status.ts";
 import { GapDetector } from "../gap/detector.ts";
-import { createEpicContext } from "../context/epic-context.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Resume Point                                                      */
@@ -23,9 +22,6 @@ export interface ResumePoint {
 
   /** Iteration to resume from */
   iteration: number;
-
-  /** Epic to resume */
-  epicId: string;
 
   /** Phase to resume at */
   phase: "evaluate" | "plan" | "execute" | "verify";
@@ -83,57 +79,8 @@ export class ResumabilityManager {
       `Found checkpoint: ${checkpoint.id} (iteration ${checkpoint.iteration ?? 0})`,
     );
 
-    // Get epic to resume
-    const epicId = checkpoint.state?.currentEpic;
-    if (!epicId) {
-      ctx.log.warn("Checkpoint has no current epic, cannot resume");
-      return null;
-    }
-
-    // Load epic context
-    const epicConfig = this.storage.readEpicConfig(epicId);
-    const epicStatus = this.statusManager.getEpicStatus(epicId);
-    const epicCtx = createEpicContext(
-      epicId,
-      epicConfig,
-      epicStatus,
-      ctx,
-      this.storage,
-    );
-
-    // Re-evaluate gaps (trust codebase, not checkpoint)
-    ctx.log.info("Re-evaluating gaps from codebase...");
-    const evalResult = await this.detector.detectEpicGaps(epicCtx);
-    const currentGaps = evalResult.gaps;
-
-    // Compare with checkpoint gaps
-    const checkpointGaps = checkpoint.gaps ?? [];
-    const checkpointGapIds = new Set(checkpointGaps.map((g) => g.id));
-    const currentGapIds = new Set(currentGaps.map((g) => g.id));
-    const gapsChanged =
-      checkpointGapIds.size !== currentGapIds.size ||
-      !Array.from(checkpointGapIds).every((id) => currentGapIds.has(id));
-
-    if (gapsChanged) {
-      ctx.log.info(
-        `Gaps changed since checkpoint: ` +
-          `${checkpointGaps.length} → ${currentGaps.length} ` +
-          `(${Math.abs(currentGaps.length - checkpointGaps.length)} difference)`,
-      );
-    } else {
-      ctx.log.info(`Gaps unchanged since checkpoint`);
-    }
-
-    return {
-      checkpointId: checkpoint.id,
-      iteration: checkpoint.iteration ?? 0,
-      epicId,
-      phase: checkpoint.state?.phase ?? "evaluate",
-      checkpointGaps,
-      currentGaps,
-      completedTasks: checkpoint.completed?.tasks ?? [],
-      gapsChanged,
-    };
+    ctx.log.warn("ResumabilityManager.getResumePoint() not yet implemented without epics");
+    return null;
   }
 
   /* ────────────────────────────────────────────────────────────── */
@@ -144,52 +91,11 @@ export class ResumabilityManager {
    * Reconcile checkpoint state with current codebase state
    */
   async reconcileState(
-    ctx: EpicContext,
+    ctx: ProjectContext,
     resumePoint: ResumePoint,
   ): Promise<void> {
     ctx.log.info("Reconciling state from checkpoint...");
-
-    // Verify completed tasks are actually complete
-    const verifiedCompleted: string[] = [];
-    const needsRework: string[] = [];
-
-    for (const taskId of resumePoint.completedTasks) {
-      const taskConfig = this.storage.readTaskConfig(ctx.epicId, taskId);
-      const taskStatus = this.statusManager.getTaskStatus(ctx.epicId, taskId);
-
-      // Check if outputs still exist
-      if (taskConfig.outputs) {
-        let allOutputsExist = true;
-        for (const output of taskConfig.outputs) {
-          const exists = await ctx.fs.exists(output);
-          if (!exists) {
-            allOutputsExist = false;
-            ctx.log.warn(`Task ${taskId} output missing: ${output}`);
-            break;
-          }
-        }
-
-        if (allOutputsExist) {
-          verifiedCompleted.push(taskId);
-        } else {
-          needsRework.push(taskId);
-          // Reset task status
-          this.statusManager.transitionTask(
-            ctx.epicId,
-            taskId,
-            "pending",
-            "Outputs missing, needs rework",
-          );
-        }
-      } else {
-        // No outputs to verify, trust status
-        verifiedCompleted.push(taskId);
-      }
-    }
-
-    ctx.log.info(
-      `State reconciliation: ${verifiedCompleted.length} verified, ${needsRework.length} need rework`,
-    );
+    ctx.log.warn("ResumabilityManager.reconcileState() not yet implemented without epics");
   }
 
   /* ────────────────────────────────────────────────────────────── */
@@ -247,7 +153,7 @@ export class ResumabilityManager {
    * Create a manual checkpoint (for CI/CD or manual intervention)
    */
   async createManualCheckpoint(
-    ctx: EpicContext,
+    ctx: ProjectContext,
     iteration: number,
     gaps: Gap[],
     message?: string,
@@ -257,18 +163,11 @@ export class ResumabilityManager {
       id: `manual-checkpoint-${Date.now()}`,
       timestamp: new Date().toISOString(),
       iteration,
-      state: {
-        currentEpic: ctx.epicId,
-        phase: "execute",
-      },
+      state: {},
       gaps,
       completed: {
         epics: [],
-        tasks: this.storage
-          .listTasks(ctx.epicId)
-          .filter((taskId) =>
-            this.statusManager.isTaskCompleted(ctx.epicId, taskId),
-          ),
+        tasks: [],
       },
       metadata: {
         created: new Date().toISOString(),

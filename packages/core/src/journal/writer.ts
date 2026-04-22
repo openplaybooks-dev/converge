@@ -13,7 +13,6 @@ import type {
   JournalEvent,
   GapSummary,
   TaskStatus,
-  EpicStatus,
   ChecklistItem,
 } from "./types.ts";
 import {
@@ -25,7 +24,6 @@ import {
   writeProjectSummary,
   writeEpicSummary,
   writeTaskSummary,
-  discoverEpicIds,
   discoverTaskIds,
 } from "./summary-writer.ts";
 
@@ -136,8 +134,7 @@ async function generateSummaryMd(
 
   try {
     if (level === "project") {
-      const epicIds = await discoverEpicIds(projectDir);
-      await writeProjectSummary(projectDir, projectName, gaps, epicIds);
+      await writeProjectSummary(projectDir, projectName, gaps, []);
     } else if (level === "epic") {
       const epicId = scope;
       const epicName = metadata?.epicName || epicId;
@@ -368,22 +365,6 @@ export async function writeTaskStatus(
     `${epicId}.${taskId}`,
     "status",
   );
-  await mkdir(dirname(filePath), { recursive: true });
-  await writeFile(filePath, JSON.stringify(status, null, 2), "utf-8");
-}
-
-/**
- * Write (or overwrite) an epic's status.json in its journal directory.
- *
- * The file lives at:
- *   .converge/journal/tasks/{epicId}/status.json
- */
-export async function writeEpicStatus(
-  projectDir: string,
-  epicId: string,
-  status: EpicStatus,
-): Promise<void> {
-  const filePath = getJournalPath(projectDir, "epic", epicId, "status");
   await mkdir(dirname(filePath), { recursive: true });
   await writeFile(filePath, JSON.stringify(status, null, 2), "utf-8");
 }

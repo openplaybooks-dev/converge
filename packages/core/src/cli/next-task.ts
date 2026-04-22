@@ -15,10 +15,6 @@ import { CheckpointManager } from "../checkpoint/manager.ts";
 import { TaskCheckpointManager } from "../checkpoint/task-checkpoint.ts";
 import { UnitCheckpointManager } from "../checkpoint/unit-checkpoint.ts";
 import {
-  ensureEpicCheckpoints,
-  updateEpicProgress,
-} from "../checkpoint/ensure-epic-checkpoints.ts";
-import {
   constructJournalPath,
   extractJournalTaskId,
 } from "../unit/path-utils.ts";
@@ -364,9 +360,6 @@ export async function getTaskStates(
   const blockingFailures = new Set<string>();
   const blocked = new Set<string>();
   const failureBlocked = new Set<string>();
-
-  // Ensure epic checkpoints exist
-  await ensureEpicCheckpoints(projectDir, tree);
 
   // Source 1+2: Use cached filesystem status (single scan of all checkpoint.json files).
   // This replaces both the checkpoint manager's getCompleted/getFailed/getLocked calls
@@ -1293,12 +1286,6 @@ export async function getTaskStates(
     console.log(
       `   Failure Blocked: ${failureBlocked.size} - ${Array.from(failureBlocked).join(", ")}\n`,
     );
-  }
-
-  // Update epic progress (aggregating all top-level tasks in each epic)
-  const epicIds = [...new Set(tree.map((n) => n.epicId))];
-  for (const epicId of epicIds) {
-    await updateEpicProgress(projectDir, epicId, tree, completed, failed);
   }
 
   // Wait for all checkpoint writes to complete before returning.

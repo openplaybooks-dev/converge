@@ -78,8 +78,7 @@ export const taskCompletionHealthCheck: HookFn<"task:complete"> = async ({
   if (!result.success) return;
 
   try {
-    const { projectDir, taskId } = ctx;
-    const epicId = ctx.epic.epicId;
+    const { projectDir, taskId, epicId } = ctx;
 
     // Initialize helpers
     const ai = createAIContext(projectDir, { epicId, taskId });
@@ -234,8 +233,7 @@ export async function wbsSpawnReview(payload: {
   if (childTasks.length === 0) return;
 
   try {
-    const { projectDir } = ctx;
-    const epicId = ctx.epic.epicId;
+    const { projectDir, epicId } = ctx;
 
     // Initialize AI
     const ai = createAIContext(projectDir, { epicId, taskId: parentTaskId });
