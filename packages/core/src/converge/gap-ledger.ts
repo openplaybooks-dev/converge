@@ -15,7 +15,7 @@
 
 import { appendFileSync, readFileSync, existsSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
-import type { Gap } from "../gap/types.ts";
+import type { Gap } from "../task/gap/types.ts";
 import { totalScore, scoreByKind, scoreBySeverity } from "./weights.ts";
 
 /* ------------------------------------------------------------------ */

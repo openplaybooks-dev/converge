@@ -27,7 +27,7 @@ import {
   type SpawnOptions,
   type SpawnResult,
 } from "../config/task-definition.ts";
-import type { JournalContext } from "../repair/types.ts";
+import type { JournalContext } from "../navigator/repair/types.ts";
 import {
   logTaskEvent,
   writeTaskStatus,

@@ -14,8 +14,8 @@
 
 import { join, relative } from "node:path";
 import { existsSync } from "node:fs";
-import type { PlaybookContext } from "../playbook/types.ts";
-import { constructJournalPath } from "../unit/path-utils.ts";
+import type { PlaybookContext } from "../task/playbook/types.ts";
+import { constructJournalPath } from "../task/unit/path-utils.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                           */

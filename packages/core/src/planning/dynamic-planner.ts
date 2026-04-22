@@ -6,11 +6,11 @@
  */
 
 import type { ProjectContext } from "../context/types.ts";
-import type { Gap } from "../gap/types.ts";
+import type { Gap } from "../task/gap/types.ts";
 import type { TaskConfig } from "../storage/types.ts";
-import type { PlanFnMeta } from "../functions/types.ts";
-import { globalRegistry } from "../functions/registry.ts";
-import { prioritizeGaps, sortByPriority } from "../gap/utils.ts";
+import type { PlanFnMeta } from "../task/checks/types.ts";
+import { globalRegistry } from "../task/checks/registry.ts";
+import { prioritizeGaps, sortByPriority } from "../task/gap/utils.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Planning Strategy                                                 */

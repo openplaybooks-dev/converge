@@ -9,7 +9,7 @@
  */
 
 import { READONLY_TOOLS } from "../ai/context.ts";
-import { runAgent } from "../repair/agent-runner.ts";
+import { runAgent } from "../navigator/repair/agent-runner.ts";
 import { join } from "node:path";
 import { z } from "zod";
 import type {
@@ -22,7 +22,7 @@ import type {
   SpawnOptions,
   SpawnResult,
 } from "../config/task-definition.ts";
-import type { JournalContext } from "../repair/types.ts";
+import type { JournalContext } from "../navigator/repair/types.ts";
 import {
   logTaskEvent,
   writeTaskStatus,

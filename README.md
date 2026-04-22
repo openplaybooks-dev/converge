@@ -56,7 +56,7 @@ Converge runs a continuous loop: scan the task tree for incomplete work, pick th
 npm install -g @converge/core
 converge init --name="my-api"
 converge plan "REST API with health check endpoint and test suite"
-converge run
+converge run  # Auto-detects default playbook or the only playbook
 ```
 
 Converge generates a task tree from your description. Each task includes target files, shell-based checks, and instructions for the AI agent. Here's what a generated task looks like:

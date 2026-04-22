@@ -9,7 +9,7 @@
  *   ProjectContext → TaskContext
  */
 
-import type { Gap, CheckResult, EvalResult } from "../gap/types.ts";
+import type { Gap, CheckResult, EvalResult } from "../task/gap/types.ts";
 import type {
   ProjectConfig,
   TaskConfig,

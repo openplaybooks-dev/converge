@@ -36,10 +36,10 @@ import type {
 import { TaskDefinitionBuilder } from "../config/task-definition.ts";
 import type { TaskMdShape } from "../config/task-md-definition.ts";
 import { parseTaskMdString } from "../config/task-md-definition.ts";
-import type { JournalContext } from "../repair/types.ts";
+import type { JournalContext } from "../navigator/repair/types.ts";
 import { logTaskEvent } from "../journal/writer.ts";
 import { getJournalStructure } from "../journal/structure.ts";
-import type { Gap } from "../gap/types.ts";
+import type { Gap } from "../task/gap/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Result                                                            */
@@ -135,7 +135,7 @@ export class WbsExecutor {
     // ========================================================================
     // STEP 2: INITIALIZE FACTS LOGGER (before execution)
     // ========================================================================
-    const { FactsLogger } = await import("../facts/api.ts");
+    const { FactsLogger } = await import("../task/facts/api.ts");
     const factsLogger = new FactsLogger(
       this.projectDir,
       this.journalCtx.epicId,
@@ -941,22 +941,22 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
    */
   private async runStrategiesForGap(
     gap: Gap,
-  ): Promise<import("../repair/types.ts").Resolution> {
+  ): Promise<import("../navigator/repair/types.ts").Resolution> {
     const start = Date.now();
     const { TaskRunStrategy } =
-      await import("../repair/strategies/task-run.ts");
+      await import("../navigator/repair/strategies/task-run.ts");
     const { UserQuestionResumeStrategy } =
-      await import("../repair/strategies/user-question-resume.ts");
+      await import("../navigator/repair/strategies/user-question-resume.ts");
     const { WBSGeneratorRepairStrategy } =
-      await import("../repair/strategies/wbs-generator-repair.ts");
+      await import("../navigator/repair/strategies/wbs-generator-repair.ts");
     const { WbsScriptRepairStrategy } =
-      await import("../repair/strategies/wbs-script-repair.ts");
+      await import("../navigator/repair/strategies/wbs-script-repair.ts");
     const { DependencyBackoffStrategy } =
-      await import("../repair/strategies/dependency-backoff.ts");
+      await import("../navigator/repair/strategies/dependency-backoff.ts");
     const { MissingInputPatternRepairStrategy } =
-      await import("../repair/strategies/missing-input-pattern.ts");
+      await import("../navigator/repair/strategies/missing-input-pattern.ts");
     const { ToolEnvironmentRepairStrategy } =
-      await import("../repair/strategies/tool-environment-repair.ts");
+      await import("../navigator/repair/strategies/tool-environment-repair.ts");
 
     const strategies = [
       new UserQuestionResumeStrategy(),

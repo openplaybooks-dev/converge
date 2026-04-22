@@ -6,7 +6,7 @@
 
 import type { TaskContext, ProjectContext, CheckAPI } from "./types.ts";
 import type { TaskConfig, TaskStatus } from "../storage/types.ts";
-import type { CheckResult } from "../gap/types.ts";
+import type { CheckResult } from "../task/gap/types.ts";
 import type { JournalAPI } from "../journal/types.ts";
 import {
   FileSystemAPIImpl,
@@ -16,7 +16,7 @@ import {
 } from "./base.ts";
 import { ArtifactStore } from "../artifacts/index.ts";
 import { FilesystemStorage } from "../storage/filesystem.ts";
-import { globalRegistry } from "../functions/registry.ts";
+import { globalRegistry } from "../task/checks/registry.ts";
 import { createTaskJournalAPI } from "../journal/api.ts";
 
 /* ------------------------------------------------------------------ */

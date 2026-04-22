@@ -11,10 +11,10 @@ import type {
   ProjectManager,
 } from "./types.ts";
 import type { ProjectConfig } from "../storage/types.ts";
-import type { EpicDefinition } from "../functions/types.ts";
+import type { EpicDefinition } from "../task/checks/types.ts";
 import type { ConvergenceConfig } from "../orchestrator/convergence.ts";
 import type { ProjectOrchestrationResult } from "../orchestrator/project-orchestrator.ts";
-import type { GoalEvaluationContext } from "../goal/types.ts";
+import type { GoalEvaluationContext } from "../task/goal/types.ts";
 
 import { GoalManagerImpl } from "./goal-manager.ts";
 import { TaskManagerImpl } from "./task-manager.ts";

@@ -12,7 +12,7 @@ import {
   getEpicTasksDir,
   getEpicsDir,
 } from "./structure.ts";
-import type { Gap } from "../gap/types.ts";
+import type { Gap } from "../task/gap/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Summary Generation                                                */

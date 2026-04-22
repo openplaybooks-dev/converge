@@ -15,15 +15,15 @@ import { readFile, writeFile } from "node:fs/promises";
 import { existsSync, statSync } from "node:fs";
 import { join as pathJoin } from "node:path";
 import { parse as parseYaml } from "yaml";
-import type { DiagnosisHint } from "../lifecycle/diagnose.ts";
-import type { CheckDef } from "../lifecycle/after.ts";
+import type { DiagnosisHint } from "../task/lifecycle/diagnose.ts";
+import type { CheckDef } from "../task/lifecycle/after.ts";
 import type {
   TaskDefinition,
   Check,
   PlanConfig,
   WbsFn,
 } from "./task-definition.ts";
-import type { BacklogDef } from "../scan/types.ts";
+import type { BacklogDef } from "../backlog/types.ts";
 import type {
   AutoConvergePolicy,
   SkillContextStep,

@@ -1,17 +1,41 @@
 /**
- * Converge V2 - Gap-Driven Framework
+ * @converge/core - Gap-Driven Framework for AI Workflows
  *
- * Main export file. Start with the User API section below,
- * then reach into the Internal API as needed for advanced use cases.
+ * This is the programmatic API for Converge. For CLI usage, install globally
+ * and run `converge --help`.
+ *
+ * @example
+ * ```typescript
+ * import { taskDef, createRuntime } from '@converge/core';
+ *
+ * const task = taskDef({
+ *   id: 'analyze',
+ *   title: 'Analyze codebase',
+ *   outputs: ['analysis.md'],
+ *   executor: async (ctx) => {
+ *     // Your logic here
+ *   }
+ * });
+ *
+ * const runtime = createRuntime({ dir: process.cwd() });
+ * await runtime.executeTask(task);
+ * ```
+ *
+ * @packageDocumentation
  */
 
 /* ════════════════════════════════════════════════════════════════════ */
-/*  ★  PRIMARY USER API  —  Start here                                  */
+/*  ★  PRIMARY API  —  Start here                                       */
 /*                                                                      */
-/*  1. PROJECT.md         — YAML frontmatter config (.converge/PROJECT.md) */
-/*  2. HookRegistry      — Lifecycle hooks for the full workflow         */
-/*  3. DiscoveryScanner  — Auto-discover tasks/epics from glob patterns  */
-/*  4. Builder API below — project(), epic(), taskDef(), check(), plan() */
+/*  Core Concepts:                                                      */
+/*  • taskDef()          — Define tasks programmatically                */
+/*  • project()          — Define projects with task hierarchies        */
+/*  • createRuntime()    — Execute tasks and orchestrate workflows      */
+/*  • HookRegistry       — Lifecycle hooks for workflow events          */
+/*  • DiscoveryScanner   — Auto-discover tasks from filesystem          */
+/*  • Gap Detection      — Detect and close gaps between current/target */
+/*                                                                      */
+/*  For CLI usage: npm install -g @converge/core && converge --help    */
 /* ════════════════════════════════════════════════════════════════════ */
 
 /* ── Config ─────────────────────────────────────────────────────── */
@@ -61,11 +85,11 @@ export type {
 export {
   DiscoveryScanner,
   createDiscoveryScanner,
-} from "./discovery/scanner.ts";
+} from "./task/discovery/scanner.ts";
 export {
   DiscoveryWatcher,
   createDiscoveryWatcher,
-} from "./discovery/watcher.ts";
+} from "./task/discovery/watcher.ts";
 
 export type {
   DiscoveredFile,
@@ -73,7 +97,7 @@ export type {
   DiscoveredFileType,
   DiscoveryChangeEvent,
   DiscoveryChangeType,
-} from "./discovery/types.ts";
+} from "./task/discovery/types.ts";
 
 /* ── Structured Logger ──────────────────────────────────────────── */
 
@@ -134,16 +158,16 @@ export type {
   GapPriority,
   PrioritizationStrategy,
   CompactGap,
-} from "./gap/types.ts";
+} from "./task/gap/types.ts";
 
-export { toCompactGap, formatCompactGaps } from "./gap/types.ts";
+export { toCompactGap, formatCompactGaps } from "./task/gap/types.ts";
 
 export {
   GapDetector,
   ConvergenceAnalyzer,
   createGapDetector,
   createConvergenceAnalyzer,
-} from "./gap/detector.ts";
+} from "./task/gap/detector.ts";
 
 export {
   createGap,
@@ -156,7 +180,7 @@ export {
   sortByPriority,
   calculateGapStats,
   formatGapStats,
-} from "./gap/utils.ts";
+} from "./task/gap/utils.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Goals                                                              */
@@ -175,7 +199,7 @@ export type {
   GoalConvergenceConfig,
   GoalProgressUpdate,
   GoalConvergenceResult,
-} from "./goal/types.ts";
+} from "./task/goal/types.ts";
 
 export {
   GoalEvaluatorImpl,
@@ -183,9 +207,9 @@ export {
   flattenGoalHierarchy,
   countGoals,
   findGoalById,
-} from "./goal/evaluator.ts";
+} from "./task/goal/evaluator.ts";
 
-export { goal, defineGoal } from "./goal/builder.ts";
+export { goal, defineGoal } from "./task/goal/builder.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Runtime                                                            */
@@ -210,11 +234,11 @@ export { ProjectManagerImpl } from "./runtime/project-manager.ts";
 /*  V2 Universal Unit Architecture                                    */
 /* ────────────────────────────────────────────────────────────────── */
 
-export { Unit } from "./unit/index.ts";
+export { Unit } from "./task/unit/index.ts";
 export type {
   UnitConfig as V2UnitConfig,
   CheckResult as V2CheckResult,
-} from "./unit/index.ts";
+} from "./task/unit/index.ts";
 
 export {
   taskDef, // V2 is now the default taskDef
@@ -252,8 +276,7 @@ export {
   isChecklistDefinition as v2IsChecklistDefinition,
 } from "./config/task-definition.ts";
 
-export { autonomousRun as v2AutonomousRun } from "./cli/autonomous-run.ts";
-export type { AutonomousRunConfig as V2AutonomousRunConfig } from "./cli/autonomous-run.ts";
+// CLI exports removed - use @converge/cli package instead
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Metrics                                                            */
@@ -312,7 +335,7 @@ export type {
   TaskDefBuilder,
   ProjectBuilder,
   ProjectDefinition,
-} from "./functions/types.ts";
+} from "./task/checks/types.ts";
 
 export {
   check,
@@ -322,7 +345,7 @@ export {
   taskDef as v1TaskDef, // Rename V1 to avoid conflict
   project,
   defineProject,
-} from "./functions/builders.ts";
+} from "./task/checks/builders.ts";
 
 export {
   globalRegistry,
@@ -336,7 +359,7 @@ export {
   getPlan,
   getTask,
   listFunctions,
-} from "./functions/registry.ts";
+} from "./task/checks/registry.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Plugins                                                            */
@@ -460,11 +483,7 @@ export type {
   YieldsDeclarative,
   YieldsFn,
   YieldsStatic,
-} from "./functions/types.ts";
-
-export { YieldsProcessor, createYieldsProcessor } from "./yields/processor.ts";
-
-export { YieldsSpawner, createYieldsSpawner } from "./yields/spawner.ts";
+} from "./task/checks/types.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Converge (Phase 2 - AutoConverge Generation System)                 */
@@ -481,35 +500,35 @@ export type {
   SynthesizedVerification,
   RefinementRequest,
   RefinementResult,
-} from "./auto-verify/types.ts";
+} from "./synthesis/types.ts";
 
 export {
   ConvergeSynthesizer,
   createConvergeSynthesizer,
-} from "./auto-verify/synthesizer.ts";
+} from "./synthesis/synthesizer.ts";
 
 export {
   ConvergeExecutor,
   createConvergeExecutor,
-} from "./auto-verify/executor.ts";
+} from "./synthesis/executor.ts";
 
 export {
   ConvergeRefiner,
   createConvergeRefiner,
-} from "./auto-verify/refiner.ts";
+} from "./synthesis/refiner.ts";
 
-export { ConvergeCache, createConvergeCache } from "./auto-verify/cache.ts";
+export { ConvergeCache, createConvergeCache } from "./synthesis/cache.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Subtasks                                                          */
 /* ────────────────────────────────────────────────────────────────── */
 
-export type { SubtasksConfig, SubtasksGeneratorFn } from "./subtasks/types.ts";
+export type { SubtasksConfig, SubtasksGeneratorFn } from "./task/subtasks/types.ts";
 
 export {
   SubtasksProcessor,
   createSubtasksProcessor,
-} from "./subtasks/processor.ts";
+} from "./task/subtasks/processor.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  Meta-Optimization (Self-Improvement Loop)                         */
@@ -606,10 +625,10 @@ export type {
   ResolvedPlaybook,
   PlaybookContext,
   PlaybookTrendEntry,
-} from "./playbook/types.ts";
+} from "./task/playbook/types.ts";
 
-export type { PlaybookPaths } from "./playbook/paths.ts";
-export { resolvePlaybookPaths, getSourceTaskDirs } from "./playbook/paths.ts";
+export type { PlaybookPaths } from "./task/playbook/paths.ts";
+export { resolvePlaybookPaths, getSourceTaskDirs } from "./task/playbook/paths.ts";
 
 export {
   parsePlaybookYml,
@@ -619,16 +638,16 @@ export {
   resolvePlaybook,
   parseDuration,
   substituteVars,
-} from "./playbook/loader.ts";
+} from "./task/playbook/loader.ts";
 
-export { mergeRunConfig } from "./playbook/executor.ts";
+export { mergeRunConfig } from "./task/playbook/executor.ts";
 
 export {
   initPlaybookJournal,
   appendTrend,
   readTrends,
   getPlaybookJournalDir,
-} from "./playbook/journal.ts";
+} from "./task/playbook/journal.ts";
 
 /* ────────────────────────────────────────────────────────────────── */
 /*  AI Factory                                                        */

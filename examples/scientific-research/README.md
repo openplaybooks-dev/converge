@@ -5,7 +5,7 @@ Autonomous scientific research pipeline with iterative evidence synthesis, Bayes
 ## Usage
 
 ```bash
-converge run --playbook=scientific-research \
+converge .converge/playbooks/scientific-research/playbook.yml run \
   --question="What causes transformer models to lose in-context learning ability during fine-tuning?"
 ```
 

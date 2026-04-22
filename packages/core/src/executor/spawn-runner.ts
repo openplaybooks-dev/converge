@@ -28,7 +28,7 @@ import type {
   Need,
 } from "../config/task-definition.ts";
 import { TaskDefinitionBuilder } from "../config/task-definition.ts";
-import type { JournalContext } from "../repair/types.ts";
+import type { JournalContext } from "../navigator/repair/types.ts";
 import {
   logTaskEvent,
   writeTaskStatus,
@@ -44,7 +44,7 @@ import {
   getSkillSummary,
   collectAllowedTools,
 } from "./skill-resolver.ts";
-import { classifyAgentError } from "../repair/agent-runner.ts";
+import { classifyAgentError } from "../navigator/repair/agent-runner.ts";
 import { SimpleLogTailer } from "../journal/simple-log-tailer.ts";
 import { resolveAIConfig, listAIProviders } from "../ai/factory.ts";
 import { FilesystemStorage } from "../storage/filesystem.ts";
@@ -737,7 +737,7 @@ export class SpawnRunner {
       virtualPath = absPath;
     }
 
-    const { Unit } = await import("../unit/index.ts");
+    const { Unit } = await import("../task/unit/index.ts");
     const childUnit = Unit.fromDefinition(
       target.definition,
       this.parentUnit,
@@ -847,7 +847,7 @@ export class SpawnRunner {
       { phase: `spawn_${spawnNumber}`, taskPath: target.path, spawnNumber },
     );
 
-    const { Unit } = await import("../unit/index.ts");
+    const { Unit } = await import("../task/unit/index.ts");
     const childUnit = await Unit.fromPath(absPath, this.parentUnit);
 
     const start = Date.now();

@@ -3,10 +3,10 @@
  */
 
 import type { ProjectManager } from "./types.ts";
-import type { GoalStatus, GoalEvaluationContext } from "../goal/types.ts";
+import type { GoalStatus, GoalEvaluationContext } from "../task/goal/types.ts";
 import type { ProjectConfig } from "../storage/types.ts";
-import type { EpicDefinition } from "../functions/types.ts";
-import { GoalEvaluatorImpl } from "../goal/evaluator.ts";
+import type { EpicDefinition } from "../task/checks/types.ts";
+import { GoalEvaluatorImpl } from "../task/goal/evaluator.ts";
 
 export class ProjectManagerImpl implements ProjectManager {
   private config: ProjectConfig;
@@ -89,7 +89,7 @@ export class ProjectManagerImpl implements ProjectManager {
   /**
    * Recursively count goals
    */
-  private countGoalsRecursive(goal: import("../goal/types.ts").Goal): number {
+  private countGoalsRecursive(goal: import("../task/goal/types.ts").Goal): number {
     let count = 1; // This goal
 
     if (goal.goals) {

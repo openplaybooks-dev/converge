@@ -6,21 +6,21 @@
  */
 
 import type { ProjectContext } from "../context/types.ts";
-import type { Gap, ConvergenceState, EvalResult } from "../gap/types.ts";
+import type { Gap, ConvergenceState, EvalResult } from "../task/gap/types.ts";
 import type {
   TaskConfig,
   TaskStatus,
   Checkpoint,
   Cursor,
 } from "../storage/types.ts";
-import type { TaskResult } from "../functions/types.ts";
-import type { GoalStatus, GoalEvaluationContext } from "../goal/types.ts";
-import { GapDetector, ConvergenceAnalyzer } from "../gap/detector.ts";
+import type { TaskResult } from "../task/checks/types.ts";
+import type { GoalStatus, GoalEvaluationContext } from "../task/goal/types.ts";
+import { GapDetector, ConvergenceAnalyzer } from "../task/gap/detector.ts";
 import { FilesystemStorage } from "../storage/filesystem.ts";
 import { StatusManager } from "../storage/status.ts";
 import { createTaskContext } from "../context/task-context.ts";
-import { globalRegistry } from "../functions/registry.ts";
-import { GoalEvaluatorImpl } from "../goal/evaluator.ts";
+import { globalRegistry } from "../task/checks/registry.ts";
+import { GoalEvaluatorImpl } from "../task/goal/evaluator.ts";
 import type { HookRegistry } from "../hooks/registry.ts";
 
 /* ------------------------------------------------------------------ */
@@ -82,7 +82,7 @@ export interface ConvergenceResult {
   /** Goal-centric metrics (if goals are present) */
   goalsSatisfied?: number;
   totalGoals?: number;
-  goalStatuses?: import("../goal/types.ts").GoalStatus[];
+  goalStatuses?: import("../task/goal/types.ts").GoalStatus[];
 
   /** Execution summary */
   summary: {
