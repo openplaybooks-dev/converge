@@ -1,0 +1,15 @@
+{
+  "taskId": "05-export-ready",
+  "checks": [
+    {
+      "id": "assets-generated",
+      "description": "At least one asset was exported",
+      "cmd": "find assets -name '*.png' -type f | wc -l | node -e \"process.exit(+require('fs').readFileSync(0,'utf8').trim()>=1?0:1)\""
+    },
+    {
+      "id": "atlas-json-valid",
+      "description": "Atlas JSON is valid",
+      "cmd": "node -e \"const j=require('./assets/characters');console.log('ok')\""
+    }
+  ]
+}

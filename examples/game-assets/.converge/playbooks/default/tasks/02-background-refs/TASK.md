@@ -1,12 +1,12 @@
 ---
 id: 02-background-refs
 title: Background Reference Sheets — Locked environment layers
-description: Generate locked reference layers per background. Output: backgrounds/{id}/ref.png with parallax configuration.
+description: "Generate locked reference layers per background. Output: backgrounds/{id}/ref.png with parallax configuration."
 dependencies:
   - 01-define-assets
 wbs:
   type: nodejs
-  path: ./wbs/index.cjs
+  path: ./wbs/index.js
 tags:
   - background
   - reference

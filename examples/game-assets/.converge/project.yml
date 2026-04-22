@@ -1,0 +1,27 @@
+name: game-assets
+description: |
+  Game Assets Generation Playbook using Nano-banana (Gemini 2.5 Flash Image).
+  Generates character sprites, object assets, backgrounds, and tile maps for game engines.
+
+run:
+  mode: oneoff
+
+vars:
+  sprite_resolution: 128
+  sprites_per_row: 4
+  animation_states:
+    - idle
+    - walk
+  asset_types:
+    - characters
+    - objects
+    - backgrounds
+  engine_targets:
+    - godot
+    - unity
+    - raw
+  max_characters: 3
+  max_states_per_character: 2
+  max_objects: 5
+  max_backgrounds: 2
+  stop_after: sprites

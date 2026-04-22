@@ -1,0 +1,52 @@
+{
+  "taskId": "05-export-ready",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "sprites.json",
+      "count": 1,
+      "samples": [
+        "sprites.json"
+      ]
+    },
+    {
+      "pattern": "spritesheets/**/{state}.png",
+      "count": 0,
+      "samples": []
+    },
+    {
+      "pattern": "spritesheets/**/{state}.frames.json",
+      "count": 0,
+      "samples": []
+    },
+    {
+      "pattern": "objects.json",
+      "count": 1,
+      "samples": [
+        "objects.json"
+      ]
+    },
+    {
+      "pattern": "objectsheets/**/*.png",
+      "count": 0,
+      "samples": []
+    },
+    {
+      "pattern": "keyframes/**/*.png",
+      "count": 0,
+      "samples": []
+    }
+  ],
+  "outputs": [
+    "assets/characters/**/*.png",
+    "assets/characters/**/atlas.json",
+    "assets/characters/**/atlas.godot.json",
+    "assets/characters/**/atlas.unity.json",
+    "assets/objects/**/*.png",
+    "assets/objects/**/atlas.json",
+    "assets/backgrounds/**/*.png",
+    "assets/tile_maps/**/*.png"
+  ],
+  "blocked": true,
+  "blockedReason": "Missing required inputs: spritesheets/**/{state}.png, spritesheets/**/{state}.frames.json, objectsheets/**/*.png, keyframes/**/*.png"
+}

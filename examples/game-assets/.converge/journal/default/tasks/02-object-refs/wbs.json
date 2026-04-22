@@ -1,0 +1,15 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-22T01:09:59.660Z",
+  "spawnCount": 2,
+  "subtasks": [
+    {
+      "id": "001-health-potion",
+      "writeToPath": ".converge/playbooks/default/tasks/02-object-refs/tasks/001-health-potion/TASK.md"
+    },
+    {
+      "id": "002-gold-key",
+      "writeToPath": ".converge/playbooks/default/tasks/02-object-refs/tasks/002-gold-key/TASK.md"
+    }
+  ]
+}

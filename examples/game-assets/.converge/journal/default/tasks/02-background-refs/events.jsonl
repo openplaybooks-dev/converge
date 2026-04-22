@@ -1,0 +1,1 @@
+{"timestamp":"2026-04-22T01:09:59.332Z","eventType":"WBS_SEED","level":"task","scope":"default.02-background-refs","message":"seeded task: 001-forest-path","metadata":{"taskId":"001-forest-path","writeToPath":".converge/playbooks/default/tasks/02-background-refs/tasks/001-forest-path/TASK.md"}}

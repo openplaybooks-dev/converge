@@ -14,7 +14,7 @@
 process.env.PYTHONIOENCODING = "utf-8";
 process.env.PYTHONUTF8 = "1";
 
-import { resolve, join } from "node:path";
+import { resolve, dirname, join } from "node:path";
 import { existsSync } from "node:fs";
 import { runAutonomousCommand } from "./commands-run.ts";
 import { metricsCommand } from "./commands-metrics.ts";
@@ -325,7 +325,47 @@ async function main(): Promise<void> {
       case "run": {
         // Auto-discover PROJECT.md from the target directory (or cwd)
         const searchDir = resolve(options.dir || process.cwd());
-        const resolved = await resolveConvergeConfig(searchDir);
+
+        // ── Early validation: require local .converge/project.yml ────────
+        // If running from a subdirectory without its own project.yml:
+        //   - Without --playbook: error out (prevent accidentally using parent config)
+        //   - With --playbook: ignore parent config and use playbook-only mode
+        const localConvergeDir = join(searchDir, ".converge");
+        const localProjectYml = join(localConvergeDir, "project.yml");
+        const localProjectYaml = join(localConvergeDir, "project.yaml");
+        const localProjectMd = join(localConvergeDir, "PROJECT.md");
+
+        const hasLocalProject =
+          existsSync(localProjectYml) ||
+          existsSync(localProjectYaml) ||
+          existsSync(localProjectMd);
+
+        let resolved = await resolveConvergeConfig(searchDir);
+
+        // If resolved config is from a DIFFERENT directory than searchDir, and
+        // searchDir has no local project config:
+        if (resolved && !hasLocalProject) {
+          const resolvedDir = dirname(resolved.configPath);
+          const resolvedIsParent = resolvedDir !== searchDir;
+          if (resolvedIsParent) {
+            if (!options.playbook) {
+              // Without --playbook: error out
+              console.error(`\n❌ No .converge/project.yml found in: ${searchDir}`);
+              console.error(`\n   Converge found a config in a parent directory:`);
+              console.error(`   ${resolved.configPath}`);
+              console.error(`\n   To run converge in this directory, you have two options:`);
+              console.error(`\n   1. Create a local project config:`);
+              console.error(`      - .converge/project.yml (recommended)`);
+              console.error(`      - .converge/project.yaml`);
+              console.error(`      - .converge/PROJECT.md`);
+              console.error(`\n   2. Run with --playbook to use a playbook without project config:`);
+              console.error(`      converge run --playbook=<name>\n`);
+              process.exit(1);
+            }
+            // With --playbook: ignore parent config entirely so playbook mode is used
+            resolved = null;
+          }
+        }
 
         let hookRegistry: HookRegistry | undefined;
         let convergeConfig = resolved?.config;
@@ -380,6 +420,48 @@ async function main(): Promise<void> {
             // without --playbook flag.
             setPlaybookScope(pbName, searchDir);
           }
+        }
+
+        // ── Validate: require .converge/project.yml ──────────────────────
+        // If no config found and no playbook found, error out early with clear message
+        if (!convergeConfig) {
+          // Check if .converge directory exists at all
+          const convergeDir = join(searchDir, ".converge");
+          const projectYml = join(convergeDir, "project.yml");
+          const projectYaml = join(convergeDir, "project.yaml");
+          const projectMd = join(convergeDir, "PROJECT.md");
+
+          if (!existsSync(convergeDir)) {
+            console.error(`\n❌ No .converge directory found at: ${convergeDir}`);
+            console.error(`\n   To run converge in this directory, you need either:`);
+            console.error(`   - A .converge/project.yml file (recommended)`);
+            console.error(`   - A .converge/project.yaml file`);
+            console.error(`   - A .converge/PROJECT.md file`);
+            console.error(`\n   Run "converge init" to initialize a new project.\n`);
+            process.exit(1);
+          }
+
+          // .converge exists but no project.yml
+          console.error(`\n❌ No project.yml found in .converge/`);
+          console.error(`   Location: ${convergeDir}`);
+          console.error(`\n   The following config files are recognized:`);
+          if (existsSync(projectYml)) {
+            console.error(`   - .converge/project.yml (found)`);
+          } else {
+            console.error(`   - .converge/project.yml (not found)`);
+          }
+          if (existsSync(projectYaml)) {
+            console.error(`   - .converge/project.yaml (found)`);
+          } else {
+            console.error(`   - .converge/project.yaml (not found)`);
+          }
+          if (existsSync(projectMd)) {
+            console.error(`   - .converge/PROJECT.md (found)`);
+          } else {
+            console.error(`   - .converge/PROJECT.md (not found)`);
+          }
+          console.error(`\n   Run "converge init" to create a project.yml, or create one manually.\n`);
+          process.exit(1);
         }
 
         // ── Playbook layer ───────────────────────────────────────────

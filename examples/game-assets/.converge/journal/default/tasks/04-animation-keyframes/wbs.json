@@ -1,0 +1,103 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-22T01:10:00.530Z",
+  "spawnCount": 24,
+  "subtasks": [
+    {
+      "id": "001-hero-knight-idle-00",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/001-hero-knight-idle-00/TASK.md"
+    },
+    {
+      "id": "002-hero-knight-idle-01",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/002-hero-knight-idle-01/TASK.md"
+    },
+    {
+      "id": "003-hero-knight-idle-02",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/003-hero-knight-idle-02/TASK.md"
+    },
+    {
+      "id": "004-hero-knight-idle-03",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/004-hero-knight-idle-03/TASK.md"
+    },
+    {
+      "id": "005-hero-knight-walk-00",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/005-hero-knight-walk-00/TASK.md"
+    },
+    {
+      "id": "006-hero-knight-walk-01",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/006-hero-knight-walk-01/TASK.md"
+    },
+    {
+      "id": "007-hero-knight-walk-02",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/007-hero-knight-walk-02/TASK.md"
+    },
+    {
+      "id": "008-hero-knight-walk-03",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/008-hero-knight-walk-03/TASK.md"
+    },
+    {
+      "id": "009-forest-elf-idle-00",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/009-forest-elf-idle-00/TASK.md"
+    },
+    {
+      "id": "010-forest-elf-idle-01",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/010-forest-elf-idle-01/TASK.md"
+    },
+    {
+      "id": "011-forest-elf-idle-02",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/011-forest-elf-idle-02/TASK.md"
+    },
+    {
+      "id": "012-forest-elf-idle-03",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/012-forest-elf-idle-03/TASK.md"
+    },
+    {
+      "id": "013-forest-elf-walk-00",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/013-forest-elf-walk-00/TASK.md"
+    },
+    {
+      "id": "014-forest-elf-walk-01",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/014-forest-elf-walk-01/TASK.md"
+    },
+    {
+      "id": "015-forest-elf-walk-02",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/015-forest-elf-walk-02/TASK.md"
+    },
+    {
+      "id": "016-forest-elf-walk-03",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/016-forest-elf-walk-03/TASK.md"
+    },
+    {
+      "id": "017-shadow-mage-idle-00",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/017-shadow-mage-idle-00/TASK.md"
+    },
+    {
+      "id": "018-shadow-mage-idle-01",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/018-shadow-mage-idle-01/TASK.md"
+    },
+    {
+      "id": "019-shadow-mage-idle-02",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/019-shadow-mage-idle-02/TASK.md"
+    },
+    {
+      "id": "020-shadow-mage-idle-03",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/020-shadow-mage-idle-03/TASK.md"
+    },
+    {
+      "id": "021-shadow-mage-walk-00",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/021-shadow-mage-walk-00/TASK.md"
+    },
+    {
+      "id": "022-shadow-mage-walk-01",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/022-shadow-mage-walk-01/TASK.md"
+    },
+    {
+      "id": "023-shadow-mage-walk-02",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/023-shadow-mage-walk-02/TASK.md"
+    },
+    {
+      "id": "024-shadow-mage-walk-03",
+      "writeToPath": ".converge/playbooks/default/tasks/04-animation-keyframes/tasks/024-shadow-mage-walk-03/TASK.md"
+    }
+  ]
+}

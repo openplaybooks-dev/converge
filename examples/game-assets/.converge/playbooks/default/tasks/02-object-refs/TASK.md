@@ -1,12 +1,12 @@
 ---
 id: 02-object-refs
 title: Object Reference Sheets — Locked object/prop refs
-description: Generate locked reference sheets per object/prop. Output: objects/{id}/ref.png with ref.json metadata.
+description: "Generate locked reference sheets per object/prop. Output: objects/{id}/ref.png with ref.json metadata."
 dependencies:
   - 01-define-assets
 wbs:
   type: nodejs
-  path: ./wbs/index.cjs
+  path: ./wbs/index.js
 tags:
   - object
   - reference

@@ -1,12 +1,12 @@
 ---
 id: 04-animation-keyframes
 title: Animation Keyframes — Generate animation keyframe sequences
-description: For each character animation state, generate a sequence of keyframes using compositing bridge with locked character refs + pose hints. Output: keyframes/{character_id}/{state}_{frame}.png for precise animation timing.
+description: "For each character animation state, generate a sequence of keyframes using compositing bridge with locked character refs + pose hints. Output: keyframes/{character_id}/{state}_{frame}.png for precise animation timing."
 dependencies:
   - 03-sprite-sheet-gen
 wbs:
   type: nodejs
-  path: ./wbs/index.cjs
+  path: ./wbs/index.js
 blocking: true
 tags:
   - animation
@@ -19,7 +19,7 @@ outputs:
   - keyframes/**/*.png
 checks:
   - id: keyframes-generated
-    cmd: find keyframes -name '*.png' -type f | wc -l | node -e "process.exit(+require('fs').readFileSync(0,'utf8').trim()>=1?0:1)"
+    cmd: "find keyframes -name '*.png' -type f | wc -l | node -e \"process.exit(+require('fs').readFileSync(0,'utf8').trim()>=1?0:1)\""
     description: At least one animation keyframe was generated
 ---
 

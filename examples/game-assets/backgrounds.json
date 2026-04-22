@@ -1,0 +1,9 @@
+[
+  {
+    "id": "forest-path",
+    "name": "Forest Path",
+    "description": "Parallax forest background with distant trees, mid-ground bushes, and foreground grass details.",
+    "parallax_layer": "mid",
+    "resolution": [1920, 1080]
+  }
+]

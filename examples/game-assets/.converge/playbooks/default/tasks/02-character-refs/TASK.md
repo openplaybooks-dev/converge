@@ -1,12 +1,22 @@
 ---
 id: 02-character-refs
 title: Character Reference Sheets — Locked identity anchors
-description: Generate locked reference sheets per character (front/back/side views). Use compositing bridge with idea.md context + sprites.json spec + Nano-banana. Output: characters/{id}/ref.png (locked identity anchor used in all downstream sprite generation).
+description: "Generate locked reference sheets per character (front/back/side views). Use compositing bridge with idea.md context + sprites.json spec + Nano-banana. Output: characters/{id}/ref.png (locked identity anchor used in all downstream sprite generation)."
 dependencies:
   - 01-define-assets
 wbs:
   type: nodejs
-  path: ./wbs/index.cjs
+  path: ./wbs/index.js
+executor:
+  type: script
+  path: ./scripts/generate_character_ref.py
+  args:
+    - "{{charId}}"
+    - "{{charName}}"
+    - "{{charDescription}}"
+    - "{{charPalette}}"
+  env:
+    CONVERGE_OUTPUT_DIR: "characters/{{charId}}"
 blocking: true
 tags:
   - character

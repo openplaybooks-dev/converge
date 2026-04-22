@@ -1,0 +1,31 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-22T01:10:00.072Z",
+  "spawnCount": 6,
+  "subtasks": [
+    {
+      "id": "001-hero-knight-idle",
+      "writeToPath": ".converge/playbooks/default/tasks/03-sprite-sheet-gen/tasks/001-hero-knight-idle/TASK.md"
+    },
+    {
+      "id": "002-hero-knight-walk",
+      "writeToPath": ".converge/playbooks/default/tasks/03-sprite-sheet-gen/tasks/002-hero-knight-walk/TASK.md"
+    },
+    {
+      "id": "003-forest-elf-idle",
+      "writeToPath": ".converge/playbooks/default/tasks/03-sprite-sheet-gen/tasks/003-forest-elf-idle/TASK.md"
+    },
+    {
+      "id": "004-forest-elf-walk",
+      "writeToPath": ".converge/playbooks/default/tasks/03-sprite-sheet-gen/tasks/004-forest-elf-walk/TASK.md"
+    },
+    {
+      "id": "005-shadow-mage-idle",
+      "writeToPath": ".converge/playbooks/default/tasks/03-sprite-sheet-gen/tasks/005-shadow-mage-idle/TASK.md"
+    },
+    {
+      "id": "006-shadow-mage-walk",
+      "writeToPath": ".converge/playbooks/default/tasks/03-sprite-sheet-gen/tasks/006-shadow-mage-walk/TASK.md"
+    }
+  ]
+}

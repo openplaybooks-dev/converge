@@ -1,0 +1,16 @@
+[
+  {
+    "id": "health-potion",
+    "name": "Health Potion",
+    "description": "Red flask with sparkle particles, restores health when collected.",
+    "type": "item",
+    "states": ["idle", "collect"]
+  },
+  {
+    "id": "gold-key",
+    "name": "Gold Key",
+    "description": "Ornate golden key with gem inset, unlocks treasure chests.",
+    "type": "item",
+    "states": ["idle", "collect"]
+  }
+]

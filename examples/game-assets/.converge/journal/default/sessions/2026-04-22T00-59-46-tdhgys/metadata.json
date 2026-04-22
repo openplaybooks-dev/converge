@@ -1,0 +1,14 @@
+{
+  "sessionId": "2026-04-22T00-59-46-tdhgys",
+  "projectName": "default",
+  "startTime": "2026-04-22T00:59:46.507Z",
+  "status": "running",
+  "config": {
+    "maxIterations": 2000,
+    "maxAttemptsPerTask": 2
+  },
+  "environment": {
+    "nodeVersion": "v22.19.0",
+    "platform": "darwin"
+  }
+}

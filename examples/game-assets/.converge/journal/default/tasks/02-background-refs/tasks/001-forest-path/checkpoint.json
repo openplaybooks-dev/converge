@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "02-background-refs/001-forest-path",
+  "status": "complete",
+  "lastUpdated": "2026-04-22T01:09:59.402Z",
+  "createdAt": "2026-04-22T01:09:59.375Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-22T01:09:59.375Z",
+      "completedAt": "2026-04-22T01:09:59.392Z",
+      "outcome": "success",
+      "durationMs": 17
+    }
+  ],
+  "currentAttempt": 1
+}

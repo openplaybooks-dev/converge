@@ -1,7 +1,7 @@
 ---
 id: 01-define-assets
 title: Define Assets — Parse idea.md into type-specific manifests
-description: Read idea.md describing game and required assets. Parse into type-specific manifests: sprites.json (characters), objects.json, tile_maps.json, backgrounds.json. Each manifest contains id, name, description, palette, and animation_states/states.
+description: "Read idea.md describing game and required assets. Parse into type-specific manifests: sprites.json (characters), objects.json, tile_maps.json, backgrounds.json. Each manifest contains id, name, description, palette, and animation_states/states."
 dependencies: []
 tags:
   - assets

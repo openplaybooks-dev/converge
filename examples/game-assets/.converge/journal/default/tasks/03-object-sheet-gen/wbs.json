@@ -1,0 +1,23 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-22T01:09:59.818Z",
+  "spawnCount": 4,
+  "subtasks": [
+    {
+      "id": "001-health-potion-idle",
+      "writeToPath": ".converge/playbooks/default/tasks/03-object-sheet-gen/tasks/001-health-potion-idle/TASK.md"
+    },
+    {
+      "id": "002-health-potion-collect",
+      "writeToPath": ".converge/playbooks/default/tasks/03-object-sheet-gen/tasks/002-health-potion-collect/TASK.md"
+    },
+    {
+      "id": "003-gold-key-idle",
+      "writeToPath": ".converge/playbooks/default/tasks/03-object-sheet-gen/tasks/003-gold-key-idle/TASK.md"
+    },
+    {
+      "id": "004-gold-key-collect",
+      "writeToPath": ".converge/playbooks/default/tasks/03-object-sheet-gen/tasks/004-gold-key-collect/TASK.md"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "type": "task",
+  "id": "02-docs",
+  "status": "pending",
+  "lastUpdated": "2026-04-22T01:27:24.505Z",
+  "createdAt": "2026-04-22T00:48:41.985Z",
+  "progress": {
+    "totalChildren": 8,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-move-readme",
+      "002-generate-banner",
+      "003-root-readme",
+      "004-core-readme",
+      "005-contributing",
+      "006-comparisons",
+      "007-adrs",
+      "008-changelog"
+    ],
+    "lastProgressUpdate": "2026-04-22T01:27:24.504Z"
+  }
+}

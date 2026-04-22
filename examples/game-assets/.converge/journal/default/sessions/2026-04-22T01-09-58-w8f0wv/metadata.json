@@ -1,0 +1,23 @@
+{
+  "sessionId": "2026-04-22T01-09-58-w8f0wv",
+  "projectName": "default",
+  "startTime": "2026-04-22T01:09:58.662Z",
+  "status": "complete",
+  "config": {
+    "maxIterations": 2000,
+    "maxAttemptsPerTask": 2
+  },
+  "environment": {
+    "nodeVersion": "v22.19.0",
+    "platform": "darwin"
+  },
+  "endTime": "2026-04-22T01:10:47.243Z",
+  "duration": 48581,
+  "outcomes": {
+    "totalIterations": 50,
+    "tasksCompleted": 47,
+    "tasksFailed": 1,
+    "gapsResolved": 0,
+    "convergenceAchieved": true
+  }
+}
