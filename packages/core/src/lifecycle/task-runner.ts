@@ -391,9 +391,32 @@ export async function executeTask(
         /* ignore */
       }
 
-      if (wipStat?.isSymbolicLink()) {
-        // Junction/symlink from a previous run — unlink only (real numbered dir stays intact)
-        await fsRm(wipDir);
+      // On Windows, a directory junction sometimes reports isSymbolicLink()
+      // true and sometimes isDirectory() true — the APIs disagree. Probe for
+      // a junction/symlink first by reading the link target; if that succeeds
+      // we treat it as a link regardless of stat flags.
+      let isLink = !!wipStat?.isSymbolicLink();
+      if (!isLink) {
+        try {
+          const { readlink: fsReadlink } = await import("node:fs/promises");
+          await fsReadlink(wipDir);
+          isLink = true;
+        } catch {
+          /* not a link */
+        }
+      }
+
+      if (isLink) {
+        // Junction/symlink from a previous run — unlink only (real numbered dir stays intact).
+        // Use unlink explicitly since fsRm on a junction can traverse it on some Windows builds.
+        const { unlink: fsUnlink } = await import("node:fs/promises");
+        try {
+          await fsUnlink(wipDir);
+        } catch {
+          // Fallback — rmSync with force to handle Windows junctions that unlink refuses
+          const { rmSync } = await import("node:fs");
+          rmSync(wipDir, { force: true, recursive: false });
+        }
       } else if (wipStat?.isDirectory()) {
         // Old-style real directory — archive as previous attempt, then remove
         if (attemptNumber > 1) {

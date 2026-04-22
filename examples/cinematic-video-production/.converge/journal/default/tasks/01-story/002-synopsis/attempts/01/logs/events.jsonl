@@ -1,3 +1,0 @@
-{"type":"task_start","taskId":"01-story/002-synopsis","taskName":"Write Synopsis","attempt":1,"inputs":["idea.md","logline.md"],"outputs":["synopsis.md"],"timestamp":"2026-04-21T10:49:00.480Z","level":"critical"}
-{"type":"ai_reasoning","text":"Starting convergence loop for task: Write Synopsis","context":{"taskId":"01-story/002-synopsis","maxIterations":100,"isWbs":false,"hasInputs":true,"hasOutputs":true},"timestamp":"2026-04-21T10:49:00.480Z","level":"info"}
-{"type":"task_complete","taskId":"01-story/002-synopsis","duration":228,"outputs":["synopsis.md"],"success":true,"timestamp":"2026-04-21T10:49:00.708Z","level":"critical"}

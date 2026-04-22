@@ -56,3 +56,16 @@ Acceptable regen reasons:
 - First-pass lighting wildly wrong despite correct composition lighting block (retry with fresh seed once; if it persists, the lighting block needs clearer direction).
 
 Converge auto-retries this task up to `maxTaskAttempts` (3). Use attempts for seed variation.
+
+## PNG format (mandatory)
+
+Nano-banana sometimes returns `image/jpeg` bytes. A `.png` file with JPEG
+content fails Converge's `valid-png` output validator and stalls convergence.
+After writing any image output, normalize it:
+
+```bash
+python scripts/to_png.py <output-path>
+```
+
+Do this for every image you write in this task. The helper is idempotent (valid
+PNGs are re-saved as PNGs).

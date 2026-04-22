@@ -51,3 +51,16 @@ Write `{{locDir}}/variant-<tod>.png` and matching seed file per variant.
 ## Rule
 
 Architecture, prop placement, and camera framing must match the wide plate exactly. Only lighting changes.
+
+## PNG format (mandatory)
+
+Nano-banana sometimes returns `image/jpeg` bytes. A `.png` file with JPEG
+content fails Converge's `valid-png` output validator and stalls convergence.
+After writing any image output, normalize it:
+
+```bash
+python scripts/to_png.py <output-path>
+```
+
+Do this for every image you write in this task. The helper is idempotent (valid
+PNGs are re-saved as PNGs).

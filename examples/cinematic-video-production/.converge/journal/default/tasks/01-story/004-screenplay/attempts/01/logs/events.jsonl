@@ -1,3 +1,0 @@
-{"type":"task_start","taskId":"01-story/004-screenplay","taskName":"Write Screenplay (Fountain)","attempt":1,"inputs":["treatment.md"],"outputs":["screenplay.fountain"],"timestamp":"2026-04-21T10:49:01.434Z","level":"critical"}
-{"type":"ai_reasoning","text":"Starting convergence loop for task: Write Screenplay (Fountain)","context":{"taskId":"01-story/004-screenplay","maxIterations":100,"isWbs":false,"hasInputs":true,"hasOutputs":true},"timestamp":"2026-04-21T10:49:01.434Z","level":"info"}
-{"type":"task_complete","taskId":"01-story/004-screenplay","duration":377,"outputs":["screenplay.fountain"],"success":true,"timestamp":"2026-04-21T10:49:01.811Z","level":"critical"}

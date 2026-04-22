@@ -1,3 +1,0 @@
-{"type":"task_start","taskId":"01-story/005-story-bible","taskName":"Write Story Bible","attempt":1,"inputs":["screenplay.fountain","idea.md"],"outputs":["story-bible.md"],"timestamp":"2026-04-21T10:49:02.073Z","level":"critical"}
-{"type":"ai_reasoning","text":"Starting convergence loop for task: Write Story Bible","context":{"taskId":"01-story/005-story-bible","maxIterations":100,"isWbs":false,"hasInputs":true,"hasOutputs":true},"timestamp":"2026-04-21T10:49:02.073Z","level":"info"}
-{"type":"task_complete","taskId":"01-story/005-story-bible","duration":210,"outputs":["story-bible.md"],"success":true,"timestamp":"2026-04-21T10:49:02.283Z","level":"critical"}

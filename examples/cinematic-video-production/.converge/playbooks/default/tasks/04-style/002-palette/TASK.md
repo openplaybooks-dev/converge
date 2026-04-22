@@ -61,3 +61,16 @@ skills/image-generate {
 - Pull mood from `style-guide.md` and `story-bible.md`.
 - Accent colors should earn their place — usually 1-2 only, story-motivated.
 - Skin tones must be protected: name the range of hues allowed on faces.
+
+## PNG format (mandatory)
+
+Nano-banana sometimes returns `image/jpeg` bytes. A `.png` file with JPEG
+content fails Converge's `valid-png` output validator and stalls convergence.
+After writing any image output, normalize it:
+
+```bash
+python scripts/to_png.py <output-path>
+```
+
+Do this for every image you write in this task. The helper is idempotent (valid
+PNGs are re-saved as PNGs).

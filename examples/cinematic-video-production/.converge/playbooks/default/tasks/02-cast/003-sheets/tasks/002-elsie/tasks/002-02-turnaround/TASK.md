@@ -75,3 +75,16 @@ Write the returned image to `characters/elsie/turnaround.png` and the seed to `c
 
 - Do NOT invent wardrobe details not in `description.md`.
 - If the returned image looks inconsistent with the description, regenerate with a different seed (max 3 attempts). Keep the seed file in sync with the final image.
+
+## PNG format (mandatory)
+
+Nano-banana sometimes returns `image/jpeg` bytes. A `.png` file with JPEG
+content fails Converge's `valid-png` output validator and stalls convergence.
+After writing any image output, normalize it:
+
+```bash
+python scripts/to_png.py <output-path>
+```
+
+Do this for every image you write in this task. The helper is idempotent (valid
+PNGs are re-saved as PNGs).

@@ -13,7 +13,7 @@
  *   CHECK.result.md — how they ran
  */
 
-import { writeFile, readFile, stat } from "node:fs/promises";
+import { writeFile, readFile, stat, mkdir } from "node:fs/promises";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { exec } from "node:child_process";
@@ -208,6 +208,11 @@ export async function writeResultSnapshot(
       }
     }
   }
+
+  // Pre-flight / blocked-state paths may call us before the attempt dir has
+  // been set up (no wip junction created yet). Ensure the directory exists
+  // so the writeFile call doesn't ENOENT.
+  await mkdir(wipDir, { recursive: true });
 
   await writeFile(join(wipDir, "CHECK.result.md"), lines.join("\n"));
 

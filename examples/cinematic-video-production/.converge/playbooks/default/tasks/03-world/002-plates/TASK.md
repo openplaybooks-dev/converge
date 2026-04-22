@@ -38,3 +38,16 @@ Spawn a 5-step pipeline per location:
 3. **03-detail-plates** — 2-3 detail angles using the wide as reference → `locations/{id}/detail-{n}.png`.
 4. **04-time-variants** — one image per time_variant in `locations.json` (uses wide as reference) → `locations/{id}/variant-{tod}.png`.
 5. **05-lock** — emit `locations/{id}/ref.json`.
+
+## PNG format (mandatory)
+
+Nano-banana sometimes returns `image/jpeg` bytes. A `.png` file with JPEG
+content fails Converge's `valid-png` output validator and stalls convergence.
+After writing any image output, normalize it:
+
+```bash
+python scripts/to_png.py <output-path>
+```
+
+Do this for every image you write in this task. The helper is idempotent (valid
+PNGs are re-saved as PNGs).

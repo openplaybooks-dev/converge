@@ -94,3 +94,16 @@ Produce `{{compositionPath}}` matching `schemas/composition.schema.json`.
 - NEVER change a character's `visual_description` or wardrobe variant — wardrobe must match what `scenes/{{sceneId}}/state.json` says they are wearing.
 - Keep the JSON minimal. Only include elements that are in frame.
 - Validate with: `python scripts/validate_composition.py {{compositionPath}}`.
+
+## PNG format (mandatory)
+
+Nano-banana sometimes returns `image/jpeg` bytes. A `.png` file with JPEG
+content fails Converge's `valid-png` output validator and stalls convergence.
+After writing any image output, normalize it:
+
+```bash
+python scripts/to_png.py <output-path>
+```
+
+Do this for every image you write in this task. The helper is idempotent (valid
+PNGs are re-saved as PNGs).

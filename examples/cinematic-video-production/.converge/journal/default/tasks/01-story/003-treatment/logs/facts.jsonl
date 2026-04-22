@@ -1,4 +1,0 @@
-{"type":"file-exists","path":"synopsis.md","cmd":"test -f \"synopsis.md\"","id":"file-exists:test -f \"synopsis.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T10:49:00.949Z"}
-{"type":"file-exists","path":"treatment.md","cmd":"test -f \"treatment.md\"","id":"file-exists:test -f \"treatment.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T10:49:00.984Z"}
-{"type":"check","checkId":"treatment-exists","cmd":"test -s treatment.md","description":"Treatment file written and non-empty","id":"check:treatment-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T10:49:01.017Z"}
-{"type":"check","checkId":"treatment-has-beats","cmd":"grep -cE '^- ' treatment.md  | node -e \"process.exit(+require('fs').readFileSync(0,'utf8').trim()>=10?0:1)\"","description":"Treatment has at least 10 beats","id":"check:treatment-has-beats","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T10:49:01.140Z"}

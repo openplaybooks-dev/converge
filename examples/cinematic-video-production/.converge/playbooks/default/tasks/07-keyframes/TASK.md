@@ -53,3 +53,16 @@ Shots with `camera_move: "static"` and no element motion may skip the end frame 
 ## Why this beats passing raw refs
 
 Feeding Nano-banana a pre-composed blueprint is dramatically more controllable than asking it to figure out layout from an action description + a pile of refs. Positions, sizes, and z-order are now deterministic. Identity still comes from the element refs; layout now comes from Python, not prompt-hope.
+
+## PNG format (mandatory)
+
+Nano-banana sometimes returns `image/jpeg` bytes. A `.png` file with JPEG
+content fails Converge's `valid-png` output validator and stalls convergence.
+After writing any image output, normalize it:
+
+```bash
+python scripts/to_png.py <output-path>
+```
+
+Do this for every image you write in this task. The helper is idempotent (valid
+PNGs are re-saved as PNGs).

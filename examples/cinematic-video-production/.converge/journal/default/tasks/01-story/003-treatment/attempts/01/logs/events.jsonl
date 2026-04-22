@@ -1,3 +1,0 @@
-{"type":"task_start","taskId":"01-story/003-treatment","taskName":"Write Treatment","attempt":1,"inputs":["synopsis.md"],"outputs":["treatment.md"],"timestamp":"2026-04-21T10:49:00.905Z","level":"critical"}
-{"type":"ai_reasoning","text":"Starting convergence loop for task: Write Treatment","context":{"taskId":"01-story/003-treatment","maxIterations":100,"isWbs":false,"hasInputs":true,"hasOutputs":true},"timestamp":"2026-04-21T10:49:00.905Z","level":"info"}
-{"type":"task_complete","taskId":"01-story/003-treatment","duration":248,"outputs":["treatment.md"],"success":true,"timestamp":"2026-04-21T10:49:01.153Z","level":"critical"}

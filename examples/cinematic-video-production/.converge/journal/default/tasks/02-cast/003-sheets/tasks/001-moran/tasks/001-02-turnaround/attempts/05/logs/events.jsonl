@@ -1,1 +1,0 @@
-{"timestamp":"2026-04-21T10:54:57.364Z","eventType":"CLAUDEFN_START","level":"task","scope":"default.02-cast/003-sheets/001-moran/001-02-turnaround","message":"claudefn run_task: Turnaround — Moran","metadata":{"phase":"run_task"}}

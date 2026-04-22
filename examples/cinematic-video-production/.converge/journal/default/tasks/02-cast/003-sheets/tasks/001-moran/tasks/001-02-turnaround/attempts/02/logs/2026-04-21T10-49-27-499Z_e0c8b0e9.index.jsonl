@@ -1,7 +1,0 @@
-{"ts":"2026-04-21T10:49:27.500Z","type":"session","event":"started","data":{"session_id":"e0c8b0e9-eab8-43fe-8773-a54a4dbfff18","timeout_ms":600000}}
-{"ts":"2026-04-21T10:49:27.517Z","type":"process","event":"spawned","data":{"pid":20628}}
-{"ts":"2026-04-21T10:49:28.782Z","type":"process","event":"first_output","duration_ms":1283}
-{"ts":"2026-04-21T10:49:33.122Z","type":"tool","event":"call","data":{"tool":"Skill","id":"toolu_01LLBCrJGdUtzBefkLk5afZa","input":{"skill":"image-generate"}}}
-{"ts":"2026-04-21T10:49:33.249Z","type":"tool","event":"result","data":{"tool_use_id":"toolu_01LLBCrJGdUtzBefkLk5afZa","success":true,"size":31,"preview":"Launching skill: image-generate"}}
-{"ts":"2026-04-21T10:49:41.719Z","type":"output","event":"text","data":{"text":"The `/image-generate` skill is an adapter — it needs inputs to run. What would you like to generate?\n\nRequired:\n- **prompt**: description of the image\n\nOptional:\n- **references**: 0–3 image paths (PNG","size":781}}
-{"ts":"2026-04-21T10:49:42.321Z","type":"session","event":"completed","duration_ms":14822,"data":{"tool_calls":1,"thinking_blocks":0,"text_blocks":1}}

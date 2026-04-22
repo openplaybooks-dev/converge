@@ -73,3 +73,16 @@ Write `characters/halloran/expressions.png` and `characters/halloran/expressions
 ## Rule
 
 If the face identity drifts from the turnaround, regenerate (max 3 tries). Identity drift here cascades into every shot — it's cheap to catch now, expensive to catch later.
+
+## PNG format (mandatory)
+
+Nano-banana sometimes returns `image/jpeg` bytes. A `.png` file with JPEG
+content fails Converge's `valid-png` output validator and stalls convergence.
+After writing any image output, normalize it:
+
+```bash
+python scripts/to_png.py <output-path>
+```
+
+Do this for every image you write in this task. The helper is idempotent (valid
+PNGs are re-saved as PNGs).
