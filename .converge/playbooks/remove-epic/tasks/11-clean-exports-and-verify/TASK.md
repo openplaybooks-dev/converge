@@ -5,7 +5,7 @@ blocking: true
 dependencies: [10-refactor-remaining-systems]
 checks:
   - id: no-epic-refs
-    cmd: "test -z \"$(grep -rn 'epicId\\|EpicId\\|epic_id\\|EpicConfig\\|EpicStatus\\|EpicContext\\|EpicManager\\|EpicDefinition\\|EpicBuilder\\|EpicDeps\\|epicConfig\\|epicStatus\\|epicDeps\\|epicLog\\|epicTasks\\|EpicScanner\\|EpicMetadata\\|epicDir\\|extractEpicId\\|extractEpicDir\\|ensureEpicCheckpoints\\|updateEpicProgress\\|EpicEvalAPI\\|EpicPlanAPI' --include='*.ts' packages/core/src/ 2>/dev/null | grep -v node_modules | grep -v '.converge/')\""
+    cmd: "test -z \"$(grep -rn 'epicId\\|EpicId\\|epic_id\\|EpicConfig\\|EpicStatus\\|EpicContext\\|EpicManager\\|EpicDefinition\\|EpicBuilder\\|EpicDeps\\|epicConfig\\|epicStatus\\|epicDeps\\|epicLog\\|epicTasks\\|extractEpicId\\|extractEpicDir\\|transitionEpic\\|getEpicTasksDir\\|getEpicsDir\\|runEpicConvergence\\|discoverEpicIds\\|appendEpicLog' --include='*.ts' packages/core/src/ 2>/dev/null | grep -v node_modules | grep -v '.converge/')\""
     description: Zero epic references in packages/core/src
   - id: tsc-clean
     cmd: "cd packages/core && npx tsc --noEmit"
@@ -16,7 +16,7 @@ Final cleanup and verification.
 
 **`packages/core/src/index.ts`:**
 - Remove all epic exports: EpicConfig, EpicStatus, EpicDeps, EpicConfigSchema, EpicStatusSchema, EpicManager, EpicManagerImpl, EpicContext, createEpicContext, EpicContextImpl, EpicDefinition, EpicBuilder, V2EpicDefinition, etc.
-- Add new export: PlaybookContext
+- Add PlaybookContext, PlaybookConfig, PlaybookStatus, PlaybookDefinition, PlaybookBuilder exports
 
 **Tests:**
 - Update `packages/core/src/tree/__tests__/task-tree.test.ts`

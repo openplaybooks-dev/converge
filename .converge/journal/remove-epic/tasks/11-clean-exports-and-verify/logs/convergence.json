@@ -1,6 +1,6 @@
 {
-  "iteration": 2,
-  "stallCount": 1,
+  "iteration": 1,
+  "stallCount": 0,
   "nodes": [
     {
       "id": "check-wbs-seeded",
@@ -47,25 +47,50 @@
             "severity": "high",
             "description": "[11-clean-exports-and-verify] Check failed: Zero epic references in packages/core/src",
             "source": "unit",
-            "detected": "2026-04-21T13:07:23.651Z",
+            "detected": "2026-04-21T23:58:26.355Z",
             "resolved": false,
             "checks": [],
             "metadata": {
               "gapKind": "check-failed",
               "checkId": "no-epic-refs",
-              "checkCmd": "test -z \"$(grep -rn 'epicId\\|EpicId\\|epic_id\\|EpicConfig\\|EpicStatus\\|EpicContext\\|EpicManager\\|EpicDefinition\\|EpicBuilder\\|EpicDeps\\|epicConfig\\|epicStatus\\|epicDeps\\|epicLog\\|epicTasks\\|EpicScanner\\|EpicMetadata\\|epicDir\\|extractEpicId\\|extractEpicDir\\|ensureEpicCheckpoints\\|updateEpicProgress\\|EpicEvalAPI\\|EpicPlanAPI' --include='*.ts' packages/core/src/ 2>/dev/null | grep -v node_modules | grep -v '.converge/')\"",
+              "checkCmd": "test -z \"$(grep -rn 'epicId\\|EpicId\\|epic_id\\|EpicConfig\\|EpicStatus\\|EpicContext\\|EpicManager\\|EpicDefinition\\|EpicBuilder\\|EpicDeps\\|epicConfig\\|epicStatus\\|epicDeps\\|epicLog\\|epicTasks\\|extractEpicId\\|extractEpicDir\\|transitionEpic\\|getEpicTasksDir\\|getEpicsDir\\|runEpicConvergence\\|discoverEpicIds\\|appendEpicLog' --include='*.ts' packages/core/src/ 2>/dev/null | grep -v node_modules | grep -v '.converge/')\"",
               "checkDescription": "Zero epic references in packages/core/src",
-              "checkOutput": "Command failed: test -z \"$(grep -rn 'epicId\\|EpicId\\|epic_id\\|EpicConfig\\|EpicStatus\\|EpicContext\\|EpicManager\\|EpicDefinition\\|EpicBuilder\\|EpicDeps\\|epicConfig\\|epicStatus\\|epicDeps\\|epicLog\\|epicTasks\\|EpicScanner\\|EpicMetadata\\|epicDir\\|extractEpicId\\|extractEpicDir\\|ensureEpicCheckpoints\\|updateEpicProgress\\|EpicEvalAPI\\|EpicPlanAPI' --include='*.ts' packages/core/src/ 2>/dev/null | grep -v node_modules | grep -v '.converge/')\"\n",
+              "checkOutput": "Command failed: test -z \"$(grep -rn 'epicId\\|EpicId\\|epic_id\\|EpicConfig\\|EpicStatus\\|EpicContext\\|EpicManager\\|EpicDefinition\\|EpicBuilder\\|EpicDeps\\|epicConfig\\|epicStatus\\|epicDeps\\|epicLog\\|epicTasks\\|extractEpicId\\|extractEpicDir\\|transitionEpic\\|getEpicTasksDir\\|getEpicsDir\\|runEpicConvergence\\|discoverEpicIds\\|appendEpicLog' --include='*.ts' packages/core/src/ 2>/dev/null | grep -v node_modules | grep -v '.converge/')\"\n",
               "checkExitCode": 1,
-              "taskPrompt": "Final cleanup and verification.\n\n**`packages/core/src/index.ts`:**\n- Remove all epic exports: EpicConfig, EpicStatus, EpicDeps, EpicConfigSchema, EpicStatusSchema, EpicManager, EpicManagerImpl, EpicContext, createEpicContext, EpicContextImpl, EpicDefinition, EpicBuilder, V2EpicDefinition, etc.\n- Add new export: PlaybookContext\n\n**Tests:**\n- Update `packages/core/src/tree/__tests__/task-tree.test.ts`\n- Update `packages/core/src/agent-manager/__tests__/agent-manager.test.ts`\n- Run full test suite\n\n**Final verification:**\n1. `grep -rn 'epicId\\|EpicConfig\\|EpicStatus\\|EpicContext\\|EpicManager\\|EpicDefinition' packages/core/src/` — must return zero results\n2. `cd packages/core && npx tsc --noEmit` — must compile clean\n3. Run test suite",
+              "taskPrompt": "Final cleanup and verification.\n\n**`packages/core/src/index.ts`:**\n- Remove all epic exports: EpicConfig, EpicStatus, EpicDeps, EpicConfigSchema, EpicStatusSchema, EpicManager, EpicManagerImpl, EpicContext, createEpicContext, EpicContextImpl, EpicDefinition, EpicBuilder, V2EpicDefinition, etc.\n- Add PlaybookContext, PlaybookConfig, PlaybookStatus, PlaybookDefinition, PlaybookBuilder exports\n\n**Tests:**\n- Update `packages/core/src/tree/__tests__/task-tree.test.ts`\n- Update `packages/core/src/agent-manager/__tests__/agent-manager.test.ts`\n- Run full test suite\n\n**Final verification:**\n1. `grep -rn 'epicId\\|EpicConfig\\|EpicStatus\\|EpicContext\\|EpicManager\\|EpicDefinition' packages/core/src/` — must return zero results\n2. `cd packages/core && npx tsc --noEmit` — must compile clean\n3. Run test suite",
               "taskId": "11-clean-exports-and-verify",
               "taskTitle": "Clean index exports, update tests, final verification",
               "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/tasks/11-clean-exports-and-verify",
               "factId": "check:no-epic-refs"
             }
+          },
+          {
+            "id": "11-clean-exports-and-verify-check-failed-tsc-clean",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "11-clean-exports-and-verify",
+            "severity": "high",
+            "description": "[11-clean-exports-and-verify] Check failed: TypeScript compiles clean",
+            "source": "unit",
+            "detected": "2026-04-21T23:58:27.771Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "tsc-clean",
+              "checkCmd": "cd packages/core && npx tsc --noEmit",
+              "checkDescription": "TypeScript compiles clean",
+              "checkOutput": "npm warn Unknown env config \"node-linker\". This will stop working in the next major version of npm.\nsrc/functions/types.ts(607,9): error TS1005: ';' expected.\nsrc/functions/types.ts(611,12): error TS1109: Expression expected.\nsrc/functions/types.ts(614,4): error TS1005: ';' expected.\nsrc/functions/types.ts(619,11): error TS1005: ';' expected.\nsrc/functions/types.ts(624,11): error TS1005: ';' expected.\nsrc/functions/types.ts(627,15): error TS1005: ',' expected.\nsrc/functions/types.ts(627,24): error TS1005: ';' expected.\nsrc/functions/types.ts(627,30): error TS1109: Expression expected.\nsrc/functions/types.ts(630,18): error TS1005: ',' expected.\nsrc/functions/types.ts(630,27): error TS1005: ';' expected.\nsrc/functions/types.ts(630,33): error TS1109: Expression expected.\nsrc/functions/types.ts(633,13): error TS1005: ';' expected.\nsrc/functions/types.ts(633,22): error TS1011: An element access expression should take an argument.\nsrc/functions/types.ts(634,1): error TS1128: Declaration or statement expected.",
+              "checkExitCode": 2,
+              "taskPrompt": "Final cleanup and verification.\n\n**`packages/core/src/index.ts`:**\n- Remove all epic exports: EpicConfig, EpicStatus, EpicDeps, EpicConfigSchema, EpicStatusSchema, EpicManager, EpicManagerImpl, EpicContext, createEpicContext, EpicContextImpl, EpicDefinition, EpicBuilder, V2EpicDefinition, etc.\n- Add PlaybookContext, PlaybookConfig, PlaybookStatus, PlaybookDefinition, PlaybookBuilder exports\n\n**Tests:**\n- Update `packages/core/src/tree/__tests__/task-tree.test.ts`\n- Update `packages/core/src/agent-manager/__tests__/agent-manager.test.ts`\n- Run full test suite\n\n**Final verification:**\n1. `grep -rn 'epicId\\|EpicConfig\\|EpicStatus\\|EpicContext\\|EpicManager\\|EpicDefinition' packages/core/src/` — must return zero results\n2. `cd packages/core && npx tsc --noEmit` — must compile clean\n3. Run test suite",
+              "taskId": "11-clean-exports-and-verify",
+              "taskTitle": "Clean index exports, update tests, final verification",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/tasks/11-clean-exports-and-verify",
+              "factId": "check:tsc-clean"
+            }
           }
         ],
-        "durationMs": 2892
+        "durationMs": 1833
       }
     },
     {
@@ -101,213 +126,44 @@
       },
       "result": {
         "action": "continue",
-        "durationMs": 2859
+        "durationMs": 1439
       }
     },
     {
       "id": "verify",
       "handler": "verify",
-      "status": "done",
+      "status": "buffered",
       "origin": "initial",
       "data": {
         "priority": 50
-      },
-      "result": {
-        "action": "continue",
-        "gaps": [
-          {
-            "id": "11-clean-exports-and-verify-check-failed-no-epic-refs",
-            "type": "incomplete",
-            "level": "task",
-            "scope": "11-clean-exports-and-verify",
-            "severity": "high",
-            "description": "[11-clean-exports-and-verify] Check failed: Zero epic references in packages/core/src",
-            "source": "unit",
-            "detected": "2026-04-21T13:12:45.844Z",
-            "resolved": false,
-            "checks": [],
-            "metadata": {
-              "gapKind": "check-failed",
-              "checkId": "no-epic-refs",
-              "checkCmd": "test -z \"$(grep -rn 'epicId\\|EpicId\\|epic_id\\|EpicConfig\\|EpicStatus\\|EpicContext\\|EpicManager\\|EpicDefinition\\|EpicBuilder\\|EpicDeps\\|epicConfig\\|epicStatus\\|epicDeps\\|epicLog\\|epicTasks\\|EpicScanner\\|EpicMetadata\\|epicDir\\|extractEpicId\\|extractEpicDir\\|ensureEpicCheckpoints\\|updateEpicProgress\\|EpicEvalAPI\\|EpicPlanAPI' --include='*.ts' packages/core/src/ 2>/dev/null | grep -v node_modules | grep -v '.converge/')\"",
-              "checkDescription": "Zero epic references in packages/core/src",
-              "checkOutput": "Command failed: test -z \"$(grep -rn 'epicId\\|EpicId\\|epic_id\\|EpicConfig\\|EpicStatus\\|EpicContext\\|EpicManager\\|EpicDefinition\\|EpicBuilder\\|EpicDeps\\|epicConfig\\|epicStatus\\|epicDeps\\|epicLog\\|epicTasks\\|EpicScanner\\|EpicMetadata\\|epicDir\\|extractEpicId\\|extractEpicDir\\|ensureEpicCheckpoints\\|updateEpicProgress\\|EpicEvalAPI\\|EpicPlanAPI' --include='*.ts' packages/core/src/ 2>/dev/null | grep -v node_modules | grep -v '.converge/')\"\n",
-              "checkExitCode": 1,
-              "taskPrompt": "Final cleanup and verification.\n\n**`packages/core/src/index.ts`:**\n- Remove all epic exports: EpicConfig, EpicStatus, EpicDeps, EpicConfigSchema, EpicStatusSchema, EpicManager, EpicManagerImpl, EpicContext, createEpicContext, EpicContextImpl, EpicDefinition, EpicBuilder, V2EpicDefinition, etc.\n- Add new export: PlaybookContext\n\n**Tests:**\n- Update `packages/core/src/tree/__tests__/task-tree.test.ts`\n- Update `packages/core/src/agent-manager/__tests__/agent-manager.test.ts`\n- Run full test suite\n\n**Final verification:**\n1. `grep -rn 'epicId\\|EpicConfig\\|EpicStatus\\|EpicContext\\|EpicManager\\|EpicDefinition' packages/core/src/` — must return zero results\n2. `cd packages/core && npx tsc --noEmit` — must compile clean\n3. Run test suite",
-              "taskId": "11-clean-exports-and-verify",
-              "taskTitle": "Clean index exports, update tests, final verification",
-              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/tasks/11-clean-exports-and-verify",
-              "factId": "check:no-epic-refs"
-            }
-          }
-        ],
-        "durationMs": 2849
       }
     },
     {
       "id": "check-stall",
       "handler": "check-stall",
-      "status": "done",
+      "status": "buffered",
       "origin": "initial",
       "data": {
         "priority": 45
-      },
-      "result": {
-        "action": "continue",
-        "durationMs": 0
       }
     },
     {
       "id": "advance-attempt",
       "handler": "advance-attempt",
-      "status": "done",
+      "status": "buffered",
       "origin": "initial",
       "data": {
         "priority": 40
-      },
-      "result": {
-        "action": "continue",
-        "durationMs": 0
       }
     },
     {
       "id": "run-strategy:task-run#1",
       "handler": "run-strategy",
-      "status": "done",
-      "origin": "planned",
-      "data": {
-        "strategy": "task-run",
-        "priority": 55
-      },
-      "result": {
-        "action": "continue",
-        "durationMs": 316435
-      }
-    },
-    {
-      "id": "check-wbs-seeded#2",
-      "handler": "check-wbs-seeded",
-      "status": "done",
-      "origin": "reactive",
-      "data": {
-        "priority": 100
-      },
-      "result": {
-        "action": "continue",
-        "durationMs": 0
-      }
-    },
-    {
-      "id": "check-outputs-exist#2",
-      "handler": "check-outputs-exist",
-      "status": "done",
-      "origin": "reactive",
-      "data": {
-        "priority": 99
-      },
-      "result": {
-        "action": "continue",
-        "durationMs": 0
-      }
-    },
-    {
-      "id": "detect-gaps#2",
-      "handler": "detect-gaps",
-      "status": "done",
-      "origin": "reactive",
-      "data": {
-        "priority": 98
-      },
-      "result": {
-        "action": "continue",
-        "gaps": [
-          {
-            "id": "11-clean-exports-and-verify-check-failed-no-epic-refs",
-            "type": "incomplete",
-            "level": "task",
-            "scope": "11-clean-exports-and-verify",
-            "severity": "high",
-            "description": "[11-clean-exports-and-verify] Check failed: Zero epic references in packages/core/src",
-            "source": "unit",
-            "detected": "2026-04-21T13:12:48.690Z",
-            "resolved": false,
-            "checks": [],
-            "metadata": {
-              "gapKind": "check-failed",
-              "checkId": "no-epic-refs",
-              "checkCmd": "test -z \"$(grep -rn 'epicId\\|EpicId\\|epic_id\\|EpicConfig\\|EpicStatus\\|EpicContext\\|EpicManager\\|EpicDefinition\\|EpicBuilder\\|EpicDeps\\|epicConfig\\|epicStatus\\|epicDeps\\|epicLog\\|epicTasks\\|EpicScanner\\|EpicMetadata\\|epicDir\\|extractEpicId\\|extractEpicDir\\|ensureEpicCheckpoints\\|updateEpicProgress\\|EpicEvalAPI\\|EpicPlanAPI' --include='*.ts' packages/core/src/ 2>/dev/null | grep -v node_modules | grep -v '.converge/')\"",
-              "checkDescription": "Zero epic references in packages/core/src",
-              "checkOutput": "Command failed: test -z \"$(grep -rn 'epicId\\|EpicId\\|epic_id\\|EpicConfig\\|EpicStatus\\|EpicContext\\|EpicManager\\|EpicDefinition\\|EpicBuilder\\|EpicDeps\\|epicConfig\\|epicStatus\\|epicDeps\\|epicLog\\|epicTasks\\|EpicScanner\\|EpicMetadata\\|epicDir\\|extractEpicId\\|extractEpicDir\\|ensureEpicCheckpoints\\|updateEpicProgress\\|EpicEvalAPI\\|EpicPlanAPI' --include='*.ts' packages/core/src/ 2>/dev/null | grep -v node_modules | grep -v '.converge/')\"\n",
-              "checkExitCode": 1,
-              "taskPrompt": "Final cleanup and verification.\n\n**`packages/core/src/index.ts`:**\n- Remove all epic exports: EpicConfig, EpicStatus, EpicDeps, EpicConfigSchema, EpicStatusSchema, EpicManager, EpicManagerImpl, EpicContext, createEpicContext, EpicContextImpl, EpicDefinition, EpicBuilder, V2EpicDefinition, etc.\n- Add new export: PlaybookContext\n\n**Tests:**\n- Update `packages/core/src/tree/__tests__/task-tree.test.ts`\n- Update `packages/core/src/agent-manager/__tests__/agent-manager.test.ts`\n- Run full test suite\n\n**Final verification:**\n1. `grep -rn 'epicId\\|EpicConfig\\|EpicStatus\\|EpicContext\\|EpicManager\\|EpicDefinition' packages/core/src/` — must return zero results\n2. `cd packages/core && npx tsc --noEmit` — must compile clean\n3. Run test suite",
-              "taskId": "11-clean-exports-and-verify",
-              "taskTitle": "Clean index exports, update tests, final verification",
-              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/remove-epic/tasks/11-clean-exports-and-verify",
-              "factId": "check:no-epic-refs"
-            }
-          }
-        ],
-        "durationMs": 2848
-      }
-    },
-    {
-      "id": "signal-done#2",
-      "handler": "signal-done",
-      "status": "buffered",
-      "origin": "reactive",
-      "data": {
-        "priority": 97,
-        "applicable": "noGaps"
-      }
-    },
-    {
-      "id": "repair-loop#2",
-      "handler": "repair-loop",
-      "status": "done",
-      "origin": "reactive",
-      "data": {
-        "priority": 55
-      },
-      "result": {
-        "action": "continue",
-        "durationMs": 375
-      }
-    },
-    {
-      "id": "run-strategy:task-run#2",
-      "handler": "run-strategy",
       "status": "buffered",
       "origin": "planned",
       "data": {
         "strategy": "task-run",
         "priority": 55
-      }
-    },
-    {
-      "id": "verify#2",
-      "handler": "verify",
-      "status": "buffered",
-      "origin": "reactive",
-      "data": {
-        "priority": 50
-      }
-    },
-    {
-      "id": "check-stall#2",
-      "handler": "check-stall",
-      "status": "buffered",
-      "origin": "reactive",
-      "data": {
-        "priority": 45
-      }
-    },
-    {
-      "id": "advance-attempt#2",
-      "handler": "advance-attempt",
-      "status": "buffered",
-      "origin": "reactive",
-      "data": {
-        "priority": 40
       }
     }
   ],
@@ -316,79 +172,31 @@
       "from": "_start",
       "to": "check-wbs-seeded",
       "iteration": 1,
-      "ts": "2026-04-21T13:07:23.279Z"
+      "ts": "2026-04-21T23:58:25.938Z"
     },
     {
       "from": "check-wbs-seeded",
       "to": "check-outputs-exist",
       "iteration": 1,
-      "ts": "2026-04-21T13:07:23.279Z"
+      "ts": "2026-04-21T23:58:25.938Z"
     },
     {
       "from": "check-outputs-exist",
       "to": "detect-gaps",
       "iteration": 1,
-      "ts": "2026-04-21T13:07:26.171Z"
+      "ts": "2026-04-21T23:58:27.772Z"
     },
     {
       "from": "detect-gaps",
       "to": "run-executor",
       "iteration": 1,
-      "ts": "2026-04-21T13:07:26.173Z"
+      "ts": "2026-04-21T23:58:27.776Z"
     },
     {
       "from": "run-executor",
       "to": "repair-loop",
       "iteration": 1,
-      "ts": "2026-04-21T13:07:29.033Z"
-    },
-    {
-      "from": "repair-loop",
-      "to": "run-strategy:task-run#1",
-      "iteration": 1,
-      "ts": "2026-04-21T13:12:45.470Z"
-    },
-    {
-      "from": "run-strategy:task-run#1",
-      "to": "verify",
-      "iteration": 1,
-      "ts": "2026-04-21T13:12:48.319Z"
-    },
-    {
-      "from": "verify",
-      "to": "check-stall",
-      "iteration": 1,
-      "ts": "2026-04-21T13:12:48.320Z"
-    },
-    {
-      "from": "check-stall",
-      "to": "advance-attempt",
-      "iteration": 1,
-      "ts": "2026-04-21T13:12:48.322Z"
-    },
-    {
-      "from": "advance-attempt",
-      "to": "check-wbs-seeded#2",
-      "iteration": 2,
-      "ts": "2026-04-21T13:12:48.322Z"
-    },
-    {
-      "from": "check-wbs-seeded#2",
-      "to": "check-outputs-exist#2",
-      "iteration": 2,
-      "ts": "2026-04-21T13:12:48.323Z"
-    },
-    {
-      "from": "check-outputs-exist#2",
-      "to": "detect-gaps#2",
-      "iteration": 2,
-      "ts": "2026-04-21T13:12:51.171Z"
-    },
-    {
-      "from": "detect-gaps#2",
-      "to": "repair-loop#2",
-      "iteration": 2,
-      "ts": "2026-04-21T13:12:51.546Z"
+      "ts": "2026-04-21T23:58:29.216Z"
     }
   ]
 }

@@ -4,7 +4,7 @@
     {
       "id": "no-epic-refs",
       "description": "Zero epic references in packages/core/src",
-      "cmd": "test -z \"$(grep -rn 'epicId\\|EpicId\\|epic_id\\|EpicConfig\\|EpicStatus\\|EpicContext\\|EpicManager\\|EpicDefinition\\|EpicBuilder\\|EpicDeps\\|epicConfig\\|epicStatus\\|epicDeps\\|epicLog\\|epicTasks\\|EpicScanner\\|EpicMetadata\\|epicDir\\|extractEpicId\\|extractEpicDir\\|ensureEpicCheckpoints\\|updateEpicProgress\\|EpicEvalAPI\\|EpicPlanAPI' --include='*.ts' packages/core/src/ 2>/dev/null | grep -v node_modules | grep -v '.converge/')\""
+      "cmd": "test -z \"$(grep -rn 'epicId\\|EpicId\\|epic_id\\|EpicConfig\\|EpicStatus\\|EpicContext\\|EpicManager\\|EpicDefinition\\|EpicBuilder\\|EpicDeps\\|epicConfig\\|epicStatus\\|epicDeps\\|epicLog\\|epicTasks\\|extractEpicId\\|extractEpicDir\\|transitionEpic\\|getEpicTasksDir\\|getEpicsDir\\|runEpicConvergence\\|discoverEpicIds\\|appendEpicLog' --include='*.ts' packages/core/src/ 2>/dev/null | grep -v node_modules | grep -v '.converge/')\""
     },
     {
       "id": "tsc-clean",

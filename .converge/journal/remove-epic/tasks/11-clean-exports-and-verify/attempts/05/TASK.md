@@ -4,7 +4,7 @@ Final cleanup and verification.
 
 **`packages/core/src/index.ts`:**
 - Remove all epic exports: EpicConfig, EpicStatus, EpicDeps, EpicConfigSchema, EpicStatusSchema, EpicManager, EpicManagerImpl, EpicContext, createEpicContext, EpicContextImpl, EpicDefinition, EpicBuilder, V2EpicDefinition, etc.
-- Add new export: PlaybookContext
+- Add PlaybookContext, PlaybookConfig, PlaybookStatus, PlaybookDefinition, PlaybookBuilder exports
 
 **Tests:**
 - Update `packages/core/src/tree/__tests__/task-tree.test.ts`

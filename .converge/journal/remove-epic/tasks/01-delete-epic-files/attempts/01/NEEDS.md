@@ -2,7 +2,7 @@
 
 ## Checks
 
-- **epic-manager-gone**: epic-manager.ts deleted
-- **epic-context-gone**: epic-context.ts deleted
-- **epic-scanner-gone**: epic-scanner.ts deleted
-- **epic-checkpoints-gone**: ensure-epic-checkpoints.ts deleted
+- **epic-context-removed**: EpicContext interface removed from context/types.ts
+- **epic-manager-removed**: EpicManager removed from Runtime interface
+- **epic-lifecycle-hooks-removed**: Epic lifecycle hooks removed from hooks/types.ts
+- **epic-exports-removed**: Epic exports removed from index.ts

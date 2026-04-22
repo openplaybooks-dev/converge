@@ -7,7 +7,7 @@
  */
 
 import type { TaskConfig } from "../storage/types.ts";
-import type { TaskContext, EpicContext } from "../context/types.ts";
+import type { TaskContext } from "../context/types.ts";
 import type { TaskDefinition } from "../config/task-definition.ts";
 import type { TaskResult } from "../functions/types.ts";
 

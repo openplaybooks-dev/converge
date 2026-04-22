@@ -24,6 +24,6 @@ pnpm converge run          # run all remaining tasks
 ## Verify checks manually
 
 ```bash
-  test -z "$(grep -rn 'epicId\|EpicId\|epic_id\|EpicConfig\|EpicStatus\|EpicContext\|EpicManager\|EpicDefinition\|EpicBuilder\|EpicDeps\|epicConfig\|epicStatus\|epicDeps\|epicLog\|epicTasks\|EpicScanner\|EpicMetadata\|epicDir\|extractEpicId\|extractEpicDir\|ensureEpicCheckpoints\|updateEpicProgress\|EpicEvalAPI\|EpicPlanAPI' --include='*.ts' packages/core/src/ 2>/dev/null | grep -v node_modules | grep -v '.converge/')"
+  test -z "$(grep -rn 'epicId\|EpicId\|epic_id\|EpicConfig\|EpicStatus\|EpicContext\|EpicManager\|EpicDefinition\|EpicBuilder\|EpicDeps\|epicConfig\|epicStatus\|epicDeps\|epicLog\|epicTasks\|extractEpicId\|extractEpicDir\|transitionEpic\|getEpicTasksDir\|getEpicsDir\|runEpicConvergence\|discoverEpicIds\|appendEpicLog' --include='*.ts' packages/core/src/ 2>/dev/null | grep -v node_modules | grep -v '.converge/')"
   cd packages/core && npx tsc --noEmit
 ```

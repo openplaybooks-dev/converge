@@ -129,8 +129,8 @@ class ProjectPlanAPI implements PlanAPI {
       if (relevantGaps.length === 0) continue;
 
       try {
-        // Note: PlanFn expects EpicContext, this is simplified
-        const tasks = await planMeta.fn(this.ctx as any, relevantGaps);
+        // Note: PlanFn takes ProjectContext
+        const tasks = await planMeta.fn(this.ctx, relevantGaps);
         allTasks.push(...tasks);
       } catch (error: any) {
         this.ctx.log.error(
@@ -200,6 +200,7 @@ export class ProjectContextImpl implements ProjectContext {
   readonly convergeDir: string;
   readonly vars: Readonly<Record<string, unknown>>;
   readonly config: Readonly<ProjectConfig>;
+  readonly epicId: string;
 
   readonly fs: FileSystemAPIImpl;
   readonly shell: ShellAPIImpl;
@@ -217,11 +218,13 @@ export class ProjectContextImpl implements ProjectContext {
     config: ProjectConfig,
     storage: FilesystemStorage,
     loadedPlugins: string[] = [],
+    epicId: string = "default",
   ) {
     this.projectDir = projectDir;
     this.convergeDir = `${projectDir}/.converge`;
     this.vars = Object.freeze({ ...config.variables });
     this.config = Object.freeze(config);
+    this.epicId = epicId;
 
     // Initialize APIs
     this.fs = new FileSystemAPIImpl(projectDir);
@@ -270,6 +273,7 @@ export function createProjectContext(
   config: ProjectConfig,
   storage: FilesystemStorage,
   loadedPlugins?: string[],
+  epicId?: string,
 ): ProjectContext {
-  return new ProjectContextImpl(projectDir, config, storage, loadedPlugins);
+  return new ProjectContextImpl(projectDir, config, storage, loadedPlugins, epicId);
 }

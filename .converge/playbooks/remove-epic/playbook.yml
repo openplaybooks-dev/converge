@@ -1,6 +1,18 @@
 name: remove-epic
 description: Remove all epic/epicId references from packages/core. Replace EpicContext with PlaybookContext. Flatten hierarchy to Project → Playbook → Task.
 
+# Mapping: epic → playbook
+# - EpicContext      → PlaybookContext
+# - EpicConfig      → PlaybookConfig
+# - EpicStatus      → PlaybookStatus
+# - EpicDefinition  → PlaybookDefinition
+# - EpicBuilder     → PlaybookBuilder
+# - EpicDeps        → PlaybookDeps
+# - epicId          → playbookId
+# - EpicManager     → (removed — single playbook per runtime)
+# - runEpicConvergence → runPlaybookConvergence
+# - transitionEpic  → transitionPlaybook
+
 run:
   mode: oneoff
   maxTaskAttempts: 3
@@ -32,7 +44,7 @@ tasks:
 
 checks:
   - id: no-epic-in-source
-    cmd: "test -z \"$(grep -rn 'epicId\\|EpicId\\|epic_id\\|EpicConfig\\|EpicStatus\\|EpicContext\\|EpicManager\\|EpicDefinition\\|EpicBuilder\\|EpicDeps\\|epicConfig\\|epicStatus\\|epicDeps\\|epicLog\\|epicTasks' --include='*.ts' packages/core/src/ 2>/dev/null | grep -v node_modules | grep -v '.converge/')\""
+    cmd: "test -z \"$(grep -rn 'epicId\\|EpicId\\|epic_id\\|EpicConfig\\|EpicStatus\\|EpicContext\\|EpicManager\\|EpicDefinition\\|EpicBuilder\\|EpicDeps\\|epicConfig\\|epicStatus\\|epicDeps\\|epicLog\\|epicTasks\\|extractEpicId\\|extractEpicDir\\|transitionEpic\\|getEpicTasksDir\\|getEpicsDir' --include='*.ts' packages/core/src/ 2>/dev/null | grep -v node_modules | grep -v '.converge/')\""
     description: Zero epic references in packages/core/src TypeScript files
   - id: tsc-passes
     cmd: "cd packages/core && npx tsc --noEmit"

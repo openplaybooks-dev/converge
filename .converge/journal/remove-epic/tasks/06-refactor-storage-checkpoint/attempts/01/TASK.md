@@ -4,19 +4,21 @@ Remove epicId from storage operations and checkpoint management.
 
 **`packages/core/src/storage/filesystem.ts`:**
 - Delete all epic operations: readEpicConfig, writeEpicConfig, readEpicStatus, writeEpicStatus, readEpicDeps, writeEpicDeps, appendEpicLog, listEpics
-- Change task operations from (epicId, taskId) to (taskPath) signatures
-- Remove `epics` from init() directory creation
+- Add playbook equivalents: readPlaybookConfig, writePlaybookConfig, readPlaybookStatus, writePlaybookStatus, readPlaybookDeps, writePlaybookDeps, appendPlaybookLog, listPlaybooks
+- Change task operations from `(epicId, taskId)` to `(playbookId, taskId)` signatures
+- Remove `epics` from init() directory creation, add `playbooks`
 
 **`packages/core/src/checkpoint/manager.ts`:**
 - Remove parseTaskId() that splits epicId/taskPath
 - Remove epicId from all method signatures (markTaskCompleted, markTaskFailed, markTaskSeeded, removeFromCompleted, reconcileTask)
+- Replace with playbookId where context is needed
 
 **`packages/core/src/checkpoint/task-checkpoint.ts`:**
 - Remove epicId from TaskCheckpoint interface
-- Change TaskCheckpointManager constructor from (projectDir, epicId, taskId) to (projectDir, taskId)
+- Change TaskCheckpointManager constructor from `(projectDir, epicId, taskId)` to `(projectDir, playbookId, taskId)`
 
 **`packages/core/src/checkpoint/unit-checkpoint.ts`:**
-- Remove "epic" from unit type enum: `"project" | "epic" | "task"` → `"project" | "task"`
+- Remove "epic" from unit type enum: `"project" | "epic" | "task"` → `"project" | "playbook" | "task"`
 - Remove epicId parameter from constructor
 
 **`packages/core/src/checkpoint/filesystem-status.ts`:**

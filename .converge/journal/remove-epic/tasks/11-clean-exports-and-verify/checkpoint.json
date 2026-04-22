@@ -1,29 +1,50 @@
 {
   "type": "task",
   "id": "11-clean-exports-and-verify",
-  "status": "complete",
-  "lastUpdated": "2026-04-21T13:15:00.000Z",
-  "createdAt": "2026-04-21T11:56:11.852Z",
+  "status": "running",
+  "lastUpdated": "2026-04-21T23:58:25.934Z",
+  "createdAt": "2026-04-21T22:53:58.935Z",
   "attempts": [
     {
       "attempt": 1,
-      "startedAt": "2026-04-21T11:56:11.852Z",
-      "completedAt": "2026-04-21T12:35:51.498Z",
-      "outcome": "interrupted"
+      "startedAt": "2026-04-21T22:53:58.935Z"
     },
     {
       "attempt": 2,
-      "startedAt": "2026-04-21T12:35:59.525Z",
-      "completedAt": "2026-04-21T13:07:23.276Z",
-      "outcome": "interrupted"
+      "startedAt": "2026-04-21T23:01:31.880Z"
     },
     {
       "attempt": 3,
-      "startedAt": "2026-04-21T13:07:23.276Z",
-      "completedAt": "2026-04-21T13:15:00.000Z",
-      "outcome": "success",
-      "durationMs": 458724
+      "startedAt": "2026-04-21T23:05:36.421Z"
+    },
+    {
+      "attempt": 4,
+      "startedAt": "2026-04-21T23:13:44.853Z"
+    },
+    {
+      "attempt": 5,
+      "startedAt": "2026-04-21T23:26:18.903Z"
+    },
+    {
+      "attempt": 6,
+      "startedAt": "2026-04-21T23:32:14.415Z"
+    },
+    {
+      "attempt": 7,
+      "startedAt": "2026-04-21T23:37:12.989Z"
+    },
+    {
+      "attempt": 8,
+      "startedAt": "2026-04-21T23:43:57.722Z"
+    },
+    {
+      "attempt": 9,
+      "startedAt": "2026-04-21T23:52:52.580Z"
+    },
+    {
+      "attempt": 10,
+      "startedAt": "2026-04-21T23:58:25.934Z"
     }
   ],
-  "currentAttempt": 3
+  "currentAttempt": 10
 }

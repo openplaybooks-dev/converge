@@ -1,16 +1,23 @@
 # Task: 01-delete-epic-files
 
-Delete these 4 files that exist solely for epic infrastructure:
+Remove epic-related interfaces from existing files (not separate files — epic logic is distributed).
 
-1. `packages/core/src/runtime/epic-manager.ts` — EpicManagerImpl class
-2. `packages/core/src/context/epic-context.ts` — EpicContextImpl, EpicEvalAPI, EpicPlanAPI
-3. `packages/core/src/planning/epic-scanner.ts` — EpicFileScanner, EpicMetadata
-4. `packages/core/src/checkpoint/ensure-epic-checkpoints.ts` — ensureEpicCheckpoints(), updateEpicProgress()
+**`packages/core/src/context/types.ts`:**
+- Delete `EpicContext` interface entirely
+- Remove `EpicContext` from any exports
 
-Then remove all imports/usages of these deleted modules from:
-- `packages/core/src/runtime/runtime.ts` — remove EpicManagerImpl import/usage
-- `packages/core/src/context/index.ts` — remove EpicContextImpl, createEpicContext exports
-- `packages/core/src/index.ts` — remove all epic re-exports from these files
-- `packages/core/src/cli/next-task.ts` — remove ensureEpicCheckpoints/updateEpicProgress calls
+**`packages/core/src/runtime/types.ts`:**
+- Delete `EpicManager` interface entirely
+- Remove `epics: EpicManager` from Runtime interface
 
-Comment out broken downstream references temporarily (they'll be fixed in later tasks).
+**`packages/core/src/hooks/types.ts`:**
+- Remove epic lifecycle hooks: `epic:start`, `epic:complete`, `epic:fail`, `epic:skip`
+- Remove `epicId` from all hook event payload interfaces
+
+**`packages/core/src/context/index.ts`:**
+- Remove `EpicContext`, `createEpicContext`, `EpicContextImpl` exports
+
+**`packages/core/src/index.ts`:**
+- Remove all epic re-exports: `EpicConfig`, `EpicStatus`, `EpicDeps`, `EpicConfigSchema`, `EpicStatusSchema`, `EpicManager`, `EpicManagerImpl`, `EpicContext`, `EpicContextImpl`, `EpicDefinition`, `EpicBuilder`, `V2EpicDefinition`, etc.
+
+Comment out broken downstream references temporarily (they'll be fixed in later tasks). PlaybookContext and PlaybookConfig will be added in tasks 02-03.

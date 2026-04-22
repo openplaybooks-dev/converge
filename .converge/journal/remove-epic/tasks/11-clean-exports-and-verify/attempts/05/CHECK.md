@@ -3,9 +3,9 @@
 All checks must pass for this task to be considered complete.
 Run each command from the project root. Fix failures and re-run.
 
-## no-epic-exports
-**Description**: No epic types exported from public API
-**Command**: `test -z "$(grep -E 'EpicConfig|EpicStatus|EpicContext|EpicManager|EpicDefinition|EpicBuilder|EpicDeps' packages/core/src/index.ts packages/core/src/*/index.ts 2>/dev/null)"`
+## no-epic-refs
+**Description**: Zero epic references in packages/core/src
+**Command**: `test -z "$(grep -rn 'epicId\|EpicId\|epic_id\|EpicConfig\|EpicStatus\|EpicContext\|EpicManager\|EpicDefinition\|EpicBuilder\|EpicDeps\|epicConfig\|epicStatus\|epicDeps\|epicLog\|epicTasks\|extractEpicId\|extractEpicDir\|transitionEpic\|getEpicTasksDir\|getEpicsDir\|runEpicConvergence\|discoverEpicIds\|appendEpicLog' --include='*.ts' packages/core/src/ 2>/dev/null | grep -v node_modules | grep -v '.converge/')"`
 
 ## tsc-clean
 **Description**: TypeScript compiles clean

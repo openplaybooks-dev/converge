@@ -6,7 +6,7 @@
  */
 
 import { FilesystemStorage } from "./filesystem.ts";
-import type { EpicStatus, TaskStatus } from "./types.ts";
+import type { PlaybookStatus, TaskStatus } from "./types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Status Manager                                                    */
@@ -16,19 +16,19 @@ export class StatusManager {
   constructor(private storage: FilesystemStorage) {}
 
   /* ────────────────────────────────────────────────────────────── */
-  /*  Epic Status Management                                        */
+  /*  Playbook Status Management                                    */
   /* ────────────────────────────────────────────────────────────── */
 
   /**
-   * Get epic status or create default if not exists
+   * Get playbook status or create default if not exists
    */
-  getEpicStatus(epicId: string): EpicStatus {
-    const existing = this.storage.readEpicStatus(epicId);
+  getPlaybookStatus(playbookId: string): PlaybookStatus {
+    const existing = this.storage.readPlaybookStatus(playbookId);
     if (existing) return existing;
 
     // Create default status
-    const defaultStatus: EpicStatus = {
-      id: epicId,
+    const defaultStatus: PlaybookStatus = {
+      id: playbookId,
       status: "planned",
       currentGaps: [],
       attempts: 0,
@@ -41,41 +41,41 @@ export class StatusManager {
   }
 
   /**
-   * Update epic status
+   * Update playbook status
    */
-  updateEpicStatus(
-    epicId: string,
-    updates: Partial<Omit<EpicStatus, "id">>,
-  ): EpicStatus {
-    const current = this.getEpicStatus(epicId);
-    const updated: EpicStatus = {
+  updatePlaybookStatus(
+    playbookId: string,
+    updates: Partial<Omit<PlaybookStatus, "id">>,
+  ): PlaybookStatus {
+    const current = this.getPlaybookStatus(playbookId);
+    const updated: PlaybookStatus = {
       ...current,
       ...updates,
-      id: epicId,
+      id: playbookId,
       metadata: {
         ...current.metadata,
         lastUpdated: new Date().toISOString(),
       },
     };
 
-    this.storage.writeEpicStatus(updated);
+    this.storage.writePlaybookStatus(updated);
     return updated;
   }
 
   /**
-   * Transition epic to a new status
+   * Transition playbook to a new status
    */
-  transitionEpic(
-    epicId: string,
-    newStatus: EpicStatus["status"],
+  transitionPlaybook(
+    playbookId: string,
+    newStatus: PlaybookStatus["status"],
     reason?: string,
-  ): EpicStatus {
-    const current = this.getEpicStatus(epicId);
+  ): PlaybookStatus {
+    const current = this.getPlaybookStatus(playbookId);
 
     // Validate transition
-    this.validateEpicTransition(current.status, newStatus);
+    this.validatePlaybookTransition(current.status, newStatus);
 
-    const updated: EpicStatus = {
+    const updated: PlaybookStatus = {
       ...current,
       status: newStatus,
       metadata: {
@@ -90,39 +90,38 @@ export class StatusManager {
       },
     };
 
-    this.storage.writeEpicStatus(updated);
+    this.storage.writePlaybookStatus(updated);
 
     // Log transition
     const message = reason
       ? `Status transitioned: ${current.status} → ${newStatus} (${reason})`
       : `Status transitioned: ${current.status} → ${newStatus}`;
-    this.storage.appendEpicLog(epicId, message);
+    this.storage.appendPlaybookLog(playbookId, message);
 
     return updated;
   }
 
   /**
-   * Record gaps detected for an epic
+   * Record gaps detected for a playbook
    */
-  recordEpicGaps(epicId: string, gaps: string[]): void {
-    this.updateEpicStatus(epicId, {
+  recordPlaybookGaps(playbookId: string, gaps: string[]): void {
+    this.updatePlaybookStatus(playbookId, {
       currentGaps: gaps,
-      lastEvaluation: new Date().toISOString(),
     });
 
     const message =
       gaps.length > 0
         ? `Gaps detected: ${gaps.length}\n${gaps.map((g) => `- ${g}`).join("\n")}`
         : "No gaps detected";
-    this.storage.appendEpicLog(epicId, message);
+    this.storage.appendPlaybookLog(playbookId, message);
   }
 
   /**
-   * Increment epic attempt counter
+   * Increment playbook attempt counter
    */
-  incrementEpicAttempt(epicId: string): void {
-    const current = this.getEpicStatus(epicId);
-    this.updateEpicStatus(epicId, {
+  incrementPlaybookAttempt(playbookId: string): void {
+    const current = this.getPlaybookStatus(playbookId);
+    this.updatePlaybookStatus(playbookId, {
       attempts: current.attempts + 1,
     });
   }
@@ -134,8 +133,8 @@ export class StatusManager {
   /**
    * Get task status or create default if not exists
    */
-  getTaskStatus(epicId: string, taskId: string): TaskStatus {
-    const existing = this.storage.readTaskStatus(epicId, taskId);
+  getTaskStatus(playbookId: string, taskId: string): TaskStatus {
+    const existing = this.storage.readTaskStatus(playbookId, taskId);
     if (existing) return existing;
 
     // Create default status
@@ -156,11 +155,11 @@ export class StatusManager {
    * Update task status
    */
   updateTaskStatus(
-    epicId: string,
+    playbookId: string,
     taskId: string,
     updates: Partial<Omit<TaskStatus, "id">>,
   ): TaskStatus {
-    const current = this.getTaskStatus(epicId, taskId);
+    const current = this.getTaskStatus(playbookId, taskId);
     const updated: TaskStatus = {
       ...current,
       ...updates,
@@ -171,7 +170,7 @@ export class StatusManager {
       },
     };
 
-    this.storage.writeTaskStatus(epicId, updated);
+    this.storage.writeTaskStatus(playbookId, updated);
     return updated;
   }
 
@@ -179,12 +178,12 @@ export class StatusManager {
    * Transition task to a new status
    */
   transitionTask(
-    epicId: string,
+    playbookId: string,
     taskId: string,
     newStatus: TaskStatus["status"],
     reason?: string,
   ): TaskStatus {
-    const current = this.getTaskStatus(epicId, taskId);
+    const current = this.getTaskStatus(playbookId, taskId);
 
     // Validate transition
     this.validateTaskTransition(current.status, newStatus);
@@ -204,13 +203,13 @@ export class StatusManager {
       },
     };
 
-    this.storage.writeTaskStatus(epicId, updated);
+    this.storage.writeTaskStatus(playbookId, updated);
 
     // Log transition
     const message = reason
       ? `Status transitioned: ${current.status} → ${newStatus} (${reason})`
       : `Status transitioned: ${current.status} → ${newStatus}`;
-    this.storage.appendTaskLog(epicId, taskId, message);
+    this.storage.appendTaskLog(playbookId, taskId, message);
 
     return updated;
   }
@@ -218,8 +217,8 @@ export class StatusManager {
   /**
    * Record gaps detected for a task
    */
-  recordTaskGaps(epicId: string, taskId: string, gaps: string[]): void {
-    this.updateTaskStatus(epicId, taskId, {
+  recordTaskGaps(playbookId: string, taskId: string, gaps: string[]): void {
+    this.updateTaskStatus(playbookId, taskId, {
       currentGaps: gaps,
       lastEvaluation: new Date().toISOString(),
     });
@@ -228,14 +227,14 @@ export class StatusManager {
       gaps.length > 0
         ? `Gaps detected: ${gaps.length}\n${gaps.map((g) => `- ${g}`).join("\n")}`
         : "No gaps detected";
-    this.storage.appendTaskLog(epicId, taskId, message);
+    this.storage.appendTaskLog(playbookId, taskId, message);
   }
 
   /**
    * Record task attempt
    */
   recordTaskAttempt(
-    epicId: string,
+    playbookId: string,
     taskId: string,
     attempt: {
       number: number;
@@ -243,10 +242,10 @@ export class StatusManager {
       error?: string;
     },
   ): void {
-    const current = this.getTaskStatus(epicId, taskId);
+    const current = this.getTaskStatus(playbookId, taskId);
     const started = current.lastAttempt?.started || new Date().toISOString();
 
-    this.updateTaskStatus(epicId, taskId, {
+    this.updateTaskStatus(playbookId, taskId, {
       attempts: current.attempts + 1,
       lastAttempt: {
         number: attempt.number,
@@ -260,20 +259,20 @@ export class StatusManager {
     const message = attempt.success
       ? `Attempt ${attempt.number} succeeded`
       : `Attempt ${attempt.number} failed: ${attempt.error || "unknown error"}`;
-    this.storage.appendTaskLog(epicId, taskId, message);
+    this.storage.appendTaskLog(playbookId, taskId, message);
   }
 
   /**
    * Start task attempt
    */
   startTaskAttempt(
-    epicId: string,
+    playbookId: string,
     taskId: string,
     attemptNumber: number,
   ): void {
-    const current = this.getTaskStatus(epicId, taskId);
+    const current = this.getTaskStatus(playbookId, taskId);
 
-    this.updateTaskStatus(epicId, taskId, {
+    this.updateTaskStatus(playbookId, taskId, {
       lastAttempt: {
         number: attemptNumber,
         started: new Date().toISOString(),
@@ -281,7 +280,7 @@ export class StatusManager {
     });
 
     this.storage.appendTaskLog(
-      epicId,
+      playbookId,
       taskId,
       `Starting attempt ${attemptNumber}`,
     );
@@ -292,36 +291,36 @@ export class StatusManager {
   /* ────────────────────────────────────────────────────────────── */
 
   /**
-   * Check if epic is completed
+   * Check if playbook is completed
    */
-  isEpicCompleted(epicId: string): boolean {
-    const status = this.getEpicStatus(epicId);
+  isPlaybookCompleted(playbookId: string): boolean {
+    const status = this.getPlaybookStatus(playbookId);
     return status.status === "completed";
   }
 
   /**
    * Check if task is completed
    */
-  isTaskCompleted(epicId: string, taskId: string): boolean {
-    const status = this.getTaskStatus(epicId, taskId);
+  isTaskCompleted(playbookId: string, taskId: string): boolean {
+    const status = this.getTaskStatus(playbookId, taskId);
     return status.status === "completed" || status.status === "skipped";
   }
 
   /**
    * Check if task can start (not blocked)
    */
-  canTaskStart(epicId: string, taskId: string): boolean {
-    const status = this.getTaskStatus(epicId, taskId);
+  canTaskStart(playbookId: string, taskId: string): boolean {
+    const status = this.getTaskStatus(playbookId, taskId);
     return status.status === "pending" || status.status === "blocked";
   }
 
   /**
-   * Get all tasks with a specific status in an epic
+   * Get all tasks with a specific status in a playbook
    */
-  getTasksByStatus(epicId: string, status: TaskStatus["status"]): string[] {
-    const taskIds = this.storage.listTasks(epicId);
+  getTasksByStatus(playbookId: string, status: TaskStatus["status"]): string[] {
+    const taskIds = this.storage.listTasks(playbookId);
     return taskIds.filter((taskId) => {
-      const taskStatus = this.getTaskStatus(epicId, taskId);
+      const taskStatus = this.getTaskStatus(playbookId, taskId);
       return taskStatus.status === status;
     });
   }
@@ -331,15 +330,15 @@ export class StatusManager {
   /* ────────────────────────────────────────────────────────────── */
 
   /**
-   * Validate epic status transition
+   * Validate playbook status transition
    */
-  private validateEpicTransition(
-    from: EpicStatus["status"],
-    to: EpicStatus["status"],
+  private validatePlaybookTransition(
+    from: PlaybookStatus["status"],
+    to: PlaybookStatus["status"],
   ): void {
     const validTransitions: Record<
-      EpicStatus["status"],
-      EpicStatus["status"][]
+      PlaybookStatus["status"],
+      PlaybookStatus["status"][]
     > = {
       planned: ["active", "completed"],
       active: ["completed", "blocked", "failed"],
@@ -349,7 +348,7 @@ export class StatusManager {
     };
 
     if (!validTransitions[from].includes(to)) {
-      throw new Error(`Invalid epic status transition: ${from} → ${to}`);
+      throw new Error(`Invalid playbook status transition: ${from} → ${to}`);
     }
   }
 

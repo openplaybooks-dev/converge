@@ -3,8 +3,8 @@
 Refactor `packages/core/src/unit/path-utils.ts` to remove all epic path resolution.
 
 **Delete these functions:**
-- `extractEpicId()` (lines ~141-166) — replace callers with `extractPlaybookId()`
-- `extractEpicDir()` (lines ~174-201) — replace callers with playbook-root-based path
+- `extractEpicId()` — replace callers with `extractPlaybookId()`
+- `extractEpicDir()` — replace callers with playbook-root-based path
 
 **Add new function:**
 ```typescript
@@ -20,17 +20,17 @@ export function extractPlaybookId(taskPath: string): string {
 ```
 
 **In `extractJournalTaskId()`:**
-- Remove the entire `epics` branch (lines ~85-133 — the `epicsIndex` path)
-- Keep only the `playbooks` branch (lines ~44-83)
+- Remove the entire `epics` branch (the `epicsIndex` path)
+- Keep only the `playbooks` branch
 - Update error message for missing playbooks dir
 
 **In `constructJournalPath()`:**
-- Remove the entire `epics` branch (lines ~340-362)
-- Keep only the `playbooks` branch (lines ~312-337)
+- Remove the entire `epics` branch
+- Keep only the `playbooks` branch
 - Update error message
 
 **In `extractLeafTaskId()`:**
-- Remove the fallback path that scans for epics (lines ~233-252)
+- Remove the fallback path that scans for epics
 - Keep only the playbooks path
 
 Update doc comments throughout to remove all epic references.

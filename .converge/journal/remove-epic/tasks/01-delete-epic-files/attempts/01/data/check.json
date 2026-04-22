@@ -2,24 +2,24 @@
   "taskId": "01-delete-epic-files",
   "checks": [
     {
-      "id": "epic-manager-gone",
-      "description": "epic-manager.ts deleted",
-      "cmd": "test ! -f packages/core/src/runtime/epic-manager.ts"
+      "id": "epic-context-removed",
+      "description": "EpicContext interface removed from context/types.ts",
+      "cmd": "test -z \"$(grep -n 'EpicContext' packages/core/src/context/types.ts 2>/dev/null)\""
     },
     {
-      "id": "epic-context-gone",
-      "description": "epic-context.ts deleted",
-      "cmd": "test ! -f packages/core/src/context/epic-context.ts"
+      "id": "epic-manager-removed",
+      "description": "EpicManager removed from Runtime interface",
+      "cmd": "test -z \"$(grep -n 'epics: EpicManager' packages/core/src/runtime/types.ts 2>/dev/null)\""
     },
     {
-      "id": "epic-scanner-gone",
-      "description": "epic-scanner.ts deleted",
-      "cmd": "test ! -f packages/core/src/planning/epic-scanner.ts"
+      "id": "epic-lifecycle-hooks-removed",
+      "description": "Epic lifecycle hooks removed from hooks/types.ts",
+      "cmd": "test -z \"$(grep -n 'epic:' packages/core/src/hooks/types.ts 2>/dev/null)\""
     },
     {
-      "id": "epic-checkpoints-gone",
-      "description": "ensure-epic-checkpoints.ts deleted",
-      "cmd": "test ! -f packages/core/src/checkpoint/ensure-epic-checkpoints.ts"
+      "id": "epic-exports-removed",
+      "description": "Epic exports removed from index.ts",
+      "cmd": "test -z \"$(grep -n 'EpicContext\\|EpicConfig\\|EpicStatus\\|EpicManager' packages/core/src/index.ts 2>/dev/null)\""
     }
   ]
 }

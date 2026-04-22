@@ -17,12 +17,12 @@ import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import {
   ProjectConfig,
   ProjectConfigSchema,
-  EpicConfig,
-  EpicConfigSchema,
-  EpicStatus,
-  EpicStatusSchema,
-  EpicDeps,
-  EpicDepsSchema,
+  PlaybookConfig,
+  PlaybookConfigSchema,
+  PlaybookStatus,
+  PlaybookStatusSchema,
+  PlaybookDeps,
+  PlaybookDepsSchema,
   TaskConfig,
   TaskConfigSchema,
   TaskStatus,
@@ -60,7 +60,7 @@ export class FilesystemStorage {
   init(): void {
     const dirs = [
       this.paths.root,
-      this.paths.epics,
+      this.paths.playbooks,
       this.paths.checkpoints,
       this.paths.gaps,
       this.paths.provenance,
@@ -131,81 +131,81 @@ checkpoints/*.yaml
   }
 
   /* ────────────────────────────────────────────────────────────── */
-  /*  Epic Operations                                               */
+  /*  Playbook Operations                                            */
   /* ────────────────────────────────────────────────────────────── */
 
   /**
-   * Read epic configuration
+   * Read playbook configuration
    */
-  readEpicConfig(epicId: string): EpicConfig {
-    const path = this.paths.epicConfig(epicId);
+  readPlaybookConfig(playbookId: string): PlaybookConfig {
+    const path = this.paths.playbookConfig(playbookId);
     const content = readFileSync(path, "utf8");
     const data = parseYaml(content);
-    return EpicConfigSchema.parse(data);
+    return PlaybookConfigSchema.parse(data);
   }
 
   /**
-   * Write epic configuration
+   * Write playbook configuration
    */
-  writeEpicConfig(config: EpicConfig): void {
-    const validated = EpicConfigSchema.parse(config);
-    const path = this.paths.epicConfig(config.id);
+  writePlaybookConfig(config: PlaybookConfig): void {
+    const validated = PlaybookConfigSchema.parse(config);
+    const path = this.paths.playbookConfig(config.id);
     const content = stringifyYaml(validated, { lineWidth: 0 });
     this.ensureDir(path);
     writeFileSync(path, content, "utf8");
   }
 
   /**
-   * Read epic status (runtime state)
+   * Read playbook status (runtime state)
    */
-  readEpicStatus(epicId: string): EpicStatus | null {
-    const path = this.paths.epicStatus(epicId);
+  readPlaybookStatus(playbookId: string): PlaybookStatus | null {
+    const path = this.paths.playbookStatus(playbookId);
     if (!existsSync(path)) return null;
 
     const content = readFileSync(path, "utf8");
     const data = parseYaml(content);
-    return EpicStatusSchema.parse(data);
+    return PlaybookStatusSchema.parse(data);
   }
 
   /**
-   * Write epic status (runtime state)
+   * Write playbook status (runtime state)
    */
-  writeEpicStatus(status: EpicStatus): void {
-    const validated = EpicStatusSchema.parse(status);
-    const path = this.paths.epicStatus(status.id);
+  writePlaybookStatus(status: PlaybookStatus): void {
+    const validated = PlaybookStatusSchema.parse(status);
+    const path = this.paths.playbookStatus(status.id);
     const content = stringifyYaml(validated, { lineWidth: 0 });
     this.ensureDir(path);
     writeFileSync(path, content, "utf8");
   }
 
   /**
-   * Read epic dependencies
+   * Read playbook dependencies
    */
-  readEpicDeps(epicId: string): EpicDeps | null {
-    const path = this.paths.epicDeps(epicId);
+  readPlaybookDeps(playbookId: string): PlaybookDeps | null {
+    const path = this.paths.playbookDeps(playbookId);
     if (!existsSync(path)) return null;
 
     const content = readFileSync(path, "utf8");
     const data = parseYaml(content);
-    return EpicDepsSchema.parse(data);
+    return PlaybookDepsSchema.parse(data);
   }
 
   /**
-   * Write epic dependencies
+   * Write playbook dependencies
    */
-  writeEpicDeps(deps: EpicDeps): void {
-    const validated = EpicDepsSchema.parse(deps);
-    const path = this.paths.epicDeps(deps.id);
+  writePlaybookDeps(deps: PlaybookDeps): void {
+    const validated = PlaybookDepsSchema.parse(deps);
+    const path = this.paths.playbookDeps(deps.id);
     const content = stringifyYaml(validated, { lineWidth: 0 });
     this.ensureDir(path);
     writeFileSync(path, content, "utf8");
   }
 
   /**
-   * Append to epic log
+   * Append to playbook log
    */
-  appendEpicLog(epicId: string, message: string): void {
-    const path = this.paths.epicLog(epicId);
+  appendPlaybookLog(playbookId: string, message: string): void {
+    const path = this.paths.playbookLog(playbookId);
     const timestamp = new Date().toISOString();
     const entry = `\n## ${timestamp}\n\n${message}\n`;
 
@@ -215,18 +215,18 @@ checkpoints/*.yaml
       const existing = readFileSync(path, "utf8");
       writeFileSync(path, existing + entry, "utf8");
     } else {
-      const header = `# Epic Log: ${epicId}\n`;
+      const header = `# Playbook Log: ${playbookId}\n`;
       writeFileSync(path, header + entry, "utf8");
     }
   }
 
   /**
-   * List all epic IDs
+   * List all playbook IDs
    */
-  listEpics(): string[] {
-    if (!existsSync(this.paths.epics)) return [];
+  listPlaybooks(): string[] {
+    if (!existsSync(this.paths.playbooks)) return [];
 
-    return readdirSync(this.paths.epics)
+    return readdirSync(this.paths.playbooks)
       .filter(
         (file) =>
           file.endsWith(".yaml") &&
@@ -243,8 +243,8 @@ checkpoints/*.yaml
   /**
    * Read task configuration
    */
-  readTaskConfig(epicId: string, taskId: string): TaskConfig {
-    const path = this.paths.taskConfig(epicId, taskId);
+  readTaskConfig(playbookId: string, taskId: string): TaskConfig {
+    const path = this.paths.taskConfig(playbookId, taskId);
     const content = readFileSync(path, "utf8");
     const data = parseYaml(content);
     return TaskConfigSchema.parse(data);
@@ -253,9 +253,9 @@ checkpoints/*.yaml
   /**
    * Write task configuration
    */
-  writeTaskConfig(epicId: string, config: TaskConfig): void {
+  writeTaskConfig(playbookId: string, config: TaskConfig): void {
     const validated = TaskConfigSchema.parse(config);
-    const path = this.paths.taskConfig(epicId, config.id);
+    const path = this.paths.taskConfig(playbookId, config.id);
     const content = stringifyYaml(validated, { lineWidth: 0 });
     this.ensureDir(path);
     writeFileSync(path, content, "utf8");
@@ -264,8 +264,8 @@ checkpoints/*.yaml
   /**
    * Read task status (runtime state)
    */
-  readTaskStatus(epicId: string, taskId: string): TaskStatus | null {
-    const path = this.paths.taskStatus(epicId, taskId);
+  readTaskStatus(playbookId: string, taskId: string): TaskStatus | null {
+    const path = this.paths.taskStatus(playbookId, taskId);
     if (!existsSync(path)) return null;
 
     const content = readFileSync(path, "utf8");
@@ -276,9 +276,9 @@ checkpoints/*.yaml
   /**
    * Write task status (runtime state)
    */
-  writeTaskStatus(epicId: string, status: TaskStatus): void {
+  writeTaskStatus(playbookId: string, status: TaskStatus): void {
     const validated = TaskStatusSchema.parse(status);
-    const path = this.paths.taskStatus(epicId, status.id);
+    const path = this.paths.taskStatus(playbookId, status.id);
     const content = stringifyYaml(validated, { lineWidth: 0 });
     this.ensureDir(path);
     writeFileSync(path, content, "utf8");
@@ -287,8 +287,8 @@ checkpoints/*.yaml
   /**
    * Append to task log
    */
-  appendTaskLog(epicId: string, taskId: string, message: string): void {
-    const path = this.paths.taskLog(epicId, taskId);
+  appendTaskLog(playbookId: string, taskId: string, message: string): void {
+    const path = this.paths.taskLog(playbookId, taskId);
     const timestamp = new Date().toISOString();
     const entry = `\n## ${timestamp}\n\n${message}\n`;
 
@@ -304,10 +304,10 @@ checkpoints/*.yaml
   }
 
   /**
-   * List all task IDs for an epic
+   * List all task IDs for a playbook
    */
-  listTasks(epicId: string): string[] {
-    const tasksDir = this.paths.epicTasks(epicId);
+  listTasks(playbookId: string): string[] {
+    const tasksDir = this.paths.playbookTasks(playbookId);
     if (!existsSync(tasksDir)) return [];
 
     return readdirSync(tasksDir)
@@ -457,10 +457,10 @@ checkpoints/*.yaml
    * Subtasks are .ts files that export default taskDef()
    */
   async readSubtaskConfigs(
-    epicId: string,
+    playbookId: string,
     parentTaskId: string,
   ): Promise<TaskConfig[]> {
-    const parentTaskDir = join(this.paths.epics, epicId, "tasks", parentTaskId);
+    const parentTaskDir = join(this.paths.playbooks, playbookId, "tasks", parentTaskId);
 
     if (!existsSync(parentTaskDir)) {
       return [];

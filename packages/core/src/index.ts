@@ -621,10 +621,7 @@ export {
   substituteVars,
 } from "./playbook/loader.ts";
 
-export {
-  generateEpicFromPlaybook,
-  mergeRunConfig,
-} from "./playbook/executor.ts";
+export { mergeRunConfig } from "./playbook/executor.ts";
 
 export {
   initPlaybookJournal,

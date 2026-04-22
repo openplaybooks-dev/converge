@@ -98,7 +98,7 @@ export class FunctionExecutor {
     const startTime = Date.now();
     const taskId = ctx.taskId;
     const taskType = config.type || "default";
-    const epicId = ctx.epic.epicId;
+    const epicId = ctx.epicId;
     const projectDir = ctx.projectDir;
 
     ctx.log.info(`Executing task: ${config.title} (type: ${taskType})`);
@@ -223,7 +223,7 @@ export class FunctionExecutor {
       error: string;
       timestamp: string;
     }> = [];
-    const epicId = ctx.epic.epicId;
+    const epicId = ctx.epicId;
     const taskId = ctx.taskId;
     const projectDir = ctx.projectDir;
 
@@ -393,7 +393,7 @@ export class FunctionExecutor {
     const startTime = Date.now();
     const taskId = path.basename(taskFolder);
     const projectDir = ctx.projectDir;
-    const epicId = ctx.epic.epicId;
+    const epicId = ctx.epicId;
 
     try {
       // 1. Load skill to ~/.claude/skills/

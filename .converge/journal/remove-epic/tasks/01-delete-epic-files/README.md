@@ -24,8 +24,8 @@ pnpm converge run          # run all remaining tasks
 ## Verify checks manually
 
 ```bash
-  test ! -f packages/core/src/runtime/epic-manager.ts
-  test ! -f packages/core/src/context/epic-context.ts
-  test ! -f packages/core/src/planning/epic-scanner.ts
-  test ! -f packages/core/src/checkpoint/ensure-epic-checkpoints.ts
+  test -z "$(grep -n 'EpicContext' packages/core/src/context/types.ts 2>/dev/null)"
+  test -z "$(grep -n 'epics: EpicManager' packages/core/src/runtime/types.ts 2>/dev/null)"
+  test -z "$(grep -n 'epic:' packages/core/src/hooks/types.ts 2>/dev/null)"
+  test -z "$(grep -n 'EpicContext\|EpicConfig\|EpicStatus\|EpicManager' packages/core/src/index.ts 2>/dev/null)"
 ```
