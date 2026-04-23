@@ -47,6 +47,9 @@
     "llm",
     "llm-orchestration"
   ],
+  "bin": {
+    "converge": "../cli/dist/index.js"
+  },
   "exports": {
     ".": {
       "import": "./dist/index.js",
