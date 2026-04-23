@@ -2,7 +2,7 @@ name: default
 description: End-to-end Flutter app generation — from idea to production-ready mobile app
 
 run:
-  mode: autonomous
+  mode: oneoff
   maxIterations: 50
   maxTaskAttempts: 3
 

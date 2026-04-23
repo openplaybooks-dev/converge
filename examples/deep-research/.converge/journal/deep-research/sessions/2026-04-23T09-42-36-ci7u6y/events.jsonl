@@ -1,0 +1,6 @@
+{"timestamp":"2026-04-23T09:42:36.495Z","eventType":"SESSION_START","message":"Session started","metadata":{"projectName":"deep-research","config":{"maxIterations":30,"maxAttemptsPerTask":2}}}
+{"timestamp":"2026-04-23T09:42:36.529Z","eventType":"TASK_SELECTED","message":"Task selected: deep-research/phase-1-initial","metadata":{"taskId":"deep-research/phase-1-initial","epicId":"deep-research","attempt":1}}
+{"timestamp":"2026-04-23T09:42:36.531Z","eventType":"TASK_ATTEMPT_START","message":"Attempt 1 started","metadata":{"taskId":"deep-research/phase-1-initial","attempt":1}}
+{"timestamp":"2026-04-23T09:42:36.575Z","eventType":"TASK_ATTEMPT_COMPLETE","message":"Attempt 1 failed","metadata":{"taskId":"deep-research/phase-1-initial","attempt":1,"success":false,"duration":41}}
+{"timestamp":"2026-04-23T09:42:36.589Z","eventType":"TASK_SELECTED","message":"Task selected: deep-research/phase-1-initial","metadata":{"taskId":"deep-research/phase-1-initial","epicId":"deep-research","attempt":2}}
+{"timestamp":"2026-04-23T09:42:36.589Z","eventType":"TASK_ATTEMPT_START","message":"Attempt 2 started","metadata":{"taskId":"deep-research/phase-1-initial","attempt":2}}

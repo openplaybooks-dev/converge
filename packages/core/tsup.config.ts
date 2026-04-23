@@ -7,12 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   entry: {
     index: "src/index.ts",
-    cli: "src/cli/index.ts",
     client: "src/client/index.ts",
-    "shims/grep": "src/shims/grep.ts",
-    "shims/wc": "src/shims/wc.ts",
-    "shims/jq": "src/shims/jq.ts",
-    "shims/find": "src/shims/find.ts",
   },
   format: ["esm"],
   dts: false,
@@ -26,16 +21,6 @@ export default defineConfig({
   // Bundle workspace dependencies
   noExternal: [/@converge\/.*/, "codets"],
   external: ["glob", "yaml", "tsx", /^tsx\/.*/],
-  // Add shebang only to cli entry
-  onSuccess: async () => {
-    const fs = await import("fs");
-    const cliPath = path.resolve(__dirname, "dist/cli.js");
-    const content = fs.readFileSync(cliPath, "utf-8");
-    if (!content.startsWith("#!/usr/bin/env node")) {
-      fs.writeFileSync(cliPath, "#!/usr/bin/env node\n" + content);
-      fs.chmodSync(cliPath, "755");
-    }
-  },
   esbuildOptions(options) {
     // Add path aliases for workspace packages
     options.alias = {

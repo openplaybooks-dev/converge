@@ -103,9 +103,9 @@ export async function run(ctx) {
 ```
 
 ```bash
-converge run --playbook=fix-issue --issue=42    # spawns 3 tasks for issue 42
-converge run --playbook=fix-issue --issue=43    # spawns 3 tasks for issue 43
-converge run --playbook=fix-issue --issue=44    # spawns 3 tasks for issue 44
+converge .converge/playbooks/fix-issue/playbook.yml run --issue=42    # spawns 3 tasks for issue 42
+converge .converge/playbooks/fix-issue/playbook.yml run --issue=43    # spawns 3 tasks for issue 43
+converge .converge/playbooks/fix-issue/playbook.yml run --issue=44    # spawns 3 tasks for issue 44
 converge playbook history fix-issue             # shows all 3 runs
 ```
 
@@ -150,7 +150,7 @@ The WBS reads the batch manifest, spawns one task per data file.
 | Runs     | Same tasks, advancing progress   | Different tasks each time           |
 | WBS      | Optional, at task level          | Required, at playbook level         |
 | Journal  | Single timeline                  | One timeline per key run            |
-| Example  | `converge run`                   | `converge run --playbook=X --key=Y` |
+| Example  | `converge run`                   | `converge .converge/playbooks/X/playbook.yml run --key=Y` |
 
 ## Directory Structure
 
@@ -249,20 +249,20 @@ checks:
 
 ```bash
 # Run a named playbook
-converge run --playbook=fix-issue --issue=42
+converge .converge/playbooks/fix-issue/playbook.yml run --issue=42
 
-# All existing run flags work with --playbook
-converge run --playbook=fix-issue --issue=42 --converge
-converge run --playbook=fix-issue --issue=42 --step --dry
-converge run --playbook=fix-issue --issue=42 --max-iterations=50
+# All existing run flags work with path-based execution
+converge .converge/playbooks/fix-issue/playbook.yml run --issue=42 --converge
+converge .converge/playbooks/fix-issue/playbook.yml run --issue=42 --step --dry
+converge .converge/playbooks/fix-issue/playbook.yml run --issue=42 --max-iterations=50
 
-# Run without --playbook — uses the default playbook
+# Run without specifying a playbook path — uses the default playbook
 converge run
 converge run --converge
 converge run --step
 ```
 
-`--playbook` is a flag on `converge run`, not a separate command. All existing flags compose with it. The playbook's `run:` config provides defaults, CLI flags override them.
+Path-based execution allows targeting specific playbooks, not a separate command. All existing flags compose with it. The playbook's `run:` config provides defaults, CLI flags override them.
 
 ### Inspecting playbooks
 
@@ -279,13 +279,13 @@ converge playbook history fix-issue
 
 ### Scoping other commands to a playbook
 
-`--playbook` works on any command — it scopes journal reads to that playbook.
+Path-based execution works with any command — it scopes journal reads to that playbook.
 
 ```bash
-converge tree --playbook=fix-issue
-converge inspect --playbook=fix-issue
-converge metrics --playbook=fix-issue
-converge journal --playbook=fix-issue
+converge .converge/playbooks/fix-issue/playbook.yml status
+converge .converge/playbooks/fix-issue/playbook.yml inspect
+converge .converge/playbooks/fix-issue/playbook.yml metrics
+converge .converge/playbooks/fix-issue/playbook.yml show journal
 ```
 
 ## How It Works
@@ -297,7 +297,7 @@ converge journal --playbook=fix-issue
 3. **Journal** — writes to `journal/default/tasks/` and `journal/default/sessions/`
 4. **Resume** — next run picks up where the last left off
 
-**Keyed playbook** (`converge run --playbook=fix-issue --issue=42`):
+**Keyed playbook** (`converge .converge/playbooks/fix-issue/playbook.yml run --issue=42`):
 
 1. **Load** — reads `playbooks/fix-issue/playbook.yml`
 2. **Resolve** — substitutes `${issue}` → `42`, sets playbook context
@@ -338,7 +338,7 @@ inputs:
 ```
 
 ```bash
-converge run --playbook=fix-issue --issue=42
+converge .converge/playbooks/fix-issue/playbook.yml run --issue=42
 # issue=42, branch=fix/42 (default resolved)
 ```
 
@@ -447,7 +447,7 @@ Implement the fix.' > .converge/playbooks/fix-issue/tasks/002-fix/TASK.md
 4. Run it:
 
 ```bash
-converge run --playbook=fix-issue --issue=42
-converge run --playbook=fix-issue --issue=43
+converge .converge/playbooks/fix-issue/playbook.yml run --issue=42
+converge .converge/playbooks/fix-issue/playbook.yml run --issue=43
 converge playbook history fix-issue
 ```

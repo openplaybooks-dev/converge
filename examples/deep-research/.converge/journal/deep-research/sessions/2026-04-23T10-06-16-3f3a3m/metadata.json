@@ -1,0 +1,23 @@
+{
+  "sessionId": "2026-04-23T10-06-16-3f3a3m",
+  "projectName": "deep-research",
+  "startTime": "2026-04-23T10:06:16.679Z",
+  "status": "error",
+  "config": {
+    "maxIterations": 30,
+    "maxAttemptsPerTask": 2
+  },
+  "environment": {
+    "nodeVersion": "v22.17.1",
+    "platform": "win32"
+  },
+  "endTime": "2026-04-23T10:06:16.831Z",
+  "duration": 152,
+  "outcomes": {
+    "totalIterations": 3,
+    "tasksCompleted": 0,
+    "tasksFailed": 1,
+    "gapsResolved": 0,
+    "convergenceAchieved": false
+  }
+}

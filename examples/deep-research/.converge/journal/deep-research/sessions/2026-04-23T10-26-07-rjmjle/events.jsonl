@@ -1,0 +1,2 @@
+{"timestamp":"2026-04-23T10:26:07.270Z","eventType":"SESSION_START","message":"Session started","metadata":{"projectName":"deep-research","config":{"maxIterations":30,"maxAttemptsPerTask":2}}}
+{"timestamp":"2026-04-23T10:26:07.339Z","eventType":"SESSION_END","message":"Session complete","metadata":{"status":"complete","outcomes":{"totalIterations":1,"tasksCompleted":0,"tasksFailed":0,"gapsResolved":0,"convergenceAchieved":true},"duration":73}}

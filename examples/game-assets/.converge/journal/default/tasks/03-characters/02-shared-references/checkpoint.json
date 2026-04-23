@@ -1,0 +1,18 @@
+{
+  "type": "task",
+  "id": "03-characters/02-shared-references",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T05:53:26.811Z",
+  "createdAt": "2026-04-23T01:03:58.428Z",
+  "progress": {
+    "totalChildren": 3,
+    "completedChildren": 3,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "class-mage",
+      "class-ranger",
+      "class-warrior"
+    ],
+    "lastProgressUpdate": "2026-04-23T05:53:26.809Z"
+  }
+}

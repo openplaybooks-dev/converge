@@ -232,7 +232,7 @@ Create a README.md for this project.
 Run it:
 
 ```bash
-converge run --playbook=hello
+converge .converge/playbooks/hello/playbook.yml run
 ```
 
 Watch the convergence loop close every gap until done.

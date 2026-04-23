@@ -135,7 +135,7 @@ npm run build
 Run with goal convergence:
 
 ```bash
-converge run --playbook=hello --converge
+converge .converge/playbooks/hello/playbook.yml run --converge
 ```
 
 Converge will keep looping until the goal is satisfied.

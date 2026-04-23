@@ -1,0 +1,200 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "epoch-001/002-implement/001-plan-check-failed-plan-written",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "epoch-001/002-implement/001-plan",
+            "severity": "high",
+            "description": "[epoch-001/002-implement/001-plan] Check failed: Implementation plan exists",
+            "source": "unit",
+            "detected": "2026-04-21T00:17:03.806Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "plan-written",
+              "checkCmd": "test -f /Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/implement/plan.md",
+              "checkDescription": "Implementation plan exists",
+              "checkOutput": "Command failed: test -f /Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/implement/plan.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Create implementation plan\n\nRead the analysis report at `/Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/analyze/report.md` and create a step-by-step implementation plan for the picked improvement.\n\n## Rules\n\n- Fix only the ONE picked issue — nothing else\n- Don't suppress errors with `any` or `@ts-ignore`\n- Don't change public API signatures unless genuinely wrong\n- Don't refactor unrelated code\n- Each step should be small and self-contained\n\n## Output\n\nWrite `/Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/implement/plan.md`:\n\n```markdown\n# Implementation Plan — Epoch 1\n\n## Issue\n\n- **ID:** type-003\n- **Source:** types\n- **File:** `path/to/file.ts`\n- **Description:** ...\n\n## Steps\n\n### step-001\n- **File:** `path/to/file.ts`\n- **Description:** What to do\n- **Details:** Specific changes to make\n\n### step-002\n...\n```\n\nEach step becomes a separate todo task. Keep steps small — one logical change per step.",
+              "taskId": "epoch-001/002-implement/001-plan",
+              "taskTitle": "Implementation plan — epoch 1",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/self-improvement-loop/tasks/epoch-001/tasks/002-implement/tasks/001-plan",
+              "factId": "check:plan-written"
+            }
+          }
+        ],
+        "durationMs": 4
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#2",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 105846
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-21T00:17:03.802Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-21T00:17:03.802Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-21T00:17:03.806Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-21T00:17:03.808Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-21T00:17:03.815Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#2",
+      "iteration": 1,
+      "ts": "2026-04-21T00:18:49.661Z"
+    },
+    {
+      "from": "run-strategy:task-run#2",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-21T00:18:49.669Z"
+    }
+  ]
+}

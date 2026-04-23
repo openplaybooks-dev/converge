@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "01-define-assets",
+  "status": "complete",
+  "lastUpdated": "2026-04-22T23:35:37.976Z",
+  "createdAt": "2026-04-22T23:35:37.660Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-22T23:35:37.660Z",
+      "completedAt": "2026-04-22T23:35:37.973Z",
+      "outcome": "success",
+      "durationMs": 313
+    }
+  ],
+  "currentAttempt": 1
+}

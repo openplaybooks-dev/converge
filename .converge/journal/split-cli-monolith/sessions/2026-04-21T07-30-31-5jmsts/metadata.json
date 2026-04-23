@@ -1,0 +1,23 @@
+{
+  "sessionId": "2026-04-21T07-30-31-5jmsts",
+  "projectName": "converge",
+  "startTime": "2026-04-21T07:30:31.130Z",
+  "status": "complete",
+  "config": {
+    "maxIterations": 1,
+    "maxAttemptsPerTask": 1
+  },
+  "environment": {
+    "nodeVersion": "v22.17.1",
+    "platform": "win32"
+  },
+  "endTime": "2026-04-21T07:30:31.151Z",
+  "duration": 21,
+  "outcomes": {
+    "totalIterations": 1,
+    "tasksCompleted": 1,
+    "tasksFailed": 0,
+    "gapsResolved": 0,
+    "convergenceAchieved": true
+  }
+}

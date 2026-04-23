@@ -1,7 +1,0 @@
-[2026-04-02T15:10:16.649Z] [INFO] Starting claudefn session=70befc1e-46ec-469d-bfe7-edf30be42aed
-[2026-04-02T15:10:16.650Z] [INFO] Timeout=30000ms (activity-based idle timeout)
-[2026-04-02T15:10:16.650Z] [CMD] claude --dangerously-skip-permissions -p --no-session-persistence --strict-mcp-config --mcp-config {}
-[2026-04-02T15:10:16.650Z] [PROMPT] Say "fast mode" and nothing else
-[2026-04-02T15:10:16.654Z] [DEBUG] Process spawned PID=41633
-[2026-04-02T15:10:16.654Z] [DEBUG] stdin.end() called
-[2026-04-02T15:10:18.003Z] [EXIT] code=0 (success)

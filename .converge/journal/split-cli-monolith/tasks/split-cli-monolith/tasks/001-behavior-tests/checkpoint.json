@@ -1,0 +1,19 @@
+{
+  "type": "task",
+  "id": "split-cli-monolith/001-behavior-tests",
+  "status": "pending",
+  "lastUpdated": "2026-04-21T12:22:57.486Z",
+  "createdAt": "2026-04-21T07:30:17.810Z",
+  "progress": {
+    "totalChildren": 4,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-analyze",
+      "002-implement",
+      "003-review",
+      "004-quality"
+    ],
+    "lastProgressUpdate": "2026-04-21T12:22:57.483Z"
+  }
+}

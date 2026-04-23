@@ -1,0 +1,11 @@
+name: cinematic-video-production
+description: AI film director — idea.md → consistent cinematic clip library with story, cast, world, shots, and full audio.
+
+ai:
+  default: claude
+  providers:
+    claude:
+      provider: claude
+
+variables: {}
+plugins: []

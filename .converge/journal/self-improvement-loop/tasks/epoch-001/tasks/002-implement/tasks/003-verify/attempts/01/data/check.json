@@ -1,0 +1,15 @@
+{
+  "taskId": "epoch-001/002-implement/003-verify",
+  "checks": [
+    {
+      "id": "typecheck",
+      "description": "Zero type errors",
+      "cmd": "cd /Users/minh/Documents/converge && pnpm typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    },
+    {
+      "id": "tests",
+      "description": "Tests pass",
+      "cmd": "cd /Users/minh/Documents/converge && pnpm test 2>&1 | tail -1"
+    }
+  ]
+}

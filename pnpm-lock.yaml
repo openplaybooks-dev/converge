@@ -12,6 +12,12 @@ importers:
         specifier: ^3.8.1
         version: 3.8.3
 
+  examples/deep-research:
+    dependencies:
+      '@converge/claudefn':
+        specifier: workspace:*
+        version: link:../../packages/claudefn
+
   packages/acpfn:
     dependencies:
       '@anthropic-ai/claude-agent-sdk':
@@ -81,6 +87,47 @@ importers:
         specifier: ^3.1.0
         version: 3.2.4(@types/node@22.19.17)(tsx@4.21.0)(yaml@2.8.3)
 
+  packages/cli:
+    dependencies:
+      '@clack/prompts':
+        specifier: ^0.9.1
+        version: 0.9.1
+      '@converge/agentfn':
+        specifier: workspace:*
+        version: link:../agentfn
+      '@converge/claudefn':
+        specifier: workspace:*
+        version: link:../claudefn
+      '@converge/core':
+        specifier: workspace:*
+        version: link:../core
+      '@converge/navigator':
+        specifier: workspace:*
+        version: link:../navigator
+      glob:
+        specifier: ^11.1.0
+        version: 11.1.0
+      yaml:
+        specifier: ^2.8.3
+        version: 2.8.3
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.19.17
+      tsup:
+        specifier: ^8.5.1
+        version: 8.5.1(postcss@8.5.10)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+    optionalDependencies:
+      '@converge/swebench':
+        specifier: workspace:*
+        version: link:../swebench
+      '@converge/tbench':
+        specifier: workspace:*
+        version: link:../tbench
+
   packages/codets:
     devDependencies:
       '@types/node':
@@ -101,6 +148,12 @@ importers:
       '@converge/agentfn':
         specifier: workspace:*
         version: link:../agentfn
+      '@converge/claudefn':
+        specifier: workspace:*
+        version: link:../claudefn
+      '@converge/navigator':
+        specifier: workspace:*
+        version: link:../navigator
       glob:
         specifier: ^11.0.0
         version: 11.1.0
@@ -168,6 +221,21 @@ importers:
       vitest:
         specifier: ^3.1.0
         version: 3.2.4(@types/node@22.19.17)(tsx@4.21.0)(yaml@2.8.3)
+
+  packages/navigator:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.19.17
+      tsup:
+        specifier: ^8.5.1
+        version: 8.5.1(postcss@8.5.10)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+      vitest:
+        specifier: ^4.0.18
+        version: 4.1.4(@types/node@22.19.17)(vite@7.3.2(@types/node@22.19.17)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/openfn:
     dependencies:

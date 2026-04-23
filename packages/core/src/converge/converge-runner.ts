@@ -19,9 +19,9 @@
  *   - Task state + stuck detection: handled by autonomousRun.
  */
 
-import { TaskTree } from "../tree/index.ts";
+import { TaskTree } from "../task/tree/index.ts";
 import { UnitCheckpointManager } from "../checkpoint/unit-checkpoint.ts";
-import { findGaps } from "../unit/find-gaps.ts";
+import { findGaps } from "../task/unit/find-gaps.ts";
 import { collectBacklogGaps } from "./backlog-bridge.ts";
 import {
   appendLedgerEntry,
@@ -31,7 +31,7 @@ import {
 import { evaluateGoals, planFromGoals } from "./goal-planner.ts";
 import { totalScore, scoreByKind, sortByWeight, gapWeight } from "./weights.ts";
 import { autonomousRun } from "../cli/autonomous-run.ts";
-import type { Gap } from "../gap/types.ts";
+import type { Gap } from "../task/gap/types.ts";
 import type { ConvergeConfig } from "../config/types.ts";
 import type { HookRegistry } from "../hooks/registry.ts";
 

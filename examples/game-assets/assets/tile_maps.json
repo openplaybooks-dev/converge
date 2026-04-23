@@ -1,0 +1,9 @@
+[
+  {
+    "id": "grassland",
+    "name": "Grassland Terrain",
+    "terrain_type": "grass",
+    "tile_dimensions": [16, 16],
+    "layers": ["base grass", "detail flowers", "decoration stones"]
+  }
+]

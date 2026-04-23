@@ -1,0 +1,14 @@
+{
+  "sessionId": "2026-04-21T23-58-25-829v9j",
+  "projectName": "converge",
+  "startTime": "2026-04-21T23:58:25.903Z",
+  "status": "running",
+  "config": {
+    "maxIterations": 1,
+    "maxAttemptsPerTask": 2
+  },
+  "environment": {
+    "nodeVersion": "v22.19.0",
+    "platform": "darwin"
+  }
+}

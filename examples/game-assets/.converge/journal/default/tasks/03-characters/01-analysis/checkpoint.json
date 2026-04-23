@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-characters/01-analysis",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T00:57:46.937Z",
+  "createdAt": "2026-04-23T00:57:46.870Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T00:57:46.870Z",
+      "completedAt": "2026-04-23T00:57:46.935Z",
+      "outcome": "success",
+      "durationMs": 65
+    }
+  ],
+  "currentAttempt": 1
+}

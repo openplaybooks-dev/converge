@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "composition.json",
+  "description": "Declarative scene-graph for one frame (start or end) of a shot. Fed to compose_preview.py to render a layout blueprint, then to compose_blend.py to produce the final photoreal keyframe.",
+  "type": "object",
+  "required": ["version", "shot_id", "frame", "canvas", "base", "elements", "blend_prompt"],
+  "properties": {
+    "version": { "const": 1 },
+    "shot_id": { "type": "string", "pattern": "^sh-[0-9]{4}$" },
+    "frame": { "enum": ["start", "end"] },
+    "canvas": {
+      "type": "object",
+      "required": ["width", "height"],
+      "properties": {
+        "width": { "type": "integer", "minimum": 256 },
+        "height": { "type": "integer", "minimum": 256 },
+        "aspect_ratio": { "type": "string" }
+      }
+    },
+    "base": {
+      "type": "object",
+      "required": ["ref"],
+      "properties": {
+        "ref": { "type": "string", "description": "Project-relative path to the base/background image (usually a location plate)." },
+        "fit": { "enum": ["cover", "contain", "stretch"], "default": "cover" }
+      }
+    },
+    "elements": {
+      "type": "array",
+      "description": "Elements composited on top of the base, in z_order ascending. Positions are normalized 0.0-1.0 to the canvas; anchor is top-left of the element's bounding box.",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "ref", "x", "y", "width", "height"],
+        "properties": {
+          "id": { "type": "string", "description": "Stable identifier — e.g. character id, prop slug." },
+          "type": { "enum": ["character", "prop", "overlay", "vfx"] },
+          "ref": { "type": "string", "description": "Project-relative path to the element's reference image (turnaround, wardrobe variant, prop detail, etc.)." },
+          "x": { "type": "number", "minimum": -0.2, "maximum": 1.2 },
+          "y": { "type": "number", "minimum": -0.2, "maximum": 1.2 },
+          "width": { "type": "number", "minimum": 0.01, "maximum": 2.0, "description": "Width relative to canvas. Values > 1 are allowed for close-ups that crop into the element." },
+          "height": { "type": "number", "minimum": 0.01, "maximum": 2.0 },
+          "rotation_deg": { "type": "number", "default": 0 },
+          "flip_horizontal": { "type": "boolean", "default": false },
+          "flip_vertical": { "type": "boolean", "default": false },
+          "opacity": { "type": "number", "minimum": 0, "maximum": 1, "default": 1.0 },
+          "z_order": { "type": "integer", "description": "Lower = further back. Used for preview stacking AND communicated to the blender." },
+          "pose_hint": { "type": "string", "description": "Natural-language pose/expression direction fed into the blend prompt. E.g. 'crouched, hands cupping the lamp, eyes closed'." },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "lighting": {
+      "type": "object",
+      "properties": {
+        "key_source": { "type": "string", "description": "E.g. 'lamp at (0.5, 0.45)', 'window at (0.1, 0.3)'." },
+        "key_direction": { "type": "string" },
+        "key_color": { "type": "string", "description": "Hex or name — e.g. '#FFB870 (warm amber)'." },
+        "ambient": { "type": "string" },
+        "contrast": { "enum": ["low", "medium", "high"] },
+        "notes": { "type": "string" }
+      }
+    },
+    "motion_intent": {
+      "type": "object",
+      "description": "Only filled for the END frame. Describes what changes between start and end so the video model interpolates correctly.",
+      "properties": {
+        "from_frame": { "const": "start" },
+        "summary": { "type": "string", "description": "One sentence — e.g. 'Elias rises to standing, turns head toward the window'." },
+        "elements_that_move": {
+          "type": "array",
+          "items": { "type": "string", "description": "Element id." }
+        },
+        "camera_move": { "type": "string", "description": "Redundant with shots.json but useful for the blender to frame the end correctly." }
+      }
+    },
+    "blend_prompt": {
+      "type": "string",
+      "description": "Natural-language direction for the blender. Tells it to photorealistically composite per the blueprint, preserving identity of each element from its ref image."
+    },
+    "negative_prompt": {
+      "type": "string",
+      "description": "What to avoid (e.g. 'no duplicate characters, no text, no watermark')."
+    }
+  }
+}

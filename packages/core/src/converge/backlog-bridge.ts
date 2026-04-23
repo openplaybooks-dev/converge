@@ -8,9 +8,9 @@
  * After:   BacklogDef → backlog-runner → BacklogItem[] → backlogItemToGap → Gap[] → convergence loop
  */
 
-import type { Gap } from "../gap/types.ts";
-import type { BacklogItem, BacklogDef } from "../scan/types.ts";
-import { runBacklogs } from "../scan/backlog-runner.ts";
+import type { Gap } from "../task/gap/types.ts";
+import type { BacklogItem, BacklogDef } from "../backlog/types.ts";
+import { runBacklogs } from "../backlog/backlog-runner.ts";
 
 /**
  * Convert a single BacklogItem into a Gap.

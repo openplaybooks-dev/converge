@@ -5,7 +5,7 @@
  * the filesystem structure (task files) IS the plan.
  */
 
-import type { Gap } from "../gap/types.ts";
+import type { Gap } from "../task/gap/types.ts";
 import type { TaskConfig } from "../storage/types.ts";
 
 /* ------------------------------------------------------------------ */

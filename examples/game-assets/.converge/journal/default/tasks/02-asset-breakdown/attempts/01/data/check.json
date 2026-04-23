@@ -1,0 +1,10 @@
+{
+  "taskId": "02-asset-breakdown",
+  "checks": [
+    {
+      "id": "breakdown-exists",
+      "description": "Asset breakdown generated",
+      "cmd": "test -s .converge/asset-breakdown.json"
+    }
+  ]
+}

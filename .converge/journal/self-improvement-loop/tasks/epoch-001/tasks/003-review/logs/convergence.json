@@ -1,0 +1,200 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "epoch-001/003-review-check-failed-review-approved",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "epoch-001/003-review",
+            "severity": "high",
+            "description": "[epoch-001/003-review] Check failed: Code review passed",
+            "source": "unit",
+            "detected": "2026-04-21T00:26:05.390Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "review-approved",
+              "checkCmd": "grep -q 'APPROVED' /Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/review/report.md",
+              "checkDescription": "Code review passed",
+              "checkOutput": "grep: /Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/review/report.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Code review\n\nReview the changes made in this epoch against what was planned.\n\n## Inputs\n\nRead these to understand what was supposed to happen:\n- `/Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/analyze/report.md` — the picked improvement\n- `/Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/implement/plan.md` — the implementation plan\n\n## Review criteria\n\n1. **Alignment**: Do the actual code changes match what the prioritize report picked? If the implementation did something different from what was planned, REJECT.\n2. **Correctness**: Does the fix actually resolve the planned issue?\n3. **Minimal change**: Only the planned changes were made, no unrelated modifications\n4. **Style**: Matches existing codebase conventions\n5. **No regressions**: No new problems introduced\n\n## Output\n\nWrite your review to `/Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/review/report.md`:\n- If acceptable: include `APPROVED` on its own line, with brief notes\n- If problems found: include `REJECTED` on its own line, with specific feedback on what to fix\n\nIf REJECTED, be specific — the implement phase will retry with your feedback.",
+              "taskId": "epoch-001/003-review",
+              "taskTitle": "Code review — epoch 1",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/self-improvement-loop/tasks/epoch-001/tasks/003-review",
+              "factId": "check:review-approved"
+            }
+          }
+        ],
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 11
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#4",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 102368
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-21T00:26:05.383Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-21T00:26:05.383Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-21T00:26:05.390Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-21T00:26:05.392Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-21T00:26:05.404Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#4",
+      "iteration": 1,
+      "ts": "2026-04-21T00:27:47.773Z"
+    },
+    {
+      "from": "run-strategy:task-run#4",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-21T00:27:47.779Z"
+    }
+  ]
+}

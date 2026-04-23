@@ -56,7 +56,7 @@ Converge runs a continuous loop: scan the task tree for incomplete work, pick th
 npm install -g @converge/core
 converge init --name="my-api"
 converge plan "REST API with health check endpoint and test suite"
-converge run
+converge run  # Auto-detects default playbook or the only playbook
 ```
 
 Converge generates a task tree from your description. Each task includes target files, shell-based checks, and instructions for the AI agent. Here's what a generated task looks like:
@@ -88,13 +88,62 @@ Write unit tests covering the success case and response shape.
 
 **Deep Research** — Multi-source literature reviews, competitive analyses, and synthesis reports. Tasks gather sources, extract findings, cross-reference, and synthesize — each step verified before the next begins.
 
-**Data Pipelines** — ETL workflows, data validation, and transformation chains. Checks enforce schema conformance, row counts, and data quality thresholds. Self-correction handles schema drift and upstream format changes.
+**Scientific Research** — Literature reviews, hypothesis formulation, experiments, and academic paper drafting. Checks enforce GRADE evidence ratings, statistical rigor, and contradiction resolution. Bayesian priors update across epochs; the loop stops when quality scores converge.
 
 **Content Production** — Blog posts, documentation, marketing copy with editorial checks. Checks enforce word counts, required sections, link validity, and brand voice consistency. Playbooks encode your editorial process for repeatable execution.
 
 **Business Automation** — Client deliverables, compliance audits, onboarding workflows. Define what the final package looks like; Converge assembles it from templates, data sources, and verification steps.
 
 The domain doesn't matter. If you can describe what done looks like, Converge can get there.
+
+## Development
+
+Build Converge from source and run the `converge` CLI against your local checkout.
+
+### Prerequisites
+
+- **Node.js** >= 20
+- **pnpm** 10.29.3+ (specified via `packageManager` in `package.json`)
+
+### Clone, install, build
+
+```bash
+git clone https://github.com/myanlabs/converge.git
+cd converge
+pnpm install
+pnpm build
+```
+
+### Use the CLI locally
+
+From the repo root, run the CLI directly against source (no global install):
+
+```bash
+pnpm converge --help
+pnpm converge init --name="my-api"
+pnpm converge plan "REST API with health check endpoint and test suite"
+pnpm converge run
+```
+
+To expose the built CLI as a `converge` command on your `$PATH`, link the `@converge/core` package globally:
+
+```bash
+pnpm build
+pnpm --filter @converge/core link --global
+
+converge --help
+```
+
+Run `pnpm --filter @converge/core unlink --global` to remove the link.
+
+### Common tasks
+
+```bash
+pnpm test           # run all tests
+pnpm typecheck      # type-check the monorepo
+pnpm build          # rebuild after source changes
+pnpm clean          # remove build artifacts
+```
 
 ## Documentation
 

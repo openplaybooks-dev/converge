@@ -1,0 +1,10 @@
+{
+  "taskId": "03-characters/02-shared-references/class-ranger",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/shared/classes/ranger/style-guide.md",
+    "assets/shared/classes/ranger/reference.png"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,14 @@
+{
+  "type": "task",
+  "id": "03-characters/03-generation/forest-elf-03-poses/forest-elf-pose-jump",
+  "status": "running",
+  "lastUpdated": "2026-04-23T05:56:00.876Z",
+  "createdAt": "2026-04-23T05:56:00.876Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T05:56:00.876Z"
+    }
+  ],
+  "currentAttempt": 1
+}

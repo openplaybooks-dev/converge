@@ -1,0 +1,53 @@
+{
+  "name": "@converge/cli",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "CLI for Converge - A build system for AI agents",
+  "license": "MIT",
+  "author": "Converge Framework Contributors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/myanlabs/converge.git",
+    "directory": "packages/cli"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "cli",
+    "converge",
+    "ai-agent",
+    "automation",
+    "orchestration"
+  ],
+  "bin": {
+    "converge": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "prepublishOnly": "pnpm build",
+    "converge": "tsx src/main.ts"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.9.1",
+    "@converge/agentfn": "workspace:*",
+    "@converge/claudefn": "workspace:*",
+    "@converge/core": "workspace:*",
+    "@converge/navigator": "workspace:*",
+    "glob": "^11.1.0",
+    "yaml": "^2.8.3"
+  },
+  "optionalDependencies": {
+    "@converge/swebench": "workspace:*",
+    "@converge/tbench": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.7.0"
+  }
+}

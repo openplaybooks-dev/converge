@@ -1,0 +1,1 @@
+{"timestamp":"2026-04-22T23:34:01.393Z","eventType":"CLAUDEFN_START","level":"task","scope":"default.02-character-refs","message":"claudefn wbs_script_repair: Fix WBS script: /Users/minh/Documents/converge/examples/game-assets/.converge/playbooks/default/tasks/02-character-refs/wbs/index.js","metadata":{"phase":"wbs_script_repair"}}

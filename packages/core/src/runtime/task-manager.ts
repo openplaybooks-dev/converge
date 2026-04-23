@@ -4,7 +4,7 @@
 
 import type { TaskManager } from "./types.ts";
 import type { TaskConfig, TaskStatus } from "../storage/types.ts";
-import type { EpicDefinition } from "../functions/types.ts";
+import type { EpicDefinition } from "../task/checks/types.ts";
 
 export class TaskManagerImpl implements TaskManager {
   private epics: EpicDefinition[];
@@ -69,7 +69,7 @@ export class TaskManagerImpl implements TaskManager {
    * Recursively collect tasks from goal hierarchy
    */
   private collectTasksFromGoal(
-    goal: import("../goal/types.ts").Goal,
+    goal: import("../task/goal/types.ts").Goal,
     tasks: TaskConfig[],
   ): void {
     if (goal.tasks) {

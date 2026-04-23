@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sprite Animation Preview</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+    h1 { margin-bottom: 1rem; color: #fff; }
+    .container {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .panel {
+      background: #16213e;
+      border-radius: 12px;
+      padding: 1.5rem;
+      width: 320px;
+    }
+    .panel h2 { font-size: 1rem; margin-bottom: 1rem; color: #7f8c8d; }
+    .drop-zone {
+      border: 2px dashed #4a5568;
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .drop-zone:hover, .drop-zone.dragover { border-color: #667eea; }
+    .drop-zone.has-file { border-color: #48bb78; }
+    .drop-zone input { display: none; }
+    .drop-zone p { color: #a0aec0; font-size: 0.875rem; }
+    .preview {
+      background: #0f0f1a;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 200px;
+      margin-top: 1rem;
+      overflow: hidden;
+    }
+    .preview img { max-width: 100%; max-height: 200px; image-rendering: pixelated; }
+    .controls {
+      margin-top: 1rem;
+    }
+    .control-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .control-row label { font-size: 0.875rem; color: #a0aec0; width: 80px; }
+    .control-row input[type="range"] { flex: 1; }
+    .control-row span { font-size: 0.75rem; color: #667eea; width: 50px; text-align: right; }
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-right: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    button:hover { background: #5a67d8; }
+    button.active { background: #48bb78; }
+    .animation-canvas {
+      background: #0f0f1a;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 256px;
+      position: relative;
+    }
+    #spriteCanvas { image-rendering: pixelated; }
+    .frame-info {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.7);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-family: monospace;
+    }
+    .error { color: #fc8181; font-size: 0.875rem; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>Sprite Animation Preview</h1>
+
+  <div class="container">
+    <div class="panel">
+      <h2>1. Upload Atlas JSON</h2>
+      <div class="drop-zone" id="jsonDrop">
+        <input type="file" accept=".json" id="jsonInput">
+        <p>Drop atlas.json here or click to browse</p>
+      </div>
+      <pre id="jsonPreview" style="display:none; background:#0f0f1a; padding:1rem; border-radius:8px; margin-top:1rem; font-size:0.75rem; overflow:auto; max-height:150px;"></pre>
+    </div>
+
+    <div class="panel">
+      <h2>2. Upload Sprite Sheet</h2>
+      <div class="drop-zone" id="imgDrop">
+        <input type="file" accept="image/*" id="imgInput">
+        <p>Drop sprite sheet PNG here or click to browse</p>
+      </div>
+      <div class="preview" id="imgPreview"></div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:1.5rem; width:100%; max-width:600px;">
+    <h2>3. Animation Preview</h2>
+    <div class="animation-canvas" id="animationCanvas">
+      <canvas id="spriteCanvas"></canvas>
+      <div class="frame-info" id="frameInfo">frame: 0 / 0</div>
+    </div>
+    <div class="controls">
+      <div class="control-row">
+        <label>Frame:</label>
+        <input type="range" id="frameSlider" min="0" max="0" value="0">
+        <span id="frameLabel">0</span>
+      </div>
+      <div class="control-row">
+        <label>Speed:</label>
+        <input type="range" id="speedSlider" min="1" max="20" value="8">
+        <span id="speedLabel">8 fps</span>
+      </div>
+      <div>
+        <button id="playBtn" class="active">Play</button>
+        <button id="pauseBtn">Pause</button>
+        <button id="stepBtn">Step +1</button>
+        <button id="resetBtn">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let atlasData = null;
+    let spriteSheet = null;
+    let frameWidth = 128;
+    let frameHeight = 128;
+    let currentFrame = 0;
+    let totalFrames = 0;
+    let playing = true;
+    let lastTime = 0;
+    let accumulator = 0;
+    let fps = 8;
+    let frameData = [];  // Array of {x, y, w, h} per frame
+
+    const canvas = document.getElementById('spriteCanvas');
+    const ctx = canvas.getContext('2d');
+    const frameSlider = document.getElementById('frameSlider');
+    const speedSlider = document.getElementById('speedSlider');
+    const frameLabel = document.getElementById('frameLabel');
+    const speedLabel = document.getElementById('speedLabel');
+    const frameInfo = document.getElementById('frameInfo');
+    const playBtn = document.getElementById('playBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const stepBtn = document.getElementById('stepBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const jsonDrop = document.getElementById('jsonDrop');
+    const imgDrop = document.getElementById('imgDrop');
+    const jsonInput = document.getElementById('jsonInput');
+    const imgInput = document.getElementById('imgInput');
+    const jsonPreview = document.getElementById('jsonPreview');
+    const imgPreview = document.getElementById('imgPreview');
+
+    function setupDropZone(dropZone, input, callback) {
+      dropZone.addEventListener('click', () => input.click());
+      dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+      dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+      dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('dragover'); callback(e.dataTransfer.files[0]); });
+      input.addEventListener('change', () => { if (input.files[0]) callback(input.files[0]); });
+    }
+
+    setupDropZone(jsonDrop, jsonInput, file => {
+      if (!file.name.endsWith('.json')) { alert('Please select a JSON file'); return; }
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          atlasData = JSON.parse(e.target.result);
+          jsonDrop.classList.add('has-file');
+          jsonPreview.style.display = 'block';
+          jsonPreview.textContent = JSON.stringify(atlasData, null, 2).slice(0, 500) + (JSON.stringify(atlasData).length > 500 ? '...' : '');
+          if (spriteSheet) parseAtlas();
+        } catch (err) { alert('Invalid JSON: ' + err.message); }
+      };
+      reader.readAsText(file);
+    });
+
+    setupDropZone(imgDrop, imgInput, file => {
+      if (!file.type.startsWith('image/')) { alert('Please select an image file'); return; }
+      const reader = new FileReader();
+      reader.onload = e => {
+        spriteSheet = new Image();
+        spriteSheet.onload = () => {
+          imgDrop.classList.add('has-file');
+          imgPreview.innerHTML = `<img src="${e.target.result}" style="max-width:100%;max-height:150px;">`;
+          if (atlasData) parseAtlas();
+        };
+        spriteSheet.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function parseAtlas() {
+      if (!atlasData || !spriteSheet) return;
+      frameData = [];
+
+      // New atlas format: {frame_count, sprites_per_row, sprite_resolution, frames:[{index,row,col,x,y}]}
+      if (atlasData.frame_count && atlasData.sprites_per_row && atlasData.sprite_resolution) {
+        frameWidth = atlasData.sprite_resolution;
+        frameHeight = atlasData.sprite_resolution;
+        totalFrames = atlasData.frame_count;
+        const cols = atlasData.sprites_per_row;
+
+        for (let i = 0; i < atlasData.frames.length; i++) {
+          const f = atlasData.frames[i];
+          frameData.push({
+            x: f.x || (f.col * frameWidth),
+            y: f.y || (f.row * frameHeight),
+            w: frameWidth,
+            h: frameHeight
+          });
+        }
+      }
+      // Legacy format: {frames:[{filename, frame:{x,y,w,h}}]}
+      else if (atlasData.frames && atlasData.frames.length > 0) {
+        const first = atlasData.frames[0];
+        if (first.frame) {
+          // Newer format with frame objects
+          frameWidth = first.frame.w || 128;
+          frameHeight = first.frame.h || 128;
+          totalFrames = atlasData.frames.length;
+          for (const f of atlasData.frames) {
+            frameData.push({ x: f.frame.x, y: f.frame.y, w: f.frame.w, h: f.frame.h });
+          }
+        } else {
+          // Fallback grid slicing
+          frameWidth = atlasData.meta?.sprite_resolution || 128;
+          frameHeight = frameWidth;
+          const cols = Math.floor(spriteSheet.width / frameWidth);
+          totalFrames = cols * Math.floor(spriteSheet.height / frameHeight);
+          for (let i = 0; i < totalFrames; i++) {
+            const row = Math.floor(i / cols);
+            const col = i % cols;
+            frameData.push({ x: col * frameWidth, y: row * frameHeight, w: frameWidth, h: frameHeight });
+          }
+        }
+      }
+
+      canvas.width = frameWidth;
+      canvas.height = frameHeight;
+      frameSlider.max = totalFrames - 1;
+      updateFrameInfo();
+      requestAnimationFrame(animate);
+    }
+
+    function updateFrameInfo() {
+      frameLabel.textContent = currentFrame;
+      frameInfo.textContent = `frame: ${currentFrame} / ${totalFrames - 1}`;
+    }
+
+    function drawFrame(frameIdx) {
+      if (!spriteSheet || frameData.length === 0) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const fd = frameData[frameIdx];
+      if (fd) {
+        ctx.drawImage(
+          spriteSheet,
+          fd.x, fd.y, fd.w, fd.h,
+          0, 0, frameWidth, frameHeight
+        );
+      }
+    }
+
+    function animate(time) {
+      if (playing && spriteSheet && frameData.length > 0) {
+        const delta = time - lastTime;
+        lastTime = time;
+        accumulator += delta;
+        const interval = 1000 / fps;
+        while (accumulator >= interval && playing) {
+          currentFrame = (currentFrame + 1) % totalFrames;
+          frameSlider.value = currentFrame;
+          accumulator -= interval;
+        }
+      }
+      drawFrame(currentFrame);
+      updateFrameInfo();
+      requestAnimationFrame(animate);
+    }
+
+    frameSlider.addEventListener('input', () => {
+      currentFrame = parseInt(frameSlider.value);
+      accumulator = 0;
+    });
+
+    speedSlider.addEventListener('input', () => {
+      fps = parseInt(speedSlider.value);
+      speedLabel.textContent = fps + ' fps';
+    });
+
+    playBtn.addEventListener('click', () => { playing = true; playBtn.classList.add('active'); pauseBtn.classList.remove('active'); });
+    pauseBtn.addEventListener('click', () => { playing = false; pauseBtn.classList.remove('active'); playBtn.classList.add('active'); });
+    stepBtn.addEventListener('click', () => { currentFrame = (currentFrame + 1) % totalFrames; frameSlider.value = currentFrame; });
+    resetBtn.addEventListener('click', () => { currentFrame = 0; frameSlider.value = 0; accumulator = 0; });
+
+    // Start animation loop
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>

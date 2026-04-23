@@ -1,0 +1,53 @@
+# Generated during a run — regenerable, don't check in
+clips/
+keyframes/
+storyboard/
+characters/*/turnaround.png
+characters/*/turnaround.seed.txt
+characters/*/expressions.png
+characters/*/expressions.seed.txt
+characters/*/wardrobe-*.png
+characters/*/wardrobe-*.seed.txt
+characters/*/ref.json
+characters/*/description.md
+characters/*/wardrobe.json
+locations/*/wide.png
+locations/*/wide.seed.txt
+locations/*/detail-*.png
+locations/*/detail-*.seed.txt
+locations/*/variant-*.png
+locations/*/variant-*.seed.txt
+locations/*/ref.json
+locations/*/description.md
+locations/*/details.json
+compositions/
+scenes/*/state.json
+score/
+palette.png
+clips.json
+REPORT.md
+
+# Upstream artifacts — optional to keep; the run produces them from idea.md
+logline.md
+synopsis.md
+treatment.md
+screenplay.fountain
+story-bible.md
+characters.json
+voices.json
+locations.json
+scenes.json
+shots.json
+style-guide.md
+palette.json
+audio-style.md
+
+# Converge runtime
+.converge/logs/
+.converge/runs/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/

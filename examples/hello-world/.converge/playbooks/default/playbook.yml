@@ -2,7 +2,7 @@ name: default
 description: Simplest possible playbook — creates a file and verifies it exists
 
 run:
-  mode: autonomous
+  mode: oneoff
   maxTaskAttempts: 3
 
 tasks:

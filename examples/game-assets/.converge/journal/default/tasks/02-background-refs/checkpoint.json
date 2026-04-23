@@ -1,0 +1,16 @@
+{
+  "type": "task",
+  "id": "02-background-refs",
+  "status": "pending",
+  "lastUpdated": "2026-04-23T05:53:26.831Z",
+  "createdAt": "2026-04-22T23:33:18.779Z",
+  "progress": {
+    "totalChildren": 1,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-forest-path"
+    ],
+    "lastProgressUpdate": "2026-04-22T23:35:37.601Z"
+  }
+}

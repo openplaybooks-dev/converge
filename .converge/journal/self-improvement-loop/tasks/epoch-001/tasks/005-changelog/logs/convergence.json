@@ -1,0 +1,200 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "epoch-001/005-changelog-check-failed-changelog-written",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "epoch-001/005-changelog",
+            "severity": "high",
+            "description": "[epoch-001/005-changelog] Check failed: Changelog exists",
+            "source": "unit",
+            "detected": "2026-04-21T00:28:05.145Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "changelog-written",
+              "checkCmd": "test -f /Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/CHANGELOG.md",
+              "checkDescription": "Changelog exists",
+              "checkOutput": "Command failed: test -f /Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/CHANGELOG.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Write changelog\n\nSummarize what this epoch accomplished so a human can quickly review it.\n\n## Inputs\n\nRead these artifacts:\n- `/Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/analyze/report.md` — what was picked and why\n- `/Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/implement/plan.md` — what was planned\n- `/Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/review/report.md` — review outcome\n\nAlso run `cd /Users/minh/Documents/converge && git diff HEAD~1 --stat` to see what files changed (if there are commits from this epoch).\n\n## Output\n\nWrite `/Users/minh/Documents/converge/.converge/artifacts/improve/epochs/001/CHANGELOG.md`:\n\n```markdown\n# Epoch 1 — <short title>\n\n## What changed\nOne paragraph: what improvement was made and why.\n\n## Files modified\n- `path/to/file.ts` — what changed\n\n## What was considered but skipped\nBrief list of runner-up candidates.\n```\n\nKeep it concise — this is for a human scanning across epochs.",
+              "taskId": "epoch-001/005-changelog",
+              "taskTitle": "Changelog — epoch 1",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/self-improvement-loop/tasks/epoch-001/tasks/005-changelog",
+              "factId": "check:changelog-written"
+            }
+          }
+        ],
+        "durationMs": 17
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 4
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 26
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 4
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#5",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 55891
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-21T00:28:05.127Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-21T00:28:05.127Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-21T00:28:05.145Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-21T00:28:05.150Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-21T00:28:05.176Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#5",
+      "iteration": 1,
+      "ts": "2026-04-21T00:29:01.068Z"
+    },
+    {
+      "from": "run-strategy:task-run#5",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-21T00:29:01.073Z"
+    }
+  ]
+}

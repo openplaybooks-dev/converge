@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-characters/02-shared-references/class-mage",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T01:05:18.494Z",
+  "createdAt": "2026-04-23T01:03:58.443Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T01:03:58.443Z",
+      "completedAt": "2026-04-23T01:05:18.492Z",
+      "outcome": "success",
+      "durationMs": 80049
+    }
+  ],
+  "currentAttempt": 1
+}

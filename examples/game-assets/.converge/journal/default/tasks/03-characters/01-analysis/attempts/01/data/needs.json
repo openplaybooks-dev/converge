@@ -1,0 +1,9 @@
+{
+  "taskId": "03-characters/01-analysis",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    ".converge/character-analysis.json"
+  ],
+  "blocked": false
+}

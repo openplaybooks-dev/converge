@@ -7,7 +7,7 @@
 import { readFile, access, readdir } from "node:fs/promises";
 import { constants } from "node:fs";
 import { parse as yamlParse } from "yaml";
-import type { Gap } from "../gap/types.ts";
+import type { Gap } from "../task/gap/types.ts";
 import type {
   JournalEvent,
   GapSummary,

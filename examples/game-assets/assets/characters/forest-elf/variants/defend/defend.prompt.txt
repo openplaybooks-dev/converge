@@ -1,0 +1,34 @@
+Edit this character reference image:
+
+{
+  "task": "edit_character_reference",
+  "instruction": "Edit this character reference image to show: Character in defensive pose with shield raised or arms protecting body",
+  "character": {
+    "name": "Lirael",
+    "variation_type": "pose",
+    "variation_name": "defend"
+  },
+  "technical_requirements": {
+    "format": "pixel_art",
+    "keep_green_background": true,
+    "maintain_character_identity": true,
+    "only_change_requested_aspect": true,
+    "palette": "16-bit retro, green and brown tones, natural forest colors, limited to 16 colors",
+    "style": "16bit_retro_game_sprite"
+  },
+  "composition": {
+    "keep_character_centered": true,
+    "maintain_scale": true,
+    "no_green_in_character": true,
+    "clean_sprite_cutout": true
+  },
+  "critical_instructions": [
+    "KEEP THE GREEN BACKGROUND UNCHANGED",
+    "Maintain character identity and design",
+    "Only modify: Character in defensive pose with shield raised or arms protecting body",
+    "Do NOT use green colors in the character",
+    "Keep background solid green for chroma keying"
+  ]
+}
+
+CRITICAL: Keep the green background (#00FF00) unchanged. Only modify the character as described: Character in defensive pose with shield raised or arms protecting body

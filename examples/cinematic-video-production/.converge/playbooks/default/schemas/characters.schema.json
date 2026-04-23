@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "characters.json",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "name", "role", "bio", "arc", "visual_description"],
+    "properties": {
+      "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+      "name": { "type": "string" },
+      "role": { "enum": ["protagonist", "antagonist", "supporting", "minor"] },
+      "age": { "type": "string" },
+      "bio": { "type": "string" },
+      "arc": { "type": "string" },
+      "visual_description": {
+        "type": "string",
+        "maxLength": 240,
+        "description": "Locked short-text visual description injected verbatim into every shot prompt. Keep to ~30 words."
+      },
+      "voice_spec_id": { "type": "string" }
+    }
+  }
+}

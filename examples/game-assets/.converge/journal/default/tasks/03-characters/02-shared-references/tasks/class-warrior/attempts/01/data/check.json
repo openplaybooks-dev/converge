@@ -1,0 +1,15 @@
+{
+  "taskId": "03-characters/02-shared-references/class-warrior",
+  "checks": [
+    {
+      "id": "style-guide-exists",
+      "description": "Style guide document exists",
+      "cmd": "test -s assets/shared/classes/warrior/style-guide.md"
+    },
+    {
+      "id": "reference-exists",
+      "description": "Visual reference exists",
+      "cmd": "test -s assets/shared/classes/warrior/reference.png"
+    }
+  ]
+}

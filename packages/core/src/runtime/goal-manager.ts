@@ -12,9 +12,9 @@ import type {
   GoalNode,
   GoalConvergenceConfig,
   GoalEvaluationContext,
-} from "../goal/types.ts";
-import type { EpicDefinition } from "../functions/types.ts";
-import { GoalEvaluatorImpl, findGoalById } from "../goal/evaluator.ts";
+} from "../task/goal/types.ts";
+import type { EpicDefinition } from "../task/checks/types.ts";
+import { GoalEvaluatorImpl, findGoalById } from "../task/goal/evaluator.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Goal Manager Implementation                                       */

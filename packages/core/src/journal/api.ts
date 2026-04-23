@@ -11,7 +11,7 @@ import type {
   JournalEvent,
   GapSummary,
 } from "./types.ts";
-import type { Gap } from "../gap/types.ts";
+import type { Gap } from "../task/gap/types.ts";
 import {
   readGaps,
   readGapSummary,

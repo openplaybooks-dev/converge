@@ -1,0 +1,10 @@
+{
+  "front": {
+    "name": "Front View",
+    "description": "Character facing directly toward camera",
+    "rotation_y": 0,
+    "rotation_x": 0,
+    "file": "front.png",
+    "seed": 1794744335
+  }
+}

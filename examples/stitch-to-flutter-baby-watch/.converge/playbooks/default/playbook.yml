@@ -2,7 +2,7 @@ name: default
 description: End-to-end Flutter app generation — from idea to production-ready mobile app
 
 run:
-  mode: autonomous
+  mode: oneoff
   maxIterations: 50
   maxTaskAttempts: 3
 
@@ -23,6 +23,9 @@ tasks:
   - id: 07-build-overlays
     depends_on:
       - 06-wire-screens
+  - id: 08-generate-assets
+    depends_on:
+      - 07-build-overlays
 
 checks:
   - id: dart-analyze

@@ -18,7 +18,7 @@ import type {
   EvalFnMeta,
   PlanFnMeta,
   TaskFnMeta,
-} from "../functions/types.ts";
+} from "../task/checks/types.ts";
 
 export class PluginAPIImplV2 implements PluginAPIV2 {
   readonly options: Record<string, unknown>;

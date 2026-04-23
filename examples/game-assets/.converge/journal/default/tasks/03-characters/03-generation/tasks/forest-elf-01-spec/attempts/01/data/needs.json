@@ -1,0 +1,9 @@
+{
+  "taskId": "03-characters/03-generation/forest-elf-01-spec",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/characters/forest-elf/SPEC.md"
+  ],
+  "blocked": false
+}

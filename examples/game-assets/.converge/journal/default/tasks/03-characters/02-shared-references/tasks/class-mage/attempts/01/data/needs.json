@@ -1,0 +1,10 @@
+{
+  "taskId": "03-characters/02-shared-references/class-mage",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/shared/classes/mage/style-guide.md",
+    "assets/shared/classes/mage/reference.png"
+  ],
+  "blocked": false
+}

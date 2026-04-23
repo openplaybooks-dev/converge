@@ -1,0 +1,25 @@
+{
+  "taskId": "01-define-assets",
+  "checks": [
+    {
+      "id": "sprites-json-exists",
+      "description": "assets/sprites.json written",
+      "cmd": "test -s assets/sprites.json"
+    },
+    {
+      "id": "objects-json-exists",
+      "description": "assets/objects.json written",
+      "cmd": "test -s assets/objects.json"
+    },
+    {
+      "id": "tilemaps-json-exists",
+      "description": "assets/tile_maps.json written",
+      "cmd": "test -s assets/tile_maps.json"
+    },
+    {
+      "id": "backgrounds-json-exists",
+      "description": "assets/backgrounds.json written",
+      "cmd": "test -s assets/backgrounds.json"
+    }
+  ]
+}

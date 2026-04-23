@@ -4,11 +4,7 @@
  * Automatically re-evaluates gaps after task/epic completion.
  */
 
-import type {
-  TaskContext,
-  EpicContext,
-  ProjectContext,
-} from "../context/types.ts";
+import type { TaskContext, ProjectContext } from "../context/types.ts";
 import {
   writeGaps,
   logTaskEvent,
@@ -38,7 +34,7 @@ async function detectTaskGaps(ctx: TaskContext): Promise<any[]> {
 /**
  * Detect gaps at epic level by running epic checks
  */
-async function detectEpicGaps(ctx: EpicContext): Promise<any[]> {
+async function detectEpicGaps(ctx: ProjectContext): Promise<any[]> {
   try {
     // Run epic-level checks
     const results = await ctx.check.runAll();
@@ -78,8 +74,7 @@ async function detectProjectGaps(ctx: ProjectContext): Promise<any[]> {
  * 3. If epic complete → re-detect project gaps → write project.gaps.yml
  */
 export async function reEvaluateAfterTask(ctx: TaskContext): Promise<void> {
-  const { projectDir, epic, taskId } = ctx;
-  const epicId = epic.epicId;
+  const { projectDir, epicId, taskId } = ctx;
   const scope = `${epicId}.${taskId}`;
 
   ctx.log.info("Re-evaluating gaps after task completion...");
@@ -98,7 +93,7 @@ export async function reEvaluateAfterTask(ctx: TaskContext): Promise<void> {
   );
 
   // Step 2: Re-detect epic gaps
-  const epicGaps = await detectEpicGaps(epic);
+  const epicGaps = await detectEpicGaps(ctx.project);
   await writeGaps(projectDir, "epic", epicId, epicGaps);
 
   await logEpicEvent(
@@ -113,7 +108,7 @@ export async function reEvaluateAfterTask(ctx: TaskContext): Promise<void> {
   if (epicGaps.length === 0) {
     ctx.log.info("Epic has no gaps, re-evaluating project...");
 
-    const projectGaps = await detectProjectGaps(epic.project);
+    const projectGaps = await detectProjectGaps(ctx.project);
     await writeGaps(projectDir, "project", "project", projectGaps);
 
     await logProjectEvent(

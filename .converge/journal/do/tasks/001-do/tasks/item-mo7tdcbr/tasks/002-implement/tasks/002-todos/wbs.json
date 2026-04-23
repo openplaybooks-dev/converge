@@ -1,0 +1,11 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-20T23:17:16.529Z",
+  "spawnCount": 1,
+  "subtasks": [
+    {
+      "id": "001-step",
+      "writeToPath": ".converge/playbooks/do/tasks/001-do/tasks/item-mo7tdcbr/tasks/002-implement/tasks/002-todos/tasks/001-step/TASK.md"
+    }
+  ]
+}

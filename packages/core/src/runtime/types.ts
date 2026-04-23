@@ -10,7 +10,7 @@ import type {
   GoalHierarchy,
   GoalConvergenceConfig,
   GoalConvergenceResult,
-} from "../goal/types.ts";
+} from "../task/goal/types.ts";
 import type { TaskConfig, TaskStatus } from "../storage/types.ts";
 import type { ConvergenceConfig } from "../orchestrator/convergence.ts";
 import type { ProjectOrchestrationResult } from "../orchestrator/project-orchestrator.ts";
@@ -72,40 +72,6 @@ export interface TaskManager {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Epic Manager                                                      */
-/* ------------------------------------------------------------------ */
-
-/**
- * Epic management interface
- */
-export interface EpicManager {
-  /**
-   * List all epics
-   */
-  list(): string[];
-
-  /**
-   * Evaluate an epic (checks all goals in epic)
-   */
-  evaluate(epicId: string): Promise<{
-    epicId: string;
-    goalStatuses: GoalStatus[];
-    satisfied: boolean;
-  }>;
-
-  /**
-   * Run epic convergence
-   */
-  run(
-    epicId: string,
-    config?: Partial<ConvergenceConfig>,
-  ): Promise<{
-    converged: boolean;
-    goalsSatisfied: number;
-    totalGoals: number;
-  }>;
-}
-
 /* ------------------------------------------------------------------ */
 /*  Project Manager                                                   */
 /* ------------------------------------------------------------------ */
@@ -148,9 +114,6 @@ export interface Runtime {
 
   /** Task operations */
   tasks: TaskManager;
-
-  /** Epic operations */
-  epics: EpicManager;
 
   /** Project operations */
   project: ProjectManager;

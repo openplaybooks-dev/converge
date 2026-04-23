@@ -1,0 +1,9 @@
+{
+  "attack": {
+    "name": "attack",
+    "description": "Character in attacking pose with bow drawn and arrow ready to shoot",
+    "base_angle": "front",
+    "file": "attack.png",
+    "seed": 1830390528
+  }
+}

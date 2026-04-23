@@ -1,0 +1,126 @@
+{
+  "summary": {
+    "total_characters": 3,
+    "total_angle_refs": 12,
+    "total_pose_refs": 9,
+    "total_sprite_sheets": 6,
+    "total_frames": 24,
+    "estimated_time_minutes": 19
+  },
+  "characters": [
+    {
+      "id": "hero-knight",
+      "name": "Sir Aldric",
+      "description": "Armored knight with blue steel armor, red cape, and sword and shield. Hero character with 8-directional movement.",
+      "palette": "16-bit retro, blue and silver armor, red accent, limited to 16 colors",
+      "outputs": {
+        "spec": "assets/characters/hero-knight/SPEC.md",
+        "angles": [
+          "front.png",
+          "side_left.png",
+          "side_right.png",
+          "back.png"
+        ],
+        "poses": [
+          "attack.png",
+          "defend.png",
+          "jump.png"
+        ],
+        "states": {
+          "idle": {
+            "frames": 4,
+            "sheet": "assets/characters/hero-knight/states/idle/idle.png",
+            "atlas": "assets/characters/hero-knight/states/idle/atlas.json"
+          },
+          "walk": {
+            "frames": 4,
+            "sheet": "assets/characters/hero-knight/states/walk/walk.png",
+            "atlas": "assets/characters/hero-knight/states/walk/atlas.json"
+          }
+        }
+      },
+      "counts": {
+        "angle_refs": 4,
+        "pose_refs": 3,
+        "sprite_sheets": 2,
+        "total_frames": 8
+      }
+    },
+    {
+      "id": "forest-elf",
+      "name": "Lirael",
+      "description": "Nimble elf with green cloak, pointed hat, and bow. Quick movements, graceful poses.",
+      "palette": "16-bit retro, green and brown tones, natural forest colors, limited to 16 colors",
+      "outputs": {
+        "spec": "assets/characters/forest-elf/SPEC.md",
+        "angles": [
+          "front.png",
+          "side_left.png",
+          "side_right.png",
+          "back.png"
+        ],
+        "poses": [
+          "attack.png",
+          "defend.png",
+          "jump.png"
+        ],
+        "states": {
+          "idle": {
+            "frames": 4,
+            "sheet": "assets/characters/forest-elf/states/idle/idle.png",
+            "atlas": "assets/characters/forest-elf/states/idle/atlas.json"
+          },
+          "walk": {
+            "frames": 4,
+            "sheet": "assets/characters/forest-elf/states/walk/walk.png",
+            "atlas": "assets/characters/forest-elf/states/walk/atlas.json"
+          }
+        }
+      },
+      "counts": {
+        "angle_refs": 4,
+        "pose_refs": 3,
+        "sprite_sheets": 2,
+        "total_frames": 8
+      }
+    },
+    {
+      "id": "shadow-mage",
+      "name": "Malachar",
+      "description": "Dark robed mage with glowing purple eyes and staff. Mysterious, flowing robe animations.",
+      "palette": "16-bit retro, dark purple and black, magical glow effects, limited to 16 colors",
+      "outputs": {
+        "spec": "assets/characters/shadow-mage/SPEC.md",
+        "angles": [
+          "front.png",
+          "side_left.png",
+          "side_right.png",
+          "back.png"
+        ],
+        "poses": [
+          "attack.png",
+          "defend.png",
+          "jump.png"
+        ],
+        "states": {
+          "idle": {
+            "frames": 4,
+            "sheet": "assets/characters/shadow-mage/states/idle/idle.png",
+            "atlas": "assets/characters/shadow-mage/states/idle/atlas.json"
+          },
+          "walk": {
+            "frames": 4,
+            "sheet": "assets/characters/shadow-mage/states/walk/walk.png",
+            "atlas": "assets/characters/shadow-mage/states/walk/atlas.json"
+          }
+        }
+      },
+      "counts": {
+        "angle_refs": 4,
+        "pose_refs": 3,
+        "sprite_sheets": 2,
+        "total_frames": 8
+      }
+    }
+  ]
+}

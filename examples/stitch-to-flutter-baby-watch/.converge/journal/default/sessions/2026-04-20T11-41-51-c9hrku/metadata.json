@@ -1,0 +1,23 @@
+{
+  "sessionId": "2026-04-20T11-41-51-c9hrku",
+  "projectName": "flutter-app",
+  "startTime": "2026-04-20T11:41:51.663Z",
+  "status": "stalled",
+  "config": {
+    "maxIterations": 100,
+    "maxAttemptsPerTask": 2
+  },
+  "environment": {
+    "nodeVersion": "v22.19.0",
+    "platform": "darwin"
+  },
+  "endTime": "2026-04-20T12:29:07.600Z",
+  "duration": 2835937,
+  "outcomes": {
+    "totalIterations": 100,
+    "tasksCompleted": 39,
+    "tasksFailed": 12,
+    "gapsResolved": 0,
+    "convergenceAchieved": false
+  }
+}
