@@ -1,0 +1,39 @@
+{
+  "taskId": "03-build-screens/006-add-safe-zone/006-02-design",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/add-safe-zone/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/add-safe-zone/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/META.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/META.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/references/ANALYSIS.md",
+      "count": 1,
+      "samples": [
+        ".stitch/references/ANALYSIS.md"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/add-safe-zone/META.md",
+    ".stitch/designs/add-safe-zone/design.html"
+  ],
+  "blocked": false
+}

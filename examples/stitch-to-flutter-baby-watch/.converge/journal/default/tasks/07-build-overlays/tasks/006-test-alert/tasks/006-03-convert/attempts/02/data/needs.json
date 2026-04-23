@@ -1,0 +1,31 @@
+{
+  "taskId": "07-build-overlays/006-test-alert/006-03-convert",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/test-alert/design.html",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/test-alert/design.html"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/test-alert/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/test-alert/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/overlays/test_alert/test_alert.dart"
+  ],
+  "blocked": false
+}

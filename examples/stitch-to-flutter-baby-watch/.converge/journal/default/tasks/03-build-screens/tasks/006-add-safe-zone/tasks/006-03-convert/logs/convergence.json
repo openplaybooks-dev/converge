@@ -1,0 +1,570 @@
+{
+  "iteration": 2,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/006-add-safe-zone/006-03-convert-missing-output-lib/screens/add_safe_zone/add_safe_zone_screen.dart",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/006-add-safe-zone/006-03-convert",
+            "severity": "high",
+            "description": "[03-build-screens/006-add-safe-zone/006-03-convert] Task output not created: lib/screens/add_safe_zone/add_safe_zone_screen.dart",
+            "source": "unit",
+            "detected": "2026-04-21T11:38:00.644Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/006-add-safe-zone/tasks/006-03-convert",
+              "taskId": "03-build-screens/006-add-safe-zone/006-03-convert",
+              "taskTitle": "Convert: Add Safe Zone",
+              "taskPrompt": "# Convert: Add Safe Zone\n\nConvert the constrained HTML design to a pixel-perfect Flutter widget using the **stitch-flutter** skill.\n\n## Inputs\n- `.stitch/designs/add-safe-zone/design.html` — HTML design mockup (written in Flutter HTML Glossary vocabulary)\n- `.stitch/designs/add-safe-zone/SPEC.md` — Screen specification\n- `.stitch/system/DESIGN.md` — Design system specification\n\n## How It Works\n\nThe HTML mockup uses the **Flutter HTML Glossary** — a constrained vocabulary where every HTML class and `data-*` attribute maps 1:1 to a Flutter widget. This enables mechanical, pixel-perfect conversion.\n\n## Conversion Steps\n\n1. **Read HTML** — Parse `.stitch/designs/add-safe-zone/design.html` and extract:\n   - `:root` CSS tokens → update `lib/theme/app_theme.dart` if new tokens found\n   - `.scaffold` element tree → this is the conversion entry point\n   - `data-*` attributes → Flutter widget parameters\n   - `data-animate` attributes → `flutter_animate` chains\n   - `aria-*` attributes → `Semantics` widgets\n\n2. **Walk the DOM** — Process each glossary element top-down:\n   - `.scaffold` → `Scaffold()`\n   - `.app-bar` → `AppBar()`\n   - `.column` → `Column()`\n   - `.row` → `Row()`\n   - `.card` → `Card()`\n   - `.ink-well[data-route]` → `InkWell(onTap: () => context.push(route))`\n   - `.network-image` → `CachedNetworkImage()`\n   - `.icon[data-name]` → `Icon(Icons.{name})`\n   - Text classes (`.title-large`, `.body-medium`, etc.) → `Text(..., style: textTheme.X)`\n   - `data-color` → `colorScheme.X`\n   - `data-spacing` → `AppTheme.spaceX`\n   - `data-radius` → `AppTheme.radiusX`\n\n3. **Generate Dart** — Write `lib/screens/add_safe_zone/add_safe_zone_screen.dart`:\n   ```dart\n   import 'package:flutter/material.dart';\n   import 'package:cached_network_image/cached_network_image.dart';\n   import 'package:flutter_animate/flutter_animate.dart';\n   import 'package:folio/theme/app_theme.dart';\n\n   class AddSafeZoneScreen extends StatelessWidget {\n     const AddSafeZoneScreen({super.key});\n\n     @override\n     Widget build(BuildContext context) {\n       final theme = Theme.of(context);\n       final colorScheme = theme.colorScheme;\n       final textTheme = theme.textTheme;\n\n       return Scaffold(\n         // ... mechanically converted from glossary elements\n       );\n     }\n   }\n   ```\n\n4. **Update router** — Add route to `lib/router/app_router.dart`:\n   ```dart\n   GoRoute(\n     path: '/safe-zones/add',\n     builder: (context, state) => const AddSafeZoneScreen(),\n   ),\n   ```\n\n5. **Verify** — Run `dart analyze lib/screens/add_safe_zone/add_safe_zone_screen.dart`\n\n## Reference Skills\n\n- Read **flutter-building-layouts** for constraint rules (constraints down, sizes up), avoiding unbounded constraints in flex boxes, and when to use `Expanded` vs `Flexible` vs `SizedBox`.\n- Read **flutter-animating-apps** for Hero transition setup, implicit vs explicit animations, and staggered animation patterns.\n\n## Quality Gates\n\n- **No hardcoded colors** — `Color(0xFF...)` and `Colors.blue` are banned; use `colorScheme.X`\n- **No hardcoded text styles** — `TextStyle(fontSize: 16)` is banned; use `textTheme.X`\n- **No hardcoded spacing** — `EdgeInsets.all(16)` is banned; use `AppTheme.spaceMd`\n- **No Container abuse** — prefer `SizedBox`, `Padding`, `DecoratedBox` when Container is overkill\n- **Use const** — `const` constructor wherever possible\n- **Trailing commas** — on every parameter list\n\n## Success Criteria\n\n- `lib/screens/add_safe_zone/add_safe_zone_screen.dart` exists with valid Dart\n- Uses `Theme.of(context)` for all styling (colors, text, shapes)\n- No hardcoded colors, text styles, or spacing values\n- Route added to `app_router.dart`\n- `dart analyze` passes",
+              "taskSkill": "stitch-flutter",
+              "taskInputs": [
+                ".stitch/designs/add-safe-zone/design.html",
+                ".stitch/designs/add-safe-zone/SPEC.md",
+                ".stitch/system/DESIGN.md"
+              ],
+              "factId": "file-exists:test -f \"lib/screens/add_safe_zone/add_safe_zone_screen.dart\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-build-screens/006-add-safe-zone/006-03-convert-check-failed-screen-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/006-add-safe-zone/006-03-convert",
+            "severity": "high",
+            "description": "[03-build-screens/006-add-safe-zone/006-03-convert] Check failed: Screen widget file exists",
+            "source": "unit",
+            "detected": "2026-04-21T11:38:00.646Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "screen-exists",
+              "checkCmd": "test -f lib/screens/add_safe_zone/add_safe_zone_screen.dart",
+              "checkDescription": "Screen widget file exists",
+              "checkOutput": "Command failed: test -f lib/screens/add_safe_zone/add_safe_zone_screen.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Convert: Add Safe Zone\n\nConvert the constrained HTML design to a pixel-perfect Flutter widget using the **stitch-flutter** skill.\n\n## Inputs\n- `.stitch/designs/add-safe-zone/design.html` — HTML design mockup (written in Flutter HTML Glossary vocabulary)\n- `.stitch/designs/add-safe-zone/SPEC.md` — Screen specification\n- `.stitch/system/DESIGN.md` — Design system specification\n\n## How It Works\n\nThe HTML mockup uses the **Flutter HTML Glossary** — a constrained vocabulary where every HTML class and `data-*` attribute maps 1:1 to a Flutter widget. This enables mechanical, pixel-perfect conversion.\n\n## Conversion Steps\n\n1. **Read HTML** — Parse `.stitch/designs/add-safe-zone/design.html` and extract:\n   - `:root` CSS tokens → update `lib/theme/app_theme.dart` if new tokens found\n   - `.scaffold` element tree → this is the conversion entry point\n   - `data-*` attributes → Flutter widget parameters\n   - `data-animate` attributes → `flutter_animate` chains\n   - `aria-*` attributes → `Semantics` widgets\n\n2. **Walk the DOM** — Process each glossary element top-down:\n   - `.scaffold` → `Scaffold()`\n   - `.app-bar` → `AppBar()`\n   - `.column` → `Column()`\n   - `.row` → `Row()`\n   - `.card` → `Card()`\n   - `.ink-well[data-route]` → `InkWell(onTap: () => context.push(route))`\n   - `.network-image` → `CachedNetworkImage()`\n   - `.icon[data-name]` → `Icon(Icons.{name})`\n   - Text classes (`.title-large`, `.body-medium`, etc.) → `Text(..., style: textTheme.X)`\n   - `data-color` → `colorScheme.X`\n   - `data-spacing` → `AppTheme.spaceX`\n   - `data-radius` → `AppTheme.radiusX`\n\n3. **Generate Dart** — Write `lib/screens/add_safe_zone/add_safe_zone_screen.dart`:\n   ```dart\n   import 'package:flutter/material.dart';\n   import 'package:cached_network_image/cached_network_image.dart';\n   import 'package:flutter_animate/flutter_animate.dart';\n   import 'package:folio/theme/app_theme.dart';\n\n   class AddSafeZoneScreen extends StatelessWidget {\n     const AddSafeZoneScreen({super.key});\n\n     @override\n     Widget build(BuildContext context) {\n       final theme = Theme.of(context);\n       final colorScheme = theme.colorScheme;\n       final textTheme = theme.textTheme;\n\n       return Scaffold(\n         // ... mechanically converted from glossary elements\n       );\n     }\n   }\n   ```\n\n4. **Update router** — Add route to `lib/router/app_router.dart`:\n   ```dart\n   GoRoute(\n     path: '/safe-zones/add',\n     builder: (context, state) => const AddSafeZoneScreen(),\n   ),\n   ```\n\n5. **Verify** — Run `dart analyze lib/screens/add_safe_zone/add_safe_zone_screen.dart`\n\n## Reference Skills\n\n- Read **flutter-building-layouts** for constraint rules (constraints down, sizes up), avoiding unbounded constraints in flex boxes, and when to use `Expanded` vs `Flexible` vs `SizedBox`.\n- Read **flutter-animating-apps** for Hero transition setup, implicit vs explicit animations, and staggered animation patterns.\n\n## Quality Gates\n\n- **No hardcoded colors** — `Color(0xFF...)` and `Colors.blue` are banned; use `colorScheme.X`\n- **No hardcoded text styles** — `TextStyle(fontSize: 16)` is banned; use `textTheme.X`\n- **No hardcoded spacing** — `EdgeInsets.all(16)` is banned; use `AppTheme.spaceMd`\n- **No Container abuse** — prefer `SizedBox`, `Padding`, `DecoratedBox` when Container is overkill\n- **Use const** — `const` constructor wherever possible\n- **Trailing commas** — on every parameter list\n\n## Success Criteria\n\n- `lib/screens/add_safe_zone/add_safe_zone_screen.dart` exists with valid Dart\n- Uses `Theme.of(context)` for all styling (colors, text, shapes)\n- No hardcoded colors, text styles, or spacing values\n- Route added to `app_router.dart`\n- `dart analyze` passes",
+              "taskSkill": "stitch-flutter",
+              "taskId": "03-build-screens/006-add-safe-zone/006-03-convert",
+              "taskTitle": "Convert: Add Safe Zone",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/006-add-safe-zone/tasks/006-03-convert",
+              "factId": "check:screen-exists"
+            }
+          },
+          {
+            "id": "03-build-screens/006-add-safe-zone/006-03-convert-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/006-add-safe-zone/006-03-convert",
+            "severity": "high",
+            "description": "[03-build-screens/006-add-safe-zone/006-03-convert] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-21T11:38:00.690Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "dart analyze lib/screens/add_safe_zone/add_safe_zone_screen.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "Directory or file doesn't exist: lib/screens/add_safe_zone/add_safe_zone_screen.dart\n\nUsage: dart analyze [arguments] [<directory>]\n-h, --help                   Print this usage information.\n    --fatal-infos            Treat info level issues as fatal.\n    --[no-]fatal-warnings    Treat warning level issues as fatal.\n                             (defaults to on)\n\nRun \"dart help\" to see global options.",
+              "checkExitCode": 64,
+              "taskPrompt": "# Convert: Add Safe Zone\n\nConvert the constrained HTML design to a pixel-perfect Flutter widget using the **stitch-flutter** skill.\n\n## Inputs\n- `.stitch/designs/add-safe-zone/design.html` — HTML design mockup (written in Flutter HTML Glossary vocabulary)\n- `.stitch/designs/add-safe-zone/SPEC.md` — Screen specification\n- `.stitch/system/DESIGN.md` — Design system specification\n\n## How It Works\n\nThe HTML mockup uses the **Flutter HTML Glossary** — a constrained vocabulary where every HTML class and `data-*` attribute maps 1:1 to a Flutter widget. This enables mechanical, pixel-perfect conversion.\n\n## Conversion Steps\n\n1. **Read HTML** — Parse `.stitch/designs/add-safe-zone/design.html` and extract:\n   - `:root` CSS tokens → update `lib/theme/app_theme.dart` if new tokens found\n   - `.scaffold` element tree → this is the conversion entry point\n   - `data-*` attributes → Flutter widget parameters\n   - `data-animate` attributes → `flutter_animate` chains\n   - `aria-*` attributes → `Semantics` widgets\n\n2. **Walk the DOM** — Process each glossary element top-down:\n   - `.scaffold` → `Scaffold()`\n   - `.app-bar` → `AppBar()`\n   - `.column` → `Column()`\n   - `.row` → `Row()`\n   - `.card` → `Card()`\n   - `.ink-well[data-route]` → `InkWell(onTap: () => context.push(route))`\n   - `.network-image` → `CachedNetworkImage()`\n   - `.icon[data-name]` → `Icon(Icons.{name})`\n   - Text classes (`.title-large`, `.body-medium`, etc.) → `Text(..., style: textTheme.X)`\n   - `data-color` → `colorScheme.X`\n   - `data-spacing` → `AppTheme.spaceX`\n   - `data-radius` → `AppTheme.radiusX`\n\n3. **Generate Dart** — Write `lib/screens/add_safe_zone/add_safe_zone_screen.dart`:\n   ```dart\n   import 'package:flutter/material.dart';\n   import 'package:cached_network_image/cached_network_image.dart';\n   import 'package:flutter_animate/flutter_animate.dart';\n   import 'package:folio/theme/app_theme.dart';\n\n   class AddSafeZoneScreen extends StatelessWidget {\n     const AddSafeZoneScreen({super.key});\n\n     @override\n     Widget build(BuildContext context) {\n       final theme = Theme.of(context);\n       final colorScheme = theme.colorScheme;\n       final textTheme = theme.textTheme;\n\n       return Scaffold(\n         // ... mechanically converted from glossary elements\n       );\n     }\n   }\n   ```\n\n4. **Update router** — Add route to `lib/router/app_router.dart`:\n   ```dart\n   GoRoute(\n     path: '/safe-zones/add',\n     builder: (context, state) => const AddSafeZoneScreen(),\n   ),\n   ```\n\n5. **Verify** — Run `dart analyze lib/screens/add_safe_zone/add_safe_zone_screen.dart`\n\n## Reference Skills\n\n- Read **flutter-building-layouts** for constraint rules (constraints down, sizes up), avoiding unbounded constraints in flex boxes, and when to use `Expanded` vs `Flexible` vs `SizedBox`.\n- Read **flutter-animating-apps** for Hero transition setup, implicit vs explicit animations, and staggered animation patterns.\n\n## Quality Gates\n\n- **No hardcoded colors** — `Color(0xFF...)` and `Colors.blue` are banned; use `colorScheme.X`\n- **No hardcoded text styles** — `TextStyle(fontSize: 16)` is banned; use `textTheme.X`\n- **No hardcoded spacing** — `EdgeInsets.all(16)` is banned; use `AppTheme.spaceMd`\n- **No Container abuse** — prefer `SizedBox`, `Padding`, `DecoratedBox` when Container is overkill\n- **Use const** — `const` constructor wherever possible\n- **Trailing commas** — on every parameter list\n\n## Success Criteria\n\n- `lib/screens/add_safe_zone/add_safe_zone_screen.dart` exists with valid Dart\n- Uses `Theme.of(context)` for all styling (colors, text, shapes)\n- No hardcoded colors, text styles, or spacing values\n- Route added to `app_router.dart`\n- `dart analyze` passes",
+              "taskSkill": "stitch-flutter",
+              "taskId": "03-build-screens/006-add-safe-zone/006-03-convert",
+              "taskTitle": "Convert: Add Safe Zone",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/006-add-safe-zone/tasks/006-03-convert",
+              "factId": "check:dart-valid"
+            }
+          },
+          {
+            "id": "03-build-screens/006-add-safe-zone/006-03-convert-check-failed-uses-theme",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/006-add-safe-zone/006-03-convert",
+            "severity": "high",
+            "description": "[03-build-screens/006-add-safe-zone/006-03-convert] Check failed: Uses Theme.of(context) for styling",
+            "source": "unit",
+            "detected": "2026-04-21T11:38:00.695Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "uses-theme",
+              "checkCmd": "grep -q 'Theme.of(context)' lib/screens/add_safe_zone/add_safe_zone_screen.dart",
+              "checkDescription": "Uses Theme.of(context) for styling",
+              "checkOutput": "grep: lib/screens/add_safe_zone/add_safe_zone_screen.dart: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Convert: Add Safe Zone\n\nConvert the constrained HTML design to a pixel-perfect Flutter widget using the **stitch-flutter** skill.\n\n## Inputs\n- `.stitch/designs/add-safe-zone/design.html` — HTML design mockup (written in Flutter HTML Glossary vocabulary)\n- `.stitch/designs/add-safe-zone/SPEC.md` — Screen specification\n- `.stitch/system/DESIGN.md` — Design system specification\n\n## How It Works\n\nThe HTML mockup uses the **Flutter HTML Glossary** — a constrained vocabulary where every HTML class and `data-*` attribute maps 1:1 to a Flutter widget. This enables mechanical, pixel-perfect conversion.\n\n## Conversion Steps\n\n1. **Read HTML** — Parse `.stitch/designs/add-safe-zone/design.html` and extract:\n   - `:root` CSS tokens → update `lib/theme/app_theme.dart` if new tokens found\n   - `.scaffold` element tree → this is the conversion entry point\n   - `data-*` attributes → Flutter widget parameters\n   - `data-animate` attributes → `flutter_animate` chains\n   - `aria-*` attributes → `Semantics` widgets\n\n2. **Walk the DOM** — Process each glossary element top-down:\n   - `.scaffold` → `Scaffold()`\n   - `.app-bar` → `AppBar()`\n   - `.column` → `Column()`\n   - `.row` → `Row()`\n   - `.card` → `Card()`\n   - `.ink-well[data-route]` → `InkWell(onTap: () => context.push(route))`\n   - `.network-image` → `CachedNetworkImage()`\n   - `.icon[data-name]` → `Icon(Icons.{name})`\n   - Text classes (`.title-large`, `.body-medium`, etc.) → `Text(..., style: textTheme.X)`\n   - `data-color` → `colorScheme.X`\n   - `data-spacing` → `AppTheme.spaceX`\n   - `data-radius` → `AppTheme.radiusX`\n\n3. **Generate Dart** — Write `lib/screens/add_safe_zone/add_safe_zone_screen.dart`:\n   ```dart\n   import 'package:flutter/material.dart';\n   import 'package:cached_network_image/cached_network_image.dart';\n   import 'package:flutter_animate/flutter_animate.dart';\n   import 'package:folio/theme/app_theme.dart';\n\n   class AddSafeZoneScreen extends StatelessWidget {\n     const AddSafeZoneScreen({super.key});\n\n     @override\n     Widget build(BuildContext context) {\n       final theme = Theme.of(context);\n       final colorScheme = theme.colorScheme;\n       final textTheme = theme.textTheme;\n\n       return Scaffold(\n         // ... mechanically converted from glossary elements\n       );\n     }\n   }\n   ```\n\n4. **Update router** — Add route to `lib/router/app_router.dart`:\n   ```dart\n   GoRoute(\n     path: '/safe-zones/add',\n     builder: (context, state) => const AddSafeZoneScreen(),\n   ),\n   ```\n\n5. **Verify** — Run `dart analyze lib/screens/add_safe_zone/add_safe_zone_screen.dart`\n\n## Reference Skills\n\n- Read **flutter-building-layouts** for constraint rules (constraints down, sizes up), avoiding unbounded constraints in flex boxes, and when to use `Expanded` vs `Flexible` vs `SizedBox`.\n- Read **flutter-animating-apps** for Hero transition setup, implicit vs explicit animations, and staggered animation patterns.\n\n## Quality Gates\n\n- **No hardcoded colors** — `Color(0xFF...)` and `Colors.blue` are banned; use `colorScheme.X`\n- **No hardcoded text styles** — `TextStyle(fontSize: 16)` is banned; use `textTheme.X`\n- **No hardcoded spacing** — `EdgeInsets.all(16)` is banned; use `AppTheme.spaceMd`\n- **No Container abuse** — prefer `SizedBox`, `Padding`, `DecoratedBox` when Container is overkill\n- **Use const** — `const` constructor wherever possible\n- **Trailing commas** — on every parameter list\n\n## Success Criteria\n\n- `lib/screens/add_safe_zone/add_safe_zone_screen.dart` exists with valid Dart\n- Uses `Theme.of(context)` for all styling (colors, text, shapes)\n- No hardcoded colors, text styles, or spacing values\n- Route added to `app_router.dart`\n- `dart analyze` passes",
+              "taskSkill": "stitch-flutter",
+              "taskId": "03-build-screens/006-add-safe-zone/006-03-convert",
+              "taskTitle": "Convert: Add Safe Zone",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/006-add-safe-zone/tasks/006-03-convert",
+              "factId": "check:uses-theme"
+            }
+          }
+        ],
+        "durationMs": 64
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 47
+      }
+    },
+    {
+      "id": "run-skill",
+      "handler": "run-skill",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 64
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 805078
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/006-add-safe-zone/006-03-convert-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/006-add-safe-zone/006-03-convert",
+            "severity": "high",
+            "description": "[03-build-screens/006-add-safe-zone/006-03-convert] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-21T11:55:27.331Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "dart analyze lib/screens/add_safe_zone/add_safe_zone_screen.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "An error occurred while executing an analyzer plugin: Failed to compile \"/Users/hoangnguyen/.dartServer/.plugin_manager/9e820a09f9826aee5ce535ac929226a0/analyzer_plugin/bin/plugin.dart\" to an AOT snapshot.\n  pluginFolder = /Users/hoangnguyen/.dartServer/.plugin_manager/9e820a09f9826aee5ce535ac929226a0/analyzer_plugin\n  exitCode = 254\n  stdout = \n  stderr = ../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2133:32: Error: The argument type 'Element' can't be assigned to the parameter type 'Element2'.\n - 'Element' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'Element2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n            .publiclyExporting(element, resultCache: resultCache) ??\n                               ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2133:54: Error: The argument type 'Map<Element, LibraryElement?>?' can't be assigned to the parameter type 'Map<Element2, LibraryElement2?>?'.\n - 'Map' is from 'dart:core'.\n - 'Element' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'LibraryElement' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'Element2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n - 'LibraryElement2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n            .publiclyExporting(element, resultCache: resultCache) ??\n                                                     ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2137:40: Error: The getter 'source' isn't defined for the type 'Object'.\n - 'Object' is from 'dart:core'.\nTry correcting the name to the name of an existing getter, or defining a getter or field named 'source'.\n    var uriToImport = libraryToImport?.source.uri;\n                                       ^^^^^^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2150:58: Error: The argument type 'Object?' can't be assigned to the parameter type 'LibraryElement?'.\n - 'Object' is from 'dart:core'.\n - 'LibraryElement' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n      _removeUnnecessaryPendingElementImports(newImport, libraryToImport);\n                                                         ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2182:14: Error: The method 'publiclyExporting2' isn't defined for the type 'TopLevelDeclarations'.\n - 'TopLevelDeclarations' is from 'package:analyzer/src/services/top_level_declarations.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/src/services/top_level_declarations.dart').\nTry correcting the name to the name of an existing method, or defining a method named 'publiclyExporting2'.\n            .publiclyExporting2(element, resultCache: resultCache) ??\n             ^^^^^^^^^^^^^^^^^^\nError: AOT compilation failed\nBad state: Generating AOT kernel dill failed!\n\n\n#0      PluginManager._compileAsAot (package:analysis_server/src/plugin/plugin_manager.dart:589)\n#1      PluginManager._computeFiles (package:analysis_server/src/plugin/plugin_manager.dart:641)\n#2      PluginManager.filesFor (package:analysis_server/src/plugin/plugin_manager.dart:347)\n#3      PluginManager.addPluginToContextRoot (package:analysis_server/src/plugin/plugin_manager.dart:179)\n#4      PluginWatcher._addLegacyPlugins (package:analysis_server/src/plugin/plugin_watcher.dart:102)\n#5      PluginWatcher.addedDriver (package:analysis_server/src/plugin/plugin_watcher.dart:49)\n#6      AnalysisDriverScheduler.add (package:analyzer/src/dart/analysis/driver.dart:2665)\n#7      new AnalysisDriver (package:analyzer/src/dart/analysis/driver.dart:341)\n#8      ContextBuilderImpl.createContext (package:analyzer/src/dart/analysis/context_builder.dart:157)\n#9      new AnalysisContextCollectionImpl (package:analyzer/src/dart/analysis/analysis_context_collection.dart:122)\n#10     ContextManagerImpl._createAnalysisContexts.performContextRebuildGuarded.performContextRebuild (package:analysis_server/src/context_manager.dart:596)\n<asynchronous suspension>\n#11     ContextManagerImpl._createAnalysisContexts.performContextRebuildGuarded (package:analysis_server/src/context_manager.dart:732)\n<asynchronous suspension>\n#12     _CancellingTaskQueue.queue.<anonymous closure> (package:analysis_server/src/context_manager.dart:1041)\n<asynchronous suspension>\n#13     ContextManagerImpl.setRoots (package:analysis_server/src/context_manager.dart:386)\n<asynchronous suspension>\n#14     LegacyAnalysisServer.setAnalysisRoots (package:analysis_server/src/legacy_analysis_server.dart:901)\n<asynchronous suspension>\n#15     AnalysisSetAnalysisRootsHandler.handle (package:analysis_server/src/handler/legacy/analysis_set_analysis_roots.dart:56)\n<asynchronous suspension>\n#16     LegacyAnalysisServer.handleRequest.<anonymous closure>.<anonymous closure> (package:analysis_server/src/legacy_analysis_server.dart:648)\n<asynchronous suspension>\n#17     OperationPerformanceImpl.runAsync (package:analyzer/src/util/performance/operation_performance.dart:201)\n<asynchronous suspension>\n#18     LegacyAnalysisServer.handleRequest.<anonymous closure> (package:analysis_server/src/legacy_analysis_server.dart:628)\n<asynchronous suspension>\nAnalyzing add_safe_zone_screen.dart...\n\n  error - add_safe_zone_screen.dart:174:24 - Undefined name 'colorScheme'. Try correcting the name to one that is defined, or defining the name. - undefined_identifier\n  error - add_safe_zone_screen.dart:227:24 - Undefined name 'colorScheme'. Try correcting the name to one that is defined, or defining the name. - undefined_identifier\n  error - add_safe_zone_screen.dart:303:31 - The argument type 'BorderSide?' can't be assigned to the parameter type 'BoxBorder?'.  - argument_type_not_assignable\n   info - add_safe_zone_screen.dart:111:34 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors\n   info - add_safe_zone_screen.dart:124:13 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors\n   info - add_safe_zone_screen.dart:249:21 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors\n   info - add_safe_zone_screen.dart:294:76 - Missing a required trailing comma. Try adding a trailing comma. - require_trailing_commas\n   info - add_safe_zone_screen.dart:344:11 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors\n   info - add_safe_zone_screen.dart:361:25 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors\n\n9 issues found.",
+              "checkExitCode": 3,
+              "taskPrompt": "# Convert: Add Safe Zone\n\nConvert the constrained HTML design to a pixel-perfect Flutter widget using the **stitch-flutter** skill.\n\n## Inputs\n- `.stitch/designs/add-safe-zone/design.html` — HTML design mockup (written in Flutter HTML Glossary vocabulary)\n- `.stitch/designs/add-safe-zone/SPEC.md` — Screen specification\n- `.stitch/system/DESIGN.md` — Design system specification\n\n## How It Works\n\nThe HTML mockup uses the **Flutter HTML Glossary** — a constrained vocabulary where every HTML class and `data-*` attribute maps 1:1 to a Flutter widget. This enables mechanical, pixel-perfect conversion.\n\n## Conversion Steps\n\n1. **Read HTML** — Parse `.stitch/designs/add-safe-zone/design.html` and extract:\n   - `:root` CSS tokens → update `lib/theme/app_theme.dart` if new tokens found\n   - `.scaffold` element tree → this is the conversion entry point\n   - `data-*` attributes → Flutter widget parameters\n   - `data-animate` attributes → `flutter_animate` chains\n   - `aria-*` attributes → `Semantics` widgets\n\n2. **Walk the DOM** — Process each glossary element top-down:\n   - `.scaffold` → `Scaffold()`\n   - `.app-bar` → `AppBar()`\n   - `.column` → `Column()`\n   - `.row` → `Row()`\n   - `.card` → `Card()`\n   - `.ink-well[data-route]` → `InkWell(onTap: () => context.push(route))`\n   - `.network-image` → `CachedNetworkImage()`\n   - `.icon[data-name]` → `Icon(Icons.{name})`\n   - Text classes (`.title-large`, `.body-medium`, etc.) → `Text(..., style: textTheme.X)`\n   - `data-color` → `colorScheme.X`\n   - `data-spacing` → `AppTheme.spaceX`\n   - `data-radius` → `AppTheme.radiusX`\n\n3. **Generate Dart** — Write `lib/screens/add_safe_zone/add_safe_zone_screen.dart`:\n   ```dart\n   import 'package:flutter/material.dart';\n   import 'package:cached_network_image/cached_network_image.dart';\n   import 'package:flutter_animate/flutter_animate.dart';\n   import 'package:folio/theme/app_theme.dart';\n\n   class AddSafeZoneScreen extends StatelessWidget {\n     const AddSafeZoneScreen({super.key});\n\n     @override\n     Widget build(BuildContext context) {\n       final theme = Theme.of(context);\n       final colorScheme = theme.colorScheme;\n       final textTheme = theme.textTheme;\n\n       return Scaffold(\n         // ... mechanically converted from glossary elements\n       );\n     }\n   }\n   ```\n\n4. **Update router** — Add route to `lib/router/app_router.dart`:\n   ```dart\n   GoRoute(\n     path: '/safe-zones/add',\n     builder: (context, state) => const AddSafeZoneScreen(),\n   ),\n   ```\n\n5. **Verify** — Run `dart analyze lib/screens/add_safe_zone/add_safe_zone_screen.dart`\n\n## Reference Skills\n\n- Read **flutter-building-layouts** for constraint rules (constraints down, sizes up), avoiding unbounded constraints in flex boxes, and when to use `Expanded` vs `Flexible` vs `SizedBox`.\n- Read **flutter-animating-apps** for Hero transition setup, implicit vs explicit animations, and staggered animation patterns.\n\n## Quality Gates\n\n- **No hardcoded colors** — `Color(0xFF...)` and `Colors.blue` are banned; use `colorScheme.X`\n- **No hardcoded text styles** — `TextStyle(fontSize: 16)` is banned; use `textTheme.X`\n- **No hardcoded spacing** — `EdgeInsets.all(16)` is banned; use `AppTheme.spaceMd`\n- **No Container abuse** — prefer `SizedBox`, `Padding`, `DecoratedBox` when Container is overkill\n- **Use const** — `const` constructor wherever possible\n- **Trailing commas** — on every parameter list\n\n## Success Criteria\n\n- `lib/screens/add_safe_zone/add_safe_zone_screen.dart` exists with valid Dart\n- Uses `Theme.of(context)` for all styling (colors, text, shapes)\n- No hardcoded colors, text styles, or spacing values\n- Route added to `app_router.dart`\n- `dart analyze` passes",
+              "taskSkill": "stitch-flutter",
+              "taskId": "03-build-screens/006-add-safe-zone/006-03-convert",
+              "taskTitle": "Convert: Add Safe Zone",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/006-add-safe-zone/tasks/006-03-convert",
+              "factId": "check:dart-valid"
+            }
+          },
+          {
+            "id": "03-build-screens/006-add-safe-zone/006-03-convert-check-failed-no-hardcoded-colors",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/006-add-safe-zone/006-03-convert",
+            "severity": "high",
+            "description": "[03-build-screens/006-add-safe-zone/006-03-convert] Check failed: No hardcoded colors — uses colorScheme",
+            "source": "unit",
+            "detected": "2026-04-21T11:55:27.340Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "no-hardcoded-colors",
+              "checkCmd": "! grep -qE 'Color\\(0x|Colors\\.' lib/screens/add_safe_zone/add_safe_zone_screen.dart",
+              "checkDescription": "No hardcoded colors — uses colorScheme",
+              "checkOutput": "Command failed: ! grep -qE 'Color\\(0x|Colors\\.' lib/screens/add_safe_zone/add_safe_zone_screen.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Convert: Add Safe Zone\n\nConvert the constrained HTML design to a pixel-perfect Flutter widget using the **stitch-flutter** skill.\n\n## Inputs\n- `.stitch/designs/add-safe-zone/design.html` — HTML design mockup (written in Flutter HTML Glossary vocabulary)\n- `.stitch/designs/add-safe-zone/SPEC.md` — Screen specification\n- `.stitch/system/DESIGN.md` — Design system specification\n\n## How It Works\n\nThe HTML mockup uses the **Flutter HTML Glossary** — a constrained vocabulary where every HTML class and `data-*` attribute maps 1:1 to a Flutter widget. This enables mechanical, pixel-perfect conversion.\n\n## Conversion Steps\n\n1. **Read HTML** — Parse `.stitch/designs/add-safe-zone/design.html` and extract:\n   - `:root` CSS tokens → update `lib/theme/app_theme.dart` if new tokens found\n   - `.scaffold` element tree → this is the conversion entry point\n   - `data-*` attributes → Flutter widget parameters\n   - `data-animate` attributes → `flutter_animate` chains\n   - `aria-*` attributes → `Semantics` widgets\n\n2. **Walk the DOM** — Process each glossary element top-down:\n   - `.scaffold` → `Scaffold()`\n   - `.app-bar` → `AppBar()`\n   - `.column` → `Column()`\n   - `.row` → `Row()`\n   - `.card` → `Card()`\n   - `.ink-well[data-route]` → `InkWell(onTap: () => context.push(route))`\n   - `.network-image` → `CachedNetworkImage()`\n   - `.icon[data-name]` → `Icon(Icons.{name})`\n   - Text classes (`.title-large`, `.body-medium`, etc.) → `Text(..., style: textTheme.X)`\n   - `data-color` → `colorScheme.X`\n   - `data-spacing` → `AppTheme.spaceX`\n   - `data-radius` → `AppTheme.radiusX`\n\n3. **Generate Dart** — Write `lib/screens/add_safe_zone/add_safe_zone_screen.dart`:\n   ```dart\n   import 'package:flutter/material.dart';\n   import 'package:cached_network_image/cached_network_image.dart';\n   import 'package:flutter_animate/flutter_animate.dart';\n   import 'package:folio/theme/app_theme.dart';\n\n   class AddSafeZoneScreen extends StatelessWidget {\n     const AddSafeZoneScreen({super.key});\n\n     @override\n     Widget build(BuildContext context) {\n       final theme = Theme.of(context);\n       final colorScheme = theme.colorScheme;\n       final textTheme = theme.textTheme;\n\n       return Scaffold(\n         // ... mechanically converted from glossary elements\n       );\n     }\n   }\n   ```\n\n4. **Update router** — Add route to `lib/router/app_router.dart`:\n   ```dart\n   GoRoute(\n     path: '/safe-zones/add',\n     builder: (context, state) => const AddSafeZoneScreen(),\n   ),\n   ```\n\n5. **Verify** — Run `dart analyze lib/screens/add_safe_zone/add_safe_zone_screen.dart`\n\n## Reference Skills\n\n- Read **flutter-building-layouts** for constraint rules (constraints down, sizes up), avoiding unbounded constraints in flex boxes, and when to use `Expanded` vs `Flexible` vs `SizedBox`.\n- Read **flutter-animating-apps** for Hero transition setup, implicit vs explicit animations, and staggered animation patterns.\n\n## Quality Gates\n\n- **No hardcoded colors** — `Color(0xFF...)` and `Colors.blue` are banned; use `colorScheme.X`\n- **No hardcoded text styles** — `TextStyle(fontSize: 16)` is banned; use `textTheme.X`\n- **No hardcoded spacing** — `EdgeInsets.all(16)` is banned; use `AppTheme.spaceMd`\n- **No Container abuse** — prefer `SizedBox`, `Padding`, `DecoratedBox` when Container is overkill\n- **Use const** — `const` constructor wherever possible\n- **Trailing commas** — on every parameter list\n\n## Success Criteria\n\n- `lib/screens/add_safe_zone/add_safe_zone_screen.dart` exists with valid Dart\n- Uses `Theme.of(context)` for all styling (colors, text, shapes)\n- No hardcoded colors, text styles, or spacing values\n- Route added to `app_router.dart`\n- `dart analyze` passes",
+              "taskSkill": "stitch-flutter",
+              "taskId": "03-build-screens/006-add-safe-zone/006-03-convert",
+              "taskTitle": "Convert: Add Safe Zone",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/006-add-safe-zone/tasks/006-03-convert",
+              "factId": "check:no-hardcoded-colors"
+            }
+          }
+        ],
+        "durationMs": 3026
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "run-strategy:task-run#120",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 238485
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/006-add-safe-zone/006-03-convert-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/006-add-safe-zone/006-03-convert",
+            "severity": "high",
+            "description": "[03-build-screens/006-add-safe-zone/006-03-convert] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-21T11:55:30.921Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "dart analyze lib/screens/add_safe_zone/add_safe_zone_screen.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "An error occurred while executing an analyzer plugin: Failed to compile \"/Users/hoangnguyen/.dartServer/.plugin_manager/9e820a09f9826aee5ce535ac929226a0/analyzer_plugin/bin/plugin.dart\" to an AOT snapshot.\n  pluginFolder = /Users/hoangnguyen/.dartServer/.plugin_manager/9e820a09f9826aee5ce535ac929226a0/analyzer_plugin\n  exitCode = 254\n  stdout = \n  stderr = ../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2133:32: Error: The argument type 'Element' can't be assigned to the parameter type 'Element2'.\n - 'Element' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'Element2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n            .publiclyExporting(element, resultCache: resultCache) ??\n                               ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2133:54: Error: The argument type 'Map<Element, LibraryElement?>?' can't be assigned to the parameter type 'Map<Element2, LibraryElement2?>?'.\n - 'Map' is from 'dart:core'.\n - 'Element' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'LibraryElement' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'Element2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n - 'LibraryElement2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n            .publiclyExporting(element, resultCache: resultCache) ??\n                                                     ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2137:40: Error: The getter 'source' isn't defined for the type 'Object'.\n - 'Object' is from 'dart:core'.\nTry correcting the name to the name of an existing getter, or defining a getter or field named 'source'.\n    var uriToImport = libraryToImport?.source.uri;\n                                       ^^^^^^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2150:58: Error: The argument type 'Object?' can't be assigned to the parameter type 'LibraryElement?'.\n - 'Object' is from 'dart:core'.\n - 'LibraryElement' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n      _removeUnnecessaryPendingElementImports(newImport, libraryToImport);\n                                                         ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2182:14: Error: The method 'publiclyExporting2' isn't defined for the type 'TopLevelDeclarations'.\n - 'TopLevelDeclarations' is from 'package:analyzer/src/services/top_level_declarations.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/src/services/top_level_declarations.dart').\nTry correcting the name to the name of an existing method, or defining a method named 'publiclyExporting2'.\n            .publiclyExporting2(element, resultCache: resultCache) ??\n             ^^^^^^^^^^^^^^^^^^\nError: AOT compilation failed\nBad state: Generating AOT kernel dill failed!\n\n\n#0      PluginManager._compileAsAot (package:analysis_server/src/plugin/plugin_manager.dart:589)\n#1      PluginManager._computeFiles (package:analysis_server/src/plugin/plugin_manager.dart:641)\n#2      PluginManager.filesFor (package:analysis_server/src/plugin/plugin_manager.dart:347)\n#3      PluginManager.addPluginToContextRoot (package:analysis_server/src/plugin/plugin_manager.dart:179)\n#4      PluginWatcher._addLegacyPlugins (package:analysis_server/src/plugin/plugin_watcher.dart:102)\n#5      PluginWatcher.addedDriver (package:analysis_server/src/plugin/plugin_watcher.dart:49)\n#6      AnalysisDriverScheduler.add (package:analyzer/src/dart/analysis/driver.dart:2665)\n#7      new AnalysisDriver (package:analyzer/src/dart/analysis/driver.dart:341)\n#8      ContextBuilderImpl.createContext (package:analyzer/src/dart/analysis/context_builder.dart:157)\n#9      new AnalysisContextCollectionImpl (package:analyzer/src/dart/analysis/analysis_context_collection.dart:122)\n#10     ContextManagerImpl._createAnalysisContexts.performContextRebuildGuarded.performContextRebuild (package:analysis_server/src/context_manager.dart:596)\n<asynchronous suspension>\n#11     ContextManagerImpl._createAnalysisContexts.performContextRebuildGuarded (package:analysis_server/src/context_manager.dart:732)\n<asynchronous suspension>\n#12     _CancellingTaskQueue.queue.<anonymous closure> (package:analysis_server/src/context_manager.dart:1041)\n<asynchronous suspension>\n#13     ContextManagerImpl.setRoots (package:analysis_server/src/context_manager.dart:386)\n<asynchronous suspension>\n#14     LegacyAnalysisServer.setAnalysisRoots (package:analysis_server/src/legacy_analysis_server.dart:901)\n<asynchronous suspension>\n#15     AnalysisSetAnalysisRootsHandler.handle (package:analysis_server/src/handler/legacy/analysis_set_analysis_roots.dart:56)\n<asynchronous suspension>\n#16     LegacyAnalysisServer.handleRequest.<anonymous closure>.<anonymous closure> (package:analysis_server/src/legacy_analysis_server.dart:648)\n<asynchronous suspension>\n#17     OperationPerformanceImpl.runAsync (package:analyzer/src/util/performance/operation_performance.dart:201)\n<asynchronous suspension>\n#18     LegacyAnalysisServer.handleRequest.<anonymous closure> (package:analysis_server/src/legacy_analysis_server.dart:628)\n<asynchronous suspension>\nAnalyzing add_safe_zone_screen.dart...\n\n  error - add_safe_zone_screen.dart:174:24 - Undefined name 'colorScheme'. Try correcting the name to one that is defined, or defining the name. - undefined_identifier\n  error - add_safe_zone_screen.dart:227:24 - Undefined name 'colorScheme'. Try correcting the name to one that is defined, or defining the name. - undefined_identifier\n  error - add_safe_zone_screen.dart:303:31 - The argument type 'BorderSide?' can't be assigned to the parameter type 'BoxBorder?'.  - argument_type_not_assignable\n   info - add_safe_zone_screen.dart:111:34 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors\n   info - add_safe_zone_screen.dart:124:13 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors\n   info - add_safe_zone_screen.dart:249:21 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors\n   info - add_safe_zone_screen.dart:294:76 - Missing a required trailing comma. Try adding a trailing comma. - require_trailing_commas\n   info - add_safe_zone_screen.dart:344:11 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors\n   info - add_safe_zone_screen.dart:361:25 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors\n\n9 issues found.",
+              "checkExitCode": 3,
+              "taskPrompt": "# Convert: Add Safe Zone\n\nConvert the constrained HTML design to a pixel-perfect Flutter widget using the **stitch-flutter** skill.\n\n## Inputs\n- `.stitch/designs/add-safe-zone/design.html` — HTML design mockup (written in Flutter HTML Glossary vocabulary)\n- `.stitch/designs/add-safe-zone/SPEC.md` — Screen specification\n- `.stitch/system/DESIGN.md` — Design system specification\n\n## How It Works\n\nThe HTML mockup uses the **Flutter HTML Glossary** — a constrained vocabulary where every HTML class and `data-*` attribute maps 1:1 to a Flutter widget. This enables mechanical, pixel-perfect conversion.\n\n## Conversion Steps\n\n1. **Read HTML** — Parse `.stitch/designs/add-safe-zone/design.html` and extract:\n   - `:root` CSS tokens → update `lib/theme/app_theme.dart` if new tokens found\n   - `.scaffold` element tree → this is the conversion entry point\n   - `data-*` attributes → Flutter widget parameters\n   - `data-animate` attributes → `flutter_animate` chains\n   - `aria-*` attributes → `Semantics` widgets\n\n2. **Walk the DOM** — Process each glossary element top-down:\n   - `.scaffold` → `Scaffold()`\n   - `.app-bar` → `AppBar()`\n   - `.column` → `Column()`\n   - `.row` → `Row()`\n   - `.card` → `Card()`\n   - `.ink-well[data-route]` → `InkWell(onTap: () => context.push(route))`\n   - `.network-image` → `CachedNetworkImage()`\n   - `.icon[data-name]` → `Icon(Icons.{name})`\n   - Text classes (`.title-large`, `.body-medium`, etc.) → `Text(..., style: textTheme.X)`\n   - `data-color` → `colorScheme.X`\n   - `data-spacing` → `AppTheme.spaceX`\n   - `data-radius` → `AppTheme.radiusX`\n\n3. **Generate Dart** — Write `lib/screens/add_safe_zone/add_safe_zone_screen.dart`:\n   ```dart\n   import 'package:flutter/material.dart';\n   import 'package:cached_network_image/cached_network_image.dart';\n   import 'package:flutter_animate/flutter_animate.dart';\n   import 'package:folio/theme/app_theme.dart';\n\n   class AddSafeZoneScreen extends StatelessWidget {\n     const AddSafeZoneScreen({super.key});\n\n     @override\n     Widget build(BuildContext context) {\n       final theme = Theme.of(context);\n       final colorScheme = theme.colorScheme;\n       final textTheme = theme.textTheme;\n\n       return Scaffold(\n         // ... mechanically converted from glossary elements\n       );\n     }\n   }\n   ```\n\n4. **Update router** — Add route to `lib/router/app_router.dart`:\n   ```dart\n   GoRoute(\n     path: '/safe-zones/add',\n     builder: (context, state) => const AddSafeZoneScreen(),\n   ),\n   ```\n\n5. **Verify** — Run `dart analyze lib/screens/add_safe_zone/add_safe_zone_screen.dart`\n\n## Reference Skills\n\n- Read **flutter-building-layouts** for constraint rules (constraints down, sizes up), avoiding unbounded constraints in flex boxes, and when to use `Expanded` vs `Flexible` vs `SizedBox`.\n- Read **flutter-animating-apps** for Hero transition setup, implicit vs explicit animations, and staggered animation patterns.\n\n## Quality Gates\n\n- **No hardcoded colors** — `Color(0xFF...)` and `Colors.blue` are banned; use `colorScheme.X`\n- **No hardcoded text styles** — `TextStyle(fontSize: 16)` is banned; use `textTheme.X`\n- **No hardcoded spacing** — `EdgeInsets.all(16)` is banned; use `AppTheme.spaceMd`\n- **No Container abuse** — prefer `SizedBox`, `Padding`, `DecoratedBox` when Container is overkill\n- **Use const** — `const` constructor wherever possible\n- **Trailing commas** — on every parameter list\n\n## Success Criteria\n\n- `lib/screens/add_safe_zone/add_safe_zone_screen.dart` exists with valid Dart\n- Uses `Theme.of(context)` for all styling (colors, text, shapes)\n- No hardcoded colors, text styles, or spacing values\n- Route added to `app_router.dart`\n- `dart analyze` passes",
+              "taskSkill": "stitch-flutter",
+              "taskId": "03-build-screens/006-add-safe-zone/006-03-convert",
+              "taskTitle": "Convert: Add Safe Zone",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/006-add-safe-zone/tasks/006-03-convert",
+              "factId": "check:dart-valid"
+            }
+          },
+          {
+            "id": "03-build-screens/006-add-safe-zone/006-03-convert-check-failed-no-hardcoded-colors",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/006-add-safe-zone/006-03-convert",
+            "severity": "high",
+            "description": "[03-build-screens/006-add-safe-zone/006-03-convert] Check failed: No hardcoded colors — uses colorScheme",
+            "source": "unit",
+            "detected": "2026-04-21T11:55:30.930Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "no-hardcoded-colors",
+              "checkCmd": "! grep -qE 'Color\\(0x|Colors\\.' lib/screens/add_safe_zone/add_safe_zone_screen.dart",
+              "checkDescription": "No hardcoded colors — uses colorScheme",
+              "checkOutput": "Command failed: ! grep -qE 'Color\\(0x|Colors\\.' lib/screens/add_safe_zone/add_safe_zone_screen.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Convert: Add Safe Zone\n\nConvert the constrained HTML design to a pixel-perfect Flutter widget using the **stitch-flutter** skill.\n\n## Inputs\n- `.stitch/designs/add-safe-zone/design.html` — HTML design mockup (written in Flutter HTML Glossary vocabulary)\n- `.stitch/designs/add-safe-zone/SPEC.md` — Screen specification\n- `.stitch/system/DESIGN.md` — Design system specification\n\n## How It Works\n\nThe HTML mockup uses the **Flutter HTML Glossary** — a constrained vocabulary where every HTML class and `data-*` attribute maps 1:1 to a Flutter widget. This enables mechanical, pixel-perfect conversion.\n\n## Conversion Steps\n\n1. **Read HTML** — Parse `.stitch/designs/add-safe-zone/design.html` and extract:\n   - `:root` CSS tokens → update `lib/theme/app_theme.dart` if new tokens found\n   - `.scaffold` element tree → this is the conversion entry point\n   - `data-*` attributes → Flutter widget parameters\n   - `data-animate` attributes → `flutter_animate` chains\n   - `aria-*` attributes → `Semantics` widgets\n\n2. **Walk the DOM** — Process each glossary element top-down:\n   - `.scaffold` → `Scaffold()`\n   - `.app-bar` → `AppBar()`\n   - `.column` → `Column()`\n   - `.row` → `Row()`\n   - `.card` → `Card()`\n   - `.ink-well[data-route]` → `InkWell(onTap: () => context.push(route))`\n   - `.network-image` → `CachedNetworkImage()`\n   - `.icon[data-name]` → `Icon(Icons.{name})`\n   - Text classes (`.title-large`, `.body-medium`, etc.) → `Text(..., style: textTheme.X)`\n   - `data-color` → `colorScheme.X`\n   - `data-spacing` → `AppTheme.spaceX`\n   - `data-radius` → `AppTheme.radiusX`\n\n3. **Generate Dart** — Write `lib/screens/add_safe_zone/add_safe_zone_screen.dart`:\n   ```dart\n   import 'package:flutter/material.dart';\n   import 'package:cached_network_image/cached_network_image.dart';\n   import 'package:flutter_animate/flutter_animate.dart';\n   import 'package:folio/theme/app_theme.dart';\n\n   class AddSafeZoneScreen extends StatelessWidget {\n     const AddSafeZoneScreen({super.key});\n\n     @override\n     Widget build(BuildContext context) {\n       final theme = Theme.of(context);\n       final colorScheme = theme.colorScheme;\n       final textTheme = theme.textTheme;\n\n       return Scaffold(\n         // ... mechanically converted from glossary elements\n       );\n     }\n   }\n   ```\n\n4. **Update router** — Add route to `lib/router/app_router.dart`:\n   ```dart\n   GoRoute(\n     path: '/safe-zones/add',\n     builder: (context, state) => const AddSafeZoneScreen(),\n   ),\n   ```\n\n5. **Verify** — Run `dart analyze lib/screens/add_safe_zone/add_safe_zone_screen.dart`\n\n## Reference Skills\n\n- Read **flutter-building-layouts** for constraint rules (constraints down, sizes up), avoiding unbounded constraints in flex boxes, and when to use `Expanded` vs `Flexible` vs `SizedBox`.\n- Read **flutter-animating-apps** for Hero transition setup, implicit vs explicit animations, and staggered animation patterns.\n\n## Quality Gates\n\n- **No hardcoded colors** — `Color(0xFF...)` and `Colors.blue` are banned; use `colorScheme.X`\n- **No hardcoded text styles** — `TextStyle(fontSize: 16)` is banned; use `textTheme.X`\n- **No hardcoded spacing** — `EdgeInsets.all(16)` is banned; use `AppTheme.spaceMd`\n- **No Container abuse** — prefer `SizedBox`, `Padding`, `DecoratedBox` when Container is overkill\n- **Use const** — `const` constructor wherever possible\n- **Trailing commas** — on every parameter list\n\n## Success Criteria\n\n- `lib/screens/add_safe_zone/add_safe_zone_screen.dart` exists with valid Dart\n- Uses `Theme.of(context)` for all styling (colors, text, shapes)\n- No hardcoded colors, text styles, or spacing values\n- Route added to `app_router.dart`\n- `dart analyze` passes",
+              "taskSkill": "stitch-flutter",
+              "taskId": "03-build-screens/006-add-safe-zone/006-03-convert",
+              "taskTitle": "Convert: Add Safe Zone",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/006-add-safe-zone/tasks/006-03-convert",
+              "factId": "check:no-hardcoded-colors"
+            }
+          }
+        ],
+        "durationMs": 3586
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "repair-loop#2",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3595
+      }
+    },
+    {
+      "id": "run-strategy:task-run#121",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 472354
+      }
+    },
+    {
+      "id": "verify#2",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 2997
+      }
+    },
+    {
+      "id": "check-stall#2",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt#2",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-21T11:38:00.634Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-21T11:38:00.635Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-21T11:38:00.699Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-21T11:38:00.700Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "run-skill",
+      "iteration": 1,
+      "ts": "2026-04-21T11:51:25.779Z"
+    },
+    {
+      "from": "run-skill",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-21T11:51:25.827Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#120",
+      "iteration": 1,
+      "ts": "2026-04-21T11:55:24.313Z"
+    },
+    {
+      "from": "run-strategy:task-run#120",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-21T11:55:27.340Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-21T11:55:27.341Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-21T11:55:27.342Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-21T11:55:27.343Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-21T11:55:27.343Z"
+    },
+    {
+      "from": "check-outputs-exist#2",
+      "to": "detect-gaps#2",
+      "iteration": 2,
+      "ts": "2026-04-21T11:55:30.930Z"
+    },
+    {
+      "from": "detect-gaps#2",
+      "to": "repair-loop#2",
+      "iteration": 2,
+      "ts": "2026-04-21T11:55:34.526Z"
+    },
+    {
+      "from": "repair-loop#2",
+      "to": "run-strategy:task-run#121",
+      "iteration": 2,
+      "ts": "2026-04-21T12:03:26.882Z"
+    },
+    {
+      "from": "run-strategy:task-run#121",
+      "to": "verify#2",
+      "iteration": 2,
+      "ts": "2026-04-21T12:03:29.881Z"
+    }
+  ]
+}

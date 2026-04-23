@@ -1,0 +1,200 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "05-add-behavior/004-implement-providers/002-provider-User-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-add-behavior/004-implement-providers/002-provider-User",
+            "severity": "high",
+            "description": "[05-add-behavior/004-implement-providers/002-provider-User] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-23T04:50:48.754Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "dart analyze lib/providers/user_provider.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "Analyzing user_provider.dart...\n\n  error - user_provider.dart:5:6 - Target of URI hasn't been generated: 'package:folio/providers/user_provider.g.dart'. Try running the generator that will generate the file referenced by the URI. - uri_has_not_been_generated\n  error - user_provider.dart:8:11 - Undefined class 'UserRef'. Try changing the name to the name of an existing class, or creating a class with the name 'UserRef'. - undefined_class\n\n2 issues found.",
+              "checkExitCode": 3,
+              "taskPrompt": "Create a Riverpod provider for the **User** entity in `lib/providers/user_provider.dart`.\n\nRead `data-models.md` for the entity definition and relationships.\n\nReferences: flutter-riverpod-patterns\n\n**Instructions:**\n1. Import the User model from `package:folio/models/models.dart`\n2. Import mock data from `package:folio/data/mock_data.dart`\n3. Use `@riverpod` annotation\n4. Initialize with mock data\n5. Export from a barrel file at `lib/providers/providers.dart`\n\nVerify with: `dart analyze lib/providers/user_provider.dart`",
+              "taskId": "05-add-behavior/004-implement-providers/002-provider-User",
+              "taskTitle": "Create User Provider",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/05-add-behavior/004-implement-providers/tasks/002-provider-User",
+              "factId": "check:dart-valid"
+            }
+          }
+        ],
+        "durationMs": 403
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 409
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 397
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 87709
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-23T04:50:48.351Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-23T04:50:48.352Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-23T04:50:48.755Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-23T04:50:48.757Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-23T04:50:49.166Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-04-23T04:52:16.876Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-23T04:52:17.273Z"
+    }
+  ]
+}

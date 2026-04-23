@@ -1,0 +1,9 @@
+{"ts":"2026-04-22T16:27:52.111Z","type":"action","iter":1,"handler":"check-wbs-seeded","result":"continue","ms":0}
+{"ts":"2026-04-22T16:27:52.115Z","type":"action","iter":1,"handler":"check-outputs-exist","result":"continue","ms":1}
+{"ts":"2026-04-22T16:27:52.152Z","type":"gaps-detected","iter":1,"count":3,"kinds":["output","check-failed"],"delta":3}
+{"ts":"2026-04-22T16:27:52.152Z","type":"action","iter":1,"handler":"detect-gaps","result":"continue","ms":35}
+{"ts":"2026-04-22T16:27:52.153Z","type":"action","iter":1,"handler":"run-executor","result":"continue","ms":1}
+{"ts":"2026-04-22T16:27:52.184Z","type":"action","iter":1,"handler":"repair-loop","result":"continue","ms":31}
+{"ts":"2026-04-22T16:34:32.051Z","type":"action","iter":1,"handler":"run-strategy","result":"continue","ms":399867}
+{"ts":"2026-04-22T16:34:34.832Z","type":"action","iter":1,"handler":"verify","result":"done","ms":2780,"reason":"All gaps resolved"}
+{"ts":"2026-04-22T16:34:34.832Z","type":"outcome","iter":1,"result":"done","reason":"All gaps resolved"}

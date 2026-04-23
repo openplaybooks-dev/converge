@@ -1,0 +1,21 @@
+{
+  "type": "task",
+  "id": "03-build-screens/002-beacon-scanner",
+  "status": "pending",
+  "lastUpdated": "2026-04-23T12:25:07.343Z",
+  "createdAt": "2026-04-23T10:56:56.367Z",
+  "progress": {
+    "totalChildren": 6,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "002-01-spec",
+      "002-02-design",
+      "002-03-convert",
+      "002-04-analyze",
+      "002-05-split",
+      "002-06-lift"
+    ],
+    "lastProgressUpdate": "2026-04-23T12:25:07.341Z"
+  }
+}

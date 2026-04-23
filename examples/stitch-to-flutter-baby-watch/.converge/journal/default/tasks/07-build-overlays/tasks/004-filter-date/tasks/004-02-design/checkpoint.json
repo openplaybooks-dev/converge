@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/004-filter-date/004-02-design",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T20:27:19.945Z",
+  "createdAt": "2026-04-21T20:25:19.002Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T20:25:19.002Z",
+      "completedAt": "2026-04-21T20:27:19.937Z",
+      "outcome": "success",
+      "durationMs": 120935
+    }
+  ],
+  "currentAttempt": 1
+}

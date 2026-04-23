@@ -1,0 +1,19 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-21T14:23:12.839Z",
+  "spawnCount": 3,
+  "subtasks": [
+    {
+      "id": "001-lift-SafeZoneFormField",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/007-edit-safe-zone/tasks/007-06-lift/tasks/001-lift-SafeZoneFormField/TASK.md"
+    },
+    {
+      "id": "002-lift-AddressField",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/007-edit-safe-zone/tasks/007-06-lift/tasks/002-lift-AddressField/TASK.md"
+    },
+    {
+      "id": "003-lift-ActiveToggle",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/007-edit-safe-zone/tasks/007-06-lift/tasks/003-lift-ActiveToggle/TASK.md"
+    }
+  ]
+}

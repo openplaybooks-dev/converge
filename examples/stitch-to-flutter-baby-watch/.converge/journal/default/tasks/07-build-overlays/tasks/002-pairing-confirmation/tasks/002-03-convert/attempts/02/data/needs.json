@@ -1,0 +1,31 @@
+{
+  "taskId": "07-build-overlays/002-pairing-confirmation/002-03-convert",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/pairing-confirmation/design.html",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/pairing-confirmation/design.html"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/pairing-confirmation/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/pairing-confirmation/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/overlays/pairing_confirmation/pairing_confirmation.dart"
+  ],
+  "blocked": false
+}

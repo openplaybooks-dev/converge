@@ -1,0 +1,46 @@
+{
+  "taskId": "03-build-screens/008-history/008-02-design",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/history/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/history/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/META.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/META.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/references/ANALYSIS.md",
+      "count": 1,
+      "samples": [
+        ".stitch/references/ANALYSIS.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/references/history/code.html",
+      "count": 1,
+      "samples": [
+        ".stitch/references/history/code.html"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/history/META.md",
+    ".stitch/designs/history/design.html"
+  ],
+  "blocked": false
+}

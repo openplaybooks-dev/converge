@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/003-wire-per-screen/005-SafeZonesScreen-_NavItem-onTap-3",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T11:16:28.813Z",
+  "createdAt": "2026-04-23T11:14:59.731Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T11:14:59.731Z",
+      "completedAt": "2026-04-23T11:16:28.809Z",
+      "outcome": "success",
+      "durationMs": 89078
+    }
+  ],
+  "currentAttempt": 1
+}

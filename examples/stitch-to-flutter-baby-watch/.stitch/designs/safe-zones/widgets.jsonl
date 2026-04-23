@@ -1,0 +1,5 @@
+{"name": "MapCard", "grep": "_buildMapCard(ColorScheme colorScheme", "description": "Card displaying mini map with safe zone circles, baby marker, and glassmorphism tracking overlay", "shared": false}
+{"name": "ZoneCard", "grep": "_buildZoneCard(_ZoneData zone", "description": "Card for each safe zone showing name, address, radius badge, toggle switch, and edit icon", "shared": false}
+{"name": "Insights", "grep": "_buildInsights(ColorScheme colorScheme", "description": "Row of two insight containers showing weekly alerts count and security percentage", "shared": false}
+{"name": "BottomNav", "grep": "_buildBottomNav(BuildContext context)", "description": "Bottom navigation bar with nav items for home, devices, safety, and settings", "shared": true}
+{"name": "NavItem", "grep": "_buildNavItem(BuildContext context", "description": "Single navigation item with icon and label, handles selected/unselected state", "shared": true}

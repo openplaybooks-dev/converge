@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/012-invite-accept/012-05-split/004-split-PrivacyFooter",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Widget file exists",
+      "cmd": "test -f lib/screens/invite_accept/widgets/privacy_footer.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/screens/invite_accept/widgets/privacy_footer.dart"
+    }
+  ]
+}

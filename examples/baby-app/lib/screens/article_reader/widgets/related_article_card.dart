@@ -25,6 +25,7 @@ class RelatedArticleCard extends StatelessWidget {
       label: '$title, $topic',
       button: true,
       child: GestureDetector(
+// @converge:element RelatedArticleCard-onTap-1
         onTap: () => context.push('/education/article/:id'),
         child: SizedBox(
           width: 180,

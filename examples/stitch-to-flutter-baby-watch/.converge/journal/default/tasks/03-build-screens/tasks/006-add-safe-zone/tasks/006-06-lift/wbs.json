@@ -1,0 +1,15 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-21T13:39:51.818Z",
+  "spawnCount": 2,
+  "subtasks": [
+    {
+      "id": "001-lift-SafeZoneFormField",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/006-add-safe-zone/tasks/006-06-lift/tasks/001-lift-SafeZoneFormField/TASK.md"
+    },
+    {
+      "id": "002-lift-ActiveToggle",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/006-add-safe-zone/tasks/006-06-lift/tasks/002-lift-ActiveToggle/TASK.md"
+    }
+  ]
+}

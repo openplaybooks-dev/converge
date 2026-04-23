@@ -1,0 +1,249 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/012-invite-accept/012-05-split/005-split-StatusIndicator-missing-output-lib/screens/invite_accept/widgets/status_indicator.dart",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/012-invite-accept/012-05-split/005-split-StatusIndicator",
+            "severity": "high",
+            "description": "[03-build-screens/012-invite-accept/012-05-split/005-split-StatusIndicator] Task output not created: lib/screens/invite_accept/widgets/status_indicator.dart",
+            "source": "unit",
+            "detected": "2026-04-22T14:34:39.204Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-05-split/tasks/005-split-StatusIndicator",
+              "taskId": "03-build-screens/012-invite-accept/012-05-split/005-split-StatusIndicator",
+              "taskTitle": "Split: StatusIndicator",
+              "taskPrompt": "# Split: StatusIndicator\n\nExtract the `StatusIndicator` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/invite_accept/invite_accept_screen.dart` using grep string: `// Status Indicator`\n2. **Create file** — Write `lib/screens/invite_accept/widgets/status_indicator.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `StatusIndicator()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass StatusIndicator extends StatelessWidget {\n  const StatusIndicator({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskInputs": [
+                "lib/screens/invite_accept/invite_accept_screen.dart"
+              ],
+              "factId": "file-exists:test -f \"lib/screens/invite_accept/widgets/status_indicator.dart\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-build-screens/012-invite-accept/012-05-split/005-split-StatusIndicator-check-failed-widget-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/012-invite-accept/012-05-split/005-split-StatusIndicator",
+            "severity": "high",
+            "description": "[03-build-screens/012-invite-accept/012-05-split/005-split-StatusIndicator] Check failed: Widget file exists",
+            "source": "unit",
+            "detected": "2026-04-22T14:34:39.206Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "widget-exists",
+              "checkCmd": "test -f lib/screens/invite_accept/widgets/status_indicator.dart",
+              "checkDescription": "Widget file exists",
+              "checkOutput": "Command failed: test -f lib/screens/invite_accept/widgets/status_indicator.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Split: StatusIndicator\n\nExtract the `StatusIndicator` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/invite_accept/invite_accept_screen.dart` using grep string: `// Status Indicator`\n2. **Create file** — Write `lib/screens/invite_accept/widgets/status_indicator.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `StatusIndicator()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass StatusIndicator extends StatelessWidget {\n  const StatusIndicator({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskId": "03-build-screens/012-invite-accept/012-05-split/005-split-StatusIndicator",
+              "taskTitle": "Split: StatusIndicator",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-05-split/tasks/005-split-StatusIndicator",
+              "factId": "check:widget-exists"
+            }
+          },
+          {
+            "id": "03-build-screens/012-invite-accept/012-05-split/005-split-StatusIndicator-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/012-invite-accept/012-05-split/005-split-StatusIndicator",
+            "severity": "high",
+            "description": "[03-build-screens/012-invite-accept/012-05-split/005-split-StatusIndicator] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-22T14:34:39.230Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "dart analyze lib/screens/invite_accept/widgets/status_indicator.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "Directory or file doesn't exist: lib/screens/invite_accept/widgets/status_indicator.dart\n\nUsage: dart analyze [arguments] [<directory>]\n-h, --help                   Print this usage information.\n    --fatal-infos            Treat info level issues as fatal.\n    --[no-]fatal-warnings    Treat warning level issues as fatal.\n                             (defaults to on)\n\nRun \"dart help\" to see global options.",
+              "checkExitCode": 64,
+              "taskPrompt": "# Split: StatusIndicator\n\nExtract the `StatusIndicator` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/invite_accept/invite_accept_screen.dart` using grep string: `// Status Indicator`\n2. **Create file** — Write `lib/screens/invite_accept/widgets/status_indicator.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `StatusIndicator()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass StatusIndicator extends StatelessWidget {\n  const StatusIndicator({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskId": "03-build-screens/012-invite-accept/012-05-split/005-split-StatusIndicator",
+              "taskTitle": "Split: StatusIndicator",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-05-split/tasks/005-split-StatusIndicator",
+              "factId": "check:dart-valid"
+            }
+          }
+        ],
+        "durationMs": 32
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 30
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 2742
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#36",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 282814
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-22T14:34:39.198Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-22T14:34:39.198Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-22T14:34:39.230Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-22T14:34:39.231Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-22T14:34:39.261Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#36",
+      "iteration": 1,
+      "ts": "2026-04-22T14:39:22.076Z"
+    },
+    {
+      "from": "run-strategy:task-run#36",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-22T14:39:24.820Z"
+    }
+  ]
+}

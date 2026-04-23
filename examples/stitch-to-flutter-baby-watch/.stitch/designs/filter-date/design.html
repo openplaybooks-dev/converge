@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=375, initial-scale=1.0" />
+  <title>Filter Date — BabyGuard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f5f4ee",
+            "surface-bright": "#F4F2EE",
+            "surface": "#fbf9f5",
+            "on-surface": "#31332e",
+            "on-surface-variant": "#5e6059",
+            "secondary": "#4f635e",
+            "primary": "#5e5e5e",
+            "on-primary": "#f8f8f8"
+          },
+          borderRadius: {
+            "lg": "1.75rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Manrope"],
+            "label": ["Manrope"]
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body { font-family: 'Manrope', sans-serif; background: transparent; }
+
+    /* Flutter HTML Glossary overrides */
+    .bottom-sheet { @apply fixed inset-0 z-50 flex items-end justify-center; }
+    .drag-handle { @apply w-10 h-1 bg-[#e2e3db] rounded-full mx-auto mb-6; }
+    .column { @apply flex flex-col; }
+    .row { @apply flex flex-row; }
+    .card { @apply bg-white rounded-t-2xl p-6 pb-8 shadow-2xl; }
+    .title-large { @apply text-xl font-bold text-[#31332e] text-center; }
+    .label-small { @apply text-xs font-bold tracking-wider text-[#5e6059] uppercase; }
+    .filled-btn { @apply w-full py-4 font-bold rounded-full transition-all; }
+    .chip { @apply px-4 py-2 text-sm font-bold rounded-full whitespace-nowrap; }
+    .text-btn { @apply w-full py-4 bg-[#f5f4ee] text-[#31332e] font-bold rounded-full hover:bg-[#efeee8] transition-all; }
+    [data-bg="surface"] { @apply bg-white; }
+    [data-bg="surface-container-low"] { @apply bg-[#f5f4ee]; }
+    [data-bg="on-surface"] { @apply text-[#31332e]; }
+    [data-color="on-surface-variant"] { @apply text-[#5e6059]; }
+    [data-color="on-surface"] { @apply text-[#31332e]; }
+    [data-color="on-primary"] { @apply text-white; }
+    [data-p="lg"] { @apply p-6; }
+    [data-pb="xl"] { @apply pb-8; }
+    [data-px="md"] { @apply px-4; }
+    [data-py="md"] { @apply py-3; }
+    [data-spacing="md"] { @apply gap-4; }
+    input[type="date"] { @apply w-full bg-[#f5f4ee] text-[#31332e] px-4 py-3 rounded-xl border border-[#E7E3DC] focus:border-[#4f635e] outline-none; }
+    .overflow-auto { @apply overflow-x-auto pb-2; }
+  </style>
+</head>
+<body>
+  <div class="bottom-sheet">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+
+    <!-- Sheet -->
+    <div class="column card" data-bg="surface" data-p="lg" data-pb="xl" style="max-width: 420px; margin: 0 auto;">
+      <!-- Handle -->
+      <div class="drag-handle"></div>
+
+      <!-- Title -->
+      <h2 class="title-large" data-color="on-surface" style="margin-bottom: 1.5rem;">Lọc theo ngày</h2>
+
+      <!-- Date Range -->
+      <div class="row" data-spacing="md" style="margin-bottom: 1.5rem;">
+        <div class="column" style="flex: 1; gap: 0.5rem;">
+          <label class="label-small">Từ ngày</label>
+          <input type="date" data-bg="surface-container-low" data-px="md" data-py="md" />
+        </div>
+        <div class="column" style="flex: 1; gap: 0.5rem;">
+          <label class="label-small">Đến ngày</label>
+          <input type="date" data-bg="surface-container-low" data-px="md" data-py="md" />
+        </div>
+      </div>
+
+      <!-- Quick Filters -->
+      <div class="row overflow-auto" data-spacing="md" style="margin-bottom: 1.5rem;">
+        <button class="chip" data-bg="on-surface" data-color="on-primary">Hôm nay</button>
+        <button class="chip" data-bg="surface-container-low" data-color="on-surface-variant">Hôm qua</button>
+        <button class="chip" data-bg="surface-container-low" data-color="on-surface-variant">7 ngày qua</button>
+        <button class="chip" data-bg="surface-container-low" data-color="on-surface-variant">30 ngày qua</button>
+      </div>
+
+      <!-- Actions -->
+      <div class="column" data-spacing="md">
+        <button class="filled-btn" data-bg="on-surface" data-color="on-primary">Áp dụng</button>
+        <button class="text-btn">Đặt lại</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=375, initial-scale=1.0" />
+  <title>Settings — BabyGuard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f5f4ee",
+            "surface-container": "#efeee8",
+            "surface-container-high": "#e8e9e1",
+            "surface-container-highest": "#e2e3db",
+            "surface-bright": "#fbf9f5",
+            "surface": "#fbf9f5",
+            "on-surface": "#31332e",
+            "on-surface-variant": "#5e6059",
+            "secondary": "#5e5f5f",
+            "on-secondary": "#faf8f8",
+            "tertiary": "#4f635e",
+            "tertiary-container": "#dff6ee",
+            "on-tertiary": "#e8fef7",
+            "on-tertiary-container": "#4a5e59",
+            "primary": "#5e5e5e",
+            "on-primary": "#f8f8f8",
+            "error": "#9e422c",
+            "error-container": "#fe8b70",
+            "on-error": "#fff7f6",
+            "outline-variant": "#b1b3ab",
+            "outline": "#797b75"
+          },
+          borderRadius: {
+            "DEFAULT": "1rem",
+            "lg": "2rem",
+            "xl": "3rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Manrope"],
+            "label": ["Manrope"]
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body { font-family: 'Manrope', sans-serif; background-color: #fbf9f5; }
+    h1, h2, h3 { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div data-flutter="scaffold" class="scaffold" class="flex flex-col min-h-screen bg-[#fbf9f5]" data-color="surface">
+
+      <!-- AppBar -->
+      <header data-flutter="app-bar" class="w-full top-0 sticky z-50 bg-[#fbf9f5]">
+        <div class="flex items-center justify-between px-6 py-4">
+          <div class="flex items-center gap-4">
+            <button aria-label="Back" class="hover:bg-[#f5f4ee] transition-colors p-2 rounded-full scale-95 active:opacity-80">
+              <span class="material-symbols-outlined text-[#31332e]">arrow_back</span>
+            </button>
+            <h1 class="text-xl font-bold tracking-tight text-[#31332e]">Settings</h1>
+          </div>
+          <button aria-label="More options" class="hover:bg-[#f5f4ee] transition-colors p-2 rounded-full scale-95 active:opacity-80">
+            <span class="material-symbols-outlined text-[#31332e]">more_vert</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Body -->
+      <main class="flex-1 overflow-y-auto px-6 pb-32 space-y-10 pt-4 max-w-2xl mx-auto">
+
+        <!-- Profile Section -->
+        <section class="flex items-center gap-6 mb-12">
+          <div class="relative">
+            <div class="w-24 h-24 rounded-xl overflow-hidden bg-[#e8e9e1] ring-4 ring-white shadow-sm">
+              <img alt="Elena Fisher" class="w-full h-full object-cover" src="https://picsum.photos/seed/profile1/200/200" />
+            </div>
+            <div class="absolute -bottom-1 -right-1 bg-[#31332e] text-white rounded-full p-1.5 shadow-md">
+              <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+            </div>
+          </div>
+          <div>
+            <h2 class="text-3xl font-extrabold tracking-tight text-[#31332e] leading-tight">Elena Fisher</h2>
+            <div class="inline-flex items-center gap-1.5 mt-1 text-[#5e6059]">
+              <span class="material-symbols-outlined text-sm">workspace_premium</span>
+              <span class="text-sm font-semibold tracking-wide">Premium Guardian Plan</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Alert Settings Card -->
+        <section class="space-y-4">
+          <label class="text-xs font-bold tracking-[0.1em] text-[#5e6059] uppercase ml-2">Alert Settings</label>
+          <div class="bg-white p-6 rounded-xl shadow-[0_8px_24px_rgba(231,227,220,0.4)] space-y-8">
+            <div class="space-y-3">
+              <div class="flex justify-between items-center">
+                <span class="text-[13px] font-bold tracking-wider text-[#5e6059]">TIMEOUT INTERVAL</span>
+                <span class="text-xs text-[#4f635e] font-bold px-2 py-0.5 bg-[#dff6ee] rounded-full">Recommended</span>
+              </div>
+              <div class="grid grid-cols-3 gap-2 bg-[#efeee8] p-1 rounded-full">
+                <button class="bg-white text-[#31332e] shadow-sm py-2.5 rounded-full text-xs font-bold transition-all">2 min</button>
+                <button class="text-[#5e6059] hover:bg-[#e2e3db]/50 py-2.5 rounded-full text-xs font-bold transition-all">5 min</button>
+                <button class="text-[#5e6059] hover:bg-[#e2e3db]/50 py-2.5 rounded-full text-xs font-bold transition-all">10 min</button>
+              </div>
+            </div>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                  <div class="w-10 h-10 rounded-full bg-[#efeee8] flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[#5e6059]">volume_up</span>
+                  </div>
+                  <span class="font-semibold text-[#31332e]">Audio Alert</span>
+                </div>
+                <button aria-label="Toggle audio alert" class="w-12 h-6 bg-[#31332e] rounded-full flex items-center justify-end px-1">
+                  <div class="w-4 h-4 bg-white rounded-full"></div>
+                </button>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                  <div class="w-10 h-10 rounded-full bg-[#efeee8] flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[#5e6059]">vibration</span>
+                  </div>
+                  <span class="font-semibold text-[#31332e]">Vibration</span>
+                </div>
+                <button aria-label="Toggle vibration" class="w-12 h-6 bg-[#31332e] rounded-full flex items-center justify-end px-1">
+                  <div class="w-4 h-4 bg-white rounded-full"></div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Beacon Setup Card -->
+        <section class="space-y-4">
+          <label class="text-xs font-bold tracking-[0.1em] text-[#5e6059] uppercase ml-2">Beacon Setup</label>
+          <div class="bg-white p-6 rounded-xl shadow-[0_8px_24px_rgba(231,227,220,0.4)] space-y-8">
+            <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                <span class="text-[13px] font-bold tracking-wider text-[#5e6059]">RSSI THRESHOLD</span>
+                <span class="text-[13px] font-extrabold text-[#31332e]">-75 dBm</span>
+              </div>
+              <div class="relative w-full h-2 bg-[#efeee8] rounded-full overflow-hidden">
+                <div class="absolute h-full w-[65%] bg-[#31332e] rounded-full"></div>
+              </div>
+              <p class="text-[11px] text-[#5e6059] leading-relaxed">Adjust the sensitivity of proximity detection. A lower dBm value requires the device to be closer.</p>
+            </div>
+            <div class="flex items-center justify-between bg-[#f5f4ee] p-4 rounded-lg">
+              <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-[#5e6059]">history_toggle_off</span>
+                <span class="font-semibold text-[#31332e]">SCAN INTERVAL</span>
+              </div>
+              <div class="flex items-center gap-1 text-[#5e6059] font-bold text-sm">
+                <span>15 seconds</span>
+                <span class="material-symbols-outlined text-lg">unfold_more</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Mute Notifications -->
+        <section class="space-y-4">
+          <label class="text-xs font-bold tracking-[0.1em] text-[#5e6059] uppercase ml-2">Mute Notifications</label>
+          <div class="flex items-center gap-3 overflow-x-auto">
+            <button class="flex items-center gap-2 bg-[#31332e] text-white px-5 py-3 rounded-full shadow-md shrink-0 transition-transform active:scale-95">
+              <span class="material-symbols-outlined text-sm">schedule</span>
+              <span class="text-xs font-bold">5 min</span>
+            </button>
+            <button class="flex items-center gap-2 bg-[#e2e3db] text-[#5e6059] px-5 py-3 rounded-full shrink-0 hover:bg-[#e2e3db]/80 transition-colors">
+              <span class="material-symbols-outlined text-sm">schedule</span>
+              <span class="text-xs font-bold">10 min</span>
+            </button>
+            <button class="flex items-center gap-2 bg-[#e2e3db] text-[#5e6059] px-5 py-3 rounded-full shrink-0 hover:bg-[#e2e3db]/80 transition-colors">
+              <span class="material-symbols-outlined text-sm">schedule</span>
+              <span class="text-xs font-bold">15 min</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- General Section -->
+        <section class="space-y-4">
+          <label class="text-xs font-bold tracking-[0.1em] text-[#5e6059] uppercase ml-2">General</label>
+          <div class="bg-white p-2 rounded-xl shadow-[0_8px_24px_rgba(231,227,220,0.4)]">
+            <button class="w-full flex items-center justify-between p-4 hover:bg-[#efeee8] transition-colors rounded-lg group">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-full bg-[#efeee8] group-hover:bg-[#f5f4ee] flex items-center justify-center transition-colors">
+                  <span class="material-symbols-outlined text-[#5e6059]">security</span>
+                </div>
+                <span class="font-semibold text-[#31332e]">System Permissions</span>
+              </div>
+              <span class="material-symbols-outlined text-[#5e6059]">chevron_right</span>
+            </button>
+            <div class="flex items-center justify-between p-4">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-full bg-[#efeee8] flex items-center justify-center">
+                  <span class="material-symbols-outlined text-[#5e6059]">do_not_disturb_on</span>
+                </div>
+                <span class="font-semibold text-[#31332e]">Do Not Disturb</span>
+              </div>
+              <button aria-label="Toggle do not disturb" class="w-12 h-6 bg-[#e2e3db] rounded-full flex items-center justify-start px-1">
+                <div class="w-4 h-4 bg-white rounded-full shadow-sm"></div>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Sign Out -->
+        <div class="pt-8">
+          <button class="w-full flex items-center justify-center gap-3 py-4 text-[#9e422c] font-bold bg-[#fe8b70]/10 rounded-full hover:bg-[#fe8b70]/20 transition-all active:scale-95">
+            <span class="material-symbols-outlined">logout</span>
+            Sign Out
+          </button>
+        </div>
+
+      </main>
+
+      <!-- Bottom Nav -->
+      <nav data-flutter="bottom-nav" class="fixed bottom-0 w-full z-50 pb-safe bg-white/90 backdrop-blur-xl border-t border-black/5 shadow-2xl">
+        <div class="flex justify-around items-center h-20 px-4 max-w-lg mx-auto">
+          <button data-flutter="nav-destination" data-icon="home" data-label="Trang chủ" class="flex flex-col items-center justify-center text-[#5e6059]/60">
+            <span class="material-symbols-outlined text-[26px]">home</span>
+            <span class="text-[10px] font-bold mt-1">Trang chủ</span>
+          </button>
+          <button data-flutter="nav-destination" data-icon="devices" data-label="Thiết bị" class="flex flex-col items-center justify-center text-[#5e6059]/60">
+            <span class="material-symbols-outlined text-[26px]">devices</span>
+            <span class="text-[10px] font-bold mt-1">Thiết bị</span>
+          </button>
+          <button data-flutter="nav-destination" data-icon="security" data-label="An toàn" class="flex flex-col items-center justify-center text-[#5e6059]/60">
+            <span class="material-symbols-outlined text-[26px]">security</span>
+            <span class="text-[10px] font-bold mt-1">An toàn</span>
+          </button>
+          <button data-flutter="nav-destination" data-icon="settings" data-label="Cài đặt" data-selected="true" class="flex flex-col items-center justify-center text-[#5e5e5e]">
+            <span class="material-symbols-outlined text-[26px]" style="font-variation-settings: 'FILL' 1;">settings</span>
+            <span class="text-[10px] font-bold mt-1">Cài đặt</span>
+          </button>
+        </div>
+      </nav>
+
+    </div>
+  </div>
+</body>
+</html>

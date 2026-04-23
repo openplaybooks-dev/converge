@@ -1,0 +1,4 @@
+{"name": "AvatarSection", "grep": "Container(\\n              width: 96,\\n              height: 96,\\n              decoration: BoxDecoration(", "description": "Beacon avatar circle with icon and change button", "shared": false}
+{"name": "MajorMinorRow", "grep": "Row(\\n              children: [\\n                Expanded(\\n                  child: Column(", "description": "Two-column row for Major and Minor field inputs", "shared": true}
+{"name": "TxPowerField", "grep": "TextField(\\n                controller: _txPowerController", "description": "TX Power input field with helper text", "shared": true}
+{"name": "DeleteButton", "grep": "SizedBox(\\n              width: double.infinity,\\n              child: TextButton(\\n                onPressed: () {},\\n                style: TextButton.styleFrom(\\n                  foregroundColor: colorScheme.error", "description": "Delete beacon button with icon", "shared": false}

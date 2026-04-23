@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "05-add-behavior/003-create-mock-data",
+  "status": "complete",
+  "lastUpdated": "2026-04-22T15:17:27.896Z",
+  "createdAt": "2026-04-22T15:01:32.280Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-22T15:01:32.280Z",
+      "completedAt": "2026-04-22T15:16:27.888Z",
+      "outcome": "failed",
+      "durationMs": 895608
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-22T15:16:28.072Z",
+      "completedAt": "2026-04-22T15:17:27.889Z",
+      "outcome": "success",
+      "durationMs": 59817
+    }
+  ],
+  "currentAttempt": 2
+}

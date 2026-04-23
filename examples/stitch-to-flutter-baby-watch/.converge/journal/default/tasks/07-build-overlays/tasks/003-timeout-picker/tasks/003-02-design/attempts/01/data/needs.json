@@ -1,0 +1,32 @@
+{
+  "taskId": "07-build-overlays/003-timeout-picker/003-02-design",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/timeout-picker/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/timeout-picker/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/META.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/META.md"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/timeout-picker/META.md",
+    ".stitch/designs/timeout-picker/design.html"
+  ],
+  "blocked": false
+}

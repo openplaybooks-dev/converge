@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=375, initial-scale=1.0" />
+  <title>Safe Zones — BabyGuard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f5f4ee",
+            "surface-container": "#efeee8",
+            "surface-container-high": "#e8e9e1",
+            "surface-container-highest": "#e2e3db",
+            "surface-bright": "#fbf9f5",
+            "surface": "#fbf9f5",
+            "on-surface": "#31332e",
+            "on-surface-variant": "#5e6059",
+            "secondary": "#4f635e",
+            "on-secondary": "#faf7f6",
+            "secondary-container": "#CDE3DC",
+            "on-secondary-container": "#00391C",
+            "tertiary": "#4f635e",
+            "tertiary-container": "#dff6ee",
+            "on-tertiary": "#e8fef7",
+            "on-tertiary-container": "#4a5e59",
+            "primary": "#5f5e5e",
+            "on-primary": "#faf7f6",
+            "tertiary-fixed": "#dff6ee",
+            "tertiary-fixed-dim": "#d1e7e0",
+            "error": "#9f403d",
+            "outline-variant": "#b1b3ab",
+            "outline": "#797b75"
+          },
+          borderRadius: {
+            "DEFAULT": "1rem",
+            "lg": "2rem",
+            "xl": "3rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Manrope"],
+            "label": ["Manrope"]
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body { font-family: 'Manrope', sans-serif; background-color: #E8E8E8; }
+    h1, h2, h3 { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div data-flutter="scaffold" class="scaffold" data-color="surface">
+
+      <!-- AppBar -->
+      <header data-flutter="app-bar" class="fixed top-0 z-40 w-full bg-[#fbf9f5] flex justify-between items-center px-6 py-4 border-b border-[#E7E3DC]/20">
+        <div class="flex items-center gap-4">
+          <button aria-label="Menu" class="hover:bg-[#f5f4ee] transition-colors p-2 rounded-full scale-95 active:scale-90">
+            <span class="material-symbols-outlined text-[#31332e]">menu</span>
+          </button>
+        </div>
+        <h1 class="font-bold tracking-tight text-xl text-[#31332e]">Safe Zones</h1>
+        <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-[#e2e3db]">
+          <img alt="Profile" class="w-full h-full object-cover" src="https://picsum.photos/seed/parent3/100/100" />
+        </div>
+      </header>
+
+      <!-- Body -->
+      <main class="flex-1 overflow-y-auto pt-24 pb-36 px-6 max-w-2xl mx-auto space-y-10">
+
+        <!-- Hero Section -->
+        <section class="space-y-4">
+          <span class="font-label text-[#5e6059] tracking-widest text-[10px] uppercase font-bold">Guardian Overlook</span>
+          <h2 class="text-4xl font-extrabold tracking-tight text-[#31332e] leading-tight">
+            Peace of mind, <br/>defined by boundaries.
+          </h2>
+        </section>
+
+        <!-- Mini Map Card -->
+        <section class="relative group">
+          <div class="bg-white rounded-xl overflow-hidden shadow-[0_8px_24px_rgba(231,227,220,0.4)] transition-transform duration-500 hover:scale-[1.01]">
+            <div class="relative h-64 w-full bg-[#efeee8]">
+              <img class="w-full h-full object-cover opacity-60 grayscale-[0.3]" alt="Map" src="https://picsum.photos/seed/map2/400/300" />
+              <!-- Safe Zone Circles -->
+              <div class="absolute inset-0 flex items-center justify-center">
+                <div class="relative w-48 h-48">
+                  <div class="absolute top-0 left-0 w-32 h-32 bg-[#4f635e]/20 border-2 border-[#4f635e] rounded-full animate-pulse"></div>
+                  <div class="absolute bottom-4 right-0 w-28 h-28 bg-[#5f5e5e]/10 border-2 border-[#5f5e5e]/30 rounded-full"></div>
+                  <div class="absolute top-10 right-4 w-24 h-24 bg-[#dff6ee]/40 border-2 border-[#435752] rounded-full"></div>
+                  <!-- Baby Marker -->
+                  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+                    <div class="w-10 h-10 bg-[#31332e] rounded-full p-1 shadow-xl">
+                      <img class="w-full h-full object-cover rounded-full" alt="Baby" src="https://picsum.photos/seed/baby1/100/100" />
+                    </div>
+                    <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#31332e] rotate-45"></div>
+                  </div>
+                </div>
+              </div>
+              <!-- Glassmorphism Overlay -->
+              <div class="absolute bottom-4 left-4 right-4 bg-white/80 backdrop-blur-xl p-4 rounded-lg flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <span class="material-symbols-outlined text-[#4f635e]" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                  <div>
+                    <p class="text-[12px] font-bold text-[#31332e]">Tracking Active</p>
+                    <p class="text-[10px] text-[#5e6059]">3 Active Zones Monitored</p>
+                  </div>
+                </div>
+                <span class="text-[10px] font-bold py-1 px-3 bg-[#dff6ee] text-[#4f635e] rounded-full">LIVE</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Safe Zone List -->
+        <section class="space-y-6">
+          <div class="flex items-end justify-between px-2">
+            <h3 class="text-2xl font-bold tracking-tight text-[#31332e]">Active Zones</h3>
+            <span class="text-[#5e6059] text-xs">Scroll to explore</span>
+          </div>
+          <div class="space-y-4">
+
+            <!-- Zone Card 1: Home - Active -->
+            <div class="bg-white p-6 rounded-xl flex items-center justify-between shadow-[0_4px_12px_rgba(231,227,220,0.2)] hover:shadow-[0_8px_24px_rgba(231,227,220,0.3)] transition-all">
+              <div class="flex gap-4 items-center">
+                <div class="w-12 h-12 bg-[#f5f4ee] rounded-full flex items-center justify-center">
+                  <span class="material-symbols-outlined text-[#31332e]">home</span>
+                </div>
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2">
+                    <h4 class="font-bold text-lg text-[#31332e]">Home</h4>
+                    <span class="bg-[#dff6ee] text-[#4f635e] text-[10px] font-bold px-2 py-0.5 rounded-full">200m</span>
+                  </div>
+                  <p class="text-[#5e6059] text-sm max-w-[180px] truncate">123 Calm Valley Street, Serenity District</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-4">
+                <button aria-label="Toggle zone" class="w-12 h-6 bg-[#4f635e] rounded-full relative flex items-center transition-colors">
+                  <div class="w-4 h-4 bg-white rounded-full absolute right-1"></div>
+                </button>
+                <button aria-label="Edit zone" class="text-[#b1b3ab] hover:text-[#31332e] transition-colors">
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Zone Card 2: School - Active -->
+            <div class="bg-white p-6 rounded-xl flex items-center justify-between shadow-[0_4px_12px_rgba(231,227,220,0.2)] hover:shadow-[0_8px_24px_rgba(231,227,220,0.3)] transition-all">
+              <div class="flex gap-4 items-center">
+                <div class="w-12 h-12 bg-[#f5f4ee] rounded-full flex items-center justify-center">
+                  <span class="material-symbols-outlined text-[#31332e]">school</span>
+                </div>
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2">
+                    <h4 class="font-bold text-lg text-[#31332e]">School</h4>
+                    <span class="bg-[#dff6ee] text-[#4f635e] text-[10px] font-bold px-2 py-0.5 rounded-full">500m</span>
+                  </div>
+                  <p class="text-[#5e6059] text-sm max-w-[180px] truncate">456 Bright Minds Academy, Knowledge Ave</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-4">
+                <button aria-label="Toggle zone" class="w-12 h-6 bg-[#4f635e] rounded-full relative flex items-center transition-colors">
+                  <div class="w-4 h-4 bg-white rounded-full absolute right-1"></div>
+                </button>
+                <button aria-label="Edit zone" class="text-[#b1b3ab] hover:text-[#31332e] transition-colors">
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Zone Card 3: Grandma's - Inactive -->
+            <div class="bg-white p-6 rounded-xl flex items-center justify-between shadow-[0_4px_12px_rgba(231,227,220,0.2)] hover:shadow-[0_8px_24px_rgba(231,227,220,0.3)] transition-all">
+              <div class="flex gap-4 items-center">
+                <div class="w-12 h-12 bg-[#f5f4ee] rounded-full flex items-center justify-center">
+                  <span class="material-symbols-outlined text-[#31332e]">favorite</span>
+                </div>
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2">
+                    <h4 class="font-bold text-lg text-[#31332e]">Grandma's House</h4>
+                    <span class="bg-[#e2e3db] text-[#5e6059] text-[10px] font-bold px-2 py-0.5 rounded-full">150m</span>
+                  </div>
+                  <p class="text-[#5e6059] text-sm max-w-[180px] truncate">789 Orchard Grove, Heritage Park</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-4">
+                <button aria-label="Toggle zone" class="w-12 h-6 bg-[#b1b3ab] rounded-full relative flex items-center transition-colors">
+                  <div class="w-4 h-4 bg-white rounded-full absolute left-1"></div>
+                </button>
+                <button aria-label="Edit zone" class="text-[#b1b3ab] hover:text-[#31332e] transition-colors">
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Insights Preview -->
+        <section class="grid grid-cols-2 gap-4 pb-12">
+          <div class="bg-[#f5f4ee] p-6 rounded-xl space-y-2">
+            <span class="material-symbols-outlined text-[#5e6059]">notifications_active</span>
+            <p class="font-bold text-xl leading-tight text-[#31332e]">24 Alerts</p>
+            <p class="text-[#5e6059] text-xs">This week's entry/exit events</p>
+          </div>
+          <div class="bg-[#dff6ee] p-6 rounded-xl space-y-2">
+            <span class="material-symbols-outlined text-[#4f635e]" style="font-variation-settings: 'FILL' 1;">battery_full</span>
+            <p class="font-bold text-xl leading-tight text-[#4f635e]">98% Secure</p>
+            <p class="text-[#4a5e59] text-xs">Optimal zone coverage</p>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- FAB -->
+      <button data-flutter="fab" aria-label="Add safe zone" class="fixed bottom-32 right-6 z-50 bg-[#31332e] text-white flex items-center gap-3 px-6 py-4 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all">
+        <span class="material-symbols-outlined">add</span>
+        <span class="font-bold text-sm tracking-wide">Thêm vùng an toàn</span>
+      </button>
+
+      <!-- Bottom Nav -->
+      <nav data-flutter="bottom-nav" class="fixed bottom-0 w-full z-50 pb-safe bg-white/90 backdrop-blur-xl border-t border-black/5 shadow-2xl">
+        <div class="flex justify-around items-center h-20 px-4 max-w-lg mx-auto">
+          <button data-flutter="nav-destination" data-icon="home" data-label="Trang chủ" class="flex flex-col items-center justify-center text-[#5e6059]/60">
+            <span class="material-symbols-outlined text-[26px]">home</span>
+            <span class="text-[10px] font-bold mt-1">Trang chủ</span>
+          </button>
+          <button data-flutter="nav-destination" data-icon="devices" data-label="Thiết bị" class="flex flex-col items-center justify-center text-[#5e6059]/60">
+            <span class="material-symbols-outlined text-[26px]">devices</span>
+            <span class="text-[10px] font-bold mt-1">Thiết bị</span>
+          </button>
+          <button data-flutter="nav-destination" data-icon="security" data-label="An toàn" data-selected="true" class="flex flex-col items-center justify-center text-[#4f635e]">
+            <span class="material-symbols-outlined text-[26px]" style="font-variation-settings: 'FILL' 1;">security</span>
+            <span class="text-[10px] font-bold mt-1">An toàn</span>
+          </button>
+          <button data-flutter="nav-destination" data-icon="settings" data-label="Cài đặt" class="flex flex-col items-center justify-center text-[#5e6059]/60">
+            <span class="material-symbols-outlined text-[26px]">settings</span>
+            <span class="text-[10px] font-bold mt-1">Cài đặt</span>
+          </button>
+        </div>
+      </nav>
+
+    </div>
+  </div>
+</body>
+</html>

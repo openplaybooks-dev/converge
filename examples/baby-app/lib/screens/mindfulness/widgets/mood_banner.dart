@@ -15,6 +15,7 @@ class MoodBanner extends StatelessWidget {
       label: 'Mood check-in: How are you feeling today? Tap to log mood',
       button: true,
       child: GestureDetector(
+// @converge:element MoodBanner-onTap-1
         onTap: () => context.push('/mood'),
         child: DecoratedBox(
           decoration: BoxDecoration(

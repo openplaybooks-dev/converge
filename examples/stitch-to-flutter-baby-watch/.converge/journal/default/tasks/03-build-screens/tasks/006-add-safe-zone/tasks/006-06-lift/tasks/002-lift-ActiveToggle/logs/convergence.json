@@ -1,0 +1,246 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/006-add-safe-zone/006-06-lift/002-lift-ActiveToggle-missing-output-lib/widgets/active_toggle.dart",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/006-add-safe-zone/006-06-lift/002-lift-ActiveToggle",
+            "severity": "high",
+            "description": "[03-build-screens/006-add-safe-zone/006-06-lift/002-lift-ActiveToggle] Task output not created: lib/widgets/active_toggle.dart",
+            "source": "unit",
+            "detected": "2026-04-21T16:33:16.043Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/006-add-safe-zone/tasks/006-06-lift/tasks/002-lift-ActiveToggle",
+              "taskId": "03-build-screens/006-add-safe-zone/006-06-lift/002-lift-ActiveToggle",
+              "taskTitle": "Lift: ActiveToggle",
+              "taskPrompt": "# Lift: ActiveToggle\n\nMove `ActiveToggle` from local screen widgets to the shared widgets directory.\n\n## Steps\n\n1. **Move file** — `lib/screens/add_safe_zone/widgets/active_toggle.dart` → `lib/widgets/active_toggle.dart`\n2. **Update package import** — Change relative import to package import: `package:folio/widgets/active_toggle.dart`\n3. **Update all references** — Find all files importing the old path and update them\n4. **Verify** — Run `dart analyze` on affected files",
+              "factId": "file-exists:test -f \"lib/widgets/active_toggle.dart\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-build-screens/006-add-safe-zone/006-06-lift/002-lift-ActiveToggle-check-failed-widget-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/006-add-safe-zone/006-06-lift/002-lift-ActiveToggle",
+            "severity": "high",
+            "description": "[03-build-screens/006-add-safe-zone/006-06-lift/002-lift-ActiveToggle] Check failed: Shared widget file exists",
+            "source": "unit",
+            "detected": "2026-04-21T16:33:16.045Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "widget-exists",
+              "checkCmd": "test -f lib/widgets/active_toggle.dart",
+              "checkDescription": "Shared widget file exists",
+              "checkOutput": "Command failed: test -f lib/widgets/active_toggle.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Lift: ActiveToggle\n\nMove `ActiveToggle` from local screen widgets to the shared widgets directory.\n\n## Steps\n\n1. **Move file** — `lib/screens/add_safe_zone/widgets/active_toggle.dart` → `lib/widgets/active_toggle.dart`\n2. **Update package import** — Change relative import to package import: `package:folio/widgets/active_toggle.dart`\n3. **Update all references** — Find all files importing the old path and update them\n4. **Verify** — Run `dart analyze` on affected files",
+              "taskId": "03-build-screens/006-add-safe-zone/006-06-lift/002-lift-ActiveToggle",
+              "taskTitle": "Lift: ActiveToggle",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/006-add-safe-zone/tasks/006-06-lift/tasks/002-lift-ActiveToggle",
+              "factId": "check:widget-exists"
+            }
+          },
+          {
+            "id": "03-build-screens/006-add-safe-zone/006-06-lift/002-lift-ActiveToggle-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/006-add-safe-zone/006-06-lift/002-lift-ActiveToggle",
+            "severity": "high",
+            "description": "[03-build-screens/006-add-safe-zone/006-06-lift/002-lift-ActiveToggle] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-21T16:33:16.085Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "dart analyze lib/widgets/active_toggle.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "Directory or file doesn't exist: lib/widgets/active_toggle.dart\n\nUsage: dart analyze [arguments] [<directory>]\n-h, --help                   Print this usage information.\n    --fatal-infos            Treat info level issues as fatal.\n    --[no-]fatal-warnings    Treat warning level issues as fatal.\n                             (defaults to on)\n\nRun \"dart help\" to see global options.",
+              "checkExitCode": 64,
+              "taskPrompt": "# Lift: ActiveToggle\n\nMove `ActiveToggle` from local screen widgets to the shared widgets directory.\n\n## Steps\n\n1. **Move file** — `lib/screens/add_safe_zone/widgets/active_toggle.dart` → `lib/widgets/active_toggle.dart`\n2. **Update package import** — Change relative import to package import: `package:folio/widgets/active_toggle.dart`\n3. **Update all references** — Find all files importing the old path and update them\n4. **Verify** — Run `dart analyze` on affected files",
+              "taskId": "03-build-screens/006-add-safe-zone/006-06-lift/002-lift-ActiveToggle",
+              "taskTitle": "Lift: ActiveToggle",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/006-add-safe-zone/tasks/006-06-lift/tasks/002-lift-ActiveToggle",
+              "factId": "check:dart-valid"
+            }
+          }
+        ],
+        "durationMs": 46
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 32
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 2533
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#77",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 112741
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-21T16:33:16.039Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-21T16:33:16.039Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-21T16:33:16.085Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-21T16:33:16.087Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-21T16:33:16.119Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#77",
+      "iteration": 1,
+      "ts": "2026-04-21T16:35:08.861Z"
+    },
+    {
+      "from": "run-strategy:task-run#77",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-21T16:35:11.396Z"
+    }
+  ]
+}

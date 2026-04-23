@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/006-add-safe-zone/006-05-split/003-split-AddressField",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/add_safe_zone/add_safe_zone_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/add_safe_zone/add_safe_zone_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/add_safe_zone/widgets/address_field.dart"
+  ],
+  "blocked": false
+}

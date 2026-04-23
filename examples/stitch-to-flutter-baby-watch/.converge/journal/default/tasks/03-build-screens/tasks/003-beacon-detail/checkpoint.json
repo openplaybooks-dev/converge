@@ -1,0 +1,21 @@
+{
+  "type": "task",
+  "id": "03-build-screens/003-beacon-detail",
+  "status": "pending",
+  "lastUpdated": "2026-04-23T12:25:07.343Z",
+  "createdAt": "2026-04-23T10:56:56.367Z",
+  "progress": {
+    "totalChildren": 6,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "003-01-spec",
+      "003-02-design",
+      "003-03-convert",
+      "003-04-analyze",
+      "003-05-split",
+      "003-06-lift"
+    ],
+    "lastProgressUpdate": "2026-04-23T12:25:07.341Z"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/007-edit-safe-zone/007-05-split/002-split-SafeZoneFormField",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Widget file exists",
+      "cmd": "test -f lib/screens/edit_safe_zone/widgets/safe_zone_form_field.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/screens/edit_safe_zone/widgets/safe_zone_form_field.dart"
+    }
+  ]
+}

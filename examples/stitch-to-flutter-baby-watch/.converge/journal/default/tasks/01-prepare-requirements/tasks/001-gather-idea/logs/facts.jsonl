@@ -1,0 +1,6 @@
+{"type":"file-exists","path":"idea.md","cmd":"test -f \"idea.md\"","id":"file-exists:test -f \"idea.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T05:20:10.774Z"}
+{"type":"check","checkId":"idea-md-exists","cmd":"test -f idea.md","description":"idea.md exists","id":"check:idea-md-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T05:20:10.776Z"}
+{"type":"check","checkId":"idea-has-purpose","cmd":"grep -q \"## Purpose\" idea.md","description":"idea.md has purpose section","id":"check:idea-has-purpose","ok":false,"output":"Command failed: grep -q \"## Purpose\" idea.md\n","exitCode":1,"collectedAt":"2026-04-21T05:20:10.782Z"}
+{"type":"file-exists","path":"idea.md","cmd":"test -f \"idea.md\"","id":"file-exists:test -f \"idea.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T05:20:23.318Z"}
+{"type":"check","checkId":"idea-md-exists","cmd":"test -f idea.md","description":"idea.md exists","id":"check:idea-md-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T05:20:23.321Z"}
+{"type":"check","checkId":"idea-has-purpose","cmd":"grep -q \"## Purpose\" idea.md","description":"idea.md has purpose section","id":"check:idea-has-purpose","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T05:20:23.325Z"}

@@ -1,0 +1,20 @@
+{
+  "taskId": "07-build-overlays/003-timeout-picker/003-02-design",
+  "checks": [
+    {
+      "id": "design-exists",
+      "description": "design.html exists for timeout-picker",
+      "cmd": "test -f .stitch/designs/timeout-picker/design.html"
+    },
+    {
+      "id": "meta-exists",
+      "description": "META.md exists for timeout-picker",
+      "cmd": "test -f .stitch/designs/timeout-picker/META.md"
+    },
+    {
+      "id": "uses-glossary",
+      "description": "HTML uses Flutter HTML Glossary vocabulary",
+      "cmd": "grep -qE 'class=\"(column|row|card|bottom-sheet|dialog)\"' .stitch/designs/timeout-picker/design.html"
+    }
+  ]
+}

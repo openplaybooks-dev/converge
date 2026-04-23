@@ -1,116 +1,201 @@
-# Stitch design source — BabyGuard / Child Safety Beacon (Phase 2)
+# Design System: BabyGuard
 
-Mobile-first child safety app with multi-user co-guardian support.
+## 1. Visual Theme & Atmosphere
 
-## Visual principles
+**A restrained, warm nursery editorial** — a child-safety app that feels like a trusted caregiver, not a surveillance dashboard. Generous whitespace with soft organic surfaces. Muted earth tones that evoke calm confidence. Tonal layering replaces borders. Typography with editorial authority — tight tracking on headlines, relaxed leading on body. Motion is gentle and springy, never clinical. The atmosphere is "calm nursery at golden hour" — protective without being cold, authoritative without being sterile.
 
-- **Neutral warm palette**: Warm Background `#F4F2EE` (beige gray warm) as primary background, white cards (`#FFFFFF`) with soft shadows, Primary Text `#1E1E1E` for main text
-- **Không gian mở**: generous vertical spacing between status, map, beacon, buttons — **airy**, not a dense grid
-- **Palette: neutral warm with accents** — Yellow `#F3D98C`, Mint `#CDE3DC`, Lavender `#C9D4F5`, Peach `#EED9D2`
-- **Cards / surfaces**: large corner radius (20–28), very soft shadow, Soft Shadow Gray `#E7E3DC` borders
-- **Super hero kid** only as a **small status SVG** (~24–40dp) beside the pill — not a large hero illustration
-- **Phase 2 Focus**: PEOPLE not devices — UI lists "Mẹ", "Bố", never "phone 1/2"
-
-## Color tokens — BabyGuard neutral warm palette
-
-| Role | Hex | Usage |
-|------|-----|-------|
-| **Warm Background** | **`#F4F2EE`** | Primary app background |
-| **Card Surface** | `#FFFFFF` | Cards, containers |
-| **Soft Shadow Gray** | `#E7E3DC` | Light borders, dividers |
-| **Primary Text** | `#1E1E1E` | Main text |
-| **Secondary Text** | `#8E8E8E` | Secondary text, labels |
-| **Accent Yellow** | `#F3D98C` | Warning, weak signal |
-| **Accent Mint** | `#CDE3DC` | Safe, positive |
-| **Accent Lavender** | `#C9D4F5` | Soft purple accent |
-| **Accent Peach** | `#EED9D2` | Alert, warm emphasis |
-| **Primary Button** | `#000000` | Primary CTA |
-| **Button Text** | `#FFFFFF` | Text on buttons |
-
-## Project
-
-Stitch Project ID: `13807761494969939905` (BabyGuard - Child Safety Beacon App)
+**Density:** Daily App Balanced (5/10) — enough information density for monitoring, never cockpit-tight.
+**Variance:** Offset Asymmetric (6/10) — editorial staggering, varying card heights, no forced symmetry.
+**Motion:** Fluid CSS (6/10) — spring physics, gentle fade-ins, perpetual micro-loops on active states.
 
 ---
 
-## Phase 2 Screens (Active)
+## 2. Color Palette & Roles
 
-### ✅ Home Screens
-| Screen | Screen ID | Title | Notes |
-|--------|-----------|-------|-------|
-| Home Safe | e809e0138e9940db9121eacc62e5ca7b | BabyGuard Home - Phase 2 (Safe) Updated | + "Chi tiết beacon" link, co-guardian subtitle |
-| Home Weak | ecf7582a990c4922aac1c27a3838ef8d | BabyGuard Home - Phase 2 (Weak Signal) | + co-guardian subtitle |
-| Home Alert | 6b20f9196501432d8f39204323930aab | BabyGuard Home - Phase 2 (Alert) | + aggregate check hint |
+All values are hex codes. No purple, no neon, no saturated glow. Maximum 1 accent color (saturation below 80%).
 
-### ✅ Core Screens (Phase 2)
-| Screen | Screen ID | Title | Notes |
-|--------|-----------|-------|-------|
-| Onboarding | 5b7a69efb0d34ff49da142510a748edd | BabyGuard Onboarding - Phase 2 | + Family co-guardian panel |
-| Add Beacon | a26fd30a00a645bd93294c5375dd7d53 | Thêm Beacon - Phase 2 | + Sync line |
-| Settings | 54f105d04f6c4b4c9e7dcde48a309a53 | Settings - Phase 2 | + "Tài khoản & gia đình" section |
+| Descriptive Name | Hex | Functional Role |
+|---|---|---|
+| **Warm Canvas** | `#fbf9f5` | Primary app background — warm papery white |
+| **Pure Surface** | `#ffffff` | Card and container fill — highest elevation |
+| **Surface Container Low** | `#f5f4ee` | Section backgrounds — tonal depth step 1 |
+| **Surface Container** | `#efeee8` | Deeper tonal layering |
+| **Surface Container High** | `#e8e9e1` | Secondary tonal depth |
+| **Off-Black Charcoal** | `#31332e` | Primary text — NOT pure black |
+| **Muted Stone** | `#5e6059` | Secondary text, descriptions |
+| **Ghost Border** | `rgba(177,179,171,0.15)` | Ghost borders at 10–15% opacity (fallback only) |
+| **Earthy Mint** | `#4f635e` | Safe state, secondary accent, trust |
+| **Mint Tint** | `#D1EEDD` | Safe state pill background |
+| **Terracotta Alert** | `#9f403d` | Error/alert state — muted, not aggressive |
+| **Peach Tint** | `#FFDAD6` | Alert state pill background |
+| **Honey Tint** | `#FFECB3` | Weak signal state pill background |
+| **Alert Background** | `#FCEEE9` | Alert state surface tint |
 
-### ✅ NEW Phase 2 Screens
-| Screen | Screen ID | Title | Notes |
-|--------|-----------|-------|-------|
-| Beacon Detail | c837e4a4975c464598590b6b5236b853 | Chi tiết Beacon - Phase 2 | Co-guardian list with user status |
-| Co-guardians List | ba3b5e5f46714835ba8e18f979fbf8f5 | Co-guardians List - Phase 2 | Per-beacon user list with toolbar |
-| Co-guardians Alt | fecb2159b13746499412ff62eb3a0a29 | Người cùng theo dõi | Alternative co-guardian view |
-| Invite Accept | 2b1e0c48c03042ca85dd404dc5393ab9 | Chấp nhận lời mời | Card with beacon info, Accept/Reject |
-
-### ⏳ Need Phase 2 Updates
-| Screen | Screen ID | Status |
-|--------|-----------|--------|
-| Safe Zones | 0cc9ca8e68fc4fa6928e6eb56925df33 | Existing - needs Phase 2 review |
-| History | 48974fb75bbb4fd187cc04e6e5fa1f0e | Existing - needs Phase 2 review |
-
-### ❌ OLD SCREENS (DELETE FROM STITCH UI)
-| Screen ID | Title | Reason |
-|-----------|-------|--------|
-| b709d7e0287b4670b05e69d4214bded7 | BabyGuard Home - Warm Edition | Old Home screen |
-| 355bb0110faa4ea9a3c87acda5956684 | Safe Zones | Duplicate |
-| e9cb5a127cc64adabe8084d0845dfd82 | Settings | Old Settings |
-| a3e68c9096924b9c86aec09b4ae2ef8b | Settings | Old Settings |
-| 81d91cee608b46ff9356b0a9c8b86611 | Chi tiết Beacon - Phase 2 | Duplicate |
-| f49c709ec387459589fede4740bf7dea | Chấp nhận lời mời | Duplicate |
+**Light Theme (default):** Values above.
+**Dark Theme:** Surface backgrounds shift to `#1a1a18`, cards to `#242422`, text to `#e8e9e1`. Mint and Peach/Honey tints desaturated by ~20%. Terracotta alert remains `#c45a56`.
 
 ---
 
-## Phase 2 Key Features
+## 3. Typography Rules
 
-### Home Screen Updates
-- **"Chi tiết beacon"** link with chevron on beacon strip
-- **Status subtitle**: "Còn [tên] đang gần beacon" (user-first, e.g., "Còn Mẹ đang gần beacon")
-- Same unified layout for all states (Safe, Weak, Lost, Alert)
+**Display / Headlines:** Plus Jakarta Sans — 700–800 weight, letter-spacing: -0.02em. Editorial authority through tight tracking, not screaming size. Hierarchy via weight and color, not scale alone.
 
-### Onboarding Updates
-- **"Theo dõi cùng gia đình"** panel
-- Privacy note: "Chỉ chia sẻ vị trí gần - không theo dõi GPS trực tiếp"
+**Body / Labels:** Manrope — 400–600 weight, line-height 1.6 for body, 1.4 for labels. Relaxed breathing room. Letter-spacing: 0 for body, 0.05em for labels.
 
-### Beacon Detail Screen
-- Beacon name + technical details (UUID/Major/Minor)
-- **Co-guardian list** with user avatars and status chips:
-  - "Đang gần beacon" (mint)
-  - "Xa / không thấy" (yellow/peach)
-  - "Ngoại tuyến" (gray)
-  - "Tạm dừng theo dõi" (muted)
-- Actions: Invite, Leave group, Manage list
+**Chrome / UI:** Manrope 500 — navigation labels, button text, status chips.
 
-### Co-guardians List Screen
-- Per-beacon user list
-- Toolbar: Invite, Remove (owner), Pull-to-refresh
-- Vietnamese names only (Mẹ, Bố, etc.)
+**BANNED FONTS:**
+- Inter — strictly forbidden in any context
+- Generic system fonts for premium/creative contexts
+- Serif fonts in dashboards or software UIs (Times New Roman, Georgia, Garamond, Palatino)
 
-### Invite Accept Screen
-- Beacon name preview
-- Inviter display name + role
-- Trust/safety microcopy
-- Accept/Reject buttons
+**Typography Scale:**
+| Role | Font | Weight | Size | Leading | Tracking |
+|---|---|---|---|---|---|
+| Display LG | Plus Jakarta Sans | 700 | 3.5rem | 1.1 | -0.02em |
+| Headline LG | Plus Jakarta Sans | 600 | 1.75rem | 1.3 | -0.02em |
+| Headline MD | Plus Jakarta Sans | 600 | 1.5rem | 1.3 | 0 |
+| Title SM | Plus Jakarta Sans | 600 | 1rem | 1.4 | 0 |
+| Body LG | Manrope | 400 | 1rem | 1.6 | 0 |
+| Body MD | Manrope | 400 | 0.875rem | 1.5 | 0 |
+| Label MD | Manrope | 500 | 0.75rem | 1.4 | 0.05em |
+| Label SM | Manrope | 500 | 0.6875rem | 1.3 | 0.04em |
 
 ---
 
-## Vietnamese Copy Guidelines
+## 4. Component Stylings
 
-- **User-first names**: "Mẹ", "Bố", "Bà Ngoại" - NEVER "phone 1/2"
-- **Status messages**: "Đang an toàn", "Tín hiệu yếu", "Mất kết nối", "Cảnh báo"
-- **Actions**: "Chi tiết beacon", "Mời người cùng theo dõi", "Rời nhóm theo dõi"
-- **Status chips**: "Đang gần beacon", "Xa", "Ngoại tuyến", "Tạm dừng theo dõi"
+### Status Pills
+Rounded-full pill shape. Icon + text, never icon-only. Three variants:
+- **Safe:** Mint tint background (`#D1EEDD`), earthy mint icon, "check_circle" icon
+- **Weak Signal:** Honey tint background (`#FFECB3`), amber icon, "signal_cellular_0_bar" icon
+- **Alert:** Peach tint background (`#FFDAD6`), terracotta icon, "error" icon
+
+### Cards
+Generous corner radius: `2rem` (32px) for large cards, `1rem` (16px) for small cards. No hard borders — depth achieved via tonal layering (surface container low on warm canvas). Soft diffused shadow: `0 8px 24px rgba(231, 227, 220, 0.4)` when elevation needed. On active/press: subtle -1px translate with spring physics.
+
+### Buttons
+- **Primary:** Earthy Mint fill (`#4f635e`), white text, rounded-full, 48px minimum height. Active: scale(0.98) + -1px translate.
+- **Secondary/Ghost:** No fill, ghost border at 15% opacity, charcoal text. Same press feedback.
+- **Destructive:** Terracotta fill for destructive actions.
+
+### Bottom Sheets
+Slide up with `easeOutCubic` curve, 250ms duration. Rounded top corners: `3rem` radius. Drag handle: centered 32px × 4px pill, ghost border. No harsh drop shadow — tonal border top.
+
+### Map Cards
+Rounded container (`2rem` radius) with image. Overlay legend in bottom-left. Pulsing marker for active alerts: concentric ring animation, 1000ms loop, terracotta tint.
+
+### FAB (Floating Action Button)
+Surface container lowest fill with ambient shadow (`0 8px 32px rgba(49,51,46,0.08)`). Rounded-full. Earthy mint icon. 56px diameter. Fixed bottom-right with 24px margin.
+
+### Navigation Bar (Bottom)
+4 tabs: Home, Safe Zones, Settings. Active tab: filled icon + earthy mint color. Inactive: outlined icon + muted stone. No elevation — tonal surface container background.
+
+### Segmented Controls
+3-option pill group. No borders — selected state via solid fill (earthy mint), unselected via transparent with ghost border on press.
+
+### Toggle Switches
+Rounded pill track with sliding knob. Active: earthy mint. Inactive: ghost border.
+
+### Beacon Strip
+Horizontal scrollable card. Avatar circle (initials) + beacon name + proximity text + battery indicator + chevron. Full-width touch target (minimum 48px height).
+
+### Guardian Row
+Avatar circle (initials) + name + last update time + status pill. Swipe-to-remove gesture on list.
+
+---
+
+## 5. Layout Principles
+
+**Mobile-First:** All layouts collapse to single-column below 768px. No horizontal overflow.
+
+**Spacing Rhythm (Base 8dp):**
+- `xs`: 4dp — tight gaps, icon padding
+- `sm`: 8dp — inline spacing
+- `md`: 16dp — standard padding, card internal padding
+- `lg`: 24dp — section gaps
+- `xl`: 32dp — major section separation
+- `xxl`: 48dp — editorial breathing room, headline margin-bottom
+
+**No-Line Rule:** Section boundaries created via background color shifts, not 1px borders. Only use ghost borders (10–15% opacity) as a fallback for tactile separation.
+
+**Editorial Asymmetry:** Vertical staggering of 24–40dp between content blocks. Cards vary in height — not uniform grids.
+
+**BANNED LAYOUTS:**
+- 3-column equal card grids
+- Centered hero sections
+- Flexbox percentage math
+- `h-screen` for full-height sections (use `min-h-[100dvh]`)
+
+---
+
+## 6. Motion & Interaction
+
+**Spring Physics Default:** stiffness: 100, damping: 20 — premium, weighty feel.
+
+| Interaction | Curve | Duration |
+|---|---|---|
+| Page transition (push/pop) | easeInOut | 300ms |
+| Fade in (content) | easeOut | 200ms |
+| Press feedback (scale) | easeInOut | 100ms |
+| Bottom sheet | easeOutCubic | 250ms |
+| Alert pulse | easeInOut | 1000ms (loop) |
+| Status change | easeInOut | 300ms |
+
+**Perpetual Micro-Interactions:**
+- Alert map marker: infinite ping pulse at 1000ms
+- Status orb: subtle ambient glow animation on active states
+- Scanning radar: concentric circle expansion loop
+
+**Staggered Orchestration:** List items cascade in with 50ms delay per item. Never mount lists instantly.
+
+**Press Feedback:** `scale(0.98)` + `-1px translateY` on all interactive elements. No color-shift feedback.
+
+**Performance Rule:** Animate exclusively via `transform` and `opacity`. Never animate `top`, `left`, `width`, `height`.
+
+---
+
+## 7. Anti-Patterns (Banned)
+
+This design system is **explicitly anti-generic**. The following patterns are permanently forbidden:
+
+**Typography:**
+- Inter font — never use, for any purpose
+- Pure black (`#000000`) — use Off-Black Charcoal `#31332e`
+- Generic serif fonts
+- AI copywriting clichés: "Elevate", "Seamless", "Unleash", "Next-Gen"
+- Filler text: "Scroll to explore", "Swipe down", bouncing chevrons
+- `LABEL // YEAR` formatting ("SYSTEM // 2024")
+
+**Visual:**
+- Emojis anywhere in the UI
+- Purple/blue neon glows or gradients
+- Pure black elements
+- Oversaturated accents (saturation > 80%)
+- Neon outer glow shadows
+- Custom mouse cursors
+
+**Layout:**
+- 3-column equal card grids
+- Centered hero sections
+- Overlapping elements — every element occupies its own clear spatial zone
+- Horizontal scroll on mobile
+- Absolute-positioned content stacking
+
+**Data:**
+- Fake round numbers (`99.99%`, `50%`)
+- Fabricated metrics or statistics — never generate performance numbers, uptime percentages, or response times. Use placeholder labels like `[metric]` if real data is not available.
+- Generic placeholder names ("John Doe", "Acme", "Nexus")
+- "SYSTEM PERFORMANCE METRICS", "BY THE NUMBERS" dashboard cards with invented data
+
+**Images:**
+- Broken Unsplash links — use `picsum.photos` or SVG avatars
+- Images overlapping text — clean spatial separation always
+
+**Motion:**
+- Linear easing on interactive elements (spring physics only)
+- Animating layout properties (`top`, `left`, `width`, `height`)
+
+---
+
+*Generated for BabyGuard — child safety beacon monitoring app. Core identity: Calm · Protective · Trustworthy · Warm.*

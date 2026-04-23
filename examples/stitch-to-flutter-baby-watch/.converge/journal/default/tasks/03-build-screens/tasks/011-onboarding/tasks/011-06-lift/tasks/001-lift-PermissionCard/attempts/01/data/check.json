@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/011-onboarding/011-06-lift/001-lift-PermissionCard",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Shared widget file exists",
+      "cmd": "test -f lib/widgets/permission_card.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/widgets/permission_card.dart"
+    }
+  ]
+}

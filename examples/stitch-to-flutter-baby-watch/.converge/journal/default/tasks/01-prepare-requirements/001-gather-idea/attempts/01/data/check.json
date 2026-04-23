@@ -1,0 +1,15 @@
+{
+  "taskId": "01-prepare-requirements/001-gather-idea",
+  "checks": [
+    {
+      "id": "idea-md-exists",
+      "description": "idea.md exists",
+      "cmd": "test -f idea.md"
+    },
+    {
+      "id": "idea-has-purpose",
+      "description": "idea.md has purpose section",
+      "cmd": "grep -q \"## Purpose\" idea.md"
+    }
+  ]
+}

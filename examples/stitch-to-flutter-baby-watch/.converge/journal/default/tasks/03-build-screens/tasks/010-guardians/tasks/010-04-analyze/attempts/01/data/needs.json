@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/010-guardians/010-04-analyze",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/guardians/guardians_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/guardians/guardians_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/guardians/widgets.jsonl"
+  ],
+  "blocked": false
+}

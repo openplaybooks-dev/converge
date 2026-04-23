@@ -1,0 +1,10 @@
+{
+  "taskId": "06-wire-screens/003-wire-per-screen/003-HistoryScreen-ElevatedButton-onPressed-1",
+  "checks": [
+    {
+      "id": "handler-wired",
+      "description": "ElevatedButton.onPressed has real logic in lib/screens/history/history_screen.dart (@converge:element HistoryScreen-ElevatedButton-onPressed-1)",
+      "cmd": "node .converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/wbs/check-handler.mjs lib/screens/history/history_screen.dart --id HistoryScreen-ElevatedButton-onPressed-1 onPressed"
+    }
+  ]
+}

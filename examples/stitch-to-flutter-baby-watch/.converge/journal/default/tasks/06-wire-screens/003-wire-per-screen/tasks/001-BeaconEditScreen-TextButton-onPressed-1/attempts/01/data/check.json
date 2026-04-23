@@ -1,0 +1,10 @@
+{
+  "taskId": "06-wire-screens/003-wire-per-screen/001-BeaconEditScreen-TextButton-onPressed-1",
+  "checks": [
+    {
+      "id": "handler-wired",
+      "description": "TextButton.onPressed has real logic at lib/screens/beacon_edit/beacon_edit_screen.dart:59",
+      "cmd": "node .converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/wbs/check-handler.mjs lib/screens/beacon_edit/beacon_edit_screen.dart 59 onPressed"
+    }
+  ]
+}

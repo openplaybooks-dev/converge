@@ -1,0 +1,8 @@
+{"ts":"2026-04-22T13:22:27.921Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"check-wbs-seeded","status":"start"}
+{"ts":"2026-04-22T13:22:27.921Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"check-wbs-seeded","status":"done","result":"continue"}
+{"ts":"2026-04-22T13:22:27.921Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"check-outputs-exist","status":"start"}
+{"ts":"2026-04-22T13:22:27.921Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"check-outputs-exist","status":"done","result":"continue"}
+{"ts":"2026-04-22T13:22:27.921Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"detect-gaps","status":"start"}
+{"ts":"2026-04-22T13:22:30.336Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"detect-gaps","status":"done","result":"continue","newGaps":0}
+{"ts":"2026-04-22T13:22:30.336Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"signal-done","status":"start"}
+{"ts":"2026-04-22T13:22:30.336Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"signal-done","status":"done","result":"done","reason":"Converged"}

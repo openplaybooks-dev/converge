@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/012-invite-accept/012-06-lift/004-lift-PrivacyFooter",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Shared widget file exists",
+      "cmd": "test -f lib/widgets/privacy_footer.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/widgets/privacy_footer.dart"
+    }
+  ]
+}

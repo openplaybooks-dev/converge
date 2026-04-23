@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/007-edit-safe-zone/007-06-lift/001-lift-SafeZoneFormField",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Shared widget file exists",
+      "cmd": "test -f lib/widgets/safe_zone_form_field.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "flutter analyze lib/widgets/safe_zone_form_field.dart"
+    }
+  ]
+}

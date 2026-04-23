@@ -1,0 +1,45 @@
+{
+  "taskId": "03-build-screens/009-settings/009-01-spec",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/UX.md",
+      "count": 1,
+      "samples": [
+        ".stitch/UX.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/screens.json",
+      "count": 1,
+      "samples": [
+        ".stitch/screens.json"
+      ]
+    },
+    {
+      "pattern": ".stitch/references/ANALYSIS.md",
+      "count": 1,
+      "samples": [
+        ".stitch/references/ANALYSIS.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/references/settings/code.html",
+      "count": 1,
+      "samples": [
+        ".stitch/references/settings/code.html"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/settings/SPEC.md"
+  ],
+  "blocked": false
+}

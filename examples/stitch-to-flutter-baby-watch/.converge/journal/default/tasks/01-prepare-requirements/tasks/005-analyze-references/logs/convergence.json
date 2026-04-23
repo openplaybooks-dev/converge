@@ -1,0 +1,413 @@
+{
+  "iteration": 2,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-prepare-requirements/005-analyze-references-plan-missing",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-requirements/005-analyze-references",
+            "severity": "high",
+            "description": "[01-prepare-requirements/005-analyze-references] Generating plan",
+            "source": "unit",
+            "detected": "2026-04-21T05:26:22.581Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "plan",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/01-prepare-requirements/005-analyze-references",
+              "taskId": "01-prepare-requirements/005-analyze-references",
+              "taskTitle": "Analyze Design References"
+            }
+          }
+        ],
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "Converged",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "resolve-plan",
+      "handler": "resolve-plan",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 90
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 67010
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-prepare-requirements/005-analyze-references-missing-output-.stitch/references/ANALYSIS.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-requirements/005-analyze-references",
+            "severity": "high",
+            "description": "[01-prepare-requirements/005-analyze-references] Task output not created: .stitch/references/ANALYSIS.md",
+            "source": "unit",
+            "detected": "2026-04-21T05:27:29.625Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/01-prepare-requirements/005-analyze-references",
+              "taskId": "01-prepare-requirements/005-analyze-references",
+              "taskTitle": "Analyze Design References",
+              "taskPrompt": "# Analyze Design References\n\nScan all subdirectories in `.stitch/references/` and produce a single synthesized analysis document at `.stitch/references/ANALYSIS.md`.\n\n## Inputs\n\n- `idea.md` — App idea for domain context\n- `.stitch/references/*/screen.png` — Screenshot images of reference screens\n- `.stitch/references/*/code.html` — HTML source of reference screens (Tailwind-based)\n- `.stitch/references/*/DESIGN.md` — Design system specifications\n\n## Reference Types\n\nEach subdirectory in `.stitch/references/` contains one of:\n- **Screen reference** — `screen.png` + `code.html` pair (a rendered screen and its HTML source)\n- **Design system reference** — `DESIGN.md` (a design system specification document)\n\n## Task\n\n1. **Read `idea.md`** to understand the app domain and purpose\n\n2. **Enumerate `.stitch/references/`** — list all subdirectories and classify each as screen-ref or design-system-ref based on contents\n\n3. **For each screen reference** (has `code.html` + `screen.png`):\n   - View `screen.png` to understand the visual design\n   - Read `code.html` and extract:\n     - Tailwind CSS tokens used (colors, spacing, typography, radius)\n     - Layout structure (grid/flex patterns, sections, component hierarchy)\n     - UI components present (cards, buttons, lists, inputs, nav bars, etc.)\n     - Data entities visible (what domain objects appear, what fields are shown)\n     - Interaction states (if the screen name implies a state variant)\n\n4. **For each design system reference** (has `DESIGN.md`):\n   - Read `DESIGN.md` and extract:\n     - Color palette (primary, secondary, accent, semantic colors with hex values)\n     - Typography rules (font families, weights, sizes, roles)\n     - Elevation and shadow definitions\n     - Border radius and shape tokens\n     - Component styling rules\n     - Design principles and anti-patterns\n\n5. **Produce `.stitch/references/ANALYSIS.md`** with these sections:\n\n   ## Design System Synthesis\n   Merged color palette, typography, elevation, radius, and spacing tokens across all design system references. Note consensus values and conflicts.\n\n   ## Screen Inventory\n   Table of all screen references. **Each row must name the exact HTML source** as a repo-relative path under `.stitch/references/**/code.html` (e.g. `.stitch/references/babyguard_home_phase_2_alert/code.html`). Columns at minimum: `code.html` path, reference directory name, screen type/purpose, layout pattern (e.g., list, detail, form, dashboard), key visual characteristics. One screen reference = one `code.html` row (no orphan directories without a path).\n\n   ## Component Inventory\n   All UI components observed across references, with variants and frequency count. Group by category (navigation, content, input, feedback).\n\n   ## Data Entities\n   Domain objects visible in reference UIs — entity names, visible fields, relationships inferred from the screens.\n\n   ## Interaction Patterns\n   State variations observed (e.g., alert vs safe vs weak-signal), animation hints, touch target patterns, navigation patterns.\n\n   ## Design Scoring Matrix\n   Per-reference scoring table for downstream example matching:\n   | Reference | Complexity | Component Count | State Variants | Best Match For |\n   Rate each reference on a 1-5 scale for complexity and note what screen types it best represents.\n\n## Graceful Degradation\n\nIf `.stitch/references/` is empty or does not exist, produce a minimal ANALYSIS.md noting that no references are available and downstream tasks should rely on DESIGN.md and UX.md alone.\n\n## Success Criteria\n\n- `.stitch/references/ANALYSIS.md` exists\n- Contains \"## Design System Synthesis\" section\n- Contains \"## Screen Inventory\" section\n- All reference subdirectories are accounted for in the inventory",
+              "taskInputs": [
+                "idea.md",
+                ".stitch/references/**/screen.png",
+                ".stitch/references/**/code.html",
+                ".stitch/references/**/DESIGN.md"
+              ],
+              "factId": "file-exists:test -f \".stitch/references/ANALYSIS.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "01-prepare-requirements/005-analyze-references-check-failed-analysis-md-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-requirements/005-analyze-references",
+            "severity": "high",
+            "description": "[01-prepare-requirements/005-analyze-references] Check failed: ANALYSIS.md exists",
+            "source": "unit",
+            "detected": "2026-04-21T05:27:29.628Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "analysis-md-exists",
+              "checkCmd": "test -f .stitch/references/ANALYSIS.md",
+              "checkDescription": "ANALYSIS.md exists",
+              "checkOutput": "Command failed: test -f .stitch/references/ANALYSIS.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Analyze Design References\n\nScan all subdirectories in `.stitch/references/` and produce a single synthesized analysis document at `.stitch/references/ANALYSIS.md`.\n\n## Inputs\n\n- `idea.md` — App idea for domain context\n- `.stitch/references/*/screen.png` — Screenshot images of reference screens\n- `.stitch/references/*/code.html` — HTML source of reference screens (Tailwind-based)\n- `.stitch/references/*/DESIGN.md` — Design system specifications\n\n## Reference Types\n\nEach subdirectory in `.stitch/references/` contains one of:\n- **Screen reference** — `screen.png` + `code.html` pair (a rendered screen and its HTML source)\n- **Design system reference** — `DESIGN.md` (a design system specification document)\n\n## Task\n\n1. **Read `idea.md`** to understand the app domain and purpose\n\n2. **Enumerate `.stitch/references/`** — list all subdirectories and classify each as screen-ref or design-system-ref based on contents\n\n3. **For each screen reference** (has `code.html` + `screen.png`):\n   - View `screen.png` to understand the visual design\n   - Read `code.html` and extract:\n     - Tailwind CSS tokens used (colors, spacing, typography, radius)\n     - Layout structure (grid/flex patterns, sections, component hierarchy)\n     - UI components present (cards, buttons, lists, inputs, nav bars, etc.)\n     - Data entities visible (what domain objects appear, what fields are shown)\n     - Interaction states (if the screen name implies a state variant)\n\n4. **For each design system reference** (has `DESIGN.md`):\n   - Read `DESIGN.md` and extract:\n     - Color palette (primary, secondary, accent, semantic colors with hex values)\n     - Typography rules (font families, weights, sizes, roles)\n     - Elevation and shadow definitions\n     - Border radius and shape tokens\n     - Component styling rules\n     - Design principles and anti-patterns\n\n5. **Produce `.stitch/references/ANALYSIS.md`** with these sections:\n\n   ## Design System Synthesis\n   Merged color palette, typography, elevation, radius, and spacing tokens across all design system references. Note consensus values and conflicts.\n\n   ## Screen Inventory\n   Table of all screen references. **Each row must name the exact HTML source** as a repo-relative path under `.stitch/references/**/code.html` (e.g. `.stitch/references/babyguard_home_phase_2_alert/code.html`). Columns at minimum: `code.html` path, reference directory name, screen type/purpose, layout pattern (e.g., list, detail, form, dashboard), key visual characteristics. One screen reference = one `code.html` row (no orphan directories without a path).\n\n   ## Component Inventory\n   All UI components observed across references, with variants and frequency count. Group by category (navigation, content, input, feedback).\n\n   ## Data Entities\n   Domain objects visible in reference UIs — entity names, visible fields, relationships inferred from the screens.\n\n   ## Interaction Patterns\n   State variations observed (e.g., alert vs safe vs weak-signal), animation hints, touch target patterns, navigation patterns.\n\n   ## Design Scoring Matrix\n   Per-reference scoring table for downstream example matching:\n   | Reference | Complexity | Component Count | State Variants | Best Match For |\n   Rate each reference on a 1-5 scale for complexity and note what screen types it best represents.\n\n## Graceful Degradation\n\nIf `.stitch/references/` is empty or does not exist, produce a minimal ANALYSIS.md noting that no references are available and downstream tasks should rely on DESIGN.md and UX.md alone.\n\n## Success Criteria\n\n- `.stitch/references/ANALYSIS.md` exists\n- Contains \"## Design System Synthesis\" section\n- Contains \"## Screen Inventory\" section\n- All reference subdirectories are accounted for in the inventory",
+              "taskId": "01-prepare-requirements/005-analyze-references",
+              "taskTitle": "Analyze Design References",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/01-prepare-requirements/005-analyze-references",
+              "factId": "check:analysis-md-exists"
+            }
+          },
+          {
+            "id": "01-prepare-requirements/005-analyze-references-check-failed-analysis-has-design-system",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-requirements/005-analyze-references",
+            "severity": "high",
+            "description": "[01-prepare-requirements/005-analyze-references] Check failed: ANALYSIS.md has design system synthesis section",
+            "source": "unit",
+            "detected": "2026-04-21T05:27:29.632Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "analysis-has-design-system",
+              "checkCmd": "grep -q \"## Design System Synthesis\" .stitch/references/ANALYSIS.md",
+              "checkDescription": "ANALYSIS.md has design system synthesis section",
+              "checkOutput": "grep: .stitch/references/ANALYSIS.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Analyze Design References\n\nScan all subdirectories in `.stitch/references/` and produce a single synthesized analysis document at `.stitch/references/ANALYSIS.md`.\n\n## Inputs\n\n- `idea.md` — App idea for domain context\n- `.stitch/references/*/screen.png` — Screenshot images of reference screens\n- `.stitch/references/*/code.html` — HTML source of reference screens (Tailwind-based)\n- `.stitch/references/*/DESIGN.md` — Design system specifications\n\n## Reference Types\n\nEach subdirectory in `.stitch/references/` contains one of:\n- **Screen reference** — `screen.png` + `code.html` pair (a rendered screen and its HTML source)\n- **Design system reference** — `DESIGN.md` (a design system specification document)\n\n## Task\n\n1. **Read `idea.md`** to understand the app domain and purpose\n\n2. **Enumerate `.stitch/references/`** — list all subdirectories and classify each as screen-ref or design-system-ref based on contents\n\n3. **For each screen reference** (has `code.html` + `screen.png`):\n   - View `screen.png` to understand the visual design\n   - Read `code.html` and extract:\n     - Tailwind CSS tokens used (colors, spacing, typography, radius)\n     - Layout structure (grid/flex patterns, sections, component hierarchy)\n     - UI components present (cards, buttons, lists, inputs, nav bars, etc.)\n     - Data entities visible (what domain objects appear, what fields are shown)\n     - Interaction states (if the screen name implies a state variant)\n\n4. **For each design system reference** (has `DESIGN.md`):\n   - Read `DESIGN.md` and extract:\n     - Color palette (primary, secondary, accent, semantic colors with hex values)\n     - Typography rules (font families, weights, sizes, roles)\n     - Elevation and shadow definitions\n     - Border radius and shape tokens\n     - Component styling rules\n     - Design principles and anti-patterns\n\n5. **Produce `.stitch/references/ANALYSIS.md`** with these sections:\n\n   ## Design System Synthesis\n   Merged color palette, typography, elevation, radius, and spacing tokens across all design system references. Note consensus values and conflicts.\n\n   ## Screen Inventory\n   Table of all screen references. **Each row must name the exact HTML source** as a repo-relative path under `.stitch/references/**/code.html` (e.g. `.stitch/references/babyguard_home_phase_2_alert/code.html`). Columns at minimum: `code.html` path, reference directory name, screen type/purpose, layout pattern (e.g., list, detail, form, dashboard), key visual characteristics. One screen reference = one `code.html` row (no orphan directories without a path).\n\n   ## Component Inventory\n   All UI components observed across references, with variants and frequency count. Group by category (navigation, content, input, feedback).\n\n   ## Data Entities\n   Domain objects visible in reference UIs — entity names, visible fields, relationships inferred from the screens.\n\n   ## Interaction Patterns\n   State variations observed (e.g., alert vs safe vs weak-signal), animation hints, touch target patterns, navigation patterns.\n\n   ## Design Scoring Matrix\n   Per-reference scoring table for downstream example matching:\n   | Reference | Complexity | Component Count | State Variants | Best Match For |\n   Rate each reference on a 1-5 scale for complexity and note what screen types it best represents.\n\n## Graceful Degradation\n\nIf `.stitch/references/` is empty or does not exist, produce a minimal ANALYSIS.md noting that no references are available and downstream tasks should rely on DESIGN.md and UX.md alone.\n\n## Success Criteria\n\n- `.stitch/references/ANALYSIS.md` exists\n- Contains \"## Design System Synthesis\" section\n- Contains \"## Screen Inventory\" section\n- All reference subdirectories are accounted for in the inventory",
+              "taskId": "01-prepare-requirements/005-analyze-references",
+              "taskTitle": "Analyze Design References",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/01-prepare-requirements/005-analyze-references",
+              "factId": "check:analysis-has-design-system"
+            }
+          },
+          {
+            "id": "01-prepare-requirements/005-analyze-references-check-failed-analysis-has-screen-inventory",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-requirements/005-analyze-references",
+            "severity": "high",
+            "description": "[01-prepare-requirements/005-analyze-references] Check failed: ANALYSIS.md has screen inventory section",
+            "source": "unit",
+            "detected": "2026-04-21T05:27:29.635Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "analysis-has-screen-inventory",
+              "checkCmd": "grep -q \"## Screen Inventory\" .stitch/references/ANALYSIS.md",
+              "checkDescription": "ANALYSIS.md has screen inventory section",
+              "checkOutput": "grep: .stitch/references/ANALYSIS.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Analyze Design References\n\nScan all subdirectories in `.stitch/references/` and produce a single synthesized analysis document at `.stitch/references/ANALYSIS.md`.\n\n## Inputs\n\n- `idea.md` — App idea for domain context\n- `.stitch/references/*/screen.png` — Screenshot images of reference screens\n- `.stitch/references/*/code.html` — HTML source of reference screens (Tailwind-based)\n- `.stitch/references/*/DESIGN.md` — Design system specifications\n\n## Reference Types\n\nEach subdirectory in `.stitch/references/` contains one of:\n- **Screen reference** — `screen.png` + `code.html` pair (a rendered screen and its HTML source)\n- **Design system reference** — `DESIGN.md` (a design system specification document)\n\n## Task\n\n1. **Read `idea.md`** to understand the app domain and purpose\n\n2. **Enumerate `.stitch/references/`** — list all subdirectories and classify each as screen-ref or design-system-ref based on contents\n\n3. **For each screen reference** (has `code.html` + `screen.png`):\n   - View `screen.png` to understand the visual design\n   - Read `code.html` and extract:\n     - Tailwind CSS tokens used (colors, spacing, typography, radius)\n     - Layout structure (grid/flex patterns, sections, component hierarchy)\n     - UI components present (cards, buttons, lists, inputs, nav bars, etc.)\n     - Data entities visible (what domain objects appear, what fields are shown)\n     - Interaction states (if the screen name implies a state variant)\n\n4. **For each design system reference** (has `DESIGN.md`):\n   - Read `DESIGN.md` and extract:\n     - Color palette (primary, secondary, accent, semantic colors with hex values)\n     - Typography rules (font families, weights, sizes, roles)\n     - Elevation and shadow definitions\n     - Border radius and shape tokens\n     - Component styling rules\n     - Design principles and anti-patterns\n\n5. **Produce `.stitch/references/ANALYSIS.md`** with these sections:\n\n   ## Design System Synthesis\n   Merged color palette, typography, elevation, radius, and spacing tokens across all design system references. Note consensus values and conflicts.\n\n   ## Screen Inventory\n   Table of all screen references. **Each row must name the exact HTML source** as a repo-relative path under `.stitch/references/**/code.html` (e.g. `.stitch/references/babyguard_home_phase_2_alert/code.html`). Columns at minimum: `code.html` path, reference directory name, screen type/purpose, layout pattern (e.g., list, detail, form, dashboard), key visual characteristics. One screen reference = one `code.html` row (no orphan directories without a path).\n\n   ## Component Inventory\n   All UI components observed across references, with variants and frequency count. Group by category (navigation, content, input, feedback).\n\n   ## Data Entities\n   Domain objects visible in reference UIs — entity names, visible fields, relationships inferred from the screens.\n\n   ## Interaction Patterns\n   State variations observed (e.g., alert vs safe vs weak-signal), animation hints, touch target patterns, navigation patterns.\n\n   ## Design Scoring Matrix\n   Per-reference scoring table for downstream example matching:\n   | Reference | Complexity | Component Count | State Variants | Best Match For |\n   Rate each reference on a 1-5 scale for complexity and note what screen types it best represents.\n\n## Graceful Degradation\n\nIf `.stitch/references/` is empty or does not exist, produce a minimal ANALYSIS.md noting that no references are available and downstream tasks should rely on DESIGN.md and UX.md alone.\n\n## Success Criteria\n\n- `.stitch/references/ANALYSIS.md` exists\n- Contains \"## Design System Synthesis\" section\n- Contains \"## Screen Inventory\" section\n- All reference subdirectories are accounted for in the inventory",
+              "taskId": "01-prepare-requirements/005-analyze-references",
+              "taskTitle": "Analyze Design References",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/01-prepare-requirements/005-analyze-references",
+              "factId": "check:analysis-has-screen-inventory"
+            }
+          }
+        ],
+        "durationMs": 41
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 15
+      }
+    },
+    {
+      "id": "run-strategy:task-run#5",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 100877
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [],
+        "durationMs": 38
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-21T05:26:22.580Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-21T05:26:22.581Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-21T05:26:22.581Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "resolve-plan",
+      "iteration": 1,
+      "ts": "2026-04-21T05:27:29.593Z"
+    },
+    {
+      "from": "resolve-plan",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-21T05:27:29.595Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-21T05:27:29.636Z"
+    },
+    {
+      "from": "verify",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-21T05:27:29.651Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#5",
+      "iteration": 1,
+      "ts": "2026-04-21T05:29:10.529Z"
+    },
+    {
+      "from": "run-strategy:task-run#5",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-21T05:29:10.531Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-21T05:29:10.533Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-21T05:29:10.533Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-21T05:29:10.534Z"
+    },
+    {
+      "from": "check-outputs-exist#2",
+      "to": "detect-gaps#2",
+      "iteration": 2,
+      "ts": "2026-04-21T05:29:10.573Z"
+    },
+    {
+      "from": "detect-gaps#2",
+      "to": "signal-done",
+      "iteration": 2,
+      "ts": "2026-04-21T05:29:10.573Z"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "taskId": "05-add-behavior/004-implement-providers/005-provider-AlertConfig",
+  "checks": [
+    {
+      "id": "file-exists",
+      "description": "alert_config_provider.dart exists",
+      "cmd": "test -f lib/providers/alert_config_provider.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/providers/alert_config_provider.dart"
+    }
+  ]
+}

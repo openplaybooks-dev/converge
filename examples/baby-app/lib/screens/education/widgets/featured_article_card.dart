@@ -18,6 +18,7 @@ class FeaturedArticleCard extends StatelessWidget {
           'Featured article: Nutrition in Your First Trimester, Nutrition',
       button: true,
       child: GestureDetector(
+// @converge:element FeaturedArticleCard-onTap-1
         onTap: () => context.push('/education/article/:id'),
         child: DecoratedBox(
           decoration: BoxDecoration(

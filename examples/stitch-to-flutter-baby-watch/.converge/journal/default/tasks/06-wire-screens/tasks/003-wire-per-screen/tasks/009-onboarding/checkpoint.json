@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/003-wire-per-screen/009-onboarding",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T11:34:12.920Z",
+  "createdAt": "2026-04-23T11:34:12.914Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T11:34:12.914Z",
+      "completedAt": "2026-04-23T11:34:12.918Z",
+      "outcome": "success",
+      "durationMs": 4
+    }
+  ],
+  "currentAttempt": 1
+}

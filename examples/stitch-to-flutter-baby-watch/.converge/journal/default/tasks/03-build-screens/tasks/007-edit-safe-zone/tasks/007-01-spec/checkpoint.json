@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-build-screens/007-edit-safe-zone/007-01-spec",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T13:50:35.549Z",
+  "createdAt": "2026-04-21T13:50:35.516Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T13:50:35.516Z",
+      "completedAt": "2026-04-21T13:50:35.547Z",
+      "outcome": "success",
+      "durationMs": 31
+    }
+  ],
+  "currentAttempt": 1
+}

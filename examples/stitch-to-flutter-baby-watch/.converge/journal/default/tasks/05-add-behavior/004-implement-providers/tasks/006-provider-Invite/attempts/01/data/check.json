@@ -1,0 +1,15 @@
+{
+  "taskId": "05-add-behavior/004-implement-providers/006-provider-Invite",
+  "checks": [
+    {
+      "id": "file-exists",
+      "description": "invite_provider.dart exists",
+      "cmd": "test -f lib/providers/invite_provider.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/providers/invite_provider.dart"
+    }
+  ]
+}

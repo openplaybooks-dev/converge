@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/004-filter-date/004-03-convert",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T20:35:55.092Z",
+  "createdAt": "2026-04-21T20:27:20.070Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T20:27:20.070Z",
+      "completedAt": "2026-04-21T20:35:51.946Z",
+      "outcome": "failed",
+      "durationMs": 511876
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-21T20:35:52.124Z",
+      "completedAt": "2026-04-21T20:35:55.088Z",
+      "outcome": "success",
+      "durationMs": 2964
+    }
+  ],
+  "currentAttempt": 2
+}

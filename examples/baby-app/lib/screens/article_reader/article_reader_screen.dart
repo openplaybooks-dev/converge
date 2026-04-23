@@ -24,6 +24,7 @@ class ArticleReaderScreen extends StatelessWidget {
           label: 'Go back to articles',
           button: true,
           child: IconButton(
+// @converge:element BackButton-onPressed-1
             onPressed: () => Navigator.of(context).maybePop(),
             icon: const Icon(Icons.arrow_back),
             color: colorScheme.onSurface,
@@ -44,6 +45,7 @@ class ArticleReaderScreen extends StatelessWidget {
             label: 'Bookmark article, bookmarked',
             button: true,
             child: IconButton(
+// @converge:element BookmarkButton-onPressed-1
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Bookmark toggled')),

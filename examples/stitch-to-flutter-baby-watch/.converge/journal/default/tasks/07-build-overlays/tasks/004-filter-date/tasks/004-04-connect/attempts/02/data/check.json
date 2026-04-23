@@ -1,0 +1,10 @@
+{
+  "taskId": "07-build-overlays/004-filter-date/004-04-connect",
+  "checks": [
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes after connecting providers",
+      "cmd": "flutter analyze lib/widgets/overlays/filter_date/filter_date.dart"
+    }
+  ]
+}

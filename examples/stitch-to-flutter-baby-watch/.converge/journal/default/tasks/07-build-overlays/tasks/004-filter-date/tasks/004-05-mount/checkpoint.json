@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/004-filter-date/004-05-mount",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T20:48:34.788Z",
+  "createdAt": "2026-04-21T20:38:10.639Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T20:38:10.639Z",
+      "completedAt": "2026-04-21T20:47:42.749Z",
+      "outcome": "failed",
+      "durationMs": 572110
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-21T20:47:42.926Z",
+      "completedAt": "2026-04-21T20:48:34.780Z",
+      "outcome": "success",
+      "durationMs": 51854
+    }
+  ],
+  "currentAttempt": 2
+}

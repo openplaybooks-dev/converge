@@ -92,6 +92,7 @@ class _EducationScreenState extends State<EducationScreen> {
                       label: 'Search articles',
                       button: true,
                       child: IconButton(
+// @converge:element SearchButton-onPressed-1
                         onPressed: () {
                           showModalBottomSheet(
                             context: context,
@@ -121,6 +122,7 @@ class _EducationScreenState extends State<EducationScreen> {
                   TopicChipBar(
                     topics: _topics,
                     selectedIndex: _selectedTopicIndex,
+// @converge:element TopicChipBar-onSelected-1
                     onSelected: (index) =>
                         setState(() => _selectedTopicIndex = index),
                   )

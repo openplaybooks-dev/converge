@@ -1,0 +1,15 @@
+{
+  "taskId": "07-build-overlays/001-alert/001-01-spec",
+  "checks": [
+    {
+      "id": "spec-exists",
+      "description": "SPEC.md exists for alert",
+      "cmd": "test -f .stitch/designs/alert/SPEC.md"
+    },
+    {
+      "id": "spec-has-content",
+      "description": "SPEC.md has >30 lines",
+      "cmd": "test $(wc -l < .stitch/designs/alert/SPEC.md) -gt 30"
+    }
+  ]
+}

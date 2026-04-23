@@ -1,0 +1,20 @@
+{
+  "taskId": "03-build-screens/008-history/008-02-design",
+  "epicId": "default",
+  "focusPath": "default/03-build-screens/008-history/008-02-design",
+  "status": "running",
+  "startedAt": "2026-04-21T14:32:58.497Z",
+  "attempt": 1,
+  "gapsResolved": 0,
+  "gapsFailed": 0,
+  "checklist": [
+    {
+      "id": "subtask:spawn-1",
+      "type": "subtask",
+      "description": "stitch-generate",
+      "details": "../../../../.claude/skills/stitch-generate/SKILL.md",
+      "done": true,
+      "doneAt": "2026-04-21T14:43:41.852Z"
+    }
+  ]
+}

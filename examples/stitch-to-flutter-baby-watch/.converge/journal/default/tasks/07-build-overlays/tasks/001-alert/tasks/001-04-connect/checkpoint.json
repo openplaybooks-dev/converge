@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/001-alert/001-04-connect",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T19:30:15.792Z",
+  "createdAt": "2026-04-21T19:30:10.674Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T19:30:10.674Z",
+      "completedAt": "2026-04-21T19:30:15.785Z",
+      "outcome": "success",
+      "durationMs": 5111
+    }
+  ],
+  "currentAttempt": 1
+}

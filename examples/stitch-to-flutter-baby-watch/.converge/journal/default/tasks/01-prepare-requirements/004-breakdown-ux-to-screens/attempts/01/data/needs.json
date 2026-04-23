@@ -1,0 +1,18 @@
+{
+  "taskId": "01-prepare-requirements/004-breakdown-ux-to-screens",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/UX.md",
+      "count": 1,
+      "samples": [
+        ".stitch/UX.md"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/SITE.md",
+    ".stitch/screens.json"
+  ],
+  "blocked": false
+}

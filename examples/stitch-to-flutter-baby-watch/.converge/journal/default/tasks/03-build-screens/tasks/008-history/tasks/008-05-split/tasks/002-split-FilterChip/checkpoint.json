@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "03-build-screens/008-history/008-05-split/002-split-FilterChip",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T15:12:48.762Z",
+  "createdAt": "2026-04-21T15:07:24.091Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T15:07:24.091Z",
+      "completedAt": "2026-04-21T15:12:06.536Z",
+      "outcome": "failed",
+      "durationMs": 282445
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-21T15:12:06.646Z",
+      "completedAt": "2026-04-21T15:12:48.754Z",
+      "outcome": "success",
+      "durationMs": 42108
+    }
+  ],
+  "currentAttempt": 2
+}

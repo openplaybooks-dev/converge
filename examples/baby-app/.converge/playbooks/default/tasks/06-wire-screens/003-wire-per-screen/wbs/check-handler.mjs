@@ -1,7 +1,11 @@
 #!/usr/bin/env node
-// Check if a handler at a specific line in a Dart file is empty.
+// Check if a handler in a Dart file is empty/stub.
 //
-// Usage: node check-handler.mjs <file> <line> <handlerType>
+// Usage:
+//   node check-handler.mjs <file> --id <elementId> <handlerType>
+//   node check-handler.mjs <file> <line> <handlerType>   # legacy: line is all digits
+//
+// Marker mode: find `// @converge:element <elementId>` then the first `<handlerType>:` within 30 lines below.
 //
 // Exits 0 if handler has real logic, exits 1 if empty/stub.
 //
@@ -14,34 +18,90 @@
 //   - null
 import { readFileSync } from 'fs';
 
-const [,, file, lineStr, handlerType] = process.argv;
-if (!file || !lineStr || !handlerType) {
-  console.error('Usage: node check-handler.mjs <file> <line> <handlerType>');
+const argv = process.argv.slice(2);
+if (argv.length < 3) {
+  console.error(
+    'Usage: node check-handler.mjs <file> --id <elementId> <handlerType>\n' +
+      '       node check-handler.mjs <file> <line> <handlerType>'
+  );
   process.exit(2);
 }
 
-const lineNum = parseInt(lineStr, 10);
-const lines = readFileSync(file, 'utf-8').split('\n');
-
-// Find the handler starting at or near the given line (±3 lines tolerance)
+const [file, arg2, arg3, arg4] = argv;
+let handlerType;
+let lines;
 let handlerStart = -1;
-for (let i = Math.max(0, lineNum - 4); i < Math.min(lines.length, lineNum + 3); i++) {
-  if (lines[i].includes(`${handlerType}:`)) {
-    handlerStart = i;
-    break;
-  }
+
+try {
+  lines = readFileSync(file, 'utf-8').split('\n');
+} catch (e) {
+  console.error(`FAIL: cannot read ${file}: ${e.message}`);
+  process.exit(2);
 }
 
-if (handlerStart === -1) {
-  // Handler not found at expected location — might have been moved/removed
-  // If the handler type doesn't exist in the file at all, pass (it was removed)
-  const fullContent = lines.join('\n');
-  if (!fullContent.includes(`${handlerType}:`)) {
-    console.log(`PASS: ${handlerType} not found in ${file} (removed)`);
-    process.exit(0);
+const fullContent = lines.join('\n');
+
+if (arg2 === '--id') {
+  const elementId = arg3;
+  handlerType = arg4;
+  if (!elementId || !handlerType) {
+    console.error('Usage: node check-handler.mjs <file> --id <elementId> <handlerType>');
+    process.exit(2);
   }
-  console.error(`FAIL: ${handlerType} expected near line ${lineNum} but found elsewhere in ${file}`);
-  process.exit(1);
+  const marker = `// @converge:element ${elementId}`;
+  let markIdx = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].includes(marker)) {
+      markIdx = i;
+      break;
+    }
+  }
+  if (markIdx === -1) {
+    console.error(`FAIL: marker "${marker}" not found in ${file}`);
+    process.exit(1);
+  }
+  const maxForward = Math.min(lines.length, markIdx + 31);
+  for (let i = markIdx; i < maxForward; i++) {
+    if (lines[i].includes(`${handlerType}:`)) {
+      handlerStart = i;
+      break;
+    }
+  }
+  if (handlerStart === -1) {
+    if (!fullContent.includes(`${handlerType}:`)) {
+      console.log(`PASS: ${handlerType} not found in ${file} (removed)`);
+      process.exit(0);
+    }
+    console.error(
+      `FAIL: ${handlerType} not found within 30 lines after marker for ${elementId} in ${file}`
+    );
+    process.exit(1);
+  }
+} else {
+  const lineStr = arg2;
+  handlerType = arg3;
+  if (!/^\d+$/.test(lineStr) || !handlerType) {
+    console.error(
+      'Usage: node check-handler.mjs <file> --id <elementId> <handlerType>\n' +
+        '       node check-handler.mjs <file> <line> <handlerType> (line must be digits)'
+    );
+    process.exit(2);
+  }
+  const lineNum = parseInt(lineStr, 10);
+  for (let i = Math.max(0, lineNum - 4); i < Math.min(lines.length, lineNum + 3); i++) {
+    if (lines[i].includes(`${handlerType}:`)) {
+      handlerStart = i;
+      break;
+    }
+  }
+  if (handlerStart === -1) {
+    if (!fullContent.includes(`${handlerType}:`)) {
+      console.log(`PASS: ${handlerType} not found in ${file} (removed)`);
+      process.exit(0);
+    }
+    console.error(`FAIL: ${handlerType} expected near line ${lineNum} but found elsewhere in ${file}`);
+    process.exit(1);
+  }
 }
 
 const handlerLine = lines[handlerStart];
@@ -115,7 +175,7 @@ for (let i = handlerStart; i < lines.length; i++) {
         const body = bodyLines.join('\n').trim();
         // Strip comments and whitespace
         const stripped = body
-          .replace(/\/\/[^\n]*/g, '')   // line comments
+          .replace(/\/\/[^\n]*/g, '') // line comments
           .replace(/\/\*[\s\S]*?\*\//g, '') // block comments
           .trim();
 

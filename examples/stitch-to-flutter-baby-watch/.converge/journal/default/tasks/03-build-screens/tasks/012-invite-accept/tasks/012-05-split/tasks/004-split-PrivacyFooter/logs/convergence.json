@@ -1,0 +1,249 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/012-invite-accept/012-05-split/004-split-PrivacyFooter-missing-output-lib/screens/invite_accept/widgets/privacy_footer.dart",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/012-invite-accept/012-05-split/004-split-PrivacyFooter",
+            "severity": "high",
+            "description": "[03-build-screens/012-invite-accept/012-05-split/004-split-PrivacyFooter] Task output not created: lib/screens/invite_accept/widgets/privacy_footer.dart",
+            "source": "unit",
+            "detected": "2026-04-22T14:32:35.603Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-05-split/tasks/004-split-PrivacyFooter",
+              "taskId": "03-build-screens/012-invite-accept/012-05-split/004-split-PrivacyFooter",
+              "taskTitle": "Split: PrivacyFooter",
+              "taskPrompt": "# Split: PrivacyFooter\n\nExtract the `PrivacyFooter` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/invite_accept/invite_accept_screen.dart` using grep string: `// Privacy Footer`\n2. **Create file** — Write `lib/screens/invite_accept/widgets/privacy_footer.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `PrivacyFooter()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass PrivacyFooter extends StatelessWidget {\n  const PrivacyFooter({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskInputs": [
+                "lib/screens/invite_accept/invite_accept_screen.dart"
+              ],
+              "factId": "file-exists:test -f \"lib/screens/invite_accept/widgets/privacy_footer.dart\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-build-screens/012-invite-accept/012-05-split/004-split-PrivacyFooter-check-failed-widget-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/012-invite-accept/012-05-split/004-split-PrivacyFooter",
+            "severity": "high",
+            "description": "[03-build-screens/012-invite-accept/012-05-split/004-split-PrivacyFooter] Check failed: Widget file exists",
+            "source": "unit",
+            "detected": "2026-04-22T14:32:35.605Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "widget-exists",
+              "checkCmd": "test -f lib/screens/invite_accept/widgets/privacy_footer.dart",
+              "checkDescription": "Widget file exists",
+              "checkOutput": "Command failed: test -f lib/screens/invite_accept/widgets/privacy_footer.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Split: PrivacyFooter\n\nExtract the `PrivacyFooter` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/invite_accept/invite_accept_screen.dart` using grep string: `// Privacy Footer`\n2. **Create file** — Write `lib/screens/invite_accept/widgets/privacy_footer.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `PrivacyFooter()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass PrivacyFooter extends StatelessWidget {\n  const PrivacyFooter({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskId": "03-build-screens/012-invite-accept/012-05-split/004-split-PrivacyFooter",
+              "taskTitle": "Split: PrivacyFooter",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-05-split/tasks/004-split-PrivacyFooter",
+              "factId": "check:widget-exists"
+            }
+          },
+          {
+            "id": "03-build-screens/012-invite-accept/012-05-split/004-split-PrivacyFooter-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/012-invite-accept/012-05-split/004-split-PrivacyFooter",
+            "severity": "high",
+            "description": "[03-build-screens/012-invite-accept/012-05-split/004-split-PrivacyFooter] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-22T14:32:35.631Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "dart analyze lib/screens/invite_accept/widgets/privacy_footer.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "Directory or file doesn't exist: lib/screens/invite_accept/widgets/privacy_footer.dart\n\nUsage: dart analyze [arguments] [<directory>]\n-h, --help                   Print this usage information.\n    --fatal-infos            Treat info level issues as fatal.\n    --[no-]fatal-warnings    Treat warning level issues as fatal.\n                             (defaults to on)\n\nRun \"dart help\" to see global options.",
+              "checkExitCode": 64,
+              "taskPrompt": "# Split: PrivacyFooter\n\nExtract the `PrivacyFooter` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/invite_accept/invite_accept_screen.dart` using grep string: `// Privacy Footer`\n2. **Create file** — Write `lib/screens/invite_accept/widgets/privacy_footer.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `PrivacyFooter()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass PrivacyFooter extends StatelessWidget {\n  const PrivacyFooter({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskId": "03-build-screens/012-invite-accept/012-05-split/004-split-PrivacyFooter",
+              "taskTitle": "Split: PrivacyFooter",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-05-split/tasks/004-split-PrivacyFooter",
+              "factId": "check:dart-valid"
+            }
+          }
+        ],
+        "durationMs": 34
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 33
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 2912
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#35",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 117969
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-22T14:32:35.596Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-22T14:32:35.597Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-22T14:32:35.631Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-22T14:32:35.633Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-22T14:32:35.666Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#35",
+      "iteration": 1,
+      "ts": "2026-04-22T14:34:33.636Z"
+    },
+    {
+      "from": "run-strategy:task-run#35",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-22T14:34:36.549Z"
+    }
+  ]
+}

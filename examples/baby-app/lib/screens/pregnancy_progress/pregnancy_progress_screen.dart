@@ -38,6 +38,7 @@ class PregnancyProgressScreen extends ConsumerWidget {
               backgroundColor: AppTheme.canvasAltColor,
               surfaceTintColor: AppTheme.canvasAltColor,
               leading: IconButton(
+// @converge:element BackButton-onPressed-1
                 onPressed: () => Navigator.maybePop(context),
                 icon: const Icon(
                   Icons.chevron_left,
@@ -91,6 +92,7 @@ class PregnancyProgressScreen extends ConsumerWidget {
       ),
       child: NavigationBar(
         selectedIndex: 1,
+// @converge:element BottomNav-onDestinationSelected-1
         onDestinationSelected: (index) => context.go(const ['/home', '/progress', '/health-log', '/mood', '/education'][index]),
         destinations: const [
           NavigationDestination(

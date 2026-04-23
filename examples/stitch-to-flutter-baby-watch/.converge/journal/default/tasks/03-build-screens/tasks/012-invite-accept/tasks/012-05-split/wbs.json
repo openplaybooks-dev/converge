@@ -1,0 +1,27 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-22T14:21:50.564Z",
+  "spawnCount": 5,
+  "subtasks": [
+    {
+      "id": "001-split-PulseAvatarBadge",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-05-split/tasks/001-split-PulseAvatarBadge/TASK.md"
+    },
+    {
+      "id": "002-split-TrustNotesContainer",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-05-split/tasks/002-split-TrustNotesContainer/TASK.md"
+    },
+    {
+      "id": "003-split-ActionButtons",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-05-split/tasks/003-split-ActionButtons/TASK.md"
+    },
+    {
+      "id": "004-split-PrivacyFooter",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-05-split/tasks/004-split-PrivacyFooter/TASK.md"
+    },
+    {
+      "id": "005-split-StatusIndicator",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-05-split/tasks/005-split-StatusIndicator/TASK.md"
+    }
+  ]
+}

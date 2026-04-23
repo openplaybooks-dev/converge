@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/001-alert/001-01-spec",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T18:39:38.109Z",
+  "createdAt": "2026-04-21T18:39:38.078Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T18:39:38.078Z",
+      "completedAt": "2026-04-21T18:39:38.107Z",
+      "outcome": "success",
+      "durationMs": 29
+    }
+  ],
+  "currentAttempt": 1
+}

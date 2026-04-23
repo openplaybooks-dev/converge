@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "03-build-screens/009-settings/009-05-split/003-split-BeaconSetupCard",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T17:35:22.548Z",
+  "createdAt": "2026-04-21T15:58:21.256Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T15:58:21.256Z",
+      "completedAt": "2026-04-21T16:01:57.707Z",
+      "outcome": "success",
+      "durationMs": 216451
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-21T17:33:50.731Z",
+      "completedAt": "2026-04-21T17:35:22.531Z",
+      "outcome": "success",
+      "durationMs": 91800
+    }
+  ],
+  "currentAttempt": 2
+}

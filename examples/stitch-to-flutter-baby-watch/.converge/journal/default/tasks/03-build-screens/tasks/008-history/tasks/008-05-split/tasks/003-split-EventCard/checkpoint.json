@@ -1,0 +1,38 @@
+{
+  "type": "task",
+  "id": "03-build-screens/008-history/008-05-split/003-split-EventCard",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T16:49:21.769Z",
+  "createdAt": "2026-04-21T15:12:48.864Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T15:12:48.864Z",
+      "completedAt": "2026-04-21T15:14:29.486Z",
+      "outcome": "success",
+      "durationMs": 100622
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-21T16:35:13.938Z",
+      "completedAt": "2026-04-21T16:37:35.766Z",
+      "outcome": "success",
+      "durationMs": 141828
+    },
+    {
+      "attempt": 3,
+      "startedAt": "2026-04-21T16:44:20.690Z",
+      "completedAt": "2026-04-21T16:49:18.338Z",
+      "outcome": "failed",
+      "durationMs": 297648
+    },
+    {
+      "attempt": 4,
+      "startedAt": "2026-04-21T16:49:18.464Z",
+      "completedAt": "2026-04-21T16:49:21.765Z",
+      "outcome": "success",
+      "durationMs": 3301
+    }
+  ],
+  "currentAttempt": 4
+}

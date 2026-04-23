@@ -1,0 +1,31 @@
+{
+  "taskId": "03-build-screens/008-history/008-03-convert",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/history/design.html",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/history/design.html"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/history/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/history/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/history/history_screen.dart"
+  ],
+  "blocked": false
+}

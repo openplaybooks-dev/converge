@@ -1,0 +1,249 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/012-invite-accept/012-06-lift/004-lift-PrivacyFooter-missing-output-lib/widgets/privacy_footer.dart",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/012-invite-accept/012-06-lift/004-lift-PrivacyFooter",
+            "severity": "high",
+            "description": "[03-build-screens/012-invite-accept/012-06-lift/004-lift-PrivacyFooter] Task output not created: lib/widgets/privacy_footer.dart",
+            "source": "unit",
+            "detected": "2026-04-22T16:27:52.124Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-06-lift/tasks/004-lift-PrivacyFooter",
+              "taskId": "03-build-screens/012-invite-accept/012-06-lift/004-lift-PrivacyFooter",
+              "taskTitle": "Lift: PrivacyFooter",
+              "taskPrompt": "# Lift: PrivacyFooter\n\nMove `PrivacyFooter` from local screen widgets to the shared widgets directory.\n\n## Steps\n\n1. **Move file** — `lib/screens/invite_accept/widgets/privacy_footer.dart` → `lib/widgets/privacy_footer.dart`\n2. **Update package import** — Change relative import to package import: `package:folio/widgets/privacy_footer.dart`\n3. **Update all references** — Find all files importing the old path and update them\n4. **Verify** — Run `dart analyze` on affected files",
+              "taskInputs": [
+                "lib/screens/invite_accept/widgets/privacy_footer.dart"
+              ],
+              "factId": "file-exists:test -f \"lib/widgets/privacy_footer.dart\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-build-screens/012-invite-accept/012-06-lift/004-lift-PrivacyFooter-check-failed-widget-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/012-invite-accept/012-06-lift/004-lift-PrivacyFooter",
+            "severity": "high",
+            "description": "[03-build-screens/012-invite-accept/012-06-lift/004-lift-PrivacyFooter] Check failed: Shared widget file exists",
+            "source": "unit",
+            "detected": "2026-04-22T16:27:52.127Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "widget-exists",
+              "checkCmd": "test -f lib/widgets/privacy_footer.dart",
+              "checkDescription": "Shared widget file exists",
+              "checkOutput": "Command failed: test -f lib/widgets/privacy_footer.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Lift: PrivacyFooter\n\nMove `PrivacyFooter` from local screen widgets to the shared widgets directory.\n\n## Steps\n\n1. **Move file** — `lib/screens/invite_accept/widgets/privacy_footer.dart` → `lib/widgets/privacy_footer.dart`\n2. **Update package import** — Change relative import to package import: `package:folio/widgets/privacy_footer.dart`\n3. **Update all references** — Find all files importing the old path and update them\n4. **Verify** — Run `dart analyze` on affected files",
+              "taskId": "03-build-screens/012-invite-accept/012-06-lift/004-lift-PrivacyFooter",
+              "taskTitle": "Lift: PrivacyFooter",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-06-lift/tasks/004-lift-PrivacyFooter",
+              "factId": "check:widget-exists"
+            }
+          },
+          {
+            "id": "03-build-screens/012-invite-accept/012-06-lift/004-lift-PrivacyFooter-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/012-invite-accept/012-06-lift/004-lift-PrivacyFooter",
+            "severity": "high",
+            "description": "[03-build-screens/012-invite-accept/012-06-lift/004-lift-PrivacyFooter] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-22T16:27:52.152Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "dart analyze lib/widgets/privacy_footer.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "Directory or file doesn't exist: lib/widgets/privacy_footer.dart\n\nUsage: dart analyze [arguments] [<directory>]\n-h, --help                   Print this usage information.\n    --fatal-infos            Treat info level issues as fatal.\n    --[no-]fatal-warnings    Treat warning level issues as fatal.\n                             (defaults to on)\n\nRun \"dart help\" to see global options.",
+              "checkExitCode": 64,
+              "taskPrompt": "# Lift: PrivacyFooter\n\nMove `PrivacyFooter` from local screen widgets to the shared widgets directory.\n\n## Steps\n\n1. **Move file** — `lib/screens/invite_accept/widgets/privacy_footer.dart` → `lib/widgets/privacy_footer.dart`\n2. **Update package import** — Change relative import to package import: `package:folio/widgets/privacy_footer.dart`\n3. **Update all references** — Find all files importing the old path and update them\n4. **Verify** — Run `dart analyze` on affected files",
+              "taskId": "03-build-screens/012-invite-accept/012-06-lift/004-lift-PrivacyFooter",
+              "taskTitle": "Lift: PrivacyFooter",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-06-lift/tasks/004-lift-PrivacyFooter",
+              "factId": "check:dart-valid"
+            }
+          }
+        ],
+        "durationMs": 35
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 31
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 2780
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#8",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 399867
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-22T16:27:52.111Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-22T16:27:52.115Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-22T16:27:52.152Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-22T16:27:52.153Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-22T16:27:52.184Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#8",
+      "iteration": 1,
+      "ts": "2026-04-22T16:34:32.051Z"
+    },
+    {
+      "from": "run-strategy:task-run#8",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-22T16:34:34.832Z"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "type": "task",
+  "id": "03-build-screens/006-add-safe-zone/006-06-lift/002-lift-ActiveToggle",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T16:35:13.807Z",
+  "createdAt": "2026-04-21T13:48:00.568Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T13:48:00.568Z",
+      "completedAt": "2026-04-21T13:50:05.031Z",
+      "outcome": "failed",
+      "durationMs": 124463
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-21T13:50:35.427Z",
+      "completedAt": "2026-04-21T13:50:35.428Z",
+      "outcome": "failed",
+      "durationMs": 1
+    },
+    {
+      "attempt": 3,
+      "startedAt": "2026-04-21T16:33:16.037Z",
+      "completedAt": "2026-04-21T16:35:13.798Z",
+      "outcome": "success",
+      "durationMs": 117761
+    }
+  ],
+  "currentAttempt": 3
+}

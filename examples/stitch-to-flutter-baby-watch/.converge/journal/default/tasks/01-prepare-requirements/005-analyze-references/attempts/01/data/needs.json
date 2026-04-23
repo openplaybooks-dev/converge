@@ -1,0 +1,57 @@
+{
+  "taskId": "01-prepare-requirements/005-analyze-references",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "idea.md",
+      "count": 1,
+      "samples": [
+        "idea.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/references/**/screen.png",
+      "count": 11,
+      "samples": [
+        ".stitch/references/babyguard_home_phase_2_alert/screen.png",
+        ".stitch/references/babyguard_home_phase_2_safe_updated/screen.png",
+        ".stitch/references/babyguard_onboarding_phase_2/screen.png",
+        ".stitch/references/ch_p_nh_n_l_i_m_i/screen.png",
+        ".stitch/references/chi_ti_t_beacon_phase_2/screen.png",
+        ".stitch/references/co_guardians_list_phase_2/screen.png",
+        ".stitch/references/history/screen.png",
+        ".stitch/references/safe_zones/screen.png",
+        ".stitch/references/settings/screen.png",
+        ".stitch/references/th_m_beacon_phase_2/screen.png"
+      ]
+    },
+    {
+      "pattern": ".stitch/references/**/code.html",
+      "count": 11,
+      "samples": [
+        ".stitch/references/babyguard_home_phase_2_safe_updated/code.html",
+        ".stitch/references/babyguard_home_phase_2_weak_signal/code.html",
+        ".stitch/references/babyguard_onboarding_phase_2/code.html",
+        ".stitch/references/ch_p_nh_n_l_i_m_i/code.html",
+        ".stitch/references/chi_ti_t_beacon_phase_2/code.html",
+        ".stitch/references/co_guardians_list_phase_2/code.html",
+        ".stitch/references/history/code.html",
+        ".stitch/references/safe_zones/code.html",
+        ".stitch/references/settings/code.html",
+        ".stitch/references/th_m_beacon_phase_2/code.html"
+      ]
+    },
+    {
+      "pattern": ".stitch/references/**/DESIGN.md",
+      "count": 2,
+      "samples": [
+        ".stitch/references/lullaby_minimal/DESIGN.md",
+        ".stitch/references/serene_guardian/DESIGN.md"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/references/ANALYSIS.md"
+  ],
+  "blocked": false
+}

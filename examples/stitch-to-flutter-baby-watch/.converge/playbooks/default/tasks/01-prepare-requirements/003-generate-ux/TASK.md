@@ -4,7 +4,7 @@ title: Generate UX Overview
 description: Generate UX specification from PRD using ux-design skill
 inputs:
   - PRD.md
-  - .stitch/references/ANALYSIS.md
+  - .stitch/references/babyguard_home_phase_2_alert
 outputs:
   - .stitch/UX.md
 checks:
@@ -34,12 +34,12 @@ Invoke **/ux-design** skill to generate `.stitch/UX.md` from the PRD.
 ## Inputs
 
 - `PRD.md` — Product Requirements Document
-- `.stitch/references/ANALYSIS.md` — Synthesized analysis of design references (if available)
+- `.stitch/references/babyguard_home_phase_2_alert` — Synthesized analysis of design references (if available)
 
 ## Constraints
 
 - **Source of truth is `PRD.md`** — Do NOT read or reference existing source code in `lib/`
-- If `.stitch/references/ANALYSIS.md` exists, use it to inform screen types, navigation structure, and visual direction — but PRD remains the authoritative source for features and scope
+- If `.stitch/references/babyguard_home_phase_2_alert` exists, use it to inform screen types, navigation structure, and visual direction — but PRD remains the authoritative source for features and scope
 - If `data-modeling/` does not exist, derive everything from `PRD.md` alone
 - The UX.md title and screens MUST correspond to the app described in `PRD.md`
 - Screens should be designed for **Flutter** — consider platform conventions (Material 3, bottom navigation, app bars)

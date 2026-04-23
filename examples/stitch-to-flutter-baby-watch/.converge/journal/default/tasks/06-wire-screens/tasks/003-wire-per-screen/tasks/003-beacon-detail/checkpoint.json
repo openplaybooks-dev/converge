@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/003-wire-per-screen/003-beacon-detail",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T08:10:55.209Z",
+  "createdAt": "2026-04-23T08:10:55.204Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T08:10:55.204Z",
+      "completedAt": "2026-04-23T08:10:55.207Z",
+      "outcome": "success",
+      "durationMs": 3
+    }
+  ],
+  "currentAttempt": 1
+}

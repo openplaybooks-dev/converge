@@ -1,0 +1,16 @@
+{
+  "taskId": "03-build-screens/012-invite-accept/012-06-lift/001-lift-PulseAvatarBadge",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "lib/screens/invite_accept/widgets/pulse_avatar_badge.dart",
+      "count": 0,
+      "samples": []
+    }
+  ],
+  "outputs": [
+    "lib/widgets/pulse_avatar_badge.dart"
+  ],
+  "blocked": true,
+  "blockedReason": "Missing required inputs: lib/screens/invite_accept/widgets/pulse_avatar_badge.dart"
+}

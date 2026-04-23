@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/012-invite-accept/012-06-lift/003-lift-ActionButtons",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/invite_accept/widgets/action_buttons.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/invite_accept/widgets/action_buttons.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/action_buttons.dart"
+  ],
+  "blocked": false
+}

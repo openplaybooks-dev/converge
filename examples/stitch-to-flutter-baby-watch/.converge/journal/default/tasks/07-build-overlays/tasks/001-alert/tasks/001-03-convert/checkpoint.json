@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/001-alert/001-03-convert",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T18:45:22.950Z",
+  "createdAt": "2026-04-21T18:41:43.520Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T18:41:43.520Z",
+      "completedAt": "2026-04-21T18:45:22.947Z",
+      "outcome": "success",
+      "durationMs": 219427
+    }
+  ],
+  "currentAttempt": 1
+}

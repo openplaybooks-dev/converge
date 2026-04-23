@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/007-edit-safe-zone/007-06-lift/003-lift-ActiveToggle",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/edit_safe_zone/widgets/active_toggle.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/edit_safe_zone/widgets/active_toggle.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/active_toggle.dart"
+  ],
+  "blocked": false
+}

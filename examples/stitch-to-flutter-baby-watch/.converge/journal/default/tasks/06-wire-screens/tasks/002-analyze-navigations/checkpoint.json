@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/002-analyze-navigations",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T09:49:23.062Z",
+  "createdAt": "2026-04-21T18:45:23.092Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T07:29:35.461Z",
+      "completedAt": "2026-04-23T07:29:35.749Z",
+      "outcome": "success",
+      "durationMs": 288
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-23T09:49:22.766Z",
+      "completedAt": "2026-04-23T09:49:23.060Z",
+      "outcome": "success",
+      "durationMs": 294
+    }
+  ],
+  "currentAttempt": 2
+}

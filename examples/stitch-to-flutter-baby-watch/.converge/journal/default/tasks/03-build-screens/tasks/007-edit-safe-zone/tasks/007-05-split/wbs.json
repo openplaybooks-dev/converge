@@ -1,0 +1,31 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-21T14:08:08.236Z",
+  "spawnCount": 6,
+  "subtasks": [
+    {
+      "id": "001-split-MapPreviewCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/007-edit-safe-zone/tasks/007-05-split/tasks/001-split-MapPreviewCard/TASK.md"
+    },
+    {
+      "id": "002-split-SafeZoneFormField",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/007-edit-safe-zone/tasks/007-05-split/tasks/002-split-SafeZoneFormField/TASK.md"
+    },
+    {
+      "id": "003-split-AddressField",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/007-edit-safe-zone/tasks/007-05-split/tasks/003-split-AddressField/TASK.md"
+    },
+    {
+      "id": "004-split-RadiusSelector",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/007-edit-safe-zone/tasks/007-05-split/tasks/004-split-RadiusSelector/TASK.md"
+    },
+    {
+      "id": "005-split-ActiveToggle",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/007-edit-safe-zone/tasks/007-05-split/tasks/005-split-ActiveToggle/TASK.md"
+    },
+    {
+      "id": "006-split-DeleteButton",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/007-edit-safe-zone/tasks/007-05-split/tasks/006-split-DeleteButton/TASK.md"
+    }
+  ]
+}

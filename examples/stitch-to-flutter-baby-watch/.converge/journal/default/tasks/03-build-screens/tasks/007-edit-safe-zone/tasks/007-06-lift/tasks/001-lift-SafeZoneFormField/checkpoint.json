@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "03-build-screens/007-edit-safe-zone/007-06-lift/001-lift-SafeZoneFormField",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T14:28:04.854Z",
+  "createdAt": "2026-04-21T14:23:12.917Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T14:23:12.917Z",
+      "completedAt": "2026-04-21T14:28:01.836Z",
+      "outcome": "failed",
+      "durationMs": 288919
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-21T14:28:01.944Z",
+      "completedAt": "2026-04-21T14:28:04.851Z",
+      "outcome": "success",
+      "durationMs": 2907
+    }
+  ],
+  "currentAttempt": 2
+}

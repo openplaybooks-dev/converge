@@ -1,0 +1,2 @@
+{"type":"check","checkId":"file-exists","cmd":"test -f lib/providers/beacon_provider.dart","description":"beacon_provider.dart exists","id":"check:file-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T04:50:36.454Z"}
+{"type":"check","checkId":"dart-valid","cmd":"dart analyze lib/providers/beacon_provider.dart","description":"Dart analysis passes","id":"check:dart-valid","ok":true,"output":"Analyzing beacon_provider.dart...\nNo issues found!","exitCode":0,"collectedAt":"2026-04-23T04:50:36.840Z"}

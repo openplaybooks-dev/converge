@@ -1,0 +1,21 @@
+{
+  "type": "task",
+  "id": "03-build-screens/012-invite-accept",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T12:25:07.344Z",
+  "createdAt": "2026-04-22T13:18:59.522Z",
+  "progress": {
+    "totalChildren": 6,
+    "completedChildren": 6,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "012-01-spec",
+      "012-02-design",
+      "012-03-convert",
+      "012-04-analyze",
+      "012-05-split",
+      "012-06-lift"
+    ],
+    "lastProgressUpdate": "2026-04-23T12:25:07.342Z"
+  }
+}

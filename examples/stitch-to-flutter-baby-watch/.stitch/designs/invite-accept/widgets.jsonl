@@ -1,0 +1,5 @@
+{"name": "PulseAvatarBadge", "grep": "AnimatedBuilder\\n.*animation: _pulseAnimation", "description": "Avatar with pulsing animation and shield badge", "shared": false}
+{"name": "TrustNotesContainer", "grep": "// Trust Notes", "description": "Container for trust note items explaining permissions", "shared": false}
+{"name": "ActionButtons", "grep": "// Action Buttons", "description": "Accept and Reject buttons", "shared": false}
+{"name": "PrivacyFooter", "grep": "// Privacy Footer", "description": "Security footer with BabyGuard branding", "shared": false}
+{"name": "StatusIndicator", "grep": "// Status Indicator", "description": "System status indicator at bottom", "shared": false}

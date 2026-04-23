@@ -1,0 +1,31 @@
+{
+  "taskId": "07-build-overlays/004-filter-date/004-05-mount",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "lib/widgets/overlays/filter_date/filter_date.dart",
+      "count": 1,
+      "samples": [
+        "lib/widgets/overlays/filter_date/filter_date.dart"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/filter-date/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/filter-date/SPEC.md"
+      ]
+    },
+    {
+      "pattern": "lib/screens/history/history_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/history/history_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/history/history_screen.dart"
+  ],
+  "blocked": false
+}

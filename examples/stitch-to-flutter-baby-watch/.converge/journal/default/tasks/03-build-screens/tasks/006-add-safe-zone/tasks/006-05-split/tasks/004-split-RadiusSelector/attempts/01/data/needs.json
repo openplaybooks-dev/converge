@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/006-add-safe-zone/006-05-split/004-split-RadiusSelector",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/add_safe_zone/add_safe_zone_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/add_safe_zone/add_safe_zone_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/add_safe_zone/widgets/radius_selector.dart"
+  ],
+  "blocked": false
+}

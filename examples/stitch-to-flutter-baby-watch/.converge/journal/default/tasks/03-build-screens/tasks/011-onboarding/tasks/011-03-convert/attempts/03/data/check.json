@@ -1,0 +1,25 @@
+{
+  "taskId": "03-build-screens/011-onboarding/011-03-convert",
+  "checks": [
+    {
+      "id": "screen-exists",
+      "description": "Screen widget file exists",
+      "cmd": "test -f lib/screens/onboarding/onboarding_screen.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/screens/onboarding/onboarding_screen.dart"
+    },
+    {
+      "id": "uses-theme",
+      "description": "Uses Theme.of(context) for styling",
+      "cmd": "grep -q 'Theme.of(context)' lib/screens/onboarding/onboarding_screen.dart"
+    },
+    {
+      "id": "no-hardcoded-colors",
+      "description": "No hardcoded colors — uses colorScheme",
+      "cmd": "grep -qE 'Color\\(0x|Colors\\.' lib/screens/onboarding/onboarding_screen.dart && exit 1 || exit 0"
+    }
+  ]
+}

@@ -61,8 +61,8 @@ export async function run(ctx) {
         checks: [
           {
             id: 'handler-wired',
-            cmd: `node ${CHECK_SCRIPT} ${el.file} ${el.line} ${el.type}`,
-            description: `${el.widget}.${el.type} has real logic at ${el.file}:${el.line}`,
+            cmd: `node ${CHECK_SCRIPT} ${el.file} --id ${el.elementId} ${el.type}`,
+            description: `${el.widget}.${el.type} has real logic in ${el.file} (@converge:element ${el.elementId})`,
           },
         ],
       });
@@ -80,7 +80,9 @@ export async function run(ctx) {
 function buildBody(el, screen, bottomNavRoutes, routeListStr) {
   const lines = [];
 
-  lines.push(`Wire the **${el.widget}** \`${el.type}\` handler in \`${el.file}:${el.line}\`.`);
+  lines.push(
+    `Wire the **${el.widget}** \`${el.type}\` handler for \`${el.elementId}\` in \`${el.file}\` (marker \`// @converge:element ${el.elementId}\` must stay).`
+  );
   lines.push('');
   lines.push(`**Current status:** ${el.status}`);
   lines.push(`**Required action:** ${el.action}`);
@@ -128,6 +130,9 @@ function buildBody(el, screen, bottomNavRoutes, routeListStr) {
   lines.push('## Rules');
   lines.push('');
   lines.push('- Only modify the single handler — do NOT change layout or add widgets');
+  lines.push(
+    `- Do not remove or move \`// @converge:element ${el.elementId}\` (added by 002 Analyze Navigations); only edit the handler body`
+  );
   lines.push('- Match existing code style in the file');
   lines.push('- The handler must not be empty after your change');
   lines.push('- The handler body must contain real logic — not just a comment');

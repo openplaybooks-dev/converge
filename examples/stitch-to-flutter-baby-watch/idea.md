@@ -6,7 +6,8 @@ A child safety application that detects when a child is left behind by monitorin
 
 ## 📋 Overview
 
-### Product Description
+### Purpose
+A child safety application that detects when a child is left behind by monitoring Bluetooth beacons.
 A child safety application that detects when a child is left behind by monitoring Bluetooth beacons. When the adult's device moves away from the beacon for a specified duration, the app triggers comprehensive alerts.
 
 ### Value Proposition

@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/005-event-detail/005-02-design",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T20:50:36.848Z",
+  "createdAt": "2026-04-21T20:48:35.111Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T20:48:35.111Z",
+      "completedAt": "2026-04-21T20:50:36.840Z",
+      "outcome": "success",
+      "durationMs": 121729
+    }
+  ],
+  "currentAttempt": 1
+}

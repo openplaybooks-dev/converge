@@ -1,0 +1,31 @@
+{
+  "taskId": "03-build-screens/006-add-safe-zone/006-03-convert",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/add-safe-zone/design.html",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/add-safe-zone/design.html"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/add-safe-zone/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/add-safe-zone/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/add_safe_zone/add_safe_zone_screen.dart"
+  ],
+  "blocked": false
+}

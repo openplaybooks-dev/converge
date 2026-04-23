@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/007-edit-safe-zone/007-05-split/006-split-DeleteButton",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Widget file exists",
+      "cmd": "test -f lib/screens/edit_safe_zone/widgets/delete_button.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "flutter analyze lib/screens/edit_safe_zone/widgets/delete_button.dart"
+    }
+  ]
+}

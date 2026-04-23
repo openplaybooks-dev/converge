@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/008-history/008-06-lift/003-lift-EventCard",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Shared widget file exists",
+      "cmd": "test -f lib/widgets/event_card.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/widgets/event_card.dart"
+    }
+  ]
+}

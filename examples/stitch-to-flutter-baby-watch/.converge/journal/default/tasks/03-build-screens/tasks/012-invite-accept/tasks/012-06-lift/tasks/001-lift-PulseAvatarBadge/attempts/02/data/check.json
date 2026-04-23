@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/012-invite-accept/012-06-lift/001-lift-PulseAvatarBadge",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Shared widget file exists",
+      "cmd": "test -f lib/widgets/pulse_avatar_badge.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/widgets/pulse_avatar_badge.dart"
+    }
+  ]
+}

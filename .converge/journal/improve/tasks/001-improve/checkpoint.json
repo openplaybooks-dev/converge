@@ -1,0 +1,16 @@
+{
+  "type": "task",
+  "id": "001-improve",
+  "status": "pending",
+  "lastUpdated": "2026-04-21T13:22:28.917Z",
+  "createdAt": "2026-04-21T11:46:09.364Z",
+  "progress": {
+    "totalChildren": 1,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "epoch-001"
+    ],
+    "lastProgressUpdate": "2026-04-21T13:22:28.917Z"
+  }
+}

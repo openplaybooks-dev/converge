@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-build-screens/011-onboarding/011-02-design",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T17:33:50.609Z",
+  "createdAt": "2026-04-21T17:24:18.913Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T17:24:18.913Z",
+      "completedAt": "2026-04-21T17:33:50.595Z",
+      "outcome": "success",
+      "durationMs": 571682
+    }
+  ],
+  "currentAttempt": 1
+}

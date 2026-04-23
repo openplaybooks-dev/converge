@@ -1,0 +1,215 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-23T10:58:43.220Z",
+  "spawnCount": 52,
+  "subtasks": [
+    {
+      "id": "001-home",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-home/TASK.md"
+    },
+    {
+      "id": "001-HomeScreen-IconButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-HomeScreen-IconButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "002-HomeScreen-_NavItem-onTap-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/002-HomeScreen-_NavItem-onTap-1/TASK.md"
+    },
+    {
+      "id": "003-HomeScreen-_NavItem-onTap-2",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/003-HomeScreen-_NavItem-onTap-2/TASK.md"
+    },
+    {
+      "id": "004-HomeScreen-_NavItem-onTap-3",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/004-HomeScreen-_NavItem-onTap-3/TASK.md"
+    },
+    {
+      "id": "005-HomeScreen-_NavItem-onTap-4",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/005-HomeScreen-_NavItem-onTap-4/TASK.md"
+    },
+    {
+      "id": "006-HomeScreen-TextButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/006-HomeScreen-TextButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "007-HomeScreen-_QuickActionButton-onTap-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/007-HomeScreen-_QuickActionButton-onTap-1/TASK.md"
+    },
+    {
+      "id": "008-HomeScreen-_QuickActionButton-onTap-2",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/008-HomeScreen-_QuickActionButton-onTap-2/TASK.md"
+    },
+    {
+      "id": "009-HomeScreen-_QuickActionButton-onTap-3",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/009-HomeScreen-_QuickActionButton-onTap-3/TASK.md"
+    },
+    {
+      "id": "002-beacon-scanner",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/002-beacon-scanner/TASK.md"
+    },
+    {
+      "id": "001-BeaconScannerScreen-IconButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-BeaconScannerScreen-IconButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "002-BeaconScannerScreen-ElevatedButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/002-BeaconScannerScreen-ElevatedButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "003-BeaconScannerScreen-_DeviceCard-ElevatedButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/003-BeaconScannerScreen-_DeviceCard-ElevatedButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "003-beacon-detail",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/003-beacon-detail/TASK.md"
+    },
+    {
+      "id": "001-BeaconDetailScreen-IconButton-onPressed-2",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-BeaconDetailScreen-IconButton-onPressed-2/TASK.md"
+    },
+    {
+      "id": "002-BeaconDetailScreen-TextButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/002-BeaconDetailScreen-TextButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "003-BeaconDetailScreen-FloatingActionButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/003-BeaconDetailScreen-FloatingActionButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "004-beacon-edit",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/004-beacon-edit/TASK.md"
+    },
+    {
+      "id": "001-BeaconEditScreen-TextButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-BeaconEditScreen-TextButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "005-safe-zones",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/005-safe-zones/TASK.md"
+    },
+    {
+      "id": "001-SafeZonesScreen-IconButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-SafeZonesScreen-IconButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "002-SafeZonesScreen-FloatingActionButton-extendedOnPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/002-SafeZonesScreen-FloatingActionButton-extendedOnPressed-1/TASK.md"
+    },
+    {
+      "id": "003-SafeZonesScreen-_NavItem-onTap-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/003-SafeZonesScreen-_NavItem-onTap-1/TASK.md"
+    },
+    {
+      "id": "004-SafeZonesScreen-_NavItem-onTap-2",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/004-SafeZonesScreen-_NavItem-onTap-2/TASK.md"
+    },
+    {
+      "id": "005-SafeZonesScreen-_NavItem-onTap-3",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/005-SafeZonesScreen-_NavItem-onTap-3/TASK.md"
+    },
+    {
+      "id": "006-SafeZonesScreen-_NavItem-onTap-4",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/006-SafeZonesScreen-_NavItem-onTap-4/TASK.md"
+    },
+    {
+      "id": "007-SafeZonesScreen-_ZoneCard-IconButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/007-SafeZonesScreen-_ZoneCard-IconButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "006-history",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/006-history/TASK.md"
+    },
+    {
+      "id": "001-HistoryScreen-IconButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-HistoryScreen-IconButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "002-HistoryScreen-IconButton-onPressed-2",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/002-HistoryScreen-IconButton-onPressed-2/TASK.md"
+    },
+    {
+      "id": "003-HistoryScreen-ElevatedButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/003-HistoryScreen-ElevatedButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "004-HistoryScreen-TextButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/004-HistoryScreen-TextButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "007-settings",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/007-settings/TASK.md"
+    },
+    {
+      "id": "001-SettingsScreen-IconButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-SettingsScreen-IconButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "002-SettingsScreen-IconButton-onPressed-2",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/002-SettingsScreen-IconButton-onPressed-2/TASK.md"
+    },
+    {
+      "id": "003-SettingsScreen-ElevatedButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/003-SettingsScreen-ElevatedButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "008-guardians",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/008-guardians/TASK.md"
+    },
+    {
+      "id": "001-GuardiansScreen-IconButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-GuardiansScreen-IconButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "002-GuardiansScreen-IconButton-onPressed-2",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/002-GuardiansScreen-IconButton-onPressed-2/TASK.md"
+    },
+    {
+      "id": "009-onboarding",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/009-onboarding/TASK.md"
+    },
+    {
+      "id": "001-OnboardingScreen-IconButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-OnboardingScreen-IconButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "002-OnboardingScreen-TextButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/002-OnboardingScreen-TextButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "003-OnboardingScreen-ElevatedButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/003-OnboardingScreen-ElevatedButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "010-invite-accept",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/010-invite-accept/TASK.md"
+    },
+    {
+      "id": "001-InviteAcceptScreen-IconButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-InviteAcceptScreen-IconButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "002-InviteAcceptScreen-ElevatedButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/002-InviteAcceptScreen-ElevatedButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "003-InviteAcceptScreen-OutlinedButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/003-InviteAcceptScreen-OutlinedButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "011-alert",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/011-alert/TASK.md"
+    },
+    {
+      "id": "001-AlertScreen-ElevatedButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-AlertScreen-ElevatedButton-onPressed-1/TASK.md"
+    },
+    {
+      "id": "012-pairing-confirmation",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/012-pairing-confirmation/TASK.md"
+    },
+    {
+      "id": "001-PairingConfirmationScreen-FilledButton-onPressed-1",
+      "writeToPath": ".converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/001-PairingConfirmationScreen-FilledButton-onPressed-1/TASK.md"
+    }
+  ]
+}

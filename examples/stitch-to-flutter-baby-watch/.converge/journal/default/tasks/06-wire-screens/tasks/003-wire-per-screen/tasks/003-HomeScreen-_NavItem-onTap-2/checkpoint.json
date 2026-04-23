@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/003-wire-per-screen/003-HomeScreen-_NavItem-onTap-2",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T11:04:18.839Z",
+  "createdAt": "2026-04-23T11:02:46.116Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T11:02:46.116Z",
+      "completedAt": "2026-04-23T11:04:18.837Z",
+      "outcome": "success",
+      "durationMs": 92721
+    }
+  ],
+  "currentAttempt": 1
+}

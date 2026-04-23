@@ -1,0 +1,17 @@
+{
+  "taskId": "01-prepare-requirements/002-generate-prd",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "idea.md",
+      "count": 1,
+      "samples": [
+        "idea.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "PRD.md"
+  ],
+  "blocked": false
+}

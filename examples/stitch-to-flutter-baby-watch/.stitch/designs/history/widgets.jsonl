@@ -1,0 +1,3 @@
+{"name": "NavItem", "grep": "class _NavItem extends StatelessWidget", "description": "Bottom navigation item with icon and label", "shared": true}
+{"name": "FilterChip", "grep": "class _FilterChip extends StatelessWidget", "description": "Filter chip button for time period selection", "shared": true}
+{"name": "EventCard", "grep": "class _EventCard extends StatelessWidget", "description": "Event history card showing alert/safe event with badge, child name, time and event label", "shared": true}

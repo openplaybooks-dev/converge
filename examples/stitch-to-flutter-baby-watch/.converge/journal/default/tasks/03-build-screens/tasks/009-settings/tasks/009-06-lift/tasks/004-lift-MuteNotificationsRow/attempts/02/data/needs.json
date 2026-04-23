@@ -1,0 +1,16 @@
+{
+  "taskId": "03-build-screens/009-settings/009-06-lift/004-lift-MuteNotificationsRow",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "lib/screens/settings/widgets/mute_notifications_row.dart",
+      "count": 0,
+      "samples": []
+    }
+  ],
+  "outputs": [
+    "lib/widgets/mute_notifications_row.dart"
+  ],
+  "blocked": true,
+  "blockedReason": "Missing required inputs: lib/screens/settings/widgets/mute_notifications_row.dart"
+}

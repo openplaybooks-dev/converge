@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/008-history/008-05-split/001-split-NavItem",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/history/history_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/history/history_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/history/widgets/nav_item.dart"
+  ],
+  "blocked": false
+}

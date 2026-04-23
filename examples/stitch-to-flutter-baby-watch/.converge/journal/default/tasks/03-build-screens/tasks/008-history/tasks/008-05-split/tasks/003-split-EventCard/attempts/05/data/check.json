@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/008-history/008-05-split/003-split-EventCard",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Widget file exists",
+      "cmd": "test -f lib/screens/history/widgets/event_card.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "flutter analyze lib/screens/history/widgets/event_card.dart"
+    }
+  ]
+}

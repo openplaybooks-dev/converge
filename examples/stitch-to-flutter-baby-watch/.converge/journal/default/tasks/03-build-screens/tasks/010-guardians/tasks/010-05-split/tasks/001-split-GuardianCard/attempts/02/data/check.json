@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/010-guardians/010-05-split/001-split-GuardianCard",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Widget file exists",
+      "cmd": "test -f lib/screens/guardians/widgets/guardian_card.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "flutter analyze lib/screens/guardians/widgets/guardian_card.dart"
+    }
+  ]
+}

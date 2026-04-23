@@ -1,0 +1,542 @@
+{
+  "generatedAt": "2026-04-22T00:00:00.000Z",
+  "bottomNavRoutes": ["/", "/safe-zones", "/settings"],
+  "screens": [
+    {
+      "id": "home",
+      "route": "/",
+      "screenFile": "lib/screens/home/home_screen.dart",
+      "widgetFiles": [],
+      "elements": [
+        {
+          "elementId": "HomeScreen-IconButton-onPressed-1",
+          "file": "lib/screens/home/home_screen.dart",
+          "line": 52,
+          "type": "onPressed",
+          "widget": "IconButton",
+          "status": "empty",
+          "action": "Open notifications panel",
+          "target": null
+        },
+        {
+          "elementId": "HomeScreen-_NavItem-onTap-1",
+          "file": "lib/screens/home/home_screen.dart",
+          "line": 107,
+          "type": "onTap",
+          "widget": "_NavItem",
+          "status": "empty",
+          "action": "Navigate to home tab (index 0)",
+          "target": "/"
+        },
+        {
+          "elementId": "HomeScreen-_NavItem-onTap-2",
+          "file": "lib/screens/home/home_screen.dart",
+          "line": 108,
+          "type": "onTap",
+          "widget": "_NavItem",
+          "status": "empty",
+          "action": "Navigate to device tab (index 1)",
+          "target": "/scan"
+        },
+        {
+          "elementId": "HomeScreen-_NavItem-onTap-3",
+          "file": "lib/screens/home/home_screen.dart",
+          "line": 112,
+          "type": "onTap",
+          "widget": "_NavItem",
+          "status": "empty",
+          "action": "Navigate to safe zones tab (index 2)",
+          "target": "/safe-zones"
+        },
+        {
+          "elementId": "HomeScreen-_NavItem-onTap-4",
+          "file": "lib/screens/home/home_screen.dart",
+          "line": 116,
+          "type": "onTap",
+          "widget": "_NavItem",
+          "status": "empty",
+          "action": "Navigate to settings tab (index 3)",
+          "target": "/settings"
+        },
+        {
+          "elementId": "HomeScreen-TextButton-onPressed-1",
+          "file": "lib/screens/home/home_screen.dart",
+          "line": 429,
+          "type": "onPressed",
+          "widget": "TextButton",
+          "status": "empty",
+          "action": "Navigate to beacon detail screen",
+          "target": "/beacon/:id"
+        },
+        {
+          "elementId": "HomeScreen-_QuickActionButton-onTap-1",
+          "file": "lib/screens/home/home_screen.dart",
+          "line": 495,
+          "type": "onTap",
+          "widget": "_QuickActionButton",
+          "status": "empty",
+          "action": "Pause notifications for 5 minutes",
+          "target": null
+        },
+        {
+          "elementId": "HomeScreen-_QuickActionButton-onTap-2",
+          "file": "lib/screens/home/home_screen.dart",
+          "line": 497,
+          "type": "onTap",
+          "widget": "_QuickActionButton",
+          "status": "empty",
+          "action": "Pause notifications for 10 minutes",
+          "target": null
+        },
+        {
+          "elementId": "HomeScreen-_QuickActionButton-onTap-3",
+          "file": "lib/screens/home/home_screen.dart",
+          "line": 499,
+          "type": "onTap",
+          "widget": "_QuickActionButton",
+          "status": "empty",
+          "action": "Pause notifications for 15 minutes",
+          "target": null
+        }
+      ]
+    },
+    {
+      "id": "beacon-scanner",
+      "route": "/scan",
+      "screenFile": "lib/screens/beacon_scanner/beacon_scanner_screen.dart",
+      "widgetFiles": [],
+      "elements": [
+        {
+          "elementId": "BeaconScannerScreen-IconButton-onPressed-1",
+          "file": "lib/screens/beacon_scanner/beacon_scanner_screen.dart",
+          "line": 49,
+          "type": "onPressed",
+          "widget": "IconButton",
+          "status": "empty",
+          "action": "Navigate back",
+          "target": null
+        },
+        {
+          "elementId": "BeaconScannerScreen-ElevatedButton-onPressed-1",
+          "file": "lib/screens/beacon_scanner/beacon_scanner_screen.dart",
+          "line": 247,
+          "type": "onPressed",
+          "widget": "ElevatedButton",
+          "status": "empty",
+          "action": "Refresh beacon scan",
+          "target": null
+        },
+        {
+          "elementId": "BeaconScannerScreen-_DeviceCard-ElevatedButton-onPressed-1",
+          "file": "lib/screens/beacon_scanner/beacon_scanner_screen.dart",
+          "line": 456,
+          "type": "onPressed",
+          "widget": "ElevatedButton",
+          "status": "empty",
+          "action": "Connect to discovered beacon",
+          "target": "overlay:pairing"
+        }
+      ]
+    },
+    {
+      "id": "beacon-detail",
+      "route": "/beacon/:id",
+    "screenFile": "lib/screens/beacon_detail/beacon_detail_screen.dart",
+      "widgetFiles": [],
+      "elements": [
+        {
+          "elementId": "BeaconDetailScreen-IconButton-onPressed-1",
+          "file": "lib/screens/beacon_detail/beacon_detail_screen.dart",
+          "line": 23,
+          "type": "onPressed",
+          "widget": "IconButton",
+          "status": "wired",
+          "action": "Navigate back",
+          "target": null
+        },
+        {
+          "elementId": "BeaconDetailScreen-IconButton-onPressed-2",
+          "file": "lib/screens/beacon_detail/beacon_detail_screen.dart",
+          "line": 38,
+          "type": "onPressed",
+          "widget": "IconButton",
+          "status": "empty",
+          "action": "Show more options menu",
+          "target": null
+        },
+        {
+          "elementId": "BeaconDetailScreen-TextButton-onPressed-1",
+          "file": "lib/screens/beacon_detail/beacon_detail_screen.dart",
+          "line": 61,
+          "type": "onPressed",
+          "widget": "TextButton",
+          "status": "empty",
+          "action": "Leave the tracking group",
+          "target": null
+        },
+        {
+          "elementId": "BeaconDetailScreen-FloatingActionButton-onPressed-1",
+          "file": "lib/screens/beacon_detail/beacon_detail_screen.dart",
+          "line": 81,
+          "type": "onPressed",
+          "widget": "FloatingActionButton",
+          "status": "empty",
+          "action": "Invite a co-guardian",
+          "target": null
+        }
+      ]
+    },
+    {
+      "id": "beacon-edit",
+      "route": "/beacon/:id/edit",
+      "screenFile": "lib/screens/beacon_edit/beacon_edit_screen.dart",
+      "widgetFiles": [],
+      "elements": [
+        {
+          "elementId": "BeaconEditScreen-IconButton-onPressed-1",
+          "file": "lib/screens/beacon_edit/beacon_edit_screen.dart",
+          "line": 44,
+          "type": "onPressed",
+          "widget": "IconButton",
+          "status": "wired",
+          "action": "Navigate back",
+          "target": null
+        },
+        {
+          "elementId": "BeaconEditScreen-TextButton-onPressed-1",
+          "file": "lib/screens/beacon_edit/beacon_edit_screen.dart",
+          "line": 59,
+          "type": "onPressed",
+          "widget": "TextButton",
+          "status": "empty",
+          "action": "Save beacon changes",
+          "target": null
+        }
+      ]
+    },
+    {
+      "id": "safe-zones",
+      "route": "/safe-zones",
+      "screenFile": "lib/screens/safe_zones/safe_zones_screen.dart",
+      "widgetFiles": [],
+      "elements": [
+        {
+          "elementId": "SafeZonesScreen-IconButton-onPressed-1",
+          "file": "lib/screens/safe_zones/safe_zones_screen.dart",
+          "line": 16,
+          "type": "onPressed",
+          "widget": "IconButton",
+          "status": "empty",
+          "action": "Open menu",
+          "target": null
+        },
+        {
+          "elementId": "SafeZonesScreen-FloatingActionButton-extendedOnPressed-1",
+          "file": "lib/screens/safe_zones/safe_zones_screen.dart",
+          "line": 91,
+          "type": "onPressed",
+          "widget": "FloatingActionButton",
+          "status": "empty",
+          "action": "Navigate to add safe zone screen",
+          "target": "/safe-zones/add"
+        },
+        {
+          "elementId": "SafeZonesScreen-_NavItem-onTap-1",
+          "file": "lib/screens/safe_zones/safe_zones_screen.dart",
+          "line": 183,
+          "type": "onTap",
+          "widget": "_NavItem",
+          "status": "empty",
+          "action": "Navigate to home tab (index 0)",
+          "target": "/"
+        },
+        {
+          "elementId": "SafeZonesScreen-_NavItem-onTap-2",
+          "file": "lib/screens/safe_zones/safe_zones_screen.dart",
+          "line": 187,
+          "type": "onTap",
+          "widget": "_NavItem",
+          "status": "empty",
+          "action": "Navigate to device tab (index 1)",
+          "target": "/scan"
+        },
+        {
+          "elementId": "SafeZonesScreen-_NavItem-onTap-3",
+          "file": "lib/screens/safe_zones/safe_zones_screen.dart",
+          "line": 192,
+          "type": "onTap",
+          "widget": "_NavItem",
+          "status": "empty",
+          "action": "Navigate to safe zones tab (index 2)",
+          "target": "/safe-zones"
+        },
+        {
+          "elementId": "SafeZonesScreen-_NavItem-onTap-4",
+          "file": "lib/screens/safe_zones/safe_zones_screen.dart",
+          "line": 194,
+          "type": "onTap",
+          "widget": "_NavItem",
+          "status": "empty",
+          "action": "Navigate to settings tab (index 3)",
+          "target": "/settings"
+        },
+        {
+          "elementId": "SafeZonesScreen-_ZoneCard-IconButton-onPressed-1",
+          "file": "lib/screens/safe_zones/safe_zones_screen.dart",
+          "line": 549,
+          "type": "onPressed",
+          "widget": "IconButton",
+          "status": "empty",
+          "action": "Edit the safe zone",
+          "target": "/safe-zones/:id/edit"
+        }
+      ]
+    },
+    {
+      "id": "history",
+      "route": "/history",
+      "screenFile": "lib/screens/history/history_screen.dart",
+      "widgetFiles": [],
+      "elements": [
+        {
+          "elementId": "HistoryScreen-IconButton-onPressed-1",
+          "file": "lib/screens/history/history_screen.dart",
+          "line": 58,
+          "type": "onPressed",
+          "widget": "IconButton",
+          "status": "empty",
+          "action": "Open search",
+          "target": null
+        },
+        {
+          "elementId": "HistoryScreen-IconButton-onPressed-2",
+          "file": "lib/screens/history/history_screen.dart",
+          "line": 63,
+          "type": "onPressed",
+          "widget": "IconButton",
+          "status": "empty",
+          "action": "Show more options",
+          "target": null
+        },
+        {
+          "elementId": "HistoryScreen-ElevatedButton-onPressed-1",
+          "file": "lib/screens/history/history_screen.dart",
+          "line": 140,
+          "type": "onPressed",
+          "widget": "ElevatedButton",
+          "status": "empty",
+          "action": "Export history logs",
+          "target": null
+        },
+        {
+          "elementId": "HistoryScreen-TextButton-onPressed-1",
+          "file": "lib/screens/history/history_screen.dart",
+          "line": 155,
+          "type": "onPressed",
+          "widget": "TextButton",
+          "status": "empty",
+          "action": "Clear all history",
+          "target": null
+        }
+      ]
+    },
+    {
+      "id": "settings",
+      "route": "/settings",
+      "screenFile": "lib/screens/settings/settings_screen.dart",
+      "widgetFiles": [],
+      "elements": [
+        {
+          "elementId": "SettingsScreen-IconButton-onPressed-1",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "line": 26,
+          "type": "onPressed",
+          "widget": "IconButton",
+          "status": "empty",
+          "action": "Navigate back",
+          "target": null
+        },
+        {
+          "elementId": "SettingsScreen-IconButton-onPressed-2",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "line": 39,
+          "type": "onPressed",
+          "widget": "IconButton",
+          "status": "empty",
+          "action": "Show more options",
+          "target": null
+        },
+        {
+          "elementId": "SettingsScreen-ElevatedButton-onPressed-1",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "line": 176,
+          "type": "onPressed",
+          "widget": "ElevatedButton",
+          "status": "empty",
+          "action": "Sign out of the app",
+          "target": null
+        }
+      ]
+    },
+    {
+      "id": "guardians",
+      "route": "/guardians",
+      "screenFile": "lib/screens/guardians/guardians_screen.dart",
+      "widgetFiles": [],
+      "elements": [
+        {
+          "elementId": "GuardiansScreen-IconButton-onPressed-1",
+          "file": "lib/screens/guardians/guardians_screen.dart",
+          "line": 22,
+          "type": "onPressed",
+          "widget": "IconButton",
+          "status": "empty",
+          "action": "Navigate back",
+          "target": null
+        },
+        {
+          "elementId": "GuardiansScreen-IconButton-onPressed-2",
+          "file": "lib/screens/guardians/guardians_screen.dart",
+          "line": 36,
+          "type": "onPressed",
+          "widget": "IconButton",
+          "status": "empty",
+          "action": "Open add guardian flow",
+          "target": null
+        }
+      ]
+    },
+    {
+      "id": "onboarding",
+      "route": "/onboarding",
+      "screenFile": "lib/screens/onboarding/onboarding_screen.dart",
+      "widgetFiles": [],
+      "elements": [
+        {
+          "elementId": "OnboardingScreen-IconButton-onPressed-1",
+          "file": "lib/screens/onboarding/onboarding_screen.dart",
+          "line": 27,
+          "type": "onPressed",
+          "widget": "IconButton",
+          "status": "empty",
+          "action": "Navigate back",
+          "target": null
+        },
+        {
+          "elementId": "OnboardingScreen-TextButton-onPressed-1",
+          "file": "lib/screens/onboarding/onboarding_screen.dart",
+          "line": 40,
+          "type": "onPressed",
+          "widget": "TextButton",
+          "status": "empty",
+          "action": "Skip onboarding",
+          "target": null
+        },
+        {
+          "elementId": "OnboardingScreen-ElevatedButton-onPressed-1",
+          "file": "lib/screens/onboarding/onboarding_screen.dart",
+          "line": 195,
+          "type": "onPressed",
+          "widget": "ElevatedButton",
+          "status": "empty",
+          "action": "Start using the app",
+          "target": null
+        }
+      ]
+    },
+    {
+      "id": "invite-accept",
+      "route": "/invite/:code",
+      "screenFile": "lib/screens/invite_accept/invite_accept_screen.dart",
+      "widgetFiles": [],
+      "elements": [
+        {
+          "elementId": "InviteAcceptScreen-IconButton-onPressed-1",
+          "file": "lib/screens/invite_accept/invite_accept_screen.dart",
+          "line": 42,
+          "type": "onPressed",
+          "widget": "IconButton",
+          "status": "empty",
+          "action": "Close and dismiss invitation",
+          "target": null
+        },
+        {
+          "elementId": "InviteAcceptScreen-ElevatedButton-onPressed-1",
+          "file": "lib/screens/invite_accept/invite_accept_screen.dart",
+          "line": 265,
+          "type": "onPressed",
+          "widget": "ElevatedButton",
+          "status": "empty",
+          "action": "Accept invitation and join tracking group",
+          "target": null
+        },
+        {
+          "elementId": "InviteAcceptScreen-OutlinedButton-onPressed-1",
+          "file": "lib/screens/invite_accept/invite_accept_screen.dart",
+          "line": 288,
+          "type": "onPressed",
+          "widget": "OutlinedButton",
+          "status": "empty",
+          "action": "Reject invitation",
+          "target": null
+        }
+      ]
+    },
+    {
+      "id": "alert",
+      "route": "overlay:alert",
+      "screenFile": "lib/screens/alert/alert_screen.dart",
+      "widgetFiles": [],
+      "elements": [
+        {
+          "elementId": "AlertScreen-ElevatedButton-onPressed-1",
+          "file": "lib/screens/alert/alert_screen.dart",
+          "line": 198,
+          "type": "onPressed",
+          "widget": "ElevatedButton",
+          "status": "empty",
+          "action": "Acknowledge alert — I have checked on the child",
+          "target": null
+        }
+      ]
+    },
+    {
+      "id": "pairing-confirmation",
+      "route": "overlay:pairing",
+      "screenFile": "lib/screens/pairing_confirmation/pairing_confirmation_screen.dart",
+      "widgetFiles": [],
+      "elements": [
+        {
+          "elementId": "PairingConfirmationScreen-GestureDetector-onTap-1",
+          "file": "lib/screens/pairing_confirmation/pairing_confirmation_screen.dart",
+          "line": 21,
+          "type": "onTap",
+          "widget": "GestureDetector",
+          "status": "wired",
+          "action": "Dismiss bottom sheet",
+          "target": null
+        },
+        {
+          "elementId": "PairingConfirmationScreen-FilledButton-onPressed-1",
+          "file": "lib/screens/pairing_confirmation/pairing_confirmation_screen.dart",
+          "line": 116,
+          "type": "onPressed",
+          "widget": "FilledButton",
+          "status": "empty",
+          "action": "Confirm beacon pairing",
+          "target": null
+        },
+        {
+          "elementId": "PairingConfirmationScreen-OutlinedButton-onPressed-1",
+          "file": "lib/screens/pairing_confirmation/pairing_confirmation_screen.dart",
+          "line": 138,
+          "type": "onPressed",
+          "widget": "OutlinedButton",
+          "status": "wired",
+          "action": "Cancel pairing",
+          "target": null
+        }
+      ]
+    }
+  ]
+}

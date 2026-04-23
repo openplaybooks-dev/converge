@@ -1,0 +1,20 @@
+{
+  "taskId": "01-prepare-requirements/002-generate-prd",
+  "checks": [
+    {
+      "id": "prd-exists",
+      "description": "PRD.md exists",
+      "cmd": "test -f PRD.md"
+    },
+    {
+      "id": "prd-has-sections",
+      "description": "PRD.md has expected sections",
+      "cmd": "grep -qE \"## (Overview|Features|Requirements)\" PRD.md"
+    },
+    {
+      "id": "prd-matches-idea",
+      "description": "PRD.md references the app name from idea.md",
+      "cmd": "first=$(head -1 idea.md | sed 's/^#* *//' | awk '{print $1}'); grep -qi \"$first\" PRD.md"
+    }
+  ]
+}

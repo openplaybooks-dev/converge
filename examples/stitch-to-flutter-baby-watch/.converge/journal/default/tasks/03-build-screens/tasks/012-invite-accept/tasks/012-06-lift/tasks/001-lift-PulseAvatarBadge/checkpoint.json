@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "03-build-screens/012-invite-accept/012-06-lift/001-lift-PulseAvatarBadge",
+  "status": "complete",
+  "lastUpdated": "2026-04-22T16:17:24.805Z",
+  "createdAt": "2026-04-22T16:13:36.925Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-22T16:13:36.925Z",
+      "completedAt": "2026-04-22T16:15:15.778Z",
+      "outcome": "failed",
+      "durationMs": 98853
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-22T16:15:45.719Z",
+      "completedAt": "2026-04-22T16:15:45.720Z",
+      "outcome": "failed",
+      "durationMs": 1
+    }
+  ],
+  "currentAttempt": 1
+}

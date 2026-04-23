@@ -15,7 +15,6 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { z } from 'zod';
 
 function toPascalCase(str) {
   return str.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('');
@@ -30,14 +29,20 @@ function toParentScreenPath(parentScreenId) {
   return `lib/screens/${snakeName}/${snakeName}_screen.dart`;
 }
 
-// ── Schema for AI-discovered overlays ────────────────────────────────
-const OverlaySchema = z.array(z.object({
-  id: z.string().describe('kebab-case overlay id, e.g. "mode-selector"'),
-  title: z.string().describe('Human-readable title'),
-  parentScreenId: z.string().describe('id of the parent screen that triggers this overlay'),
-  overlayType: z.enum(['bottom-sheet', 'dialog', 'persistent-bar']),
-  description: z.string().describe('What this overlay does'),
-}));
+// ── Validate AI-discovered overlays ─────────────────────────────────
+function validateOverlays(data) {
+  if (!Array.isArray(data)) return [];
+  const validTypes = ['bottom-sheet', 'dialog', 'persistent-bar'];
+  return data
+    .filter(o => o && typeof o.id === 'string' && typeof o.title === 'string')
+    .map(o => ({
+      id: String(o.id),
+      title: String(o.title),
+      parentScreenId: o.parentScreenId ? String(o.parentScreenId) : '',
+      overlayType: validTypes.includes(o.overlayType) ? o.overlayType : 'bottom-sheet',
+      description: o.description ? String(o.description) : '',
+    }));
+}
 
 export async function run(ctx) {
   const screensPath = join(ctx.projectDir, '.stitch/screens.json');
@@ -66,7 +71,7 @@ export async function run(ctx) {
 
     const screenIds = allEntries.map(s => s.id).join(', ');
 
-    overlays = await ctx.ai.ask(
+    const aiResponse = await ctx.ai.ask(
       `Discover all overlays (bottom sheets, dialogs, persistent bars) that should exist in this project.
 
 Read these files:
@@ -88,8 +93,17 @@ For each overlay found, determine:
 
 Skip overlays that are already fully implemented (have real widget content, not Placeholder()).
 Return the list as a JSON array.`
-    ).asJson(OverlaySchema);
+    );
 
+    let parsed;
+    try {
+      parsed = JSON.parse(aiResponse.text());
+    } catch {
+      ctx.log.warn('AI response was not valid JSON — skipping overlay discovery');
+      return;
+    }
+
+    overlays = validateOverlays(parsed);
     ctx.log.info(`Discovered ${overlays.length} overlays via AI`);
   }
 

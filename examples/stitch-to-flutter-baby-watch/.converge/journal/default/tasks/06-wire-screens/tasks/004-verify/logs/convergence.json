@@ -1,0 +1,200 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "06-wire-screens/004-verify-check-failed-no-empty-handlers",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-wire-screens/004-verify",
+            "severity": "high",
+            "description": "[06-wire-screens/004-verify] Check failed: No empty/comment-only handlers in any screen or widget file",
+            "source": "unit",
+            "detected": "2026-04-22T15:54:17.460Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "no-empty-handlers",
+              "checkCmd": "node .converge/playbooks/default/tasks/06-wire-screens/004-verify/check-all-handlers.mjs",
+              "checkDescription": "No empty/comment-only handlers in any screen or widget file",
+              "checkOutput": "FAIL: 9 empty handler(s) found:\n\n  lib/screens/beacon_detail/beacon_detail_screen.dart:37 — onPressed is empty\n  lib/screens/beacon_detail/beacon_detail_screen.dart:59 — onPressed is empty\n  lib/screens/beacon_detail/beacon_detail_screen.dart:206 — onPressed is empty\n  lib/screens/beacon_detail/widgets/co_guardian_card.dart:92 — onPressed is empty\n  lib/screens/beacon_detail/widgets/co_guardian_card.dart:119 — onPressed is empty\n  lib/screens/beacon_detail/widgets/technical_accordion.dart:31 — onTap is empty\n  lib/screens/home/home_screen.dart:59 — onPressed is empty\n  lib/widgets/overlays/timeout_picker/timeout_picker.dart:125 — onPressed is empty\n  lib/widgets/technical_accordion.dart:31 — onTap is empty",
+              "checkExitCode": 1,
+              "taskPrompt": "# Verify — End-to-End Wiring Check\n\nRun all checks and fix any failures with minimal changes.\n\n## Steps\n\n1. Run each check command\n2. For any failure, make the minimal fix\n3. Re-run checks until all pass\n\n## What to look for\n\n- Empty `onDestinationSelected: (index) {}` — must have `context.go()`\n- Empty `onPressed: () {}` or `onPressed: () { // comment }` — must have real logic\n- `onPressed: null` — must be replaced with a handler or removed\n- Missing `context.go` / `context.push` in bottom nav handlers\n- TODO/placeholder comments in navigation code",
+              "taskId": "06-wire-screens/004-verify",
+              "taskTitle": "Verify — End-to-End Wiring Check",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/06-wire-screens/004-verify",
+              "factId": "check:no-empty-handlers"
+            }
+          }
+        ],
+        "durationMs": 1741
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 983
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 1012
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#58",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 145009
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-22T15:54:17.378Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-22T15:54:17.378Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-22T15:54:19.119Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-22T15:54:19.120Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-22T15:54:20.104Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#58",
+      "iteration": 1,
+      "ts": "2026-04-22T15:56:45.115Z"
+    },
+    {
+      "from": "run-strategy:task-run#58",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-22T15:56:46.128Z"
+    }
+  ]
+}

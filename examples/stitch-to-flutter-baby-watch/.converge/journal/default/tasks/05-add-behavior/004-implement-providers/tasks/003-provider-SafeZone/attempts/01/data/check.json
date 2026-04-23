@@ -1,0 +1,15 @@
+{
+  "taskId": "05-add-behavior/004-implement-providers/003-provider-SafeZone",
+  "checks": [
+    {
+      "id": "file-exists",
+      "description": "safe_zone_provider.dart exists",
+      "cmd": "test -f lib/providers/safe_zone_provider.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/providers/safe_zone_provider.dart"
+    }
+  ]
+}

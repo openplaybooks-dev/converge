@@ -1,0 +1,10 @@
+{
+  "taskId": "06-wire-screens/003-wire-per-screen/001-InviteAcceptScreen-IconButton-onPressed-1",
+  "checks": [
+    {
+      "id": "handler-wired",
+      "description": "IconButton.onPressed has real logic in lib/screens/invite_accept/invite_accept_screen.dart (@converge:element InviteAcceptScreen-IconButton-onPressed-1)",
+      "cmd": "node .converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/wbs/check-handler.mjs lib/screens/invite_accept/invite_accept_screen.dart --id InviteAcceptScreen-IconButton-onPressed-1 onPressed"
+    }
+  ]
+}

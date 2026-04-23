@@ -1,0 +1,31 @@
+{
+  "taskId": "07-build-overlays/002-pairing-confirmation/002-05-mount",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "lib/widgets/overlays/pairing_confirmation/pairing_confirmation.dart",
+      "count": 1,
+      "samples": [
+        "lib/widgets/overlays/pairing_confirmation/pairing_confirmation.dart"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/pairing-confirmation/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/pairing-confirmation/SPEC.md"
+      ]
+    },
+    {
+      "pattern": "lib/screens/beacon_scanner/beacon_scanner_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/beacon_scanner/beacon_scanner_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/beacon_scanner/beacon_scanner_screen.dart"
+  ],
+  "blocked": false
+}

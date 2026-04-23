@@ -1,0 +1,31 @@
+{
+  "taskId": "03-build-screens/012-invite-accept/012-03-convert",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/invite-accept/design.html",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/invite-accept/design.html"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/invite-accept/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/invite-accept/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/invite_accept/invite_accept_screen.dart"
+  ],
+  "blocked": false
+}

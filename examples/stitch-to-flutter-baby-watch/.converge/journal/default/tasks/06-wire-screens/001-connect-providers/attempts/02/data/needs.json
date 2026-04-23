@@ -1,0 +1,23 @@
+{
+  "taskId": "06-wire-screens/001-connect-providers",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": ".stitch/screens.json",
+      "count": 1,
+      "samples": [
+        ".stitch/screens.json"
+      ]
+    },
+    {
+      "pattern": "lib/providers/**/*.dart",
+      "count": 0,
+      "samples": []
+    }
+  ],
+  "outputs": [
+    "lib/screens/**/*.dart"
+  ],
+  "blocked": true,
+  "blockedReason": "Missing required inputs: lib/providers/**/*.dart"
+}

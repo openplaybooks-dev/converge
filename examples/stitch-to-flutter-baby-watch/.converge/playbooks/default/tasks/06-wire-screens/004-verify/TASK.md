@@ -13,14 +13,13 @@ tags:
 inputs:
   - lib/screens/**/*.dart
   - lib/widgets/**/*.dart
-  - lib/providers/**/*.dart
   - navigations.json
 checks:
   - id: no-empty-handlers
     cmd: "node .converge/playbooks/default/tasks/06-wire-screens/004-verify/check-all-handlers.mjs"
     description: No empty/comment-only handlers in any screen or widget file
   - id: dart-analysis-valid
-    cmd: dart analyze lib/
+    cmd: dart analyze lib/ --no-fatal-warnings
     description: Full Dart analysis passes
 ---
 

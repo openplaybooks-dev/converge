@@ -41,6 +41,7 @@ class DataSection extends StatelessWidget {
               label: 'Export data',
               button: true,
               child: InkWell(
+// @converge:element ExportData-onTap-1
                 onTap: () => _exportData(context),
                 borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                 child: Padding(
@@ -76,6 +77,7 @@ class DataSection extends StatelessWidget {
               label: 'Clear all data, destructive action',
               button: true,
               child: InkWell(
+// @converge:element ClearAllData-onTap-1
                 onTap: () => _showClearDataDialog(context),
                 borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                 child: Padding(

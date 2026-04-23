@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-build-screens/012-invite-accept/012-06-lift/005-lift-StatusIndicator",
+  "status": "complete",
+  "lastUpdated": "2026-04-22T16:35:43.264Z",
+  "createdAt": "2026-04-22T16:34:37.361Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-22T16:34:37.361Z",
+      "completedAt": "2026-04-22T16:35:43.262Z",
+      "outcome": "success",
+      "durationMs": 65901
+    }
+  ],
+  "currentAttempt": 1
+}

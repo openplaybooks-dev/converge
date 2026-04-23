@@ -1,0 +1,20 @@
+{
+  "type": "task",
+  "id": "03-build-screens/005-safe-zones/005-05-split",
+  "status": "pending",
+  "lastUpdated": "2026-04-23T12:25:07.343Z",
+  "createdAt": "2026-04-23T10:56:56.368Z",
+  "progress": {
+    "totalChildren": 5,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-split-MapCard",
+      "002-split-ZoneCard",
+      "003-split-Insights",
+      "004-split-BottomNav",
+      "005-split-NavItem"
+    ],
+    "lastProgressUpdate": "2026-04-23T12:25:07.341Z"
+  }
+}

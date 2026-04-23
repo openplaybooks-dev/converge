@@ -1,0 +1,46 @@
+{
+  "taskId": "03-build-screens/010-guardians/010-02-design",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/guardians/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/guardians/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/META.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/META.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/references/ANALYSIS.md",
+      "count": 1,
+      "samples": [
+        ".stitch/references/ANALYSIS.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/references/ch_p_nh_n_l_i_m_i/code.html",
+      "count": 1,
+      "samples": [
+        ".stitch/references/ch_p_nh_n_l_i_m_i/code.html"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/guardians/META.md",
+    ".stitch/designs/guardians/design.html"
+  ],
+  "blocked": false
+}
