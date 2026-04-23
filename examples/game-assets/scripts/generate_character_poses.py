@@ -57,8 +57,9 @@ def main() -> int:
     args = ap.parse_args()
 
     project_root = find_project_root(Path.cwd())
-    poses_dir = project_root / "assets" / "characters" / args.char_id / "poses"
-    poses_dir.mkdir(parents=True, exist_ok=True)
+    # Poses go in variants directory, each pose in its own subdirectory
+    variants_dir = project_root / "assets" / "characters" / args.char_id / "variants"
+    variants_dir.mkdir(parents=True, exist_ok=True)
 
     angles_to_generate = [a for a, d in ANGLES if a in (args.angles or [a for a, _ in ANGLES])]
 
@@ -66,13 +67,17 @@ def main() -> int:
         if angle not in angles_to_generate:
             continue
 
-        out_path = poses_dir / f"{angle}.png"
+        # Create subdirectory for this pose variant
+        pose_dir = variants_dir / angle
+        pose_dir.mkdir(parents=True, exist_ok=True)
+
+        out_path = pose_dir / f"{angle}.png"
         if out_path.exists():
             print(f"  skip {angle} (already exists)")
             continue
 
         prompt = build_prompt(args.char_name, angle, desc, args.char_palette)
-        prompt_path = out_path.with_suffix(".prompt.txt")
+        prompt_path = pose_dir / f"{angle}.prompt.txt"
         prompt_path.write_text(prompt, encoding="utf-8")
 
         print(f"Generating {angle} pose for {args.char_name}...")
@@ -98,9 +103,14 @@ def main() -> int:
         img_bytes = buf.getvalue()
 
         out_path.write_bytes(img_bytes)
+
+        # Save seed file
+        seed_path = pose_dir / f"{angle}.seed.txt"
+        seed_path.write_text(str(seed), encoding="utf-8")
+
         print(f"  wrote {out_path.relative_to(project_root)} seed={seed}, stripped={stripped}")
 
-    print(f"\nGenerated poses in {poses_dir.relative_to(project_root)}")
+    print(f"\nGenerated poses in {variants_dir.relative_to(project_root)}")
     return 0
 
 

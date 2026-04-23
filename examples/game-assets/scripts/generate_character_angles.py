@@ -151,9 +151,10 @@ def main() -> int:
 
     project_root = find_project_root(Path.cwd())
 
-    # Setup output directory
+    # Setup output directory - angles go in ref/angles subdirectory
     ref_dir = project_root / "assets" / "characters" / args.char_id / "ref"
-    ref_dir.mkdir(parents=True, exist_ok=True)
+    angles_dir = ref_dir / "angles"
+    angles_dir.mkdir(parents=True, exist_ok=True)
 
     # Get green template
     template_path = project_root / ".templates" / "green_128x128.png"
@@ -193,16 +194,16 @@ def main() -> int:
             resolution=128
         )
 
-        # Save image
-        out_path = ref_dir / f"{angle_key}.png"
+        # Save image to angles subdirectory
+        out_path = angles_dir / f"{angle_key}.png"
         out_path.write_bytes(img_bytes)
 
         # Save prompt
-        prompt_path = ref_dir / f"{angle_key}.prompt.txt"
+        prompt_path = angles_dir / f"{angle_key}.prompt.txt"
         prompt_path.write_text(prompt, encoding="utf-8")
 
         # Save seed
-        seed_path = ref_dir / f"{angle_key}.seed.txt"
+        seed_path = angles_dir / f"{angle_key}.seed.txt"
         seed_path.write_text(str(seed_used), encoding="utf-8")
 
         # Store metadata
@@ -217,8 +218,8 @@ def main() -> int:
 
         print(f"    wrote {angle_key}.png  seed={seed_used}")
 
-    # Save angles metadata
-    angles_json_path = ref_dir / "angles.json"
+    # Save angles metadata to angles subdirectory
+    angles_json_path = angles_dir / "angles.json"
     angles_json_path.write_text(json.dumps(angles_metadata, indent=2), encoding="utf-8")
 
     # Save character spec

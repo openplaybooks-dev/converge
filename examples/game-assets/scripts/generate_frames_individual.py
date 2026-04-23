@@ -154,7 +154,7 @@ def main() -> int:
     rows = (frame_count + cols - 1) // cols
 
     # Load angles.json to get appropriate angle reference for animation state
-    angles_json_path = project_root / "assets" / "characters" / args.char_id / "ref" / "angles.json"
+    angles_json_path = project_root / "assets" / "characters" / args.char_id / "ref" / "angles" / "angles.json"
 
     if not angles_json_path.exists():
         print(f"Error: angles.json not found for {args.char_id}", file=sys.stderr)
@@ -172,7 +172,7 @@ def main() -> int:
         return 1
 
     angle_info = angles_data[angle_key]
-    ref_path = project_root / "assets" / "characters" / args.char_id / "ref" / angle_info["file"]
+    ref_path = project_root / "assets" / "characters" / args.char_id / "ref" / "angles" / angle_info["file"]
 
     if not ref_path.exists():
         print(f"Error: Angle reference not found: {ref_path}", file=sys.stderr)

@@ -1,0 +1,32 @@
+{
+  "character": "shadow-mage",
+  "name": "Malachar",
+  "angles": [
+    {
+      "id": "front",
+      "file": "front.png",
+      "description": "Front-facing view",
+      "view_angle": 0
+    },
+    {
+      "id": "side_left",
+      "file": "side_left.png",
+      "description": "Left side profile",
+      "view_angle": 90
+    },
+    {
+      "id": "side_right",
+      "file": "side_right.png",
+      "description": "Right side profile",
+      "view_angle": 270
+    },
+    {
+      "id": "back",
+      "file": "back.png",
+      "description": "Back view",
+      "view_angle": 180
+    }
+  ],
+  "palette": "16-bit retro, dark purple and black, magical glow effects, limited to 16 colors",
+  "style": "16bit_retro_game_sprite"
+}

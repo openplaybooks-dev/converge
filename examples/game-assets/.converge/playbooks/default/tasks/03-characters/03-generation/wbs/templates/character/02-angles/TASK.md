@@ -3,13 +3,14 @@ id: "{{char_id}}-02-angles"
 title: "Generate {{char_name}} angle references"
 description: "Create reference images for all viewing angles"
 outputs:
-  - "assets/characters/{{char_id}}/ref/angles.json"
-  - "assets/characters/{{char_id}}/ref/front.png"
-  - "assets/characters/{{char_id}}/ref/side.png"
-  - "assets/characters/{{char_id}}/ref/back.png"
+  - "assets/characters/{{char_id}}/ref/angles/angles.json"
+  - "assets/characters/{{char_id}}/ref/angles/front.png"
+  - "assets/characters/{{char_id}}/ref/angles/side_left.png"
+  - "assets/characters/{{char_id}}/ref/angles/side_right.png"
+  - "assets/characters/{{char_id}}/ref/angles/back.png"
 checks:
   - id: angles-exist
-    cmd: test -s assets/characters/{{char_id}}/ref/angles.json
+    cmd: test -s assets/characters/{{char_id}}/ref/angles/angles.json
     description: Angle references exist
 tags:
   - character
@@ -36,9 +37,10 @@ Generate reference images for key angles:
 
 ## Output
 
-Create reference images in `assets/characters/{{char_id}}/ref/`:
+Create reference images in `assets/characters/{{char_id}}/ref/angles/`:
 - `front.png` - Front-facing reference
-- `side.png` - Side profile reference
+- `side_left.png` - Left side profile reference
+- `side_right.png` - Right side profile reference
 - `back.png` - Back view reference
 - `angles.json` - Metadata for all angles
 

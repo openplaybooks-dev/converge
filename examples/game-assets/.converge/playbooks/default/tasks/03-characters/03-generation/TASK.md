@@ -6,10 +6,10 @@ wbs:
   path: ./wbs/index.js
 dependencies:
   - "03-characters/02-shared-references"
-blocking: true
 tags:
   - characters
   - generation
+outputs: []
 ---
 
 # Character Generation
@@ -31,16 +31,19 @@ For each character in sprites.json, spawn a complete pipeline:
 assets/characters/{char_id}/
 ├── SPEC.md
 ├── ref/
-│   ├── front.png
-│   ├── side_left.png
-│   ├── side_right.png
-│   ├── back.png
-│   └── angles.json
-├── pose/
-│   ├── attack.png
-│   ├── defend.png
-│   ├── jump.png
-│   └── pose.json
+│   ├── ref.png (main reference)
+│   └── angles/
+│       ├── front.png
+│       ├── side_left.png
+│       ├── side_right.png
+│       ├── back.png
+│       └── angles.json
+├── variants/
+│   ├── attack/
+│   │   └── attack.png
+│   ├── defend/
+│   │   └── defend.png
+│   └── variants.json
 └── states/
     ├── idle/
     │   ├── atlas.json

@@ -1,0 +1,221 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-characters/03-generation/forest-elf-03-poses/forest-elf-pose-defend-missing-output-assets/characters/forest-elf/variants/defend/defend.png",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/forest-elf-03-poses/forest-elf-pose-defend",
+            "severity": "high",
+            "description": "[03-characters/03-generation/forest-elf-03-poses/forest-elf-pose-defend] Task output not created: assets/characters/forest-elf/variants/defend/defend.png",
+            "source": "unit",
+            "detected": "2026-04-23T05:54:58.087Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/playbooks/default/tasks/03-characters/03-generation/tasks/forest-elf-03-poses/tasks/forest-elf-pose-defend",
+              "taskId": "03-characters/03-generation/forest-elf-03-poses/forest-elf-pose-defend",
+              "taskTitle": "Generate Lirael defend pose",
+              "taskPrompt": "# Generate Lirael defend Pose\n\nCreate defend pose variation for Lirael.\n\n## Character Details\n\n- **ID**: forest-elf\n- **Name**: Lirael\n- **Pose**: defend\n- **Palette**: 16-bit retro, green and brown tones, natural forest colors, limited to 16 colors\n\n## Task\n\nGenerate defend pose reference image:\n- Consistent with character design\n- Clear silhouette\n- Appropriate for game mechanics\n\n## Output\n\nCreate `assets/characters/forest-elf/variants/defend/defend.png`:\n- PNG format\n- Matches character palette\n- Ready for animation\n- Each variant in its own subdirectory\n\n## Verification\n\n- Pose image exists\n- Matches character style\n- Clear and readable",
+              "factId": "file-exists:test -f \"assets/characters/forest-elf/variants/defend/defend.png\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-characters/03-generation/forest-elf-03-poses/forest-elf-pose-defend-check-failed-pose-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/forest-elf-03-poses/forest-elf-pose-defend",
+            "severity": "high",
+            "description": "[03-characters/03-generation/forest-elf-03-poses/forest-elf-pose-defend] Check failed: Pose image exists",
+            "source": "unit",
+            "detected": "2026-04-23T05:54:58.089Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "pose-exists",
+              "checkCmd": "test -s assets/characters/forest-elf/variants/defend/defend.png",
+              "checkDescription": "Pose image exists",
+              "checkOutput": "Command failed: test -s assets/characters/forest-elf/variants/defend/defend.png\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Generate Lirael defend Pose\n\nCreate defend pose variation for Lirael.\n\n## Character Details\n\n- **ID**: forest-elf\n- **Name**: Lirael\n- **Pose**: defend\n- **Palette**: 16-bit retro, green and brown tones, natural forest colors, limited to 16 colors\n\n## Task\n\nGenerate defend pose reference image:\n- Consistent with character design\n- Clear silhouette\n- Appropriate for game mechanics\n\n## Output\n\nCreate `assets/characters/forest-elf/variants/defend/defend.png`:\n- PNG format\n- Matches character palette\n- Ready for animation\n- Each variant in its own subdirectory\n\n## Verification\n\n- Pose image exists\n- Matches character style\n- Clear and readable",
+              "taskId": "03-characters/03-generation/forest-elf-03-poses/forest-elf-pose-defend",
+              "taskTitle": "Generate Lirael defend pose",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/playbooks/default/tasks/03-characters/03-generation/tasks/forest-elf-03-poses/tasks/forest-elf-pose-defend",
+              "factId": "check:pose-exists"
+            }
+          }
+        ],
+        "durationMs": 5
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 8
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 60
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#2",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 62683
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-23T05:54:58.083Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-23T05:54:58.084Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-23T05:54:58.089Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-23T05:54:58.090Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-23T05:54:58.099Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#2",
+      "iteration": 1,
+      "ts": "2026-04-23T05:56:00.784Z"
+    },
+    {
+      "from": "run-strategy:task-run#2",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-23T05:56:00.844Z"
+    }
+  ]
+}

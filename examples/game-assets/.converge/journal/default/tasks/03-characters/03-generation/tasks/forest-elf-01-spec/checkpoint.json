@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-characters/03-generation/forest-elf-01-spec",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T05:53:26.874Z",
+  "createdAt": "2026-04-23T05:53:26.857Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T05:53:26.857Z",
+      "completedAt": "2026-04-23T05:53:26.872Z",
+      "outcome": "success",
+      "durationMs": 15
+    }
+  ],
+  "currentAttempt": 1
+}

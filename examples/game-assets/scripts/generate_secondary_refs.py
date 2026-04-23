@@ -108,16 +108,19 @@ def main() -> int:
     char_name = char_info.get("name", args.char_id)
     palette = char_info.get("palette", "16-bit retro pixel art")
 
-    # Find base reference image (with green screen)
-    base_ref_path = project_root / "assets" / "characters" / args.char_id / "ref" / f"{args.base_angle}.png"
-    
-    if not base_ref_path.exists():
-        print(f"Error: Base reference not found: {base_ref_path}", file=sys.stderr)
-        print(f"Make sure to generate angles first: python scripts/generate_character_angles.py {args.char_id} ...", file=sys.stderr)
-        return 1
+    # Find base reference image (with green screen) from angles subdirectory
+    base_ref_path = project_root / "assets" / "characters" / args.char_id / "ref" / "angles" / f"{args.base_angle}.png"
 
-    # Output directory
-    out_dir = project_root / "assets" / "characters" / args.char_id / args.ref_type
+    if not base_ref_path.exists():
+        # Fallback to main ref if angles don't exist
+        base_ref_path = project_root / "assets" / "characters" / args.char_id / "ref" / "ref.png"
+        if not base_ref_path.exists():
+            print(f"Error: Base reference not found: {base_ref_path}", file=sys.stderr)
+            print(f"Make sure to generate angles first: python scripts/generate_character_angles.py {args.char_id} ...", file=sys.stderr)
+            return 1
+
+    # Output directory - variants go in variants/{variation_name} subdirectory
+    out_dir = project_root / "assets" / "characters" / args.char_id / "variants" / args.variation_name
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"{args.variation_name}.png"
 
@@ -154,8 +157,9 @@ def main() -> int:
 
     print(f"  wrote {out_path.relative_to(project_root)}  seed={seed_used}")
 
-    # Update or create metadata file
-    meta_path = out_dir / f"{args.ref_type}.json"
+    # Update or create metadata file in variants directory
+    variants_dir = project_root / "assets" / "characters" / args.char_id / "variants"
+    meta_path = variants_dir / "variants.json"
     meta = {}
     if meta_path.exists():
         meta = json.loads(meta_path.read_text(encoding="utf-8"))

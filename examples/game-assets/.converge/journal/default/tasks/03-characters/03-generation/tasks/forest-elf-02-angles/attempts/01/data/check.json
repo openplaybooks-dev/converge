@@ -1,0 +1,10 @@
+{
+  "taskId": "03-characters/03-generation/forest-elf-02-angles",
+  "checks": [
+    {
+      "id": "angles-exist",
+      "description": "Angle references exist",
+      "cmd": "test -s assets/characters/forest-elf/ref/angles/angles.json"
+    }
+  ]
+}

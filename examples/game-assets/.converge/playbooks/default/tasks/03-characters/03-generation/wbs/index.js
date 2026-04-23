@@ -40,7 +40,7 @@ export async function run(ctx) {
       animation_states: JSON.stringify(sprite.animation_states || ['idle', 'walk']),
     };
 
-    const basePath = `.converge/playbooks/default/tasks/03-characters/03-generation/tasks/${charId}`;
+    const basePath = `.converge/playbooks/default/tasks/03-characters/03-generation/tasks`;
 
     // Task 1: Spec
     const specTaskId = `${charId}-01-spec`;
