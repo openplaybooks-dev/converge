@@ -1,0 +1,9 @@
+name: deep-research
+description: Layered deep research with iterative deepening
+version: 1.0.0
+
+runtime:
+  maxIterations: 30
+
+run:
+  resume: true

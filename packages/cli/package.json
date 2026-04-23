@@ -34,9 +34,11 @@
   },
   "dependencies": {
     "@clack/prompts": "^0.9.1",
-    "@converge/core": "workspace:*",
     "@converge/agentfn": "workspace:*",
-    "@converge/navigator": "workspace:*"
+    "@converge/core": "workspace:*",
+    "@converge/navigator": "workspace:*",
+    "glob": "^11.1.0",
+    "yaml": "^2.8.3"
   },
   "optionalDependencies": {
     "@converge/swebench": "workspace:*",

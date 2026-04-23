@@ -1,0 +1,15 @@
+name: deep-research
+description: Layered deep research — iterative deepening across 3 layers with aggregation checkpoints and insight-triggered focus shifts.
+key: question
+inputs:
+  question: { required: true, description: The research question to investigate }
+  domain: { default: "general", description: Research domain for context }
+  maxLayers: { default: "3", description: Maximum layers to execute (1-3) }
+  minPromisingAreas: { default: "3", description: Minimum promising areas to proceed from Layer 1 }
+
+run:
+  mode: oneoff
+  maxIterations: 30
+  maxTaskAttempts: 3
+  maxDuration: 12h
+  resume: true
