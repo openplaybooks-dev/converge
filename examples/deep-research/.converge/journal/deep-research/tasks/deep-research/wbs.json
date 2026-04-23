@@ -1,0 +1,11 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-23T09:29:52.010Z",
+  "spawnCount": 1,
+  "subtasks": [
+    {
+      "id": "phase-1-initial",
+      "writeToPath": ".converge/playbooks/deep-research/tasks/phase-1-initial/TASK.md"
+    }
+  ]
+}

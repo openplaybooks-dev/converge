@@ -66,14 +66,17 @@ export interface TaskStates {
  * Result from findNextTask() traversal.
  */
 export interface NextTaskResult {
-  /** The node to execute */
-  node: TreeNodeData;
+  /** The node to execute (null when no runnable tasks remain) */
+  node: TreeNodeData | null;
 
   /** How many tasks are complete */
   completedCount: number;
 
   /** Total task count */
   totalCount: number;
+
+  /** IDs of tasks that are in a failed terminal state */
+  failedIds: string[];
 }
 
 /**

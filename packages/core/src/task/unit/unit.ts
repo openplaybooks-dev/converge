@@ -77,6 +77,8 @@ export class Unit implements TaskDefinition {
   children?: Unit[];
   planConfig?: PlanConfig;
   wbsFn?: WbsFn;
+  /** When true, WBS runs after skill/executor completes (not before). Use for epoch-progression WBS. */
+  wbsAfter?: boolean;
   loopFn?: LoopFn;
   executorFn?: ExecutorFn;
   convergeConfig?: ConvergeConfig;
@@ -128,6 +130,9 @@ export class Unit implements TaskDefinition {
     this.config = config.config;
     this.planConfig = config.taskDef.planConfig;
     this.wbsFn = config.taskDef.wbsFn;
+    // Check if WBS should run after execution (via `after: true` flag in TASK.md)
+    const wbsDef = (config.taskDef as any).wbs;
+    this.wbsAfter = wbsDef?.after === true;
     this.loopFn = config.taskDef.loopFn;
     this.executorFn = config.taskDef.executorFn;
     this.convergeConfig = config.taskDef.convergeConfig;

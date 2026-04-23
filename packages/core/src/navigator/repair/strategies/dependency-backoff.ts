@@ -78,7 +78,6 @@ export class DependencyBackoffStrategy implements FixStrategy {
         return {
           success: false,
           reason: "No missing inputs detected in gap metadata",
-          shouldRetry: false,
         };
       }
 

@@ -12,6 +12,12 @@ importers:
         specifier: ^3.8.1
         version: 3.8.3
 
+  examples/deep-research:
+    dependencies:
+      '@converge/claudefn':
+        specifier: workspace:*
+        version: link:../../packages/claudefn
+
   packages/acpfn:
     dependencies:
       '@anthropic-ai/claude-agent-sdk':
@@ -89,6 +95,9 @@ importers:
       '@converge/agentfn':
         specifier: workspace:*
         version: link:../agentfn
+      '@converge/claudefn':
+        specifier: workspace:*
+        version: link:../claudefn
       '@converge/core':
         specifier: workspace:*
         version: link:../core
@@ -139,6 +148,9 @@ importers:
       '@converge/agentfn':
         specifier: workspace:*
         version: link:../agentfn
+      '@converge/claudefn':
+        specifier: workspace:*
+        version: link:../claudefn
       '@converge/navigator':
         specifier: workspace:*
         version: link:../navigator

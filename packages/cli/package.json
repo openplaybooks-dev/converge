@@ -35,6 +35,7 @@
   "dependencies": {
     "@clack/prompts": "^0.9.1",
     "@converge/agentfn": "workspace:*",
+    "@converge/claudefn": "workspace:*",
     "@converge/core": "workspace:*",
     "@converge/navigator": "workspace:*",
     "glob": "^11.1.0",

@@ -588,54 +588,91 @@ export async function guardDirtySession(
 }
 
 /* ------------------------------------------------------------------ */
-/*  Main loop                                                          */
+/*  State Machine Context                                               */
 /* ------------------------------------------------------------------ */
 
 /**
- * Run the full project autonomously.
- *
- * Every iteration re-scans the filesystem so AI-created tasks/epics are
- * picked up without any special handling — they simply appear in the next snap.
+ * All mutable state for one autonomous run. Each state function receives
+ * this context, enriches it, and returns the next state.
  */
-export async function autonomousRun(
-  config: AutonomousRunConfig,
-): Promise<AutonomousRunResult> {
-  const { projectDir, verbose } = config;
-  const maxIterations = config.maxIterations ?? 100;
-  const maxTaskAttempts = config.maxTaskAttempts ?? 2;
-  const maxRunDurationMs = config.maxRunDurationMs ?? 72 * 60 * 60 * 1000; // 72 hours default
-  const checkpointMgr = new CheckpointManager(projectDir);
+interface RunContext {
+  // ── Fixed config ──────────────────────────────────────────
+  config: AutonomousRunConfig;
+  projectDir: string;
+  checkpointMgr: CheckpointManager;
+  sessionLogger: SessionLogger;
+  maxIterations: number;
+  maxTaskAttempts: number;
+  maxRunDurationMs: number;
 
-  // Initialize session logger
-  const sessionId = generateSessionId();
-  const projectName = config.convergeConfig.name || "Unknown Project";
-  const sessionLogger = new SessionLogger(projectDir, sessionId, projectName, {
-    maxIterations,
-    maxAttemptsPerTask: maxTaskAttempts,
-  });
+  // ── Counters (enriched each iteration) ─────────────────────
+  iteration: number;
+  tasksCompleted: number;
+  tasksFailed: number;
+  gapsResolved: number;
 
-  // Write session start
-  await sessionLogger.writeSessionStart();
+  // ── Task execution tracking ───────────────────────────────
+  taskAttempts: Map<string, number>; // taskId → attempt count
+  consecutiveFailures: number;        // consecutive exhausted failures → halt
+  consecutiveSelections: number;     // same task selected → infinite loop detection
+  lastSelectedTaskId: string | null;
+
+  // ── Current iteration data (enriched by SELECT → EXECUTE → COMMIT) ──
+  tree: TaskTree | null;
+  selectedNode: SelectedNode | null;
+  execResult: TaskExecutionResult | null;
+
+  // ── Lifecycle ─────────────────────────────────────────────
+  runStartedAt: number;
+  cancelled: boolean;
+}
+
+interface SelectedNode {
+  epicId: string;
+  taskId: string;
+  filePath: string;
+  relPath: string;
+  journalTaskId: string;
+  blocking: boolean;
+  parentTaskId: string | undefined;
+  currentAttempt: number;
+  treeNode: TreeNode | null;
+}
+
+type RunState =
+  | "INIT"
+  | "SCAN"
+  | "SELECT"
+  | "EXECUTE"
+  | "COMMIT"
+  | "CHECK"
+  | "DONE";
+
+/* ------------------------------------------------------------------ */
+/*  State Handlers                                                      */
+/* ------------------------------------------------------------------ */
+
+async function stateInit(ctx: RunContext): Promise<RunState> {
+  const { config, sessionLogger } = ctx;
 
   console.log("🤖 Starting autonomous run (tree-based traversal)\n");
 
-  // Initialize tree (replaces snap)
-  let tree = await TaskTree.load(projectDir, config.convergeConfig);
+  await sessionLogger.writeSessionStart();
 
-  // ── Detect stuck tasks (running or interrupted from a previous session) ──
-  const stuckTasks = await detectStuckTasks(projectDir, tree);
+  // Load tree once — SCAN will reload after mutations
+  ctx.tree = await TaskTree.load(config.projectDir, config.convergeConfig);
+
+  // Handle stuck tasks from previous session
+  const stuckTasks = await detectStuckTasks(config.projectDir, ctx.tree);
 
   if (stuckTasks.length > 0) {
     if (config.resume) {
-      // --resume: recover them
-      await recoverStuckTasks(projectDir, tree, stuckTasks);
-      await tree.reload();
+      await recoverStuckTasks(config.projectDir, ctx.tree, stuckTasks);
+      await ctx.tree.reload();
     } else if (config.restart) {
-      // --restart: reset ALL tasks to pending
-      await resetAllTasks(projectDir, tree);
-      await tree.reload();
+      await resetAllTasks(config.projectDir, ctx.tree);
+      await ctx.tree.reload();
     } else {
-      // No flag: fail fast
       console.error(
         `\n⛔ Found ${stuckTasks.length} task(s) in interrupted/running state:\n`,
       );
@@ -644,85 +681,428 @@ export async function autonomousRun(
         if (t.lastActivity) {
           const elapsed = Date.now() - new Date(t.lastActivity).getTime();
           const mins = Math.floor(elapsed / 60_000);
-          age =
-            mins < 60
-              ? `, idle ${mins}m`
-              : `, idle ${Math.floor(mins / 60)}h${mins % 60}m`;
+          age = mins < 60 ? `, idle ${mins}m` : `, idle ${Math.floor(mins / 60)}h${mins % 60}m`;
         }
         console.error(`   • ${t.taskId} (status: ${t.status}${age})`);
       }
       console.error(`\nTo continue, use one of:`);
       console.error(`   converge run --resume    # recover interrupted tasks`);
-      console.error(
-        `   converge run --restart   # reset all tasks to pending\n`,
-      );
+      console.error(`   converge run --restart   # reset all tasks to pending\n`);
       process.exit(1);
     }
   } else if (config.restart) {
-    // --restart with no stuck tasks: still reset everything
-    await resetAllTasks(projectDir, tree);
-    await tree.reload();
+    await resetAllTasks(config.projectDir, ctx.tree);
+    await ctx.tree.reload();
   }
 
-  // ── Detect and recover failed tasks for retry ─────────────────────────
-  // Failed tasks that haven't exceeded max attempts should be retried
-  // This ensures failed tasks from previous runs are not skipped forever
-  const recoveredTaskAttempts = await recoverFailedTasks(
-    projectDir,
-    tree,
-    maxTaskAttempts,
+  // Recover failed tasks for retry
+  const recovered = await recoverFailedTasks(
+    config.projectDir,
+    ctx.tree,
+    ctx.maxTaskAttempts,
   );
-  if (recoveredTaskAttempts.size > 0) {
-    await tree.reload();
+  if (recovered.size > 0) {
+    ctx.taskAttempts = new Map([...ctx.taskAttempts, ...recovered]);
+    await ctx.tree.reload();
   }
 
-  const runStartedAt = Date.now();
-  let iteration = 0;
-  let consecutiveFailures = 0;
-  let tasksCompleted = 0;
-  let tasksFailed = 0;
-  let gapsResolved = 0;
-  // Per-task failure tracking: taskId → attempt count
-  // Initialize with recovered failed tasks' attempt counts
-  const taskAttempts = new Map<string, number>(recoveredTaskAttempts);
+  return "SCAN";
+}
 
-  // Track consecutive selections to detect infinite loops
-  let lastSelectedTaskId: string | null = null;
-  let consecutiveSelections = 0;
-  const MAX_SAME_TASK_SELECTIONS = 3;
+async function stateScan(ctx: RunContext): Promise<RunState> {
+  ctx.iteration++;
 
-  // Setup cancellation handler for this session
-  let cancelled = false;
+  const { tree, config, sessionLogger } = ctx;
+
+  if (config.verbose) {
+    const progress = await tree!.getProgress();
+    console.log(
+      `\n── Iteration ${ctx.iteration} ───────────────────────────────────────────`,
+    );
+    console.log(`   Progress: ${progress.completed}/${progress.total} tasks complete`);
+  }
+
+  // Wall-clock timeout guard
+  const elapsed = Date.now() - ctx.runStartedAt;
+  if (elapsed > ctx.maxRunDurationMs) {
+    const mins = Math.floor(elapsed / 60_000);
+    console.log(
+      `\n⛔ Run timeout: exceeded ${Math.floor(ctx.maxRunDurationMs / 60_000)} minute limit (ran ${mins}m).\n`,
+    );
+    await sessionLogger.writeSessionEnd(
+      {
+        totalIterations: ctx.iteration,
+        tasksCompleted: ctx.tasksCompleted,
+        tasksFailed: ctx.tasksFailed,
+        gapsResolved: ctx.gapsResolved,
+        convergenceAchieved: false,
+      },
+      "stalled",
+    );
+    ctx.tasksCompleted = ctx.tasksCompleted; // no-op, for clarity
+    return "DONE";
+  }
+
+  return "SELECT";
+}
+
+async function stateSelect(ctx: RunContext): Promise<RunState> {
+  const { config, tree, sessionLogger } = ctx;
+
+  const result = await tree!.findNextTask(config.filter, config.force);
+
+  if (!result.node) {
+    // No runnable tasks — check why
+    const failedCount = result.failedIds.length;
+    const hasFilter = !!config.filter;
+
+    if (failedCount > 0) {
+      console.log(
+        hasFilter
+          ? `\n⛔ No pending tasks match filter "${config.filter}" (${failedCount} tasks failed).\n`
+          : `\n⛔ All remaining tasks are failed or blocked (${failedCount} failed). Fix and resume.\n`,
+      );
+      await sessionLogger.writeSessionEnd(
+        {
+          totalIterations: ctx.iteration,
+          tasksCompleted: ctx.tasksCompleted,
+          tasksFailed: ctx.tasksFailed,
+          gapsResolved: ctx.gapsResolved,
+          convergenceAchieved: false,
+        },
+        "error",
+      );
+      return "DONE";
+    }
+
+    console.log(
+      hasFilter
+        ? `\n✅ No pending tasks match filter "${config.filter}" — done.\n`
+        : "\n✅ All tasks complete — autonomous run finished.\n",
+    );
+    await sessionLogger.writeSessionEnd(
+      {
+        totalIterations: ctx.iteration,
+        tasksCompleted: ctx.tasksCompleted,
+        tasksFailed: ctx.tasksFailed,
+        gapsResolved: ctx.gapsResolved,
+        convergenceAchieved: true,
+      },
+      "complete",
+    );
+    return "DONE";
+  }
+
+  const { node: nodeData, completedCount, totalCount } = result;
+
+  // Infinite loop guard
+  const currentTaskId = nodeData.id;
+  if (currentTaskId === ctx.lastSelectedTaskId) {
+    ctx.consecutiveSelections++;
+    if (ctx.consecutiveSelections >= 3) {
+      console.error(
+        `\n⛔ INFINITE LOOP DETECTED: Task "${currentTaskId}" selected ${ctx.consecutiveSelections} times\n`,
+      );
+      console.error(`   This indicates a bug in task completion detection.\n`);
+      await sessionLogger.writeSessionEnd(
+        {
+          totalIterations: ctx.iteration,
+          tasksCompleted: ctx.tasksCompleted,
+          tasksFailed: ctx.tasksFailed,
+          gapsResolved: ctx.gapsResolved,
+          convergenceAchieved: false,
+        },
+        "error",
+      );
+      return "DONE";
+    }
+  } else {
+    ctx.consecutiveSelections = 0;
+  }
+  ctx.lastSelectedTaskId = currentTaskId;
+
+  const currentAttempt = (ctx.taskAttempts.get(currentTaskId) ?? 0) + 1;
+  const treeNode = tree!.getNode(currentTaskId);
+
+  ctx.selectedNode = {
+    epicId: nodeData.epicId || "unknown",
+    taskId: currentTaskId.split("/").pop() || currentTaskId,
+    filePath: nodeData.unit.path,
+    relPath: nodeData.unit.path.replace(config.projectDir + "/", ""),
+    parentTaskId: currentTaskId.includes("/") ? currentTaskId.split("/")[0] : undefined,
+    journalTaskId: currentTaskId,
+    blocking: nodeData.blocking,
+    currentAttempt,
+    treeNode,
+  };
+
+  // Print progress header
+  console.log(
+    `\n── Iteration ${ctx.iteration} ─────────────────────────────────────────────`,
+  );
+  console.log(`📍 Progress: ${completedCount}/${totalCount} tasks complete`);
+  console.log(`▶  Next task: ${ctx.selectedNode.relPath}`);
+  console.log(`   Epic: ${ctx.selectedNode.epicId}  Task: ${ctx.selectedNode.taskId}`);
+
+  await sessionLogger.logTaskSelected(
+    ctx.selectedNode.journalTaskId,
+    ctx.selectedNode.epicId,
+    currentAttempt,
+  );
+  await sessionLogger.logTaskAttemptStart(ctx.selectedNode.journalTaskId, currentAttempt);
+
+  return "EXECUTE";
+}
+
+async function stateExecute(ctx: RunContext): Promise<RunState> {
+  const { selectedNode, config, checkpointMgr, sessionLogger } = ctx;
+  const taskStartTime = Date.now();
+
+  let unit: Unit | null = null;
+  try {
+    unit = await Unit.fromPath(selectedNode!.filePath);
+    if (config.epochVars) {
+      unit.vars = { ...unit.vars, ...config.epochVars };
+    }
+  } catch (err: any) {
+    // Fall back to context-based execution if Unit loading fails
+    console.error(
+      `   ❌ Failed to load unit from ${selectedNode!.filePath}: ${err.message}`,
+    );
+    const execResult = await executeTask(
+      {
+        projectDir: config.projectDir,
+        epicId: selectedNode!.epicId,
+        journalTaskId: selectedNode!.journalTaskId,
+        filePath: selectedNode!.filePath,
+        sessionLogger,
+        extraVars: config.epochVars,
+      },
+      checkpointMgr,
+    );
+    ctx.execResult = execResult;
+    const taskDuration = Date.now() - taskStartTime;
+    await sessionLogger.logTaskAttemptComplete(
+      selectedNode!.journalTaskId,
+      selectedNode!.currentAttempt,
+      execResult.success,
+      taskDuration,
+    );
+    return "COMMIT";
+  }
+
+  // Container check: WBS parent with children but no wbsFn → skip
+  if (selectedNode!.treeNode && selectedNode!.treeNode.children.length > 0 && !unit.wbsFn) {
+    console.log(
+      `   ⏩ Container task (${selectedNode!.treeNode.children.length} children) — skipping direct execution`,
+    );
+    await ctx.tree!.markSeeded(
+      selectedNode!.treeNode!,
+      selectedNode!.treeNode!.children.map((c) => c.id),
+    );
+    ctx.taskAttempts.delete(selectedNode!.journalTaskId);
+    ctx.tasksCompleted++;
+    await sessionLogger.logConvergence(selectedNode!.journalTaskId, true);
+    ctx.execResult = null;
+    return "CHECK";
+  }
+
+  ctx.execResult = await executeTask(unit, checkpointMgr, sessionLogger);
+  const taskDuration = Date.now() - taskStartTime;
+  await sessionLogger.logTaskAttemptComplete(
+    selectedNode!.journalTaskId,
+    selectedNode!.currentAttempt,
+    ctx.execResult.success,
+    taskDuration,
+  );
+
+  return "COMMIT";
+}
+
+async function stateCommit(ctx: RunContext): Promise<RunState> {
+  const { selectedNode, execResult, config, sessionLogger, tree } = ctx;
+
+  if (!execResult) {
+    // Container skip case — tree was already updated
+    await tree!.reload();
+    return "CHECK";
+  }
+
+  if (execResult.success) {
+    if (execResult.isWbsTask) {
+      console.log(` — waiting for subtasks`);
+    } else {
+      console.log(`: ${selectedNode!.taskId}`);
+    }
+
+    ctx.taskAttempts.delete(selectedNode!.journalTaskId);
+    ctx.consecutiveFailures = 0;
+    ctx.tasksCompleted++;
+    await sessionLogger.logConvergence(selectedNode!.journalTaskId, true);
+
+    if (selectedNode!.treeNode) {
+      if (execResult.isWbsTask) {
+        await tree!.markSeeded(selectedNode!.treeNode, []);
+      } else {
+        await tree!.markCompleted(selectedNode!.treeNode);
+      }
+    }
+
+    if (config.force) {
+      await sessionLogger.writeSessionEnd(
+        {
+          totalIterations: ctx.iteration,
+          tasksCompleted: ctx.tasksCompleted,
+          tasksFailed: ctx.tasksFailed,
+          gapsResolved: ctx.gapsResolved,
+          convergenceAchieved: true,
+        },
+        "complete",
+      );
+      return "DONE";
+    }
+  } else {
+    const attempts = (ctx.taskAttempts.get(selectedNode!.journalTaskId) ?? 0) + 1;
+    ctx.taskAttempts.set(selectedNode!.journalTaskId, attempts);
+
+    if (execResult.resetSiblings?.length) {
+      for (const sid of execResult.resetSiblings) {
+        ctx.taskAttempts.delete(sid);
+      }
+    }
+
+    console.log(`: ${selectedNode!.taskId} (attempt ${attempts}/${ctx.maxTaskAttempts})`);
+
+    if (execResult.isBlocking) {
+      console.error(`\n⚠️  BLOCKING TASK FAILED: ${selectedNode!.journalTaskId}`);
+      console.error(`   Epic: ${selectedNode!.epicId}`);
+      console.error(`   ↳ This will block downstream tasks with explicit dependencies.\n`);
+    }
+
+    if (attempts >= ctx.maxTaskAttempts) {
+      console.log(
+        `   ⛔ Max attempts (${ctx.maxTaskAttempts}) reached for ${selectedNode!.taskId} — permanently skipping.`,
+      );
+      console.log(`   ↳  Retry manually with: converge reset ${selectedNode!.taskId}`);
+      ctx.consecutiveFailures++;
+      ctx.tasksFailed++;
+      await sessionLogger.logConvergence(selectedNode!.journalTaskId, false);
+      if (selectedNode!.treeNode) {
+        await tree!.markFailed(selectedNode!.treeNode);
+      }
+    }
+    // If attempts < max: task will be retried; don't increment consecutiveFailures
+  }
+
+  await tree!.reload();
+  ctx.selectedNode = null;
+  ctx.execResult = null;
+
+  return "CHECK";
+}
+
+async function stateCheck(ctx: RunContext): Promise<RunState> {
+  const { consecutiveFailures, iteration, maxIterations, config, sessionLogger } = ctx;
+
+  // Halt after 3 consecutive exhausted failures
+  if (consecutiveFailures >= 3) {
+    console.log(
+      "\n⛔ Halting: 3 consecutive task failures with no progress. Fix and resume.\n",
+    );
+    await sessionLogger.writeSessionEnd(
+      {
+        totalIterations: iteration,
+        tasksCompleted: ctx.tasksCompleted,
+        tasksFailed: ctx.tasksFailed,
+        gapsResolved: ctx.gapsResolved,
+        convergenceAchieved: false,
+      },
+      "error",
+    );
+    return "DONE";
+  }
+
+  // Max iterations guard
+  if (iteration >= maxIterations) {
+    console.log(
+      `\n⚠️  Max iterations (${maxIterations}) reached. Use --max-iterations to increase.\n`,
+    );
+    await sessionLogger.writeSessionEnd(
+      {
+        totalIterations: iteration,
+        tasksCompleted: ctx.tasksCompleted,
+        tasksFailed: ctx.tasksFailed,
+        gapsResolved: ctx.gapsResolved,
+        convergenceAchieved: false,
+      },
+      "stalled",
+    );
+    return "DONE";
+  }
+
+  // Normal case: continue to next iteration
+  return "SCAN";
+}
+
+/* ------------------------------------------------------------------ */
+/*  Main loop                                                          */
+/* ------------------------------------------------------------------ */
+
+export async function autonomousRun(
+  config: AutonomousRunConfig,
+): Promise<AutonomousRunResult> {
+  const checkpointMgr = new CheckpointManager(config.projectDir);
+  const sessionLogger = new SessionLogger(
+    config.projectDir,
+    generateSessionId(),
+    config.convergeConfig.name || "Unknown Project",
+    { maxIterations: config.maxIterations ?? 100, maxAttemptsPerTask: config.maxTaskAttempts ?? 2 },
+  );
+
+  const ctx: RunContext = {
+    config,
+    projectDir: config.projectDir,
+    checkpointMgr,
+    sessionLogger,
+    maxIterations: config.maxIterations ?? 100,
+    maxTaskAttempts: config.maxTaskAttempts ?? 2,
+    maxRunDurationMs: config.maxRunDurationMs ?? 72 * 60 * 60 * 1000,
+    iteration: 0,
+    tasksCompleted: 0,
+    tasksFailed: 0,
+    gapsResolved: 0,
+    taskAttempts: new Map(),
+    consecutiveFailures: 0,
+    consecutiveSelections: 0,
+    lastSelectedTaskId: null,
+    tree: null,
+    selectedNode: null,
+    execResult: null,
+    runStartedAt: Date.now(),
+    cancelled: false,
+  };
+
+  // ── Cancellation ───────────────────────────────────────────────
   const cleanupSession = async (signal: string) => {
-    if (cancelled) return; // Prevent double cleanup
-    cancelled = true;
-
+    if (ctx.cancelled) return;
+    ctx.cancelled = true;
     try {
       console.log(`\n\n⚠️  Received ${signal}. Finalizing session...`);
-
-      // Mark the currently executing task as interrupted so the next run can recover it.
-      // The task's pre-flight check will determine if it actually completed (outputs exist)
-      // or needs to re-run (outputs missing).
       const currentTask = (global as any).__CONVERGE_CURRENT_TASK__;
       if (currentTask) {
         try {
           await currentTask.unitCkpt.markInterrupted();
-          console.log(
-            `   ⚡ Recorded interruption for task: ${currentTask.journalTaskId}`,
-          );
+          console.log(`   ⚡ Recorded interruption for task: ${currentTask.journalTaskId}`);
         } catch (err: any) {
-          console.warn(
-            `   ⚠️  Could not record interrupted state: ${err.message}`,
-          );
+          console.warn(`   ⚠️  Could not record interrupted state: ${err.message}`);
         }
       }
-
       await sessionLogger.writeSessionEnd(
         {
-          totalIterations: iteration,
-          tasksCompleted,
-          tasksFailed,
-          gapsResolved,
+          totalIterations: ctx.iteration,
+          tasksCompleted: ctx.tasksCompleted,
+          tasksFailed: ctx.tasksFailed,
+          gapsResolved: ctx.gapsResolved,
           convergenceAchieved: false,
         },
         "cancelled",
@@ -734,447 +1114,45 @@ export async function autonomousRun(
     process.exit(signal === "SIGINT" ? 130 : 143);
   };
 
-  // Register cleanup handlers
-  const sigintHandler = () => cleanupSession("SIGINT");
-  const sigtermHandler = () => cleanupSession("SIGTERM");
-  process.once("SIGINT", sigintHandler);
-  process.once("SIGTERM", sigtermHandler);
+  process.once("SIGINT", () => cleanupSession("SIGINT"));
+  process.once("SIGTERM", () => cleanupSession("SIGTERM"));
 
+  // ── State machine loop ──────────────────────────────────────────
+  const handlers: Record<RunState, (ctx: RunContext) => Promise<RunState>> = {
+    INIT: stateInit,
+    SCAN: stateScan,
+    SELECT: stateSelect,
+    EXECUTE: stateExecute,
+    COMMIT: stateCommit,
+    CHECK: stateCheck,
+    DONE: async () => "DONE",
+  };
+
+  let state: RunState = "INIT";
   try {
-    while (iteration < maxIterations) {
-      iteration++;
-
-      // ── 1. TREE TRAVERSAL (replaces SNAP) ────────────────────────────
-      // Tree is reloaded after each task execution to pick up WBS-spawned children
-      if (verbose) {
-        const progress = await tree.getProgress();
-        console.log(
-          `\n── Iteration ${iteration} ───────────────────────────────────────────`,
-        );
-        console.log(
-          `   Progress: ${progress.completed}/${progress.total} tasks complete`,
-        );
-      }
-
-      // ── GLOBAL WALL-CLOCK GUARD ──────────────────────────────────────
-      const elapsed = Date.now() - runStartedAt;
-      if (elapsed > maxRunDurationMs) {
-        const mins = Math.floor(elapsed / 60_000);
-        console.log(
-          `\n⛔ Run timeout: exceeded ${Math.floor(maxRunDurationMs / 60_000)} minute limit (ran ${mins}m). Stopping.\n`,
-        );
-
-        // Write session end with stalled status
-        await sessionLogger.writeSessionEnd(
-          {
-            totalIterations: iteration,
-            tasksCompleted,
-            tasksFailed,
-            gapsResolved,
-            convergenceAchieved: false,
-          },
-          "stalled",
-        );
-
-        return {
-          completed: false,
-          tasksCompleted,
-          tasksFailed,
-          iterations: iteration,
-          stoppedReason: "timeout" as const,
-        };
-      }
-
-      // ── 2. FIND NEXT TASK (hierarchical tree traversal) ──────────────
-      const nextTaskResult = await tree.findNextTask(
-        config.filter,
-        config.force,
-      );
-
-      if (!nextTaskResult) {
-        const doneMsg = config.filter
-          ? `\n✅ No pending tasks match filter "${config.filter}" — done.\n`
-          : "\n✅ All tasks complete — autonomous run finished.\n";
-        console.log(doneMsg);
-
-        // Write session end
-        await sessionLogger.writeSessionEnd(
-          {
-            totalIterations: iteration,
-            tasksCompleted,
-            tasksFailed,
-            gapsResolved,
-            convergenceAchieved: true,
-          },
-          "complete",
-        );
-
-        return {
-          completed: true,
-          tasksCompleted,
-          tasksFailed,
-          iterations: iteration,
-        };
-      }
-
-      const { node: nodeData, completedCount, totalCount } = nextTaskResult;
-
-      // Convert TreeNodeData to TaskNode format for compatibility
-      const node = {
-        epicId: nodeData.epicId || "unknown",
-        taskId: nodeData.id.split("/").pop() || nodeData.id,
-        filePath: nodeData.unit.path,
-        relPath: nodeData.unit.path.replace(projectDir + "/", ""),
-        parentTaskId: nodeData.id.includes("/")
-          ? nodeData.id.split("/")[0]
-          : undefined,
-        journalTaskId: nodeData.id,
-        blocking: nodeData.blocking,
-        dependencies: nodeData.unit.dependencies,
-        tags: nodeData.tags,
-      };
-
-      // ── INFINITE LOOP DETECTION ──────────────────────────────────────────
-      // Detect if the same task is being selected repeatedly without completion
-      const currentTaskId = node.journalTaskId;
-
-      if (currentTaskId === lastSelectedTaskId) {
-        consecutiveSelections++;
-        if (consecutiveSelections >= MAX_SAME_TASK_SELECTIONS) {
-          console.error(
-            `\n⛔ INFINITE LOOP DETECTED: Task "${currentTaskId}" selected ${consecutiveSelections} times`,
-          );
-          console.error(`   File: ${node.filePath}`);
-          console.error(`   Epic: ${node.epicId}`);
-          console.error(
-            `\n   This indicates a bug in task completion detection.\n`,
-          );
-
-          await sessionLogger.writeSessionEnd(
-            {
-              totalIterations: iteration,
-              tasksCompleted,
-              tasksFailed,
-              gapsResolved,
-              convergenceAchieved: false,
-            },
-            "error",
-          );
-          return {
-            completed: false,
-            tasksCompleted,
-            tasksFailed,
-            iterations: iteration,
-            stoppedReason: "consecutive-failures" as const,
-          };
-        }
-      } else {
-        consecutiveSelections = 0;
-      }
-
-      lastSelectedTaskId = currentTaskId;
-
-      // Write iteration snapshot
-      const currentAttempt = (taskAttempts.get(node.journalTaskId) ?? 0) + 1;
-      const snapshot: ProgressSnapshot = {
-        iteration,
-        timestamp: new Date().toISOString(),
-        tasksComplete: completedCount,
-        tasksTotal: totalCount,
-        currentTask: {
-          id: node.journalTaskId,
-          epic: node.epicId,
-          attempt: currentAttempt,
-          status: "running",
-        },
-        gaps: [], // Will be populated by task execution
-      };
-      await sessionLogger.writeIterationSnapshot(snapshot);
-
-      console.log(
-        `\n── Iteration ${iteration} ─────────────────────────────────────────────`,
-      );
-      console.log(
-        `📍 Progress: ${completedCount}/${totalCount} tasks complete`,
-      );
-      console.log(`▶  Next task: ${node.relPath}`);
-      console.log(`   Epic: ${node.epicId}  Task: ${node.taskId}`);
-
-      // Log task selection
-      await sessionLogger.logTaskSelected(
-        node.journalTaskId,
-        node.epicId,
-        currentAttempt,
-      );
-
-      // ── 3. EXECUTE ───────────────────────────────────────────────────
-      const taskStartTime = Date.now();
-      await sessionLogger.logTaskAttemptStart(
-        node.journalTaskId,
-        currentAttempt,
-      );
-
-      // Load Unit first (enables context-based operations)
-      let unit: Unit;
-      try {
-        // Always use fromPath() - it handles both SKILL.md and task.ts
-        unit = await Unit.fromPath(node.filePath);
-        if (config.epochVars) {
-          unit.vars = { ...unit.vars, ...config.epochVars };
-        }
-      } catch (err: any) {
-        console.error(
-          `   ❌ Failed to load unit from ${node.filePath}: ${err.message}`,
-        );
-        // Fall back to legacy context-based execution
-        const execResult = await executeTask(
-          {
-            projectDir,
-            epicId: node.epicId,
-            journalTaskId: node.journalTaskId,
-            filePath: node.filePath,
-            sessionLogger,
-            extraVars: config.epochVars,
-          },
-          checkpointMgr,
-        );
-        const taskDuration = Date.now() - taskStartTime;
-        await sessionLogger.logTaskAttemptComplete(
-          node.journalTaskId,
-          currentAttempt,
-          execResult.success,
-          taskDuration,
-        );
-
-        // Handle result...
-        if (execResult.success) {
-          taskAttempts.delete(node.journalTaskId);
-          consecutiveFailures = 0;
-          tasksCompleted++;
-          await sessionLogger.logConvergence(node.journalTaskId, true);
-          if (config.force) break; // --force: stop after first success
-        } else {
-          const attempts = (taskAttempts.get(node.journalTaskId) ?? 0) + 1;
-          taskAttempts.set(node.journalTaskId, attempts);
-          if (execResult.resetSiblings?.length) {
-            for (const siblingId of execResult.resetSiblings) {
-              taskAttempts.delete(siblingId);
-            }
-          }
-          if (attempts >= maxTaskAttempts) {
-            consecutiveFailures++;
-            tasksFailed++;
-            await sessionLogger.logConvergence(node.journalTaskId, false);
-          }
-        }
-        continue;
-      }
-
-      // ── CONTAINER CHECK ──────────────────────────────────────────────
-      // Use the already-built tree to detect static container tasks:
-      // children exist in the tree but no wbsFn (no dynamic spawning).
-      // These should never execute directly — their children run independently.
-      // Mark as seeded so reconciliation auto-completes once all children finish.
-      const treeNode = tree.getNode(node.journalTaskId);
-      if (treeNode && treeNode.children.length > 0 && !unit.wbsFn) {
-        console.log(
-          `   ⏩ Container task (${treeNode.children.length} children) — skipping direct execution`,
-        );
-        await tree.markSeeded(
-          treeNode,
-          treeNode.children.map((c) => c.id),
-        );
-        taskAttempts.delete(node.journalTaskId);
-        consecutiveFailures = 0;
-        tasksCompleted++;
-        await sessionLogger.logConvergence(node.journalTaskId, true);
-        continue;
-      }
-
-      // Execute with Unit (enables parent facts, context-based ancestor ops)
-      const execResult = await executeTask(unit, checkpointMgr, sessionLogger);
-
-      const taskDuration = Date.now() - taskStartTime;
-      await sessionLogger.logTaskAttemptComplete(
-        node.journalTaskId,
-        currentAttempt,
-        execResult.success,
-        taskDuration,
-      );
-
-      // ── 4. COMMIT & TREE SHAKE ───────────────────────────────────────
-      if (execResult.success) {
-        if (execResult.isWbsTask) {
-          console.log(` — waiting for subtasks`);
-        } else {
-          console.log(`: ${node.taskId}`);
-        }
-
-        taskAttempts.delete(node.journalTaskId); // reset on success
-        consecutiveFailures = 0;
-        tasksCompleted++;
-        await sessionLogger.logConvergence(node.journalTaskId, true);
-
-        // Mark completed/seeded in tree (propagates auto-completion)
-        const treeNode = tree.getNode(node.journalTaskId);
-        if (treeNode) {
-          if (execResult.isWbsTask) {
-            // WBS parent: mark as seeded (waiting for children)
-            // Children are discovered on next tree reload
-            await tree.markSeeded(treeNode, []);
-          } else {
-            // Regular task: mark as completed (propagates auto-completion)
-            await tree.markCompleted(treeNode);
-          }
-        }
-
-        // --force: stop after the first successful run (don't loop infinitely)
-        if (config.force) {
-          await sessionLogger.writeSessionEnd(
-            {
-              totalIterations: iteration,
-              tasksCompleted,
-              tasksFailed,
-              gapsResolved,
-              convergenceAchieved: true,
-            },
-            "complete",
-          );
-          return {
-            completed: true,
-            tasksCompleted,
-            tasksFailed,
-            iterations: iteration,
-          };
-        }
-      } else {
-        const attempts = (taskAttempts.get(node.journalTaskId) ?? 0) + 1;
-        taskAttempts.set(node.journalTaskId, attempts);
-        if (execResult.resetSiblings?.length) {
-          for (const siblingId of execResult.resetSiblings) {
-            taskAttempts.delete(siblingId);
-          }
-        }
-
-        console.log(
-          `: ${node.taskId} (attempt ${attempts}/${maxTaskAttempts})`,
-        );
-
-        // Check if this is a blocking task
-        if (execResult.isBlocking) {
-          console.error(`\n⚠️  BLOCKING TASK FAILED: ${node.journalTaskId}`);
-          console.error(`   Epic: ${node.epicId}`);
-          console.error(
-            `   ↳ This will block downstream tasks with explicit dependencies.`,
-          );
-          console.error(
-            `   ↳ Tasks without dependencies will continue executing.\n`,
-          );
-        }
-
-        if (attempts >= maxTaskAttempts) {
-          // Task exhausted its attempts — permanently skip and unblock downstream
-          console.log(
-            `   ⛔ Max attempts (${maxTaskAttempts}) reached for ${node.taskId} — permanently skipping.`,
-          );
-          console.log(
-            `   ↳  Retry manually with: converge reset ${node.taskId}`,
-          );
-          consecutiveFailures++;
-          tasksFailed++;
-          await sessionLogger.logConvergence(node.journalTaskId, false);
-
-          // Mark failed in tree (blocks dependents)
-          const treeNode = tree.getNode(node.journalTaskId);
-          if (treeNode) {
-            await tree.markFailed(treeNode);
-          }
-        } else {
-          console.log(
-            `   ⚠️  Will retry on next iteration (${attempts}/${maxTaskAttempts} attempts used).`,
-          );
-          // Don't increment consecutiveFailures — this task still has retries
-        }
-
-        // After 3 permanently-failed (exhausted) tasks in a row, halt to avoid thrashing
-        if (consecutiveFailures >= 3) {
-          console.log(
-            "\n⛔ Halting: 3 consecutive task failures with no progress. Fix the issues and resume.\n",
-          );
-
-          // Write session end with error status
-          await sessionLogger.writeSessionEnd(
-            {
-              totalIterations: iteration,
-              tasksCompleted,
-              tasksFailed,
-              gapsResolved,
-              convergenceAchieved: false,
-            },
-            "error",
-          );
-
-          return {
-            completed: false,
-            tasksCompleted,
-            tasksFailed,
-            iterations: iteration,
-            stoppedReason: "consecutive-failures" as const,
-          };
-        }
-      }
-
-      // ── TREE SHAKE: Reload tree to pick up WBS-spawned children ──────
-      // This is the "tree shake" - tree is rebuilt from filesystem after each task
-      await tree.reload();
+    while (state !== "DONE") {
+      state = await handlers[state](ctx);
     }
-
-    console.log(
-      `\n⚠️  Max iterations (${maxIterations}) reached. Use --max-iterations to increase.\n`,
-    );
-
-    // Write session end with stalled status
-    await sessionLogger.writeSessionEnd(
-      {
-        totalIterations: iteration,
-        tasksCompleted,
-        tasksFailed,
-        gapsResolved,
-        convergenceAchieved: false,
-      },
-      "stalled",
-    );
-
-    return {
-      completed: false,
-      tasksCompleted,
-      tasksFailed,
-      iterations: iteration,
-      stoppedReason: "max-iterations" as const,
-    };
   } catch (error: any) {
-    // Ensure session is finalized on error
-    if (!cancelled) {
+    if (!ctx.cancelled) {
       await sessionLogger.writeSessionEnd(
         {
-          totalIterations: iteration,
-          tasksCompleted,
-          tasksFailed,
-          gapsResolved,
+          totalIterations: ctx.iteration,
+          tasksCompleted: ctx.tasksCompleted,
+          tasksFailed: ctx.tasksFailed,
+          gapsResolved: ctx.gapsResolved,
           convergenceAchieved: false,
         },
         "error",
       );
     }
-
-    // Remove signal handlers to prevent double cleanup
-    process.removeListener("SIGINT", sigintHandler);
-    process.removeListener("SIGTERM", sigtermHandler);
-
-    throw error; // Re-throw to propagate to caller
-  } finally {
-    // Clean up signal handlers
-    process.removeListener("SIGINT", sigintHandler);
-    process.removeListener("SIGTERM", sigtermHandler);
+    throw error;
   }
+
+  return {
+    completed: state === "DONE" && ctx.tasksFailed === 0,
+    tasksCompleted: ctx.tasksCompleted,
+    tasksFailed: ctx.tasksFailed,
+    iterations: ctx.iteration,
+  };
 }

@@ -17,7 +17,7 @@ export default defineConfig({
   minify: false,
   target: "node18",
   shims: true,
-  noExternal: [/@converge\/.*/],
+  noExternal: [/@converge\/.*/, "@converge/claudefn"],
   external: ["glob", "yaml", "tsx", /^tsx\/.*/],
   onSuccess: async () => {
     const fs = await import("fs");

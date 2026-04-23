@@ -32,11 +32,12 @@ export class WbsScriptRepairStrategy implements FixStrategy {
 
     const scriptPath = gap.metadata?.scriptPath as string | undefined;
     if (!scriptPath) {
-      return { success: false, reason: "No scriptPath in gap metadata" };
+      return { success: false, reason: "No scriptPath in gap metadata", shouldRetry: false };
     }
 
     // Resolve script path — may already be a concrete file, or a task
     // directory containing the script under a conventional layout.
+    // Also check for wbs/wbs.js sibling pattern (sibling to parent dir, like deep-research/wbs/wbs.js)
     const candidates =
       scriptPath.endsWith(".js") ||
       scriptPath.endsWith(".ts") ||
@@ -50,6 +51,8 @@ export class WbsScriptRepairStrategy implements FixStrategy {
             join(scriptPath, "wbs", "index.ts"),
             join(scriptPath, "wbs", "index.mjs"),
             join(scriptPath, "wbs.mjs"),
+            // Also check for sibling wbs/ directory pattern (deep-research/wbs/wbs.js)
+            join(scriptPath, "wbs", "wbs.js"),
           ];
 
     let resolvedScriptPath: string | undefined;
@@ -64,6 +67,7 @@ export class WbsScriptRepairStrategy implements FixStrategy {
       return {
         success: false,
         reason: `WBS script not found at ${scriptPath}`,
+        shouldRetry: false,
       };
     }
 
@@ -135,6 +139,10 @@ export class WbsScriptRepairStrategy implements FixStrategy {
       console.log(`   [wbs-script-repair] AI fix applied`);
     } catch (err: any) {
       console.error(`   [wbs-script-repair] AI repair failed: ${err.message}`);
+      // Provider not installed — fail fast, don't retry
+      if (err.message?.includes("is not installed")) {
+        return { success: false, reason: err.message, shouldRetry: false };
+      }
       return { success: false, reason: `AI repair failed: ${err.message}` };
     }
 
