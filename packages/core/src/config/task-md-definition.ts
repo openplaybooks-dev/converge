@@ -91,6 +91,12 @@ export interface TaskMdWbs {
   maxAttempts?: number;
   args?: string[];
   env?: Record<string, string>;
+  /**
+   * When to run the WBS script. Default: 'before' (runs before skill/executor).
+   * 'after' runs the WBS after the task's skill/executor completes successfully.
+   * Use 'after' when WBS needs to react to task outputs (e.g., epoch decision spawning next epoch).
+   */
+  after?: boolean;
 }
 
 /* ------------------------------------------------------------------ */
@@ -362,8 +368,10 @@ function repairYamlFrontmatter(yaml: string): string {
       // Already quoted or block scalar
       if (/^['"]/.test(value) || /^[|>]/.test(value)) return line;
 
-      // Value contains an extra colon → needs quoting
-      if (value.includes(":")) {
+      // Value contains an extra colon or backslash → needs quoting
+      // Backslash check is critical for Windows paths (D:\...) to prevent
+      // double-escaping that creates invalid escape sequences like \c
+      if (value.includes(":") || value.includes("\\")) {
         const escaped = value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
         return `${indent}${key}: "${escaped}"`;
       }
@@ -446,6 +454,8 @@ export async function mapTaskMdToTaskDefinition(
     wbsFn,
     backlogs: def.backlogs,
     onFail: def["on-fail"] ? { reset: def["on-fail"].reset } : undefined,
+    // Store wbs config (including `after` flag) for wbsAfter detection in Unit
+    wbs: def.wbs,
   };
 
   return taskDef;

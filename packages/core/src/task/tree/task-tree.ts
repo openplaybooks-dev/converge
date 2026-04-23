@@ -338,10 +338,6 @@ export class TaskTree {
       nextNode = await this.root.findNextTask();
     }
 
-    if (!nextNode) {
-      return null; // All done or blocked
-    }
-
     // Get task states for progress counting
     const allNodes = Array.from(this.nodes.values());
     const completedCount = await Promise.all(
@@ -349,6 +345,18 @@ export class TaskTree {
     ).then((counts) =>
       counts.reduce((sum: number, c: number) => sum + c, 0 as number),
     );
+
+    // Compute failed task IDs (for null return case)
+    const failedIds: string[] = [];
+    for (const n of allNodes) {
+      if (await n.isFailed()) {
+        failedIds.push(n.id);
+      }
+    }
+
+    if (!nextNode) {
+      return { node: null, completedCount, totalCount: allNodes.length, failedIds };
+    }
 
     // Convert TreeNode to TreeNodeData (lightweight API response)
     return {
@@ -362,6 +370,7 @@ export class TaskTree {
       },
       completedCount,
       totalCount: allNodes.length,
+      failedIds,
     };
   }
 

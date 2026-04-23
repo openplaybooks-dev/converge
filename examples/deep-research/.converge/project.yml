@@ -7,3 +7,22 @@ runtime:
 
 run:
   resume: true
+
+ai:
+  default: claude
+  providers:
+    # Claude CLI - configured to use MiniMax's Anthropic-compatible API
+    claude: 
+      provider: claude
+      env:
+        ANTHROPIC_BASE_URL: "https://api.minimax.io/anthropic"
+        # ANTHROPIC_AUTH_TOKEN: "${MINIMAX_API_KEY}"
+        ANTHROPIC_AUTH_TOKEN: sk-cp-bvkVOmd1qhcraC7QAI6BOltQJuCYYardqYsRVjkr2ZiCjz7Zn-v807yBVZuXlIfS543flUwK_wBuszNgIBZKOQTs1dF5DUdRvfnIHyaT6MxgAh409MyKCLI
+        API_TIMEOUT_MS: "3000000"
+        CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
+        ANTHROPIC_MODEL: "MiniMax-M2.7"
+        ANTHROPIC_SMALL_FAST_MODEL: "MiniMax-M2.7"
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "MiniMax-M2.7"
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "MiniMax-M2.7"
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: "MiniMax-M2.7"
+

@@ -301,6 +301,17 @@ export function classifyAgentError(err: Error): {
     };
   }
 
+  // Provider not installed (e.g. @converge/claudefn)
+  if (msg.includes("is not installed")) {
+    const pkgMatch = msg.match(/Provider "([^"]+)"/);
+    const pkg = pkgMatch ? pkgMatch[1] : "the AI provider";
+    return {
+      type: "config-error",
+      summary: `${pkg} is not installed`,
+      hint: `Run: pnpm add ${pkg}`,
+    };
+  }
+
   return { type: "unknown", summary: msg.slice(0, 120), hint: "" };
 }
 

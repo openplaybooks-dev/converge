@@ -1,0 +1,14 @@
+{
+  "sessionId": "2026-04-23T09-54-43-iscddf",
+  "projectName": "deep-research",
+  "startTime": "2026-04-23T09:54:43.772Z",
+  "status": "running",
+  "config": {
+    "maxIterations": 30,
+    "maxAttemptsPerTask": 2
+  },
+  "environment": {
+    "nodeVersion": "v22.17.1",
+    "platform": "win32"
+  }
+}

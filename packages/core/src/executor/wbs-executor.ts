@@ -976,7 +976,8 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
     };
 
     for (const strategy of strategies) {
-      if (!strategy.canHandle(gap)) continue;
+      const canHandle = strategy.canHandle(gap);
+      if (!canHandle) continue;
       try {
         const outcome = await strategy.tryFix(gap, sCtx);
         if (outcome.success) {
@@ -987,8 +988,20 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
             strategyName: strategy.name,
           };
         }
-      } catch {
-        /* Strategy failed, try next */
+        // shouldRetry: false means a non-recoverable error — stop trying
+        if (outcome.shouldRetry === false) {
+          console.log(
+            `   ↩  ${strategy.name}: ${outcome.reason} (non-retryable)`,
+          );
+          return {
+            success: false,
+            attempts: [],
+            durationMs: Date.now() - start,
+            strategyName: strategy.name,
+          };
+        }
+      } catch (err: any) {
+        console.error(`   [wbs-executor] Strategy ${strategy.name} threw: ${err.message}`);
       }
     }
 

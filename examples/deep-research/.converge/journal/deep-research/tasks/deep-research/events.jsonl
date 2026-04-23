@@ -1,0 +1,1 @@
+{"timestamp":"2026-04-23T09:29:52.020Z","eventType":"WBS_SEED","level":"task","scope":"deep-research.deep-research","message":"seeded task: phase-1-initial","metadata":{"taskId":"phase-1-initial","writeToPath":".converge/playbooks/deep-research/tasks/phase-1-initial/TASK.md"}}

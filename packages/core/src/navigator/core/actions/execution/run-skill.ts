@@ -1,7 +1,8 @@
 /**
  * Run Skill Action
- * 
+ *
  * Invoke declared skill(s) via SpawnRunner.
+ * If unit.wbsAfter is true, run WBS after skill(s) complete.
  */
 
 import type { ActionHandler } from "../../types.ts";
@@ -16,10 +17,12 @@ export const runSkill: ActionHandler = async (snap) => {
   const { resolveSkill } = await import("../../../../task/unit/resolve.ts");
   const { resolveSkillPath, resolveSkillsRoot } =
     await import("../../../../config/skill-path-resolver.ts");
+  const { WbsExecutor } = await import("../../../../executor/wbs-executor.ts");
 
   const unit = snap.unit;
   const projectDir = snap.projectDir;
-  const jCtx = { epicId: snap.epicId, taskId: unit.id };
+  const epicId = snap.epicId;
+  const jCtx = { epicId, taskId: unit.id };
   const resolved = resolveSkill(unit);
   if (!resolved) return { action: "continue" };
 
@@ -96,6 +99,26 @@ export const runSkill: ActionHandler = async (snap) => {
       await spawnRunner.executeSpawnPath(relativeSkillPath, state);
     } catch (error: any) {
       console.error(`   ❌ Error executing skill ${name}: ${error.message}`);
+    }
+  }
+
+  // Run WBS after skill execution if wbsAfter flag is set
+  if (unit.wbsAfter && unit.wbsFn) {
+    console.log(`   [run-skill] Running WBS after skill (wbsAfter=true)`);
+    const wbsExecutor = new WbsExecutor(projectDir, jCtx, unit.path, {
+      id: unit.id,
+      title: unit.title,
+      vars: unit.vars,
+    });
+    try {
+      const result = await wbsExecutor.run(unit.wbsFn, 1);
+      if (result.error) {
+        console.error(`   [run-skill] WBS after skill failed: ${result.error}`);
+      } else {
+        console.log(`   [run-skill] WBS after skill completed, spawned ${result.spawnCount} tasks`);
+      }
+    } catch (err: any) {
+      console.error(`   [run-skill] WBS after skill error: ${err.message}`);
     }
   }
 
