@@ -1,0 +1,4 @@
+{"iteration":1,"timestamp":"2026-04-23T00:57:46.525Z","tasksComplete":0,"tasksTotal":6,"currentTask":{"id":"01-setup-art-style","epic":"default","attempt":1,"status":"running"},"gaps":[]}
+{"iteration":2,"timestamp":"2026-04-23T00:57:46.787Z","tasksComplete":1,"tasksTotal":6,"currentTask":{"id":"02-asset-breakdown","epic":"default","attempt":1,"status":"running"},"gaps":[]}
+{"iteration":3,"timestamp":"2026-04-23T00:57:46.865Z","tasksComplete":2,"tasksTotal":6,"currentTask":{"id":"03-characters/01-analysis","epic":"default","attempt":1,"status":"running"},"gaps":[]}
+{"iteration":4,"timestamp":"2026-04-23T00:57:46.943Z","tasksComplete":3,"tasksTotal":6,"currentTask":{"id":"03-characters/02-shared-references","epic":"default","attempt":1,"status":"running"},"gaps":[]}

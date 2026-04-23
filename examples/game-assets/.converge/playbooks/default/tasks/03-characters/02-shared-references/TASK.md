@@ -5,7 +5,7 @@ wbs:
   type: nodejs
   path: ./wbs/index.js
 dependencies:
-  - "03-character-analysis"
+  - "03-characters/01-analysis"
 tags:
   - shared
   - references

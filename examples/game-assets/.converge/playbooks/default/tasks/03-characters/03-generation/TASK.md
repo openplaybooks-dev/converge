@@ -5,7 +5,7 @@ wbs:
   type: nodejs
   path: ./wbs/index.js
 dependencies:
-  - "04-shared-references"
+  - "03-characters/02-shared-references"
 blocking: true
 tags:
   - characters

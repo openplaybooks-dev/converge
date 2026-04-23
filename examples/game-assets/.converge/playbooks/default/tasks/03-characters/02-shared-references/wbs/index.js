@@ -10,7 +10,7 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-const WBS_ROOT = '.converge/playbooks/default/tasks/04-shared-references/wbs/templates';
+const WBS_ROOT = '.converge/playbooks/default/tasks/03-characters/02-shared-references/wbs/templates';
 
 export async function run(ctx) {
   const { projectDir } = ctx;
@@ -35,7 +35,7 @@ export async function run(ctx) {
     for (const [className, classData] of Object.entries(analysis.classes)) {
       const taskId = `class-${className}`;
       const templatePath = `${WBS_ROOT}/class-style-guide/TASK.md`;
-      const basePath = `.converge/playbooks/default/tasks/04-shared-references/tasks`;
+      const basePath = `.converge/playbooks/default/tasks/03-characters/02-shared-references/tasks`;
       const writeToPath = `${basePath}/${taskId}/TASK.md`;
 
       const vars = {
@@ -62,7 +62,7 @@ export async function run(ctx) {
       if (ref.type === 'shared_effect') {
         const taskId = `effect-${ref.name}`;
         const templatePath = `${WBS_ROOT}/shared-effect/TASK.md`;
-        const basePath = `.converge/playbooks/default/tasks/04-shared-references/tasks`;
+        const basePath = `.converge/playbooks/default/tasks/03-characters/02-shared-references/tasks`;
         const writeToPath = `${basePath}/${taskId}/TASK.md`;
 
         const vars = {

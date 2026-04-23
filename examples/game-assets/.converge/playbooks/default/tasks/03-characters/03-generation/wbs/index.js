@@ -11,7 +11,7 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-const WBS_ROOT = '.converge/playbooks/default/tasks/05-character-generation/wbs/templates';
+const WBS_ROOT = '.converge/playbooks/default/tasks/03-characters/03-generation/wbs/templates';
 
 export async function run(ctx) {
   const { projectDir } = ctx;
@@ -40,7 +40,7 @@ export async function run(ctx) {
       animation_states: JSON.stringify(sprite.animation_states || ['idle', 'walk']),
     };
 
-    const basePath = `.converge/playbooks/default/tasks/05-character-generation/tasks/${charId}`;
+    const basePath = `.converge/playbooks/default/tasks/03-characters/03-generation/tasks/${charId}`;
 
     // Task 1: Spec
     const specTaskId = `${charId}-01-spec`;
@@ -66,37 +66,25 @@ export async function run(ctx) {
 
     // Task 3: Poses (WBS)
     const posesTaskId = `${charId}-03-poses`;
-    const posesWbsPath = `${WBS_ROOT}/character/03-poses/wbs/index.js`;
+    const posesTemplatePath = `${WBS_ROOT}/character/03-poses/TASK.md`;
     const posesWritePath = `${basePath}/${posesTaskId}/TASK.md`;
 
     await ctx.spawn(
-      {
-        _type: 'wbs-ref',
-        path: posesWbsPath,
-        vars: baseVars,
-        title: `Generate ${sprite.name} poses`,
-        description: 'Generate pose variations (attack, defend, jump)',
-      },
+      { _type: 'template-ref', path: posesTemplatePath, vars: baseVars },
       { id: posesTaskId, writeToPath: posesWritePath }
     );
-    console.log(`    ✓ ${posesTaskId} (WBS)`);
+    console.log(`    ✓ ${posesTaskId}`);
 
     // Task 4: States (WBS)
     const statesTaskId = `${charId}-04-states`;
-    const statesWbsPath = `${WBS_ROOT}/character/04-states/wbs/index.js`;
+    const statesTemplatePath = `${WBS_ROOT}/character/04-states/TASK.md`;
     const statesWritePath = `${basePath}/${statesTaskId}/TASK.md`;
 
     await ctx.spawn(
-      {
-        _type: 'wbs-ref',
-        path: statesWbsPath,
-        vars: baseVars,
-        title: `Generate ${sprite.name} animation states`,
-        description: 'Generate sprite sheets for each animation state',
-      },
+      { _type: 'template-ref', path: statesTemplatePath, vars: baseVars },
       { id: statesTaskId, writeToPath: statesWritePath }
     );
-    console.log(`    ✓ ${statesTaskId} (WBS)`);
+    console.log(`    ✓ ${statesTaskId}`);
 
     console.log('');
   }

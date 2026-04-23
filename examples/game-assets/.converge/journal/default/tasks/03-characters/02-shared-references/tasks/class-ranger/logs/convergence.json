@@ -1,0 +1,244 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-characters/02-shared-references/class-ranger-missing-output-assets/shared/classes/ranger/style-guide.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/02-shared-references/class-ranger",
+            "severity": "high",
+            "description": "[03-characters/02-shared-references/class-ranger] Task output not created: assets/shared/classes/ranger/style-guide.md",
+            "source": "unit",
+            "detected": "2026-04-23T01:05:18.512Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/playbooks/default/tasks/03-characters/02-shared-references/tasks/class-ranger",
+              "taskId": "03-characters/02-shared-references/class-ranger",
+              "taskTitle": "Generate ranger class style guide",
+              "taskPrompt": "# Generate ranger Class Style Guide\n\nCreate a comprehensive style guide and visual reference for the ranger character class.\n\n## Class Details\n\n- **Class Name**: ranger\n- **Characters**: [\"forest-elf\"]\n- **Shared Attributes**: {\"armor_type\":\"light\",\"weapon_style\":\"ranged\",\"color_theme\":\"natural\",\"movement_style\":\"agile\"}\n\n## Task\n\nGenerate style guide document and visual reference that defines:\n- Visual style and aesthetic\n- Color palette\n- Material types (armor, clothing, weapons)\n- Common design elements\n- Animation style\n\n## Style Guide Document\n\nCreate `assets/shared/classes/ranger/style-guide.md`:\n\n```markdown\n# ranger Class Style Guide\n\n## Overview\n[Description of class visual identity]\n\n## Color Palette\n[Primary and secondary colors]\n\n## Materials\n[Armor type, clothing, weapon materials]\n\n## Design Elements\n[Common visual elements across all ranger characters]\n\n## Animation Style\n[Movement characteristics, pose style]\n\n## Characters in Class\n[\"forest-elf\"]\n```\n\n## Visual Reference\n\nGenerate `assets/shared/classes/ranger/reference.png`:\n- Representative visual showing class style\n- Key design elements highlighted\n- Color palette demonstration\n\n## Verification\n\n- Style guide document is comprehensive\n- Visual reference clearly shows class identity\n- Can be used as reference for all characters in this class",
+              "factId": "file-exists:test -f \"assets/shared/classes/ranger/style-guide.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-characters/02-shared-references/class-ranger-missing-output-assets/shared/classes/ranger/reference.png",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/02-shared-references/class-ranger",
+            "severity": "high",
+            "description": "[03-characters/02-shared-references/class-ranger] Task output not created: assets/shared/classes/ranger/reference.png",
+            "source": "unit",
+            "detected": "2026-04-23T01:05:18.514Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/playbooks/default/tasks/03-characters/02-shared-references/tasks/class-ranger",
+              "taskId": "03-characters/02-shared-references/class-ranger",
+              "taskTitle": "Generate ranger class style guide",
+              "taskPrompt": "# Generate ranger Class Style Guide\n\nCreate a comprehensive style guide and visual reference for the ranger character class.\n\n## Class Details\n\n- **Class Name**: ranger\n- **Characters**: [\"forest-elf\"]\n- **Shared Attributes**: {\"armor_type\":\"light\",\"weapon_style\":\"ranged\",\"color_theme\":\"natural\",\"movement_style\":\"agile\"}\n\n## Task\n\nGenerate style guide document and visual reference that defines:\n- Visual style and aesthetic\n- Color palette\n- Material types (armor, clothing, weapons)\n- Common design elements\n- Animation style\n\n## Style Guide Document\n\nCreate `assets/shared/classes/ranger/style-guide.md`:\n\n```markdown\n# ranger Class Style Guide\n\n## Overview\n[Description of class visual identity]\n\n## Color Palette\n[Primary and secondary colors]\n\n## Materials\n[Armor type, clothing, weapon materials]\n\n## Design Elements\n[Common visual elements across all ranger characters]\n\n## Animation Style\n[Movement characteristics, pose style]\n\n## Characters in Class\n[\"forest-elf\"]\n```\n\n## Visual Reference\n\nGenerate `assets/shared/classes/ranger/reference.png`:\n- Representative visual showing class style\n- Key design elements highlighted\n- Color palette demonstration\n\n## Verification\n\n- Style guide document is comprehensive\n- Visual reference clearly shows class identity\n- Can be used as reference for all characters in this class",
+              "factId": "file-exists:test -f \"assets/shared/classes/ranger/reference.png\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-characters/02-shared-references/class-ranger-check-failed-style-guide-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/02-shared-references/class-ranger",
+            "severity": "high",
+            "description": "[03-characters/02-shared-references/class-ranger] Check failed: Style guide document exists",
+            "source": "unit",
+            "detected": "2026-04-23T01:05:18.515Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "style-guide-exists",
+              "checkCmd": "test -s assets/shared/classes/ranger/style-guide.md",
+              "checkDescription": "Style guide document exists",
+              "checkOutput": "Command failed: test -s assets/shared/classes/ranger/style-guide.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Generate ranger Class Style Guide\n\nCreate a comprehensive style guide and visual reference for the ranger character class.\n\n## Class Details\n\n- **Class Name**: ranger\n- **Characters**: [\"forest-elf\"]\n- **Shared Attributes**: {\"armor_type\":\"light\",\"weapon_style\":\"ranged\",\"color_theme\":\"natural\",\"movement_style\":\"agile\"}\n\n## Task\n\nGenerate style guide document and visual reference that defines:\n- Visual style and aesthetic\n- Color palette\n- Material types (armor, clothing, weapons)\n- Common design elements\n- Animation style\n\n## Style Guide Document\n\nCreate `assets/shared/classes/ranger/style-guide.md`:\n\n```markdown\n# ranger Class Style Guide\n\n## Overview\n[Description of class visual identity]\n\n## Color Palette\n[Primary and secondary colors]\n\n## Materials\n[Armor type, clothing, weapon materials]\n\n## Design Elements\n[Common visual elements across all ranger characters]\n\n## Animation Style\n[Movement characteristics, pose style]\n\n## Characters in Class\n[\"forest-elf\"]\n```\n\n## Visual Reference\n\nGenerate `assets/shared/classes/ranger/reference.png`:\n- Representative visual showing class style\n- Key design elements highlighted\n- Color palette demonstration\n\n## Verification\n\n- Style guide document is comprehensive\n- Visual reference clearly shows class identity\n- Can be used as reference for all characters in this class",
+              "taskId": "03-characters/02-shared-references/class-ranger",
+              "taskTitle": "Generate ranger class style guide",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/playbooks/default/tasks/03-characters/02-shared-references/tasks/class-ranger",
+              "factId": "check:style-guide-exists"
+            }
+          },
+          {
+            "id": "03-characters/02-shared-references/class-ranger-check-failed-reference-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/02-shared-references/class-ranger",
+            "severity": "high",
+            "description": "[03-characters/02-shared-references/class-ranger] Check failed: Visual reference exists",
+            "source": "unit",
+            "detected": "2026-04-23T01:05:18.517Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "reference-exists",
+              "checkCmd": "test -s assets/shared/classes/ranger/reference.png",
+              "checkDescription": "Visual reference exists",
+              "checkOutput": "Command failed: test -s assets/shared/classes/ranger/reference.png\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Generate ranger Class Style Guide\n\nCreate a comprehensive style guide and visual reference for the ranger character class.\n\n## Class Details\n\n- **Class Name**: ranger\n- **Characters**: [\"forest-elf\"]\n- **Shared Attributes**: {\"armor_type\":\"light\",\"weapon_style\":\"ranged\",\"color_theme\":\"natural\",\"movement_style\":\"agile\"}\n\n## Task\n\nGenerate style guide document and visual reference that defines:\n- Visual style and aesthetic\n- Color palette\n- Material types (armor, clothing, weapons)\n- Common design elements\n- Animation style\n\n## Style Guide Document\n\nCreate `assets/shared/classes/ranger/style-guide.md`:\n\n```markdown\n# ranger Class Style Guide\n\n## Overview\n[Description of class visual identity]\n\n## Color Palette\n[Primary and secondary colors]\n\n## Materials\n[Armor type, clothing, weapon materials]\n\n## Design Elements\n[Common visual elements across all ranger characters]\n\n## Animation Style\n[Movement characteristics, pose style]\n\n## Characters in Class\n[\"forest-elf\"]\n```\n\n## Visual Reference\n\nGenerate `assets/shared/classes/ranger/reference.png`:\n- Representative visual showing class style\n- Key design elements highlighted\n- Color palette demonstration\n\n## Verification\n\n- Style guide document is comprehensive\n- Visual reference clearly shows class identity\n- Can be used as reference for all characters in this class",
+              "taskId": "03-characters/02-shared-references/class-ranger",
+              "taskTitle": "Generate ranger class style guide",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/playbooks/default/tasks/03-characters/02-shared-references/tasks/class-ranger",
+              "factId": "check:reference-exists"
+            }
+          }
+        ],
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#2",
+      "handler": "run-strategy",
+      "status": "buffered",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-23T01:05:18.508Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-23T01:05:18.508Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-23T01:05:18.518Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-23T01:05:18.519Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-23T01:05:18.530Z"
+    }
+  ]
+}

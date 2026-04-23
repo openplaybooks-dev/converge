@@ -1,0 +1,12 @@
+{
+  "taskId": "01-setup-art-style",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/sprites.json",
+    ".templates/green_128x128.png",
+    ".templates/green_256x256.png",
+    ".templates/green_512x512.png"
+  ],
+  "blocked": false
+}

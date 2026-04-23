@@ -182,8 +182,8 @@ def main() -> int:
     print(f"Using angle reference: {angle_key} (rotation_y={angle_info['rotation_y']}, rotation_x={angle_info['rotation_x']})")
 
     # Output directories
-    out_dir = project_root / "spritesheets" / args.char_id
-    frames_dir = out_dir / args.state / "frames"
+    out_dir = project_root / "assets" / "characters" / args.char_id / "states" / args.state
+    frames_dir = out_dir / "frames"
     out_dir.mkdir(parents=True, exist_ok=True)
     frames_dir.mkdir(parents=True, exist_ok=True)
 

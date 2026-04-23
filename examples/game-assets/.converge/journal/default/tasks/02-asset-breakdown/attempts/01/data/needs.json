@@ -1,0 +1,9 @@
+{
+  "taskId": "02-asset-breakdown",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    ".converge/asset-breakdown.json"
+  ],
+  "blocked": false
+}

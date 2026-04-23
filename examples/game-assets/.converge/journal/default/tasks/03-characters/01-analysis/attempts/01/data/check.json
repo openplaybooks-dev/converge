@@ -1,0 +1,10 @@
+{
+  "taskId": "03-characters/01-analysis",
+  "checks": [
+    {
+      "id": "analysis-exists",
+      "description": "Character analysis generated",
+      "cmd": "test -s .converge/character-analysis.json"
+    }
+  ]
+}
