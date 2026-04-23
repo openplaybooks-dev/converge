@@ -12,9 +12,10 @@
  * The internal task hierarchy is identical either way — only the root changes.
  */
 
-import { join } from "node:path";
+import { join, relative } from "node:path";
 import { existsSync } from "node:fs";
-import type { PlaybookContext } from "../playbook/types.ts";
+import type { PlaybookContext } from "../task/playbook/types.ts";
+import { constructJournalPath } from "../task/unit/path-utils.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                           */
@@ -52,6 +53,69 @@ function resolveFirstSegmentPrefix(
   // Fall back to existing journal entries when source is absent.
   if (existsSync(join(epicJournalDir, "tasks", segment))) return ["tasks"];
   return [];
+}
+
+/**
+ * Reconstruct the on-disk source path for a task given `(epicId, taskId)`.
+ *
+ * Walks the source filesystem one segment at a time, probing
+ *   {cur}/{segment}       (static nested task)
+ *   {cur}/tasks/{segment} (WBS-spawned child)
+ * and follows whichever exists. Returns null if no source path resolves on disk.
+ *
+ * Tries playbook source first (`.converge/playbooks/{playbook}/tasks/...`), then
+ * legacy epic source (`.converge/epics/...`). If both fail, returns null and the
+ * caller falls back to the legacy WBS-assumption path construction.
+ */
+function reconstructSourceTaskPath(
+  projectDir: string,
+  epicId: string,
+  taskId: string,
+  playbookName: string | undefined,
+): string | null {
+  const segments = taskId.split("/").filter(Boolean);
+  if (segments.length === 0) return null;
+
+  // Candidate source roots in priority order.
+  const candidates: string[] = [];
+  if (playbookName) {
+    if (epicId === playbookName) {
+      // skipEpicSegment case — segments live directly under the playbook's tasks/
+      candidates.push(join(projectDir, ".converge", "playbooks", epicId, "tasks"));
+    } else {
+      // Epic under the active playbook: playbooks/{playbook}/tasks/{epicId}/
+      candidates.push(
+        join(projectDir, ".converge", "playbooks", playbookName, "tasks", epicId),
+      );
+    }
+  }
+  // Legacy epic-based layout, always tried as a fallback.
+  candidates.push(join(projectDir, ".converge", "epics", epicId));
+
+  for (const root of candidates) {
+    if (!existsSync(root)) continue;
+    let cur = root;
+    // When the candidate is already {playbook}/tasks, the first segment
+    // is a direct child. Otherwise we may need to step into tasks/ for
+    // WBS-spawned children.
+    let ok = true;
+    for (let i = 0; i < segments.length; i++) {
+      const seg = segments[i];
+      const direct = join(cur, seg);
+      const viaTasks = join(cur, "tasks", seg);
+      if (existsSync(direct)) {
+        cur = direct;
+      } else if (existsSync(viaTasks)) {
+        cur = viaTasks;
+      } else {
+        ok = false;
+        break;
+      }
+    }
+    if (ok) return cur;
+  }
+
+  return null;
 }
 
 /* ------------------------------------------------------------------ */
@@ -186,46 +250,37 @@ export function getJournalStructure(
     if (taskId) {
       const segments = taskId.split("/").filter(Boolean);
 
-      // Playbook tasks: epicId is already baked into epicsRoot, so skip it.
-      // Use the same tasks/ separator logic as the non-skip path to mirror the
-      // actual filesystem structure: journal/{playbook}/tasks/{a}/tasks/{b}/tasks/{c}
-      if (skipEpicSegment) {
-        const prefix = resolveFirstSegmentPrefix(
-          structure.epic!,
-          projectDir,
-          epicId,
-          segments[0],
-        );
-        const pathSegments: string[] = [...prefix, segments[0]];
-        for (let i = 1; i < segments.length; i++) {
-          pathSegments.push("tasks", segments[i]);
-        }
-        structure.task = join(structure.epic!, ...pathSegments);
-      }
-      // Epic-level task: when the first segment is the epicId itself,
-      // the TASK.md lives in the epic root. The epic IS the task.
-      else if (segments[0] === epicId) {
-        if (segments.length === 1) {
-          structure.task = structure.epic;
-        } else {
-          const childSegments = segments.slice(1);
-          const pathSegments: string[] = ["tasks", childSegments[0]];
-          for (let i = 1; i < childSegments.length; i++) {
-            pathSegments.push("tasks", childSegments[i]);
-          }
-          structure.task = join(structure.epic, ...pathSegments);
-        }
+      // Single unified path: reconstruct the real source-disk path for this
+      // task, then delegate to `constructJournalPath` — the same builder used
+      // directly by path-based callers. One source of truth for both entry
+      // points, no divergent per-segment assumptions.
+      const sourceTaskPath = reconstructSourceTaskPath(
+        projectDir,
+        epicId,
+        taskId,
+        ctx?.playbook,
+      );
+
+      if (sourceTaskPath) {
+        structure.task = constructJournalPath(sourceTaskPath);
+      } else if (!skipEpicSegment && segments[0] === epicId && segments.length === 1) {
+        // Epic-root task with no child segments: TASK.md sits in the epic dir.
+        structure.task = structure.epic;
       } else {
-        // Determine whether segments[0] lives directly under the epic root or
-        // inside the epic's tasks/ subdirectory, then mirror that structure.
+        // Last-resort fallback when source is absent on disk (e.g. mid-seed
+        // or during tests that stub paths). Mirror the legacy WBS-assumption
+        // layout so resumability stays stable.
         const prefix = resolveFirstSegmentPrefix(
           structure.epic!,
           projectDir,
           epicId,
           segments[0],
         );
-        const pathSegments: string[] = [...prefix, segments[0]];
-        for (let i = 1; i < segments.length; i++) {
+        const startIdx = !skipEpicSegment && segments[0] === epicId ? 1 : 0;
+        const headSegment = segments[startIdx];
+        const pathSegments: string[] =
+          startIdx === 1 ? ["tasks", headSegment] : [...prefix, headSegment];
+        for (let i = startIdx + 1; i < segments.length; i++) {
           pathSegments.push("tasks", segments[i]);
         }
         structure.task = join(structure.epic!, ...pathSegments);

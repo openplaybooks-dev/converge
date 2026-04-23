@@ -128,23 +128,6 @@ export class MetaOptimizationSidecar {
         await this.analyzer.onTaskCompleted(taskId, "failed");
       },
 
-      "epic:complete": async (payload, ctx) => {
-        if (!this.config.analyzeOnEpicComplete) return;
-
-        // Always run analysis at end of epic — captures full picture
-        ctx.log.info("Epic complete — running final meta-analysis");
-        try {
-          const proposal = await this.analyzer.runAnalysis();
-          if (proposal && proposal.proposals.length > 0) {
-            ctx.log.info(
-              `Meta-analysis found ${proposal.proposals.length} improvement proposal(s)`,
-            );
-          }
-        } catch (err: any) {
-          ctx.log.warn(`Meta-analysis failed: ${err.message}`);
-        }
-      },
-
       "convergence:stalled": async (payload, ctx) => {
         if (!this.config.analyzeOnStall) return;
 

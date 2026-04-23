@@ -14,12 +14,12 @@
  */
 
 import { READONLY_TOOLS } from "../ai/context.ts";
-import { runAgent } from "../repair/agent-runner.ts";
+import { runAgent } from "../navigator/repair/agent-runner.ts";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { getJournalStructure } from "../journal/structure.ts";
 import { writeTaskPlan, logTaskEvent } from "../journal/writer.ts";
-import type { JournalContext } from "../repair/types.ts";
+import type { JournalContext } from "../navigator/repair/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  PlanExecutor                                                      */

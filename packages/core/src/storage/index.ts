@@ -11,9 +11,6 @@
 // Core types and schemas
 export type {
   ProjectConfig,
-  EpicConfig,
-  EpicStatus,
-  EpicDeps,
   TaskConfig,
   TaskStatus,
   GapType,
@@ -26,9 +23,6 @@ export type {
 
 export {
   ProjectConfigSchema,
-  EpicConfigSchema,
-  EpicStatusSchema,
-  EpicDepsSchema,
   TaskConfigSchema,
   TaskStatusSchema,
   GapTypeSchema,

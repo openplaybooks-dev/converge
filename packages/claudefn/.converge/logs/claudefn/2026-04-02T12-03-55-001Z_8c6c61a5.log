@@ -1,3 +1,0 @@
-[2026-04-02T12:03:55.001Z] [INFO] Starting claudefn session=8c6c61a5-71da-4a74-bedc-466912126c12
-[2026-04-02T12:03:55.001Z] [INFO] Timeout=600000ms (activity-based idle timeout)
-[2026-04-02T12:03:55.002Z] [PROMPT] What is 2+2?

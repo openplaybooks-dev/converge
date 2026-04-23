@@ -4,7 +4,7 @@
  * Simple journal system for AI self-planning and gap tracking.
  */
 
-import type { Gap } from "../gap/types.ts";
+import type { Gap } from "../task/gap/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Event Types                                                       */
@@ -262,25 +262,7 @@ export interface TaskStatus {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Epic Status                                                        */
-/* ------------------------------------------------------------------ */
-
-/**
- * Per-epic status record written to status.json in the epic's journal directory.
- */
-export interface EpicStatus {
-  epicId: string;
-  status: TaskStatusState;
-  startedAt?: string;
-  completedAt?: string;
-  totalTasks: number;
-  completedTasks: number;
-  failedTasks: number;
-}
-
-/**
- * Journal API available in task/epic/project contexts
- */
+/*  Journal API available in task/project contexts              */
 export interface JournalAPI {
   /**
    * Get current gaps (from gaps.yml)

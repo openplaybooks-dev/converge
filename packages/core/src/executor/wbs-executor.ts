@@ -36,10 +36,10 @@ import type {
 import { TaskDefinitionBuilder } from "../config/task-definition.ts";
 import type { TaskMdShape } from "../config/task-md-definition.ts";
 import { parseTaskMdString } from "../config/task-md-definition.ts";
-import type { JournalContext } from "../repair/types.ts";
+import type { JournalContext } from "../navigator/repair/types.ts";
 import { logTaskEvent } from "../journal/writer.ts";
 import { getJournalStructure } from "../journal/structure.ts";
-import type { Gap } from "../gap/types.ts";
+import type { Gap } from "../task/gap/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Result                                                            */
@@ -135,7 +135,7 @@ export class WbsExecutor {
     // ========================================================================
     // STEP 2: INITIALIZE FACTS LOGGER (before execution)
     // ========================================================================
-    const { FactsLogger } = await import("../facts/api.ts");
+    const { FactsLogger } = await import("../task/facts/api.ts");
     const factsLogger = new FactsLogger(
       this.projectDir,
       this.journalCtx.epicId,
@@ -233,39 +233,36 @@ export class WbsExecutor {
           const templateFileName = basenamePath(templateAbsPath);
           const destDir = dirnamePath(join(this.projectDir, writeToPath));
           
-          // Check if the template's TASK.md has a wbs section referencing ./wbs.js
-          // If so, we need to copy it because the child task uses its own WBS script
+          // Check if the template's TASK.md has a wbs section
+          // If so, we need to copy the wbs directory/file for the child task
           const templateTaskMdPath = join(templateDir, "TASK.md");
-          let needsWbsJs = false;
+          let hasWbs = false;
           try {
             const templateContent = await readFileAsync(templateTaskMdPath, "utf-8");
-            // Simple check: if the template TASK.md has "wbs:" and references "./wbs.js"
-            if (templateContent.includes("wbs:") && templateContent.includes("./wbs.js")) {
-              needsWbsJs = true;
+            if (templateContent.includes("wbs:")) {
+              hasWbs = true;
             }
           } catch {
             // Template TASK.md may not exist — that's fine
           }
-          
-          const skipFiles = new Set(["TASK.md", templateFileName]);
-          // Only skip wbs.js if the template doesn't need it for its own WBS
-          if (!needsWbsJs) {
-            skipFiles.add("wbs.js");
+
+          const skipEntries = new Set(["TASK.md", templateFileName, "tasks"]);
+          // Only skip wbs entries if the template doesn't need them
+          if (!hasWbs) {
+            skipEntries.add("wbs.js");
+            skipEntries.add("wbs");
           }
-          
+
           try {
             const entries = await readdir(templateDir, { withFileTypes: true });
             for (const entry of entries) {
+              if (skipEntries.has(entry.name)) continue;
+              const src = join(templateDir, entry.name);
+              const dst = join(destDir, entry.name);
               if (entry.isFile()) {
-                if (skipFiles.has(entry.name)) continue;
-                await copyFile(
-                  join(templateDir, entry.name),
-                  join(destDir, entry.name),
-                );
+                await copyFile(src, dst);
               } else if (entry.isDirectory()) {
-                await cp(join(templateDir, entry.name), join(destDir, entry.name), {
-                  recursive: true,
-                });
+                await cp(src, dst, { recursive: true });
               }
             }
           } catch {
@@ -946,22 +943,22 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
    */
   private async runStrategiesForGap(
     gap: Gap,
-  ): Promise<import("../repair/types.ts").Resolution> {
+  ): Promise<import("../navigator/repair/types.ts").Resolution> {
     const start = Date.now();
     const { TaskRunStrategy } =
-      await import("../repair/strategies/task-run.ts");
+      await import("../navigator/repair/strategies/task-run.ts");
     const { UserQuestionResumeStrategy } =
-      await import("../repair/strategies/user-question-resume.ts");
+      await import("../navigator/repair/strategies/user-question-resume.ts");
     const { WBSGeneratorRepairStrategy } =
-      await import("../repair/strategies/wbs-generator-repair.ts");
+      await import("../navigator/repair/strategies/wbs-generator-repair.ts");
     const { WbsScriptRepairStrategy } =
-      await import("../repair/strategies/wbs-script-repair.ts");
+      await import("../navigator/repair/strategies/wbs-script-repair.ts");
     const { DependencyBackoffStrategy } =
-      await import("../repair/strategies/dependency-backoff.ts");
+      await import("../navigator/repair/strategies/dependency-backoff.ts");
     const { MissingInputPatternRepairStrategy } =
-      await import("../repair/strategies/missing-input-pattern.ts");
+      await import("../navigator/repair/strategies/missing-input-pattern.ts");
     const { ToolEnvironmentRepairStrategy } =
-      await import("../repair/strategies/tool-environment-repair.ts");
+      await import("../navigator/repair/strategies/tool-environment-repair.ts");
 
     const strategies = [
       new UserQuestionResumeStrategy(),
@@ -981,7 +978,8 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
     };
 
     for (const strategy of strategies) {
-      if (!strategy.canHandle(gap)) continue;
+      const canHandle = strategy.canHandle(gap);
+      if (!canHandle) continue;
       try {
         const outcome = await strategy.tryFix(gap, sCtx);
         if (outcome.success) {
@@ -992,8 +990,20 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
             strategyName: strategy.name,
           };
         }
-      } catch {
-        /* Strategy failed, try next */
+        // shouldRetry: false means a non-recoverable error — stop trying
+        if (outcome.shouldRetry === false) {
+          console.log(
+            `   ↩  ${strategy.name}: ${outcome.reason} (non-retryable)`,
+          );
+          return {
+            success: false,
+            attempts: [],
+            durationMs: Date.now() - start,
+            strategyName: strategy.name,
+          };
+        }
+      } catch (err: any) {
+        console.error(`   [wbs-executor] Strategy ${strategy.name} threw: ${err.message}`);
       }
     }
 

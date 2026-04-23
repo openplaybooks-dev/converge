@@ -1,0 +1,12 @@
+name: self-improvement-loop
+description: Continuously improve the converge framework toward top-tier OSS quality — API design, DX, architecture, documentation, and code clarity.
+
+run:
+  mode: loop
+  maxIterations: 50
+  maxTaskAttempts: 3
+  maxDuration: 4h
+  resume: true
+  stall:
+    maxConsecutive: 3
+    backoffMs: 60000

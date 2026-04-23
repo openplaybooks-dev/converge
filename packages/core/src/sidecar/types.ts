@@ -21,8 +21,6 @@ export type SidecarHookEvent =
   | "task:retry"
   | "gap:detected"
   | "gap:resolved"
-  | "epic:start"
-  | "epic:complete"
   | "convergence:stalled";
 
 /* ------------------------------------------------------------------ */

@@ -11,7 +11,7 @@ Initialize a project and create your first playbook:
 converge init --name="My Project"
 
 # Run a playbook
-converge run --playbook=my-playbook
+converge .converge/playbooks/my-playbook/playbook.yml run
 ```
 
 This creates the `.converge/` directory structure. Playbooks live under `.converge/playbooks/<name>/`.
@@ -47,7 +47,7 @@ checks:
 Create output.txt with the result.
 ```
 
-Run it: `converge run --playbook=my-playbook`
+Run it: `converge .converge/playbooks/my-playbook/playbook.yml run`
 
 ## Playbook anatomy
 
@@ -275,7 +275,7 @@ export async function run(ctx) {
 }
 ```
 
-Run: `converge run --playbook=fix-issue --issue=42`
+Run: `converge .converge/playbooks/fix-issue/playbook.yml run --issue=42`
 
 ### WBS-driven
 
@@ -303,7 +303,7 @@ key: name
 
 Run: `converge plan "Build a REST API with auth"`
 
-This is equivalent to `converge run --playbook=plan --prompt="Build a REST API with auth"`.
+This is equivalent to running the plan playbook with the prompt as input.
 
 ## Customization
 
@@ -369,7 +369,7 @@ converge playbook info my-playbook
 converge verify
 
 # Run with step mode for manual verification
-converge run --playbook=my-playbook --mode=step
+converge .converge/playbooks/my-playbook/playbook.yml run --step
 ```
 
 The `playbook info` command shows inputs, task DAG, run configuration, and checks — useful for verifying structure before execution.

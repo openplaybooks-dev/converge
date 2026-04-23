@@ -5,12 +5,12 @@
  * Plans are generated on-demand and not stored in YAML.
  */
 
-import type { EpicContext } from "../context/types.ts";
-import type { Gap } from "../gap/types.ts";
+import type { ProjectContext } from "../context/types.ts";
+import type { Gap } from "../task/gap/types.ts";
 import type { TaskConfig } from "../storage/types.ts";
-import type { PlanFnMeta } from "../functions/types.ts";
-import { globalRegistry } from "../functions/registry.ts";
-import { prioritizeGaps, sortByPriority } from "../gap/utils.ts";
+import type { PlanFnMeta } from "../task/checks/types.ts";
+import { globalRegistry } from "../task/checks/registry.ts";
+import { prioritizeGaps, sortByPriority } from "../task/gap/utils.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Planning Strategy                                                 */
@@ -31,7 +31,7 @@ export class DynamicPlanner {
    * Generate tasks from gaps using all registered plan functions
    */
   async planFromGaps(
-    ctx: EpicContext,
+    ctx: ProjectContext,
     gaps: Gap[],
     strategy: PlanningStrategy = "priority",
   ): Promise<TaskConfig[]> {
@@ -98,7 +98,7 @@ export class DynamicPlanner {
   /**
    * Add a new goal dynamically (mid-run)
    */
-  async addGoal(ctx: EpicContext, goal: string): Promise<void> {
+  async addGoal(ctx: ProjectContext, goal: string): Promise<void> {
     ctx.log.info(`Adding goal dynamically: ${goal}`);
 
     // Update epic config
@@ -116,7 +116,7 @@ export class DynamicPlanner {
   /**
    * Remove a goal dynamically (mid-run)
    */
-  async removeGoal(ctx: EpicContext, goal: string): Promise<void> {
+  async removeGoal(ctx: ProjectContext, goal: string): Promise<void> {
     ctx.log.info(`Removing goal dynamically: ${goal}`);
 
     // Update epic config
@@ -200,7 +200,7 @@ export class AdaptivePlanner extends DynamicPlanner {
   /**
    * Plan with learning from previous iterations
    */
-  async planAdaptive(ctx: EpicContext, gaps: Gap[]): Promise<TaskConfig[]> {
+  async planAdaptive(ctx: ProjectContext, gaps: Gap[]): Promise<TaskConfig[]> {
     // Analyze history to adjust strategy
     const successRate = this.calculateSuccessRate();
     const strategy = this.selectStrategy(successRate);

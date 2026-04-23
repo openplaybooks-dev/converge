@@ -1,0 +1,28 @@
+name: deep-research
+description: Layered deep research with iterative deepening
+version: 1.0.0
+
+runtime:
+  maxIterations: 30
+
+run:
+  resume: true
+
+ai:
+  default: claude
+  providers:
+    # Claude CLI - configured to use MiniMax's Anthropic-compatible API
+    claude: 
+      provider: claude
+      env:
+        ANTHROPIC_BASE_URL: "https://api.minimax.io/anthropic"
+        # ANTHROPIC_AUTH_TOKEN: "${MINIMAX_API_KEY}"
+        ANTHROPIC_AUTH_TOKEN: <REDACTED_MINIMAX_TOKEN>
+        API_TIMEOUT_MS: "3000000"
+        CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
+        ANTHROPIC_MODEL: "MiniMax-M2.7"
+        ANTHROPIC_SMALL_FAST_MODEL: "MiniMax-M2.7"
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "MiniMax-M2.7"
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "MiniMax-M2.7"
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: "MiniMax-M2.7"
+

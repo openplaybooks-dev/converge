@@ -14,8 +14,8 @@
 
 import { z } from "zod";
 import type { AgentFnResult } from "@converge/agentfn";
-import { runAgent, type AgentRunOptions } from "../repair/agent-runner.ts";
-import type { JournalContext } from "../repair/types.ts";
+import { runAgent, type AgentRunOptions } from "../navigator/repair/agent-runner.ts";
+import type { JournalContext } from "../navigator/repair/types.ts";
 
 /** Read-only tools: inspect files and search content without writing anything. */
 export const READONLY_TOOLS = ["Read", "Glob", "Grep"] as const;

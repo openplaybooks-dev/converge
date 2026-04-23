@@ -6,7 +6,7 @@
  */
 
 import { readFileSync } from "node:fs";
-import type { SkillDependencyGraph } from "../discovery/skill-graph.ts";
+import type { SkillDependencyGraph } from "../task/discovery/skill-graph.ts";
 
 export type SkillResolutionStrategy = "auto" | "manual" | "inherit";
 

@@ -5,22 +5,22 @@
  * evaluate → plan → execute → checkpoint → repeat until complete or stalled
  */
 
-import type { ProjectContext, EpicContext } from "../context/types.ts";
-import type { Gap, ConvergenceState, EvalResult } from "../gap/types.ts";
+import type { ProjectContext } from "../context/types.ts";
+import type { Gap, ConvergenceState, EvalResult } from "../task/gap/types.ts";
 import type {
   TaskConfig,
   TaskStatus,
   Checkpoint,
   Cursor,
 } from "../storage/types.ts";
-import type { TaskResult } from "../functions/types.ts";
-import type { GoalStatus, GoalEvaluationContext } from "../goal/types.ts";
-import { GapDetector, ConvergenceAnalyzer } from "../gap/detector.ts";
+import type { TaskResult } from "../task/checks/types.ts";
+import type { GoalStatus, GoalEvaluationContext } from "../task/goal/types.ts";
+import { GapDetector, ConvergenceAnalyzer } from "../task/gap/detector.ts";
 import { FilesystemStorage } from "../storage/filesystem.ts";
 import { StatusManager } from "../storage/status.ts";
 import { createTaskContext } from "../context/task-context.ts";
-import { globalRegistry } from "../functions/registry.ts";
-import { GoalEvaluatorImpl } from "../goal/evaluator.ts";
+import { globalRegistry } from "../task/checks/registry.ts";
+import { GoalEvaluatorImpl } from "../task/goal/evaluator.ts";
 import type { HookRegistry } from "../hooks/registry.ts";
 
 /* ------------------------------------------------------------------ */
@@ -82,7 +82,7 @@ export interface ConvergenceResult {
   /** Goal-centric metrics (if goals are present) */
   goalsSatisfied?: number;
   totalGoals?: number;
-  goalStatuses?: import("../goal/types.ts").GoalStatus[];
+  goalStatuses?: import("../task/goal/types.ts").GoalStatus[];
 
   /** Execution summary */
   summary: {
@@ -133,7 +133,7 @@ export class ConvergenceOrchestrator {
    * Run convergence loop for an epic until gaps are resolved or stalled
    */
   async runEpicConvergence(
-    ctx: EpicContext,
+    ctx: ProjectContext,
     config: ConvergenceConfig = DEFAULT_CONVERGENCE_CONFIG,
   ): Promise<ConvergenceResult> {
     const startTime = Date.now();
@@ -146,9 +146,6 @@ export class ConvergenceOrchestrator {
     const allGapsDetected = new Set<string>();
 
     ctx.log.info(`Starting convergence loop for epic: ${ctx.epicId}`);
-
-    // Fire epic:start hook
-    await this.hooks?.fire("epic:start", { ctx });
 
     // Transition epic to active
     this.statusManager.transitionEpic(
@@ -229,7 +226,6 @@ export class ConvergenceOrchestrator {
             iterations: iteration,
             gapsResolved: allGapsDetected.size,
           });
-          await this.hooks?.fire("epic:complete", { ctx, result: convResult });
 
           return convResult;
         }
@@ -272,10 +268,6 @@ export class ConvergenceOrchestrator {
               reason: convergenceState.stallReason ?? "unknown",
               stallCount: consecutiveStalls,
               gaps: currentGaps,
-            });
-            await this.hooks?.fire("epic:fail", {
-              ctx,
-              error: new Error(`Stalled: ${convergenceState.stallReason}`),
             });
 
             return stallResult;
@@ -423,7 +415,7 @@ export class ConvergenceOrchestrator {
    * Execute tasks (parallel or sequential)
    */
   private async executeTasks(
-    epicCtx: EpicContext,
+    epicCtx: ProjectContext,
     tasks: TaskConfig[],
     parallel: boolean,
     maxParallel: number,
@@ -439,7 +431,7 @@ export class ConvergenceOrchestrator {
    * Execute tasks sequentially
    */
   private async executeTasksSequential(
-    epicCtx: EpicContext,
+    epicCtx: ProjectContext,
     tasks: TaskConfig[],
   ): Promise<TaskResult[]> {
     const results: TaskResult[] = [];
@@ -456,7 +448,7 @@ export class ConvergenceOrchestrator {
    * Execute tasks in parallel with concurrency limit
    */
   private async executeTasksParallel(
-    epicCtx: EpicContext,
+    epicCtx: ProjectContext,
     tasks: TaskConfig[],
     maxParallel: number,
   ): Promise<TaskResult[]> {
@@ -486,7 +478,7 @@ export class ConvergenceOrchestrator {
    * Execute a single task
    */
   private async executeTask(
-    epicCtx: EpicContext,
+    epicCtx: ProjectContext,
     taskConfig: TaskConfig,
   ): Promise<TaskResult> {
     const taskId = taskConfig.id;
@@ -499,7 +491,11 @@ export class ConvergenceOrchestrator {
       taskId,
       taskConfig,
       taskStatus,
+      epicCtx.projectDir,
+      epicCtx.convergeDir,
+      epicCtx.vars,
       epicCtx,
+      epicCtx.epicId,
       this.storage,
     );
 
@@ -623,7 +619,7 @@ export class ConvergenceOrchestrator {
    * Simplified: Store ONLY cursor + execution context.
    */
   private async createCheckpoint(
-    ctx: EpicContext,
+    ctx: ProjectContext,
     iteration: number,
     gaps: Gap[],
     convergenceState: ConvergenceState,
@@ -669,7 +665,7 @@ export class ConvergenceOrchestrator {
   /**
    * Build cursor from execution context
    */
-  private buildCursorFromContext(ctx: EpicContext): Cursor | undefined {
+  private buildCursorFromContext(ctx: ProjectContext): Cursor | undefined {
     if (!ctx.executionStack || ctx.executionStack.length === 0) {
       return undefined;
     }

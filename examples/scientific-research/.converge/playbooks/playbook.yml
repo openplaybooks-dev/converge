@@ -1,13 +1,17 @@
-name: research
-description: Autonomous scientific research following standard methodology — literature review, hypothesis formulation, experimentation, analysis, and synthesis.
+name: scientific-research
+description: Autonomous scientific paper research — iterative evidence synthesis with statistical rigor, GRADE methodology, and academic paper generation.
 key: question
 inputs:
-  question: { required: true, description: The research question }
-  maxDepth: { default: "5", description: Maximum recursive decomposition depth }
+  question: { required: true, description: The research question to investigate }
+  domain: { default: "general", description: Research domain for context }
+  targetScore: { default: "70", description: "Minimum quality score (0-100) for convergence" }
 
 run:
-  mode: converge
-  maxIterations: 50
-  maxTaskAttempts: 5
-  maxGoals: 100
+  mode: loop
+  maxIterations: 20
+  maxTaskAttempts: 3
+  maxDuration: 8h
   resume: true
+  stall:
+    maxConsecutive: 3
+    backoffMs: 30000

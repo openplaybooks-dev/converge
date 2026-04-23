@@ -192,7 +192,7 @@ export interface TaskDefinition {
   dependencies?: string[];
 
   /** Backlog scan definitions — commands whose output produces backlog items */
-  backlogs?: import("../scan/types.ts").BacklogDef[];
+  backlogs?: import("../backlog/types.ts").BacklogDef;
 
   /**
    * Facts API function. Collects project-level or task-specific facts before execution.
@@ -391,34 +391,6 @@ export interface ProjectDefinition extends TaskDefinition {
 }
 
 /**
- * Epic-level task definition.
- * Groups related tasks, can delegate to children.
- *
- * Example:
- * ```ts
- * export default taskDef()
- *   .id('epic-data-analysis')
- *   .title('Data Analysis Epic')
- *   .inputs(['data/**\/*.tsv'])
- *   .outputs([
- *     '.converge/epics/01-data-analysis/001-analyze.ts',
- *     '.converge/epics/01-data-analysis/002-model.ts',
- *   ])
- *   .vars({ maxIterations: 50 })
- *   .build()
- * ```
- */
-export interface EpicDefinition extends TaskDefinition {
-  vars?: {
-    /** Max convergence iterations for this epic */
-    maxIterations?: number;
-    /** Epic-level configuration */
-    epicConfig?: Record<string, unknown>;
-    [key: string]: unknown;
-  };
-}
-
-/**
  * Task-level definition (leaf node or parent with yields).
  *
  * Leaf task example (uses AI):
@@ -553,16 +525,6 @@ export function isProjectDefinition(
     def.id.startsWith("project-") ||
     def.vars?.projectRoot !== undefined ||
     (!def.inputs?.length && !!def.outputs?.some((o) => o.includes("/epics/")))
-  );
-}
-
-/**
- * Check if a TaskDefinition is an Epic-level definition.
- */
-export function isEpicDefinition(def: TaskDefinition): def is EpicDefinition {
-  return (
-    def.id.startsWith("epic-") ||
-    !!def.outputs?.some((o) => o.includes("/epics/") && o.endsWith(".ts"))
   );
 }
 

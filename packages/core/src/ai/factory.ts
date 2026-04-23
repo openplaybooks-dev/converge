@@ -166,9 +166,11 @@ export function resolveAIConfig(
     return null;
   }
 
+  const resolvedProvider = singleConfig.provider as AIProvider;
+
   return {
     name: singleConfig.provider,
-    resolvedProvider: singleConfig.provider,
+    resolvedProvider,
     ...singleConfig,
     // Expand env var references like ${VAR} in env values
     ...(singleConfig.env && {

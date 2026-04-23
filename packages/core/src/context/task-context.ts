@@ -1,17 +1,12 @@
 /**
  * Task Context Implementation
  *
- * Task-level context that inherits from EpicContext.
+ * Task-level context that inherits from ProjectContext.
  */
 
-import type {
-  TaskContext,
-  EpicContext,
-  ProjectContext,
-  CheckAPI,
-} from "./types.ts";
+import type { TaskContext, ProjectContext, CheckAPI } from "./types.ts";
 import type { TaskConfig, TaskStatus } from "../storage/types.ts";
-import type { CheckResult } from "../gap/types.ts";
+import type { CheckResult } from "../task/gap/types.ts";
 import type { JournalAPI } from "../journal/types.ts";
 import {
   FileSystemAPIImpl,
@@ -21,7 +16,7 @@ import {
 } from "./base.ts";
 import { ArtifactStore } from "../artifacts/index.ts";
 import { FilesystemStorage } from "../storage/filesystem.ts";
-import { globalRegistry } from "../functions/registry.ts";
+import { globalRegistry } from "../task/checks/registry.ts";
 import { createTaskJournalAPI } from "../journal/api.ts";
 
 /* ------------------------------------------------------------------ */
@@ -118,7 +113,6 @@ export class TaskContextImpl implements TaskContext {
   readonly vars: Readonly<Record<string, unknown>>;
   readonly config: Readonly<TaskConfig>;
   readonly status: Readonly<TaskStatus>;
-  readonly epic: Readonly<EpicContext>;
   readonly project: Readonly<ProjectContext>;
 
   readonly fs: FileSystemAPIImpl;
@@ -128,41 +122,42 @@ export class TaskContextImpl implements TaskContext {
   readonly artifact: ArtifactStore;
   readonly check: CheckAPI;
   readonly journal: JournalAPI;
+  readonly epicId: string;
 
   constructor(
     taskId: string,
     config: TaskConfig,
     status: TaskStatus,
-    epicContext: EpicContext,
+    projectDir: string,
+    convergeDir: string,
+    vars: Record<string, unknown>,
+    project: ProjectContext,
+    epicId: string,
     storage: FilesystemStorage,
   ) {
     this.taskId = taskId;
-    this.projectDir = epicContext.projectDir;
-    this.convergeDir = epicContext.convergeDir;
+    this.projectDir = projectDir;
+    this.convergeDir = convergeDir;
+    this.epicId = epicId;
     this.config = Object.freeze(config);
     this.status = Object.freeze(status);
-    this.epic = Object.freeze(epicContext);
-    this.project = Object.freeze(epicContext.project);
+    this.project = Object.freeze(project);
 
-    // Merge epic vars with task-specific vars
+    // Merge vars with task-specific vars
     this.vars = Object.freeze({
-      ...epicContext.vars,
+      ...vars,
       ...config.vars,
       taskId,
     });
 
-    // Initialize APIs (inherit from epic)
+    // Initialize APIs
     this.fs = new FileSystemAPIImpl(this.projectDir);
     this.shell = new ShellAPIImpl(this.projectDir);
     this.git = new GitAPIImpl(this.projectDir);
     this.log = new LoggerAPIImpl(`task:${taskId}`);
     this.artifact = new ArtifactStore(this.projectDir);
     this.check = new TaskCheckAPI(this, storage);
-    this.journal = createTaskJournalAPI(
-      this.projectDir,
-      epicContext.epicId,
-      taskId,
-    );
+    this.journal = createTaskJournalAPI(this.projectDir, epicId, taskId);
   }
 }
 
@@ -177,8 +172,12 @@ export function createTaskContext(
   taskId: string,
   config: TaskConfig,
   status: TaskStatus,
-  epicContext: EpicContext,
+  projectDir: string,
+  convergeDir: string,
+  vars: Record<string, unknown>,
+  project: ProjectContext,
+  epicId: string,
   storage: FilesystemStorage,
 ): TaskContext {
-  return new TaskContextImpl(taskId, config, status, epicContext, storage);
+  return new TaskContextImpl(taskId, config, status, projectDir, convergeDir, vars, project, epicId, storage);
 }

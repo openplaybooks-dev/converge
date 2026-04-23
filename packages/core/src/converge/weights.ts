@@ -16,7 +16,7 @@
  *      1  — backlog:low (TODOs, FIXMEs)
  */
 
-import type { Gap } from "../gap/types.ts";
+import type { Gap } from "../task/gap/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Weight Map                                                         */
