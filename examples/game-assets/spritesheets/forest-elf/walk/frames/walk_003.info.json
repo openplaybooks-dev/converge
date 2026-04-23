@@ -1,9 +1,0 @@
-{
-  "char_id": "forest-elf",
-  "char_name": "Lirael",
-  "state": "walk",
-  "frame_index": 3,
-  "total_frames": 4,
-  "resolution": 256,
-  "palette": "16-bit retro, green and brown tones, natural forest colors, limited to 16 colors"
-}

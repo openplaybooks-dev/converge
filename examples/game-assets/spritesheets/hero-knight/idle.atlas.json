@@ -7,6 +7,9 @@
     "height": 256
   },
   "animation_state": "idle",
+  "angle": "front",
+  "rotation_y": 0,
+  "rotation_x": 0,
   "frames": [
     {
       "index": 0,

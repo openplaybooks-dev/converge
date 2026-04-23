@@ -17,7 +17,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from lib.image_api import generate_image
+from lib.image_api import generate_image, generate_image_with_edit
 from lib.sprite import find_project_root
 from lib.composition_meta import (
     CompositionMeta, BaseRef, ArtStyle, InputAsset,
@@ -25,27 +25,50 @@ from lib.composition_meta import (
 )
 
 
-def build_prompt(char_name: str, char_description: str, char_palette: str) -> str:
-    lines = []
-    lines.append(f"You are generating a SINGLE GAME CHARACTER REFERENCE IMAGE for: {char_name}")
-    lines.append("")
-    lines.append("CHARACTER DETAILS:")
-    lines.append(f"  - Name: {char_name}")
-    lines.append(f"  - Description: {char_description}")
-    lines.append(f"  - Art Style/Palette: {char_palette}")
-    lines.append("")
-    lines.append("OUTPUT REQUIREMENTS:")
-    lines.append("  - Generate ONE single character portrait/ref image")
-    lines.append("  - Character should be in a calm, neutral standing pose")
-    lines.append("  - Front-facing view is preferred")
-    lines.append("  - Show character clearly with all distinctive visual elements visible")
-    lines.append("  - Pixel art style with the specified palette constraints")
-    lines.append("  - Resolution: 128x128 pixels")
-    lines.append("  - No multiple poses, no reference SHEET, just ONE image")
-    lines.append("  - No text, labels, or watermarks")
-    lines.append("")
-    lines.append(f"Art direction: {char_palette}")
-    return "\n".join(lines)
+def build_edit_prompt(char_name: str, char_description: str, char_palette: str) -> str:
+    """Build prompt for editing green template with character."""
+    import json
+
+    prompt_data = {
+        "task": "edit_image_add_character",
+        "instruction": "Add a game character sprite to this green background image",
+        "character": {
+            "name": char_name,
+            "description": char_description
+        },
+        "technical_requirements": {
+            "format": "pixel_art",
+            "keep_green_background": True,
+            "do_not_change_background": True,
+            "only_add_character": True,
+            "palette": char_palette,
+            "style": "16bit_retro_game_sprite"
+        },
+        "composition": {
+            "pose": "standing_neutral_idle",
+            "view": "front_facing",
+            "framing": "full_body_centered_in_frame",
+            "character_centered": True,
+            "no_green_in_character": True,
+            "avoid_green_colors_in_sprite": True,
+            "clean_sprite_cutout": True
+        },
+        "critical_instructions": [
+            "KEEP THE GREEN BACKGROUND UNCHANGED",
+            "Only add the character sprite to the center",
+            "Do NOT use green colors in the character",
+            "Character should be pixel art style",
+            "Keep background solid green for chroma keying"
+        ]
+    }
+
+    json_str = json.dumps(prompt_data, indent=2)
+
+    return f"""Edit this green background image by adding a character sprite:
+
+{json_str}
+
+CRITICAL: Keep the green background (#00FF00) unchanged. Only add the character sprite in the center. Do NOT use green colors in the character itself."""
 
 
 def main() -> int:
@@ -56,6 +79,7 @@ def main() -> int:
     ap.add_argument("char_palette", help="Art style/palette description")
     ap.add_argument("--output", "-o", help="Output path (default: characters/{char_id}/ref.png)")
     ap.add_argument("--seed", type=int, default=None)
+    ap.add_argument("--use-template", action="store_true", default=True, help="Use green template for editing (default: True)")
     args = ap.parse_args()
 
     project_root = find_project_root(Path.cwd())
@@ -71,15 +95,32 @@ def main() -> int:
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Build prompt
-    prompt = build_prompt(args.char_name, args.char_description, args.char_palette)
+    if args.use_template:
+        prompt = build_edit_prompt(args.char_name, args.char_description, args.char_palette)
+
+        # Use green template
+        template_path = project_root / ".templates" / "green_128x128.png"
+        if not template_path.exists():
+            print(f"Error: Green template not found at {template_path}", file=sys.stderr)
+            print("Run: python scripts/create_green_template.py", file=sys.stderr)
+            return 1
+
+        print(f"Generating reference for {args.char_name} using green template...")
+        img_bytes, seed_used = generate_image_with_edit(
+            prompt,
+            template_path,
+            [],
+            seed=args.seed
+        )
+    else:
+        # Fallback to direct generation
+        prompt = build_edit_prompt(args.char_name, args.char_description, args.char_palette)
+        print(f"Generating reference for {args.char_name}...")
+        img_bytes, seed_used = generate_image(prompt, [], seed=args.seed)
 
     # Save prompt for reference
     prompt_path = out_path.with_suffix(".prompt.txt")
     prompt_path.write_text(prompt, encoding="utf-8")
-
-    # Call API
-    print(f"Generating reference for {args.char_name}...")
-    img_bytes, seed_used = generate_image(prompt, [], seed=args.seed)
 
     out_path.write_bytes(img_bytes)
     seed_path = out_path.with_suffix(".seed.txt")

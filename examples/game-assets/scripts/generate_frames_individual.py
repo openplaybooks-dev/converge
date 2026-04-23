@@ -39,20 +39,64 @@ def build_frame_prompt(
     palette: str,
     resolution: int,
 ) -> str:
-    """Build prompt for a single frame. AI reads info file for context."""
-    lines = []
-    lines.append(f"INFO FILE: {info_path}")
-    lines.append(f"")
-    lines.append(f"ANIMATION: {state}")
-    lines.append(f"  Frame {frame_index + 1} of {total_frames}")
-    lines.append(f"  Character: {char_name}")
-    lines.append(f"  Resolution: {resolution}x{resolution}")
-    lines.append(f"  Palette: {palette}")
-    lines.append(f"")
-    lines.append(f"TASK: Generate ONE single sprite frame.")
-    lines.append(f"OUTPUT: One {resolution}x{resolution} pixel art image. Nothing else.")
+    """Build JSON prompt for a single frame."""
+    import json
 
-    return "\n".join(lines)
+    prompt_data = {
+        "task": "generate_animation_frame",
+        "sprite_type": "animation_frame",
+        "animation": {
+            "state": state,
+            "frame_number": frame_index + 1,
+            "total_frames": total_frames,
+            "character": char_name
+        },
+        "technical_requirements": {
+            "format": "pixel_art",
+            "resolution": f"{resolution}x{resolution}",
+            "background": "SOLID BRIGHT GREEN (#00FF00) - CHROMA KEY BACKGROUND",
+            "background_color": "#00FF00",
+            "isolation": "sprite_only_no_background_no_environment",
+            "palette": palette,
+            "style": "16bit_retro_game_sprite"
+        },
+        "composition": {
+            "single_frame_only": True,
+            "no_motion_blur": True,
+            "clean_sprite": True,
+            "centered_in_frame": True,
+            "background_is_solid_green": True,
+            "no_green_in_character": True,
+            "no_background_elements": True,
+            "no_ground_plane": True,
+            "no_shadows_on_ground": True,
+            "isolated_character_only": True
+        },
+        "output_constraints": {
+            "single_sprite_frame": True,
+            "no_multiple_frames": True,
+            "no_sprite_sheet": True,
+            "no_text_labels": True,
+            "solid_green_background_required": True,
+            "chroma_key_ready": True
+        },
+        "critical_instructions": [
+            "SOLID BRIGHT GREEN BACKGROUND (#00FF00) - CRITICAL",
+            "Single animation frame only",
+            "No green colors in the character",
+            "No background or environmental elements",
+            "Clean sprite on green screen for chroma keying",
+            "Character isolated on pure green background"
+        ]
+    }
+
+    json_str = json.dumps(prompt_data, indent=2)
+
+    return f"""Generate animation frame based on this JSON specification:
+
+{json_str}
+
+CRITICAL: SOLID BRIGHT GREEN BACKGROUND (#00FF00) required. This is a chroma key (green screen) animation frame. The green will be removed in post-processing to create transparency."""
 
 
 def write_frame_info(out_dir: Path, char_id: str, char_name: str, state: str, palette: str, resolution: int, frame_index: int, total_frames: int) -> Path:
@@ -109,30 +153,33 @@ def main() -> int:
     cols = args.cols
     rows = (frame_count + cols - 1) // cols
 
-    # Find character ref and pose for animation angle
-    ref_path = None
-    pose_path = None
-    for p in [
-        project_root / "assets" / "characters" / args.char_id / "ref" / "ref.png",
-        project_root / "assets" / "characters" / args.char_id / "ref.png",
-        project_root / "characters" / args.char_id / "ref.png",
-    ]:
-        if p.exists():
-            ref_path = p
-            break
+    # Load angles.json to get appropriate angle reference for animation state
+    angles_json_path = project_root / "assets" / "characters" / args.char_id / "ref" / "angles.json"
 
-    # Select pose based on animation state
-    pose_angle = "side" if args.state == "walk" else "front"
-    pose_path = project_root / "assets" / "characters" / args.char_id / "poses" / f"{pose_angle}.png"
-
-    if not ref_path:
-        print(f"Error: Character ref not found for {args.char_id}", file=sys.stderr)
+    if not angles_json_path.exists():
+        print(f"Error: angles.json not found for {args.char_id}", file=sys.stderr)
+        print(f"Run: python scripts/generate_character_angles.py {args.char_id} ...", file=sys.stderr)
         return 1
 
-    # Use pose as additional reference if available
+    angles_data = json.loads(angles_json_path.read_text(encoding="utf-8"))
+
+    # Select angle based on animation state
+    # walk animations typically use side view, idle uses front view
+    angle_key = "side_left" if args.state == "walk" else "front"
+
+    if angle_key not in angles_data:
+        print(f"Error: Angle '{angle_key}' not found in angles.json", file=sys.stderr)
+        return 1
+
+    angle_info = angles_data[angle_key]
+    ref_path = project_root / "assets" / "characters" / args.char_id / "ref" / angle_info["file"]
+
+    if not ref_path.exists():
+        print(f"Error: Angle reference not found: {ref_path}", file=sys.stderr)
+        return 1
+
     reference_paths = [ref_path]
-    if pose_path.exists():
-        reference_paths.append(pose_path)
+    print(f"Using angle reference: {angle_key} (rotation_y={angle_info['rotation_y']}, rotation_x={angle_info['rotation_x']})")
 
     # Output directories
     out_dir = project_root / "spritesheets" / args.char_id
@@ -186,6 +233,9 @@ def main() -> int:
         "sprite_resolution": resolution,
         "sheet_dimensions": {"width": sheet_w, "height": sheet_h},
         "animation_state": args.state,
+        "angle": angle_key,
+        "rotation_y": angle_info["rotation_y"],
+        "rotation_x": angle_info["rotation_x"],
         "frames": [
             {
                 "index": i,

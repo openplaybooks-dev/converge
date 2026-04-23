@@ -1,6 +1,6 @@
 # Task Journal: 02-background-refs/001-forest-path
 
-## Current attempt — `attempts/01/`
+## Current attempt — `attempts/wip/`
 
 | File | Purpose |
 |------|---------|

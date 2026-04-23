@@ -1,0 +1,9 @@
+{
+  "attack": {
+    "name": "attack",
+    "description": "Character in attacking pose with sword raised high above head",
+    "base_angle": "front",
+    "file": "attack.png",
+    "seed": 1005406715
+  }
+}

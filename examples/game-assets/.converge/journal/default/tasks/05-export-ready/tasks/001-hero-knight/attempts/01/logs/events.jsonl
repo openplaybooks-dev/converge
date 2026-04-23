@@ -1,3 +1,0 @@
-{"type":"task_start","taskId":"05-export-ready/001-hero-knight","taskName":"Export Atlas: Sir Aldric","attempt":1,"inputs":[],"outputs":[],"timestamp":"2026-04-22T14:22:46.974Z","level":"critical"}
-{"type":"ai_reasoning","text":"Starting convergence loop for task: Export Atlas: Sir Aldric","context":{"taskId":"05-export-ready/001-hero-knight","maxIterations":100,"isWbs":false,"hasInputs":false,"hasOutputs":false},"timestamp":"2026-04-22T14:22:46.974Z","level":"info"}
-{"type":"task_complete","taskId":"05-export-ready/001-hero-knight","duration":1,"outputs":[],"success":true,"timestamp":"2026-04-22T14:22:46.975Z","level":"critical"}
