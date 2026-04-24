@@ -1,0 +1,200 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/002-research-x/002-subtopic-research/epoch-1-002-subtopic-ST-E1-3/ST-E1-3-research-check-failed-research-written",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/002-research-x/002-subtopic-research/epoch-1-002-subtopic-ST-E1-3/ST-E1-3-research",
+            "severity": "high",
+            "description": "[deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/002-research-x/002-subtopic-research/epoch-1-002-subtopic-ST-E1-3/ST-E1-3-research] Check failed: Research markdown exists",
+            "source": "unit",
+            "detected": "2026-04-23T22:45:14.936Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "research-written",
+              "checkCmd": "test -f /Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/2-research/ST-E1-3.md",
+              "checkDescription": "Research markdown exists",
+              "checkOutput": "Command failed: test -f /Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/2-research/ST-E1-3.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Research:  — Epoch 1\n\n**CRITICAL**: Conduct REAL, substantive research on this subtopic using your knowledge base.\n\n**Subtopic**: \n**Description**: \n**Research question**: What are the main causes of climate change?\n**Epoch**: 1\n**Subtopic ID**: ST-E1-3\n\n## Your Task\n\nConduct deep research on this specific subtopic. Use your extensive knowledge to:\n\n1. **Key Findings**: Identify 5-8 major findings about this subtopic with evidence\n2. **Source Citations**: Reference real, credible sources (papers, reports, authoritative websites)\n3. **Detailed Analysis**: Provide substantive explanations, not placeholder text\n4. **Confidence Scoring**: Rate confidence for each finding based on evidence strength\n5. **Knowledge Gaps**: Identify what remains unknown or needs deeper investigation\n\n## Output Format\n\nWrite `/Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/2-research/ST-E1-3.md` in markdown:\n\n```markdown\n# Research: \n\n**Subtopic ID**: ST-E1-3\n**Epoch**: 1\n**Research Date**: [current date]\n\n## Overview\n\n[Comprehensive paragraph explaining the research findings, their implications, and how they relate to the broader research question. This should be substantive, not placeholder text - minimum 200 words.]\n\n## Key Findings\n\n### F1: [Finding Title]\n\n**Finding**: Specific, detailed finding with real content\n\n**Evidence**: Detailed evidence and explanation\n\n**Sources**:\n- Real source 1 with title/author\n- Real source 2\n\n**Confidence**: 0.85\n**Importance**: high\n\n[... 5-8 findings total ...]\n\n## Key Insights\n\n1. Major insight 1 with substantive content\n2. Major insight 2 with real analysis\n3. [... minimum 3 insights ...]\n\n## Knowledge Gaps\n\n- Specific gap 1 that needs more research\n- Specific gap 2 requiring deeper investigation\n\n## Decomposition Assessment\n\n**Needs Decomposition**: Yes/No\n\n**Rationale**: Explain why this subtopic is complex enough to warrant breaking into sub-subtopics, or why it's sufficiently covered.\n\n## Metadata\n\nAlso create `/Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/2-research/ST-E1-3.json`:\n```json\n{\n  \"subtopicId\": \"ST-E1-3\",\n  \"subtopicName\": \"\",\n  \"epoch\": 1,\n  \"findingsCount\": 8,\n  \"sourcesCount\": 12,\n  \"needsDecomposition\": true,\n  \"researchDepth\": \"deep\",\n  \"timestamp\": \"ISO timestamp\"\n}\n```\n```\n\n## Quality Standards\n\n- **NO PLACEHOLDERS**: Every field must contain real, substantive content\n- **Minimum 5 findings** with detailed evidence and real source citations\n- **Minimum 3 key insights** that synthesize the findings\n- **Overview paragraph** of at least 200 words\n- **Real sources** - use your knowledge of actual publications, papers, and authoritative sources\n- **Confidence scores** based on evidence strength (0.0-1.0)\n- **Strategic assessment** of whether this subtopic needs further decomposition\n\nThis research will feed into deeper investigation layers. Quality here determines research depth.",
+              "taskId": "deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/002-research-x/002-subtopic-research/epoch-1-002-subtopic-ST-E1-3/ST-E1-3-research",
+              "taskTitle": "Research: ",
+              "unitPath": "/Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/tasks/what-are-the-main-causes-of-climate-change-2026-04-23/tasks/002-research-x/tasks/002-subtopic-research/tasks/epoch-1-002-subtopic-ST-E1-3/tasks/ST-E1-3-research",
+              "factId": "check:research-written"
+            }
+          }
+        ],
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 5
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#9",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 144944
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-23T22:45:14.933Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-23T22:45:14.933Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-23T22:45:14.936Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-23T22:45:14.937Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-23T22:45:14.940Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#9",
+      "iteration": 1,
+      "ts": "2026-04-23T22:47:39.886Z"
+    },
+    {
+      "from": "run-strategy:task-run#9",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-23T22:47:39.892Z"
+    }
+  ]
+}

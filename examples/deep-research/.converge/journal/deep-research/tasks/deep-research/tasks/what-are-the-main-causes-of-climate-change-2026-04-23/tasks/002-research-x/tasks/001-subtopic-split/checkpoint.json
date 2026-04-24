@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/002-research-x/001-subtopic-split",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T22:38:47.538Z",
+  "createdAt": "2026-04-23T22:38:14.185Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T22:38:14.185Z",
+      "completedAt": "2026-04-23T22:38:47.538Z",
+      "outcome": "success",
+      "durationMs": 33353
+    }
+  ],
+  "currentAttempt": 1
+}

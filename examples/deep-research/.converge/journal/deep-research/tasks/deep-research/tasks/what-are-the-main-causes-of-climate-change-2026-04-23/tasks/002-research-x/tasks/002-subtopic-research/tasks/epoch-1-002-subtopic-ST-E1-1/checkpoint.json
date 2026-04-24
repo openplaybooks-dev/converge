@@ -1,0 +1,18 @@
+{
+  "type": "task",
+  "id": "deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/002-research-x/002-subtopic-research/epoch-1-002-subtopic-ST-E1-1",
+  "status": "pending",
+  "lastUpdated": "2026-04-23T22:39:43.513Z",
+  "createdAt": "2026-04-23T22:39:43.512Z",
+  "progress": {
+    "totalChildren": 3,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "ST-E1-1-decompose",
+      "ST-E1-1-research",
+      "ST-E1-1-sub-subtopics"
+    ],
+    "lastProgressUpdate": "2026-04-23T22:39:43.512Z"
+  }
+}

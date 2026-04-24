@@ -1,0 +1,21 @@
+{
+  "type": "task",
+  "id": "deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/001-initial/003-scope-identification",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T22:35:30.000Z",
+  "createdAt": "2026-04-23T22:31:54.959Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T22:31:54.959Z"
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-23T22:34:33.676Z",
+      "completedAt": "2026-04-23T22:35:29.999Z",
+      "outcome": "success",
+      "durationMs": 56323
+    }
+  ],
+  "currentAttempt": 2
+}

@@ -1,0 +1,23 @@
+{
+  "sessionId": "2026-04-23T22-34-33-gebkhl",
+  "projectName": "deep-research",
+  "startTime": "2026-04-23T22:34:33.654Z",
+  "status": "error",
+  "config": {
+    "maxIterations": 30,
+    "maxAttemptsPerTask": 2
+  },
+  "environment": {
+    "nodeVersion": "v22.19.0",
+    "platform": "darwin"
+  },
+  "endTime": "2026-04-24T00:11:12.402Z",
+  "duration": 5798748,
+  "outcomes": {
+    "totalIterations": 26,
+    "tasksCompleted": 23,
+    "tasksFailed": 1,
+    "gapsResolved": 0,
+    "convergenceAchieved": false
+  }
+}

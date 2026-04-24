@@ -1,0 +1,10 @@
+{
+  "taskId": "deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/001-initial/003-scope-identification",
+  "checks": [
+    {
+      "id": "scope-written",
+      "description": "scope.json exists",
+      "cmd": "test -f /Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/1-initial/scope.json"
+    }
+  ]
+}

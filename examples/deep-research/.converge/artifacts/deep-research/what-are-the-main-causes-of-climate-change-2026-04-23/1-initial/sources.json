@@ -1,0 +1,305 @@
+{
+  "sources": [
+    {
+      "id": "SRC-001",
+      "url": "https://www.ipcc.ch/report/ar6/wg1/",
+      "title": "IPCC Sixth Assessment Report - Working Group I",
+      "type": "report",
+      "relevance": 1.0,
+      "credibility": "high",
+      "keyPoints": [
+        "Comprehensive assessment of physical science basis of climate change",
+        "Detailed analysis of causes, attribution, and projections",
+        "Authoritative source for climate science consensus"
+      ],
+      "coverage": "Complete overview of climate change causes including greenhouse gases, aerosols, land use, and attribution science"
+    },
+    {
+      "id": "SRC-002",
+      "url": "https://doi.org/10.5194/essd-15-5301-2023",
+      "title": "Global Carbon Budget 2023",
+      "type": "paper",
+      "relevance": 0.95,
+      "credibility": "high",
+      "keyPoints": [
+        "Annual assessment of global carbon sources and sinks",
+        "Detailed breakdown of emission sources by sector and region",
+        "Historical trends in carbon emissions"
+      ],
+      "coverage": "Quantitative data on carbon emissions from fossil fuels, land use change, and natural sinks"
+    },
+    {
+      "id": "SRC-003",
+      "url": "https://scripps.ucsd.edu/programs/keelingcurve/",
+      "title": "The Keeling Curve - Scripps CO2 Program",
+      "type": "web",
+      "relevance": 0.85,
+      "credibility": "high",
+      "keyPoints": [
+        "Continuous atmospheric CO2 measurements since 1958",
+        "Direct observational evidence of rising greenhouse gas concentrations",
+        "Foundational climate monitoring data"
+      ],
+      "coverage": "Long-term atmospheric CO2 concentration trends providing evidence of anthropogenic emissions"
+    },
+    {
+      "id": "SRC-004",
+      "url": "https://doi.org/10.1017/9781009157896",
+      "title": "Climate Change 2021: The Physical Science Basis",
+      "type": "report",
+      "relevance": 1.0,
+      "credibility": "high",
+      "keyPoints": [
+        "Full technical report of IPCC AR6 WGI",
+        "Detailed chapters on greenhouse gases, aerosols, and land use",
+        "Comprehensive attribution science"
+      ],
+      "coverage": "In-depth technical analysis of all climate change drivers and mechanisms"
+    },
+    {
+      "id": "SRC-005",
+      "url": "http://www.fao.org/docrep/010/a0701e/a0701e00.HTM",
+      "title": "Livestock's Long Shadow",
+      "type": "report",
+      "relevance": 0.80,
+      "credibility": "high",
+      "keyPoints": [
+        "Comprehensive assessment of livestock sector environmental impacts",
+        "Detailed analysis of greenhouse gas emissions from animal agriculture",
+        "Livestock accounts for 14.5% of global emissions"
+      ],
+      "coverage": "Agricultural emissions from livestock including methane and nitrous oxide"
+    },
+    {
+      "id": "SRC-006",
+      "url": "https://doi.org/10.4060/ca9825en",
+      "title": "Global Forest Resources Assessment 2020",
+      "type": "report",
+      "relevance": 0.85,
+      "credibility": "high",
+      "keyPoints": [
+        "Comprehensive data on forest cover changes",
+        "Deforestation rates and carbon stocks in forests globally",
+        "Essential for understanding land use emissions"
+      ],
+      "coverage": "Deforestation and land use change impacts on carbon cycle and emissions"
+    },
+    {
+      "id": "SRC-007",
+      "url": "https://doi.org/10.1088/1748-9326/ac0f85",
+      "title": "Quantifying Global Greenhouse Gas Emissions in Human Settlements",
+      "type": "article",
+      "relevance": 0.75,
+      "credibility": "high",
+      "keyPoints": [
+        "Analysis of urban and settlement contributions to global emissions",
+        "Spatial distribution and sectoral breakdown",
+        "Urbanization impacts on emissions"
+      ],
+      "coverage": "Urban and settlement-based emissions including energy use and transportation"
+    },
+    {
+      "id": "SRC-008",
+      "url": "https://www.ipcc.ch/report/tar/wg1/",
+      "title": "The Carbon Cycle and Atmospheric Carbon Dioxide",
+      "type": "report",
+      "relevance": 0.90,
+      "credibility": "high",
+      "keyPoints": [
+        "Detailed explanation of carbon cycle dynamics",
+        "Natural and anthropogenic carbon fluxes",
+        "Perturbations to the carbon system"
+      ],
+      "coverage": "Carbon cycle mechanisms and how human activities disrupt natural carbon balance"
+    },
+    {
+      "id": "SRC-009",
+      "url": "https://doi.org/10.1016/j.agsy.2018.01.003",
+      "title": "Methane Emissions from Livestock and Rice Agriculture",
+      "type": "article",
+      "relevance": 0.85,
+      "credibility": "high",
+      "keyPoints": [
+        "Quantitative analysis of methane emissions from agricultural sources",
+        "Regional breakdowns and mitigation potential",
+        "Methane is 80x more potent than CO2 over 20 years"
+      ],
+      "coverage": "Agricultural methane emissions from livestock and rice cultivation"
+    },
+    {
+      "id": "SRC-010",
+      "url": "https://doi.org/10.1038/s41561-018-0251-7",
+      "title": "Cement Production and CO2 Emissions",
+      "type": "article",
+      "relevance": 0.80,
+      "credibility": "high",
+      "keyPoints": [
+        "Analysis of cement industry emissions including process emissions",
+        "Cement production accounts for 8% of global CO2 emissions",
+        "Historical trends and future projections"
+      ],
+      "coverage": "Industrial process emissions from cement manufacturing"
+    },
+    {
+      "id": "SRC-011",
+      "url": "https://doi.org/10.1029/2019RG000660",
+      "title": "Radiative Forcing of Climate Change",
+      "type": "article",
+      "relevance": 0.90,
+      "credibility": "high",
+      "keyPoints": [
+        "Comprehensive review of radiative forcing concepts and measurements",
+        "Contributions from different climate drivers",
+        "Quantification of warming potential"
+      ],
+      "coverage": "Scientific basis for understanding how different factors contribute to warming"
+    },
+    {
+      "id": "SRC-012",
+      "url": "https://doi.org/10.17226/21852",
+      "title": "Attribution of Extreme Weather Events in the Context of Climate Change",
+      "type": "report",
+      "relevance": 0.75,
+      "credibility": "high",
+      "keyPoints": [
+        "Framework for attributing events and trends to anthropogenic climate change",
+        "Causation methodologies",
+        "Evidence for human influence on climate"
+      ],
+      "coverage": "Attribution science establishing human causation of climate change"
+    },
+    {
+      "id": "SRC-013",
+      "url": "https://www.iea.org/reports/global-energy-review-2023",
+      "title": "Global Energy Review 2023",
+      "type": "report",
+      "relevance": 0.85,
+      "credibility": "high",
+      "keyPoints": [
+        "Comprehensive data on global energy consumption",
+        "Fossil fuel use and associated emissions by sector and region",
+        "Energy sector trends"
+      ],
+      "coverage": "Energy-related emissions from fossil fuel combustion across all sectors"
+    },
+    {
+      "id": "SRC-014",
+      "url": "https://doi.org/10.1146/annurev-environ-012220-011847",
+      "title": "Permafrost Carbon Feedback and Climate Change",
+      "type": "article",
+      "relevance": 0.80,
+      "credibility": "high",
+      "keyPoints": [
+        "Analysis of carbon stored in permafrost",
+        "Potential emissions from thawing permafrost",
+        "Quantifying critical feedback mechanism"
+      ],
+      "coverage": "Feedback loops that amplify initial warming through permafrost thaw"
+    },
+    {
+      "id": "SRC-015",
+      "url": "https://doi.org/10.1029/2010JD014005",
+      "title": "Black Carbon and Climate Change",
+      "type": "article",
+      "relevance": 0.75,
+      "credibility": "high",
+      "keyPoints": [
+        "Assessment of black carbon's role in climate forcing",
+        "Sources and atmospheric behavior",
+        "Warming effects from particulate matter"
+      ],
+      "coverage": "Short-lived climate pollutants and aerosol effects on warming"
+    },
+    {
+      "id": "SRC-016",
+      "url": "https://doi.org/10.1126/science.1155358",
+      "title": "Deforestation and Climate Change",
+      "type": "article",
+      "relevance": 0.85,
+      "credibility": "high",
+      "keyPoints": [
+        "Quantification of CO2 emissions from tropical deforestation",
+        "Spatial and temporal patterns",
+        "Deforestation contributes 10-15% of global emissions"
+      ],
+      "coverage": "Land use change emissions from forest clearing"
+    },
+    {
+      "id": "SRC-017",
+      "url": "https://doi.org/10.1146/annurev-environ-012220-034103",
+      "title": "Transportation and Climate Change",
+      "type": "article",
+      "relevance": 0.80,
+      "credibility": "high",
+      "keyPoints": [
+        "Comprehensive review of transportation sector emissions",
+        "Transportation accounts for 16% of global emissions",
+        "Trends and decarbonization pathways"
+      ],
+      "coverage": "Transportation sector emissions from road, aviation, and shipping"
+    },
+    {
+      "id": "SRC-018",
+      "url": "https://doi.org/10.1038/s41558-019-0433-2",
+      "title": "Nitrous Oxide Emissions from Agriculture",
+      "type": "article",
+      "relevance": 0.80,
+      "credibility": "high",
+      "keyPoints": [
+        "Global assessment of N2O emissions from agricultural soils",
+        "Fertilizer use impacts",
+        "N2O is 300x more potent than CO2"
+      ],
+      "coverage": "Agricultural emissions of nitrous oxide from fertilizer application"
+    },
+    {
+      "id": "SRC-019",
+      "url": "https://doi.org/10.1126/science.1097403",
+      "title": "Ocean Carbon Uptake and Acidification",
+      "type": "article",
+      "relevance": 0.75,
+      "credibility": "high",
+      "keyPoints": [
+        "Analysis of ocean's role in absorbing anthropogenic CO2",
+        "Implications for carbon cycle",
+        "Ocean chemistry changes"
+      ],
+      "coverage": "Ocean carbon sink capacity and feedback effects"
+    },
+    {
+      "id": "SRC-020",
+      "url": "https://doi.org/10.1029/2019RG000678",
+      "title": "Solar and Volcanic Forcing of Climate",
+      "type": "article",
+      "relevance": 0.70,
+      "credibility": "high",
+      "keyPoints": [
+        "Assessment of natural climate forcing factors",
+        "Solar variability and volcanic eruptions",
+        "Context for anthropogenic attribution"
+      ],
+      "coverage": "Natural climate drivers for comparison with anthropogenic causes"
+    }
+  ],
+  "gapAnalysis": {
+    "covered": [
+      "Fossil fuel combustion and CO2 emissions",
+      "Deforestation and land use change",
+      "Agricultural emissions (methane and nitrous oxide)",
+      "Industrial process emissions",
+      "Greenhouse gas properties and radiative forcing",
+      "Feedback mechanisms and tipping points",
+      "Transportation sector emissions",
+      "Attribution science and evidence for anthropogenic causation"
+    ],
+    "missing": [
+      "Precise quantification of feedback loop magnitudes and tipping point thresholds",
+      "Regional and local attribution of climate change impacts",
+      "Full accounting of supply chain and consumption-based emissions",
+      "Social and behavioral drivers underlying emission-generating activities",
+      "Interaction effects between multiple climate drivers",
+      "Historical emissions from pre-industrial land use changes"
+    ]
+  },
+  "totalSources": 20
+}

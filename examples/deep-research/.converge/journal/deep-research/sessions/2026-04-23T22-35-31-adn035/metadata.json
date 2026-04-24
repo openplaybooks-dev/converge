@@ -1,0 +1,14 @@
+{
+  "sessionId": "2026-04-23T22-35-31-adn035",
+  "projectName": "deep-research",
+  "startTime": "2026-04-23T22:35:31.846Z",
+  "status": "running",
+  "config": {
+    "maxIterations": 30,
+    "maxAttemptsPerTask": 2
+  },
+  "environment": {
+    "nodeVersion": "v22.19.0",
+    "platform": "darwin"
+  }
+}

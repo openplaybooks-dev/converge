@@ -1,0 +1,23 @@
+{
+  "self-healing:wbs-script-error": {
+    "id": "self-healing:wbs-script-error",
+    "type": "self-healing",
+    "cmd": "wbs-script-repair",
+    "ok": false,
+    "output": "WBS script error: WbsZeroSpawnError: WBS script completed successfully but spawned 0 tasks. This usually means the script's input data is empty or the script has a logic error (e.g., iterating over wrong field, filter excluding all entries).",
+    "exitCode": 1,
+    "collectedAt": "2026-04-23T22:53:32.947Z",
+    "strategy": "wbs-script-repair",
+    "errorType": "WbsZeroSpawnError",
+    "errorMessage": "WBS script completed successfully but spawned 0 tasks. This usually means the script's input data is empty or the script has a logic error (e.g., iterating over wrong field, filter excluding all entries).",
+    "errorStack": "WbsZeroSpawnError: WBS script completed successfully but spawned 0 tasks. This usually means the script's input data is empty or the script has a logic error (e.g., iterating over wrong field, filter excluding all entries).\n    at WbsExecutor.run (file:///Users/minh/Documents/converge/packages/cli/dist/index.js:36827:36)\n    at async executeTask (file:///Users/minh/Documents/converge/packages/cli/dist/index.js:47751:26)\n    at async Object.stateExecute [as EXECUTE] (file:///Users/minh/Documents/converge/packages/cli/dist/index.js:49334:20)\n    at async autonomousRun (file:///Users/minh/Documents/converge/packages/cli/dist/index.js:49529:15)\n    at async runAutonomousCommand (file:///Users/minh/Documents/converge/packages/cli/dist/index.js:49716:22)\n    at async main (file:///Users/minh/Documents/converge/packages/cli/dist/index.js:97077:11)"
+  },
+  "gap-failed:wbs-script-error:deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/002-research-x/004-epoch-decision:1776984812949": {
+    "id": "gap-failed:wbs-script-error:deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/002-research-x/004-epoch-decision:1776984812949",
+    "type": "gap-resolution",
+    "ok": false,
+    "output": "Gap resolution failed after 0 attempts",
+    "attempts": 0,
+    "collectedAt": "2026-04-23T22:55:36.654Z"
+  }
+}

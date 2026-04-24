@@ -1,0 +1,19 @@
+{
+  "type": "task",
+  "id": "deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/001-initial",
+  "status": "pending",
+  "lastUpdated": "2026-04-23T22:39:43.515Z",
+  "createdAt": "2026-04-23T22:34:33.653Z",
+  "progress": {
+    "totalChildren": 4,
+    "completedChildren": 4,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-initial-search",
+      "002-initial-gather",
+      "003-scope-identification",
+      "004-initial-aggregation"
+    ],
+    "lastProgressUpdate": "2026-04-23T22:39:43.513Z"
+  }
+}

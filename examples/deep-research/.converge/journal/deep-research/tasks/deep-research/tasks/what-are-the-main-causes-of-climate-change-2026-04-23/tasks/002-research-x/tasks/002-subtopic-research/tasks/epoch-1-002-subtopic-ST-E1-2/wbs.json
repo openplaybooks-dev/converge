@@ -1,0 +1,19 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-23T22:41:24.076Z",
+  "spawnCount": 3,
+  "subtasks": [
+    {
+      "id": "ST-E1-2-research",
+      "writeToPath": ".converge/playbooks/deep-research/tasks/what-are-the-main-causes-of-climate-change-2026-04-23/tasks/002-research-x/tasks/002-subtopic-research/tasks/epoch-1-002-subtopic-ST-E1-2/tasks/ST-E1-2-research/TASK.md"
+    },
+    {
+      "id": "ST-E1-2-decompose",
+      "writeToPath": ".converge/playbooks/deep-research/tasks/what-are-the-main-causes-of-climate-change-2026-04-23/tasks/002-research-x/tasks/002-subtopic-research/tasks/epoch-1-002-subtopic-ST-E1-2/tasks/ST-E1-2-decompose/TASK.md"
+    },
+    {
+      "id": "ST-E1-2-sub-subtopics",
+      "writeToPath": ".converge/playbooks/deep-research/tasks/what-are-the-main-causes-of-climate-change-2026-04-23/tasks/002-research-x/tasks/002-subtopic-research/tasks/epoch-1-002-subtopic-ST-E1-2/tasks/ST-E1-2-sub-subtopics/TASK.md"
+    }
+  ]
+}
