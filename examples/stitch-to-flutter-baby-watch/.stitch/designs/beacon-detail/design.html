@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=375, initial-scale=1.0" />
+  <title>Beacon Detail — BabyGuard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Manrope:wght@400;500;600;700&family=Material+Symbols+Outlined:opsz,wght@24,GRAD@0,opsz@24&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-lowest": "#ffffff",
+            "surface-bright": "#F4F2EE",
+            "surface-container-low": "#f5f4ee",
+            "surface-container": "#efeee8",
+            "surface-container-high": "#e8e9e1",
+            "on-surface": "#31332e",
+            "on-surface-variant": "#5e6059",
+            "secondary": "#4f635e",
+            "on-secondary": "#faf7f6",
+            "tertiary": "#4f635e",
+            "error": "#9f403d",
+            "mint": "#D1EEDD",
+            "on-mint": "#00391C",
+            "peach": "#FFDAD6",
+            "on-peach": "#410002",
+            "honey": "#F3D98C",
+            "on-honey": "#241A00",
+            "outline-variant": "#b1b3ab",
+          },
+          borderRadius: {
+            "DEFAULT": "1rem",
+            "lg": "2rem",
+            "xl": "3rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Manrope"],
+            "label": ["Manrope"]
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body { font-family: 'Manrope', sans-serif; background-color: #E8E8E8; }
+    h1, h2, h3 { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .pulse-dot { animation: pulse-dot 1.5s ease-in-out infinite; }
+
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fade-in 300ms ease-out backwards;
+    }
+    .animate-fade-in:nth-child(1) { animation-delay: 0ms; }
+    .animate-fade-in:nth-child(2) { animation-delay: 80ms; }
+    .animate-fade-in:nth-child(3) { animation-delay: 160ms; }
+    .animate-fade-in:nth-child(4) { animation-delay: 240ms; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="scaffold">
+
+      <!-- AppBar -->
+      <header data-flutter="app-bar" class="sticky top-0 w-full z-50 bg-[#fbf9f5]/80 backdrop-blur-lg shadow-[0_8px_32px_0_rgba(49,51,46,0.04)]">
+        <div class="flex items-center justify-between px-6 py-5">
+          <div class="flex items-center gap-4">
+            <button aria-label="Quay lại" class="hover:opacity-80 transition-opacity active:scale-95 duration-200">
+              <span class="material-symbols-outlined text-2xl text-[#31332e]">arrow_back</span>
+            </button>
+            <h1 class="text-[1.75rem] font-bold leading-tight tracking-tight text-[#31332e]">Chi tiết Beacon</h1>
+          </div>
+          <button aria-label="Menu" class="hover:opacity-80">
+            <span class="material-symbols-outlined text-2xl text-[#5e6059]">more_vert</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Body -->
+      <main class="flex-1 overflow-y-auto px-6 pt-8 pb-36 max-w-screen-md mx-auto space-y-8">
+
+        <!-- Hero Section -->
+        <section class="flex items-center gap-6 animate-fade-in">
+          <div class="w-20 h-20 rounded-xl bg-[#D1EEDD] flex items-center justify-center shadow-lg" data-flutter="avatar">
+            <span class="material-symbols-outlined text-5xl text-[#4f635e]" style="font-variation-settings: 'FILL' 1;">child_care</span>
+          </div>
+          <div>
+            <h2 class="text-4xl font-extrabold tracking-tight text-[#31332e]">Bé Na</h2>
+            <p class="text-[#5e6059] font-medium mt-1">Beacon theo dõi của bé</p>
+          </div>
+        </section>
+
+        <!-- Technical Accordion (Expanded) -->
+        <section class="bg-[#f5f4ee] rounded-xl overflow-hidden animate-fade-in">
+          <div class="p-5 flex items-center justify-between cursor-pointer group">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-[#5e6059]">settings_ethernet</span>
+              <h3 class="font-bold text-[#31332e]">Chi tiết kỹ thuật</h3>
+            </div>
+            <span class="material-symbols-outlined text-[#5e6059] transition-transform group-hover:translate-y-0.5">expand_more</span>
+          </div>
+          <div class="px-5 pb-5 grid grid-cols-3 gap-4 border-t border-[#e8e9e1] pt-4">
+            <div class="flex flex-col">
+              <span class="text-[10px] uppercase font-bold text-[#5e6059]/60 tracking-wider mb-1">UUID</span>
+              <span class="text-xs font-mono font-semibold text-[#31332e] bg-white px-2 py-1.5 rounded-lg">E2C4...8F91</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-[10px] uppercase font-bold text-[#5e6059]/60 tracking-wider mb-1">Major</span>
+              <span class="text-xs font-mono font-semibold text-[#31332e]">10001</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-[10px] uppercase font-bold text-[#5e6059]/60 tracking-wider mb-1">Minor</span>
+              <span class="text-xs font-mono font-semibold text-[#31332e]">20002</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Co-Guardian List Card -->
+        <section class="bg-white rounded-2xl shadow-[0_8px_32px_0_rgba(49,51,46,0.06)] p-8 animate-fade-in">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-8 h-8 rounded-full bg-[#D1EEDD] flex items-center justify-center">
+              <span class="material-symbols-outlined text-sm text-[#00391C]" style="font-variation-settings: 'FILL' 1;">group</span>
+            </div>
+            <h3 class="text-xl font-bold text-[#31332e]">Người cùng theo dõi</h3>
+          </div>
+
+          <div class="space-y-4">
+            <!-- Guardian 1: Mom - Near -->
+            <div class="flex items-center justify-between p-3 rounded-xl hover:bg-[#f5f4ee] transition-colors" data-flutter="guardian-row">
+              <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-full bg-[#D1EEDD] flex items-center justify-center font-bold text-lg text-[#4f635e]">
+                  Mẹ
+                </div>
+                <div class="space-y-1">
+                  <p class="font-bold text-[#31332e]">Mẹ</p>
+                  <p class="text-[10px] text-[#5e6059] uppercase tracking-wider font-medium">2 phút trước</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-1.5 bg-[#D1EEDD] px-3 py-1.5 rounded-full" data-color="secondary" data-flutter="status-pill">
+                <span class="w-2 h-2 bg-[#4f635e] rounded-full pulse-dot"></span>
+                <span class="text-xs font-semibold text-[#00391C]">Đang gần beacon</span>
+              </div>
+            </div>
+
+            <!-- Guardian 2: Dad - Far -->
+            <div class="flex items-center justify-between p-3 rounded-xl hover:bg-[#f5f4ee] transition-colors" data-flutter="guardian-row">
+              <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-full bg-[#F3D98C] flex items-center justify-center font-bold text-lg text-[#241A00]">
+                  Bố
+                </div>
+                <div class="space-y-1">
+                  <p class="font-bold text-[#31332e]">Bố</p>
+                  <p class="text-[10px] text-[#5e6059] uppercase tracking-wider font-medium">15 phút trước</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-1.5 bg-[#F3D98C] px-3 py-1.5 rounded-full" data-color="tertiary" data-flutter="status-pill">
+                <span class="material-symbols-outlined text-[#241A00] text-sm">warning</span>
+                <span class="text-xs font-semibold text-[#241A00]">Xa / không thấy</span>
+              </div>
+            </div>
+
+            <!-- Guardian 3: Grandma - Offline -->
+            <div class="flex items-center justify-between p-3 rounded-xl hover:bg-[#f5f4ee] transition-colors" data-flutter="guardian-row">
+              <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-full bg-[#e8e9e1] flex items-center justify-center font-bold text-lg text-[#5e6059]">
+                  Bà
+                </div>
+                <div class="space-y-1">
+                  <p class="font-bold text-[#31332e]">Bà Ngoại</p>
+                  <p class="text-[10px] text-[#5e6059] uppercase tracking-wider font-medium">1 giờ trước</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-1.5 bg-[#e8e9e1] px-3 py-1.5 rounded-full" data-bg="surface-container" data-flutter="status-pill">
+                <span class="material-symbols-outlined text-[#5e6059] text-sm">cloud_off</span>
+                <span class="text-xs font-semibold text-[#5e6059]">Ngoại tuyến</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-6 mt-6 border-t border-[#e8e9e1] space-y-4">
+            <button class="w-full py-4 bg-[#4f635e] text-white rounded-full font-bold shadow-lg hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2" data-flutter="elevated-btn">
+              <span class="material-symbols-outlined">person_add</span>
+              Mời người cùng theo dõi
+            </button>
+            <div class="flex justify-center">
+              <button class="flex items-center gap-1.5 text-[#4f635e] font-semibold hover:underline">
+                Quản lý danh sách
+                <span class="material-symbols-outlined text-lg">chevron_right</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Leave Group Action -->
+        <section class="py-8 text-center animate-fade-in">
+          <div class="relative flex items-center justify-center opacity-10 grayscale mb-4 -mx-6">
+            <img src="https://picsum.photos/seed/abstract-geo/400/100" alt="" class="w-full h-20 object-cover rounded-xl" />
+          </div>
+          <p class="text-sm text-[#5e6059] mb-4">Bạn sẽ không nhận thông báo khi bé rời beacon.</p>
+          <button class="px-6 py-3 bg-transparent text-[#9f403d] font-semibold rounded-full border border-[#9f403d]/30 hover:bg-[#FFDAD6]/20 transition-colors" data-flutter="text-button">
+            Rời nhóm theo dõi
+          </button>
+        </section>
+
+      </main>
+
+      <!-- FAB -->
+      <button data-flutter="fab" class="fixed bottom-32 right-6 z-50 bg-[#4f635e] text-white w-14 h-14 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center" aria-label="Mời người cùng theo dõi">
+        <span class="material-symbols-outlined">person_add</span>
+      </button>
+
+      <!-- Bottom Nav -->
+      <nav data-flutter="bottom-nav" class="fixed bottom-0 w-full z-50 pb-safe bg-white/90 backdrop-blur-xl border-t border-black/5 shadow-2xl">
+        <div class="flex justify-around items-center h-20 px-4 max-w-lg mx-auto">
+          <button data-flutter="nav-destination" data-icon="home" data-label="Trang chủ" class="flex flex-col items-center justify-center text-[#5e6059]/60">
+            <span class="material-symbols-outlined text-[26px]">home</span>
+            <span class="text-[10px] font-bold mt-1">Trang chủ</span>
+          </button>
+          <button data-flutter="nav-destination" data-icon="devices" data-label="Thiết bị" class="flex flex-col items-center justify-center text-[#5f5e5e]">
+            <span class="material-symbols-outlined text-[26px]" style="font-variation-settings: 'FILL' 1;">devices</span>
+            <span class="text-[10px] font-bold mt-1">Thiết bị</span>
+          </button>
+          <button data-flutter="nav-destination" data-icon="security" data-label="An toàn" class="flex flex-col items-center justify-center text-[#5e6059]/60">
+            <span class="material-symbols-outlined text-[26px]">security</span>
+            <span class="text-[10px] font-bold mt-1">An toàn</span>
+          </button>
+          <button data-flutter="nav-destination" data-icon="settings" data-label="Cài đặt" class="flex flex-col items-center justify-center text-[#5e6059]/60">
+            <span class="material-symbols-outlined text-[26px]">settings</span>
+            <span class="text-[10px] font-bold mt-1">Cài đặt</span>
+          </button>
+        </div>
+      </nav>
+
+    </div>
+  </div>
+</body>
+</html>

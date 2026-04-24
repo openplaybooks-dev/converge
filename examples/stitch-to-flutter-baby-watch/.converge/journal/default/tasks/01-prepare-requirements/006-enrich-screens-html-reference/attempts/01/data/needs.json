@@ -1,0 +1,24 @@
+{
+  "taskId": "01-prepare-requirements/006-enrich-screens-html-reference",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/references/ANALYSIS.md",
+      "count": 1,
+      "samples": [
+        ".stitch/references/ANALYSIS.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/screens.json",
+      "count": 1,
+      "samples": [
+        ".stitch/screens.json"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/screens.json"
+  ],
+  "blocked": false
+}

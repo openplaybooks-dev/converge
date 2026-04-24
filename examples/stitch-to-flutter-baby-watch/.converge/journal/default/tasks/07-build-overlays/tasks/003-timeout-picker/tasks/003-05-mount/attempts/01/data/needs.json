@@ -1,0 +1,22 @@
+{
+  "taskId": "07-build-overlays/003-timeout-picker/003-05-mount",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/widgets/overlays/timeout_picker/timeout_picker.dart",
+      "count": 1,
+      "samples": [
+        "lib/widgets/overlays/timeout_picker/timeout_picker.dart"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/timeout-picker/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/timeout-picker/SPEC.md"
+      ]
+    }
+  ],
+  "outputs": [],
+  "blocked": false
+}

@@ -6,6 +6,27 @@ import 'package:google_fonts/google_fonts.dart';
 class AppTheme {
   AppTheme._();
 
+  // ── Brand Colors ─────────────────────────────────────────────
+  static const Color brandGreen = Color(0xFF4f635e);
+  static const Color brandGreenLight = Color(0xFFCDE3DC);
+  static const Color brandGreenDark = Color(0xFF00391C);
+  static const Color brandOnSurface = Color(0xFF31332e);
+  static const Color brandOnSurfaceVariant = Color(0xFF5e6059);
+  static const Color brandSurface = Color(0xFFF4F2EE);
+  static const Color brandSurfaceOpaque = Color(0xFFfbf9f5);
+  static const Color brandSurfaceContainer = Color(0xFFefeee8);
+  static const Color brandBorder = Color(0xFFE7E3DC);
+  static const Color brandShadow = Color(0x66E7E3DC);
+  static const Color brandShadowDark = Color(0x33000000);
+  static const Color brandImageOverlay = Color(0x4D000000);
+  static const Color signOutBackground = Color(0xFFfe8b70);
+  static const Color signOutForeground = Color(0xFF9e422c);
+  static const Color transparent = Colors.transparent;
+  static const Color brandLightGreen = Color(0xFFdff6ee);
+  static const Color brandLightGreenOverlay = Color(0x66dff6ee);
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color white80 = Color(0xCCFFFFFF);
+
   // ── Spacing Tokens ──────────────────────────────────────────
   static const double spaceXs = 4;
   static const double spaceSm = 8;
@@ -68,7 +89,7 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
       textTheme: textTheme,
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusMd),
         ),

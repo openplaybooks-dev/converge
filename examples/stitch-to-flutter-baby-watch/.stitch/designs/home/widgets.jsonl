@@ -1,0 +1,4 @@
+{"name": "StatusSection", "grep": "_buildStatusSection()", "description": "Safe state pill and child name/subtitle header section", "shared": false}
+{"name": "MapCard", "grep": "_buildMapCard()", "description": "Map display with animated beacon marker and last-seen overlay", "shared": false}
+{"name": "BeaconStrip", "grep": "_buildBeaconStrip()", "description": "Beacon info strip showing child name, distance and battery", "shared": false}
+{"name": "QuickActions", "grep": "_buildQuickActions()", "description": "Mute notification quick actions with preset time buttons", "shared": false}

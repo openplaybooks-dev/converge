@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/011-onboarding/011-04-analyze",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/onboarding/onboarding_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/onboarding/onboarding_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/onboarding/widgets.jsonl"
+  ],
+  "blocked": false
+}

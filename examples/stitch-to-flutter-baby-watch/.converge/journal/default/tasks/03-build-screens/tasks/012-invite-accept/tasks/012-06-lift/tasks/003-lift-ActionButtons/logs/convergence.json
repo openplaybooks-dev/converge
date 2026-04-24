@@ -1,0 +1,303 @@
+{
+  "iteration": 2,
+  "stallCount": 1,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/012-invite-accept/012-06-lift/003-lift-ActionButtons-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/012-invite-accept/012-06-lift/003-lift-ActionButtons",
+            "severity": "high",
+            "description": "[03-build-screens/012-invite-accept/012-06-lift/003-lift-ActionButtons] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-22T16:26:25.503Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "dart analyze lib/widgets/action_buttons.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "An error occurred while executing an analyzer plugin: Failed to compile \"/Users/hoangnguyen/.dartServer/.plugin_manager/9e820a09f9826aee5ce535ac929226a0/analyzer_plugin/bin/plugin.dart\" to an AOT snapshot.\n  pluginFolder = /Users/hoangnguyen/.dartServer/.plugin_manager/9e820a09f9826aee5ce535ac929226a0/analyzer_plugin\n  exitCode = 254\n  stdout = \n  stderr = ../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2133:32: Error: The argument type 'Element' can't be assigned to the parameter type 'Element2'.\n - 'Element' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'Element2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n            .publiclyExporting(element, resultCache: resultCache) ??\n                               ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2133:54: Error: The argument type 'Map<Element, LibraryElement?>?' can't be assigned to the parameter type 'Map<Element2, LibraryElement2?>?'.\n - 'Map' is from 'dart:core'.\n - 'Element' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'LibraryElement' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'Element2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n - 'LibraryElement2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n            .publiclyExporting(element, resultCache: resultCache) ??\n                                                     ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2137:40: Error: The getter 'source' isn't defined for the type 'Object'.\n - 'Object' is from 'dart:core'.\nTry correcting the name to the name of an existing getter, or defining a getter or field named 'source'.\n    var uriToImport = libraryToImport?.source.uri;\n                                       ^^^^^^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2150:58: Error: The argument type 'Object?' can't be assigned to the parameter type 'LibraryElement?'.\n - 'Object' is from 'dart:core'.\n - 'LibraryElement' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n      _removeUnnecessaryPendingElementImports(newImport, libraryToImport);\n                                                         ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2182:14: Error: The method 'publiclyExporting2' isn't defined for the type 'TopLevelDeclarations'.\n - 'TopLevelDeclarations' is from 'package:analyzer/src/services/top_level_declarations.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/src/services/top_level_declarations.dart').\nTry correcting the name to the name of an existing method, or defining a method named 'publiclyExporting2'.\n            .publiclyExporting2(element, resultCache: resultCache) ??\n             ^^^^^^^^^^^^^^^^^^\nError: AOT compilation failed\nBad state: Generating AOT kernel dill failed!\n\n\n#0      PluginManager._compileAsAot (package:analysis_server/src/plugin/plugin_manager.dart:589)\n#1      PluginManager._computeFiles (package:analysis_server/src/plugin/plugin_manager.dart:641)\n#2      PluginManager.filesFor (package:analysis_server/src/plugin/plugin_manager.dart:347)\n#3      PluginManager.addPluginToContextRoot (package:analysis_server/src/plugin/plugin_manager.dart:179)\n#4      PluginWatcher._addLegacyPlugins (package:analysis_server/src/plugin/plugin_watcher.dart:102)\n#5      PluginWatcher.addedDriver (package:analysis_server/src/plugin/plugin_watcher.dart:49)\n#6      AnalysisDriverScheduler.add (package:analyzer/src/dart/analysis/driver.dart:2665)\n#7      new AnalysisDriver (package:analyzer/src/dart/analysis/driver.dart:341)\n#8      ContextBuilderImpl.createContext (package:analyzer/src/dart/analysis/context_builder.dart:157)\n#9      new AnalysisContextCollectionImpl (package:analyzer/src/dart/analysis/analysis_context_collection.dart:122)\n#10     ContextManagerImpl._createAnalysisContexts.performContextRebuildGuarded.performContextRebuild (package:analysis_server/src/context_manager.dart:596)\n<asynchronous suspension>\n#11     ContextManagerImpl._createAnalysisContexts.performContextRebuildGuarded (package:analysis_server/src/context_manager.dart:732)\n<asynchronous suspension>\n#12     _CancellingTaskQueue.queue.<anonymous closure> (package:analysis_server/src/context_manager.dart:1041)\n<asynchronous suspension>\n#13     ContextManagerImpl.setRoots (package:analysis_server/src/context_manager.dart:386)\n<asynchronous suspension>\n#14     LegacyAnalysisServer.setAnalysisRoots (package:analysis_server/src/legacy_analysis_server.dart:901)\n<asynchronous suspension>\n#15     AnalysisSetAnalysisRootsHandler.handle (package:analysis_server/src/handler/legacy/analysis_set_analysis_roots.dart:56)\n<asynchronous suspension>\n#16     LegacyAnalysisServer.handleRequest.<anonymous closure>.<anonymous closure> (package:analysis_server/src/legacy_analysis_server.dart:648)\n<asynchronous suspension>\n#17     OperationPerformanceImpl.runAsync (package:analyzer/src/util/performance/operation_performance.dart:201)\n<asynchronous suspension>\n#18     LegacyAnalysisServer.handleRequest.<anonymous closure> (package:analysis_server/src/legacy_analysis_server.dart:628)\n<asynchronous suspension>\nAnalyzing action_buttons.dart...",
+              "checkExitCode": 4,
+              "taskPrompt": "# Lift: ActionButtons\n\nMove `ActionButtons` from local screen widgets to the shared widgets directory.\n\n## Steps\n\n1. **Move file** — `lib/screens/invite_accept/widgets/action_buttons.dart` → `lib/widgets/action_buttons.dart`\n2. **Update package import** — Change relative import to package import: `package:folio/widgets/action_buttons.dart`\n3. **Update all references** — Find all files importing the old path and update them\n4. **Verify** — Run `dart analyze` on affected files",
+              "taskId": "03-build-screens/012-invite-accept/012-06-lift/003-lift-ActionButtons",
+              "taskTitle": "Lift: ActionButtons",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-06-lift/tasks/003-lift-ActionButtons",
+              "factId": "check:dart-valid"
+            }
+          }
+        ],
+        "durationMs": 2427
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2404
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/012-invite-accept/012-06-lift/003-lift-ActionButtons-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/012-invite-accept/012-06-lift/003-lift-ActionButtons",
+            "severity": "high",
+            "description": "[03-build-screens/012-invite-accept/012-06-lift/003-lift-ActionButtons] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-22T16:27:47.063Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "dart analyze lib/widgets/action_buttons.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "An error occurred while executing an analyzer plugin: Failed to compile \"/Users/hoangnguyen/.dartServer/.plugin_manager/9e820a09f9826aee5ce535ac929226a0/analyzer_plugin/bin/plugin.dart\" to an AOT snapshot.\n  pluginFolder = /Users/hoangnguyen/.dartServer/.plugin_manager/9e820a09f9826aee5ce535ac929226a0/analyzer_plugin\n  exitCode = 254\n  stdout = \n  stderr = ../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2133:32: Error: The argument type 'Element' can't be assigned to the parameter type 'Element2'.\n - 'Element' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'Element2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n            .publiclyExporting(element, resultCache: resultCache) ??\n                               ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2133:54: Error: The argument type 'Map<Element, LibraryElement?>?' can't be assigned to the parameter type 'Map<Element2, LibraryElement2?>?'.\n - 'Map' is from 'dart:core'.\n - 'Element' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'LibraryElement' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'Element2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n - 'LibraryElement2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n            .publiclyExporting(element, resultCache: resultCache) ??\n                                                     ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2137:40: Error: The getter 'source' isn't defined for the type 'Object'.\n - 'Object' is from 'dart:core'.\nTry correcting the name to the name of an existing getter, or defining a getter or field named 'source'.\n    var uriToImport = libraryToImport?.source.uri;\n                                       ^^^^^^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2150:58: Error: The argument type 'Object?' can't be assigned to the parameter type 'LibraryElement?'.\n - 'Object' is from 'dart:core'.\n - 'LibraryElement' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n      _removeUnnecessaryPendingElementImports(newImport, libraryToImport);\n                                                         ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2182:14: Error: The method 'publiclyExporting2' isn't defined for the type 'TopLevelDeclarations'.\n - 'TopLevelDeclarations' is from 'package:analyzer/src/services/top_level_declarations.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/src/services/top_level_declarations.dart').\nTry correcting the name to the name of an existing method, or defining a method named 'publiclyExporting2'.\n            .publiclyExporting2(element, resultCache: resultCache) ??\n             ^^^^^^^^^^^^^^^^^^\nError: AOT compilation failed\nBad state: Generating AOT kernel dill failed!\n\n\n#0      PluginManager._compileAsAot (package:analysis_server/src/plugin/plugin_manager.dart:589)\n#1      PluginManager._computeFiles (package:analysis_server/src/plugin/plugin_manager.dart:641)\n#2      PluginManager.filesFor (package:analysis_server/src/plugin/plugin_manager.dart:347)\n#3      PluginManager.addPluginToContextRoot (package:analysis_server/src/plugin/plugin_manager.dart:179)\n#4      PluginWatcher._addLegacyPlugins (package:analysis_server/src/plugin/plugin_watcher.dart:102)\n#5      PluginWatcher.addedDriver (package:analysis_server/src/plugin/plugin_watcher.dart:49)\n#6      AnalysisDriverScheduler.add (package:analyzer/src/dart/analysis/driver.dart:2665)\n#7      new AnalysisDriver (package:analyzer/src/dart/analysis/driver.dart:341)\n#8      ContextBuilderImpl.createContext (package:analyzer/src/dart/analysis/context_builder.dart:157)\n#9      new AnalysisContextCollectionImpl (package:analyzer/src/dart/analysis/analysis_context_collection.dart:122)\n#10     ContextManagerImpl._createAnalysisContexts.performContextRebuildGuarded.performContextRebuild (package:analysis_server/src/context_manager.dart:596)\n<asynchronous suspension>\n#11     ContextManagerImpl._createAnalysisContexts.performContextRebuildGuarded (package:analysis_server/src/context_manager.dart:732)\n<asynchronous suspension>\n#12     _CancellingTaskQueue.queue.<anonymous closure> (package:analysis_server/src/context_manager.dart:1041)\n<asynchronous suspension>\n#13     ContextManagerImpl.setRoots (package:analysis_server/src/context_manager.dart:386)\n<asynchronous suspension>\n#14     LegacyAnalysisServer.setAnalysisRoots (package:analysis_server/src/legacy_analysis_server.dart:901)\n<asynchronous suspension>\n#15     AnalysisSetAnalysisRootsHandler.handle (package:analysis_server/src/handler/legacy/analysis_set_analysis_roots.dart:56)\n<asynchronous suspension>\n#16     LegacyAnalysisServer.handleRequest.<anonymous closure>.<anonymous closure> (package:analysis_server/src/legacy_analysis_server.dart:648)\n<asynchronous suspension>\n#17     OperationPerformanceImpl.runAsync (package:analyzer/src/util/performance/operation_performance.dart:201)\n<asynchronous suspension>\n#18     LegacyAnalysisServer.handleRequest.<anonymous closure> (package:analysis_server/src/legacy_analysis_server.dart:628)\n<asynchronous suspension>\nAnalyzing action_buttons.dart...",
+              "checkExitCode": 4,
+              "taskPrompt": "# Lift: ActionButtons\n\nMove `ActionButtons` from local screen widgets to the shared widgets directory.\n\n## Steps\n\n1. **Move file** — `lib/screens/invite_accept/widgets/action_buttons.dart` → `lib/widgets/action_buttons.dart`\n2. **Update package import** — Change relative import to package import: `package:folio/widgets/action_buttons.dart`\n3. **Update all references** — Find all files importing the old path and update them\n4. **Verify** — Run `dart analyze` on affected files",
+              "taskId": "03-build-screens/012-invite-accept/012-06-lift/003-lift-ActionButtons",
+              "taskTitle": "Lift: ActionButtons",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-06-lift/tasks/003-lift-ActionButtons",
+              "factId": "check:dart-valid"
+            }
+          }
+        ],
+        "durationMs": 2394
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "run-strategy:task-run#7",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 76758
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "Outputs already present",
+        "durationMs": 2443
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-22T16:26:23.076Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-22T16:26:23.076Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-22T16:26:25.504Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-22T16:26:25.505Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-22T16:26:27.909Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#7",
+      "iteration": 1,
+      "ts": "2026-04-22T16:27:44.668Z"
+    },
+    {
+      "from": "run-strategy:task-run#7",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-22T16:27:47.063Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-22T16:27:47.065Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-22T16:27:47.066Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-22T16:27:47.066Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-22T16:27:49.510Z"
+    }
+  ]
+}

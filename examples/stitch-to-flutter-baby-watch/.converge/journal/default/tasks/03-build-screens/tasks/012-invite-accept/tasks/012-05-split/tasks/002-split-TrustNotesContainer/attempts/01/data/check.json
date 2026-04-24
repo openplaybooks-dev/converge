@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/012-invite-accept/012-05-split/002-split-TrustNotesContainer",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Widget file exists",
+      "cmd": "test -f lib/screens/invite_accept/widgets/trust_notes_container.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/screens/invite_accept/widgets/trust_notes_container.dart"
+    }
+  ]
+}

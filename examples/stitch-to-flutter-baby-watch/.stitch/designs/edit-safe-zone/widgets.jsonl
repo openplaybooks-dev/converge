@@ -1,0 +1,6 @@
+{"name": "MapPreviewCard", "grep": "MapPreviewCard", "description": "Map preview card showing the safe zone location", "shared": false}
+{"name": "SafeZoneFormField", "grep": "SafeZoneFormField", "description": "Text form field for safe zone name input", "shared": true}
+{"name": "AddressField", "grep": "AddressField", "description": "Address input field with autocomplete", "shared": true}
+{"name": "RadiusSelector", "grep": "RadiusSelector", "description": "Radius selection widget with preset distance options", "shared": false}
+{"name": "ActiveToggle", "grep": "ActiveToggle", "description": "Toggle switch for activating/deactivating safe zone", "shared": true}
+{"name": "DeleteButton", "grep": "_DeleteButton", "description": "Delete safe zone button with confirmation", "shared": false}

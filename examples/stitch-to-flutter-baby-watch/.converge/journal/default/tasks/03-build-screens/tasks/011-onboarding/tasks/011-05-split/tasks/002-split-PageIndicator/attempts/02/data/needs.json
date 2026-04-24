@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/011-onboarding/011-05-split/002-split-PageIndicator",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "lib/screens/onboarding/onboarding_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/onboarding/onboarding_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/onboarding/widgets/page_indicator.dart"
+  ],
+  "blocked": false
+}

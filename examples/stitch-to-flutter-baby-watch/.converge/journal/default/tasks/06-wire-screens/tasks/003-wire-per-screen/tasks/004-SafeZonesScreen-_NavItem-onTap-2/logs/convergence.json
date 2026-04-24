@@ -1,0 +1,200 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "06-wire-screens/003-wire-per-screen/004-SafeZonesScreen-_NavItem-onTap-2-check-failed-handler-wired",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-wire-screens/003-wire-per-screen/004-SafeZonesScreen-_NavItem-onTap-2",
+            "severity": "high",
+            "description": "[06-wire-screens/003-wire-per-screen/004-SafeZonesScreen-_NavItem-onTap-2] Check failed: _NavItem.onTap has real logic in lib/screens/safe_zones/safe_zones_screen.dart (@converge:element SafeZonesScreen-_NavItem-onTap-2)",
+            "source": "unit",
+            "detected": "2026-04-23T11:10:47.473Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "handler-wired",
+              "checkCmd": "node .converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/wbs/check-handler.mjs lib/screens/safe_zones/safe_zones_screen.dart --id SafeZonesScreen-_NavItem-onTap-2 onTap",
+              "checkDescription": "_NavItem.onTap has real logic in lib/screens/safe_zones/safe_zones_screen.dart (@converge:element SafeZonesScreen-_NavItem-onTap-2)",
+              "checkOutput": "FAIL: marker \"// @converge:element SafeZonesScreen-_NavItem-onTap-2\" not found in lib/screens/safe_zones/safe_zones_screen.dart",
+              "checkExitCode": 1,
+              "taskPrompt": "Wire the **_NavItem** `onTap` handler for `SafeZonesScreen-_NavItem-onTap-2` in `lib/screens/safe_zones/safe_zones_screen.dart` (marker `// @converge:element SafeZonesScreen-_NavItem-onTap-2` must stay).\n\n**Current status:** empty\n**Required action:** Navigate to device tab (index 1)\n**Target:** /scan\n\n## Implementation\n\n```dart\nonTap: () => context.push('/scan'),\n```\n\n## Rules\n\n- Only modify the single handler — do NOT change layout or add widgets\n- Do not remove or move `// @converge:element SafeZonesScreen-_NavItem-onTap-2` (added by 002 Analyze Navigations); only edit the handler body\n- Match existing code style in the file\n- The handler must not be empty after your change\n- The handler body must contain real logic — not just a comment",
+              "taskId": "06-wire-screens/003-wire-per-screen/004-SafeZonesScreen-_NavItem-onTap-2",
+              "taskTitle": "Wire _NavItem.onTap",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/tasks/004-SafeZonesScreen-_NavItem-onTap-2",
+              "factId": "check:handler-wired"
+            }
+          }
+        ],
+        "durationMs": 37
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 38
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 55
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#9",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 40794
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-23T11:10:47.436Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-23T11:10:47.436Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-23T11:10:47.473Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-23T11:10:47.474Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-23T11:10:47.512Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#9",
+      "iteration": 1,
+      "ts": "2026-04-23T11:11:28.306Z"
+    },
+    {
+      "from": "run-strategy:task-run#9",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-23T11:11:28.362Z"
+    }
+  ]
+}

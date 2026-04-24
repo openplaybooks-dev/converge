@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-add-behavior/004-implement-providers/006-provider-Invite",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T04:57:55.671Z",
+  "createdAt": "2026-04-23T04:55:02.405Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T04:55:02.405Z",
+      "completedAt": "2026-04-23T04:57:55.667Z",
+      "outcome": "success",
+      "durationMs": 173262
+    }
+  ],
+  "currentAttempt": 1
+}

@@ -1,0 +1,224 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/008-history/008-04-analyze-missing-output-.stitch/designs/history/widgets.jsonl",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/008-history/008-04-analyze",
+            "severity": "high",
+            "description": "[03-build-screens/008-history/008-04-analyze] Task output not created: .stitch/designs/history/widgets.jsonl",
+            "source": "unit",
+            "detected": "2026-04-21T14:57:31.237Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/008-history/tasks/008-04-analyze",
+              "taskId": "03-build-screens/008-history/008-04-analyze",
+              "taskTitle": "Analyze: History",
+              "taskPrompt": "# Analyze: History\n\nAnalyze the screen widget and identify extractable widget regions.\n\n## Input\n- `lib/screens/history/history_screen.dart` — The screen widget file\n\n## Task\n\nRead the screen file and identify widget subtrees that should be extracted into separate widget files.\n\nWrite `.stitch/designs/history/widgets.jsonl` with one JSON object per line (JSONL format):\n\n```jsonl\n{\"name\": \"WidgetName\", \"grep\": \"unique string to locate in source\", \"description\": \"what it renders\", \"shared\": false}\n{\"name\": \"AnotherWidget\", \"grep\": \"unique string\", \"description\": \"what it renders\", \"shared\": true}\n```\n\n## Extraction Criteria\n\nExtract a region when:\n- It's a self-contained visual block (card, list item, section header)\n- It has 15+ lines of widget code\n- It could be reused across screens (`shared: true`)\n- It has its own data/state concerns\n\nDo NOT extract:\n- Simple `Text`, `Icon`, or `SizedBox` widgets\n- Layout wrappers (`Padding`, `Center`)\n- Anything under 10 lines\n\n## Success Criteria\n\n- `.stitch/designs/history/widgets.jsonl` exists with valid JSONL\n- Each entry has: name, grep, description, shared\n- Widget names use PascalCase",
+              "taskInputs": [
+                "lib/screens/history/history_screen.dart"
+              ],
+              "factId": "file-exists:test -f \".stitch/designs/history/widgets.jsonl\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-build-screens/008-history/008-04-analyze-check-failed-widgets-json-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/008-history/008-04-analyze",
+            "severity": "high",
+            "description": "[03-build-screens/008-history/008-04-analyze] Check failed: widgets.jsonl exists for history",
+            "source": "unit",
+            "detected": "2026-04-21T14:57:31.239Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "widgets-json-exists",
+              "checkCmd": "test -f .stitch/designs/history/widgets.jsonl",
+              "checkDescription": "widgets.jsonl exists for history",
+              "checkOutput": "Command failed: test -f .stitch/designs/history/widgets.jsonl\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Analyze: History\n\nAnalyze the screen widget and identify extractable widget regions.\n\n## Input\n- `lib/screens/history/history_screen.dart` — The screen widget file\n\n## Task\n\nRead the screen file and identify widget subtrees that should be extracted into separate widget files.\n\nWrite `.stitch/designs/history/widgets.jsonl` with one JSON object per line (JSONL format):\n\n```jsonl\n{\"name\": \"WidgetName\", \"grep\": \"unique string to locate in source\", \"description\": \"what it renders\", \"shared\": false}\n{\"name\": \"AnotherWidget\", \"grep\": \"unique string\", \"description\": \"what it renders\", \"shared\": true}\n```\n\n## Extraction Criteria\n\nExtract a region when:\n- It's a self-contained visual block (card, list item, section header)\n- It has 15+ lines of widget code\n- It could be reused across screens (`shared: true`)\n- It has its own data/state concerns\n\nDo NOT extract:\n- Simple `Text`, `Icon`, or `SizedBox` widgets\n- Layout wrappers (`Padding`, `Center`)\n- Anything under 10 lines\n\n## Success Criteria\n\n- `.stitch/designs/history/widgets.jsonl` exists with valid JSONL\n- Each entry has: name, grep, description, shared\n- Widget names use PascalCase",
+              "taskId": "03-build-screens/008-history/008-04-analyze",
+              "taskTitle": "Analyze: History",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/008-history/tasks/008-04-analyze",
+              "factId": "check:widgets-json-exists"
+            }
+          }
+        ],
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 11
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#44",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 48432
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-21T14:57:31.231Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-21T14:57:31.232Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-21T14:57:31.239Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-21T14:57:31.240Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-21T14:57:31.246Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#44",
+      "iteration": 1,
+      "ts": "2026-04-21T14:58:19.679Z"
+    },
+    {
+      "from": "run-strategy:task-run#44",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-21T14:58:19.691Z"
+    }
+  ]
+}

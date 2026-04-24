@@ -1,0 +1,20 @@
+{
+  "taskId": "07-build-overlays/002-pairing-confirmation/002-02-design",
+  "checks": [
+    {
+      "id": "design-exists",
+      "description": "design.html exists for pairing-confirmation",
+      "cmd": "test -f .stitch/designs/pairing-confirmation/design.html"
+    },
+    {
+      "id": "meta-exists",
+      "description": "META.md exists for pairing-confirmation",
+      "cmd": "test -f .stitch/designs/pairing-confirmation/META.md"
+    },
+    {
+      "id": "uses-glossary",
+      "description": "HTML uses Flutter HTML Glossary vocabulary",
+      "cmd": "grep -qE 'class=\"(column|row|card|bottom-sheet|dialog)\"' .stitch/designs/pairing-confirmation/design.html"
+    }
+  ]
+}

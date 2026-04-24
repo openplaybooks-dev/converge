@@ -1,7 +1,7 @@
 ---
 id: 002-analyze-navigations
 title: "Analyze Navigations — Build Navigation Manifest"
-description: Scan every screen and widget file, extract all interactive elements, and produce navigations.json
+description: Scan screens/widgets, assign elementIds, insert `// @converge:element <elementId>` in Dart before each handler, and write navigations.json
 skill: flutter-implementing-navigation-and-routing
 blocking: true
 dependencies:
@@ -16,6 +16,8 @@ inputs:
   - lib/router/app_router.dart
 outputs:
   - navigations.json
+  - lib/screens/**/*.dart
+  - lib/widgets/**/*.dart
 checks:
   - id: manifest-exists
     cmd: test -f navigations.json
@@ -33,7 +35,7 @@ checks:
 
 # Analyze Navigations — Build Navigation Manifest
 
-Scan every screen and widget in `lib/screens/` and `lib/widgets/`, extract all interactive elements, and produce `navigations.json`.
+Scan every screen and widget in `lib/screens/` and `lib/widgets/`, extract all interactive elements, write `navigations.json`, and **edit Dart sources** so each listed handler is preceded by a stable marker for downstream wire checks.
 
 ## Steps
 
@@ -53,7 +55,8 @@ Scan every screen and widget in `lib/screens/` and `lib/widgets/`, extract all i
    d. For elements that should navigate, determine the target route from context
    e. Assign a unique `elementId` to each element using the pattern: `{widgetName}-{handlerType}-{index}`
       - e.g. `StatCard-onTap-1`, `BottomNavBar-onDestinationSelected-1`, `FAB-onPressed-1`
-   f. Describe what the handler **should do** in the `action` field — this tells downstream tasks exactly what to implement
+   f. **Dart markers (required):** For each element, edit its `file` and insert a new line **immediately above** the line that declares the handler property matching `type` (e.g. `onPressed:`, `onTap:`, `onDestinationSelected:`). The inserted line must be exactly: `// @converge:element <elementId>` (same `elementId` as in the manifest). If that exact marker is already present for that `elementId`, do not insert a duplicate.
+   g. Describe what the handler **should do** in the `action` field — this tells downstream tasks exactly what to implement
 
 4. Write `navigations.json` with this structure:
 
@@ -104,12 +107,14 @@ Scan every screen and widget in `lib/screens/` and `lib/widgets/`, extract all i
 }
 ```
 
+The `line` field is **optional** and may be omitted or kept as an approximate 1-based line for humans; downstream **003** checks use `elementId` and `// @converge:element` markers in Dart, not `line`.
+
 ## Rules
 
 - Include ALL interactive elements, not just broken ones
 - Mark status honestly — if a handler is `(index) {}` that is `"empty"`, not `"wired"`
 - A handler containing only a comment like `// Handle tab navigation` is `"empty"`
-- Include line numbers so downstream tasks can find elements precisely
+- **Every listed element MUST have** `// @converge:element <elementId>` on the line immediately above its handler property in the Dart `file` (inserted in this task); do not rely on `line` for automation
 - Include `bottomNavRoutes` — the ordered list of routes for bottom nav index mapping
 - Every element MUST have a unique `elementId` — downstream WBS uses this as the task ID
 - The `action` field MUST describe what the handler should do, not just its type

@@ -1,0 +1,10 @@
+{
+  "taskId": "03-build-screens/010-guardians/010-04-analyze",
+  "checks": [
+    {
+      "id": "widgets-json-exists",
+      "description": "widgets.jsonl exists for guardians",
+      "cmd": "test -f .stitch/designs/guardians/widgets.jsonl"
+    }
+  ]
+}

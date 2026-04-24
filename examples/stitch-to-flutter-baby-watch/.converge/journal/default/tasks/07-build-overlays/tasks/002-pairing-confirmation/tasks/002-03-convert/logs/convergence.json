@@ -1,0 +1,324 @@
+{
+  "iteration": 2,
+  "stallCount": 1,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "07-build-overlays/002-pairing-confirmation/002-03-convert-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-build-overlays/002-pairing-confirmation/002-03-convert",
+            "severity": "high",
+            "description": "[07-build-overlays/002-pairing-confirmation/002-03-convert] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-21T19:49:09.501Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "dart analyze lib/widgets/overlays/pairing_confirmation/pairing_confirmation.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "An error occurred while executing an analyzer plugin: Failed to compile \"/Users/hoangnguyen/.dartServer/.plugin_manager/9e820a09f9826aee5ce535ac929226a0/analyzer_plugin/bin/plugin.dart\" to an AOT snapshot.\n  pluginFolder = /Users/hoangnguyen/.dartServer/.plugin_manager/9e820a09f9826aee5ce535ac929226a0/analyzer_plugin\n  exitCode = 254\n  stdout = \n  stderr = ../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2133:32: Error: The argument type 'Element' can't be assigned to the parameter type 'Element2'.\n - 'Element' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'Element2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n            .publiclyExporting(element, resultCache: resultCache) ??\n                               ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2133:54: Error: The argument type 'Map<Element, LibraryElement?>?' can't be assigned to the parameter type 'Map<Element2, LibraryElement2?>?'.\n - 'Map' is from 'dart:core'.\n - 'Element' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'LibraryElement' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'Element2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n - 'LibraryElement2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n            .publiclyExporting(element, resultCache: resultCache) ??\n                                                     ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2137:40: Error: The getter 'source' isn't defined for the type 'Object'.\n - 'Object' is from 'dart:core'.\nTry correcting the name to the name of an existing getter, or defining a getter or field named 'source'.\n    var uriToImport = libraryToImport?.source.uri;\n                                       ^^^^^^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2150:58: Error: The argument type 'Object?' can't be assigned to the parameter type 'LibraryElement?'.\n - 'Object' is from 'dart:core'.\n - 'LibraryElement' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n      _removeUnnecessaryPendingElementImports(newImport, libraryToImport);\n                                                         ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2182:14: Error: The method 'publiclyExporting2' isn't defined for the type 'TopLevelDeclarations'.\n - 'TopLevelDeclarations' is from 'package:analyzer/src/services/top_level_declarations.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/src/services/top_level_declarations.dart').\nTry correcting the name to the name of an existing method, or defining a method named 'publiclyExporting2'.\n            .publiclyExporting2(element, resultCache: resultCache) ??\n             ^^^^^^^^^^^^^^^^^^\nError: AOT compilation failed\nBad state: Generating AOT kernel dill failed!\n\n\n#0      PluginManager._compileAsAot (package:analysis_server/src/plugin/plugin_manager.dart:589)\n#1      PluginManager._computeFiles (package:analysis_server/src/plugin/plugin_manager.dart:641)\n#2      PluginManager.filesFor (package:analysis_server/src/plugin/plugin_manager.dart:347)\n#3      PluginManager.addPluginToContextRoot (package:analysis_server/src/plugin/plugin_manager.dart:179)\n#4      PluginWatcher._addLegacyPlugins (package:analysis_server/src/plugin/plugin_watcher.dart:102)\n#5      PluginWatcher.addedDriver (package:analysis_server/src/plugin/plugin_watcher.dart:49)\n#6      AnalysisDriverScheduler.add (package:analyzer/src/dart/analysis/driver.dart:2665)\n#7      new AnalysisDriver (package:analyzer/src/dart/analysis/driver.dart:341)\n#8      ContextBuilderImpl.createContext (package:analyzer/src/dart/analysis/context_builder.dart:157)\n#9      new AnalysisContextCollectionImpl (package:analyzer/src/dart/analysis/analysis_context_collection.dart:122)\n#10     ContextManagerImpl._createAnalysisContexts.performContextRebuildGuarded.performContextRebuild (package:analysis_server/src/context_manager.dart:596)\n<asynchronous suspension>\n#11     ContextManagerImpl._createAnalysisContexts.performContextRebuildGuarded (package:analysis_server/src/context_manager.dart:732)\n<asynchronous suspension>\n#12     _CancellingTaskQueue.queue.<anonymous closure> (package:analysis_server/src/context_manager.dart:1041)\n<asynchronous suspension>\n#13     ContextManagerImpl.setRoots (package:analysis_server/src/context_manager.dart:386)\n<asynchronous suspension>\n#14     LegacyAnalysisServer.setAnalysisRoots (package:analysis_server/src/legacy_analysis_server.dart:901)\n<asynchronous suspension>\n#15     AnalysisSetAnalysisRootsHandler.handle (package:analysis_server/src/handler/legacy/analysis_set_analysis_roots.dart:56)\n<asynchronous suspension>\n#16     LegacyAnalysisServer.handleRequest.<anonymous closure>.<anonymous closure> (package:analysis_server/src/legacy_analysis_server.dart:648)\n<asynchronous suspension>\n#17     OperationPerformanceImpl.runAsync (package:analyzer/src/util/performance/operation_performance.dart:201)\n<asynchronous suspension>\n#18     LegacyAnalysisServer.handleRequest.<anonymous closure> (package:analysis_server/src/legacy_analysis_server.dart:628)\n<asynchronous suspension>\nAnalyzing pairing_confirmation.dart...",
+              "checkExitCode": 4,
+              "taskPrompt": "# Convert: Pairing Confirmation\n\nConvert the constrained HTML design to a Flutter widget using the **stitch-flutter** skill.\n\n## Inputs\n- `.stitch/designs/pairing-confirmation/design.html` — HTML design mockup (written in Flutter HTML Glossary vocabulary)\n- `.stitch/designs/pairing-confirmation/SPEC.md` — Overlay specification\n- `.stitch/system/DESIGN.md` — Design system specification\n\n## Important: Overlay ≠ Screen\n\nThis is an **overlay widget**, NOT a screen. Key differences:\n- **No Scaffold** — the overlay is the content inside `showModalBottomSheet()` or `showDialog()`\n- **No GoRoute registration** — overlays are shown imperatively, not via router\n- **Return value** — the widget may return data via `Navigator.pop(context, result)`\n\n## Conversion Steps\n\n1. **Read HTML** — Parse `.stitch/designs/pairing-confirmation/design.html` and extract:\n   - Overlay container element (`.bottom-sheet`, `.dialog`, or `.persistent-bar`)\n   - `data-*` attributes → Flutter widget parameters\n   - `aria-*` attributes → `Semantics` widgets\n\n2. **Walk the DOM** — Process each glossary element top-down:\n   - `.column` → `Column()`\n   - `.row` → `Row()`\n   - `.card` → `Card()`\n   - `.drag-handle` → drag handle widget (for bottom sheets)\n   - `.icon[data-name]` → `Icon(Icons.{name})`\n   - Text classes → `Text(..., style: textTheme.X)`\n   - `data-color` → `colorScheme.X`\n   - `data-spacing` → `AppTheme.spaceX`\n\n3. **Generate Dart** — Write `lib/widgets/overlays/pairing_confirmation/pairing_confirmation.dart`:\n   ```dart\n   import 'package:flutter/material.dart';\n   // Use the project's actual package name from pubspec.yaml\n   import 'package:<pkg>/theme/app_theme.dart';\n\n   class PairingConfirmation extends StatelessWidget {\n     const PairingConfirmation({super.key});\n\n     @override\n     Widget build(BuildContext context) {\n       final theme = Theme.of(context);\n       final colorScheme = theme.colorScheme;\n       final textTheme = theme.textTheme;\n\n       // Content of the overlay — no Scaffold wrapper\n       return ...;\n     }\n   }\n   ```\n\n4. **Do NOT update router** — Overlays are not routed. They are shown via `showModalBottomSheet()` or `showDialog()` from the parent screen.\n\n5. **Verify** — Run `dart analyze lib/widgets/overlays/pairing_confirmation/pairing_confirmation.dart`\n\n## Quality Gates\n\n- **No hardcoded colors** — use `colorScheme.X`\n- **No hardcoded text styles** — use `textTheme.X`\n- **No hardcoded spacing** — use `AppTheme.spaceX`\n- **No Scaffold** — overlay content only\n- **No GoRoute** — overlays are imperative\n- **Use const** — `const` constructor wherever possible\n- **Trailing commas** — on every parameter list\n\n## Success Criteria\n\n- `lib/widgets/overlays/pairing_confirmation/pairing_confirmation.dart` exists with valid Dart\n- Uses `Theme.of(context)` for all styling\n- No hardcoded colors, text styles, or spacing values\n- No Scaffold wrapper\n- No GoRoute registration\n- `dart analyze` passes",
+              "taskSkill": "stitch-flutter",
+              "taskId": "07-build-overlays/002-pairing-confirmation/002-03-convert",
+              "taskTitle": "Convert: Pairing Confirmation",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/07-build-overlays/tasks/002-pairing-confirmation/tasks/002-03-convert",
+              "factId": "check:dart-valid"
+            }
+          }
+        ],
+        "durationMs": 2448
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2982
+      }
+    },
+    {
+      "id": "run-skill",
+      "handler": "run-skill",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 64
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 86485
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "07-build-overlays/002-pairing-confirmation/002-03-convert-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-build-overlays/002-pairing-confirmation/002-03-convert",
+            "severity": "high",
+            "description": "[07-build-overlays/002-pairing-confirmation/002-03-convert] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-21T19:51:50.762Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "dart analyze lib/widgets/overlays/pairing_confirmation/pairing_confirmation.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "An error occurred while executing an analyzer plugin: Failed to compile \"/Users/hoangnguyen/.dartServer/.plugin_manager/9e820a09f9826aee5ce535ac929226a0/analyzer_plugin/bin/plugin.dart\" to an AOT snapshot.\n  pluginFolder = /Users/hoangnguyen/.dartServer/.plugin_manager/9e820a09f9826aee5ce535ac929226a0/analyzer_plugin\n  exitCode = 254\n  stdout = \n  stderr = ../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2133:32: Error: The argument type 'Element' can't be assigned to the parameter type 'Element2'.\n - 'Element' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'Element2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n            .publiclyExporting(element, resultCache: resultCache) ??\n                               ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2133:54: Error: The argument type 'Map<Element, LibraryElement?>?' can't be assigned to the parameter type 'Map<Element2, LibraryElement2?>?'.\n - 'Map' is from 'dart:core'.\n - 'Element' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'LibraryElement' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'Element2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n - 'LibraryElement2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n            .publiclyExporting(element, resultCache: resultCache) ??\n                                                     ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2137:40: Error: The getter 'source' isn't defined for the type 'Object'.\n - 'Object' is from 'dart:core'.\nTry correcting the name to the name of an existing getter, or defining a getter or field named 'source'.\n    var uriToImport = libraryToImport?.source.uri;\n                                       ^^^^^^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2150:58: Error: The argument type 'Object?' can't be assigned to the parameter type 'LibraryElement?'.\n - 'Object' is from 'dart:core'.\n - 'LibraryElement' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n      _removeUnnecessaryPendingElementImports(newImport, libraryToImport);\n                                                         ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2182:14: Error: The method 'publiclyExporting2' isn't defined for the type 'TopLevelDeclarations'.\n - 'TopLevelDeclarations' is from 'package:analyzer/src/services/top_level_declarations.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/src/services/top_level_declarations.dart').\nTry correcting the name to the name of an existing method, or defining a method named 'publiclyExporting2'.\n            .publiclyExporting2(element, resultCache: resultCache) ??\n             ^^^^^^^^^^^^^^^^^^\nError: AOT compilation failed\nBad state: Generating AOT kernel dill failed!\n\n\n#0      PluginManager._compileAsAot (package:analysis_server/src/plugin/plugin_manager.dart:589)\n#1      PluginManager._computeFiles (package:analysis_server/src/plugin/plugin_manager.dart:641)\n#2      PluginManager.filesFor (package:analysis_server/src/plugin/plugin_manager.dart:347)\n#3      PluginManager.addPluginToContextRoot (package:analysis_server/src/plugin/plugin_manager.dart:179)\n#4      PluginWatcher._addLegacyPlugins (package:analysis_server/src/plugin/plugin_watcher.dart:102)\n#5      PluginWatcher.addedDriver (package:analysis_server/src/plugin/plugin_watcher.dart:49)\n#6      AnalysisDriverScheduler.add (package:analyzer/src/dart/analysis/driver.dart:2665)\n#7      new AnalysisDriver (package:analyzer/src/dart/analysis/driver.dart:341)\n#8      ContextBuilderImpl.createContext (package:analyzer/src/dart/analysis/context_builder.dart:157)\n#9      new AnalysisContextCollectionImpl (package:analyzer/src/dart/analysis/analysis_context_collection.dart:122)\n#10     ContextManagerImpl._createAnalysisContexts.performContextRebuildGuarded.performContextRebuild (package:analysis_server/src/context_manager.dart:596)\n<asynchronous suspension>\n#11     ContextManagerImpl._createAnalysisContexts.performContextRebuildGuarded (package:analysis_server/src/context_manager.dart:732)\n<asynchronous suspension>\n#12     _CancellingTaskQueue.queue.<anonymous closure> (package:analysis_server/src/context_manager.dart:1041)\n<asynchronous suspension>\n#13     ContextManagerImpl.setRoots (package:analysis_server/src/context_manager.dart:386)\n<asynchronous suspension>\n#14     LegacyAnalysisServer.setAnalysisRoots (package:analysis_server/src/legacy_analysis_server.dart:901)\n<asynchronous suspension>\n#15     AnalysisSetAnalysisRootsHandler.handle (package:analysis_server/src/handler/legacy/analysis_set_analysis_roots.dart:56)\n<asynchronous suspension>\n#16     LegacyAnalysisServer.handleRequest.<anonymous closure>.<anonymous closure> (package:analysis_server/src/legacy_analysis_server.dart:648)\n<asynchronous suspension>\n#17     OperationPerformanceImpl.runAsync (package:analyzer/src/util/performance/operation_performance.dart:201)\n<asynchronous suspension>\n#18     LegacyAnalysisServer.handleRequest.<anonymous closure> (package:analysis_server/src/legacy_analysis_server.dart:628)\n<asynchronous suspension>\nAnalyzing pairing_confirmation.dart...",
+              "checkExitCode": 4,
+              "taskPrompt": "# Convert: Pairing Confirmation\n\nConvert the constrained HTML design to a Flutter widget using the **stitch-flutter** skill.\n\n## Inputs\n- `.stitch/designs/pairing-confirmation/design.html` — HTML design mockup (written in Flutter HTML Glossary vocabulary)\n- `.stitch/designs/pairing-confirmation/SPEC.md` — Overlay specification\n- `.stitch/system/DESIGN.md` — Design system specification\n\n## Important: Overlay ≠ Screen\n\nThis is an **overlay widget**, NOT a screen. Key differences:\n- **No Scaffold** — the overlay is the content inside `showModalBottomSheet()` or `showDialog()`\n- **No GoRoute registration** — overlays are shown imperatively, not via router\n- **Return value** — the widget may return data via `Navigator.pop(context, result)`\n\n## Conversion Steps\n\n1. **Read HTML** — Parse `.stitch/designs/pairing-confirmation/design.html` and extract:\n   - Overlay container element (`.bottom-sheet`, `.dialog`, or `.persistent-bar`)\n   - `data-*` attributes → Flutter widget parameters\n   - `aria-*` attributes → `Semantics` widgets\n\n2. **Walk the DOM** — Process each glossary element top-down:\n   - `.column` → `Column()`\n   - `.row` → `Row()`\n   - `.card` → `Card()`\n   - `.drag-handle` → drag handle widget (for bottom sheets)\n   - `.icon[data-name]` → `Icon(Icons.{name})`\n   - Text classes → `Text(..., style: textTheme.X)`\n   - `data-color` → `colorScheme.X`\n   - `data-spacing` → `AppTheme.spaceX`\n\n3. **Generate Dart** — Write `lib/widgets/overlays/pairing_confirmation/pairing_confirmation.dart`:\n   ```dart\n   import 'package:flutter/material.dart';\n   // Use the project's actual package name from pubspec.yaml\n   import 'package:<pkg>/theme/app_theme.dart';\n\n   class PairingConfirmation extends StatelessWidget {\n     const PairingConfirmation({super.key});\n\n     @override\n     Widget build(BuildContext context) {\n       final theme = Theme.of(context);\n       final colorScheme = theme.colorScheme;\n       final textTheme = theme.textTheme;\n\n       // Content of the overlay — no Scaffold wrapper\n       return ...;\n     }\n   }\n   ```\n\n4. **Do NOT update router** — Overlays are not routed. They are shown via `showModalBottomSheet()` or `showDialog()` from the parent screen.\n\n5. **Verify** — Run `dart analyze lib/widgets/overlays/pairing_confirmation/pairing_confirmation.dart`\n\n## Quality Gates\n\n- **No hardcoded colors** — use `colorScheme.X`\n- **No hardcoded text styles** — use `textTheme.X`\n- **No hardcoded spacing** — use `AppTheme.spaceX`\n- **No Scaffold** — overlay content only\n- **No GoRoute** — overlays are imperative\n- **Use const** — `const` constructor wherever possible\n- **Trailing commas** — on every parameter list\n\n## Success Criteria\n\n- `lib/widgets/overlays/pairing_confirmation/pairing_confirmation.dart` exists with valid Dart\n- Uses `Theme.of(context)` for all styling\n- No hardcoded colors, text styles, or spacing values\n- No Scaffold wrapper\n- No GoRoute registration\n- `dart analyze` passes",
+              "taskSkill": "stitch-flutter",
+              "taskId": "07-build-overlays/002-pairing-confirmation/002-03-convert",
+              "taskTitle": "Convert: Pairing Confirmation",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/07-build-overlays/tasks/002-pairing-confirmation/tasks/002-03-convert",
+              "factId": "check:dart-valid"
+            }
+          }
+        ],
+        "durationMs": 2443
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "run-strategy:task-run#55",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 69346
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "Outputs already present",
+        "durationMs": 2453
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-21T19:49:07.066Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-21T19:49:07.066Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-21T19:49:09.514Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-21T19:49:09.516Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "run-skill",
+      "iteration": 1,
+      "ts": "2026-04-21T19:50:36.001Z"
+    },
+    {
+      "from": "run-skill",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-21T19:50:38.984Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#55",
+      "iteration": 1,
+      "ts": "2026-04-21T19:51:48.330Z"
+    },
+    {
+      "from": "run-strategy:task-run#55",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-21T19:51:50.774Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-21T19:51:50.775Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-21T19:51:50.776Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-21T19:51:50.776Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-21T19:51:53.230Z"
+    }
+  ]
+}

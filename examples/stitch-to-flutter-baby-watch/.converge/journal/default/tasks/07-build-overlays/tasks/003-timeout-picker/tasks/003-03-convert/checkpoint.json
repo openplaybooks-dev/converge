@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/003-timeout-picker/003-03-convert",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T20:12:30.597Z",
+  "createdAt": "2026-04-21T20:07:19.690Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T20:07:19.690Z",
+      "completedAt": "2026-04-21T20:12:30.588Z",
+      "outcome": "success",
+      "durationMs": 310898
+    }
+  ],
+  "currentAttempt": 1
+}

@@ -29,6 +29,7 @@ class SettingsScreen extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back),
           color: colorScheme.onSurface,
           tooltip: 'Go back',
+// @converge:element BackButton-onPressed-1
           onPressed: () => context.pop(),
         ),
         title: Text(

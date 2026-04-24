@@ -1,0 +1,3 @@
+{"name": "PermissionCard", "grep": "iconBgColor: colorScheme.secondaryContainer", "description": "Card showing permission request with icon, title, description and optional footnote", "shared": true}
+{"name": "PageIndicator", "grep": "_PageIndicator(isActive: true", "description": "Dot indicator for onboarding page navigation", "shared": true}
+{"name": "HeroIllustration", "grep": "Image.network('https://picsum.photos/seed/superkid/200/200'", "description": "Circular hero image container with stacked network image", "shared": false}

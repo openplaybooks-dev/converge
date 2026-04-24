@@ -28,6 +28,7 @@ class ExerciseCard extends StatelessWidget {
       label: '$name, $category, $duration',
       button: true,
       child: GestureDetector(
+// @converge:element ExerciseCard-onTap-1
         onTap: () => context.push('/mindfulness/exercise/${name.toLowerCase().replaceAll(' ', '-')}'),
         child: DecoratedBox(
           decoration: BoxDecoration(

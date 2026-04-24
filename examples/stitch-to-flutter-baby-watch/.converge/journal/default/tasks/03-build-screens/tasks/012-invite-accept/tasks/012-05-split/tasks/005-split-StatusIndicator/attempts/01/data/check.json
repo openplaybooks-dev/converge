@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/012-invite-accept/012-05-split/005-split-StatusIndicator",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Widget file exists",
+      "cmd": "test -f lib/screens/invite_accept/widgets/status_indicator.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/screens/invite_accept/widgets/status_indicator.dart"
+    }
+  ]
+}

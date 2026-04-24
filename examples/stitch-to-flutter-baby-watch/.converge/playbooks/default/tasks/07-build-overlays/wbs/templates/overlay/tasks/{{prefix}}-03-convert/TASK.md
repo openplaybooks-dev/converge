@@ -22,7 +22,7 @@ checks:
     cmd: "test -f {{widgetPath}}"
     description: "Overlay widget file exists"
   - id: dart-valid
-    cmd: "dart analyze {{widgetPath}}"
+    cmd: "flutter analyze {{widgetPath}}"
     description: "Dart analysis passes"
   - id: uses-theme
     cmd: "grep -q 'Theme.of(context)' {{widgetPath}}"

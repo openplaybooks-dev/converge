@@ -1,0 +1,15 @@
+{
+  "taskId": "06-wire-screens/004-verify",
+  "checks": [
+    {
+      "id": "no-empty-handlers",
+      "description": "No empty/comment-only handlers in any screen or widget file",
+      "cmd": "node .converge/playbooks/default/tasks/06-wire-screens/004-verify/check-all-handlers.mjs"
+    },
+    {
+      "id": "dart-analysis-valid",
+      "description": "Full Dart analysis passes",
+      "cmd": "dart analyze lib/"
+    }
+  ]
+}

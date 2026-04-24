@@ -91,6 +91,7 @@ class ExerciseGuideCard extends StatelessWidget {
       label: '$name: $description',
       button: true,
       child: InkWell(
+// @converge:element ExerciseGuideItem-onTap-1
         onTap: () => context.push('/mindfulness'),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 12),

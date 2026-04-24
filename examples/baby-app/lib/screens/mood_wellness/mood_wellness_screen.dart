@@ -195,6 +195,7 @@ class _MoodWellnessScreenState extends State<MoodWellnessScreen> {
         label: 'Log mood',
         button: true,
         child: FloatingActionButton(
+// @converge:element FAB-onPressed-1
           onPressed: () async {
             final result = await showModalBottomSheet<Map<String, dynamic>>(
               context: context,
@@ -234,6 +235,7 @@ class _MoodWellnessScreenState extends State<MoodWellnessScreen> {
       ),
       child: NavigationBar(
         selectedIndex: 3,
+// @converge:element BottomNav-onDestinationSelected-1
         onDestinationSelected: (index) => context.go(const ['/home', '/progress', '/health-log', '/mood', '/education'][index]),
         destinations: const [
           NavigationDestination(

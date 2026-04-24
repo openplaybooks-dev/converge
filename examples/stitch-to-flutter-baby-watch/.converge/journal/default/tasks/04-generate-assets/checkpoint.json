@@ -1,0 +1,16 @@
+{
+  "type": "task",
+  "id": "04-generate-assets",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T12:25:07.368Z",
+  "createdAt": "2026-04-23T09:48:53.853Z",
+  "progress": {
+    "totalChildren": 1,
+    "completedChildren": 1,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-week-01"
+    ],
+    "lastProgressUpdate": "2026-04-23T12:25:07.342Z"
+  }
+}

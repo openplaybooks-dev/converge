@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/008-history/008-04-analyze",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/history/history_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/history/history_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/history/widgets.jsonl"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=375, initial-scale=1.0" />
+  <title>Pairing Confirmation — BabyGuard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f5f4ee",
+            "surface-container": "#efeee8",
+            "surface-bright": "#F4F2EE",
+            "surface": "#fbf9f5",
+            "on-surface": "#31332e",
+            "on-surface-variant": "#5e6059",
+            "secondary": "#4f635e",
+            "on-secondary": "#faf7f6",
+            "secondary-container": "#CDE3DC",
+            "on-secondary-container": "#00391C",
+            "primary": "#5e5e5e",
+            "on-primary": "#f8f8f8",
+            "tertiary": "#4f635e",
+            "tertiary-container": "#dff6ee"
+          },
+          borderRadius: {
+            "lg": "1.75rem",
+            "xl": "2rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Manrope"],
+            "label": ["Manrope"]
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body { font-family: 'Manrope', sans-serif; background: transparent; }
+  </style>
+</head>
+<body>
+  <div class="bottom-sheet" data-bg="surface">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+
+    <!-- Sheet -->
+    <div class="relative w-full max-w-md bg-white rounded-t-2xl p-6 pb-8 shadow-2xl">
+      <!-- Handle -->
+      <div class="w-10 h-1 bg-[#e2e3db] rounded-full mx-auto mb-6"></div>
+
+      <!-- Title -->
+      <h2 class="text-xl font-bold text-[#31332e] mb-6 text-center">Xác nhận kết nối</h2>
+
+      <!-- Beacon Info -->
+      <div class="bg-[#f5f4ee] rounded-xl p-5 mb-6 flex items-center gap-4">
+        <div class="w-14 h-14 rounded-full bg-[#CDE3DC] flex items-center justify-center">
+          <span class="material-symbols-outlined text-[#4f635e] text-2xl">child_care</span>
+        </div>
+        <div>
+          <p class="font-bold text-lg text-[#31332e]">Beacon: Bé Na</p>
+          <p class="text-sm text-[#5e6059]">UUID: ...E2C4 • Major: 100</p>
+        </div>
+      </div>
+
+      <!-- Warning Text -->
+      <p class="text-sm text-[#5e6059] text-center mb-6">
+        Beacon sẽ được thêm vào nhóm theo dõi của bạn. Bạn có thể chia sẻ với người thân để cùng nhận thông báo.
+      </p>
+
+      <!-- Actions -->
+      <div class="space-y-3">
+        <button class="w-full py-4 bg-[#31332e] text-white font-bold rounded-full hover:opacity-90 active:scale-[0.98] transition-all">
+          Xác nhận
+        </button>
+        <button class="w-full py-4 bg-[#f5f4ee] text-[#31332e] font-bold rounded-full hover:bg-[#efeee8] transition-all">
+          Hủy
+        </button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

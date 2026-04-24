@@ -1,0 +1,19 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-21T14:58:19.777Z",
+  "spawnCount": 3,
+  "subtasks": [
+    {
+      "id": "001-split-NavItem",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/008-history/tasks/008-05-split/tasks/001-split-NavItem/TASK.md"
+    },
+    {
+      "id": "002-split-FilterChip",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/008-history/tasks/008-05-split/tasks/002-split-FilterChip/TASK.md"
+    },
+    {
+      "id": "003-split-EventCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/008-history/tasks/008-05-split/tasks/003-split-EventCard/TASK.md"
+    }
+  ]
+}

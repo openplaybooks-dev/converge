@@ -1,0 +1,15 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-22T13:56:08.775Z",
+  "spawnCount": 2,
+  "subtasks": [
+    {
+      "id": "001-lift-PermissionCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/011-onboarding/tasks/011-06-lift/tasks/001-lift-PermissionCard/TASK.md"
+    },
+    {
+      "id": "002-lift-PageIndicator",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/011-onboarding/tasks/011-06-lift/tasks/002-lift-PageIndicator/TASK.md"
+    }
+  ]
+}

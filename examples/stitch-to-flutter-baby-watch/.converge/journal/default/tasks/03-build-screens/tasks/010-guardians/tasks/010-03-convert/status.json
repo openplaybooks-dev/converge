@@ -1,0 +1,20 @@
+{
+  "taskId": "03-build-screens/010-guardians/010-03-convert",
+  "epicId": "default",
+  "focusPath": "default/03-build-screens/010-guardians/010-03-convert",
+  "status": "running",
+  "startedAt": "2026-04-21T16:57:35.375Z",
+  "attempt": 1,
+  "gapsResolved": 0,
+  "gapsFailed": 0,
+  "checklist": [
+    {
+      "id": "subtask:spawn-1",
+      "type": "subtask",
+      "description": "stitch-flutter",
+      "details": "../../../../.claude/skills/stitch-flutter/SKILL.md",
+      "done": true,
+      "doneAt": "2026-04-21T17:01:54.346Z"
+    }
+  ]
+}

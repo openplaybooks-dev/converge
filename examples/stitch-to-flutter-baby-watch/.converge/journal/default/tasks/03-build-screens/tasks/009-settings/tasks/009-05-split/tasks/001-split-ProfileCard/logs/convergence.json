@@ -1,0 +1,879 @@
+{
+  "iteration": 3,
+  "stallCount": 2,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 616
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard-missing-output-lib/screens/settings/widgets/profile_card.dart",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+            "severity": "high",
+            "description": "[03-build-screens/009-settings/009-05-split/001-split-ProfileCard] Task output not created: lib/screens/settings/widgets/profile_card.dart",
+            "source": "unit",
+            "detected": "2026-04-21T16:50:30.925Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/009-settings/tasks/009-05-split/tasks/001-split-ProfileCard",
+              "taskId": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+              "taskTitle": "Split: ProfileCard",
+              "taskPrompt": "# Split: ProfileCard\n\nExtract the `ProfileCard` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/settings/settings_screen.dart` using grep string: `Elena Fisher`\n2. **Create file** — Write `lib/screens/settings/widgets/profile_card.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `ProfileCard()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass ProfileCard extends StatelessWidget {\n  const ProfileCard({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskInputs": [
+                "lib/screens/settings/settings_screen.dart"
+              ],
+              "factId": "file-exists:test -f \"lib/screens/settings/widgets/profile_card.dart\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard-check-failed-widget-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+            "severity": "high",
+            "description": "[03-build-screens/009-settings/009-05-split/001-split-ProfileCard] Check failed: Widget file exists",
+            "source": "unit",
+            "detected": "2026-04-21T16:50:30.927Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "widget-exists",
+              "checkCmd": "test -f lib/screens/settings/widgets/profile_card.dart",
+              "checkDescription": "Widget file exists",
+              "checkOutput": "Command failed: test -f lib/screens/settings/widgets/profile_card.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Split: ProfileCard\n\nExtract the `ProfileCard` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/settings/settings_screen.dart` using grep string: `Elena Fisher`\n2. **Create file** — Write `lib/screens/settings/widgets/profile_card.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `ProfileCard()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass ProfileCard extends StatelessWidget {\n  const ProfileCard({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskId": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+              "taskTitle": "Split: ProfileCard",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/009-settings/tasks/009-05-split/tasks/001-split-ProfileCard",
+              "factId": "check:widget-exists"
+            }
+          },
+          {
+            "id": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+            "severity": "high",
+            "description": "[03-build-screens/009-settings/009-05-split/001-split-ProfileCard] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-21T16:50:31.474Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "flutter analyze lib/screens/settings/widgets/profile_card.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "You provided the path '/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/lib/screens/settings/widgets/profile_card.dart', however it does not exist on disk",
+              "checkExitCode": 1,
+              "taskPrompt": "# Split: ProfileCard\n\nExtract the `ProfileCard` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/settings/settings_screen.dart` using grep string: `Elena Fisher`\n2. **Create file** — Write `lib/screens/settings/widgets/profile_card.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `ProfileCard()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass ProfileCard extends StatelessWidget {\n  const ProfileCard({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskId": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+              "taskTitle": "Split: ProfileCard",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/009-settings/tasks/009-05-split/tasks/001-split-ProfileCard",
+              "factId": "check:dart-valid"
+            }
+          }
+        ],
+        "durationMs": 553
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 542
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard-missing-output-lib/screens/settings/widgets/profile_card.dart",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+            "severity": "high",
+            "description": "[03-build-screens/009-settings/009-05-split/001-split-ProfileCard] Task output not created: lib/screens/settings/widgets/profile_card.dart",
+            "source": "unit",
+            "detected": "2026-04-21T16:51:18.871Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/009-settings/tasks/009-05-split/tasks/001-split-ProfileCard",
+              "taskId": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+              "taskTitle": "Split: ProfileCard",
+              "taskPrompt": "# Split: ProfileCard\n\nExtract the `ProfileCard` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/settings/settings_screen.dart` using grep string: `Elena Fisher`\n2. **Create file** — Write `lib/screens/settings/widgets/profile_card.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `ProfileCard()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass ProfileCard extends StatelessWidget {\n  const ProfileCard({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskInputs": [
+                "lib/screens/settings/settings_screen.dart"
+              ],
+              "factId": "file-exists:test -f \"lib/screens/settings/widgets/profile_card.dart\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard-check-failed-widget-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+            "severity": "high",
+            "description": "[03-build-screens/009-settings/009-05-split/001-split-ProfileCard] Check failed: Widget file exists",
+            "source": "unit",
+            "detected": "2026-04-21T16:51:18.874Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "widget-exists",
+              "checkCmd": "test -f lib/screens/settings/widgets/profile_card.dart",
+              "checkDescription": "Widget file exists",
+              "checkOutput": "Command failed: test -f lib/screens/settings/widgets/profile_card.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Split: ProfileCard\n\nExtract the `ProfileCard` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/settings/settings_screen.dart` using grep string: `Elena Fisher`\n2. **Create file** — Write `lib/screens/settings/widgets/profile_card.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `ProfileCard()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass ProfileCard extends StatelessWidget {\n  const ProfileCard({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskId": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+              "taskTitle": "Split: ProfileCard",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/009-settings/tasks/009-05-split/tasks/001-split-ProfileCard",
+              "factId": "check:widget-exists"
+            }
+          },
+          {
+            "id": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+            "severity": "high",
+            "description": "[03-build-screens/009-settings/009-05-split/001-split-ProfileCard] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-21T16:51:19.420Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "flutter analyze lib/screens/settings/widgets/profile_card.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "You provided the path '/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/lib/screens/settings/widgets/profile_card.dart', however it does not exist on disk",
+              "checkExitCode": 1,
+              "taskPrompt": "# Split: ProfileCard\n\nExtract the `ProfileCard` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/settings/settings_screen.dart` using grep string: `Elena Fisher`\n2. **Create file** — Write `lib/screens/settings/widgets/profile_card.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `ProfileCard()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass ProfileCard extends StatelessWidget {\n  const ProfileCard({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskId": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+              "taskTitle": "Split: ProfileCard",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/009-settings/tasks/009-05-split/tasks/001-split-ProfileCard",
+              "factId": "check:dart-valid"
+            }
+          }
+        ],
+        "durationMs": 560
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "run-strategy:task-run#85",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 46839
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 541
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard-missing-output-lib/screens/settings/widgets/profile_card.dart",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+            "severity": "high",
+            "description": "[03-build-screens/009-settings/009-05-split/001-split-ProfileCard] Task output not created: lib/screens/settings/widgets/profile_card.dart",
+            "source": "unit",
+            "detected": "2026-04-21T16:51:19.969Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/009-settings/tasks/009-05-split/tasks/001-split-ProfileCard",
+              "taskId": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+              "taskTitle": "Split: ProfileCard",
+              "taskPrompt": "# Split: ProfileCard\n\nExtract the `ProfileCard` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/settings/settings_screen.dart` using grep string: `Elena Fisher`\n2. **Create file** — Write `lib/screens/settings/widgets/profile_card.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `ProfileCard()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass ProfileCard extends StatelessWidget {\n  const ProfileCard({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskInputs": [
+                "lib/screens/settings/settings_screen.dart"
+              ],
+              "factId": "file-exists:test -f \"lib/screens/settings/widgets/profile_card.dart\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard-check-failed-widget-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+            "severity": "high",
+            "description": "[03-build-screens/009-settings/009-05-split/001-split-ProfileCard] Check failed: Widget file exists",
+            "source": "unit",
+            "detected": "2026-04-21T16:51:19.972Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "widget-exists",
+              "checkCmd": "test -f lib/screens/settings/widgets/profile_card.dart",
+              "checkDescription": "Widget file exists",
+              "checkOutput": "Command failed: test -f lib/screens/settings/widgets/profile_card.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Split: ProfileCard\n\nExtract the `ProfileCard` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/settings/settings_screen.dart` using grep string: `Elena Fisher`\n2. **Create file** — Write `lib/screens/settings/widgets/profile_card.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `ProfileCard()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass ProfileCard extends StatelessWidget {\n  const ProfileCard({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskId": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+              "taskTitle": "Split: ProfileCard",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/009-settings/tasks/009-05-split/tasks/001-split-ProfileCard",
+              "factId": "check:widget-exists"
+            }
+          },
+          {
+            "id": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+            "severity": "high",
+            "description": "[03-build-screens/009-settings/009-05-split/001-split-ProfileCard] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-21T16:51:20.509Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "flutter analyze lib/screens/settings/widgets/profile_card.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "You provided the path '/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/lib/screens/settings/widgets/profile_card.dart', however it does not exist on disk",
+              "checkExitCode": 1,
+              "taskPrompt": "# Split: ProfileCard\n\nExtract the `ProfileCard` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/settings/settings_screen.dart` using grep string: `Elena Fisher`\n2. **Create file** — Write `lib/screens/settings/widgets/profile_card.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `ProfileCard()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass ProfileCard extends StatelessWidget {\n  const ProfileCard({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskId": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+              "taskTitle": "Split: ProfileCard",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/009-settings/tasks/009-05-split/tasks/001-split-ProfileCard",
+              "factId": "check:dart-valid"
+            }
+          }
+        ],
+        "durationMs": 544
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "repair-loop#2",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "run-strategy:task-run#86",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 38209
+      }
+    },
+    {
+      "id": "verify#2",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard-missing-output-lib/screens/settings/widgets/profile_card.dart",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+            "severity": "high",
+            "description": "[03-build-screens/009-settings/009-05-split/001-split-ProfileCard] Task output not created: lib/screens/settings/widgets/profile_card.dart",
+            "source": "unit",
+            "detected": "2026-04-21T16:51:58.735Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/009-settings/tasks/009-05-split/tasks/001-split-ProfileCard",
+              "taskId": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+              "taskTitle": "Split: ProfileCard",
+              "taskPrompt": "# Split: ProfileCard\n\nExtract the `ProfileCard` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/settings/settings_screen.dart` using grep string: `Elena Fisher`\n2. **Create file** — Write `lib/screens/settings/widgets/profile_card.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `ProfileCard()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass ProfileCard extends StatelessWidget {\n  const ProfileCard({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskInputs": [
+                "lib/screens/settings/settings_screen.dart"
+              ],
+              "factId": "file-exists:test -f \"lib/screens/settings/widgets/profile_card.dart\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard-check-failed-widget-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+            "severity": "high",
+            "description": "[03-build-screens/009-settings/009-05-split/001-split-ProfileCard] Check failed: Widget file exists",
+            "source": "unit",
+            "detected": "2026-04-21T16:51:58.739Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "widget-exists",
+              "checkCmd": "test -f lib/screens/settings/widgets/profile_card.dart",
+              "checkDescription": "Widget file exists",
+              "checkOutput": "Command failed: test -f lib/screens/settings/widgets/profile_card.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Split: ProfileCard\n\nExtract the `ProfileCard` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/settings/settings_screen.dart` using grep string: `Elena Fisher`\n2. **Create file** — Write `lib/screens/settings/widgets/profile_card.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `ProfileCard()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass ProfileCard extends StatelessWidget {\n  const ProfileCard({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskId": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+              "taskTitle": "Split: ProfileCard",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/009-settings/tasks/009-05-split/tasks/001-split-ProfileCard",
+              "factId": "check:widget-exists"
+            }
+          },
+          {
+            "id": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+            "severity": "high",
+            "description": "[03-build-screens/009-settings/009-05-split/001-split-ProfileCard] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-21T16:51:59.282Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "flutter analyze lib/screens/settings/widgets/profile_card.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "You provided the path '/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/lib/screens/settings/widgets/profile_card.dart', however it does not exist on disk",
+              "checkExitCode": 1,
+              "taskPrompt": "# Split: ProfileCard\n\nExtract the `ProfileCard` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/settings/settings_screen.dart` using grep string: `Elena Fisher`\n2. **Create file** — Write `lib/screens/settings/widgets/profile_card.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `ProfileCard()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass ProfileCard extends StatelessWidget {\n  const ProfileCard({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskId": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+              "taskTitle": "Split: ProfileCard",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/009-settings/tasks/009-05-split/tasks/001-split-ProfileCard",
+              "factId": "check:dart-valid"
+            }
+          }
+        ],
+        "durationMs": 556
+      }
+    },
+    {
+      "id": "check-stall#2",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "advance-attempt#2",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-wbs-seeded#3",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#3",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 535
+      }
+    },
+    {
+      "id": "detect-gaps#3",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard-missing-output-lib/screens/settings/widgets/profile_card.dart",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+            "severity": "high",
+            "description": "[03-build-screens/009-settings/009-05-split/001-split-ProfileCard] Task output not created: lib/screens/settings/widgets/profile_card.dart",
+            "source": "unit",
+            "detected": "2026-04-21T16:51:59.827Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/009-settings/tasks/009-05-split/tasks/001-split-ProfileCard",
+              "taskId": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+              "taskTitle": "Split: ProfileCard",
+              "taskPrompt": "# Split: ProfileCard\n\nExtract the `ProfileCard` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/settings/settings_screen.dart` using grep string: `Elena Fisher`\n2. **Create file** — Write `lib/screens/settings/widgets/profile_card.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `ProfileCard()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass ProfileCard extends StatelessWidget {\n  const ProfileCard({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskInputs": [
+                "lib/screens/settings/settings_screen.dart"
+              ],
+              "factId": "file-exists:test -f \"lib/screens/settings/widgets/profile_card.dart\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard-check-failed-widget-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+            "severity": "high",
+            "description": "[03-build-screens/009-settings/009-05-split/001-split-ProfileCard] Check failed: Widget file exists",
+            "source": "unit",
+            "detected": "2026-04-21T16:51:59.829Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "widget-exists",
+              "checkCmd": "test -f lib/screens/settings/widgets/profile_card.dart",
+              "checkDescription": "Widget file exists",
+              "checkOutput": "Command failed: test -f lib/screens/settings/widgets/profile_card.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Split: ProfileCard\n\nExtract the `ProfileCard` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/settings/settings_screen.dart` using grep string: `Elena Fisher`\n2. **Create file** — Write `lib/screens/settings/widgets/profile_card.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `ProfileCard()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass ProfileCard extends StatelessWidget {\n  const ProfileCard({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskId": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+              "taskTitle": "Split: ProfileCard",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/009-settings/tasks/009-05-split/tasks/001-split-ProfileCard",
+              "factId": "check:widget-exists"
+            }
+          },
+          {
+            "id": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+            "severity": "high",
+            "description": "[03-build-screens/009-settings/009-05-split/001-split-ProfileCard] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-21T16:52:00.356Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "flutter analyze lib/screens/settings/widgets/profile_card.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "You provided the path '/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/lib/screens/settings/widgets/profile_card.dart', however it does not exist on disk",
+              "checkExitCode": 1,
+              "taskPrompt": "# Split: ProfileCard\n\nExtract the `ProfileCard` widget from the screen into its own file.\n\n## Steps\n\n1. **Locate** — Find the widget subtree in `lib/screens/settings/settings_screen.dart` using grep string: `Elena Fisher`\n2. **Create file** — Write `lib/screens/settings/widgets/profile_card.dart` with the extracted widget class\n3. **Update screen** — Replace inline widget tree with `ProfileCard()` and add import\n4. **Verify** — Run `dart analyze` on both files\n\n## Widget Template\n\n```dart\nimport 'package:flutter/material.dart';\n\nclass ProfileCard extends StatelessWidget {\n  const ProfileCard({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    // ... extracted widget tree\n  }\n}\n```",
+              "taskId": "03-build-screens/009-settings/009-05-split/001-split-ProfileCard",
+              "taskTitle": "Split: ProfileCard",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/009-settings/tasks/009-05-split/tasks/001-split-ProfileCard",
+              "factId": "check:dart-valid"
+            }
+          }
+        ],
+        "durationMs": 534
+      }
+    },
+    {
+      "id": "signal-done#3",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "repair-loop#3",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "run-strategy:task-run#87",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 87488
+      }
+    },
+    {
+      "id": "verify#3",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 1492
+      }
+    },
+    {
+      "id": "check-stall#3",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt#3",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-21T16:50:30.304Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-21T16:50:30.920Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-21T16:50:31.474Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-21T16:50:31.476Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-21T16:50:32.018Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#85",
+      "iteration": 1,
+      "ts": "2026-04-21T16:51:18.859Z"
+    },
+    {
+      "from": "run-strategy:task-run#85",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-21T16:51:19.421Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-21T16:51:19.422Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-21T16:51:19.423Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-21T16:51:19.423Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-21T16:51:19.964Z"
+    },
+    {
+      "from": "check-outputs-exist#2",
+      "to": "detect-gaps#2",
+      "iteration": 2,
+      "ts": "2026-04-21T16:51:20.509Z"
+    },
+    {
+      "from": "detect-gaps#2",
+      "to": "repair-loop#2",
+      "iteration": 2,
+      "ts": "2026-04-21T16:51:20.516Z"
+    },
+    {
+      "from": "repair-loop#2",
+      "to": "run-strategy:task-run#86",
+      "iteration": 2,
+      "ts": "2026-04-21T16:51:58.725Z"
+    },
+    {
+      "from": "run-strategy:task-run#86",
+      "to": "verify#2",
+      "iteration": 2,
+      "ts": "2026-04-21T16:51:59.283Z"
+    },
+    {
+      "from": "verify#2",
+      "to": "check-stall#2",
+      "iteration": 2,
+      "ts": "2026-04-21T16:51:59.284Z"
+    },
+    {
+      "from": "check-stall#2",
+      "to": "advance-attempt#2",
+      "iteration": 2,
+      "ts": "2026-04-21T16:51:59.285Z"
+    },
+    {
+      "from": "advance-attempt#2",
+      "to": "check-wbs-seeded#3",
+      "iteration": 3,
+      "ts": "2026-04-21T16:51:59.285Z"
+    },
+    {
+      "from": "check-wbs-seeded#3",
+      "to": "check-outputs-exist#3",
+      "iteration": 3,
+      "ts": "2026-04-21T16:51:59.821Z"
+    },
+    {
+      "from": "check-outputs-exist#3",
+      "to": "detect-gaps#3",
+      "iteration": 3,
+      "ts": "2026-04-21T16:52:00.357Z"
+    },
+    {
+      "from": "detect-gaps#3",
+      "to": "repair-loop#3",
+      "iteration": 3,
+      "ts": "2026-04-21T16:52:00.364Z"
+    },
+    {
+      "from": "repair-loop#3",
+      "to": "run-strategy:task-run#87",
+      "iteration": 3,
+      "ts": "2026-04-21T16:53:27.853Z"
+    },
+    {
+      "from": "run-strategy:task-run#87",
+      "to": "verify#3",
+      "iteration": 3,
+      "ts": "2026-04-21T16:53:29.346Z"
+    }
+  ]
+}

@@ -1,0 +1,343 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-21T05:52:19.580Z",
+  "spawnCount": 84,
+  "subtasks": [
+    {
+      "id": "001-home",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/001-home/TASK.md"
+    },
+    {
+      "id": "001-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/001-home/tasks/001-01-spec/TASK.md"
+    },
+    {
+      "id": "001-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/001-home/tasks/001-02-design/TASK.md"
+    },
+    {
+      "id": "001-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/001-home/tasks/001-03-convert/TASK.md"
+    },
+    {
+      "id": "001-04-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/001-home/tasks/001-04-analyze/TASK.md"
+    },
+    {
+      "id": "001-05-split",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/001-home/tasks/001-05-split/TASK.md"
+    },
+    {
+      "id": "001-06-lift",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/001-home/tasks/001-06-lift/TASK.md"
+    },
+    {
+      "id": "002-beacon-scanner",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/002-beacon-scanner/TASK.md"
+    },
+    {
+      "id": "002-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/002-beacon-scanner/tasks/002-01-spec/TASK.md"
+    },
+    {
+      "id": "002-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/002-beacon-scanner/tasks/002-02-design/TASK.md"
+    },
+    {
+      "id": "002-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/002-beacon-scanner/tasks/002-03-convert/TASK.md"
+    },
+    {
+      "id": "002-04-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/002-beacon-scanner/tasks/002-04-analyze/TASK.md"
+    },
+    {
+      "id": "002-05-split",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/002-beacon-scanner/tasks/002-05-split/TASK.md"
+    },
+    {
+      "id": "002-06-lift",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/002-beacon-scanner/tasks/002-06-lift/TASK.md"
+    },
+    {
+      "id": "003-beacon-detail",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/003-beacon-detail/TASK.md"
+    },
+    {
+      "id": "003-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/003-beacon-detail/tasks/003-01-spec/TASK.md"
+    },
+    {
+      "id": "003-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/003-beacon-detail/tasks/003-02-design/TASK.md"
+    },
+    {
+      "id": "003-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/003-beacon-detail/tasks/003-03-convert/TASK.md"
+    },
+    {
+      "id": "003-04-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/003-beacon-detail/tasks/003-04-analyze/TASK.md"
+    },
+    {
+      "id": "003-05-split",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/003-beacon-detail/tasks/003-05-split/TASK.md"
+    },
+    {
+      "id": "003-06-lift",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/003-beacon-detail/tasks/003-06-lift/TASK.md"
+    },
+    {
+      "id": "004-beacon-edit",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/004-beacon-edit/TASK.md"
+    },
+    {
+      "id": "004-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/004-beacon-edit/tasks/004-01-spec/TASK.md"
+    },
+    {
+      "id": "004-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/004-beacon-edit/tasks/004-02-design/TASK.md"
+    },
+    {
+      "id": "004-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/004-beacon-edit/tasks/004-03-convert/TASK.md"
+    },
+    {
+      "id": "004-04-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/004-beacon-edit/tasks/004-04-analyze/TASK.md"
+    },
+    {
+      "id": "004-05-split",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/004-beacon-edit/tasks/004-05-split/TASK.md"
+    },
+    {
+      "id": "004-06-lift",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/004-beacon-edit/tasks/004-06-lift/TASK.md"
+    },
+    {
+      "id": "005-safe-zones",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/005-safe-zones/TASK.md"
+    },
+    {
+      "id": "005-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/005-safe-zones/tasks/005-01-spec/TASK.md"
+    },
+    {
+      "id": "005-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/005-safe-zones/tasks/005-02-design/TASK.md"
+    },
+    {
+      "id": "005-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/005-safe-zones/tasks/005-03-convert/TASK.md"
+    },
+    {
+      "id": "005-04-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/005-safe-zones/tasks/005-04-analyze/TASK.md"
+    },
+    {
+      "id": "005-05-split",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/005-safe-zones/tasks/005-05-split/TASK.md"
+    },
+    {
+      "id": "005-06-lift",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/005-safe-zones/tasks/005-06-lift/TASK.md"
+    },
+    {
+      "id": "006-add-safe-zone",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/006-add-safe-zone/TASK.md"
+    },
+    {
+      "id": "006-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/006-add-safe-zone/tasks/006-01-spec/TASK.md"
+    },
+    {
+      "id": "006-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/006-add-safe-zone/tasks/006-02-design/TASK.md"
+    },
+    {
+      "id": "006-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/006-add-safe-zone/tasks/006-03-convert/TASK.md"
+    },
+    {
+      "id": "006-04-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/006-add-safe-zone/tasks/006-04-analyze/TASK.md"
+    },
+    {
+      "id": "006-05-split",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/006-add-safe-zone/tasks/006-05-split/TASK.md"
+    },
+    {
+      "id": "006-06-lift",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/006-add-safe-zone/tasks/006-06-lift/TASK.md"
+    },
+    {
+      "id": "007-edit-safe-zone",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/007-edit-safe-zone/TASK.md"
+    },
+    {
+      "id": "007-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/007-edit-safe-zone/tasks/007-01-spec/TASK.md"
+    },
+    {
+      "id": "007-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/007-edit-safe-zone/tasks/007-02-design/TASK.md"
+    },
+    {
+      "id": "007-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/007-edit-safe-zone/tasks/007-03-convert/TASK.md"
+    },
+    {
+      "id": "007-04-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/007-edit-safe-zone/tasks/007-04-analyze/TASK.md"
+    },
+    {
+      "id": "007-05-split",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/007-edit-safe-zone/tasks/007-05-split/TASK.md"
+    },
+    {
+      "id": "007-06-lift",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/007-edit-safe-zone/tasks/007-06-lift/TASK.md"
+    },
+    {
+      "id": "008-history",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/008-history/TASK.md"
+    },
+    {
+      "id": "008-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/008-history/tasks/008-01-spec/TASK.md"
+    },
+    {
+      "id": "008-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/008-history/tasks/008-02-design/TASK.md"
+    },
+    {
+      "id": "008-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/008-history/tasks/008-03-convert/TASK.md"
+    },
+    {
+      "id": "008-04-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/008-history/tasks/008-04-analyze/TASK.md"
+    },
+    {
+      "id": "008-05-split",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/008-history/tasks/008-05-split/TASK.md"
+    },
+    {
+      "id": "008-06-lift",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/008-history/tasks/008-06-lift/TASK.md"
+    },
+    {
+      "id": "009-settings",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/009-settings/TASK.md"
+    },
+    {
+      "id": "009-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/009-settings/tasks/009-01-spec/TASK.md"
+    },
+    {
+      "id": "009-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/009-settings/tasks/009-02-design/TASK.md"
+    },
+    {
+      "id": "009-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/009-settings/tasks/009-03-convert/TASK.md"
+    },
+    {
+      "id": "009-04-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/009-settings/tasks/009-04-analyze/TASK.md"
+    },
+    {
+      "id": "009-05-split",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/009-settings/tasks/009-05-split/TASK.md"
+    },
+    {
+      "id": "009-06-lift",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/009-settings/tasks/009-06-lift/TASK.md"
+    },
+    {
+      "id": "010-guardians",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/010-guardians/TASK.md"
+    },
+    {
+      "id": "010-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/010-guardians/tasks/010-01-spec/TASK.md"
+    },
+    {
+      "id": "010-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/010-guardians/tasks/010-02-design/TASK.md"
+    },
+    {
+      "id": "010-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/010-guardians/tasks/010-03-convert/TASK.md"
+    },
+    {
+      "id": "010-04-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/010-guardians/tasks/010-04-analyze/TASK.md"
+    },
+    {
+      "id": "010-05-split",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/010-guardians/tasks/010-05-split/TASK.md"
+    },
+    {
+      "id": "010-06-lift",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/010-guardians/tasks/010-06-lift/TASK.md"
+    },
+    {
+      "id": "011-onboarding",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/011-onboarding/TASK.md"
+    },
+    {
+      "id": "011-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/011-onboarding/tasks/011-01-spec/TASK.md"
+    },
+    {
+      "id": "011-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/011-onboarding/tasks/011-02-design/TASK.md"
+    },
+    {
+      "id": "011-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/011-onboarding/tasks/011-03-convert/TASK.md"
+    },
+    {
+      "id": "011-04-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/011-onboarding/tasks/011-04-analyze/TASK.md"
+    },
+    {
+      "id": "011-05-split",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/011-onboarding/tasks/011-05-split/TASK.md"
+    },
+    {
+      "id": "011-06-lift",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/011-onboarding/tasks/011-06-lift/TASK.md"
+    },
+    {
+      "id": "012-invite-accept",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/TASK.md"
+    },
+    {
+      "id": "012-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-01-spec/TASK.md"
+    },
+    {
+      "id": "012-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-02-design/TASK.md"
+    },
+    {
+      "id": "012-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-03-convert/TASK.md"
+    },
+    {
+      "id": "012-04-analyze",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-04-analyze/TASK.md"
+    },
+    {
+      "id": "012-05-split",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-05-split/TASK.md"
+    },
+    {
+      "id": "012-06-lift",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-06-lift/TASK.md"
+    }
+  ]
+}

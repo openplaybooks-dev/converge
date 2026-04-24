@@ -1,0 +1,46 @@
+{
+  "taskId": "03-build-screens/011-onboarding/011-02-design",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/onboarding/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/onboarding/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/META.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/META.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/references/ANALYSIS.md",
+      "count": 1,
+      "samples": [
+        ".stitch/references/ANALYSIS.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/references/babyguard_onboarding_phase_2/code.html",
+      "count": 1,
+      "samples": [
+        ".stitch/references/babyguard_onboarding_phase_2/code.html"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/onboarding/META.md",
+    ".stitch/designs/onboarding/design.html"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,2 @@
+{"name": "GuardianCard", "grep": "class _GuardianCard extends StatelessWidget", "description": "Card displaying guardian info with avatar, name, role badge, and online status", "shared": true}
+{"name": "InviteGuardianButton", "grep": "Mời người cùng theo dõi", "description": "Elevated button with icon to invite a new guardian", "shared": false}

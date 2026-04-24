@@ -1,0 +1,31 @@
+{
+  "taskId": "07-build-overlays/006-test-alert/006-01-spec",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/UX.md",
+      "count": 1,
+      "samples": [
+        ".stitch/UX.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/screens.json",
+      "count": 1,
+      "samples": [
+        ".stitch/screens.json"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/test-alert/SPEC.md"
+  ],
+  "blocked": false
+}

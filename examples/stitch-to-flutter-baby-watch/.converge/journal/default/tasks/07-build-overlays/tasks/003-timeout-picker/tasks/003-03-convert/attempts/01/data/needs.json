@@ -1,0 +1,31 @@
+{
+  "taskId": "07-build-overlays/003-timeout-picker/003-03-convert",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/timeout-picker/design.html",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/timeout-picker/design.html"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/timeout-picker/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/timeout-picker/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/overlays/timeout_picker/timeout_picker.dart"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,15 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-21T17:08:22.659Z",
+  "spawnCount": 2,
+  "subtasks": [
+    {
+      "id": "001-split-GuardianCard",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/010-guardians/tasks/010-05-split/tasks/001-split-GuardianCard/TASK.md"
+    },
+    {
+      "id": "002-split-InviteGuardianButton",
+      "writeToPath": ".converge/playbooks/default/tasks/03-build-screens/tasks/010-guardians/tasks/010-05-split/tasks/002-split-InviteGuardianButton/TASK.md"
+    }
+  ]
+}

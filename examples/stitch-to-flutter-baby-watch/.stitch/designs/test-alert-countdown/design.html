@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=375, initial-scale=1.0" />
+  <title>Test Alert Countdown — BabyGuard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f5f4ee",
+            "error": "#9f403d",
+            "error-container": "#EED9D2",
+            "on-error": "#faf7f6",
+            "peach": "#EED9D2",
+            "on-surface": "#31332e",
+            "on-surface-variant": "#5e6059",
+            "secondary": "#4f635e"
+          },
+          borderRadius: {
+            "DEFAULT": "1rem",
+            "lg": "2rem",
+            "xl": "2.5rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Manrope"],
+            "label": ["Manrope"]
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    body { font-family: 'Manrope', sans-serif; background-color: #E8E8E8; display: flex; align-items: flex-end; justify-content: center; min-height: 100vh; padding: 16px; }
+    @keyframes pulse-scale {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    .animate-pulse-custom { animation: pulse-scale 1s ease-in-out infinite; }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="bg-white rounded-t-3xl w-full max-w-sm p-6 pb-12">
+
+      <!-- Drag Handle -->
+      <div class="flex justify-center mb-6">
+        <div class="w-10 h-1 bg-[#b1b3ab] rounded-full"></div>
+      </div>
+
+      <!-- Title -->
+      <h2 class="text-xl font-extrabold text-center text-[#31332e] mb-8 tracking-tight" style="font-family: 'Plus Jakarta Sans', sans-serif;">Thử cảnh báo</h2>
+
+      <!-- Countdown Display -->
+      <div class="flex flex-col items-center mb-8">
+        <div class="w-36 h-36 bg-[#EED9D2] rounded-full flex items-center justify-center mb-4 animate-pulse-custom">
+          <span class="text-7xl font-extrabold text-[#9f403d]" style="font-family: 'Plus Jakarta Sans', sans-serif;">5</span>
+        </div>
+        <span class="text-lg font-semibold text-[#5e6059]">giây</span>
+      </div>
+
+      <!-- Warning Text -->
+      <p class="text-center text-sm text-[#5e6059] mb-8 leading-relaxed">
+        Cảnh báo sẽ phát trong <span class="font-bold text-[#9f403d]">5 giây</span>
+      </p>
+
+      <!-- Cancel Button -->
+      <button class="w-full py-4 bg-[#f5f4ee] text-[#9f403d] font-bold rounded-full hover:bg-[#e2e3db] transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined">close</span>
+        Hủy
+      </button>
+
+    </div>
+  </div>
+</body>
+</html>

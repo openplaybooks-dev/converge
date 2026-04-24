@@ -1,0 +1,18 @@
+{
+  "type": "task",
+  "id": "03-build-screens/003-beacon-detail/003-05-split",
+  "status": "pending",
+  "lastUpdated": "2026-04-23T12:25:07.343Z",
+  "createdAt": "2026-04-23T10:56:56.367Z",
+  "progress": {
+    "totalChildren": 3,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-split-HeroSection",
+      "002-split-TechnicalAccordion",
+      "003-split-CoGuardianCard"
+    ],
+    "lastProgressUpdate": "2026-04-23T12:25:07.341Z"
+  }
+}

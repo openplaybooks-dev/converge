@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-add-behavior/004-implement-providers/005-provider-AlertConfig",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T04:55:02.230Z",
+  "createdAt": "2026-04-23T04:54:14.332Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T04:54:14.332Z",
+      "completedAt": "2026-04-23T04:55:02.227Z",
+      "outcome": "success",
+      "durationMs": 47895
+    }
+  ],
+  "currentAttempt": 1
+}

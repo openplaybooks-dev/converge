@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BabyGuard — Beacon Paired</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Manrope:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@0..1,opsz@24&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --color-surface: #fbf9f5;
+      --color-surface-container-low: #f5f4ee;
+      --color-surface-container: #efeee8;
+      --color-surface-container-high: #e8e9e1;
+      --color-surface-container-lowest: #ffffff;
+      --color-primary: #5f5e5e;
+      --color-on-surface: #31332e;
+      --color-on-primary: #faf7f6;
+      --color-secondary: #4f635e;
+      --color-on-secondary: #faf7f6;
+      --color-mint-tint: #D1EEDD;
+      --color-mint: #4f635e;
+      --color-ghost-border: rgba(177, 179, 171, 0.15);
+      --font-headline: 'Plus Jakarta Sans', sans-serif;
+      --font-body: 'Manrope', sans-serif;
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-xl: 32px;
+      --radius-full: 9999px;
+      --shadow-ambient: 0 8px 32px rgba(49, 51, 46, 0.08);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: #d9dbd2;
+      display: flex;
+      justify-content: center;
+      padding: 32px 16px;
+      min-height: 100vh;
+    }
+
+    .phone {
+      width: 375px;
+      min-height: 812px;
+      background: var(--color-surface);
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.15);
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    .primary-btn {
+      width: 100%;
+      height: 56px;
+      border-radius: var(--radius-full);
+      background: var(--color-secondary);
+      border: none;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--color-on-secondary);
+      cursor: pointer;
+      transition: transform 100ms ease-out, box-shadow 100ms ease-out;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .primary-btn:active {
+      transform: scale(0.98) translateY(-1px);
+    }
+
+    .primary-btn:hover {
+      box-shadow: 0 8px 24px rgba(79, 99, 94, 0.3);
+    }
+
+    .card {
+      background: var(--color-surface-container-lowest);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-ambient);
+    }
+
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      animation: confetti-fall 3s ease-out forwards;
+    }
+
+    @keyframes confetti-fall {
+      0% {
+        transform: translateY(-100px) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(400px) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes check-bounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+
+    @keyframes check-draw {
+      0% { stroke-dashoffset: 100; }
+      100% { stroke-dashoffset: 0; }
+    }
+
+    .success-icon {
+      animation: check-bounce 0.6s ease-out;
+    }
+
+    .check-path {
+      stroke-dasharray: 100;
+      stroke-dashoffset: 100;
+      animation: check-draw 0.4s ease-out 0.3s forwards;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div style="display: flex; flex-direction: column; min-height: 100%; padding: 96px 24px 48px; position: relative; overflow: hidden;">
+
+      <!-- Confetti pieces -->
+      <div class="confetti" style="left: 10%; background: #D1EEDD; animation-delay: 0s;"></div>
+      <div class="confetti" style="left: 20%; background: #FFECB3; animation-delay: 0.2s;"></div>
+      <div class="confetti" style="left: 35%; background: #FFDAD6; animation-delay: 0.1s;"></div>
+      <div class="confetti" style="left: 50%; background: #D1EEDD; animation-delay: 0.3s;"></div>
+      <div class="confetti" style="left: 65%; background: #FFECB3; animation-delay: 0.15s;"></div>
+      <div class="confetti" style="left: 75%; background: #FFDAD6; animation-delay: 0.25s;"></div>
+      <div class="confetti" style="left: 85%; background: #D1EEDD; animation-delay: 0.05s;"></div>
+      <div class="confetti" style="left: 90%; background: #FFECB3; animation-delay: 0.35s;"></div>
+
+      <!-- Content -->
+      <main style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 32px;">
+        <div style="position: relative;">
+          <!-- Success Circle -->
+          <div class="success-icon" style="width: 120px; height: 120px; border-radius: 50%; background: var(--color-mint-tint); display: flex; align-items: center; justify-content: center; box-shadow: 0 12px 40px rgba(81, 163, 94, 0.25);">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="32" cy="32" r="28" stroke="#4f635e" stroke-width="4" fill="none"/>
+              <path class="check-path" d="M20 32 L28 40 L44 24" stroke="#4f635e" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <!-- Pulse Ring -->
+          <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120px; height: 120px; border-radius: 50%; border: 2px solid var(--color-mint-tint); animation: pulse-ring 1.5s ease-out infinite;"></div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <h1 style="font-family: var(--font-headline); font-weight: 800; font-size: 28px; letter-spacing: -0.02em; color: var(--color-on-surface);">Beacon đã được thêm!</h1>
+          <p style="font-size: 16px; color: var(--color-on-surface); opacity: 0.7;">Thiết bị theo dõi của bạn đã sẵn sàng.</p>
+        </div>
+
+        <!-- Beacon Info Card -->
+        <div class="card" style="width: 100%; padding: 24px; display: flex; align-items: center; gap: 16px;">
+          <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--color-mint-tint); display: flex; align-items: center; justify-content: center;">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 28px; color: var(--color-secondary);">sensors</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px; text-align: left;">
+            <h3 style="font-family: var(--font-headline); font-weight: 700; font-size: 18px; color: var(--color-on-surface);">Bé Na</h3>
+            <p style="font-size: 14px; color: var(--color-on-surface); opacity: 0.6;">UUID: E3:4A:7B:9C:2D:1F</p>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 12px; width: 100%; margin-top: auto;">
+          <button class="primary-btn">
+            <span class="material-symbols-outlined" style="font-size: 20px;">check</span>
+            Xong
+          </button>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <style>
+    @keyframes pulse-ring {
+      0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.8;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 0;
+      }
+    }
+  </style>
+</body>
+</html>

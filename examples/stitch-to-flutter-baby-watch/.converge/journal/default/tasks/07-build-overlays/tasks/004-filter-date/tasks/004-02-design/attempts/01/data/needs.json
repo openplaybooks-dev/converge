@@ -1,0 +1,32 @@
+{
+  "taskId": "07-build-overlays/004-filter-date/004-02-design",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/filter-date/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/filter-date/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/META.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/META.md"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/filter-date/META.md",
+    ".stitch/designs/filter-date/design.html"
+  ],
+  "blocked": false
+}

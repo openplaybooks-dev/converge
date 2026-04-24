@@ -1,0 +1,10 @@
+{
+  "taskId": "06-wire-screens/003-wire-per-screen/001-HomeScreen-IconButton-onPressed-1",
+  "checks": [
+    {
+      "id": "handler-wired",
+      "description": "IconButton.onPressed has real logic in lib/screens/home/home_screen.dart (@converge:element HomeScreen-IconButton-onPressed-1)",
+      "cmd": "node .converge/playbooks/default/tasks/06-wire-screens/003-wire-per-screen/wbs/check-handler.mjs lib/screens/home/home_screen.dart --id HomeScreen-IconButton-onPressed-1 onPressed"
+    }
+  ]
+}

@@ -66,6 +66,7 @@ class HomeScreen extends ConsumerWidget {
                     const SizedBox(height: AppTheme.sectionSpacing),
                     ModeSelectorPill(
                       modeLabel: 'Pregnancy Mode',
+// @converge:element ModeSelectorPill-onTap-1
                       onTap: () {
                         showModalBottomSheet(
                           context: context,
@@ -133,6 +134,7 @@ class HomeScreen extends ConsumerWidget {
   Widget _buildPrimaryCta(BuildContext context) {
     return Center(
       child: ElevatedButton(
+// @converge:element PrimaryCta-onPressed-1
         onPressed: () => context.push('/cycle'),
         style: ElevatedButton.styleFrom(
           minimumSize: const Size(0, 44),
@@ -173,6 +175,7 @@ class HomeScreen extends ConsumerWidget {
           unit: 'Kg',
           label: 'Your weight',
           valueColor: AppTheme.coralColor,
+// @converge:element WeightStatCard-onTap-1
           onTap: () => context.push('/weight'),
         )
             .animate()
@@ -193,6 +196,7 @@ class HomeScreen extends ConsumerWidget {
           unit: 'wk',
           label: 'Baby size',
           valueColor: AppTheme.lilacColor,
+// @converge:element MoodStatCard-onTap-1
           onTap: () => context.push('/progress'),
         )
             .animate()
@@ -215,6 +219,7 @@ class HomeScreen extends ConsumerWidget {
           unit: '/5',
           label: 'Mood today',
           valueColor: AppTheme.coralColor,
+// @converge:element CheckupStatCard-onTap-1
           onTap: () => context.push('/mood'),
         )
             .animate()
@@ -264,6 +269,7 @@ class HomeScreen extends ConsumerWidget {
       ),
       child: NavigationBar(
         selectedIndex: 0,
+// @converge:element BottomNav-onDestinationSelected-1
         onDestinationSelected: (index) => context.go(const ['/home', '/progress', '/health-log', '/mood', '/education'][index]),
         destinations: const [
           NavigationDestination(

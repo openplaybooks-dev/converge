@@ -1,0 +1,33 @@
+{
+  "taskId": "05-add-behavior/003-create-mock-data",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "data-models.md",
+      "count": 1,
+      "samples": [
+        "data-models.md"
+      ]
+    },
+    {
+      "pattern": "lib/models/**/*.dart",
+      "count": 11,
+      "samples": [
+        "lib/models/beacon.dart",
+        "lib/models/enums.dart",
+        "lib/models/event.dart",
+        "lib/models/event_type.dart",
+        "lib/models/guardian_role.dart",
+        "lib/models/models.dart",
+        "lib/models/monitored_status.dart",
+        "lib/models/proximity_status.dart",
+        "lib/models/safe_zone.dart",
+        "lib/models/user.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/data/mock_data.dart"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,10 @@
+{
+  "taskId": "07-build-overlays/001-alert/001-04-connect",
+  "checks": [
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes after connecting providers",
+      "cmd": "dart analyze lib/widgets/overlays/alert/alert.dart"
+    }
+  ]
+}

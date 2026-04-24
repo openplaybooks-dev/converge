@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BabyGuard — Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Manrope:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@0..1,opsz@24&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --color-surface: #fbf9f5;
+      --color-surface-container-low: #f5f4ee;
+      --color-surface-container: #efeee8;
+      --color-surface-container-high: #e8e9e1;
+      --color-surface-container-lowest: #ffffff;
+      --color-primary: #5f5e5e;
+      --color-on-surface: #31332e;
+      --color-on-primary: #faf7f6;
+      --color-secondary: #4f635e;
+      --color-on-secondary: #faf7f6;
+      --color-error: #9f403d;
+      --color-mint-tint: #D1EEDD;
+      --color-mint: #4f635e;
+      --color-peach-tint: #FFDAD6;
+      --color-honey-tint: #FFECB3;
+      --color-ghost-border: rgba(177, 179, 171, 0.15);
+      --font-headline: 'Plus Jakarta Sans', sans-serif;
+      --font-body: 'Manrope', sans-serif;
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-xl: 32px;
+      --radius-full: 9999px;
+      --shadow-card: 0 8px 24px rgba(231, 227, 220, 0.4);
+      --shadow-ambient: 0 8px 32px rgba(49, 51, 46, 0.08);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: #d9dbd2;
+      display: flex;
+      justify-content: center;
+      padding: 32px 16px;
+      min-height: 100vh;
+    }
+
+    .phone {
+      width: 375px;
+      min-height: 812px;
+      background: var(--color-surface);
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.15);
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    .safe-state {
+      background-color: var(--color-mint-tint);
+      color: var(--color-mint);
+    }
+
+    .card {
+      background: var(--color-surface-container-lowest);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+    }
+
+    .btn-mute {
+      background: var(--color-surface-container-lowest);
+      border: 1px solid var(--color-ghost-border);
+      padding: 12px 20px;
+      border-radius: var(--radius-full);
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--color-on-surface);
+      cursor: pointer;
+      transition: transform 100ms ease-out, box-shadow 100ms ease-out;
+    }
+
+    .btn-mute:active {
+      transform: scale(0.98) translateY(-1px);
+    }
+
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--color-ghost-border);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0 16px;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: var(--color-primary);
+      text-decoration: none;
+      padding: 8px 16px;
+    }
+
+    .nav-item.active {
+      color: var(--color-secondary);
+    }
+
+    .nav-item .material-symbols-outlined {
+      font-size: 26px;
+    }
+
+    .nav-item span:last-child {
+      font-size: 10px;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div style="display: flex; flex-direction: column; min-height: 100%;">
+
+      <!-- TopAppBar -->
+      <header style="position: fixed; top: 0; left: 0; right: 0; z-index: 50; background: rgba(251, 249, 245, 0.8); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; height: 80px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <img src="https://picsum.photos/seed/parent/80/80" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;" />
+          </div>
+          <h1 style="font-family: var(--font-headline); font-weight: 800; font-size: 20px; letter-spacing: -0.02em; color: var(--color-on-surface);">BabyGuard</h1>
+        </div>
+        <button aria-label="Notifications" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: transparent; border: none; cursor: pointer;">
+          <span class="material-symbols-outlined" style="color: var(--color-on-surface);">notifications</span>
+        </button>
+      </header>
+
+      <!-- Main Content -->
+      <main style="flex: 1; padding: 96px 24px 112px; overflow-y: auto;">
+        <div style="display: flex; flex-direction: column; gap: 32px; max-width: 375px; margin: 0 auto;">
+
+          <!-- Status Section -->
+          <section style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px;">
+            <div class="safe-state" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: var(--radius-full); font-weight: 700; font-size: 16px; box-shadow: 0 2px 12px rgba(81, 163, 94, 0.2);">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 20px;">verified_user</span>
+              Đang an toàn
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 8px;">
+              <h2 style="font-family: var(--font-headline); font-weight: 700; font-size: 28px; letter-spacing: -0.02em; color: var(--color-on-surface);">Bé Na</h2>
+              <p style="color: var(--color-secondary); font-weight: 500; font-size: 14px;">Còn Mẹ đang gần beacon</p>
+            </div>
+          </section>
+
+          <!-- Map Card -->
+          <section class="card" style="position: relative; height: 288px; overflow: hidden;">
+            <img src="https://picsum.photos/seed/map-home/400/300" alt="Map" style="width: 100%; height: 100%; object-fit: cover; filter: grayscale(0.2) brightness(0.95);" />
+            <!-- Beacon Point -->
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+              <div style="position: relative; display: flex; align-items: center; justify-content: center;">
+                <div style="position: absolute; width: 48px; height: 48px; background: var(--color-secondary); opacity: 0.2; border-radius: 50%; animation: pulse 2s ease-in-out infinite;"></div>
+                <div style="position: relative; width: 40px; height: 40px; background: var(--color-secondary); border-radius: 50%; border: 4px solid white; box-shadow: 0 4px 16px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center;">
+                  <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 18px; color: white;">child_care</span>
+                </div>
+              </div>
+            </div>
+            <!-- Last Seen Label -->
+            <div style="position: absolute; bottom: 16px; left: 16px; right: 16px; background: rgba(255,255,255,0.9); backdrop-filter: blur(8px); padding: 12px 16px; border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 16px rgba(0,0,0,0.08);">
+              <div style="display: flex; flex-direction: column; gap: 2px;">
+                <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-secondary);">Vị trí gần nhất</span>
+                <span style="font-weight: 700; color: var(--color-on-surface); font-size: 14px;">Phòng khách • 2 phút trước</span>
+              </div>
+              <button aria-label="Navigate" style="width: 40px; height: 40px; background: var(--color-secondary); border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(79,99,94,0.3); cursor: pointer;">
+                <span class="material-symbols-outlined" style="font-size: 20px; color: white;">near_me</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- Beacon Strip -->
+          <section class="card" style="padding: 24px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--color-mint-tint); display: flex; align-items: center; justify-content: center;">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; color: var(--color-secondary);">sensors</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 2px;">
+                <h3 style="font-family: var(--font-headline); font-weight: 700; font-size: 18px; color: var(--color-on-surface);">Bé Na</h3>
+                <p style="color: var(--color-secondary); font-size: 12px; font-weight: 500;">Đang ở gần • 98% Pin</p>
+              </div>
+            </div>
+            <button style="display: flex; align-items: center; gap: 4px; padding: 8px 12px; border-radius: var(--radius-full); background: transparent; border: none; color: var(--color-secondary); font-weight: 700; font-size: 14px; cursor: pointer;">
+              Chi tiết beacon
+              <span class="material-symbols-outlined" style="font-size: 18px;">chevron_right</span>
+            </button>
+          </section>
+
+          <!-- Push Mute Section -->
+          <section class="card" style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <h3 style="font-family: var(--font-headline); font-weight: 700; font-size: 16px; letter-spacing: -0.01em; color: var(--color-on-surface);">Tạm dừng thông báo</h3>
+              <p style="color: var(--color-secondary); font-size: 12px; line-height: 1.5;">Tắt cảnh báo tạm thời khi bạn đang ở cùng bé.</p>
+            </div>
+            <div style="display: flex; gap: 12px;">
+              <button class="btn-mute" style="flex: 1;">5 phút</button>
+              <button class="btn-mute" style="flex: 1;">10 phút</button>
+              <button class="btn-mute" style="flex: 1;">15 phút</button>
+            </div>
+          </section>
+
+        </div>
+      </main>
+
+      <!-- BottomNavBar -->
+      <nav class="bottom-nav" aria-label="Main navigation">
+        <a class="nav-item active" href="#" aria-label="Home">
+          <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+          <span>Trang chủ</span>
+        </a>
+        <a class="nav-item" href="#" aria-label="Devices">
+          <span class="material-symbols-outlined">devices</span>
+          <span>Thiết bị</span>
+        </a>
+        <a class="nav-item" href="#" aria-label="Security">
+          <span class="material-symbols-outlined">security</span>
+          <span>An toàn</span>
+        </a>
+        <a class="nav-item" href="#" aria-label="Settings">
+          <span class="material-symbols-outlined">settings</span>
+          <span>Cài đặt</span>
+        </a>
+      </nav>
+
+    </div>
+  </div>
+
+  <style>
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.2; }
+      50% { transform: scale(1.3); opacity: 0.1; }
+    }
+  </style>
+</body>
+</html>

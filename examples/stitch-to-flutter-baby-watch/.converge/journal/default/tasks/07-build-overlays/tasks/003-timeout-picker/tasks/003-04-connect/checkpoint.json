@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/003-timeout-picker/003-04-connect",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T20:12:35.599Z",
+  "createdAt": "2026-04-21T20:12:30.777Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T20:12:30.777Z",
+      "completedAt": "2026-04-21T20:12:35.595Z",
+      "outcome": "success",
+      "durationMs": 4818
+    }
+  ],
+  "currentAttempt": 1
+}

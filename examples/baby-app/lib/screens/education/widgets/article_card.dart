@@ -44,6 +44,7 @@ class ArticleCard extends StatelessWidget {
           '$title, $topic, ${isBookmarked ? 'bookmarked' : 'not bookmarked'}',
       button: true,
       child: GestureDetector(
+// @converge:element ArticleCard-onTap-1
         onTap: () => context.push('/education/article/:id'),
         child: DecoratedBox(
           decoration: BoxDecoration(

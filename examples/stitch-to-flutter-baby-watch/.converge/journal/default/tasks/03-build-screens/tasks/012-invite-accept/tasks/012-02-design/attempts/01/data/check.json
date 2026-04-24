@@ -1,0 +1,25 @@
+{
+  "taskId": "03-build-screens/012-invite-accept/012-02-design",
+  "checks": [
+    {
+      "id": "design-exists",
+      "description": "design.html exists for invite-accept",
+      "cmd": "test -f .stitch/designs/invite-accept/design.html"
+    },
+    {
+      "id": "meta-exists",
+      "description": "META.md exists for invite-accept",
+      "cmd": "test -f .stitch/designs/invite-accept/META.md"
+    },
+    {
+      "id": "uses-glossary",
+      "description": "HTML uses Flutter HTML Glossary vocabulary",
+      "cmd": "grep -q 'class=\"scaffold\"' .stitch/designs/invite-accept/design.html"
+    },
+    {
+      "id": "has-data-attributes",
+      "description": "HTML uses data-* attributes for Flutter conversion",
+      "cmd": "grep -q 'data-color=' .stitch/designs/invite-accept/design.html"
+    }
+  ]
+}

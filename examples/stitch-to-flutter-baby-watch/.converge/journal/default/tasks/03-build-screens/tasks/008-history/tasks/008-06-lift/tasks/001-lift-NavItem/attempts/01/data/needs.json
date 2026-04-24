@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/008-history/008-06-lift/001-lift-NavItem",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/history/widgets/nav_item.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/history/widgets/nav_item.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/nav_item.dart"
+  ],
+  "blocked": false
+}

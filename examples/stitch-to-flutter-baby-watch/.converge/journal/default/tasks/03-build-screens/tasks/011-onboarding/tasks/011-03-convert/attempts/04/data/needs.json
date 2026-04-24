@@ -1,0 +1,31 @@
+{
+  "taskId": "03-build-screens/011-onboarding/011-03-convert",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/onboarding/design.html",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/onboarding/design.html"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/onboarding/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/onboarding/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/onboarding/onboarding_screen.dart"
+  ],
+  "blocked": false
+}

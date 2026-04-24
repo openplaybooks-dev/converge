@@ -28,6 +28,7 @@ class WeightNutritionScreen extends ConsumerWidget {
               backgroundColor: AppTheme.canvasColor,
               surfaceTintColor: AppTheme.canvasColor,
               leading: IconButton(
+// @converge:element BackButton-onPressed-1
                 onPressed: () => Navigator.maybePop(context),
                 icon: const Icon(
                   Icons.chevron_left,
@@ -67,6 +68,7 @@ class WeightNutritionScreen extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+// @converge:element FAB-onPressed-1
         onPressed: () {
           showModalBottomSheet(
             context: context,
@@ -102,6 +104,7 @@ class WeightNutritionScreen extends ConsumerWidget {
       ),
       child: NavigationBar(
         selectedIndex: 2,
+// @converge:element BottomNav-onDestinationSelected-1
         onDestinationSelected: (index) => context.go(
           const ["/home", "/progress", "/health-log", "/mood", "/education"][index],
         ),

@@ -1,0 +1,21 @@
+{
+  "type": "task",
+  "id": "03-build-screens/005-safe-zones",
+  "status": "pending",
+  "lastUpdated": "2026-04-23T12:25:07.343Z",
+  "createdAt": "2026-04-23T10:56:56.368Z",
+  "progress": {
+    "totalChildren": 6,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "005-01-spec",
+      "005-02-design",
+      "005-03-convert",
+      "005-04-analyze",
+      "005-05-split",
+      "005-06-lift"
+    ],
+    "lastProgressUpdate": "2026-04-23T12:25:07.341Z"
+  }
+}

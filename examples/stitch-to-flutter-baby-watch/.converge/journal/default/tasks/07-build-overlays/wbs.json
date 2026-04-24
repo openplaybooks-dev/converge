@@ -1,0 +1,151 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-21T18:39:37.881Z",
+  "spawnCount": 36,
+  "subtasks": [
+    {
+      "id": "001-alert",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/001-alert/TASK.md"
+    },
+    {
+      "id": "001-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/001-alert/tasks/001-01-spec/TASK.md"
+    },
+    {
+      "id": "001-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/001-alert/tasks/001-02-design/TASK.md"
+    },
+    {
+      "id": "001-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/001-alert/tasks/001-03-convert/TASK.md"
+    },
+    {
+      "id": "001-04-connect",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/001-alert/tasks/001-04-connect/TASK.md"
+    },
+    {
+      "id": "001-05-mount",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/001-alert/tasks/001-05-mount/TASK.md"
+    },
+    {
+      "id": "002-pairing-confirmation",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/002-pairing-confirmation/TASK.md"
+    },
+    {
+      "id": "002-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/002-pairing-confirmation/tasks/002-01-spec/TASK.md"
+    },
+    {
+      "id": "002-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/002-pairing-confirmation/tasks/002-02-design/TASK.md"
+    },
+    {
+      "id": "002-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/002-pairing-confirmation/tasks/002-03-convert/TASK.md"
+    },
+    {
+      "id": "002-04-connect",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/002-pairing-confirmation/tasks/002-04-connect/TASK.md"
+    },
+    {
+      "id": "002-05-mount",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/002-pairing-confirmation/tasks/002-05-mount/TASK.md"
+    },
+    {
+      "id": "003-timeout-picker",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/003-timeout-picker/TASK.md"
+    },
+    {
+      "id": "003-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/003-timeout-picker/tasks/003-01-spec/TASK.md"
+    },
+    {
+      "id": "003-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/003-timeout-picker/tasks/003-02-design/TASK.md"
+    },
+    {
+      "id": "003-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/003-timeout-picker/tasks/003-03-convert/TASK.md"
+    },
+    {
+      "id": "003-04-connect",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/003-timeout-picker/tasks/003-04-connect/TASK.md"
+    },
+    {
+      "id": "003-05-mount",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/003-timeout-picker/tasks/003-05-mount/TASK.md"
+    },
+    {
+      "id": "004-filter-date",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/004-filter-date/TASK.md"
+    },
+    {
+      "id": "004-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/004-filter-date/tasks/004-01-spec/TASK.md"
+    },
+    {
+      "id": "004-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/004-filter-date/tasks/004-02-design/TASK.md"
+    },
+    {
+      "id": "004-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/004-filter-date/tasks/004-03-convert/TASK.md"
+    },
+    {
+      "id": "004-04-connect",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/004-filter-date/tasks/004-04-connect/TASK.md"
+    },
+    {
+      "id": "004-05-mount",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/004-filter-date/tasks/004-05-mount/TASK.md"
+    },
+    {
+      "id": "005-event-detail",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/005-event-detail/TASK.md"
+    },
+    {
+      "id": "005-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/005-event-detail/tasks/005-01-spec/TASK.md"
+    },
+    {
+      "id": "005-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/005-event-detail/tasks/005-02-design/TASK.md"
+    },
+    {
+      "id": "005-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/005-event-detail/tasks/005-03-convert/TASK.md"
+    },
+    {
+      "id": "005-04-connect",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/005-event-detail/tasks/005-04-connect/TASK.md"
+    },
+    {
+      "id": "005-05-mount",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/005-event-detail/tasks/005-05-mount/TASK.md"
+    },
+    {
+      "id": "006-test-alert",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/006-test-alert/TASK.md"
+    },
+    {
+      "id": "006-01-spec",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/006-test-alert/tasks/006-01-spec/TASK.md"
+    },
+    {
+      "id": "006-02-design",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/006-test-alert/tasks/006-02-design/TASK.md"
+    },
+    {
+      "id": "006-03-convert",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/006-test-alert/tasks/006-03-convert/TASK.md"
+    },
+    {
+      "id": "006-04-connect",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/006-test-alert/tasks/006-04-connect/TASK.md"
+    },
+    {
+      "id": "006-05-mount",
+      "writeToPath": ".converge/playbooks/default/tasks/07-build-overlays/tasks/006-test-alert/tasks/006-05-mount/TASK.md"
+    }
+  ]
+}

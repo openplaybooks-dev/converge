@@ -1,0 +1,30 @@
+{
+  "taskId": "02-design-system/005-generate-design-references",
+  "checks": [
+    {
+      "id": "meta-md-exists",
+      "description": "META.md exists",
+      "cmd": "test -f .stitch/system/META.md"
+    },
+    {
+      "id": "single-screen-exists",
+      "description": "Single screen HTML exists",
+      "cmd": "test -f .stitch/system/single-screen.html"
+    },
+    {
+      "id": "multi-state-exists",
+      "description": "Multi-state screen HTML exists",
+      "cmd": "test -f .stitch/system/multi-state-screen.html"
+    },
+    {
+      "id": "celebration-exists",
+      "description": "Celebration screen HTML exists",
+      "cmd": "test -f .stitch/system/celebration-screen.html"
+    },
+    {
+      "id": "html-has-tokens",
+      "description": "HTML uses CSS custom properties",
+      "cmd": "grep -q ':root' .stitch/system/single-screen.html"
+    }
+  ]
+}

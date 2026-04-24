@@ -1,0 +1,20 @@
+{
+  "type": "task",
+  "id": "03-build-screens/009-settings/009-05-split",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T12:25:07.344Z",
+  "createdAt": "2026-04-21T15:49:11.934Z",
+  "progress": {
+    "totalChildren": 5,
+    "completedChildren": 5,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-split-ProfileCard",
+      "002-split-AlertSettingsCard",
+      "003-split-BeaconSetupCard",
+      "004-split-MuteNotificationsRow",
+      "005-split-GeneralSettingsSection"
+    ],
+    "lastProgressUpdate": "2026-04-23T12:25:07.342Z"
+  }
+}

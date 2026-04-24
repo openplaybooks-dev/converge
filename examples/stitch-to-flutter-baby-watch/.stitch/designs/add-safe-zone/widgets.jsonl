@@ -1,0 +1,5 @@
+{"name": "MapPreviewCard", "grep": "blurRadius: 24", "description": "Map preview with location pin and my_location button", "shared": false}
+{"name": "SafeZoneFormField", "grep": "hintText: hint", "description": "Reusable labeled text input field", "shared": true}
+{"name": "AddressField", "grep": "suffixIcon: IconButton", "description": "Address input with location icon button", "shared": false}
+{"name": "RadiusSelector", "grep": "_radii: ['25m', '50m', '100m', '200m']", "description": "Horizontal radius selector with selectable chips", "shared": false}
+{"name": "ActiveToggle", "grep": "Icons.verified_user", "description": "Toggle row with icon and custom switch", "shared": true}

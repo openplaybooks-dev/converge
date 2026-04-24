@@ -1,0 +1,45 @@
+{
+  "taskId": "03-build-screens/012-invite-accept/012-01-spec",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/UX.md",
+      "count": 1,
+      "samples": [
+        ".stitch/UX.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/screens.json",
+      "count": 1,
+      "samples": [
+        ".stitch/screens.json"
+      ]
+    },
+    {
+      "pattern": ".stitch/references/ANALYSIS.md",
+      "count": 1,
+      "samples": [
+        ".stitch/references/ANALYSIS.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/references/co_guardians_list_phase_2/code.html",
+      "count": 1,
+      "samples": [
+        ".stitch/references/co_guardians_list_phase_2/code.html"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/invite-accept/SPEC.md"
+  ],
+  "blocked": false
+}

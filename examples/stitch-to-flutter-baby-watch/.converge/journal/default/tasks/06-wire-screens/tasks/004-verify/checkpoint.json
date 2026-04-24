@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/004-verify",
+  "status": "complete",
+  "lastUpdated": "2026-04-22T15:56:47.130Z",
+  "createdAt": "2026-04-21T19:20:55.345Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-22T15:54:17.376Z",
+      "completedAt": "2026-04-22T15:56:47.123Z",
+      "outcome": "success",
+      "durationMs": 149747
+    }
+  ],
+  "currentAttempt": 1
+}

@@ -1,0 +1,3 @@
+{"name": "RadarScanningArea", "grep": "AnimatedBuilder\\(\\s*animation: _radarAnimation", "description": "Animated radar scanning circles with pulsing Bluetooth icon", "shared": true}
+{"name": "BeaconDeviceCard", "grep": "_buildDeviceCard\\(", "description": "Device card showing beacon name, sync status, signal strength and connect button", "shared": false}
+{"name": "SignalBars", "grep": "_buildSignalBars", "description": "4-bar signal strength indicator widget", "shared": true}

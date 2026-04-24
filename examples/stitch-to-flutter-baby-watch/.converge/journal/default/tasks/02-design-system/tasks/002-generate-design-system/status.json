@@ -1,0 +1,20 @@
+{
+  "taskId": "02-design-system/002-generate-design-system",
+  "epicId": "default",
+  "focusPath": "default/02-design-system/002-generate-design-system",
+  "status": "running",
+  "startedAt": "2026-04-21T05:30:26.490Z",
+  "attempt": 1,
+  "gapsResolved": 0,
+  "gapsFailed": 0,
+  "checklist": [
+    {
+      "id": "subtask:spawn-1",
+      "type": "subtask",
+      "description": "taste-design",
+      "details": "../../../../.claude/skills/taste-design/SKILL.md",
+      "done": true,
+      "doneAt": "2026-04-21T05:31:50.943Z"
+    }
+  ]
+}

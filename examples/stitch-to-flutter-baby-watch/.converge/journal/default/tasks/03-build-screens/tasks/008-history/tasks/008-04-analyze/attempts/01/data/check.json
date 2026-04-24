@@ -1,0 +1,10 @@
+{
+  "taskId": "03-build-screens/008-history/008-04-analyze",
+  "checks": [
+    {
+      "id": "widgets-json-exists",
+      "description": "widgets.jsonl exists for history",
+      "cmd": "test -f .stitch/designs/history/widgets.jsonl"
+    }
+  ]
+}

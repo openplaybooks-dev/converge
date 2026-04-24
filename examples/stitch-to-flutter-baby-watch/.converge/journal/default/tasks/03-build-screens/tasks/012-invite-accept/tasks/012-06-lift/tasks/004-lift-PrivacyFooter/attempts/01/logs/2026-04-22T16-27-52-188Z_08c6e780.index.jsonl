@@ -1,0 +1,4 @@
+{"ts":"2026-04-22T16:27:52.188Z","type":"session","event":"started","data":{"session_id":"08c6e780-1952-4276-983c-8a64ff47c2fe","timeout_ms":300000}}
+{"ts":"2026-04-22T16:27:52.188Z","type":"process","event":"spawned","data":{"pid":19477}}
+{"ts":"2026-04-22T16:27:52.548Z","type":"process","event":"first_output","duration_ms":360}
+{"ts":"2026-04-22T16:32:52.552Z","type":"error","event":"timeout","duration_ms":300364,"data":{"reason":"idle","message":"claudefn idle-timed out after 300000ms of inactivity","timeout_ms":300000}}

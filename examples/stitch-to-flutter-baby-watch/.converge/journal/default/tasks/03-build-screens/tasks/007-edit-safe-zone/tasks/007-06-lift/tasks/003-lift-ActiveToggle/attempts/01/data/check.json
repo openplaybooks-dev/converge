@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/007-edit-safe-zone/007-06-lift/003-lift-ActiveToggle",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Shared widget file exists",
+      "cmd": "test -f lib/widgets/active_toggle.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "dart analyze lib/widgets/active_toggle.dart"
+    }
+  ]
+}

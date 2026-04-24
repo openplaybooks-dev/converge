@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/003-timeout-picker/003-01-spec",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T20:04:39.945Z",
+  "createdAt": "2026-04-21T20:04:39.915Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T20:04:39.915Z",
+      "completedAt": "2026-04-21T20:04:39.942Z",
+      "outcome": "success",
+      "durationMs": 27
+    }
+  ],
+  "currentAttempt": 1
+}

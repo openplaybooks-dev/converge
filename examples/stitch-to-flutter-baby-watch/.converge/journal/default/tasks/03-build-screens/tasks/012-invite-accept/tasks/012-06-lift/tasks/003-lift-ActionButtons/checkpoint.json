@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "03-build-screens/012-invite-accept/012-06-lift/003-lift-ActionButtons",
+  "status": "complete",
+  "lastUpdated": "2026-04-22T16:27:51.912Z",
+  "createdAt": "2026-04-22T16:20:22.266Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-22T16:20:22.266Z",
+      "completedAt": "2026-04-22T16:26:22.893Z",
+      "outcome": "failed",
+      "durationMs": 360627
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-22T16:26:23.074Z",
+      "completedAt": "2026-04-22T16:27:51.909Z",
+      "outcome": "success",
+      "durationMs": 88835
+    }
+  ],
+  "currentAttempt": 2
+}

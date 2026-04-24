@@ -1,0 +1,31 @@
+{
+  "taskId": "07-build-overlays/004-filter-date/004-03-convert",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/filter-date/design.html",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/filter-date/design.html"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/filter-date/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/filter-date/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/overlays/filter_date/filter_date.dart"
+  ],
+  "blocked": false
+}

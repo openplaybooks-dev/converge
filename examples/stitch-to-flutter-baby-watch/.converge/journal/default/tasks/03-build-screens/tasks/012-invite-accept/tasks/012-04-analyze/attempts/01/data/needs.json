@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/012-invite-accept/012-04-analyze",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/invite_accept/invite_accept_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/invite_accept/invite_accept_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/invite-accept/widgets.jsonl"
+  ],
+  "blocked": false
+}

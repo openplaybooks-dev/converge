@@ -1,0 +1,10 @@
+{
+  "taskId": "07-build-overlays/005-event-detail/005-04-connect",
+  "checks": [
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes after connecting providers",
+      "cmd": "dart analyze lib/widgets/overlays/event_detail/event_detail.dart"
+    }
+  ]
+}

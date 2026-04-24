@@ -38,6 +38,7 @@ class BookmarkedArticleCard extends StatelessWidget {
       label: 'Bookmarked: $title, $topic',
       button: true,
       child: GestureDetector(
+// @converge:element BookmarkedArticleCard-onTap-1
         onTap: () => context.push('/education/article/:id'),
         child: SizedBox(
           width: 200,

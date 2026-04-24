@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/003-wire-per-screen/002-SafeZonesScreen-FloatingActionButton-extendedOnPressed-1",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T11:02:06.663Z",
+  "createdAt": "2026-04-23T11:02:06.585Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T11:02:06.585Z",
+      "completedAt": "2026-04-23T11:02:06.661Z",
+      "outcome": "success",
+      "durationMs": 76
+    }
+  ],
+  "currentAttempt": 1
+}

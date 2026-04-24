@@ -1,0 +1,17 @@
+{
+  "taskId": "05-add-behavior/002-create-models",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "data-models.md",
+      "count": 1,
+      "samples": [
+        "data-models.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/models/**/*.dart"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/007-edit-safe-zone/007-04-analyze",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/edit_safe_zone/edit_safe_zone_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/edit_safe_zone/edit_safe_zone_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    ".stitch/designs/edit-safe-zone/widgets.jsonl"
+  ],
+  "blocked": false
+}

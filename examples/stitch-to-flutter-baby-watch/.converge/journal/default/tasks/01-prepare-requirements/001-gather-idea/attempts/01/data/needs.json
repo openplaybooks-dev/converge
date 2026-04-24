@@ -1,0 +1,9 @@
+{
+  "taskId": "01-prepare-requirements/001-gather-idea",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "idea.md"
+  ],
+  "blocked": false
+}

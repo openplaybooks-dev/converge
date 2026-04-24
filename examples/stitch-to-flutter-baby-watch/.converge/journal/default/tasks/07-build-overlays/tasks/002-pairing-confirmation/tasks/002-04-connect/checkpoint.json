@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/002-pairing-confirmation/002-04-connect",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T19:54:45.500Z",
+  "createdAt": "2026-04-21T19:51:55.832Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T19:51:55.832Z",
+      "completedAt": "2026-04-21T19:54:42.343Z",
+      "outcome": "failed",
+      "durationMs": 166511
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-21T19:54:42.514Z",
+      "completedAt": "2026-04-21T19:54:45.496Z",
+      "outcome": "success",
+      "durationMs": 2982
+    }
+  ],
+  "currentAttempt": 2
+}

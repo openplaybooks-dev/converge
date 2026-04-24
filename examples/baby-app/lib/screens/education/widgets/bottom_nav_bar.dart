@@ -15,6 +15,7 @@ class BottomNavBar extends StatelessWidget {
       ),
       child: NavigationBar(
         selectedIndex: 4,
+// @converge:element BottomNav-onDestinationSelected-1
         onDestinationSelected: (index) => context.go(const ['/home', '/progress', '/health-log', '/mood', '/education'][index]),
         destinations: const [
           NavigationDestination(

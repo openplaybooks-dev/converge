@@ -1,0 +1,200 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-prepare-requirements/006-enrich-screens-html-reference-check-failed-screens-json-html-reference-field",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-requirements/006-enrich-screens-html-reference",
+            "severity": "high",
+            "description": "[01-prepare-requirements/006-enrich-screens-html-reference] Check failed: Every screen entry has string htmlReference",
+            "source": "unit",
+            "detected": "2026-04-21T05:29:10.728Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "screens-json-html-reference-field",
+              "checkCmd": "python3 -c \"import json,sys; d=json.load(open('.stitch/screens.json')); sys.exit(0 if isinstance(d,list) and all(isinstance(x,dict) and 'htmlReference' in x and isinstance(x.get('htmlReference'),str) for x in d) else 1)\"",
+              "checkDescription": "Every screen entry has string htmlReference",
+              "checkOutput": "Command failed: python3 -c \"import json,sys; d=json.load(open('.stitch/screens.json')); sys.exit(0 if isinstance(d,list) and all(isinstance(x,dict) and 'htmlReference' in x and isinstance(x.get('htmlReference'),str) for x in d) else 1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Enrich screens.json with HTML Reference Paths\n\nRead `.stitch/references/ANALYSIS.md` and **update** `.stitch/screens.json` so each screen object includes an `htmlReference` field.\n\n## Inputs\n\n- `.stitch/references/ANALYSIS.md` — Synthesized reference analysis (screen inventory lists `code.html` paths)\n- `.stitch/screens.json` — Screen definitions from the UX breakdown (JSON array of screen objects)\n\n## Field: `htmlReference`\n\n- **Type:** string\n- **Value:** Repo-relative path to the reference HTML file under `.stitch/references/`, e.g. `.stitch/references/babyguard_home_phase_2_alert/code.html`\n- **If no suitable reference exists, or the file is missing on disk:** use an empty string `\"\"`\n\nExample entry after enrichment:\n\n```json\n{\n  \"id\": \"home\",\n  \"title\": \"Home\",\n  \"route\": \"/\",\n  \"description\": \"...\",\n  \"features\": [\"...\"],\n  \"priority\": 1,\n  \"htmlReference\": \".stitch/references/babyguard_home_phase_2_alert/code.html\"\n}\n```\n\n## Task\n\n1. **Read `.stitch/references/ANALYSIS.md`**\n   - Focus on **## Screen Inventory** (and any other sections that list `.stitch/references/**/code.html` paths).\n   - Build a mental list of available HTML paths, directory names, and how each reference was described (purpose, layout, state variant).\n\n2. **Read `.stitch/screens.json`**\n   - Confirm it is a **JSON array** of screen objects (same shape as produced by `004-breakdown-ux-to-screens`).\n\n3. **For each object in the array**, add or overwrite `htmlReference`:\n   - Match the UX screen to the **best** inventory row using `id`, `title`, `description`, `route`, and the inventory’s purpose/type columns — not every app screen will have a Stitch HTML twin.\n   - Set `htmlReference` to the chosen repo-relative `code.html` path **only if** that file exists at the workspace root (`test -f` or equivalent). Otherwise set `\"\"`.\n   - Overlays and purely app-native screens often have no reference HTML; `\"\"` is correct.\n\n4. **Write back** `.stitch/screens.json` with valid JSON (stable key order optional; do not drop existing fields).\n\n## Graceful Degradation\n\n- If **## Screen Inventory** is empty or states there are no references, set `htmlReference` to `\"\"` for every screen.\n- If `.stitch/references/ANALYSIS.md` is minimal (no references), same as above.\n\n## Success Criteria\n\n- `.stitch/screens.json` remains valid JSON\n- Every element in the top-level array includes `htmlReference` as a **string** (path or `\"\"`)\n- Any non-empty `htmlReference` points to a file that exists under `.stitch/references/`",
+              "taskId": "01-prepare-requirements/006-enrich-screens-html-reference",
+              "taskTitle": "Enrich screens.json with HTML Reference Paths",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/01-prepare-requirements/006-enrich-screens-html-reference",
+              "factId": "check:screens-json-html-reference-field"
+            }
+          }
+        ],
+        "durationMs": 108
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 38
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 119
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#6",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 36523
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-21T05:29:10.619Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-21T05:29:10.620Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-21T05:29:10.728Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-21T05:29:10.729Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-21T05:29:10.768Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#6",
+      "iteration": 1,
+      "ts": "2026-04-21T05:29:47.292Z"
+    },
+    {
+      "from": "run-strategy:task-run#6",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-21T05:29:47.412Z"
+    }
+  ]
+}

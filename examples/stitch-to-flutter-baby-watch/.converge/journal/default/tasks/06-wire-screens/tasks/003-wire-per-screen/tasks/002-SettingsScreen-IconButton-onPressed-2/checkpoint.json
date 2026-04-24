@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/003-wire-per-screen/002-SettingsScreen-IconButton-onPressed-2",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T11:02:06.855Z",
+  "createdAt": "2026-04-23T11:02:06.776Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T11:02:06.776Z",
+      "completedAt": "2026-04-23T11:02:06.853Z",
+      "outcome": "success",
+      "durationMs": 77
+    }
+  ],
+  "currentAttempt": 1
+}

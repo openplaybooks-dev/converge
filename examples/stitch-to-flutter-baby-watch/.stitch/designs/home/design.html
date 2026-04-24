@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=375, initial-scale=1.0" />
+  <title>Home — BabyGuard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-lowest": "#ffffff",
+            "surface-bright": "#F4F2EE",
+            "on-background": "#1E1E1E",
+            "secondary": "#4f635e",
+            "on-secondary": "#faf7f6",
+            "surface": "#F4F2EE",
+            "primary": "#5f5e5e",
+            "on-primary": "#faf7f6",
+            "tertiary": "#8b7355",
+            "error": "#9f403d",
+            "mint": "#CDE3DC",
+            "on-mint": "#00391C",
+            "peach": "#EED9D2",
+            "on-peach": "#410002",
+            "honey": "#F3D98C",
+            "on-honey": "#241A00",
+            "surface-container-low": "#f5f4ee",
+            "surface-container": "#efeee8",
+            "outline-variant": "#b1b3ab",
+            "on-surface-variant": "#5e6059",
+            "canvas-warm": "#F4F2EE"
+          },
+          borderRadius: {
+            "DEFAULT": "1rem",
+            "lg": "1.75rem",
+            "xl": "2rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Manrope"],
+            "label": ["Manrope"]
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body { font-family: 'Manrope', sans-serif; background-color: #E8E8E8; }
+    h1, h2, h3 { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .safe-state { background-color: #CDE3DC; color: #00391C; }
+    .weak-state { background-color: #F3D98C; color: #241A00; }
+    .lost-state { background-color: #EED9D2; color: #410002; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    .animate-float { animation: float 3s ease-in-out infinite; }
+    @keyframes pulse-ring {
+      0% { transform: scale(1); opacity: 0.4; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+    .animate-pulse-ring { animation: pulse-ring 2s ease-out infinite; }
+  </style>
+</head>
+<body class="scaffold">
+  <div class="phone">
+    <div data-flutter="scaffold" data-color="canvas-warm" class="flex flex-col min-h-screen bg-[#F4F2EE]">
+
+      <!-- AppBar -->
+      <header data-flutter="app-bar" data-color="canvas-warm" class="fixed top-0 w-full z-50 bg-[#F4F2EE]/80 backdrop-blur-md flex items-center justify-between px-6 h-20">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm">
+            <img alt="Parent Profile" class="w-full h-full object-cover" src="https://picsum.photos/seed/parent1/100/100" />
+          </div>
+          <h1 class="text-xl font-extrabold tracking-tight text-[#1E1E1E]">BabyGuard</h1>
+        </div>
+        <button aria-label="Notifications" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-black/5 transition-colors">
+          <span class="material-symbols-outlined text-[#1E1E1E]">notifications</span>
+        </button>
+      </header>
+
+      <!-- Body -->
+      <main class="flex-1 overflow-y-auto pt-24 pb-32 px-6 max-w-lg mx-auto space-y-8">
+
+        <!-- Status Section -->
+        <section class="flex flex-col items-center text-center">
+          <div class="inline-flex items-center gap-2 safe-state px-6 py-2.5 rounded-full font-bold text-base shadow-sm">
+            <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+            Đang an toàn
+          </div>
+          <div class="mt-6 flex flex-col items-center">
+            <h2 class="text-3xl font-extrabold text-[#1E1E1E]">Bé Na</h2>
+            <p class="mt-1 text-[#5e6059] font-medium text-sm">Còn Mẹ đang gần beacon</p>
+          </div>
+        </section>
+
+        <!-- Map Card -->
+        <section data-color="surface-container-lowest" class="relative h-72 w-full rounded-xl overflow-hidden bg-white shadow-sm">
+          <img alt="Map" class="w-full h-full object-cover grayscale-[0.2] brightness-[0.95]" src="https://picsum.photos/seed/map1/400/300" />
+          <!-- Beacon Point -->
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div class="relative flex items-center justify-center">
+              <div data-color="secondary" class="absolute w-12 h-12 bg-[#4f635e]/20 rounded-full animate-pulse-ring"></div>
+              <div data-color="secondary" class="relative w-10 h-10 bg-[#4f635e] rounded-full border-4 border-white shadow-xl flex items-center justify-center animate-float">
+                <span class="material-symbols-outlined text-white text-[18px]" style="font-variation-settings: 'FILL' 1;">child_care</span>
+              </div>
+            </div>
+          </div>
+          <!-- Last Seen Label -->
+          <div data-color="surface-container-lowest" class="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-md py-3 px-5 rounded-lg flex justify-between items-center shadow-md">
+            <div class="flex flex-col">
+              <span class="text-[10px] uppercase tracking-widest font-bold text-[#5e6059]">Vị trí gần nhất</span>
+              <span class="font-bold text-[#1E1E1E]">Phòng khách • 2 phút trước</span>
+            </div>
+            <button data-color="secondary" aria-label="Navigate" class="bg-[#4f635e] text-white w-10 h-10 rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform">
+              <span class="material-symbols-outlined text-[20px]">near_me</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Beacon Strip -->
+        <section data-color="surface-container-lowest" class="bg-white p-6 rounded-xl shadow-sm border border-[#E7E3DC]/50">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <div data-color="mint" class="w-12 h-12 rounded-full bg-[#CDE3DC]/30 flex items-center justify-center text-[#4f635e]">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">sensors</span>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-[#1E1E1E]">Bé Na</h3>
+                <p class="text-[#5e6059] text-xs font-medium">Đang ở gần • 98% Pin</p>
+              </div>
+            </div>
+            <button class="flex items-center gap-1 py-2 px-3 rounded-full hover:bg-black/5 text-[#4f635e] font-bold text-sm transition-colors">
+              Chi tiết beacon
+              <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section data-color="surface-container-lowest" class="bg-white/60 rounded-xl p-6 space-y-4">
+          <div class="flex flex-col gap-1">
+            <h3 class="text-base font-bold tracking-tight text-[#1E1E1E]">Tạm dừng thông báo</h3>
+            <p class="text-[#5e6059] text-xs leading-relaxed">Tắt cảnh báo tạm thời khi bạn đang ở cùng bé.</p>
+          </div>
+          <div class="flex gap-3">
+            <button data-color="surface-container-lowest" class="flex-1 bg-white border border-[#E7E3DC] py-3.5 rounded-full font-bold text-sm shadow-sm hover:bg-white active:scale-95 transition-all">5 phút</button>
+            <button data-color="surface-container-lowest" class="flex-1 bg-white border border-[#E7E3DC] py-3.5 rounded-full font-bold text-sm shadow-sm hover:bg-white active:scale-95 transition-all">10 phút</button>
+            <button data-color="surface-container-lowest" class="flex-1 bg-white border border-[#E7E3DC] py-3.5 rounded-full font-bold text-sm shadow-sm hover:bg-white active:scale-95 transition-all">15 phút</button>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- Bottom Navigation -->
+      <nav data-flutter="bottom-nav" data-color="surface-container-lowest" class="fixed bottom-0 w-full z-50 pb-safe bg-white/90 backdrop-blur-xl border-t border-[#E7E3DC]/30 shadow-[0_8px_32px_rgba(49,51,46,0.04)]">
+        <div class="flex justify-around items-center h-20 px-4 max-w-lg mx-auto">
+          <button data-flutter="nav-destination" data-icon="home" data-label="Trang chủ" data-selected="true"
+                  class="flex flex-col items-center justify-center text-[#4f635e]">
+            <span class="material-symbols-outlined text-[26px]" style="font-variation-settings: 'FILL' 1;">home</span>
+            <span class="text-[10px] font-bold mt-1">Trang chủ</span>
+          </button>
+          <button data-flutter="nav-destination" data-icon="devices" data-label="Thiết bị"
+                  class="flex flex-col items-center justify-center text-[#5e6059]/60">
+            <span class="material-symbols-outlined text-[26px]">devices</span>
+            <span class="text-[10px] font-bold mt-1">Thiết bị</span>
+          </button>
+          <button data-flutter="nav-destination" data-icon="security" data-label="An toàn"
+                  class="flex flex-col items-center justify-center text-[#5e6059]/60">
+            <span class="material-symbols-outlined text-[26px]">security</span>
+            <span class="text-[10px] font-bold mt-1">An toàn</span>
+          </button>
+          <button data-flutter="nav-destination" data-icon="settings" data-label="Cài đặt"
+                  class="flex flex-col items-center justify-center text-[#5e6059]/60">
+            <span class="material-symbols-outlined text-[26px]">settings</span>
+            <span class="text-[10px] font-bold mt-1">Cài đặt</span>
+          </button>
+        </div>
+      </nav>
+
+    </div>
+  </div>
+</body>
+</html>

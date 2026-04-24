@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/003-wire-per-screen/008-guardians",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T11:25:59.580Z",
+  "createdAt": "2026-04-23T11:25:59.574Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T11:25:59.574Z",
+      "completedAt": "2026-04-23T11:25:59.578Z",
+      "outcome": "success",
+      "durationMs": 4
+    }
+  ],
+  "currentAttempt": 1
+}

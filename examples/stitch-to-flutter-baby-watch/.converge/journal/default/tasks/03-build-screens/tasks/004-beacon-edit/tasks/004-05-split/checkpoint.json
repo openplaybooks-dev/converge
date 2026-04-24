@@ -1,0 +1,19 @@
+{
+  "type": "task",
+  "id": "03-build-screens/004-beacon-edit/004-05-split",
+  "status": "pending",
+  "lastUpdated": "2026-04-23T12:25:07.343Z",
+  "createdAt": "2026-04-23T10:56:56.367Z",
+  "progress": {
+    "totalChildren": 4,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-split-AvatarSection",
+      "002-split-MajorMinorRow",
+      "003-split-TxPowerField",
+      "004-split-DeleteButton"
+    ],
+    "lastProgressUpdate": "2026-04-23T12:25:07.341Z"
+  }
+}

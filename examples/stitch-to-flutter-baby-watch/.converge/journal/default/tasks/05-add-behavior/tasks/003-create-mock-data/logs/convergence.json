@@ -1,0 +1,303 @@
+{
+  "iteration": 2,
+  "stallCount": 1,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "05-add-behavior/003-create-mock-data-check-failed-dart-analysis",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-add-behavior/003-create-mock-data",
+            "severity": "high",
+            "description": "[05-add-behavior/003-create-mock-data] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-22T15:16:30.084Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-analysis",
+              "checkCmd": "dart analyze lib/data/mock_data.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "An error occurred while executing an analyzer plugin: Failed to compile \"/Users/hoangnguyen/.dartServer/.plugin_manager/9e820a09f9826aee5ce535ac929226a0/analyzer_plugin/bin/plugin.dart\" to an AOT snapshot.\n  pluginFolder = /Users/hoangnguyen/.dartServer/.plugin_manager/9e820a09f9826aee5ce535ac929226a0/analyzer_plugin\n  exitCode = 254\n  stdout = \n  stderr = ../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2133:32: Error: The argument type 'Element' can't be assigned to the parameter type 'Element2'.\n - 'Element' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'Element2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n            .publiclyExporting(element, resultCache: resultCache) ??\n                               ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2133:54: Error: The argument type 'Map<Element, LibraryElement?>?' can't be assigned to the parameter type 'Map<Element2, LibraryElement2?>?'.\n - 'Map' is from 'dart:core'.\n - 'Element' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'LibraryElement' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'Element2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n - 'LibraryElement2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n            .publiclyExporting(element, resultCache: resultCache) ??\n                                                     ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2137:40: Error: The getter 'source' isn't defined for the type 'Object'.\n - 'Object' is from 'dart:core'.\nTry correcting the name to the name of an existing getter, or defining a getter or field named 'source'.\n    var uriToImport = libraryToImport?.source.uri;\n                                       ^^^^^^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2150:58: Error: The argument type 'Object?' can't be assigned to the parameter type 'LibraryElement?'.\n - 'Object' is from 'dart:core'.\n - 'LibraryElement' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n      _removeUnnecessaryPendingElementImports(newImport, libraryToImport);\n                                                         ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2182:14: Error: The method 'publiclyExporting2' isn't defined for the type 'TopLevelDeclarations'.\n - 'TopLevelDeclarations' is from 'package:analyzer/src/services/top_level_declarations.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/src/services/top_level_declarations.dart').\nTry correcting the name to the name of an existing method, or defining a method named 'publiclyExporting2'.\n            .publiclyExporting2(element, resultCache: resultCache) ??\n             ^^^^^^^^^^^^^^^^^^\nError: AOT compilation failed\nBad state: Generating AOT kernel dill failed!\n\n\n#0      PluginManager._compileAsAot (package:analysis_server/src/plugin/plugin_manager.dart:589)\n#1      PluginManager._computeFiles (package:analysis_server/src/plugin/plugin_manager.dart:641)\n#2      PluginManager.filesFor (package:analysis_server/src/plugin/plugin_manager.dart:347)\n#3      PluginManager.addPluginToContextRoot (package:analysis_server/src/plugin/plugin_manager.dart:179)\n#4      PluginWatcher._addLegacyPlugins (package:analysis_server/src/plugin/plugin_watcher.dart:102)\n#5      PluginWatcher.addedDriver (package:analysis_server/src/plugin/plugin_watcher.dart:49)\n#6      AnalysisDriverScheduler.add (package:analyzer/src/dart/analysis/driver.dart:2665)\n#7      new AnalysisDriver (package:analyzer/src/dart/analysis/driver.dart:341)\n#8      ContextBuilderImpl.createContext (package:analyzer/src/dart/analysis/context_builder.dart:157)\n#9      new AnalysisContextCollectionImpl (package:analyzer/src/dart/analysis/analysis_context_collection.dart:122)\n#10     ContextManagerImpl._createAnalysisContexts.performContextRebuildGuarded.performContextRebuild (package:analysis_server/src/context_manager.dart:596)\n<asynchronous suspension>\n#11     ContextManagerImpl._createAnalysisContexts.performContextRebuildGuarded (package:analysis_server/src/context_manager.dart:732)\n<asynchronous suspension>\n#12     _CancellingTaskQueue.queue.<anonymous closure> (package:analysis_server/src/context_manager.dart:1041)\n<asynchronous suspension>\n#13     ContextManagerImpl.setRoots (package:analysis_server/src/context_manager.dart:386)\n<asynchronous suspension>\n#14     LegacyAnalysisServer.setAnalysisRoots (package:analysis_server/src/legacy_analysis_server.dart:901)\n<asynchronous suspension>\n#15     AnalysisSetAnalysisRootsHandler.handle (package:analysis_server/src/handler/legacy/analysis_set_analysis_roots.dart:56)\n<asynchronous suspension>\n#16     LegacyAnalysisServer.handleRequest.<anonymous closure>.<anonymous closure> (package:analysis_server/src/legacy_analysis_server.dart:648)\n<asynchronous suspension>\n#17     OperationPerformanceImpl.runAsync (package:analyzer/src/util/performance/operation_performance.dart:201)\n<asynchronous suspension>\n#18     LegacyAnalysisServer.handleRequest.<anonymous closure> (package:analysis_server/src/legacy_analysis_server.dart:628)\n<asynchronous suspension>\nAnalyzing mock_data.dart...",
+              "checkExitCode": 4,
+              "taskPrompt": "# Create Mock Data\n\nCreate comprehensive mock data for development and testing.\n\n**Read the data model specification:**\n\n```bash\ncat data-models.md\n```\n\n**Your Task:**\nCreate `lib/data/mock_data.dart` with realistic mock data for all entities based on the data model specification.\n\n**Instructions:**\n\n1. **Import models** from `package:folio/models/models.dart`\n2. **Create mock data based on the data model specification** — read data-models.md to determine entity counts, field types, and relationships\n3. **Ensure data coherence** — IDs match across entities, realistic dates, varied values\n4. **Use const where possible** for compile-time constants\n\n## Example\n\n```dart\nimport 'package:folio/models/models.dart';\n\nfinal List<Novel> mockNovels = [\n  Novel(\n    id: 'novel-1',\n    title: 'The Dragon\\'s Apprentice',\n    author: 'Sarah Chen',\n    coverUrl: 'https://picsum.photos/seed/novel1/200/300',\n    chapterCount: 142,\n    rating: 4.8,\n  ),\n  // ... more novels\n];\n```\n\n## Success Criteria\n\n- File created at `lib/data/mock_data.dart`\n- Data is coherent (IDs match across entities)\n- Realistic values (dates, scores, text)\n- Dart analysis passes\n- File is >200 lines",
+              "taskId": "05-add-behavior/003-create-mock-data",
+              "taskTitle": "Create Mock Data",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/05-add-behavior/003-create-mock-data",
+              "factId": "check:dart-analysis"
+            }
+          }
+        ],
+        "durationMs": 2011
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2063
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "05-add-behavior/003-create-mock-data-check-failed-dart-analysis",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-add-behavior/003-create-mock-data",
+            "severity": "high",
+            "description": "[05-add-behavior/003-create-mock-data] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-22T15:17:23.709Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-analysis",
+              "checkCmd": "dart analyze lib/data/mock_data.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "An error occurred while executing an analyzer plugin: Failed to compile \"/Users/hoangnguyen/.dartServer/.plugin_manager/9e820a09f9826aee5ce535ac929226a0/analyzer_plugin/bin/plugin.dart\" to an AOT snapshot.\n  pluginFolder = /Users/hoangnguyen/.dartServer/.plugin_manager/9e820a09f9826aee5ce535ac929226a0/analyzer_plugin\n  exitCode = 254\n  stdout = \n  stderr = ../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2133:32: Error: The argument type 'Element' can't be assigned to the parameter type 'Element2'.\n - 'Element' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'Element2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n            .publiclyExporting(element, resultCache: resultCache) ??\n                               ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2133:54: Error: The argument type 'Map<Element, LibraryElement?>?' can't be assigned to the parameter type 'Map<Element2, LibraryElement2?>?'.\n - 'Map' is from 'dart:core'.\n - 'Element' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'LibraryElement' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'Element2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n - 'LibraryElement2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n            .publiclyExporting(element, resultCache: resultCache) ??\n                                                     ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2137:40: Error: The getter 'source' isn't defined for the type 'Object'.\n - 'Object' is from 'dart:core'.\nTry correcting the name to the name of an existing getter, or defining a getter or field named 'source'.\n    var uriToImport = libraryToImport?.source.uri;\n                                       ^^^^^^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2150:58: Error: The argument type 'Object?' can't be assigned to the parameter type 'LibraryElement?'.\n - 'Object' is from 'dart:core'.\n - 'LibraryElement' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n      _removeUnnecessaryPendingElementImports(newImport, libraryToImport);\n                                                         ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2182:14: Error: The method 'publiclyExporting2' isn't defined for the type 'TopLevelDeclarations'.\n - 'TopLevelDeclarations' is from 'package:analyzer/src/services/top_level_declarations.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/src/services/top_level_declarations.dart').\nTry correcting the name to the name of an existing method, or defining a method named 'publiclyExporting2'.\n            .publiclyExporting2(element, resultCache: resultCache) ??\n             ^^^^^^^^^^^^^^^^^^\nError: AOT compilation failed\nBad state: Generating AOT kernel dill failed!\n\n\n#0      PluginManager._compileAsAot (package:analysis_server/src/plugin/plugin_manager.dart:589)\n#1      PluginManager._computeFiles (package:analysis_server/src/plugin/plugin_manager.dart:641)\n#2      PluginManager.filesFor (package:analysis_server/src/plugin/plugin_manager.dart:347)\n#3      PluginManager.addPluginToContextRoot (package:analysis_server/src/plugin/plugin_manager.dart:179)\n#4      PluginWatcher._addLegacyPlugins (package:analysis_server/src/plugin/plugin_watcher.dart:102)\n#5      PluginWatcher.addedDriver (package:analysis_server/src/plugin/plugin_watcher.dart:49)\n#6      AnalysisDriverScheduler.add (package:analyzer/src/dart/analysis/driver.dart:2665)\n#7      new AnalysisDriver (package:analyzer/src/dart/analysis/driver.dart:341)\n#8      ContextBuilderImpl.createContext (package:analyzer/src/dart/analysis/context_builder.dart:157)\n#9      new AnalysisContextCollectionImpl (package:analyzer/src/dart/analysis/analysis_context_collection.dart:122)\n#10     ContextManagerImpl._createAnalysisContexts.performContextRebuildGuarded.performContextRebuild (package:analysis_server/src/context_manager.dart:596)\n<asynchronous suspension>\n#11     ContextManagerImpl._createAnalysisContexts.performContextRebuildGuarded (package:analysis_server/src/context_manager.dart:732)\n<asynchronous suspension>\n#12     _CancellingTaskQueue.queue.<anonymous closure> (package:analysis_server/src/context_manager.dart:1041)\n<asynchronous suspension>\n#13     ContextManagerImpl.setRoots (package:analysis_server/src/context_manager.dart:386)\n<asynchronous suspension>\n#14     LegacyAnalysisServer.setAnalysisRoots (package:analysis_server/src/legacy_analysis_server.dart:901)\n<asynchronous suspension>\n#15     AnalysisSetAnalysisRootsHandler.handle (package:analysis_server/src/handler/legacy/analysis_set_analysis_roots.dart:56)\n<asynchronous suspension>\n#16     LegacyAnalysisServer.handleRequest.<anonymous closure>.<anonymous closure> (package:analysis_server/src/legacy_analysis_server.dart:648)\n<asynchronous suspension>\n#17     OperationPerformanceImpl.runAsync (package:analyzer/src/util/performance/operation_performance.dart:201)\n<asynchronous suspension>\n#18     LegacyAnalysisServer.handleRequest.<anonymous closure> (package:analysis_server/src/legacy_analysis_server.dart:628)\n<asynchronous suspension>\nAnalyzing mock_data.dart...",
+              "checkExitCode": 4,
+              "taskPrompt": "# Create Mock Data\n\nCreate comprehensive mock data for development and testing.\n\n**Read the data model specification:**\n\n```bash\ncat data-models.md\n```\n\n**Your Task:**\nCreate `lib/data/mock_data.dart` with realistic mock data for all entities based on the data model specification.\n\n**Instructions:**\n\n1. **Import models** from `package:folio/models/models.dart`\n2. **Create mock data based on the data model specification** — read data-models.md to determine entity counts, field types, and relationships\n3. **Ensure data coherence** — IDs match across entities, realistic dates, varied values\n4. **Use const where possible** for compile-time constants\n\n## Example\n\n```dart\nimport 'package:folio/models/models.dart';\n\nfinal List<Novel> mockNovels = [\n  Novel(\n    id: 'novel-1',\n    title: 'The Dragon\\'s Apprentice',\n    author: 'Sarah Chen',\n    coverUrl: 'https://picsum.photos/seed/novel1/200/300',\n    chapterCount: 142,\n    rating: 4.8,\n  ),\n  // ... more novels\n];\n```\n\n## Success Criteria\n\n- File created at `lib/data/mock_data.dart`\n- Data is coherent (IDs match across entities)\n- Realistic values (dates, scores, text)\n- Dart analysis passes\n- File is >200 lines",
+              "taskId": "05-add-behavior/003-create-mock-data",
+              "taskTitle": "Create Mock Data",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/05-add-behavior/003-create-mock-data",
+              "factId": "check:dart-analysis"
+            }
+          }
+        ],
+        "durationMs": 2354
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "run-strategy:task-run#44",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 49203
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "Outputs already present",
+        "durationMs": 2060
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-22T15:16:28.073Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-22T15:16:28.073Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-22T15:16:30.085Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-22T15:16:30.086Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-22T15:16:32.150Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#44",
+      "iteration": 1,
+      "ts": "2026-04-22T15:17:21.354Z"
+    },
+    {
+      "from": "run-strategy:task-run#44",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-22T15:17:23.709Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-22T15:17:23.710Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-22T15:17:23.711Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-22T15:17:23.712Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-22T15:17:25.772Z"
+    }
+  ]
+}

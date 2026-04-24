@@ -1,0 +1,21 @@
+{
+  "type": "task",
+  "id": "05-add-behavior/004-implement-providers",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T12:25:07.344Z",
+  "createdAt": "2026-04-22T15:17:28.077Z",
+  "progress": {
+    "totalChildren": 6,
+    "completedChildren": 6,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-provider-Beacon",
+      "002-provider-User",
+      "003-provider-SafeZone",
+      "004-provider-Event",
+      "005-provider-AlertConfig",
+      "006-provider-Invite"
+    ],
+    "lastProgressUpdate": "2026-04-23T12:25:07.342Z"
+  }
+}

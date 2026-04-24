@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "01-prepare-requirements/001-gather-idea",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T05:20:23.342Z",
+  "createdAt": "2026-04-21T05:20:10.765Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T05:20:10.765Z",
+      "completedAt": "2026-04-21T05:20:23.339Z",
+      "outcome": "success",
+      "durationMs": 12574
+    }
+  ],
+  "currentAttempt": 1
+}

@@ -1,0 +1,31 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-22T15:17:28.072Z",
+  "spawnCount": 6,
+  "subtasks": [
+    {
+      "id": "001-provider-Beacon",
+      "writeToPath": ".converge/playbooks/default/tasks/05-add-behavior/004-implement-providers/tasks/001-provider-Beacon/TASK.md"
+    },
+    {
+      "id": "002-provider-User",
+      "writeToPath": ".converge/playbooks/default/tasks/05-add-behavior/004-implement-providers/tasks/002-provider-User/TASK.md"
+    },
+    {
+      "id": "003-provider-SafeZone",
+      "writeToPath": ".converge/playbooks/default/tasks/05-add-behavior/004-implement-providers/tasks/003-provider-SafeZone/TASK.md"
+    },
+    {
+      "id": "004-provider-Event",
+      "writeToPath": ".converge/playbooks/default/tasks/05-add-behavior/004-implement-providers/tasks/004-provider-Event/TASK.md"
+    },
+    {
+      "id": "005-provider-AlertConfig",
+      "writeToPath": ".converge/playbooks/default/tasks/05-add-behavior/004-implement-providers/tasks/005-provider-AlertConfig/TASK.md"
+    },
+    {
+      "id": "006-provider-Invite",
+      "writeToPath": ".converge/playbooks/default/tasks/05-add-behavior/004-implement-providers/tasks/006-provider-Invite/TASK.md"
+    }
+  ]
+}

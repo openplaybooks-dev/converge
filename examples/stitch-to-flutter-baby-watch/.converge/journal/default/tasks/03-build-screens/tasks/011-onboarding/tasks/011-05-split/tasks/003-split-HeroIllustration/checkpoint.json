@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "03-build-screens/011-onboarding/011-05-split/003-split-HeroIllustration",
+  "status": "complete",
+  "lastUpdated": "2026-04-22T13:56:08.670Z",
+  "createdAt": "2026-04-22T13:48:34.945Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-22T13:48:34.945Z",
+      "completedAt": "2026-04-22T13:56:05.630Z",
+      "outcome": "failed",
+      "durationMs": 450685
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-22T13:56:05.800Z",
+      "completedAt": "2026-04-22T13:56:08.668Z",
+      "outcome": "success",
+      "durationMs": 2868
+    }
+  ],
+  "currentAttempt": 2
+}

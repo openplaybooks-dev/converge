@@ -1,0 +1,65 @@
+{
+  "taskId": "05-add-behavior/001-analyze-data-models",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "lib/screens/**/*.dart",
+      "count": 71,
+      "samples": [
+        "lib/screens/guardians/guardians_screen.dart",
+        "lib/screens/home/home_screen.dart",
+        "lib/screens/invite_accept/invite_accept_screen.dart",
+        "lib/screens/onboarding/onboarding_screen.dart",
+        "lib/screens/safe_zone_delete_confirmation/safe_zone_delete_confirmation_screen.dart",
+        "lib/screens/safe_zones/safe_zones_screen.dart",
+        "lib/screens/settings/settings_screen.dart",
+        "lib/screens/test_alert/test_alert_screen.dart",
+        "lib/screens/test_alert_countdown/test_alert_countdown_screen.dart",
+        "lib/screens/timeout_picker/timeout_picker_screen.dart"
+      ]
+    },
+    {
+      "pattern": "lib/widgets/**/*.dart",
+      "count": 29,
+      "samples": [
+        "lib/widgets/nav_item.dart",
+        "lib/widgets/page_indicator.dart",
+        "lib/widgets/permission_card.dart",
+        "lib/widgets/quick_actions.dart",
+        "lib/widgets/radar_scanning_area.dart",
+        "lib/widgets/safe_zone_form_field.dart",
+        "lib/widgets/signal_bars.dart",
+        "lib/widgets/status_section.dart",
+        "lib/widgets/technical_accordion.dart",
+        "lib/widgets/tx_power_field.dart"
+      ]
+    },
+    {
+      "pattern": ".stitch/UX.md",
+      "count": 1,
+      "samples": [
+        ".stitch/UX.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/*.html",
+      "count": 3,
+      "samples": [
+        ".stitch/system/celebration-screen.html",
+        ".stitch/system/multi-state-screen.html",
+        ".stitch/system/single-screen.html"
+      ]
+    },
+    {
+      "pattern": ".stitch/references/ANALYSIS.md",
+      "count": 1,
+      "samples": [
+        ".stitch/references/ANALYSIS.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "data-models.md"
+  ],
+  "blocked": false
+}

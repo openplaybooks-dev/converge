@@ -1,0 +1,5 @@
+{"name": "ProfileCard", "grep": "Elena Fisher", "description": "Profile section with avatar, name and premium badge", "shared": false}
+{"name": "AlertSettingsCard", "grep": "TIMEOUT INTERVAL", "description": "Alert timeout interval buttons and audio/vibration toggles", "shared": false}
+{"name": "BeaconSetupCard", "grep": "RSSI THRESHOLD", "description": "Beacon RSSI threshold slider and scan interval setting", "shared": false}
+{"name": "MuteNotificationsRow", "grep": "Mute Notifications", "description": "Horizontal scroll row of mute duration buttons", "shared": false}
+{"name": "GeneralSettingsSection", "grep": "System Permissions", "description": "System permissions and do not disturb toggle section", "shared": false}

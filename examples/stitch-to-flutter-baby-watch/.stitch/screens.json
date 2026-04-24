@@ -1,0 +1,183 @@
+[
+  {
+    "id": "home",
+    "title": "Home",
+    "route": "/",
+    "description": "Primary dashboard showing beacon monitoring status, quick actions, and co-guardian presence",
+    "features": ["sliver-app-bar", "status-orb", "beacon-strip", "co-guardian-status", "quick-actions", "pull-to-refresh"],
+    "navType": "tab",
+    "priority": 1,
+    "htmlReference": ".stitch/references/babyguard_home_phase_2_safe_updated/code.html"
+  },
+  {
+    "id": "beacon-scanner",
+    "title": "Beacon Scanner",
+    "route": "/scan",
+    "description": "Discover and pair new BLE beacons with scanning animation",
+    "features": ["scanning-indicator", "discovered-beacons-list", "rssi-indicator", "empty-state"],
+    "navType": "push",
+    "priority": 1,
+    "htmlReference": ".stitch/references/th_m_beacon_phase_2/code.html"
+  },
+  {
+    "id": "beacon-detail",
+    "title": "Beacon Detail",
+    "route": "/beacon/:id",
+    "description": "View beacon configuration, co-guardian list, and monitoring statistics",
+    "features": ["sliver-app-bar", "beacon-info-card", "co-guardian-list", "statistics", "fab-invite"],
+    "navType": "push",
+    "priority": 1,
+    "htmlReference": ".stitch/references/chi_ti_t_beacon_phase_2/code.html"
+  },
+  {
+    "id": "beacon-edit",
+    "title": "Edit Beacon",
+    "route": "/beacon/:id/edit",
+    "description": "Edit beacon name and configuration",
+    "features": ["form", "name-field", "save-action"],
+    "navType": "push",
+    "priority": 2,
+    "htmlReference": ""
+  },
+  {
+    "id": "safe-zones",
+    "title": "Safe Zones",
+    "route": "/safe-zones",
+    "description": "Manage locations where alerts are suppressed",
+    "features": ["section-list", "zone-cards", "active-toggle", "swipe-delete"],
+    "navType": "tab",
+    "priority": 1,
+    "htmlReference": ".stitch/references/safe_zones/code.html"
+  },
+  {
+    "id": "add-safe-zone",
+    "title": "Add Safe Zone",
+    "route": "/safe-zones/add",
+    "description": "Create a new safe zone with name, address, and radius",
+    "features": ["form", "gps-capture", "radius-slider", "map-preview"],
+    "navType": "push",
+    "priority": 2,
+    "htmlReference": ""
+  },
+  {
+    "id": "edit-safe-zone",
+    "title": "Edit Safe Zone",
+    "route": "/safe-zones/:id/edit",
+    "description": "Modify existing safe zone configuration",
+    "features": ["form", "gps-capture", "radius-slider", "map-preview", "active-toggle"],
+    "navType": "push",
+    "priority": 2,
+    "htmlReference": ""
+  },
+  {
+    "id": "history",
+    "title": "History",
+    "route": "/history",
+    "description": "Chronological log of disconnection/reconnection events",
+    "features": ["date-headers", "event-cards", "filter-bar", "pagination"],
+    "navType": "push",
+    "priority": 2,
+    "htmlReference": ".stitch/references/history/code.html"
+  },
+  {
+    "id": "settings",
+    "title": "Settings",
+    "route": "/settings",
+    "description": "Configure alert behavior, timeout, and app preferences",
+    "features": ["grouped-sections", "timeout-picker", "toggles", "navigation-links"],
+    "navType": "tab",
+    "priority": 1,
+    "htmlReference": ".stitch/references/settings/code.html"
+  },
+  {
+    "id": "guardians",
+    "title": "Co-Guardians",
+    "route": "/guardians",
+    "description": "Manage co-guardian family members",
+    "features": ["guardian-cards", "add-button", "swipe-remove"],
+    "navType": "push",
+    "priority": 2,
+    "htmlReference": ".stitch/references/ch_p_nh_n_l_i_m_i/code.html"
+  },
+  {
+    "id": "onboarding",
+    "title": "Onboarding",
+    "route": "/onboarding",
+    "description": "First-time setup with permissions, beacon pairing, and family invitation",
+    "features": ["page-view", "progress-indicator", "permission-requests", "beacon-pairing"],
+    "navType": "push",
+    "priority": 1,
+    "htmlReference": ".stitch/references/babyguard_onboarding_phase_2/code.html"
+  },
+  {
+    "id": "invite-accept",
+    "title": "Accept Invitation",
+    "route": "/invite/:code",
+    "description": "Accept invitation to monitor a beacon as co-guardian",
+    "features": ["centered-card", "beacon-info", "accept-reject-actions"],
+    "navType": "push",
+    "priority": 1,
+    "htmlReference": ".stitch/references/co_guardians_list_phase_2/code.html"
+  },
+  {
+    "id": "alert",
+    "title": "Alert Screen",
+    "route": "overlay:alert",
+    "description": "Full screen emergency modal when child is left behind",
+    "features": ["pulsing-icon", "countdown-timer", "acknowledge-button", "haptic-trigger"],
+    "navType": "overlay",
+    "priority": 1,
+    "htmlReference": ""
+  },
+  {
+    "id": "pairing-confirmation",
+    "title": "Pairing Confirmation",
+    "route": "overlay:pairing",
+    "description": "Bottom sheet to confirm beacon pairing",
+    "features": ["beacon-info", "confirm-actions"],
+    "navType": "overlay",
+    "priority": 2,
+    "htmlReference": ""
+  },
+  {
+    "id": "timeout-picker",
+    "title": "Timeout Picker",
+    "route": "overlay:timeout-picker",
+    "description": "Bottom sheet to select alert timeout duration",
+    "features": ["preset-options", "custom-input"],
+    "navType": "overlay",
+    "priority": 2,
+    "htmlReference": ""
+  },
+  {
+    "id": "filter-date",
+    "title": "Filter Date Range",
+    "route": "overlay:filter-date",
+    "description": "Bottom sheet to filter history by date range",
+    "features": ["date-range-picker"],
+    "navType": "overlay",
+    "priority": 3,
+    "htmlReference": ""
+  },
+  {
+    "id": "event-detail",
+    "title": "Event Detail",
+    "route": "overlay:event-detail",
+    "parentScreenId": "history",
+    "description": "Bottom sheet showing single history event details",
+    "features": ["event-info", "timestamp", "duration", "safe-zone-context"],
+    "navType": "overlay",
+    "priority": 3,
+    "htmlReference": ""
+  },
+  {
+    "id": "test-alert",
+    "title": "Test Alert Countdown",
+    "route": "overlay:test-alert",
+    "description": "Bottom sheet triggered by long-pressing status orb",
+    "features": ["countdown", "cancel-action"],
+    "navType": "overlay",
+    "priority": 3,
+    "htmlReference": ""
+  }
+]

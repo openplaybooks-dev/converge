@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-add-behavior/004-implement-providers/001-provider-Beacon",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T04:50:37.221Z",
+  "createdAt": "2026-04-23T04:50:36.446Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T04:50:36.446Z",
+      "completedAt": "2026-04-23T04:50:37.219Z",
+      "outcome": "success",
+      "durationMs": 773
+    }
+  ],
+  "currentAttempt": 1
+}

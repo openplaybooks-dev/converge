@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-add-behavior/004-implement-providers/003-provider-SafeZone",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T04:53:24.636Z",
+  "createdAt": "2026-04-23T04:52:17.866Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T04:52:17.866Z",
+      "completedAt": "2026-04-23T04:53:24.633Z",
+      "outcome": "success",
+      "durationMs": 66767
+    }
+  ],
+  "currentAttempt": 1
+}

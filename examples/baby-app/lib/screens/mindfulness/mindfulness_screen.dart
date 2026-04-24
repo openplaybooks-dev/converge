@@ -76,6 +76,7 @@ class _MindfulnessScreenState extends State<MindfulnessScreen> {
                   CategoryChips(
                     categories: _categories,
                     selectedIndex: _selectedCategoryIndex,
+// @converge:element CategoryChips-onSelected-1
                     onSelected: (index) =>
                         setState(() => _selectedCategoryIndex = index),
                   )

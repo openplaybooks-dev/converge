@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=375, initial-scale=1.0" />
+  <title>Alert — BabyGuard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Manrope', sans-serif;
+      background-color: #E8E8E8;
+      margin: 0;
+      padding: 0;
+    }
+    h1, h2, h3 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    @keyframes alert-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    .animate-alert { animation: alert-pulse 1s ease-in-out infinite; }
+    @keyframes ring {
+      0% { transform: scale(1); opacity: 0.6; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+    .animate-ring { animation: ring 1.5s ease-out infinite; }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* Flutter HTML Glossary class mappings */
+    .dialog {
+      background-color: #F4F2EE;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+    .padding {
+      padding: 32px;
+    }
+    .card {
+      background-color: #ffffff;
+      border-radius: 1.75rem;
+      padding: 32px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    .filled-btn {
+      background-color: #31332e;
+      color: #ffffff;
+      border-radius: 9999px;
+      padding: 16px 32px;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      max-width: 320px;
+      height: 56px;
+      border: none;
+      cursor: pointer;
+    }
+    .icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .title-large {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      font-size: 28px;
+      color: #9f403d;
+    }
+    .title-medium {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      color: #31332e;
+    }
+    .body-medium {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 500;
+      font-size: 16px;
+      color: #5e6059;
+    }
+    .label-small {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #9f403d;
+    }
+    .sized-box {
+      width: 128px;
+      height: 128px;
+    }
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #9f403d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .gap-6 { gap: 24px; }
+    .mb-2 { margin-bottom: 8px; }
+    .mb-8 { margin-bottom: 32px; }
+    .mb-10 { margin-bottom: 40px; }
+    .text-center { text-align: center; }
+    .text-white { color: #ffffff; }
+    .text-6xl { font-size: 48px; }
+    .relative { position: relative; }
+    .absolute { position: absolute; }
+    .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+    .shadow-2xl { box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+    .tabular-nums { font-variant-numeric: tabular-nums; }
+    .mt-2 { margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="dialog" data-bg="surface">
+
+      <!-- Main content area -->
+      <main class="column padding" style="flex: 1; justify-content: center;">
+
+        <!-- Pulsing Alert Icon -->
+        <div class="relative mb-8">
+          <div class="absolute inset-0 rounded-full animate-ring" style="background-color: #9f403d;"></div>
+          <div class="relative icon sized-box rounded-full animate-alert shadow-2xl" style="background-color: #9f403d; color: white; font-size: 48px;">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">warning</span>
+          </div>
+        </div>
+
+        <!-- Status Text -->
+        <div class="text-center mb-10">
+          <h1 class="title-large mb-2">KHẨN CẤP</h1>
+          <p class="title-medium">Không thấy beacon</p>
+        </div>
+
+        <!-- Countdown Timer Card -->
+        <div class="card mb-8 text-center">
+          <p class="label-small mb-2">Thời gian còn lại</p>
+          <div class="text-6xl" style="font-weight: 800; color: #9f403d; font-variant-numeric: tabular-nums;">32</div>
+          <p class="body-medium mt-2">giây trước khi báo động</p>
+        </div>
+
+        <!-- Sound/Vibration Indicators -->
+        <div class="row gap-6 mb-10">
+          <div class="row" style="gap: 8px;">
+            <div class="avatar icon">
+              <span class="material-symbols-outlined text-white" style="font-size: 20px;">volume_up</span>
+            </div>
+            <span class="body-medium">Âm thanh</span>
+          </div>
+          <div class="row" style="gap: 8px;">
+            <div class="avatar icon">
+              <span class="material-symbols-outlined text-white" style="font-size: 20px;">vibration</span>
+            </div>
+            <span class="body-medium">Rung</span>
+          </div>
+        </div>
+
+        <!-- Acknowledge Button -->
+        <button class="filled-btn">
+          <span class="material-symbols-outlined">check_circle</span>
+          Tôi đã kiểm tra
+        </button>
+
+      </main>
+
+    </div>
+  </div>
+</body>
+</html>

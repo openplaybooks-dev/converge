@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-wire-screens/003-wire-per-screen/007-HomeScreen-_QuickActionButton-onTap-1",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T11:25:12.552Z",
+  "createdAt": "2026-04-23T11:21:45.690Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T11:21:45.690Z",
+      "completedAt": "2026-04-23T11:25:12.548Z",
+      "outcome": "success",
+      "durationMs": 206858
+    }
+  ],
+  "currentAttempt": 1
+}

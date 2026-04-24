@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/009-settings/009-06-lift/005-lift-GeneralSettingsSection",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/screens/settings/widgets/general_settings_section.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/settings/widgets/general_settings_section.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/general_settings_section.dart"
+  ],
+  "blocked": false
+}

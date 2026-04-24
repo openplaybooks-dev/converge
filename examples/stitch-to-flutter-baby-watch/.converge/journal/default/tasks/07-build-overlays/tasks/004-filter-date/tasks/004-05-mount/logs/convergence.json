@@ -1,0 +1,200 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "07-build-overlays/004-filter-date/004-05-mount-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-build-overlays/004-filter-date/004-05-mount",
+            "severity": "high",
+            "description": "[07-build-overlays/004-filter-date/004-05-mount] Check failed: Dart analysis passes for parent screen",
+            "source": "unit",
+            "detected": "2026-04-21T20:47:45.447Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "dart analyze lib/screens/history/history_screen.dart",
+              "checkDescription": "Dart analysis passes for parent screen",
+              "checkOutput": "An error occurred while executing an analyzer plugin: Failed to compile \"/Users/hoangnguyen/.dartServer/.plugin_manager/9e820a09f9826aee5ce535ac929226a0/analyzer_plugin/bin/plugin.dart\" to an AOT snapshot.\n  pluginFolder = /Users/hoangnguyen/.dartServer/.plugin_manager/9e820a09f9826aee5ce535ac929226a0/analyzer_plugin\n  exitCode = 254\n  stdout = \n  stderr = ../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2133:32: Error: The argument type 'Element' can't be assigned to the parameter type 'Element2'.\n - 'Element' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'Element2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n            .publiclyExporting(element, resultCache: resultCache) ??\n                               ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2133:54: Error: The argument type 'Map<Element, LibraryElement?>?' can't be assigned to the parameter type 'Map<Element2, LibraryElement2?>?'.\n - 'Map' is from 'dart:core'.\n - 'Element' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'LibraryElement' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n - 'Element2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n - 'LibraryElement2' is from 'package:analyzer/dart/element/element2.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element2.dart').\n            .publiclyExporting(element, resultCache: resultCache) ??\n                                                     ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2137:40: Error: The getter 'source' isn't defined for the type 'Object'.\n - 'Object' is from 'dart:core'.\nTry correcting the name to the name of an existing getter, or defining a getter or field named 'source'.\n    var uriToImport = libraryToImport?.source.uri;\n                                       ^^^^^^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2150:58: Error: The argument type 'Object?' can't be assigned to the parameter type 'LibraryElement?'.\n - 'Object' is from 'dart:core'.\n - 'LibraryElement' is from 'package:analyzer/dart/element/element.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/dart/element/element.dart').\n      _removeUnnecessaryPendingElementImports(newImport, libraryToImport);\n                                                         ^\n../../../../.pub-cache/hosted/pub.dev/analyzer_plugin-0.12.0/lib/src/utilities/change_builder/change_builder_dart.dart:2182:14: Error: The method 'publiclyExporting2' isn't defined for the type 'TopLevelDeclarations'.\n - 'TopLevelDeclarations' is from 'package:analyzer/src/services/top_level_declarations.dart' ('../../../../.pub-cache/hosted/pub.dev/analyzer-7.6.0/lib/src/services/top_level_declarations.dart').\nTry correcting the name to the name of an existing method, or defining a method named 'publiclyExporting2'.\n            .publiclyExporting2(element, resultCache: resultCache) ??\n             ^^^^^^^^^^^^^^^^^^\nError: AOT compilation failed\nBad state: Generating AOT kernel dill failed!\n\n\n#0      PluginManager._compileAsAot (package:analysis_server/src/plugin/plugin_manager.dart:589)\n#1      PluginManager._computeFiles (package:analysis_server/src/plugin/plugin_manager.dart:641)\n#2      PluginManager.filesFor (package:analysis_server/src/plugin/plugin_manager.dart:347)\n#3      PluginManager.addPluginToContextRoot (package:analysis_server/src/plugin/plugin_manager.dart:179)\n#4      PluginWatcher._addLegacyPlugins (package:analysis_server/src/plugin/plugin_watcher.dart:102)\n#5      PluginWatcher.addedDriver (package:analysis_server/src/plugin/plugin_watcher.dart:49)\n#6      AnalysisDriverScheduler.add (package:analyzer/src/dart/analysis/driver.dart:2665)\n#7      new AnalysisDriver (package:analyzer/src/dart/analysis/driver.dart:341)\n#8      ContextBuilderImpl.createContext (package:analyzer/src/dart/analysis/context_builder.dart:157)\n#9      new AnalysisContextCollectionImpl (package:analyzer/src/dart/analysis/analysis_context_collection.dart:122)\n#10     ContextManagerImpl._createAnalysisContexts.performContextRebuildGuarded.performContextRebuild (package:analysis_server/src/context_manager.dart:596)\n<asynchronous suspension>\n#11     ContextManagerImpl._createAnalysisContexts.performContextRebuildGuarded (package:analysis_server/src/context_manager.dart:732)\n<asynchronous suspension>\n#12     _CancellingTaskQueue.queue.<anonymous closure> (package:analysis_server/src/context_manager.dart:1041)\n<asynchronous suspension>\n#13     ContextManagerImpl.setRoots (package:analysis_server/src/context_manager.dart:386)\n<asynchronous suspension>\n#14     LegacyAnalysisServer.setAnalysisRoots (package:analysis_server/src/legacy_analysis_server.dart:901)\n<asynchronous suspension>\n#15     AnalysisSetAnalysisRootsHandler.handle (package:analysis_server/src/handler/legacy/analysis_set_analysis_roots.dart:56)\n<asynchronous suspension>\n#16     LegacyAnalysisServer.handleRequest.<anonymous closure>.<anonymous closure> (package:analysis_server/src/legacy_analysis_server.dart:648)\n<asynchronous suspension>\n#17     OperationPerformanceImpl.runAsync (package:analyzer/src/util/performance/operation_performance.dart:201)\n<asynchronous suspension>\n#18     LegacyAnalysisServer.handleRequest.<anonymous closure> (package:analysis_server/src/legacy_analysis_server.dart:628)\n<asynchronous suspension>\nAnalyzing history_screen.dart...\n\nwarning - history_screen.dart:2:8 - Unused import: 'package:go_router/go_router.dart'. Try removing the import directive. - unused_import\n   info - history_screen.dart:32:27 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors\n   info - history_screen.dart:35:19 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors\n   info - history_screen.dart:92:13 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors\n   info - history_screen.dart:94:22 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors\n   info - history_screen.dart:96:19 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors\n   info - history_screen.dart:98:19 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors\n   info - history_screen.dart:100:19 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors\n   info - history_screen.dart:106:13 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors\n   info - history_screen.dart:121:13 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors\n   info - history_screen.dart:136:13 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors\n\n11 issues found.",
+              "checkExitCode": 2,
+              "taskPrompt": "# Mount: Filter Date Range\n\nMount the **Filter Date Range** overlay in its parent screen (**history_screen.dart**) and wire the trigger.\n\n## Inputs\n- `lib/widgets/overlays/filter_date/filter_date.dart` — The overlay widget file\n- `.stitch/designs/filter-date/SPEC.md` — Overlay specification (describes trigger and dismiss behavior)\n- `lib/screens/history/history_screen.dart` — The parent screen file to modify\n\n## Task\n\n1. **Read the spec** — Identify:\n   - What UI element triggers the overlay (which button, tap area, etc.)\n   - The overlay type (bottom-sheet)\n   - Any return value handling\n\n2. **Read the parent screen** — Find the trigger element described in the spec.\n\n   **The `03-build-screens` pipeline typically generates screens with placeholder triggers** — buttons, FABs, or tap areas that stub out overlay behavior. Identify the placeholder pattern:\n\n   | Placeholder Pattern | What It Means | Action |\n   |---|---|---|\n   | `showModalBottomSheet(builder: (_) => const Placeholder())` | Trigger exists, builder is stub | Replace builder body only |\n   | `showModalBottomSheet(builder: (_) => ...)` with inline widget tree | Trigger exists, builder has temp content | Replace builder body only |\n   | `ScaffoldMessenger.of(context).showSnackBar(...)` | Trigger exists, action is stub | Replace entire callback body |\n   | `debugPrint(...)` in `onTap`/`onPressed` | Trigger exists, action is stub | Replace callback body |\n   | Widget with `Semantics(label: ...)` but no `onTap` | Trigger UI exists, no handler | Wrap in `InkWell`/`GestureDetector` |\n   | No matching trigger element | Nothing exists | Create trigger per spec |\n\n   If a trigger already exists, **replace the placeholder body** — do NOT duplicate the `showModalBottomSheet`/`showDialog` call.\n\n3. **Add import** — Add the overlay widget import to the parent screen (use the project's package name from `pubspec.yaml`):\n   ```dart\n   import 'package:<pkg>/widgets/overlays/filter_date/filter_date.dart';\n   ```\n\n4. **Wire the trigger** — Apply the appropriate replacement from the table above:\n\n   ### Replace builder body (existing `showModalBottomSheet`/`showDialog`):\n   ```dart\n   // BEFORE:\n   builder: (_) => const Placeholder(),\n   // AFTER:\n   builder: (_) => const FilterDate(),\n   ```\n\n   ### Replace stub callback (existing `SnackBar`/`debugPrint`):\n   ```dart\n   onPressed: () async {\n     final result = await showModalBottomSheet<ReturnType>(\n       context: context,\n       isScrollControlled: true,\n       builder: (_) => const FilterDate(),\n     );\n     if (result != null && context.mounted) {\n       // Handle result per spec\n     }\n   },\n   ```\n\n   ### Add new trigger (no existing handler):\n   Wrap the element in `InkWell` or `GestureDetector` with the overlay call.\n\n5. **Verify** — Run `dart analyze lib/screens/history/history_screen.dart`\n\n## Important Notes\n\n- Do NOT create a new button or trigger if one already exists — reuse it\n- Do NOT duplicate `showModalBottomSheet`/`showDialog` calls — if one already exists, replace its builder content only\n- If the spec defines a return value, handle it in the parent after `await`\n- Use `context.mounted` check after any `await` before using context\n\n## Quality Gates\n\n- Parent screen imports the overlay widget\n- Trigger element calls `showModalBottomSheet` or `showDialog`\n- No hardcoded colors or styles introduced\n- `dart analyze` passes for the parent screen\n\n## Success Criteria\n\n- `lib/screens/history/history_screen.dart` updated with overlay import\n- Trigger element wired to show the overlay\n- Return value handled if spec requires it\n- `dart analyze` passes",
+              "taskId": "07-build-overlays/004-filter-date/004-05-mount",
+              "taskTitle": "Mount: Filter Date Range",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/07-build-overlays/tasks/004-filter-date/tasks/004-05-mount",
+              "factId": "check:dart-valid"
+            }
+          }
+        ],
+        "durationMs": 2519
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2521
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 2535
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#78",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 41777
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-21T20:47:42.928Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-21T20:47:42.928Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-21T20:47:45.448Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-21T20:47:45.449Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-21T20:47:47.970Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#78",
+      "iteration": 1,
+      "ts": "2026-04-21T20:48:29.748Z"
+    },
+    {
+      "from": "run-strategy:task-run#78",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-21T20:48:32.284Z"
+    }
+  ]
+}

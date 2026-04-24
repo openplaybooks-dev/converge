@@ -1,0 +1,58 @@
+{
+  "taskId": "06-wire-screens/002-analyze-navigations",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": ".stitch/screens.json",
+      "count": 1,
+      "samples": [
+        ".stitch/screens.json"
+      ]
+    },
+    {
+      "pattern": "lib/screens/**/*.dart",
+      "count": 71,
+      "samples": [
+        "lib/screens/history/history_screen.dart",
+        "lib/screens/home/home_screen.dart",
+        "lib/screens/invite_accept/invite_accept_screen.dart",
+        "lib/screens/onboarding/onboarding_screen.dart",
+        "lib/screens/pairing_confirmation/pairing_confirmation_screen.dart",
+        "lib/screens/safe_zones/safe_zones_screen.dart",
+        "lib/screens/settings/settings_screen.dart",
+        "lib/screens/test_alert/test_alert_screen.dart",
+        "lib/screens/test_alert_countdown/test_alert_countdown_screen.dart",
+        "lib/screens/timeout_picker/timeout_picker_screen.dart"
+      ]
+    },
+    {
+      "pattern": "lib/widgets/**/*.dart",
+      "count": 34,
+      "samples": [
+        "lib/widgets/pulse_avatar_badge.dart",
+        "lib/widgets/quick_actions.dart",
+        "lib/widgets/radar_scanning_area.dart",
+        "lib/widgets/safe_zone_form_field.dart",
+        "lib/widgets/signal_bars.dart",
+        "lib/widgets/status_indicator.dart",
+        "lib/widgets/status_section.dart",
+        "lib/widgets/technical_accordion.dart",
+        "lib/widgets/trust_notes_container.dart",
+        "lib/widgets/tx_power_field.dart"
+      ]
+    },
+    {
+      "pattern": "lib/router/app_router.dart",
+      "count": 1,
+      "samples": [
+        "lib/router/app_router.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "navigations.json",
+    "lib/screens/**/*.dart",
+    "lib/widgets/**/*.dart"
+  ],
+  "blocked": false
+}

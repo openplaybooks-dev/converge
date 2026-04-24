@@ -1,0 +1,15 @@
+{
+  "taskId": "03-build-screens/008-history/008-05-split/001-split-NavItem",
+  "checks": [
+    {
+      "id": "widget-exists",
+      "description": "Widget file exists",
+      "cmd": "test -f lib/screens/history/widgets/nav_item.dart"
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes",
+      "cmd": "flutter analyze lib/screens/history/widgets/nav_item.dart"
+    }
+  ]
+}

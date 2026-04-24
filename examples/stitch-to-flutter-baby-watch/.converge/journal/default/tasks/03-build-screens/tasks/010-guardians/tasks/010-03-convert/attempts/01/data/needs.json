@@ -1,0 +1,31 @@
+{
+  "taskId": "03-build-screens/010-guardians/010-03-convert",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": ".stitch/designs/guardians/design.html",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/guardians/design.html"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/guardians/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/guardians/SPEC.md"
+      ]
+    },
+    {
+      "pattern": ".stitch/system/DESIGN.md",
+      "count": 1,
+      "samples": [
+        ".stitch/system/DESIGN.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/guardians/guardians_screen.dart"
+  ],
+  "blocked": false
+}

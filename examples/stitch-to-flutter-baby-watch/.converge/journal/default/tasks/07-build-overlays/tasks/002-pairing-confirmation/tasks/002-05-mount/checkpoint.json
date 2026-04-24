@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/002-pairing-confirmation/002-05-mount",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T20:04:39.789Z",
+  "createdAt": "2026-04-21T19:54:45.615Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T19:54:45.615Z",
+      "completedAt": "2026-04-21T20:04:34.785Z",
+      "outcome": "failed",
+      "durationMs": 589170
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-21T20:04:34.957Z",
+      "completedAt": "2026-04-21T20:04:39.785Z",
+      "outcome": "success",
+      "durationMs": 4828
+    }
+  ],
+  "currentAttempt": 2
+}

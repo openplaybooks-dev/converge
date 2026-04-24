@@ -1,0 +1,16 @@
+{
+  "taskId": "03-build-screens/008-history/008-06-lift/003-lift-EventCard",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/widgets/event_card.dart",
+      "count": 0,
+      "samples": []
+    }
+  ],
+  "outputs": [
+    "lib/widgets/event_card.dart"
+  ],
+  "blocked": true,
+  "blockedReason": "Missing required inputs: lib/widgets/event_card.dart"
+}

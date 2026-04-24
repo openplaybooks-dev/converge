@@ -1,0 +1,220 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "07-build-overlays/005-event-detail/005-02-design-check-failed-uses-glossary",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-build-overlays/005-event-detail/005-02-design",
+            "severity": "high",
+            "description": "[07-build-overlays/005-event-detail/005-02-design] Check failed: HTML uses Flutter HTML Glossary vocabulary",
+            "source": "unit",
+            "detected": "2026-04-21T20:48:35.145Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "uses-glossary",
+              "checkCmd": "grep -qE 'class=\"(column|row|card|bottom-sheet|dialog)\"' .stitch/designs/event-detail/design.html",
+              "checkDescription": "HTML uses Flutter HTML Glossary vocabulary",
+              "checkOutput": "Command failed: grep -qE 'class=\"(column|row|card|bottom-sheet|dialog)\"' .stitch/designs/event-detail/design.html\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Design: Event Detail\n\nGenerate the HTML design mockup for the **Event Detail** overlay using the **Flutter HTML Glossary** constrained vocabulary.\n\n## Critical Constraint\n\nThe HTML MUST use ONLY elements from the **Flutter HTML Glossary** (`stitch-flutter/references/flutter-html-glossary.md`). This ensures the `stitch-flutter` converter can produce pixel-perfect Flutter widgets mechanically.\n\n## Inputs\n- `.stitch/designs/event-detail/SPEC.md` — Overlay specification\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/system/META.md` — Reference examples metadata\n\n## Overlay Type: bottom-sheet\n\nDesign the overlay container appropriate for its type:\n\n### Bottom Sheet\n- Root element: `<div class=\"bottom-sheet\" data-bg=\"surface\">`\n- Include drag handle: `<div class=\"drag-handle\">`\n- Content area with scrollable body\n- Optional action buttons at bottom\n- Max height ~60% of viewport\n\n### Dialog\n- Root element: `<div class=\"dialog\" data-bg=\"surface\" data-radius=\"lg\">`\n- Title bar with close icon\n- Content body\n- Action row (cancel + confirm buttons)\n- Fixed width ~320px\n\n### Persistent Bar\n- Root element: `<div class=\"persistent-bar\" data-bg=\"surface-container\">`\n- Fixed height row layout\n- Compact controls\n\n## Steps\n\n1. **Read spec** — Load `.stitch/designs/event-detail/SPEC.md` to understand layout, sections, data\n2. **Read glossary** — Load `stitch-flutter/references/flutter-html-glossary.md` for constrained vocabulary\n3. **Select best example match** — Read `.stitch/system/META.md` and score against examples per `stitch-generate/references/selecting-examples.md`\n4. **Read matched reference** — Study the matching example's patterns\n5. **Generate META.md** — Write `.stitch/designs/event-detail/META.md` with example selection and scoring table\n6. **Generate design.html** — Write `.stitch/designs/event-detail/design.html` following `stitch-generate` skill using ONLY glossary elements\n\n## Glossary Quick Reference\n\n- Layout: `.column`, `.row`, `.stack`, `.wrap`, `.expanded`, `.padding`, `.sized-box`\n- Text: `.title-large`, `.body-medium`, `.label-small` (Material 3 TextTheme classes)\n- Components: `.card`, `.chip`, `.list-tile`, `.divider`, `.badge`, `.avatar`\n- Buttons: `.elevated-btn`, `.filled-btn`, `.text-btn`, `.icon-btn`\n- Icons: `<svg class=\"icon\" data-name=\"{material_icon}\" data-size=\"24\">`\n- Colors: `data-color=\"primary\"`, `data-bg=\"surface\"` (ColorScheme roles)\n- Spacing: `data-spacing=\"md\"`, `data-p=\"lg\"` (token names)\n\n## Output\n\n- `.stitch/designs/event-detail/META.md` — Example selection and scoring\n- `.stitch/designs/event-detail/design.html` — Self-contained HTML mockup using glossary vocabulary",
+              "taskSkill": "stitch-generate",
+              "taskId": "07-build-overlays/005-event-detail/005-02-design",
+              "taskTitle": "Design: Event Detail",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/07-build-overlays/tasks/005-event-detail/tasks/005-02-design",
+              "factId": "check:uses-glossary"
+            }
+          }
+        ],
+        "durationMs": 32
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 17
+      }
+    },
+    {
+      "id": "run-skill",
+      "handler": "run-skill",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 64
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 15985
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 45
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#79",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 105626
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-21T20:48:35.112Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-21T20:48:35.112Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-21T20:48:35.146Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-21T20:48:35.147Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "run-skill",
+      "iteration": 1,
+      "ts": "2026-04-21T20:48:51.132Z"
+    },
+    {
+      "from": "run-skill",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-21T20:48:51.150Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#79",
+      "iteration": 1,
+      "ts": "2026-04-21T20:50:36.777Z"
+    },
+    {
+      "from": "run-strategy:task-run#79",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-21T20:50:36.823Z"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/008-history/008-06-lift/003-lift-EventCard",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "lib/widgets/overlays",
+      "count": 1,
+      "samples": [
+        "lib/widgets/overlays"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/overlays"
+  ],
+  "blocked": false
+}

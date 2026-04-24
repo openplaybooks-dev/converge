@@ -1,0 +1,20 @@
+{
+  "taskId": "06-wire-screens/001-connect-providers",
+  "checks": [
+    {
+      "id": "screens-use-consumer-widget",
+      "description": "At least 3 screens use ConsumerWidget",
+      "cmd": "grep -r 'ConsumerWidget' lib/screens/ --include='*.dart' | wc -l | awk '{if ($1 >= 3) exit 0; exit 1}'"
+    },
+    {
+      "id": "screens-watch-providers",
+      "description": "At least 3 screens use ref.watch to read providers",
+      "cmd": "grep -r 'ref.watch' lib/screens/ --include='*.dart' | wc -l | awk '{if ($1 >= 3) exit 0; exit 1}'"
+    },
+    {
+      "id": "dart-analysis-valid",
+      "description": "All code passes analysis",
+      "cmd": "dart analyze lib/"
+    }
+  ]
+}

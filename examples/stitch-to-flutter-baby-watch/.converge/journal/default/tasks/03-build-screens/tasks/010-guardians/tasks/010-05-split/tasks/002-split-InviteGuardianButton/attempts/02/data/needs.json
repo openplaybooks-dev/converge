@@ -1,0 +1,17 @@
+{
+  "taskId": "03-build-screens/010-guardians/010-05-split/002-split-InviteGuardianButton",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "lib/screens/guardians/guardians_screen.dart",
+      "count": 1,
+      "samples": [
+        "lib/screens/guardians/guardians_screen.dart"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/screens/guardians/widgets/invite_guardian_button.dart"
+  ],
+  "blocked": false
+}

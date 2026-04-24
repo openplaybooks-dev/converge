@@ -1,0 +1,246 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/011-onboarding/011-02-design-check-failed-uses-glossary",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/011-onboarding/011-02-design",
+            "severity": "high",
+            "description": "[03-build-screens/011-onboarding/011-02-design] Check failed: HTML uses Flutter HTML Glossary vocabulary",
+            "source": "unit",
+            "detected": "2026-04-21T17:24:18.952Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "uses-glossary",
+              "checkCmd": "grep -q 'class=\"scaffold\"' .stitch/designs/onboarding/design.html",
+              "checkDescription": "HTML uses Flutter HTML Glossary vocabulary",
+              "checkOutput": "Command failed: grep -q 'class=\"scaffold\"' .stitch/designs/onboarding/design.html\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Design: Onboarding\n\nGenerate the HTML design mockup for **Onboarding** using the **Flutter HTML Glossary** constrained vocabulary.\n\n## Critical Constraint\n\nThe HTML MUST use ONLY elements from the **Flutter HTML Glossary** (`stitch-flutter/references/flutter-html-glossary.md`). This ensures the `stitch-flutter` converter can produce pixel-perfect Flutter widgets mechanically.\n\n## Linked reference HTML (`htmlReference`)\n\nPath from `screens.json` for this screen: **`.stitch/references/babyguard_onboarding_phase_2/code.html`**\n\n- When **non-empty** and the file exists: that file is the **fidelity target**. `.stitch/designs/onboarding/design.html` MUST reproduce the same structure, section order, hierarchy, spacing rhythm, and visible text/icons as that reference **as closely as the Flutter HTML Glossary allows**. Do not invent alternate layouts. Where the glossary has no one-to-one element, pick the closest glossary mapping and note the compromise in `.stitch/designs/onboarding/META.md`.\n- When **empty** or missing: infer structure from `.stitch/designs/onboarding/SPEC.md`, `ANALYSIS.md`, and example selection per below.\n\n## Inputs\n- `.stitch/designs/onboarding/SPEC.md` — Screen specification\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/system/META.md` — Reference examples metadata\n- **Linked HTML** — `.stitch/references/babyguard_onboarding_phase_2/code.html` when set (see above)\n\n## Steps\n\n1. **Read spec** — Load `.stitch/designs/onboarding/SPEC.md` to understand layout, sections, data\n2. **Read glossary** — Load `stitch-flutter/references/flutter-html-glossary.md` to understand the constrained vocabulary\n3. **Linked HTML first** — If `.stitch/references/babyguard_onboarding_phase_2/code.html` is non-empty and the file exists, read it completely. Treat it as the visual ground truth for `design.html` (subject to glossary-only elements). Skip browsing other `code.html` files for layout unless the linked file is unusable.\n4. **Otherwise consult references** — If there is no linked HTML (or it is missing) and `.stitch/references/ANALYSIS.md` exists, use the Screen Inventory to find matching `code.html` paths as structural guides\n5. **Select best example match** — Read `.stitch/system/META.md` and score against examples per `stitch-generate/references/selecting-examples.md` (especially when no linked HTML)\n6. **Read matched reference** — Study the chosen example's patterns when step 3 did not supply a file\n7. **Generate META.md** — Write `.stitch/designs/onboarding/META.md` with example selection, scoring table, and (when used) explicit note that `design.html` was matched to `.stitch/references/babyguard_onboarding_phase_2/code.html`\n8. **Generate design.html** — Write `.stitch/designs/onboarding/design.html` following `stitch-generate` skill using ONLY glossary elements; **pixel-fidelity to the linked reference HTML** when `htmlReference` is present and valid\n\n## Glossary Quick Reference\n\n- Layout: `.column`, `.row`, `.stack`, `.wrap`, `.expanded`, `.padding`, `.sized-box`\n- Scaffold: `.scaffold`, `.app-bar`, `.body`, `.bottom-nav`, `.fab`\n- Text: `.title-large`, `.body-medium`, `.label-small` (Material 3 TextTheme classes)\n- Components: `.card`, `.chip`, `.list-tile`, `.divider`, `.badge`, `.avatar`\n- Buttons: `.elevated-btn`, `.filled-btn`, `.text-btn`, `.icon-btn`\n- Images: `.network-image`, `.placeholder-image`\n- Icons: `<svg class=\"icon\" data-name=\"{material_icon}\" data-size=\"24\">`\n- Colors: `data-color=\"primary\"`, `data-bg=\"surface\"` (ColorScheme roles)\n- Spacing: `data-spacing=\"md\"`, `data-p=\"lg\"` (token names)\n- Animation: `data-animate=\"fade-in\"`, `data-animate-delay=\"100\"`\n- Navigation: `.ink-well` with `data-route=\"/path\"`\n\n## Output\n\n- `.stitch/designs/onboarding/META.md` — Example selection and scoring; document linked-HTML fidelity when applicable\n- `.stitch/designs/onboarding/design.html` — Self-contained HTML mockup at 375px using glossary vocabulary; when `htmlReference` is set and valid, structure and content mirror that file within glossary constraints",
+              "taskSkill": "stitch-generate",
+              "taskId": "03-build-screens/011-onboarding/011-02-design",
+              "taskTitle": "Design: Onboarding",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/011-onboarding/tasks/011-02-design",
+              "factId": "check:uses-glossary"
+            }
+          },
+          {
+            "id": "03-build-screens/011-onboarding/011-02-design-check-failed-has-data-attributes",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/011-onboarding/011-02-design",
+            "severity": "high",
+            "description": "[03-build-screens/011-onboarding/011-02-design] Check failed: HTML uses data-* attributes for Flutter conversion",
+            "source": "unit",
+            "detected": "2026-04-21T17:24:18.955Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "has-data-attributes",
+              "checkCmd": "grep -q 'data-color=' .stitch/designs/onboarding/design.html",
+              "checkDescription": "HTML uses data-* attributes for Flutter conversion",
+              "checkOutput": "Command failed: grep -q 'data-color=' .stitch/designs/onboarding/design.html\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Design: Onboarding\n\nGenerate the HTML design mockup for **Onboarding** using the **Flutter HTML Glossary** constrained vocabulary.\n\n## Critical Constraint\n\nThe HTML MUST use ONLY elements from the **Flutter HTML Glossary** (`stitch-flutter/references/flutter-html-glossary.md`). This ensures the `stitch-flutter` converter can produce pixel-perfect Flutter widgets mechanically.\n\n## Linked reference HTML (`htmlReference`)\n\nPath from `screens.json` for this screen: **`.stitch/references/babyguard_onboarding_phase_2/code.html`**\n\n- When **non-empty** and the file exists: that file is the **fidelity target**. `.stitch/designs/onboarding/design.html` MUST reproduce the same structure, section order, hierarchy, spacing rhythm, and visible text/icons as that reference **as closely as the Flutter HTML Glossary allows**. Do not invent alternate layouts. Where the glossary has no one-to-one element, pick the closest glossary mapping and note the compromise in `.stitch/designs/onboarding/META.md`.\n- When **empty** or missing: infer structure from `.stitch/designs/onboarding/SPEC.md`, `ANALYSIS.md`, and example selection per below.\n\n## Inputs\n- `.stitch/designs/onboarding/SPEC.md` — Screen specification\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/system/META.md` — Reference examples metadata\n- **Linked HTML** — `.stitch/references/babyguard_onboarding_phase_2/code.html` when set (see above)\n\n## Steps\n\n1. **Read spec** — Load `.stitch/designs/onboarding/SPEC.md` to understand layout, sections, data\n2. **Read glossary** — Load `stitch-flutter/references/flutter-html-glossary.md` to understand the constrained vocabulary\n3. **Linked HTML first** — If `.stitch/references/babyguard_onboarding_phase_2/code.html` is non-empty and the file exists, read it completely. Treat it as the visual ground truth for `design.html` (subject to glossary-only elements). Skip browsing other `code.html` files for layout unless the linked file is unusable.\n4. **Otherwise consult references** — If there is no linked HTML (or it is missing) and `.stitch/references/ANALYSIS.md` exists, use the Screen Inventory to find matching `code.html` paths as structural guides\n5. **Select best example match** — Read `.stitch/system/META.md` and score against examples per `stitch-generate/references/selecting-examples.md` (especially when no linked HTML)\n6. **Read matched reference** — Study the chosen example's patterns when step 3 did not supply a file\n7. **Generate META.md** — Write `.stitch/designs/onboarding/META.md` with example selection, scoring table, and (when used) explicit note that `design.html` was matched to `.stitch/references/babyguard_onboarding_phase_2/code.html`\n8. **Generate design.html** — Write `.stitch/designs/onboarding/design.html` following `stitch-generate` skill using ONLY glossary elements; **pixel-fidelity to the linked reference HTML** when `htmlReference` is present and valid\n\n## Glossary Quick Reference\n\n- Layout: `.column`, `.row`, `.stack`, `.wrap`, `.expanded`, `.padding`, `.sized-box`\n- Scaffold: `.scaffold`, `.app-bar`, `.body`, `.bottom-nav`, `.fab`\n- Text: `.title-large`, `.body-medium`, `.label-small` (Material 3 TextTheme classes)\n- Components: `.card`, `.chip`, `.list-tile`, `.divider`, `.badge`, `.avatar`\n- Buttons: `.elevated-btn`, `.filled-btn`, `.text-btn`, `.icon-btn`\n- Images: `.network-image`, `.placeholder-image`\n- Icons: `<svg class=\"icon\" data-name=\"{material_icon}\" data-size=\"24\">`\n- Colors: `data-color=\"primary\"`, `data-bg=\"surface\"` (ColorScheme roles)\n- Spacing: `data-spacing=\"md\"`, `data-p=\"lg\"` (token names)\n- Animation: `data-animate=\"fade-in\"`, `data-animate-delay=\"100\"`\n- Navigation: `.ink-well` with `data-route=\"/path\"`\n\n## Output\n\n- `.stitch/designs/onboarding/META.md` — Example selection and scoring; document linked-HTML fidelity when applicable\n- `.stitch/designs/onboarding/design.html` — Self-contained HTML mockup at 375px using glossary vocabulary; when `htmlReference` is set and valid, structure and content mirror that file within glossary constraints",
+              "taskSkill": "stitch-generate",
+              "taskId": "03-build-screens/011-onboarding/011-02-design",
+              "taskTitle": "Design: Onboarding",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/011-onboarding/tasks/011-02-design",
+              "factId": "check:has-data-attributes"
+            }
+          }
+        ],
+        "durationMs": 40
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 22
+      }
+    },
+    {
+      "id": "run-skill",
+      "handler": "run-skill",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 64
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 161917
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 57
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#104",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 409607
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-21T17:24:18.914Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-21T17:24:18.915Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-21T17:24:18.955Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-21T17:24:18.956Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "run-skill",
+      "iteration": 1,
+      "ts": "2026-04-21T17:27:00.874Z"
+    },
+    {
+      "from": "run-skill",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-21T17:27:00.897Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#104",
+      "iteration": 1,
+      "ts": "2026-04-21T17:33:50.505Z"
+    },
+    {
+      "from": "run-strategy:task-run#104",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-21T17:33:50.562Z"
+    }
+  ]
+}

@@ -1,136 +1,132 @@
-# Product Requirements Document — Child Safety Beacon App
+# Design — Product Requirements Document
 
-## Overview
+## 1. Overview
 
-Design Proposal — Child Safety Beacon App is a child safety application built with Flutter that detects when a child is left behind by monitoring Bluetooth Low Energy (BLE) beacons. When the adult's device moves away from the beacon beyond a configured timeout, the app triggers comprehensive alerts — including vibration, audio alarm, and high-priority push notifications — to prevent children from being accidentally left unattended.
+Design is a Flutter application that detects when a child is left behind by monitoring Bluetooth beacons. When the adult's device moves away from the beacon for a specified duration, the app triggers comprehensive alerts including device vibration, loud audio alarm, and high-priority push notifications.
 
-**Value Proposition:**
-- Simple: no GPS required for core monitoring; uses BLE technology
-- Battery efficient: BLE consumes minimal power compared to GPS
-- Multi-user support (Phase 2): more powerful than AirTag-style local-only solutions
-- Family-oriented: designed specifically for child safety
+## 2. User Personas
 
-## User Personas
+The application targets two primary user groups:
 
-### 1. Primary Caregiver (Parent)
-A parent who regularly transports their child and wants peace of mind that the child is never accidentally left behind in a vehicle or location.
+### Primary User: Parents / Guardians
+- Primary caregivers responsible for child safety
+- Key goals: Ensure child is never left behind, receive timely alerts when separation occurs, easily configure and monitor beacon status
+- Technical comfort level: Moderate — may not be familiar with BLE technology
 
-**Key Goals:**
-- Receive immediate alerts when moving away from the child's beacon
-- Configure alert sensitivity and timeout for their routine
-- Define safe zones (home, school) where alerts are suppressed
+### Secondary User: Extended Family Members (Phase 2)
+- Co-guardians who share monitoring responsibilities
+- Key goals: Receive alerts when primary caregiver is unavailable, view child's proximity status, collaborate on safety monitoring
+- Technical comfort level: Varies across family members
 
-### 2. Co-Guardian (Phase 2)
-A family member or caregiver who shares monitoring responsibility for the same child.
+## 3. Features
 
-**Key Goals:**
-- Monitor the same beacon as the primary caregiver
-- See whether another guardian is still near the child before alerts fire
-- Receive alerts only when no other guardian is in proximity
-
-### 3. On-the-Go Parent
-A busy parent who needs the app to work reliably in the background without constant interaction.
-
-**Key Goals:**
-- Set up once and forget — background monitoring must be reliable on both Android and iOS
-- Quick glance at the home screen to confirm safe status
-- Minimal battery drain
-
-## Features
-
-### 1. Beacon Connection
+### Beacon Connection
 - Scan for available BLE beacons
-- Select and name a beacon (e.g., "Blue Berry")
-- Save beacon configuration and credentials locally
+- Select beacon to monitor from discovered list
+- Save beacon configuration with custom name
+- Store beacon credentials locally
 
 **Acceptance Criteria:**
-- App discovers nearby BLE beacons and lists them with UUID, Major, Minor, and RSSI
-- User can assign a friendly name and save the beacon
-- Saved beacon persists across app restarts
+- App displays list of discoverable beacons within range
+- User can assign a friendly name (e.g., "Blue Berry") to a selected beacon
+- Beacon configuration persists across app restarts
+- Saved beacon appears in Home screen beacon strip
 
-### 2. Distance Monitoring
+### Distance Monitoring
 - Continuous beacon signal reception
-- RSSI tracking and real-time proximity detection
-- Connection state monitoring
+- Track RSSI (Received Signal Strength Indicator)
+- Monitor connection state
+- Real-time proximity detection (Near/Far status)
 
 **Acceptance Criteria:**
-- App displays Near / Far proximity derived from RSSI
-- Status updates within 1–2 seconds of signal change
-- Last-seen timestamp shown on the home screen beacon strip
+- Home screen displays current proximity status derived from RSSI
+- Status updates in real-time as RSSI changes
+- "Last seen" timestamp shown for monitored beacon
 
-### 3. Disconnection Alert
-Trigger when signal is lost for longer than the configured timeout and the beacon is not considered safe by safe-zone rules (Phase 1) or aggregate rules (Phase 2).
-
-**Acceptance Criteria:**
-- Alert fires after configurable timeout (default options: 2 / 5 / 10 minutes)
-- Alert includes device vibration, loud audio alarm, and high-priority push notification
-- Home screen transitions to alert_active state with elapsed time and GPS snapshot
-- User must acknowledge the alert to dismiss it
-
-### 4. Safe Zones
-Define locations where alerts are suppressed.
+### Disconnection Alert
+- Trigger alert when signal lost for configured duration
+- Safe zone evaluation before alert activation
+- Aggregate beacon safety check (Phase 2)
 
 **Acceptance Criteria:**
-- User can add a safe zone by current GPS or manual address entry
-- Configurable radius per zone (default 50 m)
-- Active/inactive toggle per zone
-- When disconnection occurs inside an active safe zone, alert is suppressed and event is silently logged
+- Timer starts upon beacon signal loss
+- Alert fires only when threshold exceeded AND not in safe zone
+- Alert includes vibration, audio alarm, and push notification
+- Alert can be acknowledged from Home screen
 
-### 5. History & Logging
-Store and display disconnection events, reconnection events, durations, and alert history.
-
-**Acceptance Criteria:**
-- Events listed chronologically with timestamp, duration, beacon name, and safe-zone status
-- User can filter by date range
-- User can export or clear history
-
-### 6. Alert Configuration
-Customizable settings for timeout, audio, vibration, and sensitivity.
+### History & Logging
+- Record disconnection timestamps
+- Record reconnection timestamps
+- Calculate and store duration of disconnection events
+- Maintain alert history with safe zone context
 
 **Acceptance Criteria:**
-- Timeout options: 2 min / 5 min / 10 min / custom
-- Audio and vibration individually toggleable
-- Changes take effect immediately for ongoing monitoring
+- History screen shows chronological list of events
+- Each event displays timestamp, duration, and safe zone status
+- Filter by date range available
 
-### 7. Background Monitoring
-Continuous monitoring when the app is not in the foreground.
-
-**Acceptance Criteria:**
-- Android: foreground service with persistent notification
-- iOS: iBeacon region monitoring via CoreLocation
-- Alerts fire even when app is backgrounded or device is locked
-
-### 8. Multi-User Support (Phase 2)
-Many-to-many: one user can monitor many beacons; one beacon can be monitored by many users.
+### Alert Configuration
+- Configurable timeout: 2 min / 5 min / custom
+- Audio enable/disable
+- Vibration enable/disable
+- Sensitivity adjustment (advanced)
 
 **Acceptance Criteria:**
-- Owner can invite co-guardians via deep link or short code
-- Aggregate beacon safety: alert is suppressed if another guardian still sees the beacon within freshness window T
-- Guardian list displayed per-user (not per-device) with rolled-up status
+- Settings persist across app restarts
+- Timeout change takes effect immediately
 
-## Non-Functional Requirements
+### Safe Zones
+- Define locations where no alerts are triggered
+- Home, school, and trusted location support
+- Auto-detect current GPS location
+- Configurable radius per zone (default: 50m)
+- Active/Inactive toggle per zone
+
+**Acceptance Criteria:**
+- Safe zone list displayed with name, address, radius, and status
+- Add new zone captures GPS or accepts manual address
+- Zones can be edited and deleted
+- Active zones prevent alert triggering
+
+### Background Monitoring
+- Android: Foreground Service for continuous scanning
+- iOS: iBeacon region monitoring
+
+**Acceptance Criteria:**
+- App continues monitoring when in background
+- Alerts fire even when app is not in foreground
+
+## Requirements
 
 ### Performance
-- BLE scan updates within 1–2 seconds
-- Alert triggers within seconds of timeout expiry
-- GPS capture on-demand only (disconnect / alert), not continuous
-- Minimal battery impact from BLE scanning
+- RSSI updates processed within 1-2 seconds
+- Alert latency from signal loss to notification: < 1 second after threshold
+- Battery impact minimized through BLE scan intervals
+- No continuous GPS tracking — only on-demand location capture
 
 ### Accessibility
-- Voice announcements for alerts
-- Haptic feedback
-- Screen reader labels on status icon SVG (e.g., "Trạng thái: đang an toàn")
-- No reliance on color alone — text, shape, and motion convey state
-- WCAG AA contrast on pills and primary buttons
+- Voice announcements for critical alerts
+- Haptic feedback for status changes
+- Screen reader labels on all interactive elements
+- WCAG AA contrast compliance
+- Status communicated through color, text, and shape (not color alone)
 
 ### Platform Support
-- iOS and Android from a single Flutter codebase
-- Android: foreground service, FusedLocationProviderClient (on-demand)
-- iOS: CoreLocation iBeacon region monitoring, UserNotifications
+- iOS 12.0+
+- Android API 21+ (Android 5.0 Lollipop)
+- Flutter cross-platform framework
+- Native BLE access via platform channels
 
 ### Security & Privacy
-- Beacon data and safe zones stored locally; no continuous GPS tracking
-- Encrypted local storage
-- Phase 2 server sync with encryption; presence heartbeats expose coarse proximity only
-- User consent required for all permissions (Bluetooth, Location, Notifications)
-- Compliance with GDPR / COPPA and child safety app-store guidelines
+- Beacon credentials stored locally with encryption
+- GPS data captured only at disconnect/alert events
+- No continuous location tracking
+- Safe zone data stored locally only
+- No third-party data sharing
+
+### Technical Constraints
+- BLE beacon format: iBeacon (Apple) or Eddystone
+- RSSI to distance formula: Distance = 10^((TxPower - RSSI) / (10 * n))
+- Distance zones: Immediate (<1m), Near (1-10m), Far (>10m)
+- Local storage: Hive or SQLite
+- State management: Provider or Riverpod (Flutter)

@@ -1,0 +1,20 @@
+{
+  "taskId": "07-build-overlays/005-event-detail/005-05-mount",
+  "checks": [
+    {
+      "id": "parent-imports-overlay",
+      "description": "Parent screen imports the overlay widget",
+      "cmd": "grep -q 'event_detail' "
+    },
+    {
+      "id": "parent-shows-overlay",
+      "description": "Parent screen calls showModalBottomSheet or showDialog",
+      "cmd": "grep -qE 'showModalBottomSheet|showDialog' "
+    },
+    {
+      "id": "dart-valid",
+      "description": "Dart analysis passes for parent screen",
+      "cmd": "dart analyze"
+    }
+  ]
+}

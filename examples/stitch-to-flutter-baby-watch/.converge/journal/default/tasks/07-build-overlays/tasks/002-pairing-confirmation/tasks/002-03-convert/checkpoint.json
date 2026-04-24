@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/002-pairing-confirmation/002-03-convert",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T19:51:55.660Z",
+  "createdAt": "2026-04-21T19:43:54.684Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T19:43:54.684Z",
+      "completedAt": "2026-04-21T19:49:06.892Z",
+      "outcome": "failed",
+      "durationMs": 312208
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-21T19:49:07.064Z",
+      "completedAt": "2026-04-21T19:51:55.653Z",
+      "outcome": "success",
+      "durationMs": 168589
+    }
+  ],
+  "currentAttempt": 2
+}

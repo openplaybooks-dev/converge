@@ -1,0 +1,20 @@
+{
+  "taskId": "01-prepare-requirements/005-analyze-references",
+  "checks": [
+    {
+      "id": "analysis-md-exists",
+      "description": "ANALYSIS.md exists",
+      "cmd": "test -f .stitch/references/ANALYSIS.md"
+    },
+    {
+      "id": "analysis-has-design-system",
+      "description": "ANALYSIS.md has design system synthesis section",
+      "cmd": "grep -q \"## Design System Synthesis\" .stitch/references/ANALYSIS.md"
+    },
+    {
+      "id": "analysis-has-screen-inventory",
+      "description": "ANALYSIS.md has screen inventory section",
+      "cmd": "grep -q \"## Screen Inventory\" .stitch/references/ANALYSIS.md"
+    }
+  ]
+}

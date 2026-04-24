@@ -1,0 +1,20 @@
+{
+  "taskId": "01-prepare-requirements/003-generate-ux",
+  "checks": [
+    {
+      "id": "ux-md-exists",
+      "description": "UX.md exists",
+      "cmd": "test -f .stitch/UX.md"
+    },
+    {
+      "id": "ux-has-screens",
+      "description": "UX.md has screens section",
+      "cmd": "grep -qE \"##.*Screens\" .stitch/UX.md"
+    },
+    {
+      "id": "ux-matches-idea",
+      "description": "UX.md references the app name from PRD.md",
+      "cmd": "first=$(awk '/^## Overview/{found=1; next} found && /^[^ #]/{print $1; exit}' PRD.md); grep -qi \"$first\" .stitch/UX.md"
+    }
+  ]
+}

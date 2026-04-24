@@ -1,0 +1,288 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/012-invite-accept/012-06-lift/001-lift-PulseAvatarBadge-missing-output-lib/widgets/pulse_avatar_badge.dart",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/012-invite-accept/012-06-lift/001-lift-PulseAvatarBadge",
+            "severity": "high",
+            "description": "[03-build-screens/012-invite-accept/012-06-lift/001-lift-PulseAvatarBadge] Task output not created: lib/widgets/pulse_avatar_badge.dart",
+            "source": "unit",
+            "detected": "2026-04-22T16:13:36.935Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-06-lift/tasks/001-lift-PulseAvatarBadge",
+              "taskId": "03-build-screens/012-invite-accept/012-06-lift/001-lift-PulseAvatarBadge",
+              "taskTitle": "Lift: PulseAvatarBadge",
+              "taskPrompt": "# Lift: PulseAvatarBadge\n\nMove `PulseAvatarBadge` from local screen widgets to the shared widgets directory.\n\n## Steps\n\n1. **Move file** — `lib/screens/invite_accept/widgets/pulse_avatar_badge.dart` → `lib/widgets/pulse_avatar_badge.dart`\n2. **Update package import** — Change relative import to package import: `package:folio/widgets/pulse_avatar_badge.dart`\n3. **Update all references** — Find all files importing the old path and update them\n4. **Verify** — Run `dart analyze` on affected files",
+              "taskInputs": [
+                "lib/screens/invite_accept/widgets/pulse_avatar_badge.dart"
+              ],
+              "factId": "file-exists:test -f \"lib/widgets/pulse_avatar_badge.dart\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-build-screens/012-invite-accept/012-06-lift/001-lift-PulseAvatarBadge-check-failed-widget-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/012-invite-accept/012-06-lift/001-lift-PulseAvatarBadge",
+            "severity": "high",
+            "description": "[03-build-screens/012-invite-accept/012-06-lift/001-lift-PulseAvatarBadge] Check failed: Shared widget file exists",
+            "source": "unit",
+            "detected": "2026-04-22T16:13:36.938Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "widget-exists",
+              "checkCmd": "test -f lib/widgets/pulse_avatar_badge.dart",
+              "checkDescription": "Shared widget file exists",
+              "checkOutput": "Command failed: test -f lib/widgets/pulse_avatar_badge.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Lift: PulseAvatarBadge\n\nMove `PulseAvatarBadge` from local screen widgets to the shared widgets directory.\n\n## Steps\n\n1. **Move file** — `lib/screens/invite_accept/widgets/pulse_avatar_badge.dart` → `lib/widgets/pulse_avatar_badge.dart`\n2. **Update package import** — Change relative import to package import: `package:folio/widgets/pulse_avatar_badge.dart`\n3. **Update all references** — Find all files importing the old path and update them\n4. **Verify** — Run `dart analyze` on affected files",
+              "taskId": "03-build-screens/012-invite-accept/012-06-lift/001-lift-PulseAvatarBadge",
+              "taskTitle": "Lift: PulseAvatarBadge",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-06-lift/tasks/001-lift-PulseAvatarBadge",
+              "factId": "check:widget-exists"
+            }
+          },
+          {
+            "id": "03-build-screens/012-invite-accept/012-06-lift/001-lift-PulseAvatarBadge-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/012-invite-accept/012-06-lift/001-lift-PulseAvatarBadge",
+            "severity": "high",
+            "description": "[03-build-screens/012-invite-accept/012-06-lift/001-lift-PulseAvatarBadge] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-22T16:13:36.977Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "dart analyze lib/widgets/pulse_avatar_badge.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "Directory or file doesn't exist: lib/widgets/pulse_avatar_badge.dart\n\nUsage: dart analyze [arguments] [<directory>]\n-h, --help                   Print this usage information.\n    --fatal-infos            Treat info level issues as fatal.\n    --[no-]fatal-warnings    Treat warning level issues as fatal.\n                             (defaults to on)\n\nRun \"dart help\" to see global options.",
+              "checkExitCode": 64,
+              "taskPrompt": "# Lift: PulseAvatarBadge\n\nMove `PulseAvatarBadge` from local screen widgets to the shared widgets directory.\n\n## Steps\n\n1. **Move file** — `lib/screens/invite_accept/widgets/pulse_avatar_badge.dart` → `lib/widgets/pulse_avatar_badge.dart`\n2. **Update package import** — Change relative import to package import: `package:folio/widgets/pulse_avatar_badge.dart`\n3. **Update all references** — Find all files importing the old path and update them\n4. **Verify** — Run `dart analyze` on affected files",
+              "taskId": "03-build-screens/012-invite-accept/012-06-lift/001-lift-PulseAvatarBadge",
+              "taskTitle": "Lift: PulseAvatarBadge",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-06-lift/tasks/001-lift-PulseAvatarBadge",
+              "factId": "check:dart-valid"
+            }
+          }
+        ],
+        "durationMs": 49
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 37
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/012-invite-accept/012-06-lift/001-lift-PulseAvatarBadge-missing-input-lib/screens/invite_accept/widgets/pulse_avatar_badge.dart",
+            "type": "missing-dependency",
+            "level": "task",
+            "scope": "03-build-screens/012-invite-accept/012-06-lift/001-lift-PulseAvatarBadge",
+            "severity": "high",
+            "description": "[03-build-screens/012-invite-accept/012-06-lift/001-lift-PulseAvatarBadge] Missing required input: lib/screens/invite_accept/widgets/pulse_avatar_badge.dart",
+            "source": "unit",
+            "detected": "2026-04-22T16:15:06.188Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "blocker",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/012-invite-accept/tasks/012-06-lift/tasks/001-lift-PulseAvatarBadge",
+              "taskId": "03-build-screens/012-invite-accept/012-06-lift/001-lift-PulseAvatarBadge",
+              "taskTitle": "Lift: PulseAvatarBadge",
+              "factId": "file-exists:test -f \"lib/screens/invite_accept/widgets/pulse_avatar_badge.dart\""
+            }
+          }
+        ],
+        "durationMs": 2399
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 89161
+      }
+    },
+    {
+      "id": "resolve-blockers",
+      "handler": "resolve-blockers",
+      "status": "failed",
+      "origin": "initial",
+      "data": {
+        "priority": 80
+      },
+      "result": {
+        "action": "bail",
+        "success": false,
+        "reason": "1 unresolvable blockers",
+        "durationMs": 2386
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-22T16:13:36.928Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-22T16:13:36.929Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-22T16:13:36.978Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-22T16:13:36.980Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-22T16:13:37.018Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-04-22T16:15:06.181Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-22T16:15:08.580Z"
+    },
+    {
+      "from": "verify",
+      "to": "resolve-blockers",
+      "iteration": 1,
+      "ts": "2026-04-22T16:15:10.968Z"
+    }
+  ]
+}

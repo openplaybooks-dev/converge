@@ -1,0 +1,17 @@
+{"ts":"2026-04-21T19:51:55.833Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"check-wbs-seeded","status":"start"}
+{"ts":"2026-04-21T19:51:55.833Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"check-wbs-seeded","status":"done","result":"continue"}
+{"ts":"2026-04-21T19:51:55.833Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"check-outputs-exist","status":"start"}
+{"ts":"2026-04-21T19:51:55.834Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"check-outputs-exist","status":"done","result":"continue"}
+{"ts":"2026-04-21T19:51:55.834Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"detect-gaps","status":"start"}
+{"ts":"2026-04-21T19:51:58.202Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"detect-gaps","status":"done","result":"continue","newGaps":1}
+{"ts":"2026-04-21T19:51:58.203Z","iter":1,"gaps":1,"stall":0,"node":"action","handler":"run-executor","status":"start"}
+{"ts":"2026-04-21T19:51:58.203Z","iter":1,"gaps":1,"stall":0,"node":"action","handler":"run-executor","status":"done","result":"continue"}
+{"ts":"2026-04-21T19:51:58.204Z","iter":1,"gaps":1,"stall":0,"node":"action","handler":"repair-loop","status":"start"}
+{"ts":"2026-04-21T19:52:00.614Z","iter":1,"gaps":1,"stall":0,"node":"action","handler":"repair-loop","status":"done","result":"continue"}
+{"ts":"2026-04-21T19:52:00.614Z","iter":1,"gaps":1,"stall":0,"node":"action","handler":"run-strategy","status":"start"}
+{"ts":"2026-04-21T19:53:12.103Z","iter":1,"gaps":1,"stall":0,"node":"action","handler":"run-strategy","status":"done","result":"continue"}
+{"ts":"2026-04-21T19:53:12.104Z","iter":1,"gaps":1,"stall":0,"node":"action","handler":"verify","status":"start"}
+{"ts":"2026-04-21T19:53:14.512Z","iter":1,"gaps":1,"stall":0,"node":"action","handler":"verify","status":"done","result":"continue","newGaps":1}
+{"ts":"2026-04-21T19:53:14.512Z","iter":1,"gaps":1,"stall":0,"node":"action","handler":"check-stall","status":"start"}
+{"ts":"2026-04-21T19:53:14.513Z","iter":1,"gaps":1,"stall":0,"node":"action","handler":"check-stall","status":"done","result":"continue"}
+{"ts":"2026-04-21T19:53:14.513Z","iter":1,"gaps":1,"stall":1,"node":"action","handler":"advance-attempt","status":"start"}

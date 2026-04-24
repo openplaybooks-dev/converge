@@ -1,0 +1,517 @@
+{
+  "iteration": 2,
+  "stallCount": 1,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/008-history/008-02-design-check-failed-uses-glossary",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/008-history/008-02-design",
+            "severity": "high",
+            "description": "[03-build-screens/008-history/008-02-design] Check failed: HTML uses Flutter HTML Glossary vocabulary",
+            "source": "unit",
+            "detected": "2026-04-21T14:32:58.491Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "uses-glossary",
+              "checkCmd": "grep -q 'class=\"scaffold\"' .stitch/designs/history/design.html",
+              "checkDescription": "HTML uses Flutter HTML Glossary vocabulary",
+              "checkOutput": "Command failed: grep -q 'class=\"scaffold\"' .stitch/designs/history/design.html\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Design: History\n\nGenerate the HTML design mockup for **History** using the **Flutter HTML Glossary** constrained vocabulary.\n\n## Critical Constraint\n\nThe HTML MUST use ONLY elements from the **Flutter HTML Glossary** (`stitch-flutter/references/flutter-html-glossary.md`). This ensures the `stitch-flutter` converter can produce pixel-perfect Flutter widgets mechanically.\n\n## Linked reference HTML (`htmlReference`)\n\nPath from `screens.json` for this screen: **`.stitch/references/history/code.html`**\n\n- When **non-empty** and the file exists: that file is the **fidelity target**. `.stitch/designs/history/design.html` MUST reproduce the same structure, section order, hierarchy, spacing rhythm, and visible text/icons as that reference **as closely as the Flutter HTML Glossary allows**. Do not invent alternate layouts. Where the glossary has no one-to-one element, pick the closest glossary mapping and note the compromise in `.stitch/designs/history/META.md`.\n- When **empty** or missing: infer structure from `.stitch/designs/history/SPEC.md`, `ANALYSIS.md`, and example selection per below.\n\n## Inputs\n- `.stitch/designs/history/SPEC.md` — Screen specification\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/system/META.md` — Reference examples metadata\n- **Linked HTML** — `.stitch/references/history/code.html` when set (see above)\n\n## Steps\n\n1. **Read spec** — Load `.stitch/designs/history/SPEC.md` to understand layout, sections, data\n2. **Read glossary** — Load `stitch-flutter/references/flutter-html-glossary.md` to understand the constrained vocabulary\n3. **Linked HTML first** — If `.stitch/references/history/code.html` is non-empty and the file exists, read it completely. Treat it as the visual ground truth for `design.html` (subject to glossary-only elements). Skip browsing other `code.html` files for layout unless the linked file is unusable.\n4. **Otherwise consult references** — If there is no linked HTML (or it is missing) and `.stitch/references/ANALYSIS.md` exists, use the Screen Inventory to find matching `code.html` paths as structural guides\n5. **Select best example match** — Read `.stitch/system/META.md` and score against examples per `stitch-generate/references/selecting-examples.md` (especially when no linked HTML)\n6. **Read matched reference** — Study the chosen example's patterns when step 3 did not supply a file\n7. **Generate META.md** — Write `.stitch/designs/history/META.md` with example selection, scoring table, and (when used) explicit note that `design.html` was matched to `.stitch/references/history/code.html`\n8. **Generate design.html** — Write `.stitch/designs/history/design.html` following `stitch-generate` skill using ONLY glossary elements; **pixel-fidelity to the linked reference HTML** when `htmlReference` is present and valid\n\n## Glossary Quick Reference\n\n- Layout: `.column`, `.row`, `.stack`, `.wrap`, `.expanded`, `.padding`, `.sized-box`\n- Scaffold: `.scaffold`, `.app-bar`, `.body`, `.bottom-nav`, `.fab`\n- Text: `.title-large`, `.body-medium`, `.label-small` (Material 3 TextTheme classes)\n- Components: `.card`, `.chip`, `.list-tile`, `.divider`, `.badge`, `.avatar`\n- Buttons: `.elevated-btn`, `.filled-btn`, `.text-btn`, `.icon-btn`\n- Images: `.network-image`, `.placeholder-image`\n- Icons: `<svg class=\"icon\" data-name=\"{material_icon}\" data-size=\"24\">`\n- Colors: `data-color=\"primary\"`, `data-bg=\"surface\"` (ColorScheme roles)\n- Spacing: `data-spacing=\"md\"`, `data-p=\"lg\"` (token names)\n- Animation: `data-animate=\"fade-in\"`, `data-animate-delay=\"100\"`\n- Navigation: `.ink-well` with `data-route=\"/path\"`\n\n## Output\n\n- `.stitch/designs/history/META.md` — Example selection and scoring; document linked-HTML fidelity when applicable\n- `.stitch/designs/history/design.html` — Self-contained HTML mockup at 375px using glossary vocabulary; when `htmlReference` is set and valid, structure and content mirror that file within glossary constraints",
+              "taskSkill": "stitch-generate",
+              "taskId": "03-build-screens/008-history/008-02-design",
+              "taskTitle": "Design: History",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/008-history/tasks/008-02-design",
+              "factId": "check:uses-glossary"
+            }
+          },
+          {
+            "id": "03-build-screens/008-history/008-02-design-check-failed-has-data-attributes",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/008-history/008-02-design",
+            "severity": "high",
+            "description": "[03-build-screens/008-history/008-02-design] Check failed: HTML uses data-* attributes for Flutter conversion",
+            "source": "unit",
+            "detected": "2026-04-21T14:32:58.494Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "has-data-attributes",
+              "checkCmd": "grep -q 'data-color=' .stitch/designs/history/design.html",
+              "checkDescription": "HTML uses data-* attributes for Flutter conversion",
+              "checkOutput": "Command failed: grep -q 'data-color=' .stitch/designs/history/design.html\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Design: History\n\nGenerate the HTML design mockup for **History** using the **Flutter HTML Glossary** constrained vocabulary.\n\n## Critical Constraint\n\nThe HTML MUST use ONLY elements from the **Flutter HTML Glossary** (`stitch-flutter/references/flutter-html-glossary.md`). This ensures the `stitch-flutter` converter can produce pixel-perfect Flutter widgets mechanically.\n\n## Linked reference HTML (`htmlReference`)\n\nPath from `screens.json` for this screen: **`.stitch/references/history/code.html`**\n\n- When **non-empty** and the file exists: that file is the **fidelity target**. `.stitch/designs/history/design.html` MUST reproduce the same structure, section order, hierarchy, spacing rhythm, and visible text/icons as that reference **as closely as the Flutter HTML Glossary allows**. Do not invent alternate layouts. Where the glossary has no one-to-one element, pick the closest glossary mapping and note the compromise in `.stitch/designs/history/META.md`.\n- When **empty** or missing: infer structure from `.stitch/designs/history/SPEC.md`, `ANALYSIS.md`, and example selection per below.\n\n## Inputs\n- `.stitch/designs/history/SPEC.md` — Screen specification\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/system/META.md` — Reference examples metadata\n- **Linked HTML** — `.stitch/references/history/code.html` when set (see above)\n\n## Steps\n\n1. **Read spec** — Load `.stitch/designs/history/SPEC.md` to understand layout, sections, data\n2. **Read glossary** — Load `stitch-flutter/references/flutter-html-glossary.md` to understand the constrained vocabulary\n3. **Linked HTML first** — If `.stitch/references/history/code.html` is non-empty and the file exists, read it completely. Treat it as the visual ground truth for `design.html` (subject to glossary-only elements). Skip browsing other `code.html` files for layout unless the linked file is unusable.\n4. **Otherwise consult references** — If there is no linked HTML (or it is missing) and `.stitch/references/ANALYSIS.md` exists, use the Screen Inventory to find matching `code.html` paths as structural guides\n5. **Select best example match** — Read `.stitch/system/META.md` and score against examples per `stitch-generate/references/selecting-examples.md` (especially when no linked HTML)\n6. **Read matched reference** — Study the chosen example's patterns when step 3 did not supply a file\n7. **Generate META.md** — Write `.stitch/designs/history/META.md` with example selection, scoring table, and (when used) explicit note that `design.html` was matched to `.stitch/references/history/code.html`\n8. **Generate design.html** — Write `.stitch/designs/history/design.html` following `stitch-generate` skill using ONLY glossary elements; **pixel-fidelity to the linked reference HTML** when `htmlReference` is present and valid\n\n## Glossary Quick Reference\n\n- Layout: `.column`, `.row`, `.stack`, `.wrap`, `.expanded`, `.padding`, `.sized-box`\n- Scaffold: `.scaffold`, `.app-bar`, `.body`, `.bottom-nav`, `.fab`\n- Text: `.title-large`, `.body-medium`, `.label-small` (Material 3 TextTheme classes)\n- Components: `.card`, `.chip`, `.list-tile`, `.divider`, `.badge`, `.avatar`\n- Buttons: `.elevated-btn`, `.filled-btn`, `.text-btn`, `.icon-btn`\n- Images: `.network-image`, `.placeholder-image`\n- Icons: `<svg class=\"icon\" data-name=\"{material_icon}\" data-size=\"24\">`\n- Colors: `data-color=\"primary\"`, `data-bg=\"surface\"` (ColorScheme roles)\n- Spacing: `data-spacing=\"md\"`, `data-p=\"lg\"` (token names)\n- Animation: `data-animate=\"fade-in\"`, `data-animate-delay=\"100\"`\n- Navigation: `.ink-well` with `data-route=\"/path\"`\n\n## Output\n\n- `.stitch/designs/history/META.md` — Example selection and scoring; document linked-HTML fidelity when applicable\n- `.stitch/designs/history/design.html` — Self-contained HTML mockup at 375px using glossary vocabulary; when `htmlReference` is set and valid, structure and content mirror that file within glossary constraints",
+              "taskSkill": "stitch-generate",
+              "taskId": "03-build-screens/008-history/008-02-design",
+              "taskTitle": "Design: History",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/008-history/tasks/008-02-design",
+              "factId": "check:has-data-attributes"
+            }
+          }
+        ],
+        "durationMs": 40
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 30
+      }
+    },
+    {
+      "id": "run-skill",
+      "handler": "run-skill",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 64
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 643357
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/008-history/008-02-design-check-failed-uses-glossary",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/008-history/008-02-design",
+            "severity": "high",
+            "description": "[03-build-screens/008-history/008-02-design] Check failed: HTML uses Flutter HTML Glossary vocabulary",
+            "source": "unit",
+            "detected": "2026-04-21T14:45:58.003Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "uses-glossary",
+              "checkCmd": "grep -q 'class=\"scaffold\"' .stitch/designs/history/design.html",
+              "checkDescription": "HTML uses Flutter HTML Glossary vocabulary",
+              "checkOutput": "Command failed: grep -q 'class=\"scaffold\"' .stitch/designs/history/design.html\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Design: History\n\nGenerate the HTML design mockup for **History** using the **Flutter HTML Glossary** constrained vocabulary.\n\n## Critical Constraint\n\nThe HTML MUST use ONLY elements from the **Flutter HTML Glossary** (`stitch-flutter/references/flutter-html-glossary.md`). This ensures the `stitch-flutter` converter can produce pixel-perfect Flutter widgets mechanically.\n\n## Linked reference HTML (`htmlReference`)\n\nPath from `screens.json` for this screen: **`.stitch/references/history/code.html`**\n\n- When **non-empty** and the file exists: that file is the **fidelity target**. `.stitch/designs/history/design.html` MUST reproduce the same structure, section order, hierarchy, spacing rhythm, and visible text/icons as that reference **as closely as the Flutter HTML Glossary allows**. Do not invent alternate layouts. Where the glossary has no one-to-one element, pick the closest glossary mapping and note the compromise in `.stitch/designs/history/META.md`.\n- When **empty** or missing: infer structure from `.stitch/designs/history/SPEC.md`, `ANALYSIS.md`, and example selection per below.\n\n## Inputs\n- `.stitch/designs/history/SPEC.md` — Screen specification\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/system/META.md` — Reference examples metadata\n- **Linked HTML** — `.stitch/references/history/code.html` when set (see above)\n\n## Steps\n\n1. **Read spec** — Load `.stitch/designs/history/SPEC.md` to understand layout, sections, data\n2. **Read glossary** — Load `stitch-flutter/references/flutter-html-glossary.md` to understand the constrained vocabulary\n3. **Linked HTML first** — If `.stitch/references/history/code.html` is non-empty and the file exists, read it completely. Treat it as the visual ground truth for `design.html` (subject to glossary-only elements). Skip browsing other `code.html` files for layout unless the linked file is unusable.\n4. **Otherwise consult references** — If there is no linked HTML (or it is missing) and `.stitch/references/ANALYSIS.md` exists, use the Screen Inventory to find matching `code.html` paths as structural guides\n5. **Select best example match** — Read `.stitch/system/META.md` and score against examples per `stitch-generate/references/selecting-examples.md` (especially when no linked HTML)\n6. **Read matched reference** — Study the chosen example's patterns when step 3 did not supply a file\n7. **Generate META.md** — Write `.stitch/designs/history/META.md` with example selection, scoring table, and (when used) explicit note that `design.html` was matched to `.stitch/references/history/code.html`\n8. **Generate design.html** — Write `.stitch/designs/history/design.html` following `stitch-generate` skill using ONLY glossary elements; **pixel-fidelity to the linked reference HTML** when `htmlReference` is present and valid\n\n## Glossary Quick Reference\n\n- Layout: `.column`, `.row`, `.stack`, `.wrap`, `.expanded`, `.padding`, `.sized-box`\n- Scaffold: `.scaffold`, `.app-bar`, `.body`, `.bottom-nav`, `.fab`\n- Text: `.title-large`, `.body-medium`, `.label-small` (Material 3 TextTheme classes)\n- Components: `.card`, `.chip`, `.list-tile`, `.divider`, `.badge`, `.avatar`\n- Buttons: `.elevated-btn`, `.filled-btn`, `.text-btn`, `.icon-btn`\n- Images: `.network-image`, `.placeholder-image`\n- Icons: `<svg class=\"icon\" data-name=\"{material_icon}\" data-size=\"24\">`\n- Colors: `data-color=\"primary\"`, `data-bg=\"surface\"` (ColorScheme roles)\n- Spacing: `data-spacing=\"md\"`, `data-p=\"lg\"` (token names)\n- Animation: `data-animate=\"fade-in\"`, `data-animate-delay=\"100\"`\n- Navigation: `.ink-well` with `data-route=\"/path\"`\n\n## Output\n\n- `.stitch/designs/history/META.md` — Example selection and scoring; document linked-HTML fidelity when applicable\n- `.stitch/designs/history/design.html` — Self-contained HTML mockup at 375px using glossary vocabulary; when `htmlReference` is set and valid, structure and content mirror that file within glossary constraints",
+              "taskSkill": "stitch-generate",
+              "taskId": "03-build-screens/008-history/008-02-design",
+              "taskTitle": "Design: History",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/008-history/tasks/008-02-design",
+              "factId": "check:uses-glossary"
+            }
+          },
+          {
+            "id": "03-build-screens/008-history/008-02-design-check-failed-has-data-attributes",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/008-history/008-02-design",
+            "severity": "high",
+            "description": "[03-build-screens/008-history/008-02-design] Check failed: HTML uses data-* attributes for Flutter conversion",
+            "source": "unit",
+            "detected": "2026-04-21T14:45:58.007Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "has-data-attributes",
+              "checkCmd": "grep -q 'data-color=' .stitch/designs/history/design.html",
+              "checkDescription": "HTML uses data-* attributes for Flutter conversion",
+              "checkOutput": "Command failed: grep -q 'data-color=' .stitch/designs/history/design.html\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Design: History\n\nGenerate the HTML design mockup for **History** using the **Flutter HTML Glossary** constrained vocabulary.\n\n## Critical Constraint\n\nThe HTML MUST use ONLY elements from the **Flutter HTML Glossary** (`stitch-flutter/references/flutter-html-glossary.md`). This ensures the `stitch-flutter` converter can produce pixel-perfect Flutter widgets mechanically.\n\n## Linked reference HTML (`htmlReference`)\n\nPath from `screens.json` for this screen: **`.stitch/references/history/code.html`**\n\n- When **non-empty** and the file exists: that file is the **fidelity target**. `.stitch/designs/history/design.html` MUST reproduce the same structure, section order, hierarchy, spacing rhythm, and visible text/icons as that reference **as closely as the Flutter HTML Glossary allows**. Do not invent alternate layouts. Where the glossary has no one-to-one element, pick the closest glossary mapping and note the compromise in `.stitch/designs/history/META.md`.\n- When **empty** or missing: infer structure from `.stitch/designs/history/SPEC.md`, `ANALYSIS.md`, and example selection per below.\n\n## Inputs\n- `.stitch/designs/history/SPEC.md` — Screen specification\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/system/META.md` — Reference examples metadata\n- **Linked HTML** — `.stitch/references/history/code.html` when set (see above)\n\n## Steps\n\n1. **Read spec** — Load `.stitch/designs/history/SPEC.md` to understand layout, sections, data\n2. **Read glossary** — Load `stitch-flutter/references/flutter-html-glossary.md` to understand the constrained vocabulary\n3. **Linked HTML first** — If `.stitch/references/history/code.html` is non-empty and the file exists, read it completely. Treat it as the visual ground truth for `design.html` (subject to glossary-only elements). Skip browsing other `code.html` files for layout unless the linked file is unusable.\n4. **Otherwise consult references** — If there is no linked HTML (or it is missing) and `.stitch/references/ANALYSIS.md` exists, use the Screen Inventory to find matching `code.html` paths as structural guides\n5. **Select best example match** — Read `.stitch/system/META.md` and score against examples per `stitch-generate/references/selecting-examples.md` (especially when no linked HTML)\n6. **Read matched reference** — Study the chosen example's patterns when step 3 did not supply a file\n7. **Generate META.md** — Write `.stitch/designs/history/META.md` with example selection, scoring table, and (when used) explicit note that `design.html` was matched to `.stitch/references/history/code.html`\n8. **Generate design.html** — Write `.stitch/designs/history/design.html` following `stitch-generate` skill using ONLY glossary elements; **pixel-fidelity to the linked reference HTML** when `htmlReference` is present and valid\n\n## Glossary Quick Reference\n\n- Layout: `.column`, `.row`, `.stack`, `.wrap`, `.expanded`, `.padding`, `.sized-box`\n- Scaffold: `.scaffold`, `.app-bar`, `.body`, `.bottom-nav`, `.fab`\n- Text: `.title-large`, `.body-medium`, `.label-small` (Material 3 TextTheme classes)\n- Components: `.card`, `.chip`, `.list-tile`, `.divider`, `.badge`, `.avatar`\n- Buttons: `.elevated-btn`, `.filled-btn`, `.text-btn`, `.icon-btn`\n- Images: `.network-image`, `.placeholder-image`\n- Icons: `<svg class=\"icon\" data-name=\"{material_icon}\" data-size=\"24\">`\n- Colors: `data-color=\"primary\"`, `data-bg=\"surface\"` (ColorScheme roles)\n- Spacing: `data-spacing=\"md\"`, `data-p=\"lg\"` (token names)\n- Animation: `data-animate=\"fade-in\"`, `data-animate-delay=\"100\"`\n- Navigation: `.ink-well` with `data-route=\"/path\"`\n\n## Output\n\n- `.stitch/designs/history/META.md` — Example selection and scoring; document linked-HTML fidelity when applicable\n- `.stitch/designs/history/design.html` — Self-contained HTML mockup at 375px using glossary vocabulary; when `htmlReference` is set and valid, structure and content mirror that file within glossary constraints",
+              "taskSkill": "stitch-generate",
+              "taskId": "03-build-screens/008-history/008-02-design",
+              "taskTitle": "Design: History",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/008-history/tasks/008-02-design",
+              "factId": "check:has-data-attributes"
+            }
+          }
+        ],
+        "durationMs": 52
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "run-strategy:task-run#39",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 136067
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-build-screens/008-history/008-02-design-check-failed-uses-glossary",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/008-history/008-02-design",
+            "severity": "high",
+            "description": "[03-build-screens/008-history/008-02-design] Check failed: HTML uses Flutter HTML Glossary vocabulary",
+            "source": "unit",
+            "detected": "2026-04-21T14:45:58.044Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "uses-glossary",
+              "checkCmd": "grep -q 'class=\"scaffold\"' .stitch/designs/history/design.html",
+              "checkDescription": "HTML uses Flutter HTML Glossary vocabulary",
+              "checkOutput": "Command failed: grep -q 'class=\"scaffold\"' .stitch/designs/history/design.html\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Design: History\n\nGenerate the HTML design mockup for **History** using the **Flutter HTML Glossary** constrained vocabulary.\n\n## Critical Constraint\n\nThe HTML MUST use ONLY elements from the **Flutter HTML Glossary** (`stitch-flutter/references/flutter-html-glossary.md`). This ensures the `stitch-flutter` converter can produce pixel-perfect Flutter widgets mechanically.\n\n## Linked reference HTML (`htmlReference`)\n\nPath from `screens.json` for this screen: **`.stitch/references/history/code.html`**\n\n- When **non-empty** and the file exists: that file is the **fidelity target**. `.stitch/designs/history/design.html` MUST reproduce the same structure, section order, hierarchy, spacing rhythm, and visible text/icons as that reference **as closely as the Flutter HTML Glossary allows**. Do not invent alternate layouts. Where the glossary has no one-to-one element, pick the closest glossary mapping and note the compromise in `.stitch/designs/history/META.md`.\n- When **empty** or missing: infer structure from `.stitch/designs/history/SPEC.md`, `ANALYSIS.md`, and example selection per below.\n\n## Inputs\n- `.stitch/designs/history/SPEC.md` — Screen specification\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/system/META.md` — Reference examples metadata\n- **Linked HTML** — `.stitch/references/history/code.html` when set (see above)\n\n## Steps\n\n1. **Read spec** — Load `.stitch/designs/history/SPEC.md` to understand layout, sections, data\n2. **Read glossary** — Load `stitch-flutter/references/flutter-html-glossary.md` to understand the constrained vocabulary\n3. **Linked HTML first** — If `.stitch/references/history/code.html` is non-empty and the file exists, read it completely. Treat it as the visual ground truth for `design.html` (subject to glossary-only elements). Skip browsing other `code.html` files for layout unless the linked file is unusable.\n4. **Otherwise consult references** — If there is no linked HTML (or it is missing) and `.stitch/references/ANALYSIS.md` exists, use the Screen Inventory to find matching `code.html` paths as structural guides\n5. **Select best example match** — Read `.stitch/system/META.md` and score against examples per `stitch-generate/references/selecting-examples.md` (especially when no linked HTML)\n6. **Read matched reference** — Study the chosen example's patterns when step 3 did not supply a file\n7. **Generate META.md** — Write `.stitch/designs/history/META.md` with example selection, scoring table, and (when used) explicit note that `design.html` was matched to `.stitch/references/history/code.html`\n8. **Generate design.html** — Write `.stitch/designs/history/design.html` following `stitch-generate` skill using ONLY glossary elements; **pixel-fidelity to the linked reference HTML** when `htmlReference` is present and valid\n\n## Glossary Quick Reference\n\n- Layout: `.column`, `.row`, `.stack`, `.wrap`, `.expanded`, `.padding`, `.sized-box`\n- Scaffold: `.scaffold`, `.app-bar`, `.body`, `.bottom-nav`, `.fab`\n- Text: `.title-large`, `.body-medium`, `.label-small` (Material 3 TextTheme classes)\n- Components: `.card`, `.chip`, `.list-tile`, `.divider`, `.badge`, `.avatar`\n- Buttons: `.elevated-btn`, `.filled-btn`, `.text-btn`, `.icon-btn`\n- Images: `.network-image`, `.placeholder-image`\n- Icons: `<svg class=\"icon\" data-name=\"{material_icon}\" data-size=\"24\">`\n- Colors: `data-color=\"primary\"`, `data-bg=\"surface\"` (ColorScheme roles)\n- Spacing: `data-spacing=\"md\"`, `data-p=\"lg\"` (token names)\n- Animation: `data-animate=\"fade-in\"`, `data-animate-delay=\"100\"`\n- Navigation: `.ink-well` with `data-route=\"/path\"`\n\n## Output\n\n- `.stitch/designs/history/META.md` — Example selection and scoring; document linked-HTML fidelity when applicable\n- `.stitch/designs/history/design.html` — Self-contained HTML mockup at 375px using glossary vocabulary; when `htmlReference` is set and valid, structure and content mirror that file within glossary constraints",
+              "taskSkill": "stitch-generate",
+              "taskId": "03-build-screens/008-history/008-02-design",
+              "taskTitle": "Design: History",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/008-history/tasks/008-02-design",
+              "factId": "check:uses-glossary"
+            }
+          },
+          {
+            "id": "03-build-screens/008-history/008-02-design-check-failed-has-data-attributes",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-build-screens/008-history/008-02-design",
+            "severity": "high",
+            "description": "[03-build-screens/008-history/008-02-design] Check failed: HTML uses data-* attributes for Flutter conversion",
+            "source": "unit",
+            "detected": "2026-04-21T14:45:58.048Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "has-data-attributes",
+              "checkCmd": "grep -q 'data-color=' .stitch/designs/history/design.html",
+              "checkDescription": "HTML uses data-* attributes for Flutter conversion",
+              "checkOutput": "Command failed: grep -q 'data-color=' .stitch/designs/history/design.html\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Design: History\n\nGenerate the HTML design mockup for **History** using the **Flutter HTML Glossary** constrained vocabulary.\n\n## Critical Constraint\n\nThe HTML MUST use ONLY elements from the **Flutter HTML Glossary** (`stitch-flutter/references/flutter-html-glossary.md`). This ensures the `stitch-flutter` converter can produce pixel-perfect Flutter widgets mechanically.\n\n## Linked reference HTML (`htmlReference`)\n\nPath from `screens.json` for this screen: **`.stitch/references/history/code.html`**\n\n- When **non-empty** and the file exists: that file is the **fidelity target**. `.stitch/designs/history/design.html` MUST reproduce the same structure, section order, hierarchy, spacing rhythm, and visible text/icons as that reference **as closely as the Flutter HTML Glossary allows**. Do not invent alternate layouts. Where the glossary has no one-to-one element, pick the closest glossary mapping and note the compromise in `.stitch/designs/history/META.md`.\n- When **empty** or missing: infer structure from `.stitch/designs/history/SPEC.md`, `ANALYSIS.md`, and example selection per below.\n\n## Inputs\n- `.stitch/designs/history/SPEC.md` — Screen specification\n- `.stitch/system/DESIGN.md` — Design system\n- `.stitch/system/META.md` — Reference examples metadata\n- **Linked HTML** — `.stitch/references/history/code.html` when set (see above)\n\n## Steps\n\n1. **Read spec** — Load `.stitch/designs/history/SPEC.md` to understand layout, sections, data\n2. **Read glossary** — Load `stitch-flutter/references/flutter-html-glossary.md` to understand the constrained vocabulary\n3. **Linked HTML first** — If `.stitch/references/history/code.html` is non-empty and the file exists, read it completely. Treat it as the visual ground truth for `design.html` (subject to glossary-only elements). Skip browsing other `code.html` files for layout unless the linked file is unusable.\n4. **Otherwise consult references** — If there is no linked HTML (or it is missing) and `.stitch/references/ANALYSIS.md` exists, use the Screen Inventory to find matching `code.html` paths as structural guides\n5. **Select best example match** — Read `.stitch/system/META.md` and score against examples per `stitch-generate/references/selecting-examples.md` (especially when no linked HTML)\n6. **Read matched reference** — Study the chosen example's patterns when step 3 did not supply a file\n7. **Generate META.md** — Write `.stitch/designs/history/META.md` with example selection, scoring table, and (when used) explicit note that `design.html` was matched to `.stitch/references/history/code.html`\n8. **Generate design.html** — Write `.stitch/designs/history/design.html` following `stitch-generate` skill using ONLY glossary elements; **pixel-fidelity to the linked reference HTML** when `htmlReference` is present and valid\n\n## Glossary Quick Reference\n\n- Layout: `.column`, `.row`, `.stack`, `.wrap`, `.expanded`, `.padding`, `.sized-box`\n- Scaffold: `.scaffold`, `.app-bar`, `.body`, `.bottom-nav`, `.fab`\n- Text: `.title-large`, `.body-medium`, `.label-small` (Material 3 TextTheme classes)\n- Components: `.card`, `.chip`, `.list-tile`, `.divider`, `.badge`, `.avatar`\n- Buttons: `.elevated-btn`, `.filled-btn`, `.text-btn`, `.icon-btn`\n- Images: `.network-image`, `.placeholder-image`\n- Icons: `<svg class=\"icon\" data-name=\"{material_icon}\" data-size=\"24\">`\n- Colors: `data-color=\"primary\"`, `data-bg=\"surface\"` (ColorScheme roles)\n- Spacing: `data-spacing=\"md\"`, `data-p=\"lg\"` (token names)\n- Animation: `data-animate=\"fade-in\"`, `data-animate-delay=\"100\"`\n- Navigation: `.ink-well` with `data-route=\"/path\"`\n\n## Output\n\n- `.stitch/designs/history/META.md` — Example selection and scoring; document linked-HTML fidelity when applicable\n- `.stitch/designs/history/design.html` — Self-contained HTML mockup at 375px using glossary vocabulary; when `htmlReference` is set and valid, structure and content mirror that file within glossary constraints",
+              "taskSkill": "stitch-generate",
+              "taskId": "03-build-screens/008-history/008-02-design",
+              "taskTitle": "Design: History",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/03-build-screens/tasks/008-history/tasks/008-02-design",
+              "factId": "check:has-data-attributes"
+            }
+          }
+        ],
+        "durationMs": 38
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "repair-loop#2",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "run-strategy:task-run#40",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 110722
+      }
+    },
+    {
+      "id": "verify#2",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 55
+      }
+    },
+    {
+      "id": "check-stall#2",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt#2",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-21T14:32:58.453Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-21T14:32:58.454Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-21T14:32:58.494Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-21T14:32:58.495Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "run-skill",
+      "iteration": 1,
+      "ts": "2026-04-21T14:43:41.853Z"
+    },
+    {
+      "from": "run-skill",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-21T14:43:41.885Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#39",
+      "iteration": 1,
+      "ts": "2026-04-21T14:45:57.954Z"
+    },
+    {
+      "from": "run-strategy:task-run#39",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-21T14:45:58.007Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-21T14:45:58.008Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-21T14:45:58.008Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-21T14:45:58.009Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-21T14:45:58.009Z"
+    },
+    {
+      "from": "check-outputs-exist#2",
+      "to": "detect-gaps#2",
+      "iteration": 2,
+      "ts": "2026-04-21T14:45:58.048Z"
+    },
+    {
+      "from": "detect-gaps#2",
+      "to": "repair-loop#2",
+      "iteration": 2,
+      "ts": "2026-04-21T14:45:58.056Z"
+    },
+    {
+      "from": "repair-loop#2",
+      "to": "run-strategy:task-run#40",
+      "iteration": 2,
+      "ts": "2026-04-21T14:47:48.780Z"
+    },
+    {
+      "from": "run-strategy:task-run#40",
+      "to": "verify#2",
+      "iteration": 2,
+      "ts": "2026-04-21T14:47:48.836Z"
+    }
+  ]
+}

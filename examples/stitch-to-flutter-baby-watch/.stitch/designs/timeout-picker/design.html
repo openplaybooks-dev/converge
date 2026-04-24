@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=375, initial-scale=1.0" />
+  <title>Timeout Picker — BabyGuard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f5f4ee",
+            "surface-container": "#efeee8",
+            "surface-bright": "#F4F2EE",
+            "surface": "#fbf9f5",
+            "on-surface": "#31332e",
+            "on-surface-variant": "#5e6059",
+            "secondary": "#4f635e",
+            "on-secondary": "#faf7f6",
+            "secondary-container": "#CDE3DC",
+            "on-secondary-container": "#00391C",
+            "primary": "#5e5e5e",
+            "on-primary": "#f8f8f8",
+            "tertiary": "#4f635e",
+            "tertiary-container": "#dff6ee"
+          },
+          borderRadius: {
+            "lg": "1.75rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Manrope"],
+            "label": ["Manrope"]
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body { font-family: 'Manrope', sans-serif; background: transparent; }
+  </style>
+</head>
+<body>
+  <div class="bottom-sheet" data-bg="surface">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+
+    <!-- Sheet -->
+    <div class="relative w-full max-w-md bg-white rounded-t-2xl p-6 pb-8 shadow-2xl">
+      <!-- Handle -->
+      <div class="drag-handle"></div>
+
+      <!-- Title -->
+      <h2 class="title-large mb-2 text-center">Chọn thời gian chờ</h2>
+      <p class="body-medium text-center mb-6">Thời gian trước khi phát cảnh báo khi mất kết nối beacon</p>
+
+      <!-- Preset Options -->
+      <div class="column" data-spacing="md" style="gap: 12px; margin-bottom: 24px;">
+        <button class="filled-btn" style="width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 16px 24px;">
+          <span>2 phút</span>
+          <span class="label-small" style="opacity: 0.7;">Khuyến nghị</span>
+        </button>
+        <button class="text-btn" style="width: 100%; padding: 16px 24px;">
+          5 phút
+        </button>
+        <button class="text-btn" style="width: 100%; padding: 16px 24px;">
+          10 phút
+        </button>
+        <button class="text-btn" style="width: 100%; padding: 16px 24px;">
+          15 phút
+        </button>
+      </div>
+
+      <!-- Custom Option -->
+      <div class="divider" style="border-top: 1px solid #e2e3db; padding-top: 24px;">
+        <button class="text-btn" style="width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; padding: 16px 24px;">
+          <svg class="icon" data-name="edit" data-size="24"></svg>
+          Tùy chỉnh thời gian
+        </button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

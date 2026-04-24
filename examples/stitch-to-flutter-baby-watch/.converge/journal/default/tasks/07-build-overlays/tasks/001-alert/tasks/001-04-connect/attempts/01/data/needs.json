@@ -1,0 +1,31 @@
+{
+  "taskId": "07-build-overlays/001-alert/001-04-connect",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "lib/widgets/overlays/alert/alert.dart",
+      "count": 1,
+      "samples": [
+        "lib/widgets/overlays/alert/alert.dart"
+      ]
+    },
+    {
+      "pattern": ".stitch/designs/alert/SPEC.md",
+      "count": 1,
+      "samples": [
+        ".stitch/designs/alert/SPEC.md"
+      ]
+    },
+    {
+      "pattern": "lib/providers/",
+      "count": 1,
+      "samples": [
+        "lib/providers/"
+      ]
+    }
+  ],
+  "outputs": [
+    "lib/widgets/overlays/alert/alert.dart"
+  ],
+  "blocked": false
+}

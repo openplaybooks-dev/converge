@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=375, initial-scale=1.0" />
+  <title>Beacon Forget Confirmation — BabyGuard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f5f4ee",
+            "surface-bright": "#F4F2EE",
+            "on-surface": "#31332e",
+            "on-surface-variant": "#5e6059",
+            "secondary": "#4f635e",
+            "on-secondary": "#faf7f6",
+            "error": "#9f403d",
+            "error-container": "#EED9D2",
+            "on-error": "#faf7f6",
+            "peach": "#EED9D2"
+          },
+          borderRadius: {
+            "DEFAULT": "1rem",
+            "lg": "2rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Manrope"],
+            "label": ["Manrope"]
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    body { font-family: 'Manrope', sans-serif; background-color: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+    .dialog { background: #ffffff; border-radius: 1.75rem; padding: 32px 24px; max-width: 320px; width: 100%; box-shadow: 0 24px 64px rgba(0,0,0,0.2); }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="dialog">
+
+      <!-- Warning Icon -->
+      <div class="flex justify-center mb-6">
+        <div class="w-16 h-16 bg-[#EED9D2] rounded-full flex items-center justify-center">
+          <span class="material-symbols-outlined text-[#9f403d] text-3xl">warning</span>
+        </div>
+      </div>
+
+      <!-- Title -->
+      <h2 class="text-2xl font-extrabold text-center text-[#31332e] mb-3 tracking-tight" style="font-family: 'Plus Jakarta Sans', sans-serif;">Quên beacon?</h2>
+
+      <!-- Description -->
+      <p class="text-[#5e6059] text-center text-sm leading-relaxed mb-8">
+        Bạn sẽ không còn nhận thông báo từ beacon này.
+      </p>
+
+      <!-- Actions -->
+      <div class="flex gap-3">
+        <button class="flex-1 py-4 text-[#5e6059] font-semibold rounded-full hover:bg-[#f5f4ee] transition-all active:scale-[0.98]">
+          Hủy
+        </button>
+        <button class="flex-1 py-4 bg-[#EED9D2] text-[#9f403d] font-bold rounded-full hover:bg-[#EED9D2]/80 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-lg">delete</span>
+          Quên
+        </button>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

@@ -23,13 +23,13 @@ checks:
     cmd: "test -f {{screenPath}}"
     description: "Screen widget file exists"
   - id: dart-valid
-    cmd: "dart analyze {{screenPath}}"
+    cmd: "flutter analyze {{screenPath}}"
     description: "Dart analysis passes"
   - id: uses-theme
     cmd: "grep -q 'Theme.of(context)' {{screenPath}}"
     description: "Uses Theme.of(context) for styling"
   - id: no-hardcoded-colors
-    cmd: "! grep -qE 'Color\\(0x|Colors\\.' {{screenPath}}"
+    cmd: "grep -qE 'Color\\(0x|Colors\\.' {{screenPath}} && exit 1 || exit 0"
     description: "No hardcoded colors — uses colorScheme"
 ---
 

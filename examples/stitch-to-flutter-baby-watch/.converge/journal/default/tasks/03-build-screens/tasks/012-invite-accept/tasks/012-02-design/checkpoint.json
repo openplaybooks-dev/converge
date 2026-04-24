@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-build-screens/012-invite-accept/012-02-design",
+  "status": "complete",
+  "lastUpdated": "2026-04-22T14:13:56.532Z",
+  "createdAt": "2026-04-22T14:10:35.414Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-22T14:10:35.414Z",
+      "completedAt": "2026-04-22T14:13:56.528Z",
+      "outcome": "success",
+      "durationMs": 201114
+    }
+  ],
+  "currentAttempt": 1
+}

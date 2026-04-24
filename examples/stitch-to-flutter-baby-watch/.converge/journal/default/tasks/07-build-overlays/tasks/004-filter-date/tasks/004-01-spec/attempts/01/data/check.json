@@ -1,0 +1,15 @@
+{
+  "taskId": "07-build-overlays/004-filter-date/004-01-spec",
+  "checks": [
+    {
+      "id": "spec-exists",
+      "description": "SPEC.md exists for filter-date",
+      "cmd": "test -f .stitch/designs/filter-date/SPEC.md"
+    },
+    {
+      "id": "spec-has-content",
+      "description": "SPEC.md has >30 lines",
+      "cmd": "test $(wc -l < .stitch/designs/filter-date/SPEC.md) -gt 30"
+    }
+  ]
+}

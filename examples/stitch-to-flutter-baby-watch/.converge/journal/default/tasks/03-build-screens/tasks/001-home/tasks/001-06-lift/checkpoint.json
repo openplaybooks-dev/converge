@@ -1,0 +1,19 @@
+{
+  "type": "task",
+  "id": "03-build-screens/001-home/001-06-lift",
+  "status": "pending",
+  "lastUpdated": "2026-04-23T12:25:07.343Z",
+  "createdAt": "2026-04-23T10:56:56.367Z",
+  "progress": {
+    "totalChildren": 4,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-lift-StatusSection",
+      "002-lift-MapCard",
+      "003-lift-BeaconStrip",
+      "004-lift-QuickActions"
+    ],
+    "lastProgressUpdate": "2026-04-23T12:25:07.341Z"
+  }
+}

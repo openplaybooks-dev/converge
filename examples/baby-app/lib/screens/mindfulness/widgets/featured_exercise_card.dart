@@ -17,6 +17,7 @@ class FeaturedExerciseCard extends StatelessWidget {
       label: 'Featured exercise: Deep Breathing, Breathing, 5 min',
       button: true,
       child: GestureDetector(
+// @converge:element FeaturedExerciseCard-onTap-1
         onTap: () => context.push('/mindfulness/exercise/deep-breathing'),
         child: DecoratedBox(
           decoration: BoxDecoration(

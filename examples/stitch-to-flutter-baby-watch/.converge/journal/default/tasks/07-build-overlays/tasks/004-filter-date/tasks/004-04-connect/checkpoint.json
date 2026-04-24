@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/004-filter-date/004-04-connect",
+  "status": "complete",
+  "lastUpdated": "2026-04-21T20:38:10.515Z",
+  "createdAt": "2026-04-21T20:35:55.213Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-21T20:35:55.213Z",
+      "completedAt": "2026-04-21T20:38:07.399Z",
+      "outcome": "failed",
+      "durationMs": 132186
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-21T20:38:07.581Z",
+      "completedAt": "2026-04-21T20:38:10.511Z",
+      "outcome": "success",
+      "durationMs": 2930
+    }
+  ],
+  "currentAttempt": 2
+}

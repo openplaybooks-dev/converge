@@ -1,0 +1,34 @@
+# NEEDS.result.md — Attempt 1
+
+## Input State
+
+### `.stitch/system/DESIGN.md`
+✓ **1 file(s)**
+
+- `.stitch/system/DESIGN.md`
+
+### `.stitch/UX.md`
+✓ **1 file(s)**
+
+- `.stitch/UX.md`
+
+### `.stitch/screens.json`
+✓ **1 file(s)**
+
+- `.stitch/screens.json`
+
+### `.stitch/references/ANALYSIS.md`
+✓ **1 file(s)**
+
+- `.stitch/references/ANALYSIS.md`
+
+### `.stitch/references/ch_p_nh_n_l_i_m_i/code.html`
+✓ **1 file(s)**
+
+- `.stitch/references/ch_p_nh_n_l_i_m_i/code.html`
+
+## Status
+
+✅ **READY** — 5 input pattern(s) satisfied
+
+Attempt 1 — 1 output(s) expected

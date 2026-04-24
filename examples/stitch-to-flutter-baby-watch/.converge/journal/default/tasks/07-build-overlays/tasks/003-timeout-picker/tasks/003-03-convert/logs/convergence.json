@@ -1,0 +1,299 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "07-build-overlays/003-timeout-picker/003-03-convert-missing-output-lib/widgets/overlays/timeout_picker/timeout_picker.dart",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-build-overlays/003-timeout-picker/003-03-convert",
+            "severity": "high",
+            "description": "[07-build-overlays/003-timeout-picker/003-03-convert] Task output not created: lib/widgets/overlays/timeout_picker/timeout_picker.dart",
+            "source": "unit",
+            "detected": "2026-04-21T20:07:19.701Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/07-build-overlays/tasks/003-timeout-picker/tasks/003-03-convert",
+              "taskId": "07-build-overlays/003-timeout-picker/003-03-convert",
+              "taskTitle": "Convert: Timeout Picker",
+              "taskPrompt": "# Convert: Timeout Picker\n\nConvert the constrained HTML design to a Flutter widget using the **stitch-flutter** skill.\n\n## Inputs\n- `.stitch/designs/timeout-picker/design.html` — HTML design mockup (written in Flutter HTML Glossary vocabulary)\n- `.stitch/designs/timeout-picker/SPEC.md` — Overlay specification\n- `.stitch/system/DESIGN.md` — Design system specification\n\n## Important: Overlay ≠ Screen\n\nThis is an **overlay widget**, NOT a screen. Key differences:\n- **No Scaffold** — the overlay is the content inside `showModalBottomSheet()` or `showDialog()`\n- **No GoRoute registration** — overlays are shown imperatively, not via router\n- **Return value** — the widget may return data via `Navigator.pop(context, result)`\n\n## Conversion Steps\n\n1. **Read HTML** — Parse `.stitch/designs/timeout-picker/design.html` and extract:\n   - Overlay container element (`.bottom-sheet`, `.dialog`, or `.persistent-bar`)\n   - `data-*` attributes → Flutter widget parameters\n   - `aria-*` attributes → `Semantics` widgets\n\n2. **Walk the DOM** — Process each glossary element top-down:\n   - `.column` → `Column()`\n   - `.row` → `Row()`\n   - `.card` → `Card()`\n   - `.drag-handle` → drag handle widget (for bottom sheets)\n   - `.icon[data-name]` → `Icon(Icons.{name})`\n   - Text classes → `Text(..., style: textTheme.X)`\n   - `data-color` → `colorScheme.X`\n   - `data-spacing` → `AppTheme.spaceX`\n\n3. **Generate Dart** — Write `lib/widgets/overlays/timeout_picker/timeout_picker.dart`:\n   ```dart\n   import 'package:flutter/material.dart';\n   // Use the project's actual package name from pubspec.yaml\n   import 'package:<pkg>/theme/app_theme.dart';\n\n   class TimeoutPicker extends StatelessWidget {\n     const TimeoutPicker({super.key});\n\n     @override\n     Widget build(BuildContext context) {\n       final theme = Theme.of(context);\n       final colorScheme = theme.colorScheme;\n       final textTheme = theme.textTheme;\n\n       // Content of the overlay — no Scaffold wrapper\n       return ...;\n     }\n   }\n   ```\n\n4. **Do NOT update router** — Overlays are not routed. They are shown via `showModalBottomSheet()` or `showDialog()` from the parent screen.\n\n5. **Verify** — Run `dart analyze lib/widgets/overlays/timeout_picker/timeout_picker.dart`\n\n## Quality Gates\n\n- **No hardcoded colors** — use `colorScheme.X`\n- **No hardcoded text styles** — use `textTheme.X`\n- **No hardcoded spacing** — use `AppTheme.spaceX`\n- **No Scaffold** — overlay content only\n- **No GoRoute** — overlays are imperative\n- **Use const** — `const` constructor wherever possible\n- **Trailing commas** — on every parameter list\n\n## Success Criteria\n\n- `lib/widgets/overlays/timeout_picker/timeout_picker.dart` exists with valid Dart\n- Uses `Theme.of(context)` for all styling\n- No hardcoded colors, text styles, or spacing values\n- No Scaffold wrapper\n- No GoRoute registration\n- `dart analyze` passes",
+              "taskSkill": "stitch-flutter",
+              "taskInputs": [
+                ".stitch/designs/timeout-picker/design.html",
+                ".stitch/designs/timeout-picker/SPEC.md",
+                ".stitch/system/DESIGN.md"
+              ],
+              "factId": "file-exists:test -f \"lib/widgets/overlays/timeout_picker/timeout_picker.dart\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "07-build-overlays/003-timeout-picker/003-03-convert-check-failed-widget-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-build-overlays/003-timeout-picker/003-03-convert",
+            "severity": "high",
+            "description": "[07-build-overlays/003-timeout-picker/003-03-convert] Check failed: Overlay widget file exists",
+            "source": "unit",
+            "detected": "2026-04-21T20:07:19.703Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "widget-exists",
+              "checkCmd": "test -f lib/widgets/overlays/timeout_picker/timeout_picker.dart",
+              "checkDescription": "Overlay widget file exists",
+              "checkOutput": "Command failed: test -f lib/widgets/overlays/timeout_picker/timeout_picker.dart\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Convert: Timeout Picker\n\nConvert the constrained HTML design to a Flutter widget using the **stitch-flutter** skill.\n\n## Inputs\n- `.stitch/designs/timeout-picker/design.html` — HTML design mockup (written in Flutter HTML Glossary vocabulary)\n- `.stitch/designs/timeout-picker/SPEC.md` — Overlay specification\n- `.stitch/system/DESIGN.md` — Design system specification\n\n## Important: Overlay ≠ Screen\n\nThis is an **overlay widget**, NOT a screen. Key differences:\n- **No Scaffold** — the overlay is the content inside `showModalBottomSheet()` or `showDialog()`\n- **No GoRoute registration** — overlays are shown imperatively, not via router\n- **Return value** — the widget may return data via `Navigator.pop(context, result)`\n\n## Conversion Steps\n\n1. **Read HTML** — Parse `.stitch/designs/timeout-picker/design.html` and extract:\n   - Overlay container element (`.bottom-sheet`, `.dialog`, or `.persistent-bar`)\n   - `data-*` attributes → Flutter widget parameters\n   - `aria-*` attributes → `Semantics` widgets\n\n2. **Walk the DOM** — Process each glossary element top-down:\n   - `.column` → `Column()`\n   - `.row` → `Row()`\n   - `.card` → `Card()`\n   - `.drag-handle` → drag handle widget (for bottom sheets)\n   - `.icon[data-name]` → `Icon(Icons.{name})`\n   - Text classes → `Text(..., style: textTheme.X)`\n   - `data-color` → `colorScheme.X`\n   - `data-spacing` → `AppTheme.spaceX`\n\n3. **Generate Dart** — Write `lib/widgets/overlays/timeout_picker/timeout_picker.dart`:\n   ```dart\n   import 'package:flutter/material.dart';\n   // Use the project's actual package name from pubspec.yaml\n   import 'package:<pkg>/theme/app_theme.dart';\n\n   class TimeoutPicker extends StatelessWidget {\n     const TimeoutPicker({super.key});\n\n     @override\n     Widget build(BuildContext context) {\n       final theme = Theme.of(context);\n       final colorScheme = theme.colorScheme;\n       final textTheme = theme.textTheme;\n\n       // Content of the overlay — no Scaffold wrapper\n       return ...;\n     }\n   }\n   ```\n\n4. **Do NOT update router** — Overlays are not routed. They are shown via `showModalBottomSheet()` or `showDialog()` from the parent screen.\n\n5. **Verify** — Run `dart analyze lib/widgets/overlays/timeout_picker/timeout_picker.dart`\n\n## Quality Gates\n\n- **No hardcoded colors** — use `colorScheme.X`\n- **No hardcoded text styles** — use `textTheme.X`\n- **No hardcoded spacing** — use `AppTheme.spaceX`\n- **No Scaffold** — overlay content only\n- **No GoRoute** — overlays are imperative\n- **Use const** — `const` constructor wherever possible\n- **Trailing commas** — on every parameter list\n\n## Success Criteria\n\n- `lib/widgets/overlays/timeout_picker/timeout_picker.dart` exists with valid Dart\n- Uses `Theme.of(context)` for all styling\n- No hardcoded colors, text styles, or spacing values\n- No Scaffold wrapper\n- No GoRoute registration\n- `dart analyze` passes",
+              "taskSkill": "stitch-flutter",
+              "taskId": "07-build-overlays/003-timeout-picker/003-03-convert",
+              "taskTitle": "Convert: Timeout Picker",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/07-build-overlays/tasks/003-timeout-picker/tasks/003-03-convert",
+              "factId": "check:widget-exists"
+            }
+          },
+          {
+            "id": "07-build-overlays/003-timeout-picker/003-03-convert-check-failed-dart-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-build-overlays/003-timeout-picker/003-03-convert",
+            "severity": "high",
+            "description": "[07-build-overlays/003-timeout-picker/003-03-convert] Check failed: Dart analysis passes",
+            "source": "unit",
+            "detected": "2026-04-21T20:07:19.742Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dart-valid",
+              "checkCmd": "dart analyze lib/widgets/overlays/timeout_picker/timeout_picker.dart",
+              "checkDescription": "Dart analysis passes",
+              "checkOutput": "Directory or file doesn't exist: lib/widgets/overlays/timeout_picker/timeout_picker.dart\n\nUsage: dart analyze [arguments] [<directory>]\n-h, --help                   Print this usage information.\n    --fatal-infos            Treat info level issues as fatal.\n    --[no-]fatal-warnings    Treat warning level issues as fatal.\n                             (defaults to on)\n\nRun \"dart help\" to see global options.",
+              "checkExitCode": 64,
+              "taskPrompt": "# Convert: Timeout Picker\n\nConvert the constrained HTML design to a Flutter widget using the **stitch-flutter** skill.\n\n## Inputs\n- `.stitch/designs/timeout-picker/design.html` — HTML design mockup (written in Flutter HTML Glossary vocabulary)\n- `.stitch/designs/timeout-picker/SPEC.md` — Overlay specification\n- `.stitch/system/DESIGN.md` — Design system specification\n\n## Important: Overlay ≠ Screen\n\nThis is an **overlay widget**, NOT a screen. Key differences:\n- **No Scaffold** — the overlay is the content inside `showModalBottomSheet()` or `showDialog()`\n- **No GoRoute registration** — overlays are shown imperatively, not via router\n- **Return value** — the widget may return data via `Navigator.pop(context, result)`\n\n## Conversion Steps\n\n1. **Read HTML** — Parse `.stitch/designs/timeout-picker/design.html` and extract:\n   - Overlay container element (`.bottom-sheet`, `.dialog`, or `.persistent-bar`)\n   - `data-*` attributes → Flutter widget parameters\n   - `aria-*` attributes → `Semantics` widgets\n\n2. **Walk the DOM** — Process each glossary element top-down:\n   - `.column` → `Column()`\n   - `.row` → `Row()`\n   - `.card` → `Card()`\n   - `.drag-handle` → drag handle widget (for bottom sheets)\n   - `.icon[data-name]` → `Icon(Icons.{name})`\n   - Text classes → `Text(..., style: textTheme.X)`\n   - `data-color` → `colorScheme.X`\n   - `data-spacing` → `AppTheme.spaceX`\n\n3. **Generate Dart** — Write `lib/widgets/overlays/timeout_picker/timeout_picker.dart`:\n   ```dart\n   import 'package:flutter/material.dart';\n   // Use the project's actual package name from pubspec.yaml\n   import 'package:<pkg>/theme/app_theme.dart';\n\n   class TimeoutPicker extends StatelessWidget {\n     const TimeoutPicker({super.key});\n\n     @override\n     Widget build(BuildContext context) {\n       final theme = Theme.of(context);\n       final colorScheme = theme.colorScheme;\n       final textTheme = theme.textTheme;\n\n       // Content of the overlay — no Scaffold wrapper\n       return ...;\n     }\n   }\n   ```\n\n4. **Do NOT update router** — Overlays are not routed. They are shown via `showModalBottomSheet()` or `showDialog()` from the parent screen.\n\n5. **Verify** — Run `dart analyze lib/widgets/overlays/timeout_picker/timeout_picker.dart`\n\n## Quality Gates\n\n- **No hardcoded colors** — use `colorScheme.X`\n- **No hardcoded text styles** — use `textTheme.X`\n- **No hardcoded spacing** — use `AppTheme.spaceX`\n- **No Scaffold** — overlay content only\n- **No GoRoute** — overlays are imperative\n- **Use const** — `const` constructor wherever possible\n- **Trailing commas** — on every parameter list\n\n## Success Criteria\n\n- `lib/widgets/overlays/timeout_picker/timeout_picker.dart` exists with valid Dart\n- Uses `Theme.of(context)` for all styling\n- No hardcoded colors, text styles, or spacing values\n- No Scaffold wrapper\n- No GoRoute registration\n- `dart analyze` passes",
+              "taskSkill": "stitch-flutter",
+              "taskId": "07-build-overlays/003-timeout-picker/003-03-convert",
+              "taskTitle": "Convert: Timeout Picker",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/07-build-overlays/tasks/003-timeout-picker/tasks/003-03-convert",
+              "factId": "check:dart-valid"
+            }
+          },
+          {
+            "id": "07-build-overlays/003-timeout-picker/003-03-convert-check-failed-uses-theme",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-build-overlays/003-timeout-picker/003-03-convert",
+            "severity": "high",
+            "description": "[07-build-overlays/003-timeout-picker/003-03-convert] Check failed: Uses Theme.of(context) for styling",
+            "source": "unit",
+            "detected": "2026-04-21T20:07:19.746Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "uses-theme",
+              "checkCmd": "grep -q 'Theme.of(context)' lib/widgets/overlays/timeout_picker/timeout_picker.dart",
+              "checkDescription": "Uses Theme.of(context) for styling",
+              "checkOutput": "grep: lib/widgets/overlays/timeout_picker/timeout_picker.dart: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Convert: Timeout Picker\n\nConvert the constrained HTML design to a Flutter widget using the **stitch-flutter** skill.\n\n## Inputs\n- `.stitch/designs/timeout-picker/design.html` — HTML design mockup (written in Flutter HTML Glossary vocabulary)\n- `.stitch/designs/timeout-picker/SPEC.md` — Overlay specification\n- `.stitch/system/DESIGN.md` — Design system specification\n\n## Important: Overlay ≠ Screen\n\nThis is an **overlay widget**, NOT a screen. Key differences:\n- **No Scaffold** — the overlay is the content inside `showModalBottomSheet()` or `showDialog()`\n- **No GoRoute registration** — overlays are shown imperatively, not via router\n- **Return value** — the widget may return data via `Navigator.pop(context, result)`\n\n## Conversion Steps\n\n1. **Read HTML** — Parse `.stitch/designs/timeout-picker/design.html` and extract:\n   - Overlay container element (`.bottom-sheet`, `.dialog`, or `.persistent-bar`)\n   - `data-*` attributes → Flutter widget parameters\n   - `aria-*` attributes → `Semantics` widgets\n\n2. **Walk the DOM** — Process each glossary element top-down:\n   - `.column` → `Column()`\n   - `.row` → `Row()`\n   - `.card` → `Card()`\n   - `.drag-handle` → drag handle widget (for bottom sheets)\n   - `.icon[data-name]` → `Icon(Icons.{name})`\n   - Text classes → `Text(..., style: textTheme.X)`\n   - `data-color` → `colorScheme.X`\n   - `data-spacing` → `AppTheme.spaceX`\n\n3. **Generate Dart** — Write `lib/widgets/overlays/timeout_picker/timeout_picker.dart`:\n   ```dart\n   import 'package:flutter/material.dart';\n   // Use the project's actual package name from pubspec.yaml\n   import 'package:<pkg>/theme/app_theme.dart';\n\n   class TimeoutPicker extends StatelessWidget {\n     const TimeoutPicker({super.key});\n\n     @override\n     Widget build(BuildContext context) {\n       final theme = Theme.of(context);\n       final colorScheme = theme.colorScheme;\n       final textTheme = theme.textTheme;\n\n       // Content of the overlay — no Scaffold wrapper\n       return ...;\n     }\n   }\n   ```\n\n4. **Do NOT update router** — Overlays are not routed. They are shown via `showModalBottomSheet()` or `showDialog()` from the parent screen.\n\n5. **Verify** — Run `dart analyze lib/widgets/overlays/timeout_picker/timeout_picker.dart`\n\n## Quality Gates\n\n- **No hardcoded colors** — use `colorScheme.X`\n- **No hardcoded text styles** — use `textTheme.X`\n- **No hardcoded spacing** — use `AppTheme.spaceX`\n- **No Scaffold** — overlay content only\n- **No GoRoute** — overlays are imperative\n- **Use const** — `const` constructor wherever possible\n- **Trailing commas** — on every parameter list\n\n## Success Criteria\n\n- `lib/widgets/overlays/timeout_picker/timeout_picker.dart` exists with valid Dart\n- Uses `Theme.of(context)` for all styling\n- No hardcoded colors, text styles, or spacing values\n- No Scaffold wrapper\n- No GoRoute registration\n- `dart analyze` passes",
+              "taskSkill": "stitch-flutter",
+              "taskId": "07-build-overlays/003-timeout-picker/003-03-convert",
+              "taskTitle": "Convert: Timeout Picker",
+              "unitPath": "/Users/hoangnguyen/workspaces/converge/examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/tasks/07-build-overlays/tasks/003-timeout-picker/tasks/003-03-convert",
+              "factId": "check:uses-theme"
+            }
+          }
+        ],
+        "durationMs": 62
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGaps"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 57
+      }
+    },
+    {
+      "id": "run-skill",
+      "handler": "run-skill",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 64
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 117254
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 2403
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#63",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 188724
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-21T20:07:19.691Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-21T20:07:19.691Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-21T20:07:19.754Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-21T20:07:19.755Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "run-skill",
+      "iteration": 1,
+      "ts": "2026-04-21T20:09:17.009Z"
+    },
+    {
+      "from": "run-skill",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-21T20:09:17.067Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#63",
+      "iteration": 1,
+      "ts": "2026-04-21T20:12:25.793Z"
+    },
+    {
+      "from": "run-strategy:task-run#63",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-21T20:12:28.196Z"
+    }
+  ]
+}

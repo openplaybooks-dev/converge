@@ -1,0 +1,18 @@
+{
+  "type": "task",
+  "id": "03-build-screens/007-edit-safe-zone/007-06-lift",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T12:25:07.343Z",
+  "createdAt": "2026-04-21T14:23:12.845Z",
+  "progress": {
+    "totalChildren": 3,
+    "completedChildren": 3,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-lift-SafeZoneFormField",
+      "002-lift-AddressField",
+      "003-lift-ActiveToggle"
+    ],
+    "lastProgressUpdate": "2026-04-23T12:25:07.341Z"
+  }
+}

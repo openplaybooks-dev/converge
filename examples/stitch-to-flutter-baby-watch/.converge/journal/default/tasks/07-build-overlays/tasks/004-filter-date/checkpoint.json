@@ -1,0 +1,20 @@
+{
+  "type": "task",
+  "id": "07-build-overlays/004-filter-date",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T12:25:07.344Z",
+  "createdAt": "2026-04-21T18:44:56.451Z",
+  "progress": {
+    "totalChildren": 5,
+    "completedChildren": 5,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "004-01-spec",
+      "004-02-design",
+      "004-03-convert",
+      "004-04-connect",
+      "004-05-mount"
+    ],
+    "lastProgressUpdate": "2026-04-23T12:25:07.342Z"
+  }
+}

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=375, initial-scale=1.0" />
+  <title>Accept Invitation — BabyGuard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f5f4ee",
+            "surface-container": "#efeee8",
+            "surface-container-high": "#e8e9e1",
+            "surface-container-highest": "#e2e3db",
+            "surface-bright": "#F4F2EE",
+            "surface": "#fbf9f5",
+            "on-surface": "#31332e",
+            "on-surface-variant": "#5e6059",
+            "secondary": "#4f635e",
+            "on-secondary": "#faf7f6",
+            "secondary-container": "#CDE3DC",
+            "on-secondary-container": "#00391C",
+            "tertiary": "#4f635e",
+            "tertiary-container": "#dff6ee",
+            "on-tertiary": "#e8fef7",
+            "on-tertiary-container": "#4a5e59",
+            "primary": "#5e5e5e",
+            "on-primary": "#f8f8f8",
+            "error": "#9f403d"
+          },
+          borderRadius: {
+            "DEFAULT": "1rem",
+            "lg": "1.75rem",
+            "xl": "2rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Manrope"],
+            "label": ["Manrope"]
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body { font-family: 'Manrope', sans-serif; }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div data-flutter="scaffold" class="scaffold" data-color="surface" class="flex flex-col min-h-screen bg-[#fbf9f5]">
+
+      <!-- TopAppBar -->
+      <header data-flutter="app-bar" class="flex items-center justify-between px-6 h-20 w-full bg-[#fbf9f5] sticky top-0 z-50">
+        <div class="flex items-center justify-center w-full relative">
+          <div class="absolute left-0">
+            <button aria-label="Close" class="p-2 hover:opacity-80 transition-opacity scale-95 active:transition-transform text-[#31332e]">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          <h1 class="font-extrabold text-[#31332e] tracking-tighter text-xl">BabyGuard</h1>
+        </div>
+      </header>
+
+      <!-- Center Content -->
+      <main class="flex-1 flex items-center justify-center p-6 md:p-12">
+        <div class="w-full max-w-lg bg-white rounded-[28px] shadow-[0_8px_24px_rgba(231,227,220,0.4)] overflow-hidden">
+
+          <div class="p-8 md:p-12 text-center flex flex-col items-center">
+            <!-- Avatar with badge -->
+            <div class="w-24 h-24 mb-8 relative">
+              <div class="absolute inset-0 bg-[#dff6ee] rounded-full opacity-20 animate-pulse"></div>
+              <div class="relative w-full h-full rounded-full bg-[#efeee8] flex items-center justify-center overflow-hidden">
+                <img class="w-full h-full object-cover" alt="Baby" src="https://picsum.photos/seed/baby2/200/200" />
+              </div>
+              <div class="absolute -bottom-1 -right-1 bg-[#4f635e] text-white p-1.5 rounded-full border-4 border-white">
+                <span class="material-symbols-outlined text-sm block" style="font-variation-settings: 'FILL' 1;">shield</span>
+              </div>
+            </div>
+
+            <!-- Title & Inviter -->
+            <div class="space-y-2 mb-6">
+              <h2 class="font-bold text-4xl tracking-tight text-[#31332e]">Bé Na</h2>
+              <div class="flex items-center justify-center gap-2">
+                <span class="text-[#5e6059] font-medium">Mẹ đã mời bạn</span>
+                <span class="bg-[#e2e3db] text-[#5e6059] px-3 py-0.5 rounded-full text-xs font-bold tracking-wide uppercase">Người sở hữu</span>
+              </div>
+            </div>
+
+            <div class="w-full h-px bg-[#f5f4ee] mb-8"></div>
+
+            <!-- Trust Notes -->
+            <div class="space-y-4 mb-10 text-left w-full px-2">
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-[#dff6ee] flex items-center justify-center text-[#4f635e]">
+                  <span class="material-symbols-outlined text-xl">notifications_active</span>
+                </div>
+                <p class="text-[#5e6059] text-sm leading-relaxed font-medium">
+                  Bằng cách chấp nhận, bạn sẽ nhận được thông báo khi beacon này mất kết nối
+                </p>
+              </div>
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-[#e8e9e1] flex items-center justify-center text-[#5e5f5f]">
+                  <span class="material-symbols-outlined text-xl">group_off</span>
+                </div>
+                <p class="text-[#5e6059] text-sm leading-relaxed font-medium">
+                  Bạn có thể rời nhóm theo dõi bất kỳ lúc nào
+                </p>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="w-full space-y-4">
+              <button class="w-full h-14 bg-[#31332e] text-white font-semibold rounded-full hover:opacity-90 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                Chấp nhận
+              </button>
+              <button class="w-full h-14 bg-transparent border-2 border-[#b1b3ab] text-[#5e6059] font-semibold rounded-full hover:bg-[#f5f4ee] transition-all active:scale-[0.98]">
+                Từ chối
+              </button>
+            </div>
+          </div>
+
+          <!-- Privacy Footer -->
+          <div class="bg-[#f5f4ee] p-6 text-center">
+            <p class="text-xs text-[#5e6059] opacity-70 flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+              Bảo mật bởi hệ thống mã hóa BabyGuard
+            </p>
+          </div>
+        </div>
+      </main>
+
+      <!-- Status Indicator -->
+      <footer class="fixed bottom-8 w-full text-center px-6 pointer-events-none">
+        <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-xl rounded-full shadow-sm">
+          <div class="w-2 h-2 rounded-full bg-[#4f635e] animate-pulse"></div>
+          <span class="text-[10px] font-bold tracking-widest text-[#5e6059] uppercase">Hệ thống đang hoạt động</span>
+        </div>
+      </footer>
+
+    </div>
+  </div>
+</body>
+</html>
