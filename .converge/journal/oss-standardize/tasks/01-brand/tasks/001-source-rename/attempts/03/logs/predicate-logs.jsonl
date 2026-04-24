@@ -1,0 +1,16 @@
+{"ts":"2026-04-23T21:02:16.943Z","iter":1,"gaps":1,"stall":1,"node":"action","handler":"advance-attempt","status":"done","result":"continue"}
+{"ts":"2026-04-23T21:02:16.944Z","iter":1,"gaps":1,"stall":1,"node":"action","handler":"check-wbs-seeded","status":"start"}
+{"ts":"2026-04-23T21:02:16.944Z","iter":1,"gaps":1,"stall":1,"node":"action","handler":"check-wbs-seeded","status":"done","result":"continue"}
+{"ts":"2026-04-23T21:02:16.944Z","iter":2,"gaps":1,"stall":1,"node":"action","handler":"check-outputs-exist","status":"start"}
+{"ts":"2026-04-23T21:02:17.196Z","iter":2,"gaps":1,"stall":1,"node":"action","handler":"check-outputs-exist","status":"done","result":"continue"}
+{"ts":"2026-04-23T21:02:17.196Z","iter":2,"gaps":1,"stall":1,"node":"action","handler":"detect-gaps","status":"start"}
+{"ts":"2026-04-23T21:02:17.451Z","iter":2,"gaps":1,"stall":1,"node":"action","handler":"detect-gaps","status":"done","result":"continue","newGaps":1}
+{"ts":"2026-04-23T21:02:17.452Z","iter":2,"gaps":1,"stall":1,"node":"action","handler":"repair-loop","status":"start"}
+{"ts":"2026-04-23T21:02:17.452Z","iter":2,"gaps":1,"stall":1,"node":"action","handler":"repair-loop","status":"done","result":"continue"}
+{"ts":"2026-04-23T21:02:17.453Z","iter":2,"gaps":1,"stall":1,"node":"action","handler":"run-strategy","status":"start"}
+{"ts":"2026-04-23T21:02:21.107Z","iter":2,"gaps":1,"stall":1,"node":"action","handler":"run-strategy","status":"done","result":"continue"}
+{"ts":"2026-04-23T21:02:21.108Z","iter":2,"gaps":1,"stall":1,"node":"action","handler":"verify","status":"start"}
+{"ts":"2026-04-23T21:02:21.385Z","iter":2,"gaps":1,"stall":1,"node":"action","handler":"verify","status":"done","result":"continue","newGaps":1}
+{"ts":"2026-04-23T21:02:21.386Z","iter":2,"gaps":1,"stall":1,"node":"action","handler":"check-stall","status":"start"}
+{"ts":"2026-04-23T21:02:21.386Z","iter":2,"gaps":1,"stall":1,"node":"action","handler":"check-stall","status":"done","result":"continue"}
+{"ts":"2026-04-23T21:02:21.386Z","iter":2,"gaps":1,"stall":2,"node":"action","handler":"advance-attempt","status":"start"}

@@ -1,0 +1,20 @@
+{
+  "taskId": "deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/001-initial/004-initial-aggregation",
+  "epicId": "deep-research",
+  "focusPath": "deep-research/deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/001-initial/004-initial-aggregation",
+  "status": "running",
+  "startedAt": "2026-04-23T22:35:30.025Z",
+  "attempt": 1,
+  "gapsResolved": 0,
+  "gapsFailed": 0,
+  "checklist": [
+    {
+      "id": "subtask:spawn-1",
+      "type": "subtask",
+      "description": "research-layer-aggregate",
+      "details": ".claude/skills/research-layer-aggregate/SKILL.md",
+      "done": true,
+      "doneAt": "2026-04-23T22:37:26.115Z"
+    }
+  ]
+}

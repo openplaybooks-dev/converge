@@ -1,0 +1,14 @@
+{
+  "type": "task",
+  "id": "03-characters/03-generation/forest-elf-04-states/forest-elf-state-idle",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T06:02:56.341Z",
+  "createdAt": "2026-04-23T05:57:51.513Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T05:57:51.513Z"
+    }
+  ],
+  "currentAttempt": 1
+}

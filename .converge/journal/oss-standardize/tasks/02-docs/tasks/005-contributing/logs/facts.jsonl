@@ -1,0 +1,2 @@
+{"type":"file-exists","path":"CONTRIBUTING.md","cmd":"test -f \"CONTRIBUTING.md\"","id":"file-exists:test -f \"CONTRIBUTING.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:02:40.047Z"}
+{"type":"check","checkId":"contributing-exists","cmd":"test -f CONTRIBUTING.md","description":"CONTRIBUTING.md exists","id":"check:contributing-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:02:40.049Z"}

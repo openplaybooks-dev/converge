@@ -1,0 +1,3 @@
+{"type":"file-exists","path":"docs/brand-messaging.md","cmd":"test -f \"docs/brand-messaging.md\"","id":"file-exists:test -f \"docs/brand-messaging.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:03:21.898Z"}
+{"type":"check","checkId":"messaging-exists","cmd":"test -f docs/brand-messaging.md","description":"Brand messaging document exists","id":"check:messaging-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:03:21.900Z"}
+{"type":"check","checkId":"messaging-has-tagline","cmd":"grep -qi 'tagline\\|one-liner' docs/brand-messaging.md","description":"Document includes tagline","id":"check:messaging-has-tagline","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:03:21.904Z"}

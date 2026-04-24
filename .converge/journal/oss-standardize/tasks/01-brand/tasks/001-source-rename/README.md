@@ -1,6 +1,6 @@
 # Task Journal: 01-brand/001-source-rename
 
-## Current attempt — `attempts/wip/`
+## Current attempt — `attempts/02/`
 
 | File | Purpose |
 |------|---------|

@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "02-docs/007-adrs",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T21:02:40.116Z",
+  "createdAt": "2026-04-23T21:02:40.099Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T21:02:40.099Z",
+      "completedAt": "2026-04-23T21:02:40.115Z",
+      "outcome": "success",
+      "durationMs": 16
+    }
+  ],
+  "currentAttempt": 1
+}

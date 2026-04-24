@@ -1,0 +1,10 @@
+{
+  "taskId": "03-characters/03-generation/hero-knight-04-states/hero-knight-state-walk",
+  "checks": [
+    {
+      "id": "spritesheet-exists",
+      "description": "Spritesheet exists",
+      "cmd": "test -s spritesheets/hero-knight/walk.png"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-positioning/004-launch-blog",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T21:03:22.012Z",
+  "createdAt": "2026-04-23T21:03:21.999Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T21:03:21.999Z",
+      "completedAt": "2026-04-23T21:03:22.010Z",
+      "outcome": "success",
+      "durationMs": 11
+    }
+  ],
+  "currentAttempt": 1
+}

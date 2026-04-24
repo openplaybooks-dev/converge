@@ -1,0 +1,10 @@
+{
+  "taskId": "03-characters/03-generation/hero-knight-01-spec",
+  "checks": [
+    {
+      "id": "spec-exists",
+      "description": "Spec file exists",
+      "cmd": "test -s assets/characters/hero-knight/SPEC.md"
+    }
+  ]
+}

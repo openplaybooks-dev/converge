@@ -2,15 +2,15 @@
   "type": "task",
   "id": "self-improvement-loop/epoch-001/002-implement/002-todos",
   "status": "pending",
-  "lastUpdated": "2026-04-22T01:27:24.505Z",
-  "createdAt": "2026-04-22T00:48:41.985Z",
+  "lastUpdated": "2026-04-23T14:27:09.435Z",
+  "createdAt": "2026-04-23T14:27:09.431Z",
   "progress": {
     "totalChildren": 1,
-    "completedChildren": 1,
+    "completedChildren": 0,
     "failedChildren": 0,
-    "childTaskIds": [
+    "childIds": [
       "001-todo"
     ],
-    "lastProgressUpdate": "2026-04-22T01:27:24.504Z"
+    "lastProgressUpdate": "2026-04-23T14:27:09.431Z"
   }
 }

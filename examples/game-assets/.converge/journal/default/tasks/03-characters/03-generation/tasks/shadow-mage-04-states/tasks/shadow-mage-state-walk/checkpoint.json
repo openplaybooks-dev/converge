@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-characters/03-generation/shadow-mage-04-states/shadow-mage-state-walk",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T11:46:13.907Z",
+  "createdAt": "2026-04-23T06:24:02.766Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T06:24:02.766Z",
+      "completedAt": "2026-04-23T11:46:13.902Z",
+      "outcome": "success",
+      "durationMs": 19331136
+    }
+  ],
+  "currentAttempt": 1
+}

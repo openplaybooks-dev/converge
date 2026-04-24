@@ -1,0 +1,15 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-23T06:22:34.586Z",
+  "spawnCount": 2,
+  "subtasks": [
+    {
+      "id": "shadow-mage-state-idle",
+      "writeToPath": ".converge/playbooks/default/tasks/03-characters/03-generation/tasks/shadow-mage-04-states/tasks/shadow-mage-state-idle/TASK.md"
+    },
+    {
+      "id": "shadow-mage-state-walk",
+      "writeToPath": ".converge/playbooks/default/tasks/03-characters/03-generation/tasks/shadow-mage-04-states/tasks/shadow-mage-state-walk/TASK.md"
+    }
+  ]
+}

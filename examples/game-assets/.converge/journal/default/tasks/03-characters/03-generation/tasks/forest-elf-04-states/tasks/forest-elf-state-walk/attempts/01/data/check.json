@@ -1,0 +1,10 @@
+{
+  "taskId": "03-characters/03-generation/forest-elf-04-states/forest-elf-state-walk",
+  "checks": [
+    {
+      "id": "spritesheet-exists",
+      "description": "Spritesheet exists",
+      "cmd": "test -s spritesheets/forest-elf/walk.png"
+    }
+  ]
+}

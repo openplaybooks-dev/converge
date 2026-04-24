@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-positioning/002-comparison-matrix",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T21:03:21.956Z",
+  "createdAt": "2026-04-23T21:03:21.928Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T21:03:21.928Z",
+      "completedAt": "2026-04-23T21:03:21.954Z",
+      "outcome": "success",
+      "durationMs": 26
+    }
+  ],
+  "currentAttempt": 1
+}

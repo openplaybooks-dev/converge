@@ -1,3 +1,0 @@
-{"type":"task_start","taskId":"02-remove-epic-types","taskName":"Remove epic types — add playbook types","attempt":1,"inputs":[],"outputs":[],"timestamp":"2026-04-21T22:53:34.517Z","level":"critical"}
-{"type":"ai_reasoning","text":"Starting convergence loop for task: Remove epic types — add playbook types","context":{"taskId":"02-remove-epic-types","maxIterations":100,"isWbs":false,"hasInputs":false,"hasOutputs":false},"timestamp":"2026-04-21T22:53:34.517Z","level":"info"}
-{"type":"task_complete","taskId":"02-remove-epic-types","duration":4,"outputs":[],"success":true,"timestamp":"2026-04-21T22:53:34.521Z","level":"critical"}

@@ -1,0 +1,796 @@
+{
+  "iteration": 3,
+  "stallCount": 3,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-dx/003-cli-help-missing-output-.converge/standardize-state/dx/cli-help-audit.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-dx/003-cli-help",
+            "severity": "high",
+            "description": "[03-dx/003-cli-help] Task output not created: .converge/standardize-state/dx/cli-help-audit.json",
+            "source": "unit",
+            "detected": "2026-04-23T21:02:50.730Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/03-dx/tasks/003-cli-help",
+              "taskId": "03-dx/003-cli-help",
+              "taskTitle": "CLI Help Text Audit",
+              "taskPrompt": "Audit all CLI help text for accuracy, consistency, and completeness.\n\n**Scope**: `packages/core/src/cli/` — main.ts, commands.ts, all commands-*.ts files\n\n**Audit checklist**:\n1. Every command has a description\n2. All descriptions use \"Converge\" not \"harness\"\n3. Example commands in help text are accurate and runnable\n4. Flags and options are documented\n5. Default values are mentioned where applicable\n6. Help text is concise (< 3 lines per command)\n\n**Process**:\n1. Read `packages/core/src/cli/main.ts` — check banner, version display\n2. Read `packages/core/src/cli/commands.ts` — check command registration\n3. Read each `commands-*.ts` file — check help text\n4. Document findings in audit report\n\n**Write report** to `.converge/standardize-state/dx/cli-help-audit.json`:\n```json\n{\n  \"commands\": [\n    {\n      \"name\": \"run\",\n      \"hasDescription\": true,\n      \"brandCorrect\": true,\n      \"examplesAccurate\": true,\n      \"issues\": []\n    }\n  ],\n  \"totalCommands\": 10,\n  \"issuesFound\": 0,\n  \"fixes\": [\"description of any fixes applied\"]\n}\n```\n\nFix any issues found during the audit — don't just report them.",
+              "factId": "file-exists:test -f \".converge/standardize-state/dx/cli-help-audit.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-dx/003-cli-help-check-failed-audit-complete",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-dx/003-cli-help",
+            "severity": "high",
+            "description": "[03-dx/003-cli-help] Check failed: CLI help audit report exists",
+            "source": "unit",
+            "detected": "2026-04-23T21:02:50.732Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "audit-complete",
+              "checkCmd": "test -f .converge/standardize-state/dx/cli-help-audit.json",
+              "checkDescription": "CLI help audit report exists",
+              "checkOutput": "Command failed: test -f .converge/standardize-state/dx/cli-help-audit.json\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Audit all CLI help text for accuracy, consistency, and completeness.\n\n**Scope**: `packages/core/src/cli/` — main.ts, commands.ts, all commands-*.ts files\n\n**Audit checklist**:\n1. Every command has a description\n2. All descriptions use \"Converge\" not \"harness\"\n3. Example commands in help text are accurate and runnable\n4. Flags and options are documented\n5. Default values are mentioned where applicable\n6. Help text is concise (< 3 lines per command)\n\n**Process**:\n1. Read `packages/core/src/cli/main.ts` — check banner, version display\n2. Read `packages/core/src/cli/commands.ts` — check command registration\n3. Read each `commands-*.ts` file — check help text\n4. Document findings in audit report\n\n**Write report** to `.converge/standardize-state/dx/cli-help-audit.json`:\n```json\n{\n  \"commands\": [\n    {\n      \"name\": \"run\",\n      \"hasDescription\": true,\n      \"brandCorrect\": true,\n      \"examplesAccurate\": true,\n      \"issues\": []\n    }\n  ],\n  \"totalCommands\": 10,\n  \"issuesFound\": 0,\n  \"fixes\": [\"description of any fixes applied\"]\n}\n```\n\nFix any issues found during the audit — don't just report them.",
+              "taskId": "03-dx/003-cli-help",
+              "taskTitle": "CLI Help Text Audit",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/03-dx/tasks/003-cli-help",
+              "factId": "check:audit-complete"
+            }
+          }
+        ],
+        "durationMs": 5
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-dx/003-cli-help-missing-output-.converge/standardize-state/dx/cli-help-audit.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-dx/003-cli-help",
+            "severity": "high",
+            "description": "[03-dx/003-cli-help] Task output not created: .converge/standardize-state/dx/cli-help-audit.json",
+            "source": "unit",
+            "detected": "2026-04-23T21:02:54.088Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/03-dx/tasks/003-cli-help",
+              "taskId": "03-dx/003-cli-help",
+              "taskTitle": "CLI Help Text Audit",
+              "taskPrompt": "Audit all CLI help text for accuracy, consistency, and completeness.\n\n**Scope**: `packages/core/src/cli/` — main.ts, commands.ts, all commands-*.ts files\n\n**Audit checklist**:\n1. Every command has a description\n2. All descriptions use \"Converge\" not \"harness\"\n3. Example commands in help text are accurate and runnable\n4. Flags and options are documented\n5. Default values are mentioned where applicable\n6. Help text is concise (< 3 lines per command)\n\n**Process**:\n1. Read `packages/core/src/cli/main.ts` — check banner, version display\n2. Read `packages/core/src/cli/commands.ts` — check command registration\n3. Read each `commands-*.ts` file — check help text\n4. Document findings in audit report\n\n**Write report** to `.converge/standardize-state/dx/cli-help-audit.json`:\n```json\n{\n  \"commands\": [\n    {\n      \"name\": \"run\",\n      \"hasDescription\": true,\n      \"brandCorrect\": true,\n      \"examplesAccurate\": true,\n      \"issues\": []\n    }\n  ],\n  \"totalCommands\": 10,\n  \"issuesFound\": 0,\n  \"fixes\": [\"description of any fixes applied\"]\n}\n```\n\nFix any issues found during the audit — don't just report them.",
+              "factId": "file-exists:test -f \".converge/standardize-state/dx/cli-help-audit.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-dx/003-cli-help-check-failed-audit-complete",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-dx/003-cli-help",
+            "severity": "high",
+            "description": "[03-dx/003-cli-help] Check failed: CLI help audit report exists",
+            "source": "unit",
+            "detected": "2026-04-23T21:02:54.092Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "audit-complete",
+              "checkCmd": "test -f .converge/standardize-state/dx/cli-help-audit.json",
+              "checkDescription": "CLI help audit report exists",
+              "checkOutput": "Command failed: test -f .converge/standardize-state/dx/cli-help-audit.json\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Audit all CLI help text for accuracy, consistency, and completeness.\n\n**Scope**: `packages/core/src/cli/` — main.ts, commands.ts, all commands-*.ts files\n\n**Audit checklist**:\n1. Every command has a description\n2. All descriptions use \"Converge\" not \"harness\"\n3. Example commands in help text are accurate and runnable\n4. Flags and options are documented\n5. Default values are mentioned where applicable\n6. Help text is concise (< 3 lines per command)\n\n**Process**:\n1. Read `packages/core/src/cli/main.ts` — check banner, version display\n2. Read `packages/core/src/cli/commands.ts` — check command registration\n3. Read each `commands-*.ts` file — check help text\n4. Document findings in audit report\n\n**Write report** to `.converge/standardize-state/dx/cli-help-audit.json`:\n```json\n{\n  \"commands\": [\n    {\n      \"name\": \"run\",\n      \"hasDescription\": true,\n      \"brandCorrect\": true,\n      \"examplesAccurate\": true,\n      \"issues\": []\n    }\n  ],\n  \"totalCommands\": 10,\n  \"issuesFound\": 0,\n  \"fixes\": [\"description of any fixes applied\"]\n}\n```\n\nFix any issues found during the audit — don't just report them.",
+              "taskId": "03-dx/003-cli-help",
+              "taskTitle": "CLI Help Text Audit",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/03-dx/tasks/003-cli-help",
+              "factId": "check:audit-complete"
+            }
+          }
+        ],
+        "durationMs": 8
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "run-strategy:task-run#10",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3347
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-dx/003-cli-help-missing-output-.converge/standardize-state/dx/cli-help-audit.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-dx/003-cli-help",
+            "severity": "high",
+            "description": "[03-dx/003-cli-help] Task output not created: .converge/standardize-state/dx/cli-help-audit.json",
+            "source": "unit",
+            "detected": "2026-04-23T21:02:54.107Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/03-dx/tasks/003-cli-help",
+              "taskId": "03-dx/003-cli-help",
+              "taskTitle": "CLI Help Text Audit",
+              "taskPrompt": "Audit all CLI help text for accuracy, consistency, and completeness.\n\n**Scope**: `packages/core/src/cli/` — main.ts, commands.ts, all commands-*.ts files\n\n**Audit checklist**:\n1. Every command has a description\n2. All descriptions use \"Converge\" not \"harness\"\n3. Example commands in help text are accurate and runnable\n4. Flags and options are documented\n5. Default values are mentioned where applicable\n6. Help text is concise (< 3 lines per command)\n\n**Process**:\n1. Read `packages/core/src/cli/main.ts` — check banner, version display\n2. Read `packages/core/src/cli/commands.ts` — check command registration\n3. Read each `commands-*.ts` file — check help text\n4. Document findings in audit report\n\n**Write report** to `.converge/standardize-state/dx/cli-help-audit.json`:\n```json\n{\n  \"commands\": [\n    {\n      \"name\": \"run\",\n      \"hasDescription\": true,\n      \"brandCorrect\": true,\n      \"examplesAccurate\": true,\n      \"issues\": []\n    }\n  ],\n  \"totalCommands\": 10,\n  \"issuesFound\": 0,\n  \"fixes\": [\"description of any fixes applied\"]\n}\n```\n\nFix any issues found during the audit — don't just report them.",
+              "factId": "file-exists:test -f \".converge/standardize-state/dx/cli-help-audit.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-dx/003-cli-help-check-failed-audit-complete",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-dx/003-cli-help",
+            "severity": "high",
+            "description": "[03-dx/003-cli-help] Check failed: CLI help audit report exists",
+            "source": "unit",
+            "detected": "2026-04-23T21:02:54.110Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "audit-complete",
+              "checkCmd": "test -f .converge/standardize-state/dx/cli-help-audit.json",
+              "checkDescription": "CLI help audit report exists",
+              "checkOutput": "Command failed: test -f .converge/standardize-state/dx/cli-help-audit.json\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Audit all CLI help text for accuracy, consistency, and completeness.\n\n**Scope**: `packages/core/src/cli/` — main.ts, commands.ts, all commands-*.ts files\n\n**Audit checklist**:\n1. Every command has a description\n2. All descriptions use \"Converge\" not \"harness\"\n3. Example commands in help text are accurate and runnable\n4. Flags and options are documented\n5. Default values are mentioned where applicable\n6. Help text is concise (< 3 lines per command)\n\n**Process**:\n1. Read `packages/core/src/cli/main.ts` — check banner, version display\n2. Read `packages/core/src/cli/commands.ts` — check command registration\n3. Read each `commands-*.ts` file — check help text\n4. Document findings in audit report\n\n**Write report** to `.converge/standardize-state/dx/cli-help-audit.json`:\n```json\n{\n  \"commands\": [\n    {\n      \"name\": \"run\",\n      \"hasDescription\": true,\n      \"brandCorrect\": true,\n      \"examplesAccurate\": true,\n      \"issues\": []\n    }\n  ],\n  \"totalCommands\": 10,\n  \"issuesFound\": 0,\n  \"fixes\": [\"description of any fixes applied\"]\n}\n```\n\nFix any issues found during the audit — don't just report them.",
+              "taskId": "03-dx/003-cli-help",
+              "taskTitle": "CLI Help Text Audit",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/03-dx/tasks/003-cli-help",
+              "factId": "check:audit-complete"
+            }
+          }
+        ],
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#2",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 4
+      }
+    },
+    {
+      "id": "run-strategy:task-run#11",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3362
+      }
+    },
+    {
+      "id": "verify#2",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-dx/003-cli-help-missing-output-.converge/standardize-state/dx/cli-help-audit.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-dx/003-cli-help",
+            "severity": "high",
+            "description": "[03-dx/003-cli-help] Task output not created: .converge/standardize-state/dx/cli-help-audit.json",
+            "source": "unit",
+            "detected": "2026-04-23T21:02:57.483Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/03-dx/tasks/003-cli-help",
+              "taskId": "03-dx/003-cli-help",
+              "taskTitle": "CLI Help Text Audit",
+              "taskPrompt": "Audit all CLI help text for accuracy, consistency, and completeness.\n\n**Scope**: `packages/core/src/cli/` — main.ts, commands.ts, all commands-*.ts files\n\n**Audit checklist**:\n1. Every command has a description\n2. All descriptions use \"Converge\" not \"harness\"\n3. Example commands in help text are accurate and runnable\n4. Flags and options are documented\n5. Default values are mentioned where applicable\n6. Help text is concise (< 3 lines per command)\n\n**Process**:\n1. Read `packages/core/src/cli/main.ts` — check banner, version display\n2. Read `packages/core/src/cli/commands.ts` — check command registration\n3. Read each `commands-*.ts` file — check help text\n4. Document findings in audit report\n\n**Write report** to `.converge/standardize-state/dx/cli-help-audit.json`:\n```json\n{\n  \"commands\": [\n    {\n      \"name\": \"run\",\n      \"hasDescription\": true,\n      \"brandCorrect\": true,\n      \"examplesAccurate\": true,\n      \"issues\": []\n    }\n  ],\n  \"totalCommands\": 10,\n  \"issuesFound\": 0,\n  \"fixes\": [\"description of any fixes applied\"]\n}\n```\n\nFix any issues found during the audit — don't just report them.",
+              "factId": "file-exists:test -f \".converge/standardize-state/dx/cli-help-audit.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-dx/003-cli-help-check-failed-audit-complete",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-dx/003-cli-help",
+            "severity": "high",
+            "description": "[03-dx/003-cli-help] Check failed: CLI help audit report exists",
+            "source": "unit",
+            "detected": "2026-04-23T21:02:57.487Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "audit-complete",
+              "checkCmd": "test -f .converge/standardize-state/dx/cli-help-audit.json",
+              "checkDescription": "CLI help audit report exists",
+              "checkOutput": "Command failed: test -f .converge/standardize-state/dx/cli-help-audit.json\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Audit all CLI help text for accuracy, consistency, and completeness.\n\n**Scope**: `packages/core/src/cli/` — main.ts, commands.ts, all commands-*.ts files\n\n**Audit checklist**:\n1. Every command has a description\n2. All descriptions use \"Converge\" not \"harness\"\n3. Example commands in help text are accurate and runnable\n4. Flags and options are documented\n5. Default values are mentioned where applicable\n6. Help text is concise (< 3 lines per command)\n\n**Process**:\n1. Read `packages/core/src/cli/main.ts` — check banner, version display\n2. Read `packages/core/src/cli/commands.ts` — check command registration\n3. Read each `commands-*.ts` file — check help text\n4. Document findings in audit report\n\n**Write report** to `.converge/standardize-state/dx/cli-help-audit.json`:\n```json\n{\n  \"commands\": [\n    {\n      \"name\": \"run\",\n      \"hasDescription\": true,\n      \"brandCorrect\": true,\n      \"examplesAccurate\": true,\n      \"issues\": []\n    }\n  ],\n  \"totalCommands\": 10,\n  \"issuesFound\": 0,\n  \"fixes\": [\"description of any fixes applied\"]\n}\n```\n\nFix any issues found during the audit — don't just report them.",
+              "taskId": "03-dx/003-cli-help",
+              "taskTitle": "CLI Help Text Audit",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/03-dx/tasks/003-cli-help",
+              "factId": "check:audit-complete"
+            }
+          }
+        ],
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "check-stall#2",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt#2",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-wbs-seeded#3",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#3",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "detect-gaps#3",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-dx/003-cli-help-missing-output-.converge/standardize-state/dx/cli-help-audit.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-dx/003-cli-help",
+            "severity": "high",
+            "description": "[03-dx/003-cli-help] Task output not created: .converge/standardize-state/dx/cli-help-audit.json",
+            "source": "unit",
+            "detected": "2026-04-23T21:02:57.505Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/03-dx/tasks/003-cli-help",
+              "taskId": "03-dx/003-cli-help",
+              "taskTitle": "CLI Help Text Audit",
+              "taskPrompt": "Audit all CLI help text for accuracy, consistency, and completeness.\n\n**Scope**: `packages/core/src/cli/` — main.ts, commands.ts, all commands-*.ts files\n\n**Audit checklist**:\n1. Every command has a description\n2. All descriptions use \"Converge\" not \"harness\"\n3. Example commands in help text are accurate and runnable\n4. Flags and options are documented\n5. Default values are mentioned where applicable\n6. Help text is concise (< 3 lines per command)\n\n**Process**:\n1. Read `packages/core/src/cli/main.ts` — check banner, version display\n2. Read `packages/core/src/cli/commands.ts` — check command registration\n3. Read each `commands-*.ts` file — check help text\n4. Document findings in audit report\n\n**Write report** to `.converge/standardize-state/dx/cli-help-audit.json`:\n```json\n{\n  \"commands\": [\n    {\n      \"name\": \"run\",\n      \"hasDescription\": true,\n      \"brandCorrect\": true,\n      \"examplesAccurate\": true,\n      \"issues\": []\n    }\n  ],\n  \"totalCommands\": 10,\n  \"issuesFound\": 0,\n  \"fixes\": [\"description of any fixes applied\"]\n}\n```\n\nFix any issues found during the audit — don't just report them.",
+              "factId": "file-exists:test -f \".converge/standardize-state/dx/cli-help-audit.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-dx/003-cli-help-check-failed-audit-complete",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-dx/003-cli-help",
+            "severity": "high",
+            "description": "[03-dx/003-cli-help] Check failed: CLI help audit report exists",
+            "source": "unit",
+            "detected": "2026-04-23T21:02:57.508Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "audit-complete",
+              "checkCmd": "test -f .converge/standardize-state/dx/cli-help-audit.json",
+              "checkDescription": "CLI help audit report exists",
+              "checkOutput": "Command failed: test -f .converge/standardize-state/dx/cli-help-audit.json\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Audit all CLI help text for accuracy, consistency, and completeness.\n\n**Scope**: `packages/core/src/cli/` — main.ts, commands.ts, all commands-*.ts files\n\n**Audit checklist**:\n1. Every command has a description\n2. All descriptions use \"Converge\" not \"harness\"\n3. Example commands in help text are accurate and runnable\n4. Flags and options are documented\n5. Default values are mentioned where applicable\n6. Help text is concise (< 3 lines per command)\n\n**Process**:\n1. Read `packages/core/src/cli/main.ts` — check banner, version display\n2. Read `packages/core/src/cli/commands.ts` — check command registration\n3. Read each `commands-*.ts` file — check help text\n4. Document findings in audit report\n\n**Write report** to `.converge/standardize-state/dx/cli-help-audit.json`:\n```json\n{\n  \"commands\": [\n    {\n      \"name\": \"run\",\n      \"hasDescription\": true,\n      \"brandCorrect\": true,\n      \"examplesAccurate\": true,\n      \"issues\": []\n    }\n  ],\n  \"totalCommands\": 10,\n  \"issuesFound\": 0,\n  \"fixes\": [\"description of any fixes applied\"]\n}\n```\n\nFix any issues found during the audit — don't just report them.",
+              "taskId": "03-dx/003-cli-help",
+              "taskTitle": "CLI Help Text Audit",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/03-dx/tasks/003-cli-help",
+              "factId": "check:audit-complete"
+            }
+          }
+        ],
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "signal-done#3",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#3",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 4
+      }
+    },
+    {
+      "id": "run-strategy:task-run#12",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3348
+      }
+    },
+    {
+      "id": "verify#3",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-dx/003-cli-help-missing-output-.converge/standardize-state/dx/cli-help-audit.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-dx/003-cli-help",
+            "severity": "high",
+            "description": "[03-dx/003-cli-help] Task output not created: .converge/standardize-state/dx/cli-help-audit.json",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:00.865Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/03-dx/tasks/003-cli-help",
+              "taskId": "03-dx/003-cli-help",
+              "taskTitle": "CLI Help Text Audit",
+              "taskPrompt": "Audit all CLI help text for accuracy, consistency, and completeness.\n\n**Scope**: `packages/core/src/cli/` — main.ts, commands.ts, all commands-*.ts files\n\n**Audit checklist**:\n1. Every command has a description\n2. All descriptions use \"Converge\" not \"harness\"\n3. Example commands in help text are accurate and runnable\n4. Flags and options are documented\n5. Default values are mentioned where applicable\n6. Help text is concise (< 3 lines per command)\n\n**Process**:\n1. Read `packages/core/src/cli/main.ts` — check banner, version display\n2. Read `packages/core/src/cli/commands.ts` — check command registration\n3. Read each `commands-*.ts` file — check help text\n4. Document findings in audit report\n\n**Write report** to `.converge/standardize-state/dx/cli-help-audit.json`:\n```json\n{\n  \"commands\": [\n    {\n      \"name\": \"run\",\n      \"hasDescription\": true,\n      \"brandCorrect\": true,\n      \"examplesAccurate\": true,\n      \"issues\": []\n    }\n  ],\n  \"totalCommands\": 10,\n  \"issuesFound\": 0,\n  \"fixes\": [\"description of any fixes applied\"]\n}\n```\n\nFix any issues found during the audit — don't just report them.",
+              "factId": "file-exists:test -f \".converge/standardize-state/dx/cli-help-audit.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-dx/003-cli-help-check-failed-audit-complete",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-dx/003-cli-help",
+            "severity": "high",
+            "description": "[03-dx/003-cli-help] Check failed: CLI help audit report exists",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:00.868Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "audit-complete",
+              "checkCmd": "test -f .converge/standardize-state/dx/cli-help-audit.json",
+              "checkDescription": "CLI help audit report exists",
+              "checkOutput": "Command failed: test -f .converge/standardize-state/dx/cli-help-audit.json\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Audit all CLI help text for accuracy, consistency, and completeness.\n\n**Scope**: `packages/core/src/cli/` — main.ts, commands.ts, all commands-*.ts files\n\n**Audit checklist**:\n1. Every command has a description\n2. All descriptions use \"Converge\" not \"harness\"\n3. Example commands in help text are accurate and runnable\n4. Flags and options are documented\n5. Default values are mentioned where applicable\n6. Help text is concise (< 3 lines per command)\n\n**Process**:\n1. Read `packages/core/src/cli/main.ts` — check banner, version display\n2. Read `packages/core/src/cli/commands.ts` — check command registration\n3. Read each `commands-*.ts` file — check help text\n4. Document findings in audit report\n\n**Write report** to `.converge/standardize-state/dx/cli-help-audit.json`:\n```json\n{\n  \"commands\": [\n    {\n      \"name\": \"run\",\n      \"hasDescription\": true,\n      \"brandCorrect\": true,\n      \"examplesAccurate\": true,\n      \"issues\": []\n    }\n  ],\n  \"totalCommands\": 10,\n  \"issuesFound\": 0,\n  \"fixes\": [\"description of any fixes applied\"]\n}\n```\n\nFix any issues found during the audit — don't just report them.",
+              "taskId": "03-dx/003-cli-help",
+              "taskTitle": "CLI Help Text Audit",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/03-dx/tasks/003-cli-help",
+              "factId": "check:audit-complete"
+            }
+          }
+        ],
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "check-stall#3",
+      "handler": "check-stall",
+      "status": "failed",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "bail",
+        "success": false,
+        "reason": "Max stalls reached",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt#3",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-23T21:02:50.726Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-23T21:02:50.727Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-23T21:02:50.732Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-23T21:02:50.732Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-23T21:02:50.736Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#10",
+      "iteration": 1,
+      "ts": "2026-04-23T21:02:54.083Z"
+    },
+    {
+      "from": "run-strategy:task-run#10",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-23T21:02:54.092Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-23T21:02:54.093Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-23T21:02:54.094Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-23T21:02:54.095Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-23T21:02:54.102Z"
+    },
+    {
+      "from": "check-outputs-exist#2",
+      "to": "detect-gaps#2",
+      "iteration": 2,
+      "ts": "2026-04-23T21:02:54.110Z"
+    },
+    {
+      "from": "detect-gaps#2",
+      "to": "repair-loop#2",
+      "iteration": 2,
+      "ts": "2026-04-23T21:02:54.114Z"
+    },
+    {
+      "from": "repair-loop#2",
+      "to": "run-strategy:task-run#11",
+      "iteration": 2,
+      "ts": "2026-04-23T21:02:57.476Z"
+    },
+    {
+      "from": "run-strategy:task-run#11",
+      "to": "verify#2",
+      "iteration": 2,
+      "ts": "2026-04-23T21:02:57.487Z"
+    },
+    {
+      "from": "verify#2",
+      "to": "check-stall#2",
+      "iteration": 2,
+      "ts": "2026-04-23T21:02:57.488Z"
+    },
+    {
+      "from": "check-stall#2",
+      "to": "advance-attempt#2",
+      "iteration": 2,
+      "ts": "2026-04-23T21:02:57.490Z"
+    },
+    {
+      "from": "advance-attempt#2",
+      "to": "check-wbs-seeded#3",
+      "iteration": 3,
+      "ts": "2026-04-23T21:02:57.490Z"
+    },
+    {
+      "from": "check-wbs-seeded#3",
+      "to": "check-outputs-exist#3",
+      "iteration": 3,
+      "ts": "2026-04-23T21:02:57.500Z"
+    },
+    {
+      "from": "check-outputs-exist#3",
+      "to": "detect-gaps#3",
+      "iteration": 3,
+      "ts": "2026-04-23T21:02:57.508Z"
+    },
+    {
+      "from": "detect-gaps#3",
+      "to": "repair-loop#3",
+      "iteration": 3,
+      "ts": "2026-04-23T21:02:57.514Z"
+    },
+    {
+      "from": "repair-loop#3",
+      "to": "run-strategy:task-run#12",
+      "iteration": 3,
+      "ts": "2026-04-23T21:03:00.862Z"
+    },
+    {
+      "from": "run-strategy:task-run#12",
+      "to": "verify#3",
+      "iteration": 3,
+      "ts": "2026-04-23T21:03:00.869Z"
+    },
+    {
+      "from": "verify#3",
+      "to": "check-stall#3",
+      "iteration": 3,
+      "ts": "2026-04-23T21:03:00.869Z"
+    }
+  ]
+}

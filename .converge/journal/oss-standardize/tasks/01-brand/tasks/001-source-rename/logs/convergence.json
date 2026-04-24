@@ -1,0 +1,646 @@
+{
+  "iteration": 3,
+  "stallCount": 3,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-brand/001-source-rename-missing-output-.converge/standardize-state/brand/001-source.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-brand/001-source-rename",
+            "severity": "high",
+            "description": "[01-brand/001-source-rename] Task output not created: .converge/standardize-state/brand/001-source.json",
+            "source": "unit",
+            "detected": "2026-04-23T21:02:26.390Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/01-brand/tasks/001-source-rename",
+              "taskId": "01-brand/001-source-rename",
+              "taskTitle": "Rename harness→converge in TypeScript source",
+              "taskPrompt": "Find and replace all stale brand references in TypeScript source files.\n\n**Scope**: All `.ts` files under `packages/*/src/`\n\n**Replacements** (case-preserving):\n- `harness` → `converge` (when used as product/framework name)\n- `Harness` → `Converge`\n- `HARNESS` → `CONVERGE`\n- `HarnessClient` → `ConvergeClient`\n- `harness-client` → `converge-client`\n- `crew` → appropriate converge equivalent (context-dependent)\n- `crewadd` → remove or replace\n- `sheetsrun` → remove or replace\n\n**Exceptions** — do NOT rename:\n- `auto-verify` directory (internal module, formerly `harness/`)\n- Third-party references (e.g., `test-harness` patterns)\n- Git history references in comments\n\n**Process**:\n1. Run `grep -ri 'harness\\|crew\\|sheetsrun' --include='*.ts' packages/` to find all occurrences\n2. Review each match for context — is it a product name or a generic word?\n3. Apply replacements file by file\n4. Write a manifest to `.converge/standardize-state/brand/001-source.json`:\n```json\n{\n  \"filesModified\": [\"path/to/file.ts\"],\n  \"replacements\": 42,\n  \"skipped\": [\"path/to/exception.ts — reason\"]\n}\n```",
+              "factId": "file-exists:test -f \".converge/standardize-state/brand/001-source.json\"",
+              "awaitingUserInput": false
+            }
+          }
+        ],
+        "durationMs": 251
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-brand/001-source-rename-missing-output-.converge/standardize-state/brand/001-source.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-brand/001-source-rename",
+            "severity": "high",
+            "description": "[01-brand/001-source-rename] Task output not created: .converge/standardize-state/brand/001-source.json",
+            "source": "unit",
+            "detected": "2026-04-23T21:02:30.519Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/01-brand/tasks/001-source-rename",
+              "taskId": "01-brand/001-source-rename",
+              "taskTitle": "Rename harness→converge in TypeScript source",
+              "taskPrompt": "Find and replace all stale brand references in TypeScript source files.\n\n**Scope**: All `.ts` files under `packages/*/src/`\n\n**Replacements** (case-preserving):\n- `harness` → `converge` (when used as product/framework name)\n- `Harness` → `Converge`\n- `HARNESS` → `CONVERGE`\n- `HarnessClient` → `ConvergeClient`\n- `harness-client` → `converge-client`\n- `crew` → appropriate converge equivalent (context-dependent)\n- `crewadd` → remove or replace\n- `sheetsrun` → remove or replace\n\n**Exceptions** — do NOT rename:\n- `auto-verify` directory (internal module, formerly `harness/`)\n- Third-party references (e.g., `test-harness` patterns)\n- Git history references in comments\n\n**Process**:\n1. Run `grep -ri 'harness\\|crew\\|sheetsrun' --include='*.ts' packages/` to find all occurrences\n2. Review each match for context — is it a product name or a generic word?\n3. Apply replacements file by file\n4. Write a manifest to `.converge/standardize-state/brand/001-source.json`:\n```json\n{\n  \"filesModified\": [\"path/to/file.ts\"],\n  \"replacements\": 42,\n  \"skipped\": [\"path/to/exception.ts — reason\"]\n}\n```",
+              "factId": "file-exists:test -f \".converge/standardize-state/brand/001-source.json\"",
+              "awaitingUserInput": false
+            }
+          }
+        ],
+        "durationMs": 275
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "run-strategy:task-run#4",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3872
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 252
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-brand/001-source-rename-missing-output-.converge/standardize-state/brand/001-source.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-brand/001-source-rename",
+            "severity": "high",
+            "description": "[01-brand/001-source-rename] Task output not created: .converge/standardize-state/brand/001-source.json",
+            "source": "unit",
+            "detected": "2026-04-23T21:02:31.045Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/01-brand/tasks/001-source-rename",
+              "taskId": "01-brand/001-source-rename",
+              "taskTitle": "Rename harness→converge in TypeScript source",
+              "taskPrompt": "Find and replace all stale brand references in TypeScript source files.\n\n**Scope**: All `.ts` files under `packages/*/src/`\n\n**Replacements** (case-preserving):\n- `harness` → `converge` (when used as product/framework name)\n- `Harness` → `Converge`\n- `HARNESS` → `CONVERGE`\n- `HarnessClient` → `ConvergeClient`\n- `harness-client` → `converge-client`\n- `crew` → appropriate converge equivalent (context-dependent)\n- `crewadd` → remove or replace\n- `sheetsrun` → remove or replace\n\n**Exceptions** — do NOT rename:\n- `auto-verify` directory (internal module, formerly `harness/`)\n- Third-party references (e.g., `test-harness` patterns)\n- Git history references in comments\n\n**Process**:\n1. Run `grep -ri 'harness\\|crew\\|sheetsrun' --include='*.ts' packages/` to find all occurrences\n2. Review each match for context — is it a product name or a generic word?\n3. Apply replacements file by file\n4. Write a manifest to `.converge/standardize-state/brand/001-source.json`:\n```json\n{\n  \"filesModified\": [\"path/to/file.ts\"],\n  \"replacements\": 42,\n  \"skipped\": [\"path/to/exception.ts — reason\"]\n}\n```",
+              "factId": "file-exists:test -f \".converge/standardize-state/brand/001-source.json\"",
+              "awaitingUserInput": false
+            }
+          }
+        ],
+        "durationMs": 253
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#2",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "run-strategy:task-run#5",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3756
+      }
+    },
+    {
+      "id": "verify#2",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-brand/001-source-rename-missing-output-.converge/standardize-state/brand/001-source.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-brand/001-source-rename",
+            "severity": "high",
+            "description": "[01-brand/001-source-rename] Task output not created: .converge/standardize-state/brand/001-source.json",
+            "source": "unit",
+            "detected": "2026-04-23T21:02:35.059Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/01-brand/tasks/001-source-rename",
+              "taskId": "01-brand/001-source-rename",
+              "taskTitle": "Rename harness→converge in TypeScript source",
+              "taskPrompt": "Find and replace all stale brand references in TypeScript source files.\n\n**Scope**: All `.ts` files under `packages/*/src/`\n\n**Replacements** (case-preserving):\n- `harness` → `converge` (when used as product/framework name)\n- `Harness` → `Converge`\n- `HARNESS` → `CONVERGE`\n- `HarnessClient` → `ConvergeClient`\n- `harness-client` → `converge-client`\n- `crew` → appropriate converge equivalent (context-dependent)\n- `crewadd` → remove or replace\n- `sheetsrun` → remove or replace\n\n**Exceptions** — do NOT rename:\n- `auto-verify` directory (internal module, formerly `harness/`)\n- Third-party references (e.g., `test-harness` patterns)\n- Git history references in comments\n\n**Process**:\n1. Run `grep -ri 'harness\\|crew\\|sheetsrun' --include='*.ts' packages/` to find all occurrences\n2. Review each match for context — is it a product name or a generic word?\n3. Apply replacements file by file\n4. Write a manifest to `.converge/standardize-state/brand/001-source.json`:\n```json\n{\n  \"filesModified\": [\"path/to/file.ts\"],\n  \"replacements\": 42,\n  \"skipped\": [\"path/to/exception.ts — reason\"]\n}\n```",
+              "factId": "file-exists:test -f \".converge/standardize-state/brand/001-source.json\"",
+              "awaitingUserInput": false
+            }
+          }
+        ],
+        "durationMs": 269
+      }
+    },
+    {
+      "id": "check-stall#2",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt#2",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-wbs-seeded#3",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#3",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 302
+      }
+    },
+    {
+      "id": "detect-gaps#3",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-brand/001-source-rename-missing-output-.converge/standardize-state/brand/001-source.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-brand/001-source-rename",
+            "severity": "high",
+            "description": "[01-brand/001-source-rename] Task output not created: .converge/standardize-state/brand/001-source.json",
+            "source": "unit",
+            "detected": "2026-04-23T21:02:35.638Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/01-brand/tasks/001-source-rename",
+              "taskId": "01-brand/001-source-rename",
+              "taskTitle": "Rename harness→converge in TypeScript source",
+              "taskPrompt": "Find and replace all stale brand references in TypeScript source files.\n\n**Scope**: All `.ts` files under `packages/*/src/`\n\n**Replacements** (case-preserving):\n- `harness` → `converge` (when used as product/framework name)\n- `Harness` → `Converge`\n- `HARNESS` → `CONVERGE`\n- `HarnessClient` → `ConvergeClient`\n- `harness-client` → `converge-client`\n- `crew` → appropriate converge equivalent (context-dependent)\n- `crewadd` → remove or replace\n- `sheetsrun` → remove or replace\n\n**Exceptions** — do NOT rename:\n- `auto-verify` directory (internal module, formerly `harness/`)\n- Third-party references (e.g., `test-harness` patterns)\n- Git history references in comments\n\n**Process**:\n1. Run `grep -ri 'harness\\|crew\\|sheetsrun' --include='*.ts' packages/` to find all occurrences\n2. Review each match for context — is it a product name or a generic word?\n3. Apply replacements file by file\n4. Write a manifest to `.converge/standardize-state/brand/001-source.json`:\n```json\n{\n  \"filesModified\": [\"path/to/file.ts\"],\n  \"replacements\": 42,\n  \"skipped\": [\"path/to/exception.ts — reason\"]\n}\n```",
+              "factId": "file-exists:test -f \".converge/standardize-state/brand/001-source.json\"",
+              "awaitingUserInput": false
+            }
+          }
+        ],
+        "durationMs": 276
+      }
+    },
+    {
+      "id": "signal-done#3",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#3",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "run-strategy:task-run#6",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3398
+      }
+    },
+    {
+      "id": "verify#3",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-brand/001-source-rename-missing-output-.converge/standardize-state/brand/001-source.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-brand/001-source-rename",
+            "severity": "high",
+            "description": "[01-brand/001-source-rename] Task output not created: .converge/standardize-state/brand/001-source.json",
+            "source": "unit",
+            "detected": "2026-04-23T21:02:39.313Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/01-brand/tasks/001-source-rename",
+              "taskId": "01-brand/001-source-rename",
+              "taskTitle": "Rename harness→converge in TypeScript source",
+              "taskPrompt": "Find and replace all stale brand references in TypeScript source files.\n\n**Scope**: All `.ts` files under `packages/*/src/`\n\n**Replacements** (case-preserving):\n- `harness` → `converge` (when used as product/framework name)\n- `Harness` → `Converge`\n- `HARNESS` → `CONVERGE`\n- `HarnessClient` → `ConvergeClient`\n- `harness-client` → `converge-client`\n- `crew` → appropriate converge equivalent (context-dependent)\n- `crewadd` → remove or replace\n- `sheetsrun` → remove or replace\n\n**Exceptions** — do NOT rename:\n- `auto-verify` directory (internal module, formerly `harness/`)\n- Third-party references (e.g., `test-harness` patterns)\n- Git history references in comments\n\n**Process**:\n1. Run `grep -ri 'harness\\|crew\\|sheetsrun' --include='*.ts' packages/` to find all occurrences\n2. Review each match for context — is it a product name or a generic word?\n3. Apply replacements file by file\n4. Write a manifest to `.converge/standardize-state/brand/001-source.json`:\n```json\n{\n  \"filesModified\": [\"path/to/file.ts\"],\n  \"replacements\": 42,\n  \"skipped\": [\"path/to/exception.ts — reason\"]\n}\n```",
+              "factId": "file-exists:test -f \".converge/standardize-state/brand/001-source.json\"",
+              "awaitingUserInput": false
+            }
+          }
+        ],
+        "durationMs": 273
+      }
+    },
+    {
+      "id": "check-stall#3",
+      "handler": "check-stall",
+      "status": "failed",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "bail",
+        "success": false,
+        "reason": "Max stalls reached",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt#3",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-23T21:02:26.387Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-23T21:02:26.387Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-23T21:02:26.638Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-23T21:02:26.638Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-23T21:02:26.639Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#4",
+      "iteration": 1,
+      "ts": "2026-04-23T21:02:30.513Z"
+    },
+    {
+      "from": "run-strategy:task-run#4",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-23T21:02:30.788Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-23T21:02:30.788Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-23T21:02:30.789Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-23T21:02:30.789Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-23T21:02:31.042Z"
+    },
+    {
+      "from": "check-outputs-exist#2",
+      "to": "detect-gaps#2",
+      "iteration": 2,
+      "ts": "2026-04-23T21:02:31.296Z"
+    },
+    {
+      "from": "detect-gaps#2",
+      "to": "repair-loop#2",
+      "iteration": 2,
+      "ts": "2026-04-23T21:02:31.298Z"
+    },
+    {
+      "from": "repair-loop#2",
+      "to": "run-strategy:task-run#5",
+      "iteration": 2,
+      "ts": "2026-04-23T21:02:35.054Z"
+    },
+    {
+      "from": "run-strategy:task-run#5",
+      "to": "verify#2",
+      "iteration": 2,
+      "ts": "2026-04-23T21:02:35.324Z"
+    },
+    {
+      "from": "verify#2",
+      "to": "check-stall#2",
+      "iteration": 2,
+      "ts": "2026-04-23T21:02:35.325Z"
+    },
+    {
+      "from": "check-stall#2",
+      "to": "advance-attempt#2",
+      "iteration": 2,
+      "ts": "2026-04-23T21:02:35.326Z"
+    },
+    {
+      "from": "advance-attempt#2",
+      "to": "check-wbs-seeded#3",
+      "iteration": 3,
+      "ts": "2026-04-23T21:02:35.326Z"
+    },
+    {
+      "from": "check-wbs-seeded#3",
+      "to": "check-outputs-exist#3",
+      "iteration": 3,
+      "ts": "2026-04-23T21:02:35.629Z"
+    },
+    {
+      "from": "check-outputs-exist#3",
+      "to": "detect-gaps#3",
+      "iteration": 3,
+      "ts": "2026-04-23T21:02:35.908Z"
+    },
+    {
+      "from": "detect-gaps#3",
+      "to": "repair-loop#3",
+      "iteration": 3,
+      "ts": "2026-04-23T21:02:35.909Z"
+    },
+    {
+      "from": "repair-loop#3",
+      "to": "run-strategy:task-run#6",
+      "iteration": 3,
+      "ts": "2026-04-23T21:02:39.307Z"
+    },
+    {
+      "from": "run-strategy:task-run#6",
+      "to": "verify#3",
+      "iteration": 3,
+      "ts": "2026-04-23T21:02:39.581Z"
+    },
+    {
+      "from": "verify#3",
+      "to": "check-stall#3",
+      "iteration": 3,
+      "ts": "2026-04-23T21:02:39.582Z"
+    }
+  ]
+}

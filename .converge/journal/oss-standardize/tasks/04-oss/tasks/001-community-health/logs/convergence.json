@@ -1,0 +1,1048 @@
+{
+  "iteration": 3,
+  "stallCount": 3,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-oss/001-community-health-missing-output-CODE_OF_CONDUCT.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Task output not created: CODE_OF_CONDUCT.md",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:11.951Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "factId": "file-exists:test -f \"CODE_OF_CONDUCT.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-oss/001-community-health-missing-output-.github/ISSUE_TEMPLATE/bug_report.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Task output not created: .github/ISSUE_TEMPLATE/bug_report.md",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:11.953Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "factId": "file-exists:test -f \".github/ISSUE_TEMPLATE/bug_report.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-oss/001-community-health-missing-output-.github/ISSUE_TEMPLATE/feature_request.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Task output not created: .github/ISSUE_TEMPLATE/feature_request.md",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:11.955Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "factId": "file-exists:test -f \".github/ISSUE_TEMPLATE/feature_request.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-oss/001-community-health-check-failed-coc-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Check failed: Code of Conduct exists",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:11.959Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "coc-exists",
+              "checkCmd": "test -f CODE_OF_CONDUCT.md",
+              "checkDescription": "Code of Conduct exists",
+              "checkOutput": "Command failed: test -f CODE_OF_CONDUCT.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "factId": "check:coc-exists"
+            }
+          }
+        ],
+        "durationMs": 15
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-oss/001-community-health-missing-output-CODE_OF_CONDUCT.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Task output not created: CODE_OF_CONDUCT.md",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:15.353Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "factId": "file-exists:test -f \"CODE_OF_CONDUCT.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-oss/001-community-health-missing-output-.github/ISSUE_TEMPLATE/bug_report.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Task output not created: .github/ISSUE_TEMPLATE/bug_report.md",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:15.358Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "factId": "file-exists:test -f \".github/ISSUE_TEMPLATE/bug_report.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-oss/001-community-health-missing-output-.github/ISSUE_TEMPLATE/feature_request.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Task output not created: .github/ISSUE_TEMPLATE/feature_request.md",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:15.362Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "factId": "file-exists:test -f \".github/ISSUE_TEMPLATE/feature_request.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-oss/001-community-health-check-failed-coc-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Check failed: Code of Conduct exists",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:15.369Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "coc-exists",
+              "checkCmd": "test -f CODE_OF_CONDUCT.md",
+              "checkDescription": "Code of Conduct exists",
+              "checkOutput": "Command failed: test -f CODE_OF_CONDUCT.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "factId": "check:coc-exists"
+            }
+          }
+        ],
+        "durationMs": 29
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "run-strategy:task-run#16",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3372
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 19
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-oss/001-community-health-missing-output-CODE_OF_CONDUCT.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Task output not created: CODE_OF_CONDUCT.md",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:15.400Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "factId": "file-exists:test -f \"CODE_OF_CONDUCT.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-oss/001-community-health-missing-output-.github/ISSUE_TEMPLATE/bug_report.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Task output not created: .github/ISSUE_TEMPLATE/bug_report.md",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:15.402Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "factId": "file-exists:test -f \".github/ISSUE_TEMPLATE/bug_report.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-oss/001-community-health-missing-output-.github/ISSUE_TEMPLATE/feature_request.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Task output not created: .github/ISSUE_TEMPLATE/feature_request.md",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:15.404Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "factId": "file-exists:test -f \".github/ISSUE_TEMPLATE/feature_request.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-oss/001-community-health-check-failed-coc-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Check failed: Code of Conduct exists",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:15.409Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "coc-exists",
+              "checkCmd": "test -f CODE_OF_CONDUCT.md",
+              "checkDescription": "Code of Conduct exists",
+              "checkOutput": "Command failed: test -f CODE_OF_CONDUCT.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "factId": "check:coc-exists"
+            }
+          }
+        ],
+        "durationMs": 17
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#2",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "run-strategy:task-run#17",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3133
+      }
+    },
+    {
+      "id": "verify#2",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-oss/001-community-health-missing-output-CODE_OF_CONDUCT.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Task output not created: CODE_OF_CONDUCT.md",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:18.554Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "factId": "file-exists:test -f \"CODE_OF_CONDUCT.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-oss/001-community-health-missing-output-.github/ISSUE_TEMPLATE/bug_report.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Task output not created: .github/ISSUE_TEMPLATE/bug_report.md",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:18.557Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "factId": "file-exists:test -f \".github/ISSUE_TEMPLATE/bug_report.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-oss/001-community-health-missing-output-.github/ISSUE_TEMPLATE/feature_request.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Task output not created: .github/ISSUE_TEMPLATE/feature_request.md",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:18.559Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "factId": "file-exists:test -f \".github/ISSUE_TEMPLATE/feature_request.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-oss/001-community-health-check-failed-coc-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Check failed: Code of Conduct exists",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:18.564Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "coc-exists",
+              "checkCmd": "test -f CODE_OF_CONDUCT.md",
+              "checkDescription": "Code of Conduct exists",
+              "checkOutput": "Command failed: test -f CODE_OF_CONDUCT.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "factId": "check:coc-exists"
+            }
+          }
+        ],
+        "durationMs": 17
+      }
+    },
+    {
+      "id": "check-stall#2",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt#2",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-wbs-seeded#3",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#3",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 16
+      }
+    },
+    {
+      "id": "detect-gaps#3",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-oss/001-community-health-missing-output-CODE_OF_CONDUCT.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Task output not created: CODE_OF_CONDUCT.md",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:18.588Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "factId": "file-exists:test -f \"CODE_OF_CONDUCT.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-oss/001-community-health-missing-output-.github/ISSUE_TEMPLATE/bug_report.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Task output not created: .github/ISSUE_TEMPLATE/bug_report.md",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:18.590Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "factId": "file-exists:test -f \".github/ISSUE_TEMPLATE/bug_report.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-oss/001-community-health-missing-output-.github/ISSUE_TEMPLATE/feature_request.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Task output not created: .github/ISSUE_TEMPLATE/feature_request.md",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:18.592Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "factId": "file-exists:test -f \".github/ISSUE_TEMPLATE/feature_request.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-oss/001-community-health-check-failed-coc-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Check failed: Code of Conduct exists",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:18.596Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "coc-exists",
+              "checkCmd": "test -f CODE_OF_CONDUCT.md",
+              "checkDescription": "Code of Conduct exists",
+              "checkOutput": "Command failed: test -f CODE_OF_CONDUCT.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "factId": "check:coc-exists"
+            }
+          }
+        ],
+        "durationMs": 14
+      }
+    },
+    {
+      "id": "signal-done#3",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#3",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 4
+      }
+    },
+    {
+      "id": "run-strategy:task-run#18",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3241
+      }
+    },
+    {
+      "id": "verify#3",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-oss/001-community-health-missing-output-CODE_OF_CONDUCT.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Task output not created: CODE_OF_CONDUCT.md",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:21.850Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "factId": "file-exists:test -f \"CODE_OF_CONDUCT.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-oss/001-community-health-missing-output-.github/ISSUE_TEMPLATE/bug_report.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Task output not created: .github/ISSUE_TEMPLATE/bug_report.md",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:21.853Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "factId": "file-exists:test -f \".github/ISSUE_TEMPLATE/bug_report.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-oss/001-community-health-missing-output-.github/ISSUE_TEMPLATE/feature_request.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Task output not created: .github/ISSUE_TEMPLATE/feature_request.md",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:21.855Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "factId": "file-exists:test -f \".github/ISSUE_TEMPLATE/feature_request.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-oss/001-community-health-check-failed-coc-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-oss/001-community-health",
+            "severity": "high",
+            "description": "[04-oss/001-community-health] Check failed: Code of Conduct exists",
+            "source": "unit",
+            "detected": "2026-04-23T21:03:21.860Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "coc-exists",
+              "checkCmd": "test -f CODE_OF_CONDUCT.md",
+              "checkDescription": "Code of Conduct exists",
+              "checkOutput": "Command failed: test -f CODE_OF_CONDUCT.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Create GitHub community health files.\n\n**CODE_OF_CONDUCT.md**:\n- Use Contributor Covenant v2.1 (standard)\n- Update contact email/method for enforcement\n\n**Issue templates** (`.github/ISSUE_TEMPLATE/`):\n\n`bug_report.md`:\n- Title, description, steps to reproduce\n- Expected vs actual behavior\n- Environment (OS, Node version, converge version)\n- Playbook snippet (if applicable)\n\n`feature_request.md`:\n- Problem statement\n- Proposed solution\n- Alternatives considered\n- Use case / motivation\n\n**PR template** (`.github/PULL_REQUEST_TEMPLATE.md`):\n- Summary of changes\n- Related issue(s)\n- Type: bug fix / feature / docs / refactor\n- Testing done\n- Checklist: tests pass, docs updated, no breaking changes",
+              "taskId": "04-oss/001-community-health",
+              "taskTitle": "Create community health files",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/oss-standardize/tasks/04-oss/tasks/001-community-health",
+              "factId": "check:coc-exists"
+            }
+          }
+        ],
+        "durationMs": 18
+      }
+    },
+    {
+      "id": "check-stall#3",
+      "handler": "check-stall",
+      "status": "failed",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "bail",
+        "success": false,
+        "reason": "Max stalls reached",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt#3",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-23T21:03:11.948Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-23T21:03:11.948Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-23T21:03:11.963Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-23T21:03:11.964Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-23T21:03:11.973Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#16",
+      "iteration": 1,
+      "ts": "2026-04-23T21:03:15.347Z"
+    },
+    {
+      "from": "run-strategy:task-run#16",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-23T21:03:15.376Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-23T21:03:15.377Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-23T21:03:15.378Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-23T21:03:15.378Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-23T21:03:15.397Z"
+    },
+    {
+      "from": "check-outputs-exist#2",
+      "to": "detect-gaps#2",
+      "iteration": 2,
+      "ts": "2026-04-23T21:03:15.414Z"
+    },
+    {
+      "from": "detect-gaps#2",
+      "to": "repair-loop#2",
+      "iteration": 2,
+      "ts": "2026-04-23T21:03:15.418Z"
+    },
+    {
+      "from": "repair-loop#2",
+      "to": "run-strategy:task-run#17",
+      "iteration": 2,
+      "ts": "2026-04-23T21:03:18.551Z"
+    },
+    {
+      "from": "run-strategy:task-run#17",
+      "to": "verify#2",
+      "iteration": 2,
+      "ts": "2026-04-23T21:03:18.568Z"
+    },
+    {
+      "from": "verify#2",
+      "to": "check-stall#2",
+      "iteration": 2,
+      "ts": "2026-04-23T21:03:18.568Z"
+    },
+    {
+      "from": "check-stall#2",
+      "to": "advance-attempt#2",
+      "iteration": 2,
+      "ts": "2026-04-23T21:03:18.569Z"
+    },
+    {
+      "from": "advance-attempt#2",
+      "to": "check-wbs-seeded#3",
+      "iteration": 3,
+      "ts": "2026-04-23T21:03:18.570Z"
+    },
+    {
+      "from": "check-wbs-seeded#3",
+      "to": "check-outputs-exist#3",
+      "iteration": 3,
+      "ts": "2026-04-23T21:03:18.586Z"
+    },
+    {
+      "from": "check-outputs-exist#3",
+      "to": "detect-gaps#3",
+      "iteration": 3,
+      "ts": "2026-04-23T21:03:18.600Z"
+    },
+    {
+      "from": "detect-gaps#3",
+      "to": "repair-loop#3",
+      "iteration": 3,
+      "ts": "2026-04-23T21:03:18.605Z"
+    },
+    {
+      "from": "repair-loop#3",
+      "to": "run-strategy:task-run#18",
+      "iteration": 3,
+      "ts": "2026-04-23T21:03:21.847Z"
+    },
+    {
+      "from": "run-strategy:task-run#18",
+      "to": "verify#3",
+      "iteration": 3,
+      "ts": "2026-04-23T21:03:21.865Z"
+    },
+    {
+      "from": "verify#3",
+      "to": "check-stall#3",
+      "iteration": 3,
+      "ts": "2026-04-23T21:03:21.866Z"
+    }
+  ]
+}

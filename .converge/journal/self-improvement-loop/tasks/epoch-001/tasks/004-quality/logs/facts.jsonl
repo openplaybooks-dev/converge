@@ -1,2 +1,0 @@
-{"type":"check","checkId":"typecheck","cmd":"cd /Users/minh/Documents/converge && pnpm typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq","description":"Zero type errors","id":"check:typecheck","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-21T00:27:55.385Z"}
-{"type":"check","checkId":"tests","cmd":"cd /Users/minh/Documents/converge && pnpm test 2>&1 | tail -1","description":"Tests pass","id":"check:tests","ok":true,"output":"ELIFECYCLE  Test failed. See above for more details.","exitCode":0,"collectedAt":"2026-04-21T00:27:56.526Z"}

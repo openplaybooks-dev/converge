@@ -47,7 +47,7 @@
             "severity": "high",
             "description": "[01-brand/001-source-rename] Task output not created: .converge/standardize-state/brand/001-source.json",
             "source": "unit",
-            "detected": "2026-04-22T00:48:42.163Z",
+            "detected": "2026-04-23T14:27:09.466Z",
             "resolved": false,
             "checks": [],
             "metadata": {
@@ -61,7 +61,7 @@
             }
           }
         ],
-        "durationMs": 564
+        "durationMs": 393
       }
     },
     {
@@ -71,7 +71,7 @@
       "origin": "initial",
       "data": {
         "priority": 97,
-        "applicable": "noGaps"
+        "applicable": "noGapsAndExecuted"
       }
     },
     {
@@ -84,7 +84,7 @@
       },
       "result": {
         "action": "continue",
-        "durationMs": 4
+        "durationMs": 0
       }
     },
     {
@@ -97,7 +97,7 @@
       },
       "result": {
         "action": "continue",
-        "durationMs": 43
+        "durationMs": 2
       }
     },
     {
@@ -143,31 +143,31 @@
       "from": "_start",
       "to": "check-wbs-seeded",
       "iteration": 1,
-      "ts": "2026-04-22T00:48:42.154Z"
+      "ts": "2026-04-23T14:27:09.461Z"
     },
     {
       "from": "check-wbs-seeded",
       "to": "check-outputs-exist",
       "iteration": 1,
-      "ts": "2026-04-22T00:48:42.155Z"
+      "ts": "2026-04-23T14:27:09.461Z"
     },
     {
       "from": "check-outputs-exist",
       "to": "detect-gaps",
       "iteration": 1,
-      "ts": "2026-04-22T00:48:42.724Z"
+      "ts": "2026-04-23T14:27:09.855Z"
     },
     {
       "from": "detect-gaps",
       "to": "run-executor",
       "iteration": 1,
-      "ts": "2026-04-22T00:48:42.729Z"
+      "ts": "2026-04-23T14:27:09.856Z"
     },
     {
       "from": "run-executor",
       "to": "repair-loop",
       "iteration": 1,
-      "ts": "2026-04-22T00:48:42.774Z"
+      "ts": "2026-04-23T14:27:09.859Z"
     }
   ]
 }

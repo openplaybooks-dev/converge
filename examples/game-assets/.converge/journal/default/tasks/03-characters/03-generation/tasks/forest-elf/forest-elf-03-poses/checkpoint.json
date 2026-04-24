@@ -2,18 +2,18 @@
   "type": "task",
   "id": "03-characters/03-generation/forest-elf/forest-elf-03-poses",
   "status": "pending",
-  "lastUpdated": "2026-04-23T05:53:26.833Z",
+  "lastUpdated": "2026-04-23T06:02:56.190Z",
   "createdAt": "2026-04-23T05:53:26.809Z",
   "progress": {
     "totalChildren": 4,
     "completedChildren": 0,
     "failedChildren": 0,
-    "childIds": [
+    "childTaskIds": [
       "forest-elf-pose-attack",
       "forest-elf-pose-crouch",
       "forest-elf-pose-defend",
       "forest-elf-pose-jump"
     ],
-    "lastProgressUpdate": "2026-04-23T05:53:26.809Z"
+    "lastProgressUpdate": "2026-04-23T06:02:56.188Z"
   }
 }

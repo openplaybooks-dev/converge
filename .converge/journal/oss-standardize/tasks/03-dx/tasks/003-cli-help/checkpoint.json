@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "03-dx/003-cli-help",
+  "status": "failed",
+  "lastUpdated": "2026-04-23T21:03:00.880Z",
+  "createdAt": "2026-04-23T21:02:40.231Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T21:02:40.231Z",
+      "completedAt": "2026-04-23T21:02:50.708Z",
+      "outcome": "failed",
+      "durationMs": 10477
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-23T21:02:50.725Z",
+      "completedAt": "2026-04-23T21:03:00.876Z",
+      "outcome": "failed",
+      "durationMs": 10151
+    }
+  ],
+  "currentAttempt": 2
+}

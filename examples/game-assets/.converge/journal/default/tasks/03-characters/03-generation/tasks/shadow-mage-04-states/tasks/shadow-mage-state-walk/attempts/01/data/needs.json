@@ -1,0 +1,10 @@
+{
+  "taskId": "03-characters/03-generation/shadow-mage-04-states/shadow-mage-state-walk",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "spritesheets/shadow-mage/walk.png",
+    "spritesheets/shadow-mage/walk.atlas.json"
+  ],
+  "blocked": false
+}

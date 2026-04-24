@@ -1,0 +1,5 @@
+{"ts":"2026-04-23T21:02:46.931Z","type":"session","event":"started","data":{"session_id":"2f8d73ca-810c-4057-ad38-0a679b775f8f","timeout_ms":300000}}
+{"ts":"2026-04-23T21:02:46.932Z","type":"process","event":"spawned","data":{"pid":39147}}
+{"ts":"2026-04-23T21:02:47.349Z","type":"process","event":"first_output","duration_ms":418}
+{"ts":"2026-04-23T21:02:47.612Z","type":"output","event":"text","data":{"text":"There's an issue with the selected model (MiniMax-M2.7). It may not exist or you may not have access to it. Run --model to pick a different model.","size":146}}
+{"ts":"2026-04-23T21:02:47.957Z","type":"error","event":"process_exit_error","duration_ms":1026,"data":{"exit_code":1,"message":"claude exited with exit code 1","stderr_preview":""}}

@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "02-docs/004-core-readme",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T21:02:40.029Z",
+  "createdAt": "2026-04-23T21:02:40.008Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T21:02:40.008Z",
+      "completedAt": "2026-04-23T21:02:40.028Z",
+      "outcome": "success",
+      "durationMs": 20
+    }
+  ],
+  "currentAttempt": 1
+}

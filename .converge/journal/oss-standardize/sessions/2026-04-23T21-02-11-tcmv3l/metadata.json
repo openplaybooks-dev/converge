@@ -1,0 +1,23 @@
+{
+  "sessionId": "2026-04-23T21-02-11-tcmv3l",
+  "projectName": "converge",
+  "startTime": "2026-04-23T21:02:11.553Z",
+  "status": "error",
+  "config": {
+    "maxIterations": 100,
+    "maxAttemptsPerTask": 2
+  },
+  "environment": {
+    "nodeVersion": "v22.19.0",
+    "platform": "darwin"
+  },
+  "endTime": "2026-04-23T21:03:43.166Z",
+  "duration": 91613,
+  "outcomes": {
+    "totalIterations": 24,
+    "tasksCompleted": 15,
+    "tasksFailed": 4,
+    "gapsResolved": 0,
+    "convergenceAchieved": false
+  }
+}

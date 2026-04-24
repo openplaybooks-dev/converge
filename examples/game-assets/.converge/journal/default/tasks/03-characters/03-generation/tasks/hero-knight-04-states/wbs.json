@@ -1,0 +1,15 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-23T06:08:26.968Z",
+  "spawnCount": 2,
+  "subtasks": [
+    {
+      "id": "hero-knight-state-idle",
+      "writeToPath": ".converge/playbooks/default/tasks/03-characters/03-generation/tasks/hero-knight-04-states/tasks/hero-knight-state-idle/TASK.md"
+    },
+    {
+      "id": "hero-knight-state-walk",
+      "writeToPath": ".converge/playbooks/default/tasks/03-characters/03-generation/tasks/hero-knight-04-states/tasks/hero-knight-state-walk/TASK.md"
+    }
+  ]
+}

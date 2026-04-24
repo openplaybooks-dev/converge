@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-characters/03-generation/hero-knight-04-states/hero-knight-state-idle",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T06:10:26.002Z",
+  "createdAt": "2026-04-23T06:08:27.002Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T06:08:27.002Z",
+      "completedAt": "2026-04-23T06:10:25.999Z",
+      "outcome": "success",
+      "durationMs": 118997
+    }
+  ],
+  "currentAttempt": 1
+}

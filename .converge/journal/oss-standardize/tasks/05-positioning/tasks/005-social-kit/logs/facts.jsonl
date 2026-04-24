@@ -1,0 +1,2 @@
+{"type":"file-exists","path":"docs/social-kit.md","cmd":"test -f \"docs/social-kit.md\"","id":"file-exists:test -f \"docs/social-kit.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:03:22.029Z"}
+{"type":"check","checkId":"social-kit-exists","cmd":"test -f docs/social-kit.md","description":"Social media kit exists","id":"check:social-kit-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:03:22.031Z"}

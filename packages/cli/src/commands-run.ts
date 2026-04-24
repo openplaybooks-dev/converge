@@ -123,8 +123,7 @@ export async function runAutonomousCommand(
         console.error("❌ Loop mode requires a playbook (--playbook=<name>).\n");
         process.exit(1);
       }
-      const { loopRun } = await import("../runners/loop/loop-runner.ts");
-      await loopRun({
+      await autonomousRun({
         projectDir,
         convergeConfig: options.convergeConfig!,
         hookRegistry: options.hookRegistry,

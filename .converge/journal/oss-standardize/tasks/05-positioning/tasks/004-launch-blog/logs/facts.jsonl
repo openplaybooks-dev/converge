@@ -1,0 +1,2 @@
+{"type":"file-exists","path":"docs/blog/launch-post.md","cmd":"test -f \"docs/blog/launch-post.md\"","id":"file-exists:test -f \"docs/blog/launch-post.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:03:22.003Z"}
+{"type":"check","checkId":"blog-exists","cmd":"test -f docs/blog/launch-post.md","description":"Launch blog post draft exists","id":"check:blog-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:03:22.006Z"}

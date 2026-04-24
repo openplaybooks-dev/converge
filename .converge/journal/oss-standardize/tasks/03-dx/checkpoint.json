@@ -1,0 +1,19 @@
+{
+  "type": "task",
+  "id": "03-dx",
+  "status": "pending",
+  "lastUpdated": "2026-04-23T22:13:31.373Z",
+  "createdAt": "2026-04-23T21:02:11.551Z",
+  "progress": {
+    "totalChildren": 4,
+    "completedChildren": 2,
+    "failedChildren": 1,
+    "childTaskIds": [
+      "001-getting-started",
+      "002-example-playbooks",
+      "003-cli-help",
+      "004-scaffold-command"
+    ],
+    "lastProgressUpdate": "2026-04-23T22:13:31.371Z"
+  }
+}

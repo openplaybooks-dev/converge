@@ -1,0 +1,3 @@
+{"type":"file-exists","path":"docs/getting-started.md","cmd":"test -f \"docs/getting-started.md\"","id":"file-exists:test -f \"docs/getting-started.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:02:40.156Z"}
+{"type":"check","checkId":"guide-exists","cmd":"test -f docs/getting-started.md","description":"Getting started guide exists","id":"check:guide-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:02:40.158Z"}
+{"type":"check","checkId":"guide-has-sections","cmd":"grep -c '^##' docs/getting-started.md | xargs test 3 -le","description":"Guide has at least 3 sections","id":"check:guide-has-sections","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:02:40.166Z"}

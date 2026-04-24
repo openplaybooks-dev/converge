@@ -1,0 +1,23 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-23T06:12:36.986Z",
+  "spawnCount": 4,
+  "subtasks": [
+    {
+      "id": "shadow-mage-pose-attack",
+      "writeToPath": ".converge/playbooks/default/tasks/03-characters/03-generation/tasks/shadow-mage-03-poses/tasks/shadow-mage-pose-attack/TASK.md"
+    },
+    {
+      "id": "shadow-mage-pose-defend",
+      "writeToPath": ".converge/playbooks/default/tasks/03-characters/03-generation/tasks/shadow-mage-03-poses/tasks/shadow-mage-pose-defend/TASK.md"
+    },
+    {
+      "id": "shadow-mage-pose-jump",
+      "writeToPath": ".converge/playbooks/default/tasks/03-characters/03-generation/tasks/shadow-mage-03-poses/tasks/shadow-mage-pose-jump/TASK.md"
+    },
+    {
+      "id": "shadow-mage-pose-crouch",
+      "writeToPath": ".converge/playbooks/default/tasks/03-characters/03-generation/tasks/shadow-mage-03-poses/tasks/shadow-mage-pose-crouch/TASK.md"
+    }
+  ]
+}

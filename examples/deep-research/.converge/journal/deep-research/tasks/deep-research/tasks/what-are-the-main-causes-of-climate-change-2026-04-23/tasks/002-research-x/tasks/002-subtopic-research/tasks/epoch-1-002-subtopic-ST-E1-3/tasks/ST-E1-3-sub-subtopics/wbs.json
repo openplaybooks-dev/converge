@@ -1,0 +1,11 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-23T22:47:39.937Z",
+  "spawnCount": 1,
+  "subtasks": [
+    {
+      "id": "no-decomposition-needed",
+      "writeToPath": ".converge/playbooks/deep-research/tasks/what-are-the-main-causes-of-climate-change-2026-04-23/tasks/002-research-x/tasks/002-subtopic-research/tasks/epoch-1-002-subtopic-ST-E1-3/tasks/ST-E1-3-sub-subtopics/tasks/no-decomposition-needed/TASK.md"
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+{"type":"file-exists","path":"CHANGELOG.md","cmd":"test -f \"CHANGELOG.md\"","id":"file-exists:test -f \"CHANGELOG.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:02:40.132Z"}
+{"type":"check","checkId":"changelog-exists","cmd":"test -f CHANGELOG.md","description":"CHANGELOG.md exists","id":"check:changelog-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:02:40.134Z"}

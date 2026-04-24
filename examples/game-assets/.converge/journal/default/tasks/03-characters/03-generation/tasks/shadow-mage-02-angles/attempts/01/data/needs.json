@@ -1,0 +1,13 @@
+{
+  "taskId": "03-characters/03-generation/shadow-mage-02-angles",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/characters/shadow-mage/ref/angles/angles.json",
+    "assets/characters/shadow-mage/ref/angles/front.png",
+    "assets/characters/shadow-mage/ref/angles/side_left.png",
+    "assets/characters/shadow-mage/ref/angles/side_right.png",
+    "assets/characters/shadow-mage/ref/angles/back.png"
+  ],
+  "blocked": false
+}

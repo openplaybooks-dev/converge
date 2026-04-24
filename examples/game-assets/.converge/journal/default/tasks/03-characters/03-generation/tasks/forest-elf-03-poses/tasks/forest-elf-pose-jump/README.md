@@ -1,6 +1,6 @@
 # Task Journal: 03-characters/03-generation/forest-elf-03-poses/forest-elf-pose-jump
 
-## Current attempt — `attempts/wip/`
+## Current attempt — `attempts/01/`
 
 | File | Purpose |
 |------|---------|

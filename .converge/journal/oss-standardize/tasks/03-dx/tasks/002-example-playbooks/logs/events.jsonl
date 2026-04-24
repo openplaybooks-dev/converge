@@ -1,0 +1,5 @@
+{"ts":"2026-04-23T21:02:40.193Z","type":"action","iter":1,"handler":"check-wbs-seeded","result":"continue","ms":0}
+{"ts":"2026-04-23T21:02:40.194Z","type":"action","iter":1,"handler":"check-outputs-exist","result":"continue","ms":0}
+{"ts":"2026-04-23T21:02:40.206Z","type":"gaps-detected","iter":1,"count":0,"kinds":[],"delta":0}
+{"ts":"2026-04-23T21:02:40.206Z","type":"action","iter":1,"handler":"detect-gaps","result":"continue","ms":12}
+{"ts":"2026-04-23T21:02:40.206Z","type":"outcome","iter":1,"result":"done","reason":"Converged (outputs already exist)"}

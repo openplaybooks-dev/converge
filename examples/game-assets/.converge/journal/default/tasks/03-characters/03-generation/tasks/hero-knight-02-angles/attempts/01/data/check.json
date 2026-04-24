@@ -1,0 +1,10 @@
+{
+  "taskId": "03-characters/03-generation/hero-knight-02-angles",
+  "checks": [
+    {
+      "id": "angles-exist",
+      "description": "Angle references exist",
+      "cmd": "test -s assets/characters/hero-knight/ref/angles/angles.json"
+    }
+  ]
+}

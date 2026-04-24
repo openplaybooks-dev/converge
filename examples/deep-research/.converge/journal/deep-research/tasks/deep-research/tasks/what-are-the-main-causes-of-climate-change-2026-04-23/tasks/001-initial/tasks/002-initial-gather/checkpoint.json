@@ -1,0 +1,21 @@
+{
+  "type": "task",
+  "id": "deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/001-initial/002-initial-gather",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T22:31:54.942Z",
+  "createdAt": "2026-04-23T22:24:35.794Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T22:24:35.794Z"
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-23T22:31:54.926Z",
+      "completedAt": "2026-04-23T22:31:54.942Z",
+      "outcome": "success",
+      "durationMs": 17
+    }
+  ],
+  "currentAttempt": 2
+}

@@ -1,9 +1,0 @@
-{"timestamp":"2026-04-21T22:53:34.497Z","eventType":"SESSION_START","message":"Session started","metadata":{"projectName":"converge","config":{"maxIterations":1,"maxAttemptsPerTask":2}}}
-{"timestamp":"2026-04-21T22:53:34.497Z","eventType":"ITERATION_START","message":"Iteration 1 started","metadata":{"iteration":1,"tasksComplete":1,"tasksTotal":11}}
-{"timestamp":"2026-04-21T22:53:34.497Z","eventType":"TASK_SELECTED","message":"Task selected: 02-remove-epic-types","metadata":{"taskId":"02-remove-epic-types","epicId":"remove-epic","attempt":1}}
-{"timestamp":"2026-04-21T22:53:34.497Z","eventType":"TASK_ATTEMPT_START","message":"Attempt 1 started","metadata":{"taskId":"02-remove-epic-types","attempt":1}}
-{"timestamp":"2026-04-21T22:53:34.519Z","eventType":"TASK_ATTEMPT_START","message":"task_start: ","metadata":{"taskId":"02-remove-epic-types","eventType":"task_start","type":"task_start","taskName":"Remove epic types — add playbook types","attempt":1,"inputs":[],"outputs":[],"timestamp":"2026-04-21T22:53:34.517Z","level":"critical"}}
-{"timestamp":"2026-04-21T22:53:34.523Z","eventType":"TASK_EXECUTION_COMPLETE","message":"Task execution finished","metadata":{"taskId":"02-remove-epic-types","success":true,"duration":4,"outputs":[],"timestamp":"2026-04-21T22:53:34.521Z"}}
-{"timestamp":"2026-04-21T22:53:34.524Z","eventType":"TASK_ATTEMPT_COMPLETE","message":"Attempt 1 succeeded","metadata":{"taskId":"02-remove-epic-types","attempt":1,"success":true,"duration":26}}
-{"timestamp":"2026-04-21T22:53:34.524Z","eventType":"CONVERGENCE_ACHIEVED","message":"Task converged","metadata":{"taskId":"02-remove-epic-types"}}
-{"timestamp":"2026-04-21T22:53:34.525Z","eventType":"SESSION_END","message":"Session complete","metadata":{"status":"complete","outcomes":{"totalIterations":1,"tasksCompleted":1,"tasksFailed":0,"gapsResolved":0,"convergenceAchieved":true},"duration":29}}

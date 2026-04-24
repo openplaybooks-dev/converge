@@ -1,0 +1,3 @@
+{"type":"file-exists","path":"docs/adr/","cmd":"test -f \"docs/adr/\"","id":"file-exists:test -f \"docs/adr/\"","ok":false,"output":"Command failed: test -f \"docs/adr/\"\n","exitCode":1,"collectedAt":"2026-04-23T21:02:40.102Z"}
+{"type":"check","checkId":"adr-dir-exists","cmd":"test -d docs/adr","description":"ADR directory exists","id":"check:adr-dir-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:02:40.104Z"}
+{"type":"check","checkId":"adr-index-exists","cmd":"test -f docs/adr/README.md","description":"ADR index exists","id":"check:adr-index-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:02:40.107Z"}

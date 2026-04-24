@@ -1,0 +1,5 @@
+{"type":"file-exists","path":"README.md","cmd":"test -f \"README.md\"","id":"file-exists:test -f \"README.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:02:39.961Z"}
+{"type":"check","checkId":"readme-exists","cmd":"test -f README.md","description":"README.md exists","id":"check:readme-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:02:39.963Z"}
+{"type":"check","checkId":"readme-has-quickstart","cmd":"grep -q 'Quick Start\\|Getting Started\\|quickstart' README.md","description":"README has quick start section","id":"check:readme-has-quickstart","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:02:39.967Z"}
+{"type":"check","checkId":"readme-has-badges","cmd":"grep -q '\\[!\\[' README.md || grep -q 'badge' README.md","description":"README has badges","id":"check:readme-has-badges","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:02:39.970Z"}
+{"type":"check","checkId":"readme-has-banner-ref","cmd":"grep -q 'banner.svg' README.md","description":"README references banner.svg","id":"check:readme-has-banner-ref","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:02:39.974Z"}

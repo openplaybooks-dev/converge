@@ -1,0 +1,9 @@
+{
+  "taskId": "03-characters/03-generation/shadow-mage-03-poses/shadow-mage-pose-crouch",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/characters/shadow-mage/variants/crouch/crouch.png"
+  ],
+  "blocked": false
+}

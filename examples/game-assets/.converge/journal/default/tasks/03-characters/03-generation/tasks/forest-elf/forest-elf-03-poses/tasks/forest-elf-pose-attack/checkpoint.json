@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-characters/03-generation/forest-elf/forest-elf-03-poses/forest-elf-pose-attack",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T11:46:14.026Z",
+  "createdAt": "2026-04-23T11:46:13.954Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T11:46:13.954Z",
+      "completedAt": "2026-04-23T11:46:14.024Z",
+      "outcome": "success",
+      "durationMs": 70
+    }
+  ],
+  "currentAttempt": 1
+}

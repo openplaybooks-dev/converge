@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/002-research-x/003-cross-topic-aggregate",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T22:52:38.436Z",
+  "createdAt": "2026-04-23T22:47:39.978Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T22:47:39.978Z",
+      "completedAt": "2026-04-23T22:52:38.436Z",
+      "outcome": "success",
+      "durationMs": 298458
+    }
+  ],
+  "currentAttempt": 1
+}

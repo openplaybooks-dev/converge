@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "06-quality/001-lint-format",
+  "status": "failed",
+  "lastUpdated": "2026-04-23T21:03:43.151Z",
+  "createdAt": "2026-04-23T21:03:22.052Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T21:03:22.052Z",
+      "completedAt": "2026-04-23T21:03:32.086Z",
+      "outcome": "failed",
+      "durationMs": 10034
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-23T21:03:32.111Z",
+      "completedAt": "2026-04-23T21:03:43.144Z",
+      "outcome": "failed",
+      "durationMs": 11033
+    }
+  ],
+  "currentAttempt": 2
+}

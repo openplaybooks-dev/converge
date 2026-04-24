@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-dx/002-example-playbooks",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T21:02:40.218Z",
+  "createdAt": "2026-04-23T21:02:40.192Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T21:02:40.192Z",
+      "completedAt": "2026-04-23T21:02:40.217Z",
+      "outcome": "success",
+      "durationMs": 25
+    }
+  ],
+  "currentAttempt": 1
+}

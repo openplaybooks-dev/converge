@@ -1,0 +1,12 @@
+{
+  "taskId": "04-oss/001-community-health",
+  "attemptNumber": 2,
+  "inputs": [],
+  "outputs": [
+    "CODE_OF_CONDUCT.md",
+    ".github/ISSUE_TEMPLATE/bug_report.md",
+    ".github/ISSUE_TEMPLATE/feature_request.md",
+    ".github/PULL_REQUEST_TEMPLATE.md"
+  ],
+  "blocked": false
+}

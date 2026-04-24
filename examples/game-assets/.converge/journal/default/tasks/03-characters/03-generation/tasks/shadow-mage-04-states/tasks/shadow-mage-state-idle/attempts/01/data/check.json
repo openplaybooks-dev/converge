@@ -1,0 +1,10 @@
+{
+  "taskId": "03-characters/03-generation/shadow-mage-04-states/shadow-mage-state-idle",
+  "checks": [
+    {
+      "id": "spritesheet-exists",
+      "description": "Spritesheet exists",
+      "cmd": "test -s spritesheets/shadow-mage/idle.png"
+    }
+  ]
+}

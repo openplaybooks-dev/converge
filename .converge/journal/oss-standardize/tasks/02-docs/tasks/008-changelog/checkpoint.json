@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "02-docs/008-changelog",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T21:02:40.141Z",
+  "createdAt": "2026-04-23T21:02:40.129Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T21:02:40.129Z",
+      "completedAt": "2026-04-23T21:02:40.140Z",
+      "outcome": "success",
+      "durationMs": 11
+    }
+  ],
+  "currentAttempt": 1
+}

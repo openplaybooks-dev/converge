@@ -1,0 +1,221 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-characters/03-generation/shadow-mage-03-poses/shadow-mage-pose-crouch-missing-output-assets/characters/shadow-mage/variants/crouch/crouch.png",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/shadow-mage-03-poses/shadow-mage-pose-crouch",
+            "severity": "high",
+            "description": "[03-characters/03-generation/shadow-mage-03-poses/shadow-mage-pose-crouch] Task output not created: assets/characters/shadow-mage/variants/crouch/crouch.png",
+            "source": "unit",
+            "detected": "2026-04-23T06:17:40.300Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/playbooks/default/tasks/03-characters/03-generation/tasks/shadow-mage-03-poses/tasks/shadow-mage-pose-crouch",
+              "taskId": "03-characters/03-generation/shadow-mage-03-poses/shadow-mage-pose-crouch",
+              "taskTitle": "Generate Malachar crouch pose",
+              "taskPrompt": "# Generate Malachar crouch Pose\n\nCreate crouch pose variation for Malachar.\n\n## Character Details\n\n- **ID**: shadow-mage\n- **Name**: Malachar\n- **Pose**: crouch\n- **Palette**: 16-bit retro, dark purple and black, magical glow effects, limited to 16 colors\n\n## Task\n\nGenerate crouch pose reference image:\n- Consistent with character design\n- Clear silhouette\n- Appropriate for game mechanics\n\n## Output\n\nCreate `assets/characters/shadow-mage/variants/crouch/crouch.png`:\n- PNG format\n- Matches character palette\n- Ready for animation\n- Each variant in its own subdirectory\n\n## Verification\n\n- Pose image exists\n- Matches character style\n- Clear and readable",
+              "factId": "file-exists:test -f \"assets/characters/shadow-mage/variants/crouch/crouch.png\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-characters/03-generation/shadow-mage-03-poses/shadow-mage-pose-crouch-check-failed-pose-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/shadow-mage-03-poses/shadow-mage-pose-crouch",
+            "severity": "high",
+            "description": "[03-characters/03-generation/shadow-mage-03-poses/shadow-mage-pose-crouch] Check failed: Pose image exists",
+            "source": "unit",
+            "detected": "2026-04-23T06:17:40.302Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "pose-exists",
+              "checkCmd": "test -s assets/characters/shadow-mage/variants/crouch/crouch.png",
+              "checkDescription": "Pose image exists",
+              "checkOutput": "Command failed: test -s assets/characters/shadow-mage/variants/crouch/crouch.png\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Generate Malachar crouch Pose\n\nCreate crouch pose variation for Malachar.\n\n## Character Details\n\n- **ID**: shadow-mage\n- **Name**: Malachar\n- **Pose**: crouch\n- **Palette**: 16-bit retro, dark purple and black, magical glow effects, limited to 16 colors\n\n## Task\n\nGenerate crouch pose reference image:\n- Consistent with character design\n- Clear silhouette\n- Appropriate for game mechanics\n\n## Output\n\nCreate `assets/characters/shadow-mage/variants/crouch/crouch.png`:\n- PNG format\n- Matches character palette\n- Ready for animation\n- Each variant in its own subdirectory\n\n## Verification\n\n- Pose image exists\n- Matches character style\n- Clear and readable",
+              "taskId": "03-characters/03-generation/shadow-mage-03-poses/shadow-mage-pose-crouch",
+              "taskTitle": "Generate Malachar crouch pose",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/playbooks/default/tasks/03-characters/03-generation/tasks/shadow-mage-03-poses/tasks/shadow-mage-pose-crouch",
+              "factId": "check:pose-exists"
+            }
+          }
+        ],
+        "durationMs": 5
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 56
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#8",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 83236
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-23T06:17:40.297Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-23T06:17:40.298Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-23T06:17:40.303Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-23T06:17:40.304Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-23T06:17:40.311Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#8",
+      "iteration": 1,
+      "ts": "2026-04-23T06:19:03.547Z"
+    },
+    {
+      "from": "run-strategy:task-run#8",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-23T06:19:03.604Z"
+    }
+  ]
+}

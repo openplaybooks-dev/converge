@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "02-docs/005-contributing",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T21:02:40.056Z",
+  "createdAt": "2026-04-23T21:02:40.043Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T21:02:40.043Z",
+      "completedAt": "2026-04-23T21:02:40.055Z",
+      "outcome": "success",
+      "durationMs": 12
+    }
+  ],
+  "currentAttempt": 1
+}

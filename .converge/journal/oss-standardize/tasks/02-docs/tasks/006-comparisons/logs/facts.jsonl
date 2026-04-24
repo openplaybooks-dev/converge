@@ -1,0 +1,2 @@
+{"type":"file-exists","path":"docs/comparisons.md","cmd":"test -f \"docs/comparisons.md\"","id":"file-exists:test -f \"docs/comparisons.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:02:40.073Z"}
+{"type":"check","checkId":"comparisons-exists","cmd":"test -f docs/comparisons.md","description":"Comparisons doc exists","id":"check:comparisons-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:02:40.078Z"}

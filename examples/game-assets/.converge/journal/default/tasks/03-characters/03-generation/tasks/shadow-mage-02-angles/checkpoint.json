@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-characters/03-generation/shadow-mage-02-angles",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T06:12:36.967Z",
+  "createdAt": "2026-04-23T06:12:36.683Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T06:12:36.683Z",
+      "completedAt": "2026-04-23T06:12:36.966Z",
+      "outcome": "success",
+      "durationMs": 283
+    }
+  ],
+  "currentAttempt": 1
+}

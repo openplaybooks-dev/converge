@@ -1,0 +1,220 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/001-initial/004-initial-aggregation-check-failed-aggregation-written",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/001-initial/004-initial-aggregation",
+            "severity": "high",
+            "description": "[deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/001-initial/004-initial-aggregation] Check failed: summary.json exists",
+            "source": "unit",
+            "detected": "2026-04-23T22:35:30.023Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "aggregation-written",
+              "checkCmd": "test -f /Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/1-initial/summary.json",
+              "checkDescription": "summary.json exists",
+              "checkOutput": "Command failed: test -f /Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/1-initial/summary.json\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Initial Aggregation\n\nSynthesize Phase 1 findings and gate the transition to research-x.\n\n**Research question**: What are the main causes of climate change?\n**Artifacts dir**: /Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/what-are-the-main-causes-of-climate-change-2026-04-23\n\n## Inputs\n\nRead all prior Phase 1 outputs:\n- `/Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/1-initial/search.md`\n- `/Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/1-initial/sources.json`\n- `/Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/1-initial/scope.json`\n\n## Process\n\n1. **Key Findings**: Extract the most important discoveries from Phase 1\n2. **Sub-topic Refinement**: Finalize the sub-topics for research-x epochs\n3. **Depth Recommendation**: Confirm or adjust the research depth\n4. **Initial Confidence**: Establish baseline confidence level\n5. **Research-x Readiness**: Confirm Phase 1 quality gate\n\n## Output\n\nWrite `/Users/minh/Documents/converge/examples/deep-research/.converge/artifacts/deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/1-initial/summary.json`:\n```json\n{\n  \"phase\": \"initial\",\n  \"keyFindings\": [\n    {\n      \"id\": \"KF-1\",\n      \"finding\": \"Specific finding discovered\",\n      \"supportingSources\": [\"SRC-001\"],\n      \"confidence\": 0.8\n    }\n  ],\n  \"scopedSubtopics\": [\n    {\n      \"id\": \"ST-1\",\n      \"subtopic\": \"Sub-topic name\",\n      \"rationale\": \"Why this warrants research\",\n      \"priority\": 1\n    }\n  ],\n  \"keyUncertainties\": [\n    { \"uncertainty\": \"Description\", \"impact\": \"Why it matters\" }\n  ],\n  \"recommendedDepth\": \"deep\",\n  \"initialConfidence\": 0.5,\n  \"researchXReady\": true,\n  \"nextActions\": [\"Begin research-x epochs focusing on high-priority sub-topics\"]\n}\n```\n\n## Quality Criteria\n\n- At least 5 scoped sub-topics confirmed\n- Initial confidence score established\n- Research-x readiness flag set to true\n- Quality gate passed",
+              "taskSkill": "research-layer-aggregate",
+              "taskId": "deep-research/what-are-the-main-causes-of-climate-change-2026-04-23/001-initial/004-initial-aggregation",
+              "taskTitle": "Initial Aggregation",
+              "unitPath": "/Users/minh/Documents/converge/examples/deep-research/.converge/playbooks/deep-research/tasks/what-are-the-main-causes-of-climate-change-2026-04-23/tasks/001-initial/tasks/004-initial-aggregation",
+              "factId": "check:aggregation-written"
+            }
+          }
+        ],
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "run-skill",
+      "handler": "run-skill",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 64
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 116091
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#2",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 48001
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-23T22:35:30.019Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-23T22:35:30.020Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-23T22:35:30.023Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-23T22:35:30.024Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "run-skill",
+      "iteration": 1,
+      "ts": "2026-04-23T22:37:26.116Z"
+    },
+    {
+      "from": "run-skill",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-23T22:37:26.119Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#2",
+      "iteration": 1,
+      "ts": "2026-04-23T22:38:14.121Z"
+    },
+    {
+      "from": "run-strategy:task-run#2",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-23T22:38:14.125Z"
+    }
+  ]
+}

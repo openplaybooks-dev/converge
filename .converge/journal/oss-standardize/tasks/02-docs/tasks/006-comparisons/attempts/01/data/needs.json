@@ -1,0 +1,9 @@
+{
+  "taskId": "02-docs/006-comparisons",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "docs/comparisons.md"
+  ],
+  "blocked": false
+}

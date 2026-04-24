@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "02-docs/002-generate-banner",
+  "status": "complete",
+  "lastUpdated": "2026-04-23T21:02:39.942Z",
+  "createdAt": "2026-04-23T21:02:39.911Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T21:02:39.911Z",
+      "completedAt": "2026-04-23T21:02:39.940Z",
+      "outcome": "success",
+      "durationMs": 29
+    }
+  ],
+  "currentAttempt": 1
+}

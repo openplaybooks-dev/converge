@@ -1,0 +1,2 @@
+{"type":"file-exists","path":"assets/characters/shadow-mage/SPEC.md","cmd":"test -f \"assets/characters/shadow-mage/SPEC.md\"","id":"file-exists:test -f \"assets/characters/shadow-mage/SPEC.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T06:12:36.651Z"}
+{"type":"check","checkId":"spec-exists","cmd":"test -s assets/characters/shadow-mage/SPEC.md","description":"Spec file exists","id":"check:spec-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T06:12:36.653Z"}

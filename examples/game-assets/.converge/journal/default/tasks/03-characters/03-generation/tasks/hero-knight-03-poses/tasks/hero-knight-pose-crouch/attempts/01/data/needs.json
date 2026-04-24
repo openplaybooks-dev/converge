@@ -1,0 +1,9 @@
+{
+  "taskId": "03-characters/03-generation/hero-knight-03-poses/hero-knight-pose-crouch",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/characters/hero-knight/variants/crouch/crouch.png"
+  ],
+  "blocked": false
+}

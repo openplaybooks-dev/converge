@@ -1,0 +1,4 @@
+{"type":"file-exists","path":"banner.svg","cmd":"test -f \"banner.svg\"","id":"file-exists:test -f \"banner.svg\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:02:39.915Z"}
+{"type":"check","checkId":"banner-exists","cmd":"test -f banner.svg","description":"banner.svg exists at root","id":"check:banner-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:02:39.917Z"}
+{"type":"check","checkId":"banner-says-converge","cmd":"grep -q 'CONVERGE\\|Converge' banner.svg","description":"Banner SVG contains Converge text","id":"check:banner-says-converge","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:02:39.922Z"}
+{"type":"check","checkId":"banner-no-harness","cmd":"! grep -qi 'HARNESS' banner.svg","description":"Banner SVG has no HARNESS text","id":"check:banner-no-harness","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T21:02:39.926Z"}

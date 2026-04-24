@@ -128,10 +128,17 @@
     {
       "id": "verify",
       "handler": "verify",
-      "status": "buffered",
+      "status": "done",
       "origin": "initial",
       "data": {
         "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 58
       }
     },
     {
@@ -155,11 +162,15 @@
     {
       "id": "run-strategy:task-run#3",
       "handler": "run-strategy",
-      "status": "buffered",
+      "status": "done",
       "origin": "planned",
       "data": {
         "strategy": "task-run",
         "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 110502
       }
     }
   ],
@@ -193,6 +204,18 @@
       "to": "repair-loop",
       "iteration": 1,
       "ts": "2026-04-23T05:56:00.894Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#3",
+      "iteration": 1,
+      "ts": "2026-04-23T05:57:51.396Z"
+    },
+    {
+      "from": "run-strategy:task-run#3",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-23T05:57:51.454Z"
     }
   ]
 }

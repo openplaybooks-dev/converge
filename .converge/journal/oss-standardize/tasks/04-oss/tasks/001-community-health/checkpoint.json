@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "04-oss/001-community-health",
+  "status": "failed",
+  "lastUpdated": "2026-04-23T21:03:21.882Z",
+  "createdAt": "2026-04-23T21:03:00.895Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-23T21:03:00.895Z",
+      "completedAt": "2026-04-23T21:03:11.933Z",
+      "outcome": "failed",
+      "durationMs": 11038
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-23T21:03:11.947Z",
+      "completedAt": "2026-04-23T21:03:21.879Z",
+      "outcome": "failed",
+      "durationMs": 9932
+    }
+  ],
+  "currentAttempt": 2
+}

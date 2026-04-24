@@ -1,0 +1,10 @@
+{
+  "taskId": "03-characters/03-generation/shadow-mage-04-states/shadow-mage-state-idle",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "spritesheets/shadow-mage/idle.png",
+    "spritesheets/shadow-mage/idle.atlas.json"
+  ],
+  "blocked": false
+}

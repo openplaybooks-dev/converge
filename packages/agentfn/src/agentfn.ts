@@ -1,4 +1,5 @@
 import { acpfn } from "@converge/acpfn";
+import { claudefn } from "@converge/claudefn";
 import type {
   AgentFnOptions,
   AgentFnResult,
@@ -160,11 +161,10 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
 
   // ── Claude provider ────────────────────────────────
 
-  let fn: ReturnType<typeof import("@converge/claudefn").claudefn<T>> | undefined;
+  let fn: ReturnType<typeof claudefn<T>> | undefined;
   return async (input?: string): Promise<AgentFnResult<T>> => {
     if (!fn) {
-      const mod = await loadProvider<typeof import("@converge/claudefn")>("@converge/claudefn");
-      fn = mod.claudefn<T>(toClaudeOptions(opts));
+      fn = claudefn<T>(toClaudeOptions(opts));
     }
     // Legacy prompt enhancement (deprecated path)
     let enhancedInput = input;
