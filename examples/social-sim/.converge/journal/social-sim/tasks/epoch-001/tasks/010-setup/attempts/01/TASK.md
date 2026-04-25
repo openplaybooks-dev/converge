@@ -2,20 +2,20 @@
 
 # Tick 1 — Setup
 
-**Tick:** 1 (1) · **Run:** `run-001` · **Scenario:**
+**Tick:** 1 (1) · **Run:** `run-2026-04-25T01-45` · **Scenario:**
 `misinfo` · **Population:** 10 · **Seed:** `42`
 
 ## What this task does
 
-Ensure the simulation's shared state files exist under `runs/run-001/`.
+Ensure the simulation's shared state files exist under `runs/run-2026-04-25T01-45/`.
 **Tick 1 generates them. Later ticks just verify.**
 
-If `runs/run-001/personas.json` already exists, do **NOTHING** except
+If `runs/run-2026-04-25T01-45/personas.json` already exists, do **NOTHING** except
 confirm the checks pass. Do not regenerate, do not overwrite, do not append.
 
 ## What to produce on tick 1 (when files are absent)
 
-### 1. `runs/run-001/personas.json`
+### 1. `runs/run-2026-04-25T01-45/personas.json`
 
 A JSON array of exactly **10** persona objects. Each entry:
 
@@ -38,7 +38,7 @@ A JSON array of exactly **10** persona objects. Each entry:
   signal. For `misinfo`: include believers, skeptics, and on-the-fence.
 - Use seed `42` for any random choices so reruns are deterministic.
 
-### 2. `runs/run-001/graph.json`
+### 2. `runs/run-2026-04-25T01-45/graph.json`
 
 ```json
 {
@@ -55,13 +55,13 @@ A Barabási–Albert-style follow graph: scale-free degree distribution. With
 this is small but realistic. Personas with similar `beliefs` should cluster
 slightly (homophily).
 
-### 3. `runs/run-001/timeline.jsonl`
+### 3. `runs/run-2026-04-25T01-45/timeline.jsonl`
 
 Empty file (just `touch` it). Personas append to this in `020-simulate`.
 
 ### 4. Obsidian-vault notes (the human-readable view of state)
 
-Mirror the run state into `vault/runs/run-001/`. The vault is what a
+Mirror the run state into `vault/runs/run-2026-04-25T01-45/`. The vault is what a
 human opens in Obsidian to navigate the simulation. Every note must:
 
 - Have YAML frontmatter (tags, structured fields).
@@ -69,12 +69,12 @@ human opens in Obsidian to navigate the simulation. Every note must:
   persona-to-action, tick-to-persona).
 - Be plain Markdown otherwise — no JSON in the body.
 
-#### `vault/runs/run-001/overview.md`
+#### `vault/runs/run-2026-04-25T01-45/overview.md`
 
 ```markdown
 ---
-tags: [run, run/run-001, scenario/misinfo]
-run_id: run-001
+tags: [run, run/run-2026-04-25T01-45, scenario/misinfo]
+run_id: run-2026-04-25T01-45
 scenario: misinfo
 population_size: 10
 steps: 3
@@ -82,7 +82,7 @@ recommender: hot-score
 seed: 42
 ---
 
-# Run `run-001` — misinfo
+# Run `run-2026-04-25T01-45` — misinfo
 
 Population size: **10** · Steps: **3** ·
 Recommender: `hot-score` · Seed: `42`
@@ -104,11 +104,11 @@ Recommender: `hot-score` · Seed: `42`
 (The "pending" markers are placeholders — the analyze task in each tick
 will rewrite this overview with the actual tick links.)
 
-#### `vault/runs/run-001/personas/<id>.md` — one note per persona
+#### `vault/runs/run-2026-04-25T01-45/personas/<id>.md` — one note per persona
 
 ```markdown
 ---
-tags: [persona, run/run-001, persona/<id>]
+tags: [persona, run/run-2026-04-25T01-45, persona/<id>]
 persona_id: <id>
 handle: "<handle>"
 beliefs:
@@ -149,7 +149,7 @@ seed action: `## Actions\n- [[t0-<id>-post]] — Tick 0 (seed)`.
 
 ### Idempotence note
 
-If `vault/runs/run-001/overview.md` already exists, do not regenerate
+If `vault/runs/run-2026-04-25T01-45/overview.md` already exists, do not regenerate
 the persona notes or overview — the run is being resumed. Just confirm
 the checks pass.
 
@@ -167,7 +167,7 @@ tags: [vault, social-sim]
 Open this folder in Obsidian to navigate runs.
 
 ## Runs
-- [[runs/run-001/overview|run-001]] — misinfo, 10 personas, 3 ticks
+- [[runs/run-2026-04-25T01-45/overview|run-2026-04-25T01-45]] — misinfo, 10 personas, 3 ticks
 
 ## Reports
 - [[reports/misinfo|misinfo]]
@@ -197,11 +197,11 @@ For `misinfo`: pick the persona with the **highest** outgoing-edge count
 ```
 
 Also write a vault note for each seed action at
-`vault/runs/run-001/actions/t0-<personaId>-post.md`:
+`vault/runs/run-2026-04-25T01-45/actions/t0-<personaId>-post.md`:
 
 ```markdown
 ---
-tags: [action, run/run-001, tick/0, persona/<personaId>, action/post, seed]
+tags: [action, run/run-2026-04-25T01-45, tick/0, persona/<personaId>, action/post, seed]
 tick: 0
 persona_id: <personaId>
 action: post

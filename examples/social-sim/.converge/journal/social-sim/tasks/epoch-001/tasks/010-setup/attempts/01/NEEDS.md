@@ -7,11 +7,11 @@ Ensure persona cohort, follow graph, and seed posts exist. Idempotent: only gene
 
 ## Expected Outputs
 
-- `runs/run-001/personas.json`
-- `runs/run-001/graph.json`
-- `runs/run-001/timeline.jsonl`
-- `vault/runs/run-001/overview.md`
-- `vault/runs/run-001/personas/p001.md`
+- `runs/run-2026-04-25T01-45/personas.json`
+- `runs/run-2026-04-25T01-45/graph.json`
+- `runs/run-2026-04-25T01-45/timeline.jsonl`
+- `vault/runs/run-2026-04-25T01-45/overview.md`
+- `vault/runs/run-2026-04-25T01-45/personas/p001.md`
 
 ## Checks
 

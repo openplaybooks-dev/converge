@@ -684,10 +684,13 @@ export {
   checkPlaybookStatus,
   syncJournalHash,
   clearJournal,
+  syncPlaybookToJournal,
+  syncAllPlaybooks,
   type PlaybookHashInfo,
   type PlaybookSyncStatus,
   type PlaybookChanges,
   type PlaybookStatusResult,
+  type SyncResult,
 } from "./playbook/index.ts";
 
 export {

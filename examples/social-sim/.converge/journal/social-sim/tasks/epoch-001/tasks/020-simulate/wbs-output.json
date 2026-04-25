@@ -1,7 +1,7 @@
 {
   "attemptNumber": 1,
-  "startedAt": "2026-04-25T00:33:38.218Z",
-  "completedAt": "2026-04-25T00:33:38.239Z",
+  "startedAt": "2026-04-25T01:57:30.194Z",
+  "completedAt": "2026-04-25T01:57:30.208Z",
   "spawnedTasks": [
     {
       "id": "p001",
@@ -47,5 +47,5 @@
   "spawnedGoals": [],
   "status": "success",
   "spawnCount": 10,
-  "durationMs": 21
+  "durationMs": 14
 }

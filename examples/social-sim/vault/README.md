@@ -7,7 +7,7 @@ tags: [vault, social-sim]
 Open this folder in Obsidian to navigate runs.
 
 ## Runs
-- [[runs/run-001/overview|run-001]] — misinfo, 10 personas, 3 ticks
+- [[runs/run-2026-04-25T01-45/overview|run-2026-04-25T01-45]] — misinfo, 10 personas, 3 ticks
 
 ## Reports
 - [[reports/misinfo|misinfo]]

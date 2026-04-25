@@ -1,84 +1,155 @@
 ---
 name: converge-control
-description: Use when running converge tasks, debugging task failures, planning new epics, or encountering "no tasks to run" errors in a converge-controlled project
+description: Use when the user wants to run a converge playbook, monitor a running converge process, fix a stuck run, or finish a partially-converged playbook. Triggers on phrases like "run my playbook", "monitor this run", "the run is stuck", "converge failed", "resume the run", "babysit the playbook".
 ---
 
-# Converge Control
+# Converge Control — run-and-troubleshoot
 
-## Overview
+## Purpose
 
-Gap-filling orchestrator with progressive disclosure. Detect gap, route to playbook, execute, verify, repeat.
+Launch a converge playbook, monitor its event stream, recognize what each event means, apply small surgical fixes when the run gets stuck, and keep it moving until it completes.
 
-**Protocol:** `converge status` → identify gap → load ONE playbook → execute → verify → return here.
+This skill is **only** for running and unblocking. Authoring TASK.md files, designing WBS scripts, choosing phases, or planning a fresh project — those belong to **`converge-planning`**.
 
-## Gap Detection Matrix
+## When to invoke
 
-| Symptom | Detection | Route To |
-|---------|-----------|----------|
-| No `.converge/` directory | `ls .converge/` fails | `playbooks/setup.md` |
-| Task shows ❌ | `converge status` | `playbooks/debug.md` — **read LEARN.md first** |
-| Task shows ⏸️ | `converge tree` | Fix upstream blocker |
-| "no tasks to run" | `converge status` | Routes to other gaps |
-| Missing input files | `grep outputs .converge/epics/*/tasks/*/TASK.md` | Find + run producer |
-| Circular dependency | `converge verify` shows error | `playbooks/plan.md` — break cycle |
-| Fresh project / full plan needed | No `.converge/plan.md`, new project | **`converge-planning` skill** |
-| Need new epic/tasks | User request, plan exists | **`converge-planning` skill** |
-| Need CLI syntax | Unknown command | `preferences/cli-reference.md` |
-| Need to read TASK.md | Understanding a task definition | `preferences/task-api.md` |
-| Need WBS script | Writing wbs.js to spawn child tasks | `preferences/wbs-reference.md` |
-| Need project config | Editing PROJECT.md | **`converge-planning` skill** |
-| Need real example | Concept clear, need pattern | `examples/*.md` |
-| Need comprehensive planning | Analyze project + discover needs + architect plan | **`converge-planning` skill** |
+Trigger on user requests like:
 
-## Red Flags — STOP and Re-route
+- "Run my playbook" / "Start converge" / "Kick off the build"
+- "Monitor this run" / "Watch the converge process"
+- "The run is stuck on …" / "Why is converge looping?"
+- "It said 'Max iterations reached' / 'did not converge' / 'Validation failed'"
+- "Resume the run" / "Pick up where converge left off"
 
-- **Debugging without reading LEARN.md first** — LEARN.md contains your own prior analysis. Read it.
-- **Loading multiple playbooks at once** — Load ONE file per gap. Return here between.
-- **Retrying a task without understanding the failure** — Read attempt logs before retrying.
-- **Editing the wrong task** — Trace which task *produces* the missing file, don't fix the consumer.
-- **Running `converge run` when `converge status` shows blockers** — Fix blockers first.
+Do **not** invoke for:
 
-| Excuse | Reality |
-|--------|---------|
-| "I'll just retry, it might work" | Same input = same output. Read logs first. |
-| "I need to read all the playbooks to understand" | You need ONE playbook for the current gap. |
-| "The task definition looks fine" | Check the actual output vs expected — definitions lie. |
-| "I'll fix it later and move on" | Downstream tasks depend on this. Fix now. |
+- Designing a new playbook → `converge-planning`
+- Writing/editing TASK.md frontmatter from scratch → `converge-planning`
+- Setting up `.converge/` for the first time → `converge-planning`'s setup phase
 
-## Quick Reference
+## The babysitter loop
+
+Six steps, in order. Stay in this loop until the run exits 0 or you hit a structural failure you can't fix.
+
+### 1. Launch
 
 ```bash
-converge status              # Current state (✅❌⏸️⬜)
-converge tree                # Dependency visualization
-converge run --step          # Execute one task
-converge run                 # Autonomous loop
-converge run --force         # Bypass blocked/completed state
-converge reset {taskId}      # Reset failed task
-converge verify              # Verify config, structure, deps, format
-converge inspect --last-session  # Debug last execution
-converge journal             # Execution history
-converge gantt               # Timeline view
-converge cleanup             # Remove orphaned journals
-converge skills list         # Available skills
+node /path/to/converge/packages/cli/dist/index.js \
+  .converge/playbooks/<name>/playbook.yml run \
+  --max-iterations 250 \
+  [--resume]   # add when a previous session was killed
 ```
 
-## Critical Files
+- **Always pass the explicit playbook.yml path** when the project has more than one playbook. Without it, `converge run` may pick a different playbook than intended.
+- **Always pass `--max-iterations 250`** (or higher). The default is 100 and trips silently on long playbooks.
+- **`--resume` is required after a kill.** The CLI refuses with `Previous session exited with status: cancelled` otherwise.
+- Run in the background so you can attach a Monitor.
 
-```
-.converge/PROJECT.md                                                ← Project config (YAML frontmatter)
-.converge/journal/epics/{epic}/tasks/{task}/attempts/wip/LEARN.md  ← Read BEFORE debugging
-.converge/journal/.checkpoint.json                                  ← State truth
-.converge/epics/{epic}/tasks/{task}/TASK.md                          ← Task definition
-.converge/epics/{epic}/tasks/{task}/SKILL.md                        ← Agent instructions
-```
+### 2. Arm a Monitor with a focused filter
 
-## Layer Map
-
-```
-Layer 0: SKILL.md (this file) — navigation hub
-Layer 1: playbooks/  — action guides (setup, debug, plan, run)
-Layer 2: preferences/ — API reference (cli-reference, task-api, wbs-reference, skill-api)
-Layer 3: examples/  — real patterns (screen-generation, data-modeling, dependency-chain)
+```bash
+tail -f <output-file> | grep -E --line-buffered "(❌|FAIL|Error|Exception|Overloaded|Max iterations|did not converge|Validation failed|seeding failed|Task.*completed|Starting:|Iteration|Progress:|All gaps resolved|Auto-completed parent|exited)"
 ```
 
-**Load minimum. Return here. Repeat.**
+Strip `⚠️ project.yaml not found` — it's a known cosmetic warning, not a real issue.
+
+One Monitor per run. Re-arm with the same filter after a 1-hour timeout.
+
+### 3. Classify each event
+
+| Pattern | Class | Action |
+|---|---|---|
+| `🎬 Starting: <task>` + `── Iteration N ──` increments | progress | continue watching |
+| `📍 Progress: X/Y` increases | progress | continue watching |
+| `✅ All gaps resolved` | progress | continue watching |
+| `↻ Auto-completed parent` | progress | continue watching |
+| `✅ Task completed` | spawn-done (NOT always task-done) | continue watching; wait for next `🎬 Starting:` |
+| `Overloaded` / `API Error: 529` | transient | continue, runner retries |
+| `📋 FEEDBACK.md written (N check(s) failed)` on first attempt | normal | runner will retry |
+| `⚠️ project.yaml not found` | cosmetic | ignore |
+| `❌ Validation failed` then `🎬 Starting:` next task | self-recovered | verify on disk, continue |
+| `Max iterations (N) reached` | cap hit | kill, bump cap, `--resume` |
+| `Previous session exited with status: cancelled` on launch | needs flag | re-launch with `--resume` |
+| `❌ Gap resolution failed - all strategies exhausted` repeated | structural | go to step 4 |
+| Run process exits non-zero | structural | tail output, go to step 4 |
+
+Full catalog: **`reference/events.md`**.
+
+### 4. On structural failure → diagnose
+
+Load **`troubleshooting/playbook.md`** and find the symptom that matches. Each entry has a fix recipe and a verification step.
+
+If the symptom is in the playbook → apply the fix.
+If the symptom is **not** in the playbook → STOP. Surface the issue to the user with: the failing task ID, the exact log lines, what you've already tried, and a proposed fix. Wait for approval before patching.
+
+### 5. After fix → relaunch
+
+```bash
+# kill if process is still running
+pkill -9 -f "node.*cli/dist/index.js run"
+sleep 2
+
+# relaunch with --resume
+node /path/to/converge/packages/cli/dist/index.js \
+  .converge/playbooks/<name>/playbook.yml run \
+  --resume --max-iterations 250
+```
+
+Re-arm the Monitor.
+
+### 6. Stop conditions
+
+Exit the loop when **any** of:
+
+- Run process exits 0 and `converge <playbook.yml> status` shows all phases ✓.
+- A structural failure you can't fix (escalate to user with full context).
+- The user asks you to stop.
+
+## CLI cheatsheet (most-used during a run)
+
+See **`reference/cli.md`** for the full set. The ones you'll hit constantly:
+
+```bash
+# Launch (path-form prevents foreign-playbook hijack)
+converge .converge/playbooks/<name>/playbook.yml run --resume --max-iterations 250
+
+# Status (path-form filters to one playbook)
+converge .converge/playbooks/<name>/playbook.yml status
+
+# Reset a single failed task subtree
+converge reset <playbook> <taskPath>
+
+# Reconcile checkpoint inconsistencies (run after manual file edits)
+converge verify --fix
+```
+
+## Hard rules — STOP and re-route
+
+- **Don't `--restart` an in-progress run.** That nukes finished work. Always `--resume` after a kill.
+- **Don't kill the run on transient API errors** (529, network blips). Runner retries on its own.
+- **Don't edit a TASK.md without also patching the materialized journal copy.** The runner snapshots TASK.md per attempt; source-only edits don't take effect until next attempt.
+- **Don't trust `converge status` exit-state alone.** When a phase shows `seeded` or `pending`, also check the actual output files on disk before deciding work isn't done.
+- **One playbook at a time.** When `.converge/playbooks/` has more than one entry, always invoke with the explicit `<playbook.yml>` path.
+- **Apply known fixes; ask before novel ones.** If the symptom matches `troubleshooting/playbook.md`, apply and continue. If it doesn't, STOP and surface to the user before patching.
+
+## Hand-off
+
+| Situation | Hand off to |
+|---|---|
+| User wants to design a new playbook or add a phase | **`converge-planning`** |
+| User asks to set up `.converge/` from scratch | **`converge-planning`** |
+| Failure is in user's domain code (Dart compile error, missing API key, ENOSPC, etc.) | **the user** — surface the error, don't try to fix it |
+| Framework bug in converge core/CLI | **the user** — file an issue with the failing log lines |
+
+## File map
+
+```
+SKILL.md                         (this file — entry point and loop)
+reference/
+  cli.md                         (CLI commands you actually use)
+  events.md                      (every run-output pattern, what it means)
+troubleshooting/
+  playbook.md                    (symptom → root cause → fix recipes)
+```
+
+Load **one** file per gap. Return here between.

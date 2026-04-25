@@ -120,6 +120,37 @@ export function resolveSkillPath(
 }
 
 /**
+ * Find the first skill source that contains a specific skill.
+ * Used when callers need the *root* (not the skill path itself) and want it
+ * to be the one that actually has the skill they're about to use.
+ *
+ * Returns null if no source has the skill. Falls back to the first available
+ * source when `skillName` is omitted — same as `resolveSkillsRoot`.
+ */
+export function resolveSkillsRootForSkill(
+  projectDir: string,
+  skillName?: string,
+): string {
+  const sources = findSkillSources(projectDir);
+  if (sources.length === 0) {
+    return join(projectDir, ".converge", "skills");
+  }
+  if (!skillName) {
+    return sources[0].root;
+  }
+  for (const source of sources) {
+    if (existsSync(join(source.root, skillName, "SKILL.md")) ||
+        existsSync(join(source.root, skillName, "TASK.md"))) {
+      return source.root;
+    }
+  }
+  // Skill not found anywhere — return the highest-priority source so the
+  // caller's downstream "skill not found" error still surfaces with a
+  // sensible path.
+  return sources[0].root;
+}
+
+/**
  * Log the skill resolution for debugging.
  */
 export function logSkillSources(projectDir: string): void {

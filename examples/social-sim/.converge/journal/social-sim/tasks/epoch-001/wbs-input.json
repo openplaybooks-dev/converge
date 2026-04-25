@@ -1,6 +1,6 @@
 {
   "attemptNumber": 1,
-  "startedAt": "2026-04-25T00:28:10.571Z",
+  "startedAt": "2026-04-25T01:55:55.525Z",
   "projectDir": "/Users/minh/Documents/converge/examples/social-sim",
   "playbookName": "social-sim",
   "parentTaskDir": ".converge/journal/social-sim/tasks/epoch-001",
@@ -15,7 +15,7 @@
   "vars": {
     "tick": 1,
     "tickNum": 1,
-    "runId": "run-001",
+    "runId": "run-2026-04-25T01-45",
     "scenario": "misinfo",
     "populationSize": 10,
     "steps": 3,

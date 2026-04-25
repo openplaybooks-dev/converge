@@ -17,12 +17,13 @@
  *     whose all spawned subtasks are now done.
  */
 
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { getJournalStructure } from "../../journal/structure.ts";
 import { CheckpointManager } from "../../checkpoint/manager.ts";
 import { TaskCheckpointManager } from "../../checkpoint/task-checkpoint.ts";
+import { UnitCheckpointManager } from "../../checkpoint/unit-checkpoint.ts";
 import type { Unit } from "../unit/unit.ts";
 
 /* ------------------------------------------------------------------ */
@@ -157,9 +158,9 @@ export async function rollUpCompletion(
       );
       if (!structure.task) break;
 
-      const wbsFile = path.join(structure.task, "wbs.json");
-      if (!existsSync(wbsFile)) break; // Not a WBS parent — stop rolling up
-
+      // Always try to roll up — works for both WBS parents (wbs.json) and
+      // static parents (folder-derived children). Returns silently when
+      // no children can be found.
       await rollUpSingleAncestor(
         projectDir,
         ancestorCtx.epicId,
@@ -178,9 +179,6 @@ export async function rollUpCompletion(
     const parentJournalId = segments.slice(0, depth).join("/");
     const structure = getJournalStructure(projectDir, epicId, parentJournalId);
     if (!structure.task) break;
-
-    const wbsFile = path.join(structure.task, "wbs.json");
-    if (!existsSync(wbsFile)) break; // Not a WBS parent — stop rolling up
 
     await rollUpSingleAncestor(
       projectDir,
@@ -204,25 +202,44 @@ async function rollUpSingleAncestor(
   const structure = getJournalStructure(projectDir, epicId, parentJournalId);
   if (!structure.task) return;
 
+  // Two ways to find this parent's children:
+  //   1. wbs.json (when the parent spawned children dynamically via WBS)
+  //   2. Folder scan of <parentTaskDir>/tasks/* (for static parents whose
+  //      children come from playbook task definitions)
+  // Try wbs.json first; fall back to folder scan when missing.
   const wbsFile = path.join(structure.task, "wbs.json");
-  if (!existsSync(wbsFile)) return;
+  let subtaskSimpleIds: string[] = [];
 
-  let wbs: { spawnCount: number; subtasks: Array<{ id: string }> };
-  try {
-    wbs = JSON.parse(await readFile(wbsFile, "utf-8"));
-  } catch {
-    return; // Malformed wbs.json
+  if (existsSync(wbsFile)) {
+    try {
+      const wbs = JSON.parse(await readFile(wbsFile, "utf-8")) as {
+        spawnCount: number;
+        subtasks: Array<{ id: string }>;
+      };
+      subtaskSimpleIds = wbs.subtasks.map((s) => s.id);
+    } catch {
+      return; // Malformed wbs.json
+    }
+  } else {
+    // Static parent: derive children from the journal `tasks/` subdir.
+    // Each child must have its own checkpoint.json to be considered seeded.
+    const tasksDir = path.join(structure.task, "tasks");
+    if (!existsSync(tasksDir)) return; // No children — nothing to roll up
+    try {
+      subtaskSimpleIds = readdirSync(tasksDir).filter((name) => {
+        const full = path.join(tasksDir, name);
+        if (!statSync(full).isDirectory()) return false;
+        return existsSync(path.join(full, "checkpoint.json"));
+      });
+    } catch {
+      return;
+    }
+    if (subtaskSimpleIds.length === 0) return; // No materialized children
   }
 
-  // Build the journalTaskId for each spawned subtask
-  // WBS subtasks can be stored in two formats in the global checkpoint:
-  // 1. Hierarchical: "parent-id/child-id" (when parentTaskId is set in discovery)
-  // 2. Flat: "child-id" (when tasks are direct children without /task/ pattern)
-  // We need to check both formats for backward compatibility
-  const subtaskJournalIds = wbs.subtasks.map(
-    (s) => `${parentJournalId}/${s.id}`,
+  const subtaskJournalIds = subtaskSimpleIds.map(
+    (id) => `${parentJournalId}/${id}`,
   );
-  const subtaskSimpleIds = wbs.subtasks.map((s) => s.id);
 
   // Read latest global checkpoint
   const checkpoint = await checkpointMgr.load();
@@ -259,26 +276,44 @@ async function rollUpSingleAncestor(
       if (completedSet.has(simple)) completedSet.add(hierarchical);
       if (failedSet.has(simple)) failedSet.add(hierarchical);
     } else {
-      // Not in global checkpoint - check task-level checkpoint using simple ID
-      const taskCkpt = new TaskCheckpointManager(projectDir, epicId, simple);
-      const taskCheckpoint = await taskCkpt.load();
-
-      if (taskCheckpoint) {
-        if (taskCheckpoint.status === "complete") {
-          completedSet.add(hierarchical);
-          subtaskIdMap.set(hierarchical, simple);
-          // Also add to global checkpoint using the actual ID (simple)
-          await checkpointMgr.markTaskCompleted(simple, epicId);
-          console.log(
-            `  ↻ Synced completed task to global checkpoint: ${simple}`,
-          );
-        } else if (taskCheckpoint.status === "failed") {
-          failedSet.add(hierarchical);
-          subtaskIdMap.set(hierarchical, simple);
-          // Also add to global checkpoint using the actual ID (simple)
-          await checkpointMgr.markTaskFailed(simple, epicId);
-          console.log(`  ↻ Synced failed task to global checkpoint: ${simple}`);
+      // Not in global checkpoint — fall back to per-task checkpoints.
+      // Try the unit-level checkpoint (the on-disk source of truth that
+      // FilesystemTaskStatus scans) at the FULL hierarchical path first.
+      // Then try the legacy TaskCheckpointManager.
+      let resolvedStatus: string | undefined;
+      try {
+        const unitCkpt = new UnitCheckpointManager(
+          projectDir,
+          "task",
+          epicId,
+          hierarchical,
+        );
+        const unitCheckpoint = await unitCkpt.load();
+        if (unitCheckpoint) {
+          resolvedStatus = unitCheckpoint.status;
         }
+      } catch {
+        // ignore — fall through to legacy lookup
+      }
+
+      if (!resolvedStatus) {
+        const taskCkpt = new TaskCheckpointManager(projectDir, epicId, simple);
+        const taskCheckpoint = await taskCkpt.load();
+        resolvedStatus = taskCheckpoint?.status;
+      }
+
+      if (resolvedStatus === "complete") {
+        completedSet.add(hierarchical);
+        subtaskIdMap.set(hierarchical, simple);
+        await checkpointMgr.markTaskCompleted(simple, epicId);
+        console.log(
+          `  ↻ Synced completed task to global checkpoint: ${simple}`,
+        );
+      } else if (resolvedStatus === "failed") {
+        failedSet.add(hierarchical);
+        subtaskIdMap.set(hierarchical, simple);
+        await checkpointMgr.markTaskFailed(simple, epicId);
+        console.log(`  ↻ Synced failed task to global checkpoint: ${simple}`);
       }
     }
   }
@@ -317,7 +352,7 @@ async function rollUpSingleAncestor(
     await checkpointMgr.markTaskCompleted(parentJournalId, epicId);
   }
 
-  // Update the parent's own TaskCheckpoint status
+  // Update the parent's own TaskCheckpoint status (legacy file)
   const taskCkpt = new TaskCheckpointManager(
     projectDir,
     epicId,
@@ -329,9 +364,34 @@ async function rollUpSingleAncestor(
     await taskCkpt.save(taskCheckpoint);
   }
 
+  // Update the parent's UnitCheckpoint — this is what FilesystemTaskStatus
+  // reads, so without this the parent stays "seeded"/"pending" in status
+  // commands and downstream WBS rollups never see the parent as complete.
   const doneCount = subtaskJournalIds.filter((id) =>
     completedSet.has(id),
   ).length;
+  try {
+    const parentUnitCkpt = new UnitCheckpointManager(
+      projectDir,
+      "task",
+      epicId,
+      parentJournalId,
+    );
+    await parentUnitCkpt.updateProgress({
+      totalChildren: subtaskJournalIds.length,
+      completedChildren: doneCount,
+      failedChildren: subtaskJournalIds.filter((id) => failedSet.has(id))
+        .length,
+      childIds: subtaskSimpleIds,
+      lastProgressUpdate: new Date().toISOString(),
+    });
+  } catch (err) {
+    console.warn(
+      `  ⚠ Failed to update parent UnitCheckpoint for ${parentJournalId}: ${
+        (err as Error).message
+      }`,
+    );
+  }
   console.log(
     `↑ Auto-${anyFailed ? "failed" : "completed"} parent: ${parentJournalId}` +
       ` (${doneCount}/${subtaskJournalIds.length} subtasks done)`,

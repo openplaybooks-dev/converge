@@ -24,10 +24,10 @@ pnpm converge run          # run all remaining tasks
 ## Verify checks manually
 
 ```bash
-  python3 -c "import json,sys; lines=[json.loads(l) for l in open('runs/run-001/timeline.jsonl') if l.strip()]; hits=[l for l in lines if l.get('tick')==1 and l.get('personaId')=='p001']; sys.exit(0 if len(hits)==1 else 1)"
+  python3 -c "import json,sys; lines=[json.loads(l) for l in open('runs/run-2026-04-25T01-45/timeline.jsonl') if l.strip()]; hits=[l for l in lines if l.get('tick')==1 and l.get('personaId')=='p001']; sys.exit(0 if len(hits)==1 else 1)"
 
-  python3 -c "import json,sys; lines=[json.loads(l) for l in open('runs/run-001/timeline.jsonl') if l.strip()]; hits=[l for l in lines if l.get('tick')==1 and l.get('personaId')=='p001']; r=hits[0] if hits else {}; sys.exit(0 if r.get('action') in ['post','repost','reply','like','follow','nothing'] else 1)"
+  python3 -c "import json,sys; lines=[json.loads(l) for l in open('runs/run-2026-04-25T01-45/timeline.jsonl') if l.strip()]; hits=[l for l in lines if l.get('tick')==1 and l.get('personaId')=='p001']; r=hits[0] if hits else {}; sys.exit(0 if r.get('action') in ['post','repost','reply','like','follow','nothing'] else 1)"
 
-  ls vault/runs/run-001/actions/t1-p001-*.md 2>/dev/null | head -1 | grep -q .
+  ls vault/runs/run-2026-04-25T01-45/actions/t1-p001-*.md 2>/dev/null | head -1 | grep -q .
 
 ```

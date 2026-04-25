@@ -710,9 +710,11 @@ export async function runAgent<T = unknown>(
     let loadError: string | null = null;
 
     try {
-      // Try project.yaml first (V2 storage-based config)
+      // Try project.yaml / project.yml first (V2 storage-based config)
       const convergeDir = join(projectDir, ".converge");
-      const projectYamlPath = join(convergeDir, "project.yaml");
+      const yamlCandidate = join(convergeDir, "project.yaml");
+      const ymlCandidate = join(convergeDir, "project.yml");
+      const projectYamlPath = existsSync(yamlCandidate) ? yamlCandidate : ymlCandidate;
 
       if (existsSync(projectYamlPath)) {
         const storage = new FilesystemStorage(convergeDir);
@@ -745,7 +747,7 @@ export async function runAgent<T = unknown>(
           loadError = "No ai section found in project.yaml";
         }
       } else {
-        loadError = `project.yaml not found at ${projectYamlPath}`;
+        loadError = `project.yaml / project.yml not found under ${convergeDir}`;
       }
 
       // Fall back to PROJECT.md (playbook-based config)

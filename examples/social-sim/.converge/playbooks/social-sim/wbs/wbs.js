@@ -13,8 +13,21 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export async function run(ctx) {
-  const runId = ctx.vars?.runId ?? 'run-001';
   const steps = parseInt(String(ctx.vars?.steps ?? '3'), 10);
+
+  // runId resolution. Each invocation produces a fresh, timestamped run by
+  // default so the vault accumulates runs/run-YYYY-MM-DDTHH-MM/ directories
+  // side-by-side. Pass --runId=<existing-id> to resume or overwrite a
+  // specific run.
+  let runId = ctx.vars?.runId;
+  if (!runId || runId === '') {
+    const ts = new Date()
+      .toISOString()
+      .slice(0, 16)            // 2026-04-25T07:50
+      .replace(/:/g, '-');     // 2026-04-25T07-50
+    runId = `run-${ts}`;
+    ctx.log.info(`runId defaulted to ${runId} (pass --runId=<id> to override).`);
+  }
   const epochTemplateDir = join(__dirname, 'templates', 'epoch');
   const templatePath = relative(
     ctx.projectDir,

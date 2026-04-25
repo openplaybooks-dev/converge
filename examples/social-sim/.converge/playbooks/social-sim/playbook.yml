@@ -16,7 +16,7 @@ inputs:
   recommender:    { default: "hot-score", description: "random | hot-score | embedding" }
   seedPosts:      { default: 1,      description: "Number of seed posts injected at tick 1 to kick off the scenario" }
   seed:           { default: 42,     description: "Deterministic RNG seed for persona generation + tie-breaks" }
-  runId:          { default: "run-001", description: "Run directory under runs/. Override to keep multiple runs isolated." }
+  runId:          { default: "",        description: "Run directory under runs/. Empty default = root WBS auto-generates a timestamped id (run-YYYY-MM-DDThh-mm). Override with --runId to resume or rerun a specific run." }
 
 run:
   # Converge mode (not loop) — the root WBS spawns all `steps` epoch tasks

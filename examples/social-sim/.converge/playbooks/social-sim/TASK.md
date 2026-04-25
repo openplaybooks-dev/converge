@@ -11,7 +11,7 @@ vars:
   recommender: hot-score
   seedPosts: "1"
   seed: "42"
-  runId: run-001
+  runId: ""
 ---
 
 # Social Simulation — Direct

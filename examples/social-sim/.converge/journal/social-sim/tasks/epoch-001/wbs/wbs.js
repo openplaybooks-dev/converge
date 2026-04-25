@@ -9,12 +9,16 @@
  * TASK.md frontmatter, NOT by the order of spawn() calls.
  */
 
-import { join, relative } from 'path';
+import { join, relative, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export async function run(ctx) {
-  // epochTemplateDir already points to the playbook templates dir (set by root WBS).
-  // Use it directly instead of computing from __dirname (which is the journal task dir).
-  const epochTemplateDir = ctx.vars.epochTemplateDir;
+  // Use epochTemplateDir from ctx.vars (passed by root WBS) so this script
+  // resolves to the playbook templates even when running from the journal copy.
+  // Fall back to __dirname-relative resolution for standalone/template-dev use.
+  const epochTemplateDir = ctx.vars.epochTemplateDir ?? join(__dirname, '..');
   const childTemplatesDir = join(epochTemplateDir, 'tasks');
 
   const sharedVars = {

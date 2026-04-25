@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "epoch-002/020-simulate/p003",
+  "status": "complete",
+  "lastUpdated": "2026-04-25T02:17:40.522Z",
+  "createdAt": "2026-04-25T02:16:31.559Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-25T02:16:31.559Z",
+      "completedAt": "2026-04-25T02:17:40.518Z",
+      "outcome": "success",
+      "durationMs": 68959
+    }
+  ],
+  "currentAttempt": 1
+}

@@ -2,12 +2,12 @@
 
 **Outcome**: ✅ SUCCESS
 **Duration**: 1m 5s
-**Completed**: 2026-04-25T00:37:49.595Z
+**Completed**: 2026-04-25T02:02:37.284Z
 
 ## Outputs
 
-- `runs/run-001/timeline.jsonl` — ✓ produced (1019 B)
-- `vault/runs/run-001/actions/t1-p005-*.md` — ✗ missing
+- `runs/run-2026-04-25T01-45/timeline.jsonl` — ✓ produced (1.1 KB)
+- `vault/runs/run-2026-04-25T01-45/actions/t1-p005-*.md` — ✗ missing
 
 ## Check Results — ✅ all passed
 

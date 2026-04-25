@@ -5,22 +5,22 @@ description: "Spawn one task per persona. Each spawned task is one persona × on
 dependencies:
   - 010-setup
 inputs:
-  - runs/run-001/personas.json
-  - runs/run-001/graph.json
-  - runs/run-001/timeline.jsonl
+  - runs/run-2026-04-25T01-45/personas.json
+  - runs/run-2026-04-25T01-45/graph.json
+  - runs/run-2026-04-25T01-45/timeline.jsonl
 outputs:
-  - runs/run-001/timeline.jsonl
+  - runs/run-2026-04-25T01-45/timeline.jsonl
 checks:
   - id: timeline-grew
     description: At least one persona acted this tick (timeline.jsonl has rows with tick=1)
-    cmd: "python3 -c \"import json,sys; lines=[json.loads(l) for l in open('runs/run-001/timeline.jsonl') if l.strip()]; this_tick=[l for l in lines if l.get('tick')==1]; sys.exit(0 if len(this_tick)>=1 else 1)\"\n"
+    cmd: "python3 -c \"import json,sys; lines=[json.loads(l) for l in open('runs/run-2026-04-25T01-45/timeline.jsonl') if l.strip()]; this_tick=[l for l in lines if l.get('tick')==1]; sys.exit(0 if len(this_tick)>=1 else 1)\"\n"
 wbs:
   type: nodejs
   path: ./wbs/wbs.js
 vars:
   tick: 1
   tickNum: 1
-  runId: run-001
+  runId: run-2026-04-25T01-45
   scenario: misinfo
   populationSize: 10
   steps: 3

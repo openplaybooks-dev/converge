@@ -122,7 +122,7 @@ target: "<the target field — omit if not applicable>"
 ts: <iso8601>
 ---
 
-# Tick {{tickNum}} — [[{{personaId}}]] {{action}}d
+# Tick {{tickNum}} — [[{{personaId}}]] action
 
 > <If post/reply: the text you wrote.
 >  If repost/like/follow: a one-line description of what was reacted to.>
@@ -134,8 +134,9 @@ needs to make sense of why this persona acted this way.>
 
 ## See Also
 - Actor: [[{{personaId}}]]
-- {{If target is an action: [[t<targetTick>-<targetPersonaId>-<targetAction>]] }}
-- {{If target is a persona (follow): [[<targetPersonaId>]] }}
+- (If your action targeted another action: link it as
+  `[[tNN-pNNN-<action>]]`. If targeted a persona for `follow`: link
+  `[[pNNN]]`. Otherwise omit this bullet.)
 - [[tick-{{tick}}|Tick {{tickNum}}]]
 ```
 

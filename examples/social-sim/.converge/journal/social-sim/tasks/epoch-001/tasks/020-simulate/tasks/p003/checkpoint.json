@@ -2,15 +2,15 @@
   "type": "task",
   "id": "epoch-001/020-simulate/p003",
   "status": "complete",
-  "lastUpdated": "2026-04-25T00:36:03.939Z",
-  "createdAt": "2026-04-25T00:34:57.023Z",
+  "lastUpdated": "2026-04-25T02:00:24.824Z",
+  "createdAt": "2026-04-25T01:58:50.425Z",
   "attempts": [
     {
       "attempt": 1,
-      "startedAt": "2026-04-25T00:34:57.023Z",
-      "completedAt": "2026-04-25T00:36:03.937Z",
+      "startedAt": "2026-04-25T01:58:50.425Z",
+      "completedAt": "2026-04-25T02:00:24.821Z",
       "outcome": "success",
-      "durationMs": 66915
+      "durationMs": 94396
     }
   ],
   "currentAttempt": 1

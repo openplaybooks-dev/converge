@@ -181,31 +181,30 @@ export class WbsExecutor {
       spawn: async (target: WbsSpawnTarget, opts?: WbsSpawnOptions) => {
         const shape = await resolveWbsTarget(target, opts, ctx);
 
-        // Journal mirrors the playbook tree 1:1. A child spawned from parent
-        // `taskId` lands at:
-        //   parent is playbook root → journal/{pb}/tasks/{childId}/TASK.md
-        //   otherwise              → journal/{pb}/tasks/{parent-as-tasks-path}/tasks/{childId}/TASK.md
-        // where `parent-as-tasks-path` joins the parent's hierarchical segments
-        // with "tasks/", matching the playbook layout. No `spawned/` marker.
+        // Journal mirrors the playbook tree 1:1. To pick the right path for the
+        // child we MUST mirror whatever nesting convention the playbook chose
+        // (some playbooks wrap every child in `tasks/`, others nest directly).
+        // Delegate to `getJournalStructure` which probes the playbook source —
+        // any other path-derivation will diverge from where the rest of the
+        // system reads checkpoints, leaving children invisible to rollup.
         // opts.writeToPath still overrides — caller's responsibility.
-        const playbookName = process.env.CONVERGE_PLAYBOOK || "default";
-        const parentSegments = this.journalCtx.taskId
-          .split("/")
-          .filter(Boolean);
-        // Drop the leading playbook-name segment — it's redundant with the
-        // `journal/{pb}/` root.
-        if (parentSegments[0] === playbookName) parentSegments.shift();
-        const parentTasksPath = parentSegments.flatMap((s) => ["tasks", s]);
-        const autoWritePath = join(
-          ".converge",
-          "journal",
-          playbookName,
-          ...parentTasksPath,
-          "tasks",
-          shape.id,
-          "TASK.md",
-        ).replace(/\\/g, "/");
+        const parentStructure = getJournalStructure(
+          this.projectDir,
+          this.journalCtx.epicId,
+          this.journalCtx.taskId,
+        );
+        const childAbs = parentStructure.task
+          ? join(parentStructure.task, "tasks", shape.id, "TASK.md")
+          : null;
+        const autoWritePath = childAbs
+          ? relative(this.projectDir, childAbs).replace(/\\/g, "/")
+          : null;
         const writeToPath = opts?.writeToPath ?? autoWritePath;
+        if (!writeToPath) {
+          throw new Error(
+            `Failed to derive writeToPath for spawned child ${shape.id} of ${this.journalCtx.taskId}`,
+          );
+        }
 
         spawnedTasks.push({ id: shape.id, writeToPath });
 
