@@ -1,0 +1,36 @@
+name: social-sim
+description: >
+  Direct social simulation. The playbook IS the simulator: each loop epoch is
+  one simulation tick, each tick spawns three child tasks (setup → simulate →
+  analyze), and the simulate phase WBS-spawns one task per persona. Each
+  persona task is one LLM call making one decision for that persona for that
+  tick. State (personas, follow graph, timeline) lives in plain files under
+  runs/<runId>/; the framework's own task graph is the simulator engine.
+
+key: scenario
+
+inputs:
+  scenario:       { required: true,  description: "misinfo | polarization | recommender-ab | custom | <free-text>" }
+  populationSize: { default: 10,     description: "Persona count (= tasks per tick)" }
+  steps:          { default: 3,      description: "Simulation ticks (= loop epochs)" }
+  recommender:    { default: "hot-score", description: "random | hot-score | embedding" }
+  seedPosts:      { default: 1,      description: "Number of seed posts injected at tick 1 to kick off the scenario" }
+  seed:           { default: 42,     description: "Deterministic RNG seed for persona generation + tie-breaks" }
+  runId:          { default: "run-001", description: "Run directory under runs/. Override to keep multiple runs isolated." }
+
+run:
+  # Converge mode (not loop) — the root WBS spawns all `steps` epoch tasks
+  # at once, ordered by per-task `dependencies:`. Loop mode is broken in this
+  # codebase: it doesn't reseed the root WBS between outer iterations, so a
+  # multi-tick run only ever produces tick 1.
+  mode: converge
+  maxIterations: 80          # plenty for 3 epochs × ~12 tasks/epoch
+  maxTaskAttempts: 3
+  maxDuration: 60m
+  resume: true
+  stall:
+    maxConsecutive: 2
+    backoffMs: 10000
+
+# No top-level tasks — the root TASK.md drives a loop-mode WBS that spawns
+# one epoch per tick. Per-task checks are defined inside each phase's TASK.md.

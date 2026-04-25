@@ -1,0 +1,6 @@
+node_modules/
+runs/
+data/personas.sqlite
+.env
+*.log
+dist/

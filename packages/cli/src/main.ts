@@ -34,6 +34,7 @@ import {
   type InspectOptions,
 } from "./commands-inspect.ts";
 import { journalCommand } from "./commands-journal.ts";
+import { migrateCommand } from "./commands-migrate.ts";
 import { JournalCleanup } from "@converge/core/checkpoint/cleanup.ts";
 import {
   initCommand,
@@ -65,6 +66,7 @@ import {
 import {
   generateEpicFromPlaybook,
   mergeRunConfig,
+  injectVarsIntoTaskMd,
 } from "@converge/core/task/playbook/executor.ts";
 import { initPlaybookJournal, appendTrend } from "@converge/core/task/playbook/journal.ts";
 import {
@@ -296,7 +298,7 @@ WORKFLOW
   init                        Initialize new project
   plan <prompt>               Generate playbook from a prompt
   run [filter]                Execute autonomous agent loop
-  reset <task...>             Reset task(s) for re-execution
+  reset                       Delete journal state (whole root, playbook, or task subtree)
   status [filter]             Show project status and task tree
 
 INSPECTION
@@ -306,6 +308,7 @@ INSPECTION
 
 MANAGEMENT
   verify                      Verify config, structure, checkpoint consistency
+  migrate                     Migrate V1 project structure to V2 (spawned tasks → journal)
   playbook <sub>              Manage playbooks (list|info|history)
   skills <sub>                Manage skills (list|install)
   goals                       Evaluate project goals and plan remediation
@@ -501,6 +504,13 @@ async function main(): Promise<void> {
       case "run": {
         // Auto-discover PROJECT.md from the target directory (or cwd)
         const searchDir = resolve(options.dir || ORIGINAL_CWD);
+
+        // User-facing `--playbook=NAME` routes through the same playbook
+        // layer as path-based execution. Both funnel through __playbook,
+        // which is the internal marker the resolver + vars injector check.
+        if (options.playbook && !options.__playbook) {
+          options.__playbook = options.playbook;
+        }
 
         // ── Early validation: require local .converge/project.yml ────────
         // If running from a subdirectory without its own project.yml:
@@ -753,6 +763,23 @@ async function main(): Promise<void> {
             await generateEpicFromPlaybook(resolvedPb, searchDir);
           }
 
+          // Refresh playbook-level vars on every run, regardless of mode.
+          // installPlaybook only runs on first install (and is skipped entirely
+          // in loop/converge/dispatch modes), but CLI flags may differ each
+          // invocation — so the root TASK.md's `vars:` frontmatter must be
+          // rewritten unconditionally so WBS scripts see up-to-date values
+          // via ctx.vars.
+          {
+            const rootTaskMd = join(
+              searchDir,
+              ".converge",
+              "playbooks",
+              playbookName,
+              "TASK.md",
+            );
+            await injectVarsIntoTaskMd(rootTaskMd, resolvedPb.vars);
+          }
+
           // Merge playbook run config with CLI overrides
           const cliOverrides: Partial<PlaybookRunConfig> = {};
           const durOpt = options["max-duration"] || options.maxDuration;
@@ -773,7 +800,11 @@ async function main(): Promise<void> {
           console.log(`   Mode: ${playbookRunCfg.mode}\n`);
 
           setPlaybookScope(playbookName, searchDir);
-          runFilter = resolvedPb.epicId;
+          // Filter by the playbook/root-task id so the scanner finds the task
+          // tree on disk. epicId may be suffixed with the key input's value for
+          // collision avoidance across concurrent runs, but task tree paths are
+          // named by playbookName.
+          runFilter = playbookName;
         }
 
         // ── Execute ──────────────────────────────────────────────────
@@ -901,24 +932,11 @@ async function main(): Promise<void> {
       }
 
       case "reset": {
-        if (!options.all && positional.length === 0) {
-          console.error(
-            "❌ Usage: converge reset <taskId> [taskId...] [--outputs] [--wbs] [--all]",
-          );
-          console.error(
-            "   Example: converge reset 003-generate-html-designs --all",
-          );
-          console.error(
-            "   Example: converge reset --all  # reset entire project",
-          );
-          process.exit(1);
-        }
         await resetCommand(positional, {
           dir: options.dir,
           verbose: options.verbose || options.v,
-          outputs: options.outputs || false,
-          wbs: options.wbs || false,
           all: options.all || false,
+          yes: options.yes || options.y || false,
         });
         break;
       }
@@ -995,6 +1013,16 @@ async function main(): Promise<void> {
           plan: options.plan || false,
           dry: options.dry || false,
           goal: positional[0],
+        });
+        break;
+      }
+
+      case "migrate": {
+        await migrateCommand({
+          dir: options.dir,
+          apply: options.apply || false,
+          force: options.force || false,
+          verbose: options.verbose || options.v || false,
         });
         break;
       }

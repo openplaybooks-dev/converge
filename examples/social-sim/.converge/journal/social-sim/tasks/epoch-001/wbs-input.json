@@ -1,0 +1,38 @@
+{
+  "attemptNumber": 1,
+  "startedAt": "2026-04-25T00:28:10.571Z",
+  "projectDir": "/Users/minh/Documents/converge/examples/social-sim",
+  "playbookName": "social-sim",
+  "parentTaskDir": ".converge/journal/social-sim/tasks/epoch-001",
+  "journalCtx": {
+    "epicId": "social-sim",
+    "taskId": "epoch-001"
+  },
+  "taskMeta": {
+    "id": "epoch-001",
+    "title": "Tick 001"
+  },
+  "vars": {
+    "tick": 1,
+    "tickNum": 1,
+    "runId": "run-001",
+    "scenario": "misinfo",
+    "populationSize": 10,
+    "steps": 3,
+    "recommender": "hot-score",
+    "seedPosts": 1,
+    "seed": 42,
+    "prevAnalyzeDep": null,
+    "taskId": "epoch-001",
+    "epochTemplateDir": "/Users/minh/Documents/converge/examples/social-sim/.converge/playbooks/social-sim/wbs/templates/epoch",
+    "epoch": "1"
+  },
+  "ctxMethods": [
+    "log",
+    "ai.ask",
+    "plan.getPlanPath",
+    "artifact",
+    "spawn",
+    "spawnGoal"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "error:wbs-execution": {
+    "id": "error:wbs-execution",
+    "type": "error",
+    "cmd": "wbs-execution",
+    "ok": false,
+    "output": "Error: WBS script import failed: /Users/minh/Documents/converge/examples/social-sim/.converge/journal/social-sim/tasks/epoch-001/wbs/wbs.js\nENOENT: no such file or directory, open '/Users/minh/Documents/converge/examples/social-sim/.converge/journal/social-sim/tasks/epoch-001/tasks/010-setup/TASK.md'\n    at tryImportAndRun (file:///Users/minh/Documents/converge/packages/cli/dist/index.js:30278:11)\n    at async file:///Users/minh/Documents/converge/packages/cli/dist/index.js:30260:24\n    at async WbsExecutor.run (file:///Users/minh/Documents/converge/packages/cli/dist/index.js:37014:11)\n    at async executeTask (file:///Users/minh/Documents/converge/packages/cli/dist/index.js:48279:26)\n    at async Object.stateExecute [as EXECUTE] (file:///Users/minh/Documents/converge/packages/cli/dist/index.js:49876:20)\n    at async Object.autonomousRun (file:///Users/minh/Documents/converge/packages/cli/dist/index.js:50071:15)\n    at async evolveRun (file:///Users/minh/Documents/converge/packages/cli/dist/index.js:44727:23)\n    at async runAutonomousCommand (file:///Users/minh/Documents/converge/packages/cli/dist/index.js:50139:22)\n    at async main (file:///Users/minh/Documents/converge/packages/cli/dist/index.js:97973:11)",
+    "exitCode": 1,
+    "collectedAt": "2026-04-25T00:27:05.571Z",
+    "errorType": "Error",
+    "errorMessage": "WBS script import failed: /Users/minh/Documents/converge/examples/social-sim/.converge/journal/social-sim/tasks/epoch-001/wbs/wbs.js\nENOENT: no such file or directory, open '/Users/minh/Documents/converge/examples/social-sim/.converge/journal/social-sim/tasks/epoch-001/tasks/010-setup/TASK.md'",
+    "errorStack": "Error: WBS script import failed: /Users/minh/Documents/converge/examples/social-sim/.converge/journal/social-sim/tasks/epoch-001/wbs/wbs.js\nENOENT: no such file or directory, open '/Users/minh/Documents/converge/examples/social-sim/.converge/journal/social-sim/tasks/epoch-001/tasks/010-setup/TASK.md'\n    at tryImportAndRun (file:///Users/minh/Documents/converge/packages/cli/dist/index.js:30278:11)\n    at async file:///Users/minh/Documents/converge/packages/cli/dist/index.js:30260:24\n    at async WbsExecutor.run (file:///Users/minh/Documents/converge/packages/cli/dist/index.js:37014:11)\n    at async executeTask (file:///Users/minh/Documents/converge/packages/cli/dist/index.js:48279:26)\n    at async Object.stateExecute [as EXECUTE] (file:///Users/minh/Documents/converge/packages/cli/dist/index.js:49876:20)\n    at async Object.autonomousRun (file:///Users/minh/Documents/converge/packages/cli/dist/index.js:50071:15)\n    at async evolveRun (file:///Users/minh/Documents/converge/packages/cli/dist/index.js:44727:23)\n    at async runAutonomousCommand (file:///Users/minh/Documents/converge/packages/cli/dist/index.js:50139:22)\n    at async main (file:///Users/minh/Documents/converge/packages/cli/dist/index.js:97973:11)"
+  },
+  "self-healing:missing-file": {
+    "id": "self-healing:missing-file",
+    "type": "self-healing",
+    "cmd": "test -f /Users/minh/Documents/converge/examples/social-sim/.converge/journal/social-sim/tasks/epoch-001/tasks/010-setup/TASK.md",
+    "ok": false,
+    "output": "Detected missing file: /Users/minh/Documents/converge/examples/social-sim/.converge/journal/social-sim/tasks/epoch-001/tasks/010-setup/TASK.md (script-bug=false)",
+    "exitCode": 1,
+    "collectedAt": "2026-04-25T00:27:05.572Z",
+    "strategy": "missing-dependency",
+    "missingFile": "/Users/minh/Documents/converge/examples/social-sim/.converge/journal/social-sim/tasks/epoch-001/tasks/010-setup/TASK.md",
+    "errorMessage": "WBS script import failed: /Users/minh/Documents/converge/examples/social-sim/.converge/journal/social-sim/tasks/epoch-001/wbs/wbs.js\nENOENT: no such file or directory, open '/Users/minh/Documents/converge/examples/social-sim/.converge/journal/social-sim/tasks/epoch-001/tasks/010-setup/TASK.md'"
+  },
+  "gap-failed:wbs-script-error:epoch-001:1777076825572": {
+    "id": "gap-failed:wbs-script-error:epoch-001:1777076825572",
+    "type": "gap-resolution",
+    "ok": false,
+    "output": "Gap resolution failed after 0 attempts",
+    "attempts": 0,
+    "collectedAt": "2026-04-25T00:28:10.558Z"
+  },
+  "gap-failed:wbs-missing-file:epoch-001:1777076890559": {
+    "id": "gap-failed:wbs-missing-file:epoch-001:1777076890559",
+    "type": "gap-resolution",
+    "ok": false,
+    "output": "Gap resolution failed after 0 attempts",
+    "attempts": 0,
+    "collectedAt": "2026-04-25T00:28:10.559Z"
+  }
+}

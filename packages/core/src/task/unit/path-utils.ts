@@ -82,6 +82,43 @@ export function extractJournalTaskId(taskPath: string): string {
     }
   }
 
+  // Journal path: .converge/journal/{name}/tasks/{parent}/tasks/{child}/...
+  // Journal mirrors the playbook — strip `tasks/` markers the same way.
+  // When the playbook has a root TASK.md the ids are prefixed with the
+  // playbook name to match the playbook-tree extractor's output.
+  const journalIndex = parts.indexOf("journal");
+  if (journalIndex !== -1 && journalIndex + 1 < parts.length) {
+    const playbookName = parts[journalIndex + 1];
+    const afterName = parts[journalIndex + 2];
+    // Root TASK.md at journal/{name}/TASK.md (no `tasks/` wrapper yet).
+    if (!afterName || afterName.endsWith(".md") || afterName.endsWith(".ts")) {
+      return playbookName;
+    }
+    if (afterName === "tasks") {
+      const taskSegments = parts.slice(journalIndex + 3);
+      const hierarchicalSegments: string[] = [];
+      for (const segment of taskSegments) {
+        if (
+          segment === "tasks" ||
+          segment.endsWith(".ts") ||
+          segment.endsWith(".md")
+        ) {
+          continue;
+        }
+        hierarchicalSegments.push(segment);
+      }
+      if (hierarchicalSegments.length === 0) {
+        return playbookName;
+      }
+      const journalDir = parts.slice(0, journalIndex + 2).join(path.sep);
+      const hasRootTaskMd = existsSync(path.join(journalDir, "TASK.md"));
+      if (hasRootTaskMd) {
+        return [playbookName, ...hierarchicalSegments].join("/");
+      }
+      return hierarchicalSegments.join("/");
+    }
+  }
+
   // Find epics directory index
   const epicsIndex = parts.indexOf("epics");
   if (epicsIndex === -1) {
@@ -149,6 +186,12 @@ export function extractEpicId(taskPath: string): string {
     return parts[playbooksIndex + 1];
   }
 
+  // Journal path: .converge/journal/{name}/tasks/... → name is the epic id.
+  const journalIndex = parts.indexOf("journal");
+  if (journalIndex !== -1 && journalIndex + 1 < parts.length) {
+    return parts[journalIndex + 1];
+  }
+
   const epicsIndex = parts.indexOf("epics");
 
   if (epicsIndex === -1) {
@@ -174,6 +217,13 @@ export function extractEpicId(taskPath: string): string {
 export function extractEpicDir(taskPath: string): string {
   const normalizedPath = taskPath.split(path.sep).join("/");
   const parts = normalizedPath.split("/");
+
+  // Journal path: .converge/journal/{name}/tasks/... — the "epic dir"
+  // equivalent is the journal's per-playbook root directory.
+  const journalIndex = parts.indexOf("journal");
+  if (journalIndex !== -1 && journalIndex + 1 < parts.length) {
+    return parts.slice(0, journalIndex + 2).join("/");
+  }
 
   // Try playbook path: .converge/playbooks/{name}/...
   // The "epic dir" equivalent is the playbook directory itself
@@ -230,6 +280,25 @@ export function extractLeafTaskId(taskPath: string): string {
     return parts[playbooksIndex + 1];
   }
 
+  // Journal paths: journal/{name}/tasks/... → last directory segment, skipping
+  // files and "tasks" markers.
+  const journalIndex = parts.indexOf("journal");
+  if (journalIndex !== -1 && journalIndex + 1 < parts.length) {
+    for (let i = parts.length - 1; i > journalIndex + 1; i--) {
+      const seg = parts[i];
+      if (
+        !seg ||
+        seg.endsWith(".ts") ||
+        seg.endsWith(".md") ||
+        seg === "tasks"
+      ) {
+        continue;
+      }
+      return seg;
+    }
+    return parts[journalIndex + 1];
+  }
+
   // Find the last segment that looks like a task ID (numbered prefix)
   for (let i = parts.length - 1; i >= 0; i--) {
     const segment = parts[i];
@@ -264,7 +333,22 @@ export function extractParentTaskId(taskPath: string): string | undefined {
   const normalizedPath = taskPath.split(path.sep).join("/");
   const parts = normalizedPath.split("/");
 
-  // Find all 'tasks' directory markers (plural - there are always multiple subtasks)
+  // Journal path: journal/{pb}/tasks/{parent}/tasks/{child}/...
+  // The parent is the segment immediately before the last `tasks/` marker.
+  // For journal paths we don't require a numeric prefix — playbook task ids
+  // can be arbitrary (e.g. "epoch-001", "intel").
+  const journalIndex = parts.indexOf("journal");
+  if (journalIndex !== -1) {
+    const lastTasksIndex = parts.lastIndexOf("tasks");
+    if (lastTasksIndex > journalIndex + 2) {
+      const parentSegment = parts[lastTasksIndex - 1];
+      if (parentSegment) return parentSegment;
+    }
+    return undefined;
+  }
+
+  // Legacy (epic-based) path: require a numeric prefix on the parent segment
+  // to avoid picking up the `tasks/` marker inside the epic dir itself.
   const tasksIndices: number[] = [];
   for (let i = 0; i < parts.length; i++) {
     if (parts[i] === "tasks") {
@@ -272,16 +356,13 @@ export function extractParentTaskId(taskPath: string): string | undefined {
     }
   }
 
-  // If there are no 'tasks' markers, this is a root task
   if (tasksIndices.length === 0) {
     return undefined;
   }
 
-  // The parent is the segment immediately before the last 'tasks' marker
   const lastTasksIndex = tasksIndices[tasksIndices.length - 1];
   const parentSegment = parts[lastTasksIndex - 1];
 
-  // Validate it's a task ID (has numbered prefix)
   if (parentSegment && /^\d{2,3}-/.test(parentSegment)) {
     return parentSegment;
   }
@@ -308,6 +389,19 @@ export function extractParentTaskId(taskPath: string): string | undefined {
 export function constructJournalPath(taskPath: string): string {
   const normalizedPath = taskPath.split(path.sep).join("/");
   const parts = normalizedPath.split("/");
+
+  // Journal path in: the path is already a journal location (e.g. a
+  // WBS-spawned child under .converge/journal/{name}/tasks/...).
+  // Strip trailing TASK.md/file segment and return the directory as-is —
+  // it IS the journal path.
+  const journalIdx = parts.indexOf("journal");
+  if (journalIdx !== -1 && journalIdx + 1 < parts.length) {
+    const last = parts[parts.length - 1];
+    if (last && (last.endsWith(".md") || last.endsWith(".ts"))) {
+      return parts.slice(0, -1).join("/");
+    }
+    return parts.join("/");
+  }
 
   // Try playbook path: .converge/playbooks/{name}/...
   // → .converge/journal/{name}/...

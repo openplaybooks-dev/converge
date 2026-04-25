@@ -146,12 +146,13 @@ export async function runAutonomousCommand(
         console.error("❌ Converge mode requires a playbook (--playbook=<name>).\n");
         process.exit(1);
       }
-      const { evolveRun } = await import("../runners/evolve/evolve-runner.ts");
+      const { evolveRun } = await import("@converge/core/runners/evolve/evolve-runner.ts");
       const result = await evolveRun({
         projectDir,
         convergeConfig: options.convergeConfig!,
         hookRegistry: options.hookRegistry,
         playbook: options.playbook,
+        autonomousRun,
         maxIterations: options.maxIterations,
         maxTaskAttempts: 2,
         maxRunDurationMs: options.maxDuration,
@@ -176,12 +177,13 @@ export async function runAutonomousCommand(
       }
       // Dispatch mode: tasks are already stamped via --add.
       // Run as converge to process all pending tasks.
-      const { evolveRun } = await import("../runners/evolve/evolve-runner.ts");
+      const { evolveRun } = await import("@converge/core/runners/evolve/evolve-runner.ts");
       const result = await evolveRun({
         projectDir,
         convergeConfig: options.convergeConfig!,
         hookRegistry: options.hookRegistry,
         playbook: options.playbook,
+        autonomousRun,
         maxIterations: options.maxIterations,
         maxTaskAttempts: 2,
         maxRunDurationMs: options.maxDuration,

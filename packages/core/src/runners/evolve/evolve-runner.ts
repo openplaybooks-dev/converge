@@ -13,7 +13,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
-import { autonomousRun } from "../../cli/autonomous-run.ts";
 import type { ResolvedPlaybook } from "../../task/playbook/types.ts";
 import type { ConvergeConfig } from "../../config/types.ts";
 import type { HookRegistry } from "../../hooks/registry.ts";
@@ -24,6 +23,34 @@ import {
   formatEvolveTrendTable,
 } from "./evolve-ledger.ts";
 
+/**
+ * autonomousRun lives in the CLI package (it's the top-level interactive run
+ * loop). core can't depend on cli without a cycle, so the caller injects it
+ * through config. Shape mirrors `cli/src/autonomous-run.ts` one-for-one.
+ */
+export interface AutonomousRunner {
+  (input: {
+    projectDir: string;
+    convergeConfig: ConvergeConfig;
+    hookRegistry?: HookRegistry;
+    maxIterations?: number;
+    maxTaskAttempts?: number;
+    maxRunDurationMs?: number;
+    verbose?: boolean;
+    filter?: string;
+    force?: boolean;
+    resume?: boolean;
+    restart?: boolean;
+    epochVars?: Record<string, string>;
+  }): Promise<{
+    completed: boolean;
+    tasksCompleted: number;
+    tasksFailed: number;
+    iterations: number;
+    stoppedReason?: string;
+  }>;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Config                                                             */
 /* ------------------------------------------------------------------ */
@@ -33,6 +60,8 @@ export interface EvolveRunConfig {
   convergeConfig: ConvergeConfig;
   hookRegistry?: HookRegistry;
   playbook: ResolvedPlaybook;
+  /** Injected by the caller (CLI). Breaks the core → cli dependency cycle. */
+  autonomousRun: AutonomousRunner;
   maxIterations?: number;
   maxTaskAttempts?: number;
   maxRunDurationMs?: number;
@@ -128,7 +157,7 @@ export async function evolveRun(config: EvolveRunConfig): Promise<EvolveResult> 
 
     // Run: autonomousRun discovers tasks from .converge/playbooks/{name}/tasks/
     // and filters by the playbook name (epicId).
-    const runResult = await autonomousRun({
+    const runResult = await config.autonomousRun({
       projectDir,
       convergeConfig,
       hookRegistry: config.hookRegistry,

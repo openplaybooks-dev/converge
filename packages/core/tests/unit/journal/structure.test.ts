@@ -1,9 +1,14 @@
 /**
- * Tests for journal structure - verifying hierarchical path construction
+ * Tests for journal structure — the journal tree mirrors the playbook tree 1:1,
+ * so every nested task id segment corresponds to a `tasks/{seg}/` wrapper.
+ *
+ *   playbooks/{pb}/TASK.md               → journal/{pb}/
+ *   playbooks/{pb}/tasks/{a}/TASK.md     → journal/{pb}/tasks/{a}/
+ *   playbooks/{pb}/tasks/{a}/tasks/{b}/  → journal/{pb}/tasks/{a}/tasks/{b}/
  */
 
-import { describe, it, expect, afterEach } from "vitest";
-import { join } from "node:path";
+import { describe, it, expect } from "vitest";
+import { join, resolve } from "node:path";
 import {
   getJournalStructure,
   getTaskAttemptDir,
@@ -25,7 +30,7 @@ describe("journal structure", () => {
       expect(structure.task).toBeUndefined();
     });
 
-    it("should create epic-level structure", () => {
+    it("should create epic-level structure (epic id != playbook)", () => {
       const structure = getJournalStructure(projectDir, "03-implement-app");
 
       expect(structure.epic).toBe(
@@ -41,14 +46,13 @@ describe("journal structure", () => {
       expect(structure.task).toBeUndefined();
     });
 
-    it("should create task-level structure for root tasks", () => {
+    it("nests the first child under tasks/ (mirrors playbook)", () => {
       const structure = getJournalStructure(
         projectDir,
         "03-implement-app",
         "002-pages",
       );
 
-      // Root task — directly under epic, no /tasks/ prefix
       expect(structure.task).toBe(
         join(
           projectDir,
@@ -57,19 +61,19 @@ describe("journal structure", () => {
           "default",
           "tasks",
           "03-implement-app",
+          "tasks",
           "002-pages",
         ),
       );
     });
 
-    it("should create proper hierarchy for nested tasks (one level)", () => {
+    it("nests one level of children under tasks/.../tasks/...", () => {
       const structure = getJournalStructure(
         projectDir,
         "03-implement-app",
         "002-pages/002-001-home",
       );
 
-      // First segment is root (no /tasks/ prefix), subsequent get /tasks/
       expect(structure.task).toBe(
         join(
           projectDir,
@@ -78,6 +82,7 @@ describe("journal structure", () => {
           "default",
           "tasks",
           "03-implement-app",
+          "tasks",
           "002-pages",
           "tasks",
           "002-001-home",
@@ -85,7 +90,7 @@ describe("journal structure", () => {
       );
     });
 
-    it("should create proper hierarchy for deeply nested tasks (two levels)", () => {
+    it("nests deeply (three levels)", () => {
       const structure = getJournalStructure(
         projectDir,
         "03-implement-app",
@@ -100,6 +105,7 @@ describe("journal structure", () => {
           "default",
           "tasks",
           "03-implement-app",
+          "tasks",
           "002-pages",
           "tasks",
           "002-001-home",
@@ -109,33 +115,7 @@ describe("journal structure", () => {
       );
     });
 
-    it("should create proper hierarchy for very deeply nested tasks (three levels)", () => {
-      const structure = getJournalStructure(
-        projectDir,
-        "03-implement-app",
-        "002-pages/002-001-home/002-001-001-header/002-001-001-001-logo",
-      );
-
-      expect(structure.task).toBe(
-        join(
-          projectDir,
-          ".converge",
-          "journal",
-          "default",
-          "tasks",
-          "03-implement-app",
-          "002-pages",
-          "tasks",
-          "002-001-home",
-          "tasks",
-          "002-001-001-header",
-          "tasks",
-          "002-001-001-001-logo",
-        ),
-      );
-    });
-
-    it("should handle taskId with trailing slash", () => {
+    it("handles trailing slash in taskId", () => {
       const structure = getJournalStructure(
         projectDir,
         "03-implement-app",
@@ -150,6 +130,7 @@ describe("journal structure", () => {
           "default",
           "tasks",
           "03-implement-app",
+          "tasks",
           "002-pages",
           "tasks",
           "002-001-home",
@@ -157,7 +138,7 @@ describe("journal structure", () => {
       );
     });
 
-    it("should handle taskId with multiple slashes", () => {
+    it("ignores empty segments from duplicate slashes", () => {
       const structure = getJournalStructure(
         projectDir,
         "03-implement-app",
@@ -172,16 +153,40 @@ describe("journal structure", () => {
           "default",
           "tasks",
           "03-implement-app",
+          "tasks",
           "002-pages",
           "tasks",
           "002-001-home",
         ),
       );
     });
+
+    it("drops a leading epic-id segment from taskId to avoid double-nesting", () => {
+      // Some callers pass the epic id as the first taskId segment (hierarchical
+      // id). The epic dir already is that directory — don't re-nest.
+      const structure = getJournalStructure(
+        projectDir,
+        "03-implement-app",
+        "03-implement-app/002-pages",
+      );
+
+      expect(structure.task).toBe(
+        join(
+          projectDir,
+          ".converge",
+          "journal",
+          "default",
+          "tasks",
+          "03-implement-app",
+          "tasks",
+          "002-pages",
+        ),
+      );
+    });
   });
 
   describe("getTaskAttemptDir", () => {
-    it("should create attempt dir for root task", () => {
+    it("creates attempt dir directly under the task dir", () => {
       const attemptDir = getTaskAttemptDir(
         projectDir,
         "03-implement-app",
@@ -197,6 +202,7 @@ describe("journal structure", () => {
           "default",
           "tasks",
           "03-implement-app",
+          "tasks",
           "002-pages",
           "attempts",
           "01",
@@ -204,7 +210,7 @@ describe("journal structure", () => {
       );
     });
 
-    it("should create attempt dir for nested task", () => {
+    it("creates attempt dir for a nested task", () => {
       const attemptDir = getTaskAttemptDir(
         projectDir,
         "03-implement-app",
@@ -220,6 +226,7 @@ describe("journal structure", () => {
           "default",
           "tasks",
           "03-implement-app",
+          "tasks",
           "002-pages",
           "tasks",
           "002-001-home",
@@ -229,7 +236,7 @@ describe("journal structure", () => {
       );
     });
 
-    it("should handle string attempt numbers", () => {
+    it("handles string attempt numbers", () => {
       const attemptDir = getTaskAttemptDir(
         projectDir,
         "03-implement-app",
@@ -245,6 +252,7 @@ describe("journal structure", () => {
           "default",
           "tasks",
           "03-implement-app",
+          "tasks",
           "002-pages",
           "attempts",
           "wip",
@@ -252,7 +260,7 @@ describe("journal structure", () => {
       );
     });
 
-    it("should pad numeric attempt numbers", () => {
+    it("pads numeric attempt numbers", () => {
       const attemptDir = getTaskAttemptDir(
         projectDir,
         "03-implement-app",
@@ -268,6 +276,7 @@ describe("journal structure", () => {
           "default",
           "tasks",
           "03-implement-app",
+          "tasks",
           "002-pages",
           "attempts",
           "09",
@@ -275,7 +284,7 @@ describe("journal structure", () => {
       );
     });
 
-    it("should verify attempts/ and tasks/ are siblings for WBS tasks", () => {
+    it("keeps attempts/ and tasks/ as siblings under the same task dir", () => {
       const attemptDir = getTaskAttemptDir(
         projectDir,
         "03-implement-app",
@@ -297,7 +306,7 @@ describe("journal structure", () => {
   });
 
   describe("getAncestorJournalPaths", () => {
-    it("should return empty array for root tasks", () => {
+    it("returns empty for root tasks", () => {
       const ancestors = getAncestorJournalPaths(
         projectDir,
         "03-implement-app",
@@ -306,7 +315,7 @@ describe("journal structure", () => {
       expect(ancestors).toEqual([]);
     });
 
-    it("should return parent path for one level of nesting", () => {
+    it("returns the parent path for one level of nesting", () => {
       const ancestors = getAncestorJournalPaths(
         projectDir,
         "03-implement-app",
@@ -322,12 +331,13 @@ describe("journal structure", () => {
           "default",
           "tasks",
           "03-implement-app",
+          "tasks",
           "002-pages",
         ),
       );
     });
 
-    it("should return all ancestor paths for deeply nested tasks", () => {
+    it("returns all ancestor paths for deeply nested tasks", () => {
       const ancestors = getAncestorJournalPaths(
         projectDir,
         "03-implement-app",
@@ -343,6 +353,7 @@ describe("journal structure", () => {
           "default",
           "tasks",
           "03-implement-app",
+          "tasks",
           "002-pages",
         ),
       );
@@ -354,6 +365,7 @@ describe("journal structure", () => {
           "default",
           "tasks",
           "03-implement-app",
+          "tasks",
           "002-pages",
           "tasks",
           "002-001-home",
@@ -361,7 +373,7 @@ describe("journal structure", () => {
       );
     });
 
-    it("should return ancestors in order from root to immediate parent", () => {
+    it("returns ancestors in order from root to immediate parent", () => {
       const ancestors = getAncestorJournalPaths(
         projectDir,
         "03-implement-app",
@@ -369,14 +381,14 @@ describe("journal structure", () => {
       );
 
       expect(ancestors).toHaveLength(3);
-      expect(ancestors[0]).toContain("/03-implement-app/a");
-      expect(ancestors[1]).toContain("/a/tasks/b");
-      expect(ancestors[2]).toContain("/a/tasks/b/tasks/c");
+      expect(ancestors[0]).toContain("/03-implement-app/tasks/a");
+      expect(ancestors[1]).toContain("/tasks/a/tasks/b");
+      expect(ancestors[2]).toContain("/tasks/a/tasks/b/tasks/c");
     });
   });
 
   describe("journal structure consistency", () => {
-    it("should maintain sibling relationship between attempts/ and tasks/", () => {
+    it("keeps attempts/ and tasks/ as siblings", () => {
       const taskId = "002-pages";
       const structure = getJournalStructure(
         projectDir,
@@ -398,7 +410,7 @@ describe("journal structure", () => {
       expect(attemptDir).toMatch(/\/002-pages\/attempts\/01$/);
     });
 
-    it("should maintain correct structure for spawned subtasks", () => {
+    it("child path extends parent path with tasks/{child}", () => {
       const parentTaskId = "002-pages";
       const childTaskId = "002-pages/002-001-home";
 
@@ -421,7 +433,7 @@ describe("journal structure", () => {
       expect(childStructure.task).toBe(expectedChildPath);
     });
 
-    it("should verify epic structure mirrors journal structure", () => {
+    it("task path mirrors playbook path", () => {
       const taskId = "002-pages/002-001-home";
       const structure = getJournalStructure(
         projectDir,
@@ -430,13 +442,119 @@ describe("journal structure", () => {
       );
 
       expect(structure.task).toContain(
-        "/journal/default/tasks/03-implement-app/002-pages/tasks/002-001-home",
+        "/journal/default/tasks/03-implement-app/tasks/002-pages/tasks/002-001-home",
       );
     });
   });
 
-  describe("PlaybookContext routing", () => {
-    it("should route epic paths through playbook journal", () => {
+  describe("PlaybookContext routing — epicId === playbook (common case)", () => {
+    it("routes the epic dir to journal/{pb}/ (no re-nesting of playbook name)", () => {
+      const ctx = { playbook: "react-app" };
+      const structure = getJournalStructure(
+        projectDir,
+        "react-app",
+        undefined,
+        ctx,
+      );
+
+      expect(structure.epic).toBe(
+        join(projectDir, ".converge", "journal", "react-app"),
+      );
+    });
+
+    it("routes task paths as journal/{pb}/tasks/{taskId}/", () => {
+      const ctx = { playbook: "react-app" };
+      const structure = getJournalStructure(
+        projectDir,
+        "react-app",
+        "002-pages",
+        ctx,
+      );
+
+      expect(structure.task).toBe(
+        join(
+          projectDir,
+          ".converge",
+          "journal",
+          "react-app",
+          "tasks",
+          "002-pages",
+        ),
+      );
+    });
+
+    it("routes nested task paths as journal/{pb}/tasks/{a}/tasks/{b}/", () => {
+      const ctx = { playbook: "react-app" };
+      const structure = getJournalStructure(
+        projectDir,
+        "react-app",
+        "002-pages/002-001-home",
+        ctx,
+      );
+
+      expect(structure.task).toBe(
+        join(
+          projectDir,
+          ".converge",
+          "journal",
+          "react-app",
+          "tasks",
+          "002-pages",
+          "tasks",
+          "002-001-home",
+        ),
+      );
+    });
+  });
+
+  describe("Playbook source probing (mirrors whichever convention the playbook uses)", () => {
+    // Uses the real social-sim playbook fixture — it nests children directly
+    // (playbooks/social-sim/tasks/10-research/010-oasis-distillation/) without
+    // a tasks/ wrapper, unlike autonomous-pentest which wraps every child.
+    // Journal must mirror whichever layout the playbook chose.
+    const realRepo = resolve(__dirname, "../../../../..");
+    const socialSim = join(realRepo, "examples/social-sim");
+
+    it("mirrors direct-child nesting when the playbook uses it", () => {
+      const ctx = { playbook: "social-sim" };
+      const structure = getJournalStructure(
+        socialSim,
+        "social-sim",
+        "social-sim/10-research/010-oasis-distillation",
+        ctx,
+      );
+
+      // playbook path: playbooks/social-sim/tasks/10-research/010-oasis-distillation/
+      // journal path:  journal/social-sim/tasks/10-research/010-oasis-distillation/  (no extra tasks/)
+      expect(structure.task).toBe(
+        join(
+          socialSim,
+          ".converge",
+          "journal",
+          "social-sim",
+          "tasks",
+          "10-research",
+          "010-oasis-distillation",
+        ),
+      );
+    });
+
+    it("falls back to tasks/-wrapped default when probe fails (no playbook source)", () => {
+      const ctx = { playbook: "nonexistent-playbook" };
+      const structure = getJournalStructure(
+        "/tmp/nowhere",
+        "nonexistent-playbook",
+        "a/b",
+        ctx,
+      );
+      expect(structure.task).toBe(
+        "/tmp/nowhere/.converge/journal/nonexistent-playbook/tasks/a/tasks/b",
+      );
+    });
+  });
+
+  describe("PlaybookContext routing — epicId !== playbook (legacy)", () => {
+    it("places the epic under journal/{pb}/tasks/{epicId}/", () => {
       const ctx = { playbook: "react-app" };
       const structure = getJournalStructure(
         projectDir,
@@ -445,7 +563,6 @@ describe("journal structure", () => {
         ctx,
       );
 
-      // journal/{playbook}/tasks/{epicId}
       expect(structure.epic).toBe(
         join(
           projectDir,
@@ -458,7 +575,7 @@ describe("journal structure", () => {
       );
     });
 
-    it("should route task paths through playbook journal", () => {
+    it("nests task paths under that epic dir with a tasks/ wrapper", () => {
       const ctx = { playbook: "react-app" };
       const structure = getJournalStructure(
         projectDir,
@@ -475,12 +592,13 @@ describe("journal structure", () => {
           "react-app",
           "tasks",
           "03-implement-app",
+          "tasks",
           "002-pages",
         ),
       );
     });
 
-    it("should route nested task paths through playbook journal", () => {
+    it("nests deeply nested task paths with every segment wrapped", () => {
       const ctx = { playbook: "react-app" };
       const structure = getJournalStructure(
         projectDir,
@@ -497,135 +615,7 @@ describe("journal structure", () => {
           "react-app",
           "tasks",
           "03-implement-app",
-          "002-pages",
           "tasks",
-          "002-001-home",
-        ),
-      );
-    });
-
-    it('should use "default" playbook name for default runs', () => {
-      const ctx = { playbook: "default" };
-      const structure = getJournalStructure(
-        projectDir,
-        "03-implement-app",
-        undefined,
-        ctx,
-      );
-
-      expect(structure.epic).toBe(
-        join(
-          projectDir,
-          ".converge",
-          "journal",
-          "default",
-          "tasks",
-          "03-implement-app",
-        ),
-      );
-    });
-
-    it("should fall back to legacy paths when no context", () => {
-      const structure = getJournalStructure(projectDir, "03-implement-app");
-
-      expect(structure.epic).toBe(
-        join(
-          projectDir,
-          ".converge",
-          "journal",
-          "default",
-          "tasks",
-          "03-implement-app",
-        ),
-      );
-    });
-
-    it("should preserve root and project paths regardless of context", () => {
-      const ctx = { playbook: "react-app" };
-      const structure = getJournalStructure(
-        projectDir,
-        undefined,
-        undefined,
-        ctx,
-      );
-
-      expect(structure.root).toBe(join(projectDir, ".converge", "journal"));
-      expect(structure.project).toBe(
-        join(projectDir, ".converge", "journal", "project"),
-      );
-      expect(structure.epic).toBeUndefined();
-    });
-  });
-
-  describe("PlaybookContext from env vars", () => {
-    afterEach(() => {
-      delete process.env.CONVERGE_PLAYBOOK;
-    });
-
-    it("should resolve playbook context from CONVERGE_PLAYBOOK env var", () => {
-      process.env.CONVERGE_PLAYBOOK = "react-app";
-
-      const structure = getJournalStructure(projectDir, "03-implement-app");
-
-      expect(structure.epic).toBe(
-        join(
-          projectDir,
-          ".converge",
-          "journal",
-          "react-app",
-          "tasks",
-          "03-implement-app",
-        ),
-      );
-    });
-
-    it("should use legacy paths when env var is not set", () => {
-      const structure = getJournalStructure(projectDir, "03-implement-app");
-
-      expect(structure.epic).toBe(
-        join(
-          projectDir,
-          ".converge",
-          "journal",
-          "default",
-          "tasks",
-          "03-implement-app",
-        ),
-      );
-    });
-
-    it("should prefer explicit context over env var", () => {
-      process.env.CONVERGE_PLAYBOOK = "from-env";
-
-      const explicitCtx = { playbook: "from-param" };
-      const structure = getJournalStructure(
-        projectDir,
-        "03-implement-app",
-        undefined,
-        explicitCtx,
-      );
-
-      expect(structure.epic).toContain("from-param");
-      expect(structure.epic).not.toContain("from-env");
-    });
-
-    it("should route nested task paths through env-based context", () => {
-      process.env.CONVERGE_PLAYBOOK = "fix-issue";
-
-      const structure = getJournalStructure(
-        projectDir,
-        "03-implement-app",
-        "002-pages/002-001-home",
-      );
-
-      expect(structure.task).toBe(
-        join(
-          projectDir,
-          ".converge",
-          "journal",
-          "fix-issue",
-          "tasks",
-          "03-implement-app",
           "002-pages",
           "tasks",
           "002-001-home",

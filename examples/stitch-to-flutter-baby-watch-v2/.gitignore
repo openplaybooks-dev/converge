@@ -1,0 +1,38 @@
+# Flutter/Dart
+.dart_tool/
+.packages
+build/
+*.iml
+.metadata
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated
+*.g.dart
+*.freezed.dart
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Claude Code
+.claude/
+wip/
+
+# Pub
+pubspec.lock
+.pub-cache/
+.pub/
+
+# Converge runtime
+.converge/journal/
+.converge/artifacts/

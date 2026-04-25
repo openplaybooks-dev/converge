@@ -1,0 +1,14 @@
+{
+  "type": "task",
+  "id": "epoch-001/020-simulate/p009",
+  "status": "running",
+  "lastUpdated": "2026-04-25T00:39:47.107Z",
+  "createdAt": "2026-04-25T00:39:47.107Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-25T00:39:47.107Z"
+    }
+  ],
+  "currentAttempt": 1
+}

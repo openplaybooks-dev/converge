@@ -1,0 +1,64 @@
+name: default
+description: |
+  Production-ready Flutter app generation from idea.md + .stitch/references/.
+
+  v2 inverts the v1 flow: .stitch/references/ is pixel-truth and drives
+  screens.json, the design system, and every per-screen pipeline. PRD and UX
+  are generated *from* the references (not invented, then reconciled).
+
+  Production gates added beyond v1:
+    - Per-screen empty/loading/error states (phase 03 step 07-states)
+    - Widget tests per screen (phase 08)
+    - Accessibility pass per screen (phase 09)
+
+  Inputs:
+    - idea.md                              domain intent, personas, non-UI concerns
+    - .stitch/references/                  11 screen refs + 2 design system refs
+
+  Output: production Flutter app in lib/ with tests in test/.
+
+run:
+  mode: oneoff
+  maxIterations: 80
+  maxTaskAttempts: 3
+
+tasks:
+  - id: 01-prepare-requirements
+  - id: 02-design-system
+    depends_on:
+      - 01-prepare-requirements
+  - id: 03-build-screens
+    depends_on:
+      - 02-design-system
+  - id: 05-add-behavior
+    depends_on:
+      - 03-build-screens
+  - id: 06-wire-screens
+    depends_on:
+      - 05-add-behavior
+  - id: 07-build-overlays
+    depends_on:
+      - 06-wire-screens
+  - id: 08-test-screens
+    depends_on:
+      - 07-build-overlays
+  - id: 09-accessibility
+    depends_on:
+      - 08-test-screens
+
+checks:
+  - id: dart-analyze
+    cmd: dart analyze lib/ test/
+    description: Dart analysis passes for lib and test
+  - id: flutter-test
+    cmd: flutter test
+    description: All widget tests pass
+  - id: has-theme
+    cmd: test -f lib/theme/app_theme.dart
+    description: Theme file exists
+  - id: has-router
+    cmd: test -f lib/router/app_router.dart
+    description: Router file exists
+  - id: no-unbound-markers
+    cmd: node .converge/playbooks/default/scripts/verify-markers.js
+    description: Every @converge:element marker has a bound handler

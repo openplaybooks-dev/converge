@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "epoch-001/010-setup",
+  "status": "complete",
+  "lastUpdated": "2026-04-25T00:30:33.876Z",
+  "createdAt": "2026-04-25T00:28:10.603Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-25T00:28:10.603Z",
+      "completedAt": "2026-04-25T00:30:33.873Z",
+      "outcome": "success",
+      "durationMs": 143270
+    }
+  ],
+  "currentAttempt": 1
+}

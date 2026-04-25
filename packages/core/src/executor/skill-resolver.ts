@@ -7,6 +7,7 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { findSkillSources } from "../config/skill-path-resolver.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -124,35 +125,50 @@ function parseFrontmatter(content: string): Record<string, any> {
 }
 
 /**
- * Load skill metadata from a skill definition file (TASK.md or SKILL.md)
+ * Load skill metadata from a skill definition file (TASK.md or SKILL.md).
+ *
+ * If `projectDir` is provided and the skill isn't in `skillsRoot`, fall back
+ * through every source `findSkillSources` reports for that project (project,
+ * global, legacy). The first hit wins.
  */
 export function loadSkillMetadata(
   skillsRoot: string,
   skillName: string,
+  projectDir?: string,
 ): SkillMetadata | null {
-  const taskMdPath = join(skillsRoot, skillName, "TASK.md");
-  const skillMdPath = join(skillsRoot, skillName, "SKILL.md");
-  const skillPath = existsSync(taskMdPath) ? taskMdPath : skillMdPath;
-
-  if (!existsSync(skillPath)) {
-    return null;
-  }
-
-  try {
-    const content = readFileSync(skillPath, "utf-8");
-    const meta = parseFrontmatter(content) as SkillMetadata;
-
-    // Ensure name is set
-    if (!meta.name) {
-      meta.name = skillName;
+  const roots = [skillsRoot];
+  if (projectDir) {
+    try {
+      for (const s of findSkillSources(projectDir)) {
+        if (!roots.includes(s.root)) roots.push(s.root);
+      }
+    } catch {
+      /* fall through with just skillsRoot */
     }
-
-    return meta;
-  } catch (err: any) {
-    throw new Error(
-      `Failed to parse skill metadata for '${skillName}': ${err.message}`,
-    );
   }
+
+  for (const root of roots) {
+    const taskMdPath = join(root, skillName, "TASK.md");
+    const skillMdPath = join(root, skillName, "SKILL.md");
+    const skillPath = existsSync(taskMdPath) ? taskMdPath : skillMdPath;
+
+    if (!existsSync(skillPath)) continue;
+
+    try {
+      const content = readFileSync(skillPath, "utf-8");
+      const meta = parseFrontmatter(content) as SkillMetadata;
+      if (!meta.name) {
+        meta.name = skillName;
+      }
+      return meta;
+    } catch (err: any) {
+      throw new Error(
+        `Failed to parse skill metadata for '${skillName}': ${err.message}`,
+      );
+    }
+  }
+
+  return null;
 }
 
 /* ------------------------------------------------------------------ */
@@ -173,6 +189,7 @@ export function resolveSkillDependencies(
   skillsRoot: string,
   rootSkills: string[],
   options: SkillResolutionOptions = {},
+  projectDir?: string,
 ): SkillResolutionResult {
   const { maxDepth = 10, throwOnMissing = true, verbose = false } = options;
 
@@ -214,7 +231,7 @@ export function resolveSkillDependencies(
     stack.add(skillName);
 
     // Load skill metadata
-    const meta = loadSkillMetadata(skillsRoot, skillName);
+    const meta = loadSkillMetadata(skillsRoot, skillName, projectDir);
 
     if (!meta) {
       const msg = `Skill '${skillName}' not found in ${skillsRoot}`;
@@ -329,29 +346,58 @@ export function resolveSkillDependencies(
 /* ------------------------------------------------------------------ */
 
 /**
- * Validate that all required skills exist before execution
+ * Validate that all required skills exist before execution.
  *
- * @throws Error if any skill is missing
+ * `skillsRoot` is the primary (highest-priority) source. If a skill is not
+ * found there, this function falls back to the full resolver chain — project,
+ * global, legacy — so legacy `.converge/skills/` entries still validate when
+ * the caller only has the primary root.
+ *
+ * @throws Error if any skill is missing from every source
  */
 export function validateSkillsExist(
   skillsRoot: string,
   skills: string[],
+  projectDir?: string,
 ): void {
+  // If projectDir wasn't passed, try to derive it from the primary skillsRoot
+  // by stripping known suffixes. Only works when skillsRoot is project-local;
+  // for the global `~/.claude/skills` we can't recover the project from the
+  // path alone — callers should pass projectDir explicitly.
+  const derivedDir =
+    projectDir ??
+    skillsRoot
+      .replace(/[/\\]\.converge[/\\]skills$/, "")
+      .replace(/[/\\]\.claude[/\\]skills$/, "")
+      .replace(/[/\\]\.skill$/, "");
+
+  const sourceRoots = [skillsRoot];
+  try {
+    for (const s of findSkillSources(derivedDir)) {
+      if (!sourceRoots.includes(s.root)) sourceRoots.push(s.root);
+    }
+  } catch {
+    /* projectDir derivation failed — fall through with just skillsRoot */
+  }
+
   const missing: string[] = [];
 
   for (const skillName of skills) {
-    const taskMdPath = join(skillsRoot, skillName, "TASK.md");
-    const skillMdPath = join(skillsRoot, skillName, "SKILL.md");
-    if (!existsSync(taskMdPath) && !existsSync(skillMdPath)) {
+    const found = sourceRoots.some((root) => {
+      const taskMdPath = join(root, skillName, "TASK.md");
+      const skillMdPath = join(root, skillName, "SKILL.md");
+      return existsSync(taskMdPath) || existsSync(skillMdPath);
+    });
+    if (!found) {
       missing.push(skillName);
     }
   }
 
   if (missing.length > 0) {
     throw new Error(
-      `Required skill(s) not found in ${skillsRoot}:\n` +
+      `Required skill(s) not found in any of ${sourceRoots.join(", ")}:\n` +
         missing.map((s) => `  - ${s}`).join("\n") +
-        "\n\nEnsure all skill directories contain a TASK.md file.",
+        "\n\nEnsure all skill directories contain a TASK.md or SKILL.md file.",
     );
   }
 }
@@ -359,11 +405,15 @@ export function validateSkillsExist(
 /**
  * Get a summary of what skills will be loaded
  */
-export function getSkillSummary(skillsRoot: string, skills: string[]): string {
+export function getSkillSummary(
+  skillsRoot: string,
+  skills: string[],
+  projectDir?: string,
+): string {
   const lines: string[] = [];
 
   for (const skillName of skills) {
-    const meta = loadSkillMetadata(skillsRoot, skillName);
+    const meta = loadSkillMetadata(skillsRoot, skillName, projectDir);
     if (meta) {
       const desc = meta.description || "(no description)";
       lines.push(`  - ${skillName}: ${desc}`);
@@ -387,6 +437,7 @@ export function getSkillSummary(skillsRoot: string, skills: string[]): string {
 export function collectAllowedTools(
   skillsRoot: string,
   skills: string[],
+  projectDir?: string,
 ): string[] {
   const toolSet = new Set<string>([
     "Skill", // Always include Skill tool so Claude can invoke other skills
@@ -398,7 +449,7 @@ export function collectAllowedTools(
 
   // Collect tools from all skills
   for (const skillName of skills) {
-    const meta = loadSkillMetadata(skillsRoot, skillName);
+    const meta = loadSkillMetadata(skillsRoot, skillName, projectDir);
     if (meta?.["allowed-tools"]) {
       const tools = Array.isArray(meta["allowed-tools"])
         ? meta["allowed-tools"]

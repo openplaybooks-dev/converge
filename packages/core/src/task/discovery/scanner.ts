@@ -320,6 +320,10 @@ export class DiscoveryScanner {
     const mdPatterns = [
       `.converge/playbooks/${playbookSegment}/TASK.md`,
       `.converge/playbooks/${playbookSegment}/tasks/**/TASK.md`,
+      // WBS-spawned children live in the journal tree, which mirrors the
+      // playbook layout 1:1 — same glob, `journal/` root instead of `playbooks/`.
+      `.converge/journal/${playbookSegment}/TASK.md`,
+      `.converge/journal/${playbookSegment}/tasks/**/TASK.md`,
     ];
 
     const mdFiles: string[] = [];
@@ -335,6 +339,7 @@ export class DiscoveryScanner {
           "**/examples/**", // Exclude materials directories
           "**/scripts/**", // Exclude materials directories
           "**/materials/**", // Exclude materials directories
+          "**/attempts/**", // TASK.md inside attempt dirs is a working copy, not a new task
         ],
       });
       mdFiles.push(...matches);

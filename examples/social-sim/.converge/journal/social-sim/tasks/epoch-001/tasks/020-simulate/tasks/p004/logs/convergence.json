@@ -1,0 +1,276 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "epoch-001/020-simulate/p004-missing-output-vault/runs/run-001/actions/t1-p004-*.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "epoch-001/020-simulate/p004",
+            "severity": "high",
+            "description": "[epoch-001/020-simulate/p004] Task output not created: vault/runs/run-001/actions/t1-p004-*.md",
+            "source": "unit",
+            "detected": "2026-04-25T00:36:03.965Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/social-sim/.converge/journal/social-sim/tasks/epoch-001/tasks/020-simulate/tasks/p004",
+              "taskId": "epoch-001/020-simulate/p004",
+              "taskTitle": "@tech_nerd_42 @ tick 1",
+              "taskPrompt": "# @tech_nerd_42 @ tick 1\n\nYou are persona **p004** (handle `@tech_nerd_42`).\n\n> Tech industry worker interested in AI safety and misinformation online.\n\n## Context\n\n- **Scenario:** `misinfo` (run id: `run-001`)\n- **Tick:** 1 of 3\n- **Recommender:** `hot-score`\n- **Population:** 10 personas total\n\n## Step 1 — Read state\n\nRead these three files:\n\n1. `runs/run-001/personas.json` — find your own entry (id `p004`)\n   to get your full belief vector, interests, and any prior context you want\n   on yourself.\n2. `runs/run-001/graph.json` — look up `follows[\"p004\"]` to see\n   which personas you follow. (You react only to *their* posts.)\n3. `runs/run-001/timeline.jsonl` — read every line, but **filter to\n   entries with `tick < 1`** (you cannot react to actions taken\n   THIS tick). Among those, prioritize entries where `personaId` is in your\n   follow list, plus any `seed: true` entries (they're public).\n\n## Step 2 — Decide one action\n\nChoose exactly one of:\n\n| Action     | Required fields                                          |\n|------------|----------------------------------------------------------|\n| `post`     | `text` (string, ≤ 200 chars)                             |\n| `repost`   | `target` (a prior `personaId`'s post — quote the row by `tick:personaId`) |\n| `reply`    | `target` + `text` (≤ 200 chars)                          |\n| `like`     | `target`                                                 |\n| `follow`   | `target` (a `personaId` you don't already follow)        |\n| `nothing`  | (no extra fields) — explicit no-op tick                  |\n\nPick what your persona would actually do given your bio, beliefs, and what\nyou just read on your timeline. **Be in character.** A skeptic should not\nboost a misinformation post. A partisan should engage with congruent\ncontent. If nothing on your feed warrants action, return `nothing`.\n\nFor `misinfo`: skeptics frequently `reply` to challenge or `nothing`;\nbelievers frequently `repost` or `like`; on-the-fence may `reply` asking\nfor sources.\n\n## Step 3 — Append to timeline\n\nAppend **exactly one** JSON line to `runs/run-001/timeline.jsonl`. Schema:\n\n```json\n{\n  \"tick\": 1,\n  \"personaId\": \"p004\",\n  \"action\": \"<one of the actions above>\",\n  \"target\": \"<tickNum:personaId for repost/reply/like, or personaId for follow>\",\n  \"text\": \"<for post/reply only>\",\n  \"ts\": \"<iso8601 timestamp now>\"\n}\n```\n\nOmit `target`/`text` fields when not applicable. Use `bash` with `printf\n'%s\\\\n' '<json>' >> runs/run-001/timeline.jsonl` (NOT `echo` — it can\nmangle escapes). After appending, verify exactly one line was added by\nrunning `tail -1 runs/run-001/timeline.jsonl` and checking it parses.\n\n## Step 4 — Write the Obsidian vault note for this action\n\nWrite `vault/runs/run-001/actions/t1-p004-<action>.md`\nwhere `<action>` is the action you chose (e.g. `t1-p005-repost.md`).\n\nFrontmatter + body:\n\n```markdown\n---\ntags: [action, run/run-001, tick/1, persona/p004, action/<action>]\ntick: 1\npersona_id: p004\nhandle: \"@tech_nerd_42\"\naction: <action>\ntarget: \"<the target field — omit if not applicable>\"\nts: <iso8601>\n---\n\n# Tick 1 — [[p004]] d\n\n> <If post/reply: the text you wrote.\n>  If repost/like/follow: a one-line description of what was reacted to.>\n\n## Why\n<One sentence — why your persona, given their bio + beliefs, took this\naction this tick. Not a summary of the post; the *reasoning* a reader\nneeds to make sense of why this persona acted this way.>\n\n## See Also\n- Actor: [[p004]]\n- {{If target is an action: [[t<targetTick>-<targetPersonaId>-<targetAction>]] }}\n- {{If target is a persona (follow): [[<targetPersonaId>]] }}\n- [[tick-1|Tick 1]]\n```\n\nSubstitute the actual values. Do NOT leave `<...>` placeholders in the\nfile — fill them in. The `Why` paragraph is the most important part for\nhuman reading: it's what makes the run inspectable.\n\n## Constraints\n\n- **One row only.** No multi-action turns.\n- **No state mutation outside `timeline.jsonl`.** Don't edit personas.json\n  or graph.json — `010-setup` owns those. (A `follow` action is *recorded*\n  in the timeline; the graph itself is the static seed.)\n- **Don't read or write any other file** under `runs/run-001/`.\n- If the timeline already has a row for `tick=1, personaId=p004`,\n  don't append a duplicate — the check will already pass; just exit.",
+              "taskInputs": [
+                "runs/run-001/personas.json",
+                "runs/run-001/graph.json",
+                "runs/run-001/timeline.jsonl"
+              ],
+              "factId": "glob-check:ls vault/runs/run-001/actions/t1-p004-*.md 2>/dev/null | head -1",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "epoch-001/020-simulate/p004-check-failed-action-appended",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "epoch-001/020-simulate/p004",
+            "severity": "high",
+            "description": "[epoch-001/020-simulate/p004] Check failed: Exactly one timeline row exists for tick=1 personaId=p004",
+            "source": "unit",
+            "detected": "2026-04-25T00:36:03.985Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "action-appended",
+              "checkCmd": "python3 -c \"import json,sys; lines=[json.loads(l) for l in open('runs/run-001/timeline.jsonl') if l.strip()]; hits=[l for l in lines if l.get('tick')==1 and l.get('personaId')=='p004']; sys.exit(0 if len(hits)==1 else 1)\"\n",
+              "checkDescription": "Exactly one timeline row exists for tick=1 personaId=p004",
+              "checkOutput": "Command failed: python3 -c \"import json,sys; lines=[json.loads(l) for l in open('runs/run-001/timeline.jsonl') if l.strip()]; hits=[l for l in lines if l.get('tick')==1 and l.get('personaId')=='p004']; sys.exit(0 if len(hits)==1 else 1)\"\n\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# @tech_nerd_42 @ tick 1\n\nYou are persona **p004** (handle `@tech_nerd_42`).\n\n> Tech industry worker interested in AI safety and misinformation online.\n\n## Context\n\n- **Scenario:** `misinfo` (run id: `run-001`)\n- **Tick:** 1 of 3\n- **Recommender:** `hot-score`\n- **Population:** 10 personas total\n\n## Step 1 — Read state\n\nRead these three files:\n\n1. `runs/run-001/personas.json` — find your own entry (id `p004`)\n   to get your full belief vector, interests, and any prior context you want\n   on yourself.\n2. `runs/run-001/graph.json` — look up `follows[\"p004\"]` to see\n   which personas you follow. (You react only to *their* posts.)\n3. `runs/run-001/timeline.jsonl` — read every line, but **filter to\n   entries with `tick < 1`** (you cannot react to actions taken\n   THIS tick). Among those, prioritize entries where `personaId` is in your\n   follow list, plus any `seed: true` entries (they're public).\n\n## Step 2 — Decide one action\n\nChoose exactly one of:\n\n| Action     | Required fields                                          |\n|------------|----------------------------------------------------------|\n| `post`     | `text` (string, ≤ 200 chars)                             |\n| `repost`   | `target` (a prior `personaId`'s post — quote the row by `tick:personaId`) |\n| `reply`    | `target` + `text` (≤ 200 chars)                          |\n| `like`     | `target`                                                 |\n| `follow`   | `target` (a `personaId` you don't already follow)        |\n| `nothing`  | (no extra fields) — explicit no-op tick                  |\n\nPick what your persona would actually do given your bio, beliefs, and what\nyou just read on your timeline. **Be in character.** A skeptic should not\nboost a misinformation post. A partisan should engage with congruent\ncontent. If nothing on your feed warrants action, return `nothing`.\n\nFor `misinfo`: skeptics frequently `reply` to challenge or `nothing`;\nbelievers frequently `repost` or `like`; on-the-fence may `reply` asking\nfor sources.\n\n## Step 3 — Append to timeline\n\nAppend **exactly one** JSON line to `runs/run-001/timeline.jsonl`. Schema:\n\n```json\n{\n  \"tick\": 1,\n  \"personaId\": \"p004\",\n  \"action\": \"<one of the actions above>\",\n  \"target\": \"<tickNum:personaId for repost/reply/like, or personaId for follow>\",\n  \"text\": \"<for post/reply only>\",\n  \"ts\": \"<iso8601 timestamp now>\"\n}\n```\n\nOmit `target`/`text` fields when not applicable. Use `bash` with `printf\n'%s\\\\n' '<json>' >> runs/run-001/timeline.jsonl` (NOT `echo` — it can\nmangle escapes). After appending, verify exactly one line was added by\nrunning `tail -1 runs/run-001/timeline.jsonl` and checking it parses.\n\n## Step 4 — Write the Obsidian vault note for this action\n\nWrite `vault/runs/run-001/actions/t1-p004-<action>.md`\nwhere `<action>` is the action you chose (e.g. `t1-p005-repost.md`).\n\nFrontmatter + body:\n\n```markdown\n---\ntags: [action, run/run-001, tick/1, persona/p004, action/<action>]\ntick: 1\npersona_id: p004\nhandle: \"@tech_nerd_42\"\naction: <action>\ntarget: \"<the target field — omit if not applicable>\"\nts: <iso8601>\n---\n\n# Tick 1 — [[p004]] d\n\n> <If post/reply: the text you wrote.\n>  If repost/like/follow: a one-line description of what was reacted to.>\n\n## Why\n<One sentence — why your persona, given their bio + beliefs, took this\naction this tick. Not a summary of the post; the *reasoning* a reader\nneeds to make sense of why this persona acted this way.>\n\n## See Also\n- Actor: [[p004]]\n- {{If target is an action: [[t<targetTick>-<targetPersonaId>-<targetAction>]] }}\n- {{If target is a persona (follow): [[<targetPersonaId>]] }}\n- [[tick-1|Tick 1]]\n```\n\nSubstitute the actual values. Do NOT leave `<...>` placeholders in the\nfile — fill them in. The `Why` paragraph is the most important part for\nhuman reading: it's what makes the run inspectable.\n\n## Constraints\n\n- **One row only.** No multi-action turns.\n- **No state mutation outside `timeline.jsonl`.** Don't edit personas.json\n  or graph.json — `010-setup` owns those. (A `follow` action is *recorded*\n  in the timeline; the graph itself is the static seed.)\n- **Don't read or write any other file** under `runs/run-001/`.\n- If the timeline already has a row for `tick=1, personaId=p004`,\n  don't append a duplicate — the check will already pass; just exit.",
+              "taskId": "epoch-001/020-simulate/p004",
+              "taskTitle": "@tech_nerd_42 @ tick 1",
+              "unitPath": "/Users/minh/Documents/converge/examples/social-sim/.converge/journal/social-sim/tasks/epoch-001/tasks/020-simulate/tasks/p004",
+              "factId": "check:action-appended"
+            }
+          },
+          {
+            "id": "epoch-001/020-simulate/p004-check-failed-action-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "epoch-001/020-simulate/p004",
+            "severity": "high",
+            "description": "[epoch-001/020-simulate/p004] Check failed: Recorded action is one of post/repost/reply/like/follow/nothing",
+            "source": "unit",
+            "detected": "2026-04-25T00:36:04.007Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "action-valid",
+              "checkCmd": "python3 -c \"import json,sys; lines=[json.loads(l) for l in open('runs/run-001/timeline.jsonl') if l.strip()]; hits=[l for l in lines if l.get('tick')==1 and l.get('personaId')=='p004']; r=hits[0] if hits else {}; sys.exit(0 if r.get('action') in ['post','repost','reply','like','follow','nothing'] else 1)\"\n",
+              "checkDescription": "Recorded action is one of post/repost/reply/like/follow/nothing",
+              "checkOutput": "Command failed: python3 -c \"import json,sys; lines=[json.loads(l) for l in open('runs/run-001/timeline.jsonl') if l.strip()]; hits=[l for l in lines if l.get('tick')==1 and l.get('personaId')=='p004']; r=hits[0] if hits else {}; sys.exit(0 if r.get('action') in ['post','repost','reply','like','follow','nothing'] else 1)\"\n\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# @tech_nerd_42 @ tick 1\n\nYou are persona **p004** (handle `@tech_nerd_42`).\n\n> Tech industry worker interested in AI safety and misinformation online.\n\n## Context\n\n- **Scenario:** `misinfo` (run id: `run-001`)\n- **Tick:** 1 of 3\n- **Recommender:** `hot-score`\n- **Population:** 10 personas total\n\n## Step 1 — Read state\n\nRead these three files:\n\n1. `runs/run-001/personas.json` — find your own entry (id `p004`)\n   to get your full belief vector, interests, and any prior context you want\n   on yourself.\n2. `runs/run-001/graph.json` — look up `follows[\"p004\"]` to see\n   which personas you follow. (You react only to *their* posts.)\n3. `runs/run-001/timeline.jsonl` — read every line, but **filter to\n   entries with `tick < 1`** (you cannot react to actions taken\n   THIS tick). Among those, prioritize entries where `personaId` is in your\n   follow list, plus any `seed: true` entries (they're public).\n\n## Step 2 — Decide one action\n\nChoose exactly one of:\n\n| Action     | Required fields                                          |\n|------------|----------------------------------------------------------|\n| `post`     | `text` (string, ≤ 200 chars)                             |\n| `repost`   | `target` (a prior `personaId`'s post — quote the row by `tick:personaId`) |\n| `reply`    | `target` + `text` (≤ 200 chars)                          |\n| `like`     | `target`                                                 |\n| `follow`   | `target` (a `personaId` you don't already follow)        |\n| `nothing`  | (no extra fields) — explicit no-op tick                  |\n\nPick what your persona would actually do given your bio, beliefs, and what\nyou just read on your timeline. **Be in character.** A skeptic should not\nboost a misinformation post. A partisan should engage with congruent\ncontent. If nothing on your feed warrants action, return `nothing`.\n\nFor `misinfo`: skeptics frequently `reply` to challenge or `nothing`;\nbelievers frequently `repost` or `like`; on-the-fence may `reply` asking\nfor sources.\n\n## Step 3 — Append to timeline\n\nAppend **exactly one** JSON line to `runs/run-001/timeline.jsonl`. Schema:\n\n```json\n{\n  \"tick\": 1,\n  \"personaId\": \"p004\",\n  \"action\": \"<one of the actions above>\",\n  \"target\": \"<tickNum:personaId for repost/reply/like, or personaId for follow>\",\n  \"text\": \"<for post/reply only>\",\n  \"ts\": \"<iso8601 timestamp now>\"\n}\n```\n\nOmit `target`/`text` fields when not applicable. Use `bash` with `printf\n'%s\\\\n' '<json>' >> runs/run-001/timeline.jsonl` (NOT `echo` — it can\nmangle escapes). After appending, verify exactly one line was added by\nrunning `tail -1 runs/run-001/timeline.jsonl` and checking it parses.\n\n## Step 4 — Write the Obsidian vault note for this action\n\nWrite `vault/runs/run-001/actions/t1-p004-<action>.md`\nwhere `<action>` is the action you chose (e.g. `t1-p005-repost.md`).\n\nFrontmatter + body:\n\n```markdown\n---\ntags: [action, run/run-001, tick/1, persona/p004, action/<action>]\ntick: 1\npersona_id: p004\nhandle: \"@tech_nerd_42\"\naction: <action>\ntarget: \"<the target field — omit if not applicable>\"\nts: <iso8601>\n---\n\n# Tick 1 — [[p004]] d\n\n> <If post/reply: the text you wrote.\n>  If repost/like/follow: a one-line description of what was reacted to.>\n\n## Why\n<One sentence — why your persona, given their bio + beliefs, took this\naction this tick. Not a summary of the post; the *reasoning* a reader\nneeds to make sense of why this persona acted this way.>\n\n## See Also\n- Actor: [[p004]]\n- {{If target is an action: [[t<targetTick>-<targetPersonaId>-<targetAction>]] }}\n- {{If target is a persona (follow): [[<targetPersonaId>]] }}\n- [[tick-1|Tick 1]]\n```\n\nSubstitute the actual values. Do NOT leave `<...>` placeholders in the\nfile — fill them in. The `Why` paragraph is the most important part for\nhuman reading: it's what makes the run inspectable.\n\n## Constraints\n\n- **One row only.** No multi-action turns.\n- **No state mutation outside `timeline.jsonl`.** Don't edit personas.json\n  or graph.json — `010-setup` owns those. (A `follow` action is *recorded*\n  in the timeline; the graph itself is the static seed.)\n- **Don't read or write any other file** under `runs/run-001/`.\n- If the timeline already has a row for `tick=1, personaId=p004`,\n  don't append a duplicate — the check will already pass; just exit.",
+              "taskId": "epoch-001/020-simulate/p004",
+              "taskTitle": "@tech_nerd_42 @ tick 1",
+              "unitPath": "/Users/minh/Documents/converge/examples/social-sim/.converge/journal/social-sim/tasks/epoch-001/tasks/020-simulate/tasks/p004",
+              "factId": "check:action-valid"
+            }
+          },
+          {
+            "id": "epoch-001/020-simulate/p004-check-failed-vault-action-note",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "epoch-001/020-simulate/p004",
+            "severity": "high",
+            "description": "[epoch-001/020-simulate/p004] Check failed: Vault action note exists for this tick × persona",
+            "source": "unit",
+            "detected": "2026-04-25T00:36:04.011Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "vault-action-note",
+              "checkCmd": "ls vault/runs/run-001/actions/t1-p004-*.md 2>/dev/null | head -1 | grep -q .\n",
+              "checkDescription": "Vault action note exists for this tick × persona",
+              "checkOutput": "Command failed: ls vault/runs/run-001/actions/t1-p004-*.md 2>/dev/null | head -1 | grep -q .\n\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# @tech_nerd_42 @ tick 1\n\nYou are persona **p004** (handle `@tech_nerd_42`).\n\n> Tech industry worker interested in AI safety and misinformation online.\n\n## Context\n\n- **Scenario:** `misinfo` (run id: `run-001`)\n- **Tick:** 1 of 3\n- **Recommender:** `hot-score`\n- **Population:** 10 personas total\n\n## Step 1 — Read state\n\nRead these three files:\n\n1. `runs/run-001/personas.json` — find your own entry (id `p004`)\n   to get your full belief vector, interests, and any prior context you want\n   on yourself.\n2. `runs/run-001/graph.json` — look up `follows[\"p004\"]` to see\n   which personas you follow. (You react only to *their* posts.)\n3. `runs/run-001/timeline.jsonl` — read every line, but **filter to\n   entries with `tick < 1`** (you cannot react to actions taken\n   THIS tick). Among those, prioritize entries where `personaId` is in your\n   follow list, plus any `seed: true` entries (they're public).\n\n## Step 2 — Decide one action\n\nChoose exactly one of:\n\n| Action     | Required fields                                          |\n|------------|----------------------------------------------------------|\n| `post`     | `text` (string, ≤ 200 chars)                             |\n| `repost`   | `target` (a prior `personaId`'s post — quote the row by `tick:personaId`) |\n| `reply`    | `target` + `text` (≤ 200 chars)                          |\n| `like`     | `target`                                                 |\n| `follow`   | `target` (a `personaId` you don't already follow)        |\n| `nothing`  | (no extra fields) — explicit no-op tick                  |\n\nPick what your persona would actually do given your bio, beliefs, and what\nyou just read on your timeline. **Be in character.** A skeptic should not\nboost a misinformation post. A partisan should engage with congruent\ncontent. If nothing on your feed warrants action, return `nothing`.\n\nFor `misinfo`: skeptics frequently `reply` to challenge or `nothing`;\nbelievers frequently `repost` or `like`; on-the-fence may `reply` asking\nfor sources.\n\n## Step 3 — Append to timeline\n\nAppend **exactly one** JSON line to `runs/run-001/timeline.jsonl`. Schema:\n\n```json\n{\n  \"tick\": 1,\n  \"personaId\": \"p004\",\n  \"action\": \"<one of the actions above>\",\n  \"target\": \"<tickNum:personaId for repost/reply/like, or personaId for follow>\",\n  \"text\": \"<for post/reply only>\",\n  \"ts\": \"<iso8601 timestamp now>\"\n}\n```\n\nOmit `target`/`text` fields when not applicable. Use `bash` with `printf\n'%s\\\\n' '<json>' >> runs/run-001/timeline.jsonl` (NOT `echo` — it can\nmangle escapes). After appending, verify exactly one line was added by\nrunning `tail -1 runs/run-001/timeline.jsonl` and checking it parses.\n\n## Step 4 — Write the Obsidian vault note for this action\n\nWrite `vault/runs/run-001/actions/t1-p004-<action>.md`\nwhere `<action>` is the action you chose (e.g. `t1-p005-repost.md`).\n\nFrontmatter + body:\n\n```markdown\n---\ntags: [action, run/run-001, tick/1, persona/p004, action/<action>]\ntick: 1\npersona_id: p004\nhandle: \"@tech_nerd_42\"\naction: <action>\ntarget: \"<the target field — omit if not applicable>\"\nts: <iso8601>\n---\n\n# Tick 1 — [[p004]] d\n\n> <If post/reply: the text you wrote.\n>  If repost/like/follow: a one-line description of what was reacted to.>\n\n## Why\n<One sentence — why your persona, given their bio + beliefs, took this\naction this tick. Not a summary of the post; the *reasoning* a reader\nneeds to make sense of why this persona acted this way.>\n\n## See Also\n- Actor: [[p004]]\n- {{If target is an action: [[t<targetTick>-<targetPersonaId>-<targetAction>]] }}\n- {{If target is a persona (follow): [[<targetPersonaId>]] }}\n- [[tick-1|Tick 1]]\n```\n\nSubstitute the actual values. Do NOT leave `<...>` placeholders in the\nfile — fill them in. The `Why` paragraph is the most important part for\nhuman reading: it's what makes the run inspectable.\n\n## Constraints\n\n- **One row only.** No multi-action turns.\n- **No state mutation outside `timeline.jsonl`.** Don't edit personas.json\n  or graph.json — `010-setup` owns those. (A `follow` action is *recorded*\n  in the timeline; the graph itself is the static seed.)\n- **Don't read or write any other file** under `runs/run-001/`.\n- If the timeline already has a row for `tick=1, personaId=p004`,\n  don't append a duplicate — the check will already pass; just exit.",
+              "taskId": "epoch-001/020-simulate/p004",
+              "taskTitle": "@tech_nerd_42 @ tick 1",
+              "unitPath": "/Users/minh/Documents/converge/examples/social-sim/.converge/journal/social-sim/tasks/epoch-001/tasks/020-simulate/tasks/p004",
+              "factId": "check:vault-action-note"
+            }
+          }
+        ],
+        "durationMs": 58
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 48
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 58
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#5",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 40400
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-25T00:36:03.952Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-25T00:36:03.952Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-25T00:36:04.011Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-25T00:36:04.012Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-25T00:36:04.060Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#5",
+      "iteration": 1,
+      "ts": "2026-04-25T00:36:44.460Z"
+    },
+    {
+      "from": "run-strategy:task-run#5",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-25T00:36:44.519Z"
+    }
+  ]
+}

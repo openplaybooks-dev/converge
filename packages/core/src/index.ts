@@ -673,3 +673,38 @@ export { AIContext, AIResponse, createAIContext } from "./ai/context.ts";
 export { parseSkillMd } from "./config/skill-definition.ts";
 /** @deprecated Use TaskMdDef instead */
 export type { SkillTaskDef } from "./config/skill-definition.ts";
+
+/* ── V2 Playbook API (hash tracking, sync, templates, repair) ─────── */
+
+export {
+  calculatePlaybookHash,
+  writePlaybookHash,
+  readPlaybookHash,
+  updatePlaybookHash,
+  checkPlaybookStatus,
+  syncJournalHash,
+  clearJournal,
+  type PlaybookHashInfo,
+  type PlaybookSyncStatus,
+  type PlaybookChanges,
+  type PlaybookStatusResult,
+} from "./playbook/index.ts";
+
+export {
+  materializeTemplate,
+  materializeTemplates,
+  extractTemplateVariables,
+  validateTemplateVariables,
+  type MaterializeOptions,
+} from "./playbook/template-materializer.ts";
+
+export {
+  classifyWBSError,
+  writeWBSLearnMd,
+  clearSpawnedTasks,
+  buildWBSRepairContext,
+  type WBSErrorType,
+  type WBSError,
+} from "./playbook/wbs-repair.ts";
+
+export { WbsExecutor } from "./executor/wbs-executor.ts";
