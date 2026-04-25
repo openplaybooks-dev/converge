@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BabyGuard — Beacon đã sẵn sàng</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --surface: #fbf9f5;
+    --surface-container-low: #f5f4ee;
+    --surface-container: #efeee8;
+    --surface-container-high: #e8e9e1;
+    --surface-container-lowest: #ffffff;
+    --surface-variant: #e2e3db;
+    --on-surface: #31332e;
+    --on-surface-variant: #5e6059;
+    --on-primary: #faf7f6;
+    --tertiary: #4f635e;
+    --tertiary-container: #dff6ee;
+    --mint: #d1eedd;
+    --shadow-soft: #e7e3dc;
+    --radius-md: 1.5rem;
+    --radius-lg: 2rem;
+    --radius-xl: 3rem;
+    --radius-full: 9999px;
+    --space-md: 24px;
+    --space-lg: 32px;
+    --space-xl: 40px;
+    --shadow-ambient: 0 8px 24px rgba(231, 227, 220, 0.4);
+    --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-body: 'Manrope', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background: #d8d4cc;
+    color: var(--on-surface);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 24px 0;
+  }
+
+  .phone {
+    width: 375px;
+    background: var(--surface);
+    border-radius: 40px;
+    overflow: hidden;
+    box-shadow: var(--shadow-ambient);
+    display: flex;
+    flex-direction: column;
+    min-height: 812px;
+  }
+
+  header.app-bar {
+    padding: var(--space-lg) var(--space-md) 0;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .close-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: var(--surface-container-low);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--on-surface);
+  }
+
+  main.celebration {
+    flex: 1;
+    padding: 16px var(--space-md) var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .hero {
+    background: linear-gradient(160deg, var(--tertiary-container) 0%, var(--surface-container-lowest) 75%);
+    border-radius: var(--radius-xl);
+    padding: var(--space-xl) var(--space-md) var(--space-lg);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero .orb {
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    border-radius: var(--radius-full);
+    background: radial-gradient(circle, rgba(79, 99, 94, 0.18) 0%, transparent 70%);
+    top: -60px;
+    right: -60px;
+  }
+
+  .hero .ring {
+    width: 112px;
+    height: 112px;
+    margin: 0 auto var(--space-md);
+    border-radius: var(--radius-full);
+    background: var(--surface-container-lowest);
+    box-shadow: 0 0 0 8px rgba(79, 99, 94, 0.08), 0 0 0 18px rgba(79, 99, 94, 0.04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--tertiary);
+    position: relative;
+    animation: gentle-rise 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  @keyframes gentle-rise {
+    0% { transform: translateY(8px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  .hero .ring svg {
+    width: 56px;
+    height: 56px;
+  }
+
+  .hero .eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--tertiary);
+    margin-bottom: 8px;
+  }
+
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: var(--on-surface);
+  }
+
+  .hero p {
+    font-size: 14px;
+    color: var(--on-surface-variant);
+    margin-top: 12px;
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .stat-card {
+    background: var(--surface-container-lowest);
+    border-radius: var(--radius-lg);
+    padding: 18px var(--space-md);
+  }
+
+  .stat-card .label {
+    font-size: 11px;
+    color: var(--on-surface-variant);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .stat-card .value {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-top: 6px;
+  }
+  .stat-card .sub {
+    font-size: 11px;
+    color: var(--tertiary);
+    margin-top: 4px;
+  }
+
+  .invite-card {
+    background: var(--surface-container-low);
+    border-radius: var(--radius-xl);
+    padding: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .invite-card h2 {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .invite-card p {
+    font-size: 13px;
+    color: var(--on-surface-variant);
+    line-height: 1.5;
+  }
+
+  .invite-card .nested {
+    background: var(--surface-variant);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .nested .avatars {
+    display: flex;
+  }
+  .nested .avatars span {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    background: var(--surface-container-lowest);
+    color: var(--on-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    margin-left: -8px;
+    box-shadow: 0 0 0 2px var(--surface-variant);
+  }
+  .nested .avatars span:first-child { margin-left: 0; }
+
+  .nested .meta {
+    flex: 1;
+    font-size: 12px;
+    color: var(--on-surface-variant);
+  }
+  .nested .meta b {
+    display: block;
+    color: var(--on-surface);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: -0.01em;
+  }
+
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .primary-cta {
+    width: 100%;
+    height: 56px;
+    border-radius: var(--radius-full);
+    background: var(--on-surface);
+    color: var(--on-primary);
+    border: none;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    transition: transform 120ms ease;
+  }
+  .primary-cta:active { transform: scale(0.98); }
+
+  .ghost-cta {
+    width: 100%;
+    height: 48px;
+    background: transparent;
+    border: none;
+    color: var(--on-surface-variant);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="phone" role="region" aria-label="Beacon đã sẵn sàng">
+    <header class="app-bar">
+      <button class="close-btn" type="button" aria-label="Đóng">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6l-12 12"/></svg>
+      </button>
+    </header>
+
+    <main class="celebration">
+      <section class="hero" aria-labelledby="celebration-title">
+        <div class="orb" aria-hidden="true"></div>
+        <div class="ring" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
+            <path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"/>
+            <path d="M9 12.5l2.2 2.2L15.5 10"/>
+          </svg>
+        </div>
+        <div class="eyebrow">Đã ghép nối</div>
+        <h1 id="celebration-title">Bé Su đang được<br/>bảo vệ</h1>
+        <p>Beacon đã kết nối ổn định. Bạn có thể mời người thân cùng theo dõi để tăng độ an toàn.</p>
+      </section>
+
+      <section class="stats" aria-label="Tổng kết thiết lập">
+        <div class="stat-card">
+          <div class="label">Tín hiệu</div>
+          <div class="value">-52 dBm</div>
+          <div class="sub">Mạnh · Ổn định</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Vùng an toàn</div>
+          <div class="value">1 đang bật</div>
+          <div class="sub">Nhà · 80m</div>
+        </div>
+      </section>
+
+      <section class="invite-card" aria-labelledby="invite-title">
+        <h2 id="invite-title">Mời người cùng theo dõi</h2>
+        <p>Mỗi beacon nên có ít nhất 2 người giám sát để tránh bỏ lỡ cảnh báo khi bạn bận.</p>
+        <div class="nested" role="group" aria-label="Người đang giám sát">
+          <div class="avatars" aria-hidden="true">
+            <span>A</span>
+            <span>+</span>
+          </div>
+          <div class="meta">
+            <b>Mới chỉ có bạn</b>
+            Mời 1 người để kích hoạt cảnh báo nhóm.
+          </div>
+        </div>
+        <div class="actions">
+          <button class="primary-cta" type="button">Mời người thân</button>
+          <button class="ghost-cta" type="button">Để sau</button>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

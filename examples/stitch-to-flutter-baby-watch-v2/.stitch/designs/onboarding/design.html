@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BabyGuard Onboarding</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Manrope:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+  body { font-family: 'Manrope', sans-serif; background: var(--surface); }
+</style>
+</head>
+<body>
+
+<div class="scaffold" data-bg="surface">
+
+  <!-- TopAppBar -->
+  <div class="app-bar" data-bg="surface" data-p="md|md">
+    <div class="row">
+      <button class="icon-btn" data-handler="navigate:back" aria-label="Quay lại">
+        <svg class="icon" data-name="arrow_back" data-size="24"></svg>
+      </button>
+      <span class="title-large" data-color="onSurface">BabyGuard</span>
+      <button class="text-btn" data-handler="navigate:skip-onboarding">
+        <span class="label-large" data-color="onSurfaceVariant">Bỏ qua</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="body" data-p="md|md">
+    <div class="column" data-gap="md">
+
+      <!-- Hero Illustration -->
+      <div class="row" data-gap="sm">
+        <div class="stack" data-bg="surfaceContainerLowest">
+          <img class="network-image"
+               src="https://lh3.googleusercontent.com/aida-public/AB6AXuCadKYhfXy1k7sOYtNyxNJl1mVS0I_hzqrPgNIQhMSm9NdgGRlstUZhmcKH6Qj9l-LU52WnnkFIO0PYeUqH1J5jx2RBTUcx-tBXN0FoT2sb-sFsu0W2GDBbhSut1Dgtk9RmE2999FjPbL0RFKdaqfI7jcZBPomEKOaGm3k2Rkbyj4ztobPgelJhv6T9cFNzf7-CkTf0YlnCWbfA7_TuHlJYEE4WG4uM__zHh3YV33LvPXOALiCkWJGFdyIwV-gA4Fz5IF8uuSGzd3hw"
+               alt="Superhero kid illustration"
+               data-alt="whimsical 3D illustration of a toddler wearing a soft fabric superhero cape in muted pastel tones against a warm beige background"/>
+        </div>
+      </div>
+
+      <!-- Headline & Copy -->
+      <div class="column" data-gap="sm">
+        <span class="headline-large" data-color="onSurface">Chào mừng đến với BabyGuard</span>
+        <span class="body-medium" data-color="onSurfaceVariant">
+          Sử dụng công nghệ Bluetooth năng lượng thấp để đảm bảo bé luôn nằm trong tầm kiểm soát của bạn.
+        </span>
+      </div>
+
+      <!-- Permission Cards -->
+      <div class="column" data-gap="md">
+
+        <!-- Bluetooth Card -->
+        <div class="card" data-bg="surfaceContainerLowest" data-p="md|md">
+          <div class="row" data-gap="sm">
+            <div class="stack" data-bg="tertiaryContainer" data-p="sm|sm">
+              <svg class="icon" data-name="bluetooth" data-size="24" data-color="tertiary"></svg>
+            </div>
+            <div class="column" data-gap="xs">
+              <span class="title-medium" data-color="onSurface">Bluetooth</span>
+              <span class="body-small" data-color="onSurfaceVariant">
+                Kết nối liên tục với thiết bị đeo của bé để phát hiện khoảng cách an toàn.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Location Card -->
+        <div class="card" data-bg="surfaceContainerLowest" data-p="md|md">
+          <div class="row" data-gap="sm">
+            <div class="stack" data-bg="surfaceVariant" data-p="sm|sm">
+              <svg class="icon" data-name="location_on" data-size="24" data-color="onSurfaceVariant"></svg>
+            </div>
+            <div class="column" data-gap="xs">
+              <span class="title-medium" data-color="onSurface">Vị trí</span>
+              <span class="body-small" data-color="onSurfaceVariant">
+                Ghi lại điểm kết nối cuối cùng và theo dõi di chuyển trong trường hợp khẩn cấp.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notifications Card -->
+        <div class="card" data-bg="surfaceContainerLowest" data-p="md|md">
+          <div class="row" data-gap="sm">
+            <div class="stack" data-bg="surfaceContainer" data-p="sm|sm">
+              <svg class="icon" data-name="notifications_active" data-size="24" data-color="primary"></svg>
+            </div>
+            <div class="column" data-gap="xs">
+              <span class="title-medium" data-color="onSurface">Thông báo</span>
+              <span class="body-small" data-color="onSurfaceVariant">
+                Cảnh báo tức thì nếu bé rời khỏi vùng an toàn hoặc thiết bị mất kết nối.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Family Tracking Card -->
+        <div class="card" data-bg="surfaceContainerLowest" data-p="md|md">
+          <div class="row" data-gap="sm">
+            <div class="stack" data-bg="surfaceContainer" data-p="sm|sm">
+              <svg class="icon" data-name="group" data-size="24" data-color="secondary"></svg>
+            </div>
+            <div class="column" data-gap="xs">
+              <span class="title-medium" data-color="onSurface">Theo dõi cùng gia đình</span>
+              <span class="body-small" data-color="onSurfaceVariant">
+                Mời người thân cùng theo dõi beacon và nhận thông báo khi bé ở gần ai.
+              </span>
+              <span class="label-small" data-color="onSurfaceVariant">
+                Đồng bộ an toàn với các thành viên khác.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Privacy Note -->
+        <span class="label-small" data-color="onSurfaceVariant">
+          Chỉ chia sẻ vị trí gần - không theo dõi GPS trực tiếp
+        </span>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation Area -->
+  <div class="bottom-nav" data-bg="surface" data-p="lg|lg">
+    <div class="column" data-gap="md">
+
+      <!-- Page Indicators -->
+      <div class="row" data-gap="xs">
+        <span class="badge" data-bg="onSurface"></span>
+        <span class="badge" data-bg="surfaceVariant"></span>
+        <span class="badge" data-bg="surfaceVariant"></span>
+      </div>
+
+      <!-- Primary CTA Button -->
+      <button class="filled-btn" data-bg="onSurface" data-color="surface" data-handler="navigate:onboarding-next">
+        <span class="label-large">Bắt đầu</span>
+        <svg class="icon" data-name="arrow_forward" data-size="24"></svg>
+      </button>
+
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

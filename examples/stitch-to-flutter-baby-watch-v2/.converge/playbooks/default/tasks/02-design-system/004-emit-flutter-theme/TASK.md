@@ -16,6 +16,9 @@ outputs:
   - lib/theme/app_theme.dart
   - lib/theme/app_spacing.dart
 checks:
+  - id: pub-get-ran
+    cmd: test -f .dart_tool/package_config.json
+    description: flutter pub get has been run (package_config.json exists)
   - id: theme-exists
     cmd: test -f lib/theme/app_theme.dart
     description: app_theme.dart exists
@@ -39,6 +42,18 @@ checks:
 # Emit Flutter theme from tokens
 
 Mechanical translation: `tokens.json` → `lib/theme/app_theme.dart` + `lib/theme/app_spacing.dart`. No AI creativity. Every value in the Dart file must be traceable to a value in tokens.json.
+
+## Step 0 — Bootstrap `flutter pub get`
+
+Before writing any Dart, run `flutter pub get` from the project root. Without it, `dart analyze` cannot resolve `package:flutter/*` imports and every subsequent check in this phase and beyond will fail.
+
+```bash
+flutter pub get
+```
+
+Verify `.dart_tool/package_config.json` exists after. If `flutter` is not on PATH in the agent sandbox, run `dart pub get` as a fallback — Flutter's pub is a thin wrapper.
+
+If pub get reports lock-file conflicts, **do not** modify `pubspec.yaml` to work around them — surface the conflict as a failure and stop. The pubspec is configured upstream and must not drift.
 
 ## Inputs
 

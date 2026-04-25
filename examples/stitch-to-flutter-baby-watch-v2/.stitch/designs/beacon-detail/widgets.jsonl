@@ -1,0 +1,6 @@
+{"name": "BeaconHeroHeader", "grep": "Beacon theo dõi của bé", "description": "Hero row with beacon icon tile, baby name, and subtitle caption", "shared": false}
+{"name": "BeaconTechnicalDetailsCard", "grep": "Chi tiết kỹ thuật", "description": "Collapsible card showing UUID, Major, and Minor beacon identifiers", "shared": false}
+{"name": "FollowersMonitoringCard", "grep": "Người cùng theo dõi", "description": "Card listing followers tracking the beacon with invite and manage actions", "shared": false}
+{"name": "FollowerListItem", "grep": "Đang gần beacon", "description": "Row with avatar initial, name, last-seen timestamp, and proximity status chip", "shared": true}
+{"name": "BeaconLeaveGroupBanner", "grep": "Rời nhóm theo dõi", "description": "Decorative image stack with overlaid leave-group button", "shared": false}
+{"name": "BeaconDetailBottomNav", "grep": "mainAxisAlignment: MainAxisAlignment.spaceAround", "description": "Bottom navigation bar with Home, Devices, Safety, and Settings tabs", "shared": true}

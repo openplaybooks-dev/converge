@@ -1,0 +1,14 @@
+{
+  "type": "task",
+  "id": "epoch-003/030-analyze",
+  "status": "running",
+  "lastUpdated": "2026-04-25T02:40:33.895Z",
+  "createdAt": "2026-04-25T02:40:33.895Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-25T02:40:33.895Z"
+    }
+  ],
+  "currentAttempt": 1
+}

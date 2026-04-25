@@ -8,30 +8,30 @@
 
 ## ❌ action-appended
 
-**Command**: `python3 -c "import json,sys; lines=[json.loads(l) for l in open('runs/run-001/timeline.jsonl') if l.strip()]; hits=[l for l in lines if l.get('tick')==1 and l.get('personaId')=='p007']; sys.exit(0 if len(hits)==1 else 1)"
+**Command**: `python3 -c "import json,sys; lines=[json.loads(l) for l in open('runs/run-2026-04-25T01-45/timeline.jsonl') if l.strip()]; hits=[l for l in lines if l.get('tick')==1 and l.get('personaId')=='p007']; sys.exit(0 if len(hits)==1 else 1)"
 `
 **Exit code**: 1
 **Output**:
 ```
-Command failed: python3 -c "import json,sys; lines=[json.loads(l) for l in open('runs/run-001/timeline.jsonl') if l.strip()]; hits=[l for l in lines if l.get('tick')==1 and l.get('personaId')=='p007']; sys.exit(0 if len(hits)==1 else 1)"
+Command failed: python3 -c "import json,sys; lines=[json.loads(l) for l in open('runs/run-2026-04-25T01-45/timeline.jsonl') if l.strip()]; hits=[l for l in lines if l.get('tick')==1 and l.get('personaId')=='p007']; sys.exit(0 if len(hits)==1 else 1)"
 ```
 
 ## ❌ action-valid
 
-**Command**: `python3 -c "import json,sys; lines=[json.loads(l) for l in open('runs/run-001/timeline.jsonl') if l.strip()]; hits=[l for l in lines if l.get('tick')==1 and l.get('personaId')=='p007']; r=hits[0] if hits else {}; sys.exit(0 if r.get('action') in ['post','repost','reply','like','follow','nothing'] else 1)"
+**Command**: `python3 -c "import json,sys; lines=[json.loads(l) for l in open('runs/run-2026-04-25T01-45/timeline.jsonl') if l.strip()]; hits=[l for l in lines if l.get('tick')==1 and l.get('personaId')=='p007']; r=hits[0] if hits else {}; sys.exit(0 if r.get('action') in ['post','repost','reply','like','follow','nothing'] else 1)"
 `
 **Exit code**: 1
 **Output**:
 ```
-Command failed: python3 -c "import json,sys; lines=[json.loads(l) for l in open('runs/run-001/timeline.jsonl') if l.strip()]; hits=[l for l in lines if l.get('tick')==1 and l.get('personaId')=='p007']; r=hits[0] if hits else {}; sys.exit(0 if r.get('action') in ['post','repost','reply','like','follow','nothing'] else 1)"
+Command failed: python3 -c "import json,sys; lines=[json.loads(l) for l in open('runs/run-2026-04-25T01-45/timeline.jsonl') if l.strip()]; hits=[l for l in lines if l.get('tick')==1 and l.get('personaId')=='p007']; r=hits[0] if hits else {}; sys.exit(0 if r.get('action') in ['post','repost','reply','like','follow','nothing'] else 1)"
 ```
 
 ## ❌ vault-action-note
 
-**Command**: `ls vault/runs/run-001/actions/t1-p007-*.md 2>/dev/null | head -1 | grep -q .
+**Command**: `ls vault/runs/run-2026-04-25T01-45/actions/t1-p007-*.md 2>/dev/null | head -1 | grep -q .
 `
 **Exit code**: 1
 **Output**:
 ```
-Command failed: ls vault/runs/run-001/actions/t1-p007-*.md 2>/dev/null | head -1 | grep -q .
+Command failed: ls vault/runs/run-2026-04-25T01-45/actions/t1-p007-*.md 2>/dev/null | head -1 | grep -q .
 ```

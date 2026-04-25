@@ -25,8 +25,6 @@ v2 inverts the flow and adds production gates.
 | Phase 03 | 6-step per-screen pipeline; references consulted as hint | 7-step per-screen pipeline, branched on `htmlReference`: link → normalize-to-glossary → convert (with marker pre-seeding) → analyze → split → lift → states |
 | Phase 06 | 002-analyze-navigations *creates* markers post-hoc | 002-analyze-navigations *verifies* markers, fails loudly if any are missing (forces 03 to do its job) |
 | Phase 07 | overlays discovered from UX or AI | overlays extracted from nested markup in reference HTML first, AI fallback only |
-| Phase 08 | — | per-screen widget tests with provider overrides + state coverage |
-| Phase 09 | — | per-screen accessibility pass (semantics, tap targets, contrast) |
 
 ## Layout
 
@@ -38,17 +36,15 @@ v2 inverts the flow and adds production gates.
 │   ├── project.yml                      # provider + model config
 │   ├── skills → ../../stitch-to-flutter-baby-watch/.converge/skills  (symlink)
 │   └── playbooks/default/
-│       ├── playbook.yml                 # 9 phases, sequential
+│       ├── playbook.yml                 # 6 phases, sequential
 │       ├── scripts/verify-markers.js    # top-level check
 │       └── tasks/
-│           ├── 01-prepare-requirements/    # 6 subtasks
-│           ├── 02-design-system/           # 5 subtasks
+│           ├── 01-prepare-requirements/    # 6 subtasks (analyze refs first)
+│           ├── 02-design-system/           # 6 subtasks (incl. main.dart entry)
 │           ├── 03-build-screens/           # WBS: branched per-screen pipeline
 │           ├── 05-add-behavior/            # 4 subtasks
 │           ├── 06-wire-screens/            # 4 subtasks; markers pre-seeded
-│           ├── 07-build-overlays/          # WBS: per-overlay pipeline
-│           ├── 08-test-screens/            # WBS: per-screen test writer (NEW)
-│           └── 09-accessibility/           # WBS: per-screen a11y pass (NEW)
+│           └── 07-build-overlays/          # WBS: per-overlay pipeline
 ├── pubspec.yaml
 ├── analysis_options.yaml
 └── lib/                                 # generated

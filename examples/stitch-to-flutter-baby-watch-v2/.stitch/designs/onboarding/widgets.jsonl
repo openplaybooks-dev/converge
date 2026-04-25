@@ -1,0 +1,1 @@
+{"name": "PermissionCard", "grep": "class _PermissionCard extends StatelessWidget", "description": "Card showing a permission request with circular icon, title, body text, and optional footnote", "shared": true}

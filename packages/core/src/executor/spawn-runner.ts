@@ -50,6 +50,7 @@ import { resolveAIConfig, listAIProviders } from "../ai/factory.ts";
 import { FilesystemStorage } from "../storage/filesystem.ts";
 import {
   resolveSkillsRoot,
+  resolveSkillsRootForSkill,
   logSkillSources,
 } from "../config/skill-path-resolver.ts";
 /** Sleep for the given number of milliseconds (interruptible via AbortSignal). */
@@ -135,7 +136,12 @@ export class SpawnRunner {
     //   1. Project .skill/ folder
     //   2. Global .claude/skills/ folder
     //   3. Legacy .converge/skills/ folder
-    const skillsRoot = resolveSkillsRoot(this.projectDir);
+    //
+    // Pick the source that actually contains the requested skill — otherwise
+    // a user with a partially-populated global `.claude/skills/` ends up with
+    // the wrong source on top, and agentfn symlinks from a dir that doesn't
+    // have the skill it's about to invoke.
+    const skillsRoot = resolveSkillsRootForSkill(this.projectDir, skillName);
 
     const label = opts?.label ?? skillName;
     const spawnNumber = state.counter;
@@ -388,11 +394,13 @@ export class SpawnRunner {
     });
     await logTailer.start();
 
-    // Load AI configuration from project.yaml
+    // Load AI configuration from project.yaml / project.yml
     let resolvedAI: import("../ai/factory.ts").ResolvedAIConfig | null = null;
     try {
       const convergeDir = join(this.projectDir, ".converge");
-      const projectYamlPath = join(convergeDir, "project.yaml");
+      const yamlCandidate = join(convergeDir, "project.yaml");
+      const ymlCandidate = join(convergeDir, "project.yml");
+      const projectYamlPath = existsSync(yamlCandidate) ? yamlCandidate : ymlCandidate;
 
       if (existsSync(projectYamlPath)) {
         const storage = new FilesystemStorage(convergeDir);

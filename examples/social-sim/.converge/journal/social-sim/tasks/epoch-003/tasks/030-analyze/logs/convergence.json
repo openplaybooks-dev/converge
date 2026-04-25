@@ -1,0 +1,277 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "epoch-003/030-analyze-missing-output-vault/runs/run-2026-04-25T01-45/ticks/tick-3.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "epoch-003/030-analyze",
+            "severity": "high",
+            "description": "[epoch-003/030-analyze] Task output not created: vault/runs/run-2026-04-25T01-45/ticks/tick-3.md",
+            "source": "unit",
+            "detected": "2026-04-25T02:40:33.908Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/social-sim/.converge/journal/social-sim/tasks/epoch-003/tasks/030-analyze",
+              "taskId": "epoch-003/030-analyze",
+              "taskTitle": "Tick 3 — analyze",
+              "taskPrompt": "# Tick 3 — Analyze\n\nCompute the metrics for this tick and update the running report.\n\n## Step 1 — Read this tick's actions\n\nRead `runs/run-2026-04-25T01-45/timeline.jsonl`. Filter to rows where\n`tick == 3` (this tick only — earlier ticks are already\nanalyzed). You should see one row per persona.\n\n## Step 2 — Compute per-tick metrics\n\nA JSON object with these fields (use Python or jq via Bash; do not hand-count):\n\n```json\n{\n  \"tick\": 3,\n  \"scenario\": \"misinfo\",\n  \"totalActions\": <int>,\n  \"actionHistogram\": {\"post\": N, \"repost\": N, \"reply\": N, \"like\": N, \"follow\": N, \"nothing\": N},\n  \"uniqueActors\": <int>,\n  \"newPostsThisTick\": <int>,                 // count of action == \"post\"\n  \"engagementsThisTick\": <int>,              // repost+reply+like\n  \"scenarioMetrics\": { ... }                 // see below — scenario-specific\n}\n```\n\nFor `scenario == \"misinfo\"`: `scenarioMetrics` should include:\n- `seedReachThisTick` — count of personas this tick who reposted/liked/replied to a `seed: true` row\n- `seedReachCumulative` — same but across all ticks ≤ 3\n- `skepticPushback` — count of `reply` actions this tick where the persona's `beliefs.skepticism > 0.5` (look up bio from personas.json)\n\nFor `scenario == \"polarization\"`: `scenarioMetrics` should include:\n- `inGroupEngagement` — actions where actor and target have `partisanship` of the same sign\n- `crossGroupEngagement` — actions where signs differ\n\nFor other scenarios, include any obvious aggregate metrics that fit.\n\nAppend the resulting JSON object as **one line** to\n`runs/run-2026-04-25T01-45/metrics.jsonl` (create the file if absent).\n\n## Step 3 — Update the running report\n\nAppend a section to `vault/reports/misinfo.md`. Create the file with a\nheader on tick 1 if it doesn't exist; otherwise append. Format:\n\n```markdown\n## Tick 3\n\n- Total actions: <N>\n- Action histogram: post=N, repost=N, reply=N, like=N, follow=N, nothing=N\n- Unique actors: <N>\n\n**Scenario-specific:** <one-paragraph plain-English read of the\n`scenarioMetrics` for this tick — what's actually happening in the network.>\n\n**Notable activity this tick:**\n- <bullet: most reposted post or biggest engagement, with the text>\n- <bullet: any flip in someone's behavior — e.g. a previously-quiet skeptic\n  finally replying>\n\n```\n\nKeep the prose tight: 3–5 bullets per tick.\n\n## Step 4 — Write the Obsidian-vault tick note\n\nWrite `vault/runs/run-2026-04-25T01-45/ticks/tick-3.md`. This is the\nhuman-navigable view of what happened in this tick.\n\n```markdown\n---\ntags: [tick, run/run-2026-04-25T01-45, tick/3, scenario/misinfo]\ntick: 3\nrun_id: run-2026-04-25T01-45\nscenario: misinfo\ntotal_actions: <N>\nunique_actors: <N>\n---\n\n# Tick 3\n\n**Scenario:** [[../../../reports/misinfo|misinfo]] · Run:\n[[../overview|run-2026-04-25T01-45]]\n\n## Action Histogram\n- `post`: N\n- `repost`: N\n- `reply`: N\n- `like`: N\n- `follow`: N\n- `nothing`: N\n\n## Per-Persona Actions\n_(one bullet per persona this tick — link the action note for each.)_\n\n- [[p001]] → [[t3-p001-<action>]]\n- [[p002]] → [[t3-p002-<action>]]\n- ...\n\n## Scenario Read\n<the same one-paragraph read you wrote in vault/reports/misinfo.md>\n\n## Notable\n- <bullets — same content as the report>\n\n## See Also\n- Previous: (if this is not tick 1, link `[[tick-NN]]` for the prior tick;\n  otherwise omit this bullet)\n- Next: (if this is not the final tick, write `_(pending)_` to be filled in\n  by the next tick's analyze)\n- [[../overview|Run overview]]\n```\n\n## Step 5 — Update the run overview\n\nEdit `vault/runs/run-2026-04-25T01-45/overview.md`. The `## Ticks` section was\nwritten by 010-setup with placeholder `_(pending)_` markers. Replace the\nentry for THIS tick (`3`) with a link + one-line summary:\n\n```markdown\n## Ticks\n- [[tick-01]] — <one-line summary>\n- [[tick-02]] — <one-line summary, or _(pending)_ if not yet run>\n- [[tick-03]] — _(pending)_\n```\n\nUse `python3` or `sed` to do the replacement; do not regenerate the\nwhole overview from scratch.\n\n## Constraints\n\n- Use Python via Bash for JSON computation. Do not eyeball-count.\n- Do not edit personas.json, graph.json, or timeline.jsonl.\n- Do not invoke any non-existent tooling — this playbook is purely\n  file-driven; there is no `pnpm sim` to call.\n- Do not regenerate vault notes that already exist (persona notes,\n  prior tick notes, prior action notes). Only write the tick note for\n  THIS tick and update the overview.",
+              "taskInputs": [
+                "runs/run-2026-04-25T01-45/personas.json",
+                "runs/run-2026-04-25T01-45/timeline.jsonl"
+              ],
+              "factId": "file-exists:test -f \"vault/runs/run-2026-04-25T01-45/ticks/tick-3.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "epoch-003/030-analyze-check-failed-metrics-row-appended",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "epoch-003/030-analyze",
+            "severity": "high",
+            "description": "[epoch-003/030-analyze] Check failed: metrics.jsonl has exactly one row with tick=3",
+            "source": "unit",
+            "detected": "2026-04-25T02:40:33.934Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "metrics-row-appended",
+              "checkCmd": "python3 -c \"import json,sys; lines=[json.loads(l) for l in open('runs/run-2026-04-25T01-45/metrics.jsonl') if l.strip()]; hits=[l for l in lines if l.get('tick')==3]; sys.exit(0 if len(hits)==1 else 1)\"\n",
+              "checkDescription": "metrics.jsonl has exactly one row with tick=3",
+              "checkOutput": "Command failed: python3 -c \"import json,sys; lines=[json.loads(l) for l in open('runs/run-2026-04-25T01-45/metrics.jsonl') if l.strip()]; hits=[l for l in lines if l.get('tick')==3]; sys.exit(0 if len(hits)==1 else 1)\"\n\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Tick 3 — Analyze\n\nCompute the metrics for this tick and update the running report.\n\n## Step 1 — Read this tick's actions\n\nRead `runs/run-2026-04-25T01-45/timeline.jsonl`. Filter to rows where\n`tick == 3` (this tick only — earlier ticks are already\nanalyzed). You should see one row per persona.\n\n## Step 2 — Compute per-tick metrics\n\nA JSON object with these fields (use Python or jq via Bash; do not hand-count):\n\n```json\n{\n  \"tick\": 3,\n  \"scenario\": \"misinfo\",\n  \"totalActions\": <int>,\n  \"actionHistogram\": {\"post\": N, \"repost\": N, \"reply\": N, \"like\": N, \"follow\": N, \"nothing\": N},\n  \"uniqueActors\": <int>,\n  \"newPostsThisTick\": <int>,                 // count of action == \"post\"\n  \"engagementsThisTick\": <int>,              // repost+reply+like\n  \"scenarioMetrics\": { ... }                 // see below — scenario-specific\n}\n```\n\nFor `scenario == \"misinfo\"`: `scenarioMetrics` should include:\n- `seedReachThisTick` — count of personas this tick who reposted/liked/replied to a `seed: true` row\n- `seedReachCumulative` — same but across all ticks ≤ 3\n- `skepticPushback` — count of `reply` actions this tick where the persona's `beliefs.skepticism > 0.5` (look up bio from personas.json)\n\nFor `scenario == \"polarization\"`: `scenarioMetrics` should include:\n- `inGroupEngagement` — actions where actor and target have `partisanship` of the same sign\n- `crossGroupEngagement` — actions where signs differ\n\nFor other scenarios, include any obvious aggregate metrics that fit.\n\nAppend the resulting JSON object as **one line** to\n`runs/run-2026-04-25T01-45/metrics.jsonl` (create the file if absent).\n\n## Step 3 — Update the running report\n\nAppend a section to `vault/reports/misinfo.md`. Create the file with a\nheader on tick 1 if it doesn't exist; otherwise append. Format:\n\n```markdown\n## Tick 3\n\n- Total actions: <N>\n- Action histogram: post=N, repost=N, reply=N, like=N, follow=N, nothing=N\n- Unique actors: <N>\n\n**Scenario-specific:** <one-paragraph plain-English read of the\n`scenarioMetrics` for this tick — what's actually happening in the network.>\n\n**Notable activity this tick:**\n- <bullet: most reposted post or biggest engagement, with the text>\n- <bullet: any flip in someone's behavior — e.g. a previously-quiet skeptic\n  finally replying>\n\n```\n\nKeep the prose tight: 3–5 bullets per tick.\n\n## Step 4 — Write the Obsidian-vault tick note\n\nWrite `vault/runs/run-2026-04-25T01-45/ticks/tick-3.md`. This is the\nhuman-navigable view of what happened in this tick.\n\n```markdown\n---\ntags: [tick, run/run-2026-04-25T01-45, tick/3, scenario/misinfo]\ntick: 3\nrun_id: run-2026-04-25T01-45\nscenario: misinfo\ntotal_actions: <N>\nunique_actors: <N>\n---\n\n# Tick 3\n\n**Scenario:** [[../../../reports/misinfo|misinfo]] · Run:\n[[../overview|run-2026-04-25T01-45]]\n\n## Action Histogram\n- `post`: N\n- `repost`: N\n- `reply`: N\n- `like`: N\n- `follow`: N\n- `nothing`: N\n\n## Per-Persona Actions\n_(one bullet per persona this tick — link the action note for each.)_\n\n- [[p001]] → [[t3-p001-<action>]]\n- [[p002]] → [[t3-p002-<action>]]\n- ...\n\n## Scenario Read\n<the same one-paragraph read you wrote in vault/reports/misinfo.md>\n\n## Notable\n- <bullets — same content as the report>\n\n## See Also\n- Previous: (if this is not tick 1, link `[[tick-NN]]` for the prior tick;\n  otherwise omit this bullet)\n- Next: (if this is not the final tick, write `_(pending)_` to be filled in\n  by the next tick's analyze)\n- [[../overview|Run overview]]\n```\n\n## Step 5 — Update the run overview\n\nEdit `vault/runs/run-2026-04-25T01-45/overview.md`. The `## Ticks` section was\nwritten by 010-setup with placeholder `_(pending)_` markers. Replace the\nentry for THIS tick (`3`) with a link + one-line summary:\n\n```markdown\n## Ticks\n- [[tick-01]] — <one-line summary>\n- [[tick-02]] — <one-line summary, or _(pending)_ if not yet run>\n- [[tick-03]] — _(pending)_\n```\n\nUse `python3` or `sed` to do the replacement; do not regenerate the\nwhole overview from scratch.\n\n## Constraints\n\n- Use Python via Bash for JSON computation. Do not eyeball-count.\n- Do not edit personas.json, graph.json, or timeline.jsonl.\n- Do not invoke any non-existent tooling — this playbook is purely\n  file-driven; there is no `pnpm sim` to call.\n- Do not regenerate vault notes that already exist (persona notes,\n  prior tick notes, prior action notes). Only write the tick note for\n  THIS tick and update the overview.",
+              "taskId": "epoch-003/030-analyze",
+              "taskTitle": "Tick 3 — analyze",
+              "unitPath": "/Users/minh/Documents/converge/examples/social-sim/.converge/journal/social-sim/tasks/epoch-003/tasks/030-analyze",
+              "factId": "check:metrics-row-appended"
+            }
+          },
+          {
+            "id": "epoch-003/030-analyze-check-failed-report-mentions-tick",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "epoch-003/030-analyze",
+            "severity": "high",
+            "description": "[epoch-003/030-analyze] Check failed: vault/reports/misinfo.md mentions this tick",
+            "source": "unit",
+            "detected": "2026-04-25T02:40:33.938Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "report-mentions-tick",
+              "checkCmd": "grep -q 'Tick 3' vault/reports/misinfo.md",
+              "checkDescription": "vault/reports/misinfo.md mentions this tick",
+              "checkOutput": "Command failed: grep -q 'Tick 3' vault/reports/misinfo.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Tick 3 — Analyze\n\nCompute the metrics for this tick and update the running report.\n\n## Step 1 — Read this tick's actions\n\nRead `runs/run-2026-04-25T01-45/timeline.jsonl`. Filter to rows where\n`tick == 3` (this tick only — earlier ticks are already\nanalyzed). You should see one row per persona.\n\n## Step 2 — Compute per-tick metrics\n\nA JSON object with these fields (use Python or jq via Bash; do not hand-count):\n\n```json\n{\n  \"tick\": 3,\n  \"scenario\": \"misinfo\",\n  \"totalActions\": <int>,\n  \"actionHistogram\": {\"post\": N, \"repost\": N, \"reply\": N, \"like\": N, \"follow\": N, \"nothing\": N},\n  \"uniqueActors\": <int>,\n  \"newPostsThisTick\": <int>,                 // count of action == \"post\"\n  \"engagementsThisTick\": <int>,              // repost+reply+like\n  \"scenarioMetrics\": { ... }                 // see below — scenario-specific\n}\n```\n\nFor `scenario == \"misinfo\"`: `scenarioMetrics` should include:\n- `seedReachThisTick` — count of personas this tick who reposted/liked/replied to a `seed: true` row\n- `seedReachCumulative` — same but across all ticks ≤ 3\n- `skepticPushback` — count of `reply` actions this tick where the persona's `beliefs.skepticism > 0.5` (look up bio from personas.json)\n\nFor `scenario == \"polarization\"`: `scenarioMetrics` should include:\n- `inGroupEngagement` — actions where actor and target have `partisanship` of the same sign\n- `crossGroupEngagement` — actions where signs differ\n\nFor other scenarios, include any obvious aggregate metrics that fit.\n\nAppend the resulting JSON object as **one line** to\n`runs/run-2026-04-25T01-45/metrics.jsonl` (create the file if absent).\n\n## Step 3 — Update the running report\n\nAppend a section to `vault/reports/misinfo.md`. Create the file with a\nheader on tick 1 if it doesn't exist; otherwise append. Format:\n\n```markdown\n## Tick 3\n\n- Total actions: <N>\n- Action histogram: post=N, repost=N, reply=N, like=N, follow=N, nothing=N\n- Unique actors: <N>\n\n**Scenario-specific:** <one-paragraph plain-English read of the\n`scenarioMetrics` for this tick — what's actually happening in the network.>\n\n**Notable activity this tick:**\n- <bullet: most reposted post or biggest engagement, with the text>\n- <bullet: any flip in someone's behavior — e.g. a previously-quiet skeptic\n  finally replying>\n\n```\n\nKeep the prose tight: 3–5 bullets per tick.\n\n## Step 4 — Write the Obsidian-vault tick note\n\nWrite `vault/runs/run-2026-04-25T01-45/ticks/tick-3.md`. This is the\nhuman-navigable view of what happened in this tick.\n\n```markdown\n---\ntags: [tick, run/run-2026-04-25T01-45, tick/3, scenario/misinfo]\ntick: 3\nrun_id: run-2026-04-25T01-45\nscenario: misinfo\ntotal_actions: <N>\nunique_actors: <N>\n---\n\n# Tick 3\n\n**Scenario:** [[../../../reports/misinfo|misinfo]] · Run:\n[[../overview|run-2026-04-25T01-45]]\n\n## Action Histogram\n- `post`: N\n- `repost`: N\n- `reply`: N\n- `like`: N\n- `follow`: N\n- `nothing`: N\n\n## Per-Persona Actions\n_(one bullet per persona this tick — link the action note for each.)_\n\n- [[p001]] → [[t3-p001-<action>]]\n- [[p002]] → [[t3-p002-<action>]]\n- ...\n\n## Scenario Read\n<the same one-paragraph read you wrote in vault/reports/misinfo.md>\n\n## Notable\n- <bullets — same content as the report>\n\n## See Also\n- Previous: (if this is not tick 1, link `[[tick-NN]]` for the prior tick;\n  otherwise omit this bullet)\n- Next: (if this is not the final tick, write `_(pending)_` to be filled in\n  by the next tick's analyze)\n- [[../overview|Run overview]]\n```\n\n## Step 5 — Update the run overview\n\nEdit `vault/runs/run-2026-04-25T01-45/overview.md`. The `## Ticks` section was\nwritten by 010-setup with placeholder `_(pending)_` markers. Replace the\nentry for THIS tick (`3`) with a link + one-line summary:\n\n```markdown\n## Ticks\n- [[tick-01]] — <one-line summary>\n- [[tick-02]] — <one-line summary, or _(pending)_ if not yet run>\n- [[tick-03]] — _(pending)_\n```\n\nUse `python3` or `sed` to do the replacement; do not regenerate the\nwhole overview from scratch.\n\n## Constraints\n\n- Use Python via Bash for JSON computation. Do not eyeball-count.\n- Do not edit personas.json, graph.json, or timeline.jsonl.\n- Do not invoke any non-existent tooling — this playbook is purely\n  file-driven; there is no `pnpm sim` to call.\n- Do not regenerate vault notes that already exist (persona notes,\n  prior tick notes, prior action notes). Only write the tick note for\n  THIS tick and update the overview.",
+              "taskId": "epoch-003/030-analyze",
+              "taskTitle": "Tick 3 — analyze",
+              "unitPath": "/Users/minh/Documents/converge/examples/social-sim/.converge/journal/social-sim/tasks/epoch-003/tasks/030-analyze",
+              "factId": "check:report-mentions-tick"
+            }
+          },
+          {
+            "id": "epoch-003/030-analyze-check-failed-vault-tick-note",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "epoch-003/030-analyze",
+            "severity": "high",
+            "description": "[epoch-003/030-analyze] Check failed: Vault tick note exists",
+            "source": "unit",
+            "detected": "2026-04-25T02:40:33.940Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "vault-tick-note",
+              "checkCmd": "test -f vault/runs/run-2026-04-25T01-45/ticks/tick-3.md",
+              "checkDescription": "Vault tick note exists",
+              "checkOutput": "Command failed: test -f vault/runs/run-2026-04-25T01-45/ticks/tick-3.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Tick 3 — Analyze\n\nCompute the metrics for this tick and update the running report.\n\n## Step 1 — Read this tick's actions\n\nRead `runs/run-2026-04-25T01-45/timeline.jsonl`. Filter to rows where\n`tick == 3` (this tick only — earlier ticks are already\nanalyzed). You should see one row per persona.\n\n## Step 2 — Compute per-tick metrics\n\nA JSON object with these fields (use Python or jq via Bash; do not hand-count):\n\n```json\n{\n  \"tick\": 3,\n  \"scenario\": \"misinfo\",\n  \"totalActions\": <int>,\n  \"actionHistogram\": {\"post\": N, \"repost\": N, \"reply\": N, \"like\": N, \"follow\": N, \"nothing\": N},\n  \"uniqueActors\": <int>,\n  \"newPostsThisTick\": <int>,                 // count of action == \"post\"\n  \"engagementsThisTick\": <int>,              // repost+reply+like\n  \"scenarioMetrics\": { ... }                 // see below — scenario-specific\n}\n```\n\nFor `scenario == \"misinfo\"`: `scenarioMetrics` should include:\n- `seedReachThisTick` — count of personas this tick who reposted/liked/replied to a `seed: true` row\n- `seedReachCumulative` — same but across all ticks ≤ 3\n- `skepticPushback` — count of `reply` actions this tick where the persona's `beliefs.skepticism > 0.5` (look up bio from personas.json)\n\nFor `scenario == \"polarization\"`: `scenarioMetrics` should include:\n- `inGroupEngagement` — actions where actor and target have `partisanship` of the same sign\n- `crossGroupEngagement` — actions where signs differ\n\nFor other scenarios, include any obvious aggregate metrics that fit.\n\nAppend the resulting JSON object as **one line** to\n`runs/run-2026-04-25T01-45/metrics.jsonl` (create the file if absent).\n\n## Step 3 — Update the running report\n\nAppend a section to `vault/reports/misinfo.md`. Create the file with a\nheader on tick 1 if it doesn't exist; otherwise append. Format:\n\n```markdown\n## Tick 3\n\n- Total actions: <N>\n- Action histogram: post=N, repost=N, reply=N, like=N, follow=N, nothing=N\n- Unique actors: <N>\n\n**Scenario-specific:** <one-paragraph plain-English read of the\n`scenarioMetrics` for this tick — what's actually happening in the network.>\n\n**Notable activity this tick:**\n- <bullet: most reposted post or biggest engagement, with the text>\n- <bullet: any flip in someone's behavior — e.g. a previously-quiet skeptic\n  finally replying>\n\n```\n\nKeep the prose tight: 3–5 bullets per tick.\n\n## Step 4 — Write the Obsidian-vault tick note\n\nWrite `vault/runs/run-2026-04-25T01-45/ticks/tick-3.md`. This is the\nhuman-navigable view of what happened in this tick.\n\n```markdown\n---\ntags: [tick, run/run-2026-04-25T01-45, tick/3, scenario/misinfo]\ntick: 3\nrun_id: run-2026-04-25T01-45\nscenario: misinfo\ntotal_actions: <N>\nunique_actors: <N>\n---\n\n# Tick 3\n\n**Scenario:** [[../../../reports/misinfo|misinfo]] · Run:\n[[../overview|run-2026-04-25T01-45]]\n\n## Action Histogram\n- `post`: N\n- `repost`: N\n- `reply`: N\n- `like`: N\n- `follow`: N\n- `nothing`: N\n\n## Per-Persona Actions\n_(one bullet per persona this tick — link the action note for each.)_\n\n- [[p001]] → [[t3-p001-<action>]]\n- [[p002]] → [[t3-p002-<action>]]\n- ...\n\n## Scenario Read\n<the same one-paragraph read you wrote in vault/reports/misinfo.md>\n\n## Notable\n- <bullets — same content as the report>\n\n## See Also\n- Previous: (if this is not tick 1, link `[[tick-NN]]` for the prior tick;\n  otherwise omit this bullet)\n- Next: (if this is not the final tick, write `_(pending)_` to be filled in\n  by the next tick's analyze)\n- [[../overview|Run overview]]\n```\n\n## Step 5 — Update the run overview\n\nEdit `vault/runs/run-2026-04-25T01-45/overview.md`. The `## Ticks` section was\nwritten by 010-setup with placeholder `_(pending)_` markers. Replace the\nentry for THIS tick (`3`) with a link + one-line summary:\n\n```markdown\n## Ticks\n- [[tick-01]] — <one-line summary>\n- [[tick-02]] — <one-line summary, or _(pending)_ if not yet run>\n- [[tick-03]] — _(pending)_\n```\n\nUse `python3` or `sed` to do the replacement; do not regenerate the\nwhole overview from scratch.\n\n## Constraints\n\n- Use Python via Bash for JSON computation. Do not eyeball-count.\n- Do not edit personas.json, graph.json, or timeline.jsonl.\n- Do not invoke any non-existent tooling — this playbook is purely\n  file-driven; there is no `pnpm sim` to call.\n- Do not regenerate vault notes that already exist (persona notes,\n  prior tick notes, prior action notes). Only write the tick note for\n  THIS tick and update the overview.",
+              "taskId": "epoch-003/030-analyze",
+              "taskTitle": "Tick 3 — analyze",
+              "unitPath": "/Users/minh/Documents/converge/examples/social-sim/.converge/journal/social-sim/tasks/epoch-003/tasks/030-analyze",
+              "factId": "check:vault-tick-note"
+            }
+          },
+          {
+            "id": "epoch-003/030-analyze-check-failed-vault-overview-links-tick",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "epoch-003/030-analyze",
+            "severity": "high",
+            "description": "[epoch-003/030-analyze] Check failed: Run overview links to this tick",
+            "source": "unit",
+            "detected": "2026-04-25T02:40:33.944Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "vault-overview-links-tick",
+              "checkCmd": "grep -q 'tick-3' vault/runs/run-2026-04-25T01-45/overview.md",
+              "checkDescription": "Run overview links to this tick",
+              "checkOutput": "Command failed: grep -q 'tick-3' vault/runs/run-2026-04-25T01-45/overview.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Tick 3 — Analyze\n\nCompute the metrics for this tick and update the running report.\n\n## Step 1 — Read this tick's actions\n\nRead `runs/run-2026-04-25T01-45/timeline.jsonl`. Filter to rows where\n`tick == 3` (this tick only — earlier ticks are already\nanalyzed). You should see one row per persona.\n\n## Step 2 — Compute per-tick metrics\n\nA JSON object with these fields (use Python or jq via Bash; do not hand-count):\n\n```json\n{\n  \"tick\": 3,\n  \"scenario\": \"misinfo\",\n  \"totalActions\": <int>,\n  \"actionHistogram\": {\"post\": N, \"repost\": N, \"reply\": N, \"like\": N, \"follow\": N, \"nothing\": N},\n  \"uniqueActors\": <int>,\n  \"newPostsThisTick\": <int>,                 // count of action == \"post\"\n  \"engagementsThisTick\": <int>,              // repost+reply+like\n  \"scenarioMetrics\": { ... }                 // see below — scenario-specific\n}\n```\n\nFor `scenario == \"misinfo\"`: `scenarioMetrics` should include:\n- `seedReachThisTick` — count of personas this tick who reposted/liked/replied to a `seed: true` row\n- `seedReachCumulative` — same but across all ticks ≤ 3\n- `skepticPushback` — count of `reply` actions this tick where the persona's `beliefs.skepticism > 0.5` (look up bio from personas.json)\n\nFor `scenario == \"polarization\"`: `scenarioMetrics` should include:\n- `inGroupEngagement` — actions where actor and target have `partisanship` of the same sign\n- `crossGroupEngagement` — actions where signs differ\n\nFor other scenarios, include any obvious aggregate metrics that fit.\n\nAppend the resulting JSON object as **one line** to\n`runs/run-2026-04-25T01-45/metrics.jsonl` (create the file if absent).\n\n## Step 3 — Update the running report\n\nAppend a section to `vault/reports/misinfo.md`. Create the file with a\nheader on tick 1 if it doesn't exist; otherwise append. Format:\n\n```markdown\n## Tick 3\n\n- Total actions: <N>\n- Action histogram: post=N, repost=N, reply=N, like=N, follow=N, nothing=N\n- Unique actors: <N>\n\n**Scenario-specific:** <one-paragraph plain-English read of the\n`scenarioMetrics` for this tick — what's actually happening in the network.>\n\n**Notable activity this tick:**\n- <bullet: most reposted post or biggest engagement, with the text>\n- <bullet: any flip in someone's behavior — e.g. a previously-quiet skeptic\n  finally replying>\n\n```\n\nKeep the prose tight: 3–5 bullets per tick.\n\n## Step 4 — Write the Obsidian-vault tick note\n\nWrite `vault/runs/run-2026-04-25T01-45/ticks/tick-3.md`. This is the\nhuman-navigable view of what happened in this tick.\n\n```markdown\n---\ntags: [tick, run/run-2026-04-25T01-45, tick/3, scenario/misinfo]\ntick: 3\nrun_id: run-2026-04-25T01-45\nscenario: misinfo\ntotal_actions: <N>\nunique_actors: <N>\n---\n\n# Tick 3\n\n**Scenario:** [[../../../reports/misinfo|misinfo]] · Run:\n[[../overview|run-2026-04-25T01-45]]\n\n## Action Histogram\n- `post`: N\n- `repost`: N\n- `reply`: N\n- `like`: N\n- `follow`: N\n- `nothing`: N\n\n## Per-Persona Actions\n_(one bullet per persona this tick — link the action note for each.)_\n\n- [[p001]] → [[t3-p001-<action>]]\n- [[p002]] → [[t3-p002-<action>]]\n- ...\n\n## Scenario Read\n<the same one-paragraph read you wrote in vault/reports/misinfo.md>\n\n## Notable\n- <bullets — same content as the report>\n\n## See Also\n- Previous: (if this is not tick 1, link `[[tick-NN]]` for the prior tick;\n  otherwise omit this bullet)\n- Next: (if this is not the final tick, write `_(pending)_` to be filled in\n  by the next tick's analyze)\n- [[../overview|Run overview]]\n```\n\n## Step 5 — Update the run overview\n\nEdit `vault/runs/run-2026-04-25T01-45/overview.md`. The `## Ticks` section was\nwritten by 010-setup with placeholder `_(pending)_` markers. Replace the\nentry for THIS tick (`3`) with a link + one-line summary:\n\n```markdown\n## Ticks\n- [[tick-01]] — <one-line summary>\n- [[tick-02]] — <one-line summary, or _(pending)_ if not yet run>\n- [[tick-03]] — _(pending)_\n```\n\nUse `python3` or `sed` to do the replacement; do not regenerate the\nwhole overview from scratch.\n\n## Constraints\n\n- Use Python via Bash for JSON computation. Do not eyeball-count.\n- Do not edit personas.json, graph.json, or timeline.jsonl.\n- Do not invoke any non-existent tooling — this playbook is purely\n  file-driven; there is no `pnpm sim` to call.\n- Do not regenerate vault notes that already exist (persona notes,\n  prior tick notes, prior action notes). Only write the tick note for\n  THIS tick and update the overview.",
+              "taskId": "epoch-003/030-analyze",
+              "taskTitle": "Tick 3 — analyze",
+              "unitPath": "/Users/minh/Documents/converge/examples/social-sim/.converge/journal/social-sim/tasks/epoch-003/tasks/030-analyze",
+              "factId": "check:vault-overview-links-tick"
+            }
+          }
+        ],
+        "durationMs": 48
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 36
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#36",
+      "handler": "run-strategy",
+      "status": "buffered",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-25T02:40:33.896Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-25T02:40:33.896Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-25T02:40:33.944Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-25T02:40:33.945Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-25T02:40:33.981Z"
+    }
+  ]
+}

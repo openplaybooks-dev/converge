@@ -1,0 +1,32 @@
+{
+  "taskId": "epoch-002/020-simulate/p007",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "runs/run-2026-04-25T01-45/personas.json",
+      "count": 1,
+      "samples": [
+        "runs/run-2026-04-25T01-45/personas.json"
+      ]
+    },
+    {
+      "pattern": "runs/run-2026-04-25T01-45/graph.json",
+      "count": 1,
+      "samples": [
+        "runs/run-2026-04-25T01-45/graph.json"
+      ]
+    },
+    {
+      "pattern": "runs/run-2026-04-25T01-45/timeline.jsonl",
+      "count": 1,
+      "samples": [
+        "runs/run-2026-04-25T01-45/timeline.jsonl"
+      ]
+    }
+  ],
+  "outputs": [
+    "runs/run-2026-04-25T01-45/timeline.jsonl",
+    "vault/runs/run-2026-04-25T01-45/actions/t2-p007-*.md"
+  ],
+  "blocked": false
+}

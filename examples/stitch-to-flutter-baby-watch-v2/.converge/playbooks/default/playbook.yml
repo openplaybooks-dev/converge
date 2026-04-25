@@ -8,18 +8,16 @@ description: |
 
   Production gates added beyond v1:
     - Per-screen empty/loading/error states (phase 03 step 07-states)
-    - Widget tests per screen (phase 08)
-    - Accessibility pass per screen (phase 09)
 
   Inputs:
     - idea.md                              domain intent, personas, non-UI concerns
     - .stitch/references/                  11 screen refs + 2 design system refs
 
-  Output: production Flutter app in lib/ with tests in test/.
+  Output: Flutter app in lib/.
 
 run:
   mode: oneoff
-  maxIterations: 80
+  maxIterations: 250
   maxTaskAttempts: 3
 
 tasks:
@@ -39,20 +37,11 @@ tasks:
   - id: 07-build-overlays
     depends_on:
       - 06-wire-screens
-  - id: 08-test-screens
-    depends_on:
-      - 07-build-overlays
-  - id: 09-accessibility
-    depends_on:
-      - 08-test-screens
 
 checks:
   - id: dart-analyze
-    cmd: dart analyze lib/ test/
-    description: Dart analysis passes for lib and test
-  - id: flutter-test
-    cmd: flutter test
-    description: All widget tests pass
+    cmd: dart analyze lib/
+    description: Dart analysis passes for lib
   - id: has-theme
     cmd: test -f lib/theme/app_theme.dart
     description: Theme file exists

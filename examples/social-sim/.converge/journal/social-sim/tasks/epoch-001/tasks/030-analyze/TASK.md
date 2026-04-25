@@ -1,34 +1,34 @@
 ---
 id: 030-analyze
 title: Tick 1 — analyze
-description: "Compute per-tick metrics from the rows added this tick, append to metrics.jsonl, update reports/misinfo.md.\n"
+description: "Compute per-tick metrics from the rows added this tick, append to metrics.jsonl, update vault/reports/misinfo.md.\n"
 dependencies:
   - 020-simulate
 inputs:
-  - runs/run-001/personas.json
-  - runs/run-001/timeline.jsonl
+  - runs/run-2026-04-25T01-45/personas.json
+  - runs/run-2026-04-25T01-45/timeline.jsonl
 outputs:
-  - runs/run-001/metrics.jsonl
-  - reports/misinfo.md
-  - vault/runs/run-001/ticks/tick-1.md
-  - vault/runs/run-001/overview.md
+  - runs/run-2026-04-25T01-45/metrics.jsonl
+  - vault/reports/misinfo.md
+  - vault/runs/run-2026-04-25T01-45/ticks/tick-1.md
+  - vault/runs/run-2026-04-25T01-45/overview.md
 checks:
   - id: metrics-row-appended
     description: metrics.jsonl has exactly one row with tick=1
-    cmd: "python3 -c \"import json,sys; lines=[json.loads(l) for l in open('runs/run-001/metrics.jsonl') if l.strip()]; hits=[l for l in lines if l.get('tick')==1]; sys.exit(0 if len(hits)==1 else 1)\"\n"
+    cmd: "python3 -c \"import json,sys; lines=[json.loads(l) for l in open('runs/run-2026-04-25T01-45/metrics.jsonl') if l.strip()]; hits=[l for l in lines if l.get('tick')==1]; sys.exit(0 if len(hits)==1 else 1)\"\n"
   - id: report-mentions-tick
-    description: reports/misinfo.md mentions this tick
-    cmd: "grep -q 'Tick 1' reports/misinfo.md"
+    description: vault/reports/misinfo.md mentions this tick
+    cmd: "grep -q 'Tick 1' vault/reports/misinfo.md"
   - id: vault-tick-note
     description: Vault tick note exists
-    cmd: test -f vault/runs/run-001/ticks/tick-1.md
+    cmd: test -f vault/runs/run-2026-04-25T01-45/ticks/tick-1.md
   - id: vault-overview-links-tick
     description: Run overview links to this tick
-    cmd: "grep -q 'tick-1' vault/runs/run-001/overview.md"
+    cmd: "grep -q 'tick-1' vault/runs/run-2026-04-25T01-45/overview.md"
 vars:
   tick: 1
   tickNum: 1
-  runId: run-001
+  runId: run-2026-04-25T01-45
   scenario: misinfo
   populationSize: 10
   steps: 3
@@ -45,7 +45,7 @@ Compute the metrics for this tick and update the running report.
 
 ## Step 1 — Read this tick's actions
 
-Read `runs/run-001/timeline.jsonl`. Filter to rows where
+Read `runs/run-2026-04-25T01-45/timeline.jsonl`. Filter to rows where
 `tick == 1` (this tick only — earlier ticks are already
 analyzed). You should see one row per persona.
 
@@ -78,11 +78,11 @@ For `scenario == "polarization"`: `scenarioMetrics` should include:
 For other scenarios, include any obvious aggregate metrics that fit.
 
 Append the resulting JSON object as **one line** to
-`runs/run-001/metrics.jsonl` (create the file if absent).
+`runs/run-2026-04-25T01-45/metrics.jsonl` (create the file if absent).
 
 ## Step 3 — Update the running report
 
-Append a section to `reports/misinfo.md`. Create the file with a
+Append a section to `vault/reports/misinfo.md`. Create the file with a
 header on tick 1 if it doesn't exist; otherwise append. Format:
 
 ```markdown
@@ -106,14 +106,14 @@ Keep the prose tight: 3–5 bullets per tick.
 
 ## Step 4 — Write the Obsidian-vault tick note
 
-Write `vault/runs/run-001/ticks/tick-1.md`. This is the
+Write `vault/runs/run-2026-04-25T01-45/ticks/tick-1.md`. This is the
 human-navigable view of what happened in this tick.
 
 ```markdown
 ---
-tags: [tick, run/run-001, tick/1, scenario/misinfo]
+tags: [tick, run/run-2026-04-25T01-45, tick/1, scenario/misinfo]
 tick: 1
-run_id: run-001
+run_id: run-2026-04-25T01-45
 scenario: misinfo
 total_actions: <N>
 unique_actors: <N>
@@ -121,8 +121,8 @@ unique_actors: <N>
 
 # Tick 1
 
-**Scenario:** [[../../reports/misinfo|misinfo]] · Run:
-[[../overview|run-001]]
+**Scenario:** [[../../../reports/misinfo|misinfo]] · Run:
+[[../overview|run-2026-04-25T01-45]]
 
 ## Action Histogram
 - `post`: N
@@ -140,20 +140,22 @@ _(one bullet per persona this tick — link the action note for each.)_
 - ...
 
 ## Scenario Read
-<the same one-paragraph read you wrote in reports/misinfo.md>
+<the same one-paragraph read you wrote in vault/reports/misinfo.md>
 
 ## Notable
 - <bullets — same content as the report>
 
 ## See Also
-- Previous: {{If tickNum > 1: [[tick-<prev tick zero-padded>]] }}
-- Next: {{If tickNum < steps: _(pending)_ }}
+- Previous: (if this is not tick 1, link `[[tick-NN]]` for the prior tick;
+  otherwise omit this bullet)
+- Next: (if this is not the final tick, write `_(pending)_` to be filled in
+  by the next tick's analyze)
 - [[../overview|Run overview]]
 ```
 
 ## Step 5 — Update the run overview
 
-Edit `vault/runs/run-001/overview.md`. The `## Ticks` section was
+Edit `vault/runs/run-2026-04-25T01-45/overview.md`. The `## Ticks` section was
 written by 010-setup with placeholder `_(pending)_` markers. Replace the
 entry for THIS tick (`1`) with a link + one-line summary:
 

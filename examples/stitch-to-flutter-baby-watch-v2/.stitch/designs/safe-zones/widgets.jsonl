@@ -1,0 +1,4 @@
+{"name": "SafeZonesMapCard", "grep": "SafeZonesMapCard", "description": "Mini map card preview at the top of the Safe Zones screen showing zone overlays", "shared": false}
+{"name": "SafeZoneCard", "grep": "SafeZoneCard", "description": "Card row representing a single safe zone with icon, title, radius label, address, and active toggle", "shared": false}
+{"name": "InsightTile", "grep": "InsightTile", "description": "Bento-style stat tile with icon, title, and subtitle used in the insights row", "shared": false}
+{"name": "AppBottomNavBar", "grep": "navigate:home", "description": "Bottom navigation bar with Home, Devices, Safety, and Settings tabs", "shared": true}

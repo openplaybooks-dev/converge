@@ -2,19 +2,19 @@
 
 ## Description
 
-One persona × one tick. Read your bio, your timeline (posts from accounts you follow, from prior ticks ONLY), and the scenario context. Decide ONE action. Append it to runs/run-001/timeline.jsonl.
+One persona × one tick. Read your bio, your timeline (posts from accounts you follow, from prior ticks ONLY), and the scenario context. Decide ONE action. Append it to runs/run-2026-04-25T01-45/timeline.jsonl.
 
 
 ## Inputs
 
-- `runs/run-001/personas.json`
-- `runs/run-001/graph.json`
-- `runs/run-001/timeline.jsonl`
+- `runs/run-2026-04-25T01-45/personas.json`
+- `runs/run-2026-04-25T01-45/graph.json`
+- `runs/run-2026-04-25T01-45/timeline.jsonl`
 
 ## Expected Outputs
 
-- `runs/run-001/timeline.jsonl`
-- `vault/runs/run-001/actions/t1-p008-*.md`
+- `runs/run-2026-04-25T01-45/timeline.jsonl`
+- `vault/runs/run-2026-04-25T01-45/actions/t1-p008-*.md`
 
 ## Checks
 

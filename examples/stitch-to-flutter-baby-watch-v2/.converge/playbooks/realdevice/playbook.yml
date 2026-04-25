@@ -1,0 +1,67 @@
+name: realdevice
+description: |
+  Take the BabyGuard static UI to a working real-device prototype on iOS + Android
+  using a real Nordic iBeacon (e.g. the Alibaba "Wearable Nordic Chip IoT Tag RTLS").
+
+  Prerequisite: the `default` playbook has produced the static screens, providers,
+  and design system under lib/. This playbook layers on the runtime: native
+  platforms, BLE scanning, the home state machine, background monitoring, alerting,
+  and safe-zone evaluation.
+
+  Out of scope: web target, co-guardian / multi-user / invite flows, aggregate
+  beacon safety logic, server backend, FCM/APNs push, phone/SMS escalation,
+  continuous GPS tracking.
+
+run:
+  mode: oneoff
+  maxIterations: 200
+  maxTaskAttempts: 3
+
+tasks:
+  - id: 01-add-native-platforms
+  - id: 02-add-runtime-deps
+    depends_on:
+      - 01-add-native-platforms
+  - id: 03-fingerprint-beacon
+    depends_on:
+      - 02-add-runtime-deps
+  - id: 04-ble-adapter
+    depends_on:
+      - 03-fingerprint-beacon
+  - id: 05-home-state-machine
+    depends_on:
+      - 04-ble-adapter
+  - id: 06-wire-real-handlers
+    depends_on:
+      - 05-home-state-machine
+  - id: 07-background-monitoring
+    depends_on:
+      - 05-home-state-machine
+  - id: 08-alerting
+    depends_on:
+      - 05-home-state-machine
+  - id: 09-safe-zone-check
+    depends_on:
+      - 08-alerting
+  - id: 10-device-verification
+    depends_on:
+      - 06-wire-real-handlers
+      - 07-background-monitoring
+      - 09-safe-zone-check
+
+checks:
+  - id: dart-analyze
+    cmd: dart analyze lib/ test/
+    description: Dart analysis passes for lib and test
+  - id: flutter-test
+    cmd: flutter test
+    description: All widget and unit tests pass
+  - id: native-platforms-present
+    cmd: test -d ios && test -d android
+    description: iOS and Android platform folders exist
+  - id: no-phase05-todos
+    cmd: "! grep -rn 'TODO(phase-05)' lib/screens/"
+    description: All phase-05 wiring TODOs have been resolved
+  - id: beacon-signature-defined
+    cmd: "test -f lib/config/beacon_signature.dart && grep -qE 'BeaconKind\\.(ibeacon|eddystone|raw)' lib/config/beacon_signature.dart"
+    description: Beacon signature has been fingerprinted and recorded

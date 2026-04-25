@@ -1,0 +1,120 @@
+[
+  {
+    "id": "onboarding",
+    "title": "Onboarding",
+    "route": "/onboarding",
+    "description": "First-run permission flow (BLE / Location / Notifications) with hero illustration and page indicators.",
+    "features": ["permission-cards", "page-indicators", "hero-illustration"],
+    "priority": 1,
+    "htmlReference": ".stitch/references/babyguard_onboarding_phase_2/code.html",
+    "screenshotReference": ".stitch/references/babyguard_onboarding_phase_2/screen.png"
+  },
+  {
+    "id": "home-safe",
+    "title": "Home — Safe",
+    "route": "/home",
+    "description": "Dashboard when all beacons report safe signal.",
+    "features": ["map-card", "beacon-strip", "push-mute", "status-pill-safe"],
+    "priority": 1,
+    "variant": "safe",
+    "variantGroup": "home",
+    "htmlReference": ".stitch/references/babyguard_home_phase_2_safe_updated/code.html",
+    "screenshotReference": ".stitch/references/babyguard_home_phase_2_safe_updated/screen.png"
+  },
+  {
+    "id": "home-weak",
+    "title": "Home — Weak Signal",
+    "route": "/home",
+    "description": "Dashboard when beacon signal is weak; honey/yellow pill with editorial headline.",
+    "features": ["map-card", "beacon-strip", "push-mute", "status-pill-weak"],
+    "priority": 1,
+    "variant": "weak",
+    "variantGroup": "home",
+    "htmlReference": ".stitch/references/babyguard_home_phase_2_weak_signal/code.html",
+    "screenshotReference": ".stitch/references/babyguard_home_phase_2_weak_signal/screen.png"
+  },
+  {
+    "id": "home-alert",
+    "title": "Home — Alert",
+    "route": "/home",
+    "description": "Dashboard in alert state with peach pill, pulsing map marker, and primary CTAs.",
+    "features": ["pulsing-map", "alert-pill", "primary-cta", "beacon-strip"],
+    "priority": 1,
+    "variant": "alert",
+    "variantGroup": "home",
+    "htmlReference": ".stitch/references/babyguard_home_phase_2_alert/code.html",
+    "screenshotReference": ".stitch/references/babyguard_home_phase_2_alert/screen.png"
+  },
+  {
+    "id": "beacon-detail",
+    "title": "Beacon Detail",
+    "route": "/devices",
+    "description": "Beacon info card with monitoring list of co-guardians and status badges.",
+    "features": ["beacon-info-card", "monitoring-list", "status-badges"],
+    "priority": 1,
+    "htmlReference": ".stitch/references/chi_ti_t_beacon_phase_2/code.html",
+    "screenshotReference": ".stitch/references/chi_ti_t_beacon_phase_2/screen.png"
+  },
+  {
+    "id": "add-beacon",
+    "title": "Add Beacon",
+    "route": "/devices/add",
+    "description": "BLE scanning UI with radar animation, found device cards, and RSSI bars.",
+    "features": ["radar-animation", "device-cards", "rssi-bars"],
+    "priority": 2,
+    "htmlReference": ".stitch/references/th_m_beacon_phase_2/code.html",
+    "screenshotReference": ".stitch/references/th_m_beacon_phase_2/screen.png"
+  },
+  {
+    "id": "co-guardians-list",
+    "title": "Co-guardians",
+    "route": "/devices/co-guardians",
+    "description": "Manage guardians for the active beacon; rows with avatar, status pills, invite button.",
+    "features": ["guardian-rows", "status-pills", "invite-button"],
+    "priority": 2,
+    "htmlReference": ".stitch/references/ch_p_nh_n_l_i_m_i/code.html",
+    "screenshotReference": ".stitch/references/ch_p_nh_n_l_i_m_i/screen.png"
+  },
+  {
+    "id": "invite-accept",
+    "title": "Invite Accept",
+    "route": "overlay:invite-accept",
+    "description": "Modal dialog to accept/reject a beacon co-guardian invitation with permission bullets.",
+    "features": ["accept-reject-buttons", "permission-bullets"],
+    "priority": 2,
+    "parentScreenId": "co-guardians-list",
+    "overlayType": "dialog",
+    "htmlReference": ".stitch/references/co_guardians_list_phase_2/code.html",
+    "screenshotReference": ".stitch/references/co_guardians_list_phase_2/screen.png"
+  },
+  {
+    "id": "safe-zones",
+    "title": "Safe Zones",
+    "route": "/security",
+    "description": "Map + list bento with zone cards, toggles, mini-map pulse overlay, and FAB to add.",
+    "features": ["map-bento", "zone-cards", "toggle-switches", "fab"],
+    "priority": 1,
+    "htmlReference": ".stitch/references/safe_zones/code.html",
+    "screenshotReference": ".stitch/references/safe_zones/screen.png"
+  },
+  {
+    "id": "history",
+    "title": "History",
+    "route": "/history",
+    "description": "Alert/safe event log with filter bar; alert events in peach, safe events in mint.",
+    "features": ["event-list", "filter-bar", "tinted-events"],
+    "priority": 2,
+    "htmlReference": ".stitch/references/history/code.html",
+    "screenshotReference": ".stitch/references/history/screen.png"
+  },
+  {
+    "id": "settings",
+    "title": "Settings",
+    "route": "/settings",
+    "description": "Grouped card sections for Alert / Beacon / Notifications config with toggles and segmented controls.",
+    "features": ["grouped-cards", "toggle-switches", "segmented-controls", "profile-section"],
+    "priority": 1,
+    "htmlReference": ".stitch/references/settings/code.html",
+    "screenshotReference": ".stitch/references/settings/screen.png"
+  }
+]

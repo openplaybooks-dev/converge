@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BabyGuard — Co-guardian Invitation</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+  body { font-family: 'Manrope', sans-serif; background: var(--surface); }
+</style>
+</head>
+<body>
+
+<div class="scaffold" data-bg="surface">
+
+  <!-- TopAppBar -->
+  <div class="app-bar" data-bg="surface" data-p="md|md">
+    <div class="row" data-gap="sm">
+      <button class="icon-btn" data-handler="navigate:back" aria-label="Đóng">
+        <svg class="icon" data-name="close" data-size="24" data-color="onSurface"></svg>
+      </button>
+      <span class="title-large" data-color="onSurface">BabyGuard</span>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="body" data-p="md|md">
+    <div class="column" data-gap="lg">
+
+      <!-- Invitation Card -->
+      <div class="card" data-bg="surfaceContainerLowest">
+        <div class="column" data-gap="lg" data-p="lg|lg">
+
+          <!-- Avatar with shield badge -->
+          <div class="stack">
+            <div class="stack" data-bg="tertiaryContainer" data-animate="pulse"></div>
+            <img class="avatar"
+                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVq9tdpncLEkYm1ctPHgu7eFUvj4vxjI8TaVt1z7IClz4sutuWXcX_z9MOD7WjF-ir_so2ySpJMfrs5Bk7BPegSIVBEaupNHdssmp2qGhYHuyuV_IM0WNiNApW0EYxroPSOsc-KjBujQxr6ifudvUSUR5Z81DUt8m0LxHL0viQXv_-OhQexoGdrSs255JgrHtmnYEs-TI1bt3NPBWDreAwSvuHFcpUW3zpi_Cz1rSYImeh_zlTnBGaRVxVc7kxAKenLiyFvqgPrikH"
+                 alt="Bé Na"/>
+            <div class="badge" data-bg="tertiary" data-color="onTertiary">
+              <svg class="icon" data-name="shield" data-size="24" data-color="onTertiary"></svg>
+            </div>
+          </div>
+
+          <!-- Title + Inviter -->
+          <div class="column" data-gap="xs">
+            <span class="headline-large" data-color="onSurface">Bé Na</span>
+            <div class="row" data-gap="sm">
+              <span class="body-medium" data-color="onSurfaceVariant">Mẹ đã mời bạn</span>
+              <span class="chip" data-bg="surfaceContainerHighest" data-color="onSurfaceVariant" data-p="sm|xs">
+                <span class="label-small">Người sở hữu</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Info rows -->
+          <div class="column" data-gap="md">
+            <div class="row" data-gap="md">
+              <div class="stack" data-bg="tertiaryFixed" data-p="sm|sm">
+                <svg class="icon" data-name="notifications_active" data-size="24" data-color="tertiary"></svg>
+              </div>
+              <span class="body-small" data-color="onSurfaceVariant">Bằng cách chấp nhận, bạn sẽ nhận được thông báo khi beacon này mất kết nối</span>
+            </div>
+            <div class="row" data-gap="md">
+              <div class="stack" data-bg="surfaceContainerHigh" data-p="sm|sm">
+                <svg class="icon" data-name="group_off" data-size="24" data-color="secondary"></svg>
+              </div>
+              <span class="body-small" data-color="onSurfaceVariant">Bạn có thể rời nhóm theo dõi bất kỳ lúc nào</span>
+            </div>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="column" data-gap="sm">
+            <button class="filled-btn" data-bg="onSurface" data-color="surface" data-handler="action:accept-invitation">
+              <span class="label-large">Chấp nhận</span>
+            </button>
+            <button class="elevated-btn" data-bg="surface" data-color="onSurfaceVariant" data-handler="action:decline-invitation">
+              <span class="label-large">Từ chối</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Security footer -->
+        <div class="card" data-bg="surfaceContainerLow" data-p="md|md">
+          <div class="row" data-gap="sm">
+            <svg class="icon" data-name="verified_user" data-size="24" data-color="onSurfaceVariant"></svg>
+            <span class="label-small" data-color="onSurfaceVariant">Bảo mật bởi hệ thống mã hóa BabyGuard</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- System status footer -->
+  <div class="bottom-nav" data-bg="surfaceContainerLowest" data-p="md|sm">
+    <div class="row" data-gap="sm">
+      <div class="badge" data-bg="tertiary" data-animate="pulse"></div>
+      <span class="label-small" data-color="onSurfaceVariant">Hệ thống đang hoạt động</span>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

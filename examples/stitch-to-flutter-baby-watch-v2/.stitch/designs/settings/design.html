@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BabyGuard — Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+  body { font-family: 'Manrope', sans-serif; background: var(--surface); }
+</style>
+</head>
+<body>
+
+<div class="scaffold" data-bg="surface">
+
+  <!-- TopAppBar -->
+  <div class="app-bar" data-bg="surface" data-p="md|md">
+    <div class="row" data-gap="md">
+      <button class="icon-btn" data-handler="navigate:back" aria-label="Back">
+        <svg class="icon" data-name="arrow_back" data-size="24" data-color="onSurface"></svg>
+      </button>
+      <span class="title-large" data-color="onSurface">Settings</span>
+      <button class="icon-btn" data-handler="action:open-menu" aria-label="More options">
+        <svg class="icon" data-name="more_vert" data-size="24" data-color="onSurface"></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="body" data-p="md|lg">
+    <div class="column" data-gap="lg">
+
+      <!-- Profile Section -->
+      <div class="row" data-gap="md">
+        <div class="stack">
+          <img class="avatar"
+               src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsLPSB-Y4PKqmxKLnzl_Oz1Jcp1b90EeEXmmhjZr2ryUG8Krp3EWgvr7hIjHFuFEjfaU1AgFrHNFf4BQFalrzBsA1uYgbeK45k94lcJjbMkvuHf4KamJtzzYGE0MC-GX5CsFJw_HJwG6VTuKLvHCdRMshbwbzVG7Z-nptdTJBURI5u8l0YqITxsCdf1_aXOn2IqXvOBa24XsK5vVsFjvytiT9yFDcPWR5BwMU8jky2CTgf_Id4VF4tf4Si6-EF_h6kFXQ0y8YjtugW"
+               alt="Elena Fisher"/>
+          <span class="badge" data-bg="onSurface" data-color="surface">
+            <svg class="icon" data-name="verified" data-size="24" data-color="surface"></svg>
+          </span>
+        </div>
+        <div class="column" data-gap="xs">
+          <span class="headline-small" data-color="onSurface">Elena Fisher</span>
+          <div class="row" data-gap="xs">
+            <svg class="icon" data-name="workspace_premium" data-size="24" data-color="onSurfaceVariant"></svg>
+            <span class="label-small" data-color="onSurfaceVariant">Premium Guardian Plan</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alert Settings Section -->
+      <div class="column" data-gap="sm">
+        <span class="label-small" data-color="onSurfaceVariant">ALERT SETTINGS</span>
+        <div class="card" data-bg="surfaceContainerLowest" data-p="md|md">
+          <div class="column" data-gap="lg">
+
+            <!-- Timeout Interval -->
+            <div class="column" data-gap="sm">
+              <div class="row" data-gap="sm">
+                <span class="label-small" data-color="onSurfaceVariant">TIMEOUT INTERVAL</span>
+                <span class="chip" data-bg="tertiaryContainer" data-color="tertiary" data-p="sm|xs">
+                  <span class="label-small">Recommended</span>
+                </span>
+              </div>
+              <div class="row" data-gap="sm">
+                <button class="filled-btn" data-bg="surfaceContainerLowest" data-color="onSurface" data-handler="action:set-timeout-2">
+                  <span class="label-small">2 min</span>
+                </button>
+                <button class="filled-btn" data-bg="surfaceContainer" data-color="onSurfaceVariant" data-handler="action:set-timeout-5">
+                  <span class="label-small">5 min</span>
+                </button>
+                <button class="filled-btn" data-bg="surfaceContainer" data-color="onSurfaceVariant" data-handler="action:set-timeout-10">
+                  <span class="label-small">10 min</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Audio Alert Toggle -->
+            <div class="list-tile" data-handler="action:toggle-audio-alert">
+              <div class="row" data-gap="md">
+                <div class="row" data-gap="md">
+                  <span class="chip" data-bg="surfaceContainer" data-color="onSurfaceVariant" data-p="sm|sm">
+                    <svg class="icon" data-name="volume_up" data-size="24" data-color="onSurfaceVariant"></svg>
+                  </span>
+                  <span class="title-small" data-color="onSurface">Audio Alert</span>
+                </div>
+                <span class="chip" data-bg="onSurface" data-color="surface" data-p="sm|xs">
+                  <span class="label-small">On</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- Vibration Toggle -->
+            <div class="list-tile" data-handler="action:toggle-vibration">
+              <div class="row" data-gap="md">
+                <div class="row" data-gap="md">
+                  <span class="chip" data-bg="surfaceContainer" data-color="onSurfaceVariant" data-p="sm|sm">
+                    <svg class="icon" data-name="vibration" data-size="24" data-color="onSurfaceVariant"></svg>
+                  </span>
+                  <span class="title-small" data-color="onSurface">Vibration</span>
+                </div>
+                <span class="chip" data-bg="onSurface" data-color="surface" data-p="sm|xs">
+                  <span class="label-small">On</span>
+                </span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Beacon Setup Section -->
+      <div class="column" data-gap="sm">
+        <span class="label-small" data-color="onSurfaceVariant">BEACON SETUP</span>
+        <div class="card" data-bg="surfaceContainerLowest" data-p="md|md">
+          <div class="column" data-gap="lg">
+
+            <!-- RSSI Threshold -->
+            <div class="column" data-gap="sm">
+              <div class="row" data-gap="sm">
+                <span class="label-small" data-color="onSurfaceVariant">RSSI THRESHOLD</span>
+                <span class="label-small" data-color="onSurface">-75 dBm</span>
+              </div>
+              <div class="stack" data-bg="surfaceContainer">
+                <div class="card" data-bg="onSurface" data-p="xs|xs"></div>
+              </div>
+              <span class="body-small" data-color="onSurfaceVariant">Adjust the sensitivity of proximity detection. A lower dBm value requires the device to be closer.</span>
+            </div>
+
+            <!-- Scan Interval -->
+            <div class="ink-well" data-route="/settings/scan-interval" data-handler="action:open-scan-interval">
+              <div class="card" data-bg="surfaceContainerLow" data-p="md|sm">
+                <div class="row" data-gap="md">
+                  <div class="row" data-gap="sm">
+                    <svg class="icon" data-name="history_toggle_off" data-size="24" data-color="onSurfaceVariant"></svg>
+                    <span class="title-small" data-color="onSurface">SCAN INTERVAL</span>
+                  </div>
+                  <div class="row" data-gap="xs">
+                    <span class="body-medium" data-color="onSurfaceVariant">15 seconds</span>
+                    <svg class="icon" data-name="unfold_more" data-size="24" data-color="onSurfaceVariant"></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Mute Notifications Section -->
+      <div class="column" data-gap="sm">
+        <span class="label-small" data-color="onSurfaceVariant">MUTE NOTIFICATIONS</span>
+        <div class="row" data-gap="sm">
+          <button class="filled-btn" data-bg="onSurface" data-color="surface" data-handler="action:mute-5">
+            <svg class="icon" data-name="schedule" data-size="24" data-color="surface"></svg>
+            <span class="label-small">5 min</span>
+          </button>
+          <button class="filled-btn" data-bg="surfaceContainerHighest" data-color="onSurfaceVariant" data-handler="action:mute-10">
+            <svg class="icon" data-name="schedule" data-size="24" data-color="onSurfaceVariant"></svg>
+            <span class="label-small">10 min</span>
+          </button>
+          <button class="filled-btn" data-bg="surfaceContainerHighest" data-color="onSurfaceVariant" data-handler="action:mute-15">
+            <svg class="icon" data-name="schedule" data-size="24" data-color="onSurfaceVariant"></svg>
+            <span class="label-small">15 min</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- General Section -->
+      <div class="column" data-gap="sm">
+        <span class="label-small" data-color="onSurfaceVariant">GENERAL</span>
+        <div class="card" data-bg="surfaceContainerLowest" data-p="sm|sm">
+          <div class="column" data-gap="xs">
+
+            <!-- System Permissions -->
+            <div class="ink-well" data-route="/settings/permissions" data-handler="navigate:system-permissions">
+              <div class="list-tile" data-p="md|sm">
+                <div class="row" data-gap="md">
+                  <div class="row" data-gap="md">
+                    <span class="chip" data-bg="surfaceContainer" data-color="onSurfaceVariant" data-p="sm|sm">
+                      <svg class="icon" data-name="security" data-size="24" data-color="onSurfaceVariant"></svg>
+                    </span>
+                    <span class="title-small" data-color="onSurface">System Permissions</span>
+                  </div>
+                  <svg class="icon" data-name="chevron_right" data-size="24" data-color="onSurfaceVariant"></svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Do Not Disturb -->
+            <div class="list-tile" data-handler="action:toggle-dnd">
+              <div class="row" data-gap="md">
+                <div class="row" data-gap="md">
+                  <span class="chip" data-bg="surfaceContainer" data-color="onSurfaceVariant" data-p="sm|sm">
+                    <svg class="icon" data-name="do_not_disturb_on" data-size="24" data-color="onSurfaceVariant"></svg>
+                  </span>
+                  <span class="title-small" data-color="onSurface">Do Not Disturb</span>
+                </div>
+                <span class="chip" data-bg="surfaceContainerHighest" data-color="onSurfaceVariant" data-p="sm|xs">
+                  <span class="label-small">Off</span>
+                </span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Sign Out Action -->
+      <button class="filled-btn" data-bg="errorContainer" data-color="error" data-handler="action:sign-out">
+        <svg class="icon" data-name="logout" data-size="24" data-color="error"></svg>
+        <span class="label-large">Sign Out</span>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- BottomNavBar -->
+  <div class="bottom-nav" data-bg="surfaceContainerLowest" data-p="md|sm">
+    <div class="row" data-gap="md">
+      <button class="icon-btn" data-handler="navigate:home" aria-label="Trang chủ">
+        <div class="column" data-gap="xs">
+          <svg class="icon" data-name="home" data-size="24" data-color="onSurfaceVariant"></svg>
+          <span class="label-small" data-color="onSurfaceVariant">Trang chủ</span>
+        </div>
+      </button>
+      <button class="icon-btn" data-handler="navigate:devices" aria-label="Thiết bị">
+        <div class="column" data-gap="xs">
+          <svg class="icon" data-name="devices" data-size="24" data-color="onSurfaceVariant"></svg>
+          <span class="label-small" data-color="onSurfaceVariant">Thiết bị</span>
+        </div>
+      </button>
+      <button class="icon-btn" data-handler="navigate:safety" aria-label="An toàn">
+        <div class="column" data-gap="xs">
+          <svg class="icon" data-name="security" data-size="24" data-color="onSurfaceVariant"></svg>
+          <span class="label-small" data-color="onSurfaceVariant">An toàn</span>
+        </div>
+      </button>
+      <button class="icon-btn" data-handler="navigate:settings" aria-label="Cài đặt">
+        <div class="column" data-gap="xs">
+          <svg class="icon" data-name="settings" data-size="24" data-color="primary"></svg>
+          <span class="label-small" data-color="primary">Cài đặt</span>
+        </div>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

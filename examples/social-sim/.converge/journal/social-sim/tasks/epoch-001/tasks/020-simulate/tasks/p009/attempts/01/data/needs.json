@@ -3,30 +3,30 @@
   "attemptNumber": 1,
   "inputs": [
     {
-      "pattern": "runs/run-001/personas.json",
+      "pattern": "runs/run-2026-04-25T01-45/personas.json",
       "count": 1,
       "samples": [
-        "runs/run-001/personas.json"
+        "runs/run-2026-04-25T01-45/personas.json"
       ]
     },
     {
-      "pattern": "runs/run-001/graph.json",
+      "pattern": "runs/run-2026-04-25T01-45/graph.json",
       "count": 1,
       "samples": [
-        "runs/run-001/graph.json"
+        "runs/run-2026-04-25T01-45/graph.json"
       ]
     },
     {
-      "pattern": "runs/run-001/timeline.jsonl",
+      "pattern": "runs/run-2026-04-25T01-45/timeline.jsonl",
       "count": 1,
       "samples": [
-        "runs/run-001/timeline.jsonl"
+        "runs/run-2026-04-25T01-45/timeline.jsonl"
       ]
     }
   ],
   "outputs": [
-    "runs/run-001/timeline.jsonl",
-    "vault/runs/run-001/actions/t1-p009-*.md"
+    "runs/run-2026-04-25T01-45/timeline.jsonl",
+    "vault/runs/run-2026-04-25T01-45/actions/t1-p009-*.md"
   ],
   "blocked": false
 }

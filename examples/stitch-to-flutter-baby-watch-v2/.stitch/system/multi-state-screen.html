@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BabyGuard — Thêm Beacon (Đa trạng thái)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --surface: #fbf9f5;
+    --surface-container-low: #f5f4ee;
+    --surface-container: #efeee8;
+    --surface-container-high: #e8e9e1;
+    --surface-container-lowest: #ffffff;
+    --surface-variant: #e2e3db;
+    --on-surface: #31332e;
+    --on-surface-variant: #5e6059;
+    --on-primary: #faf7f6;
+    --tertiary: #4f635e;
+    --tertiary-container: #dff6ee;
+    --honey: #ffecb3;
+    --shadow-soft: #e7e3dc;
+    --radius-md: 1.5rem;
+    --radius-lg: 2rem;
+    --radius-xl: 3rem;
+    --radius-full: 9999px;
+    --space-md: 24px;
+    --space-lg: 32px;
+    --shadow-ambient: 0 8px 24px rgba(231, 227, 220, 0.4);
+    --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-body: 'Manrope', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background: #d8d4cc;
+    color: var(--on-surface);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    padding: 32px 16px;
+    flex-wrap: wrap;
+  }
+
+  .phone {
+    width: 375px;
+    background: var(--surface);
+    border-radius: 40px;
+    overflow: hidden;
+    box-shadow: var(--shadow-ambient);
+    display: flex;
+    flex-direction: column;
+    min-height: 720px;
+  }
+
+  header.app-bar {
+    padding: var(--space-lg) var(--space-md) 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .back-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: var(--surface-container-low);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .app-bar h1 {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .state-eyebrow {
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--on-surface-variant);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0 var(--space-md);
+    margin-bottom: 8px;
+  }
+
+  main {
+    flex: 1;
+    padding: 0 var(--space-md) var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .scan-card {
+    background: var(--surface-container-lowest);
+    border-radius: var(--radius-xl);
+    padding: var(--space-md);
+    text-align: center;
+  }
+
+  .radar {
+    width: 160px;
+    height: 160px;
+    margin: 8px auto 16px;
+    border-radius: var(--radius-full);
+    background:
+      radial-gradient(circle, rgba(79, 99, 94, 0.18) 0%, transparent 65%),
+      var(--tertiary-container);
+    position: relative;
+  }
+  .radar::before, .radar::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-full);
+    border: 1.5px solid rgba(79, 99, 94, 0.25);
+    animation: pulse 2.4s ease-out infinite;
+  }
+  .radar::after { animation-delay: 1.2s; }
+  .radar i {
+    position: absolute;
+    inset: 38%;
+    background: var(--tertiary);
+    border-radius: var(--radius-full);
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(0.6); opacity: 0.9; }
+    100% { transform: scale(1.4); opacity: 0; }
+  }
+
+  .scan-card h2 {
+    font-family: var(--font-display);
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .scan-card p {
+    font-size: 13px;
+    color: var(--on-surface-variant);
+    margin-top: 6px;
+  }
+
+  .device-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .device-row {
+    background: var(--surface-container-lowest);
+    border-radius: var(--radius-lg);
+    padding: 18px var(--space-md);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .device-row .icon-frame {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    background: var(--surface-variant);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .device-row .info {
+    flex: 1;
+    min-width: 0;
+  }
+  .device-row .name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+  }
+  .device-row .meta {
+    font-size: 11px;
+    color: var(--on-surface-variant);
+    margin-top: 2px;
+  }
+
+  .rssi-bars {
+    display: flex;
+    gap: 3px;
+    align-items: flex-end;
+    height: 18px;
+  }
+  .rssi-bars span {
+    width: 4px;
+    background: var(--surface-container-high);
+    border-radius: 2px;
+  }
+  .rssi-bars span.on { background: var(--tertiary); }
+  .rssi-bars span:nth-child(1) { height: 30%; }
+  .rssi-bars span:nth-child(2) { height: 55%; }
+  .rssi-bars span:nth-child(3) { height: 80%; }
+  .rssi-bars span:nth-child(4) { height: 100%; }
+
+  .pill {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--tertiary-container);
+    color: var(--tertiary);
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .pill.honey { background: var(--honey); color: #6a4d00; }
+
+  .primary-cta {
+    width: 100%;
+    height: 56px;
+    border-radius: var(--radius-full);
+    background: var(--on-surface);
+    color: var(--on-primary);
+    border: none;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    transition: transform 120ms ease;
+  }
+  .primary-cta:active { transform: scale(0.98); }
+  .primary-cta[disabled] {
+    background: var(--surface-container-high);
+    color: var(--on-surface-variant);
+    cursor: not-allowed;
+  }
+
+  .input-field {
+    background: var(--surface-container);
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+  }
+  .input-field label {
+    display: block;
+    font-size: 11px;
+    color: var(--on-surface-variant);
+    margin-bottom: 4px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .input-field input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--on-surface);
+    letter-spacing: -0.01em;
+  }
+
+  .check-icon {
+    width: 64px;
+    height: 64px;
+    margin: 8px auto 16px;
+    border-radius: var(--radius-full);
+    background: var(--tertiary-container);
+    color: var(--tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+  <!-- STATE 1: Scanning -->
+  <div class="phone" role="region" aria-label="Thêm Beacon — Đang quét">
+    <header class="app-bar">
+      <button class="back-btn" type="button" aria-label="Quay lại">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <h1>Thêm Beacon</h1>
+    </header>
+    <div class="state-eyebrow">Trạng thái 1 · Đang quét</div>
+    <main>
+      <section class="scan-card" aria-busy="true" aria-live="polite">
+        <div class="radar" aria-hidden="true"><i></i></div>
+        <h2>Đang tìm thiết bị gần</h2>
+        <p>Giữ beacon trong khoảng 1 mét.</p>
+      </section>
+      <button class="primary-cta" type="button" disabled>Đang quét…</button>
+    </main>
+  </div>
+
+  <!-- STATE 2: Found -->
+  <div class="phone" role="region" aria-label="Thêm Beacon — Đã tìm thấy">
+    <header class="app-bar">
+      <button class="back-btn" type="button" aria-label="Quay lại">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <h1>Thêm Beacon</h1>
+    </header>
+    <div class="state-eyebrow">Trạng thái 2 · Đã tìm thấy</div>
+    <main>
+      <span class="pill"><span aria-hidden="true">●</span> 2 thiết bị</span>
+      <section class="device-list" aria-label="Thiết bị tìm được">
+        <article class="device-row">
+          <div class="icon-frame" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M5 12a7 7 0 0 1 14 0"/><path d="M2 12a10 10 0 0 1 20 0"/></svg>
+          </div>
+          <div class="info">
+            <div class="name">BG-Beacon-A1</div>
+            <div class="meta">MAC · D8:3F:B2 · -54 dBm</div>
+          </div>
+          <div class="rssi-bars" aria-label="Cường độ tín hiệu mạnh">
+            <span class="on"></span><span class="on"></span><span class="on"></span><span></span>
+          </div>
+        </article>
+        <article class="device-row">
+          <div class="icon-frame" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M5 12a7 7 0 0 1 14 0"/></svg>
+          </div>
+          <div class="info">
+            <div class="name">BG-Beacon-B2</div>
+            <div class="meta">MAC · A6:11:0E · -71 dBm</div>
+          </div>
+          <div class="rssi-bars" aria-label="Cường độ tín hiệu yếu">
+            <span class="on"></span><span class="on"></span><span></span><span></span>
+          </div>
+        </article>
+      </section>
+      <button class="primary-cta" type="button">Ghép nối BG-Beacon-A1</button>
+    </main>
+  </div>
+
+  <!-- STATE 3: Naming / Confirmation -->
+  <div class="phone" role="region" aria-label="Thêm Beacon — Đặt tên">
+    <header class="app-bar">
+      <button class="back-btn" type="button" aria-label="Quay lại">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <h1>Đặt tên</h1>
+    </header>
+    <div class="state-eyebrow">Trạng thái 3 · Đã ghép nối</div>
+    <main>
+      <section class="scan-card">
+        <div class="check-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </div>
+        <h2>BG-Beacon-A1 đã kết nối</h2>
+        <p>Đặt tên gợi nhớ để hiển thị trên Trang chủ.</p>
+      </section>
+      <div class="input-field">
+        <label for="bname">Tên beacon</label>
+        <input id="bname" type="text" value="Bé Su" aria-label="Tên beacon" />
+      </div>
+      <button class="primary-cta" type="button">Lưu beacon</button>
+    </main>
+  </div>
+</body>
+</html>

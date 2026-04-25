@@ -1,8 +1,0 @@
-name: default
-description: examples
-
-run:
-  mode: autonomous
-  maxIterations: 50
-  maxTaskAttempts: 3
-  resume: true

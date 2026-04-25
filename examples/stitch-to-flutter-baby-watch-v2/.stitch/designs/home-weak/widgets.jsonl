@@ -1,0 +1,5 @@
+{"name": "WeakSignalStatusPill", "grep": "Tín hiệu yếu", "description": "Alert-colored pill with signal-lost icon and label indicating weak beacon signal", "shared": false}
+{"name": "LastLocationMapCard", "grep": "Vị trí cuối cùng: 2 phút trước", "description": "Map card with pulsing avatar marker showing last known location and timestamp overlay", "shared": false}
+{"name": "BeaconInfoCard", "grep": "Apple AirTag • Beacon", "description": "Card showing beacon name, type, distance label, and a tappable 'Chi tiết beacon' detail row", "shared": false}
+{"name": "PushMuteCard", "grep": "Tạm dừng thông báo", "description": "Card with title, icon, and three mute-duration buttons (5m/10m/15m)", "shared": false}
+{"name": "HomeBottomNavBar", "grep": "navigate:devices", "description": "Bottom navigation bar with home/devices/safety/settings items for the home section", "shared": true}

@@ -1,0 +1,11 @@
+{"name": "SettingsProfileSection", "grep": "Premium Guardian Plan", "description": "Profile row with avatar, verified badge, user name, and subscription plan label", "shared": false}
+{"name": "SettingsCard", "grep": "surfaceContainerLowest", "description": "Rounded surface card container used to group settings rows with soft shadow", "shared": false}
+{"name": "TimeoutIntervalSection", "grep": "TIMEOUT INTERVAL", "description": "Timeout interval selector with Recommended badge and three segmented duration buttons", "shared": false}
+{"name": "SegmentedButton", "grep": "RoundSliderThumbShape", "description": "Pill-style segmented button used inside the timeout interval selector", "shared": false}
+{"name": "SettingsToggleRow", "grep": "Audio Alert", "description": "Row with circular icon, label, and on/off toggle chip used for boolean settings", "shared": false}
+{"name": "RssiThresholdSection", "grep": "RSSI THRESHOLD", "description": "RSSI threshold slider with dBm readout and helper description for proximity sensitivity", "shared": false}
+{"name": "ScanIntervalRow", "grep": "SCAN INTERVAL", "description": "Tappable row showing the current scan interval with chevron to open the picker", "shared": false}
+{"name": "MuteDurationChip", "grep": "action:mute-5", "description": "Selectable pill chip with clock icon and duration label for muting notifications", "shared": false}
+{"name": "PermissionsRow", "grep": "System Permissions", "description": "Tappable row with security icon that navigates to system permissions", "shared": false}
+{"name": "DoNotDisturbRow", "grep": "Do Not Disturb", "description": "Row with do-not-disturb icon, label, and toggle chip for enabling DND mode", "shared": false}
+{"name": "SignOutButton", "grep": "action:sign-out", "description": "Full-width error-colored filled button with logout icon for signing out", "shared": false}

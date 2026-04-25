@@ -1,0 +1,5 @@
+{"name": "SafeStatusPill", "grep": "Đang an toàn", "description": "Rounded mint pill with verified_user icon indicating the baby is currently safe", "shared": false}
+{"name": "BabyLocationMapCard", "grep": "VỊ TRÍ GẦN NHẤT", "description": "Map card with background image, animated baby pin, and overlay showing last known location plus locate-beacon action", "shared": false}
+{"name": "BeaconStrip", "grep": "Chi tiết beacon", "description": "Tappable card showing beacon owner, proximity, battery, and a chevron action to view beacon detail", "shared": false}
+{"name": "PushMuteSection", "grep": "Tạm dừng thông báo", "description": "Card with title, description, and three duration buttons (5/10/15 phút) for temporarily muting alerts", "shared": false}
+{"name": "AppBottomNavBar", "grep": "navigate:home", "description": "Bottom navigation bar with Home, Devices, Safety, and Settings tabs", "shared": true}

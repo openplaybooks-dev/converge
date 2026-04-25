@@ -1,0 +1,1069 @@
+{
+  "generatedAt": "2026-04-25T04:17:08.414Z",
+  "bottomNavRoutes": [
+    "/home",
+    "/devices",
+    "/safe-zones",
+    "/settings"
+  ],
+  "screens": [
+    {
+      "id": "add-beacon",
+      "route": "/devices/add",
+      "screenFile": "lib/screens/add_beacon/add_beacon_screen.dart",
+      "widgetFiles": [
+        "lib/screens/add_beacon/widgets/beacon8210card.dart",
+        "lib/screens/add_beacon/widgets/beacon_be_na_card.dart",
+        "lib/screens/add_beacon/widgets/found_devices_header.dart",
+        "lib/screens/add_beacon/widgets/radar_scan_area.dart"
+      ],
+      "elements": [
+        {
+          "elementId": "action:go-back",
+          "marker": "// @converge:element action:go-back",
+          "file": "lib/screens/add_beacon/add_beacon_screen.dart",
+          "type": "onPressed",
+          "widget": "AppBar",
+          "status": "wired",
+          "action": "Performs go-back via stateful handler",
+          "target": null
+        },
+        {
+          "elementId": "action:sync-group",
+          "marker": "// @converge:element action:sync-group",
+          "file": "lib/screens/add_beacon/add_beacon_screen.dart",
+          "type": "onTap",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform sync-group",
+          "target": null
+        },
+        {
+          "elementId": "action:connect-beacon-be-na",
+          "marker": "// @converge:element action:connect-beacon-be-na",
+          "file": "lib/screens/add_beacon/add_beacon_screen.dart",
+          "type": "onPressed",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform connect-beacon-be-na",
+          "target": null
+        },
+        {
+          "elementId": "action:connect-beacon-8210",
+          "marker": "// @converge:element action:connect-beacon-8210",
+          "file": "lib/screens/add_beacon/add_beacon_screen.dart",
+          "type": "onPressed",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform connect-beacon-8210",
+          "target": null
+        },
+        {
+          "elementId": "action:rescan",
+          "marker": "// @converge:element action:rescan",
+          "file": "lib/screens/add_beacon/add_beacon_screen.dart",
+          "type": "onPressed",
+          "widget": "Text",
+          "status": "empty",
+          "action": "Should perform rescan",
+          "target": null
+        },
+        {
+          "elementId": "action:connect-beacon-8210",
+          "marker": "// @converge:element action:connect-beacon-8210",
+          "file": "lib/screens/add_beacon/widgets/beacon8210card.dart",
+          "type": "onPressed",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform connect-beacon-8210",
+          "target": null
+        },
+        {
+          "elementId": "action:sync-group",
+          "marker": "// @converge:element action:sync-group",
+          "file": "lib/screens/add_beacon/widgets/beacon_be_na_card.dart",
+          "type": "onTap",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform sync-group",
+          "target": null
+        },
+        {
+          "elementId": "action:connect-beacon-be-na",
+          "marker": "// @converge:element action:connect-beacon-be-na",
+          "file": "lib/screens/add_beacon/widgets/beacon_be_na_card.dart",
+          "type": "onPressed",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform connect-beacon-be-na",
+          "target": null
+        }
+      ]
+    },
+    {
+      "id": "beacon-detail",
+      "route": "/devices",
+      "screenFile": "lib/screens/beacon_detail/beacon_detail_screen.dart",
+      "widgetFiles": [
+        "lib/screens/beacon_detail/widgets/beacon_hero_header.dart",
+        "lib/screens/beacon_detail/widgets/beacon_leave_group_banner.dart",
+        "lib/screens/beacon_detail/widgets/beacon_technical_details_card.dart",
+        "lib/screens/beacon_detail/widgets/followers_monitoring_card.dart"
+      ],
+      "elements": [
+        {
+          "elementId": "action:go-back",
+          "marker": "// @converge:element action:go-back",
+          "file": "lib/screens/beacon_detail/beacon_detail_screen.dart",
+          "type": "onPressed",
+          "widget": "AppBar",
+          "status": "wired",
+          "action": "Performs go-back via stateful handler",
+          "target": null
+        },
+        {
+          "elementId": "action:open-menu",
+          "marker": "// @converge:element action:open-menu",
+          "file": "lib/screens/beacon_detail/beacon_detail_screen.dart",
+          "type": "onPressed",
+          "widget": "With",
+          "status": "empty",
+          "action": "Should perform open-menu",
+          "target": null
+        },
+        {
+          "elementId": "action:leave-group",
+          "marker": "// @converge:element action:leave-group",
+          "file": "lib/screens/beacon_detail/widgets/beacon_leave_group_banner.dart",
+          "type": "onPressed",
+          "widget": "Padding",
+          "status": "empty",
+          "action": "Should perform leave-group",
+          "target": null
+        },
+        {
+          "elementId": "action:toggle-tech-details",
+          "marker": "// @converge:element action:toggle-tech-details",
+          "file": "lib/screens/beacon_detail/widgets/beacon_technical_details_card.dart",
+          "type": "onTap",
+          "widget": "Column",
+          "status": "empty",
+          "action": "Should perform toggle-tech-details",
+          "target": null
+        },
+        {
+          "elementId": "action:invite-follower",
+          "marker": "// @converge:element action:invite-follower",
+          "file": "lib/screens/beacon_detail/widgets/followers_monitoring_card.dart",
+          "type": "onPressed",
+          "widget": "SizedBox",
+          "status": "wired",
+          "action": "Performs invite-follower via stateful handler",
+          "target": null
+        },
+        {
+          "elementId": "navigate:manage-followers",
+          "marker": "// @converge:element navigate:manage-followers",
+          "file": "lib/screens/beacon_detail/widgets/followers_monitoring_card.dart",
+          "type": "onTap",
+          "widget": "SizedBox",
+          "status": "wired",
+          "action": "Calls context.push('/devices/co-guardians')",
+          "target": "/devices/co-guardians"
+        }
+      ]
+    },
+    {
+      "id": "co-guardians-list",
+      "route": "/devices/co-guardians",
+      "screenFile": "lib/screens/co_guardians_list/co_guardians_list_screen.dart",
+      "widgetFiles": [
+        "lib/screens/co_guardians_list/widgets/avatar_with_shield_badge.dart",
+        "lib/screens/co_guardians_list/widgets/invitation_card.dart",
+        "lib/screens/co_guardians_list/widgets/system_status_footer.dart"
+      ],
+      "elements": [
+        {
+          "elementId": "navigate:back",
+          "marker": "// @converge:element navigate:back",
+          "file": "lib/screens/co_guardians_list/co_guardians_list_screen.dart",
+          "type": "onPressed",
+          "widget": "AppBar",
+          "status": "wired",
+          "action": "Calls context.pop()",
+          "target": null
+        },
+        {
+          "elementId": "action:accept-invitation",
+          "marker": "// @converge:element action:accept-invitation",
+          "file": "lib/screens/co_guardians_list/widgets/invitation_card.dart",
+          "type": "onPressed",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform accept-invitation",
+          "target": null
+        },
+        {
+          "elementId": "action:decline-invitation",
+          "marker": "// @converge:element action:decline-invitation",
+          "file": "lib/screens/co_guardians_list/widgets/invitation_card.dart",
+          "type": "onPressed",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform decline-invitation",
+          "target": null
+        }
+      ]
+    },
+    {
+      "id": "history",
+      "route": "/history",
+      "screenFile": "lib/screens/history/history_screen.dart",
+      "widgetFiles": [
+        "lib/screens/history/widgets/history_event_card.dart",
+        "lib/screens/history/widgets/history_filter_pill.dart"
+      ],
+      "elements": [
+        {
+          "elementId": "action:open-search",
+          "marker": "// @converge:element action:open-search",
+          "file": "lib/screens/history/history_screen.dart",
+          "type": "onPressed",
+          "widget": "With",
+          "status": "empty",
+          "action": "Should perform open-search",
+          "target": null
+        },
+        {
+          "elementId": "action:open-menu",
+          "marker": "// @converge:element action:open-menu",
+          "file": "lib/screens/history/history_screen.dart",
+          "type": "onPressed",
+          "widget": "Icon",
+          "status": "empty",
+          "action": "Should perform open-menu",
+          "target": null
+        },
+        {
+          "elementId": "action:filter-today",
+          "marker": "// @converge:element action:filter-today",
+          "file": "lib/screens/history/history_screen.dart",
+          "type": "onTap",
+          "widget": "Row",
+          "status": "wired",
+          "action": "Performs filter-today via stateful handler",
+          "target": null
+        },
+        {
+          "elementId": "action:filter-yesterday",
+          "marker": "// @converge:element action:filter-yesterday",
+          "file": "lib/screens/history/history_screen.dart",
+          "type": "onTap",
+          "widget": "Row",
+          "status": "wired",
+          "action": "Performs filter-yesterday via stateful handler",
+          "target": null
+        },
+        {
+          "elementId": "action:filter-7-days",
+          "marker": "// @converge:element action:filter-7-days",
+          "file": "lib/screens/history/history_screen.dart",
+          "type": "onTap",
+          "widget": "Row",
+          "status": "wired",
+          "action": "Performs filter-7-days via stateful handler",
+          "target": null
+        },
+        {
+          "elementId": "navigate:event-detail",
+          "marker": "// @converge:element navigate:event-detail",
+          "file": "lib/screens/history/history_screen.dart",
+          "type": "unknown",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Navigate to /history",
+          "target": "/history"
+        },
+        {
+          "elementId": "navigate:event-detail",
+          "marker": "// @converge:element navigate:event-detail",
+          "file": "lib/screens/history/history_screen.dart",
+          "type": "unknown",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Navigate to /history",
+          "target": "/history"
+        },
+        {
+          "elementId": "navigate:event-detail",
+          "marker": "// @converge:element navigate:event-detail",
+          "file": "lib/screens/history/history_screen.dart",
+          "type": "unknown",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Navigate to /history",
+          "target": "/history"
+        },
+        {
+          "elementId": "action:export-logs",
+          "marker": "// @converge:element action:export-logs",
+          "file": "lib/screens/history/history_screen.dart",
+          "type": "onPressed",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform export-logs",
+          "target": null
+        },
+        {
+          "elementId": "action:clear-history",
+          "marker": "// @converge:element action:clear-history",
+          "file": "lib/screens/history/history_screen.dart",
+          "type": "onPressed",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform clear-history",
+          "target": null
+        },
+        {
+          "elementId": "navigate:home",
+          "marker": "// @converge:element navigate:home",
+          "file": "lib/screens/history/history_screen.dart",
+          "type": "unknown",
+          "widget": "With",
+          "status": "empty",
+          "action": "Navigate to /home",
+          "target": "/home"
+        },
+        {
+          "elementId": "navigate:devices",
+          "marker": "// @converge:element navigate:devices",
+          "file": "lib/screens/history/history_screen.dart",
+          "type": "unknown",
+          "widget": "With",
+          "status": "empty",
+          "action": "Navigate to /devices",
+          "target": "/devices"
+        },
+        {
+          "elementId": "navigate:safety",
+          "marker": "// @converge:element navigate:safety",
+          "file": "lib/screens/history/history_screen.dart",
+          "type": "unknown",
+          "widget": "With",
+          "status": "empty",
+          "action": "Navigate to /safe-zones",
+          "target": "/safe-zones"
+        },
+        {
+          "elementId": "navigate:settings",
+          "marker": "// @converge:element navigate:settings",
+          "file": "lib/screens/history/history_screen.dart",
+          "type": "unknown",
+          "widget": "With",
+          "status": "empty",
+          "action": "Navigate to /settings",
+          "target": "/settings"
+        }
+      ]
+    },
+    {
+      "id": "home-alert",
+      "route": "/home",
+      "screenFile": "lib/screens/home_alert/home_alert_screen.dart",
+      "widgetFiles": [
+        "lib/screens/home_alert/widgets/alert_action_buttons.dart",
+        "lib/screens/home_alert/widgets/alert_map_card.dart",
+        "lib/screens/home_alert/widgets/alert_status_pill.dart",
+        "lib/screens/home_alert/widgets/beacon_info_card.dart"
+      ],
+      "elements": [
+        {
+          "elementId": "action:open-menu",
+          "marker": "// @converge:element action:open-menu",
+          "file": "lib/screens/home_alert/home_alert_screen.dart",
+          "type": "onPressed",
+          "widget": "AppBar",
+          "status": "empty",
+          "action": "Should perform open-menu",
+          "target": null
+        },
+        {
+          "elementId": "action:acknowledge-alert",
+          "marker": "// @converge:element action:acknowledge-alert",
+          "file": "lib/screens/home_alert/widgets/alert_action_buttons.dart",
+          "type": "onPressed",
+          "widget": "Column",
+          "status": "empty",
+          "action": "Should perform acknowledge-alert",
+          "target": null
+        },
+        {
+          "elementId": "action:toggle-mute",
+          "marker": "// @converge:element action:toggle-mute",
+          "file": "lib/screens/home_alert/widgets/alert_action_buttons.dart",
+          "type": "onPressed",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform toggle-mute",
+          "target": null
+        },
+        {
+          "elementId": "action:locate-beacon",
+          "marker": "// @converge:element action:locate-beacon",
+          "file": "lib/screens/home_alert/widgets/alert_map_card.dart",
+          "type": "onPressed",
+          "widget": "With",
+          "status": "empty",
+          "action": "Should perform locate-beacon",
+          "target": null
+        },
+        {
+          "elementId": "navigate:beacon-settings",
+          "marker": "// @converge:element navigate:beacon-settings",
+          "file": "lib/screens/home_alert/widgets/beacon_info_card.dart",
+          "type": "onPressed",
+          "widget": "With",
+          "status": "wired",
+          "action": "Calls context.push('/devices')",
+          "target": "/devices"
+        },
+        {
+          "elementId": "navigate:beacon-detail",
+          "marker": "// @converge:element navigate:beacon-detail",
+          "file": "lib/screens/home_alert/widgets/beacon_info_card.dart",
+          "type": "onTap",
+          "widget": "SizedBox",
+          "status": "wired",
+          "action": "Calls context.push('/devices')",
+          "target": "/devices"
+        }
+      ]
+    },
+    {
+      "id": "home-safe",
+      "route": "/home",
+      "screenFile": "lib/screens/home_safe/home_safe_screen.dart",
+      "widgetFiles": [
+        "lib/screens/home_safe/widgets/baby_location_map_card.dart",
+        "lib/screens/home_safe/widgets/beacon_strip.dart",
+        "lib/screens/home_safe/widgets/push_mute_section.dart",
+        "lib/screens/home_safe/widgets/safe_status_pill.dart"
+      ],
+      "elements": [
+        {
+          "elementId": "navigate:notifications",
+          "marker": "// @converge:element navigate:notifications",
+          "file": "lib/screens/home_safe/home_safe_screen.dart",
+          "type": "onPressed",
+          "widget": "With",
+          "status": "empty",
+          "action": "Navigate to /settings",
+          "target": "/settings"
+        },
+        {
+          "elementId": "action:locate-beacon",
+          "marker": "// @converge:element action:locate-beacon",
+          "file": "lib/screens/home_safe/widgets/baby_location_map_card.dart",
+          "type": "onPressed",
+          "widget": "With",
+          "status": "empty",
+          "action": "Should perform locate-beacon",
+          "target": null
+        },
+        {
+          "elementId": "navigate:beacon-detail",
+          "marker": "// @converge:element navigate:beacon-detail",
+          "file": "lib/screens/home_safe/widgets/beacon_strip.dart",
+          "type": "onTap",
+          "widget": "Card",
+          "status": "wired",
+          "action": "Calls context.push('/devices')",
+          "target": "/devices"
+        },
+        {
+          "elementId": "navigate:beacon-detail",
+          "marker": "// @converge:element navigate:beacon-detail",
+          "file": "lib/screens/home_safe/widgets/beacon_strip.dart",
+          "type": "onPressed",
+          "widget": "With",
+          "status": "wired",
+          "action": "Calls context.push('/devices')",
+          "target": "/devices"
+        },
+        {
+          "elementId": "action:mute-5min",
+          "marker": "// @converge:element action:mute-5min",
+          "file": "lib/screens/home_safe/widgets/push_mute_section.dart",
+          "type": "onPressed",
+          "widget": "Row",
+          "status": "empty",
+          "action": "Should perform mute-5min",
+          "target": null
+        },
+        {
+          "elementId": "action:mute-10min",
+          "marker": "// @converge:element action:mute-10min",
+          "file": "lib/screens/home_safe/widgets/push_mute_section.dart",
+          "type": "onPressed",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform mute-10min",
+          "target": null
+        },
+        {
+          "elementId": "action:mute-15min",
+          "marker": "// @converge:element action:mute-15min",
+          "file": "lib/screens/home_safe/widgets/push_mute_section.dart",
+          "type": "onPressed",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform mute-15min",
+          "target": null
+        }
+      ]
+    },
+    {
+      "id": "home-weak",
+      "route": "/home",
+      "screenFile": "lib/screens/home_weak/home_weak_screen.dart",
+      "widgetFiles": [
+        "lib/screens/home_weak/widgets/beacon_info_card.dart",
+        "lib/screens/home_weak/widgets/last_location_map_card.dart",
+        "lib/screens/home_weak/widgets/push_mute_card.dart",
+        "lib/screens/home_weak/widgets/weak_signal_status_pill.dart"
+      ],
+      "elements": [
+        {
+          "elementId": "navigate:notifications",
+          "marker": "// @converge:element navigate:notifications",
+          "file": "lib/screens/home_weak/home_weak_screen.dart",
+          "type": "onPressed",
+          "widget": "With",
+          "status": "empty",
+          "action": "Navigate to /settings",
+          "target": "/settings"
+        },
+        {
+          "elementId": "action:tracking-status",
+          "marker": "// @converge:element action:tracking-status",
+          "file": "lib/screens/home_weak/home_weak_screen.dart",
+          "type": "onPressed",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform tracking-status",
+          "target": null
+        },
+        {
+          "elementId": "navigate:beacon-detail",
+          "marker": "// @converge:element navigate:beacon-detail",
+          "file": "lib/screens/home_weak/widgets/beacon_info_card.dart",
+          "type": "onTap",
+          "widget": "With",
+          "status": "wired",
+          "action": "Calls context.push('/devices')",
+          "target": "/devices"
+        },
+        {
+          "elementId": "navigate:beacon-detail",
+          "marker": "// @converge:element navigate:beacon-detail",
+          "file": "lib/screens/home_weak/widgets/beacon_info_card.dart",
+          "type": "onPressed",
+          "widget": "Row",
+          "status": "wired",
+          "action": "Calls context.push('/devices')",
+          "target": "/devices"
+        },
+        {
+          "elementId": "action:mute-5min",
+          "marker": "// @converge:element action:mute-5min",
+          "file": "lib/screens/home_weak/widgets/push_mute_card.dart",
+          "type": "onPressed",
+          "widget": "Row",
+          "status": "empty",
+          "action": "Should perform mute-5min",
+          "target": null
+        },
+        {
+          "elementId": "action:mute-10min",
+          "marker": "// @converge:element action:mute-10min",
+          "file": "lib/screens/home_weak/widgets/push_mute_card.dart",
+          "type": "onPressed",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform mute-10min",
+          "target": null
+        },
+        {
+          "elementId": "action:mute-15min",
+          "marker": "// @converge:element action:mute-15min",
+          "file": "lib/screens/home_weak/widgets/push_mute_card.dart",
+          "type": "onPressed",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform mute-15min",
+          "target": null
+        }
+      ]
+    },
+    {
+      "id": "onboarding",
+      "route": "/onboarding",
+      "screenFile": "lib/screens/onboarding/onboarding_screen.dart",
+      "widgetFiles": [],
+      "elements": [
+        {
+          "elementId": "navigate:back",
+          "marker": "// @converge:element navigate:back",
+          "file": "lib/screens/onboarding/onboarding_screen.dart",
+          "type": "onPressed",
+          "widget": "AppBar",
+          "status": "wired",
+          "action": "Calls context.pop()",
+          "target": null
+        },
+        {
+          "elementId": "navigate:skip-onboarding",
+          "marker": "// @converge:element navigate:skip-onboarding",
+          "file": "lib/screens/onboarding/onboarding_screen.dart",
+          "type": "onPressed",
+          "widget": "With",
+          "status": "wired",
+          "action": "Calls context.go('/home')",
+          "target": "/home"
+        },
+        {
+          "elementId": "navigate:onboarding-next",
+          "marker": "// @converge:element navigate:onboarding-next",
+          "file": "lib/screens/onboarding/onboarding_screen.dart",
+          "type": "onPressed",
+          "widget": "SizedBox",
+          "status": "wired",
+          "action": "Calls context.go('/home')",
+          "target": "/onboarding"
+        }
+      ]
+    },
+    {
+      "id": "safe-zones",
+      "route": "/security",
+      "screenFile": "lib/screens/safe_zones/safe_zones_screen.dart",
+      "widgetFiles": [
+        "lib/screens/safe_zones/widgets/insight_tile.dart",
+        "lib/screens/safe_zones/widgets/safe_zone_card.dart",
+        "lib/screens/safe_zones/widgets/safe_zones_map_card.dart"
+      ],
+      "elements": [
+        {
+          "elementId": "action:open-menu",
+          "marker": "// @converge:element action:open-menu",
+          "file": "lib/screens/safe_zones/safe_zones_screen.dart",
+          "type": "onPressed",
+          "widget": "AppBar",
+          "status": "empty",
+          "action": "Should perform open-menu",
+          "target": null
+        },
+        {
+          "elementId": "navigate:zone-detail",
+          "marker": "// @converge:element navigate:zone-detail",
+          "file": "lib/screens/safe_zones/safe_zones_screen.dart",
+          "type": "unknown",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Navigate to /safe-zones",
+          "target": "/safe-zones"
+        },
+        {
+          "elementId": "action:toggle-zone-home",
+          "marker": "// @converge:element action:toggle-zone-home",
+          "file": "lib/screens/safe_zones/safe_zones_screen.dart",
+          "type": "unknown",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform toggle-zone-home",
+          "target": null
+        },
+        {
+          "elementId": "action:edit-zone-home",
+          "marker": "// @converge:element action:edit-zone-home",
+          "file": "lib/screens/safe_zones/safe_zones_screen.dart",
+          "type": "unknown",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform edit-zone-home",
+          "target": null
+        },
+        {
+          "elementId": "navigate:zone-detail",
+          "marker": "// @converge:element navigate:zone-detail",
+          "file": "lib/screens/safe_zones/safe_zones_screen.dart",
+          "type": "unknown",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Navigate to /safe-zones",
+          "target": "/safe-zones"
+        },
+        {
+          "elementId": "action:toggle-zone-school",
+          "marker": "// @converge:element action:toggle-zone-school",
+          "file": "lib/screens/safe_zones/safe_zones_screen.dart",
+          "type": "unknown",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform toggle-zone-school",
+          "target": null
+        },
+        {
+          "elementId": "action:edit-zone-school",
+          "marker": "// @converge:element action:edit-zone-school",
+          "file": "lib/screens/safe_zones/safe_zones_screen.dart",
+          "type": "unknown",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform edit-zone-school",
+          "target": null
+        },
+        {
+          "elementId": "navigate:zone-detail",
+          "marker": "// @converge:element navigate:zone-detail",
+          "file": "lib/screens/safe_zones/safe_zones_screen.dart",
+          "type": "unknown",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Navigate to /safe-zones",
+          "target": "/safe-zones"
+        },
+        {
+          "elementId": "action:toggle-zone-grandma",
+          "marker": "// @converge:element action:toggle-zone-grandma",
+          "file": "lib/screens/safe_zones/safe_zones_screen.dart",
+          "type": "unknown",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform toggle-zone-grandma",
+          "target": null
+        },
+        {
+          "elementId": "action:edit-zone-grandma",
+          "marker": "// @converge:element action:edit-zone-grandma",
+          "file": "lib/screens/safe_zones/safe_zones_screen.dart",
+          "type": "unknown",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform edit-zone-grandma",
+          "target": null
+        },
+        {
+          "elementId": "action:add-safe-zone",
+          "marker": "// @converge:element action:add-safe-zone",
+          "file": "lib/screens/safe_zones/safe_zones_screen.dart",
+          "type": "onPressed",
+          "widget": "InsightTile",
+          "status": "empty",
+          "action": "Should perform add-safe-zone",
+          "target": null
+        },
+        {
+          "elementId": "navigate:home",
+          "marker": "// @converge:element navigate:home",
+          "file": "lib/screens/safe_zones/safe_zones_screen.dart",
+          "type": "unknown",
+          "widget": "With",
+          "status": "empty",
+          "action": "Navigate to /home",
+          "target": "/home"
+        },
+        {
+          "elementId": "navigate:devices",
+          "marker": "// @converge:element navigate:devices",
+          "file": "lib/screens/safe_zones/safe_zones_screen.dart",
+          "type": "unknown",
+          "widget": "With",
+          "status": "empty",
+          "action": "Navigate to /devices",
+          "target": "/devices"
+        },
+        {
+          "elementId": "navigate:safety",
+          "marker": "// @converge:element navigate:safety",
+          "file": "lib/screens/safe_zones/safe_zones_screen.dart",
+          "type": "unknown",
+          "widget": "With",
+          "status": "empty",
+          "action": "Navigate to /safe-zones",
+          "target": "/safe-zones"
+        },
+        {
+          "elementId": "navigate:settings",
+          "marker": "// @converge:element navigate:settings",
+          "file": "lib/screens/safe_zones/safe_zones_screen.dart",
+          "type": "unknown",
+          "widget": "With",
+          "status": "empty",
+          "action": "Navigate to /settings",
+          "target": "/settings"
+        },
+        {
+          "elementId": "action:edit-zone",
+          "marker": "// @converge:element action:edit-zone",
+          "file": "lib/screens/safe_zones/widgets/safe_zone_card.dart",
+          "type": "onPressed",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform edit-zone",
+          "target": null
+        }
+      ]
+    },
+    {
+      "id": "settings",
+      "route": "/settings",
+      "screenFile": "lib/screens/settings/settings_screen.dart",
+      "widgetFiles": [
+        "lib/screens/settings/widgets/do_not_disturb_row.dart",
+        "lib/screens/settings/widgets/mute_duration_chip.dart",
+        "lib/screens/settings/widgets/permissions_row.dart",
+        "lib/screens/settings/widgets/rssi_threshold_section.dart",
+        "lib/screens/settings/widgets/scan_interval_row.dart",
+        "lib/screens/settings/widgets/segmented_button.dart",
+        "lib/screens/settings/widgets/settings_card.dart",
+        "lib/screens/settings/widgets/settings_profile_section.dart",
+        "lib/screens/settings/widgets/settings_toggle_row.dart",
+        "lib/screens/settings/widgets/sign_out_button.dart",
+        "lib/screens/settings/widgets/timeout_interval_section.dart"
+      ],
+      "elements": [
+        {
+          "elementId": "navigate:back",
+          "marker": "// @converge:element navigate:back",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "type": "onPressed",
+          "widget": "AppBar",
+          "status": "wired",
+          "action": "Calls context.pop()",
+          "target": null
+        },
+        {
+          "elementId": "action:open-menu",
+          "marker": "// @converge:element action:open-menu",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "type": "onPressed",
+          "widget": "With",
+          "status": "empty",
+          "action": "Should perform open-menu",
+          "target": null
+        },
+        {
+          "elementId": "action:toggle-audio-alert",
+          "marker": "// @converge:element action:toggle-audio-alert",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "type": "onChanged",
+          "widget": "SizedBox",
+          "status": "wired",
+          "action": "Performs toggle-audio-alert via stateful handler",
+          "target": null
+        },
+        {
+          "elementId": "action:toggle-vibration",
+          "marker": "// @converge:element action:toggle-vibration",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "type": "onChanged",
+          "widget": "SizedBox",
+          "status": "wired",
+          "action": "Performs toggle-vibration via stateful handler",
+          "target": null
+        },
+        {
+          "elementId": "action:open-scan-interval",
+          "marker": "// @converge:element action:open-scan-interval",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "type": "onTap",
+          "widget": "SizedBox",
+          "status": "wired",
+          "action": "Performs open-scan-interval via stateful handler",
+          "target": null
+        },
+        {
+          "elementId": "action:mute-5",
+          "marker": "// @converge:element action:mute-5",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "type": "onTap",
+          "widget": "Row",
+          "status": "wired",
+          "action": "Performs mute-5 via stateful handler",
+          "target": null
+        },
+        {
+          "elementId": "action:mute-10",
+          "marker": "// @converge:element action:mute-10",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "type": "onTap",
+          "widget": "SizedBox",
+          "status": "wired",
+          "action": "Performs mute-10 via stateful handler",
+          "target": null
+        },
+        {
+          "elementId": "action:mute-15",
+          "marker": "// @converge:element action:mute-15",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "type": "onTap",
+          "widget": "SizedBox",
+          "status": "wired",
+          "action": "Performs mute-15 via stateful handler",
+          "target": null
+        },
+        {
+          "elementId": "navigate:system-permissions",
+          "marker": "// @converge:element navigate:system-permissions",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "type": "onTap",
+          "widget": "SettingsCard",
+          "status": "wired",
+          "action": "Navigate to /settings",
+          "target": "/settings"
+        },
+        {
+          "elementId": "action:toggle-dnd",
+          "marker": "// @converge:element action:toggle-dnd",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "type": "onChanged",
+          "widget": "PermissionsRow",
+          "status": "wired",
+          "action": "Performs toggle-dnd via stateful handler",
+          "target": null
+        },
+        {
+          "elementId": "action:sign-out",
+          "marker": "// @converge:element action:sign-out",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "type": "onPressed",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform sign-out",
+          "target": null
+        },
+        {
+          "elementId": "navigate:home",
+          "marker": "// @converge:element navigate:home",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "type": "unknown",
+          "widget": "SignOutButton",
+          "status": "empty",
+          "action": "Navigate to /home",
+          "target": "/home"
+        },
+        {
+          "elementId": "navigate:devices",
+          "marker": "// @converge:element navigate:devices",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "type": "unknown",
+          "widget": "SignOutButton",
+          "status": "empty",
+          "action": "Navigate to /devices",
+          "target": "/devices"
+        },
+        {
+          "elementId": "navigate:safety",
+          "marker": "// @converge:element navigate:safety",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "type": "unknown",
+          "widget": "SignOutButton",
+          "status": "empty",
+          "action": "Navigate to /safe-zones",
+          "target": "/safe-zones"
+        },
+        {
+          "elementId": "navigate:settings",
+          "marker": "// @converge:element navigate:settings",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "type": "unknown",
+          "widget": "SignOutButton",
+          "status": "empty",
+          "action": "Navigate to /settings",
+          "target": "/settings"
+        },
+        {
+          "elementId": "action:set-timeout-2",
+          "marker": "// @converge:element action:set-timeout-2",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "type": "onTap",
+          "widget": "Row",
+          "status": "empty",
+          "action": "Should perform set-timeout-2",
+          "target": null
+        },
+        {
+          "elementId": "action:set-timeout-5",
+          "marker": "// @converge:element action:set-timeout-5",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "type": "onTap",
+          "widget": "Selected",
+          "status": "empty",
+          "action": "Should perform set-timeout-5",
+          "target": null
+        },
+        {
+          "elementId": "action:set-timeout-10",
+          "marker": "// @converge:element action:set-timeout-10",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "type": "onTap",
+          "widget": "Selected",
+          "status": "empty",
+          "action": "Should perform set-timeout-10",
+          "target": null
+        },
+        {
+          "elementId": "action:adjust-rssi",
+          "marker": "// @converge:element action:adjust-rssi",
+          "file": "lib/screens/settings/settings_screen.dart",
+          "type": "onChanged",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform adjust-rssi",
+          "target": null
+        },
+        {
+          "elementId": "action:adjust-rssi",
+          "marker": "// @converge:element action:adjust-rssi",
+          "file": "lib/screens/settings/widgets/rssi_threshold_section.dart",
+          "type": "onChanged",
+          "widget": "SizedBox",
+          "status": "empty",
+          "action": "Should perform adjust-rssi",
+          "target": null
+        },
+        {
+          "elementId": "action:set-timeout-2",
+          "marker": "// @converge:element action:set-timeout-2",
+          "file": "lib/screens/settings/widgets/timeout_interval_section.dart",
+          "type": "onTap",
+          "widget": "Row",
+          "status": "empty",
+          "action": "Should perform set-timeout-2",
+          "target": null
+        },
+        {
+          "elementId": "action:set-timeout-5",
+          "marker": "// @converge:element action:set-timeout-5",
+          "file": "lib/screens/settings/widgets/timeout_interval_section.dart",
+          "type": "onTap",
+          "widget": "Selected",
+          "status": "empty",
+          "action": "Should perform set-timeout-5",
+          "target": null
+        },
+        {
+          "elementId": "action:set-timeout-10",
+          "marker": "// @converge:element action:set-timeout-10",
+          "file": "lib/screens/settings/widgets/timeout_interval_section.dart",
+          "type": "onTap",
+          "widget": "Selected",
+          "status": "empty",
+          "action": "Should perform set-timeout-10",
+          "target": null
+        }
+      ]
+    }
+  ]
+}

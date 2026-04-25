@@ -1,6 +1,6 @@
 {
   "attemptNumber": 1,
-  "startedAt": "2026-04-25T00:27:05.540Z",
+  "startedAt": "2026-04-25T01:45:40.237Z",
   "projectDir": "/Users/minh/Documents/converge/examples/social-sim",
   "playbookName": "social-sim",
   "parentTaskDir": ".converge/playbooks/social-sim",
@@ -19,7 +19,7 @@
     "recommender": "hot-score",
     "seedPosts": "1",
     "seed": "42",
-    "runId": "run-001",
+    "runId": "",
     "epoch": "1"
   },
   "ctxMethods": [

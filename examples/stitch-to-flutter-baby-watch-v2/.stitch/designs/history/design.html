@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BabyGuard — History</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+  body { font-family: 'Manrope', sans-serif; background: var(--surface); }
+</style>
+</head>
+<body>
+
+<div class="scaffold" data-bg="surface">
+
+  <!-- TopAppBar -->
+  <div class="app-bar" data-bg="surface" data-p="md|md">
+    <div class="row" data-gap="md">
+      <img class="avatar"
+           src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmcp_DK21b9oaJBBfn1A5_exPcpYHVrfRsyoO8bu2XA6wHA1XVV_GNNXA8LZ53cG-0OptNKyLs5Ux-MP2Rd_lwuOtgj-2fcMbzjYIcmTqR9cCBFyhYgnAEKwUSiuMBFwmqTg7NW9OsBFk57iODLQYHPYV0zE8uEvDvOL7XKY91KN53AzfLyEu0w-rcR5B_XyJwnXeukynCkTZ3eEGkmlUSIzjgctgq3jjsN07Ws1KhP5_-w6z-F1gPg1mrq86OsfVxiv0qVYE2vhKq"
+           alt="Profile"/>
+      <span class="headline-small" data-color="onSurface">History</span>
+      <button class="icon-btn" data-handler="action:open-search" aria-label="Search">
+        <svg class="icon" data-name="search" data-size="24" data-color="onSurface"></svg>
+      </button>
+      <button class="icon-btn" data-handler="action:open-menu" aria-label="More options">
+        <svg class="icon" data-name="more_vert" data-size="24" data-color="onSurface"></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="body" data-p="md|lg">
+    <div class="column" data-gap="lg">
+
+      <!-- Filter Bar -->
+      <div class="row" data-gap="sm">
+        <button class="filled-btn" data-bg="onSurface" data-color="surface" data-handler="action:filter-today">
+          <span class="label-small">Today</span>
+        </button>
+        <button class="filled-btn" data-bg="surfaceContainerHigh" data-color="onSurfaceVariant" data-handler="action:filter-yesterday">
+          <span class="label-small">Yesterday</span>
+        </button>
+        <button class="filled-btn" data-bg="surfaceContainerHigh" data-color="onSurfaceVariant" data-handler="action:filter-7-days">
+          <span class="label-small">Last 7 Days</span>
+        </button>
+      </div>
+
+      <!-- Event List -->
+      <div class="column" data-gap="md">
+
+        <!-- Alert Event 1: Left Safe Zone -->
+        <div class="ink-well" data-route="/history/event/left-safe-zone" data-handler="navigate:event-detail">
+          <div class="card" data-bg="errorContainer" data-p="md|md">
+            <div class="column" data-gap="md">
+              <div class="row" data-gap="sm">
+                <div class="column" data-gap="xs">
+                  <span class="label-small" data-color="error">ALERT EVENT</span>
+                  <span class="title-large" data-color="onSurface">Left Safe Zone</span>
+                </div>
+                <span class="chip" data-bg="surface" data-color="error" data-p="md|sm">
+                  <svg class="icon" data-name="warning" data-size="24" data-color="error"></svg>
+                  <span class="label-small">Alert</span>
+                </span>
+              </div>
+              <div class="row" data-gap="md">
+                <div class="column" data-gap="xs">
+                  <div class="row" data-gap="xs">
+                    <svg class="icon" data-name="child_care" data-size="24" data-color="onSurfaceVariant"></svg>
+                    <span class="body-medium" data-color="onSurfaceVariant">Bé Na</span>
+                  </div>
+                  <div class="row" data-gap="xs">
+                    <svg class="icon" data-name="schedule" data-size="24" data-color="onSurfaceVariant"></svg>
+                    <span class="body-medium" data-color="onSurfaceVariant">10:24 AM • 4m duration</span>
+                  </div>
+                </div>
+                <span class="chip" data-bg="surface" data-color="error" data-p="md|sm">
+                  <span class="label-small">Left Safe Zone</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Safe Event 2: Back Home -->
+        <div class="ink-well" data-route="/history/event/back-home" data-handler="navigate:event-detail">
+          <div class="card" data-bg="tertiaryContainer" data-p="md|md">
+            <div class="column" data-gap="md">
+              <div class="row" data-gap="sm">
+                <div class="column" data-gap="xs">
+                  <span class="label-small" data-color="tertiary">SAFE EVENT</span>
+                  <span class="title-large" data-color="onSurface">Back Home</span>
+                </div>
+                <span class="chip" data-bg="surface" data-color="tertiary" data-p="md|sm">
+                  <svg class="icon" data-name="verified_user" data-size="24" data-color="tertiary"></svg>
+                  <span class="label-small">Safe</span>
+                </span>
+              </div>
+              <div class="row" data-gap="md">
+                <div class="column" data-gap="xs">
+                  <div class="row" data-gap="xs">
+                    <svg class="icon" data-name="child_care" data-size="24" data-color="onSurfaceVariant"></svg>
+                    <span class="body-medium" data-color="onSurfaceVariant">Bé Na</span>
+                  </div>
+                  <div class="row" data-gap="xs">
+                    <svg class="icon" data-name="schedule" data-size="24" data-color="onSurfaceVariant"></svg>
+                    <span class="body-medium" data-color="onSurfaceVariant">09:15 AM</span>
+                  </div>
+                </div>
+                <span class="chip" data-bg="surface" data-color="tertiary" data-p="md|sm">
+                  <span class="label-small">Back Home</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alert Event 3: Connection Lost -->
+        <div class="ink-well" data-route="/history/event/connection-lost" data-handler="navigate:event-detail">
+          <div class="card" data-bg="errorContainer" data-p="md|md">
+            <div class="column" data-gap="md">
+              <div class="row" data-gap="sm">
+                <div class="column" data-gap="xs">
+                  <span class="label-small" data-color="error">ALERT EVENT</span>
+                  <span class="title-large" data-color="onSurface">Connection Lost</span>
+                </div>
+                <span class="chip" data-bg="surface" data-color="error" data-p="md|sm">
+                  <svg class="icon" data-name="link_off" data-size="24" data-color="error"></svg>
+                  <span class="label-small">Offline</span>
+                </span>
+              </div>
+              <div class="row" data-gap="md">
+                <div class="column" data-gap="xs">
+                  <div class="row" data-gap="xs">
+                    <svg class="icon" data-name="child_care" data-size="24" data-color="onSurfaceVariant"></svg>
+                    <span class="body-medium" data-color="onSurfaceVariant">Bé Na</span>
+                  </div>
+                  <div class="row" data-gap="xs">
+                    <svg class="icon" data-name="history" data-size="24" data-color="onSurfaceVariant"></svg>
+                    <span class="body-medium" data-color="onSurfaceVariant">Yesterday, 6:30 PM</span>
+                  </div>
+                </div>
+                <span class="chip" data-bg="surface" data-color="error" data-p="md|sm">
+                  <span class="label-small">Connection Lost</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Utility Buttons -->
+      <div class="column" data-gap="md">
+        <button class="filled-btn" data-bg="surfaceContainerHigh" data-color="onSurface" data-handler="action:export-logs">
+          <svg class="icon" data-name="ios_share" data-size="24" data-color="onSurface"></svg>
+          <span class="label-large">Export Logs</span>
+        </button>
+        <button class="text-btn" data-color="onSurfaceVariant" data-handler="action:clear-history">
+          <span class="label-large">Clear History</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BottomNavBar -->
+  <div class="bottom-nav" data-bg="surfaceContainerLowest" data-p="md|sm">
+    <div class="row" data-gap="md">
+      <button class="icon-btn" data-handler="navigate:home" aria-label="Trang chủ">
+        <div class="column" data-gap="xs">
+          <svg class="icon" data-name="home" data-size="24" data-color="primary"></svg>
+          <span class="label-small" data-color="primary">Trang chủ</span>
+        </div>
+      </button>
+      <button class="icon-btn" data-handler="navigate:devices" aria-label="Thiết bị">
+        <div class="column" data-gap="xs">
+          <svg class="icon" data-name="devices" data-size="24" data-color="onSurfaceVariant"></svg>
+          <span class="label-small" data-color="onSurfaceVariant">Thiết bị</span>
+        </div>
+      </button>
+      <button class="icon-btn" data-handler="navigate:safety" aria-label="An toàn">
+        <div class="column" data-gap="xs">
+          <svg class="icon" data-name="security" data-size="24" data-color="onSurfaceVariant"></svg>
+          <span class="label-small" data-color="onSurfaceVariant">An toàn</span>
+        </div>
+      </button>
+      <button class="icon-btn" data-handler="navigate:settings" aria-label="Cài đặt">
+        <div class="column" data-gap="xs">
+          <svg class="icon" data-name="settings" data-size="24" data-color="onSurfaceVariant"></svg>
+          <span class="label-small" data-color="onSurfaceVariant">Cài đặt</span>
+        </div>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

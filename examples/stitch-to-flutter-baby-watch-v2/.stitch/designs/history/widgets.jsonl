@@ -1,0 +1,3 @@
+{"name": "HistoryFilterPill", "grep": "HistoryFilterPill(", "description": "Rounded selectable pill used in the horizontal filter row (Today / Yesterday / Last 7 Days)", "shared": false}
+{"name": "HistoryEventCard", "grep": "HistoryEventCard(", "description": "Card showing a history event with kind-specific badge, child name, time, and status label; supports alert/safe/offline variants", "shared": false}
+{"name": "AppBottomNavBar", "grep": "navigate:home", "description": "Bottom navigation bar with Home, Devices, Safety, and Settings tabs", "shared": true}

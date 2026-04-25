@@ -9,7 +9,12 @@
  * Both --step and --step --dry use the same function so they're always in sync.
  */
 
-import { existsSync } from "node:fs";
+import {
+  existsSync,
+  readdirSync as fsReaddirSync,
+  statSync as fsStatSync,
+  readFileSync as fsReadFileSync,
+} from "node:fs";
 import path from "node:path";
 import { CheckpointManager } from "@converge/core/checkpoint/manager.ts";
 import { TaskCheckpointManager } from "@converge/core/checkpoint/task-checkpoint.ts";
@@ -76,6 +81,41 @@ export interface TaskNode {
   attempts?: number;
   /** Linked journal node (optional, added when wiring trees) */
   journalNode?: any; // JournalNode type
+}
+
+/**
+ * Build a synthetic TaskNode for a virtual parent that exists only in the
+ * journal hierarchy (no TASK.md on disk). Borrows epicId/filePath from a
+ * known child so downstream code that checks file paths still has something
+ * sensible to look at.
+ */
+function makeVirtualTaskNode(
+  journalTaskId: string,
+  epicId: string,
+  refChild: TaskNode,
+): TaskNode {
+  const taskId = journalTaskId.split("/").pop() || journalTaskId;
+  const parentTaskId = journalTaskId.includes("/")
+    ? journalTaskId.split("/").slice(0, -1).join("/")
+    : undefined;
+  return {
+    epicId,
+    taskId,
+    filePath: refChild.filePath, // best effort — not used for virtual nodes
+    relPath: refChild.relPath,
+    parentTaskId: parentTaskId === epicId ? undefined : parentTaskId,
+    journalTaskId,
+    journalPath: refChild.journalPath,
+    blocking: false,
+    dependencies: undefined,
+    tags: ["virtual-parent"],
+    title: undefined,
+    description: undefined,
+    inputs: undefined,
+    outputs: undefined,
+    skills: undefined,
+    isWbsParent: true,
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -459,8 +499,13 @@ export async function getTaskStates(
           ? ofp.slice(0, ofp.lastIndexOf("/"))
           : ofp;
         if (!otherDir.startsWith(nodeDir + "/")) return false;
-        // Direct children only — no '/' in the relative segment means one level deep
-        return !otherDir.slice(nodeDir.length + 1).includes("/");
+        // Direct children only. Two layouts both count as "direct":
+        //   1. parentDir/childName       (sibling-style nesting)
+        //   2. parentDir/tasks/childName (converge `tasks/` convention)
+        // Anything deeper is a grandchild, not a direct child.
+        let rel = otherDir.slice(nodeDir.length + 1);
+        if (rel.startsWith("tasks/")) rel = rel.slice("tasks/".length);
+        return !rel.includes("/");
       });
 
       if (potentialChildren.length > 0) {
@@ -478,33 +523,206 @@ export async function getTaskStates(
     }
   }
 
-  // Guard: WBS parents marked complete but with no children in the tree
-  // This catches cases where a WBS parent's checkpoint says "complete" but the WBS
-  // never actually ran (no spawned children exist on disk).
+  // Add any WBS-spawned children that exist on disk in the journal but aren't
+  // in `tree`. WBS materializes TASK.md under journal/, not playbooks/, so the
+  // playbook scanner doesn't see them. Without this, the parent's `tasks/`
+  // subdir has fully-completed children whose status is invisible to rollup.
+  {
+    for (const node of tree) {
+      if (!node.journalPath) continue;
+      // node.journalPath may be the playbook path or already the journal path.
+      // Normalize to the journal path so we look in the right place.
+      const journalTaskDir = node.journalPath.includes("/journal/")
+        ? node.journalPath
+        : node.journalPath.replace("/playbooks/", "/journal/");
+      const tasksSubdir = path.join(journalTaskDir, "tasks");
+      if (!existsSync(tasksSubdir)) continue;
+      let entries: string[];
+      try {
+        entries = fsReaddirSync(tasksSubdir);
+      } catch {
+        continue;
+      }
+      const childIds = entries.filter((d: string) => {
+        const p = path.join(tasksSubdir, d);
+        try {
+          return (
+            fsStatSync(p).isDirectory() &&
+            existsSync(path.join(p, "checkpoint.json"))
+          );
+        } catch {
+          return false;
+        }
+      });
+      if (childIds.length === 0) continue;
+
+      const existingChildren = parentChildMap.get(node.journalTaskId)
+        ?.children ?? [];
+      const existingIds = new Set(
+        existingChildren.map((c) => c.journalTaskId),
+      );
+
+      for (const childId of childIds) {
+        const fullChildId = `${node.journalTaskId}/${childId}`;
+        if (existingIds.has(fullChildId)) continue;
+
+        // Read the child's checkpoint to determine its status.
+        const cpPath = path.join(tasksSubdir, childId, "checkpoint.json");
+        let childStatus: string | undefined;
+        try {
+          const cp = JSON.parse(fsReadFileSync(cpPath, "utf-8"));
+          childStatus = cp.status;
+        } catch {
+          continue;
+        }
+
+        // Add to parentChildMap (creating entry if needed).
+        let entry = parentChildMap.get(node.journalTaskId);
+        if (!entry) {
+          entry = { epicId: node.epicId, children: [] };
+          parentChildMap.set(node.journalTaskId, entry);
+        }
+        const candidate = path.join(tasksSubdir, childId, "TASK.md");
+        const refChild = existsSync(candidate)
+          ? {
+              ...node,
+              filePath: candidate,
+              relPath: candidate.replace(projectDir + "/", ""),
+            }
+          : node;
+        const virtualChild = makeVirtualTaskNode(
+          fullChildId,
+          node.epicId,
+          refChild,
+        );
+        entry.children.push(virtualChild);
+
+        // Reflect the child's status in the global completed/failed sets so
+        // the parent rollup loop can see it.
+        if (childStatus === "complete") {
+          completed.add(fullChildId);
+        } else if (childStatus === "failed") {
+          failed.add(fullChildId);
+        }
+      }
+    }
+  }
+
+  // Synthesize virtual parent entries for journalTaskIds that appear as parent
+  // keys in the map but have no corresponding TaskNode in `tree`. This happens
+  // when a WBS spawns a multi-level hierarchy where the intermediate "screen"
+  // parents have no static TASK.md on disk — they exist only in the journal.
+  // Without this, rollup walks through the leaf → screen → phase chain only
+  // partway: the phase never sees its screen children as "complete".
+  //
+  // For each parent key, we walk its journalTaskId upward; for each ancestor
+  // that has children but isn't itself a child of someone else, we add a
+  // virtual TaskNode (using one of its children for epicId) and register it
+  // as a child of its parent in parentChildMap.
+  {
+    const knownTaskIds = new Set(tree.map((n) => n.journalTaskId));
+    let added = true;
+    while (added) {
+      added = false;
+      for (const [parentKey, entry] of Array.from(parentChildMap)) {
+        if (!parentKey.includes("/")) continue;
+        const grandparentKey = parentKey.split("/").slice(0, -1).join("/");
+        if (!grandparentKey || grandparentKey === entry.epicId) continue;
+        if (parentChildMap.has(grandparentKey)) {
+          // Grandparent already has an entry — make sure parentKey is in its
+          // children list (synthesizing if absent from `tree`).
+          const gp = parentChildMap.get(grandparentKey)!;
+          if (!gp.children.some((c) => c.journalTaskId === parentKey)) {
+            gp.children.push(
+              makeVirtualTaskNode(parentKey, entry.epicId, entry.children[0]),
+            );
+            knownTaskIds.add(parentKey);
+            added = true;
+          }
+          continue;
+        }
+        // Grandparent not yet in parentChildMap. Create it with parentKey as
+        // its only known child (more children may be added in later passes).
+        parentChildMap.set(grandparentKey, {
+          epicId: entry.epicId,
+          children: [
+            makeVirtualTaskNode(parentKey, entry.epicId, entry.children[0]),
+          ],
+        });
+        knownTaskIds.add(parentKey);
+        added = true;
+      }
+    }
+  }
+
+  // Guard: WBS parents marked complete but with no children in the tree.
+  // This catches cases where a WBS parent's checkpoint says "complete" but the
+  // WBS never actually ran (no spawned children exist).
+  //
+  // Distinguish three states:
+  //   (a) Truly never spawned (no on-disk children, no progress record) → reset
+  //   (b) Spawned and completed (progress.completedChildren === totalChildren)
+  //       but tree-builder didn't find the child TASK.md files → KEEP as complete
+  //   (c) Tree visibility issue (children exist on disk under tasks/ but tree
+  //       didn't pick them up) → KEEP as complete
+  //
+  // We trust the parent's own checkpoint.json `progress` block: if it says all
+  // children done, the work happened — don't revert based on tree visibility.
   for (const node of tree) {
     if (!node.isWbsParent) continue;
     if (!completed.has(node.journalTaskId)) continue;
 
     const entry = parentChildMap.get(node.journalTaskId);
-    if (!entry || entry.children.length === 0) {
-      console.warn(
-        `⚠️  WBS parent ${node.journalTaskId} marked complete but has no children — reverting to pending`,
-      );
-      completed.delete(node.journalTaskId);
-      locked.delete(node.journalTaskId);
-      seeded.delete(node.journalTaskId);
+    if (entry && entry.children.length > 0) continue; // tree found children; fine
 
-      // Clear stale checkpoint
-      pendingWrites.push(
-        checkpointMgr
-          .removeFromCompleted(node.journalTaskId, node.epicId)
-          .catch((err) => {
-            console.error(
-              `   ❌ Failed to clear stale checkpoint for ${node.journalTaskId}: ${(err as Error).message}`,
-            );
-          }),
-      );
+    // Tree didn't find children. Before reverting, check the parent's own
+    // checkpoint progress and the on-disk journal `tasks/` subdir.
+    const journalTaskDir = node.journalPath
+      ? path.dirname(node.journalPath).replace("/playbooks/", "/journal/")
+      : null;
+    const tasksSubdir = journalTaskDir
+      ? path.join(journalTaskDir, "tasks")
+      : null;
+    const onDiskChildren =
+      tasksSubdir && existsSync(tasksSubdir)
+        ? (() => {
+            try {
+              const fs = require("node:fs");
+              return fs.readdirSync(tasksSubdir).filter((d: string) => {
+                const p = path.join(tasksSubdir, d);
+                return (
+                  fs.statSync(p).isDirectory() &&
+                  fs.existsSync(path.join(p, "checkpoint.json"))
+                );
+              });
+            } catch {
+              return [];
+            }
+          })()
+        : [];
+
+    if (onDiskChildren.length > 0) {
+      // Tree didn't pick them up but they exist with checkpoints — keep complete.
+      continue;
     }
+
+    // Genuinely orphan: no children anywhere. Reset.
+    console.warn(
+      `⚠️  WBS parent ${node.journalTaskId} marked complete but has no children — reverting to pending`,
+    );
+    completed.delete(node.journalTaskId);
+    locked.delete(node.journalTaskId);
+    seeded.delete(node.journalTaskId);
+
+    pendingWrites.push(
+      checkpointMgr
+        .removeFromCompleted(node.journalTaskId, node.epicId)
+        .catch((err) => {
+          console.error(
+            `   ❌ Failed to clear stale checkpoint for ${node.journalTaskId}: ${(err as Error).message}`,
+          );
+        }),
+    );
   }
 
   // Compute progress for each parent from folder structure
@@ -743,7 +961,18 @@ export async function getTaskStates(
     }
 
   // Source 4.5: Auto-complete parents based on CURRENT child state (after output validation)
-  // This MUST run AFTER output validation to use accurate child completion state
+  // This MUST run AFTER output validation to use accurate child completion state.
+  //
+  // Multi-level chains require fixed-point iteration: marking a child-parent
+  // complete in pass N must enable its grandparent to be marked complete in
+  // pass N+1. JS Map iteration order can put the deeper parent after the
+  // shallower one, so a single pass leaves grandparents stuck. Loop until no
+  // change to the completed/failed sets.
+  let parentRollupChanged = true;
+  let parentRollupPasses = 0;
+  while (parentRollupChanged && parentRollupPasses < 10) {
+    parentRollupChanged = false;
+    parentRollupPasses++;
   for (const [parentJournalTaskId, { epicId, children }] of parentChildMap) {
     if (children.length === 0) continue;
 
@@ -792,6 +1021,7 @@ export async function getTaskStates(
           failed.add(parentJournalTaskId);
           seeded.delete(parentJournalTaskId);
           completed.delete(parentJournalTaskId);
+          parentRollupChanged = true;
           console.log(
             `  ↻ Auto-failed parent: ${parentJournalTaskId} (${currentFailedSubtasks}/${spawnCount} children failed)`,
           );
@@ -813,6 +1043,7 @@ export async function getTaskStates(
           completed.add(parentJournalTaskId);
           seeded.delete(parentJournalTaskId);
           failed.delete(parentJournalTaskId);
+          parentRollupChanged = true;
           console.log(
             `  ↻ Auto-completed parent: ${parentJournalTaskId} (${currentCompletedSubtasks}/${spawnCount} children done)`,
           );
@@ -829,9 +1060,11 @@ export async function getTaskStates(
           );
         }
       }
-    } else {
+    } else if (parentRollupPasses === 1) {
       // Case 2: Children NOT all done - parent should be seeded (waiting for children)
-      // This covers: completed/failed parents being reverted, AND pending parents after --restart
+      // This covers: completed/failed parents being reverted, AND pending parents after --restart.
+      // Only run on the FIRST pass; later passes might see a parent whose children are still
+      // catching up via fixed-point rollup. Reverting on those passes would cause oscillation.
       if (!seeded.has(parentJournalTaskId)) {
         const wasCompleted = completed.has(parentJournalTaskId);
         const wasFailed = failed.has(parentJournalTaskId);
@@ -887,6 +1120,7 @@ export async function getTaskStates(
       }
     }
   }
+  } // end of while (fixed-point parent rollup)
 
   // Source 5: Dependency-based blocking resolution
   // Step 1: Identify failed blocking tasks

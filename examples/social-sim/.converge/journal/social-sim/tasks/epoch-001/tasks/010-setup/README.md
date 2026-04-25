@@ -24,14 +24,14 @@ pnpm converge run          # run all remaining tasks
 ## Verify checks manually
 
 ```bash
-  test -f runs/run-001/personas.json
-  python3 -c "import json,sys; d=json.load(open('runs/run-001/personas.json')); sys.exit(0 if isinstance(d,list) and len(d)==10 else 1)"
+  test -f runs/run-2026-04-25T01-45/personas.json
+  python3 -c "import json,sys; d=json.load(open('runs/run-2026-04-25T01-45/personas.json')); sys.exit(0 if isinstance(d,list) and len(d)==10 else 1)"
 
-  test -f runs/run-001/graph.json
-  python3 -c "import json,sys; d=json.load(open('runs/run-001/graph.json')); sys.exit(0 if 'follows' in d and isinstance(d['follows'],dict) else 1)"
+  test -f runs/run-2026-04-25T01-45/graph.json
+  python3 -c "import json,sys; d=json.load(open('runs/run-2026-04-25T01-45/graph.json')); sys.exit(0 if 'follows' in d and isinstance(d['follows'],dict) else 1)"
 
-  touch runs/run-001/timeline.jsonl && test -f runs/run-001/timeline.jsonl
-  test -f vault/runs/run-001/overview.md
-  test "$(ls vault/runs/run-001/personas/*.md 2>/dev/null | wc -l | tr -d ' ')" = "10"
+  touch runs/run-2026-04-25T01-45/timeline.jsonl && test -f runs/run-2026-04-25T01-45/timeline.jsonl
+  test -f vault/runs/run-2026-04-25T01-45/overview.md
+  test "$(ls vault/runs/run-2026-04-25T01-45/personas/*.md 2>/dev/null | wc -l | tr -d ' ')" = "10"
 
 ```

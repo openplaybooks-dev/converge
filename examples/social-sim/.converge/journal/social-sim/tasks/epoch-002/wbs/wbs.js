@@ -15,8 +15,10 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export async function run(ctx) {
-  // The epoch's own template lives at ../ (this file is templates/epoch/wbs/wbs.js)
-  const epochTemplateDir = join(__dirname, '..');
+  // Use epochTemplateDir from ctx.vars (passed by root WBS) so this script
+  // resolves to the playbook templates even when running from the journal copy.
+  // Fall back to __dirname-relative resolution for standalone/template-dev use.
+  const epochTemplateDir = ctx.vars.epochTemplateDir ?? join(__dirname, '..');
   const childTemplatesDir = join(epochTemplateDir, 'tasks');
 
   const sharedVars = {

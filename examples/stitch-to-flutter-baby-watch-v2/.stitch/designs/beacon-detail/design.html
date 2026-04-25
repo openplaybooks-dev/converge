@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BabyGuard — Beacon Detail</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<style>
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--surface); }
+</style>
+</head>
+<body>
+
+<div class="scaffold" data-bg="surface">
+
+  <!-- TopAppBar -->
+  <div class="app-bar" data-bg="surface" data-p="md|md">
+    <div class="row" data-gap="sm">
+      <button class="icon-btn" data-handler="action:go-back" aria-label="Quay lại">
+        <svg class="icon" data-name="arrow_back" data-size="24" data-color="primary"></svg>
+      </button>
+      <span class="title-large" data-color="primary">Beacon Detail</span>
+      <button class="icon-btn" data-handler="action:open-menu" aria-label="Tùy chọn">
+        <svg class="icon" data-name="more_vert" data-size="24" data-color="primary"></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="body" data-p="md|md">
+    <div class="column" data-gap="lg">
+
+      <!-- Hero Section -->
+      <div class="row" data-gap="md">
+        <div class="stack" data-bg="secondaryContainer" data-p="md|md">
+          <svg class="icon" data-name="child_care" data-size="24" data-color="secondary"></svg>
+        </div>
+        <div class="column" data-gap="xs">
+          <span class="headline-large" data-color="onSurface">Bé Na</span>
+          <span class="body-medium" data-color="onSurfaceVariant">Beacon theo dõi của bé</span>
+        </div>
+      </div>
+
+      <!-- Technical Accordion -->
+      <div class="card" data-bg="surfaceContainerLow" data-p="md|md">
+        <div class="column" data-gap="md">
+          <div class="ink-well" data-handler="action:toggle-tech-details">
+            <div class="list-tile">
+              <div class="row" data-gap="sm">
+                <svg class="icon" data-name="settings_ethernet" data-size="24" data-color="outline"></svg>
+                <span class="title-medium" data-color="onSurface">Chi tiết kỹ thuật</span>
+                <svg class="icon" data-name="expand_more" data-size="24" data-color="onSurfaceVariant"></svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="column" data-gap="sm">
+            <div class="column" data-gap="xs">
+              <span class="label-small" data-color="outline">UUID</span>
+              <span class="body-small" data-color="onSurface" data-bg="surface" data-p="sm|sm">FDA50693-A4E2-4FB1-AFCF-C6EB07647825</span>
+            </div>
+            <div class="row" data-gap="sm">
+              <div class="column" data-gap="xs">
+                <span class="label-small" data-color="outline">Major</span>
+                <span class="body-small" data-color="onSurface" data-bg="surface" data-p="sm|sm">10001</span>
+              </div>
+              <div class="column" data-gap="xs">
+                <span class="label-small" data-color="outline">Minor</span>
+                <span class="body-small" data-color="onSurface" data-bg="surface" data-p="sm|sm">20002</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Monitoring List Card -->
+      <div class="card" data-bg="surfaceContainerLowest" data-p="md|md">
+        <div class="column" data-gap="lg">
+
+          <div class="row" data-gap="sm">
+            <span class="title-medium" data-color="onSurface">Người cùng theo dõi</span>
+            <div class="stack" data-bg="secondaryFixed" data-p="sm|sm">
+              <svg class="icon" data-name="group" data-size="24" data-color="onSecondaryFixed"></svg>
+            </div>
+          </div>
+
+          <div class="column" data-gap="md">
+
+            <!-- User 1: Mẹ -->
+            <div class="list-tile">
+              <div class="row" data-gap="sm">
+                <div class="stack" data-bg="secondaryContainer" data-p="sm|sm">
+                  <span class="title-medium" data-color="secondary">M</span>
+                </div>
+                <div class="column" data-gap="xs">
+                  <span class="title-medium" data-color="onSurface">Mẹ</span>
+                  <span class="label-small" data-color="outline">Vừa xong</span>
+                </div>
+                <span class="chip" data-bg="secondaryContainer" data-color="onSecondaryContainer" data-p="md|sm">
+                  <span class="badge" data-bg="secondary" data-animate="pulse"></span>
+                  <span class="label-small">Đang gần beacon</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- User 2: Bố -->
+            <div class="list-tile">
+              <div class="row" data-gap="sm">
+                <div class="stack" data-bg="warningPeach" data-p="sm|sm">
+                  <span class="title-medium" data-color="warningAmber">B</span>
+                </div>
+                <div class="column" data-gap="xs">
+                  <span class="title-medium" data-color="onSurface">Bố</span>
+                  <span class="label-small" data-color="outline">5 phút trước</span>
+                </div>
+                <span class="chip" data-bg="warningPeach" data-color="warningAmber" data-p="md|sm">
+                  <span class="label-small">Xa / không thấy</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- User 3: Bà Nội -->
+            <div class="list-tile">
+              <div class="row" data-gap="sm">
+                <div class="stack" data-bg="surfaceContainerHigh" data-p="sm|sm">
+                  <span class="title-medium" data-color="outline">B</span>
+                </div>
+                <div class="column" data-gap="xs">
+                  <span class="title-medium" data-color="onSurfaceVariant">Bà Nội</span>
+                  <span class="label-small" data-color="outline">2 giờ trước</span>
+                </div>
+                <span class="chip" data-bg="surfaceContainerHigh" data-color="outline" data-p="md|sm">
+                  <span class="label-small">Ngoại tuyến</span>
+                </span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="column" data-gap="md">
+            <button class="filled-btn" data-bg="primary" data-color="onPrimary" data-handler="action:invite-follower">
+              <svg class="icon" data-name="person_add" data-size="24" data-color="onPrimary"></svg>
+              <span class="label-large">Mời người cùng theo dõi</span>
+            </button>
+            <div class="ink-well" data-route="/beacon/be-na/followers" data-handler="navigate:manage-followers">
+              <div class="row" data-gap="xs">
+                <span class="label-large" data-color="primary">Quản lý danh sách</span>
+                <svg class="icon" data-name="arrow_forward" data-size="24" data-color="primary"></svg>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Decorative Elements & Secondary Actions -->
+      <div class="stack">
+        <img class="network-image"
+             src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkCC1mUUdMBbcG43jp0NXjhGUJgZBZnoDHsM7_iFc-EfG3uEQFVaOvL0UR_qT77FPJahmZoPhbLVQKsUxna89EUxNfpEqqUR_JTEaiW5WQYdbiN_UMN56TK4a-dUJE0EgbPLHxpSWMJcyFpZ0QmCRlot-FGtn9L--9afU1S-3tdgMVs9nNecwargy14qaEbN_h1-F2bx8MJ4-PybBAVGaYtjonz1gSsyT15_k76tql1nHGtkmUTJN-wBRQ_5rQyP2CXypfXrYrz36J"
+             alt="Decorative pastel pattern"/>
+        <button class="elevated-btn" data-bg="surface" data-color="error" data-handler="action:leave-group">
+          <span class="label-large">Rời nhóm theo dõi</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BottomNavBar -->
+  <div class="bottom-nav" data-bg="surfaceContainerLowest" data-p="md|sm">
+    <div class="row" data-gap="md">
+      <button class="icon-btn" data-handler="navigate:home" aria-label="Trang chủ">
+        <div class="column" data-gap="xs">
+          <svg class="icon" data-name="home" data-size="24" data-color="onSurfaceVariant"></svg>
+          <span class="label-small" data-color="onSurfaceVariant">Trang chủ</span>
+        </div>
+      </button>
+      <button class="icon-btn" data-handler="navigate:devices" aria-label="Thiết bị">
+        <div class="column" data-gap="xs">
+          <svg class="icon" data-name="devices" data-size="24" data-color="primary"></svg>
+          <span class="label-small" data-color="primary">Thiết bị</span>
+        </div>
+      </button>
+      <button class="icon-btn" data-handler="navigate:safety" aria-label="An toàn">
+        <div class="column" data-gap="xs">
+          <svg class="icon" data-name="security" data-size="24" data-color="onSurfaceVariant"></svg>
+          <span class="label-small" data-color="onSurfaceVariant">An toàn</span>
+        </div>
+      </button>
+      <button class="icon-btn" data-handler="navigate:settings" aria-label="Cài đặt">
+        <div class="column" data-gap="xs">
+          <svg class="icon" data-name="settings" data-size="24" data-color="onSurfaceVariant"></svg>
+          <span class="label-small" data-color="onSurfaceVariant">Cài đặt</span>
+        </div>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

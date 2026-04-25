@@ -1,16 +1,16 @@
 # RESULT.md — Attempt 1
 
 **Outcome**: ✅ SUCCESS
-**Duration**: 2m 23s
-**Completed**: 2026-04-25T00:30:33.866Z
+**Duration**: 1m 35s
+**Completed**: 2026-04-25T01:57:30.177Z
 
 ## Outputs
 
-- `runs/run-001/personas.json` — ✓ produced (3.2 KB)
-- `runs/run-001/graph.json` — ✓ produced (501 B)
-- `runs/run-001/timeline.jsonl` — ✓ produced (214 B)
-- `vault/runs/run-001/overview.md` — ✓ produced (1.5 KB)
-- `vault/runs/run-001/personas/p001.md` — ✓ produced (551 B)
+- `runs/run-2026-04-25T01-45/personas.json` — ✓ produced (3.2 KB)
+- `runs/run-2026-04-25T01-45/graph.json` — ✓ produced (469 B)
+- `runs/run-2026-04-25T01-45/timeline.jsonl` — ✓ produced (191 B)
+- `vault/runs/run-2026-04-25T01-45/overview.md` — ✓ produced (1.4 KB)
+- `vault/runs/run-2026-04-25T01-45/personas/p001.md` — ✓ produced (586 B)
 
 ## Check Results — ✅ all passed
 

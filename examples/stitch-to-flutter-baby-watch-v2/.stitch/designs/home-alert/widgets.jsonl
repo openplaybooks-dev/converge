@@ -1,0 +1,5 @@
+{"name": "AlertStatusPill", "grep": "appSemantic.alertPeach", "description": "Rounded pill showing the 'Cảnh báo' alert status with error icon", "shared": false}
+{"name": "AlertMapCard", "grep": "AspectRatio(\n                    aspectRatio: 16 / 10", "description": "Map card with beacon location image, centered avatar with warning, and overlay info card with locate button", "shared": false}
+{"name": "BeaconInfoCard", "grep": "Beacon: Bé Na", "description": "Device info card showing beacon name, signal status, and link to beacon detail", "shared": false}
+{"name": "AlertActionButtons", "grep": "Tôi đã kiểm tra", "description": "Primary action buttons for acknowledging alert and toggling mute", "shared": false}
+{"name": "BottomNavBar", "grep": "bottomNavigationBar: Container", "description": "Bottom navigation bar with Home, Devices, Safety, and Settings tabs", "shared": true}

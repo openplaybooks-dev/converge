@@ -1,0 +1,7 @@
+{"name": "InvitationCard", "grep": "class _InvitationCard extends StatelessWidget", "description": "Main invitation card showing baby avatar, inviter info, benefits rows, and accept/decline actions with security footer", "shared": false}
+{"name": "AvatarWithShieldBadge", "grep": "class _AvatarWithShieldBadge extends StatelessWidget", "description": "Circular baby avatar with pulsing halo and shield verification badge overlay", "shared": false}
+{"name": "PulsingHalo", "grep": "class _PulsingHalo extends StatefulWidget", "description": "Animated pulsing circular halo used behind avatars to draw attention", "shared": true}
+{"name": "InviterChip", "grep": "class _InviterChip extends StatelessWidget", "description": "Pill-shaped chip displaying inviter role label (e.g. owner)", "shared": true}
+{"name": "InfoRow", "grep": "class _InfoRow extends StatelessWidget", "description": "Row showing a circular icon badge next to a body text explaining a feature or benefit", "shared": true}
+{"name": "SystemStatusFooter", "grep": "class _SystemStatusFooter extends StatelessWidget", "description": "Bottom navigation area showing a pill with pulsing dot and system active status text", "shared": false}
+{"name": "PulsingDot", "grep": "class _PulsingDot extends StatefulWidget", "description": "Small animated pulsing dot indicator for live/active status", "shared": true}

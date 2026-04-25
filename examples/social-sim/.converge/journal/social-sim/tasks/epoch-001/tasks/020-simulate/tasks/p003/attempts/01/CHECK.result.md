@@ -1,13 +1,13 @@
 # RESULT.md — Attempt 1
 
 **Outcome**: ✅ SUCCESS
-**Duration**: 1m 7s
-**Completed**: 2026-04-25T00:36:03.930Z
+**Duration**: 1m 34s
+**Completed**: 2026-04-25T02:00:24.816Z
 
 ## Outputs
 
-- `runs/run-001/timeline.jsonl` — ✓ produced (678 B)
-- `vault/runs/run-001/actions/t1-p003-*.md` — ✗ missing
+- `runs/run-2026-04-25T01-45/timeline.jsonl` — ✓ produced (593 B)
+- `vault/runs/run-2026-04-25T01-45/actions/t1-p003-*.md` — ✗ missing
 
 ## Check Results — ✅ all passed
 

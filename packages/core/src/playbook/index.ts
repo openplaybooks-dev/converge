@@ -16,7 +16,10 @@ export {
   checkPlaybookStatus,
   syncJournalHash,
   clearJournal,
+  syncPlaybookToJournal,
+  syncAllPlaybooks,
   type PlaybookSyncStatus,
   type PlaybookChanges,
   type PlaybookStatusResult,
+  type SyncResult,
 } from './sync.ts';

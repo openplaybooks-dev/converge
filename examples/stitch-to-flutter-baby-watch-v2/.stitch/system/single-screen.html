@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BabyGuard — Trang chủ (An toàn)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --surface: #fbf9f5;
+    --surface-container-low: #f5f4ee;
+    --surface-container: #efeee8;
+    --surface-container-high: #e8e9e1;
+    --surface-container-lowest: #ffffff;
+    --surface-variant: #e2e3db;
+    --on-surface: #31332e;
+    --on-surface-variant: #5e6059;
+    --primary: #5e5e5e;
+    --on-primary: #faf7f6;
+    --tertiary: #4f635e;
+    --tertiary-container: #dff6ee;
+    --mint: #d1eedd;
+    --peach: #ffdad6;
+    --honey: #ffecb3;
+    --shadow-soft: #e7e3dc;
+    --radius-md: 1.5rem;
+    --radius-lg: 2rem;
+    --radius-xl: 3rem;
+    --radius-full: 9999px;
+    --space-md: 24px;
+    --space-lg: 32px;
+    --space-xl: 40px;
+    --shadow-ambient: 0 8px 24px rgba(231, 227, 220, 0.4);
+    --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-body: 'Manrope', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background: #d8d4cc;
+    color: var(--on-surface);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 24px 0;
+  }
+
+  .phone {
+    width: 375px;
+    background: var(--surface);
+    border-radius: 40px;
+    overflow: hidden;
+    box-shadow: var(--shadow-ambient);
+    display: flex;
+    flex-direction: column;
+    min-height: 812px;
+  }
+
+  header.app-bar {
+    padding: var(--space-lg) var(--space-md) 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .greeting-eyebrow {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .greeting-name {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-top: 4px;
+  }
+
+  .avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-full);
+    background: var(--surface-container-high);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--on-surface);
+    font-weight: 600;
+  }
+
+  main {
+    flex: 1;
+    padding: 0 var(--space-md) 24px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .status-pill {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--tertiary-container);
+    color: var(--tertiary);
+    padding: 8px 16px;
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    font-weight: 600;
+    margin-left: 4px;
+  }
+
+  .status-pill .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background: var(--tertiary);
+    box-shadow: 0 0 0 4px rgba(79, 99, 94, 0.15);
+  }
+
+  .map-card {
+    background: var(--surface-container-lowest);
+    border-radius: var(--radius-xl);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .map-card .map-canvas {
+    height: 220px;
+    border-radius: var(--radius-lg);
+    background:
+      radial-gradient(circle at 60% 55%, rgba(79, 99, 94, 0.12) 0, transparent 55%),
+      linear-gradient(135deg, #e8efe9 0%, #f1ede4 100%);
+    position: relative;
+  }
+
+  .map-card .marker {
+    position: absolute;
+    top: 50%;
+    left: 60%;
+    width: 18px;
+    height: 18px;
+    border-radius: var(--radius-full);
+    background: var(--tertiary);
+    box-shadow: 0 0 0 6px rgba(79, 99, 94, 0.2), 0 0 0 14px rgba(79, 99, 94, 0.08);
+    transform: translate(-50%, -50%);
+  }
+
+  .map-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 16px;
+  }
+
+  .map-card-head h2 {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .map-card-head span {
+    font-size: 12px;
+    color: var(--on-surface-variant);
+  }
+
+  .beacon-strip {
+    display: flex;
+    gap: 12px;
+    padding-bottom: 4px;
+    overflow-x: auto;
+  }
+
+  .beacon-card {
+    flex: 0 0 auto;
+    min-width: 168px;
+    background: var(--surface-container-lowest);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .beacon-name {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .beacon-meta {
+    font-size: 11px;
+    color: var(--on-surface-variant);
+  }
+
+  .beacon-rssi {
+    height: 4px;
+    background: var(--surface-container-high);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+  }
+  .beacon-rssi i {
+    display: block;
+    height: 100%;
+    width: 78%;
+    background: var(--tertiary);
+    border-radius: var(--radius-full);
+  }
+
+  .mute-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--surface-container-low);
+    border-radius: var(--radius-lg);
+    padding: 18px var(--space-md);
+  }
+
+  .mute-row h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: -0.01em;
+  }
+
+  .mute-row p {
+    font-size: 12px;
+    color: var(--on-surface-variant);
+  }
+
+  .mute-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .chip {
+    background: var(--surface-container-lowest);
+    color: var(--on-surface);
+    border-radius: var(--radius-full);
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 120ms ease;
+  }
+  .chip:active { transform: scale(0.98); }
+  .chip[aria-pressed="true"] {
+    background: var(--on-surface);
+    color: var(--on-primary);
+  }
+
+  nav.bottom-nav {
+    background: var(--surface-container-lowest);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 12px 4px 22px;
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
+  }
+
+  nav.bottom-nav button {
+    background: transparent;
+    border: none;
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--on-surface-variant);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 0;
+    cursor: pointer;
+  }
+  nav.bottom-nav button[aria-current="page"] {
+    color: var(--on-surface);
+    font-weight: 700;
+  }
+  nav.bottom-nav svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+    }
+    .map-card .marker {
+      box-shadow: 0 0 0 6px rgba(79, 99, 94, 0.2);
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="phone" role="region" aria-label="Trang chủ BabyGuard">
+    <header class="app-bar">
+      <div>
+        <div class="greeting-eyebrow">Trang chủ</div>
+        <div class="greeting-name">Chào An</div>
+      </div>
+      <div class="avatar" aria-label="Hồ sơ người dùng">A</div>
+    </header>
+
+    <main>
+      <div class="status-pill" role="status" aria-live="polite">
+        <span class="dot" aria-hidden="true"></span>
+        Beacon an toàn · Đang giám sát
+      </div>
+
+      <section class="map-card" aria-labelledby="map-title">
+        <div class="map-canvas" role="img" aria-label="Bản đồ vị trí beacon hiện tại">
+          <div class="marker" aria-hidden="true"></div>
+        </div>
+        <div class="map-card-head">
+          <h2 id="map-title">Trong vùng an toàn</h2>
+          <span>Cập nhật 2 phút trước</span>
+        </div>
+      </section>
+
+      <section class="beacon-strip" aria-label="Danh sách beacon">
+        <article class="beacon-card">
+          <div class="beacon-name">Bé Su</div>
+          <div class="beacon-meta">RSSI · -52 dBm</div>
+          <div class="beacon-rssi" aria-hidden="true"><i style="width:84%"></i></div>
+        </article>
+        <article class="beacon-card">
+          <div class="beacon-name">Cặp sách</div>
+          <div class="beacon-meta">RSSI · -61 dBm</div>
+          <div class="beacon-rssi" aria-hidden="true"><i style="width:62%"></i></div>
+        </article>
+        <article class="beacon-card">
+          <div class="beacon-name">Xe đẩy</div>
+          <div class="beacon-meta">RSSI · -58 dBm</div>
+          <div class="beacon-rssi" aria-hidden="true"><i style="width:71%"></i></div>
+        </article>
+      </section>
+
+      <section class="mute-row" aria-labelledby="mute-title">
+        <h3 id="mute-title">Tạm tắt thông báo push</h3>
+        <p>Cảnh báo trong ứng dụng vẫn chính xác.</p>
+        <div class="mute-chips" role="group" aria-label="Khoảng thời gian tắt">
+          <button class="chip" aria-pressed="false" type="button">5 phút</button>
+          <button class="chip" aria-pressed="true" type="button">10 phút</button>
+          <button class="chip" aria-pressed="false" type="button">15 phút</button>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Điều hướng chính">
+      <button type="button" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>
+        Trang chủ
+      </button>
+      <button type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="3"/><circle cx="12" cy="17" r="1.2" fill="currentColor"/></svg>
+        Thiết bị
+      </button>
+      <button type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3 4 6v6c0 4.5 3.5 8 8 9 4.5-1 8-4.5 8-9V6z"/></svg>
+        Bảo mật
+      </button>
+      <button type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        Cài đặt
+      </button>
+    </nav>
+  </div>
+</body>
+</html>

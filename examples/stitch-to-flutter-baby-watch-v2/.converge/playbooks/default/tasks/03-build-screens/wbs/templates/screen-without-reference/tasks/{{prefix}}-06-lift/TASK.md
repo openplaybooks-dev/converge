@@ -13,7 +13,6 @@ tags:
   - screen-{{screenId}}
 inputs:
   - "{{widgetsJsonPath}}"
-  - "{{localWidgetsDir}}/**/*.dart"
 outputs:
   - lib/widgets/**/*.dart
 ---

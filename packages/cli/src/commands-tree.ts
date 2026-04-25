@@ -314,41 +314,72 @@ function formatNextLabel(
  * - All WBS subtasks if matched task is a WBS parent (based on file path nesting)
  */
 function filterTaskTree(tree: TaskNode[], filter: string): TaskNode[] {
-  const matchedTaskIds = new Set<string>();
+  // Use journalTaskId (globally unique) for set membership, not taskId
+  // (which can collide across phases like `01-foo` and `02-foo/01-foo`).
+  const matchedJournalIds = new Set<string>();
   const matchedFilePaths = new Set<string>();
 
-  // First pass: find direct matches (by taskId or epicId)
+  // Helper: resolve a node's task directory (filePath may be a file like
+  // `.../TASK.md` or already a directory).
+  const taskDirOf = (fp: string): string => {
+    if (/\.(md|ts|tsx|js|jsx|yml|yaml)$/.test(fp)) {
+      return path.dirname(fp);
+    }
+    return fp;
+  };
+
+  // First pass: find direct matches (by taskId, epicId, or journalTaskId).
   for (const node of tree) {
-    if (node.taskId === filter || node.epicId === filter) {
-      matchedTaskIds.add(node.taskId);
+    if (
+      node.taskId === filter ||
+      node.epicId === filter ||
+      node.journalTaskId === filter
+    ) {
+      matchedJournalIds.add(node.journalTaskId);
       matchedFilePaths.add(node.filePath);
     }
   }
 
-  // Second pass: include WBS subtasks by checking file path nesting
-  // WBS subtasks are located under the parent task's directory
-  // e.g., parent: .../002-generate-screen-prompts/task.ts
-  //       child:  .../002-generate-screen-prompts/002-001-prompt-home-lesson-tree/SKILL.md
-  for (const node of tree) {
-    // Check if this task's path is nested under any matched task's directory
-    for (const matchedPath of matchedFilePaths) {
-      const matchedDir = path.dirname(matchedPath);
-      if (
-        node.filePath.startsWith(matchedDir + path.sep) &&
-        node.filePath !== matchedPath
-      ) {
-        matchedTaskIds.add(node.taskId);
-        break;
-      }
-    }
+  // Second pass: include descendants by either:
+  //   (a) Hierarchical journalTaskId — `<parent>/...` matches `<parent>` (most reliable).
+  //   (b) File path nested under the matched node's task dir (fallback for non-WBS).
+  // Loop until no new descendants are added (handles multi-level chains).
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const node of tree) {
+      if (matchedJournalIds.has(node.journalTaskId)) continue;
 
-    // Also check if parentTaskId is set and matches (for /task/ pattern)
-    if (node.parentTaskId && matchedTaskIds.has(node.parentTaskId)) {
-      matchedTaskIds.add(node.taskId);
+      // (a) journalTaskId hierarchy
+      let added = false;
+      for (const matchedJid of matchedJournalIds) {
+        if (node.journalTaskId.startsWith(matchedJid + "/")) {
+          matchedJournalIds.add(node.journalTaskId);
+          matchedFilePaths.add(node.filePath);
+          changed = true;
+          added = true;
+          break;
+        }
+      }
+      if (added) continue;
+
+      // (b) file path nested under matched task's own directory
+      for (const matchedPath of matchedFilePaths) {
+        const matchedTaskDir = taskDirOf(matchedPath);
+        if (
+          node.filePath.startsWith(matchedTaskDir + path.sep) &&
+          node.filePath !== matchedPath
+        ) {
+          matchedJournalIds.add(node.journalTaskId);
+          matchedFilePaths.add(node.filePath);
+          changed = true;
+          break;
+        }
+      }
     }
   }
 
-  return tree.filter((n) => matchedTaskIds.has(n.taskId));
+  return tree.filter((n) => matchedJournalIds.has(n.journalTaskId));
 }
 
 /**

@@ -3,7 +3,7 @@ id: "{{taskId}}"
 title: "Tick {{tick}} — analyze"
 description: >
   Compute per-tick metrics from the rows added this tick, append to
-  metrics.jsonl, update reports/{{scenario}}.md.
+  metrics.jsonl, update vault/reports/{{scenario}}.md.
 dependencies:
   - 020-simulate
 inputs:
@@ -11,7 +11,7 @@ inputs:
   - "runs/{{runId}}/timeline.jsonl"
 outputs:
   - "runs/{{runId}}/metrics.jsonl"
-  - "reports/{{scenario}}.md"
+  - "vault/reports/{{scenario}}.md"
   - "vault/runs/{{runId}}/ticks/tick-{{tick}}.md"
   - "vault/runs/{{runId}}/overview.md"
 checks:
@@ -23,8 +23,8 @@ checks:
       sys.exit(0 if len(hits)==1 else 1)"
     description: "metrics.jsonl has exactly one row with tick={{tickNum}}"
   - id: report-mentions-tick
-    cmd: "grep -q 'Tick {{tickNum}}' reports/{{scenario}}.md"
-    description: "reports/{{scenario}}.md mentions this tick"
+    cmd: "grep -q 'Tick {{tickNum}}' vault/reports/{{scenario}}.md"
+    description: "vault/reports/{{scenario}}.md mentions this tick"
   - id: vault-tick-note
     cmd: "test -f vault/runs/{{runId}}/ticks/tick-{{tick}}.md"
     description: "Vault tick note exists"
@@ -76,7 +76,7 @@ Append the resulting JSON object as **one line** to
 
 ## Step 3 — Update the running report
 
-Append a section to `reports/{{scenario}}.md`. Create the file with a
+Append a section to `vault/reports/{{scenario}}.md`. Create the file with a
 header on tick 1 if it doesn't exist; otherwise append. Format:
 
 ```markdown
@@ -115,7 +115,7 @@ unique_actors: <N>
 
 # Tick {{tickNum}}
 
-**Scenario:** [[../../reports/{{scenario}}|{{scenario}}]] · Run:
+**Scenario:** [[../../../reports/{{scenario}}|{{scenario}}]] · Run:
 [[../overview|{{runId}}]]
 
 ## Action Histogram
@@ -134,14 +134,16 @@ _(one bullet per persona this tick — link the action note for each.)_
 - ...
 
 ## Scenario Read
-<the same one-paragraph read you wrote in reports/{{scenario}}.md>
+<the same one-paragraph read you wrote in vault/reports/{{scenario}}.md>
 
 ## Notable
 - <bullets — same content as the report>
 
 ## See Also
-- Previous: {{If tickNum > 1: [[tick-<prev tick zero-padded>]] }}
-- Next: {{If tickNum < steps: _(pending)_ }}
+- Previous: (if this is not tick 1, link `[[tick-NN]]` for the prior tick;
+  otherwise omit this bullet)
+- Next: (if this is not the final tick, write `_(pending)_` to be filled in
+  by the next tick's analyze)
 - [[../overview|Run overview]]
 ```
 

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BabyGuard Home — Safe</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+  body { font-family: 'Manrope', sans-serif; background: var(--surface); }
+</style>
+</head>
+<body>
+
+<div class="scaffold" data-bg="surface">
+
+  <!-- TopAppBar -->
+  <div class="app-bar" data-bg="surface" data-p="md|md">
+    <div class="row" data-gap="sm">
+      <img class="avatar"
+           src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3mhnbHiAGcoJSuOQu1TF3eSJnvWp_UNbftki7P9KaHmm2J8AFzTasOAxtQju2S6j-ZOg95vhG20BZSo4oJeSigh9aT4RlRI4CljK2-RGku93IXyIu6jQnN5OUVYF9T8U-N8S4cjbqRiN_WkZUD9nCaAJ_vhXQr34Qg7keTtQmQCffjXRKpB7yyvoqVxAfFPyihAjWEo6VZpUZ6xdnerLATOiw_GA9Ca7ygMgVnffbU6n5h1b8h35JKBxsgcFQO3hRW3-jqvrvtjrv"
+           alt="Parent Profile"/>
+      <span class="title-large" data-color="onSurface">BabyGuard</span>
+      <button class="icon-btn" data-handler="navigate:notifications" aria-label="Thông báo">
+        <svg class="icon" data-name="notifications" data-size="24" data-color="onSurface"></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="body" data-p="md|md">
+    <div class="column" data-gap="lg">
+
+      <!-- Status Section -->
+      <div class="column" data-gap="md">
+        <span class="chip" data-bg="mint" data-color="onSurface" data-p="md|sm">
+          <svg class="icon" data-name="verified_user" data-size="24" data-color="onSurface"></svg>
+          <span class="label-large">Đang an toàn</span>
+        </span>
+        <div class="column" data-gap="xs">
+          <span class="headline-large" data-color="onSurface">Bé Na</span>
+          <span class="body-medium" data-color="onSurfaceVariant">Còn Mẹ đang gần beacon</span>
+        </div>
+      </div>
+
+      <!-- Map Card -->
+      <div class="card" data-bg="surfaceContainerLowest">
+        <div class="stack">
+          <img class="network-image"
+               src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_6MZ0wh_8xIFXdyD3lL0lHjtSsUeecgov4GE8R_V1SgVBcnlfMekcovUvyJIPZ0HHgqb9hWeDwpwJQurnCxiqFWUI3V_cs8cthvP6heT-lTOkjQVI2JsmjVbwK60c1R1J-z11rI2bTAuem9kKuyUd55M9QlC9dZp3TJ1FQ93eDyxutIgUf3PEsZJN0OWpX8-guHfiQ5JpjrkTR4RPqSneEbdoRdFbL7YQCpxS4ZqZrqO2Oolj9N5oyAsTIEjObRBdyikootSg9g5p"
+               alt="Map"/>
+
+          <!-- Beacon Point -->
+          <div class="stack" data-animate="pulse">
+            <div class="badge" data-bg="primary"></div>
+            <svg class="icon" data-name="child_care" data-size="24" data-color="onPrimary"></svg>
+          </div>
+
+          <!-- Last Seen Label -->
+          <div class="card" data-bg="surfaceContainerLowest" data-p="md|sm">
+            <div class="row" data-gap="sm">
+              <div class="column" data-gap="xs">
+                <span class="label-small" data-color="onSurfaceVariant">Vị trí gần nhất</span>
+                <span class="title-small" data-color="onSurface">Phòng khách • 2 phút trước</span>
+              </div>
+              <button class="icon-btn" data-bg="primary" data-color="onPrimary" data-handler="action:locate-beacon" aria-label="Định vị beacon">
+                <svg class="icon" data-name="near_me" data-size="24" data-color="onPrimary"></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Beacon Strip -->
+      <div class="card" data-bg="surfaceContainerLowest" data-p="md|md">
+        <div class="ink-well" data-route="/beacon/be-na" data-handler="navigate:beacon-detail">
+          <div class="list-tile">
+            <div class="row" data-gap="sm">
+              <div class="stack" data-bg="mint" data-p="sm|sm">
+                <svg class="icon" data-name="sensors" data-size="24" data-color="primary"></svg>
+              </div>
+              <div class="column" data-gap="xs">
+                <span class="title-medium" data-color="onSurface">Bé Na</span>
+                <span class="body-small" data-color="onSurfaceVariant">Đang ở gần • 98% Pin</span>
+              </div>
+              <button class="text-btn" data-handler="navigate:beacon-detail">
+                <span class="label-large" data-color="primary">Chi tiết beacon</span>
+                <svg class="icon" data-name="chevron_right" data-size="24" data-color="primary"></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Push Mute Section -->
+      <div class="card" data-bg="surfaceContainerLowest" data-p="md|md">
+        <div class="column" data-gap="md">
+          <div class="column" data-gap="xs">
+            <span class="title-medium" data-color="onSurface">Tạm dừng thông báo</span>
+            <span class="body-small" data-color="onSurfaceVariant">Tắt cảnh báo tạm thời khi bạn đang ở cùng bé.</span>
+          </div>
+          <div class="row" data-gap="sm">
+            <button class="elevated-btn" data-bg="surfaceContainerLowest" data-color="onSurface" data-handler="action:mute-5min">
+              <span class="label-large">5 phút</span>
+            </button>
+            <button class="elevated-btn" data-bg="surfaceContainerLowest" data-color="onSurface" data-handler="action:mute-10min">
+              <span class="label-large">10 phút</span>
+            </button>
+            <button class="elevated-btn" data-bg="surfaceContainerLowest" data-color="onSurface" data-handler="action:mute-15min">
+              <span class="label-large">15 phút</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BottomNavBar -->
+  <div class="bottom-nav" data-bg="surfaceContainerLowest" data-p="md|sm">
+    <div class="row" data-gap="md">
+      <button class="icon-btn" data-handler="navigate:home" aria-label="Trang chủ">
+        <div class="column" data-gap="xs">
+          <svg class="icon" data-name="home" data-size="24" data-color="primary"></svg>
+          <span class="label-small" data-color="primary">Trang chủ</span>
+        </div>
+      </button>
+      <button class="icon-btn" data-handler="navigate:devices" aria-label="Thiết bị">
+        <div class="column" data-gap="xs">
+          <svg class="icon" data-name="devices" data-size="24" data-color="onSurfaceVariant"></svg>
+          <span class="label-small" data-color="onSurfaceVariant">Thiết bị</span>
+        </div>
+      </button>
+      <button class="icon-btn" data-handler="navigate:safety" aria-label="An toàn">
+        <div class="column" data-gap="xs">
+          <svg class="icon" data-name="security" data-size="24" data-color="onSurfaceVariant"></svg>
+          <span class="label-small" data-color="onSurfaceVariant">An toàn</span>
+        </div>
+      </button>
+      <button class="icon-btn" data-handler="navigate:settings" aria-label="Cài đặt">
+        <div class="column" data-gap="xs">
+          <svg class="icon" data-name="settings" data-size="24" data-color="onSurfaceVariant"></svg>
+          <span class="label-small" data-color="onSurfaceVariant">Cài đặt</span>
+        </div>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

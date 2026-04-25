@@ -440,15 +440,26 @@ async function main(): Promise<void> {
       if (autoPb) setPlaybookScope("default", globalProjectDir);
     }
 
-    // Strategy 2: project.yaml exists but no playbook set — detect from journal
+    // Strategy 2: project.yaml exists but no playbook set — detect from journal.
+    //
+    // Prefer the `default` playbook when it exists. Falling back to a non-default
+    // playbook silently overrides what is almost always the user's intended scope
+    // (we hit this when a sibling `realdevice` playbook hijacked status).
+    // Only pick a non-default playbook when `default` is genuinely absent.
     if (!process.env.CONVERGE_PLAYBOOK) {
       const { existsSync, readdirSync, statSync } = await import("node:fs");
       const { join } = await import("node:path");
       const journalDir = join(globalProjectDir, ".converge", "journal");
-      if (existsSync(journalDir)) {
+      const playbooksDir = join(globalProjectDir, ".converge", "playbooks");
+      const hasDefault =
+        existsSync(join(playbooksDir, "default", "playbook.yml")) ||
+        existsSync(join(playbooksDir, "default", "playbook.yaml")) ||
+        existsSync(join(journalDir, "default", "tasks"));
+      if (hasDefault) {
+        setPlaybookScope("default", globalProjectDir);
+      } else if (existsSync(journalDir)) {
         for (const entry of readdirSync(journalDir)) {
-          if (entry === "epics" || entry === "project" || entry === "default")
-            continue;
+          if (entry === "epics" || entry === "project") continue;
           const pbDir = join(journalDir, entry);
           if (!statSync(pbDir).isDirectory()) continue;
           const tasksDir = join(pbDir, "tasks");
@@ -478,6 +489,47 @@ async function main(): Promise<void> {
   ) {
     showCommandHelp(command);
     process.exit(0);
+  }
+
+  // ── Playbook → Journal sync (every state-touching command) ─────────
+  // The journal is the single source of truth for task definitions AND
+  // runtime state. Re-sync from `.converge/playbooks/` on each invocation
+  // so author edits propagate immediately. Runtime state (checkpoints,
+  // events.jsonl, attempts/, WBS-spawned children) is preserved across
+  // syncs by `syncPlaybookToJournal`.
+  const SYNC_COMMANDS = new Set([
+    "run",
+    "status",
+    "tree",
+    "show",
+    "inspect",
+    "verify",
+    "metrics",
+    "next",
+    "step",
+    "playbook",
+  ]);
+  if (
+    SYNC_COMMANDS.has(command) &&
+    existsSync(join(globalProjectDir, ".converge", "playbooks"))
+  ) {
+    try {
+      const { syncAllPlaybooks } = await import(
+        "@converge/core/playbook/sync.ts"
+      );
+      const r = await syncAllPlaybooks(globalProjectDir);
+      if (r.aggregate.changed && process.env.CONVERGE_VERBOSE === "true") {
+        console.log(
+          `🔄 Synced playbooks → journal: ${r.aggregate.copied} copied, ${r.aggregate.removed} removed (${r.playbooks.join(", ")})`,
+        );
+      }
+    } catch (err) {
+      if (process.env.CONVERGE_DEBUG === "true") {
+        console.warn(
+          `⚠️  Playbook sync failed (non-fatal): ${(err as Error).message}`,
+        );
+      }
+    }
   }
 
   // ── Backward-compat redirects ──────────────────────────────────
@@ -912,10 +964,77 @@ async function main(): Promise<void> {
             verbose: options.verbose || options.v,
           });
         } else {
+          // Positional args:
+          //   converge status                       → all playbooks (or auto-detected)
+          //   converge status <playbook>            → scope to playbook by name
+          //   converge status <playbook> <task>     → scope to playbook, then filter
+          //   converge status <task>                → filter only (when first arg is not a playbook name)
+          //
+          // Path-form (converge .../playbook.yml status, converge .../TASK.md status, etc.)
+          // is already handled by detectPathBasedCommand and sets options.__playbook
+          // and options.__task before reaching here.
+          let inferredPlaybook: string | undefined = options.__playbook
+            ? String(options.__playbook)
+            : undefined;
+          let inferredFilter: string | undefined = options.filter
+            ? String(options.filter)
+            : undefined;
+
+          if (!inferredPlaybook && positional[0]) {
+            const candidate = positional[0];
+            const projectDir = resolve(options.dir || options.root || ORIGINAL_CWD);
+
+            // Try resolving as a path (relative or absolute) into a playbook scope.
+            // Accept: .../playbook.yml | .../journal/<pb>(/...) | .../playbooks/<pb>(/...) | <pb-dir>
+            const tryAsPath = (raw: string): string | undefined => {
+              if (!raw.includes("/") && !raw.includes("\\")) return undefined;
+              const abs = resolve(projectDir, raw);
+              const parts = abs.split(/[/\\]/);
+              const pbIdx = parts.indexOf("playbooks");
+              if (pbIdx !== -1 && pbIdx + 1 < parts.length) {
+                return parts[pbIdx + 1];
+              }
+              const jIdx = parts.indexOf("journal");
+              if (jIdx !== -1 && jIdx + 1 < parts.length) {
+                return parts[jIdx + 1];
+              }
+              return undefined;
+            };
+
+            const pbFromPath = tryAsPath(candidate);
+            if (pbFromPath) {
+              inferredPlaybook = pbFromPath;
+              if (positional[1]) inferredFilter = positional[1];
+            } else {
+              const pbDir = join(projectDir, ".converge", "playbooks", candidate);
+              const journalDir = join(projectDir, ".converge", "journal", candidate);
+              const isPlaybookName =
+                existsSync(join(pbDir, "playbook.yml")) ||
+                existsSync(join(pbDir, "playbook.yaml")) ||
+                existsSync(join(journalDir, "tasks"));
+              if (isPlaybookName) {
+                inferredPlaybook = candidate;
+                if (positional[1]) inferredFilter = positional[1];
+              } else {
+                // Treat as filter when it doesn't match a known playbook.
+                inferredFilter = candidate;
+              }
+            }
+          } else if (inferredPlaybook && positional[0] && !inferredFilter) {
+            // Path-form set __playbook; first positional becomes the filter.
+            inferredFilter = positional[0];
+          }
+
+          // Honor an explicit playbook-name positional even when auto-detect
+          // already set CONVERGE_PLAYBOOK to something else.
+          if (inferredPlaybook && process.env.CONVERGE_PLAYBOOK !== inferredPlaybook) {
+            setPlaybookScope(inferredPlaybook, globalProjectDir);
+          }
+
           await treeCommand({
             root: options.dir || options.root || ORIGINAL_CWD,
-            filter: positional[0] || options.filter,
-            playbook: options.__playbook ? String(options.__playbook) : undefined,
+            filter: inferredFilter,
+            playbook: inferredPlaybook,
             showPaths: options["show-paths"] || options.showPaths,
             showDescriptions:
               options["show-descriptions"] || options.showDescriptions,

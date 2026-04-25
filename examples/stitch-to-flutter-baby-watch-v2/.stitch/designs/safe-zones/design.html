@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BabyGuard — Safe Zones</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+  body { font-family: 'Manrope', sans-serif; background: var(--surface); }
+</style>
+</head>
+<body>
+
+<div class="scaffold" data-bg="surface">
+
+  <!-- TopAppBar -->
+  <div class="app-bar" data-bg="surface" data-p="md|md">
+    <div class="row" data-gap="sm">
+      <button class="icon-btn" data-handler="navigate:menu" aria-label="Menu">
+        <svg class="icon" data-name="menu" data-size="24" data-color="onSurface"></svg>
+      </button>
+      <span class="title-large" data-color="onSurface">Safe Zones</span>
+      <img class="avatar"
+           src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFY4MgXwlozxAoqZPzg8_5mhpch_h7zaZMK7p1sradwAn73iTsdyqsbgJpr2m2O7ZkPiv12aW3DOQSqjn0kaCcMBWpFTqu-AcHNvBn0s6ZlrgkGaHYi5iFJRkjeeGxO7lDn-Uy_rO5xinsVhzum07gsgEQh-KEDXmw_upl9pB7XyPv7h4yFEEWZxiwth40CG0SwS-qseysiHrsGgFjUWlBM7L4UYPqIND_pYjk1HJ-vc9RAg0cFO5lykl-Cb3c5KFROOn5z1436wT0"
+           alt="Parent Profile"/>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="body" data-p="md|md">
+    <div class="column" data-gap="lg">
+
+      <!-- Hero Editorial Section -->
+      <div class="column" data-gap="sm">
+        <span class="label-small" data-color="onSurfaceVariant">Guardian Overlook</span>
+        <span class="headline-large" data-color="onSurface">Peace of mind, defined by boundaries.</span>
+      </div>
+
+      <!-- Mini Map Card -->
+      <div class="card" data-bg="surfaceContainerLowest">
+        <div class="stack">
+          <img class="network-image"
+               src="https://lh3.googleusercontent.com/aida-public/AB6AXuCP3WAqpEniQ7Z6u5lJcCIE6RJvIlgiYl7ubjE8qKiFJS0Xqd5bw2ABeepRagTr86Hfjez7C19sQO_XNfVtLuoX6aRh9O97AFVw2pKcGNkldyDm2NXRkjyDZ2f8mECaQwSadLqiTkU329PTy2aCSySXlyYIEe5E8IVW8AoJ2ZtSyFHCSAC9EbhZrwxudrCLEcgD_WtJmYZ_cA5GL9vMS3CzU9X3bXXAtqmEnGjOxewkg1nmiq4L9FEIhdWkzeutPDCiWC1APpqduZsf"
+               alt="Map"/>
+
+          <!-- Safe Zone A (pulsing) -->
+          <div class="stack" data-animate="pulse">
+            <div class="badge" data-bg="tertiary"></div>
+          </div>
+          <!-- Safe Zone B -->
+          <div class="stack">
+            <div class="badge" data-bg="primary"></div>
+          </div>
+          <!-- Safe Zone C -->
+          <div class="stack">
+            <div class="badge" data-bg="tertiaryFixedDim"></div>
+          </div>
+
+          <!-- Baby Avatar Marker -->
+          <div class="stack">
+            <img class="avatar"
+                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuCz-clyJYBlQmqBRUaSg7q3rYd_pc-LnKXy_AJqyydyBnCBfsrVJwtukLiV60vScbG-IzvwYR-QhS76dNToeZY5kA0OTPTospWDBa1-tBphK7QA-Amrl9pL7f-OpoLJL5nzuexwWEqOUrq8KWpjWlzPwJgiUSzPWvOOTR7FuywdWRJ_DPr5Yv9_lpWtHLxB1vtGcfQwqtxVUZExmTYcxypfZKjGDLwrYNrTTYHiqN1Yhnu8WLuA82zbkyzTESsjO2SS5SxskJT6MQD3"
+                 alt="Baby"/>
+          </div>
+
+          <!-- Glassmorphism Overlay -->
+          <div class="card" data-bg="surfaceContainerLowest" data-p="md|sm">
+            <div class="row" data-gap="sm">
+              <svg class="icon" data-name="verified_user" data-size="24" data-color="tertiary"></svg>
+              <div class="column" data-gap="xs">
+                <span class="label-large" data-color="onSurface">Tracking Active</span>
+                <span class="label-small" data-color="onSurfaceVariant">3 Active Zones Monitored</span>
+              </div>
+              <span class="chip" data-bg="tertiaryContainer" data-color="tertiary" data-p="sm|xs">
+                <span class="label-small">LIVE</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Safe Zone List -->
+      <div class="column" data-gap="md">
+        <div class="row" data-gap="sm">
+          <span class="headline-small" data-color="onSurface">Active Zones</span>
+          <span class="label-small" data-color="onSurfaceVariant">Scroll to explore</span>
+        </div>
+
+        <div class="column" data-gap="sm">
+
+          <!-- Zone Card 1: Home -->
+          <div class="card" data-bg="surfaceContainerLowest" data-p="md|md">
+            <div class="ink-well" data-route="/zone/home" data-handler="navigate:zone-detail">
+              <div class="list-tile">
+                <div class="row" data-gap="sm">
+                  <div class="stack" data-bg="surfaceContainerLow" data-p="sm|sm">
+                    <svg class="icon" data-name="home" data-size="24" data-color="onSurface"></svg>
+                  </div>
+                  <div class="column" data-gap="xs">
+                    <div class="row" data-gap="xs">
+                      <span class="title-medium" data-color="onSurface">Home</span>
+                      <span class="chip" data-bg="tertiaryContainer" data-color="tertiary" data-p="sm|xs">
+                        <span class="label-small">200m</span>
+                      </span>
+                    </div>
+                    <span class="body-small" data-color="onSurfaceVariant">123 Calm Valley Street, Serenity District</span>
+                  </div>
+                  <button class="icon-btn" data-bg="tertiary" data-handler="action:toggle-zone-home" aria-label="Toggle Home zone">
+                    <svg class="icon" data-name="toggle_on" data-size="24" data-color="surfaceContainerLowest"></svg>
+                  </button>
+                  <button class="icon-btn" data-handler="action:edit-zone-home" aria-label="Edit Home zone">
+                    <svg class="icon" data-name="edit" data-size="24" data-color="outlineVariant"></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Zone Card 2: School -->
+          <div class="card" data-bg="surfaceContainerLowest" data-p="md|md">
+            <div class="ink-well" data-route="/zone/school" data-handler="navigate:zone-detail">
+              <div class="list-tile">
+                <div class="row" data-gap="sm">
+                  <div class="stack" data-bg="surfaceContainerLow" data-p="sm|sm">
+                    <svg class="icon" data-name="school" data-size="24" data-color="onSurface"></svg>
+                  </div>
+                  <div class="column" data-gap="xs">
+                    <div class="row" data-gap="xs">
+                      <span class="title-medium" data-color="onSurface">School</span>
+                      <span class="chip" data-bg="tertiaryContainer" data-color="tertiary" data-p="sm|xs">
+                        <span class="label-small">500m</span>
+                      </span>
+                    </div>
+                    <span class="body-small" data-color="onSurfaceVariant">456 Bright Minds Academy, Knowledge Ave</span>
+                  </div>
+                  <button class="icon-btn" data-bg="tertiary" data-handler="action:toggle-zone-school" aria-label="Toggle School zone">
+                    <svg class="icon" data-name="toggle_on" data-size="24" data-color="surfaceContainerLowest"></svg>
+                  </button>
+                  <button class="icon-btn" data-handler="action:edit-zone-school" aria-label="Edit School zone">
+                    <svg class="icon" data-name="edit" data-size="24" data-color="outlineVariant"></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Zone Card 3: Grandma's House (inactive) -->
+          <div class="card" data-bg="surfaceContainerLowest" data-p="md|md">
+            <div class="ink-well" data-route="/zone/grandma" data-handler="navigate:zone-detail">
+              <div class="list-tile">
+                <div class="row" data-gap="sm">
+                  <div class="stack" data-bg="surfaceContainerLow" data-p="sm|sm">
+                    <svg class="icon" data-name="favorite" data-size="24" data-color="onSurface"></svg>
+                  </div>
+                  <div class="column" data-gap="xs">
+                    <div class="row" data-gap="xs">
+                      <span class="title-medium" data-color="onSurface">Grandma's House</span>
+                      <span class="chip" data-bg="surfaceContainerHighest" data-color="onSurfaceVariant" data-p="sm|xs">
+                        <span class="label-small">150m</span>
+                      </span>
+                    </div>
+                    <span class="body-small" data-color="onSurfaceVariant">789 Orchard Grove, Heritage Park</span>
+                  </div>
+                  <button class="icon-btn" data-bg="outlineVariant" data-handler="action:toggle-zone-grandma" aria-label="Toggle Grandma's House zone">
+                    <svg class="icon" data-name="toggle_off" data-size="24" data-color="surfaceContainerLowest"></svg>
+                  </button>
+                  <button class="icon-btn" data-handler="action:edit-zone-grandma" aria-label="Edit Grandma's House zone">
+                    <svg class="icon" data-name="edit" data-size="24" data-color="outlineVariant"></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Insights Bento Preview -->
+      <div class="row" data-gap="sm">
+        <div class="card" data-bg="surfaceContainerLow" data-p="md|md">
+          <div class="column" data-gap="xs">
+            <svg class="icon" data-name="notifications_active" data-size="24" data-color="onSurfaceVariant"></svg>
+            <span class="headline-small" data-color="onSurface">24 Alerts</span>
+            <span class="label-small" data-color="onSurfaceVariant">This week's entry/exit events</span>
+          </div>
+        </div>
+        <div class="card" data-bg="tertiaryContainer" data-p="md|md">
+          <div class="column" data-gap="xs">
+            <svg class="icon" data-name="battery_full" data-size="24" data-color="tertiary"></svg>
+            <span class="headline-small" data-color="onTertiaryContainer">98% Secure</span>
+            <span class="label-small" data-color="onTertiaryFixedVariant">Optimal zone coverage</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FAB -->
+  <div class="fab" data-bg="onSurface" data-p="md|md">
+    <button class="filled-btn" data-bg="onSurface" data-color="onPrimary" data-handler="action:add-safe-zone" aria-label="Thêm vùng an toàn">
+      <svg class="icon" data-name="add" data-size="24" data-color="onPrimary"></svg>
+      <span class="label-large" data-color="onPrimary">Thêm vùng an toàn</span>
+    </button>
+  </div>
+
+  <!-- BottomNavBar -->
+  <div class="bottom-nav" data-bg="surfaceContainerLowest" data-p="md|sm">
+    <div class="row" data-gap="md">
+      <button class="icon-btn" data-handler="navigate:home" aria-label="Trang chủ">
+        <div class="column" data-gap="xs">
+          <svg class="icon" data-name="home" data-size="24" data-color="onSurfaceVariant"></svg>
+          <span class="label-small" data-color="onSurfaceVariant">Trang chủ</span>
+        </div>
+      </button>
+      <button class="icon-btn" data-handler="navigate:devices" aria-label="Thiết bị">
+        <div class="column" data-gap="xs">
+          <svg class="icon" data-name="devices" data-size="24" data-color="onSurfaceVariant"></svg>
+          <span class="label-small" data-color="onSurfaceVariant">Thiết bị</span>
+        </div>
+      </button>
+      <button class="icon-btn" data-handler="navigate:safety" aria-label="An toàn">
+        <div class="column" data-gap="xs">
+          <svg class="icon" data-name="security" data-size="24" data-color="primary"></svg>
+          <span class="label-small" data-color="primary">An toàn</span>
+        </div>
+      </button>
+      <button class="icon-btn" data-handler="navigate:settings" aria-label="Cài đặt">
+        <div class="column" data-gap="xs">
+          <svg class="icon" data-name="settings" data-size="24" data-color="onSurfaceVariant"></svg>
+          <span class="label-small" data-color="onSurfaceVariant">Cài đặt</span>
+        </div>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

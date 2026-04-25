@@ -1,0 +1,6 @@
+{"name": "RadarScanArea", "grep": "Icons.bluetooth_searching", "description": "Concentric circles radar visualization with animated pulsing bluetooth icon and 'Đang quét thiết bị...' label", "shared": false}
+{"name": "FoundDevicesHeader", "grep": "Thiết bị tìm thấy", "description": "Section header row with title 'Thiết bị tìm thấy' and a count chip showing '3 Mới'", "shared": false}
+{"name": "BeaconBeNaCard", "grep": "Beacon: Bé Na", "description": "Card for the Bé Na beacon: avatar icon, name, sync-group row, RSSI bars, UUID/Major/Minor metadata block, and 'Kết nối ngay' filled button", "shared": false}
+{"name": "Beacon8210Card", "grep": "Beacon #8210", "description": "Card for Beacon #8210: avatar icon, name, status text, RSSI bars, and 'Kết nối' elevated button", "shared": false}
+{"name": "RssiSignalBars", "grep": "RSSI", "description": "Vertical bar signal-strength indicator with numeric RSSI label underneath", "shared": true}
+{"name": "AddBeaconBottomNav", "grep": "navigate:home", "description": "Bottom navigation bar with Home, Devices, Safety, and Settings icon buttons", "shared": true}
