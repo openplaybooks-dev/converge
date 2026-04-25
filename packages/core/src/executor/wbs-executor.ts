@@ -52,7 +52,7 @@ export interface WbsExecutorResult {
 }
 
 /* ------------------------------------------------------------------ */
-/*  WbsExecutor                                                       */
+/*  WbsExecutor                                                        */
 /* ------------------------------------------------------------------ */
 
 export class WbsExecutor {
@@ -122,15 +122,10 @@ export class WbsExecutor {
       this.journalCtx.taskId,
     );
 
-    // Create directories even if WBS crashes immediately
+    // Seeder tasks write wbs-input/output.json at the task root — they have no
+    // "attempts" (that concept belongs to leaf tasks that actually execute).
+    // WBS retries rewrite the same two files; history lives in events.jsonl.
     await mkdir(join(structure.task!, "logs"), { recursive: true });
-    const attemptDir = join(
-      structure.task!,
-      "attempts",
-      String(attemptNumber).padStart(2, "0"),
-    );
-    await mkdir(join(attemptDir, "data"), { recursive: true });
-    await mkdir(join(attemptDir, "logs"), { recursive: true });
 
     // ========================================================================
     // STEP 2: INITIALIZE FACTS LOGGER (before execution)
@@ -147,6 +142,7 @@ export class WbsExecutor {
     // STEP 3: BUILD WBS CONTEXT
     // ========================================================================
     const spawnedTasks: Array<{ id: string; writeToPath: string }> = [];
+    const spawnedGoals: string[] = [];
 
     // Directory of the parent task — child tasks go into {parent}/tasks/ under it.
     // taskFilePath may be a directory (unit.path) or a file (TASK.md).
@@ -185,11 +181,26 @@ export class WbsExecutor {
       spawn: async (target: WbsSpawnTarget, opts?: WbsSpawnOptions) => {
         const shape = await resolveWbsTarget(target, opts, ctx);
 
-        // Write to tasks subdirectory: parent-dir/tasks/child-id/TASK.md
-        // For task at epics/03-app/002-pages → epics/03-app/002-pages/tasks/002-001-home/TASK.md
-        // Using "tasks" (plural) because there are always multiple subtasks
+        // Journal mirrors the playbook tree 1:1. A child spawned from parent
+        // `taskId` lands at:
+        //   parent is playbook root → journal/{pb}/tasks/{childId}/TASK.md
+        //   otherwise              → journal/{pb}/tasks/{parent-as-tasks-path}/tasks/{childId}/TASK.md
+        // where `parent-as-tasks-path` joins the parent's hierarchical segments
+        // with "tasks/", matching the playbook layout. No `spawned/` marker.
+        // opts.writeToPath still overrides — caller's responsibility.
+        const playbookName = process.env.CONVERGE_PLAYBOOK || "default";
+        const parentSegments = this.journalCtx.taskId
+          .split("/")
+          .filter(Boolean);
+        // Drop the leading playbook-name segment — it's redundant with the
+        // `journal/{pb}/` root.
+        if (parentSegments[0] === playbookName) parentSegments.shift();
+        const parentTasksPath = parentSegments.flatMap((s) => ["tasks", s]);
         const autoWritePath = join(
-          relParentDir,
+          ".converge",
+          "journal",
+          playbookName,
+          ...parentTasksPath,
           "tasks",
           shape.id,
           "TASK.md",
@@ -279,8 +290,55 @@ export class WbsExecutor {
       ) => {
         const { writeGoalDefs } = await import("../converge/goal-planner.ts");
         writeGoalDefs(this.projectDir, [goalDef]);
+        spawnedGoals.push(goalDef.id);
         console.log(`[wbs:${this.taskMeta.id}] Spawned goal: ${goalDef.id}`);
       },
+    };
+
+    // ========================================================================
+    // STEP 3.5: WRITE DEBUG INPUT SNAPSHOT (what the WBS script sees in ctx)
+    // ========================================================================
+    const inputSnapshot = {
+      attemptNumber,
+      startedAt: seededAt,
+      projectDir: this.projectDir,
+      playbookName: process.env.CONVERGE_PLAYBOOK || "default",
+      parentTaskDir: relative(this.projectDir, parentTaskDir),
+      journalCtx: this.journalCtx,
+      taskMeta: {
+        id: this.taskMeta.id,
+        title: this.taskMeta.title,
+      },
+      vars: this.taskMeta.vars ?? {},
+      ctxMethods: ["log", "ai.ask", "plan.getPlanPath", "artifact", "spawn", "spawnGoal"],
+    };
+    await writeFile(
+      join(structure.task!, "wbs-input.json"),
+      JSON.stringify(inputSnapshot, null, 2),
+      "utf-8",
+    );
+
+    const writeOutput = async (body: Record<string, unknown>) => {
+      try {
+        await writeFile(
+          join(structure.task!, "wbs-output.json"),
+          JSON.stringify(
+            {
+              attemptNumber,
+              startedAt: seededAt,
+              completedAt: new Date().toISOString(),
+              spawnedTasks,
+              spawnedGoals,
+              ...body,
+            },
+            null,
+            2,
+          ),
+          "utf-8",
+        );
+      } catch {
+        // Debug artifact — never let a write failure mask the real result.
+      }
     };
 
     // ========================================================================
@@ -309,6 +367,12 @@ export class WbsExecutor {
             `(e.g., iterating over wrong field, filter excluding all entries).`,
         );
         zeroSpawnError.name = "WbsZeroSpawnError";
+        await writeOutput({
+          status: "zero-spawn",
+          spawnCount: 0,
+          durationMs,
+          error: { name: zeroSpawnError.name, message: zeroSpawnError.message },
+        });
         const shouldRetry = await this.triggerSelfHealing(
           zeroSpawnError,
           attemptNumber,
@@ -339,6 +403,11 @@ export class WbsExecutor {
         );
       }
 
+      await writeOutput({
+        status: "success",
+        spawnCount: spawnedTasks.length,
+        durationMs,
+      });
       return { spawnCount: spawnedTasks.length, durationMs };
     } catch (error: any) {
       const durationMs = Date.now() - start;
@@ -346,6 +415,19 @@ export class WbsExecutor {
       console.error(
         `[wbs:${this.taskMeta.id}] ❌ WBS execution failed: ${error.message}`,
       );
+
+      await writeOutput({
+        status: "error",
+        spawnCount: spawnedTasks.length,
+        durationMs,
+        error: {
+          name: error.name,
+          message: error.message,
+          stack: typeof error.stack === "string"
+            ? error.stack.split("\n").slice(0, 20).join("\n")
+            : undefined,
+        },
+      });
 
       // ======================================================================
       // STEP 5: LOG ERROR AS FACT (infrastructure exists now)

@@ -29,7 +29,11 @@ export {
   parseDuration,
 } from "./loader.ts";
 
-export { generateEpicFromPlaybook, mergeRunConfig } from "./executor.ts";
+export {
+  generateEpicFromPlaybook,
+  mergeRunConfig,
+  injectVarsIntoTaskMd,
+} from "./executor.ts";
 
 export {
   initPlaybookJournal,

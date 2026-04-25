@@ -198,8 +198,11 @@ const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/;
 /**
  * Inject playbook vars into a TASK.md's YAML frontmatter.
  * Adds a `vars:` block so WBS scripts can access them via ctx.vars.
+ *
+ * Idempotent: overwrites any existing `vars:` key. Safe to call on every run
+ * so that CLI flags refresh the frontmatter each `converge run`.
  */
-async function injectVarsIntoTaskMd(
+export async function injectVarsIntoTaskMd(
   taskMdPath: string,
   vars: Record<string, string>,
 ): Promise<void> {

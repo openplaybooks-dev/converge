@@ -170,14 +170,19 @@ export class SpawnRunner {
     let mergedAllowedTools: string[];
     try {
       // First, validate that the root skill exists
-      validateSkillsExist(skillsRoot, [skillName]);
+      validateSkillsExist(skillsRoot, [skillName], this.projectDir);
 
       // Resolve all transitive dependencies
-      const resolution = resolveSkillDependencies(skillsRoot, [skillName], {
-        maxDepth: 10,
-        throwOnMissing: true,
-        verbose: true, // Enable verbose logging to debug issues
-      });
+      const resolution = resolveSkillDependencies(
+        skillsRoot,
+        [skillName],
+        {
+          maxDepth: 10,
+          throwOnMissing: true,
+          verbose: true, // Enable verbose logging to debug issues
+        },
+        this.projectDir,
+      );
 
       allSkills = resolution.skills;
 
@@ -188,18 +193,18 @@ export class SpawnRunner {
       }
 
       // Validate all resolved skills exist
-      validateSkillsExist(skillsRoot, allSkills);
+      validateSkillsExist(skillsRoot, allSkills, this.projectDir);
 
       console.log(`   ✅ Loading ${allSkills.length} skill(s):`);
       console.log(
-        getSkillSummary(skillsRoot, allSkills)
+        getSkillSummary(skillsRoot, allSkills, this.projectDir)
           .split("\n")
           .map((line) => `   ${line}`)
           .join("\n"),
       );
 
       // Collect all allowed tools from all skills
-      mergedAllowedTools = collectAllowedTools(skillsRoot, allSkills);
+      mergedAllowedTools = collectAllowedTools(skillsRoot, allSkills, this.projectDir);
       console.log(
         `   🔧 Allowed tools (${mergedAllowedTools.length}): ${mergedAllowedTools.join(", ")}`,
       );

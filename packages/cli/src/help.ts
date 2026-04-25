@@ -81,19 +81,26 @@ EXAMPLES
 
   reset: `
 USAGE
-  converge reset <task...> [options]
-  converge reset --all
+  converge reset --all                       Delete entire .converge/journal/
+  converge reset <playbook>                  Delete .converge/journal/<playbook>/
+  converge reset <playbook> <taskPath>       Delete .converge/journal/<playbook>/tasks/<taskPath>/
+
+DESCRIPTION
+  Journal is the source of truth — reset simply removes journal state at the
+  requested scope. A task-level reset also deletes any spawned descendants
+  (they live inside the task subtree).
+
+  <taskPath> is the slash-separated journal id (e.g. "parent" or
+  "parent/spawn-a"), NOT the filesystem path with "tasks/" or "spawned/"
+  markers — those are rejected.
 
 OPTIONS
-  --outputs                 Also delete output files
-  --wbs                     Also delete WBS-generated task files
-  --all                     Full reset (journal + WBS + outputs), or reset entire project
   --dir=PATH                Project directory (default: cwd)
 
 EXAMPLES
-  converge reset 003-generate-designs
-  converge reset 001-overview 002-design-system --all
   converge reset --all
+  converge reset deep-research
+  converge reset deep-research parent/spawn-a
 `,
 
   status: `
@@ -217,6 +224,31 @@ EXAMPLES
   converge verify
   converge verify --fix
   converge .converge/playbooks/default/tasks/03-build-screens verify
+`,
+
+  migrate: `
+USAGE
+  converge migrate [options]
+
+DESCRIPTION
+  Detect V1 project structure and migrate to V2.
+
+  V1 placed spawned tasks under .converge/playbooks/{pb}/tasks/{parent}/tasks/{child}/.
+  V2 places them under .converge/journal/{pb}/tasks/{parent}/spawned/{child}/ and
+  tracks a playbook hash for change detection.
+
+  Dry-run by default — no files are moved unless --apply is given.
+
+OPTIONS
+  --apply                   Move files and write journal hash (default: dry-run)
+  --force                   Overwrite conflicting journal destinations
+  --dir=PATH                Project directory (default: cwd)
+  --verbose, -v             Show each moved task
+
+EXAMPLES
+  converge migrate                          # report what would change
+  converge migrate --apply                  # execute the migration
+  converge migrate --apply --force          # overwrite journal conflicts
 `,
 
   playbook: `

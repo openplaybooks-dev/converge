@@ -170,7 +170,7 @@ export async function treeCommand(
 
     // Count running tasks using cached filesystem status (single scan)
     const { FilesystemTaskStatus } =
-      await import("../checkpoint/filesystem-status.ts");
+      await import("@converge/core/checkpoint/filesystem-status.ts");
     const fsStatus = new FilesystemTaskStatus(projectDir);
     const statusMap = fsStatus.getStatusMap();
 

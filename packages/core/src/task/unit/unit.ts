@@ -151,8 +151,16 @@ export class Unit implements TaskDefinition {
       const parentContext = config.parent?.context;
       this.context = createTaskContext(config.path, parentContext);
     } catch (err) {
-      // If path doesn't match expected format (e.g., virtual paths), skip context
-      // Virtual tasks don't need context for ancestor propagation
+      // Virtual paths (e.g., "<virtual:__root__>") don't have filesystem
+      // locations, so context derivation can't work — skip silently.
+      // For real paths, surface the failure so the caller sees why
+      // downstream `executeTask` will fail with "Unit must have context".
+      const isVirtual = config.path.startsWith("<virtual:");
+      if (!isVirtual) {
+        console.warn(
+          `[unit] context creation failed for ${config.path}: ${(err as Error).message}`,
+        );
+      }
       this.context = undefined;
     }
   }

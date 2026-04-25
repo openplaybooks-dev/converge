@@ -6,6 +6,7 @@
  */
 
 import { mkdir, writeFile, appendFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { getSessionsDir } from "./structure.ts";
 import type {
@@ -241,6 +242,7 @@ Started: ${this.metadata.startTime}
       metadata,
     };
 
+    await this.ensureSessionDir();
     const line = JSON.stringify(event) + "\n";
     await appendFile(this.eventsPath, line, "utf-8");
   }
@@ -249,7 +251,18 @@ Started: ${this.metadata.startTime}
    * Append to human-readable session log
    */
   async writeSessionLog(message: string): Promise<void> {
+    await this.ensureSessionDir();
     await appendFile(this.sessionLogPath, message, "utf-8");
+  }
+
+  /**
+   * Ensure session directory exists — `writeSessionStart()` may not have been
+   * called yet (or was skipped because another logger owns the lifecycle).
+   */
+  private async ensureSessionDir(): Promise<void> {
+    if (!existsSync(this.sessionDir)) {
+      await mkdir(this.sessionDir, { recursive: true });
+    }
   }
 
   /* ---------------------------------------------------------------- */
@@ -437,9 +450,12 @@ ${separator}
   /* ---------------------------------------------------------------- */
 
   /**
-   * Save metadata to file
+   * Save metadata to file. Ensures the session directory exists — callers
+   * may update metadata before `writeSessionStart()` has been invoked (or
+   * after it was skipped because another logger owns the lifecycle).
    */
   private async saveMetadata(): Promise<void> {
+    await this.ensureSessionDir();
     const json = JSON.stringify(this.metadata, null, 2);
     await writeFile(this.metadataPath, json, "utf-8");
   }

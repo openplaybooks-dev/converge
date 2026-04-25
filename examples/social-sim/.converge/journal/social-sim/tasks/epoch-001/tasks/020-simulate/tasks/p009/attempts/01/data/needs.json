@@ -1,0 +1,32 @@
+{
+  "taskId": "epoch-001/020-simulate/p009",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "runs/run-001/personas.json",
+      "count": 1,
+      "samples": [
+        "runs/run-001/personas.json"
+      ]
+    },
+    {
+      "pattern": "runs/run-001/graph.json",
+      "count": 1,
+      "samples": [
+        "runs/run-001/graph.json"
+      ]
+    },
+    {
+      "pattern": "runs/run-001/timeline.jsonl",
+      "count": 1,
+      "samples": [
+        "runs/run-001/timeline.jsonl"
+      ]
+    }
+  ],
+  "outputs": [
+    "runs/run-001/timeline.jsonl",
+    "vault/runs/run-001/actions/t1-p009-*.md"
+  ],
+  "blocked": false
+}

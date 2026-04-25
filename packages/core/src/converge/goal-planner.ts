@@ -36,7 +36,7 @@ import type {
   WbsSpawnTarget,
   WbsSpawnOptions,
 } from "../config/task-definition.ts";
-import { resolveWbsTarget } from "../executor/wbs-executor.ts";
+import { resolveWbsTarget } from "../executor/wbs-target-utils.ts";
 import { ArtifactStore } from "../artifacts/index.ts";
 import { stringify as stringifyYaml, parse as parseYaml } from "yaml";
 

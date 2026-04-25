@@ -1,0 +1,23 @@
+{
+  "attemptNumber": 1,
+  "startedAt": "2026-04-25T00:27:05.540Z",
+  "completedAt": "2026-04-25T00:27:05.550Z",
+  "spawnedTasks": [
+    {
+      "id": "epoch-001",
+      "writeToPath": ".converge/journal/social-sim/tasks/epoch-001/TASK.md"
+    },
+    {
+      "id": "epoch-002",
+      "writeToPath": ".converge/journal/social-sim/tasks/epoch-002/TASK.md"
+    },
+    {
+      "id": "epoch-003",
+      "writeToPath": ".converge/journal/social-sim/tasks/epoch-003/TASK.md"
+    }
+  ],
+  "spawnedGoals": [],
+  "status": "success",
+  "spawnCount": 3,
+  "durationMs": 9
+}

@@ -260,10 +260,28 @@ export async function executeTask(
               // wbs.json can be stale if children were deleted (e.g. git clean, --restart).
               const parentDir = path.dirname(ctx.filePath);
               const subtasks: Array<{ id: string }> = raw.subtasks ?? [];
+              // WBS children may live under the playbook tree (legacy:
+              // playbooks/{pb}/.../tasks/{id}) OR the journal tree (current:
+              // journal/{pb}/[tasks/{seg}/]*tasks/{id}). The spawner writes to
+              // the journal — compute the journal-side parent dir and also
+              // check there.
+              const playbookName = process.env.CONVERGE_PLAYBOOK || "default";
+              const journalSegments = ctx.journalTaskId
+                .split("/")
+                .filter(Boolean)
+                .filter((s) => s !== playbookName);
+              const journalParentDir = path.join(
+                ctx.projectDir,
+                ".converge",
+                "journal",
+                playbookName,
+                ...journalSegments.flatMap((s) => ["tasks", s]),
+              );
               const anyChildExists =
                 subtasks.length > 0 &&
                 subtasks.some((t) =>
-                  existsSync(path.join(parentDir, "tasks", t.id, "TASK.md")),
+                  existsSync(path.join(parentDir, "tasks", t.id, "TASK.md")) ||
+                  existsSync(path.join(journalParentDir, "tasks", t.id, "TASK.md")),
                 );
 
               if (anyChildExists) {
