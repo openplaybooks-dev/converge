@@ -140,12 +140,9 @@ class HomeAlertPhaseController extends _$HomeAlertPhaseController {
     }
   }
 
-  int _medianRssi() {
-    final sorted = List<int>.from(_rssiWindow)..sort();
-    if (sorted.isEmpty) return 0;
-    final mid = sorted.length ~/ 2;
-    if (sorted.length.isOdd) return sorted[mid];
-    return ((sorted[mid - 1] + sorted[mid]) / 2).round();
+  bool _windowSuggestsWeak(int threshold) {
+    if (_rssiWindow.isEmpty) return false;
+    return _rssiWindow.any((r) => r < threshold);
   }
 
   void _logReconnect(BeaconObservation obs) {

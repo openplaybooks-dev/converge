@@ -10,8 +10,8 @@ import 'widgets/insight_tile.dart';
 import 'widgets/safe_zone_card.dart';
 import 'widgets/safe_zones_map_card.dart';
 
-// TODO(phase-05): wrap body in ref.watch(<provider>).when(...) once provider exists,
-// using SafeZonesEmptyState / SafeZonesLoadingState / SafeZonesErrorState.
+// Wired via safeZonesProvider; FAB opens AddSafeZoneSheet → SafeZones.add,
+// toggle/delete row actions call SafeZones.toggle/remove (sqflite-backed).
 
 class SafeZonesScreen extends ConsumerWidget {
   const SafeZonesScreen({super.key});

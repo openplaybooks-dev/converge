@@ -6,8 +6,8 @@ import 'package:go_router/go_router.dart';
 import '../../theme/app_spacing.dart';
 import 'package:baby_watch/widgets/add_beacon_bottom_nav.dart';
 
-// TODO(phase-05): wrap body in ref.watch(<provider>).when(...) once provider exists.
-// AddBeaconEmptyState / AddBeaconLoadingState / AddBeaconErrorState are imported and ready.
+// Wired via beaconsProvider + beaconObservationsProvider; BleScanner.start/stop
+// drives the radar; "Connect" handlers call Beacons.pair → paired_beacons.
 
 class AddBeaconScreen extends ConsumerWidget {
   const AddBeaconScreen({super.key});

@@ -9,8 +9,8 @@ import 'history_states.dart';
 import 'widgets/history_event_card.dart';
 import 'widgets/history_filter_pill.dart';
 
-// TODO(phase-05): wrap body in ref.watch(<provider>).when(...) once provider exists,
-// using HistoryEmptyState / HistoryLoadingState / HistoryErrorState.
+// Wired via alertEventsProvider + historyFilterProvider; filter pills update
+// the filter and the list re-filters by occurred_at.
 
 class HistoryScreen extends ConsumerStatefulWidget {
   const HistoryScreen({super.key});

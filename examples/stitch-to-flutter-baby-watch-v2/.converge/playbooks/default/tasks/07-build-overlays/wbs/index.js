@@ -54,8 +54,8 @@ export async function run(ctx) {
   const raw = JSON.parse(readFileSync(screensPath, 'utf-8'));
   const allEntries = Array.isArray(raw) ? raw : raw.screens;
 
-  // ── Step 1: Try screens.json for overlay entries ────────────────
-  let overlays = allEntries
+  // ── Step 1: Read overlay entries declared in screens.json ──────────
+  const screensJsonOverlays = allEntries
     .filter(s => s.route && s.route.startsWith('overlay:'))
     .map(s => ({
       id: s.id,
@@ -66,14 +66,18 @@ export async function run(ctx) {
       htmlReference: typeof s.htmlReference === 'string' ? s.htmlReference.trim() : '',
     }));
 
-  // ── Step 2: AI discovery fallback ──────────────────────────────
-  if (overlays.length === 0) {
-    ctx.log.info('No overlay entries in screens.json — discovering from SITE.md, UX.md, and screen source files');
+  // ── Step 2: Always run AI discovery and merge ─────────────────────
+  // Rationale: screens.json is often incomplete because the upstream
+  // 004-breakdown-ux-to-screens task only declares overlays that have an
+  // explicit reference. Placeholder triggers (showModalBottomSheet with
+  // Placeholder()) added later get missed. AI discovery scans the actual
+  // screen source for triggers and we merge with screens.json (dedup by id).
+  ctx.log.info('Running AI overlay discovery to catch placeholder triggers in screen source');
 
-    const screenIds = allEntries.map(s => s.id).join(', ');
+  const screenIds = allEntries.map(s => s.id).join(', ');
 
-    const aiResponse = await ctx.ai.ask(
-      `Discover all overlays (bottom sheets, dialogs, persistent bars) that should exist in this project.
+  const aiResponse = await ctx.ai.ask(
+    `Discover all overlays (bottom sheets, dialogs, persistent bars) that should exist in this project.
 
 Read these files:
 - .stitch/SITE.md — look for "Modal Overlays" or similar section listing overlay routes
@@ -93,37 +97,51 @@ For each overlay found, determine:
 - description: what the overlay does
 
 Skip overlays that are already fully implemented (have real widget content, not Placeholder()).
+Skip files under lib/screens/**/*_legacy.dart — those are deprecated and being removed.
 Return the list as a JSON array.`
-    );
+  );
 
-    let parsed;
-    try {
-      parsed = JSON.parse(aiResponse.text());
-    } catch {
-      ctx.log.warn('AI response was not valid JSON — skipping overlay discovery');
-      return;
-    }
-
-    overlays = validateOverlays(parsed);
-    ctx.log.info(`Discovered ${overlays.length} overlays via AI`);
+  let aiOverlays = [];
+  try {
+    aiOverlays = validateOverlays(JSON.parse(aiResponse.text()));
+    ctx.log.info(`AI discovered ${aiOverlays.length} overlays`);
+  } catch {
+    ctx.log.warn('AI response was not valid JSON — falling back to screens.json overlays only');
   }
 
-  if (!overlays || overlays.length === 0) {
+  // ── Merge: screens.json takes precedence on conflicts (it carries htmlReference) ──
+  const byId = new Map();
+  for (const o of aiOverlays) byId.set(o.id, o);
+  for (const o of screensJsonOverlays) byId.set(o.id, o); // overwrites if id matched
+  const overlays = [...byId.values()];
+
+  const declaredIds = new Set(screensJsonOverlays.map(o => o.id));
+  const newFromAi = aiOverlays.filter(o => !declaredIds.has(o.id)).length;
+  ctx.log.info(`Total overlays after merge: ${overlays.length} (${screensJsonOverlays.length} from screens.json + ${newFromAi} new from AI)`);
+
+  if (overlays.length === 0) {
     ctx.log.info('No overlays found — skipping');
     return;
   }
 
   // ── Step 3: Spawn per-overlay pipeline ─────────────────────────
+  // Spawned tasks (parent overlay + its 5 step children) write into the
+  // journal automatically. The journal is the source of truth for execution
+  // state; the playbook directory holds only the blueprint (this WBS + the
+  // wbs/templates/overlay/ TASK.md files).
   const templateBase = '.converge/playbooks/default/tasks/07-build-overlays/wbs/templates/overlay';
   let prevOverlayLastId = null;
 
-  for (let idx = 0; idx < overlays.length; idx++) {
-    const overlay = overlays[idx];
+  for (const overlay of overlays) {
     const { id: overlayId, title, parentScreenId, overlayType } = overlay;
-    const prefix = String(idx + 1).padStart(3, '0');
+    // Use overlayId as both the spawned task id and the template variable that
+    // composes child task ids. Avoids index-based numeric prefixes that would
+    // shift when discovery order changes between runs (see git log of this WBS
+    // for the renumbering bug that motivated this).
+    const prefix = overlayId;
     const widgetName = toPascalCase(overlayId);
     const snakeName = toSnakeCase(overlayId);
-    const overlayTaskId = `${prefix}-${overlayId}`;
+    const overlayTaskId = overlayId;
 
     const htmlRef = typeof overlay.htmlReference === 'string' ? overlay.htmlReference.trim() : '';
     const vars = {
@@ -152,17 +170,17 @@ Return the list as a JSON array.`
     });
 
     // ── Level 2: Step children (from templates) ──────────────────
-    const basePath = `.converge/playbooks/default/tasks/07-build-overlays/tasks/${overlayTaskId}`;
+    // Omit writeToPath so the engine routes spawned tasks to the journal,
+    // matching how the Level 1 parent task is spawned above.
     const steps = ['01-spec', '02-design', '03-convert', '04-connect', '05-mount'];
 
     for (const step of steps) {
       const id = `${prefix}-${step}`;
       const templatePath = `${templateBase}/tasks/{{prefix}}-${step}/TASK.md`;
-      const writeToPath = `${basePath}/tasks/${id}/TASK.md`;
 
       await ctx.spawn(
         { _type: 'template-ref', path: templatePath, vars },
-        { id, writeToPath },
+        { id },
       );
     }
 

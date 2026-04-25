@@ -8,8 +8,8 @@ import '../../widgets/app_bottom_nav_bar.dart';
 // ignore: unused_import
 import 'settings_states.dart';
 
-// TODO(phase-05): wrap body in ref.watch(<provider>).when(...) once provider exists,
-// using SettingsEmptyState / SettingsLoadingState / SettingsErrorState.
+// Wired via alertConfigsProvider; toggle-* and set-timeout-* markers route to
+// matching AlertConfigs mutators with shared_preferences persistence.
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});

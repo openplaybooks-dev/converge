@@ -22,6 +22,7 @@ sealed class AlertEvent with _$AlertEvent {
     required String timeLabel,
     int? durationSeconds,
     String? safeZoneId,
+    String? suppressedByZoneId,
     required bool acknowledged,
   }) = _AlertEvent;
 

@@ -7,7 +7,7 @@ import '../../theme/app_spacing.dart';
 import 'widgets/invitation_card.dart';
 import 'widgets/system_status_footer.dart';
 
-// TODO(phase-05): wrap body in ref.watch(<provider>).when(...) once provider exists.
+// SCOPE: phase-2 — co-guardian flow not in realdevice playbook.
 
 class CoGuardiansListScreen extends ConsumerWidget {
   const CoGuardiansListScreen({super.key});

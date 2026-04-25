@@ -6,7 +6,8 @@ import 'package:go_router/go_router.dart';
 import '../../theme/app_spacing.dart';
 import 'package:baby_watch/widgets/permission_card.dart';
 
-// TODO(phase-05): wrap body in ref.watch(<provider>).when(...) once provider exists.
+// Wired via onboardingPermissionsProvider; permission_handler requests live behind
+// the @converge:element navigate:onboarding-next handler.
 
 class OnboardingScreen extends ConsumerWidget {
   const OnboardingScreen({super.key});
