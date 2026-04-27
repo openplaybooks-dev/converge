@@ -5,13 +5,97 @@ sidebar:
   order: 1
 ---
 
-## The problem: how do you split a big problem without losing coherence?
+## You're painting a picture. Each viewpoint is limited.
 
-A non-trivial project doesn't fit in one prompt. You decompose it: research → plan → implement → test → document. The problem with naive decomposition is that each task either gets *too much* context (the whole project, every time, blowing the prompt window and confusing the model) or *too little* (just the immediate instruction, with no awareness of upstream decisions, leading to drift between tasks).
+Imagine the project as a single picture you're trying to paint. The picture is too big to see all at once — at any moment, you can only look at a small rectangle of canvas. To finish the picture, you have to make a sequence of moves: pick a viewport, see what's already there, paint a piece, move the viewport, repeat.
 
-The traditional answer is shared memory: a database, a vector store, a message bus that all tasks read from and write to. That solves visibility but creates new problems — opaque state, schema drift, "what did task A actually pass to task B" debugging that has no `cat` answer.
+Converge models a project the same way. **The work is a set of static dots — tasks — scattered across a canvas of files. Each task gets a viewport: a small, focused slice of the canvas it can see and a small, focused slice it's responsible for filling in. Converge's job is to connect the dots — to find an order of viewports such that each task, looking only at its slice, can produce the next piece of the picture.**
 
-Converge picks a different answer: **interpolate context between tasks through plain files.** Each task declares the inputs it needs and the outputs it produces. Downstream tasks read upstream outputs as their inputs. The filesystem itself is the interface contract.
+The mechanism is mundane on purpose: the canvas is the filesystem; viewports are declared input/output globs; "connecting" is computing which produced files feed which downstream task's viewport. No vector store, no shared memory, no per-call replay of the whole picture. Files in, files out, and a runtime that schedules viewports.
+
+<figure class="cv-figure" role="img" aria-labelledby="cv-fig-title cv-fig-desc" style="margin: 1.5rem 0;">
+  <svg viewBox="0 0 720 360" xmlns="http://www.w3.org/2000/svg" class="cv-svg" style="width: 100%; max-width: 720px; height: auto; display: block;">
+    <title id="cv-fig-title">The picture, the dots, and three viewports</title>
+    <desc id="cv-fig-desc">
+      A wide canvas with seven scattered task dots. Three labeled viewport rectangles overlap
+      different regions of the canvas. Arrows from finished dots feed into the next viewport,
+      illustrating how each task's output extends the slice the next task can see.
+    </desc>
+    <defs>
+      <pattern id="cv-grid" x="0" y="0" width="36" height="36" patternUnits="userSpaceOnUse">
+        <path d="M 36 0 L 0 0 0 36" fill="none" stroke="#1E293B" stroke-width="1" opacity="0.55"/>
+      </pattern>
+      <radialGradient id="cv-glow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#6366F1" stop-opacity="0.16"/>
+        <stop offset="100%" stop-color="#6366F1" stop-opacity="0"/>
+      </radialGradient>
+      <marker id="cv-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#6366F1"/>
+      </marker>
+    </defs>
+
+    <!-- canvas (the full picture) -->
+    <rect x="0" y="0" width="720" height="360" fill="url(#cv-grid)" rx="12"/>
+    <rect x="0" y="0" width="720" height="360" fill="url(#cv-glow)" rx="12"/>
+    <text x="20" y="28" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#64748B" letter-spacing="0.16em">THE PICTURE — files on disk</text>
+
+    <!-- task dots (static, scattered) -->
+    <g fill="#94A3B8">
+      <circle cx="120" cy="110" r="6"/>
+      <circle cx="220" cy="160" r="6"/>
+      <circle cx="180" cy="240" r="6"/>
+      <circle cx="370" cy="130" r="6"/>
+      <circle cx="430" cy="220" r="6"/>
+      <circle cx="560" cy="160" r="6"/>
+      <circle cx="610" cy="270" r="6"/>
+    </g>
+    <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#64748B">
+      <text x="132" y="113">research</text>
+      <text x="232" y="163">plan</text>
+      <text x="192" y="243">facts</text>
+      <text x="382" y="133">scaffold</text>
+      <text x="442" y="223">impl</text>
+      <text x="572" y="163">tests</text>
+      <text x="498" y="282" text-anchor="end">docs</text>
+    </g>
+
+    <!-- viewport 1 -->
+    <rect x="80" y="78" width="200" height="190" rx="10" fill="none" stroke="#22D3EE" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.85"/>
+    <text x="90" y="94" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#22D3EE" letter-spacing="0.12em">VIEWPORT A — research + plan</text>
+
+    <!-- viewport 2 -->
+    <rect x="320" y="100" width="180" height="160" rx="10" fill="none" stroke="#A78BFA" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.85"/>
+    <text x="330" y="116" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#A78BFA" letter-spacing="0.12em">VIEWPORT B — scaffold + impl</text>
+
+    <!-- viewport 3 -->
+    <rect x="520" y="130" width="180" height="170" rx="10" fill="none" stroke="#6366F1" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.95"/>
+    <text x="530" y="146" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#6366F1" letter-spacing="0.12em">VIEWPORT C — tests + docs</text>
+
+    <!-- connection arrows: A's outputs feed B's slice, B's outputs feed C's slice -->
+    <path d="M 250 180 C 290 180, 300 160, 330 160" fill="none" stroke="#6366F1" stroke-width="1.6" marker-end="url(#cv-arrow)"/>
+    <path d="M 470 200 C 510 200, 510 200, 540 200" fill="none" stroke="#6366F1" stroke-width="1.6" marker-end="url(#cv-arrow)"/>
+
+    <!-- caption -->
+    <text x="360" y="340" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#94A3B8" letter-spacing="0.06em">
+      each viewport sees a slice · each task produces files · produced files extend the next viewport
+    </text>
+  </svg>
+  <figcaption class="cv-caption" style="font-size: 0.875rem; color: var(--sl-color-gray-3, #94A3B8); margin-top: 0.75rem; line-height: 1.5;">
+    The picture is the project on disk. The dots are tasks — fixed in place once declared.
+    Each viewport is one task's <code>inputs:</code>/<code>outputs:</code> declaration: a slice
+    it can read, a slice it must write. Connecting the dots is computing the order in which
+    viewports unlock each other.
+  </figcaption>
+</figure>
+
+## The two failure modes this avoids
+
+The reason "every viewport is limited" matters: any naive decomposition collapses into one of two failure modes.
+
+1. **The viewport is the whole picture.** Every task sees everything. Window blows; cost balloons; the model loses focus across irrelevant detail. This is what happens when you stuff the entire project into each prompt because you're afraid of losing context.
+2. **The viewports don't overlap.** Each task sees only its immediate instruction, with no awareness of what upstream tasks decided. Tasks make incompatible assumptions; the pieces don't fit. This is what happens when you decompose without a shared addressing scheme.
+
+The fix is a viewport that is *small but precisely chosen*: large enough to contain everything the task needs to read, small enough that nothing irrelevant fits, and with a stable address (a file path) for every coordinate. That's what `inputs:` and `outputs:` are.
 
 ## How it works
 

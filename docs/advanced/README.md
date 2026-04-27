@@ -21,7 +21,7 @@ These pages stack. Read top to bottom on a first pass; jump in if you know what 
 
 2. **[Just-in-time graph construction](./02-jit-graph-construction)** — the graph isn't pre-built. Nodes are injected on-demand as gaps appear, keeping the runtime traceable instead of letting it explode combinatorially.
 
-3. **[Input snapshot and file diff](./03-input-snapshot-and-diff)** — how the framework grounds agent claims in filesystem truth. Agents lie about what they wrote; mtime and size don't.
+3. **[Context as a vector space](./03-input-snapshot-and-diff)** — the user's idea is a seed vector. Each task extends it; each task projects a slice of it. The filesystem is the offload — the vector space lives on disk, not in the context window.
 
 4. **[The strategy catalog](./04-strategy-catalog)** — how the repair pipeline scales. A flat registry of named strategies with declarative context steps, not an orchestrator with hard-coded dispatch.
 
