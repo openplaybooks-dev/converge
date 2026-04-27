@@ -145,7 +145,6 @@ export async function playbookInfoCommand(
     console.log("\n   Run Config:");
     const r = pb.def.run;
     if (r.mode) console.log(`      mode: ${r.mode}`);
-    if (r.maxIterations) console.log(`      maxIterations: ${r.maxIterations}`);
     if (r.maxTaskAttempts)
       console.log(`      maxTaskAttempts: ${r.maxTaskAttempts}`);
     if (r.maxDuration !== undefined) {

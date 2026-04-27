@@ -63,6 +63,10 @@
       "import": "./dist/client.js",
       "types": "./dist/client.d.ts"
     },
+    "./studio-api": {
+      "import": "./dist/studio-api.js",
+      "types": "./dist/studio-api.d.ts"
+    },
     "./*": {
       "import": "./src/*"
     }

@@ -250,10 +250,18 @@ export async function treeCommand(
           `   Next subtask: ${formatNextLabel(nextNode, plan, filteredTree)}  ▶`,
         );
       }
-    } else if (nextNode) {
+    } else if (
+      nextNode &&
+      completedCount + failedCount + blockedCount + runningCount < totalCount
+    ) {
+      // Suppress "Next pending" when every task is accounted for elsewhere —
+      // otherwise a stale tree-walker hit shows phantom pending work after
+      // the run has actually completed.
       console.log(
         `\nNext pending: ${formatNextLabel(nextNode, plan, filteredTree)}  ▶`,
       );
+    } else if (completedCount === totalCount && totalCount > 0) {
+      console.log(`\n✅ All tasks complete.`);
     } else if (failedCount > 0) {
       // Use scoped failedCount, not states.failed.size — the latter may include
       // stale/global checkpoint entries even after getTaskStates is restricted.

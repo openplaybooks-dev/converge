@@ -89,7 +89,7 @@ export async function fromPath(taskPath: string, parent?: Unit): Promise<Unit> {
     path: taskDir, // Store directory path, not file path
     taskDef,
     config: {
-      maxIterations: (taskDef.vars?.maxIterations as number) || 100,
+      maxIterations: 1_000_000,
     },
   });
 }

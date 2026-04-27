@@ -19,16 +19,30 @@ export const checkStall: ActionHandler = async (snap) => {
   ) {
     const newStallCount = snap.stallCount + 1;
     snap.taskContext?.logStall(snap.iteration, newStallCount);
+    // Surface what's actually wedged so operators can act without spelunking.
+    const sample = snap.gaps.slice(0, 3).map((g) => `  - ${g.id}: ${g.description}`).join("\n");
+    const more = snap.gaps.length > 3 ? `  …and ${snap.gaps.length - 3} more` : "";
     console.log(
-      `\n⚠️  Stalled — no progress after fix attempt (${newStallCount}/3).`,
+      `\n⚠️  Stalled — identical failure on consecutive attempts (${newStallCount}/3).`,
     );
+    console.log(`   Failing gap(s):`);
+    console.log(sample);
+    if (more) console.log(more);
 
     if (newStallCount >= 3) {
-      console.log(`\n⚠️  Max stalls (3) reached. Giving up.`);
+      console.log(
+        `\n❌ Repeat-failure detector: same gap(s) for 3 attempts in a row — AI cannot make progress alone.`,
+      );
+      console.log(
+        `   This is usually a structural issue (broken check command, stale outputs:, missing tool, type drift in vendored code).`,
+      );
+      console.log(
+        `   Inspect: converge inspect --task <taskId>   then patch TASK.md and resume.`,
+      );
       return {
         action: "bail",
         success: false,
-        reason: "Max stalls reached",
+        reason: "Repeat-failure detector tripped (same gap on 3 attempts)",
         stallCount: newStallCount,
       };
     }

@@ -22,6 +22,7 @@ import {
 } from "node:fs";
 import { join, resolve, relative } from "node:path";
 import { platform } from "node:os";
+import { findConvergeRoot } from "@converge/project-root";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -347,36 +348,36 @@ export function cleanupSkillSymlinks(
 }
 
 /* ------------------------------------------------------------------ */
-/*  Legacy Compat (deprecated — used by old prompting.ts tests)        */
+/*  Legacy Compat (deprecated — used by prompting.ts and external      */
+/*  callers that haven't migrated to discoverSkills/getSkillPath)      */
+/*                                                                     */
+/*  All resolution flows through findConvergeRoot from                 */
+/*  @converge/project-root, the single source of truth for             */
+/*  "where is the project". Project root = nearest ancestor (or self)  */
+/*  containing .converge/.                                             */
 /* ------------------------------------------------------------------ */
 
 /**
  * @deprecated Use discoverSkills(skillsRoot) instead.
- * Lists skills by auto-detecting .claude/skills and .converge/ directories.
+ * Lists skills under <projectRoot>/.claude/skills and <projectRoot>/.converge.
  */
 export function listSkills(cwd?: string): string[] {
-  const skills = new Set<string>();
-  const root = _findProjectRoot(cwd);
+  const root = findConvergeRoot(cwd ?? process.cwd());
   if (!root) return [];
 
-  // .claude/skills/
+  const skills = new Set<string>();
   for (const info of discoverSkills(join(root, ".claude", "skills"))) {
     skills.add(info.dirName);
   }
-
-  // .converge/ root (legacy)
-  const convergeDir = _getConvergeDir(cwd);
-  if (convergeDir) {
-    for (const info of discoverSkills(convergeDir)) {
-      skills.add(info.dirName);
-    }
+  for (const info of discoverSkills(join(root, ".converge"))) {
+    skills.add(info.dirName);
   }
-
   return [...skills];
 }
 
 /**
  * @deprecated Use discoverAgents(agentsRoot) instead.
+ * Lists agents under <projectRoot>/.converge.
  */
 export function listAgents(cwd?: string): string[] {
   const convergeDir = _getConvergeDir(cwd);
@@ -386,22 +387,19 @@ export function listAgents(cwd?: string): string[] {
 
 /**
  * @deprecated Use getSkillPath(roots, name) instead.
- * Legacy single-arg version that auto-detects project root.
  */
 export function legacyGetSkillPath(name: string, cwd?: string): string | null {
-  const root = _findProjectRoot(cwd);
+  const root = findConvergeRoot(cwd ?? process.cwd());
   if (!root) return null;
 
-  const roots = [join(root, ".claude", "skills")];
-  const convergeDir = _getConvergeDir(cwd);
-  if (convergeDir) roots.push(convergeDir);
-
-  return getSkillPath(roots, name);
+  return getSkillPath(
+    [join(root, ".claude", "skills"), join(root, ".converge")],
+    name,
+  );
 }
 
 /**
  * @deprecated Use getAgentPath(agentsRoot, name) instead.
- * Legacy single-arg version that auto-detects project root.
  */
 export function legacyGetAgentPath(name: string, cwd?: string): string | null {
   const convergeDir = _getConvergeDir(cwd);
@@ -410,29 +408,16 @@ export function legacyGetAgentPath(name: string, cwd?: string): string | null {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Internal legacy helpers                                            */
+/*  Internal helpers                                                   */
 /* ------------------------------------------------------------------ */
 
-/** @internal */
-export function _findProjectRoot(
-  startDir: string = process.cwd(),
-): string | null {
-  let dir = resolve(startDir);
-  while (dir !== "/") {
-    if (existsSync(join(dir, "pnpm-workspace.yaml"))) return dir;
-    if (existsSync(join(dir, "package.json"))) return dir;
-    const parent = join(dir, "..");
-    if (parent === dir) break;
-    dir = parent;
-  }
-  return null;
-}
-
-/** @internal */
+/**
+ * Resolve <projectRoot>/.converge/, honoring CONVERGE_PATH override.
+ * @internal
+ */
 export function _getConvergeDir(cwd?: string): string | null {
   if (process.env.CONVERGE_PATH) return process.env.CONVERGE_PATH;
-  const root = _findProjectRoot(cwd);
+  const root = findConvergeRoot(cwd ?? process.cwd());
   if (!root) return null;
-  const convergeDir = join(root, ".converge");
-  return existsSync(convergeDir) ? convergeDir : null;
+  return join(root, ".converge");
 }

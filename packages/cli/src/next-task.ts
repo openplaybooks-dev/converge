@@ -84,6 +84,33 @@ export interface TaskNode {
 }
 
 /**
+ * True iff the task's checkpoint contains at least one attempt with
+ * outcome === "failed". Used by Source 4 reconciliation to distinguish a
+ * task whose agent actually ran and failed (terminal — keep failed status)
+ * from a stale `failed` marker without recorded work history (safe to
+ * reconcile when outputs exist).
+ */
+async function hasFailedAttemptHistory(
+  projectDir: string,
+  epicId: string,
+  journalTaskId: string,
+): Promise<boolean> {
+  try {
+    const ckpt = new UnitCheckpointManager(
+      projectDir,
+      "task",
+      epicId,
+      journalTaskId,
+    );
+    const loaded = await ckpt.load();
+    if (!loaded?.attempts) return false;
+    return loaded.attempts.some((a) => a.outcome === "failed");
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Build a synthetic TaskNode for a virtual parent that exists only in the
  * journal hierarchy (no TASK.md on disk). Borrows epicId/filePath from a
  * known child so downstream code that checks file paths still has something
@@ -847,8 +874,19 @@ export async function getTaskStates(
       );
     }
 
-    // Case 2: Task marked failed but all outputs exist - RECONCILE CHECKPOINT
-    // Skip WBS parents — their completion is determined by children, not outputs on disk
+    // Case 2: Task marked failed but all outputs exist - MAYBE RECONCILE CHECKPOINT
+    //
+    // Skip WBS parents — their completion is determined by children, not outputs on disk.
+    //
+    // Important: only reconcile when there is no recorded `failed` attempt
+    // history. The presence of `outcome: "failed"` in the checkpoint
+    // attempts means the agent actually ran and gave up — that's a
+    // terminal signal, not a stale marker. Silently flipping such a
+    // checkpoint to `complete` because some output happens to exist on
+    // disk masks real failures and lets downstream tasks run on a
+    // broken foundation. The reconciliation safety net is preserved
+    // for stale `failed` markers with no attempt history (e.g.,
+    // hand-edited checkpoints, migration artifacts).
     const isWbsParent =
       parentChildMap.has(node.journalTaskId) ||
       wbsProgress.has(node.journalTaskId) ||
@@ -858,28 +896,37 @@ export async function getTaskStates(
       missingOutputs.length === 0 &&
       !isWbsParent
     ) {
-      console.warn(
-        `⚠️  Task ${node.journalTaskId} marked failed but all outputs exist. Reconciling checkpoint...`,
+      const hasRecordedFailure = await hasFailedAttemptHistory(
+        projectDir,
+        node.epicId,
+        node.journalTaskId,
       );
+      if (hasRecordedFailure) {
+        // Honor the terminal failure. Downstream blocking takes over.
+      } else {
+        console.warn(
+          `⚠️  Task ${node.journalTaskId} marked failed but all outputs exist (no recorded attempt history). Reconciling checkpoint...`,
+        );
 
-      // Move from failed to completed in memory
-      failed.delete(node.journalTaskId);
-      completed.add(node.journalTaskId);
+        // Move from failed to completed in memory
+        failed.delete(node.journalTaskId);
+        completed.add(node.journalTaskId);
 
-      // Update checkpoint to reflect reality
-      pendingWrites.push(
-        checkpointMgr
-          .reconcileTask(
-            node.journalTaskId,
-            "marked failed but all required outputs exist",
-            node.epicId,
-          )
-          .catch((err) => {
-            console.error(
-              `   ❌ Failed to reconcile checkpoint for ${node.journalTaskId}: ${err.message}`,
-            );
-          }),
-      );
+        // Update checkpoint to reflect reality
+        pendingWrites.push(
+          checkpointMgr
+            .reconcileTask(
+              node.journalTaskId,
+              "marked failed but all required outputs exist",
+              node.epicId,
+            )
+            .catch((err) => {
+              console.error(
+                `   ❌ Failed to reconcile checkpoint for ${node.journalTaskId}: ${err.message}`,
+              );
+            }),
+        );
+      }
     }
   }
 

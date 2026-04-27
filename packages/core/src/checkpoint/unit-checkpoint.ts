@@ -11,7 +11,8 @@
  * Each unit has its own checkpoint.json tracking its execution state.
  */
 
-import { writeFile, readFile, mkdir } from "fs/promises";
+import { readFile, mkdir } from "fs/promises";
+import { atomicWriteFile } from "./atomic-write.ts";
 import { existsSync } from "fs";
 import path from "path";
 import { getJournalStructure } from "../journal/structure.ts";
@@ -159,10 +160,9 @@ export class UnitCheckpointManager {
 
     checkpoint.lastUpdated = new Date().toISOString();
 
-    await writeFile(
+    await atomicWriteFile(
       this.filePath,
       JSON.stringify(checkpoint, null, 2),
-      "utf-8",
     );
   }
 

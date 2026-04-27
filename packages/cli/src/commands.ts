@@ -36,8 +36,6 @@ export interface CommonOptions {
 }
 
 export interface RunOptions extends CommonOptions {
-  /** Maximum iterations */
-  maxIterations?: number;
   /** Maximum consecutive stalls */
   maxStalls?: number;
   /** Enable parallel execution */
@@ -344,7 +342,6 @@ function renderPlaybookYml(args: { name: string; description: string }): string 
     "",
     "run:",
     "  mode: autonomous",
-    "  maxIterations: 50",
     "  maxTaskAttempts: 3",
     "  resume: true",
   ].join("\n") + "\n";
@@ -414,8 +411,7 @@ export async function runCommand(options: RunOptions = {}): Promise<void> {
 
   // Build convergence config
   const convergenceConfig: ConvergenceConfig = {
-    maxIterations:
-      options.maxIterations || DEFAULT_CONVERGENCE_CONFIG.maxIterations,
+    maxIterations: DEFAULT_CONVERGENCE_CONFIG.maxIterations,
     maxStallCount:
       options.maxStalls || DEFAULT_CONVERGENCE_CONFIG.maxStallCount,
     enableCheckpoints:
@@ -427,7 +423,6 @@ export async function runCommand(options: RunOptions = {}): Promise<void> {
   };
 
   console.log("⚙️  Convergence config:");
-  console.log(`   Max iterations: ${convergenceConfig.maxIterations}`);
   console.log(`   Max stalls: ${convergenceConfig.maxStallCount}`);
   console.log(`   Parallel execution: ${convergenceConfig.parallelExecution}`);
   console.log(`   Checkpoints: ${convergenceConfig.enableCheckpoints}\n`);

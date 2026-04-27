@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>asset viewer</title>
+<style>
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: #0e0e10; color: #ddd;
+    font-family: system-ui, sans-serif; overflow: hidden;
+    display: grid; grid-template-columns: 1fr 280px;
+  }
+  #canvas-wrap { position: relative; }
+  canvas { display: block; width: 100%; height: 100%; }
+  #sidebar {
+    background: #18181b; border-left: 1px solid #2a2a2f;
+    padding: 20px; overflow-y: auto; font-size: 13px;
+  }
+  #sidebar a.back { color: #f0a050; font-size: 12px; text-decoration: none; }
+  #sidebar a.back:hover { text-decoration: underline; }
+  #sidebar h1 { margin: 12px 0 4px; font-size: 16px; }
+  #sidebar p.kind { margin: 0 0 14px; font-size: 11px; color: #f0a050; text-transform: uppercase; letter-spacing: 0.05em; }
+  #sidebar p.desc { margin: 0 0 18px; color: #aaa; line-height: 1.4; }
+  #sidebar h3 { margin: 16px 0 6px; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
+  #sidebar dl { margin: 0; display: grid; grid-template-columns: 80px 1fr; gap: 4px 8px; font-size: 12px; }
+  #sidebar dt { color: #888; }
+  #sidebar dd { margin: 0; color: #ddd; font-family: ui-monospace, monospace; }
+  #controls label { display: flex; align-items: center; gap: 8px; margin: 6px 0; font-size: 12px; color: #aaa; }
+  #controls input[type="checkbox"] { accent-color: #f0a050; }
+  #controls input[type="range"] { flex: 1; accent-color: #f0a050; }
+  #hud {
+    position: absolute; top: 12px; left: 12px;
+    background: rgba(0,0,0,0.6); padding: 6px 10px; border-radius: 4px;
+    font-size: 11px; color: #aaa; pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<div id="canvas-wrap">
+  <canvas id="canvas"></canvas>
+  <div id="hud">drag = orbit · scroll = zoom · right-click = pan</div>
+</div>
+<div id="sidebar">
+  <a class="back" href="/viewer/index.html">← catalog</a>
+  <h1 id="name">…</h1>
+  <p class="kind" id="kind">—</p>
+  <p class="desc" id="desc">…</p>
+  <h3>stats</h3>
+  <dl id="stats">
+    <dt>slug</dt><dd id="s-slug">—</dd>
+    <dt>archetype</dt><dd id="s-arch">—</dd>
+    <dt>meshes</dt><dd id="s-meshes">—</dd>
+    <dt>tells</dt><dd id="s-tells">—</dd>
+    <dt>ticks</dt><dd id="s-ticks">—</dd>
+  </dl>
+  <h3>controls</h3>
+  <div id="controls">
+    <label><input type="checkbox" id="auto-rotate" checked> auto-rotate</label>
+    <label><input type="checkbox" id="wireframe"> wireframe</label>
+    <label>scale<input type="range" id="scale" min="0.1" max="2" step="0.05" value="0.5"></label>
+  </div>
+</div>
+<script type="module" src="/viewer/src/asset-page.ts"></script>
+</body>
+</html>

@@ -58,7 +58,6 @@ OPTIONS
   --unblock                 With --step, find first blocked task and run UnblockStrategy
   --wbs                     Run only WBS seeding phase
   --inc                     With --wbs, allow re-seeding already-seeded WBS parents
-  --max-iterations=N        Maximum iterations (default: 100)
   --max-duration=N          Maximum duration in ms (default: 259200000 / 72h)
   --check-interval=N        Check interval in ms (default: 5000)
   --auto-fix=BOOL           Enable auto-fixing (default: true)
@@ -76,7 +75,7 @@ EXAMPLES
   converge run --step --dry
   converge run --playbook=my-playbook
   converge run --wbs --inc 03-build-screens
-  converge run --max-iterations=50 --verbose
+  converge run --verbose
 `,
 
   reset: `

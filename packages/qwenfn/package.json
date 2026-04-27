@@ -34,6 +34,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@converge/project-root": "workspace:*",
     "zod": "^3.24.0"
   },
   "devDependencies": {

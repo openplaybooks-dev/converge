@@ -888,6 +888,8 @@ async function runWbs(
     ai: {
       ask: (question: string) =>
         buildGoalAiAsk(question, projectDir, goalId, logDir),
+      askJson: <T>(question: string, schema: import("zod").ZodType<T>) =>
+        buildGoalAiAsk(question, projectDir, goalId, logDir).asJson(schema),
     },
     plan: {
       getPlanPath: (_relativePath: string) => {
@@ -905,7 +907,7 @@ async function runWbs(
     artifact: new ArtifactStore(projectDir),
     spawn: async (target: WbsSpawnTarget, opts?: WbsSpawnOptions) => {
       const shape = await resolveWbsTarget(target, opts, ctx);
-      spawnedTasks.push({ id: shape.id, writeToPath: opts?.writeToPath });
+      spawnedTasks.push({ id: shape.id });
       tasks.push(shape);
       console.log(`[wbs:${goalId}] Spawned task: ${shape.id}`);
     },

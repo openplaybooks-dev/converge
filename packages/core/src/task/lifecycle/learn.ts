@@ -11,13 +11,54 @@
  */
 
 import { writeFile, readFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
+import YAML from "yaml";
 import { ExecutionTraceLogger } from "../../journal/execution-trace.ts";
 
 const execAsync = promisify(exec);
+
+/**
+ * Re-read check definitions from the materialized journal TASK.md.
+ * Lets mid-run TASK.md edits take effect immediately rather than being
+ * masked by the per-attempt CHECK.md snapshot.
+ */
+function reReadChecksFromTaskMd(wipDir: string): CheckEntry[] | null {
+  const taskRoot = dirname(dirname(wipDir));
+  const taskMdPath = join(taskRoot, "TASK.md");
+  if (!existsSync(taskMdPath)) return null;
+  let raw: string;
+  try {
+    raw = readFileSync(taskMdPath, "utf-8");
+  } catch {
+    return null;
+  }
+  const m = raw.match(/^---\n([\s\S]*?)\n---/);
+  if (!m) return null;
+  let parsed: any;
+  try {
+    parsed = YAML.parse(m[1]);
+  } catch {
+    return null;
+  }
+  if (!parsed || !Array.isArray(parsed.checks)) return null;
+  const out: CheckEntry[] = [];
+  for (const c of parsed.checks) {
+    if (!c || typeof c !== "object") continue;
+    const id = typeof c.id === "string" ? c.id : "";
+    const cmd = typeof c.cmd === "string" ? c.cmd : "";
+    if (!id || !cmd) continue;
+    out.push({
+      id,
+      description:
+        typeof c.description === "string" && c.description ? c.description : id,
+      cmd,
+    });
+  }
+  return out.length > 0 ? out : null;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -84,8 +125,13 @@ export async function generateLearnMd(
   const checkMdPath = join(wipDir, "CHECK.md");
   if (!existsSync(checkMdPath)) return;
 
-  const checkMd = await readFile(checkMdPath, "utf-8");
-  const checks = parseCheckMd(checkMd);
+  // Prefer freshly-parsed TASK.md frontmatter over the per-attempt CHECK.md
+  // snapshot so mid-run edits take effect immediately.
+  let checks = reReadChecksFromTaskMd(wipDir);
+  if (!checks) {
+    const checkMd = await readFile(checkMdPath, "utf-8");
+    checks = parseCheckMd(checkMd);
+  }
   if (checks.length === 0) return;
 
   // Run every check and record result + execution trace
@@ -95,7 +141,7 @@ export async function generateLearnMd(
     try {
       const { stdout, stderr } = await execAsync(check.cmd, {
         cwd: projectDir,
-        timeout: 15_000,
+        timeout: 120_000,
       });
       const output = (stdout + stderr).trim();
       results.push({
@@ -254,30 +300,31 @@ export async function generateInterruptedMd(
     lines.push("");
   }
 
-  // Run checks if CHECK.md exists
+  // Run checks: prefer freshly-parsed TASK.md frontmatter over CHECK.md
+  // snapshot so mid-run edits take effect immediately.
   const checkMdPath = join(wipDir, "CHECK.md");
-  if (existsSync(checkMdPath)) {
+  let checks = reReadChecksFromTaskMd(wipDir);
+  if (!checks && existsSync(checkMdPath)) {
     const checkMd = await readFile(checkMdPath, "utf-8");
-    const checks = parseCheckMd(checkMd);
-
-    if (checks.length > 0) {
-      lines.push("## Check Results", "");
-      for (const check of checks) {
-        try {
-          await execAsync(check.cmd, { cwd: projectDir, timeout: 15_000 });
-          lines.push(`### ${check.id}`, "**PASSED** ✓", "");
-        } catch (err: any) {
-          const output = ((err.stdout ?? "") + (err.stderr ?? "")).trim();
-          const exitCode = typeof err.code === "number" ? err.code : 1;
-          lines.push(
-            `### ${check.id}`,
-            "**FAILED**",
-            `Command: \`${check.cmd}\``,
-            `Exit code: ${exitCode}`,
-          );
-          if (output) lines.push("```", output, "```");
-          lines.push("");
-        }
+    checks = parseCheckMd(checkMd);
+  }
+  if (checks && checks.length > 0) {
+    lines.push("## Check Results", "");
+    for (const check of checks) {
+      try {
+        await execAsync(check.cmd, { cwd: projectDir, timeout: 120_000 });
+        lines.push(`### ${check.id}`, "**PASSED** ✓", "");
+      } catch (err: any) {
+        const output = ((err.stdout ?? "") + (err.stderr ?? "")).trim();
+        const exitCode = typeof err.code === "number" ? err.code : 1;
+        lines.push(
+          `### ${check.id}`,
+          "**FAILED**",
+          `Command: \`${check.cmd}\``,
+          `Exit code: ${exitCode}`,
+        );
+        if (output) lines.push("```", output, "```");
+        lines.push("");
       }
     }
   }

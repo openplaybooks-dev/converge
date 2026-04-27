@@ -99,15 +99,15 @@ describe("no eager journal writes", () => {
 
   it("`run` with a filter that matches no task writes nothing under .converge/journal/", () => {
     runCli(
-      ["run", "--dir", ROOT, "--max-iterations=1", "does-not-exist"],
+      ["run", "--dir", ROOT, "--max-duration=5000", "does-not-exist"],
       REPO_ROOT,
     );
     const journalFiles = listAllFiles(join(ROOT, ".converge/journal"));
     expect(journalFiles).toEqual([]);
   });
 
-  it("`run --max-iterations=1` creates a journal dir for the executed task, NOT for pending tasks", () => {
-    runCli(["run", "--dir", ROOT, "--max-iterations=1"], REPO_ROOT);
+  it("`run` creates a journal dir for the executed task, NOT for pending tasks", () => {
+    runCli(["run", "--dir", ROOT, "--max-duration=5000"], REPO_ROOT);
 
     const { existsSync } = require("node:fs");
     const journalRoot = join(ROOT, ".converge/journal/default/tasks");
@@ -116,7 +116,7 @@ describe("no eager journal writes", () => {
   });
 
   it("`status` after a `run` is idempotent — no new files created", () => {
-    runCli(["run", "--dir", ROOT, "--max-iterations=1"], REPO_ROOT);
+    runCli(["run", "--dir", ROOT, "--max-duration=5000"], REPO_ROOT);
     const before = listAllFiles(join(ROOT, ".converge"));
     runCli(["status", "--dir", ROOT], REPO_ROOT);
     const after = listAllFiles(join(ROOT, ".converge"));

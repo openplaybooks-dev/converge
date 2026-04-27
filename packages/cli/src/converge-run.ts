@@ -11,7 +11,6 @@
  * Usage:
  *   converge run project.ts
  *   converge run project.ts --watch
- *   converge run project.ts --max=50
  */
 
 import { runAutonomousOrchestrator } from "./skills/autonomous-orchestrator.ts";
@@ -31,12 +30,10 @@ Usage:
 
 Options:
   --watch           Watch mode (restart on file changes)
-  --max=<N>         Maximum iterations (default: 100)
   --help, -h        Show this help
 
 Examples:
   converge run project.ts
-  converge run project.ts --max=50
   converge run project.ts --watch
 
 What happens when you run:
@@ -58,8 +55,6 @@ The AI is fully autonomous - it runs everything!
 
   // Parse options
   const watch = args.includes("--watch");
-  const maxArg = args.find((arg) => arg.startsWith("--max="));
-  const maxIterations = maxArg ? parseInt(maxArg.split("=")[1]) : 100;
 
   console.log(`
 ╔════════════════════════════════════════════════════════════╗
@@ -70,7 +65,6 @@ The AI is fully autonomous - it runs everything!
   try {
     await runAutonomousOrchestrator(projectFile, {
       watch,
-      maxIterations,
     });
   } catch (error: any) {
     console.error("\n❌ Orchestrator failed:", error.message);

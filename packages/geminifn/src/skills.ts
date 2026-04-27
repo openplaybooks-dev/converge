@@ -10,35 +10,17 @@
  */
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { join } from "node:path";
+import { findConvergeRoot } from "@converge/project-root";
 
 /**
- * Find the project root by looking for pnpm-workspace.yaml or package.json
- * Starting from cwd and walking up
- */
-function findProjectRoot(startDir: string = process.cwd()): string | null {
-  let dir = resolve(startDir);
-  while (dir !== "/") {
-    if (existsSync(join(dir, "pnpm-workspace.yaml"))) return dir;
-    if (existsSync(join(dir, "package.json"))) return dir;
-    const parent = join(dir, "..");
-    if (parent === dir) break;
-    dir = parent;
-  }
-  return null;
-}
-
-/**
- * Get the skills directory path.
- * Checks GEMINI_SKILLS_PATH env var, then looks in project root/skills
+ * Resolve <projectRoot>/skills/, where projectRoot is the nearest ancestor
+ * (or self) of `cwd` containing .converge/. Honors GEMINI_SKILLS_PATH override.
  */
 function getSkillsDir(cwd?: string): string | null {
-  // Allow override via env
-  if (process.env.GEMINI_SKILLS_PATH) {
-    return process.env.GEMINI_SKILLS_PATH;
-  }
+  if (process.env.GEMINI_SKILLS_PATH) return process.env.GEMINI_SKILLS_PATH;
 
-  const root = findProjectRoot(cwd);
+  const root = findConvergeRoot(cwd ?? process.cwd());
   if (!root) return null;
 
   const skillsDir = join(root, "skills");
@@ -46,15 +28,12 @@ function getSkillsDir(cwd?: string): string | null {
 }
 
 /**
- * Get the agents directory path.
- * Checks GEMINI_AGENTS_PATH env var, then looks in project root/agents
+ * Resolve <projectRoot>/agents/. Honors GEMINI_AGENTS_PATH override.
  */
 function getAgentsDir(cwd?: string): string | null {
-  if (process.env.GEMINI_AGENTS_PATH) {
-    return process.env.GEMINI_AGENTS_PATH;
-  }
+  if (process.env.GEMINI_AGENTS_PATH) return process.env.GEMINI_AGENTS_PATH;
 
-  const root = findProjectRoot(cwd);
+  const root = findConvergeRoot(cwd ?? process.cwd());
   if (!root) return null;
 
   const agentsDir = join(root, "agents");

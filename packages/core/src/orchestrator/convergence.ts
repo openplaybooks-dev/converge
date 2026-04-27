@@ -45,7 +45,7 @@ export interface ConvergenceConfig {
 }
 
 export const DEFAULT_CONVERGENCE_CONFIG: ConvergenceConfig = {
-  maxIterations: 100,
+  maxIterations: 1_000_000,
   maxStallCount: 3,
   enableCheckpoints: true,
   parallelExecution: true,

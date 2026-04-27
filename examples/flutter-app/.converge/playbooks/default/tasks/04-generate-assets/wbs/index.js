@@ -43,7 +43,6 @@ export async function run(ctx) {
     const asset = assets[i];
     const prefix = String(i + 1).padStart(3, '0');
     const assetTaskId = `${prefix}-${asset.id}`;
-    const basePath = `.converge/playbooks/default/tasks/04-generate-assets/tasks/${assetTaskId}`;
 
     const assetVars = {
       projectDir: ctx.projectDir,
@@ -85,11 +84,10 @@ export async function run(ctx) {
     for (const step of steps) {
       const id = `${prefix}-${step}`;
       const templatePath = `${TEMPLATE_BASE}/tasks/${step}/TASK.md`;
-      const writeToPath = `${basePath}/tasks/${id}/TASK.md`;
 
       await ctx.spawn(
         { _type: 'template-ref', path: templatePath, vars: assetVars },
-        { id, writeToPath }
+        { id }
       );
     }
 

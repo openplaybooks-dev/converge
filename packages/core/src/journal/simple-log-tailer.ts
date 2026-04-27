@@ -167,7 +167,9 @@ export class SimpleLogTailer {
         message.length > 100 ? message.substring(0, 97) + "..." : message;
       console.log(`   💬 ${textShort}`);
     } else if (level === "FINAL_RESULT" && this.options.showResults) {
-      console.log(`   ✅ Task completed`);
+      // Agent invocation finished — does NOT mean the task converged.
+      // The runner still has to validate checks before marking the task done.
+      console.log(`   🤖 Agent finished (awaiting check validation)`);
     } else if (level === "ERROR" || level === "STDERR") {
       const errShort =
         message.length > 120 ? message.substring(0, 117) + "..." : message;

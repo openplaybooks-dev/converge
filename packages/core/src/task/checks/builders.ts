@@ -748,7 +748,7 @@ class ProjectDefinitionImpl implements ProjectDefinition {
 
     // Merge with default config
     const fullConfig: ConvergenceConfig = {
-      maxIterations: config?.maxIterations ?? 50,
+      maxIterations: config?.maxIterations ?? 1_000_000,
       maxStallCount: config?.maxStallCount ?? 3,
       enableCheckpoints: config?.enableCheckpoints ?? true,
       parallelExecution: config?.parallelExecution ?? false,
@@ -785,7 +785,7 @@ class ProjectDefinitionImpl implements ProjectDefinition {
     }
 
     const defaultConfig: ConvergenceConfig = {
-      maxIterations: 50,
+      maxIterations: 1_000_000,
       maxStallCount: 3,
       enableCheckpoints: true,
       parallelExecution: false,

@@ -1,0 +1,13 @@
+{
+  "validatedAt": "2026-04-26T00:00:00.000Z",
+  "totalPages": 19,
+  "verified": 19,
+  "missingSources": [],
+  "staleClaims": [],
+  "warnings": [
+    {
+      "page": "docs/concepts/gap-driven-model.md",
+      "warning": "Gap class references should be verified against packages/core/src/index.ts"
+    }
+  ]
+}

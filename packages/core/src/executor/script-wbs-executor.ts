@@ -44,13 +44,29 @@ export function createScriptWbsFn(
     if (!wbsConfig.path) {
       throw new Error("wbs.path is required for nodejs/shell WBS scripts");
     }
-    const scriptPath = resolve(taskDir, wbsConfig.path);
 
-    if (!existsSync(scriptPath)) {
+    // Resolve wbs.path: prefer the task directory (where co-located
+    // wbs/index.js scripts live), then fall back to the project root so
+    // shared scripts like `scripts/generate_*.py` are reachable from
+    // materialized children deep in the journal tree.
+    const fromTaskDir = resolve(taskDir, wbsConfig.path);
+    const fromProjectDir = resolve(ctx.projectDir, wbsConfig.path);
+    let scriptPath: string;
+    if (existsSync(fromTaskDir)) {
+      scriptPath = fromTaskDir;
+    } else if (
+      ctx.projectDir &&
+      fromProjectDir !== fromTaskDir &&
+      existsSync(fromProjectDir)
+    ) {
+      scriptPath = fromProjectDir;
+    } else {
       throw new Error(
         `WBS script not found: ${wbsConfig.path}\n` +
-          `Resolved to: ${scriptPath}\n` +
-          `Task directory: ${taskDir}`,
+          `Tried (task dir):    ${fromTaskDir}\n` +
+          `Tried (project dir): ${fromProjectDir}\n` +
+          `Task directory:    ${taskDir}\n` +
+          `Project directory: ${ctx.projectDir}`,
       );
     }
 

@@ -89,7 +89,6 @@ export interface PlaybookInput {
  */
 export interface PlaybookRunConfig {
   mode?: "oneoff" | "converge" | "loop" | "dispatch";
-  maxIterations?: number;
   maxTaskAttempts?: number;
   /** Wall-clock timeout in ms. YAML supports: "60m", "2h", "infinite". */
   maxDuration?: number;

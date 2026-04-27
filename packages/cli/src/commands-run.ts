@@ -14,6 +14,7 @@ import type { TaskNode, TaskStates } from "./next-task.ts";
 import { TaskTree } from "@converge/core/task/tree/index.ts";
 import { printTaskTree } from "./tree-display.ts";
 import { autonomousRun, guardDirtySession } from "./autonomous-run.ts";
+import { acquirePlaybookLock } from "./playbook-lock.ts";
 import { CheckpointManager } from "@converge/core/checkpoint/manager.ts";
 import { executeTask } from "@converge/core/task/lifecycle/task-runner.ts";
 import { SessionLogger, generateSessionId } from "@converge/core/journal/session-logger.ts";
@@ -36,9 +37,6 @@ export interface AutoRunOptions extends CommonOptions {
 
   /** Preflight mode — run AI strategy selection but stop before executing tasks */
   analyze?: boolean;
-
-  /** Maximum iterations (full run only) */
-  maxIterations?: number;
 
   /** Filter to a specific epic or task (e.g. "99-test" or "99-test/skill-invoke-test") */
   filter?: string;
@@ -87,6 +85,9 @@ export interface AutoRunOptions extends CommonOptions {
 
   /** Pre-built hook registry from config hooks */
   hookRegistry?: HookRegistry;
+
+  /** Skip the pre-flight check linter (fail-open). */
+  skipCheckLint?: boolean;
 }
 
 /* ------------------------------------------------------------------ */
@@ -115,6 +116,15 @@ export async function runAutonomousCommand(
       await guardDirtySession(projectDir, options.resume, options.restart);
     }
 
+    // ── Acquire per-playbook lock — one runner at a time ────────────────
+    // Prevents two `converge run` processes from corrupting the same
+    // checkpoint and apps/ directory. Skipped for --dry which is read-only.
+    if (!options.dry) {
+      const playbookName =
+        options.playbook?.def.name ?? options.convergeConfig?.runtime?.playbook ?? "default";
+      await acquirePlaybookLock(projectDir, playbookName);
+    }
+
     // ── Mode dispatch (from playbook.yml run.mode) ─────────────────────
     // For --dry, all modes share the same tree-display path below instead
     // of entering the loop/evolve runners (which would spin stall/backoff).
@@ -128,8 +138,8 @@ export async function runAutonomousCommand(
         convergeConfig: options.convergeConfig!,
         hookRegistry: options.hookRegistry,
         playbook: options.playbook,
-        maxIterations: options.maxIterations,
-        maxTaskAttempts: 2,
+        // Honor playbook's maxTaskAttempts (default 2 when unspecified).
+        maxTaskAttempts: options.playbook?.def.run?.maxTaskAttempts ?? 2,
         maxRunDurationMs: options.maxDuration,
         verbose: options.verbose,
         filter: options.filter,
@@ -153,8 +163,7 @@ export async function runAutonomousCommand(
         hookRegistry: options.hookRegistry,
         playbook: options.playbook,
         autonomousRun,
-        maxIterations: options.maxIterations,
-        maxTaskAttempts: 2,
+        maxTaskAttempts: options.playbook?.def.run?.maxTaskAttempts ?? 2,
         maxRunDurationMs: options.maxDuration,
         verbose: options.verbose,
         filter: options.filter,
@@ -184,8 +193,7 @@ export async function runAutonomousCommand(
         hookRegistry: options.hookRegistry,
         playbook: options.playbook,
         autonomousRun,
-        maxIterations: options.maxIterations,
-        maxTaskAttempts: 2,
+        maxTaskAttempts: options.playbook?.def.run?.maxTaskAttempts ?? 2,
         maxRunDurationMs: options.maxDuration,
         verbose: options.verbose,
         filter: options.filter,
@@ -214,6 +222,13 @@ export async function runAutonomousCommand(
     const tree = treeNodesToTaskNodes(taskTree, projectDir);
 
     console.log(`📊 Tasks: ${tree.length}\n`);
+
+    // ── Pre-flight check lint ─────────────────────────────────────────
+    // Catch contract bugs before the agent burns budget on impossible checks.
+    if (!options.skipCheckLint && !options.dry) {
+      const aborted = await runCheckLint(taskTree);
+      if (aborted) process.exit(1);
+    }
     const states = await getTaskStates(projectDir, tree, { skipAutoComplete: true });
     const completedIds = states.completed;
     // Exclude tasks that are done (completed, failed, or seeded/locked WBS parents WITH children)
@@ -312,7 +327,6 @@ export async function runAutonomousCommand(
         projectDir,
         convergeConfig: options.convergeConfig,
         hookRegistry: options.hookRegistry,
-        maxIterations: options.maxIterations,
         verbose: options.verbose,
         filter,
         force,
@@ -973,4 +987,72 @@ async function runWbsOnly(options: AutoRunOptions): Promise<void> {
   }
 
   console.log("\n✅ WBS seeding complete");
+}
+
+/* ------------------------------------------------------------------ */
+/*  Check linter                                                       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Walk the task tree and run the check linter against every static check.
+ * Returns true if the run should abort.
+ *
+ * Lints only static checks — callback-form checks are skipped because we
+ * can't safely invoke them outside a real task context.
+ */
+async function runCheckLint(taskTree: TaskTree): Promise<boolean> {
+  const { lintChecks, formatLintReport } = await import(
+    "@converge/core/task/playbook/check-linter.ts"
+  );
+  type CheckDef = import("@converge/core/task/lifecycle/after.ts").CheckDef;
+
+  // Walk the tree and collect static checks per task.
+  const tasks: Array<{
+    taskId: string;
+    checks?: CheckDef[];
+    outputs?: string[];
+  }> = [];
+  for (const node of taskTree.getAllNodes()) {
+    const unit = node.unit;
+    if (!unit) continue;
+    // Skip callback-form checks — we can't safely invoke them outside a real task context.
+    if (typeof unit.checks === "function") continue;
+    if (!Array.isArray(unit.checks)) continue;
+
+    const staticChecks: CheckDef[] = [];
+    for (const c of unit.checks) {
+      if (typeof c === "function") continue;
+      if (!c || !c.cmd) continue;
+      staticChecks.push({
+        id: String(c.id),
+        cmd: String(c.cmd),
+        description: c.description ? String(c.description) : String(c.id),
+      });
+    }
+    if (staticChecks.length === 0) continue;
+
+    tasks.push({
+      taskId: unit.id,
+      checks: staticChecks,
+      outputs: unit.outputs,
+    });
+  }
+
+  if (tasks.length === 0) return false;
+
+  console.log(`🧪 Linting ${tasks.length} task(s) with checks...`);
+  const report = await lintChecks(tasks);
+  console.log(formatLintReport(report));
+
+  if (report.hasErrors) {
+    console.log("");
+    console.log(
+      "❌ Pre-flight check lint failed. Fix the broken check predicates above,",
+    );
+    console.log(
+      "   or pass --skip-check-lint to run anyway (not recommended).",
+    );
+    return true;
+  }
+  return false;
 }

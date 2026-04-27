@@ -134,17 +134,15 @@ Return the list as a JSON array.`
     });
 
     // ── Level 2: Step children (from templates) ──────────────────
-    const basePath = `.converge/playbooks/default/tasks/07-build-overlays/tasks/${overlayTaskId}`;
     const steps = ['01-spec', '02-design', '03-convert', '04-connect', '05-mount'];
 
     for (const step of steps) {
       const id = `${prefix}-${step}`;
       const templatePath = `${templateBase}/tasks/{{prefix}}-${step}/TASK.md`;
-      const writeToPath = `${basePath}/tasks/${id}/TASK.md`;
 
       await ctx.spawn(
         { _type: 'template-ref', path: templatePath, vars },
-        { id, writeToPath },
+        { id },
       );
     }
 

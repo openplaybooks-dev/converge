@@ -74,6 +74,15 @@ export interface ConvergeOptions {
 export interface ConvergeResult {
   success: boolean;
   reason?: string;
+  /**
+   * When true, the failure is structural and further attempts on the same
+   * task are unlikely to help. The outer scheduler should mark the task
+   * permanently failed and skip the retry budget.
+   *
+   * Set by the navigator when `checkStall` bails after the repeat-failure
+   * detector trips (same gap on N consecutive iterations).
+   */
+  terminal?: boolean;
 }
 
 /* ------------------------------------------------------------------ */
@@ -456,7 +465,19 @@ export async function converge(opts: ConvergeOptions): Promise<ConvergeResult> {
 
     if (result.action === "bail") {
       taskContext.logOutcome(cycle, "bail", result.reason);
-      return { success: false, reason: result.reason };
+      // Surface structural-stall bails as terminal so the outer scheduler
+      // skips the retry budget. Other bail kinds (e.g. resolve-blockers)
+      // are non-terminal — the next attempt may have new context.
+      const isStallBail =
+        typeof result.reason === "string" &&
+        /Repeat-failure detector|stalled — repeated failures/i.test(
+          result.reason,
+        );
+      return {
+        success: false,
+        reason: result.reason,
+        terminal: isStallBail,
+      };
     }
 
     if (result.action === "delegate" && result.delegateChildren) {
@@ -481,7 +502,11 @@ export async function converge(opts: ConvergeOptions): Promise<ConvergeResult> {
     // Stall detection
     if (isStalled(graph)) {
       taskContext.logOutcome(cycle, "bail", "Stalled — repeated failures");
-      return { success: false, reason: "Stalled — repeated failures" };
+      return {
+        success: false,
+        reason: "Stalled — repeated failures",
+        terminal: true,
+      };
     }
   }
 

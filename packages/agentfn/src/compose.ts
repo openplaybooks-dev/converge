@@ -16,25 +16,8 @@ async function loadProvider<T>(pkg: string): Promise<T> {
 }
 import { enhancePrompt } from "./prompting.js";
 import { ensureSkillSymlinks, cleanupSkillSymlinks } from "./skills.js";
-import { join, resolve } from "node:path";
-import { existsSync } from "node:fs";
-
-/**
- * Walk up from startDir to find the project root.
- * Prefers a directory with .claude (Claude Code project), then .converge (converge project root).
- */
-function findProjectRoot(startDir: string): string | null {
-  let dir = resolve(startDir);
-  let convergeRoot: string | null = null;
-  while (true) {
-    if (existsSync(join(dir, ".claude"))) return dir;
-    if (!convergeRoot && existsSync(join(dir, ".converge"))) convergeRoot = dir;
-    const parent = join(dir, "..");
-    if (parent === dir) break;
-    dir = parent;
-  }
-  return convergeRoot;
-}
+import { findConvergeRoot } from "@converge/project-root";
+import { join } from "node:path";
 
 /**
  * Create a composed function that orchestrates tools via Claude or Kimi.
@@ -129,7 +112,7 @@ export function compose<T = string>(
 
     if (useNewSkills && options.skillsRoot) {
       const baseDir = options.cwd || process.cwd();
-      const projectRoot = findProjectRoot(baseDir);
+      const projectRoot = findConvergeRoot(baseDir);
       symlinkTarget = join(projectRoot ?? baseDir, ".claude", "skills");
       createdSymlinks = ensureSkillSymlinks(options.skillsRoot, {
         skills: options.skills,

@@ -81,7 +81,7 @@ export async function convergeRun(
 ): Promise<ConvergeResult> {
   const { projectDir, convergeConfig, verbose } = config;
 
-  const maxWaves = config.maxIterations ?? 20;
+  const maxWaves = config.maxIterations ?? 1_000_000;
   const maxGoals = config.maxGoals ?? 100;
 
   console.log("🔄 Starting converge run (wave-based convergence mode)\n");

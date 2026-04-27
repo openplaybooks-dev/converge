@@ -136,6 +136,13 @@ export class ConvergeClient {
 
   /**
    * Read context from environment variables.
+   *
+   * The framework sets CONVERGE_PROJECT_DIR (or includes projectDir in
+   * CONVERGE_CONTEXT_JSON) when spawning a WBS script. If neither is set,
+   * the SDK is being used outside a converge-spawned process and we have
+   * no safe way to guess the project root — throw rather than silently
+   * resolving to process.cwd(), which would write artifacts in the wrong
+   * place.
    */
   private readContext(): ConvergeClientContext {
     // Try CONVERGE_CONTEXT_JSON first (comprehensive context)
@@ -143,18 +150,37 @@ export class ConvergeClient {
     if (contextJson) {
       try {
         const parsed = JSON.parse(contextJson) as Record<string, unknown>;
+        if (parsed.projectDir == null) {
+          throw new Error(
+            "ConvergeClient: CONVERGE_CONTEXT_JSON is missing required field `projectDir`. " +
+              "This SDK must run inside a converge-spawned process.",
+          );
+        }
         return {
-          projectDir: String(parsed.projectDir ?? process.cwd()),
+          projectDir: String(parsed.projectDir),
           epicId: parsed.epicId ? String(parsed.epicId) : undefined,
           taskId: parsed.taskId ? String(parsed.taskId) : undefined,
           vars: (parsed.vars as Record<string, unknown>) ?? {},
         };
-      } catch {
-        // Fall through to individual env vars
+      } catch (err) {
+        if (err instanceof SyntaxError) {
+          // Malformed JSON — fall through to individual env vars
+        } else {
+          throw err;
+        }
       }
     }
 
-    // Fall back to individual CONVERGE_VAR_* env vars
+    if (!process.env.CONVERGE_PROJECT_DIR) {
+      throw new Error(
+        "ConvergeClient: CONVERGE_PROJECT_DIR is not set. " +
+          "This SDK must run inside a converge-spawned process. " +
+          "If you are testing standalone, set CONVERGE_PROJECT_DIR to the " +
+          "project root (the directory containing .converge/).",
+      );
+    }
+
+    // Collect CONVERGE_VAR_* env vars
     const vars: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(process.env)) {
       if (key.startsWith("CONVERGE_VAR_") && value !== undefined) {
@@ -164,7 +190,7 @@ export class ConvergeClient {
     }
 
     return {
-      projectDir: process.env.CONVERGE_PROJECT_DIR ?? process.cwd(),
+      projectDir: process.env.CONVERGE_PROJECT_DIR,
       epicId: process.env.CONVERGE_EPIC_ID,
       taskId: process.env.CONVERGE_TASK_ID,
       vars,

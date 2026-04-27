@@ -348,7 +348,6 @@ export const projectMdRules: ProjectMdRule[] = [
 
       // Positive integer fields
       for (const numKey of [
-        "maxIterations",
         "maxStallCount",
         "maxParallelTasks",
       ]) {

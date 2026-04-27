@@ -42,6 +42,48 @@ import { getJournalStructure } from "../journal/structure.ts";
 import type { Gap } from "../task/gap/types.ts";
 
 /* ------------------------------------------------------------------ */
+/*  Transient-error detection                                          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Recognize errors that came from a downstream service (rate limit, quota,
+ * outage, network blip) rather than from a bug in the WBS script itself.
+ * AI repair cannot fix these — rewriting the script wouldn't help, and the
+ * call costs API tokens for no benefit.
+ *
+ * Patterns matched against `error.name`, `error.message`, and any nested
+ * stdout/stderr captured by the script-WBS executor.
+ */
+const TRANSIENT_REMOTE_PATTERNS: RegExp[] = [
+  // HTTP rate-limit / overload / unavailable
+  /\b429\b/,
+  /\b50[234]\b/,
+  /\bRESOURCE_EXHAUSTED\b/i,
+  /\bquota\b/i,
+  /\brate[ -]?limit/i,
+  /\boverloaded\b/i,
+  /\bservice unavailable\b/i,
+  // Network / DNS
+  /\bECONNRESET\b/,
+  /\bECONNREFUSED\b/,
+  /\bETIMEDOUT\b/,
+  /\bENOTFOUND\b/,
+  /\bsocket hang up\b/i,
+  // Common remote-credit failures
+  /\bcredits?\s+(?:are\s+)?depleted\b/i,
+  /\bbilling\b.*\b(?:exhausted|expired)\b/i,
+];
+
+function isTransientRemoteError(error: Error): boolean {
+  const haystack = `${error.name}\n${error.message}\n${error.stack ?? ""}`;
+  return TRANSIENT_REMOTE_PATTERNS.some((rx) => rx.test(haystack));
+}
+
+function truncate(s: string, n: number): string {
+  return s.length <= n ? s : s.slice(0, n - 1) + "…";
+}
+
+/* ------------------------------------------------------------------ */
 /*  Result                                                            */
 /* ------------------------------------------------------------------ */
 
@@ -144,15 +186,24 @@ export class WbsExecutor {
     const spawnedTasks: Array<{ id: string; writeToPath: string }> = [];
     const spawnedGoals: string[] = [];
 
-    // Directory of the parent task — child tasks go into {parent}/tasks/ under it.
-    // taskFilePath may be a directory (unit.path) or a file (TASK.md).
-    // When it's a directory, use it directly; when it's a file, use its parent dir.
+    // Staged spawns — written to disk only after wbs() returns successfully.
+    // If wbs() throws part-way through, no children are committed and the
+    // system is left in the same state as before the WBS attempt.
+    const stagedSpawns: Array<{
+      shape: any;
+      writeToPath: string;
+      target: WbsSpawnTarget;
+      opts?: WbsSpawnOptions;
+      label?: string;
+    }> = [];
+
+    // Directory of the parent task — emitted into the wbs-input.json snapshot
+    // for debug visibility. taskFilePath may be a directory (unit.path) or a
+    // file (TASK.md); when it's a file, use its parent dir.
     const parentTaskDir =
       this.taskFilePath.endsWith(".ts") || this.taskFilePath.endsWith(".md")
         ? dirname(this.taskFilePath)
         : this.taskFilePath;
-    // Relative to projectDir for writeToPath
-    const relParentDir = relative(this.projectDir, parentTaskDir);
 
     const ctx: WbsContext = {
       projectDir: this.projectDir,
@@ -171,6 +222,10 @@ export class WbsExecutor {
       },
       ai: {
         ask: (question: string): AskResult => this.buildAiAsk(question),
+        askJson: <T>(
+          question: string,
+          schema: import("zod").ZodType<T>,
+        ): Promise<T> => this.runAiJson(question, schema),
       },
       plan: {
         getPlanPath: (relativePath: string): string => {
@@ -187,7 +242,8 @@ export class WbsExecutor {
         // Delegate to `getJournalStructure` which probes the playbook source —
         // any other path-derivation will diverge from where the rest of the
         // system reads checkpoints, leaving children invisible to rollup.
-        // opts.writeToPath still overrides — caller's responsibility.
+        // The write path is framework-derived; the playbook source dir is
+        // immutable blueprint, journal holds execution state.
         const parentStructure = getJournalStructure(
           this.projectDir,
           this.journalCtx.epicId,
@@ -196,92 +252,37 @@ export class WbsExecutor {
         const childAbs = parentStructure.task
           ? join(parentStructure.task, "tasks", shape.id, "TASK.md")
           : null;
-        const autoWritePath = childAbs
+        const writeToPath = childAbs
           ? relative(this.projectDir, childAbs).replace(/\\/g, "/")
           : null;
-        const writeToPath = opts?.writeToPath ?? autoWritePath;
         if (!writeToPath) {
           throw new Error(
-            `Failed to derive writeToPath for spawned child ${shape.id} of ${this.journalCtx.taskId}`,
+            `Failed to derive journal path for spawned child ${shape.id} of ${this.journalCtx.taskId}`,
           );
         }
 
+        // STAGE the spawn instead of writing immediately. The actual write
+        // happens in a single batch after the wbs() function returns
+        // successfully (see STEP 4.6 below). If the function throws part-way,
+        // no children are committed — eliminating the partial-spawn state
+        // that previously left the system with N children and 49−N missing.
         spawnedTasks.push({ id: shape.id, writeToPath });
+        stagedSpawns.push({ shape, writeToPath, target, opts, label: opts?.label });
 
         await logTaskEvent(
           this.projectDir,
           this.journalCtx.epicId,
           this.journalCtx.taskId,
           "WBS_SEED",
-          `seeded task: ${opts?.label ?? shape.id}`,
+          `staged spawn: ${opts?.label ?? shape.id}`,
           { taskId: shape.id, writeToPath },
         );
 
-        await writeTaskMdToFile(this.projectDir, shape, writeToPath);
-
-        // Copy sibling files and directories from template source → rendered task dir.
-        // Skip the template source file and rendered TASK.md.
-        // Note: wbs.js is copied if the template has a wbs section that references it,
-        // because the spawned child task may need its own WBS script (e.g., for splitting widgets).
-        // Directories (e.g. tasks/subtask/) are copied recursively for per-widget WBS templates.
-        if (
-          typeof target === "object" &&
-          target !== null &&
-          (target as any)._type === "template-ref"
-        ) {
-          const ref = target as TemplateRef;
-          const {
-            resolve: resolvePath,
-            dirname: dirnamePath,
-            basename: basenamePath,
-          } = await import("node:path");
-          const { readdir, copyFile, cp, readFile: readFileAsync } = await import(
-            "node:fs/promises"
-          );
-          const templateAbsPath = resolvePath(this.projectDir, ref.path);
-          const templateDir = dirnamePath(templateAbsPath);
-          const templateFileName = basenamePath(templateAbsPath);
-          const destDir = dirnamePath(join(this.projectDir, writeToPath));
-          
-          // Check if the template's TASK.md has a wbs section
-          // If so, we need to copy the wbs directory/file for the child task
-          const templateTaskMdPath = join(templateDir, "TASK.md");
-          let hasWbs = false;
-          try {
-            const templateContent = await readFileAsync(templateTaskMdPath, "utf-8");
-            if (templateContent.includes("wbs:")) {
-              hasWbs = true;
-            }
-          } catch {
-            // Template TASK.md may not exist — that's fine
-          }
-
-          const skipEntries = new Set(["TASK.md", templateFileName, "tasks"]);
-          // Only skip wbs entries if the template doesn't need them
-          if (!hasWbs) {
-            skipEntries.add("wbs.js");
-            skipEntries.add("wbs");
-          }
-
-          try {
-            const entries = await readdir(templateDir, { withFileTypes: true });
-            for (const entry of entries) {
-              if (skipEntries.has(entry.name)) continue;
-              const src = join(templateDir, entry.name);
-              const dst = join(destDir, entry.name);
-              if (entry.isFile()) {
-                await copyFile(src, dst);
-              } else if (entry.isDirectory()) {
-                await cp(src, dst, { recursive: true });
-              }
-            }
-          } catch {
-            // Template dir may not have siblings — that's fine
-          }
-        }
-
+        // (Template-sibling copy + final disk write happen in the commit
+        // pass after wbs() returns successfully — see commitStagedSpawns
+        // below.)
         console.log(
-          `[wbs:${this.taskMeta.id}] Seeded task: ${shape.id} → ${writeToPath}`,
+          `[wbs:${this.taskMeta.id}] Staged spawn: ${shape.id} → ${writeToPath}`,
         );
       },
       spawnGoal: async (
@@ -341,12 +342,118 @@ export class WbsExecutor {
     };
 
     // ========================================================================
+    // COMMIT STAGED SPAWNS — runs only if wbs() returned without throwing.
+    // ========================================================================
+    // Each staged spawn becomes a real on-disk task here, in the same order
+    // they were staged. If any single commit fails, we still try the others
+    // (best-effort) but report the partial state to the caller via the
+    // returned error metadata.
+    const commitStagedSpawns = async (): Promise<{
+      committed: number;
+      failed: Array<{ id: string; error: string }>;
+    }> => {
+      const failed: Array<{ id: string; error: string }> = [];
+      let committed = 0;
+
+      for (const stage of stagedSpawns) {
+        const { shape, writeToPath, target } = stage;
+        try {
+          await writeTaskMdToFile(this.projectDir, shape, writeToPath);
+
+          // Sibling-file copy from template source → rendered task dir.
+          if (
+            typeof target === "object" &&
+            target !== null &&
+            (target as any)._type === "template-ref"
+          ) {
+            const ref = target as TemplateRef;
+            const {
+              resolve: resolvePath,
+              dirname: dirnamePath,
+              basename: basenamePath,
+            } = await import("node:path");
+            const { readdir, copyFile, cp, readFile: readFileAsync } =
+              await import("node:fs/promises");
+            const templateAbsPath = resolvePath(this.projectDir, ref.path);
+            const templateDir = dirnamePath(templateAbsPath);
+            const templateFileName = basenamePath(templateAbsPath);
+            const destDir = dirnamePath(join(this.projectDir, writeToPath));
+
+            const templateTaskMdPath = join(templateDir, "TASK.md");
+            let hasWbs = false;
+            try {
+              const templateContent = await readFileAsync(
+                templateTaskMdPath,
+                "utf-8",
+              );
+              if (templateContent.includes("wbs:")) hasWbs = true;
+            } catch {
+              /* template TASK.md may not exist */
+            }
+
+            const skipEntries = new Set(["TASK.md", templateFileName, "tasks"]);
+            if (!hasWbs) {
+              skipEntries.add("wbs.js");
+              skipEntries.add("wbs");
+            }
+
+            try {
+              const entries = await readdir(templateDir, {
+                withFileTypes: true,
+              });
+              for (const entry of entries) {
+                if (skipEntries.has(entry.name)) continue;
+                const src = join(templateDir, entry.name);
+                const dst = join(destDir, entry.name);
+                if (entry.isFile()) await copyFile(src, dst);
+                else if (entry.isDirectory())
+                  await cp(src, dst, { recursive: true });
+              }
+            } catch {
+              /* template dir may have no siblings */
+            }
+          }
+
+          committed++;
+          console.log(
+            `[wbs:${this.taskMeta.id}] Committed: ${shape.id} → ${writeToPath}`,
+          );
+        } catch (err: any) {
+          failed.push({ id: shape.id, error: err?.message ?? String(err) });
+          console.error(
+            `[wbs:${this.taskMeta.id}] ❌ Commit failed for ${shape.id}: ${err?.message}`,
+          );
+        }
+      }
+
+      return { committed, failed };
+    };
+
+    // ========================================================================
     // STEP 4: RUN WBS WITH COMPREHENSIVE ERROR HANDLING AND VALIDATION
     // ========================================================================
     try {
       await wbsFn(ctx);
 
-      // STEP 4.5: VALIDATE GENERATED FILES FOR COMMON ISSUES
+      // STEP 4.5: COMMIT — atomic boundary. Until now, no children exist on
+      // disk. Either we get them all (success path) or none (wbs() threw).
+      const commitResult = await commitStagedSpawns();
+      if (commitResult.failed.length > 0) {
+        console.warn(
+          `[wbs:${this.taskMeta.id}] ⚠️  ${commitResult.failed.length}/${stagedSpawns.length} spawn commits failed — partial state on disk.`,
+        );
+      }
+
+      // Trim spawnedTasks to only the ones that actually committed.
+      // (spawnedTasks was populated optimistically during staging.)
+      if (commitResult.failed.length > 0) {
+        const failedIds = new Set(commitResult.failed.map((f) => f.id));
+        for (let i = spawnedTasks.length - 1; i >= 0; i--) {
+          if (failedIds.has(spawnedTasks[i].id)) spawnedTasks.splice(i, 1);
+        }
+      }
+
+      // STEP 4.6: VALIDATE GENERATED FILES FOR COMMON ISSUES
       // Check any .ts files generated by this WBS for ESM/CommonJS issues
       await this.validateGeneratedFiles();
       const durationMs = Date.now() - start;
@@ -578,21 +685,45 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
         onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null,
       ) => getBooleanPromise().then(onfulfilled, onrejected),
 
-      asJson: <T>(schema: import("zod").ZodType<T>): Promise<T> => {
-        const executor = agentfn<T>({
-          prompt:
-            basePrompt +
-            `\n\nReturn a JSON object matching the requested schema.`,
-          schema,
-          allowedTools: [...READONLY_TOOLS],
-          timeoutMs: 120_000,
-          cwd: projectDir,
-          logDir,
-        });
-
-        return executor().then((r) => r.data);
-      },
+      asJson: <T>(schema: import("zod").ZodType<T>): Promise<T> =>
+        this.runAiJson(question, schema),
     };
+  }
+
+  /* ---------------------------------------------------------------- */
+  /*  ctx.ai.askJson() — direct schema-validated AI call             */
+  /*  (also the implementation backing AskResult.asJson)              */
+  /* ---------------------------------------------------------------- */
+
+  private runAiJson<T>(
+    question: string,
+    schema: import("zod").ZodType<T>,
+  ): Promise<T> {
+    const projectDir = this.projectDir;
+    const taskId = this.taskMeta.id;
+    const logDir = this.getAiLogDir();
+
+    const prompt = `You are analyzing a project to help break down work into subtasks.
+
+PROJECT DIRECTORY: ${projectDir}
+TASK: ${this.taskMeta.title ?? taskId}
+
+QUESTION: ${question}
+
+Use the available tools (Read, Glob) to inspect the project files and answer the question.
+
+Return a JSON object matching the requested schema.`;
+
+    const executor = agentfn<T>({
+      prompt,
+      schema,
+      allowedTools: [...READONLY_TOOLS],
+      timeoutMs: 120_000,
+      cwd: projectDir,
+      logDir,
+    });
+
+    return executor().then((r) => r.data);
   }
 
   private getAiLogDir(): string {
@@ -894,6 +1025,31 @@ Use the available tools (Read, Glob) to inspect the project files and answer the
 
       const shouldRetry = await this.triggerGapResolution(gap, factsLogger);
       return shouldRetry;
+    }
+
+    // Strategy 4 (precondition): Skip AI repair on transient/remote errors.
+    // A 429, 5xx, network reset, or "overloaded" from a downstream service
+    // means the script itself is fine — rewriting it does nothing useful and
+    // wastes API budget. Surface the failure so the normal retry loop or the
+    // user can react (refill quota, wait out rate limit, fix network).
+    if (isTransientRemoteError(error)) {
+      console.log(
+        `   → Skipping AI repair: transient/remote error (${error.name}: ${truncate(error.message, 200)})`,
+      );
+      await factsLogger.logFact({
+        id: "self-healing:wbs-script-error-transient",
+        type: "self-healing",
+        cmd: "wbs-script-repair",
+        ok: false,
+        output: `WBS script hit transient/remote error: ${error.name}: ${error.message}`,
+        exitCode: 1,
+        collectedAt: new Date().toISOString(),
+        strategy: "skip-transient",
+        errorType: error.name,
+        errorMessage: error.message,
+        errorStack: error.stack,
+      });
+      return false; // do not retry within self-heal; let attempt loop or user act
     }
 
     // Strategy 4: General WBS script error — AI auto-fix
