@@ -1,0 +1,250 @@
+name: default
+description: |
+  Generate a complete platformer asset library. Character animations come
+  from short generated video clips (img2vid via Veo / Kling / Grok) split
+  into 24 frames per state at 24fps, then assembled into a frames-mode
+  atlas with auto-loop detection, hybrid color matting, canonical-locked
+  size and ground-line anchoring. Props/hazards, terrain tilesheets, and
+  parallax backgrounds use Nano-banana (Gemini 2.5 Flash Image) directly.
+  Master atlases (raw, Godot, Unity) are exported per build.
+
+  Every paid call goes through `lib.budget.charged()` — pre-flight gate +
+  refund on exception. See `vars.budget_cents` below.
+
+  ## Reproducing this for a new game
+
+  1. Edit `idea.md` with your game brief (one paragraph).
+  2. Edit `assets/sprites.json`, `objects.json`, `tile_maps.json`,
+     `backgrounds.json` to declare what to generate. (Or enable the
+     opt-in `00-visual-target` task to derive these from a reference
+     screenshot — see that task's body.)
+  3. Set the active backends:
+     - `echo gemini > .converge/skills/image-generate/backends/ACTIVE`
+     - `echo grok   > .converge/skills/video-generate/backends/ACTIVE`
+       (or `veo` / `kling` — see SKILL.md for tradeoffs)
+  4. `export GEMINI_API_KEY=…` and any video-backend keys (in `.env`).
+  5. `npx converge run` (uses `vars.stop_after` to choose scope).
+  6. Open `inspect/gallery.html` to verify; `inspect/play.html` for the
+     platformer prototype.
+
+  ## Asset Types
+
+  - characters: Player + NPC sprites. Video → 24 frames per state →
+    frames-mode atlas (`meta.mode = "frames"`).
+  - props (objects.json): Items, hazards, and interactive props. Single
+    image-gen call per state → 4×2 grid sheet (8 frames) → sheet-mode atlas.
+    `category` field distinguishes "item" / "hazard" / "interactive".
+  - tile_maps: Per-tile generation + composited tilesheet + atlas.
+  - backgrounds: One image-gen call per parallax layer (far/mid/near).
+  - master atlas: Aggregated `assets/atlas.{json,godot.json,unity.json}`.
+
+  ## Pipeline (scene-driven)
+
+  idea.md → visual-target.png → ART_BIBLE.md + concept hero-shot →
+  shared assets (characters + cross-scene props) → REGISTRY.json →
+  per-scene WBS (concept → backgrounds → tiles → scene-props → manifest) →
+  master atlas
+
+  Per-scene atlases land under `assets/scenes/{scene_id}/...` and are
+  aggregated into `atlas.json[categories.scenes]` by phase 06-export.
+
+  ## Run Modes (gated in each phase's wbs/index.js)
+
+  Controlled by `vars.stop_after`:
+    - "characters" → stops after 03-characters. Fast iteration loop —
+      use this when you're tuning character art and don't want to spend
+      cost on shared props / scenes / atlas every cycle.
+    - "sprites" (default) → runs through 05-scenes. All scenes' assets
+      generated; master atlas skipped. Useful for previewing.
+    - "export" → adds 06-export (master atlas raw + Godot + Unity).
+    - "full" → identical to "export" today; reserved as a future hook
+      (animation videos, variant atlases, etc.).
+
+vars:
+  sprite_resolution: 128      # pixels per sprite frame (64, 128, 256)
+  sprites_per_row: 4         # sprites per sheet row
+  animation_states:          # configurable animation states
+    - idle
+    - walk
+  asset_types:               # which asset categories to generate
+    - characters
+    - objects
+    - tile_maps
+    - backgrounds
+  engine_targets:            # which engine formats to export
+    - godot
+    - unity
+    - raw
+  max_characters: 3          # test scope
+  max_states_per_character: 2 # test scope
+  max_objects: 5
+  max_backgrounds: 2
+  stop_after: sprites        # "characters" | "sprites" | "export" | "full" — see description
+  budget_cents: 1000         # hard pre-spend cap; every paid call charges before invoking the API
+
+run:
+  mode: oneoff
+  maxIterations: 2000
+  maxTaskAttempts: 3
+  stall:
+    maxConsecutive: 3
+    backoffMs: 60000
+
+tasks:
+  # Scene-driven pipeline (default). The shape:
+  #   00-visual-target → 01-art-bible → 02-asset-breakdown
+  #     → 03-characters + 03-shared-props → 04-registry-build
+  #     → 05-scenes (per-scene WBS: concept → bg → tiles → props → manifest)
+  #     → 06-export
+  #
+  # 01-setup-art-style is the legacy art-style file. The new 01-art-bible
+  # supersedes it (writes ART_BIBLE.md + concept hero-shot) but they coexist
+  # so existing projects don't break.
+  - id: 00-visual-target
+  - id: 01-art-bible
+    depends_on:
+      - 00-visual-target
+  - id: 01-setup-art-style
+  - id: 02-asset-breakdown
+    depends_on:
+      - 01-setup-art-style
+  - id: 03-characters
+    depends_on:
+      - 02-asset-breakdown
+  - id: 03-shared-props
+    depends_on:
+      - 02-asset-breakdown
+      - 01-art-bible
+  - id: 04-registry-build
+    depends_on:
+      - 03-characters
+      - 03-shared-props
+  - id: 05-scenes
+    depends_on:
+      - 04-registry-build
+  - id: 06-export
+    depends_on:
+      - 03-characters
+      - 03-shared-props
+      - 05-scenes
+
+checks:
+  - id: idea-exists
+    cmd: node -e "const fs=require('fs');if(!fs.existsSync('idea.md')){console.error('idea.md not found — write a one-paragraph game brief at the project root');process.exit(1)}"
+    description: User's idea file is present at project root
+  - id: image-backend-configured
+    cmd: |
+      node -e "
+      const fs = require('fs');
+      const p = '.converge/skills/image-generate/backends/ACTIVE';
+      if (!fs.existsSync(p)) { console.error(p + ' missing. Run: echo gemini > ' + p); process.exit(1); }
+      const v = fs.readFileSync(p, 'utf-8').trim();
+      if (!v) { console.error(p + ' is empty. Run: echo gemini > ' + p); process.exit(1); }
+      console.log('image backend: ' + v);
+      "
+    description: An image-generate backend is selected (gemini / openai / stub)
+  - id: video-backend-configured
+    cmd: |
+      node -e "
+      const fs = require('fs');
+      const p = '.converge/skills/video-generate/backends/ACTIVE';
+      if (!fs.existsSync(p)) { console.error(p + ' missing. Run: echo grok > ' + p + ' (or veo / kling / stub)'); process.exit(1); }
+      const v = fs.readFileSync(p, 'utf-8').trim();
+      if (!v) { console.error(p + ' is empty. Run: echo grok > ' + p); process.exit(1); }
+      console.log('video backend: ' + v);
+      "
+    description: A video-generate backend is selected (grok / veo / kling / stub)
+  - id: budget-initialized
+    cmd: |
+      node -e "
+      const fs = require('fs');
+      const p = 'assets/budget.json';
+      if (!fs.existsSync(p)) { console.error(p + ' missing. Run: PYTHONPATH=scripts python scripts/budget_status.py --set 1000'); process.exit(1); }
+      const b = JSON.parse(fs.readFileSync(p, 'utf-8'));
+      if (!b.budget_cents || b.budget_cents <= 0) { console.error(p + ' has no budget_cents set'); process.exit(1); }
+      const spent = (b.log || []).reduce((s, e) => s + (e.cost_cents || 0), 0);
+      console.log('budget: ' + b.budget_cents + 'c, spent ' + spent + 'c, remaining ' + (b.budget_cents - spent) + 'c');
+      "
+    description: Spend budget is initialized (assets/budget.json with positive budget_cents)
+  - id: sprites-manifest-exists
+    cmd: node -e "const fs=require('fs');if(!fs.existsSync('assets/sprites.json')){console.error('assets/sprites.json not found — see playbook description for how to author or derive it');process.exit(1)}"
+    description: Sprites manifest exists (hand-authored or derived from 00-visual-target)
+  - id: at-least-one-character-ref
+    cmd: node -e "const fs=require('fs');if(!fs.existsSync('assets/characters')){process.exit(0)}const chars=fs.readdirSync('assets/characters');const n=chars.filter(d=>fs.existsSync('assets/characters/'+d+'/ref/canonical/canonical.png')).length;if(n<1){console.error('No character canonical refs found');process.exit(1)}else{console.log(n)}"
+    description: At least one character canonical reference was generated
+  # The next four checks short-circuit cleanly when their category is absent
+  # (skipped by stop_after gating), so they're safe to run in any mode.
+  - id: tilesheets-match-atlas-when-present
+    cmd: |
+      python -c "
+      import json, sys
+      from pathlib import Path
+      from PIL import Image
+      root = Path('assets/tile_maps')
+      if not root.exists(): sys.exit(0)
+      for atlas in root.rglob('tilesheet.atlas.json'):
+          a = json.load(open(atlas))
+          png = atlas.parent / a['image']
+          im = Image.open(png)
+          assert a['meta']['sheet_size']['w']==im.size[0] and a['meta']['sheet_size']['h']==im.size[1], f'{atlas}: size mismatch'
+          assert len(a['frames'])==a['meta']['rows']*a['meta']['cols'], f'{atlas}: frame count mismatch'
+      "
+    description: Every generated tilesheet's atlas matches its PNG dimensions and frame count
+  - id: backgrounds-match-resolution-when-present
+    cmd: |
+      python -c "
+      import json, sys
+      from pathlib import Path
+      from PIL import Image
+      bg_manifest = Path('assets/backgrounds.json')
+      bg_dir = Path('assets/backgrounds')
+      if not bg_dir.exists(): sys.exit(0)
+      manifest = {b['id']: b for b in json.load(open(bg_manifest))}
+      for bg_id_dir in bg_dir.iterdir():
+          if not bg_id_dir.is_dir(): continue
+          png = bg_id_dir / f'{bg_id_dir.name}.png'
+          if not png.exists(): continue
+          expected = tuple(manifest[bg_id_dir.name]['resolution'])
+          actual = Image.open(png).size
+          assert expected==actual, f'{png}: expected {expected}, got {actual}'
+      "
+    description: Every generated background PNG matches its manifest resolution
+  - id: prop-spritesheets-atlas-matches-png-when-present
+    cmd: |
+      python -c "
+      import json, sys
+      from pathlib import Path
+      from PIL import Image
+      root = Path('assets/objects')
+      if not root.exists(): sys.exit(0)
+      for atlas in root.rglob('spritesheets/*/*.atlas.json'):
+          a = json.load(open(atlas))
+          png = atlas.parent / a['image']
+          im = Image.open(png)
+          m = a['meta']
+          # Accept any layout the model produced; require atlas + png agree.
+          # generate_prop_spritesheet.py writes meta.requested_cols/rows = 4/2
+          # but meta.cols/rows reflect what the auto-detector / fallback chose.
+          assert m['cols'] >= 1 and m['rows'] >= 1, f'{atlas}: invalid grid {m[\"cols\"]}x{m[\"rows\"]}'
+          assert len(a['frames']) == m['cols'] * m['rows'], f'{atlas}: frame count != cols*rows'
+          assert m['sheet_size']['w'] == im.size[0] and m['sheet_size']['h'] == im.size[1], f'{atlas}: size mismatch atlas={m[\"sheet_size\"]} png={im.size}'
+      "
+    description: Every prop spritesheet atlas matches its PNG dimensions and frame count (any cols×rows layout, fallback handles model variance)
+  - id: master-atlas-aggregates-all-sheets-when-present
+    cmd: |
+      python -c "
+      import json, sys
+      from pathlib import Path
+      master = Path('assets/atlas.json')
+      if not master.exists(): sys.exit(0)  # only required when 07-export ran
+      agg = json.load(open(master))
+      master_n = sum(len(s['frames']) for slices in agg['categories'].values() for s in slices)
+      per_sheet_n = 0
+      for cat in agg['categories']:
+          d = Path('assets') / cat
+          if not d.exists(): continue
+          for atl in d.rglob('*.atlas.json'):
+              per_sheet_n += len(json.load(open(atl))['frames'])
+      assert master_n==per_sheet_n, f'master={master_n} per-sheet sum={per_sheet_n}'
+      "
+    description: Master atlas frame count equals sum of all per-sheet atlas frame counts

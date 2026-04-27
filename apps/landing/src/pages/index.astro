@@ -1,12 +1,14 @@
 ---
 export const prerender = true;
 import Layout from '../layouts/MainLayout.astro';
+import Architecture from '../components/sections/Architecture.astro';
+import CapabilityClusters from '../components/sections/CapabilityClusters.astro';
+import CompactComparison from '../components/sections/CompactComparison.astro';
 import CtaBanner from '../components/sections/CtaBanner.astro';
 import Faq from '../components/sections/Faq.astro';
 import FeatureGrid from '../components/sections/FeatureGrid.astro';
 import Hero from '../components/sections/Hero.astro';
-import InteractiveComparison from '../components/sections/InteractiveComparison.astro';
-import ProblemSolution from '../components/sections/ProblemSolution.astro';
+import LiveDemo from '../components/sections/LiveDemo.astro';
 import Quickstart from '../components/sections/Quickstart.astro';
 import SocialProof from '../components/sections/SocialProof.astro';
 ---
@@ -14,10 +16,12 @@ import SocialProof from '../components/sections/SocialProof.astro';
 <Layout>
     <Hero />
     <SocialProof />
-    <ProblemSolution />
+    <LiveDemo />
+    <Architecture />
+    <CapabilityClusters />
     <FeatureGrid />
-    <InteractiveComparison />
     <Quickstart />
+    <CompactComparison />
     <Faq />
     <CtaBanner />
 </Layout>

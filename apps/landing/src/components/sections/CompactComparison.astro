@@ -1,0 +1,41 @@
+---
+import Section from '../layout/Section.astro';
+import Container from '../layout/Container.astro';
+import Icon from '../ui/Icon.astro';
+---
+
+<Section id="comparison" padY="lg" bg="default">
+  <Container>
+    <div class="max-w-4xl mx-auto rounded-xl border border-border bg-bgElev/40 p-6 sm:p-8">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-4 items-start">
+        <div>
+          <p class="text-xs font-medium tracking-widest text-text-dim uppercase mb-2">Step-driven frameworks</p>
+          <p class="text-sm text-text-muted leading-relaxed">
+            You wire the graph. You manage retries. You verify the output. The framework is a runner for the steps you wrote.
+          </p>
+        </div>
+        <div class="sm:border-l sm:border-r sm:border-border sm:px-6">
+          <p class="text-xs font-medium tracking-widest text-indigo uppercase mb-2">Converge</p>
+          <p class="text-sm text-text leading-relaxed">
+            You describe done — outputs and shell checks. The runner closes the gap, retries with strategies, and survives crashes.
+          </p>
+        </div>
+        <div>
+          <p class="text-xs font-medium tracking-widest text-text-dim uppercase mb-2">Why it matters</p>
+          <p class="text-sm text-text-muted leading-relaxed">
+            Less wiring. Deterministic checks. State on disk you can <code class="font-mono text-text">cat</code>, kill, and resume.
+          </p>
+        </div>
+      </div>
+      <div class="mt-6 pt-6 border-t border-border text-center">
+        <a
+          href="/docs/comparisons"
+          class="inline-flex items-center gap-2 text-sm font-medium text-indigo hover:text-text transition-colors"
+        >
+          Compare to LangGraph, AutoGen, CrewAI
+          <Icon name="lucide:arrow-right" size={14} />
+        </a>
+      </div>
+    </div>
+  </Container>
+</Section>

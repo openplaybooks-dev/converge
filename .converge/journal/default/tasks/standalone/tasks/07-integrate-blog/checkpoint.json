@@ -2,32 +2,32 @@
   "type": "task",
   "id": "07-integrate-blog",
   "status": "pending",
-  "lastUpdated": "2026-04-26T23:04:30.619Z",
+  "lastUpdated": "2026-04-27T15:07:28.902Z",
   "createdAt": "2026-04-26T23:04:30.619Z",
   "progress": {
     "totalChildren": 18,
     "completedChildren": 18,
     "failedChildren": 0,
-    "childIds": [
+    "childTaskIds": [
+      "001-collection-schema",
+      "001-collection-schema",
       "001-collection-schema",
       "002-listing-page",
+      "002-listing-page",
+      "002-listing-page",
+      "003-post-template",
+      "003-post-template",
       "003-post-template",
       "004-rss-feed",
+      "004-rss-feed",
+      "004-rss-feed",
+      "005-og-images",
+      "005-og-images",
       "005-og-images",
       "006-seed-posts",
-      "001-collection-schema",
-      "002-listing-page",
-      "003-post-template",
-      "004-rss-feed",
-      "005-og-images",
       "006-seed-posts",
-      "001-collection-schema",
-      "002-listing-page",
-      "003-post-template",
-      "004-rss-feed",
-      "005-og-images",
       "006-seed-posts"
     ],
-    "lastProgressUpdate": "2026-04-26T23:04:30.618Z"
+    "lastProgressUpdate": "2026-04-27T15:07:28.898Z"
   }
 }

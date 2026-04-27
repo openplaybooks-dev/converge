@@ -9,30 +9,233 @@ const {} = Astro.props;
 
 <Section id="hero" padY="lg" bg="default">
   <Container>
-    <!-- Animated convergence motif -->
-    <div class="flex justify-center mb-6" aria-hidden="true">
-      <svg class="w-[clamp(200px,50vw,400px)] h-[clamp(200px,50vw,400px)] opacity-20 animate-spin-slow" viewBox="0 0 600 600" fill="none" style="animation-duration: 60s;">
-        <circle cx="300" cy="300" r="250" stroke="currentColor" stroke-width="1" class="text-indigo" />
-        <circle cx="300" cy="300" r="200" stroke="currentColor" stroke-width="1" class="text-indigo" />
-        <circle cx="300" cy="300" r="150" stroke="currentColor" stroke-width="1" class="text-indigo" />
-        <circle cx="300" cy="300" r="100" stroke="currentColor" stroke-width="1" class="text-indigo" />
-        <line x1="50" y1="300" x2="550" y2="300" stroke="currentColor" stroke-width="1" class="text-indigo" />
-        <line x1="300" y1="50" x2="300" y2="550" stroke="currentColor" stroke-width="1" class="text-indigo" />
-      </svg>
-    </div>
+    <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <!-- Copy -->
+      <div class="text-center lg:text-left order-2 lg:order-1">
+        <p class="text-sm font-medium tracking-widest text-indigo uppercase mb-4">Converge</p>
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-text mb-4 leading-tight">
+          The autonomous<br class="hidden sm:inline"/>
+          <span class="bg-gradient-to-r from-indigo via-violet to-cyan bg-clip-text text-transparent">
+            AI agent playbook.
+          </span>
+        </h1>
+        <p class="text-lg text-text-muted mb-8 max-w-xl mx-auto lg:mx-0">
+          The agent framework that runs <strong class="text-text">autonomously for hours — even days</strong>, across thousands of tasks. State lives in plain files on disk — kill the process, resume from the last checkpoint. No graph wiring, no hosted control plane.
+        </p>
+        <div class="flex flex-wrap gap-4 justify-center lg:justify-start items-center">
+          <Button href="/examples/readme" variant="primary" size="lg">Browse examples</Button>
+          <Button href="#quickstart" variant="ghost" size="lg">Quickstart</Button>
+        </div>
+      </div>
 
-    <div class="text-center">
-      <p class="text-sm font-medium tracking-widest text-indigo uppercase mb-4">Converge</p>
-      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-text mb-4">
-        Define done. Converge gets there.
-      </h1>
-      <p class="text-lg text-text-muted mb-8 max-w-2xl mx-auto">
-        A task management system that adapts to how you work — not the other way around.
-      </p>
-      <div class="flex flex-wrap gap-4 justify-center items-center">
-        <Button href="/docs/getting-started/why-converge" variant="primary" size="lg">Get started</Button>
-        <Button href="https://github.com/myanlabs/converge" external variant="ghost" size="lg">Star on GitHub</Button>
+      <!-- Hero illustration: scattered attempts converging on target -->
+      <div class="order-1 lg:order-2 flex justify-center">
+        <div class="hero-art relative w-full max-w-[520px] aspect-square">
+          <svg
+            viewBox="0 0 520 520"
+            xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-labelledby="hero-art-title hero-art-desc"
+            class="w-full h-full"
+          >
+            <title id="hero-art-title">Converge: scattered attempts converging on a target</title>
+            <desc id="hero-art-desc">
+              Five trajectory lines arc inward from the edges of the frame and meet at a central
+              bullseye marked with a check, representing how Converge closes the gap between exploratory
+              attempts and a verified outcome.
+            </desc>
+
+            <defs>
+              <!-- Soft glow behind the target -->
+              <radialGradient id="hero-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#6366F1" stop-opacity="0.35"/>
+                <stop offset="55%" stop-color="#6366F1" stop-opacity="0.08"/>
+                <stop offset="100%" stop-color="#6366F1" stop-opacity="0"/>
+              </radialGradient>
+
+              <!-- Trajectory stroke gradient: dim → bright -->
+              <linearGradient id="hero-traj" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%"   stop-color="#22D3EE" stop-opacity="0"/>
+                <stop offset="35%"  stop-color="#22D3EE" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="#6366F1" stop-opacity="0.95"/>
+              </linearGradient>
+              <linearGradient id="hero-traj-2" x1="100%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%"   stop-color="#A78BFA" stop-opacity="0"/>
+                <stop offset="35%"  stop-color="#A78BFA" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="#6366F1" stop-opacity="0.95"/>
+              </linearGradient>
+              <linearGradient id="hero-traj-3" x1="50%" y1="0%" x2="50%" y2="100%">
+                <stop offset="0%"   stop-color="#22D3EE" stop-opacity="0"/>
+                <stop offset="40%"  stop-color="#22D3EE" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#6366F1" stop-opacity="0.95"/>
+              </linearGradient>
+
+              <!-- Target ring fill -->
+              <radialGradient id="hero-bull" cx="50%" cy="50%" r="50%">
+                <stop offset="0%"  stop-color="#6366F1"/>
+                <stop offset="60%" stop-color="#4F46E5"/>
+                <stop offset="100%" stop-color="#3730A3"/>
+              </radialGradient>
+
+              <!-- Subtle grid pattern -->
+              <pattern id="hero-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1E293B" stroke-width="1" opacity="0.6"/>
+              </pattern>
+
+              <!-- Glow filter for the bullseye -->
+              <filter id="hero-bullseye-glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="6" result="blur"/>
+                <feMerge>
+                  <feMergeNode in="blur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+
+            <!-- Background grid + glow -->
+            <rect x="0" y="0" width="520" height="520" fill="url(#hero-grid)" rx="24"/>
+            <circle cx="260" cy="260" r="240" fill="url(#hero-glow)"/>
+
+            <!-- Concentric pulse rings (target halo) -->
+            <g class="hero-rings" fill="none" stroke="#6366F1">
+              <circle cx="260" cy="260" r="80"  stroke-opacity="0.35" stroke-width="1"/>
+              <circle cx="260" cy="260" r="120" stroke-opacity="0.22" stroke-width="1"/>
+              <circle cx="260" cy="260" r="160" stroke-opacity="0.13" stroke-width="1"/>
+              <circle cx="260" cy="260" r="200" stroke-opacity="0.07" stroke-width="1"/>
+            </g>
+
+            <!-- Trajectory lines: scattered attempts converging.
+                 Each path ends at (260, 260) — the bullseye. -->
+            <g class="hero-trajectories" fill="none" stroke-linecap="round">
+              <!-- top-left arc -->
+              <path
+                class="traj traj-1"
+                d="M 40 80 Q 180 90 260 260"
+                stroke="url(#hero-traj)"
+                stroke-width="2"
+                stroke-dasharray="600"
+                stroke-dashoffset="600"
+              />
+              <!-- top-right arc -->
+              <path
+                class="traj traj-2"
+                d="M 480 60 Q 380 130 260 260"
+                stroke="url(#hero-traj-2)"
+                stroke-width="2"
+                stroke-dasharray="600"
+                stroke-dashoffset="600"
+              />
+              <!-- bottom-left arc -->
+              <path
+                class="traj traj-3"
+                d="M 60 460 Q 160 360 260 260"
+                stroke="url(#hero-traj)"
+                stroke-width="2"
+                stroke-dasharray="600"
+                stroke-dashoffset="600"
+              />
+              <!-- bottom-right arc -->
+              <path
+                class="traj traj-4"
+                d="M 470 470 Q 360 380 260 260"
+                stroke="url(#hero-traj-2)"
+                stroke-width="2"
+                stroke-dasharray="600"
+                stroke-dashoffset="600"
+              />
+              <!-- straight-from-top -->
+              <path
+                class="traj traj-5"
+                d="M 260 30 L 260 260"
+                stroke="url(#hero-traj-3)"
+                stroke-width="1.5"
+                stroke-dasharray="260"
+                stroke-dashoffset="260"
+              />
+            </g>
+
+            <!-- Origin dots: scattered "attempts" at the start of each trajectory -->
+            <g class="hero-origins" fill="#94A3B8">
+              <circle cx="40" cy="80"   r="4" opacity="0.55"/>
+              <circle cx="480" cy="60"  r="4" opacity="0.55"/>
+              <circle cx="60" cy="460"  r="4" opacity="0.55"/>
+              <circle cx="470" cy="470" r="4" opacity="0.55"/>
+              <circle cx="260" cy="30"  r="3" opacity="0.45"/>
+            </g>
+
+            <!-- Bullseye (the converged target) -->
+            <g filter="url(#hero-bullseye-glow)">
+              <!-- outer ring -->
+              <circle cx="260" cy="260" r="58" fill="none" stroke="#6366F1" stroke-width="1.5" opacity="0.55"/>
+              <!-- mid ring -->
+              <circle cx="260" cy="260" r="42" fill="none" stroke="#6366F1" stroke-width="1.5" opacity="0.75"/>
+              <!-- bullseye disc -->
+              <circle cx="260" cy="260" r="28" fill="url(#hero-bull)"/>
+              <!-- check mark -->
+              <path
+                d="M 247 260 L 257 270 L 275 250"
+                fill="none"
+                stroke="#F8FAFC"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </g>
+
+            <!-- Annotation tags: scattered labels echoing the metaphor -->
+            <g class="hero-tags" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#64748B">
+              <text x="40"  y="64"  text-anchor="start">attempt.001</text>
+              <text x="480" y="44"  text-anchor="end">attempt.002</text>
+              <text x="60"  y="478" text-anchor="start">attempt.003</text>
+              <text x="470" y="488" text-anchor="end">attempt.004</text>
+              <text x="260" y="332" text-anchor="middle" fill="#94A3B8" font-size="12" letter-spacing="0.12em">DONE</text>
+            </g>
+          </svg>
+        </div>
       </div>
     </div>
   </Container>
 </Section>
+
+<style>
+  /* Trajectory draw-in: paths animate from invisible to fully drawn,
+     staggered so they arrive sequentially at the bullseye. */
+  .hero-art .traj {
+    animation: hero-draw 2.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+  .hero-art .traj-1 { animation-delay: 0.10s; }
+  .hero-art .traj-2 { animation-delay: 0.30s; }
+  .hero-art .traj-3 { animation-delay: 0.55s; }
+  .hero-art .traj-4 { animation-delay: 0.80s; }
+  .hero-art .traj-5 { animation-delay: 1.05s; }
+
+  @keyframes hero-draw {
+    to { stroke-dashoffset: 0; }
+  }
+
+  /* Slow ring pulse on the target halo. */
+  .hero-art .hero-rings circle {
+    transform-origin: 260px 260px;
+    animation: hero-pulse 6s ease-in-out infinite;
+  }
+  .hero-art .hero-rings circle:nth-child(1) { animation-delay: 0s;   }
+  .hero-art .hero-rings circle:nth-child(2) { animation-delay: 0.4s; }
+  .hero-art .hero-rings circle:nth-child(3) { animation-delay: 0.8s; }
+  .hero-art .hero-rings circle:nth-child(4) { animation-delay: 1.2s; }
+
+  @keyframes hero-pulse {
+    0%, 100% { opacity: 1;   transform: scale(1);    }
+    50%      { opacity: 0.4; transform: scale(1.04); }
+  }
+
+  /* Respect user motion preference. */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-art .traj {
+      animation: none;
+      stroke-dashoffset: 0;
+    }
+    .hero-art .hero-rings circle {
+      animation: none;
+    }
+  }
+</style>

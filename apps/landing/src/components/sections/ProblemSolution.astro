@@ -5,25 +5,8 @@ import CodeBlock from '../ui/CodeBlock.astro';
 
 interface Props {}
 const {} = Astro.props;
----
 
-<Section id="problem-solution" padY="lg" bg="default">
-  <Container>
-    <div class="text-center mb-12">
-      <p class="text-sm font-medium tracking-widest text-indigo uppercase mb-4">Define how vs. define done</p>
-      <h2 class="text-3xl sm:text-4xl font-bold text-text mb-4">
-        The old way: you figure out the steps
-      </h2>
-      <p class="text-lg text-text-muted max-w-2xl mx-auto">
-        Imperative code tells the machine exactly what to do, step by step. You're responsible for the how.
-      </p>
-    </div>
-
-    <div class="grid md:grid-cols-2 gap-8 mb-16">
-      <div>
-        <h3 class="text-lg font-semibold text-text mb-4">The problem</h3>
-        <CodeBlock language="typescript" filename="scripts/build-nav.ts">
-{`import { chromium } from 'playwright';
+const problemCode = `import { chromium } from 'playwright';
 import fs from 'fs';
 
 const browser = await chromium.launch();
@@ -44,8 +27,38 @@ for (let i = 0; i < links.length; i++) {
 }
 
 await browser.close();
-fs.writeFileSync('results.json', JSON.stringify(results));`}
-        </CodeBlock>
+fs.writeFileSync('results.json', JSON.stringify(results));`;
+
+const solutionCode = `title: Verify nav links work
+
+probe:
+  url: https://example.com
+  select: nav a
+  forEach:
+    - expect: status 200
+    - expect: title not empty
+
+reports:
+  - type: summary
+    into: results.json`;
+---
+
+<Section id="problem-solution" padY="lg" bg="default">
+  <Container>
+    <div class="text-center mb-12">
+      <p class="text-sm font-medium tracking-widest text-indigo uppercase mb-4">Define how vs. define done</p>
+      <h2 class="text-3xl sm:text-4xl font-bold text-text mb-4">
+        The old way: you figure out the steps
+      </h2>
+      <p class="text-lg text-text-muted max-w-2xl mx-auto">
+        Imperative code tells the machine exactly what to do, step by step. You're responsible for the how.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8 mb-16">
+      <div>
+        <h3 class="text-lg font-semibold text-text mb-4">The problem</h3>
+        <CodeBlock language="typescript" filename="scripts/build-nav.ts" code={problemCode} />
         <p class="text-sm text-text-muted mt-3">
           brittle — one UI change breaks everything
         </p>
@@ -82,20 +95,7 @@ fs.writeFileSync('results.json', JSON.stringify(results));`}
     <div class="grid md:grid-cols-2 gap-8">
       <div>
         <h3 class="text-lg font-semibold text-text mb-4">The solution</h3>
-        <CodeBlock language="yaml" filename="TASK.md">
-{`title: Verify nav links work
-
-probe:
-  url: https://example.com
-  select: nav a
-  forEach:
-    - expect: status 200
-    - expect: title not empty
-
-reports:
-  - type: summary
-    into: results.json`}
-        </CodeBlock>
+        <CodeBlock language="yaml" filename="TASK.md" code={solutionCode} />
         <p class="text-sm text-text-muted mt-3">
           readable by anyone — no code knowledge required
         </p>

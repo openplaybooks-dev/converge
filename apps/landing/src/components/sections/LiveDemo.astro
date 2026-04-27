@@ -1,0 +1,206 @@
+---
+import Section from '../layout/Section.astro';
+import Container from '../layout/Container.astro';
+---
+
+<Section id="live-demo" padY="lg" bg="muted">
+  <Container>
+    <div class="text-center mb-12">
+      <p class="text-sm font-medium tracking-widest text-indigo uppercase mb-4">What a run looks like</p>
+      <h2 class="text-3xl sm:text-4xl font-bold text-text mb-4">What a real run looks like</h2>
+      <p class="text-lg text-text-muted max-w-2xl mx-auto">
+        A playbook is a tree of <code class="font-mono text-text">TASK.md</code> files — some spawn children at runtime via <code class="font-mono text-text">wbs.js</code>. The journal records both the playbook's waves and each task's self-correction in one timeline you can <code class="font-mono text-text">cat</code>, kill, and resume.
+      </p>
+    </div>
+
+    <div class="max-w-5xl mx-auto rounded-xl border border-border bg-default overflow-hidden shadow-lg">
+      <!-- Window chrome -->
+      <div class="flex items-center gap-2 px-4 py-3 border-b border-border bg-bgElev/40">
+        <span class="w-3 h-3 rounded-full bg-rose-400/70"></span>
+        <span class="w-3 h-3 rounded-full bg-amber-400/70"></span>
+        <span class="w-3 h-3 rounded-full bg-emerald-400/70"></span>
+        <span class="ml-3 text-xs font-mono text-text-dim">~/projects/user-api</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
+        <!-- Left pane: playbook tree -->
+        <div class="p-5 font-mono text-sm leading-relaxed">
+          <div class="flex items-center justify-between mb-3 text-xs">
+            <span class="text-text-dim uppercase tracking-widest">playbook tree</span>
+            <span class="text-text-dim">.converge/</span>
+          </div>
+          <pre class="text-text whitespace-pre overflow-x-auto"><code><span class="text-indigo">.converge/playbooks/</span>
+<span class="text-text-dim">└─</span> <span class="text-indigo">my-api/</span>
+   <span class="text-text-dim">├─</span> <span class="text-cyan">playbook.yml</span>
+   <span class="text-text-dim">└─</span> <span class="text-indigo">tasks/</span>
+      <span class="text-text-dim">├─</span> <span class="text-indigo">schema/</span>
+      <span class="text-text-dim">│  └─</span> <span class="text-text-muted">TASK.md</span>
+      <span class="text-text-dim">├─</span> <span class="text-indigo bg-violet/10 px-1 rounded">routes/</span>
+      <span class="text-text-dim">│  ├─</span> <span class="text-text-muted">TASK.md</span>
+      <span class="text-text-dim">│  └─</span> <span class="text-violet">wbs.js</span>  <span class="text-violet">◂ spawns at runtime</span>
+      <span class="text-text-dim">│     └─</span> <span class="text-indigo">children/</span>
+      <span class="text-text-dim">│        ├─</span> <span class="text-text-muted">GET-/users-:id/</span>
+      <span class="text-text-dim">│        │  └─</span> <span class="text-text-muted">TASK.md</span>
+      <span class="text-text-dim">│        └─</span> <span class="text-text-muted">POST-/users/</span>
+      <span class="text-text-dim">│           └─</span> <span class="text-text-muted">TASK.md</span>
+      <span class="text-text-dim">└─</span> <span class="text-indigo">tests/</span>
+         <span class="text-text-dim">└─</span> <span class="text-text-muted">TASK.md</span></code></pre>
+        </div>
+
+        <!-- Right pane: journal -->
+        <div class="p-5 font-mono text-sm leading-relaxed bg-bgElev/20 relative overflow-hidden">
+          <!-- Watermark: scattered dots converging (cohesion with hero) -->
+          <svg
+            class="absolute inset-0 w-full h-full opacity-[0.06] pointer-events-none"
+            viewBox="0 0 400 400"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <circle cx="200" cy="200" r="60" fill="none" stroke="#6366F1" stroke-width="1"/>
+            <circle cx="200" cy="200" r="100" fill="none" stroke="#6366F1" stroke-width="1"/>
+            <path d="M 30 60   Q 130 100 200 200" stroke="#22D3EE" stroke-width="1" fill="none"/>
+            <path d="M 370 50  Q 280 120 200 200" stroke="#A78BFA" stroke-width="1" fill="none"/>
+            <path d="M 50 360  Q 140 280 200 200" stroke="#22D3EE" stroke-width="1" fill="none"/>
+            <path d="M 360 360 Q 280 280 200 200" stroke="#A78BFA" stroke-width="1" fill="none"/>
+          </svg>
+
+          <div class="flex items-center justify-between mb-3 text-xs relative">
+            <span class="text-text-dim uppercase tracking-widest">journal/</span>
+            <span class="flex items-center gap-1.5 text-emerald-400">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              live
+            </span>
+          </div>
+
+          <ol class="space-y-1 relative journal-feed text-[13px]">
+            <li class="journal-line journal-line-1 flex gap-3">
+              <span class="text-rose-400 shrink-0 w-20 font-semibold">[W1 RED]</span>
+              <span class="text-text">4 gaps detected</span>
+            </li>
+            <li class="journal-line journal-line-2 flex gap-3">
+              <span class="text-amber-400 shrink-0 w-20 font-semibold">[W1 YEL]</span>
+              <span class="text-text">plan: <span class="text-text-muted">+3 tasks</span></span>
+            </li>
+            <li class="journal-line journal-line-3 flex gap-3">
+              <span class="text-emerald-400 shrink-0 w-20 font-semibold">[W1 GRN]</span>
+              <span class="text-violet shrink-0">▸</span>
+              <span class="text-text">T-001 schema</span>
+            </li>
+            <li class="journal-line journal-line-4 flex gap-3">
+              <span class="text-text-dim shrink-0 w-20">[00:08]</span>
+              <span class="text-cyan shrink-0">✓</span>
+              <span class="text-text">check passed</span>
+            </li>
+            <li class="journal-line journal-line-5 flex gap-3">
+              <span class="text-text-dim shrink-0 w-20">[00:08]</span>
+              <span class="text-cyan shrink-0">◆</span>
+              <span class="text-text-muted">checkpoint <span class="text-text-dim">→ journal/T-001/attempts/1</span></span>
+            </li>
+            <li class="journal-line journal-line-6 flex gap-3">
+              <span class="text-emerald-400 shrink-0 w-20 font-semibold">[W1 GRN]</span>
+              <span class="text-violet shrink-0">▸</span>
+              <span class="text-text">T-002 routes</span>
+            </li>
+            <li class="journal-line journal-line-7 flex gap-3">
+              <span class="text-text-dim shrink-0 w-20">[00:12]</span>
+              <span class="text-rose-400 shrink-0">✗</span>
+              <span class="text-rose-400">check failed</span>
+            </li>
+            <li class="journal-line journal-line-8 flex gap-3">
+              <span class="text-text-dim shrink-0 w-20">[00:12]</span>
+              <span class="text-cyan shrink-0">→</span>
+              <span class="text-cyan">strategy: <span class="font-semibold">missing-input</span></span>
+            </li>
+            <li class="journal-line journal-line-9 flex gap-3">
+              <span class="text-text-dim shrink-0 w-20">[00:34]</span>
+              <span class="text-cyan shrink-0">✓</span>
+              <span class="text-text">retry passed</span>
+            </li>
+            <li class="journal-line journal-line-10 flex gap-3">
+              <span class="text-text-dim shrink-0 w-20">[00:34]</span>
+              <span class="text-cyan shrink-0">◆</span>
+              <span class="text-text-muted">checkpoint <span class="text-text-dim">→ journal/T-002/attempts/2</span></span>
+            </li>
+            <li class="journal-line journal-line-kill flex gap-3 text-rose-400 font-medium">
+              <span class="shrink-0 w-20">^C</span>
+              <span class="shrink-0">✕</span>
+              <span>process killed</span>
+            </li>
+            <li class="journal-line journal-line-resume flex gap-3 text-emerald-400">
+              <span class="text-text-dim shrink-0 w-20">[00:48]</span>
+              <span class="shrink-0">↻</span>
+              <span>resume from W1 <span class="text-text-dim">— journal intact</span></span>
+            </li>
+            <li class="journal-line journal-line-w2-red flex gap-3">
+              <span class="text-rose-400 shrink-0 w-20 font-semibold">[W2 RED]</span>
+              <span class="text-text">1 gap <span class="text-text-dim">(LEARN.md hint)</span></span>
+            </li>
+            <li class="journal-line journal-line-w2-yel flex gap-3">
+              <span class="text-amber-400 shrink-0 w-20 font-semibold">[W2 YEL]</span>
+              <span class="text-text">plan: <span class="text-text-muted">+1 buggy-check</span></span>
+            </li>
+            <li class="journal-line journal-line-w2-grn flex gap-3">
+              <span class="text-emerald-400 shrink-0 w-20 font-semibold">[W2 GRN]</span>
+              <span class="text-cyan shrink-0">✓</span>
+              <span class="text-text font-semibold">converged</span>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Caption rail -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 px-5 py-4 border-t border-border text-xs font-mono uppercase tracking-widest">
+        <div class="flex items-center gap-2 text-text-muted">
+          <span class="w-1.5 h-1.5 rounded-full bg-cyan"></span>
+          journal on disk
+        </div>
+        <div class="flex items-center gap-2 text-text-muted">
+          <span class="w-1.5 h-1.5 rounded-full bg-violet"></span>
+          repair strategies first, agent second
+        </div>
+        <div class="flex items-center gap-2 text-text-muted">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          resumes after kill
+        </div>
+      </div>
+    </div>
+  </Container>
+</Section>
+
+<style>
+  .journal-feed .journal-line {
+    opacity: 0;
+    transform: translateY(4px);
+    animation: journal-in 0.35s ease-out forwards;
+  }
+  .journal-line-1        { animation-delay: 0.20s; }
+  .journal-line-2        { animation-delay: 0.55s; }
+  .journal-line-3        { animation-delay: 0.85s; }
+  .journal-line-4        { animation-delay: 1.20s; }
+  .journal-line-5        { animation-delay: 1.45s; }
+  .journal-line-6        { animation-delay: 1.80s; }
+  .journal-line-7        { animation-delay: 2.20s; }
+  .journal-line-8        { animation-delay: 2.55s; }
+  .journal-line-9        { animation-delay: 3.05s; }
+  .journal-line-10       { animation-delay: 3.30s; }
+  .journal-line-kill     { animation-delay: 3.85s; }
+  .journal-line-resume   { animation-delay: 4.45s; }
+  .journal-line-w2-red   { animation-delay: 4.95s; }
+  .journal-line-w2-yel   { animation-delay: 5.30s; }
+  .journal-line-w2-grn   { animation-delay: 5.75s; }
+
+  @keyframes journal-in {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .journal-feed .journal-line {
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
+  }
+</style>

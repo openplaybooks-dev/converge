@@ -1,0 +1,116 @@
+{
+  "meta": {
+    "mode": "frames",
+    "char_id": "hero-knight",
+    "state": "idle",
+    "frame_count": 24,
+    "frame_size": {
+      "w": 384,
+      "h": 512
+    },
+    "frame_order": "left-to-right, top-to-bottom",
+    "frames_dir": "assets/characters/hero-knight/videos/idle/frames",
+    "frameRate": 24,
+    "yoyo": true,
+    "seed": "373313235",
+    "source": "video"
+  },
+  "frames": [
+    {
+      "filename": "idle_000.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_000.png"
+    },
+    {
+      "filename": "idle_001.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_001.png"
+    },
+    {
+      "filename": "idle_002.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_002.png"
+    },
+    {
+      "filename": "idle_003.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_003.png"
+    },
+    {
+      "filename": "idle_004.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_004.png"
+    },
+    {
+      "filename": "idle_005.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_005.png"
+    },
+    {
+      "filename": "idle_006.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_006.png"
+    },
+    {
+      "filename": "idle_007.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_007.png"
+    },
+    {
+      "filename": "idle_008.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_008.png"
+    },
+    {
+      "filename": "idle_009.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_009.png"
+    },
+    {
+      "filename": "idle_010.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_010.png"
+    },
+    {
+      "filename": "idle_011.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_011.png"
+    },
+    {
+      "filename": "idle_012.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_012.png"
+    },
+    {
+      "filename": "idle_013.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_013.png"
+    },
+    {
+      "filename": "idle_014.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_014.png"
+    },
+    {
+      "filename": "idle_015.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_015.png"
+    },
+    {
+      "filename": "idle_016.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_016.png"
+    },
+    {
+      "filename": "idle_017.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_017.png"
+    },
+    {
+      "filename": "idle_018.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_018.png"
+    },
+    {
+      "filename": "idle_019.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_019.png"
+    },
+    {
+      "filename": "idle_020.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_020.png"
+    },
+    {
+      "filename": "idle_021.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_021.png"
+    },
+    {
+      "filename": "idle_022.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_022.png"
+    },
+    {
+      "filename": "idle_023.png",
+      "path": "assets/characters/hero-knight/videos/idle/frames/idle_023.png"
+    }
+  ]
+}

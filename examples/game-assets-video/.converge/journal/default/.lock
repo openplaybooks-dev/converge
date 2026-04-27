@@ -1,0 +1,5 @@
+{
+  "pid": 15641,
+  "startedAt": "2026-04-27T15:44:41.502Z",
+  "command": "/Users/minh/Documents/converge/packages/cli/dist/index.js .converge/playbooks/default/playbook.yml run --max-iterations 250"
+}

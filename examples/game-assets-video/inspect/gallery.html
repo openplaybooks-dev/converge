@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asset Gallery — game-assets</title>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      background: #0d1117;
+      color: #c9d1d9;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+    header {
+      padding: 0.75rem 1rem;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    header h1 { font-size: 0.95rem; font-weight: 600; }
+    header .summary { color: #7d8590; font-size: 0.8rem; }
+    header .links { margin-left: auto; }
+    header .links a {
+      color: #58a6ff;
+      text-decoration: none;
+      font-size: 0.85rem;
+      margin-left: 1rem;
+    }
+    header .links a:hover { text-decoration: underline; }
+    main {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      overflow: hidden;
+    }
+    aside {
+      background: #0d1117;
+      border-right: 1px solid #30363d;
+      overflow-y: auto;
+    }
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #30363d;
+    }
+    .tab {
+      flex: 1;
+      padding: 0.6rem 0.4rem;
+      background: transparent;
+      color: #7d8590;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.75rem;
+      border-bottom: 2px solid transparent;
+    }
+    .tab:hover { color: #c9d1d9; }
+    .tab.active {
+      color: #58a6ff;
+      border-bottom-color: #58a6ff;
+    }
+    .slice-list { padding: 0.5rem 0; }
+    .slice {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      border-left: 2px solid transparent;
+      font-size: 0.85rem;
+    }
+    .slice:hover { background: #161b22; }
+    .slice.active {
+      background: #161b22;
+      border-left-color: #58a6ff;
+    }
+    .slice .title { color: #c9d1d9; }
+    .slice .sub { color: #7d8590; font-size: 0.75rem; margin-top: 0.15rem; }
+    .empty {
+      padding: 1.5rem 1rem;
+      color: #7d8590;
+      font-size: 0.8rem;
+      line-height: 1.5;
+    }
+    .empty code {
+      display: block;
+      background: #161b22;
+      padding: 0.4rem 0.6rem;
+      border-radius: 4px;
+      margin-top: 0.5rem;
+      color: #c9d1d9;
+      font-size: 0.75rem;
+    }
+    section.viewer {
+      display: grid;
+      grid-template-rows: 1fr auto;
+      overflow: hidden;
+    }
+    #phaser-canvas {
+      background: #161b22 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="10" height="10" fill="%231a2030"/><rect x="10" y="10" width="10" height="10" fill="%231a2030"/></svg>');
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+    }
+    .info-panel {
+      padding: 0.75rem 1rem;
+      background: #161b22;
+      border-top: 1px solid #30363d;
+      font-size: 0.8rem;
+      max-height: 40vh;
+      overflow-y: auto;
+    }
+    .info-panel .row { display: flex; gap: 1rem; margin-bottom: 0.3rem; }
+    .info-panel .key { color: #7d8590; min-width: 110px; }
+    .info-panel .val { color: #c9d1d9; word-break: break-all; }
+    .info-panel pre {
+      background: #0d1117;
+      padding: 0.5rem;
+      border-radius: 4px;
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎨 Asset Gallery</h1>
+    <span class="summary" id="summary">loading…</span>
+    <span class="links">
+      <a href="scenes.html">🏞️ Scenes</a>
+      <a href="play.html">▶ Play prototype</a>
+      <a href="#" id="reload">↻ Reload atlas</a>
+    </span>
+  </header>
+
+  <main>
+    <aside>
+      <div class="tabs" id="tabs">
+        <button class="tab" data-cat="characters">Characters</button>
+        <button class="tab" data-cat="objects">Props</button>
+        <button class="tab" data-cat="tile_maps">Tile Maps</button>
+        <button class="tab" data-cat="backgrounds">Backgrounds</button>
+        <button class="tab" data-cat="scenes">Scenes</button>
+      </div>
+      <div class="slice-list" id="slice-list"></div>
+    </aside>
+
+    <section class="viewer">
+      <div id="phaser-canvas"></div>
+      <div class="info-panel" id="info-panel">
+        <div class="empty">Select a slice from the left to inspect it.</div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { loadAtlas, slicesByCategory, isAnimated, summarizeAtlas, CATEGORIES } from './lib/atlas-loader.js';
+    import { loadAtlasAssets, registerAnimations, sheetKey, animKey } from './lib/animations.js';
+
+    const ROOT = '..'; // page is at inspect/gallery.html, project root is ..
+
+    let atlas = null;
+    let activeCategory = 'characters';
+    let activeSlice = null;
+    let phaserGame = null;
+    let activeSprite = null;
+    let gridGraphics = null;
+
+    async function bootstrap() {
+      atlas = await loadAtlas(ROOT);
+      document.getElementById('summary').textContent =
+        `${atlas._source === 'walker' ? '⚠ no master atlas — walking per-sheet' : '✓ master atlas'} · ${summarizeAtlas(atlas)}`;
+      buildPhaser();
+    }
+
+    function buildPhaser() {
+      if (phaserGame) phaserGame.destroy(true);
+
+      const canvasParent = document.getElementById('phaser-canvas');
+      const config = {
+        type: Phaser.AUTO,
+        parent: 'phaser-canvas',
+        backgroundColor: '#0000',
+        transparent: true,
+        scale: {
+          mode: Phaser.Scale.NONE,
+          width: 600,
+          height: 600,
+        },
+        pixelArt: true,
+        scene: {
+          preload() { loadAtlasAssets(this, atlas, ROOT); },
+          create() {
+            // Yoyo on for the gallery: smooths loop seams for visual validation.
+            registerAnimations(this, atlas, 8, { yoyo: true });
+            this.scene.scene.events.on('select-slice', payload => showSlice(this, payload));
+            // Render whatever was selected before scene was ready (race).
+            if (activeSlice) showSlice(this, activeSlice);
+          },
+        },
+      };
+      phaserGame = new Phaser.Game(config);
+      // Surface scene events on the global game so the HTML can poke them.
+      phaserGame.events.on('ready', () => {
+        const scene = phaserGame.scene.scenes[0];
+        scene.events.on('select-slice', payload => showSlice(scene, payload));
+      });
+
+      renderTabs();
+      renderSliceList();
+    }
+
+    function showSlice(scene, slice) {
+      activeSlice = slice;
+      if (activeSprite) { activeSprite.destroy(); activeSprite = null; }
+      if (gridGraphics) { gridGraphics.destroy(); gridGraphics = null; }
+
+      const enriched = { ...slice, category: slice.category || activeCategory };
+      const key = sheetKey(enriched);
+      const cam = scene.cameras.main;
+      const cx = cam.width / 2;
+      const cy = cam.height / 2;
+      const mode = slice.mode || slice.meta?.mode || 'sheet';
+
+      // Tile maps + backgrounds: render whole sheet, scaled to fit canvas.
+      // Scenes: bg-* and tilesheet are full-sheet; prop/* is animated.
+      const cat = enriched.category;
+      const isFullSheetScene = cat === 'scenes' && (
+        slice.asset_id.includes('/bg-') || slice.asset_id.endsWith('/tilesheet')
+      );
+      if (cat === 'tile_maps' || cat === 'backgrounds' || isFullSheetScene) {
+        const img = scene.add.image(cx, cy, key);
+        const scale = Math.min(cam.width / img.width, cam.height / img.height) * 0.9;
+        img.setScale(scale);
+        activeSprite = img;
+        if (cat === 'tile_maps' || (isFullSheetScene && slice.asset_id.endsWith('/tilesheet'))) {
+          drawTileGrid(scene, img, slice);
+        }
+      } else if (isAnimated(slice)) {
+        // Frames-mode loads each frame under `${key}:<i>`; sheet-mode uses
+        // the bare `key`. Either way the anim system plays them via animKey.
+        const initialKey = mode === 'frames' ? `${key}:0` : key;
+        const sprite = scene.add.sprite(cx, cy, initialKey);
+        const fw = slice.meta?.frame_size?.w ?? 128;
+        const fitScale = Math.min(cam.width / fw, cam.height / fw) * 0.4;
+        sprite.setScale(Math.max(1, fitScale));
+        sprite.play(animKey(enriched));
+        activeSprite = sprite;
+      } else {
+        const img = scene.add.image(cx, cy, key);
+        const scale = Math.min(cam.width / img.width, cam.height / img.height) * 0.6;
+        img.setScale(scale);
+        activeSprite = img;
+      }
+
+      renderInfoPanel(slice);
+    }
+
+    function drawTileGrid(scene, img, slice) {
+      const meta = slice.meta || {};
+      const rows = meta.rows ?? 4;
+      const cols = meta.cols ?? 4;
+      const sw = meta.sheet_size?.w ?? img.width;
+      const sh = meta.sheet_size?.h ?? img.height;
+      const cellW = sw / cols * img.scaleX;
+      const cellH = sh / rows * img.scaleY;
+      const x0 = img.x - (img.displayWidth / 2);
+      const y0 = img.y - (img.displayHeight / 2);
+
+      const g = scene.add.graphics();
+      g.lineStyle(1, 0x58a6ff, 0.5);
+      for (let r = 0; r <= rows; r++) {
+        const y = y0 + r * cellH;
+        g.beginPath(); g.moveTo(x0, y); g.lineTo(x0 + img.displayWidth, y); g.strokePath();
+      }
+      for (let c = 0; c <= cols; c++) {
+        const x = x0 + c * cellW;
+        g.beginPath(); g.moveTo(x, y0); g.lineTo(x, y0 + img.displayHeight); g.strokePath();
+      }
+      gridGraphics = g;
+    }
+
+    function renderTabs() {
+      document.querySelectorAll('.tab').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.cat === activeCategory);
+        btn.onclick = () => {
+          activeCategory = btn.dataset.cat;
+          renderTabs();
+          renderSliceList();
+        };
+      });
+    }
+
+    function renderSliceList() {
+      const list = document.getElementById('slice-list');
+      const slices = slicesByCategory(atlas, activeCategory);
+      if (!slices.length) {
+        list.innerHTML = `<div class="empty">
+          No <strong>${activeCategory}</strong> generated yet.
+          <code>cd examples/game-assets &amp;&amp; converge run</code>
+          (or set <code>vars.stop_after: sprites</code> in playbook.yml to generate this category)
+        </div>`;
+        return;
+      }
+      list.innerHTML = '';
+      for (const slice of slices) {
+        const div = document.createElement('div');
+        div.className = 'slice';
+        if (activeSlice && activeSlice.asset_id === slice.asset_id && activeSlice.state === slice.state) {
+          div.classList.add('active');
+        }
+        const stateLine = slice.state ? slice.state : '(single)';
+        const fc = slice.meta?.frame_count ?? '?';
+        div.innerHTML = `
+          <div class="title">${escapeHtml(slice.asset_id)}</div>
+          <div class="sub">${escapeHtml(stateLine)} · ${fc} frame${fc === 1 ? '' : 's'}</div>
+        `;
+        div.onclick = () => {
+          const enriched = { ...slice, category: activeCategory };
+          activeSlice = enriched;
+          renderSliceList();
+          const scene = phaserGame.scene.scenes[0];
+          if (scene && scene.scene.isActive()) showSlice(scene, enriched);
+        };
+        list.appendChild(div);
+      }
+    }
+
+    function renderInfoPanel(slice) {
+      const meta = slice.meta || {};
+      const mode = slice.mode || meta.mode || 'sheet';
+      const rows = [
+        ['asset_id', slice.asset_id],
+        ['state', slice.state || '(single)'],
+        ['category', slice.category || activeCategory],
+        ['mode', mode],
+        ...(mode === 'frames'
+          ? [['frames_dir', slice.frames_dir || '—']]
+          : [
+              ['sheet_path', slice.sheet_path || '—'],
+              ['sheet_size', fmtSize(meta.sheet_size)],
+              ['rows × cols', meta.rows && meta.cols ? `${meta.rows} × ${meta.cols}` : '—'],
+            ]),
+        ['atlas_path', slice.atlas_path],
+        ['frame_count', meta.frame_count ?? slice.frames?.length ?? '?'],
+        ['frame_size', fmtSize(meta.frame_size)],
+        ['seed', meta.seed ?? '—'],
+      ];
+      const html = rows.map(([k, v]) =>
+        `<div class="row"><span class="key">${k}</span><span class="val">${escapeHtml(String(v))}</span></div>`
+      ).join('');
+      document.getElementById('info-panel').innerHTML = html
+        + `<pre>${escapeHtml(JSON.stringify(meta, null, 2))}</pre>`;
+    }
+
+    function fmtSize(s) {
+      if (!s) return '—';
+      return `${s.w} × ${s.h}`;
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+      ));
+    }
+
+    document.getElementById('reload').onclick = e => {
+      e.preventDefault();
+      bootstrap();
+    };
+
+    bootstrap();
+  </script>
+</body>
+</html>

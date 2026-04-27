@@ -19,6 +19,34 @@ const features = [
   { label: 'Provider lock-in',    langGraph: 'Graph-specific',          converge: 'Multi-provider'   },
   { label: 'Review surface',      langGraph: 'Code + execution trace',  converge: 'Spec + check output' },
 ];
+
+const langGraphCode = `from langgraph.graph import StateGraph, END
+
+class State(TypedDict):
+    input: str
+    result: str
+
+def nodes(state):
+    return {"result": process(state["input"])}
+
+graph = StateGraph(State)
+graph.add_node("process", nodes)
+graph.set_entry_point("process")
+graph.add_edge("process", END)
+
+app = graph.compile()
+result = app.invoke({"input": "hello"})`;
+
+const convergeCode = `title: Process input
+
+steps:
+  - id: process
+    fn: process-message
+    input: "{ { ctx.input } }"
+
+checks:
+  - id: result-valid
+    cmd: "test -n \\"$RESULT\\""`;
 ---
 
 <Section id="comparison" padY="lg" bg="default">
@@ -43,42 +71,14 @@ const features = [
       </div>
 
       <div class="tab-content mt-6" id="tab-langgraph">
-        <CodeBlock language="python" filename="workflow.py">
-{`from langgraph.graph import StateGraph, END
-
-class State(TypedDict):
-    input: str
-    result: str
-
-def nodes(state):
-    return {"result": process(state["input"])}
-
-graph = StateGraph(State)
-graph.add_node("process", nodes)
-graph.set_entry_point("process")
-graph.add_edge("process", END)
-
-app = graph.compile()
-result = app.invoke({"input": "hello"})`}
-        </CodeBlock>
+        <CodeBlock language="python" filename="workflow.py" code={langGraphCode} />
         <p class="text-sm text-text-muted mt-3 text-center">
           You define the graph. You manage retries. You verify the output.
         </p>
       </div>
 
       <div class="tab-content hidden mt-6" id="tab-converge">
-        <CodeBlock language="yaml" filename="TASK.md">
-{`title: Process input
-
-steps:
-  - id: process
-    fn: process-message
-    input: "{ { ctx.input } }"
-
-checks:
-  - id: result-valid
-    cmd: "test -n \"$RESULT\""`}
-        </CodeBlock>
+        <CodeBlock language="yaml" filename="TASK.md" code={convergeCode} />
         <p class="text-sm text-text-muted mt-3 text-center">
           You define done. Converge handles the how.
         </p>

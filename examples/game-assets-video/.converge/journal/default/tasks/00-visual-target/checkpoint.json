@@ -1,0 +1,14 @@
+{
+  "type": "task",
+  "id": "00-visual-target",
+  "status": "running",
+  "lastUpdated": "2026-04-27T15:44:41.704Z",
+  "createdAt": "2026-04-27T15:44:41.701Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T15:44:41.701Z"
+    }
+  ],
+  "currentAttempt": 1
+}

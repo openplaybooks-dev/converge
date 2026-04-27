@@ -2,26 +2,26 @@
   "type": "task",
   "id": "04-drop-mc-only",
   "status": "complete",
-  "lastUpdated": "2026-04-26T23:06:29.909Z",
+  "lastUpdated": "2026-04-27T15:07:28.902Z",
   "createdAt": "2026-04-26T23:04:30.619Z",
   "progress": {
     "totalChildren": 12,
     "completedChildren": 12,
     "failedChildren": 0,
-    "childIds": [
+    "childTaskIds": [
+      "001-drop-domain-components",
       "001-drop-domain-components",
       "002-drop-domain-panels",
+      "002-drop-domain-panels",
+      "003-drop-domain-libs",
       "003-drop-domain-libs",
       "004-drop-domain-api",
+      "004-drop-domain-api",
+      "005-drop-domain-pages",
       "005-drop-domain-pages",
       "006-strip-mc-strings",
-      "001-drop-domain-components",
-      "002-drop-domain-panels",
-      "003-drop-domain-libs",
-      "004-drop-domain-api",
-      "005-drop-domain-pages",
       "006-strip-mc-strings"
     ],
-    "lastProgressUpdate": "2026-04-26T23:04:30.619Z"
+    "lastProgressUpdate": "2026-04-27T15:07:28.899Z"
   }
 }

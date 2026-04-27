@@ -2,22 +2,22 @@
   "type": "task",
   "id": "05-finalize",
   "status": "complete",
-  "lastUpdated": "2026-04-26T23:06:29.909Z",
+  "lastUpdated": "2026-04-27T15:07:28.902Z",
   "createdAt": "2026-04-26T23:04:30.619Z",
   "progress": {
     "totalChildren": 8,
     "completedChildren": 8,
     "failedChildren": 0,
-    "childIds": [
+    "childTaskIds": [
+      "001-root-redirect",
       "001-root-redirect",
       "002-layout-imports-globals",
+      "002-layout-imports-globals",
+      "003-next-config-workspace",
       "003-next-config-workspace",
       "004-fix-broken-imports",
-      "001-root-redirect",
-      "002-layout-imports-globals",
-      "003-next-config-workspace",
       "004-fix-broken-imports"
     ],
-    "lastProgressUpdate": "2026-04-26T23:04:30.619Z"
+    "lastProgressUpdate": "2026-04-27T15:07:28.899Z"
   }
 }

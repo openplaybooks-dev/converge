@@ -1,0 +1,398 @@
+---
+import Section from '../layout/Section.astro';
+import Container from '../layout/Container.astro';
+---
+
+<Section id="architecture" padY="lg" bg="default">
+  <Container>
+    <div class="text-center mb-16">
+      <p class="text-sm font-medium tracking-widest text-indigo uppercase mb-4">How it stays on goal</p>
+      <h2 class="text-3xl sm:text-4xl font-bold text-text mb-4">The two-loop model</h2>
+      <p class="text-lg text-text-muted max-w-3xl mx-auto">
+        A playbook is a tree of <code class="font-mono text-text">TASK.md</code> files. The outer <strong class="text-text">Wave Loop</strong> plans which tasks to run; the inner <strong class="text-text">Self-Correction Loop</strong> runs each task until its checks pass — or routes failures through repair strategies before retrying.
+      </p>
+    </div>
+
+    <!-- ============== SUBSECTION 1: OUTER · PLAYBOOK WAVE LOOP ============== -->
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-12 items-center mb-20">
+      <div class="lg:col-span-2 lg:order-2">
+        <p class="text-xs font-mono uppercase tracking-widest text-cyan mb-3">Step 1 · Outer loop</p>
+        <h3 class="text-2xl font-bold text-text mb-3">Playbook Wave Loop</h3>
+        <p class="text-text-muted leading-relaxed mb-4">
+          A wave is a full pass over the task tree. <strong class="text-text">RED</strong> walks every task and runs its checks to find gaps. <strong class="text-text">YELLOW</strong> sends those gaps to a planning agent that writes new <code class="font-mono text-text">TASK.md</code> files to close them. <strong class="text-text">GREEN</strong> dispatches each task to the inner loop.
+        </p>
+        <p class="text-text-muted leading-relaxed">
+          If the wave ends with gaps remaining, the loop runs another wave. The playbook converges when a wave detects zero gaps — or fails if it stalls for three waves with no progress.
+        </p>
+      </div>
+      <div class="lg:col-span-3 lg:order-1 arch-art arch-wave relative">
+        <p class="text-xs font-mono uppercase tracking-widest text-text-dim mb-3 text-center">Outer · Playbook Wave Loop</p>
+        <div class="relative w-full aspect-square max-w-[460px] mx-auto">
+          <svg
+            viewBox="0 0 460 460"
+            xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-labelledby="arch-wave-title arch-wave-desc"
+            class="w-full h-full"
+          >
+            <title id="arch-wave-title">Playbook wave loop: detect gaps, plan tasks, execute the tree</title>
+            <desc id="arch-wave-desc">
+              Three phases — RED detect gaps, YELLOW plan tasks, GREEN execute tree — connected
+              clockwise. A return arrow loops back to RED labelled "gaps remain → next wave."
+              A bridge arrow exits right from GREEN labelled "for each task →".
+            </desc>
+
+            <defs>
+              <radialGradient id="arch-wave-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#6366F1" stop-opacity="0.30"/>
+                <stop offset="55%" stop-color="#6366F1" stop-opacity="0.06"/>
+                <stop offset="100%" stop-color="#6366F1" stop-opacity="0"/>
+              </radialGradient>
+              <linearGradient id="arch-wave-loop" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%"   stop-color="#22D3EE" stop-opacity="0.7"/>
+                <stop offset="100%" stop-color="#6366F1" stop-opacity="0.95"/>
+              </linearGradient>
+              <pattern id="arch-wave-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1E293B" stroke-width="1" opacity="0.6"/>
+              </pattern>
+              <marker id="arch-wave-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#6366F1" opacity="0.9"/>
+              </marker>
+              <marker id="arch-wave-arrow-bridge" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#22D3EE" opacity="0.95"/>
+              </marker>
+            </defs>
+
+            <rect x="0" y="0" width="460" height="460" fill="url(#arch-wave-grid)" rx="24"/>
+            <circle cx="230" cy="230" r="210" fill="url(#arch-wave-glow)"/>
+
+            <!-- Three nodes: RED top, YELLOW lower-right, GREEN lower-left -->
+            <!-- Loop arrows clockwise: RED → YELLOW, YELLOW → GREEN, GREEN → RED -->
+            <g fill="none" stroke="url(#arch-wave-loop)" stroke-width="2" stroke-linecap="round" marker-end="url(#arch-wave-arrow)">
+              <path class="arch-arc arch-wave-arc-1" d="M 280 100 Q 360 160 348 270"/>
+              <path class="arch-arc arch-wave-arc-2" d="M 318 320 Q 230 380 142 320"/>
+              <path class="arch-arc arch-wave-arc-3" d="M 112 270 Q 100 160 180 100"/>
+            </g>
+
+            <!-- Return-arrow callout label (mid-loop, top-left curve) -->
+            <text x="60" y="195" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#94A3B8" letter-spacing="0.06em">
+              gaps remain
+            </text>
+            <text x="60" y="208" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#94A3B8" letter-spacing="0.06em">
+              → next wave
+            </text>
+
+            <!-- Bridge arrow exiting right (from GREEN node toward inner loop) -->
+            <g class="arch-bridge">
+              <path d="M 175 360 Q 220 410 380 410 L 430 410"
+                    fill="none" stroke="#22D3EE" stroke-width="1.75" stroke-dasharray="4 4"
+                    stroke-linecap="round" marker-end="url(#arch-wave-arrow-bridge)"/>
+              <text x="250" y="430" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#22D3EE" letter-spacing="0.08em">
+                for each task →
+              </text>
+            </g>
+
+            <!-- RED node (top) -->
+            <g class="arch-node arch-node-1">
+              <circle cx="230" cy="80" r="34" fill="#0F172A" stroke="#F43F5E" stroke-width="1.75"/>
+              <text x="230" y="74" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#FB7185" letter-spacing="0.18em" font-weight="600">RED</text>
+              <text x="230" y="90" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="600" fill="#F8FAFC">detect gaps</text>
+              <text x="230" y="35" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#94A3B8">walks task tree, runs all checks</text>
+            </g>
+
+            <!-- YELLOW node (lower-right) -->
+            <g class="arch-node arch-node-2">
+              <circle cx="333" cy="295" r="34" fill="#0F172A" stroke="#F59E0B" stroke-width="1.75"/>
+              <text x="333" y="289" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#FBBF24" letter-spacing="0.18em" font-weight="600">YEL</text>
+              <text x="333" y="305" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="600" fill="#F8FAFC">plan tasks</text>
+              <text x="333" y="350" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#94A3B8">agent writes new TASK.md</text>
+            </g>
+
+            <!-- GREEN node (lower-left) -->
+            <g class="arch-node arch-node-3">
+              <circle cx="127" cy="295" r="34" fill="#0F172A" stroke="#10B981" stroke-width="1.75"/>
+              <text x="127" y="289" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#34D399" letter-spacing="0.18em" font-weight="600">GRN</text>
+              <text x="127" y="305" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="600" fill="#F8FAFC">execute tree</text>
+              <text x="127" y="350" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#94A3B8">dispatches each task</text>
+            </g>
+          </svg>
+        </div>
+        <p class="text-center text-xs font-mono text-text-dim mt-4 tracking-widest">
+          0 GAPS → CONVERGED <span class="mx-2 text-text-dim/50">·</span> STALLED 3 WAVES → FAIL
+        </p>
+      </div>
+    </div>
+
+    <!-- ============== SUBSECTION 2: INNER · TASK SELF-CORRECTION LOOP ============== -->
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-12 items-center mb-20">
+      <div class="lg:col-span-2">
+        <p class="text-xs font-mono uppercase tracking-widest text-violet mb-3">Step 2 · Inner loop</p>
+        <h3 class="text-2xl font-bold text-text mb-3">Task Self-Correction Loop</h3>
+        <p class="text-text-muted leading-relaxed mb-4">
+          When the wave loop dispatches a task, this loop runs until the task's checks pass. Failed checks become <em>typed gaps</em> — and ~11 named repair strategies get a chance to claim them <strong class="text-text">before</strong> the agent does. A missing-input gap reschedules the producer; a buggy-check gap relaxes the predicate; a tool-env gap surfaces a setup hint.
+        </p>
+        <p class="text-text-muted leading-relaxed">
+          Only when no strategy claims the gap does it fall through to the agent — which retries with <code class="font-mono text-text">LEARN.md</code> in context, the carried-forward analysis from prior attempts. Three consecutive stalls and the task bails up to the wave loop.
+        </p>
+      </div>
+      <div class="lg:col-span-3 arch-art arch-task relative">
+        <p class="text-xs font-mono uppercase tracking-widest text-text-dim mb-3 text-center">Inner · Task Self-Correction Loop</p>
+        <div class="relative w-full aspect-square max-w-[460px] mx-auto">
+          <svg
+            viewBox="0 0 460 460"
+            xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-labelledby="arch-task-title arch-task-desc"
+            class="w-full h-full"
+          >
+            <title id="arch-task-title">Task self-correction loop with LEARN.md at the center</title>
+            <desc id="arch-task-desc">
+              Four phases around a central LEARN.md chip — detect gaps, repair strategies,
+              agent + context, re-run checks. Two distinct failure paths: a cyan arc when a
+              strategy claims the gap (targeted fix), a violet arc when the agent retries.
+              Terminal exits: converged when 0 gaps, bail when stalled three times.
+            </desc>
+
+            <defs>
+              <radialGradient id="arch-task-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#A78BFA" stop-opacity="0.32"/>
+                <stop offset="55%" stop-color="#A78BFA" stop-opacity="0.06"/>
+                <stop offset="100%" stop-color="#A78BFA" stop-opacity="0"/>
+              </radialGradient>
+              <linearGradient id="arch-task-loop" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%"   stop-color="#22D3EE" stop-opacity="0.7"/>
+                <stop offset="100%" stop-color="#A78BFA" stop-opacity="0.95"/>
+              </linearGradient>
+              <radialGradient id="arch-learn" cx="50%" cy="50%" r="50%">
+                <stop offset="0%"  stop-color="#A78BFA"/>
+                <stop offset="60%" stop-color="#7C3AED"/>
+                <stop offset="100%" stop-color="#4C1D95"/>
+              </radialGradient>
+              <pattern id="arch-task-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1E293B" stroke-width="1" opacity="0.6"/>
+              </pattern>
+              <filter id="arch-learn-glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="5" result="b"/>
+                <feMerge>
+                  <feMergeNode in="b"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+              <marker id="arch-task-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#A78BFA" opacity="0.9"/>
+              </marker>
+              <marker id="arch-task-arrow-strategy" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#22D3EE" opacity="0.95"/>
+              </marker>
+              <marker id="arch-task-arrow-bail" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#F43F5E" opacity="0.9"/>
+              </marker>
+            </defs>
+
+            <rect x="0" y="0" width="460" height="460" fill="url(#arch-task-grid)" rx="24"/>
+            <circle cx="230" cy="230" r="210" fill="url(#arch-task-glow)"/>
+
+            <!--
+              Four nodes:
+                top:    detect gaps     (230, 80)
+                right:  repair strats   (380, 230)
+                bottom: agent + context (230, 380)
+                left:   re-run checks   (80, 230)
+              Loop arcs clockwise.
+            -->
+
+            <!-- Main loop arcs (light cyan→violet) -->
+            <g fill="none" stroke="url(#arch-task-loop)" stroke-width="2" stroke-linecap="round" marker-end="url(#arch-task-arrow)">
+              <!-- detect → repair (cyan path: strategy claims gap) -->
+              <path class="arch-arc arch-task-arc-1" d="M 270 95 Q 360 130 372 200"
+                    stroke="url(#arch-task-loop)" marker-end="url(#arch-task-arrow-strategy)"/>
+              <!-- repair → agent (violet: no strategy claims, fall through) -->
+              <path class="arch-arc arch-task-arc-2" d="M 372 260 Q 360 340 270 365"/>
+              <!-- agent → re-run -->
+              <path class="arch-arc arch-task-arc-3" d="M 190 365 Q 100 340 88 260"/>
+              <!-- re-run → detect (loop closes) -->
+              <path class="arch-arc arch-task-arc-4" d="M 88 200 Q 100 130 190 95"/>
+            </g>
+
+            <!-- Failure-path callout: short arc from "repair strategies" bypassing agent, going straight to "re-run checks" -->
+            <path
+              class="arch-bypass"
+              d="M 360 245 C 280 270 180 270 100 245"
+              fill="none"
+              stroke="#22D3EE"
+              stroke-width="1.5"
+              stroke-dasharray="5 4"
+              opacity="0.85"
+              marker-end="url(#arch-task-arrow-strategy)"
+            />
+            <text x="230" y="260" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#22D3EE" letter-spacing="0.06em">
+              strategy claims gap → targeted fix
+            </text>
+
+            <!-- Bail exit (rose) from agent node -->
+            <g class="arch-bail">
+              <path d="M 230 412 L 230 442" fill="none" stroke="#F43F5E" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arch-task-arrow-bail)"/>
+              <text x="230" y="455" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#FB7185" letter-spacing="0.08em">stalled ×3 → bail</text>
+            </g>
+
+            <!-- Converged exit (cyan) from re-run-checks node -->
+            <g class="arch-converged">
+              <path d="M 50 200 L 18 170" fill="none" stroke="#22D3EE" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arch-task-arrow-strategy)"/>
+              <text x="58" y="160" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#22D3EE" letter-spacing="0.08em">0 gaps → ✓</text>
+            </g>
+
+            <!-- Spokes from each node to LEARN.md -->
+            <g stroke="#A78BFA" stroke-width="1" opacity="0.22" stroke-dasharray="2 4">
+              <line x1="230" y1="105" x2="230" y2="200"/>
+              <line x1="355" y1="230" x2="265" y2="230"/>
+              <line x1="230" y1="355" x2="230" y2="260"/>
+              <line x1="105" y1="230" x2="195" y2="230"/>
+            </g>
+
+            <!-- Central LEARN.md chip -->
+            <g filter="url(#arch-learn-glow)">
+              <circle cx="230" cy="230" r="48" fill="none" stroke="#A78BFA" stroke-width="1.5" opacity="0.45"/>
+              <circle cx="230" cy="230" r="34" fill="url(#arch-learn)"/>
+              <text x="230" y="227" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#F8FAFC" letter-spacing="0.10em" font-weight="600">LEARN</text>
+              <text x="230" y="241" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#DDD6FE" letter-spacing="0.16em">.md</text>
+            </g>
+
+            <!-- Nodes -->
+            <!-- detect gaps (top) -->
+            <g class="arch-node arch-task-node-1">
+              <circle cx="230" cy="80" r="28" fill="#0F172A" stroke="#6366F1" stroke-width="1.5"/>
+              <text x="230" y="78" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#94A3B8" letter-spacing="0.12em">01</text>
+              <text x="230" y="91" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="600" fill="#F8FAFC">detect</text>
+              <text x="230" y="42" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#94A3B8">runs check commands</text>
+            </g>
+
+            <!-- repair strategies (right) -->
+            <g class="arch-node arch-task-node-2">
+              <circle cx="380" cy="230" r="28" fill="#0F172A" stroke="#22D3EE" stroke-width="1.5"/>
+              <text x="380" y="228" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#94A3B8" letter-spacing="0.12em">02</text>
+              <text x="380" y="241" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="600" fill="#F8FAFC">repair</text>
+              <text x="430" y="195" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#22D3EE">~11 strategies</text>
+              <text x="430" y="208" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#94A3B8">first wins</text>
+            </g>
+
+            <!-- agent + context (bottom) -->
+            <g class="arch-node arch-task-node-3">
+              <circle cx="230" cy="380" r="28" fill="#0F172A" stroke="#A78BFA" stroke-width="1.5"/>
+              <text x="230" y="378" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#94A3B8" letter-spacing="0.12em">03</text>
+              <text x="230" y="391" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="600" fill="#F8FAFC">agent</text>
+              <text x="230" y="338" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#A78BFA">reads LEARN.md, retries with hints</text>
+            </g>
+
+            <!-- re-run checks (left) -->
+            <g class="arch-node arch-task-node-4">
+              <circle cx="80" cy="230" r="28" fill="#0F172A" stroke="#6366F1" stroke-width="1.5"/>
+              <text x="80" y="228" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" fill="#94A3B8" letter-spacing="0.12em">04</text>
+              <text x="80" y="241" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="600" fill="#F8FAFC">re-run</text>
+            </g>
+          </svg>
+        </div>
+        <p class="text-center text-xs font-mono text-text-dim mt-4 tracking-widest">
+          0 GAPS → CONVERGED <span class="mx-2 text-text-dim/50">·</span> STALLED ×3 → BAIL
+        </p>
+      </div>
+    </div>
+
+    <!-- Primitive list, full-width below the diagrams -->
+    <div class="max-w-3xl mx-auto">
+      <div class="text-center mb-8">
+        <p class="text-xs font-mono uppercase tracking-widest text-indigo mb-2">Primitives</p>
+        <h3 class="text-2xl font-bold text-text">Five things on disk</h3>
+      </div>
+      <ol class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
+        <li class="flex gap-4 items-start">
+          <span class="shrink-0 w-9 h-9 rounded-md bg-indigo/10 border border-indigo/30 text-indigo font-mono text-sm font-semibold flex items-center justify-center">01</span>
+          <div>
+            <h3 class="text-base font-semibold text-text mb-1">Playbook</h3>
+            <p class="text-sm text-text-muted leading-relaxed"><code class="font-mono text-text-muted">playbook.yml</code> + a tree of tasks under <code class="font-mono text-text-muted">.converge/playbooks/&lbrace;name&rbrace;/tasks/</code>.</p>
+          </div>
+        </li>
+        <li class="flex gap-4 items-start">
+          <span class="shrink-0 w-9 h-9 rounded-md bg-indigo/10 border border-indigo/30 text-indigo font-mono text-sm font-semibold flex items-center justify-center">02</span>
+          <div>
+            <h3 class="text-base font-semibold text-text mb-1">Task</h3>
+            <p class="text-sm text-text-muted leading-relaxed">A <code class="font-mono text-text-muted">TASK.md</code> (frontmatter + body). Tasks can nest. Dependencies resolve from disk.</p>
+          </div>
+        </li>
+        <li class="flex gap-4 items-start">
+          <span class="shrink-0 w-9 h-9 rounded-md bg-violet/10 border border-violet/30 text-violet font-mono text-sm font-semibold flex items-center justify-center">03</span>
+          <div>
+            <h3 class="text-base font-semibold text-text mb-1">WBS — dynamic spawn</h3>
+            <p class="text-sm text-text-muted leading-relaxed">A task with <code class="font-mono text-text-muted">wbs.js</code> spawns children at runtime, materialized as real <code class="font-mono text-text-muted">TASK.md</code> files on disk.</p>
+          </div>
+        </li>
+        <li class="flex gap-4 items-start">
+          <span class="shrink-0 w-9 h-9 rounded-md bg-cyan/10 border border-cyan/30 text-cyan font-mono text-sm font-semibold flex items-center justify-center">04</span>
+          <div>
+            <h3 class="text-base font-semibold text-text mb-1">Repair strategies</h3>
+            <p class="text-sm text-text-muted leading-relaxed">Typed failures (missing input, buggy check, dependency, tool env, …) get targeted fixes <em>before</em> the agent gets a turn.</p>
+          </div>
+        </li>
+        <li class="flex gap-4 items-start sm:col-span-2">
+          <span class="shrink-0 w-9 h-9 rounded-md bg-cyan/10 border border-cyan/30 text-cyan font-mono text-sm font-semibold flex items-center justify-center">05</span>
+          <div>
+            <h3 class="text-base font-semibold text-text mb-1">Journal + <code class="font-mono text-text-muted">LEARN.md</code></h3>
+            <p class="text-sm text-text-muted leading-relaxed">Every attempt is a directory on disk. <code class="font-mono text-text-muted">LEARN.md</code> carries lessons forward between attempts so the agent doesn't repeat mistakes.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </Container>
+</Section>
+
+<style>
+  .arch-art .arch-arc {
+    stroke-dasharray: 220;
+    stroke-dashoffset: 220;
+    animation: arch-draw 1.4s ease-out forwards;
+  }
+  .arch-wave-arc-1 { animation-delay: 0.30s; }
+  .arch-wave-arc-2 { animation-delay: 0.65s; }
+  .arch-wave-arc-3 { animation-delay: 1.00s; }
+
+  .arch-task-arc-1 { animation-delay: 0.30s; }
+  .arch-task-arc-2 { animation-delay: 0.60s; }
+  .arch-task-arc-3 { animation-delay: 0.90s; }
+  .arch-task-arc-4 { animation-delay: 1.20s; }
+
+  .arch-bridge path,
+  .arch-bypass,
+  .arch-bail path,
+  .arch-converged path {
+    stroke-dasharray: 280;
+    stroke-dashoffset: 280;
+    animation: arch-draw 1.4s ease-out forwards;
+  }
+  .arch-bridge path     { animation-delay: 1.30s; }
+  .arch-bypass          { animation-delay: 1.55s; }
+  .arch-converged path  { animation-delay: 1.70s; }
+  .arch-bail path       { animation-delay: 1.85s; }
+
+  .arch-art .arch-node {
+    opacity: 0;
+    animation: arch-pop 0.45s ease-out forwards;
+  }
+  .arch-node-1, .arch-task-node-1 { animation-delay: 0.10s; }
+  .arch-node-2, .arch-task-node-2 { animation-delay: 0.40s; }
+  .arch-node-3, .arch-task-node-3 { animation-delay: 0.70s; }
+  .arch-task-node-4               { animation-delay: 1.00s; }
+
+  @keyframes arch-draw { to { stroke-dashoffset: 0; } }
+  @keyframes arch-pop {
+    from { opacity: 0; transform: translateY(2px); }
+    to   { opacity: 1; transform: translateY(0);   }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .arch-art .arch-arc,
+    .arch-bridge path,
+    .arch-bypass,
+    .arch-bail path,
+    .arch-converged path { stroke-dashoffset: 0; animation: none; }
+    .arch-art .arch-node { opacity: 1; animation: none; }
+  }
+</style>

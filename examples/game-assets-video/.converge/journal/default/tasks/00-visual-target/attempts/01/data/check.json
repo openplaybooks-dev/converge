@@ -1,0 +1,20 @@
+{
+  "taskId": "00-visual-target",
+  "checks": [
+    {
+      "id": "visual-target-png-exists",
+      "description": "visual-target.png was generated",
+      "cmd": "test -s assets/visual-target.png"
+    },
+    {
+      "id": "assets-md-has-size-column",
+      "description": "Every ASSETS.md table row has a numeric Size column",
+      "cmd": "python -c \"import re; md=open('ASSETS.md').read(); rows=[l for l in md.splitlines() if l.startswith('|') and '---' not in l]; bad=[l for l in rows[1:] if not re.search(r'\\\\d+\\\\s*[xX×]\\\\s*\\\\d+', l)]; assert not bad, f'rows missing pixel sizes: {bad[:3]}'\"\n"
+    },
+    {
+      "id": "sprites-json-derived",
+      "description": "sprites.json was derived from ASSETS.md",
+      "cmd": "test -s assets/sprites.json"
+    }
+  ]
+}

@@ -2,7 +2,7 @@
   "type": "task",
   "id": "09-concepts",
   "status": "pending",
-  "lastUpdated": "2026-04-26T23:04:30.692Z",
+  "lastUpdated": "2026-04-27T15:07:28.901Z",
   "createdAt": "2026-04-26T08:46:38.641Z",
   "progress": {
     "totalChildren": 12,
@@ -10,18 +10,18 @@
     "failedChildren": 0,
     "childTaskIds": [
       "001-gap-driven-model",
-      "002-filesystem-as-plan",
-      "003-self-correction",
+      "001-gap-driven-model",
+      "001-gap-driven-model",
       "001-gap-driven-model",
       "002-filesystem-as-plan",
-      "003-self-correction",
-      "001-gap-driven-model",
+      "002-filesystem-as-plan",
+      "002-filesystem-as-plan",
       "002-filesystem-as-plan",
       "003-self-correction",
-      "001-gap-driven-model",
-      "002-filesystem-as-plan",
+      "003-self-correction",
+      "003-self-correction",
       "003-self-correction"
     ],
-    "lastProgressUpdate": "2026-04-26T23:04:30.621Z"
+    "lastProgressUpdate": "2026-04-27T15:07:28.898Z"
   }
 }

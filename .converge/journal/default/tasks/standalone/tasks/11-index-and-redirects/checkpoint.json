@@ -2,7 +2,7 @@
   "type": "task",
   "id": "11-index-and-redirects",
   "status": "pending",
-  "lastUpdated": "2026-04-26T23:04:30.693Z",
+  "lastUpdated": "2026-04-27T15:07:28.902Z",
   "createdAt": "2026-04-26T08:46:38.641Z",
   "progress": {
     "totalChildren": 8,
@@ -10,14 +10,14 @@
     "failedChildren": 0,
     "childTaskIds": [
       "001-index",
-      "002-redirects",
+      "001-index",
+      "001-index",
       "001-index",
       "002-redirects",
-      "001-index",
       "002-redirects",
-      "001-index",
+      "002-redirects",
       "002-redirects"
     ],
-    "lastProgressUpdate": "2026-04-26T23:04:30.621Z"
+    "lastProgressUpdate": "2026-04-27T15:07:28.898Z"
   }
 }

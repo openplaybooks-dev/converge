@@ -2,29 +2,29 @@
   "type": "task",
   "id": "02-bootstrap-astro",
   "status": "pending",
-  "lastUpdated": "2026-04-26T23:04:30.619Z",
+  "lastUpdated": "2026-04-27T15:07:28.902Z",
   "createdAt": "2026-04-26T23:04:30.619Z",
   "progress": {
     "totalChildren": 15,
     "completedChildren": 15,
     "failedChildren": 0,
-    "childIds": [
+    "childTaskIds": [
+      "001-wipe",
+      "001-wipe",
       "001-wipe",
       "002-scaffold-fresh",
+      "002-scaffold-fresh",
+      "002-scaffold-fresh",
       "003-install-integrations",
+      "003-install-integrations",
+      "003-install-integrations",
+      "004-tailwind-init",
+      "004-tailwind-init",
       "004-tailwind-init",
       "005-cloudflare-adapter",
-      "001-wipe",
-      "002-scaffold-fresh",
-      "003-install-integrations",
-      "004-tailwind-init",
       "005-cloudflare-adapter",
-      "001-wipe",
-      "002-scaffold-fresh",
-      "003-install-integrations",
-      "004-tailwind-init",
       "005-cloudflare-adapter"
     ],
-    "lastProgressUpdate": "2026-04-26T23:04:30.618Z"
+    "lastProgressUpdate": "2026-04-27T15:07:28.898Z"
   }
 }

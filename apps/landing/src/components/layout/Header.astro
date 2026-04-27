@@ -14,11 +14,62 @@ import { Icon } from 'astro-icon/components';
 
     <nav class="flex items-center gap-6 text-sm font-medium">
       <a href="/docs/getting-started/why-converge" class="text-text-muted hover:text-text transition-colors">Docs</a>
+      <a href="/examples/readme" class="text-text-muted hover:text-text transition-colors">Examples</a>
       <a href="/blog" class="text-text-muted hover:text-text transition-colors">Blog</a>
       <a href={brand.github} target="_blank" rel="noopener noreferrer" title="github.com/myanlabs/converge" class="text-text-muted hover:text-text transition-colors flex items-center gap-1">
         GitHub
         <Icon name="lucide:external-link" class="w-3 h-3" />
       </a>
+      {/* Theme toggle hidden until light palette is defined. Uncomment to re-enable. */}
+      {/*
+      <button
+        id="theme-toggle"
+        type="button"
+        aria-label="Toggle color theme"
+        title="Toggle color theme"
+        class="flex items-center justify-center w-8 h-8 rounded-md border border-border text-text-muted hover:text-text hover:border-indigo/50 transition-colors"
+      >
+        <Icon name="lucide:sun" class="w-4 h-4 theme-icon-sun hidden" />
+        <Icon name="lucide:moon" class="w-4 h-4 theme-icon-moon" />
+      </button>
+      */}
     </nav>
   </div>
 </header>
+
+<script is:inline>
+  (function () {
+    const KEY = 'converge-theme';
+    const html = document.documentElement;
+
+    function apply(theme) {
+      if (theme === 'light') {
+        html.classList.add('light');
+        html.classList.remove('dark');
+      } else {
+        html.classList.add('dark');
+        html.classList.remove('light');
+      }
+      const sun = document.querySelector('.theme-icon-sun');
+      const moon = document.querySelector('.theme-icon-moon');
+      if (sun && moon) {
+        sun.classList.toggle('hidden', theme !== 'dark');
+        moon.classList.toggle('hidden', theme === 'dark');
+      }
+    }
+
+    const stored = localStorage.getItem(KEY);
+    const system = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    apply(stored || system);
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const btn = document.getElementById('theme-toggle');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        const next = html.classList.contains('light') ? 'dark' : 'light';
+        localStorage.setItem(KEY, next);
+        apply(next);
+      });
+    });
+  })();
+</script>

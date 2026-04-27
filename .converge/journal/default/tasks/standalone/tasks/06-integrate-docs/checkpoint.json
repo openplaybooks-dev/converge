@@ -2,26 +2,26 @@
   "type": "task",
   "id": "06-integrate-docs",
   "status": "complete",
-  "lastUpdated": "2026-04-26T23:06:29.909Z",
+  "lastUpdated": "2026-04-27T15:07:28.902Z",
   "createdAt": "2026-04-26T23:04:30.619Z",
   "progress": {
     "totalChildren": 12,
     "completedChildren": 12,
     "failedChildren": 0,
-    "childIds": [
+    "childTaskIds": [
+      "001-starlight-mount",
+      "001-starlight-mount",
       "001-starlight-mount",
       "002-sidebar-from-ia",
+      "002-sidebar-from-ia",
+      "002-sidebar-from-ia",
+      "003-pagefind-search",
+      "003-pagefind-search",
       "003-pagefind-search",
       "004-redirects",
-      "001-starlight-mount",
-      "002-sidebar-from-ia",
-      "003-pagefind-search",
       "004-redirects",
-      "001-starlight-mount",
-      "002-sidebar-from-ia",
-      "003-pagefind-search",
       "004-redirects"
     ],
-    "lastProgressUpdate": "2026-04-26T23:04:30.618Z"
+    "lastProgressUpdate": "2026-04-27T15:07:28.898Z"
   }
 }

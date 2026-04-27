@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scene Preview — game-assets-video</title>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      background: #0d1117;
+      color: #c9d1d9;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+    header {
+      padding: 0.75rem 1rem;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    header h1 { font-size: 0.95rem; font-weight: 600; }
+    header .summary { color: #7d8590; font-size: 0.8rem; }
+    header .links { margin-left: auto; }
+    header .links a {
+      color: #58a6ff;
+      text-decoration: none;
+      font-size: 0.85rem;
+      margin-left: 1rem;
+    }
+    header .links a:hover { text-decoration: underline; }
+    main {
+      display: grid;
+      grid-template-columns: 240px 1fr 280px;
+      overflow: hidden;
+    }
+    #scene-list {
+      background: #161b22;
+      border-right: 1px solid #30363d;
+      overflow-y: auto;
+      padding: 0.5rem;
+    }
+    .scene-row {
+      padding: 0.5rem 0.6rem;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      margin-bottom: 0.25rem;
+    }
+    .scene-row:hover { background: #21262d; }
+    .scene-row.active {
+      background: #1f2a3a;
+      border-color: #58a6ff;
+    }
+    .scene-row .name { font-size: 0.85rem; color: #c9d1d9; }
+    .scene-row .meta { font-size: 0.7rem; color: #7d8590; margin-top: 0.15rem; }
+    .scene-row .missing { color: #d29922; font-size: 0.7rem; margin-top: 0.15rem; }
+    #phaser-canvas {
+      background: #7EB6FF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    aside {
+      background: #161b22;
+      border-left: 1px solid #30363d;
+      padding: 1rem;
+      overflow-y: auto;
+      font-size: 0.8rem;
+      line-height: 1.5;
+    }
+    aside h2 {
+      font-size: 0.8rem;
+      color: #7d8590;
+      margin: 1rem 0 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    aside h2:first-child { margin-top: 0; }
+    aside ul { list-style: none; }
+    aside li { padding: 0.15rem 0; color: #c9d1d9; }
+    aside li.real { color: #56d364; }
+    aside li.fallback { color: #d29922; }
+    aside li .tag {
+      font-size: 0.7rem;
+      color: #7d8590;
+      margin-left: 0.4rem;
+      display: block;
+      padding-left: 1.2rem;
+    }
+    .empty { color: #7d8590; padding: 1rem; }
+    code { color: #79c0ff; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🏞️ Scene Preview</h1>
+    <span class="summary" id="summary">loading…</span>
+    <span class="links">
+      <a href="gallery.html">Gallery</a>
+      <a href="play.html">Play</a>
+    </span>
+  </header>
+
+  <main>
+    <div id="scene-list"><div class="empty">loading scenes.json…</div></div>
+    <div id="phaser-canvas"></div>
+    <aside>
+      <h2>Scene</h2>
+      <div id="scene-info"><div class="empty">select a scene</div></div>
+
+      <h2>Layers in use</h2>
+      <ul id="asset-status"><li>—</li></ul>
+
+      <h2>How it works</h2>
+      <p style="color:#7d8590">
+        Reads <code>assets/scenes.json</code> and the master atlas. For each
+        scene, this view lays down the parallax bg layers, builds a ground
+        from the scene tilesheet (frame 0 = first variant in the manifest),
+        and stamps every <code>scene_props</code> spritesheet at ground
+        level. Missing layers fall back to a flat sky and rectangles so
+        partial scenes still preview.
+      </p>
+    </aside>
+  </main>
+
+  <script type="module">
+    import { loadAtlas, slicesByCategory, summarizeAtlas } from './lib/atlas-loader.js';
+    import { loadAtlasAssets, registerAnimations, sheetKey, animKey } from './lib/animations.js';
+
+    const ROOT = '..';
+    const WORLD_WIDTH = 2400;
+    const WORLD_HEIGHT = 600;
+    const TILE = 64;
+    const GROUND_Y = WORLD_HEIGHT - TILE;
+
+    let atlas = null;
+    let scenes = [];
+    let activeSceneId = null;
+    let game = null;
+    let assetsInUse = [];
+
+    async function bootstrap() {
+      atlas = await loadAtlas(ROOT);
+      try {
+        const res = await fetch(`${ROOT}/assets/scenes.json`, { cache: 'no-cache' });
+        scenes = res.ok ? await res.json() : [];
+      } catch (_) {
+        scenes = [];
+      }
+
+      document.getElementById('summary').textContent =
+        `${atlas._source === 'walker' ? '⚠ no master atlas' : '✓ master atlas'} · ${summarizeAtlas(atlas)} · ${scenes.length} scene(s)`;
+
+      renderSceneList();
+
+      if (scenes.length > 0) {
+        selectScene(scenes[0].id);
+      } else {
+        document.getElementById('scene-info').innerHTML =
+          `<div class="empty">No scenes in <code>assets/scenes.json</code>.<br>Run the playbook to generate one.</div>`;
+      }
+    }
+
+    function renderSceneList() {
+      const el = document.getElementById('scene-list');
+      el.innerHTML = '';
+      if (scenes.length === 0) {
+        el.innerHTML = `<div class="empty">No scenes</div>`;
+        return;
+      }
+      for (const scene of scenes) {
+        const slices = sceneSlices(scene.id);
+        const hasBg = slices.some(s => s.asset_id.includes('/bg-'));
+        const hasTiles = slices.some(s => s.asset_id.endsWith('/tilesheet'));
+        const hasProps = slices.some(s => s.asset_id.includes('/prop/'));
+
+        const row = document.createElement('div');
+        row.className = 'scene-row' + (scene.id === activeSceneId ? ' active' : '');
+        row.onclick = () => selectScene(scene.id);
+        const status = [
+          hasBg ? 'bg' : null,
+          hasTiles ? 'tiles' : null,
+          hasProps ? 'props' : null,
+        ].filter(Boolean).join(' · ') || 'no assets generated';
+        row.innerHTML = `
+          <div class="name">${escapeHtml(scene.name || scene.id)}</div>
+          <div class="meta">${escapeHtml(scene.biome || '?')} · ${status}</div>
+        `;
+        el.appendChild(row);
+      }
+    }
+
+    function sceneSlices(sceneId) {
+      // Scene slices encode the scene_id as the first segment of asset_id.
+      return slicesByCategory(atlas, 'scenes')
+        .filter(s => s.asset_id.split('/')[0] === sceneId);
+    }
+
+    function findBgLayer(sceneId, layerName) {
+      return sceneSlices(sceneId).find(s => s.asset_id === `${sceneId}/bg-${layerName}`);
+    }
+
+    function findTilesheet(sceneId) {
+      return sceneSlices(sceneId).find(s => s.asset_id === `${sceneId}/tilesheet`);
+    }
+
+    function findPropStates(sceneId) {
+      const props = new Map();
+      for (const s of sceneSlices(sceneId)) {
+        const m = s.asset_id.match(/^[^/]+\/prop\/(.+)$/);
+        if (!m) continue;
+        const propId = m[1];
+        if (!props.has(propId)) props.set(propId, { idle: null, others: [] });
+        if (s.state === 'idle' || !s.state) props.get(propId).idle = s;
+        else props.get(propId).others.push(s);
+      }
+      return props;
+    }
+
+    function selectScene(sceneId) {
+      activeSceneId = sceneId;
+      renderSceneList();
+      assetsInUse = [];
+
+      if (game) {
+        game.destroy(true);
+        game = null;
+        document.getElementById('phaser-canvas').innerHTML = '';
+      }
+
+      const scene = scenes.find(s => s.id === sceneId);
+      renderSceneInfo(scene);
+      startPhaser(scene);
+    }
+
+    function renderSceneInfo(scene) {
+      if (!scene) return;
+      document.getElementById('scene-info').innerHTML = `
+        <div><strong>${escapeHtml(scene.name || scene.id)}</strong></div>
+        <div style="color:#7d8590; font-size:0.75rem">${escapeHtml(scene.biome || '')} ${scene.art_style ? '· ' + escapeHtml(scene.art_style) : ''}</div>
+        <p style="margin-top:0.5rem; color:#a8b2bd">${escapeHtml(scene.description || '')}</p>
+      `;
+    }
+
+    function startPhaser(scene) {
+      const sceneId = scene.id;
+      const bgFar  = findBgLayer(sceneId, 'far');
+      const bgMid  = findBgLayer(sceneId, 'mid');
+      const bgNear = findBgLayer(sceneId, 'near');
+      const tilesheet = findTilesheet(sceneId);
+      const propStates = findPropStates(sceneId);
+
+      // Build a synthetic per-scene atlas slice so loadAtlasAssets/registerAnimations
+      // load only this scene's assets. We re-use the existing helpers by
+      // fabricating an `atlas` shape they understand.
+      const sceneAtlas = {
+        meta: { categories: ['scenes'], sources: { scenes: 0 } },
+        categories: { scenes: [] },
+      };
+      for (const s of [bgFar, bgMid, bgNear, tilesheet]) {
+        if (s) sceneAtlas.categories.scenes.push({ ...s, category: 'scenes' });
+      }
+      for (const p of propStates.values()) {
+        if (p.idle) sceneAtlas.categories.scenes.push({ ...p.idle, category: 'scenes' });
+      }
+
+      game = new Phaser.Game({
+        type: Phaser.AUTO,
+        parent: 'phaser-canvas',
+        backgroundColor: '#7EB6FF',
+        scale: {
+          mode: Phaser.Scale.FIT,
+          autoCenter: Phaser.Scale.CENTER_BOTH,
+          width: 960,
+          height: WORLD_HEIGHT,
+        },
+        physics: {
+          default: 'arcade',
+          arcade: { gravity: { y: 900 }, debug: false },
+        },
+        pixelArt: true,
+        scene: {
+          preload() {
+            loadAtlasAssets(this, sceneAtlas, ROOT);
+            makeRectTexture(this, '__placeholder_ground', TILE, TILE, 0x4a8c4a, 0x3a6c3a);
+            makeRectTexture(this, '__placeholder_prop', 32, 32, 0xd2b73d, 0x8a7a1f);
+          },
+          create() {
+            registerAnimations(this, sceneAtlas, 8, { yoyo: true });
+
+            // ----- Backgrounds (parallax) -----
+            addBackgroundLayer(this, bgFar,  0.2);
+            addBackgroundLayer(this, bgMid,  0.5);
+            addBackgroundLayer(this, bgNear, 0.8);
+            if (!bgFar && !bgMid && !bgNear) {
+              recordAsset('backgrounds', 'fallback', 'flat sky-blue (no parallax)');
+            }
+
+            // ----- Ground from tilesheet -----
+            this.platforms = this.physics.add.staticGroup();
+            buildLevel(this, this.platforms, tilesheet);
+
+            // ----- Scene props along the ground -----
+            let propX = 480;
+            const propStep = 200;
+            for (const [propId, slice] of [...propStates].map(([id, st]) => [id, st.idle]).filter(([, s]) => s)) {
+              addPropSprite(this, propX, GROUND_Y - 80, slice, propId);
+              propX += propStep;
+            }
+            if (propStates.size === 0) {
+              recordAsset('scene_props', 'fallback', 'no props in this scene');
+            }
+
+            // ----- Camera scrolls with cursor -----
+            this.cameras.main.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+            this.cameras.main.scrollX = 0;
+            this.cursors = this.input.keyboard.createCursorKeys();
+
+            renderAssetStatus();
+          },
+          update() {
+            if (!this.cursors) return;
+            const speed = 6;
+            if (this.cursors.left.isDown) this.cameras.main.scrollX -= speed;
+            else if (this.cursors.right.isDown) this.cameras.main.scrollX += speed;
+            this.cameras.main.scrollX = Math.max(0, Math.min(WORLD_WIDTH - 960, this.cameras.main.scrollX));
+          },
+        },
+      });
+    }
+
+    function addBackgroundLayer(scene, slice, scrollFactor) {
+      if (!slice) return;
+      const enriched = { ...slice, category: 'scenes' };
+      const key = sheetKey(enriched);
+      const w = slice.meta?.sheet_size?.w ?? 1920;
+      const h = slice.meta?.sheet_size?.h ?? 1080;
+      const ts = scene.add.tileSprite(0, 0, WORLD_WIDTH, WORLD_HEIGHT, key)
+        .setOrigin(0, 0)
+        .setScrollFactor(scrollFactor);
+      ts.tileScaleX = WORLD_HEIGHT / h;
+      ts.tileScaleY = WORLD_HEIGHT / h;
+      const layer = slice.asset_id.split('/').pop();
+      recordAsset(`bg-${layer}`, 'real', `scrollFactor=${scrollFactor} · ${w}×${h}`);
+    }
+
+    function buildLevel(scene, group, tileSlice) {
+      const hasTiles = !!tileSlice;
+      const tileKey = hasTiles ? sheetKey({ ...tileSlice, category: 'scenes' }) : '__placeholder_ground';
+      // Long ground row across the world. Use frame 0 of the tilesheet
+      // (the first tile_variant — typically grass-base).
+      const groundCols = Math.ceil(WORLD_WIDTH / TILE);
+      for (let c = 0; c < groundCols; c++) {
+        const tile = group.create(c * TILE + TILE / 2, GROUND_Y + TILE / 2, tileKey, hasTiles ? 0 : undefined);
+        tile.setDisplaySize(TILE, TILE).refreshBody();
+      }
+      // Two floating platforms.
+      const platforms = [
+        { x: 460, y: GROUND_Y - 140, len: 4 },
+        { x: 1100, y: GROUND_Y - 200, len: 3 },
+        { x: 1800, y: GROUND_Y - 160, len: 5 },
+      ];
+      for (const p of platforms) {
+        for (let c = 0; c < p.len; c++) {
+          const tile = group.create(p.x + c * TILE + TILE / 2, p.y + TILE / 2, tileKey, hasTiles ? 0 : undefined);
+          tile.setDisplaySize(TILE, TILE).refreshBody();
+        }
+      }
+      recordAsset('tilesheet', hasTiles ? 'real' : 'fallback',
+        hasTiles ? `${tileSlice.sheet_path} (frame 0)` : 'green rectangles');
+    }
+
+    function addPropSprite(scene, x, y, slice, label) {
+      const enriched = { ...slice, category: 'scenes' };
+      const key = sheetKey(enriched);
+      const mode = enriched.mode || enriched.meta?.mode || 'sheet';
+      const initialKey = mode === 'frames' ? `${key}:0` : key;
+      const sprite = scene.add.sprite(x, y, initialKey);
+      const animK = animKey(enriched);
+      if (scene.anims.exists(animK)) sprite.play(animK);
+      sprite.setDisplaySize(48, 48);
+      const source = slice.sheet_path || slice.frames_dir || slice.atlas_path;
+      recordAsset(`prop ${label}`, 'real', source);
+    }
+
+    // ----- helpers -----
+
+    function recordAsset(label, status, detail = '') {
+      assetsInUse.push({ label, status, detail });
+    }
+
+    function renderAssetStatus() {
+      const ul = document.getElementById('asset-status');
+      ul.innerHTML = '';
+      if (!assetsInUse.length) {
+        ul.innerHTML = '<li class="fallback">— nothing loaded —</li>';
+        return;
+      }
+      for (const a of assetsInUse) {
+        const li = document.createElement('li');
+        li.className = a.status;
+        const icon = a.status === 'real' ? '✓' : '○';
+        li.innerHTML = `${icon} ${escapeHtml(a.label)}<span class="tag">${escapeHtml(a.detail)}</span>`;
+        ul.appendChild(li);
+      }
+    }
+
+    function makeRectTexture(scene, key, w, h, fill, border) {
+      const g = scene.make.graphics({ x: 0, y: 0, add: false });
+      g.fillStyle(fill, 1).fillRect(0, 0, w, h);
+      g.lineStyle(2, border, 1).strokeRect(1, 1, w - 2, h - 2);
+      g.generateTexture(key, w, h);
+      g.destroy();
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+      ));
+    }
+
+    bootstrap();
+  </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+Animate the supplied character (Sir Aldric) performing one full idle cycle. The reference image IS frame 0; do not reinvent the character, costume, or proportions.
+
+CAMERA: locked at side_right. No rotation, no pan, no zoom, no dolly. The character does not turn or change which way it faces. Sprite-sheet style, not cinematic.
+
+SIZE: character occupies the same pixel region in every frame. No scale drift, no forward/back motion. Feet on the same ground line throughout.
+
+BACKGROUND: pure flat #00FF00 chroma green; the reference is already on this. Every non-character pixel stays solid green. No shadows, no environment.
+
+MOTION: start at opening neutral pose at the start of the inhale, peak at passing back through neutral, return to start. Non-directional cycle (breathing/sway/hover); ~5s, ONE complete cycle, final frame matches frame 0 for seamless looping. Do not freeze, do not stall, do not pad.
+
+IDENTITY (HARD LOCK — read carefully):
+- The reference image is the ONLY source of truth for what the character looks like. Every accessory, hairstyle, costume detail, color, proportion, and silhouette must match the reference exactly.
+- DO NOT ADD anything that is not in the reference. If the reference has no helmet, the character does NOT wear a helmet at any point. If the reference shows specific hair, it stays that hair. If the shield in the reference is plain, it stays plain — do not add emblems, crests, or insignia.
+- DO NOT REMOVE anything in the reference. Cape, sword, armor pieces, belt, all visible details persist in every frame.
+- DO NOT MODIFY costume details. Don't restyle the shield, don't change cape shape, don't morph face features, don't recolor anything.
+- The animation is small body motion (limbs, breathing, stride). Costume and accessories stay 100% identical to frame 0.
+
+PALETTE: Dominant colors: cool blue steel and silver-highlight metal. Cape is rich crimson red. Avoid heavy gold or brass — a single small heraldic emblem on the chest or shield boss is the only gold-tone accent. The character reads as friendly hero, not grimdark..
+
+QUALITY: smooth motion, clean silhouette, no text, no captions, no UI, no logos. Character whole and visible at all times.

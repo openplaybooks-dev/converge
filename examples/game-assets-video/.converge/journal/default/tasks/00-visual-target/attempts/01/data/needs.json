@@ -1,0 +1,11 @@
+{
+  "taskId": "00-visual-target",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/visual-target.png",
+    "ASSETS.md",
+    "assets/sprites.json"
+  ],
+  "blocked": false
+}

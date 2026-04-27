@@ -1,0 +1,129 @@
+---
+import Section from '../layout/Section.astro';
+import Container from '../layout/Container.astro';
+import Icon from '../ui/Icon.astro';
+
+interface Chip {
+  label: string;
+  href: string;
+}
+
+interface Cluster {
+  eyebrow: string;
+  icon: string;
+  headline: string;
+  outcome: string;
+  chips: Chip[];
+  more: { label: string; href: string };
+}
+
+const clusters: Cluster[] = [
+  {
+    eyebrow: 'Software',
+    icon: 'lucide:layout-template',
+    headline: 'Generate working apps from a spec',
+    outcome: 'Mobile apps, fullstack services, and game studios — the playbook produces a runnable codebase, not just a plan.',
+    chips: [
+      { label: 'Flutter app',      href: '/examples/readme/#building-software' },
+      { label: 'Fullstack app',    href: '/examples/readme/#building-software' },
+      { label: 'Game studio',      href: '/examples/readme/#building-software' },
+    ],
+    more: { label: '7 software examples', href: '/examples/readme/#building-software' },
+  },
+  {
+    eyebrow: 'Research',
+    icon: 'lucide:search',
+    headline: 'Multi-pass research with citations',
+    outcome: 'Layered investigation that goes deeper where the evidence is interesting. Final report has inline [SRC-N] citations and traceable reasoning.',
+    chips: [
+      { label: 'Deep research',       href: '/examples/research/deep-research/' },
+      { label: 'Frontier research',   href: '/examples/readme/#research' },
+      { label: 'Scientific research', href: '/examples/readme/#research' },
+    ],
+    more: { label: '5 research examples', href: '/examples/readme/#research' },
+  },
+  {
+    eyebrow: 'Creative',
+    icon: 'lucide:film',
+    headline: 'Long-running creative pipelines',
+    outcome: 'Cinematic video with on-model characters, evolutionary optimization, social simulation. Workflows that take 15 min – 1 h and stay coherent.',
+    chips: [
+      { label: 'Cinematic video',          href: '/examples/creative/cinematic-video-production/' },
+      { label: 'Evolutionary optimization', href: '/examples/readme/#creative--simulation' },
+      { label: 'Social sim',               href: '/examples/readme/#creative--simulation' },
+    ],
+    more: { label: '3 creative examples', href: '/examples/readme/#creative--simulation' },
+  },
+  {
+    eyebrow: 'Security',
+    icon: 'lucide:shield-check',
+    headline: 'Authorized security testing with proof',
+    outcome: 'Coverage by construction — every endpoint × every technique. Findings only ship with a reproducible exploit. Scope-gated, safe-payload only.',
+    chips: [
+      { label: 'Autonomous pentest', href: '/examples/security/autonomous-pentest/' },
+    ],
+    more: { label: 'See pentest playbook', href: '/examples/security/autonomous-pentest/' },
+  },
+];
+---
+
+<Section id="capabilities" padY="lg" bg="muted">
+  <Container>
+    <div class="text-center mb-12">
+      <p class="text-sm font-medium tracking-widest text-indigo uppercase mb-4">What you can build</p>
+      <h2 class="text-3xl sm:text-4xl font-bold text-text mb-4">
+        What you can build with it
+      </h2>
+      <p class="text-lg text-text-muted max-w-2xl mx-auto">
+        Every example below is a real, runnable playbook from the gallery. Pick the closest match to your problem and copy it — they're designed to be edited.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {clusters.map(({ eyebrow, icon, headline, outcome, chips, more }) => (
+        <div class="flex flex-col gap-4 p-6 rounded-lg border border-border bg-default card">
+          <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center w-11 h-11 rounded-full bg-indigo/10 shrink-0">
+              <Icon name={icon} size={22} class="text-indigo" aria-label={eyebrow} />
+            </div>
+            <div>
+              <p class="text-xs font-medium tracking-widest text-indigo uppercase">{eyebrow}</p>
+              <h3 class="text-lg font-semibold text-text leading-snug">{headline}</h3>
+            </div>
+          </div>
+
+          <p class="text-sm text-text-muted leading-relaxed">{outcome}</p>
+
+          <div class="flex flex-wrap gap-2 mt-auto pt-2">
+            {chips.map((chip) => (
+              <a
+                href={chip.href}
+                class="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full border border-border bg-bgElev/40 text-text-muted hover:text-text hover:border-indigo/50 hover:bg-indigo/5 transition-colors"
+              >
+                {chip.label}
+              </a>
+            ))}
+          </div>
+
+          <a
+            href={more.href}
+            class="inline-flex items-center gap-1 text-sm font-medium text-indigo hover:text-text transition-colors"
+          >
+            {more.label}
+            <Icon name="lucide:arrow-right" size={14} class="text-indigo" />
+          </a>
+        </div>
+      ))}
+    </div>
+
+    <div class="text-center mt-10">
+      <a
+        href="/examples/readme/"
+        class="inline-flex items-center gap-2 text-text-muted hover:text-text transition-colors text-sm font-medium"
+      >
+        View the full examples gallery
+        <Icon name="lucide:arrow-right" size={14} />
+      </a>
+    </div>
+  </Container>
+</Section>

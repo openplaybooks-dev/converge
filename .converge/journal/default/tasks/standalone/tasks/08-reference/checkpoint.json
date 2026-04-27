@@ -2,7 +2,7 @@
   "type": "task",
   "id": "08-reference",
   "status": "pending",
-  "lastUpdated": "2026-04-26T23:04:30.689Z",
+  "lastUpdated": "2026-04-27T15:07:28.901Z",
   "createdAt": "2026-04-26T08:46:38.641Z",
   "progress": {
     "totalChildren": 20,
@@ -10,26 +10,26 @@
     "failedChildren": 0,
     "childTaskIds": [
       "001-cli-index",
-      "002-playbook-yml",
-      "003-task-md",
-      "004-project-yml",
-      "005-core-api",
+      "001-cli-index",
+      "001-cli-index",
       "001-cli-index",
       "002-playbook-yml",
-      "003-task-md",
-      "004-project-yml",
-      "005-core-api",
-      "001-cli-index",
+      "002-playbook-yml",
+      "002-playbook-yml",
       "002-playbook-yml",
       "003-task-md",
-      "004-project-yml",
-      "005-core-api",
-      "001-cli-index",
-      "002-playbook-yml",
+      "003-task-md",
+      "003-task-md",
       "003-task-md",
       "004-project-yml",
+      "004-project-yml",
+      "004-project-yml",
+      "004-project-yml",
+      "005-core-api",
+      "005-core-api",
+      "005-core-api",
       "005-core-api"
     ],
-    "lastProgressUpdate": "2026-04-26T23:04:30.621Z"
+    "lastProgressUpdate": "2026-04-27T15:07:28.898Z"
   }
 }

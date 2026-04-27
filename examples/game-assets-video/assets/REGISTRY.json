@@ -1,0 +1,102 @@
+{
+  "characters": [
+    {
+      "id": "hero-knight",
+      "type": "character",
+      "states": [
+        "idle",
+        "walk"
+      ],
+      "atlas_paths": [
+        "assets/characters/hero-knight/spritesheets/idle/idle.atlas.json",
+        "assets/characters/hero-knight/spritesheets/walk/walk.atlas.json"
+      ],
+      "scenes_using": [],
+      "ref_canonical": "assets/characters/hero-knight/ref/canonical/canonical.png"
+    }
+  ],
+  "shared_props": [
+    {
+      "id": "bounce-spring",
+      "type": "shared_prop",
+      "states": [
+        "bounce",
+        "idle"
+      ],
+      "atlas_paths": [
+        "assets/objects/bounce-spring/spritesheets/bounce/bounce.atlas.json",
+        "assets/objects/bounce-spring/spritesheets/idle/idle.atlas.json"
+      ],
+      "scenes_using": [],
+      "ref_image": "assets/objects/bounce-spring/spritesheets/bounce/bounce.png"
+    },
+    {
+      "id": "checkpoint-flag",
+      "type": "shared_prop",
+      "states": [
+        "activate",
+        "idle"
+      ],
+      "atlas_paths": [
+        "assets/objects/checkpoint-flag/spritesheets/activate/activate.atlas.json",
+        "assets/objects/checkpoint-flag/spritesheets/idle/idle.atlas.json"
+      ],
+      "scenes_using": [],
+      "ref_image": "assets/objects/checkpoint-flag/spritesheets/activate/activate.png"
+    },
+    {
+      "id": "gold-key",
+      "type": "shared_prop",
+      "states": [
+        "collect",
+        "idle"
+      ],
+      "atlas_paths": [
+        "assets/objects/gold-key/spritesheets/collect/collect.atlas.json",
+        "assets/objects/gold-key/spritesheets/idle/idle.atlas.json"
+      ],
+      "scenes_using": [],
+      "ref_image": "assets/objects/gold-key/spritesheets/collect/collect.png"
+    },
+    {
+      "id": "health-potion",
+      "type": "shared_prop",
+      "states": [
+        "collect",
+        "idle"
+      ],
+      "atlas_paths": [
+        "assets/objects/health-potion/spritesheets/collect/collect.atlas.json",
+        "assets/objects/health-potion/spritesheets/idle/idle.atlas.json"
+      ],
+      "scenes_using": [],
+      "ref_image": "assets/objects/health-potion/spritesheets/collect/collect.png"
+    },
+    {
+      "id": "spike-trap",
+      "type": "shared_prop",
+      "states": [
+        "idle",
+        "trigger"
+      ],
+      "atlas_paths": [
+        "assets/objects/spike-trap/spritesheets/idle/idle.atlas.json",
+        "assets/objects/spike-trap/spritesheets/trigger/trigger.atlas.json"
+      ],
+      "scenes_using": [],
+      "ref_image": "assets/objects/spike-trap/spritesheets/idle/idle.png"
+    },
+    {
+      "id": "wood-ladder",
+      "type": "shared_prop",
+      "states": [
+        "idle"
+      ],
+      "atlas_paths": [
+        "assets/objects/wood-ladder/spritesheets/idle/idle.atlas.json"
+      ],
+      "scenes_using": [],
+      "ref_image": "assets/objects/wood-ladder/spritesheets/idle/idle.png"
+    }
+  ]
+}

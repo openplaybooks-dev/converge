@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Play Prototype — game-assets</title>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      background: #0d1117;
+      color: #c9d1d9;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+    header {
+      padding: 0.75rem 1rem;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    header h1 { font-size: 0.95rem; font-weight: 600; }
+    header .summary { color: #7d8590; font-size: 0.8rem; }
+    header .links { margin-left: auto; }
+    header .links a {
+      color: #58a6ff;
+      text-decoration: none;
+      font-size: 0.85rem;
+      margin-left: 1rem;
+    }
+    header .links a:hover { text-decoration: underline; }
+    main {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      overflow: hidden;
+    }
+    #phaser-canvas {
+      background: #7EB6FF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    aside {
+      background: #161b22;
+      border-left: 1px solid #30363d;
+      padding: 1rem;
+      overflow-y: auto;
+      font-size: 0.8rem;
+      line-height: 1.5;
+    }
+    aside h2 {
+      font-size: 0.8rem;
+      color: #7d8590;
+      margin: 1rem 0 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    aside h2:first-child { margin-top: 0; }
+    aside .key {
+      display: inline-block;
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 3px;
+      padding: 0.05rem 0.35rem;
+      font-size: 0.75rem;
+      color: #c9d1d9;
+    }
+    aside ul { list-style: none; }
+    aside li { padding: 0.15rem 0; color: #c9d1d9; }
+    aside li.real { color: #56d364; }
+    aside li.fallback { color: #d29922; }
+    aside li .tag {
+      font-size: 0.7rem;
+      color: #7d8590;
+      margin-left: 0.4rem;
+    }
+    .roster-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0.4rem;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .roster-row:hover { background: #21262d; }
+    .roster-row.active {
+      background: #1f2a3a;
+      border-color: #58a6ff;
+    }
+    .roster-row .num {
+      font-size: 0.7rem;
+      color: #7d8590;
+      min-width: 1rem;
+    }
+    .roster-row .name { color: #c9d1d9; flex: 1; }
+    .roster-row .meta { font-size: 0.7rem; color: #7d8590; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎮 Play Prototype</h1>
+    <span class="summary" id="summary">loading…</span>
+    <span class="links">
+      <a href="gallery.html">← Asset gallery</a>
+      <a href="scenes.html">🏞️ Scenes</a>
+    </span>
+  </header>
+
+  <main>
+    <div id="phaser-canvas"></div>
+    <aside>
+      <h2>Controls</h2>
+      <div><span class="key">←</span> <span class="key">→</span> move</div>
+      <div><span class="key">Space</span> jump</div>
+      <div><span class="key">R</span> respawn</div>
+      <div><span class="key">1</span>…<span class="key">9</span> switch hero</div>
+
+      <h2>Roster</h2>
+      <div id="roster" style="display:flex; flex-direction:column; gap:0.25rem"></div>
+
+      <h2>Playback</h2>
+      <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer">
+        <input type="checkbox" id="yoyo-toggle">
+        <span>Force yoyo on all states (debug — per-state hints from atlas usually win)</span>
+      </label>
+
+      <h2>Assets in use</h2>
+      <ul id="asset-status"><li>loading…</li></ul>
+
+      <h2>How it works</h2>
+      <p style="color:#7d8590">
+        Reads <code>assets/atlas.json</code> (or per-sheet atlases as fallback).
+        Real assets render where available; placeholders fill in for
+        missing categories. Generate more via the playbook to see the scene
+        come alive.
+      </p>
+    </aside>
+  </main>
+
+  <script type="module">
+    import { loadAtlas, slicesByCategory, findSlice, summarizeAtlas } from './lib/atlas-loader.js';
+    import { loadAtlasAssets, registerAnimations, sheetKey, animKey } from './lib/animations.js';
+
+    const ROOT = '..';
+    const WORLD_WIDTH = 2400;
+    const WORLD_HEIGHT = 600;
+    const TILE = 64;
+    const GROUND_Y = WORLD_HEIGHT - TILE;
+    const HERO_DISPLAY_H = TILE * 1.4;
+
+    let atlas = null;
+    let assetsInUse = []; // [{label, status: 'real'|'fallback', detail}]
+    let roster = [];      // [{id, name, idleSlice, walkSlice}]
+    let activeIdx = 0;
+
+    function recordAsset(label, status, detail = '') {
+      assetsInUse.push({ label, status, detail });
+    }
+
+    function buildRoster() {
+      // Roster = every character that has at least an idle sheet. Walk
+      // is optional — when missing, the hero just idles even while moving.
+      const characters = slicesByCategory(atlas, 'characters');
+      const byId = new Map();
+      for (const slice of characters) {
+        const id = slice.asset_id;
+        if (!byId.has(id)) byId.set(id, { id, name: id, idle: null, walk: null });
+        if (slice.state === 'idle') byId.get(id).idle = slice;
+        else if (slice.state === 'walk') byId.get(id).walk = slice;
+      }
+      return [...byId.values()].filter(r => r.idle).map(r => ({
+        id: r.id,
+        name: r.name,
+        idleSlice: r.idle,
+        walkSlice: r.walk,
+      }));
+    }
+
+    async function bootstrap() {
+      atlas = await loadAtlas(ROOT);
+      roster = buildRoster();
+      document.getElementById('summary').textContent =
+        `${atlas._source === 'walker' ? '⚠ no master atlas — walking per-sheet' : '✓ master atlas'} · ${summarizeAtlas(atlas)} · ${roster.length} hero(es)`;
+      startPhaser();
+    }
+
+    function startPhaser() {
+      new Phaser.Game({
+        type: Phaser.AUTO,
+        parent: 'phaser-canvas',
+        backgroundColor: '#7EB6FF',
+        scale: {
+          mode: Phaser.Scale.FIT,
+          autoCenter: Phaser.Scale.CENTER_BOTH,
+          width: 960,
+          height: WORLD_HEIGHT,
+        },
+        physics: {
+          default: 'arcade',
+          arcade: { gravity: { y: 900 }, debug: false },
+        },
+        pixelArt: true,
+        scene: { preload, create, update },
+      });
+    }
+
+    function preload() {
+      loadAtlasAssets(this, atlas, ROOT);
+      makeRectTexture(this, '__placeholder_ground', TILE, TILE, 0x4a8c4a, 0x3a6c3a);
+      makeRectTexture(this, '__placeholder_hero', 32, 48, 0xff5555, 0x882222);
+      makeRectTexture(this, '__placeholder_prop', 32, 32, 0xd2b73d, 0x8a7a1f);
+      makeRectTexture(this, '__placeholder_hazard', 32, 24, 0xff3333, 0x771111);
+    }
+
+    function create() {
+      const yoyo = document.getElementById('yoyo-toggle')?.checked ?? true;
+      registerAnimations(this, atlas, 8, { yoyo });
+
+      // ----- Backgrounds (parallax). Auto-pick: any forest-* layer found. -----
+      const bgs = slicesByCategory(atlas, 'backgrounds');
+      const bgFar  = bgs.find(b => /far/i.test(b.asset_id))  ?? bgs.find(b => b.meta?.parallax_layer === 'far');
+      const bgMid  = bgs.find(b => /mid/i.test(b.asset_id))  ?? bgs.find(b => b.meta?.parallax_layer === 'mid');
+      const bgNear = bgs.find(b => /near/i.test(b.asset_id)) ?? bgs.find(b => b.meta?.parallax_layer === 'near');
+      addBackgroundLayer(this, bgFar, 0.2);
+      addBackgroundLayer(this, bgMid, 0.5);
+      addBackgroundLayer(this, bgNear, 0.8);
+      if (!bgFar && !bgMid && !bgNear) {
+        recordAsset('backgrounds', 'fallback', 'flat sky-blue (no parallax)');
+      }
+
+      // ----- Ground & platforms -----
+      const tileSlices = slicesByCategory(atlas, 'tile_maps');
+      const tileSlice = tileSlices[0]; // first tilesheet wins; usually grassland
+      this.platforms = this.physics.add.staticGroup();
+      buildLevel(this, this.platforms, tileSlice);
+
+      // ----- Roster: spawn the active hero + all other characters as NPCs -----
+      this.heroes = roster.map((entry, i) => createHeroSprite(this, entry, i));
+
+      if (this.heroes.length === 0) {
+        recordAsset('characters', 'fallback', 'no characters in atlas');
+      }
+
+      // Every hero collides with platforms so they all stand on the ground.
+      // The "active" hero is just the one the keyboard drives.
+      for (const h of this.heroes) {
+        this.physics.add.collider(h.sprite, this.platforms);
+      }
+
+      this.spawnPoint = { x: 120, y: 200 };
+
+      // ----- Props: auto-spawn EVERY object idle slice along the level -----
+      this.propGroups = { hazard: this.physics.add.staticGroup(), interactive: this.physics.add.staticGroup() };
+      this.collectibleGroup = this.physics.add.staticGroup();
+      const objectSlices = slicesByCategory(atlas, 'objects')
+        .filter(s => s.state === 'idle' || !s.state);
+      let propX = 600;
+      const propStep = 220;
+      for (const slice of objectSlices) {
+        const cat = slice.meta?.category || slice.meta?.type || 'item';
+        const isHazard = cat === 'hazard';
+        const isInteractive = cat === 'interactive';
+        const targetGroup = isHazard ? this.propGroups.hazard
+                          : isInteractive ? this.propGroups.interactive
+                          : this.collectibleGroup;
+        const yOffset = isHazard ? 24 : (isInteractive ? 32 : 80);
+        addPropSprite(this, targetGroup, propX, GROUND_Y - yOffset, slice, slice.asset_id);
+        propX += propStep;
+      }
+
+      // ----- Camera -----
+      this.cameras.main.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+      this.physics.world.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+
+      // ----- Input -----
+      this.cursors = this.input.keyboard.createCursorKeys();
+      this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+      this.rKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+      const NUM_NAMES = ['ONE','TWO','THREE','FOUR','FIVE','SIX','SEVEN','EIGHT','NINE'];
+      this.numKeys = [];
+      for (let i = 0; i < Math.min(roster.length, 9); i++) {
+        this.numKeys.push(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes[NUM_NAMES[i]]));
+      }
+
+      // Click-to-switch from the sidebar roster.
+      const selectHeroHandler = (e) => setActiveHero(this, e.detail);
+      window.addEventListener('select-hero', selectHeroHandler);
+      this.events.on('shutdown', () => window.removeEventListener('select-hero', selectHeroHandler));
+
+      // Bind prop overlaps to the first hero. setActiveHero handles
+      // tear-down + re-bind on subsequent switches.
+      if (this.heroes.length > 0) {
+        setActiveHero(this, 0);
+      }
+
+      renderAssetStatus();
+      renderRoster();
+    }
+
+    function createHeroSprite(scene, entry, idx) {
+      const idleSlice = { ...entry.idleSlice, category: 'characters' };
+      const idleKey = sheetKey(idleSlice);
+      const idleMode = idleSlice.mode || idleSlice.meta?.mode || 'sheet';
+      const idleInitialKey = idleMode === 'frames' ? `${idleKey}:0` : idleKey;
+      const startX = 120 + idx * 100; // stagger NPCs to the right of the active hero
+      const sprite = scene.physics.add.sprite(startX, 200, idleInitialKey);
+      sprite.setCollideWorldBounds(true);
+      const heroScale = HERO_DISPLAY_H / sprite.height;
+      sprite.setScale(heroScale);
+      sprite.body.setSize(sprite.width * 0.4, sprite.height * 0.85);
+      sprite.body.setOffset(sprite.width * 0.3, sprite.height * 0.1);
+      sprite.play(animKey(idleSlice));
+      const idleSource = idleSlice.sheet_path || idleSlice.frames_dir || idleSlice.atlas_path;
+      recordAsset(`${entry.id} idle`, 'real', idleSource);
+      if (entry.walkSlice) {
+        const walkSource = entry.walkSlice.sheet_path || entry.walkSlice.frames_dir || entry.walkSlice.atlas_path;
+        recordAsset(`${entry.id} walk`, 'real', walkSource);
+      }
+      return {
+        entry,
+        sprite,
+        idleAnim: animKey({ ...entry.idleSlice, category: 'characters' }),
+        walkAnim: entry.walkSlice ? animKey({ ...entry.walkSlice, category: 'characters' }) : null,
+      };
+    }
+
+    function setActiveHero(scene, idx) {
+      if (idx < 0 || idx >= scene.heroes.length) return;
+      activeIdx = idx;
+
+      // Stop any in-flight motion on every hero so a swap doesn't carry
+      // momentum across characters.
+      for (const h of scene.heroes) {
+        h.sprite.setVelocityX(0);
+      }
+
+      const active = scene.heroes[idx];
+      scene.cameras.main.startFollow(active.sprite, true, 0.1, 0.1);
+
+      // Re-bind prop overlaps to the new active hero. Tear down previous.
+      if (scene._activeColliders) {
+        for (const c of scene._activeColliders) scene.physics.world.removeCollider(c);
+      }
+      scene._activeColliders = [
+        scene.physics.add.overlap(active.sprite, scene.propGroups.hazard,      () => respawn(scene)),
+        scene.physics.add.overlap(active.sprite, scene.propGroups.interactive, (_, p) => bounce(scene, active.sprite, p)),
+        scene.physics.add.overlap(active.sprite, scene.collectibleGroup,       (_, p) => collect(scene, p)),
+      ];
+
+      renderRoster();
+    }
+
+    function addBackgroundLayer(scene, slice, scrollFactor) {
+      if (!slice) return;
+      const key = sheetKey({ ...slice, category: 'backgrounds' });
+      const w = slice.meta?.sheet_size?.w ?? 1920;
+      const h = slice.meta?.sheet_size?.h ?? 1080;
+      const ts = scene.add.tileSprite(0, 0, WORLD_WIDTH, WORLD_HEIGHT, key)
+        .setOrigin(0, 0)
+        .setScrollFactor(scrollFactor);
+      // Scale tilesprite content so backgrounds at 1920x1080 fit the 600px world height.
+      ts.tileScaleX = WORLD_HEIGHT / h;
+      ts.tileScaleY = WORLD_HEIGHT / h;
+      recordAsset(`background (${slice.asset_id})`, 'real', `scrollFactor=${scrollFactor}`);
+    }
+
+    function buildLevel(scene, group, tileSlice) {
+      // Long ground row + 2 floating platforms. If we have a real tilesheet,
+      // pick frames from it; otherwise stamp the placeholder rectangle.
+      const hasTiles = !!tileSlice;
+      const tileKey = hasTiles ? sheetKey({ ...tileSlice, category: 'tile_maps' }) : '__placeholder_ground';
+      // For real tilesheets we pull frame 0 (grass-base) repeatedly. The
+      // sub-image trick: use a child sprite, not a static body of the whole sheet.
+      const groundCols = Math.ceil(WORLD_WIDTH / TILE);
+      for (let c = 0; c < groundCols; c++) {
+        const tile = group.create(c * TILE + TILE / 2, GROUND_Y + TILE / 2, tileKey, hasTiles ? 0 : undefined);
+        tile.setDisplaySize(TILE, TILE).refreshBody();
+      }
+      // Platforms.
+      const platforms = [
+        { x: 460, y: GROUND_Y - 140, len: 4 },
+        { x: 980, y: GROUND_Y - 220, len: 3 },
+        { x: 1700, y: GROUND_Y - 160, len: 5 },
+      ];
+      for (const p of platforms) {
+        for (let c = 0; c < p.len; c++) {
+          const tile = group.create(p.x + c * TILE + TILE / 2, p.y + TILE / 2, tileKey, hasTiles ? 0 : undefined);
+          tile.setDisplaySize(TILE, TILE).refreshBody();
+        }
+      }
+      recordAsset('terrain', hasTiles ? 'real' : 'fallback',
+        hasTiles ? `${tileSlice.sheet_path} (frame 0)` : 'green rectangles');
+    }
+
+    function addPropSprite(scene, group, x, y, slice, label) {
+      const enriched = { ...slice, category: 'objects' };
+      const key = sheetKey(enriched);
+      const mode = enriched.mode || enriched.meta?.mode || 'sheet';
+      const initialKey = mode === 'frames' ? `${key}:0` : key;
+      const sprite = group.create(x, y, initialKey);
+      const animK = animKey(enriched);
+      if (scene.anims.exists(animK)) sprite.play(animK);
+      sprite.setDisplaySize(48, 48).refreshBody();
+      const cat = slice.meta?.category || slice.meta?.type || 'item';
+      const source = slice.sheet_path || slice.frames_dir || slice.atlas_path;
+      recordAsset(`${label} (${cat})`, 'real', source);
+    }
+
+    function collect(scene, potion) {
+      potion.disableBody(true, true);
+      const t = scene.add.text(potion.x, potion.y, '+1', {
+        fontFamily: 'monospace', fontSize: '20px', color: '#56d364',
+      }).setOrigin(0.5);
+      scene.tweens.add({
+        targets: t,
+        y: t.y - 40,
+        alpha: 0,
+        duration: 700,
+        onComplete: () => t.destroy(),
+      });
+    }
+
+    function bounce(scene, hero, prop) {
+      // Bounce-spring style: launch upward if not already going up fast.
+      if (hero.body.velocity.y > -100) hero.setVelocityY(-600);
+    }
+
+    function respawn(scene) {
+      const active = scene.heroes[activeIdx];
+      if (!active) return;
+      active.sprite.setVelocity(0, 0);
+      active.sprite.setPosition(scene.spawnPoint.x, scene.spawnPoint.y);
+      scene.cameras.main.flash(150, 255, 0, 0);
+    }
+
+    function update() {
+      if (!this.heroes || this.heroes.length === 0) return;
+
+      // Hot-key swap: 1, 2, 3 …
+      for (let i = 0; i < this.numKeys.length; i++) {
+        if (Phaser.Input.Keyboard.JustDown(this.numKeys[i])) {
+          setActiveHero(this, i);
+        }
+      }
+
+      const active = this.heroes[activeIdx];
+      if (!active) return;
+      const sprite = active.sprite;
+      const speed = 200;
+      const onFloor = sprite.body.touching.down || sprite.body.blocked.down;
+      let movingX = 0;
+      if (this.cursors.left.isDown) movingX = -1;
+      else if (this.cursors.right.isDown) movingX = 1;
+
+      sprite.setVelocityX(movingX * speed);
+
+      if (movingX !== 0) {
+        sprite.setFlipX(movingX < 0);
+        if (active.walkAnim) {
+          if (sprite.anims.currentAnim?.key !== active.walkAnim) {
+            sprite.play(active.walkAnim, true);
+          }
+        }
+      } else if (active.idleAnim && sprite.anims.currentAnim?.key !== active.idleAnim) {
+        sprite.play(active.idleAnim, true);
+      }
+
+      // NPCs: keep idle, don't drift sideways even if they had velocity carryover.
+      for (let i = 0; i < this.heroes.length; i++) {
+        if (i === activeIdx) continue;
+        const npc = this.heroes[i];
+        npc.sprite.setVelocityX(0);
+        if (npc.idleAnim && npc.sprite.anims.currentAnim?.key !== npc.idleAnim) {
+          npc.sprite.play(npc.idleAnim, true);
+        }
+      }
+
+      if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && onFloor) {
+        sprite.setVelocityY(-450);
+      }
+      if (Phaser.Input.Keyboard.JustDown(this.rKey)) {
+        respawn(this);
+      }
+    }
+
+    function renderRoster() {
+      const el = document.getElementById('roster');
+      if (!el) return;
+      el.innerHTML = '';
+      if (roster.length === 0) {
+        el.innerHTML = '<div style="color:#7d8590">No characters generated yet</div>';
+        return;
+      }
+      roster.forEach((entry, i) => {
+        const row = document.createElement('div');
+        row.className = 'roster-row' + (i === activeIdx ? ' active' : '');
+        row.onclick = () => {
+          // Need scene reference; emit a custom event the scene listens for.
+          window.dispatchEvent(new CustomEvent('select-hero', { detail: i }));
+        };
+        const states = [];
+        if (entry.idleSlice) states.push('idle');
+        if (entry.walkSlice) states.push('walk');
+        row.innerHTML = `
+          <span class="num">${i + 1}</span>
+          <span class="name">${escapeHtml(entry.name)}</span>
+          <span class="meta">${states.join('+')}</span>
+        `;
+        el.appendChild(row);
+      });
+    }
+
+    // ----- helpers -----
+
+    function makeRectTexture(scene, key, w, h, fill, border) {
+      const g = scene.make.graphics({ x: 0, y: 0, add: false });
+      g.fillStyle(fill, 1).fillRect(0, 0, w, h);
+      g.lineStyle(2, border, 1).strokeRect(1, 1, w - 2, h - 2);
+      g.generateTexture(key, w, h);
+      g.destroy();
+    }
+
+    function renderAssetStatus() {
+      const ul = document.getElementById('asset-status');
+      ul.innerHTML = '';
+      for (const a of assetsInUse) {
+        const li = document.createElement('li');
+        li.className = a.status;
+        const icon = a.status === 'real' ? '✓' : '○';
+        li.innerHTML = `${icon} ${escapeHtml(a.label)}<span class="tag">${escapeHtml(a.detail)}</span>`;
+        ul.appendChild(li);
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+      ));
+    }
+
+    document.getElementById('yoyo-toggle')?.addEventListener('change', () => {
+      // Re-load to re-create anims with the new yoyo setting. Simpler than
+      // mutating live anims — the cost (~2s) is acceptable for a debug toggle.
+      location.reload();
+    });
+
+    bootstrap();
+  </script>
+</body>
+</html>

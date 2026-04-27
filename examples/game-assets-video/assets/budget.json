@@ -1,0 +1,353 @@
+{
+  "budget_cents": 1000,
+  "log": [
+    {
+      "ts": "2026-04-27T11:37:32.963687+00:00",
+      "service": "video-stub",
+      "cost_cents": 0,
+      "note": "hero-knight/idle 8.0s"
+    },
+    {
+      "ts": "2026-04-27T11:48:19.353056+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "hero-knight/canonical-side_right"
+    },
+    {
+      "ts": "2026-04-27T12:19:50.789844+00:00",
+      "service": "video-stub",
+      "cost_cents": 0,
+      "note": "test-stub/idle 5.0s"
+    },
+    {
+      "ts": "2026-04-27T12:42:38.402305+00:00",
+      "service": "video-grok",
+      "cost_cents": 25,
+      "note": "hero-knight/idle 5.0s"
+    },
+    {
+      "ts": "2026-04-27T12:50:24.962057+00:00",
+      "service": "video-grok",
+      "cost_cents": 25,
+      "note": "hero-knight/idle 5.0s"
+    },
+    {
+      "ts": "2026-04-27T13:34:14.459046+00:00",
+      "service": "video-grok",
+      "cost_cents": 25,
+      "note": "hero-knight/walk 5.0s"
+    },
+    {
+      "ts": "2026-04-27T13:50:53.834403+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "grassland/grass-base"
+    },
+    {
+      "ts": "2026-04-27T13:51:09.929117+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "grassland/grass-edge-left"
+    },
+    {
+      "ts": "2026-04-27T13:51:26.981581+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "grassland/grass-edge-right"
+    },
+    {
+      "ts": "2026-04-27T13:51:50.994443+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "grassland/grass-tall"
+    },
+    {
+      "ts": "2026-04-27T13:52:10.971097+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "grassland/earth-fill"
+    },
+    {
+      "ts": "2026-04-27T13:52:29.419342+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "grassland/earth-rocky"
+    },
+    {
+      "ts": "2026-04-27T13:52:57.923829+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "grassland/flower-yellow"
+    },
+    {
+      "ts": "2026-04-27T13:53:17.373205+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "grassland/flower-pink"
+    },
+    {
+      "ts": "2026-04-27T13:53:32.781190+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "grassland/flower-white"
+    },
+    {
+      "ts": "2026-04-27T13:53:55.536522+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "grassland/weed-clump"
+    },
+    {
+      "ts": "2026-04-27T13:54:08.553280+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "grassland/stone-small"
+    },
+    {
+      "ts": "2026-04-27T13:54:25.350631+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "grassland/stone-pair"
+    },
+    {
+      "ts": "2026-04-27T13:54:41.195822+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "grassland/stone-large"
+    },
+    {
+      "ts": "2026-04-27T13:55:01.538185+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "grassland/log-mossy"
+    },
+    {
+      "ts": "2026-04-27T13:55:20.093026+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "grassland/mushroom-red"
+    },
+    {
+      "ts": "2026-04-27T13:55:45.892377+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "grassland/filler-grass"
+    },
+    {
+      "ts": "2026-04-27T13:56:54.132821+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-far/background-far"
+    },
+    {
+      "ts": "2026-04-27T13:57:14.659027+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-mid/background-mid"
+    },
+    {
+      "ts": "2026-04-27T13:57:37.550969+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-near/background-near"
+    },
+    {
+      "ts": "2026-04-27T13:59:08.285404+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "health-potion/prop-idle attempt 1"
+    },
+    {
+      "ts": "2026-04-27T13:59:34.075461+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "health-potion/prop-idle attempt 2"
+    },
+    {
+      "ts": "2026-04-27T13:59:49.469494+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "health-potion/prop-idle attempt 3"
+    },
+    {
+      "ts": "2026-04-27T14:00:08.507904+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "health-potion/prop-collect attempt 1"
+    },
+    {
+      "ts": "2026-04-27T14:00:42.227089+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "health-potion/prop-collect attempt 2"
+    },
+    {
+      "ts": "2026-04-27T14:00:58.192322+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "health-potion/prop-collect attempt 3"
+    },
+    {
+      "ts": "2026-04-27T14:01:16.166892+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "gold-key/prop-idle attempt 1"
+    },
+    {
+      "ts": "2026-04-27T14:01:46.009678+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "gold-key/prop-idle attempt 2"
+    },
+    {
+      "ts": "2026-04-27T14:02:09.138265+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "gold-key/prop-idle attempt 3"
+    },
+    {
+      "ts": "2026-04-27T14:02:26.084467+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "gold-key/prop-collect attempt 1"
+    },
+    {
+      "ts": "2026-04-27T14:02:41.573549+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "gold-key/prop-collect attempt 2"
+    },
+    {
+      "ts": "2026-04-27T14:02:56.635913+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "gold-key/prop-collect attempt 3"
+    },
+    {
+      "ts": "2026-04-27T14:03:26.952776+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "spike-trap/prop-idle attempt 1"
+    },
+    {
+      "ts": "2026-04-27T14:03:44.808527+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "spike-trap/prop-idle attempt 2"
+    },
+    {
+      "ts": "2026-04-27T14:04:03.524600+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "spike-trap/prop-idle attempt 3"
+    },
+    {
+      "ts": "2026-04-27T14:04:25.008463+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "spike-trap/prop-trigger attempt 1"
+    },
+    {
+      "ts": "2026-04-27T14:04:43.638796+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "spike-trap/prop-trigger attempt 2"
+    },
+    {
+      "ts": "2026-04-27T14:04:59.965594+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "spike-trap/prop-trigger attempt 3"
+    },
+    {
+      "ts": "2026-04-27T14:05:28.147279+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "bounce-spring/prop-idle attempt 1"
+    },
+    {
+      "ts": "2026-04-27T14:05:52.679001+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "bounce-spring/prop-idle attempt 2"
+    },
+    {
+      "ts": "2026-04-27T14:06:10.110934+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "bounce-spring/prop-idle attempt 3"
+    },
+    {
+      "ts": "2026-04-27T14:06:37.383691+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "bounce-spring/prop-bounce attempt 1"
+    },
+    {
+      "ts": "2026-04-27T14:07:00.656646+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "bounce-spring/prop-bounce attempt 2"
+    },
+    {
+      "ts": "2026-04-27T14:07:22.003458+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "bounce-spring/prop-bounce attempt 3"
+    },
+    {
+      "ts": "2026-04-27T14:07:40.863229+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "wood-ladder/prop-idle attempt 1"
+    },
+    {
+      "ts": "2026-04-27T14:07:58.549805+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "wood-ladder/prop-idle attempt 2"
+    },
+    {
+      "ts": "2026-04-27T14:08:14.960274+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "wood-ladder/prop-idle attempt 3"
+    },
+    {
+      "ts": "2026-04-27T14:08:42.647254+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "checkpoint-flag/prop-idle attempt 1"
+    },
+    {
+      "ts": "2026-04-27T14:09:07.747613+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "checkpoint-flag/prop-idle attempt 2"
+    },
+    {
+      "ts": "2026-04-27T14:09:37.644747+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "checkpoint-flag/prop-idle attempt 3"
+    },
+    {
+      "ts": "2026-04-27T14:10:06.989797+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "checkpoint-flag/prop-activate attempt 1"
+    },
+    {
+      "ts": "2026-04-27T14:10:24.681152+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "checkpoint-flag/prop-activate attempt 2"
+    },
+    {
+      "ts": "2026-04-27T14:10:41.989363+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "checkpoint-flag/prop-activate attempt 3"
+    }
+  ]
+}

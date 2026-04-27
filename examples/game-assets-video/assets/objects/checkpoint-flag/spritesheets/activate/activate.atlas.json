@@ -1,0 +1,253 @@
+{
+  "image": "activate.png",
+  "meta": {
+    "obj_id": "checkpoint-flag",
+    "state": "activate",
+    "category": "interactive",
+    "rows": 2,
+    "cols": 4,
+    "frame_count": 8,
+    "frame_size": {
+      "w": 384,
+      "h": 512
+    },
+    "sheet_size": {
+      "w": 1536,
+      "h": 1024
+    },
+    "frame_order": "left-to-right, top-to-bottom",
+    "requested_cols": 4,
+    "requested_rows": 2,
+    "detected": false,
+    "aligned": true,
+    "frameRate": 8,
+    "yoyo": true,
+    "seed": 1365589970
+  },
+  "frames": [
+    {
+      "filename": "activate_000.png",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "torso_x": 191,
+        "aligned_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "shift": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "filename": "activate_001.png",
+      "frame": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "torso_x": 191,
+        "aligned_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "shift": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "filename": "activate_002.png",
+      "frame": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "torso_x": 191,
+        "aligned_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "shift": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "filename": "activate_003.png",
+      "frame": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "torso_x": 191,
+        "aligned_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "shift": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "filename": "activate_004.png",
+      "frame": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "torso_x": 191,
+        "aligned_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "shift": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "filename": "activate_005.png",
+      "frame": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "torso_x": 191,
+        "aligned_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "shift": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "filename": "activate_006.png",
+      "frame": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "torso_x": 191,
+        "aligned_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "shift": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "filename": "activate_007.png",
+      "frame": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "torso_x": 191,
+        "aligned_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "shift": [
+          0,
+          0
+        ]
+      }
+    }
+  ]
+}

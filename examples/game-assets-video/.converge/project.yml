@@ -1,0 +1,30 @@
+name: game-assets-video
+description: |
+  Game Assets Generation Playbook — video-based animation variant.
+  Character spritesheets are produced by generating a short video clip from the
+  canonical reference, extracting frames, and compositing them into a 4×2 grid
+  atlas compatible with the standard game-assets export pipeline. Props, tile
+  maps, and backgrounds still use Nano-banana (Gemini 2.5 Flash Image).
+
+run:
+  mode: oneoff
+
+vars:
+  sprite_resolution: 128
+  sprites_per_row: 4
+  animation_states:
+    - idle
+    - walk
+  asset_types:
+    - characters
+    - objects
+    - backgrounds
+  engine_targets:
+    - godot
+    - unity
+    - raw
+  max_characters: 3
+  max_states_per_character: 2
+  max_objects: 5
+  max_backgrounds: 2
+  stop_after: sprites
