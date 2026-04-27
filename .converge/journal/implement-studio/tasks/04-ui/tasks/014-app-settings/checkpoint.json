@@ -1,0 +1,45 @@
+{
+  "type": "task",
+  "id": "04-ui/014-app-settings",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T08:31:37.565Z",
+  "createdAt": "2026-04-26T05:46:58.232Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T05:46:58.232Z",
+      "completedAt": "2026-04-26T05:52:07.327Z",
+      "outcome": "success",
+      "durationMs": 309095
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-26T07:24:17.418Z",
+      "completedAt": "2026-04-26T07:25:54.077Z",
+      "outcome": "success",
+      "durationMs": 96659
+    },
+    {
+      "attempt": 3,
+      "startedAt": "2026-04-26T07:24:38.745Z",
+      "completedAt": "2026-04-26T07:26:31.948Z",
+      "outcome": "success",
+      "durationMs": 113203
+    },
+    {
+      "attempt": 4,
+      "startedAt": "2026-04-26T08:08:44.158Z",
+      "completedAt": "2026-04-26T08:11:39.154Z",
+      "outcome": "success",
+      "durationMs": 174996
+    },
+    {
+      "attempt": 5,
+      "startedAt": "2026-04-26T08:30:25.949Z",
+      "completedAt": "2026-04-26T08:31:37.563Z",
+      "outcome": "success",
+      "durationMs": 71614
+    }
+  ],
+  "currentAttempt": 5
+}

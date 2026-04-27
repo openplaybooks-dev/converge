@@ -415,4 +415,127 @@ export const projectRules: ProjectValidationRule[] = [
       return issues;
     },
   },
+
+  // ────────────────────────────────────────────────────────────────────
+  // Output-collision detector: two tasks declaring the same path as an
+  // output is an authoring bug — at runtime, whichever runs second
+  // overwrites the first, and dependent tasks get a non-deterministic
+  // outcome. Catch this at `converge verify` time.
+  // ────────────────────────────────────────────────────────────────────
+  {
+    id: "output-collision",
+    layer: "structure",
+    severity: "error",
+    description: "Two or more tasks declare the same path as an output",
+    check: (tasks) => {
+      const owners = new Map<string, Array<{ id: string; file: string }>>();
+      for (const t of tasks) {
+        const outputs = (t.shape as { outputs?: unknown }).outputs;
+        if (!Array.isArray(outputs)) continue;
+        for (const o of outputs) {
+          if (typeof o !== "string") continue;
+          // Normalize: strip trailing slash, collapse double slashes
+          const norm = o.replace(/\/+$/, "").replace(/\/{2,}/g, "/");
+          const list = owners.get(norm) ?? [];
+          list.push({ id: t.shape.id ?? "?", file: t.filePath });
+          owners.set(norm, list);
+        }
+      }
+      const issues: ValidationIssue[] = [];
+      for (const [out, list] of owners) {
+        if (list.length < 2) continue;
+        const owners_str = list.map((o) => `${o.id} (${o.file})`).join(", ");
+        issues.push({
+          ruleId: "output-collision",
+          layer: "structure",
+          severity: "error",
+          message: `Output "${out}" is claimed by ${list.length} tasks: ${owners_str}. At most one task should own each path.`,
+          path: list[0].file,
+          field: "outputs",
+          actual: list.map((o) => o.id),
+          fix: "Pick one owner; either drop the others' declaration of this path, or refactor so the colliding tasks produce different files.",
+        });
+      }
+      return issues;
+    },
+  },
+
+  // ────────────────────────────────────────────────────────────────────
+  // Cross-task constraint check: detect tasks whose declared `outputs`
+  // would be removed by a later task's destructive `cmd:` (rm, find -delete,
+  // etc.) or whose `checks:` reference a path another task removes.
+  //
+  // Static analysis — never executes commands. Walks tasks in declaration
+  // order and tracks a synthetic filesystem.
+  // ────────────────────────────────────────────────────────────────────
+  {
+    id: "check-superseded-by-later-task",
+    layer: "structure",
+    severity: "warning",
+    description:
+      "A task's check or output references a path that a later task removes",
+    check: (tasks) => {
+      const issues: ValidationIssue[] = [];
+      // Index outputs declared by each task
+      const outputsByTask = new Map<string, string[]>();
+      for (const t of tasks) {
+        const outs = (t.shape as { outputs?: unknown }).outputs;
+        if (Array.isArray(outs)) {
+          outputsByTask.set(
+            t.shape.id ?? t.filePath,
+            outs.filter((s): s is string => typeof s === "string"),
+          );
+        }
+      }
+
+      // Crude removal detector: find `cmd:` strings that look like deletes
+      // and capture the paths they target. Catches the common shapes —
+      // rm -rf X, rm X, find … -delete on a known dir, test ! -d X assertion.
+      const deletePatterns: Array<{
+        taskId: string;
+        file: string;
+        path: string;
+      }> = [];
+      for (const t of tasks) {
+        const checks = (t.shape as { checks?: unknown }).checks;
+        if (!Array.isArray(checks)) continue;
+        const id = t.shape.id ?? t.filePath;
+        for (const c of checks) {
+          if (!c || typeof c !== "object") continue;
+          const cmd = (c as { cmd?: unknown }).cmd;
+          if (typeof cmd !== "string") continue;
+          // `test ! -d <path>` and `test ! -f <path>` — assertion-style deletes
+          for (const m of cmd.matchAll(/test\s+!\s+-[df]\s+'?([^\s'"]+)'?/g)) {
+            deletePatterns.push({ taskId: id, file: t.filePath, path: m[1] });
+          }
+        }
+      }
+
+      // For each delete, see if any earlier task declares an output INSIDE
+      // the deleted path tree. If so, the earlier task's outputs are stale.
+      for (const del of deletePatterns) {
+        for (const [taskId, outs] of outputsByTask) {
+          if (taskId === del.taskId) continue;
+          for (const out of outs) {
+            // Is `out` inside `del.path` (or equal to it)?
+            const normDel = del.path.replace(/\/+$/, "");
+            const normOut = out.replace(/\/+$/, "");
+            if (normOut === normDel || normOut.startsWith(normDel + "/")) {
+              issues.push({
+                ruleId: "check-superseded-by-later-task",
+                layer: "structure",
+                severity: "warning",
+                message: `Task "${taskId}" declares output "${out}", but task "${del.taskId}" asserts this path is gone (${normDel}). Update the earlier task's outputs or move the deletion before the producer.`,
+                path: del.file,
+                field: "checks",
+                actual: del.path,
+                fix: "If the deletion is correct, drop the stale output: declaration. If the producer should keep its file, scope the later task's deletion more narrowly.",
+              });
+            }
+          }
+        }
+      }
+      return issues;
+    },
+  },
 ];

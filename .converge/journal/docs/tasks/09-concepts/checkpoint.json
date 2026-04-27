@@ -1,0 +1,18 @@
+{
+  "type": "task",
+  "id": "09-concepts",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T15:43:55.615Z",
+  "createdAt": "2026-04-26T07:34:28.987Z",
+  "progress": {
+    "totalChildren": 3,
+    "completedChildren": 3,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-gap-driven-model",
+      "002-filesystem-as-plan",
+      "003-self-correction"
+    ],
+    "lastProgressUpdate": "2026-04-26T15:43:55.504Z"
+  }
+}

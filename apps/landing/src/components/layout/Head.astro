@@ -1,0 +1,47 @@
+---
+// apps/landing/src/components/layout/Head.astro
+import seo from '@/.content/seo.json' with { type: 'json' };
+
+interface Props {
+  title: string;
+  description: string;
+  ogImage: string;
+  canonical: string;
+}
+
+const { title, description, ogImage, canonical } = Astro.props;
+const absoluteOg = ogImage.startsWith('http') ? ogImage : `${seo.site.canonical}${ogImage}`;
+---
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="generator" content={Astro.generator} />
+  <meta name="theme-color" content={seo.site.themeColor} />
+
+  <title>{title}</title>
+  <meta name="description" content={description} />
+
+  <link rel="canonical" href={canonical} />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={absoluteOg} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Converge" />
+  <meta property="og:locale" content={seo.site.locale} />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={absoluteOg} />
+  <meta name="twitter:site" content={seo.site.twitterHandle} />
+
+  <slot />
+</head>

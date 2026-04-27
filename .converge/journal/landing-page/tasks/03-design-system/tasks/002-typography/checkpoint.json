@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-design-system/002-typography",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T17:36:56.292Z",
+  "createdAt": "2026-04-26T17:36:07.530Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T17:36:07.530Z",
+      "completedAt": "2026-04-26T17:36:56.266Z",
+      "outcome": "success",
+      "durationMs": 48736
+    }
+  ],
+  "currentAttempt": 1
+}

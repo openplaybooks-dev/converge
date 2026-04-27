@@ -1,0 +1,20 @@
+{
+  "taskId": "10-verify/001-build-clean",
+  "checks": [
+    {
+      "id": "build-succeeds",
+      "description": "pnpm build exits 0",
+      "cmd": "test -d apps/landing/src && pnpm --filter @converge/landing build"
+    },
+    {
+      "id": "dist-emitted",
+      "description": "dist/ contains index.html",
+      "cmd": "test -d apps/landing/dist && test -f apps/landing/dist/index.html"
+    },
+    {
+      "id": "no-build-warnings",
+      "description": "build emits no warnings",
+      "cmd": "test -d apps/landing/src && pnpm --filter @converge/landing build 2>&1 | (! grep -iE '(warning|warn:)\\s')"
+    }
+  ]
+}

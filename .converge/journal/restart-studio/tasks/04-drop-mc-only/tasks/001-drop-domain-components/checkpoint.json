@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "04-drop-mc-only/001-drop-domain-components",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T10:02:04.465Z",
+  "createdAt": "2026-04-26T10:01:15.070Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T10:01:15.070Z",
+      "completedAt": "2026-04-26T10:02:04.461Z",
+      "outcome": "success",
+      "durationMs": 49391
+    }
+  ],
+  "currentAttempt": 1
+}

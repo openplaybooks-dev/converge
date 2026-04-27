@@ -5,13 +5,123 @@
  * Every fact is a simple boolean: exit 0 = true, exit 1 = false.
  */
 
-import { exec } from "child_process";
+import { exec, spawn } from "child_process";
 import { promisify } from "util";
 import { appendFile, mkdir, writeFile } from "fs/promises";
 import { join } from "path";
 import { getJournalStructure } from "../../journal/structure.js";
 
 const execAsync = promisify(exec);
+
+/**
+ * Exec a check command in its own process group so background processes
+ * the check spawns (e.g. `pnpm preview &`) get killed along with it.
+ *
+ * Without this, checks that spawn long-running children leak orphans
+ * across attempts — orphans hold ports/files and cause subsequent runs
+ * to false-fail (lighthouse hits port 4321 already-bound by orphan; new
+ * preview can't start; lighthouse scores 0; check fails despite the page
+ * being correct).
+ *
+ * On Windows: falls back to plain exec (no process-group concept).
+ */
+async function execInProcessGroup(
+  cmd: string,
+  opts: { cwd: string; timeoutMs: number },
+): Promise<{ stdout: string; stderr: string; exitCode: number; killed?: boolean }> {
+  if (process.platform === "win32") {
+    try {
+      const { stdout, stderr } = await execAsync(cmd, {
+        cwd: opts.cwd,
+        timeout: opts.timeoutMs,
+        shell: "bash",
+      });
+      return { stdout, stderr, exitCode: 0 };
+    } catch (err: any) {
+      return {
+        stdout: err.stdout ?? "",
+        stderr: err.stderr ?? "",
+        exitCode: typeof err.code === "number" ? err.code : 1,
+        killed: !!err.killed,
+      };
+    }
+  }
+
+  return new Promise((resolve) => {
+    const child = spawn("/bin/bash", ["-c", cmd], {
+      cwd: opts.cwd,
+      detached: true, // become process-group leader
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    let stdout = "";
+    let stderr = "";
+    let timedOut = false;
+    let settled = false;
+
+    child.stdout?.on("data", (chunk) => {
+      stdout += chunk.toString();
+    });
+    child.stderr?.on("data", (chunk) => {
+      stderr += chunk.toString();
+    });
+
+    const killGroup = (signal: NodeJS.Signals = "SIGTERM") => {
+      if (typeof child.pid === "number") {
+        try {
+          // Negative PID → kill entire process group.
+          process.kill(-child.pid, signal);
+        } catch {
+          // Group already gone or never spawned. Best-effort.
+        }
+      }
+    };
+
+    const timer = setTimeout(() => {
+      timedOut = true;
+      killGroup("SIGTERM");
+      // SIGKILL backstop in case child traps SIGTERM and stalls.
+      setTimeout(() => killGroup("SIGKILL"), 1500).unref();
+    }, opts.timeoutMs);
+    timer.unref();
+
+    const finalize = (exitCode: number) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      // Belt-and-braces: kill any group survivors (background `&` jobs)
+      // even on a clean exit. The check might have launched a daemon and
+      // returned 0; we still want the daemon dead so the next attempt's
+      // check can claim the same port.
+      killGroup("SIGTERM");
+      setTimeout(() => killGroup("SIGKILL"), 250).unref();
+      resolve({ stdout, stderr, exitCode, killed: timedOut });
+    };
+
+    child.on("error", (err) => {
+      stderr += `\n[converge] spawn error: ${err.message}`;
+      finalize(1);
+    });
+    // Use `exit` (foreground process ended) not `close` (all stdio drained).
+    // When a check spawns `cmd &` the backgrounded child inherits the
+    // parent's stdout/stderr pipes, so `close` never fires until that
+    // grandchild exits — defeating the whole point of the timeout +
+    // cleanup. `exit` fires as soon as the shell command itself returns,
+    // and our `killGroup` in finalize() then kills any backgrounded
+    // grandchildren that are still holding the pipes open.
+    child.on("exit", (code) => {
+      // Detach our pipe readers so the kill below isn't blocked by
+      // backgrounded grandchildren still writing to them.
+      try {
+        child.stdout?.destroy();
+        child.stderr?.destroy();
+      } catch {
+        /* ignore */
+      }
+      finalize(code ?? 1);
+    });
+  });
+}
 
 /**
  * Result of a fact check
@@ -60,34 +170,24 @@ export interface Fact {
 export async function check(
   cmd: string,
   cwd: string,
-  timeoutMs = 15_000,
+  timeoutMs = 60_000,
 ): Promise<FactResult> {
   const start = Date.now();
-  try {
-    const shell = process.platform === "win32" ? "bash" : "/bin/bash";
-    const { stdout, stderr } = await execAsync(cmd, {
-      cwd,
-      timeout: timeoutMs,
-      shell,
-    });
-    return {
-      ok: true,
-      output: stdout.trim() || stderr.trim(),
-      exitCode: 0,
-      durationMs: Date.now() - start,
-    };
-  } catch (error: any) {
-    const output =
-      [error.stderr?.trim(), error.stdout?.trim()].filter(Boolean).join("\n") ||
-      (error.killed ? `Command timed out after ${timeoutMs}ms` : error.message);
-    return {
-      ok: false,
-      output,
-      exitCode:
-        typeof error.code === "number" ? error.code : error.killed ? 124 : 1,
-      durationMs: Date.now() - start,
-    };
-  }
+  // Run in its own process group so background processes spawned by the
+  // check (e.g. `pnpm preview &`) get killed when the check exits.
+  // Default 60s — long enough for a preview-server-boot + lighthouse run,
+  // short enough that a wedged check doesn't stall the whole run.
+  const result = await execInProcessGroup(cmd, { cwd, timeoutMs });
+  const ok = result.exitCode === 0;
+  const output =
+    [result.stderr.trim(), result.stdout.trim()].filter(Boolean).join("\n") ||
+    (result.killed ? `Command timed out after ${timeoutMs}ms` : "");
+  return {
+    ok,
+    output,
+    exitCode: result.killed ? 124 : result.exitCode,
+    durationMs: Date.now() - start,
+  };
 }
 
 /**

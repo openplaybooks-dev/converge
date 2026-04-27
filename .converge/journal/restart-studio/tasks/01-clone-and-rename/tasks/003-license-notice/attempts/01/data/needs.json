@@ -1,0 +1,11 @@
+{
+  "taskId": "01-clone-and-rename/003-license-notice",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/studio/LICENSE",
+    "packages/studio/LICENSE.upstream",
+    "packages/studio/NOTICE"
+  ],
+  "blocked": false
+}

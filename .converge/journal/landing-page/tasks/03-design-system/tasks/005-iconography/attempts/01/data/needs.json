@@ -1,0 +1,20 @@
+{
+  "taskId": "03-design-system/005-iconography",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "banner.svg",
+      "count": 1,
+      "samples": [
+        "banner.svg"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/src/icons/converge-mark.svg",
+    "apps/landing/src/icons/convergence-journey.svg",
+    "apps/landing/src/components/ui/Icon.astro",
+    "apps/landing/package.json"
+  ],
+  "blocked": false
+}

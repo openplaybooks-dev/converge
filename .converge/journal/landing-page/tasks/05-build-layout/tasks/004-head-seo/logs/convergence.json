@@ -1,0 +1,325 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "05-build-layout/004-head-seo-missing-output-apps/landing/src/components/layout/Head.astro",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-build-layout/004-head-seo",
+            "severity": "high",
+            "description": "[05-build-layout/004-head-seo] Task output not created: apps/landing/src/components/layout/Head.astro",
+            "source": "unit",
+            "detected": "2026-04-26T19:37:11.370Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/05-build-layout/tasks/004-head-seo",
+              "taskId": "05-build-layout/004-head-seo",
+              "taskTitle": "Head.astro — centralizes <meta>, <link>, <title>, OG, Twitter, canonical",
+              "taskPrompt": "# Head\n\nCentralizes the page `<head>`. MainLayout passes per-page props in;\nHead emits the right tags.\n\n## File\n\n```astro\n---\n// apps/landing/src/components/layout/Head.astro\nimport seo from '@/.content/seo.json' with { type: 'json' };\n\ninterface Props {\n  title: string;\n  description: string;\n  ogImage: string;\n  canonical: string;\n}\n\nconst { title, description, ogImage, canonical } = Astro.props;\nconst absoluteOg = ogImage.startsWith('http') ? ogImage : `${seo.site.canonical}${ogImage}`;\n---\n\n<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <meta name=\"generator\" content={Astro.generator} />\n  <meta name=\"theme-color\" content={seo.site.themeColor} />\n\n  <title>{title}</title>\n  <meta name=\"description\" content={description} />\n\n  <link rel=\"canonical\" href={canonical} />\n  <link rel=\"icon\" type=\"image/svg+xml\" href=\"/favicon.svg\" />\n  <link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\" />\n  <link rel=\"manifest\" href=\"/site.webmanifest\" />\n\n  <!-- Open Graph -->\n  <meta property=\"og:title\" content={title} />\n  <meta property=\"og:description\" content={description} />\n  <meta property=\"og:image\" content={absoluteOg} />\n  <meta property=\"og:url\" content={canonical} />\n  <meta property=\"og:type\" content=\"website\" />\n  <meta property=\"og:site_name\" content=\"Converge\" />\n  <meta property=\"og:locale\" content={seo.site.locale} />\n\n  <!-- Twitter -->\n  <meta name=\"twitter:card\" content=\"summary_large_image\" />\n  <meta name=\"twitter:title\" content={title} />\n  <meta name=\"twitter:description\" content={description} />\n  <meta name=\"twitter:image\" content={absoluteOg} />\n  <meta name=\"twitter:site\" content={seo.site.twitterHandle} />\n\n  <slot />\n</head>\n```\n\n## Process\n\n1. Write the file.\n2. The `<slot />` at the end lets pages inject their own page-specific tags (e.g. `<link rel=\"alternate\" type=\"application/rss+xml\">` on the blog index).\n3. Run `astro check`.\n\n## Banned\n\n- `keywords` meta. Search engines stopped using it in ~2009.\n- Hardcoded URLs / titles. All values come through props or seo.json.\n- Inline `<style>` or `<script>` here. Head is metadata only.",
+              "taskInputs": [
+                "apps/landing/.content/seo.json",
+                "apps/landing/.content/brand.json"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/src/components/layout/Head.astro\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "05-build-layout/004-head-seo-check-failed-head-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-build-layout/004-head-seo",
+            "severity": "high",
+            "description": "[05-build-layout/004-head-seo] Check failed: Head.astro exists",
+            "source": "unit",
+            "detected": "2026-04-26T19:37:11.372Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "head-exists",
+              "checkCmd": "test -f apps/landing/src/components/layout/Head.astro",
+              "checkDescription": "Head.astro exists",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/layout/Head.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Head\n\nCentralizes the page `<head>`. MainLayout passes per-page props in;\nHead emits the right tags.\n\n## File\n\n```astro\n---\n// apps/landing/src/components/layout/Head.astro\nimport seo from '@/.content/seo.json' with { type: 'json' };\n\ninterface Props {\n  title: string;\n  description: string;\n  ogImage: string;\n  canonical: string;\n}\n\nconst { title, description, ogImage, canonical } = Astro.props;\nconst absoluteOg = ogImage.startsWith('http') ? ogImage : `${seo.site.canonical}${ogImage}`;\n---\n\n<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <meta name=\"generator\" content={Astro.generator} />\n  <meta name=\"theme-color\" content={seo.site.themeColor} />\n\n  <title>{title}</title>\n  <meta name=\"description\" content={description} />\n\n  <link rel=\"canonical\" href={canonical} />\n  <link rel=\"icon\" type=\"image/svg+xml\" href=\"/favicon.svg\" />\n  <link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\" />\n  <link rel=\"manifest\" href=\"/site.webmanifest\" />\n\n  <!-- Open Graph -->\n  <meta property=\"og:title\" content={title} />\n  <meta property=\"og:description\" content={description} />\n  <meta property=\"og:image\" content={absoluteOg} />\n  <meta property=\"og:url\" content={canonical} />\n  <meta property=\"og:type\" content=\"website\" />\n  <meta property=\"og:site_name\" content=\"Converge\" />\n  <meta property=\"og:locale\" content={seo.site.locale} />\n\n  <!-- Twitter -->\n  <meta name=\"twitter:card\" content=\"summary_large_image\" />\n  <meta name=\"twitter:title\" content={title} />\n  <meta name=\"twitter:description\" content={description} />\n  <meta name=\"twitter:image\" content={absoluteOg} />\n  <meta name=\"twitter:site\" content={seo.site.twitterHandle} />\n\n  <slot />\n</head>\n```\n\n## Process\n\n1. Write the file.\n2. The `<slot />` at the end lets pages inject their own page-specific tags (e.g. `<link rel=\"alternate\" type=\"application/rss+xml\">` on the blog index).\n3. Run `astro check`.\n\n## Banned\n\n- `keywords` meta. Search engines stopped using it in ~2009.\n- Hardcoded URLs / titles. All values come through props or seo.json.\n- Inline `<style>` or `<script>` here. Head is metadata only.",
+              "taskId": "05-build-layout/004-head-seo",
+              "taskTitle": "Head.astro — centralizes <meta>, <link>, <title>, OG, Twitter, canonical",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/05-build-layout/tasks/004-head-seo",
+              "factId": "check:head-exists"
+            }
+          },
+          {
+            "id": "05-build-layout/004-head-seo-check-failed-head-emits-title",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-build-layout/004-head-seo",
+            "severity": "high",
+            "description": "[05-build-layout/004-head-seo] Check failed: emits a <title> tag",
+            "source": "unit",
+            "detected": "2026-04-26T19:37:11.375Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "head-emits-title",
+              "checkCmd": "test -f apps/landing/src/components/layout/Head.astro && grep -qE '<title>' apps/landing/src/components/layout/Head.astro",
+              "checkDescription": "emits a <title> tag",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/layout/Head.astro && grep -qE '<title>' apps/landing/src/components/layout/Head.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Head\n\nCentralizes the page `<head>`. MainLayout passes per-page props in;\nHead emits the right tags.\n\n## File\n\n```astro\n---\n// apps/landing/src/components/layout/Head.astro\nimport seo from '@/.content/seo.json' with { type: 'json' };\n\ninterface Props {\n  title: string;\n  description: string;\n  ogImage: string;\n  canonical: string;\n}\n\nconst { title, description, ogImage, canonical } = Astro.props;\nconst absoluteOg = ogImage.startsWith('http') ? ogImage : `${seo.site.canonical}${ogImage}`;\n---\n\n<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <meta name=\"generator\" content={Astro.generator} />\n  <meta name=\"theme-color\" content={seo.site.themeColor} />\n\n  <title>{title}</title>\n  <meta name=\"description\" content={description} />\n\n  <link rel=\"canonical\" href={canonical} />\n  <link rel=\"icon\" type=\"image/svg+xml\" href=\"/favicon.svg\" />\n  <link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\" />\n  <link rel=\"manifest\" href=\"/site.webmanifest\" />\n\n  <!-- Open Graph -->\n  <meta property=\"og:title\" content={title} />\n  <meta property=\"og:description\" content={description} />\n  <meta property=\"og:image\" content={absoluteOg} />\n  <meta property=\"og:url\" content={canonical} />\n  <meta property=\"og:type\" content=\"website\" />\n  <meta property=\"og:site_name\" content=\"Converge\" />\n  <meta property=\"og:locale\" content={seo.site.locale} />\n\n  <!-- Twitter -->\n  <meta name=\"twitter:card\" content=\"summary_large_image\" />\n  <meta name=\"twitter:title\" content={title} />\n  <meta name=\"twitter:description\" content={description} />\n  <meta name=\"twitter:image\" content={absoluteOg} />\n  <meta name=\"twitter:site\" content={seo.site.twitterHandle} />\n\n  <slot />\n</head>\n```\n\n## Process\n\n1. Write the file.\n2. The `<slot />` at the end lets pages inject their own page-specific tags (e.g. `<link rel=\"alternate\" type=\"application/rss+xml\">` on the blog index).\n3. Run `astro check`.\n\n## Banned\n\n- `keywords` meta. Search engines stopped using it in ~2009.\n- Hardcoded URLs / titles. All values come through props or seo.json.\n- Inline `<style>` or `<script>` here. Head is metadata only.",
+              "taskId": "05-build-layout/004-head-seo",
+              "taskTitle": "Head.astro — centralizes <meta>, <link>, <title>, OG, Twitter, canonical",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/05-build-layout/tasks/004-head-seo",
+              "factId": "check:head-emits-title"
+            }
+          },
+          {
+            "id": "05-build-layout/004-head-seo-check-failed-head-emits-og",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-build-layout/004-head-seo",
+            "severity": "high",
+            "description": "[05-build-layout/004-head-seo] Check failed: emits Open Graph meta tags",
+            "source": "unit",
+            "detected": "2026-04-26T19:37:11.377Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "head-emits-og",
+              "checkCmd": "test -f apps/landing/src/components/layout/Head.astro && grep -qE 'og:title|og:description|og:image' apps/landing/src/components/layout/Head.astro",
+              "checkDescription": "emits Open Graph meta tags",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/layout/Head.astro && grep -qE 'og:title|og:description|og:image' apps/landing/src/components/layout/Head.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Head\n\nCentralizes the page `<head>`. MainLayout passes per-page props in;\nHead emits the right tags.\n\n## File\n\n```astro\n---\n// apps/landing/src/components/layout/Head.astro\nimport seo from '@/.content/seo.json' with { type: 'json' };\n\ninterface Props {\n  title: string;\n  description: string;\n  ogImage: string;\n  canonical: string;\n}\n\nconst { title, description, ogImage, canonical } = Astro.props;\nconst absoluteOg = ogImage.startsWith('http') ? ogImage : `${seo.site.canonical}${ogImage}`;\n---\n\n<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <meta name=\"generator\" content={Astro.generator} />\n  <meta name=\"theme-color\" content={seo.site.themeColor} />\n\n  <title>{title}</title>\n  <meta name=\"description\" content={description} />\n\n  <link rel=\"canonical\" href={canonical} />\n  <link rel=\"icon\" type=\"image/svg+xml\" href=\"/favicon.svg\" />\n  <link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\" />\n  <link rel=\"manifest\" href=\"/site.webmanifest\" />\n\n  <!-- Open Graph -->\n  <meta property=\"og:title\" content={title} />\n  <meta property=\"og:description\" content={description} />\n  <meta property=\"og:image\" content={absoluteOg} />\n  <meta property=\"og:url\" content={canonical} />\n  <meta property=\"og:type\" content=\"website\" />\n  <meta property=\"og:site_name\" content=\"Converge\" />\n  <meta property=\"og:locale\" content={seo.site.locale} />\n\n  <!-- Twitter -->\n  <meta name=\"twitter:card\" content=\"summary_large_image\" />\n  <meta name=\"twitter:title\" content={title} />\n  <meta name=\"twitter:description\" content={description} />\n  <meta name=\"twitter:image\" content={absoluteOg} />\n  <meta name=\"twitter:site\" content={seo.site.twitterHandle} />\n\n  <slot />\n</head>\n```\n\n## Process\n\n1. Write the file.\n2. The `<slot />` at the end lets pages inject their own page-specific tags (e.g. `<link rel=\"alternate\" type=\"application/rss+xml\">` on the blog index).\n3. Run `astro check`.\n\n## Banned\n\n- `keywords` meta. Search engines stopped using it in ~2009.\n- Hardcoded URLs / titles. All values come through props or seo.json.\n- Inline `<style>` or `<script>` here. Head is metadata only.",
+              "taskId": "05-build-layout/004-head-seo",
+              "taskTitle": "Head.astro — centralizes <meta>, <link>, <title>, OG, Twitter, canonical",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/05-build-layout/tasks/004-head-seo",
+              "factId": "check:head-emits-og"
+            }
+          },
+          {
+            "id": "05-build-layout/004-head-seo-check-failed-head-emits-twitter",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-build-layout/004-head-seo",
+            "severity": "high",
+            "description": "[05-build-layout/004-head-seo] Check failed: emits Twitter card meta",
+            "source": "unit",
+            "detected": "2026-04-26T19:37:11.381Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "head-emits-twitter",
+              "checkCmd": "test -f apps/landing/src/components/layout/Head.astro && grep -qE 'twitter:card' apps/landing/src/components/layout/Head.astro",
+              "checkDescription": "emits Twitter card meta",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/layout/Head.astro && grep -qE 'twitter:card' apps/landing/src/components/layout/Head.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Head\n\nCentralizes the page `<head>`. MainLayout passes per-page props in;\nHead emits the right tags.\n\n## File\n\n```astro\n---\n// apps/landing/src/components/layout/Head.astro\nimport seo from '@/.content/seo.json' with { type: 'json' };\n\ninterface Props {\n  title: string;\n  description: string;\n  ogImage: string;\n  canonical: string;\n}\n\nconst { title, description, ogImage, canonical } = Astro.props;\nconst absoluteOg = ogImage.startsWith('http') ? ogImage : `${seo.site.canonical}${ogImage}`;\n---\n\n<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <meta name=\"generator\" content={Astro.generator} />\n  <meta name=\"theme-color\" content={seo.site.themeColor} />\n\n  <title>{title}</title>\n  <meta name=\"description\" content={description} />\n\n  <link rel=\"canonical\" href={canonical} />\n  <link rel=\"icon\" type=\"image/svg+xml\" href=\"/favicon.svg\" />\n  <link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\" />\n  <link rel=\"manifest\" href=\"/site.webmanifest\" />\n\n  <!-- Open Graph -->\n  <meta property=\"og:title\" content={title} />\n  <meta property=\"og:description\" content={description} />\n  <meta property=\"og:image\" content={absoluteOg} />\n  <meta property=\"og:url\" content={canonical} />\n  <meta property=\"og:type\" content=\"website\" />\n  <meta property=\"og:site_name\" content=\"Converge\" />\n  <meta property=\"og:locale\" content={seo.site.locale} />\n\n  <!-- Twitter -->\n  <meta name=\"twitter:card\" content=\"summary_large_image\" />\n  <meta name=\"twitter:title\" content={title} />\n  <meta name=\"twitter:description\" content={description} />\n  <meta name=\"twitter:image\" content={absoluteOg} />\n  <meta name=\"twitter:site\" content={seo.site.twitterHandle} />\n\n  <slot />\n</head>\n```\n\n## Process\n\n1. Write the file.\n2. The `<slot />` at the end lets pages inject their own page-specific tags (e.g. `<link rel=\"alternate\" type=\"application/rss+xml\">` on the blog index).\n3. Run `astro check`.\n\n## Banned\n\n- `keywords` meta. Search engines stopped using it in ~2009.\n- Hardcoded URLs / titles. All values come through props or seo.json.\n- Inline `<style>` or `<script>` here. Head is metadata only.",
+              "taskId": "05-build-layout/004-head-seo",
+              "taskTitle": "Head.astro — centralizes <meta>, <link>, <title>, OG, Twitter, canonical",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/05-build-layout/tasks/004-head-seo",
+              "factId": "check:head-emits-twitter"
+            }
+          },
+          {
+            "id": "05-build-layout/004-head-seo-check-failed-head-emits-canonical",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-build-layout/004-head-seo",
+            "severity": "high",
+            "description": "[05-build-layout/004-head-seo] Check failed: emits canonical link",
+            "source": "unit",
+            "detected": "2026-04-26T19:37:11.384Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "head-emits-canonical",
+              "checkCmd": "test -f apps/landing/src/components/layout/Head.astro && grep -qE 'rel=\"canonical\"' apps/landing/src/components/layout/Head.astro",
+              "checkDescription": "emits canonical link",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/layout/Head.astro && grep -qE 'rel=\"canonical\"' apps/landing/src/components/layout/Head.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Head\n\nCentralizes the page `<head>`. MainLayout passes per-page props in;\nHead emits the right tags.\n\n## File\n\n```astro\n---\n// apps/landing/src/components/layout/Head.astro\nimport seo from '@/.content/seo.json' with { type: 'json' };\n\ninterface Props {\n  title: string;\n  description: string;\n  ogImage: string;\n  canonical: string;\n}\n\nconst { title, description, ogImage, canonical } = Astro.props;\nconst absoluteOg = ogImage.startsWith('http') ? ogImage : `${seo.site.canonical}${ogImage}`;\n---\n\n<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <meta name=\"generator\" content={Astro.generator} />\n  <meta name=\"theme-color\" content={seo.site.themeColor} />\n\n  <title>{title}</title>\n  <meta name=\"description\" content={description} />\n\n  <link rel=\"canonical\" href={canonical} />\n  <link rel=\"icon\" type=\"image/svg+xml\" href=\"/favicon.svg\" />\n  <link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\" />\n  <link rel=\"manifest\" href=\"/site.webmanifest\" />\n\n  <!-- Open Graph -->\n  <meta property=\"og:title\" content={title} />\n  <meta property=\"og:description\" content={description} />\n  <meta property=\"og:image\" content={absoluteOg} />\n  <meta property=\"og:url\" content={canonical} />\n  <meta property=\"og:type\" content=\"website\" />\n  <meta property=\"og:site_name\" content=\"Converge\" />\n  <meta property=\"og:locale\" content={seo.site.locale} />\n\n  <!-- Twitter -->\n  <meta name=\"twitter:card\" content=\"summary_large_image\" />\n  <meta name=\"twitter:title\" content={title} />\n  <meta name=\"twitter:description\" content={description} />\n  <meta name=\"twitter:image\" content={absoluteOg} />\n  <meta name=\"twitter:site\" content={seo.site.twitterHandle} />\n\n  <slot />\n</head>\n```\n\n## Process\n\n1. Write the file.\n2. The `<slot />` at the end lets pages inject their own page-specific tags (e.g. `<link rel=\"alternate\" type=\"application/rss+xml\">` on the blog index).\n3. Run `astro check`.\n\n## Banned\n\n- `keywords` meta. Search engines stopped using it in ~2009.\n- Hardcoded URLs / titles. All values come through props or seo.json.\n- Inline `<style>` or `<script>` here. Head is metadata only.",
+              "taskId": "05-build-layout/004-head-seo",
+              "taskTitle": "Head.astro — centralizes <meta>, <link>, <title>, OG, Twitter, canonical",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/05-build-layout/tasks/004-head-seo",
+              "factId": "check:head-emits-canonical"
+            }
+          }
+        ],
+        "durationMs": 76
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 11
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 31
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#86",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 23345
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T19:37:11.307Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T19:37:11.308Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T19:37:11.384Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T19:37:11.385Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T19:37:11.396Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#86",
+      "iteration": 1,
+      "ts": "2026-04-26T19:37:34.742Z"
+    },
+    {
+      "from": "run-strategy:task-run#86",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T19:37:34.774Z"
+    }
+  ]
+}

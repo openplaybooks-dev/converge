@@ -1,0 +1,10 @@
+{
+  "taskId": "03-characters/03-generation/hero-knight-spritesheet-idle",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/characters/hero-knight/spritesheets/idle/idle.png",
+    "assets/characters/hero-knight/spritesheets/idle/idle.prompt.txt"
+  ],
+  "blocked": false
+}

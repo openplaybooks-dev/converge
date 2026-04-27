@@ -1,0 +1,67 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "Outputs already present",
+        "durationMs": 29
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T09:48:47.352Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T09:48:47.381Z"
+    }
+  ]
+}

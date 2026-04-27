@@ -1,17 +1,17 @@
 # RESULT.md — Attempt 1
 
 **Outcome**: ✅ SUCCESS
-**Duration**: 285ms
-**Completed**: 2026-04-23T06:03:39.366Z
+**Duration**: 1m 7s
+**Completed**: 2026-04-26T17:33:29.430Z
 
 ## Outputs
 
-- `assets/characters/hero-knight/ref/angles/angles.json` — ✓ produced (198 B)
-- `assets/characters/hero-knight/ref/angles/front.png` — ✓ produced (25.0 KB)
-- `assets/characters/hero-knight/ref/angles/side_left.png` — ✓ produced (18.7 KB)
-- `assets/characters/hero-knight/ref/angles/side_right.png` — ✓ produced (19.3 KB)
-- `assets/characters/hero-knight/ref/angles/back.png` — ✓ produced (27.2 KB)
+- `assets/characters/hero-knight/ref/source/source.png` — ✓ produced (252.1 KB)
+- `assets/characters/hero-knight/ref/canonical/canonical.png` — ✓ produced (11.8 KB)
+- `assets/characters/hero-knight/ref/manifest.json` — ✓ produced (219 B)
 
 ## Check Results — ✅ all passed
 
-- ✓ **angles-exist**: Angle references exist
+- ✓ **source-png-is-real**: source.png is at least 256x256 (rejects placeholder stubs)
+- ✓ **canonical-png-is-real**: canonical.png is at least 64x64 (rejects placeholder stubs)
+- ✓ **manifest-has-canonical-angle**: manifest.json declares the locked viewport

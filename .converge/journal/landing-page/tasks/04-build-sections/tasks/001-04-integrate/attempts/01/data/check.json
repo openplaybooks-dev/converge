@@ -1,0 +1,25 @@
+{
+  "taskId": "04-build-sections/001-04-integrate",
+  "checks": [
+    {
+      "id": "index-astro-exists",
+      "description": "index.astro exists",
+      "cmd": "test -f apps/landing/src/pages/index.astro"
+    },
+    {
+      "id": "component-imported",
+      "description": "Hero is imported in index.astro",
+      "cmd": "test -f apps/landing/src/pages/index.astro && grep -qE \"import\\s+Hero\\s+from\" apps/landing/src/pages/index.astro"
+    },
+    {
+      "id": "component-rendered",
+      "description": "<Hero> is rendered in index.astro",
+      "cmd": "test -f apps/landing/src/pages/index.astro && grep -qE '<Hero\\b' apps/landing/src/pages/index.astro"
+    },
+    {
+      "id": "build-clean",
+      "description": "astro check still passes after integration",
+      "cmd": "test -f apps/landing/package.json && pnpm --filter @converge/landing astro check"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "taskId": "06-guides/004-build-a-software-project",
+  "checks": [
+    {
+      "id": "page-exists",
+      "description": "page exists",
+      "cmd": "test -f docs/guides/build-a-software-project.md"
+    },
+    {
+      "id": "page-frontmatter",
+      "description": "title + sources frontmatter",
+      "cmd": "head -10 docs/guides/build-a-software-project.md | grep -q '^title:' && head -10 docs/guides/build-a-software-project.md | grep -q '^sources:'"
+    },
+    {
+      "id": "anchored-on-software-examples",
+      "description": "page anchors on a real software example",
+      "cmd": "grep -qE 'flutter-app|fullstack-app|stitch-to-flutter' docs/guides/build-a-software-project.md"
+    },
+    {
+      "id": "shows-playbook-yml",
+      "description": "shows a playbook.yml shape",
+      "cmd": "grep -qE 'playbook\\.yml|^\\s*name:' docs/guides/build-a-software-project.md"
+    },
+    {
+      "id": "shows-task-md",
+      "description": "covers TASK.md",
+      "cmd": "grep -qE 'TASK\\.md' docs/guides/build-a-software-project.md"
+    },
+    {
+      "id": "word-count-ok",
+      "description": "800-1800 words",
+      "cmd": "test -f docs/guides/build-a-software-project.md && wc -w docs/guides/build-a-software-project.md | awk '{exit ($1>=800&&$1<=1800?0:1)}'"
+    }
+  ]
+}

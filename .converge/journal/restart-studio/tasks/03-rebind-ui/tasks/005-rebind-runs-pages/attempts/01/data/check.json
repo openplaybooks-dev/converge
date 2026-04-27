@@ -1,0 +1,15 @@
+{
+  "taskId": "03-rebind-ui/005-rebind-runs-pages",
+  "checks": [
+    {
+      "id": "runs-list-exists",
+      "description": "/runs/page.tsx exists and uses views primitives",
+      "cmd": "test -f packages/studio/src/app/runs/page.tsx && grep -q 'TableView\\|KanbanBoard\\|ViewSwitcher' packages/studio/src/app/runs/page.tsx"
+    },
+    {
+      "id": "live-session-view-exists",
+      "description": "live session view exists and consumes runs SSE",
+      "cmd": "test -f 'packages/studio/src/app/runs/[playbook]/[sessionId]/page.tsx' && grep -q '/api/runs\\|stream\\|EventSource' 'packages/studio/src/app/runs/[playbook]/[sessionId]/page.tsx'"
+    }
+  ]
+}

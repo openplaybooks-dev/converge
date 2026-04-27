@@ -1,0 +1,20 @@
+{
+  "taskId": "05-run-supervisor/001-supervisor-module",
+  "checks": [
+    {
+      "id": "module-exists",
+      "description": "Supervisor module exists",
+      "cmd": "test -f packages/converge-studio/src/lib/run-supervisor.ts && test -f packages/converge-studio/src/lib/ring-buffer.ts"
+    },
+    {
+      "id": "typecheck",
+      "description": "Module typechecks",
+      "cmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    },
+    {
+      "id": "api-surface",
+      "description": "Exposes startRun, getRun, listRuns",
+      "cmd": "grep -q 'export function startRun\\|export const startRun' packages/converge-studio/src/lib/run-supervisor.ts && grep -q 'export function getRun\\|export const getRun' packages/converge-studio/src/lib/run-supervisor.ts && grep -q 'export function listRuns\\|export const listRuns' packages/converge-studio/src/lib/run-supervisor.ts"
+    }
+  ]
+}

@@ -1,12 +1,12 @@
 # RESULT.md — Attempt 1
 
 **Outcome**: ✅ SUCCESS
-**Duration**: 10ms
-**Completed**: 2026-04-23T05:53:26.871Z
+**Duration**: 36s
+**Completed**: 2026-04-26T17:24:42.612Z
 
 ## Outputs
 
-- `assets/characters/forest-elf/SPEC.md` — ✓ produced (384 B)
+- `assets/characters/forest-elf/SPEC.md` — ✓ produced (674 B)
 
 ## Check Results — ✅ all passed
 

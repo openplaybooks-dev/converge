@@ -1,0 +1,25 @@
+{
+  "type": "task",
+  "id": "epoch-001",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T23:04:30.697Z",
+  "createdAt": "2026-04-26T01:19:09.344Z",
+  "progress": {
+    "totalChildren": 10,
+    "completedChildren": 6,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-analyze",
+      "001-analyze",
+      "002-implement",
+      "002-implement",
+      "003-review",
+      "003-review",
+      "004-quality",
+      "004-quality",
+      "005-changelog",
+      "005-changelog"
+    ],
+    "lastProgressUpdate": "2026-04-26T23:04:30.624Z"
+  }
+}

@@ -1,0 +1,48 @@
+---
+// apps/landing/src/pages/blog/[slug].astro
+export const prerender = true;
+import { getCollection, render } from 'astro:content';
+import MainLayout from '@/layouts/MainLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts
+    .filter((p) => !p.data.draft)
+    .map((p) => ({
+      params: { slug: p.id.replace(/\.mdx?$/, '') },
+      props: { post: p },
+    }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<MainLayout
+  page="blog"
+  title={`${post.data.title} — Converge`}
+  description={post.data.description}
+  ogImage={post.data.ogImage}
+>
+  <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 prose prose-invert prose-headings:font-display prose-pre:bg-bg-elev">
+    <header class="not-prose mb-12">
+      <h1 class="text-4xl sm:text-5xl font-display font-bold text-text leading-tight">
+        {post.data.title}
+      </h1>
+      <p class="mt-4 text-text-muted text-lg">{post.data.description}</p>
+      <p class="mt-6 text-sm text-text-dim">
+        <time datetime={post.data.pubDate.toISOString()}>
+          {post.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+        </time>
+        <span class="mx-2">·</span>
+        {post.data.author}
+      </p>
+    </header>
+
+    <Content />
+
+    <footer class="not-prose mt-16 pt-8 border-t border-border">
+      <a href="/blog" class="text-indigo hover:underline">← All posts</a>
+    </footer>
+  </article>
+</MainLayout>

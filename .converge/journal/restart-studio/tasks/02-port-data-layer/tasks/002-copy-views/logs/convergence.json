@@ -1,0 +1,222 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "02-port-data-layer/002-copy-views-missing-output-packages/studio/src/components/views",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-port-data-layer/002-copy-views",
+            "severity": "high",
+            "description": "[02-port-data-layer/002-copy-views] Task output not created: packages/studio/src/components/views",
+            "source": "unit",
+            "detected": "2026-04-26T09:39:13.613Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/02-port-data-layer/tasks/002-copy-views",
+              "taskId": "02-port-data-layer/002-copy-views",
+              "taskTitle": "Copy view-mode primitives from rescue",
+              "taskPrompt": "```bash\nmkdir -p packages/studio/src/components/views\ncp /tmp/converge-studio-rescue/components/views/*.tsx packages/studio/src/components/views/\ncp /tmp/converge-studio-rescue/components/views/index.ts packages/studio/src/components/views/\n```",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"packages/studio/src/components/views\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-port-data-layer/002-copy-views-check-failed-views-present",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-port-data-layer/002-copy-views",
+            "severity": "high",
+            "description": "[02-port-data-layer/002-copy-views] Check failed: All 5 view primitives + index exist",
+            "source": "unit",
+            "detected": "2026-04-26T09:39:13.616Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "views-present",
+              "checkCmd": "for f in KanbanBoard SessionGantt TableView TaskTree ViewSwitcher; do test -f packages/studio/src/components/views/$f.tsx || exit 1; done && test -f packages/studio/src/components/views/index.ts",
+              "checkDescription": "All 5 view primitives + index exist",
+              "checkOutput": "Command failed: for f in KanbanBoard SessionGantt TableView TaskTree ViewSwitcher; do test -f packages/studio/src/components/views/$f.tsx || exit 1; done && test -f packages/studio/src/components/views/index.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "```bash\nmkdir -p packages/studio/src/components/views\ncp /tmp/converge-studio-rescue/components/views/*.tsx packages/studio/src/components/views/\ncp /tmp/converge-studio-rescue/components/views/index.ts packages/studio/src/components/views/\n```",
+              "taskId": "02-port-data-layer/002-copy-views",
+              "taskTitle": "Copy view-mode primitives from rescue",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/02-port-data-layer/tasks/002-copy-views",
+              "factId": "check:views-present"
+            }
+          }
+        ],
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 8
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 8
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#6",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 18358
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T09:39:13.609Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T09:39:13.609Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T09:39:13.618Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T09:39:13.619Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T09:39:13.628Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#6",
+      "iteration": 1,
+      "ts": "2026-04-26T09:39:31.986Z"
+    },
+    {
+      "from": "run-strategy:task-run#6",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T09:39:31.995Z"
+    }
+  ]
+}

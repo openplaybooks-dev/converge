@@ -1,0 +1,300 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "05-build-layout/003-footer-missing-output-apps/landing/src/components/layout/Footer.astro",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-build-layout/003-footer",
+            "severity": "high",
+            "description": "[05-build-layout/003-footer] Task output not created: apps/landing/src/components/layout/Footer.astro",
+            "source": "unit",
+            "detected": "2026-04-26T19:36:49.617Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/05-build-layout/tasks/003-footer",
+              "taskId": "05-build-layout/003-footer",
+              "taskTitle": "Footer.astro — brand + links + copyright + license",
+              "taskPrompt": "# Footer\n\nBottom of every page. Minimal: brand + license + tertiary nav.\n\n## File\n\n```astro\n---\n// apps/landing/src/components/layout/Footer.astro\nimport brand from '@/.content/brand.json' with { type: 'json' };\n\nconst year = new Date().getFullYear();\n---\n\n<footer class=\"border-t border-border bg-bg-elev/30 py-12 mt-24\">\n  <div class=\"max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid gap-8 md:grid-cols-3\">\n    <div>\n      <p class=\"font-display font-bold text-text\">{brand.name}</p>\n      <p class=\"text-sm text-text-muted mt-2 max-w-sm\">{brand.tagline}</p>\n    </div>\n\n    <nav class=\"flex flex-col gap-2 text-sm\">\n      <p class=\"text-text-dim uppercase text-xs tracking-wide font-semibold mb-2\">Project</p>\n      <a href=\"/docs/getting-started/why-converge\" class=\"text-text-muted hover:text-text\">Documentation</a>\n      <a href=\"/blog\" class=\"text-text-muted hover:text-text\">Blog</a>\n      <a href={brand.github} target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-text-muted hover:text-text\">GitHub</a>\n    </nav>\n\n    <nav class=\"flex flex-col gap-2 text-sm\">\n      <p class=\"text-text-dim uppercase text-xs tracking-wide font-semibold mb-2\">Concepts</p>\n      <a href=\"/docs/concepts/context-interpolation\" class=\"text-text-muted hover:text-text\">Context interpolation</a>\n      <a href=\"/docs/concepts/deterministic-checks\" class=\"text-text-muted hover:text-text\">Deterministic checks</a>\n      <a href=\"/docs/concepts/dynamic-work-breakdown\" class=\"text-text-muted hover:text-text\">Dynamic work-breakdown</a>\n      <a href=\"/docs/concepts/self-correction\" class=\"text-text-muted hover:text-text\">Self-correction</a>\n    </nav>\n  </div>\n\n  <div class=\"max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-text-dim\">\n    <p>© {year} Converge — MIT License</p>\n    <p>Built with Converge.</p>\n  </div>\n</footer>\n```\n\n## Process\n\n1. Write the file.\n2. Run `astro check`.\n\n## Banned\n\n- Hardcoding the brand name or tagline. Read from `brand.json`.\n- Adding \"newsletter signup\" or \"company\" sections. We're an open-source project, not a SaaS.\n- Hardcoded year. Use `new Date().getFullYear()`.",
+              "taskInputs": [
+                "apps/landing/.content/brand.json",
+                "apps/landing/.content/sitemap.json"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/src/components/layout/Footer.astro\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "05-build-layout/003-footer-check-failed-footer-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-build-layout/003-footer",
+            "severity": "high",
+            "description": "[05-build-layout/003-footer] Check failed: Footer.astro exists",
+            "source": "unit",
+            "detected": "2026-04-26T19:36:49.620Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "footer-exists",
+              "checkCmd": "test -f apps/landing/src/components/layout/Footer.astro",
+              "checkDescription": "Footer.astro exists",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/layout/Footer.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Footer\n\nBottom of every page. Minimal: brand + license + tertiary nav.\n\n## File\n\n```astro\n---\n// apps/landing/src/components/layout/Footer.astro\nimport brand from '@/.content/brand.json' with { type: 'json' };\n\nconst year = new Date().getFullYear();\n---\n\n<footer class=\"border-t border-border bg-bg-elev/30 py-12 mt-24\">\n  <div class=\"max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid gap-8 md:grid-cols-3\">\n    <div>\n      <p class=\"font-display font-bold text-text\">{brand.name}</p>\n      <p class=\"text-sm text-text-muted mt-2 max-w-sm\">{brand.tagline}</p>\n    </div>\n\n    <nav class=\"flex flex-col gap-2 text-sm\">\n      <p class=\"text-text-dim uppercase text-xs tracking-wide font-semibold mb-2\">Project</p>\n      <a href=\"/docs/getting-started/why-converge\" class=\"text-text-muted hover:text-text\">Documentation</a>\n      <a href=\"/blog\" class=\"text-text-muted hover:text-text\">Blog</a>\n      <a href={brand.github} target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-text-muted hover:text-text\">GitHub</a>\n    </nav>\n\n    <nav class=\"flex flex-col gap-2 text-sm\">\n      <p class=\"text-text-dim uppercase text-xs tracking-wide font-semibold mb-2\">Concepts</p>\n      <a href=\"/docs/concepts/context-interpolation\" class=\"text-text-muted hover:text-text\">Context interpolation</a>\n      <a href=\"/docs/concepts/deterministic-checks\" class=\"text-text-muted hover:text-text\">Deterministic checks</a>\n      <a href=\"/docs/concepts/dynamic-work-breakdown\" class=\"text-text-muted hover:text-text\">Dynamic work-breakdown</a>\n      <a href=\"/docs/concepts/self-correction\" class=\"text-text-muted hover:text-text\">Self-correction</a>\n    </nav>\n  </div>\n\n  <div class=\"max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-text-dim\">\n    <p>© {year} Converge — MIT License</p>\n    <p>Built with Converge.</p>\n  </div>\n</footer>\n```\n\n## Process\n\n1. Write the file.\n2. Run `astro check`.\n\n## Banned\n\n- Hardcoding the brand name or tagline. Read from `brand.json`.\n- Adding \"newsletter signup\" or \"company\" sections. We're an open-source project, not a SaaS.\n- Hardcoded year. Use `new Date().getFullYear()`.",
+              "taskId": "05-build-layout/003-footer",
+              "taskTitle": "Footer.astro — brand + links + copyright + license",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/05-build-layout/tasks/003-footer",
+              "factId": "check:footer-exists"
+            }
+          },
+          {
+            "id": "05-build-layout/003-footer-check-failed-footer-has-brand-name",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-build-layout/003-footer",
+            "severity": "high",
+            "description": "[05-build-layout/003-footer] Check failed: Footer mentions the brand name",
+            "source": "unit",
+            "detected": "2026-04-26T19:36:49.622Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "footer-has-brand-name",
+              "checkCmd": "test -f apps/landing/src/components/layout/Footer.astro && grep -qE 'Converge' apps/landing/src/components/layout/Footer.astro",
+              "checkDescription": "Footer mentions the brand name",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/layout/Footer.astro && grep -qE 'Converge' apps/landing/src/components/layout/Footer.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Footer\n\nBottom of every page. Minimal: brand + license + tertiary nav.\n\n## File\n\n```astro\n---\n// apps/landing/src/components/layout/Footer.astro\nimport brand from '@/.content/brand.json' with { type: 'json' };\n\nconst year = new Date().getFullYear();\n---\n\n<footer class=\"border-t border-border bg-bg-elev/30 py-12 mt-24\">\n  <div class=\"max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid gap-8 md:grid-cols-3\">\n    <div>\n      <p class=\"font-display font-bold text-text\">{brand.name}</p>\n      <p class=\"text-sm text-text-muted mt-2 max-w-sm\">{brand.tagline}</p>\n    </div>\n\n    <nav class=\"flex flex-col gap-2 text-sm\">\n      <p class=\"text-text-dim uppercase text-xs tracking-wide font-semibold mb-2\">Project</p>\n      <a href=\"/docs/getting-started/why-converge\" class=\"text-text-muted hover:text-text\">Documentation</a>\n      <a href=\"/blog\" class=\"text-text-muted hover:text-text\">Blog</a>\n      <a href={brand.github} target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-text-muted hover:text-text\">GitHub</a>\n    </nav>\n\n    <nav class=\"flex flex-col gap-2 text-sm\">\n      <p class=\"text-text-dim uppercase text-xs tracking-wide font-semibold mb-2\">Concepts</p>\n      <a href=\"/docs/concepts/context-interpolation\" class=\"text-text-muted hover:text-text\">Context interpolation</a>\n      <a href=\"/docs/concepts/deterministic-checks\" class=\"text-text-muted hover:text-text\">Deterministic checks</a>\n      <a href=\"/docs/concepts/dynamic-work-breakdown\" class=\"text-text-muted hover:text-text\">Dynamic work-breakdown</a>\n      <a href=\"/docs/concepts/self-correction\" class=\"text-text-muted hover:text-text\">Self-correction</a>\n    </nav>\n  </div>\n\n  <div class=\"max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-text-dim\">\n    <p>© {year} Converge — MIT License</p>\n    <p>Built with Converge.</p>\n  </div>\n</footer>\n```\n\n## Process\n\n1. Write the file.\n2. Run `astro check`.\n\n## Banned\n\n- Hardcoding the brand name or tagline. Read from `brand.json`.\n- Adding \"newsletter signup\" or \"company\" sections. We're an open-source project, not a SaaS.\n- Hardcoded year. Use `new Date().getFullYear()`.",
+              "taskId": "05-build-layout/003-footer",
+              "taskTitle": "Footer.astro — brand + links + copyright + license",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/05-build-layout/tasks/003-footer",
+              "factId": "check:footer-has-brand-name"
+            }
+          },
+          {
+            "id": "05-build-layout/003-footer-check-failed-footer-has-license",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-build-layout/003-footer",
+            "severity": "high",
+            "description": "[05-build-layout/003-footer] Check failed: Footer mentions the MIT license",
+            "source": "unit",
+            "detected": "2026-04-26T19:36:49.624Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "footer-has-license",
+              "checkCmd": "test -f apps/landing/src/components/layout/Footer.astro && grep -qE 'MIT' apps/landing/src/components/layout/Footer.astro",
+              "checkDescription": "Footer mentions the MIT license",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/layout/Footer.astro && grep -qE 'MIT' apps/landing/src/components/layout/Footer.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Footer\n\nBottom of every page. Minimal: brand + license + tertiary nav.\n\n## File\n\n```astro\n---\n// apps/landing/src/components/layout/Footer.astro\nimport brand from '@/.content/brand.json' with { type: 'json' };\n\nconst year = new Date().getFullYear();\n---\n\n<footer class=\"border-t border-border bg-bg-elev/30 py-12 mt-24\">\n  <div class=\"max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid gap-8 md:grid-cols-3\">\n    <div>\n      <p class=\"font-display font-bold text-text\">{brand.name}</p>\n      <p class=\"text-sm text-text-muted mt-2 max-w-sm\">{brand.tagline}</p>\n    </div>\n\n    <nav class=\"flex flex-col gap-2 text-sm\">\n      <p class=\"text-text-dim uppercase text-xs tracking-wide font-semibold mb-2\">Project</p>\n      <a href=\"/docs/getting-started/why-converge\" class=\"text-text-muted hover:text-text\">Documentation</a>\n      <a href=\"/blog\" class=\"text-text-muted hover:text-text\">Blog</a>\n      <a href={brand.github} target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-text-muted hover:text-text\">GitHub</a>\n    </nav>\n\n    <nav class=\"flex flex-col gap-2 text-sm\">\n      <p class=\"text-text-dim uppercase text-xs tracking-wide font-semibold mb-2\">Concepts</p>\n      <a href=\"/docs/concepts/context-interpolation\" class=\"text-text-muted hover:text-text\">Context interpolation</a>\n      <a href=\"/docs/concepts/deterministic-checks\" class=\"text-text-muted hover:text-text\">Deterministic checks</a>\n      <a href=\"/docs/concepts/dynamic-work-breakdown\" class=\"text-text-muted hover:text-text\">Dynamic work-breakdown</a>\n      <a href=\"/docs/concepts/self-correction\" class=\"text-text-muted hover:text-text\">Self-correction</a>\n    </nav>\n  </div>\n\n  <div class=\"max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-text-dim\">\n    <p>© {year} Converge — MIT License</p>\n    <p>Built with Converge.</p>\n  </div>\n</footer>\n```\n\n## Process\n\n1. Write the file.\n2. Run `astro check`.\n\n## Banned\n\n- Hardcoding the brand name or tagline. Read from `brand.json`.\n- Adding \"newsletter signup\" or \"company\" sections. We're an open-source project, not a SaaS.\n- Hardcoded year. Use `new Date().getFullYear()`.",
+              "taskId": "05-build-layout/003-footer",
+              "taskTitle": "Footer.astro — brand + links + copyright + license",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/05-build-layout/tasks/003-footer",
+              "factId": "check:footer-has-license"
+            }
+          },
+          {
+            "id": "05-build-layout/003-footer-check-failed-footer-no-screwfast",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-build-layout/003-footer",
+            "severity": "high",
+            "description": "[05-build-layout/003-footer] Check failed: no upstream-theme references",
+            "source": "unit",
+            "detected": "2026-04-26T19:36:49.627Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "footer-no-screwfast",
+              "checkCmd": "test -f apps/landing/src/components/layout/Footer.astro && ! grep -qiE 'screwfast|astrowind|foxi' apps/landing/src/components/layout/Footer.astro",
+              "checkDescription": "no upstream-theme references",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/layout/Footer.astro && ! grep -qiE 'screwfast|astrowind|foxi' apps/landing/src/components/layout/Footer.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Footer\n\nBottom of every page. Minimal: brand + license + tertiary nav.\n\n## File\n\n```astro\n---\n// apps/landing/src/components/layout/Footer.astro\nimport brand from '@/.content/brand.json' with { type: 'json' };\n\nconst year = new Date().getFullYear();\n---\n\n<footer class=\"border-t border-border bg-bg-elev/30 py-12 mt-24\">\n  <div class=\"max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid gap-8 md:grid-cols-3\">\n    <div>\n      <p class=\"font-display font-bold text-text\">{brand.name}</p>\n      <p class=\"text-sm text-text-muted mt-2 max-w-sm\">{brand.tagline}</p>\n    </div>\n\n    <nav class=\"flex flex-col gap-2 text-sm\">\n      <p class=\"text-text-dim uppercase text-xs tracking-wide font-semibold mb-2\">Project</p>\n      <a href=\"/docs/getting-started/why-converge\" class=\"text-text-muted hover:text-text\">Documentation</a>\n      <a href=\"/blog\" class=\"text-text-muted hover:text-text\">Blog</a>\n      <a href={brand.github} target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-text-muted hover:text-text\">GitHub</a>\n    </nav>\n\n    <nav class=\"flex flex-col gap-2 text-sm\">\n      <p class=\"text-text-dim uppercase text-xs tracking-wide font-semibold mb-2\">Concepts</p>\n      <a href=\"/docs/concepts/context-interpolation\" class=\"text-text-muted hover:text-text\">Context interpolation</a>\n      <a href=\"/docs/concepts/deterministic-checks\" class=\"text-text-muted hover:text-text\">Deterministic checks</a>\n      <a href=\"/docs/concepts/dynamic-work-breakdown\" class=\"text-text-muted hover:text-text\">Dynamic work-breakdown</a>\n      <a href=\"/docs/concepts/self-correction\" class=\"text-text-muted hover:text-text\">Self-correction</a>\n    </nav>\n  </div>\n\n  <div class=\"max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-text-dim\">\n    <p>© {year} Converge — MIT License</p>\n    <p>Built with Converge.</p>\n  </div>\n</footer>\n```\n\n## Process\n\n1. Write the file.\n2. Run `astro check`.\n\n## Banned\n\n- Hardcoding the brand name or tagline. Read from `brand.json`.\n- Adding \"newsletter signup\" or \"company\" sections. We're an open-source project, not a SaaS.\n- Hardcoded year. Use `new Date().getFullYear()`.",
+              "taskId": "05-build-layout/003-footer",
+              "taskTitle": "Footer.astro — brand + links + copyright + license",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/05-build-layout/tasks/003-footer",
+              "factId": "check:footer-no-screwfast"
+            }
+          }
+        ],
+        "durationMs": 17
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 24
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#85",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 21133
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T19:36:49.610Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T19:36:49.610Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T19:36:49.627Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T19:36:49.628Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T19:36:49.637Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#85",
+      "iteration": 1,
+      "ts": "2026-04-26T19:37:10.771Z"
+    },
+    {
+      "from": "run-strategy:task-run#85",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T19:37:10.797Z"
+    }
+  ]
+}

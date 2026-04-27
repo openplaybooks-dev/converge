@@ -1,0 +1,484 @@
+{
+  "iteration": 2,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-ui/009-converge-event-stream-missing-output-packages/converge-studio/src/lib/use-converge-events.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/009-converge-event-stream",
+            "severity": "high",
+            "description": "[04-ui/009-converge-event-stream] Task output not created: packages/converge-studio/src/lib/use-converge-events.ts",
+            "source": "unit",
+            "detected": "2026-04-26T05:00:59.559Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/009-converge-event-stream",
+              "taskId": "04-ui/009-converge-event-stream",
+              "taskTitle": "Converge-native event stream (SSE over filesystem watcher)",
+              "taskPrompt": "The legacy `[[...panel]]` dashboard booted a websocket against a Mission Control gateway and showed an \"Activity\" feed of gateway protocol messages. With the gateway gone, the feed only ever shows reconnection errors. Replace it with a converge-native event source over the filesystem watcher.\n\n**Why SSE, not websockets:** the data flow is one-way (server → client) and event-shaped. SSE is simpler, doesn't need a separate gateway process, reconnects automatically, and works through every reverse proxy without configuration.\n\n**Reuse:** `src/lib/converge-adapter/watcher.ts` already exists and watches `.converge/playbooks/**` and `.converge/journal/**` via chokidar. This task wraps it; don't reimplement.\n\n**Add `src/app/api/events/route.ts`** — a Next.js route handler with `runtime = 'nodejs'` and `dynamic = 'force-dynamic'`. It:\n1. Creates a `ReadableStream` whose `start(controller)` subscribes to the watcher.\n2. Translates each watcher event into an SSE-framed string: `data: ${JSON.stringify(event)}\\n\\n`.\n3. On `cancel`, unsubscribes from the watcher.\n4. Returns `new Response(stream, { headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache, no-transform', 'Connection': 'keep-alive', 'X-Accel-Buffering': 'no' } })`.\n5. Sends a heartbeat `: ping\\n\\n` every 15 s so idle connections don't get dropped by proxies.\n\nEvent shape (keep small):\n```ts\ntype ConvergeEvent =\n  | { kind: 'playbook.changed'; playbook: string; path: string; at: string }\n  | { kind: 'task.changed'; playbook: string; taskPath: string; at: string }\n  | { kind: 'session.started'; playbook: string; sessionId: string; at: string }\n  | { kind: 'session.event'; playbook: string; sessionId: string; eventName: string; at: string }\n```\n\n**Add `src/lib/use-converge-events.ts`** — a thin React hook:\n```ts\nexport function useConvergeEvents(onEvent: (e: ConvergeEvent) => void): { connected: boolean }\n```\nInternally creates an `EventSource('/api/events')`, parses each `MessageEvent.data` as JSON, and calls `onEvent`. Tracks `readyState` for the `connected` flag. Cleans up on unmount. No reconnection logic — `EventSource` reconnects natively.\n\n**Add `src/components/live-activity.tsx`** — a small component (≤ 120 LOC) that:\n- Calls `useConvergeEvents` and keeps a ring buffer of the last 50 events in `useState`.\n- Renders them in a list: timestamp · kind · context (playbook / taskPath / sessionId).\n- No filters, no charts. The live event log is the entire UI.\n\n**Do not** reintroduce `useWebSocket`, `STORAGE_GATEWAY_URL`, `gateways/connect`, the `LiveFeed` component, or the `ActivityFeedPanel`. They were deleted in task 001 and stay deleted.\n\n**Verification:**\n- `curl -N -s http://localhost:4000/api/events` opens an SSE stream and stays open. After running `touch .converge/playbooks/implement-studio/playbook.yml` in another shell, the stream emits at least one `data: {\"kind\":\"playbook.changed\",...}` line within 2 s.\n- `curl http://localhost:4000/api/events` does not 404 or 500.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/lib/use-converge-events.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-ui/009-converge-event-stream-missing-output-packages/converge-studio/src/components/live-activity.tsx",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/009-converge-event-stream",
+            "severity": "high",
+            "description": "[04-ui/009-converge-event-stream] Task output not created: packages/converge-studio/src/components/live-activity.tsx",
+            "source": "unit",
+            "detected": "2026-04-26T05:00:59.561Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/009-converge-event-stream",
+              "taskId": "04-ui/009-converge-event-stream",
+              "taskTitle": "Converge-native event stream (SSE over filesystem watcher)",
+              "taskPrompt": "The legacy `[[...panel]]` dashboard booted a websocket against a Mission Control gateway and showed an \"Activity\" feed of gateway protocol messages. With the gateway gone, the feed only ever shows reconnection errors. Replace it with a converge-native event source over the filesystem watcher.\n\n**Why SSE, not websockets:** the data flow is one-way (server → client) and event-shaped. SSE is simpler, doesn't need a separate gateway process, reconnects automatically, and works through every reverse proxy without configuration.\n\n**Reuse:** `src/lib/converge-adapter/watcher.ts` already exists and watches `.converge/playbooks/**` and `.converge/journal/**` via chokidar. This task wraps it; don't reimplement.\n\n**Add `src/app/api/events/route.ts`** — a Next.js route handler with `runtime = 'nodejs'` and `dynamic = 'force-dynamic'`. It:\n1. Creates a `ReadableStream` whose `start(controller)` subscribes to the watcher.\n2. Translates each watcher event into an SSE-framed string: `data: ${JSON.stringify(event)}\\n\\n`.\n3. On `cancel`, unsubscribes from the watcher.\n4. Returns `new Response(stream, { headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache, no-transform', 'Connection': 'keep-alive', 'X-Accel-Buffering': 'no' } })`.\n5. Sends a heartbeat `: ping\\n\\n` every 15 s so idle connections don't get dropped by proxies.\n\nEvent shape (keep small):\n```ts\ntype ConvergeEvent =\n  | { kind: 'playbook.changed'; playbook: string; path: string; at: string }\n  | { kind: 'task.changed'; playbook: string; taskPath: string; at: string }\n  | { kind: 'session.started'; playbook: string; sessionId: string; at: string }\n  | { kind: 'session.event'; playbook: string; sessionId: string; eventName: string; at: string }\n```\n\n**Add `src/lib/use-converge-events.ts`** — a thin React hook:\n```ts\nexport function useConvergeEvents(onEvent: (e: ConvergeEvent) => void): { connected: boolean }\n```\nInternally creates an `EventSource('/api/events')`, parses each `MessageEvent.data` as JSON, and calls `onEvent`. Tracks `readyState` for the `connected` flag. Cleans up on unmount. No reconnection logic — `EventSource` reconnects natively.\n\n**Add `src/components/live-activity.tsx`** — a small component (≤ 120 LOC) that:\n- Calls `useConvergeEvents` and keeps a ring buffer of the last 50 events in `useState`.\n- Renders them in a list: timestamp · kind · context (playbook / taskPath / sessionId).\n- No filters, no charts. The live event log is the entire UI.\n\n**Do not** reintroduce `useWebSocket`, `STORAGE_GATEWAY_URL`, `gateways/connect`, the `LiveFeed` component, or the `ActivityFeedPanel`. They were deleted in task 001 and stay deleted.\n\n**Verification:**\n- `curl -N -s http://localhost:4000/api/events` opens an SSE stream and stays open. After running `touch .converge/playbooks/implement-studio/playbook.yml` in another shell, the stream emits at least one `data: {\"kind\":\"playbook.changed\",...}` line within 2 s.\n- `curl http://localhost:4000/api/events` does not 404 or 500.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/components/live-activity.tsx\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-ui/009-converge-event-stream-check-failed-hook-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/009-converge-event-stream",
+            "severity": "high",
+            "description": "[04-ui/009-converge-event-stream] Check failed: useConvergeEvents hook exists",
+            "source": "unit",
+            "detected": "2026-04-26T05:00:59.564Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "hook-exists",
+              "checkCmd": "test -f packages/converge-studio/src/lib/use-converge-events.ts",
+              "checkDescription": "useConvergeEvents hook exists",
+              "checkOutput": "Command failed: test -f packages/converge-studio/src/lib/use-converge-events.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "The legacy `[[...panel]]` dashboard booted a websocket against a Mission Control gateway and showed an \"Activity\" feed of gateway protocol messages. With the gateway gone, the feed only ever shows reconnection errors. Replace it with a converge-native event source over the filesystem watcher.\n\n**Why SSE, not websockets:** the data flow is one-way (server → client) and event-shaped. SSE is simpler, doesn't need a separate gateway process, reconnects automatically, and works through every reverse proxy without configuration.\n\n**Reuse:** `src/lib/converge-adapter/watcher.ts` already exists and watches `.converge/playbooks/**` and `.converge/journal/**` via chokidar. This task wraps it; don't reimplement.\n\n**Add `src/app/api/events/route.ts`** — a Next.js route handler with `runtime = 'nodejs'` and `dynamic = 'force-dynamic'`. It:\n1. Creates a `ReadableStream` whose `start(controller)` subscribes to the watcher.\n2. Translates each watcher event into an SSE-framed string: `data: ${JSON.stringify(event)}\\n\\n`.\n3. On `cancel`, unsubscribes from the watcher.\n4. Returns `new Response(stream, { headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache, no-transform', 'Connection': 'keep-alive', 'X-Accel-Buffering': 'no' } })`.\n5. Sends a heartbeat `: ping\\n\\n` every 15 s so idle connections don't get dropped by proxies.\n\nEvent shape (keep small):\n```ts\ntype ConvergeEvent =\n  | { kind: 'playbook.changed'; playbook: string; path: string; at: string }\n  | { kind: 'task.changed'; playbook: string; taskPath: string; at: string }\n  | { kind: 'session.started'; playbook: string; sessionId: string; at: string }\n  | { kind: 'session.event'; playbook: string; sessionId: string; eventName: string; at: string }\n```\n\n**Add `src/lib/use-converge-events.ts`** — a thin React hook:\n```ts\nexport function useConvergeEvents(onEvent: (e: ConvergeEvent) => void): { connected: boolean }\n```\nInternally creates an `EventSource('/api/events')`, parses each `MessageEvent.data` as JSON, and calls `onEvent`. Tracks `readyState` for the `connected` flag. Cleans up on unmount. No reconnection logic — `EventSource` reconnects natively.\n\n**Add `src/components/live-activity.tsx`** — a small component (≤ 120 LOC) that:\n- Calls `useConvergeEvents` and keeps a ring buffer of the last 50 events in `useState`.\n- Renders them in a list: timestamp · kind · context (playbook / taskPath / sessionId).\n- No filters, no charts. The live event log is the entire UI.\n\n**Do not** reintroduce `useWebSocket`, `STORAGE_GATEWAY_URL`, `gateways/connect`, the `LiveFeed` component, or the `ActivityFeedPanel`. They were deleted in task 001 and stay deleted.\n\n**Verification:**\n- `curl -N -s http://localhost:4000/api/events` opens an SSE stream and stays open. After running `touch .converge/playbooks/implement-studio/playbook.yml` in another shell, the stream emits at least one `data: {\"kind\":\"playbook.changed\",...}` line within 2 s.\n- `curl http://localhost:4000/api/events` does not 404 or 500.",
+              "taskId": "04-ui/009-converge-event-stream",
+              "taskTitle": "Converge-native event stream (SSE over filesystem watcher)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/009-converge-event-stream",
+              "factId": "check:hook-exists"
+            }
+          },
+          {
+            "id": "04-ui/009-converge-event-stream-check-failed-no-legacy-websocket",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/009-converge-event-stream",
+            "severity": "high",
+            "description": "[04-ui/009-converge-event-stream] Check failed: No file in src/ still references the legacy gateway/websocket boot",
+            "source": "unit",
+            "detected": "2026-04-26T05:00:59.694Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "no-legacy-websocket",
+              "checkCmd": "test -z \"$(grep -rl 'useWebSocket\\|STORAGE_GATEWAY_URL\\|gateways/connect\\|gateway-ws' packages/converge-studio/src 2>/dev/null)\"",
+              "checkDescription": "No file in src/ still references the legacy gateway/websocket boot",
+              "checkOutput": "Command failed: test -z \"$(grep -rl 'useWebSocket\\|STORAGE_GATEWAY_URL\\|gateways/connect\\|gateway-ws' packages/converge-studio/src 2>/dev/null)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "The legacy `[[...panel]]` dashboard booted a websocket against a Mission Control gateway and showed an \"Activity\" feed of gateway protocol messages. With the gateway gone, the feed only ever shows reconnection errors. Replace it with a converge-native event source over the filesystem watcher.\n\n**Why SSE, not websockets:** the data flow is one-way (server → client) and event-shaped. SSE is simpler, doesn't need a separate gateway process, reconnects automatically, and works through every reverse proxy without configuration.\n\n**Reuse:** `src/lib/converge-adapter/watcher.ts` already exists and watches `.converge/playbooks/**` and `.converge/journal/**` via chokidar. This task wraps it; don't reimplement.\n\n**Add `src/app/api/events/route.ts`** — a Next.js route handler with `runtime = 'nodejs'` and `dynamic = 'force-dynamic'`. It:\n1. Creates a `ReadableStream` whose `start(controller)` subscribes to the watcher.\n2. Translates each watcher event into an SSE-framed string: `data: ${JSON.stringify(event)}\\n\\n`.\n3. On `cancel`, unsubscribes from the watcher.\n4. Returns `new Response(stream, { headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache, no-transform', 'Connection': 'keep-alive', 'X-Accel-Buffering': 'no' } })`.\n5. Sends a heartbeat `: ping\\n\\n` every 15 s so idle connections don't get dropped by proxies.\n\nEvent shape (keep small):\n```ts\ntype ConvergeEvent =\n  | { kind: 'playbook.changed'; playbook: string; path: string; at: string }\n  | { kind: 'task.changed'; playbook: string; taskPath: string; at: string }\n  | { kind: 'session.started'; playbook: string; sessionId: string; at: string }\n  | { kind: 'session.event'; playbook: string; sessionId: string; eventName: string; at: string }\n```\n\n**Add `src/lib/use-converge-events.ts`** — a thin React hook:\n```ts\nexport function useConvergeEvents(onEvent: (e: ConvergeEvent) => void): { connected: boolean }\n```\nInternally creates an `EventSource('/api/events')`, parses each `MessageEvent.data` as JSON, and calls `onEvent`. Tracks `readyState` for the `connected` flag. Cleans up on unmount. No reconnection logic — `EventSource` reconnects natively.\n\n**Add `src/components/live-activity.tsx`** — a small component (≤ 120 LOC) that:\n- Calls `useConvergeEvents` and keeps a ring buffer of the last 50 events in `useState`.\n- Renders them in a list: timestamp · kind · context (playbook / taskPath / sessionId).\n- No filters, no charts. The live event log is the entire UI.\n\n**Do not** reintroduce `useWebSocket`, `STORAGE_GATEWAY_URL`, `gateways/connect`, the `LiveFeed` component, or the `ActivityFeedPanel`. They were deleted in task 001 and stay deleted.\n\n**Verification:**\n- `curl -N -s http://localhost:4000/api/events` opens an SSE stream and stays open. After running `touch .converge/playbooks/implement-studio/playbook.yml` in another shell, the stream emits at least one `data: {\"kind\":\"playbook.changed\",...}` line within 2 s.\n- `curl http://localhost:4000/api/events` does not 404 or 500.",
+              "taskId": "04-ui/009-converge-event-stream",
+              "taskTitle": "Converge-native event stream (SSE over filesystem watcher)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/009-converge-event-stream",
+              "factId": "check:no-legacy-websocket"
+            }
+          }
+        ],
+        "durationMs": 4211
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 4112
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-ui/009-converge-event-stream-check-failed-no-legacy-websocket",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/009-converge-event-stream",
+            "severity": "high",
+            "description": "[04-ui/009-converge-event-stream] Check failed: No file in src/ still references the legacy gateway/websocket boot",
+            "source": "unit",
+            "detected": "2026-04-26T05:10:15.758Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "no-legacy-websocket",
+              "checkCmd": "test -z \"$(grep -rl 'useWebSocket\\|STORAGE_GATEWAY_URL\\|gateways/connect\\|gateway-ws' packages/converge-studio/src 2>/dev/null)\"",
+              "checkDescription": "No file in src/ still references the legacy gateway/websocket boot",
+              "checkOutput": "Command failed: test -z \"$(grep -rl 'useWebSocket\\|STORAGE_GATEWAY_URL\\|gateways/connect\\|gateway-ws' packages/converge-studio/src 2>/dev/null)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "The legacy `[[...panel]]` dashboard booted a websocket against a Mission Control gateway and showed an \"Activity\" feed of gateway protocol messages. With the gateway gone, the feed only ever shows reconnection errors. Replace it with a converge-native event source over the filesystem watcher.\n\n**Why SSE, not websockets:** the data flow is one-way (server → client) and event-shaped. SSE is simpler, doesn't need a separate gateway process, reconnects automatically, and works through every reverse proxy without configuration.\n\n**Reuse:** `src/lib/converge-adapter/watcher.ts` already exists and watches `.converge/playbooks/**` and `.converge/journal/**` via chokidar. This task wraps it; don't reimplement.\n\n**Add `src/app/api/events/route.ts`** — a Next.js route handler with `runtime = 'nodejs'` and `dynamic = 'force-dynamic'`. It:\n1. Creates a `ReadableStream` whose `start(controller)` subscribes to the watcher.\n2. Translates each watcher event into an SSE-framed string: `data: ${JSON.stringify(event)}\\n\\n`.\n3. On `cancel`, unsubscribes from the watcher.\n4. Returns `new Response(stream, { headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache, no-transform', 'Connection': 'keep-alive', 'X-Accel-Buffering': 'no' } })`.\n5. Sends a heartbeat `: ping\\n\\n` every 15 s so idle connections don't get dropped by proxies.\n\nEvent shape (keep small):\n```ts\ntype ConvergeEvent =\n  | { kind: 'playbook.changed'; playbook: string; path: string; at: string }\n  | { kind: 'task.changed'; playbook: string; taskPath: string; at: string }\n  | { kind: 'session.started'; playbook: string; sessionId: string; at: string }\n  | { kind: 'session.event'; playbook: string; sessionId: string; eventName: string; at: string }\n```\n\n**Add `src/lib/use-converge-events.ts`** — a thin React hook:\n```ts\nexport function useConvergeEvents(onEvent: (e: ConvergeEvent) => void): { connected: boolean }\n```\nInternally creates an `EventSource('/api/events')`, parses each `MessageEvent.data` as JSON, and calls `onEvent`. Tracks `readyState` for the `connected` flag. Cleans up on unmount. No reconnection logic — `EventSource` reconnects natively.\n\n**Add `src/components/live-activity.tsx`** — a small component (≤ 120 LOC) that:\n- Calls `useConvergeEvents` and keeps a ring buffer of the last 50 events in `useState`.\n- Renders them in a list: timestamp · kind · context (playbook / taskPath / sessionId).\n- No filters, no charts. The live event log is the entire UI.\n\n**Do not** reintroduce `useWebSocket`, `STORAGE_GATEWAY_URL`, `gateways/connect`, the `LiveFeed` component, or the `ActivityFeedPanel`. They were deleted in task 001 and stay deleted.\n\n**Verification:**\n- `curl -N -s http://localhost:4000/api/events` opens an SSE stream and stays open. After running `touch .converge/playbooks/implement-studio/playbook.yml` in another shell, the stream emits at least one `data: {\"kind\":\"playbook.changed\",...}` line within 2 s.\n- `curl http://localhost:4000/api/events` does not 404 or 500.",
+              "taskId": "04-ui/009-converge-event-stream",
+              "taskTitle": "Converge-native event stream (SSE over filesystem watcher)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/009-converge-event-stream",
+              "factId": "check:no-legacy-websocket"
+            }
+          }
+        ],
+        "durationMs": 4048
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "run-strategy:task-run#3",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 547743
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-ui/009-converge-event-stream-check-failed-no-legacy-websocket",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/009-converge-event-stream",
+            "severity": "high",
+            "description": "[04-ui/009-converge-event-stream] Check failed: No file in src/ still references the legacy gateway/websocket boot",
+            "source": "unit",
+            "detected": "2026-04-26T05:10:19.808Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "no-legacy-websocket",
+              "checkCmd": "test -z \"$(grep -rl 'useWebSocket\\|STORAGE_GATEWAY_URL\\|gateways/connect\\|gateway-ws' packages/converge-studio/src 2>/dev/null)\"",
+              "checkDescription": "No file in src/ still references the legacy gateway/websocket boot",
+              "checkOutput": "Command failed: test -z \"$(grep -rl 'useWebSocket\\|STORAGE_GATEWAY_URL\\|gateways/connect\\|gateway-ws' packages/converge-studio/src 2>/dev/null)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "The legacy `[[...panel]]` dashboard booted a websocket against a Mission Control gateway and showed an \"Activity\" feed of gateway protocol messages. With the gateway gone, the feed only ever shows reconnection errors. Replace it with a converge-native event source over the filesystem watcher.\n\n**Why SSE, not websockets:** the data flow is one-way (server → client) and event-shaped. SSE is simpler, doesn't need a separate gateway process, reconnects automatically, and works through every reverse proxy without configuration.\n\n**Reuse:** `src/lib/converge-adapter/watcher.ts` already exists and watches `.converge/playbooks/**` and `.converge/journal/**` via chokidar. This task wraps it; don't reimplement.\n\n**Add `src/app/api/events/route.ts`** — a Next.js route handler with `runtime = 'nodejs'` and `dynamic = 'force-dynamic'`. It:\n1. Creates a `ReadableStream` whose `start(controller)` subscribes to the watcher.\n2. Translates each watcher event into an SSE-framed string: `data: ${JSON.stringify(event)}\\n\\n`.\n3. On `cancel`, unsubscribes from the watcher.\n4. Returns `new Response(stream, { headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache, no-transform', 'Connection': 'keep-alive', 'X-Accel-Buffering': 'no' } })`.\n5. Sends a heartbeat `: ping\\n\\n` every 15 s so idle connections don't get dropped by proxies.\n\nEvent shape (keep small):\n```ts\ntype ConvergeEvent =\n  | { kind: 'playbook.changed'; playbook: string; path: string; at: string }\n  | { kind: 'task.changed'; playbook: string; taskPath: string; at: string }\n  | { kind: 'session.started'; playbook: string; sessionId: string; at: string }\n  | { kind: 'session.event'; playbook: string; sessionId: string; eventName: string; at: string }\n```\n\n**Add `src/lib/use-converge-events.ts`** — a thin React hook:\n```ts\nexport function useConvergeEvents(onEvent: (e: ConvergeEvent) => void): { connected: boolean }\n```\nInternally creates an `EventSource('/api/events')`, parses each `MessageEvent.data` as JSON, and calls `onEvent`. Tracks `readyState` for the `connected` flag. Cleans up on unmount. No reconnection logic — `EventSource` reconnects natively.\n\n**Add `src/components/live-activity.tsx`** — a small component (≤ 120 LOC) that:\n- Calls `useConvergeEvents` and keeps a ring buffer of the last 50 events in `useState`.\n- Renders them in a list: timestamp · kind · context (playbook / taskPath / sessionId).\n- No filters, no charts. The live event log is the entire UI.\n\n**Do not** reintroduce `useWebSocket`, `STORAGE_GATEWAY_URL`, `gateways/connect`, the `LiveFeed` component, or the `ActivityFeedPanel`. They were deleted in task 001 and stay deleted.\n\n**Verification:**\n- `curl -N -s http://localhost:4000/api/events` opens an SSE stream and stays open. After running `touch .converge/playbooks/implement-studio/playbook.yml` in another shell, the stream emits at least one `data: {\"kind\":\"playbook.changed\",...}` line within 2 s.\n- `curl http://localhost:4000/api/events` does not 404 or 500.",
+              "taskId": "04-ui/009-converge-event-stream",
+              "taskTitle": "Converge-native event stream (SSE over filesystem watcher)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/009-converge-event-stream",
+              "factId": "check:no-legacy-websocket"
+            }
+          }
+        ],
+        "durationMs": 4202
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#2",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 129
+      }
+    },
+    {
+      "id": "run-strategy:task-run#4",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1573912
+      }
+    },
+    {
+      "id": "verify#2",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 4077
+      }
+    },
+    {
+      "id": "check-stall#2",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt#2",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T05:00:59.554Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T05:00:59.554Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T05:01:03.765Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T05:01:03.765Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T05:01:07.877Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#3",
+      "iteration": 1,
+      "ts": "2026-04-26T05:10:15.620Z"
+    },
+    {
+      "from": "run-strategy:task-run#3",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T05:10:19.670Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-26T05:10:19.670Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-26T05:10:19.671Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-26T05:10:19.672Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-26T05:10:19.672Z"
+    },
+    {
+      "from": "check-outputs-exist#2",
+      "to": "detect-gaps#2",
+      "iteration": 2,
+      "ts": "2026-04-26T05:10:23.874Z"
+    },
+    {
+      "from": "detect-gaps#2",
+      "to": "repair-loop#2",
+      "iteration": 2,
+      "ts": "2026-04-26T05:10:24.004Z"
+    },
+    {
+      "from": "repair-loop#2",
+      "to": "run-strategy:task-run#4",
+      "iteration": 2,
+      "ts": "2026-04-26T05:36:37.917Z"
+    },
+    {
+      "from": "run-strategy:task-run#4",
+      "to": "verify#2",
+      "iteration": 2,
+      "ts": "2026-04-26T05:36:41.994Z"
+    }
+  ]
+}

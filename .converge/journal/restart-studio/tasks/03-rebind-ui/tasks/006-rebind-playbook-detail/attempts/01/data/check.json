@@ -1,0 +1,15 @@
+{
+  "taskId": "03-rebind-ui/006-rebind-playbook-detail",
+  "checks": [
+    {
+      "id": "detail-page-exists",
+      "description": "/playbooks/[name]/page.tsx exists",
+      "cmd": "test -f 'packages/studio/src/app/playbooks/[name]/page.tsx'"
+    },
+    {
+      "id": "detail-tabs-component-exists",
+      "description": "playbook-detail-tabs.tsx exists with 4 tabs",
+      "cmd": "test -f packages/studio/src/components/playbook-detail-tabs.tsx && grep -q 'Overview' packages/studio/src/components/playbook-detail-tabs.tsx && grep -q 'Tasks' packages/studio/src/components/playbook-detail-tabs.tsx && grep -q 'Runs' packages/studio/src/components/playbook-detail-tabs.tsx && grep -q 'Config' packages/studio/src/components/playbook-detail-tabs.tsx"
+    }
+  ]
+}

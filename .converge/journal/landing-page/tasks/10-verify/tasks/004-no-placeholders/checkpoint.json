@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "10-verify/004-no-placeholders",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T23:28:10.124Z",
+  "createdAt": "2026-04-26T23:28:09.730Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T23:28:09.730Z",
+      "completedAt": "2026-04-26T23:28:10.104Z",
+      "outcome": "success",
+      "durationMs": 374
+    }
+  ],
+  "currentAttempt": 1
+}

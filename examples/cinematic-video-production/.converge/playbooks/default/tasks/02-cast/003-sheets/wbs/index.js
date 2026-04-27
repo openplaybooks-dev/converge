@@ -53,18 +53,16 @@ export async function run(ctx) {
       body: `Generate the complete reference sheet for ${char.name} (${char.role}).`,
     });
 
-    const basePath = `.converge/playbooks/default/tasks/02-cast/003-sheets/tasks/${charTaskId}`;
     const steps = ['01-visual-desc', '02-turnaround', '03-expressions', '04-wardrobe', '05-lock'];
     const templateBase = `${WBS_ROOT}/character`;
 
     for (const step of steps) {
       const id = `${prefix}-${step}`;
       const templatePath = `${templateBase}/tasks/${step}/TASK.md`;
-      const writeToPath = `${basePath}/tasks/${id}/TASK.md`;
 
       await ctx.spawn(
         { _type: 'template-ref', path: templatePath, vars: charVars },
-        { id, writeToPath },
+        { id },
       );
     }
   }

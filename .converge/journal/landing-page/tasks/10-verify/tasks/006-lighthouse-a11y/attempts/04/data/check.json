@@ -1,0 +1,8 @@
+{
+  "lighthouse-a11y-95": {
+    "status": "pass",
+    "value": 95,
+    "threshold": 95,
+    "message": "accessibility=95 (>=95)"
+  }
+}

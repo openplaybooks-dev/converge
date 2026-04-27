@@ -48,18 +48,16 @@ export async function run(ctx) {
       body: `Generate reference plates for ${loc.name}.`,
     });
 
-    const basePath = `.converge/playbooks/default/tasks/03-world/002-plates/tasks/${locTaskId}`;
     const steps = ['01-description', '02-wide-plate', '03-detail-plates', '04-time-variants', '05-lock'];
     const templateBase = `${WBS_ROOT}/location`;
 
     for (const step of steps) {
       const id = `${prefix}-${step}`;
       const templatePath = `${templateBase}/tasks/${step}/TASK.md`;
-      const writeToPath = `${basePath}/tasks/${id}/TASK.md`;
 
       await ctx.spawn(
         { _type: 'template-ref', path: templatePath, vars: locVars },
-        { id, writeToPath },
+        { id },
       );
     }
   }

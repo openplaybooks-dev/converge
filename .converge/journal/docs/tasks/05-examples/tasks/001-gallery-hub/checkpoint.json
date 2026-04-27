@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "05-examples/001-gallery-hub",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T15:43:55.601Z",
+  "createdAt": "2026-04-26T07:44:46.428Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T07:44:46.428Z",
+      "completedAt": "2026-04-26T07:45:38.656Z",
+      "outcome": "success",
+      "durationMs": 52228
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-26T09:47:35.096Z",
+      "completedAt": "2026-04-26T09:47:35.405Z",
+      "outcome": "success",
+      "durationMs": 309
+    }
+  ],
+  "currentAttempt": 2
+}

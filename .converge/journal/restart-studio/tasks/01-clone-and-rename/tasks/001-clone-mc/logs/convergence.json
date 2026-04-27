@@ -1,0 +1,269 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-clone-and-rename/001-clone-mc-missing-output-packages/studio/UPSTREAM_SHA",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-clone-and-rename/001-clone-mc",
+            "severity": "high",
+            "description": "[01-clone-and-rename/001-clone-mc] Task output not created: packages/studio/UPSTREAM_SHA",
+            "source": "unit",
+            "detected": "2026-04-26T09:35:11.299Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/01-clone-and-rename/tasks/001-clone-mc",
+              "taskId": "01-clone-and-rename/001-clone-mc",
+              "taskTitle": "Clone Mission Control at pinned SHA into packages/studio",
+              "taskPrompt": "Clone `https://github.com/builderz-labs/mission-control` at commit `a020d1b7d045e0e09616663ffb39963f432a3f4c` into `packages/studio/`.\n\n```bash\nmkdir -p /tmp/mc-fork && rm -rf /tmp/mc-fork/mission-control\ncd /tmp/mc-fork\ngit clone https://github.com/builderz-labs/mission-control\ncd mission-control\ngit checkout a020d1b7d045e0e09616663ffb39963f432a3f4c\necho \"a020d1b7d045e0e09616663ffb39963f432a3f4c\" > UPSTREAM_SHA\nrm -rf .git\nmkdir -p /Users/minh/Documents/converge/packages/studio\ncp -R . /Users/minh/Documents/converge/packages/studio/\n```",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"packages/studio/UPSTREAM_SHA\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "01-clone-and-rename/001-clone-mc-missing-output-packages/studio/package.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-clone-and-rename/001-clone-mc",
+            "severity": "high",
+            "description": "[01-clone-and-rename/001-clone-mc] Task output not created: packages/studio/package.json",
+            "source": "unit",
+            "detected": "2026-04-26T09:35:11.301Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/01-clone-and-rename/tasks/001-clone-mc",
+              "taskId": "01-clone-and-rename/001-clone-mc",
+              "taskTitle": "Clone Mission Control at pinned SHA into packages/studio",
+              "taskPrompt": "Clone `https://github.com/builderz-labs/mission-control` at commit `a020d1b7d045e0e09616663ffb39963f432a3f4c` into `packages/studio/`.\n\n```bash\nmkdir -p /tmp/mc-fork && rm -rf /tmp/mc-fork/mission-control\ncd /tmp/mc-fork\ngit clone https://github.com/builderz-labs/mission-control\ncd mission-control\ngit checkout a020d1b7d045e0e09616663ffb39963f432a3f4c\necho \"a020d1b7d045e0e09616663ffb39963f432a3f4c\" > UPSTREAM_SHA\nrm -rf .git\nmkdir -p /Users/minh/Documents/converge/packages/studio\ncp -R . /Users/minh/Documents/converge/packages/studio/\n```",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"packages/studio/package.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "01-clone-and-rename/001-clone-mc-check-failed-studio-dir-populated",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-clone-and-rename/001-clone-mc",
+            "severity": "high",
+            "description": "[01-clone-and-rename/001-clone-mc] Check failed: packages/studio/ has src/app and package.json",
+            "source": "unit",
+            "detected": "2026-04-26T09:35:11.304Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "studio-dir-populated",
+              "checkCmd": "test -d packages/studio/src/app && test -f packages/studio/package.json",
+              "checkDescription": "packages/studio/ has src/app and package.json",
+              "checkOutput": "Command failed: test -d packages/studio/src/app && test -f packages/studio/package.json\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Clone `https://github.com/builderz-labs/mission-control` at commit `a020d1b7d045e0e09616663ffb39963f432a3f4c` into `packages/studio/`.\n\n```bash\nmkdir -p /tmp/mc-fork && rm -rf /tmp/mc-fork/mission-control\ncd /tmp/mc-fork\ngit clone https://github.com/builderz-labs/mission-control\ncd mission-control\ngit checkout a020d1b7d045e0e09616663ffb39963f432a3f4c\necho \"a020d1b7d045e0e09616663ffb39963f432a3f4c\" > UPSTREAM_SHA\nrm -rf .git\nmkdir -p /Users/minh/Documents/converge/packages/studio\ncp -R . /Users/minh/Documents/converge/packages/studio/\n```",
+              "taskId": "01-clone-and-rename/001-clone-mc",
+              "taskTitle": "Clone Mission Control at pinned SHA into packages/studio",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/01-clone-and-rename/tasks/001-clone-mc",
+              "factId": "check:studio-dir-populated"
+            }
+          },
+          {
+            "id": "01-clone-and-rename/001-clone-mc-check-failed-upstream-sha-pinned",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-clone-and-rename/001-clone-mc",
+            "severity": "high",
+            "description": "[01-clone-and-rename/001-clone-mc] Check failed: UPSTREAM_SHA matches the pin",
+            "source": "unit",
+            "detected": "2026-04-26T09:35:11.309Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "upstream-sha-pinned",
+              "checkCmd": "grep -q '^a020d1b7d045e0e09616663ffb39963f432a3f4c' packages/studio/UPSTREAM_SHA",
+              "checkDescription": "UPSTREAM_SHA matches the pin",
+              "checkOutput": "grep: packages/studio/UPSTREAM_SHA: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "Clone `https://github.com/builderz-labs/mission-control` at commit `a020d1b7d045e0e09616663ffb39963f432a3f4c` into `packages/studio/`.\n\n```bash\nmkdir -p /tmp/mc-fork && rm -rf /tmp/mc-fork/mission-control\ncd /tmp/mc-fork\ngit clone https://github.com/builderz-labs/mission-control\ncd mission-control\ngit checkout a020d1b7d045e0e09616663ffb39963f432a3f4c\necho \"a020d1b7d045e0e09616663ffb39963f432a3f4c\" > UPSTREAM_SHA\nrm -rf .git\nmkdir -p /Users/minh/Documents/converge/packages/studio\ncp -R . /Users/minh/Documents/converge/packages/studio/\n```",
+              "taskId": "01-clone-and-rename/001-clone-mc",
+              "taskTitle": "Clone Mission Control at pinned SHA into packages/studio",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/01-clone-and-rename/tasks/001-clone-mc",
+              "factId": "check:upstream-sha-pinned"
+            }
+          }
+        ],
+        "durationMs": 17
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 66
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 47218
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T09:35:11.294Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T09:35:11.295Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T09:35:11.312Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T09:35:11.312Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T09:35:11.322Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-04-26T09:35:58.540Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T09:35:58.607Z"
+    }
+  ]
+}

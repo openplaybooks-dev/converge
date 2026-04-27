@@ -1,0 +1,225 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-ui/024-no-mc-api-routes-check-failed-api-allowlist-only",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/024-no-mc-api-routes",
+            "severity": "high",
+            "description": "[04-ui/024-no-mc-api-routes] Check failed: src/app/api/ contains only converge-native top-level dirs",
+            "source": "unit",
+            "detected": "2026-04-26T08:25:20.626Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "api-allowlist-only",
+              "checkCmd": "bash -c 'cd packages/converge-studio/src/app/api && allowed=\"playbooks runs run watch events\"; for d in */; do d=${d%/}; case \" $allowed \" in *\" $d \"*) ;; *) echo \"unexpected: $d\"; exit 1 ;; esac; done'",
+              "checkDescription": "src/app/api/ contains only converge-native top-level dirs",
+              "checkOutput": "unexpected: search",
+              "checkExitCode": 1,
+              "taskPrompt": "Codify the API allowlist: `src/app/api/` may contain ONLY these top-level directories:\n\n- `playbooks/` — list, create, read, update playbooks\n- `runs/` — list sessions, read metadata, paginated events, SSE event tail\n- `run/` — POST to spawn a run, SSE for stdout/stderr\n- `watch/` — SSE filesystem-change stream\n- `events/` — converge-native event source for `LiveActivity` (added in task 009)\n\nAnything else is a Mission Control leftover.\n\nThis task is check-only — the work was done in 019. The task exists as an explicit, easy-to-read gate that a future regression will trip immediately.\n\n**If the allowlist check fails on first run:** 019 missed something. List the offenders:\n```bash\nls packages/converge-studio/src/app/api/\n```\nDelete each one not in the allowlist.\n\n**Why also enforce the runtime check:** several routes import `chokidar` or `fs` (the watcher, the SSE tail). Without `export const runtime = 'nodejs'`, Next.js will try to compile them for the Edge runtime and fail at request time, not build time. This check catches that proactively.",
+              "taskId": "04-ui/024-no-mc-api-routes",
+              "taskTitle": "API surface is exactly the converge-native subset",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/024-no-mc-api-routes",
+              "factId": "check:api-allowlist-only"
+            }
+          },
+          {
+            "id": "04-ui/024-no-mc-api-routes-check-failed-nodejs-runtime-on-all-routes",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/024-no-mc-api-routes",
+            "severity": "high",
+            "description": "[04-ui/024-no-mc-api-routes] Check failed: Every route.ts under src/app/api/ declares runtime = 'nodejs'",
+            "source": "unit",
+            "detected": "2026-04-26T08:25:20.642Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "nodejs-runtime-on-all-routes",
+              "checkCmd": "bash -c 'count=$(find packages/converge-studio/src/app/api -name route.ts | wc -l | tr -d \" \"); ok=$(grep -l \"runtime = .nodejs.\" $(find packages/converge-studio/src/app/api -name route.ts) 2>/dev/null | wc -l | tr -d \" \"); test \"$count\" = \"$ok\"'",
+              "checkDescription": "Every route.ts under src/app/api/ declares runtime = 'nodejs'",
+              "checkOutput": "Command failed: bash -c 'count=$(find packages/converge-studio/src/app/api -name route.ts | wc -l | tr -d \" \"); ok=$(grep -l \"runtime = .nodejs.\" $(find packages/converge-studio/src/app/api -name route.ts) 2>/dev/null | wc -l | tr -d \" \"); test \"$count\" = \"$ok\"'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Codify the API allowlist: `src/app/api/` may contain ONLY these top-level directories:\n\n- `playbooks/` — list, create, read, update playbooks\n- `runs/` — list sessions, read metadata, paginated events, SSE event tail\n- `run/` — POST to spawn a run, SSE for stdout/stderr\n- `watch/` — SSE filesystem-change stream\n- `events/` — converge-native event source for `LiveActivity` (added in task 009)\n\nAnything else is a Mission Control leftover.\n\nThis task is check-only — the work was done in 019. The task exists as an explicit, easy-to-read gate that a future regression will trip immediately.\n\n**If the allowlist check fails on first run:** 019 missed something. List the offenders:\n```bash\nls packages/converge-studio/src/app/api/\n```\nDelete each one not in the allowlist.\n\n**Why also enforce the runtime check:** several routes import `chokidar` or `fs` (the watcher, the SSE tail). Without `export const runtime = 'nodejs'`, Next.js will try to compile them for the Edge runtime and fail at request time, not build time. This check catches that proactively.",
+              "taskId": "04-ui/024-no-mc-api-routes",
+              "taskTitle": "API surface is exactly the converge-native subset",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/024-no-mc-api-routes",
+              "factId": "check:nodejs-runtime-on-all-routes"
+            }
+          }
+        ],
+        "durationMs": 20
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 19
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 23
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#5",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 68309
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T08:25:20.622Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T08:25:20.622Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T08:25:20.642Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T08:25:20.642Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T08:25:20.661Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#5",
+      "iteration": 1,
+      "ts": "2026-04-26T08:26:28.971Z"
+    },
+    {
+      "from": "run-strategy:task-run#5",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T08:26:28.995Z"
+    }
+  ]
+}

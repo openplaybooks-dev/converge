@@ -1,0 +1,351 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 23
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-prepare-spec/002-sections-inventory-missing-output-apps/landing/.content/sections.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-spec/002-sections-inventory",
+            "severity": "high",
+            "description": "[01-prepare-spec/002-sections-inventory] Task output not created: apps/landing/.content/sections.json",
+            "source": "unit",
+            "detected": "2026-04-26T20:13:40.218Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/01-prepare-spec/tasks/002-sections-inventory",
+              "taskId": "01-prepare-spec/002-sections-inventory",
+              "taskTitle": "Emit sections.json — the WBS data file for 04-build-sections",
+              "taskPrompt": "# Sections inventory\n\nEmit the canonical list of 8 home-page sections in render order. The\n`04-build-sections` WBS reads this file and spawns one parent task + 5\nstep children per entry. `id` order in the JSON is the render order on\nthe page.\n\n## Required shape\n\n```json\n{\n  \"$schema\": \"../.content/schemas/sections.schema.json\",\n  \"sections\": [\n    { \"id\": \"hero\",              \"title\": \"Hero\",                          \"componentName\": \"Hero\",                  \"intent\": \"Tagline-first hero with the canonical 'Define done. Converge gets there.' line, an animated convergence motif, and two CTAs (Get started → /docs/getting-started, Star on GitHub).\" },\n    { \"id\": \"social-proof\",      \"title\": \"Trusted by builders\",           \"componentName\": \"SocialProof\",           \"intent\": \"Lightweight credibility row: GitHub stars (live), npm downloads (live). Honest about being early — 'Used by' not 'Trusted by Fortune 500'.\" },\n    { \"id\": \"problem-solution\",  \"title\": \"Define how vs. define done\",    \"componentName\": \"ProblemSolution\",       \"intent\": \"Side-by-side: left shows imperative step-driven framework code; right shows declarative converge TASK.md. Visualizes the paradigm flip.\" },\n    { \"id\": \"feature-grid\",      \"title\": \"Six differentiators\",           \"componentName\": \"FeatureGrid\",           \"intent\": \"3×2 grid of differentiator cards sourced from README.md 'Why Converge?' bullets. Each card: lucide icon + headline + ≤180-char body.\" },\n    { \"id\": \"comparison\",        \"title\": \"Converge vs. step-driven\",      \"componentName\": \"InteractiveComparison\", \"intent\": \"Tabbed code panel — same workflow goal in LangGraph vs. Converge. Below: condensed feature matrix derived from docs/concepts/deterministic-checks.md and dynamic-work-breakdown.md.\" },\n    { \"id\": \"quickstart\",        \"title\": \"From zero to converged in 60s\", \"componentName\": \"Quickstart\",            \"intent\": \"Three-step terminal walkthrough mirroring README.md's quickstart block. Each step is a copy-button code block.\" },\n    { \"id\": \"faq\",               \"title\": \"FAQ\",                           \"componentName\": \"Faq\",                   \"intent\": \"8 disclosure items derived from the trade-offs sections of docs/concepts/*.md (each trade-off is an honest objection + honest answer). Native <details>; deep-link anchors.\" },\n    { \"id\": \"cta-banner\",        \"title\": \"Get started\",                   \"componentName\": \"CtaBanner\",             \"intent\": \"Final conversion banner: tagline restated + two CTAs (Read the docs / Star on GitHub). Subtle indigo glow background mirroring banner.svg.\" }\n  ]\n}\n```\n\n## Process\n\n1. Use the JSON above as a starting point. The 8 sections are non-negotiable for v1 of the page.\n2. If you tweak `intent` strings, keep them grounded in real source material (README.md, docs/concepts/*.md). No marketing-speak.\n3. Write the file at `apps/landing/.content/sections.json`. Make sure it parses as JSON.\n\n## Banned\n\n- Adding a 9th section. The home page is finite. The FAQ is the catch-all for additional content.\n- Reordering hero or cta-banner. They're anchors at the top and bottom respectively.\n- `componentName` values that aren't valid PascalCase identifiers (they're used as Astro component names).",
+              "taskInputs": [
+                "README.md",
+                "docs/concepts",
+                "docs/getting-started/why-converge.md"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/.content/sections.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "01-prepare-spec/002-sections-inventory-check-failed-sections-json-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-spec/002-sections-inventory",
+            "severity": "high",
+            "description": "[01-prepare-spec/002-sections-inventory] Check failed: sections.json exists",
+            "source": "unit",
+            "detected": "2026-04-26T20:13:40.221Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "sections-json-exists",
+              "checkCmd": "test -f apps/landing/.content/sections.json",
+              "checkDescription": "sections.json exists",
+              "checkOutput": "Command failed: test -f apps/landing/.content/sections.json\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Sections inventory\n\nEmit the canonical list of 8 home-page sections in render order. The\n`04-build-sections` WBS reads this file and spawns one parent task + 5\nstep children per entry. `id` order in the JSON is the render order on\nthe page.\n\n## Required shape\n\n```json\n{\n  \"$schema\": \"../.content/schemas/sections.schema.json\",\n  \"sections\": [\n    { \"id\": \"hero\",              \"title\": \"Hero\",                          \"componentName\": \"Hero\",                  \"intent\": \"Tagline-first hero with the canonical 'Define done. Converge gets there.' line, an animated convergence motif, and two CTAs (Get started → /docs/getting-started, Star on GitHub).\" },\n    { \"id\": \"social-proof\",      \"title\": \"Trusted by builders\",           \"componentName\": \"SocialProof\",           \"intent\": \"Lightweight credibility row: GitHub stars (live), npm downloads (live). Honest about being early — 'Used by' not 'Trusted by Fortune 500'.\" },\n    { \"id\": \"problem-solution\",  \"title\": \"Define how vs. define done\",    \"componentName\": \"ProblemSolution\",       \"intent\": \"Side-by-side: left shows imperative step-driven framework code; right shows declarative converge TASK.md. Visualizes the paradigm flip.\" },\n    { \"id\": \"feature-grid\",      \"title\": \"Six differentiators\",           \"componentName\": \"FeatureGrid\",           \"intent\": \"3×2 grid of differentiator cards sourced from README.md 'Why Converge?' bullets. Each card: lucide icon + headline + ≤180-char body.\" },\n    { \"id\": \"comparison\",        \"title\": \"Converge vs. step-driven\",      \"componentName\": \"InteractiveComparison\", \"intent\": \"Tabbed code panel — same workflow goal in LangGraph vs. Converge. Below: condensed feature matrix derived from docs/concepts/deterministic-checks.md and dynamic-work-breakdown.md.\" },\n    { \"id\": \"quickstart\",        \"title\": \"From zero to converged in 60s\", \"componentName\": \"Quickstart\",            \"intent\": \"Three-step terminal walkthrough mirroring README.md's quickstart block. Each step is a copy-button code block.\" },\n    { \"id\": \"faq\",               \"title\": \"FAQ\",                           \"componentName\": \"Faq\",                   \"intent\": \"8 disclosure items derived from the trade-offs sections of docs/concepts/*.md (each trade-off is an honest objection + honest answer). Native <details>; deep-link anchors.\" },\n    { \"id\": \"cta-banner\",        \"title\": \"Get started\",                   \"componentName\": \"CtaBanner\",             \"intent\": \"Final conversion banner: tagline restated + two CTAs (Read the docs / Star on GitHub). Subtle indigo glow background mirroring banner.svg.\" }\n  ]\n}\n```\n\n## Process\n\n1. Use the JSON above as a starting point. The 8 sections are non-negotiable for v1 of the page.\n2. If you tweak `intent` strings, keep them grounded in real source material (README.md, docs/concepts/*.md). No marketing-speak.\n3. Write the file at `apps/landing/.content/sections.json`. Make sure it parses as JSON.\n\n## Banned\n\n- Adding a 9th section. The home page is finite. The FAQ is the catch-all for additional content.\n- Reordering hero or cta-banner. They're anchors at the top and bottom respectively.\n- `componentName` values that aren't valid PascalCase identifiers (they're used as Astro component names).",
+              "taskId": "01-prepare-spec/002-sections-inventory",
+              "taskTitle": "Emit sections.json — the WBS data file for 04-build-sections",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/01-prepare-spec/tasks/002-sections-inventory",
+              "factId": "check:sections-json-exists"
+            }
+          },
+          {
+            "id": "01-prepare-spec/002-sections-inventory-check-failed-sections-json-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-spec/002-sections-inventory",
+            "severity": "high",
+            "description": "[01-prepare-spec/002-sections-inventory] Check failed: sections.json is valid JSON",
+            "source": "unit",
+            "detected": "2026-04-26T20:13:40.223Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "sections-json-valid",
+              "checkCmd": "test -f apps/landing/.content/sections.json && node -e \"JSON.parse(require('fs').readFileSync('apps/landing/.content/sections.json','utf8'))\"",
+              "checkDescription": "sections.json is valid JSON",
+              "checkOutput": "Command failed: test -f apps/landing/.content/sections.json && node -e \"JSON.parse(require('fs').readFileSync('apps/landing/.content/sections.json','utf8'))\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Sections inventory\n\nEmit the canonical list of 8 home-page sections in render order. The\n`04-build-sections` WBS reads this file and spawns one parent task + 5\nstep children per entry. `id` order in the JSON is the render order on\nthe page.\n\n## Required shape\n\n```json\n{\n  \"$schema\": \"../.content/schemas/sections.schema.json\",\n  \"sections\": [\n    { \"id\": \"hero\",              \"title\": \"Hero\",                          \"componentName\": \"Hero\",                  \"intent\": \"Tagline-first hero with the canonical 'Define done. Converge gets there.' line, an animated convergence motif, and two CTAs (Get started → /docs/getting-started, Star on GitHub).\" },\n    { \"id\": \"social-proof\",      \"title\": \"Trusted by builders\",           \"componentName\": \"SocialProof\",           \"intent\": \"Lightweight credibility row: GitHub stars (live), npm downloads (live). Honest about being early — 'Used by' not 'Trusted by Fortune 500'.\" },\n    { \"id\": \"problem-solution\",  \"title\": \"Define how vs. define done\",    \"componentName\": \"ProblemSolution\",       \"intent\": \"Side-by-side: left shows imperative step-driven framework code; right shows declarative converge TASK.md. Visualizes the paradigm flip.\" },\n    { \"id\": \"feature-grid\",      \"title\": \"Six differentiators\",           \"componentName\": \"FeatureGrid\",           \"intent\": \"3×2 grid of differentiator cards sourced from README.md 'Why Converge?' bullets. Each card: lucide icon + headline + ≤180-char body.\" },\n    { \"id\": \"comparison\",        \"title\": \"Converge vs. step-driven\",      \"componentName\": \"InteractiveComparison\", \"intent\": \"Tabbed code panel — same workflow goal in LangGraph vs. Converge. Below: condensed feature matrix derived from docs/concepts/deterministic-checks.md and dynamic-work-breakdown.md.\" },\n    { \"id\": \"quickstart\",        \"title\": \"From zero to converged in 60s\", \"componentName\": \"Quickstart\",            \"intent\": \"Three-step terminal walkthrough mirroring README.md's quickstart block. Each step is a copy-button code block.\" },\n    { \"id\": \"faq\",               \"title\": \"FAQ\",                           \"componentName\": \"Faq\",                   \"intent\": \"8 disclosure items derived from the trade-offs sections of docs/concepts/*.md (each trade-off is an honest objection + honest answer). Native <details>; deep-link anchors.\" },\n    { \"id\": \"cta-banner\",        \"title\": \"Get started\",                   \"componentName\": \"CtaBanner\",             \"intent\": \"Final conversion banner: tagline restated + two CTAs (Read the docs / Star on GitHub). Subtle indigo glow background mirroring banner.svg.\" }\n  ]\n}\n```\n\n## Process\n\n1. Use the JSON above as a starting point. The 8 sections are non-negotiable for v1 of the page.\n2. If you tweak `intent` strings, keep them grounded in real source material (README.md, docs/concepts/*.md). No marketing-speak.\n3. Write the file at `apps/landing/.content/sections.json`. Make sure it parses as JSON.\n\n## Banned\n\n- Adding a 9th section. The home page is finite. The FAQ is the catch-all for additional content.\n- Reordering hero or cta-banner. They're anchors at the top and bottom respectively.\n- `componentName` values that aren't valid PascalCase identifiers (they're used as Astro component names).",
+              "taskId": "01-prepare-spec/002-sections-inventory",
+              "taskTitle": "Emit sections.json — the WBS data file for 04-build-sections",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/01-prepare-spec/tasks/002-sections-inventory",
+              "factId": "check:sections-json-valid"
+            }
+          },
+          {
+            "id": "01-prepare-spec/002-sections-inventory-check-failed-sections-count",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-spec/002-sections-inventory",
+            "severity": "high",
+            "description": "[01-prepare-spec/002-sections-inventory] Check failed: at least 8 sections defined",
+            "source": "unit",
+            "detected": "2026-04-26T20:13:40.225Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "sections-count",
+              "checkCmd": "test -f apps/landing/.content/sections.json && node -e \"const r=require('./apps/landing/.content/sections.json');const s=Array.isArray(r)?r:r.sections;process.exit(s.length>=8?0:1)\"",
+              "checkDescription": "at least 8 sections defined",
+              "checkOutput": "Command failed: test -f apps/landing/.content/sections.json && node -e \"const r=require('./apps/landing/.content/sections.json');const s=Array.isArray(r)?r:r.sections;process.exit(s.length>=8?0:1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Sections inventory\n\nEmit the canonical list of 8 home-page sections in render order. The\n`04-build-sections` WBS reads this file and spawns one parent task + 5\nstep children per entry. `id` order in the JSON is the render order on\nthe page.\n\n## Required shape\n\n```json\n{\n  \"$schema\": \"../.content/schemas/sections.schema.json\",\n  \"sections\": [\n    { \"id\": \"hero\",              \"title\": \"Hero\",                          \"componentName\": \"Hero\",                  \"intent\": \"Tagline-first hero with the canonical 'Define done. Converge gets there.' line, an animated convergence motif, and two CTAs (Get started → /docs/getting-started, Star on GitHub).\" },\n    { \"id\": \"social-proof\",      \"title\": \"Trusted by builders\",           \"componentName\": \"SocialProof\",           \"intent\": \"Lightweight credibility row: GitHub stars (live), npm downloads (live). Honest about being early — 'Used by' not 'Trusted by Fortune 500'.\" },\n    { \"id\": \"problem-solution\",  \"title\": \"Define how vs. define done\",    \"componentName\": \"ProblemSolution\",       \"intent\": \"Side-by-side: left shows imperative step-driven framework code; right shows declarative converge TASK.md. Visualizes the paradigm flip.\" },\n    { \"id\": \"feature-grid\",      \"title\": \"Six differentiators\",           \"componentName\": \"FeatureGrid\",           \"intent\": \"3×2 grid of differentiator cards sourced from README.md 'Why Converge?' bullets. Each card: lucide icon + headline + ≤180-char body.\" },\n    { \"id\": \"comparison\",        \"title\": \"Converge vs. step-driven\",      \"componentName\": \"InteractiveComparison\", \"intent\": \"Tabbed code panel — same workflow goal in LangGraph vs. Converge. Below: condensed feature matrix derived from docs/concepts/deterministic-checks.md and dynamic-work-breakdown.md.\" },\n    { \"id\": \"quickstart\",        \"title\": \"From zero to converged in 60s\", \"componentName\": \"Quickstart\",            \"intent\": \"Three-step terminal walkthrough mirroring README.md's quickstart block. Each step is a copy-button code block.\" },\n    { \"id\": \"faq\",               \"title\": \"FAQ\",                           \"componentName\": \"Faq\",                   \"intent\": \"8 disclosure items derived from the trade-offs sections of docs/concepts/*.md (each trade-off is an honest objection + honest answer). Native <details>; deep-link anchors.\" },\n    { \"id\": \"cta-banner\",        \"title\": \"Get started\",                   \"componentName\": \"CtaBanner\",             \"intent\": \"Final conversion banner: tagline restated + two CTAs (Read the docs / Star on GitHub). Subtle indigo glow background mirroring banner.svg.\" }\n  ]\n}\n```\n\n## Process\n\n1. Use the JSON above as a starting point. The 8 sections are non-negotiable for v1 of the page.\n2. If you tweak `intent` strings, keep them grounded in real source material (README.md, docs/concepts/*.md). No marketing-speak.\n3. Write the file at `apps/landing/.content/sections.json`. Make sure it parses as JSON.\n\n## Banned\n\n- Adding a 9th section. The home page is finite. The FAQ is the catch-all for additional content.\n- Reordering hero or cta-banner. They're anchors at the top and bottom respectively.\n- `componentName` values that aren't valid PascalCase identifiers (they're used as Astro component names).",
+              "taskId": "01-prepare-spec/002-sections-inventory",
+              "taskTitle": "Emit sections.json — the WBS data file for 04-build-sections",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/01-prepare-spec/tasks/002-sections-inventory",
+              "factId": "check:sections-count"
+            }
+          },
+          {
+            "id": "01-prepare-spec/002-sections-inventory-check-failed-sections-have-required-fields",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-spec/002-sections-inventory",
+            "severity": "high",
+            "description": "[01-prepare-spec/002-sections-inventory] Check failed: every section has id, title, componentName, intent",
+            "source": "unit",
+            "detected": "2026-04-26T20:13:40.227Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "sections-have-required-fields",
+              "checkCmd": "test -f apps/landing/.content/sections.json && node -e \"const r=require('./apps/landing/.content/sections.json');const s=Array.isArray(r)?r:r.sections;const ok=s.every(x=>x.id&&x.title&&x.componentName&&x.intent);process.exit(ok?0:1)\"",
+              "checkDescription": "every section has id, title, componentName, intent",
+              "checkOutput": "Command failed: test -f apps/landing/.content/sections.json && node -e \"const r=require('./apps/landing/.content/sections.json');const s=Array.isArray(r)?r:r.sections;const ok=s.every(x=>x.id&&x.title&&x.componentName&&x.intent);process.exit(ok?0:1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Sections inventory\n\nEmit the canonical list of 8 home-page sections in render order. The\n`04-build-sections` WBS reads this file and spawns one parent task + 5\nstep children per entry. `id` order in the JSON is the render order on\nthe page.\n\n## Required shape\n\n```json\n{\n  \"$schema\": \"../.content/schemas/sections.schema.json\",\n  \"sections\": [\n    { \"id\": \"hero\",              \"title\": \"Hero\",                          \"componentName\": \"Hero\",                  \"intent\": \"Tagline-first hero with the canonical 'Define done. Converge gets there.' line, an animated convergence motif, and two CTAs (Get started → /docs/getting-started, Star on GitHub).\" },\n    { \"id\": \"social-proof\",      \"title\": \"Trusted by builders\",           \"componentName\": \"SocialProof\",           \"intent\": \"Lightweight credibility row: GitHub stars (live), npm downloads (live). Honest about being early — 'Used by' not 'Trusted by Fortune 500'.\" },\n    { \"id\": \"problem-solution\",  \"title\": \"Define how vs. define done\",    \"componentName\": \"ProblemSolution\",       \"intent\": \"Side-by-side: left shows imperative step-driven framework code; right shows declarative converge TASK.md. Visualizes the paradigm flip.\" },\n    { \"id\": \"feature-grid\",      \"title\": \"Six differentiators\",           \"componentName\": \"FeatureGrid\",           \"intent\": \"3×2 grid of differentiator cards sourced from README.md 'Why Converge?' bullets. Each card: lucide icon + headline + ≤180-char body.\" },\n    { \"id\": \"comparison\",        \"title\": \"Converge vs. step-driven\",      \"componentName\": \"InteractiveComparison\", \"intent\": \"Tabbed code panel — same workflow goal in LangGraph vs. Converge. Below: condensed feature matrix derived from docs/concepts/deterministic-checks.md and dynamic-work-breakdown.md.\" },\n    { \"id\": \"quickstart\",        \"title\": \"From zero to converged in 60s\", \"componentName\": \"Quickstart\",            \"intent\": \"Three-step terminal walkthrough mirroring README.md's quickstart block. Each step is a copy-button code block.\" },\n    { \"id\": \"faq\",               \"title\": \"FAQ\",                           \"componentName\": \"Faq\",                   \"intent\": \"8 disclosure items derived from the trade-offs sections of docs/concepts/*.md (each trade-off is an honest objection + honest answer). Native <details>; deep-link anchors.\" },\n    { \"id\": \"cta-banner\",        \"title\": \"Get started\",                   \"componentName\": \"CtaBanner\",             \"intent\": \"Final conversion banner: tagline restated + two CTAs (Read the docs / Star on GitHub). Subtle indigo glow background mirroring banner.svg.\" }\n  ]\n}\n```\n\n## Process\n\n1. Use the JSON above as a starting point. The 8 sections are non-negotiable for v1 of the page.\n2. If you tweak `intent` strings, keep them grounded in real source material (README.md, docs/concepts/*.md). No marketing-speak.\n3. Write the file at `apps/landing/.content/sections.json`. Make sure it parses as JSON.\n\n## Banned\n\n- Adding a 9th section. The home page is finite. The FAQ is the catch-all for additional content.\n- Reordering hero or cta-banner. They're anchors at the top and bottom respectively.\n- `componentName` values that aren't valid PascalCase identifiers (they're used as Astro component names).",
+              "taskId": "01-prepare-spec/002-sections-inventory",
+              "taskTitle": "Emit sections.json — the WBS data file for 04-build-sections",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/01-prepare-spec/tasks/002-sections-inventory",
+              "factId": "check:sections-have-required-fields"
+            }
+          },
+          {
+            "id": "01-prepare-spec/002-sections-inventory-check-failed-hero-first",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-spec/002-sections-inventory",
+            "severity": "high",
+            "description": "[01-prepare-spec/002-sections-inventory] Check failed: first section is hero",
+            "source": "unit",
+            "detected": "2026-04-26T20:13:40.229Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "hero-first",
+              "checkCmd": "test -f apps/landing/.content/sections.json && node -e \"const r=require('./apps/landing/.content/sections.json');const s=Array.isArray(r)?r:r.sections;process.exit(s[0].id==='hero'?0:1)\"",
+              "checkDescription": "first section is hero",
+              "checkOutput": "Command failed: test -f apps/landing/.content/sections.json && node -e \"const r=require('./apps/landing/.content/sections.json');const s=Array.isArray(r)?r:r.sections;process.exit(s[0].id==='hero'?0:1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Sections inventory\n\nEmit the canonical list of 8 home-page sections in render order. The\n`04-build-sections` WBS reads this file and spawns one parent task + 5\nstep children per entry. `id` order in the JSON is the render order on\nthe page.\n\n## Required shape\n\n```json\n{\n  \"$schema\": \"../.content/schemas/sections.schema.json\",\n  \"sections\": [\n    { \"id\": \"hero\",              \"title\": \"Hero\",                          \"componentName\": \"Hero\",                  \"intent\": \"Tagline-first hero with the canonical 'Define done. Converge gets there.' line, an animated convergence motif, and two CTAs (Get started → /docs/getting-started, Star on GitHub).\" },\n    { \"id\": \"social-proof\",      \"title\": \"Trusted by builders\",           \"componentName\": \"SocialProof\",           \"intent\": \"Lightweight credibility row: GitHub stars (live), npm downloads (live). Honest about being early — 'Used by' not 'Trusted by Fortune 500'.\" },\n    { \"id\": \"problem-solution\",  \"title\": \"Define how vs. define done\",    \"componentName\": \"ProblemSolution\",       \"intent\": \"Side-by-side: left shows imperative step-driven framework code; right shows declarative converge TASK.md. Visualizes the paradigm flip.\" },\n    { \"id\": \"feature-grid\",      \"title\": \"Six differentiators\",           \"componentName\": \"FeatureGrid\",           \"intent\": \"3×2 grid of differentiator cards sourced from README.md 'Why Converge?' bullets. Each card: lucide icon + headline + ≤180-char body.\" },\n    { \"id\": \"comparison\",        \"title\": \"Converge vs. step-driven\",      \"componentName\": \"InteractiveComparison\", \"intent\": \"Tabbed code panel — same workflow goal in LangGraph vs. Converge. Below: condensed feature matrix derived from docs/concepts/deterministic-checks.md and dynamic-work-breakdown.md.\" },\n    { \"id\": \"quickstart\",        \"title\": \"From zero to converged in 60s\", \"componentName\": \"Quickstart\",            \"intent\": \"Three-step terminal walkthrough mirroring README.md's quickstart block. Each step is a copy-button code block.\" },\n    { \"id\": \"faq\",               \"title\": \"FAQ\",                           \"componentName\": \"Faq\",                   \"intent\": \"8 disclosure items derived from the trade-offs sections of docs/concepts/*.md (each trade-off is an honest objection + honest answer). Native <details>; deep-link anchors.\" },\n    { \"id\": \"cta-banner\",        \"title\": \"Get started\",                   \"componentName\": \"CtaBanner\",             \"intent\": \"Final conversion banner: tagline restated + two CTAs (Read the docs / Star on GitHub). Subtle indigo glow background mirroring banner.svg.\" }\n  ]\n}\n```\n\n## Process\n\n1. Use the JSON above as a starting point. The 8 sections are non-negotiable for v1 of the page.\n2. If you tweak `intent` strings, keep them grounded in real source material (README.md, docs/concepts/*.md). No marketing-speak.\n3. Write the file at `apps/landing/.content/sections.json`. Make sure it parses as JSON.\n\n## Banned\n\n- Adding a 9th section. The home page is finite. The FAQ is the catch-all for additional content.\n- Reordering hero or cta-banner. They're anchors at the top and bottom respectively.\n- `componentName` values that aren't valid PascalCase identifiers (they're used as Astro component names).",
+              "taskId": "01-prepare-spec/002-sections-inventory",
+              "taskTitle": "Emit sections.json — the WBS data file for 04-build-sections",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/01-prepare-spec/tasks/002-sections-inventory",
+              "factId": "check:hero-first"
+            }
+          },
+          {
+            "id": "01-prepare-spec/002-sections-inventory-check-failed-cta-last",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-spec/002-sections-inventory",
+            "severity": "high",
+            "description": "[01-prepare-spec/002-sections-inventory] Check failed: last section is cta-banner",
+            "source": "unit",
+            "detected": "2026-04-26T20:13:40.231Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "cta-last",
+              "checkCmd": "test -f apps/landing/.content/sections.json && node -e \"const r=require('./apps/landing/.content/sections.json');const s=Array.isArray(r)?r:r.sections;process.exit(s[s.length-1].id==='cta-banner'?0:1)\"",
+              "checkDescription": "last section is cta-banner",
+              "checkOutput": "Command failed: test -f apps/landing/.content/sections.json && node -e \"const r=require('./apps/landing/.content/sections.json');const s=Array.isArray(r)?r:r.sections;process.exit(s[s.length-1].id==='cta-banner'?0:1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Sections inventory\n\nEmit the canonical list of 8 home-page sections in render order. The\n`04-build-sections` WBS reads this file and spawns one parent task + 5\nstep children per entry. `id` order in the JSON is the render order on\nthe page.\n\n## Required shape\n\n```json\n{\n  \"$schema\": \"../.content/schemas/sections.schema.json\",\n  \"sections\": [\n    { \"id\": \"hero\",              \"title\": \"Hero\",                          \"componentName\": \"Hero\",                  \"intent\": \"Tagline-first hero with the canonical 'Define done. Converge gets there.' line, an animated convergence motif, and two CTAs (Get started → /docs/getting-started, Star on GitHub).\" },\n    { \"id\": \"social-proof\",      \"title\": \"Trusted by builders\",           \"componentName\": \"SocialProof\",           \"intent\": \"Lightweight credibility row: GitHub stars (live), npm downloads (live). Honest about being early — 'Used by' not 'Trusted by Fortune 500'.\" },\n    { \"id\": \"problem-solution\",  \"title\": \"Define how vs. define done\",    \"componentName\": \"ProblemSolution\",       \"intent\": \"Side-by-side: left shows imperative step-driven framework code; right shows declarative converge TASK.md. Visualizes the paradigm flip.\" },\n    { \"id\": \"feature-grid\",      \"title\": \"Six differentiators\",           \"componentName\": \"FeatureGrid\",           \"intent\": \"3×2 grid of differentiator cards sourced from README.md 'Why Converge?' bullets. Each card: lucide icon + headline + ≤180-char body.\" },\n    { \"id\": \"comparison\",        \"title\": \"Converge vs. step-driven\",      \"componentName\": \"InteractiveComparison\", \"intent\": \"Tabbed code panel — same workflow goal in LangGraph vs. Converge. Below: condensed feature matrix derived from docs/concepts/deterministic-checks.md and dynamic-work-breakdown.md.\" },\n    { \"id\": \"quickstart\",        \"title\": \"From zero to converged in 60s\", \"componentName\": \"Quickstart\",            \"intent\": \"Three-step terminal walkthrough mirroring README.md's quickstart block. Each step is a copy-button code block.\" },\n    { \"id\": \"faq\",               \"title\": \"FAQ\",                           \"componentName\": \"Faq\",                   \"intent\": \"8 disclosure items derived from the trade-offs sections of docs/concepts/*.md (each trade-off is an honest objection + honest answer). Native <details>; deep-link anchors.\" },\n    { \"id\": \"cta-banner\",        \"title\": \"Get started\",                   \"componentName\": \"CtaBanner\",             \"intent\": \"Final conversion banner: tagline restated + two CTAs (Read the docs / Star on GitHub). Subtle indigo glow background mirroring banner.svg.\" }\n  ]\n}\n```\n\n## Process\n\n1. Use the JSON above as a starting point. The 8 sections are non-negotiable for v1 of the page.\n2. If you tweak `intent` strings, keep them grounded in real source material (README.md, docs/concepts/*.md). No marketing-speak.\n3. Write the file at `apps/landing/.content/sections.json`. Make sure it parses as JSON.\n\n## Banned\n\n- Adding a 9th section. The home page is finite. The FAQ is the catch-all for additional content.\n- Reordering hero or cta-banner. They're anchors at the top and bottom respectively.\n- `componentName` values that aren't valid PascalCase identifiers (they're used as Astro component names).",
+              "taskId": "01-prepare-spec/002-sections-inventory",
+              "taskTitle": "Emit sections.json — the WBS data file for 04-build-sections",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/01-prepare-spec/tasks/002-sections-inventory",
+              "factId": "check:cta-last"
+            }
+          }
+        ],
+        "durationMs": 22
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 11
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 232
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#106",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 29974
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T20:13:40.186Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T20:13:40.209Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T20:13:40.232Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T20:13:40.232Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T20:13:40.244Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#106",
+      "iteration": 1,
+      "ts": "2026-04-26T20:14:10.218Z"
+    },
+    {
+      "from": "run-strategy:task-run#106",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T20:14:10.451Z"
+    }
+  ]
+}

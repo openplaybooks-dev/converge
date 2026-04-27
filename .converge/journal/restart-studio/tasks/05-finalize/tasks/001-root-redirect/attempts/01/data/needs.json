@@ -1,0 +1,9 @@
+{
+  "taskId": "05-finalize/001-root-redirect",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/studio/src/app/page.tsx"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "02-data-layer/001-core-studio-api-export",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T01:34:15.985Z",
+  "createdAt": "2026-04-26T01:33:01.406Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T01:33:01.406Z",
+      "completedAt": "2026-04-26T01:34:15.982Z",
+      "outcome": "success",
+      "durationMs": 74576
+    }
+  ],
+  "currentAttempt": 1
+}

@@ -1,0 +1,10 @@
+{
+  "taskId": "03-rebind-ui/001-rebind-shell-nav",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/studio/src/components/layout/nav-rail.tsx",
+    "packages/studio/src/components/layout/header-bar.tsx"
+  ],
+  "blocked": false
+}

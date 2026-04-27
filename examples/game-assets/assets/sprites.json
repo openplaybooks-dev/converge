@@ -2,22 +2,37 @@
   {
     "id": "hero-knight",
     "name": "Sir Aldric",
-    "description": "Armored knight with blue steel armor, red cape, and sword and shield. Hero character with 8-directional movement.",
-    "palette": "16-bit retro, blue and silver armor, red accent, limited to 16 colors",
-    "animation_states": ["idle", "walk"]
+    "description": "Cute, modern hand-drawn knight character with rounded blue-steel armor, a flowing red cape, and an oversized friendly sword and shield. Slightly stylized proportions (larger head, simplified hands), expressive eyes, painterly shading.",
+    "art_style": "ghibli_modern_indie",
+    "palette": "Cool blue-steel armor with silver highlights, deep crimson cape with gentle gradient, warm leather accents on belt and grips. Painterly soft shading, rich saturated mids, ambient rim light.",
+    "palette_constraints": "Dominant colors: cool blue steel and silver-highlight metal. Cape is rich crimson red. Avoid heavy gold or brass — a single small heraldic emblem on the chest or shield boss is the only gold-tone accent. The character reads as friendly hero, not grimdark.",
+    "animation_states": ["idle", "walk"],
+    "canonical_angle": "side_right",
+    "source_resolution": 1024,
+    "working_resolution": 512
   },
   {
     "id": "forest-elf",
     "name": "Lirael",
-    "description": "Nimble elf with green cloak, pointed hat, and bow. Quick movements, graceful poses.",
-    "palette": "16-bit retro, green and brown tones, natural forest colors, limited to 16 colors",
-    "animation_states": ["idle", "walk"]
+    "description": "Cute, modern hand-drawn elf with a forest-green hooded cloak, pointed hat, and curved wooden bow. Nimble graceful proportions, expressive eyes, ears just visible under the hat.",
+    "art_style": "ghibli_modern_indie",
+    "palette": "Forest greens for cloak, warm earth browns for leather and bow, soft moss and tan accents. Painterly soft shading; storybook color richness.",
+    "palette_constraints": "Dominant: forest green cloak and tan leather. Secondary: muted moss, soft cream skin tones. A faint sunlit-gold may appear as a single arrowhead glint or bowstring sheen — keep it tiny. Avoid heavy gilding anywhere.",
+    "animation_states": ["idle", "walk"],
+    "canonical_angle": "side_right",
+    "source_resolution": 1024,
+    "working_resolution": 512
   },
   {
     "id": "shadow-mage",
     "name": "Malachar",
-    "description": "Dark robed mage with glowing purple eyes and staff. Mysterious, flowing robe animations.",
-    "palette": "16-bit retro, dark purple and black, magical glow effects, limited to 16 colors",
-    "animation_states": ["idle", "walk"]
+    "description": "Cute, modern hand-drawn mage in a flowing dark-purple robe, peaked hat, and a tall wooden staff topped with a softly glowing crystal. Slightly mysterious but friendly silhouette — the eyes glow gently from beneath the hat brim.",
+    "art_style": "ghibli_modern_indie",
+    "palette": "Deep saturated purple and indigo robes, near-black accent shadow, soft cyan/violet inner glow on the staff crystal and around the eyes. Painterly atmospheric shading.",
+    "palette_constraints": "Dominant: deep purples and indigos. Magical glow stays subtle — no harsh neons; gentle inner light around the staff crystal. No gold on robe panels, sleeves, sashes, or hat — only the staff's rune inscriptions can carry a faint warm-gold accent under 5% of pixels.",
+    "animation_states": ["idle", "walk"],
+    "canonical_angle": "side_right",
+    "source_resolution": 1024,
+    "working_resolution": 512
   }
 ]

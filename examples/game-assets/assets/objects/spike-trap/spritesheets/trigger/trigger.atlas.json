@@ -1,0 +1,253 @@
+{
+  "image": "trigger.png",
+  "meta": {
+    "obj_id": "spike-trap",
+    "state": "trigger",
+    "category": "hazard",
+    "rows": 2,
+    "cols": 4,
+    "frame_count": 8,
+    "frame_size": {
+      "w": 384,
+      "h": 512
+    },
+    "sheet_size": {
+      "w": 1536,
+      "h": 1024
+    },
+    "frame_order": "left-to-right, top-to-bottom",
+    "requested_cols": 4,
+    "requested_rows": 2,
+    "detected": true,
+    "aligned": true,
+    "frameRate": 12,
+    "yoyo": false,
+    "seed": 1751434203
+  },
+  "frames": [
+    {
+      "filename": "trigger_000.png",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          50,
+          308,
+          376,
+          476
+        ],
+        "torso_x": 211,
+        "aligned_bbox": [
+          31,
+          339,
+          357,
+          507
+        ],
+        "shift": [
+          -19,
+          31
+        ]
+      }
+    },
+    {
+      "filename": "trigger_001.png",
+      "frame": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          22,
+          311,
+          383,
+          473
+        ],
+        "torso_x": 185,
+        "aligned_bbox": [
+          22,
+          345,
+          383,
+          507
+        ],
+        "shift": [
+          0,
+          34
+        ]
+      }
+    },
+    {
+      "filename": "trigger_002.png",
+      "frame": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          135,
+          383,
+          479
+        ],
+        "torso_x": 155,
+        "aligned_bbox": [
+          0,
+          163,
+          383,
+          507
+        ],
+        "shift": [
+          0,
+          28
+        ]
+      }
+    },
+    {
+      "filename": "trigger_003.png",
+      "frame": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          70,
+          304,
+          477
+        ],
+        "torso_x": 137,
+        "aligned_bbox": [
+          55,
+          100,
+          359,
+          507
+        ],
+        "shift": [
+          55,
+          30
+        ]
+      }
+    },
+    {
+      "filename": "trigger_004.png",
+      "frame": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          52,
+          19,
+          375,
+          419
+        ],
+        "torso_x": 213,
+        "aligned_bbox": [
+          31,
+          107,
+          354,
+          507
+        ],
+        "shift": [
+          -21,
+          88
+        ]
+      }
+    },
+    {
+      "filename": "trigger_005.png",
+      "frame": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          26,
+          18,
+          383,
+          422
+        ],
+        "torso_x": 185,
+        "aligned_bbox": [
+          26,
+          103,
+          383,
+          507
+        ],
+        "shift": [
+          0,
+          85
+        ]
+      }
+    },
+    {
+      "filename": "trigger_006.png",
+      "frame": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          63,
+          383,
+          419
+        ],
+        "torso_x": 156,
+        "aligned_bbox": [
+          0,
+          151,
+          383,
+          507
+        ],
+        "shift": [
+          0,
+          88
+        ]
+      }
+    },
+    {
+      "filename": "trigger_007.png",
+      "frame": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          127,
+          296,
+          420
+        ],
+        "torso_x": 138,
+        "aligned_bbox": [
+          54,
+          214,
+          350,
+          507
+        ],
+        "shift": [
+          54,
+          87
+        ]
+      }
+    }
+  ]
+}

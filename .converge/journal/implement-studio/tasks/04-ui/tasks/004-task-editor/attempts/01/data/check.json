@@ -1,0 +1,15 @@
+{
+  "taskId": "04-ui/004-task-editor",
+  "checks": [
+    {
+      "id": "page-exists",
+      "description": "Task editor page exists",
+      "cmd": "test -f 'packages/converge-studio/src/app/playbooks/[name]/tasks/[...path]/page.tsx'"
+    },
+    {
+      "id": "typecheck",
+      "description": "Page typechecks",
+      "cmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    }
+  ]
+}

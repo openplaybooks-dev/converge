@@ -1,0 +1,20 @@
+{
+  "taskId": "11-ship/002-cloudflare-headers",
+  "checks": [
+    {
+      "id": "headers-exists",
+      "description": "public/_headers exists",
+      "cmd": "test -f apps/landing/public/_headers"
+    },
+    {
+      "id": "has-csp",
+      "description": "has CSP or X-Frame-Options",
+      "cmd": "test -f apps/landing/public/_headers && grep -qE 'Content-Security-Policy|X-Frame-Options' apps/landing/public/_headers"
+    },
+    {
+      "id": "has-cache-control",
+      "description": "has Cache-Control directives",
+      "cmd": "test -f apps/landing/public/_headers && grep -qE 'Cache-Control' apps/landing/public/_headers"
+    }
+  ]
+}

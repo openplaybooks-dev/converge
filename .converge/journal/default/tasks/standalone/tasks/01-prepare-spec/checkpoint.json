@@ -1,0 +1,27 @@
+{
+  "type": "task",
+  "id": "01-prepare-spec",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T23:04:30.619Z",
+  "createdAt": "2026-04-26T23:04:30.619Z",
+  "progress": {
+    "totalChildren": 12,
+    "completedChildren": 12,
+    "failedChildren": 0,
+    "childIds": [
+      "001-sitemap",
+      "002-sections-inventory",
+      "003-brand-spec",
+      "004-seo-spec",
+      "001-sitemap",
+      "002-sections-inventory",
+      "003-brand-spec",
+      "004-seo-spec",
+      "001-sitemap",
+      "002-sections-inventory",
+      "003-brand-spec",
+      "004-seo-spec"
+    ],
+    "lastProgressUpdate": "2026-04-26T23:04:30.618Z"
+  }
+}

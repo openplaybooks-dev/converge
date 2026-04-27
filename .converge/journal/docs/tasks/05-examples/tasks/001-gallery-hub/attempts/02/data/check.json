@@ -1,0 +1,30 @@
+{
+  "taskId": "05-examples/001-gallery-hub",
+  "checks": [
+    {
+      "id": "page-exists",
+      "description": "page exists",
+      "cmd": "test -f docs/examples/index.md"
+    },
+    {
+      "id": "has-frontmatter",
+      "description": "title + sources frontmatter",
+      "cmd": "head -10 docs/examples/index.md | grep -q '^title:' && head -10 docs/examples/index.md | grep -q '^sources:'"
+    },
+    {
+      "id": "groups-by-category",
+      "description": "page is grouped by category headings",
+      "cmd": "grep -qiE '^##\\s+(learning|building software|research|creative|security|agent protocol)' docs/examples/index.md"
+    },
+    {
+      "id": "lists-most-examples",
+      "description": "lists at least 15 example links",
+      "cmd": "test $(grep -cE '^\\s*-\\s+\\[|^\\*\\s+\\[' docs/examples/index.md) -ge 15"
+    },
+    {
+      "id": "not-too-long",
+      "description": "<=1500 words (the hub is scannable, not exhaustive)",
+      "cmd": "test -f docs/examples/index.md && wc -w docs/examples/index.md | awk '{exit ($1<=1500?0:1)}'"
+    }
+  ]
+}

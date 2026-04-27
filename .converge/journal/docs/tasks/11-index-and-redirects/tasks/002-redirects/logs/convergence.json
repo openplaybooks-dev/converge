@@ -1,0 +1,249 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "11-index-and-redirects/002-redirects-missing-output-docs/_redirects.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "11-index-and-redirects/002-redirects",
+            "severity": "high",
+            "description": "[11-index-and-redirects/002-redirects] Task output not created: docs/_redirects.json",
+            "source": "unit",
+            "detected": "2026-04-26T10:05:27.244Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/11-index-and-redirects/tasks/002-redirects",
+              "taskId": "11-index-and-redirects/002-redirects",
+              "taskTitle": "Write docs/_redirects.json (legacy URL aliases)",
+              "taskPrompt": "# Write `docs/_redirects.json`\n\nMap old doc URLs (from before this playbook owned `docs/`) to their new\nhomes. The landing-page playbook reads this file when configuring\nCloudflare Pages redirects.\n\n## File: `docs/_redirects.json`\n\n```json\n{\n  \"$schema\": \"./_redirects.schema.json\",\n  \"redirects\": [\n    {\n      \"from\": \"/docs/getting-started.md\",\n      \"to\":   \"/docs/getting-started/your-first-playbook\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/why-converge.md\",\n      \"to\":   \"/docs/getting-started/why-converge\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/scaffolding.md\",\n      \"to\":   \"/docs/guides/build-a-software-project\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/comparisons.md\",\n      \"to\":   \"/docs/concepts/gap-driven-model\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/comparison-matrix.md\",\n      \"to\":   \"/docs/concepts/gap-driven-model\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/guides/writing-a-playbook\",\n      \"to\":   \"/docs/guides/build-a-software-project\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/guides/tasks-and-wbs\",\n      \"to\":   \"/docs/reference/task-md\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/guides/checks-and-gaps\",\n      \"to\":   \"/docs/concepts/gap-driven-model\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/guides/journals-and-learn\",\n      \"to\":   \"/docs/guides/read-the-journal\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/guides/switching-providers\",\n      \"to\":   \"/docs/guides/switch-providers\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/guides/debugging-stuck-runs\",\n      \"to\":   \"/docs/troubleshooting/\",\n      \"code\": 301\n    }\n  ]\n}\n```\n\n## Why these specific guide redirects\n\nThe previous Guides set was feature-shaped (`writing-a-playbook`,\n`tasks-and-wbs`, `checks-and-gaps`, `journals-and-learn`,\n`switching-providers`, `debugging-stuck-runs`). The new set is\nproblem-shaped. The redirect map preserves any inbound links to the\nold URLs by routing them to their best new home:\n\n- `writing-a-playbook` → `build-a-software-project` (the new \"I want to\n  ship a real playbook\" entry point).\n- `tasks-and-wbs` → `/reference/task-md` (the schema-level detail\n  moved to Reference).\n- `checks-and-gaps` → `/concepts/gap-driven-model` (the model is now\n  in Concepts, with concrete check syntax in `/reference/task-md`).\n- `journals-and-learn` → the renamed `read-the-journal` guide.\n- `switching-providers` → the renamed `switch-providers` guide.\n- `debugging-stuck-runs` → the new Troubleshooting hub.\n\n## Process\n\n1. List every file moved to `docs/_internal/` in `01-archive-existing` that\n   may have had inbound links somewhere (GitHub READMEs, social posts,\n   comments, the website pre-launch).\n2. For each, decide the closest new equivalent and add a 301.\n3. If a piece of content was internal-only and never had a public URL,\n   don't add a redirect — it didn't have inbound links to preserve.\n\n## Banned\n\n- 302 (temporary) for permanent moves. Use 301.\n- Redirecting to `/docs/_internal/*`. Internal docs aren't public.\n- An empty array if there are obvious legacy paths to redirect. The whole\n  point is preserving link integrity.",
+              "taskInputs": [
+                "docs/_internal"
+              ],
+              "factId": "file-exists:test -f \"docs/_redirects.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "11-index-and-redirects/002-redirects-check-failed-redirects-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "11-index-and-redirects/002-redirects",
+            "severity": "high",
+            "description": "[11-index-and-redirects/002-redirects] Check failed: redirects manifest exists and is valid JSON",
+            "source": "unit",
+            "detected": "2026-04-26T10:05:27.246Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "redirects-exists",
+              "checkCmd": "test -f docs/_redirects.json && node -e \"JSON.parse(require('fs').readFileSync('docs/_redirects.json','utf8'))\"",
+              "checkDescription": "redirects manifest exists and is valid JSON",
+              "checkOutput": "Command failed: test -f docs/_redirects.json && node -e \"JSON.parse(require('fs').readFileSync('docs/_redirects.json','utf8'))\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Write `docs/_redirects.json`\n\nMap old doc URLs (from before this playbook owned `docs/`) to their new\nhomes. The landing-page playbook reads this file when configuring\nCloudflare Pages redirects.\n\n## File: `docs/_redirects.json`\n\n```json\n{\n  \"$schema\": \"./_redirects.schema.json\",\n  \"redirects\": [\n    {\n      \"from\": \"/docs/getting-started.md\",\n      \"to\":   \"/docs/getting-started/your-first-playbook\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/why-converge.md\",\n      \"to\":   \"/docs/getting-started/why-converge\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/scaffolding.md\",\n      \"to\":   \"/docs/guides/build-a-software-project\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/comparisons.md\",\n      \"to\":   \"/docs/concepts/gap-driven-model\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/comparison-matrix.md\",\n      \"to\":   \"/docs/concepts/gap-driven-model\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/guides/writing-a-playbook\",\n      \"to\":   \"/docs/guides/build-a-software-project\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/guides/tasks-and-wbs\",\n      \"to\":   \"/docs/reference/task-md\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/guides/checks-and-gaps\",\n      \"to\":   \"/docs/concepts/gap-driven-model\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/guides/journals-and-learn\",\n      \"to\":   \"/docs/guides/read-the-journal\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/guides/switching-providers\",\n      \"to\":   \"/docs/guides/switch-providers\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/guides/debugging-stuck-runs\",\n      \"to\":   \"/docs/troubleshooting/\",\n      \"code\": 301\n    }\n  ]\n}\n```\n\n## Why these specific guide redirects\n\nThe previous Guides set was feature-shaped (`writing-a-playbook`,\n`tasks-and-wbs`, `checks-and-gaps`, `journals-and-learn`,\n`switching-providers`, `debugging-stuck-runs`). The new set is\nproblem-shaped. The redirect map preserves any inbound links to the\nold URLs by routing them to their best new home:\n\n- `writing-a-playbook` → `build-a-software-project` (the new \"I want to\n  ship a real playbook\" entry point).\n- `tasks-and-wbs` → `/reference/task-md` (the schema-level detail\n  moved to Reference).\n- `checks-and-gaps` → `/concepts/gap-driven-model` (the model is now\n  in Concepts, with concrete check syntax in `/reference/task-md`).\n- `journals-and-learn` → the renamed `read-the-journal` guide.\n- `switching-providers` → the renamed `switch-providers` guide.\n- `debugging-stuck-runs` → the new Troubleshooting hub.\n\n## Process\n\n1. List every file moved to `docs/_internal/` in `01-archive-existing` that\n   may have had inbound links somewhere (GitHub READMEs, social posts,\n   comments, the website pre-launch).\n2. For each, decide the closest new equivalent and add a 301.\n3. If a piece of content was internal-only and never had a public URL,\n   don't add a redirect — it didn't have inbound links to preserve.\n\n## Banned\n\n- 302 (temporary) for permanent moves. Use 301.\n- Redirecting to `/docs/_internal/*`. Internal docs aren't public.\n- An empty array if there are obvious legacy paths to redirect. The whole\n  point is preserving link integrity.",
+              "taskId": "11-index-and-redirects/002-redirects",
+              "taskTitle": "Write docs/_redirects.json (legacy URL aliases)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/11-index-and-redirects/tasks/002-redirects",
+              "factId": "check:redirects-exists"
+            }
+          },
+          {
+            "id": "11-index-and-redirects/002-redirects-check-failed-redirects-array",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "11-index-and-redirects/002-redirects",
+            "severity": "high",
+            "description": "[11-index-and-redirects/002-redirects] Check failed: has a redirects array (possibly empty)",
+            "source": "unit",
+            "detected": "2026-04-26T10:05:27.272Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "redirects-array",
+              "checkCmd": "node -e \"const r=require('./docs/_redirects.json');process.exit(Array.isArray(r.redirects)?0:1)\"",
+              "checkDescription": "has a redirects array (possibly empty)",
+              "checkOutput": "node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nError: Cannot find module './docs/_redirects.json'\nRequire stack:\n- /Users/minh/Documents/converge/[eval]\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\n    at Function._load (node:internal/modules/cjs/loader:1192:37)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\n    at Module.require (node:internal/modules/cjs/loader:1463:12)\n    at require (node:internal/modules/helpers:147:16)\n    at [eval]:1:9\n    at runScriptInThisContext (node:internal/vm:209:10) {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: [ '/Users/minh/Documents/converge/[eval]' ]\n}\n\nNode.js v22.19.0",
+              "checkExitCode": 1,
+              "taskPrompt": "# Write `docs/_redirects.json`\n\nMap old doc URLs (from before this playbook owned `docs/`) to their new\nhomes. The landing-page playbook reads this file when configuring\nCloudflare Pages redirects.\n\n## File: `docs/_redirects.json`\n\n```json\n{\n  \"$schema\": \"./_redirects.schema.json\",\n  \"redirects\": [\n    {\n      \"from\": \"/docs/getting-started.md\",\n      \"to\":   \"/docs/getting-started/your-first-playbook\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/why-converge.md\",\n      \"to\":   \"/docs/getting-started/why-converge\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/scaffolding.md\",\n      \"to\":   \"/docs/guides/build-a-software-project\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/comparisons.md\",\n      \"to\":   \"/docs/concepts/gap-driven-model\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/comparison-matrix.md\",\n      \"to\":   \"/docs/concepts/gap-driven-model\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/guides/writing-a-playbook\",\n      \"to\":   \"/docs/guides/build-a-software-project\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/guides/tasks-and-wbs\",\n      \"to\":   \"/docs/reference/task-md\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/guides/checks-and-gaps\",\n      \"to\":   \"/docs/concepts/gap-driven-model\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/guides/journals-and-learn\",\n      \"to\":   \"/docs/guides/read-the-journal\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/guides/switching-providers\",\n      \"to\":   \"/docs/guides/switch-providers\",\n      \"code\": 301\n    },\n    {\n      \"from\": \"/docs/guides/debugging-stuck-runs\",\n      \"to\":   \"/docs/troubleshooting/\",\n      \"code\": 301\n    }\n  ]\n}\n```\n\n## Why these specific guide redirects\n\nThe previous Guides set was feature-shaped (`writing-a-playbook`,\n`tasks-and-wbs`, `checks-and-gaps`, `journals-and-learn`,\n`switching-providers`, `debugging-stuck-runs`). The new set is\nproblem-shaped. The redirect map preserves any inbound links to the\nold URLs by routing them to their best new home:\n\n- `writing-a-playbook` → `build-a-software-project` (the new \"I want to\n  ship a real playbook\" entry point).\n- `tasks-and-wbs` → `/reference/task-md` (the schema-level detail\n  moved to Reference).\n- `checks-and-gaps` → `/concepts/gap-driven-model` (the model is now\n  in Concepts, with concrete check syntax in `/reference/task-md`).\n- `journals-and-learn` → the renamed `read-the-journal` guide.\n- `switching-providers` → the renamed `switch-providers` guide.\n- `debugging-stuck-runs` → the new Troubleshooting hub.\n\n## Process\n\n1. List every file moved to `docs/_internal/` in `01-archive-existing` that\n   may have had inbound links somewhere (GitHub READMEs, social posts,\n   comments, the website pre-launch).\n2. For each, decide the closest new equivalent and add a 301.\n3. If a piece of content was internal-only and never had a public URL,\n   don't add a redirect — it didn't have inbound links to preserve.\n\n## Banned\n\n- 302 (temporary) for permanent moves. Use 301.\n- Redirecting to `/docs/_internal/*`. Internal docs aren't public.\n- An empty array if there are obvious legacy paths to redirect. The whole\n  point is preserving link integrity.",
+              "taskId": "11-index-and-redirects/002-redirects",
+              "taskTitle": "Write docs/_redirects.json (legacy URL aliases)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/11-index-and-redirects/tasks/002-redirects",
+              "factId": "check:redirects-array"
+            }
+          }
+        ],
+        "durationMs": 33
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 28
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 108
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#10",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 30598
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T10:05:27.239Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T10:05:27.239Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T10:05:27.272Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T10:05:27.273Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T10:05:27.302Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#10",
+      "iteration": 1,
+      "ts": "2026-04-26T10:05:57.901Z"
+    },
+    {
+      "from": "run-strategy:task-run#10",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T10:05:58.009Z"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "taskId": "05-build-layout/005-error-pages",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "apps/landing/src/pages/404.astro"
+  ],
+  "blocked": false
+}

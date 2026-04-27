@@ -1,0 +1,25 @@
+{
+  "taskId": "04-ui/009-converge-event-stream",
+  "checks": [
+    {
+      "id": "events-route-exists",
+      "description": "SSE endpoint exists at /api/events",
+      "cmd": "test -f packages/converge-studio/src/app/api/events/route.ts"
+    },
+    {
+      "id": "hook-exists",
+      "description": "useConvergeEvents hook exists",
+      "cmd": "test -f packages/converge-studio/src/lib/use-converge-events.ts"
+    },
+    {
+      "id": "no-legacy-websocket",
+      "description": "No file in src/ still references the legacy gateway/websocket boot",
+      "cmd": "test -z \"$(grep -rl 'useWebSocket\\|STORAGE_GATEWAY_URL\\|gateways/connect\\|gateway-ws' packages/converge-studio/src 2>/dev/null)\""
+    },
+    {
+      "id": "typecheck-passes",
+      "description": "Studio still typechecks",
+      "cmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    }
+  ]
+}

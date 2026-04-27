@@ -1,0 +1,25 @@
+{
+  "taskId": "07-integrate-blog/001-collection-schema",
+  "checks": [
+    {
+      "id": "blog-collection-defined",
+      "description": "src/content.config.ts defines a blog collection",
+      "cmd": "test -f apps/landing/src/content.config.ts && grep -qE 'blog\\s*:\\s*defineCollection' apps/landing/src/content.config.ts"
+    },
+    {
+      "id": "schema-uses-zod",
+      "description": "schema uses zod fields",
+      "cmd": "test -f apps/landing/src/content.config.ts && grep -qE 'z\\.string|z\\.coerce\\.date|z\\.array' apps/landing/src/content.config.ts"
+    },
+    {
+      "id": "blog-content-dir-exists",
+      "description": "src/content/blog/ directory exists (empty is fine, seed posts come later)",
+      "cmd": "test -d apps/landing/src/content/blog"
+    },
+    {
+      "id": "build-still-clean",
+      "description": "build still passes with the new collection",
+      "cmd": "test -f apps/landing/package.json && pnpm --filter @converge/landing build"
+    }
+  ]
+}

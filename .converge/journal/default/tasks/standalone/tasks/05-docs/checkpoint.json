@@ -1,0 +1,25 @@
+{
+  "type": "task",
+  "id": "05-docs",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T08:48:00.038Z",
+  "createdAt": "2026-04-26T06:32:54.051Z",
+  "progress": {
+    "totalChildren": 10,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-install-starlight",
+      "001-install-starlight",
+      "002-configure-ia",
+      "002-configure-ia",
+      "004-search",
+      "004-search",
+      "005-cross-links",
+      "005-cross-links",
+      "006-redirects",
+      "006-redirects"
+    ],
+    "lastProgressUpdate": "2026-04-26T08:48:00.035Z"
+  }
+}

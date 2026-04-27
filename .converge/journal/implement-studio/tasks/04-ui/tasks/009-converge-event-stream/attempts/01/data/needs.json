@@ -1,0 +1,11 @@
+{
+  "taskId": "04-ui/009-converge-event-stream",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/src/app/api/events",
+    "packages/converge-studio/src/lib/use-converge-events.ts",
+    "packages/converge-studio/src/components/live-activity.tsx"
+  ],
+  "blocked": false
+}

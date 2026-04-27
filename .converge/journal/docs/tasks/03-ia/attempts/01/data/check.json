@@ -1,0 +1,40 @@
+{
+  "taskId": "03-ia",
+  "checks": [
+    {
+      "id": "ia-json-exists",
+      "description": "docs/_ia.json exists and is valid JSON",
+      "cmd": "test -f docs/_ia.json && node -e \"JSON.parse(require('fs').readFileSync('docs/_ia.json','utf8'))\""
+    },
+    {
+      "id": "ia-has-six-groups",
+      "description": "IA has the six top-level groups (Getting Started, Examples, Guides, Troubleshooting, Reference, Concepts)",
+      "cmd": "node -e \"const ia=require('./docs/_ia.json');const labels=ia.groups.map(g=>g.label);const required=['Getting Started','Examples','Guides','Troubleshooting','Reference','Concepts'];process.exit(required.every(r=>labels.includes(r))?0:1)\""
+    },
+    {
+      "id": "ia-getting-started-has-5-pages",
+      "description": "Getting Started has exactly 5 pages",
+      "cmd": "node -e \"const ia=require('./docs/_ia.json');const gs=ia.groups.find(g=>g.label==='Getting Started');process.exit(Array.isArray(gs.pages)&&gs.pages.length===5?0:1)\""
+    },
+    {
+      "id": "ia-examples-has-glob",
+      "description": "Examples uses a glob entry for per-example pages",
+      "cmd": "node -e \"const ia=require('./docs/_ia.json');const ex=ia.groups.find(g=>g.label==='Examples');const hasGlob=(ex.pages||[]).some(p=>p.kind==='glob'&&String(p.glob||'').startsWith('examples/'));process.exit(hasGlob?0:1)\""
+    },
+    {
+      "id": "ia-troubleshooting-has-glob",
+      "description": "Troubleshooting uses a glob entry for per-symptom pages",
+      "cmd": "node -e \"const ia=require('./docs/_ia.json');const t=ia.groups.find(g=>g.label==='Troubleshooting');const hasGlob=(t.pages||[]).some(p=>p.kind==='glob'&&String(p.glob||'').startsWith('troubleshooting/'));process.exit(hasGlob?0:1)\""
+    },
+    {
+      "id": "ia-reference-has-cli-glob",
+      "description": "Reference uses a glob entry for CLI commands",
+      "cmd": "node -e \"const ia=require('./docs/_ia.json');const ref=ia.groups.find(g=>g.label==='Reference');const hasCliGlob=(ref.pages||[]).some(p=>p.kind==='glob'&&String(p.glob||'').startsWith('reference/cli/'));process.exit(hasCliGlob?0:1)\""
+    },
+    {
+      "id": "ia-every-page-has-slug-or-glob",
+      "description": "every page entry has either slug or glob",
+      "cmd": "node -e \"const ia=require('./docs/_ia.json');const allPages=ia.groups.flatMap(g=>g.pages||[]);const ok=allPages.every(p=>p.slug||p.glob);process.exit(ok?0:1)\""
+    }
+  ]
+}

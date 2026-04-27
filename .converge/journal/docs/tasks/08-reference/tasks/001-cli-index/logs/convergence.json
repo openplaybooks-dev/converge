@@ -1,0 +1,227 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "08-reference/001-cli-index-missing-output-docs/reference/cli/index.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-reference/001-cli-index",
+            "severity": "high",
+            "description": "[08-reference/001-cli-index] Task output not created: docs/reference/cli/index.md",
+            "source": "unit",
+            "detected": "2026-04-26T07:57:53.463Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/08-reference/tasks/001-cli-index",
+              "taskId": "08-reference/001-cli-index",
+              "taskTitle": "Write docs/reference/cli/index.md (CLI overview)",
+              "taskPrompt": "# Write `docs/reference/cli/index.md`\n\nThe \"all commands at a glance\" page. Reader who knows what they want can\nscan this page and click through to the right reference page.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"CLI\"\ndescription: \"All converge CLI commands at a glance.\"\nsources:\n  - docs/_cli-commands.json\n  - packages/cli/src/main.ts\nsidebar:\n  order: 1\n---\n```\n\n## Required structure\n\n1. **Top of page.** \"Every CLI command, grouped by intent. For full flag and\n   option detail, click through to a command's page.\"\n\n2. **Workflow group.** Most-used commands. From `_cli-commands.json` filter\n   to: `init`, `run`, `verify`, `status`, `reset`, `plan`. Each as a row:\n   command + one-line summary + link to its detail page.\n\n3. **Inspection group.** `inspect`, `show`, `metrics`.\n\n4. **Management group.** `playbook`, `skills`, `goals`.\n\n5. **A11y group / advanced.** Anything else.\n\nUse a markdown table or definition list — whichever Starlight renders best.\n\n## Read first\n\n- `docs/_cli-commands.json` — the canonical list with handlers.\n- `packages/cli/src/main.ts` — verify the groupings match how the CLI's own\n  `--help` groups them (the help text in `packages/cli/src/main.ts` has a\n  natural grouping; mirror it).\n\n## Banned\n\n- Documenting flag-level detail here. Each command has its own page for that.\n- Listing commands not in `_cli-commands.json`. If the scanner missed one,\n  fix the scanner.",
+              "taskInputs": [
+                "docs/_cli-commands.json",
+                "packages/cli/src/main.ts"
+              ],
+              "factId": "file-exists:test -f \"docs/reference/cli/index.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "08-reference/001-cli-index-check-failed-page-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-reference/001-cli-index",
+            "severity": "high",
+            "description": "[08-reference/001-cli-index] Check failed: page exists",
+            "source": "unit",
+            "detected": "2026-04-26T07:57:53.466Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "page-exists",
+              "checkCmd": "test -f docs/reference/cli/index.md",
+              "checkDescription": "page exists",
+              "checkOutput": "Command failed: test -f docs/reference/cli/index.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Write `docs/reference/cli/index.md`\n\nThe \"all commands at a glance\" page. Reader who knows what they want can\nscan this page and click through to the right reference page.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"CLI\"\ndescription: \"All converge CLI commands at a glance.\"\nsources:\n  - docs/_cli-commands.json\n  - packages/cli/src/main.ts\nsidebar:\n  order: 1\n---\n```\n\n## Required structure\n\n1. **Top of page.** \"Every CLI command, grouped by intent. For full flag and\n   option detail, click through to a command's page.\"\n\n2. **Workflow group.** Most-used commands. From `_cli-commands.json` filter\n   to: `init`, `run`, `verify`, `status`, `reset`, `plan`. Each as a row:\n   command + one-line summary + link to its detail page.\n\n3. **Inspection group.** `inspect`, `show`, `metrics`.\n\n4. **Management group.** `playbook`, `skills`, `goals`.\n\n5. **A11y group / advanced.** Anything else.\n\nUse a markdown table or definition list — whichever Starlight renders best.\n\n## Read first\n\n- `docs/_cli-commands.json` — the canonical list with handlers.\n- `packages/cli/src/main.ts` — verify the groupings match how the CLI's own\n  `--help` groups them (the help text in `packages/cli/src/main.ts` has a\n  natural grouping; mirror it).\n\n## Banned\n\n- Documenting flag-level detail here. Each command has its own page for that.\n- Listing commands not in `_cli-commands.json`. If the scanner missed one,\n  fix the scanner.",
+              "taskId": "08-reference/001-cli-index",
+              "taskTitle": "Write docs/reference/cli/index.md (CLI overview)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/08-reference/tasks/001-cli-index",
+              "factId": "check:page-exists"
+            }
+          },
+          {
+            "id": "08-reference/001-cli-index-check-failed-lists-commands",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-reference/001-cli-index",
+            "severity": "high",
+            "description": "[08-reference/001-cli-index] Check failed: lists at least 8 commands",
+            "source": "unit",
+            "detected": "2026-04-26T07:57:53.470Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "lists-commands",
+              "checkCmd": "test $(grep -cE '^\\*?\\s*\\[?\\s*`?converge\\s+\\w+' docs/reference/cli/index.md) -ge 8",
+              "checkDescription": "lists at least 8 commands",
+              "checkOutput": "grep: docs/reference/cli/index.md: No such file or directory\n/bin/bash: line 0: test: -ge: unary operator expected",
+              "checkExitCode": 2,
+              "taskPrompt": "# Write `docs/reference/cli/index.md`\n\nThe \"all commands at a glance\" page. Reader who knows what they want can\nscan this page and click through to the right reference page.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"CLI\"\ndescription: \"All converge CLI commands at a glance.\"\nsources:\n  - docs/_cli-commands.json\n  - packages/cli/src/main.ts\nsidebar:\n  order: 1\n---\n```\n\n## Required structure\n\n1. **Top of page.** \"Every CLI command, grouped by intent. For full flag and\n   option detail, click through to a command's page.\"\n\n2. **Workflow group.** Most-used commands. From `_cli-commands.json` filter\n   to: `init`, `run`, `verify`, `status`, `reset`, `plan`. Each as a row:\n   command + one-line summary + link to its detail page.\n\n3. **Inspection group.** `inspect`, `show`, `metrics`.\n\n4. **Management group.** `playbook`, `skills`, `goals`.\n\n5. **A11y group / advanced.** Anything else.\n\nUse a markdown table or definition list — whichever Starlight renders best.\n\n## Read first\n\n- `docs/_cli-commands.json` — the canonical list with handlers.\n- `packages/cli/src/main.ts` — verify the groupings match how the CLI's own\n  `--help` groups them (the help text in `packages/cli/src/main.ts` has a\n  natural grouping; mirror it).\n\n## Banned\n\n- Documenting flag-level detail here. Each command has its own page for that.\n- Listing commands not in `_cli-commands.json`. If the scanner missed one,\n  fix the scanner.",
+              "taskId": "08-reference/001-cli-index",
+              "taskTitle": "Write docs/reference/cli/index.md (CLI overview)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/08-reference/tasks/001-cli-index",
+              "factId": "check:lists-commands"
+            }
+          }
+        ],
+        "durationMs": 14
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 8
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#17",
+      "handler": "run-strategy",
+      "status": "buffered",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T07:57:53.455Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T07:57:53.456Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T07:57:53.470Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T07:57:53.471Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T07:57:53.479Z"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+---
+interface Props {
+  variant?: 'info' | 'success' | 'warning' | 'accent';
+  size?: 'sm' | 'md';
+}
+
+const { variant = 'info', size = 'sm' } = Astro.props;
+
+const sizeClasses = {
+  sm: 'px-2 py-0.5 text-xs',
+  md: 'px-3 py-1 text-sm',
+};
+
+const variantClasses = {
+  info: 'bg-indigo/20 text-indigo',
+  success: 'bg-cyan/20 text-cyan',
+  warning: 'bg-violet/20 text-violet',
+  accent: 'bg-accent/20 text-accent',
+};
+
+const classes = [
+  'inline-flex items-center rounded-full font-medium',
+  sizeClasses[size],
+  variantClasses[variant],
+].join(' ');
+---
+
+<span class={classes}>
+  <slot />
+</span>

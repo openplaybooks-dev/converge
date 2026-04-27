@@ -1,0 +1,23 @@
+{
+  "type": "task",
+  "id": "03-rebind-ui",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T09:35:11.241Z",
+  "createdAt": "2026-04-26T09:34:43.950Z",
+  "progress": {
+    "totalChildren": 8,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-rebind-shell-nav",
+      "002-rebind-command-palette",
+      "003-build-converge-widgets",
+      "004-rebind-dashboard-page",
+      "005-rebind-runs-pages",
+      "006-rebind-playbook-detail",
+      "007-rebind-playbooks-list-and-new",
+      "008-rebind-task-editor-and-settings"
+    ],
+    "lastProgressUpdate": "2026-04-26T09:35:11.239Z"
+  }
+}

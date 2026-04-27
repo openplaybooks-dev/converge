@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "04-ui/003-new-playbook-form",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T06:58:03.553Z",
+  "createdAt": "2026-04-26T06:57:55.359Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T06:57:55.359Z",
+      "completedAt": "2026-04-26T06:58:03.551Z",
+      "outcome": "success",
+      "durationMs": 8192
+    }
+  ],
+  "currentAttempt": 1
+}

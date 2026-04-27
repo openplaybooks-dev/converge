@@ -1,0 +1,247 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "07-integrate-blog/005-og-images-missing-output-apps/landing/src/pages/og/[slug].png.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-integrate-blog/005-og-images",
+            "severity": "high",
+            "description": "[07-integrate-blog/005-og-images] Task output not created: apps/landing/src/pages/og/[slug].png.ts",
+            "source": "unit",
+            "detected": "2026-04-26T19:49:57.353Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/07-integrate-blog/tasks/005-og-images",
+              "taskId": "07-integrate-blog/005-og-images",
+              "taskTitle": "Per-post OG image — generated at build time via astro-og-canvas (or static placeholder)",
+              "taskPrompt": "# Per-post OG images\n\nGenerate Open Graph card images for each post at build time. Use\n`astro-og-canvas` for a balance of quality and simplicity.\n\n## Process\n\n```bash\npnpm --filter @converge/landing add astro-og-canvas\n```\n\nThen write:\n\n```ts\n// apps/landing/src/pages/og/[slug].png.ts\nimport { OGImageRoute } from 'astro-og-canvas';\nimport { getCollection } from 'astro:content';\n\nconst posts = await getCollection('blog');\n\nconst pages = Object.fromEntries(\n  posts\n    .filter((p) => !p.data.draft)\n    .map((p) => [\n      p.id.replace(/\\.mdx?$/, ''),\n      { title: p.data.title, description: p.data.description },\n    ]),\n);\n\nexport const { getStaticPaths, GET } = OGImageRoute({\n  pages,\n  param: 'slug',\n  getImageOptions: (slug, page) => ({\n    title: page.title,\n    description: page.description,\n    bgGradient: [[15, 17, 23], [30, 41, 59]],\n    border: { color: [99, 102, 241], width: 4, side: 'inline-start' },\n    padding: 60,\n    font: {\n      title: { size: 64, color: [248, 250, 252], weight: 'Bold' },\n      description: { size: 28, color: [148, 163, 184], lineHeight: 1.4 },\n    },\n    logo: { path: './public/favicon.svg', size: [60, 60] },\n  }),\n});\n```\n\nAfter build, requests to `/og/<slug>.png` return a 1200×630 PNG with\nthe post title + description on the brand-colored background.\n\n## Banned\n\n- Inline base64 images. Generate per-build, served as PNG.\n- Hardcoded brand colors. The `bgGradient` and `border` color values come from `brand.json` palette — if you copy them inline here, sync them to brand.json.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"apps/landing/src/pages/og/[slug].png.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "07-integrate-blog/005-og-images-check-failed-og-route-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-integrate-blog/005-og-images",
+            "severity": "high",
+            "description": "[07-integrate-blog/005-og-images] Check failed: dynamic OG image route exists",
+            "source": "unit",
+            "detected": "2026-04-26T19:49:57.355Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "og-route-exists",
+              "checkCmd": "test -f apps/landing/src/pages/og/[slug].png.ts",
+              "checkDescription": "dynamic OG image route exists",
+              "checkOutput": "Command failed: test -f apps/landing/src/pages/og/[slug].png.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Per-post OG images\n\nGenerate Open Graph card images for each post at build time. Use\n`astro-og-canvas` for a balance of quality and simplicity.\n\n## Process\n\n```bash\npnpm --filter @converge/landing add astro-og-canvas\n```\n\nThen write:\n\n```ts\n// apps/landing/src/pages/og/[slug].png.ts\nimport { OGImageRoute } from 'astro-og-canvas';\nimport { getCollection } from 'astro:content';\n\nconst posts = await getCollection('blog');\n\nconst pages = Object.fromEntries(\n  posts\n    .filter((p) => !p.data.draft)\n    .map((p) => [\n      p.id.replace(/\\.mdx?$/, ''),\n      { title: p.data.title, description: p.data.description },\n    ]),\n);\n\nexport const { getStaticPaths, GET } = OGImageRoute({\n  pages,\n  param: 'slug',\n  getImageOptions: (slug, page) => ({\n    title: page.title,\n    description: page.description,\n    bgGradient: [[15, 17, 23], [30, 41, 59]],\n    border: { color: [99, 102, 241], width: 4, side: 'inline-start' },\n    padding: 60,\n    font: {\n      title: { size: 64, color: [248, 250, 252], weight: 'Bold' },\n      description: { size: 28, color: [148, 163, 184], lineHeight: 1.4 },\n    },\n    logo: { path: './public/favicon.svg', size: [60, 60] },\n  }),\n});\n```\n\nAfter build, requests to `/og/<slug>.png` return a 1200×630 PNG with\nthe post title + description on the brand-colored background.\n\n## Banned\n\n- Inline base64 images. Generate per-build, served as PNG.\n- Hardcoded brand colors. The `bgGradient` and `border` color values come from `brand.json` palette — if you copy them inline here, sync them to brand.json.",
+              "taskId": "07-integrate-blog/005-og-images",
+              "taskTitle": "Per-post OG image — generated at build time via astro-og-canvas (or static placeholder)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/07-integrate-blog/tasks/005-og-images",
+              "factId": "check:og-route-exists"
+            }
+          },
+          {
+            "id": "07-integrate-blog/005-og-images-check-failed-og-uses-canvas-or-svg",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-integrate-blog/005-og-images",
+            "severity": "high",
+            "description": "[07-integrate-blog/005-og-images] Check failed: uses a real image-generation library or SVG-to-PNG path",
+            "source": "unit",
+            "detected": "2026-04-26T19:49:57.357Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "og-uses-canvas-or-svg",
+              "checkCmd": "test -f apps/landing/src/pages/og/[slug].png.ts && grep -qE 'astro-og-canvas|sharp|satori|svg' apps/landing/src/pages/og/[slug].png.ts",
+              "checkDescription": "uses a real image-generation library or SVG-to-PNG path",
+              "checkOutput": "Command failed: test -f apps/landing/src/pages/og/[slug].png.ts && grep -qE 'astro-og-canvas|sharp|satori|svg' apps/landing/src/pages/og/[slug].png.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Per-post OG images\n\nGenerate Open Graph card images for each post at build time. Use\n`astro-og-canvas` for a balance of quality and simplicity.\n\n## Process\n\n```bash\npnpm --filter @converge/landing add astro-og-canvas\n```\n\nThen write:\n\n```ts\n// apps/landing/src/pages/og/[slug].png.ts\nimport { OGImageRoute } from 'astro-og-canvas';\nimport { getCollection } from 'astro:content';\n\nconst posts = await getCollection('blog');\n\nconst pages = Object.fromEntries(\n  posts\n    .filter((p) => !p.data.draft)\n    .map((p) => [\n      p.id.replace(/\\.mdx?$/, ''),\n      { title: p.data.title, description: p.data.description },\n    ]),\n);\n\nexport const { getStaticPaths, GET } = OGImageRoute({\n  pages,\n  param: 'slug',\n  getImageOptions: (slug, page) => ({\n    title: page.title,\n    description: page.description,\n    bgGradient: [[15, 17, 23], [30, 41, 59]],\n    border: { color: [99, 102, 241], width: 4, side: 'inline-start' },\n    padding: 60,\n    font: {\n      title: { size: 64, color: [248, 250, 252], weight: 'Bold' },\n      description: { size: 28, color: [148, 163, 184], lineHeight: 1.4 },\n    },\n    logo: { path: './public/favicon.svg', size: [60, 60] },\n  }),\n});\n```\n\nAfter build, requests to `/og/<slug>.png` return a 1200×630 PNG with\nthe post title + description on the brand-colored background.\n\n## Banned\n\n- Inline base64 images. Generate per-build, served as PNG.\n- Hardcoded brand colors. The `bgGradient` and `border` color values come from `brand.json` palette — if you copy them inline here, sync them to brand.json.",
+              "taskId": "07-integrate-blog/005-og-images",
+              "taskTitle": "Per-post OG image — generated at build time via astro-og-canvas (or static placeholder)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/07-integrate-blog/tasks/005-og-images",
+              "factId": "check:og-uses-canvas-or-svg"
+            }
+          }
+        ],
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 10
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#99",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 34508
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T19:49:57.349Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T19:49:57.349Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T19:49:57.357Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T19:49:57.357Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T19:49:57.363Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#99",
+      "iteration": 1,
+      "ts": "2026-04-26T19:50:31.871Z"
+    },
+    {
+      "from": "run-strategy:task-run#99",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T19:50:31.882Z"
+    }
+  ]
+}

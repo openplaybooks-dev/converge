@@ -1,0 +1,34 @@
+/* Generated from tokens.json — do not edit by hand. */
+:root {
+  --color-bg:        #0F1117;
+  --color-bg-elev:   #1E293B;
+  --color-indigo:    #6366F1;
+  --color-cyan:      #22D3EE;
+  --color-violet:    #A78BFA;
+  --color-text:      #F8FAFC;
+  --color-text-muted:#94A3B8;
+  --color-text-dim:  #64748B;
+  --color-accent:    #EF4444;
+  --color-border:    #1E293B;
+
+  --space-1: 0.25rem;  --space-2: 0.5rem;  --space-3: 0.75rem;
+  --space-4: 1rem;     --space-6: 1.5rem;  --space-8: 2rem;
+  --space-10: 2.5rem;  --space-12: 3rem;   --space-16: 4rem;
+  --space-20: 5rem;    --space-24: 6rem;   --space-32: 8rem;
+
+  --radius-sm: 0.25rem; --radius-md: 0.5rem; --radius-lg: 0.75rem;
+  --radius-xl: 1rem;    --radius-2xl: 1.5rem;
+}
+
+@theme {
+  --color-bg: var(--color-bg);
+  --color-bg-elev: var(--color-bg-elev);
+  --color-indigo: var(--color-indigo);
+  --color-cyan: var(--color-cyan);
+  --color-violet: var(--color-violet);
+  --color-text: var(--color-text);
+  --color-text-muted: var(--color-text-muted);
+  --color-text-dim: var(--color-text-dim);
+  --color-accent: var(--color-accent);
+  --color-border: var(--color-border);
+}

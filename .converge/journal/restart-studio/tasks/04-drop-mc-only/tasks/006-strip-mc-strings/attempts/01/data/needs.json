@@ -1,0 +1,9 @@
+{
+  "taskId": "04-drop-mc-only/006-strip-mc-strings",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    ".converge/studio-state/stripped-mc-strings.txt"
+  ],
+  "blocked": false
+}

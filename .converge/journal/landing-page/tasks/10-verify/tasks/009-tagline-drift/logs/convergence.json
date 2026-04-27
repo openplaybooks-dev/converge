@@ -1,0 +1,197 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "10-verify/009-tagline-drift-missing-output-apps/landing/.verify-passed",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "10-verify/009-tagline-drift",
+            "severity": "high",
+            "description": "[10-verify/009-tagline-drift] Task output not created: apps/landing/.verify-passed",
+            "source": "unit",
+            "detected": "2026-04-27T00:53:51.467Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/10-verify/tasks/009-tagline-drift",
+              "taskId": "10-verify/009-tagline-drift",
+              "taskTitle": "Tagline in dist/index.html matches README.md byte-for-byte",
+              "taskPrompt": "# Tagline drift\n\nRun `check-tagline-drift.mjs` — confirms the canonical tagline appears\nverbatim in both `README.md` (source of truth) and\n`apps/landing/dist/index.html` (rendered).\n\nIf they disagree, the README is canonical: update the landing page (or\nthe brand.json that the hero reads) — never edit the README to match the\nlanding.\n\n## Verify-passed marker\n\nAfter this check passes, write `apps/landing/.verify-passed` — phase 11\n(ship) reads this file and refuses to deploy without it. The marker\nfile is the gate; it's only written when ALL phase 10 checks have\nalready passed (because earlier tasks would have failed before reaching\nthis one).\n\n## Banned\n\n- Touching `.verify-passed` from any other task. Only this task writes it, and only after the tagline check passes.\n- Editing the README to match the landing if they drift. README is canonical; landing follows.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"apps/landing/.verify-passed\"",
+              "awaitingUserInput": false
+            }
+          }
+        ],
+        "durationMs": 67
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 58
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#5",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 62358
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-27T00:53:51.463Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-27T00:53:51.463Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-27T00:53:51.530Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-27T00:53:51.530Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-27T00:53:51.532Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#5",
+      "iteration": 1,
+      "ts": "2026-04-27T00:54:53.890Z"
+    },
+    {
+      "from": "run-strategy:task-run#5",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-27T00:54:53.949Z"
+    }
+  ]
+}

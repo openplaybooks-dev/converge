@@ -1,0 +1,568 @@
+{
+  "iteration": 2,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-ui/007-view-modes-missing-output-packages/converge-studio/src/components/views/ViewSwitcher.tsx",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/007-view-modes",
+            "severity": "high",
+            "description": "[04-ui/007-view-modes] Task output not created: packages/converge-studio/src/components/views/ViewSwitcher.tsx",
+            "source": "unit",
+            "detected": "2026-04-26T03:13:38.770Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/007-view-modes",
+              "taskId": "04-ui/007-view-modes",
+              "taskTitle": "Shared view-mode primitives (ViewSwitcher, KanbanBoard, TaskTree, SessionGantt)",
+              "taskPrompt": "Build a small set of generic view-mode primitives that the playbook detail page, runs list, and live session view all reuse. This keeps the look-and-feel consistent across surfaces and avoids three independent kanban/tree/gantt implementations.\n\n**Design**: every consumer page picks the modes it supports and wires its own data adapter. The primitives are presentation-only; data comes from props.\n\n---\n\n### `lib/use-view-mode.ts`\n\n```ts\n'use client';\nimport { useEffect, useState } from 'react';\n\nexport type ViewMode = 'table' | 'kanban' | 'tree' | 'gantt';\n\nexport function useViewMode(key: string, defaultMode: ViewMode, allowed: ViewMode[]) {\n  const storageKey = `studio.view.${key}`;\n  const [mode, setMode] = useState<ViewMode>(defaultMode);\n  useEffect(() => {\n    const saved = localStorage.getItem(storageKey) as ViewMode | null;\n    if (saved && allowed.includes(saved)) setMode(saved);\n  }, [storageKey]);\n  useEffect(() => { localStorage.setItem(storageKey, mode); }, [storageKey, mode]);\n  return [mode, setMode] as const;\n}\n```\n\nPersists the user's choice per surface (so the runs page and the playbook detail can remember different defaults).\n\n---\n\n### `components/views/ViewSwitcher.tsx`\n\nSegmented control. Renders only the modes the page lists in `allowed`.\n\n```tsx\ninterface Props {\n  mode: ViewMode;\n  onChange: (m: ViewMode) => void;\n  allowed: ViewMode[];\n}\n```\n\nUse Mission Control's existing button/segmented-control primitive (shadcn/Radix) — do not roll a fresh one. Icon per mode: table grid, kanban columns, tree branches, gantt bars.\n\n---\n\n### `components/views/TableView.tsx`\n\nGeneric data table. Already present in upstream Mission Control — wrap it with a stable column-spec API so consumers pass `{ columns, rows, onRowClick }`.\n\n---\n\n### `components/views/KanbanBoard.tsx`\n\nStatus-grouped column board.\n\n```tsx\ninterface KanbanItem {\n  id: string;\n  title: string;\n  status: string;          // group key\n  subtitle?: string;\n  href?: string;           // click navigates here\n  meta?: React.ReactNode;  // small badges (duration, count, etc.)\n}\n\ninterface Props {\n  items: KanbanItem[];\n  columns: Array<{ key: string; label: string; color?: string }>;  // explicit column order\n  onItemClick?: (item: KanbanItem) => void;\n}\n```\n\n- Drag-and-drop is **out of scope** for MVP — kanban is a read-only grouped view here. Status changes happen through file edits / runs, not drags.\n- Empty columns render a muted placeholder, not vanish.\n- Virtualize columns with >50 items.\n\n---\n\n### `components/views/TaskTree.tsx`\n\nHierarchical view of tasks (or any parent/child structure).\n\n```tsx\ninterface TreeNode {\n  id: string;\n  title: string;\n  status?: 'pending' | 'running' | 'completed' | 'failed' | 'blocked';\n  href?: string;\n  children?: TreeNode[];\n  meta?: React.ReactNode;\n}\n\ninterface Props {\n  nodes: TreeNode[];\n  defaultExpandedDepth?: number;       // default 1\n  onNodeClick?: (node: TreeNode) => void;\n}\n```\n\n- Collapse/expand state persisted in localStorage keyed by node id.\n- Status icon at left (matches the icons converge CLI uses: `○` pending, `▶` running, `✅` completed, `❌` failed). Reuse a status-icon component if one is added; otherwise inline.\n- Indent guides (vertical lines) for readability on deep trees.\n\n---\n\n### `components/views/SessionGantt.tsx`\n\nTimeline of task attempts within a single session.\n\n```tsx\ninterface GanttRow {\n  taskPath: string;             // y-axis label\n  attempts: Array<{\n    startedAt: string;          // ISO\n    endedAt?: string;           // ISO; if missing, treated as ongoing\n    status: 'running' | 'completed' | 'failed';\n    label?: string;             // tooltip extra\n  }>;\n}\n\ninterface Props {\n  rows: GanttRow[];\n  sessionStartedAt: string;\n  sessionEndedAt?: string;       // omit for live sessions; auto-extends \"now\"\n  onAttemptClick?: (taskPath: string, attemptIndex: number) => void;\n}\n```\n\n- Time axis at top: ticks at 1m / 5m / 1h granularity depending on session duration.\n- Bar color by status (green/red/blue for completed/failed/running).\n- Live session: a thin vertical \"now\" line that updates every second; ongoing bars extend to it.\n- For sessions with >100 rows, virtualize the y-axis.\n- If a Mission Control gantt component already exists in the upstream, **wrap** it rather than rebuild — adapt the props, document the wrap.\n\n---\n\n### Consumer integration\n\nTasks 002-playbooks-list-detail, 005-runs-list, and 006-live-session-view import from `@/components/views/*` and `@/lib/use-view-mode` to provide their view options:\n\n| Surface | Modes allowed | Default |\n|---|---|---|\n| Playbook detail (tasks panel) | `table`, `kanban`, `tree` | `tree` |\n| Runs list | `table`, `kanban` | `table` |\n| Live session view | `gantt`, `tree`, `table` (events) | `gantt` |\n\nEach consumer maps its domain data into the primitive's input shape — no business logic in the view components.\n\n---\n\n**Reuse**: prefer Mission Control's existing UI primitives (table, drag handles, popover) under the hood. The new components are about a unified API and behavior, not new visual primitives.\n\n**Out of scope for MVP**: drag-to-reorder kanban, gantt zoom-and-pan, tree filtering by status. Note these as TODOs in code comments where the seam exists.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/components/views/ViewSwitcher.tsx\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-ui/007-view-modes-missing-output-packages/converge-studio/src/components/views/KanbanBoard.tsx",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/007-view-modes",
+            "severity": "high",
+            "description": "[04-ui/007-view-modes] Task output not created: packages/converge-studio/src/components/views/KanbanBoard.tsx",
+            "source": "unit",
+            "detected": "2026-04-26T03:13:38.773Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/007-view-modes",
+              "taskId": "04-ui/007-view-modes",
+              "taskTitle": "Shared view-mode primitives (ViewSwitcher, KanbanBoard, TaskTree, SessionGantt)",
+              "taskPrompt": "Build a small set of generic view-mode primitives that the playbook detail page, runs list, and live session view all reuse. This keeps the look-and-feel consistent across surfaces and avoids three independent kanban/tree/gantt implementations.\n\n**Design**: every consumer page picks the modes it supports and wires its own data adapter. The primitives are presentation-only; data comes from props.\n\n---\n\n### `lib/use-view-mode.ts`\n\n```ts\n'use client';\nimport { useEffect, useState } from 'react';\n\nexport type ViewMode = 'table' | 'kanban' | 'tree' | 'gantt';\n\nexport function useViewMode(key: string, defaultMode: ViewMode, allowed: ViewMode[]) {\n  const storageKey = `studio.view.${key}`;\n  const [mode, setMode] = useState<ViewMode>(defaultMode);\n  useEffect(() => {\n    const saved = localStorage.getItem(storageKey) as ViewMode | null;\n    if (saved && allowed.includes(saved)) setMode(saved);\n  }, [storageKey]);\n  useEffect(() => { localStorage.setItem(storageKey, mode); }, [storageKey, mode]);\n  return [mode, setMode] as const;\n}\n```\n\nPersists the user's choice per surface (so the runs page and the playbook detail can remember different defaults).\n\n---\n\n### `components/views/ViewSwitcher.tsx`\n\nSegmented control. Renders only the modes the page lists in `allowed`.\n\n```tsx\ninterface Props {\n  mode: ViewMode;\n  onChange: (m: ViewMode) => void;\n  allowed: ViewMode[];\n}\n```\n\nUse Mission Control's existing button/segmented-control primitive (shadcn/Radix) — do not roll a fresh one. Icon per mode: table grid, kanban columns, tree branches, gantt bars.\n\n---\n\n### `components/views/TableView.tsx`\n\nGeneric data table. Already present in upstream Mission Control — wrap it with a stable column-spec API so consumers pass `{ columns, rows, onRowClick }`.\n\n---\n\n### `components/views/KanbanBoard.tsx`\n\nStatus-grouped column board.\n\n```tsx\ninterface KanbanItem {\n  id: string;\n  title: string;\n  status: string;          // group key\n  subtitle?: string;\n  href?: string;           // click navigates here\n  meta?: React.ReactNode;  // small badges (duration, count, etc.)\n}\n\ninterface Props {\n  items: KanbanItem[];\n  columns: Array<{ key: string; label: string; color?: string }>;  // explicit column order\n  onItemClick?: (item: KanbanItem) => void;\n}\n```\n\n- Drag-and-drop is **out of scope** for MVP — kanban is a read-only grouped view here. Status changes happen through file edits / runs, not drags.\n- Empty columns render a muted placeholder, not vanish.\n- Virtualize columns with >50 items.\n\n---\n\n### `components/views/TaskTree.tsx`\n\nHierarchical view of tasks (or any parent/child structure).\n\n```tsx\ninterface TreeNode {\n  id: string;\n  title: string;\n  status?: 'pending' | 'running' | 'completed' | 'failed' | 'blocked';\n  href?: string;\n  children?: TreeNode[];\n  meta?: React.ReactNode;\n}\n\ninterface Props {\n  nodes: TreeNode[];\n  defaultExpandedDepth?: number;       // default 1\n  onNodeClick?: (node: TreeNode) => void;\n}\n```\n\n- Collapse/expand state persisted in localStorage keyed by node id.\n- Status icon at left (matches the icons converge CLI uses: `○` pending, `▶` running, `✅` completed, `❌` failed). Reuse a status-icon component if one is added; otherwise inline.\n- Indent guides (vertical lines) for readability on deep trees.\n\n---\n\n### `components/views/SessionGantt.tsx`\n\nTimeline of task attempts within a single session.\n\n```tsx\ninterface GanttRow {\n  taskPath: string;             // y-axis label\n  attempts: Array<{\n    startedAt: string;          // ISO\n    endedAt?: string;           // ISO; if missing, treated as ongoing\n    status: 'running' | 'completed' | 'failed';\n    label?: string;             // tooltip extra\n  }>;\n}\n\ninterface Props {\n  rows: GanttRow[];\n  sessionStartedAt: string;\n  sessionEndedAt?: string;       // omit for live sessions; auto-extends \"now\"\n  onAttemptClick?: (taskPath: string, attemptIndex: number) => void;\n}\n```\n\n- Time axis at top: ticks at 1m / 5m / 1h granularity depending on session duration.\n- Bar color by status (green/red/blue for completed/failed/running).\n- Live session: a thin vertical \"now\" line that updates every second; ongoing bars extend to it.\n- For sessions with >100 rows, virtualize the y-axis.\n- If a Mission Control gantt component already exists in the upstream, **wrap** it rather than rebuild — adapt the props, document the wrap.\n\n---\n\n### Consumer integration\n\nTasks 002-playbooks-list-detail, 005-runs-list, and 006-live-session-view import from `@/components/views/*` and `@/lib/use-view-mode` to provide their view options:\n\n| Surface | Modes allowed | Default |\n|---|---|---|\n| Playbook detail (tasks panel) | `table`, `kanban`, `tree` | `tree` |\n| Runs list | `table`, `kanban` | `table` |\n| Live session view | `gantt`, `tree`, `table` (events) | `gantt` |\n\nEach consumer maps its domain data into the primitive's input shape — no business logic in the view components.\n\n---\n\n**Reuse**: prefer Mission Control's existing UI primitives (table, drag handles, popover) under the hood. The new components are about a unified API and behavior, not new visual primitives.\n\n**Out of scope for MVP**: drag-to-reorder kanban, gantt zoom-and-pan, tree filtering by status. Note these as TODOs in code comments where the seam exists.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/components/views/KanbanBoard.tsx\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-ui/007-view-modes-missing-output-packages/converge-studio/src/components/views/TaskTree.tsx",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/007-view-modes",
+            "severity": "high",
+            "description": "[04-ui/007-view-modes] Task output not created: packages/converge-studio/src/components/views/TaskTree.tsx",
+            "source": "unit",
+            "detected": "2026-04-26T03:13:38.776Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/007-view-modes",
+              "taskId": "04-ui/007-view-modes",
+              "taskTitle": "Shared view-mode primitives (ViewSwitcher, KanbanBoard, TaskTree, SessionGantt)",
+              "taskPrompt": "Build a small set of generic view-mode primitives that the playbook detail page, runs list, and live session view all reuse. This keeps the look-and-feel consistent across surfaces and avoids three independent kanban/tree/gantt implementations.\n\n**Design**: every consumer page picks the modes it supports and wires its own data adapter. The primitives are presentation-only; data comes from props.\n\n---\n\n### `lib/use-view-mode.ts`\n\n```ts\n'use client';\nimport { useEffect, useState } from 'react';\n\nexport type ViewMode = 'table' | 'kanban' | 'tree' | 'gantt';\n\nexport function useViewMode(key: string, defaultMode: ViewMode, allowed: ViewMode[]) {\n  const storageKey = `studio.view.${key}`;\n  const [mode, setMode] = useState<ViewMode>(defaultMode);\n  useEffect(() => {\n    const saved = localStorage.getItem(storageKey) as ViewMode | null;\n    if (saved && allowed.includes(saved)) setMode(saved);\n  }, [storageKey]);\n  useEffect(() => { localStorage.setItem(storageKey, mode); }, [storageKey, mode]);\n  return [mode, setMode] as const;\n}\n```\n\nPersists the user's choice per surface (so the runs page and the playbook detail can remember different defaults).\n\n---\n\n### `components/views/ViewSwitcher.tsx`\n\nSegmented control. Renders only the modes the page lists in `allowed`.\n\n```tsx\ninterface Props {\n  mode: ViewMode;\n  onChange: (m: ViewMode) => void;\n  allowed: ViewMode[];\n}\n```\n\nUse Mission Control's existing button/segmented-control primitive (shadcn/Radix) — do not roll a fresh one. Icon per mode: table grid, kanban columns, tree branches, gantt bars.\n\n---\n\n### `components/views/TableView.tsx`\n\nGeneric data table. Already present in upstream Mission Control — wrap it with a stable column-spec API so consumers pass `{ columns, rows, onRowClick }`.\n\n---\n\n### `components/views/KanbanBoard.tsx`\n\nStatus-grouped column board.\n\n```tsx\ninterface KanbanItem {\n  id: string;\n  title: string;\n  status: string;          // group key\n  subtitle?: string;\n  href?: string;           // click navigates here\n  meta?: React.ReactNode;  // small badges (duration, count, etc.)\n}\n\ninterface Props {\n  items: KanbanItem[];\n  columns: Array<{ key: string; label: string; color?: string }>;  // explicit column order\n  onItemClick?: (item: KanbanItem) => void;\n}\n```\n\n- Drag-and-drop is **out of scope** for MVP — kanban is a read-only grouped view here. Status changes happen through file edits / runs, not drags.\n- Empty columns render a muted placeholder, not vanish.\n- Virtualize columns with >50 items.\n\n---\n\n### `components/views/TaskTree.tsx`\n\nHierarchical view of tasks (or any parent/child structure).\n\n```tsx\ninterface TreeNode {\n  id: string;\n  title: string;\n  status?: 'pending' | 'running' | 'completed' | 'failed' | 'blocked';\n  href?: string;\n  children?: TreeNode[];\n  meta?: React.ReactNode;\n}\n\ninterface Props {\n  nodes: TreeNode[];\n  defaultExpandedDepth?: number;       // default 1\n  onNodeClick?: (node: TreeNode) => void;\n}\n```\n\n- Collapse/expand state persisted in localStorage keyed by node id.\n- Status icon at left (matches the icons converge CLI uses: `○` pending, `▶` running, `✅` completed, `❌` failed). Reuse a status-icon component if one is added; otherwise inline.\n- Indent guides (vertical lines) for readability on deep trees.\n\n---\n\n### `components/views/SessionGantt.tsx`\n\nTimeline of task attempts within a single session.\n\n```tsx\ninterface GanttRow {\n  taskPath: string;             // y-axis label\n  attempts: Array<{\n    startedAt: string;          // ISO\n    endedAt?: string;           // ISO; if missing, treated as ongoing\n    status: 'running' | 'completed' | 'failed';\n    label?: string;             // tooltip extra\n  }>;\n}\n\ninterface Props {\n  rows: GanttRow[];\n  sessionStartedAt: string;\n  sessionEndedAt?: string;       // omit for live sessions; auto-extends \"now\"\n  onAttemptClick?: (taskPath: string, attemptIndex: number) => void;\n}\n```\n\n- Time axis at top: ticks at 1m / 5m / 1h granularity depending on session duration.\n- Bar color by status (green/red/blue for completed/failed/running).\n- Live session: a thin vertical \"now\" line that updates every second; ongoing bars extend to it.\n- For sessions with >100 rows, virtualize the y-axis.\n- If a Mission Control gantt component already exists in the upstream, **wrap** it rather than rebuild — adapt the props, document the wrap.\n\n---\n\n### Consumer integration\n\nTasks 002-playbooks-list-detail, 005-runs-list, and 006-live-session-view import from `@/components/views/*` and `@/lib/use-view-mode` to provide their view options:\n\n| Surface | Modes allowed | Default |\n|---|---|---|\n| Playbook detail (tasks panel) | `table`, `kanban`, `tree` | `tree` |\n| Runs list | `table`, `kanban` | `table` |\n| Live session view | `gantt`, `tree`, `table` (events) | `gantt` |\n\nEach consumer maps its domain data into the primitive's input shape — no business logic in the view components.\n\n---\n\n**Reuse**: prefer Mission Control's existing UI primitives (table, drag handles, popover) under the hood. The new components are about a unified API and behavior, not new visual primitives.\n\n**Out of scope for MVP**: drag-to-reorder kanban, gantt zoom-and-pan, tree filtering by status. Note these as TODOs in code comments where the seam exists.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/components/views/TaskTree.tsx\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-ui/007-view-modes-missing-output-packages/converge-studio/src/components/views/SessionGantt.tsx",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/007-view-modes",
+            "severity": "high",
+            "description": "[04-ui/007-view-modes] Task output not created: packages/converge-studio/src/components/views/SessionGantt.tsx",
+            "source": "unit",
+            "detected": "2026-04-26T03:13:38.778Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/007-view-modes",
+              "taskId": "04-ui/007-view-modes",
+              "taskTitle": "Shared view-mode primitives (ViewSwitcher, KanbanBoard, TaskTree, SessionGantt)",
+              "taskPrompt": "Build a small set of generic view-mode primitives that the playbook detail page, runs list, and live session view all reuse. This keeps the look-and-feel consistent across surfaces and avoids three independent kanban/tree/gantt implementations.\n\n**Design**: every consumer page picks the modes it supports and wires its own data adapter. The primitives are presentation-only; data comes from props.\n\n---\n\n### `lib/use-view-mode.ts`\n\n```ts\n'use client';\nimport { useEffect, useState } from 'react';\n\nexport type ViewMode = 'table' | 'kanban' | 'tree' | 'gantt';\n\nexport function useViewMode(key: string, defaultMode: ViewMode, allowed: ViewMode[]) {\n  const storageKey = `studio.view.${key}`;\n  const [mode, setMode] = useState<ViewMode>(defaultMode);\n  useEffect(() => {\n    const saved = localStorage.getItem(storageKey) as ViewMode | null;\n    if (saved && allowed.includes(saved)) setMode(saved);\n  }, [storageKey]);\n  useEffect(() => { localStorage.setItem(storageKey, mode); }, [storageKey, mode]);\n  return [mode, setMode] as const;\n}\n```\n\nPersists the user's choice per surface (so the runs page and the playbook detail can remember different defaults).\n\n---\n\n### `components/views/ViewSwitcher.tsx`\n\nSegmented control. Renders only the modes the page lists in `allowed`.\n\n```tsx\ninterface Props {\n  mode: ViewMode;\n  onChange: (m: ViewMode) => void;\n  allowed: ViewMode[];\n}\n```\n\nUse Mission Control's existing button/segmented-control primitive (shadcn/Radix) — do not roll a fresh one. Icon per mode: table grid, kanban columns, tree branches, gantt bars.\n\n---\n\n### `components/views/TableView.tsx`\n\nGeneric data table. Already present in upstream Mission Control — wrap it with a stable column-spec API so consumers pass `{ columns, rows, onRowClick }`.\n\n---\n\n### `components/views/KanbanBoard.tsx`\n\nStatus-grouped column board.\n\n```tsx\ninterface KanbanItem {\n  id: string;\n  title: string;\n  status: string;          // group key\n  subtitle?: string;\n  href?: string;           // click navigates here\n  meta?: React.ReactNode;  // small badges (duration, count, etc.)\n}\n\ninterface Props {\n  items: KanbanItem[];\n  columns: Array<{ key: string; label: string; color?: string }>;  // explicit column order\n  onItemClick?: (item: KanbanItem) => void;\n}\n```\n\n- Drag-and-drop is **out of scope** for MVP — kanban is a read-only grouped view here. Status changes happen through file edits / runs, not drags.\n- Empty columns render a muted placeholder, not vanish.\n- Virtualize columns with >50 items.\n\n---\n\n### `components/views/TaskTree.tsx`\n\nHierarchical view of tasks (or any parent/child structure).\n\n```tsx\ninterface TreeNode {\n  id: string;\n  title: string;\n  status?: 'pending' | 'running' | 'completed' | 'failed' | 'blocked';\n  href?: string;\n  children?: TreeNode[];\n  meta?: React.ReactNode;\n}\n\ninterface Props {\n  nodes: TreeNode[];\n  defaultExpandedDepth?: number;       // default 1\n  onNodeClick?: (node: TreeNode) => void;\n}\n```\n\n- Collapse/expand state persisted in localStorage keyed by node id.\n- Status icon at left (matches the icons converge CLI uses: `○` pending, `▶` running, `✅` completed, `❌` failed). Reuse a status-icon component if one is added; otherwise inline.\n- Indent guides (vertical lines) for readability on deep trees.\n\n---\n\n### `components/views/SessionGantt.tsx`\n\nTimeline of task attempts within a single session.\n\n```tsx\ninterface GanttRow {\n  taskPath: string;             // y-axis label\n  attempts: Array<{\n    startedAt: string;          // ISO\n    endedAt?: string;           // ISO; if missing, treated as ongoing\n    status: 'running' | 'completed' | 'failed';\n    label?: string;             // tooltip extra\n  }>;\n}\n\ninterface Props {\n  rows: GanttRow[];\n  sessionStartedAt: string;\n  sessionEndedAt?: string;       // omit for live sessions; auto-extends \"now\"\n  onAttemptClick?: (taskPath: string, attemptIndex: number) => void;\n}\n```\n\n- Time axis at top: ticks at 1m / 5m / 1h granularity depending on session duration.\n- Bar color by status (green/red/blue for completed/failed/running).\n- Live session: a thin vertical \"now\" line that updates every second; ongoing bars extend to it.\n- For sessions with >100 rows, virtualize the y-axis.\n- If a Mission Control gantt component already exists in the upstream, **wrap** it rather than rebuild — adapt the props, document the wrap.\n\n---\n\n### Consumer integration\n\nTasks 002-playbooks-list-detail, 005-runs-list, and 006-live-session-view import from `@/components/views/*` and `@/lib/use-view-mode` to provide their view options:\n\n| Surface | Modes allowed | Default |\n|---|---|---|\n| Playbook detail (tasks panel) | `table`, `kanban`, `tree` | `tree` |\n| Runs list | `table`, `kanban` | `table` |\n| Live session view | `gantt`, `tree`, `table` (events) | `gantt` |\n\nEach consumer maps its domain data into the primitive's input shape — no business logic in the view components.\n\n---\n\n**Reuse**: prefer Mission Control's existing UI primitives (table, drag handles, popover) under the hood. The new components are about a unified API and behavior, not new visual primitives.\n\n**Out of scope for MVP**: drag-to-reorder kanban, gantt zoom-and-pan, tree filtering by status. Note these as TODOs in code comments where the seam exists.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/components/views/SessionGantt.tsx\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-ui/007-view-modes-missing-output-packages/converge-studio/src/components/views/TableView.tsx",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/007-view-modes",
+            "severity": "high",
+            "description": "[04-ui/007-view-modes] Task output not created: packages/converge-studio/src/components/views/TableView.tsx",
+            "source": "unit",
+            "detected": "2026-04-26T03:13:38.780Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/007-view-modes",
+              "taskId": "04-ui/007-view-modes",
+              "taskTitle": "Shared view-mode primitives (ViewSwitcher, KanbanBoard, TaskTree, SessionGantt)",
+              "taskPrompt": "Build a small set of generic view-mode primitives that the playbook detail page, runs list, and live session view all reuse. This keeps the look-and-feel consistent across surfaces and avoids three independent kanban/tree/gantt implementations.\n\n**Design**: every consumer page picks the modes it supports and wires its own data adapter. The primitives are presentation-only; data comes from props.\n\n---\n\n### `lib/use-view-mode.ts`\n\n```ts\n'use client';\nimport { useEffect, useState } from 'react';\n\nexport type ViewMode = 'table' | 'kanban' | 'tree' | 'gantt';\n\nexport function useViewMode(key: string, defaultMode: ViewMode, allowed: ViewMode[]) {\n  const storageKey = `studio.view.${key}`;\n  const [mode, setMode] = useState<ViewMode>(defaultMode);\n  useEffect(() => {\n    const saved = localStorage.getItem(storageKey) as ViewMode | null;\n    if (saved && allowed.includes(saved)) setMode(saved);\n  }, [storageKey]);\n  useEffect(() => { localStorage.setItem(storageKey, mode); }, [storageKey, mode]);\n  return [mode, setMode] as const;\n}\n```\n\nPersists the user's choice per surface (so the runs page and the playbook detail can remember different defaults).\n\n---\n\n### `components/views/ViewSwitcher.tsx`\n\nSegmented control. Renders only the modes the page lists in `allowed`.\n\n```tsx\ninterface Props {\n  mode: ViewMode;\n  onChange: (m: ViewMode) => void;\n  allowed: ViewMode[];\n}\n```\n\nUse Mission Control's existing button/segmented-control primitive (shadcn/Radix) — do not roll a fresh one. Icon per mode: table grid, kanban columns, tree branches, gantt bars.\n\n---\n\n### `components/views/TableView.tsx`\n\nGeneric data table. Already present in upstream Mission Control — wrap it with a stable column-spec API so consumers pass `{ columns, rows, onRowClick }`.\n\n---\n\n### `components/views/KanbanBoard.tsx`\n\nStatus-grouped column board.\n\n```tsx\ninterface KanbanItem {\n  id: string;\n  title: string;\n  status: string;          // group key\n  subtitle?: string;\n  href?: string;           // click navigates here\n  meta?: React.ReactNode;  // small badges (duration, count, etc.)\n}\n\ninterface Props {\n  items: KanbanItem[];\n  columns: Array<{ key: string; label: string; color?: string }>;  // explicit column order\n  onItemClick?: (item: KanbanItem) => void;\n}\n```\n\n- Drag-and-drop is **out of scope** for MVP — kanban is a read-only grouped view here. Status changes happen through file edits / runs, not drags.\n- Empty columns render a muted placeholder, not vanish.\n- Virtualize columns with >50 items.\n\n---\n\n### `components/views/TaskTree.tsx`\n\nHierarchical view of tasks (or any parent/child structure).\n\n```tsx\ninterface TreeNode {\n  id: string;\n  title: string;\n  status?: 'pending' | 'running' | 'completed' | 'failed' | 'blocked';\n  href?: string;\n  children?: TreeNode[];\n  meta?: React.ReactNode;\n}\n\ninterface Props {\n  nodes: TreeNode[];\n  defaultExpandedDepth?: number;       // default 1\n  onNodeClick?: (node: TreeNode) => void;\n}\n```\n\n- Collapse/expand state persisted in localStorage keyed by node id.\n- Status icon at left (matches the icons converge CLI uses: `○` pending, `▶` running, `✅` completed, `❌` failed). Reuse a status-icon component if one is added; otherwise inline.\n- Indent guides (vertical lines) for readability on deep trees.\n\n---\n\n### `components/views/SessionGantt.tsx`\n\nTimeline of task attempts within a single session.\n\n```tsx\ninterface GanttRow {\n  taskPath: string;             // y-axis label\n  attempts: Array<{\n    startedAt: string;          // ISO\n    endedAt?: string;           // ISO; if missing, treated as ongoing\n    status: 'running' | 'completed' | 'failed';\n    label?: string;             // tooltip extra\n  }>;\n}\n\ninterface Props {\n  rows: GanttRow[];\n  sessionStartedAt: string;\n  sessionEndedAt?: string;       // omit for live sessions; auto-extends \"now\"\n  onAttemptClick?: (taskPath: string, attemptIndex: number) => void;\n}\n```\n\n- Time axis at top: ticks at 1m / 5m / 1h granularity depending on session duration.\n- Bar color by status (green/red/blue for completed/failed/running).\n- Live session: a thin vertical \"now\" line that updates every second; ongoing bars extend to it.\n- For sessions with >100 rows, virtualize the y-axis.\n- If a Mission Control gantt component already exists in the upstream, **wrap** it rather than rebuild — adapt the props, document the wrap.\n\n---\n\n### Consumer integration\n\nTasks 002-playbooks-list-detail, 005-runs-list, and 006-live-session-view import from `@/components/views/*` and `@/lib/use-view-mode` to provide their view options:\n\n| Surface | Modes allowed | Default |\n|---|---|---|\n| Playbook detail (tasks panel) | `table`, `kanban`, `tree` | `tree` |\n| Runs list | `table`, `kanban` | `table` |\n| Live session view | `gantt`, `tree`, `table` (events) | `gantt` |\n\nEach consumer maps its domain data into the primitive's input shape — no business logic in the view components.\n\n---\n\n**Reuse**: prefer Mission Control's existing UI primitives (table, drag handles, popover) under the hood. The new components are about a unified API and behavior, not new visual primitives.\n\n**Out of scope for MVP**: drag-to-reorder kanban, gantt zoom-and-pan, tree filtering by status. Note these as TODOs in code comments where the seam exists.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/components/views/TableView.tsx\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-ui/007-view-modes-missing-output-packages/converge-studio/src/lib/use-view-mode.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/007-view-modes",
+            "severity": "high",
+            "description": "[04-ui/007-view-modes] Task output not created: packages/converge-studio/src/lib/use-view-mode.ts",
+            "source": "unit",
+            "detected": "2026-04-26T03:13:38.782Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/007-view-modes",
+              "taskId": "04-ui/007-view-modes",
+              "taskTitle": "Shared view-mode primitives (ViewSwitcher, KanbanBoard, TaskTree, SessionGantt)",
+              "taskPrompt": "Build a small set of generic view-mode primitives that the playbook detail page, runs list, and live session view all reuse. This keeps the look-and-feel consistent across surfaces and avoids three independent kanban/tree/gantt implementations.\n\n**Design**: every consumer page picks the modes it supports and wires its own data adapter. The primitives are presentation-only; data comes from props.\n\n---\n\n### `lib/use-view-mode.ts`\n\n```ts\n'use client';\nimport { useEffect, useState } from 'react';\n\nexport type ViewMode = 'table' | 'kanban' | 'tree' | 'gantt';\n\nexport function useViewMode(key: string, defaultMode: ViewMode, allowed: ViewMode[]) {\n  const storageKey = `studio.view.${key}`;\n  const [mode, setMode] = useState<ViewMode>(defaultMode);\n  useEffect(() => {\n    const saved = localStorage.getItem(storageKey) as ViewMode | null;\n    if (saved && allowed.includes(saved)) setMode(saved);\n  }, [storageKey]);\n  useEffect(() => { localStorage.setItem(storageKey, mode); }, [storageKey, mode]);\n  return [mode, setMode] as const;\n}\n```\n\nPersists the user's choice per surface (so the runs page and the playbook detail can remember different defaults).\n\n---\n\n### `components/views/ViewSwitcher.tsx`\n\nSegmented control. Renders only the modes the page lists in `allowed`.\n\n```tsx\ninterface Props {\n  mode: ViewMode;\n  onChange: (m: ViewMode) => void;\n  allowed: ViewMode[];\n}\n```\n\nUse Mission Control's existing button/segmented-control primitive (shadcn/Radix) — do not roll a fresh one. Icon per mode: table grid, kanban columns, tree branches, gantt bars.\n\n---\n\n### `components/views/TableView.tsx`\n\nGeneric data table. Already present in upstream Mission Control — wrap it with a stable column-spec API so consumers pass `{ columns, rows, onRowClick }`.\n\n---\n\n### `components/views/KanbanBoard.tsx`\n\nStatus-grouped column board.\n\n```tsx\ninterface KanbanItem {\n  id: string;\n  title: string;\n  status: string;          // group key\n  subtitle?: string;\n  href?: string;           // click navigates here\n  meta?: React.ReactNode;  // small badges (duration, count, etc.)\n}\n\ninterface Props {\n  items: KanbanItem[];\n  columns: Array<{ key: string; label: string; color?: string }>;  // explicit column order\n  onItemClick?: (item: KanbanItem) => void;\n}\n```\n\n- Drag-and-drop is **out of scope** for MVP — kanban is a read-only grouped view here. Status changes happen through file edits / runs, not drags.\n- Empty columns render a muted placeholder, not vanish.\n- Virtualize columns with >50 items.\n\n---\n\n### `components/views/TaskTree.tsx`\n\nHierarchical view of tasks (or any parent/child structure).\n\n```tsx\ninterface TreeNode {\n  id: string;\n  title: string;\n  status?: 'pending' | 'running' | 'completed' | 'failed' | 'blocked';\n  href?: string;\n  children?: TreeNode[];\n  meta?: React.ReactNode;\n}\n\ninterface Props {\n  nodes: TreeNode[];\n  defaultExpandedDepth?: number;       // default 1\n  onNodeClick?: (node: TreeNode) => void;\n}\n```\n\n- Collapse/expand state persisted in localStorage keyed by node id.\n- Status icon at left (matches the icons converge CLI uses: `○` pending, `▶` running, `✅` completed, `❌` failed). Reuse a status-icon component if one is added; otherwise inline.\n- Indent guides (vertical lines) for readability on deep trees.\n\n---\n\n### `components/views/SessionGantt.tsx`\n\nTimeline of task attempts within a single session.\n\n```tsx\ninterface GanttRow {\n  taskPath: string;             // y-axis label\n  attempts: Array<{\n    startedAt: string;          // ISO\n    endedAt?: string;           // ISO; if missing, treated as ongoing\n    status: 'running' | 'completed' | 'failed';\n    label?: string;             // tooltip extra\n  }>;\n}\n\ninterface Props {\n  rows: GanttRow[];\n  sessionStartedAt: string;\n  sessionEndedAt?: string;       // omit for live sessions; auto-extends \"now\"\n  onAttemptClick?: (taskPath: string, attemptIndex: number) => void;\n}\n```\n\n- Time axis at top: ticks at 1m / 5m / 1h granularity depending on session duration.\n- Bar color by status (green/red/blue for completed/failed/running).\n- Live session: a thin vertical \"now\" line that updates every second; ongoing bars extend to it.\n- For sessions with >100 rows, virtualize the y-axis.\n- If a Mission Control gantt component already exists in the upstream, **wrap** it rather than rebuild — adapt the props, document the wrap.\n\n---\n\n### Consumer integration\n\nTasks 002-playbooks-list-detail, 005-runs-list, and 006-live-session-view import from `@/components/views/*` and `@/lib/use-view-mode` to provide their view options:\n\n| Surface | Modes allowed | Default |\n|---|---|---|\n| Playbook detail (tasks panel) | `table`, `kanban`, `tree` | `tree` |\n| Runs list | `table`, `kanban` | `table` |\n| Live session view | `gantt`, `tree`, `table` (events) | `gantt` |\n\nEach consumer maps its domain data into the primitive's input shape — no business logic in the view components.\n\n---\n\n**Reuse**: prefer Mission Control's existing UI primitives (table, drag handles, popover) under the hood. The new components are about a unified API and behavior, not new visual primitives.\n\n**Out of scope for MVP**: drag-to-reorder kanban, gantt zoom-and-pan, tree filtering by status. Note these as TODOs in code comments where the seam exists.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/lib/use-view-mode.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-ui/007-view-modes-check-failed-components-exist",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/007-view-modes",
+            "severity": "high",
+            "description": "[04-ui/007-view-modes] Check failed: All five view components exist",
+            "source": "unit",
+            "detected": "2026-04-26T03:13:38.784Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "components-exist",
+              "checkCmd": "test -f packages/converge-studio/src/components/views/ViewSwitcher.tsx && test -f packages/converge-studio/src/components/views/KanbanBoard.tsx && test -f packages/converge-studio/src/components/views/TaskTree.tsx && test -f packages/converge-studio/src/components/views/SessionGantt.tsx && test -f packages/converge-studio/src/components/views/TableView.tsx",
+              "checkDescription": "All five view components exist",
+              "checkOutput": "Command failed: test -f packages/converge-studio/src/components/views/ViewSwitcher.tsx && test -f packages/converge-studio/src/components/views/KanbanBoard.tsx && test -f packages/converge-studio/src/components/views/TaskTree.tsx && test -f packages/converge-studio/src/components/views/SessionGantt.tsx && test -f packages/converge-studio/src/components/views/TableView.tsx\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Build a small set of generic view-mode primitives that the playbook detail page, runs list, and live session view all reuse. This keeps the look-and-feel consistent across surfaces and avoids three independent kanban/tree/gantt implementations.\n\n**Design**: every consumer page picks the modes it supports and wires its own data adapter. The primitives are presentation-only; data comes from props.\n\n---\n\n### `lib/use-view-mode.ts`\n\n```ts\n'use client';\nimport { useEffect, useState } from 'react';\n\nexport type ViewMode = 'table' | 'kanban' | 'tree' | 'gantt';\n\nexport function useViewMode(key: string, defaultMode: ViewMode, allowed: ViewMode[]) {\n  const storageKey = `studio.view.${key}`;\n  const [mode, setMode] = useState<ViewMode>(defaultMode);\n  useEffect(() => {\n    const saved = localStorage.getItem(storageKey) as ViewMode | null;\n    if (saved && allowed.includes(saved)) setMode(saved);\n  }, [storageKey]);\n  useEffect(() => { localStorage.setItem(storageKey, mode); }, [storageKey, mode]);\n  return [mode, setMode] as const;\n}\n```\n\nPersists the user's choice per surface (so the runs page and the playbook detail can remember different defaults).\n\n---\n\n### `components/views/ViewSwitcher.tsx`\n\nSegmented control. Renders only the modes the page lists in `allowed`.\n\n```tsx\ninterface Props {\n  mode: ViewMode;\n  onChange: (m: ViewMode) => void;\n  allowed: ViewMode[];\n}\n```\n\nUse Mission Control's existing button/segmented-control primitive (shadcn/Radix) — do not roll a fresh one. Icon per mode: table grid, kanban columns, tree branches, gantt bars.\n\n---\n\n### `components/views/TableView.tsx`\n\nGeneric data table. Already present in upstream Mission Control — wrap it with a stable column-spec API so consumers pass `{ columns, rows, onRowClick }`.\n\n---\n\n### `components/views/KanbanBoard.tsx`\n\nStatus-grouped column board.\n\n```tsx\ninterface KanbanItem {\n  id: string;\n  title: string;\n  status: string;          // group key\n  subtitle?: string;\n  href?: string;           // click navigates here\n  meta?: React.ReactNode;  // small badges (duration, count, etc.)\n}\n\ninterface Props {\n  items: KanbanItem[];\n  columns: Array<{ key: string; label: string; color?: string }>;  // explicit column order\n  onItemClick?: (item: KanbanItem) => void;\n}\n```\n\n- Drag-and-drop is **out of scope** for MVP — kanban is a read-only grouped view here. Status changes happen through file edits / runs, not drags.\n- Empty columns render a muted placeholder, not vanish.\n- Virtualize columns with >50 items.\n\n---\n\n### `components/views/TaskTree.tsx`\n\nHierarchical view of tasks (or any parent/child structure).\n\n```tsx\ninterface TreeNode {\n  id: string;\n  title: string;\n  status?: 'pending' | 'running' | 'completed' | 'failed' | 'blocked';\n  href?: string;\n  children?: TreeNode[];\n  meta?: React.ReactNode;\n}\n\ninterface Props {\n  nodes: TreeNode[];\n  defaultExpandedDepth?: number;       // default 1\n  onNodeClick?: (node: TreeNode) => void;\n}\n```\n\n- Collapse/expand state persisted in localStorage keyed by node id.\n- Status icon at left (matches the icons converge CLI uses: `○` pending, `▶` running, `✅` completed, `❌` failed). Reuse a status-icon component if one is added; otherwise inline.\n- Indent guides (vertical lines) for readability on deep trees.\n\n---\n\n### `components/views/SessionGantt.tsx`\n\nTimeline of task attempts within a single session.\n\n```tsx\ninterface GanttRow {\n  taskPath: string;             // y-axis label\n  attempts: Array<{\n    startedAt: string;          // ISO\n    endedAt?: string;           // ISO; if missing, treated as ongoing\n    status: 'running' | 'completed' | 'failed';\n    label?: string;             // tooltip extra\n  }>;\n}\n\ninterface Props {\n  rows: GanttRow[];\n  sessionStartedAt: string;\n  sessionEndedAt?: string;       // omit for live sessions; auto-extends \"now\"\n  onAttemptClick?: (taskPath: string, attemptIndex: number) => void;\n}\n```\n\n- Time axis at top: ticks at 1m / 5m / 1h granularity depending on session duration.\n- Bar color by status (green/red/blue for completed/failed/running).\n- Live session: a thin vertical \"now\" line that updates every second; ongoing bars extend to it.\n- For sessions with >100 rows, virtualize the y-axis.\n- If a Mission Control gantt component already exists in the upstream, **wrap** it rather than rebuild — adapt the props, document the wrap.\n\n---\n\n### Consumer integration\n\nTasks 002-playbooks-list-detail, 005-runs-list, and 006-live-session-view import from `@/components/views/*` and `@/lib/use-view-mode` to provide their view options:\n\n| Surface | Modes allowed | Default |\n|---|---|---|\n| Playbook detail (tasks panel) | `table`, `kanban`, `tree` | `tree` |\n| Runs list | `table`, `kanban` | `table` |\n| Live session view | `gantt`, `tree`, `table` (events) | `gantt` |\n\nEach consumer maps its domain data into the primitive's input shape — no business logic in the view components.\n\n---\n\n**Reuse**: prefer Mission Control's existing UI primitives (table, drag handles, popover) under the hood. The new components are about a unified API and behavior, not new visual primitives.\n\n**Out of scope for MVP**: drag-to-reorder kanban, gantt zoom-and-pan, tree filtering by status. Note these as TODOs in code comments where the seam exists.",
+              "taskId": "04-ui/007-view-modes",
+              "taskTitle": "Shared view-mode primitives (ViewSwitcher, KanbanBoard, TaskTree, SessionGantt)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/007-view-modes",
+              "factId": "check:components-exist"
+            }
+          },
+          {
+            "id": "04-ui/007-view-modes-check-failed-hook-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/007-view-modes",
+            "severity": "high",
+            "description": "[04-ui/007-view-modes] Check failed: useViewMode hook exists",
+            "source": "unit",
+            "detected": "2026-04-26T03:13:38.787Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "hook-exists",
+              "checkCmd": "test -f packages/converge-studio/src/lib/use-view-mode.ts",
+              "checkDescription": "useViewMode hook exists",
+              "checkOutput": "Command failed: test -f packages/converge-studio/src/lib/use-view-mode.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Build a small set of generic view-mode primitives that the playbook detail page, runs list, and live session view all reuse. This keeps the look-and-feel consistent across surfaces and avoids three independent kanban/tree/gantt implementations.\n\n**Design**: every consumer page picks the modes it supports and wires its own data adapter. The primitives are presentation-only; data comes from props.\n\n---\n\n### `lib/use-view-mode.ts`\n\n```ts\n'use client';\nimport { useEffect, useState } from 'react';\n\nexport type ViewMode = 'table' | 'kanban' | 'tree' | 'gantt';\n\nexport function useViewMode(key: string, defaultMode: ViewMode, allowed: ViewMode[]) {\n  const storageKey = `studio.view.${key}`;\n  const [mode, setMode] = useState<ViewMode>(defaultMode);\n  useEffect(() => {\n    const saved = localStorage.getItem(storageKey) as ViewMode | null;\n    if (saved && allowed.includes(saved)) setMode(saved);\n  }, [storageKey]);\n  useEffect(() => { localStorage.setItem(storageKey, mode); }, [storageKey, mode]);\n  return [mode, setMode] as const;\n}\n```\n\nPersists the user's choice per surface (so the runs page and the playbook detail can remember different defaults).\n\n---\n\n### `components/views/ViewSwitcher.tsx`\n\nSegmented control. Renders only the modes the page lists in `allowed`.\n\n```tsx\ninterface Props {\n  mode: ViewMode;\n  onChange: (m: ViewMode) => void;\n  allowed: ViewMode[];\n}\n```\n\nUse Mission Control's existing button/segmented-control primitive (shadcn/Radix) — do not roll a fresh one. Icon per mode: table grid, kanban columns, tree branches, gantt bars.\n\n---\n\n### `components/views/TableView.tsx`\n\nGeneric data table. Already present in upstream Mission Control — wrap it with a stable column-spec API so consumers pass `{ columns, rows, onRowClick }`.\n\n---\n\n### `components/views/KanbanBoard.tsx`\n\nStatus-grouped column board.\n\n```tsx\ninterface KanbanItem {\n  id: string;\n  title: string;\n  status: string;          // group key\n  subtitle?: string;\n  href?: string;           // click navigates here\n  meta?: React.ReactNode;  // small badges (duration, count, etc.)\n}\n\ninterface Props {\n  items: KanbanItem[];\n  columns: Array<{ key: string; label: string; color?: string }>;  // explicit column order\n  onItemClick?: (item: KanbanItem) => void;\n}\n```\n\n- Drag-and-drop is **out of scope** for MVP — kanban is a read-only grouped view here. Status changes happen through file edits / runs, not drags.\n- Empty columns render a muted placeholder, not vanish.\n- Virtualize columns with >50 items.\n\n---\n\n### `components/views/TaskTree.tsx`\n\nHierarchical view of tasks (or any parent/child structure).\n\n```tsx\ninterface TreeNode {\n  id: string;\n  title: string;\n  status?: 'pending' | 'running' | 'completed' | 'failed' | 'blocked';\n  href?: string;\n  children?: TreeNode[];\n  meta?: React.ReactNode;\n}\n\ninterface Props {\n  nodes: TreeNode[];\n  defaultExpandedDepth?: number;       // default 1\n  onNodeClick?: (node: TreeNode) => void;\n}\n```\n\n- Collapse/expand state persisted in localStorage keyed by node id.\n- Status icon at left (matches the icons converge CLI uses: `○` pending, `▶` running, `✅` completed, `❌` failed). Reuse a status-icon component if one is added; otherwise inline.\n- Indent guides (vertical lines) for readability on deep trees.\n\n---\n\n### `components/views/SessionGantt.tsx`\n\nTimeline of task attempts within a single session.\n\n```tsx\ninterface GanttRow {\n  taskPath: string;             // y-axis label\n  attempts: Array<{\n    startedAt: string;          // ISO\n    endedAt?: string;           // ISO; if missing, treated as ongoing\n    status: 'running' | 'completed' | 'failed';\n    label?: string;             // tooltip extra\n  }>;\n}\n\ninterface Props {\n  rows: GanttRow[];\n  sessionStartedAt: string;\n  sessionEndedAt?: string;       // omit for live sessions; auto-extends \"now\"\n  onAttemptClick?: (taskPath: string, attemptIndex: number) => void;\n}\n```\n\n- Time axis at top: ticks at 1m / 5m / 1h granularity depending on session duration.\n- Bar color by status (green/red/blue for completed/failed/running).\n- Live session: a thin vertical \"now\" line that updates every second; ongoing bars extend to it.\n- For sessions with >100 rows, virtualize the y-axis.\n- If a Mission Control gantt component already exists in the upstream, **wrap** it rather than rebuild — adapt the props, document the wrap.\n\n---\n\n### Consumer integration\n\nTasks 002-playbooks-list-detail, 005-runs-list, and 006-live-session-view import from `@/components/views/*` and `@/lib/use-view-mode` to provide their view options:\n\n| Surface | Modes allowed | Default |\n|---|---|---|\n| Playbook detail (tasks panel) | `table`, `kanban`, `tree` | `tree` |\n| Runs list | `table`, `kanban` | `table` |\n| Live session view | `gantt`, `tree`, `table` (events) | `gantt` |\n\nEach consumer maps its domain data into the primitive's input shape — no business logic in the view components.\n\n---\n\n**Reuse**: prefer Mission Control's existing UI primitives (table, drag handles, popover) under the hood. The new components are about a unified API and behavior, not new visual primitives.\n\n**Out of scope for MVP**: drag-to-reorder kanban, gantt zoom-and-pan, tree filtering by status. Note these as TODOs in code comments where the seam exists.",
+              "taskId": "04-ui/007-view-modes",
+              "taskTitle": "Shared view-mode primitives (ViewSwitcher, KanbanBoard, TaskTree, SessionGantt)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/007-view-modes",
+              "factId": "check:hook-exists"
+            }
+          }
+        ],
+        "durationMs": 3932
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3844
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-ui/007-view-modes-check-failed-typecheck",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/007-view-modes",
+            "severity": "high",
+            "description": "[04-ui/007-view-modes] Check failed: All components typecheck",
+            "source": "unit",
+            "detected": "2026-04-26T03:15:21.485Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "typecheck",
+              "checkCmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq",
+              "checkDescription": "All components typecheck",
+              "checkOutput": "Command failed: pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Build a small set of generic view-mode primitives that the playbook detail page, runs list, and live session view all reuse. This keeps the look-and-feel consistent across surfaces and avoids three independent kanban/tree/gantt implementations.\n\n**Design**: every consumer page picks the modes it supports and wires its own data adapter. The primitives are presentation-only; data comes from props.\n\n---\n\n### `lib/use-view-mode.ts`\n\n```ts\n'use client';\nimport { useEffect, useState } from 'react';\n\nexport type ViewMode = 'table' | 'kanban' | 'tree' | 'gantt';\n\nexport function useViewMode(key: string, defaultMode: ViewMode, allowed: ViewMode[]) {\n  const storageKey = `studio.view.${key}`;\n  const [mode, setMode] = useState<ViewMode>(defaultMode);\n  useEffect(() => {\n    const saved = localStorage.getItem(storageKey) as ViewMode | null;\n    if (saved && allowed.includes(saved)) setMode(saved);\n  }, [storageKey]);\n  useEffect(() => { localStorage.setItem(storageKey, mode); }, [storageKey, mode]);\n  return [mode, setMode] as const;\n}\n```\n\nPersists the user's choice per surface (so the runs page and the playbook detail can remember different defaults).\n\n---\n\n### `components/views/ViewSwitcher.tsx`\n\nSegmented control. Renders only the modes the page lists in `allowed`.\n\n```tsx\ninterface Props {\n  mode: ViewMode;\n  onChange: (m: ViewMode) => void;\n  allowed: ViewMode[];\n}\n```\n\nUse Mission Control's existing button/segmented-control primitive (shadcn/Radix) — do not roll a fresh one. Icon per mode: table grid, kanban columns, tree branches, gantt bars.\n\n---\n\n### `components/views/TableView.tsx`\n\nGeneric data table. Already present in upstream Mission Control — wrap it with a stable column-spec API so consumers pass `{ columns, rows, onRowClick }`.\n\n---\n\n### `components/views/KanbanBoard.tsx`\n\nStatus-grouped column board.\n\n```tsx\ninterface KanbanItem {\n  id: string;\n  title: string;\n  status: string;          // group key\n  subtitle?: string;\n  href?: string;           // click navigates here\n  meta?: React.ReactNode;  // small badges (duration, count, etc.)\n}\n\ninterface Props {\n  items: KanbanItem[];\n  columns: Array<{ key: string; label: string; color?: string }>;  // explicit column order\n  onItemClick?: (item: KanbanItem) => void;\n}\n```\n\n- Drag-and-drop is **out of scope** for MVP — kanban is a read-only grouped view here. Status changes happen through file edits / runs, not drags.\n- Empty columns render a muted placeholder, not vanish.\n- Virtualize columns with >50 items.\n\n---\n\n### `components/views/TaskTree.tsx`\n\nHierarchical view of tasks (or any parent/child structure).\n\n```tsx\ninterface TreeNode {\n  id: string;\n  title: string;\n  status?: 'pending' | 'running' | 'completed' | 'failed' | 'blocked';\n  href?: string;\n  children?: TreeNode[];\n  meta?: React.ReactNode;\n}\n\ninterface Props {\n  nodes: TreeNode[];\n  defaultExpandedDepth?: number;       // default 1\n  onNodeClick?: (node: TreeNode) => void;\n}\n```\n\n- Collapse/expand state persisted in localStorage keyed by node id.\n- Status icon at left (matches the icons converge CLI uses: `○` pending, `▶` running, `✅` completed, `❌` failed). Reuse a status-icon component if one is added; otherwise inline.\n- Indent guides (vertical lines) for readability on deep trees.\n\n---\n\n### `components/views/SessionGantt.tsx`\n\nTimeline of task attempts within a single session.\n\n```tsx\ninterface GanttRow {\n  taskPath: string;             // y-axis label\n  attempts: Array<{\n    startedAt: string;          // ISO\n    endedAt?: string;           // ISO; if missing, treated as ongoing\n    status: 'running' | 'completed' | 'failed';\n    label?: string;             // tooltip extra\n  }>;\n}\n\ninterface Props {\n  rows: GanttRow[];\n  sessionStartedAt: string;\n  sessionEndedAt?: string;       // omit for live sessions; auto-extends \"now\"\n  onAttemptClick?: (taskPath: string, attemptIndex: number) => void;\n}\n```\n\n- Time axis at top: ticks at 1m / 5m / 1h granularity depending on session duration.\n- Bar color by status (green/red/blue for completed/failed/running).\n- Live session: a thin vertical \"now\" line that updates every second; ongoing bars extend to it.\n- For sessions with >100 rows, virtualize the y-axis.\n- If a Mission Control gantt component already exists in the upstream, **wrap** it rather than rebuild — adapt the props, document the wrap.\n\n---\n\n### Consumer integration\n\nTasks 002-playbooks-list-detail, 005-runs-list, and 006-live-session-view import from `@/components/views/*` and `@/lib/use-view-mode` to provide their view options:\n\n| Surface | Modes allowed | Default |\n|---|---|---|\n| Playbook detail (tasks panel) | `table`, `kanban`, `tree` | `tree` |\n| Runs list | `table`, `kanban` | `table` |\n| Live session view | `gantt`, `tree`, `table` (events) | `gantt` |\n\nEach consumer maps its domain data into the primitive's input shape — no business logic in the view components.\n\n---\n\n**Reuse**: prefer Mission Control's existing UI primitives (table, drag handles, popover) under the hood. The new components are about a unified API and behavior, not new visual primitives.\n\n**Out of scope for MVP**: drag-to-reorder kanban, gantt zoom-and-pan, tree filtering by status. Note these as TODOs in code comments where the seam exists.",
+              "taskId": "04-ui/007-view-modes",
+              "taskTitle": "Shared view-mode primitives (ViewSwitcher, KanbanBoard, TaskTree, SessionGantt)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/007-view-modes",
+              "factId": "check:typecheck"
+            }
+          }
+        ],
+        "durationMs": 3872
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "run-strategy:task-run#7",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 91065
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-ui/007-view-modes-check-failed-typecheck",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/007-view-modes",
+            "severity": "high",
+            "description": "[04-ui/007-view-modes] Check failed: All components typecheck",
+            "source": "unit",
+            "detected": "2026-04-26T03:15:25.447Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "typecheck",
+              "checkCmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq",
+              "checkDescription": "All components typecheck",
+              "checkOutput": "Command failed: pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Build a small set of generic view-mode primitives that the playbook detail page, runs list, and live session view all reuse. This keeps the look-and-feel consistent across surfaces and avoids three independent kanban/tree/gantt implementations.\n\n**Design**: every consumer page picks the modes it supports and wires its own data adapter. The primitives are presentation-only; data comes from props.\n\n---\n\n### `lib/use-view-mode.ts`\n\n```ts\n'use client';\nimport { useEffect, useState } from 'react';\n\nexport type ViewMode = 'table' | 'kanban' | 'tree' | 'gantt';\n\nexport function useViewMode(key: string, defaultMode: ViewMode, allowed: ViewMode[]) {\n  const storageKey = `studio.view.${key}`;\n  const [mode, setMode] = useState<ViewMode>(defaultMode);\n  useEffect(() => {\n    const saved = localStorage.getItem(storageKey) as ViewMode | null;\n    if (saved && allowed.includes(saved)) setMode(saved);\n  }, [storageKey]);\n  useEffect(() => { localStorage.setItem(storageKey, mode); }, [storageKey, mode]);\n  return [mode, setMode] as const;\n}\n```\n\nPersists the user's choice per surface (so the runs page and the playbook detail can remember different defaults).\n\n---\n\n### `components/views/ViewSwitcher.tsx`\n\nSegmented control. Renders only the modes the page lists in `allowed`.\n\n```tsx\ninterface Props {\n  mode: ViewMode;\n  onChange: (m: ViewMode) => void;\n  allowed: ViewMode[];\n}\n```\n\nUse Mission Control's existing button/segmented-control primitive (shadcn/Radix) — do not roll a fresh one. Icon per mode: table grid, kanban columns, tree branches, gantt bars.\n\n---\n\n### `components/views/TableView.tsx`\n\nGeneric data table. Already present in upstream Mission Control — wrap it with a stable column-spec API so consumers pass `{ columns, rows, onRowClick }`.\n\n---\n\n### `components/views/KanbanBoard.tsx`\n\nStatus-grouped column board.\n\n```tsx\ninterface KanbanItem {\n  id: string;\n  title: string;\n  status: string;          // group key\n  subtitle?: string;\n  href?: string;           // click navigates here\n  meta?: React.ReactNode;  // small badges (duration, count, etc.)\n}\n\ninterface Props {\n  items: KanbanItem[];\n  columns: Array<{ key: string; label: string; color?: string }>;  // explicit column order\n  onItemClick?: (item: KanbanItem) => void;\n}\n```\n\n- Drag-and-drop is **out of scope** for MVP — kanban is a read-only grouped view here. Status changes happen through file edits / runs, not drags.\n- Empty columns render a muted placeholder, not vanish.\n- Virtualize columns with >50 items.\n\n---\n\n### `components/views/TaskTree.tsx`\n\nHierarchical view of tasks (or any parent/child structure).\n\n```tsx\ninterface TreeNode {\n  id: string;\n  title: string;\n  status?: 'pending' | 'running' | 'completed' | 'failed' | 'blocked';\n  href?: string;\n  children?: TreeNode[];\n  meta?: React.ReactNode;\n}\n\ninterface Props {\n  nodes: TreeNode[];\n  defaultExpandedDepth?: number;       // default 1\n  onNodeClick?: (node: TreeNode) => void;\n}\n```\n\n- Collapse/expand state persisted in localStorage keyed by node id.\n- Status icon at left (matches the icons converge CLI uses: `○` pending, `▶` running, `✅` completed, `❌` failed). Reuse a status-icon component if one is added; otherwise inline.\n- Indent guides (vertical lines) for readability on deep trees.\n\n---\n\n### `components/views/SessionGantt.tsx`\n\nTimeline of task attempts within a single session.\n\n```tsx\ninterface GanttRow {\n  taskPath: string;             // y-axis label\n  attempts: Array<{\n    startedAt: string;          // ISO\n    endedAt?: string;           // ISO; if missing, treated as ongoing\n    status: 'running' | 'completed' | 'failed';\n    label?: string;             // tooltip extra\n  }>;\n}\n\ninterface Props {\n  rows: GanttRow[];\n  sessionStartedAt: string;\n  sessionEndedAt?: string;       // omit for live sessions; auto-extends \"now\"\n  onAttemptClick?: (taskPath: string, attemptIndex: number) => void;\n}\n```\n\n- Time axis at top: ticks at 1m / 5m / 1h granularity depending on session duration.\n- Bar color by status (green/red/blue for completed/failed/running).\n- Live session: a thin vertical \"now\" line that updates every second; ongoing bars extend to it.\n- For sessions with >100 rows, virtualize the y-axis.\n- If a Mission Control gantt component already exists in the upstream, **wrap** it rather than rebuild — adapt the props, document the wrap.\n\n---\n\n### Consumer integration\n\nTasks 002-playbooks-list-detail, 005-runs-list, and 006-live-session-view import from `@/components/views/*` and `@/lib/use-view-mode` to provide their view options:\n\n| Surface | Modes allowed | Default |\n|---|---|---|\n| Playbook detail (tasks panel) | `table`, `kanban`, `tree` | `tree` |\n| Runs list | `table`, `kanban` | `table` |\n| Live session view | `gantt`, `tree`, `table` (events) | `gantt` |\n\nEach consumer maps its domain data into the primitive's input shape — no business logic in the view components.\n\n---\n\n**Reuse**: prefer Mission Control's existing UI primitives (table, drag handles, popover) under the hood. The new components are about a unified API and behavior, not new visual primitives.\n\n**Out of scope for MVP**: drag-to-reorder kanban, gantt zoom-and-pan, tree filtering by status. Note these as TODOs in code comments where the seam exists.",
+              "taskId": "04-ui/007-view-modes",
+              "taskTitle": "Shared view-mode primitives (ViewSwitcher, KanbanBoard, TaskTree, SessionGantt)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/007-view-modes",
+              "factId": "check:typecheck"
+            }
+          }
+        ],
+        "durationMs": 3959
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#2",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3908
+      }
+    },
+    {
+      "id": "run-strategy:task-run#8",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 169976
+      }
+    },
+    {
+      "id": "verify#2",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 3986
+      }
+    },
+    {
+      "id": "check-stall#2",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt#2",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T03:13:38.766Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T03:13:38.766Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T03:13:42.699Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T03:13:42.700Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T03:13:46.546Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#7",
+      "iteration": 1,
+      "ts": "2026-04-26T03:15:17.612Z"
+    },
+    {
+      "from": "run-strategy:task-run#7",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T03:15:21.485Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-26T03:15:21.486Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-26T03:15:21.487Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-26T03:15:21.487Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-26T03:15:21.488Z"
+    },
+    {
+      "from": "check-outputs-exist#2",
+      "to": "detect-gaps#2",
+      "iteration": 2,
+      "ts": "2026-04-26T03:15:25.448Z"
+    },
+    {
+      "from": "detect-gaps#2",
+      "to": "repair-loop#2",
+      "iteration": 2,
+      "ts": "2026-04-26T03:15:29.356Z"
+    },
+    {
+      "from": "repair-loop#2",
+      "to": "run-strategy:task-run#8",
+      "iteration": 2,
+      "ts": "2026-04-26T03:18:19.332Z"
+    },
+    {
+      "from": "run-strategy:task-run#8",
+      "to": "verify#2",
+      "iteration": 2,
+      "ts": "2026-04-26T03:18:23.319Z"
+    }
+  ]
+}

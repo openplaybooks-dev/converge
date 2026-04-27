@@ -13,7 +13,7 @@
 
 Converge is an open-source, TypeScript-native framework for orchestrating complex AI agent workflows. Instead of defining steps, graphs, or roles, you declare what "done" looks like — what files must exist, what checks must pass — and Converge continuously measures gaps, generates work to close them, and self-corrects when things fail.
 
-270 lines of core logic. 92% test coverage. 7 runtime dependencies.
+Crash-safe by design — atomic checkpoints, resumable runs, deterministic checks.
 
 ```bash
 npm install -g @converge/core
@@ -21,13 +21,11 @@ npm install -g @converge/core
 
 ## Why Converge?
 
-**Gap-driven, not step-driven** — SQL describes what data you want, not how to fetch it. Terraform describes what infrastructure you want, not what API calls to make. Converge describes what the finished project looks like and figures out the rest.
+**Goal-driven, not step-driven** — Describe the finished project. Let the agent figure out the path. SQL declares the data you want, not the API calls to fetch it; converge declares the artifacts and checks that define done, not the steps to get there.
 
-**Self-correcting across attempts** — When a check fails, Converge writes a structured LEARN.md analyzing what went wrong. The next attempt reads that analysis and applies targeted corrections instead of retrying blind.
+**Deterministic checks, not AI judgement** — Verification runs as shell commands (`test`, `grep`, `npm test`). The agent has latitude in how it solves the problem; it has zero latitude on whether the predicate passes.
 
-**Filesystem is the plan** — Your `.converge/` directory is the execution plan. `ls` is your dashboard, `cat` is your debugger, `git diff` shows exactly what changed. No opaque state stores.
-
-**Deterministic verification** — Checks are shell commands: `grep`, `test`, `npm test`, `python validate.py`. Real assertions against real files, not AI judgment calls.
+**Strategy-based self-correction** — When a check fails, the framework dispatches the failure to a pipeline of named repair strategies — fix the missing input, schedule the upstream producer, relax a buggy check, learn from the failure for the next attempt. Each kind of failure gets a targeted fix instead of blind retries.
 
 **Dynamic task spawning** — WBS scripts decompose work at runtime based on project state. Scope emerges from the problem, not from a predetermined graph.
 
@@ -163,6 +161,6 @@ MIT — see [LICENSE](./LICENSE)
 
 <div align="center">
 
-Gap-driven. Convergent. Markdown-first.
+Goal-driven. Deterministic. Self-correcting.
 
 </div>

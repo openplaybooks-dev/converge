@@ -1,0 +1,38 @@
+{
+  "type": "task",
+  "id": "04-ui/020-converge-shell",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T08:35:47.122Z",
+  "createdAt": "2026-04-26T07:06:02.995Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T07:06:02.995Z",
+      "completedAt": "2026-04-26T07:09:25.909Z",
+      "outcome": "success",
+      "durationMs": 202914
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-26T07:28:29.214Z",
+      "completedAt": "2026-04-26T07:30:18.613Z",
+      "outcome": "success",
+      "durationMs": 109399
+    },
+    {
+      "attempt": 3,
+      "startedAt": "2026-04-26T07:29:02.541Z",
+      "completedAt": "2026-04-26T07:30:15.248Z",
+      "outcome": "success",
+      "durationMs": 72707
+    },
+    {
+      "attempt": 4,
+      "startedAt": "2026-04-26T08:33:52.907Z",
+      "completedAt": "2026-04-26T08:35:47.119Z",
+      "outcome": "success",
+      "durationMs": 114212
+    }
+  ],
+  "currentAttempt": 4
+}

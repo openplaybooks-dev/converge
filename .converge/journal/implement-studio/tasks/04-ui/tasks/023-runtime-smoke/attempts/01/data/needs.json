@@ -1,0 +1,9 @@
+{
+  "taskId": "04-ui/023-runtime-smoke",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    ".converge/studio-state/runtime-smoke.json"
+  ],
+  "blocked": false
+}

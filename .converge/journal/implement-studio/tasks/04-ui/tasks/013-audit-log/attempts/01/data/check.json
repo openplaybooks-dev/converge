@@ -1,0 +1,20 @@
+{
+  "taskId": "04-ui/013-audit-log",
+  "checks": [
+    {
+      "id": "audit-page-exists",
+      "description": "/audit page exists",
+      "cmd": "test -f packages/converge-studio/src/app/audit/page.tsx"
+    },
+    {
+      "id": "audit-uses-runs-api",
+      "description": "audit page fetches from /api/runs (no separate /api/audit route)",
+      "cmd": "grep -q '/api/runs' packages/converge-studio/src/app/audit/page.tsx"
+    },
+    {
+      "id": "typecheck-passes",
+      "description": "typecheck-passes",
+      "cmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    }
+  ]
+}

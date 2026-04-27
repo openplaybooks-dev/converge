@@ -1,0 +1,25 @@
+{
+  "taskId": "04-ui/010-shell-and-branding",
+  "checks": [
+    {
+      "id": "layout-exists",
+      "description": "layout.tsx exists",
+      "cmd": "test -f packages/converge-studio/src/app/layout.tsx"
+    },
+    {
+      "id": "no-mc-banners",
+      "description": "layout.tsx does not import any of the deleted MC banners/wizards/modals",
+      "cmd": "! grep -E 'OnboardingWizard|ProjectManagerModal|ExecApprovalOverlay|LocalModeBanner|UpdateBanner|OpenClawUpdateBanner|OpenClawDoctorBanner|NavRail|HeaderBar|LiveFeed' packages/converge-studio/src/app/layout.tsx"
+    },
+    {
+      "id": "converge-metadata",
+      "description": "layout.tsx metadata title references converge, not Mission Control",
+      "cmd": "grep -q 'converge' packages/converge-studio/src/app/layout.tsx && ! grep -i 'mission control' packages/converge-studio/src/app/layout.tsx"
+    },
+    {
+      "id": "typecheck-passes",
+      "description": "Studio still typechecks",
+      "cmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "type": "task",
+  "id": "07-integrate-blog",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T23:04:30.619Z",
+  "createdAt": "2026-04-26T23:04:30.619Z",
+  "progress": {
+    "totalChildren": 18,
+    "completedChildren": 18,
+    "failedChildren": 0,
+    "childIds": [
+      "001-collection-schema",
+      "002-listing-page",
+      "003-post-template",
+      "004-rss-feed",
+      "005-og-images",
+      "006-seed-posts",
+      "001-collection-schema",
+      "002-listing-page",
+      "003-post-template",
+      "004-rss-feed",
+      "005-og-images",
+      "006-seed-posts",
+      "001-collection-schema",
+      "002-listing-page",
+      "003-post-template",
+      "004-rss-feed",
+      "005-og-images",
+      "006-seed-posts"
+    ],
+    "lastProgressUpdate": "2026-04-26T23:04:30.618Z"
+  }
+}

@@ -1,0 +1,200 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-ui/015-empty-state-onboarding-check-failed-empty-state-rendered-by-index",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/015-empty-state-onboarding",
+            "severity": "high",
+            "description": "[04-ui/015-empty-state-onboarding] Check failed: The /playbooks index page imports EmptyState (so 0-playbook case renders it)",
+            "source": "unit",
+            "detected": "2026-04-26T07:01:42.977Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "empty-state-rendered-by-index",
+              "checkCmd": "grep -q 'empty-state' packages/converge-studio/src/app/playbooks/page.tsx",
+              "checkDescription": "The /playbooks index page imports EmptyState (so 0-playbook case renders it)",
+              "checkOutput": "Command failed: grep -q 'empty-state' packages/converge-studio/src/app/playbooks/page.tsx\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Replace the deleted Mission Control \"Launch Sequence\" wizard with a single-card empty state that appears on `/playbooks` only when there are zero playbooks. No multi-step setup, no agent runtime install, no docking flow — converge has none of those concepts.\n\n**Note on routing:** task `021-root-redirects-to-playbooks` makes `/` a server-side redirect to `/playbooks`, so the empty state lives in the `/playbooks` index, not on `/`.\n\n**Add `src/components/empty-state.tsx`** (≤ 60 LOC, client component):\n- Centered card on the page.\n- Heading: \"No playbooks yet.\"\n- Body: 1–2 sentences explaining what a playbook is and pointing at `/playbooks/new`.\n- Primary CTA button: \"Create your first playbook\" → links to `/playbooks/new`.\n- Secondary link: \"Read the converge docs\" → external link (read the converge repo to find the docs URL; if none exists, link to the README on GitHub).\n- Optionally: a code-block snippet showing how to create a playbook from the CLI (`converge init my-playbook`) — gives users a path that doesn't require the form.\n\n**Modify `src/app/playbooks/page.tsx`** (the playbooks index, established by `008-promote-playbooks-to-root`):\n- After fetching the playbooks list, if `items.length === 0`, render `<EmptyState />` *instead of* the empty table. If `> 0`, render the table as normal.\n\n**Verification:**\n- In a converge project with no playbooks (`mv .converge/playbooks /tmp/backup-playbooks`), `/playbooks` shows the empty state.\n- Restoring playbooks (`mv /tmp/backup-playbooks .converge/playbooks`) and reloading shows the playbook list.\n- Clicking the CTA navigates to `/playbooks/new`.",
+              "taskId": "04-ui/015-empty-state-onboarding",
+              "taskTitle": "First-run empty state on the playbooks index",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/015-empty-state-onboarding",
+              "factId": "check:empty-state-rendered-by-index"
+            }
+          }
+        ],
+        "durationMs": 4024
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3939
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 4064
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 62643
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T07:01:42.965Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T07:01:42.965Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T07:01:46.989Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T07:01:46.990Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T07:01:50.929Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-04-26T07:02:53.573Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T07:02:57.637Z"
+    }
+  ]
+}

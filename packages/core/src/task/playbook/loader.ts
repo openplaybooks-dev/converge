@@ -116,8 +116,6 @@ function parseRunConfig(raw: unknown): PlaybookRunConfig | undefined {
       config.mode = obj.mode as PlaybookRunConfig["mode"];
     }
   }
-  if (obj.maxIterations !== undefined)
-    config.maxIterations = Number(obj.maxIterations);
   if (obj.maxTaskAttempts !== undefined)
     config.maxTaskAttempts = Number(obj.maxTaskAttempts);
   if (obj.maxGoals !== undefined) config.maxGoals = Number(obj.maxGoals);

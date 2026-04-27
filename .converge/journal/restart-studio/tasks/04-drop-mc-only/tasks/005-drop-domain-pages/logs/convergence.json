@@ -1,0 +1,247 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-drop-mc-only/005-drop-domain-pages-missing-output-.converge/studio-state/dropped-domain-pages.txt",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-drop-mc-only/005-drop-domain-pages",
+            "severity": "high",
+            "description": "[04-drop-mc-only/005-drop-domain-pages] Task output not created: .converge/studio-state/dropped-domain-pages.txt",
+            "source": "unit",
+            "detected": "2026-04-26T10:06:29.820Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/04-drop-mc-only/tasks/005-drop-domain-pages",
+              "taskId": "04-drop-mc-only/005-drop-domain-pages",
+              "taskTitle": "Drop MC-domain top-level pages and the [[...panel]] catch-all",
+              "taskPrompt": "```bash\ncd packages/studio/src/app\n# Drop the legacy MC catch-all home page\nrm -rf '[[...panel]]'\n# Drop agent/multi-tenant pages if any\nrm -rf agents orgs users rbac\n# Drop MC-only standalone pages\nrm -rf docs setup login\ncd /Users/minh/Documents/converge\n\nmkdir -p .converge/studio-state\necho \"Dropped MC-domain top-level pages at $(date -u +%Y-%m-%dT%H:%M:%SZ)\" > .converge/studio-state/dropped-domain-pages.txt\n```\n\n**Keep:** `playbooks/`, `runs/`, `settings/`, `audit/` (if Phase 03 leaf 008 didn't put settings here yet — that's fine; the page gets created), and `api/` (already filtered in 004).",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \".converge/studio-state/dropped-domain-pages.txt\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-drop-mc-only/005-drop-domain-pages-check-failed-catchall-gone",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-drop-mc-only/005-drop-domain-pages",
+            "severity": "high",
+            "description": "[04-drop-mc-only/005-drop-domain-pages] Check failed: The [[...panel]] catch-all is gone",
+            "source": "unit",
+            "detected": "2026-04-26T10:06:29.822Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "catchall-gone",
+              "checkCmd": "test ! -d 'packages/studio/src/app/[[...panel]]'",
+              "checkDescription": "The [[...panel]] catch-all is gone",
+              "checkOutput": "Command failed: test ! -d 'packages/studio/src/app/[[...panel]]'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "```bash\ncd packages/studio/src/app\n# Drop the legacy MC catch-all home page\nrm -rf '[[...panel]]'\n# Drop agent/multi-tenant pages if any\nrm -rf agents orgs users rbac\n# Drop MC-only standalone pages\nrm -rf docs setup login\ncd /Users/minh/Documents/converge\n\nmkdir -p .converge/studio-state\necho \"Dropped MC-domain top-level pages at $(date -u +%Y-%m-%dT%H:%M:%SZ)\" > .converge/studio-state/dropped-domain-pages.txt\n```\n\n**Keep:** `playbooks/`, `runs/`, `settings/`, `audit/` (if Phase 03 leaf 008 didn't put settings here yet — that's fine; the page gets created), and `api/` (already filtered in 004).",
+              "taskId": "04-drop-mc-only/005-drop-domain-pages",
+              "taskTitle": "Drop MC-domain top-level pages and the [[...panel]] catch-all",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/04-drop-mc-only/tasks/005-drop-domain-pages",
+              "factId": "check:catchall-gone"
+            }
+          },
+          {
+            "id": "04-drop-mc-only/005-drop-domain-pages-check-failed-marker-written",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-drop-mc-only/005-drop-domain-pages",
+            "severity": "high",
+            "description": "[04-drop-mc-only/005-drop-domain-pages] Check failed: A marker file recording the drop is written",
+            "source": "unit",
+            "detected": "2026-04-26T10:06:29.826Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "marker-written",
+              "checkCmd": "test -f .converge/studio-state/dropped-domain-pages.txt",
+              "checkDescription": "A marker file recording the drop is written",
+              "checkOutput": "Command failed: test -f .converge/studio-state/dropped-domain-pages.txt\n",
+              "checkExitCode": 1,
+              "taskPrompt": "```bash\ncd packages/studio/src/app\n# Drop the legacy MC catch-all home page\nrm -rf '[[...panel]]'\n# Drop agent/multi-tenant pages if any\nrm -rf agents orgs users rbac\n# Drop MC-only standalone pages\nrm -rf docs setup login\ncd /Users/minh/Documents/converge\n\nmkdir -p .converge/studio-state\necho \"Dropped MC-domain top-level pages at $(date -u +%Y-%m-%dT%H:%M:%SZ)\" > .converge/studio-state/dropped-domain-pages.txt\n```\n\n**Keep:** `playbooks/`, `runs/`, `settings/`, `audit/` (if Phase 03 leaf 008 didn't put settings here yet — that's fine; the page gets created), and `api/` (already filtered in 004).",
+              "taskId": "04-drop-mc-only/005-drop-domain-pages",
+              "taskTitle": "Drop MC-domain top-level pages and the [[...panel]] catch-all",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/04-drop-mc-only/tasks/005-drop-domain-pages",
+              "factId": "check:marker-written"
+            }
+          }
+        ],
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 14
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#22",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 65694
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T10:06:29.816Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T10:06:29.816Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T10:06:29.826Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T10:06:29.827Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T10:06:29.833Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#22",
+      "iteration": 1,
+      "ts": "2026-04-26T10:07:35.528Z"
+    },
+    {
+      "from": "run-strategy:task-run#22",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T10:07:35.543Z"
+    }
+  ]
+}

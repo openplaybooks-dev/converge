@@ -1,0 +1,299 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-getting-started/005-next-steps-missing-output-docs/getting-started/next-steps.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-getting-started/005-next-steps",
+            "severity": "high",
+            "description": "[04-getting-started/005-next-steps] Task output not created: docs/getting-started/next-steps.md",
+            "source": "unit",
+            "detected": "2026-04-26T07:43:34.877Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/04-getting-started/tasks/005-next-steps",
+              "taskId": "04-getting-started/005-next-steps",
+              "taskTitle": "Write docs/getting-started/next-steps.md",
+              "taskPrompt": "# Write `docs/getting-started/next-steps.md`\n\nA short hub page. The reader has shipped their first playbook (or browsed\nthe examples gallery); this page points them at the right next stop based\non what they want to do.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Next steps\"\ndescription: \"Where to go next, depending on what you want to build.\"\nsources:\n  - docs/_ia.json\nsidebar:\n  order: 5\n---\n```\n\n## Required structure\n\nA single intro paragraph, then 5-6 \"if you want X, read Y\" sign-posts.\nThe first sign-post points to the Examples gallery, since that's the\nfastest path from problem to working playbook.\n\n```markdown\nYou have a working playbook. Where next depends on what you want to build.\n\n### If you want to see real-world examples first\n→ [Examples gallery](/examples/) — 21 working playbooks across software,\nresearch, creative work, security, and protocol demos. Find the closest\nmatch to your problem and copy it.\n\n### If you want to articulate your own problem as a playbook\n→ [From your problem to a playbook](/getting-started/from-problem-to-playbook)\nwalks a non-technical reader through goal articulation, picking an\nexample, and tweaking it.\n\n### If you want a real, multi-step playbook\n→ [Build a software project](/guides/build-a-software-project) walks\nthrough structure, naming conventions, and dependency ordering.\n\n### If you want to switch providers (or use multiple)\n→ [Switch providers](/guides/switch-providers) covers Claude, Gemini,\nKimi, Qwen.\n\n### If a run gets stuck\n→ [Troubleshooting](/troubleshooting/) — symptom-indexed fixes.\n\n### If you want the conceptual model\n→ [Gap-driven model](/concepts/gap-driven-model).\n```\n\nAdjust based on what `docs/_ia.json` actually contains.\n\n## Banned\n\n- A long \"where we're going next\" roadmap. This is sign-posts.\n- Linking to internal/_internal docs.\n- More than 6 sign-posts. Decision fatigue is the enemy here.",
+              "taskInputs": [
+                "docs/_ia.json"
+              ],
+              "factId": "file-exists:test -f \"docs/getting-started/next-steps.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-getting-started/005-next-steps-check-failed-page-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-getting-started/005-next-steps",
+            "severity": "high",
+            "description": "[04-getting-started/005-next-steps] Check failed: page exists",
+            "source": "unit",
+            "detected": "2026-04-26T07:43:34.878Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "page-exists",
+              "checkCmd": "test -f docs/getting-started/next-steps.md",
+              "checkDescription": "page exists",
+              "checkOutput": "Command failed: test -f docs/getting-started/next-steps.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Write `docs/getting-started/next-steps.md`\n\nA short hub page. The reader has shipped their first playbook (or browsed\nthe examples gallery); this page points them at the right next stop based\non what they want to do.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Next steps\"\ndescription: \"Where to go next, depending on what you want to build.\"\nsources:\n  - docs/_ia.json\nsidebar:\n  order: 5\n---\n```\n\n## Required structure\n\nA single intro paragraph, then 5-6 \"if you want X, read Y\" sign-posts.\nThe first sign-post points to the Examples gallery, since that's the\nfastest path from problem to working playbook.\n\n```markdown\nYou have a working playbook. Where next depends on what you want to build.\n\n### If you want to see real-world examples first\n→ [Examples gallery](/examples/) — 21 working playbooks across software,\nresearch, creative work, security, and protocol demos. Find the closest\nmatch to your problem and copy it.\n\n### If you want to articulate your own problem as a playbook\n→ [From your problem to a playbook](/getting-started/from-problem-to-playbook)\nwalks a non-technical reader through goal articulation, picking an\nexample, and tweaking it.\n\n### If you want a real, multi-step playbook\n→ [Build a software project](/guides/build-a-software-project) walks\nthrough structure, naming conventions, and dependency ordering.\n\n### If you want to switch providers (or use multiple)\n→ [Switch providers](/guides/switch-providers) covers Claude, Gemini,\nKimi, Qwen.\n\n### If a run gets stuck\n→ [Troubleshooting](/troubleshooting/) — symptom-indexed fixes.\n\n### If you want the conceptual model\n→ [Gap-driven model](/concepts/gap-driven-model).\n```\n\nAdjust based on what `docs/_ia.json` actually contains.\n\n## Banned\n\n- A long \"where we're going next\" roadmap. This is sign-posts.\n- Linking to internal/_internal docs.\n- More than 6 sign-posts. Decision fatigue is the enemy here.",
+              "taskId": "04-getting-started/005-next-steps",
+              "taskTitle": "Write docs/getting-started/next-steps.md",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/04-getting-started/tasks/005-next-steps",
+              "factId": "check:page-exists"
+            }
+          },
+          {
+            "id": "04-getting-started/005-next-steps-check-failed-links-into-examples",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-getting-started/005-next-steps",
+            "severity": "high",
+            "description": "[04-getting-started/005-next-steps] Check failed: links into Examples gallery",
+            "source": "unit",
+            "detected": "2026-04-26T07:43:34.882Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "links-into-examples",
+              "checkCmd": "grep -qE '\\(/examples/|\\(\\.\\./examples/' docs/getting-started/next-steps.md",
+              "checkDescription": "links into Examples gallery",
+              "checkOutput": "grep: docs/getting-started/next-steps.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Write `docs/getting-started/next-steps.md`\n\nA short hub page. The reader has shipped their first playbook (or browsed\nthe examples gallery); this page points them at the right next stop based\non what they want to do.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Next steps\"\ndescription: \"Where to go next, depending on what you want to build.\"\nsources:\n  - docs/_ia.json\nsidebar:\n  order: 5\n---\n```\n\n## Required structure\n\nA single intro paragraph, then 5-6 \"if you want X, read Y\" sign-posts.\nThe first sign-post points to the Examples gallery, since that's the\nfastest path from problem to working playbook.\n\n```markdown\nYou have a working playbook. Where next depends on what you want to build.\n\n### If you want to see real-world examples first\n→ [Examples gallery](/examples/) — 21 working playbooks across software,\nresearch, creative work, security, and protocol demos. Find the closest\nmatch to your problem and copy it.\n\n### If you want to articulate your own problem as a playbook\n→ [From your problem to a playbook](/getting-started/from-problem-to-playbook)\nwalks a non-technical reader through goal articulation, picking an\nexample, and tweaking it.\n\n### If you want a real, multi-step playbook\n→ [Build a software project](/guides/build-a-software-project) walks\nthrough structure, naming conventions, and dependency ordering.\n\n### If you want to switch providers (or use multiple)\n→ [Switch providers](/guides/switch-providers) covers Claude, Gemini,\nKimi, Qwen.\n\n### If a run gets stuck\n→ [Troubleshooting](/troubleshooting/) — symptom-indexed fixes.\n\n### If you want the conceptual model\n→ [Gap-driven model](/concepts/gap-driven-model).\n```\n\nAdjust based on what `docs/_ia.json` actually contains.\n\n## Banned\n\n- A long \"where we're going next\" roadmap. This is sign-posts.\n- Linking to internal/_internal docs.\n- More than 6 sign-posts. Decision fatigue is the enemy here.",
+              "taskId": "04-getting-started/005-next-steps",
+              "taskTitle": "Write docs/getting-started/next-steps.md",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/04-getting-started/tasks/005-next-steps",
+              "factId": "check:links-into-examples"
+            }
+          },
+          {
+            "id": "04-getting-started/005-next-steps-check-failed-links-into-guides",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-getting-started/005-next-steps",
+            "severity": "high",
+            "description": "[04-getting-started/005-next-steps] Check failed: links into Guides",
+            "source": "unit",
+            "detected": "2026-04-26T07:43:34.885Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "links-into-guides",
+              "checkCmd": "grep -qE '\\(/guides/|\\(\\.\\./guides/' docs/getting-started/next-steps.md",
+              "checkDescription": "links into Guides",
+              "checkOutput": "grep: docs/getting-started/next-steps.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Write `docs/getting-started/next-steps.md`\n\nA short hub page. The reader has shipped their first playbook (or browsed\nthe examples gallery); this page points them at the right next stop based\non what they want to do.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Next steps\"\ndescription: \"Where to go next, depending on what you want to build.\"\nsources:\n  - docs/_ia.json\nsidebar:\n  order: 5\n---\n```\n\n## Required structure\n\nA single intro paragraph, then 5-6 \"if you want X, read Y\" sign-posts.\nThe first sign-post points to the Examples gallery, since that's the\nfastest path from problem to working playbook.\n\n```markdown\nYou have a working playbook. Where next depends on what you want to build.\n\n### If you want to see real-world examples first\n→ [Examples gallery](/examples/) — 21 working playbooks across software,\nresearch, creative work, security, and protocol demos. Find the closest\nmatch to your problem and copy it.\n\n### If you want to articulate your own problem as a playbook\n→ [From your problem to a playbook](/getting-started/from-problem-to-playbook)\nwalks a non-technical reader through goal articulation, picking an\nexample, and tweaking it.\n\n### If you want a real, multi-step playbook\n→ [Build a software project](/guides/build-a-software-project) walks\nthrough structure, naming conventions, and dependency ordering.\n\n### If you want to switch providers (or use multiple)\n→ [Switch providers](/guides/switch-providers) covers Claude, Gemini,\nKimi, Qwen.\n\n### If a run gets stuck\n→ [Troubleshooting](/troubleshooting/) — symptom-indexed fixes.\n\n### If you want the conceptual model\n→ [Gap-driven model](/concepts/gap-driven-model).\n```\n\nAdjust based on what `docs/_ia.json` actually contains.\n\n## Banned\n\n- A long \"where we're going next\" roadmap. This is sign-posts.\n- Linking to internal/_internal docs.\n- More than 6 sign-posts. Decision fatigue is the enemy here.",
+              "taskId": "04-getting-started/005-next-steps",
+              "taskTitle": "Write docs/getting-started/next-steps.md",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/04-getting-started/tasks/005-next-steps",
+              "factId": "check:links-into-guides"
+            }
+          },
+          {
+            "id": "04-getting-started/005-next-steps-check-failed-links-into-reference",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-getting-started/005-next-steps",
+            "severity": "high",
+            "description": "[04-getting-started/005-next-steps] Check failed: links into Reference",
+            "source": "unit",
+            "detected": "2026-04-26T07:43:34.888Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "links-into-reference",
+              "checkCmd": "grep -qE '\\(/reference/|\\(\\.\\./reference/' docs/getting-started/next-steps.md",
+              "checkDescription": "links into Reference",
+              "checkOutput": "grep: docs/getting-started/next-steps.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Write `docs/getting-started/next-steps.md`\n\nA short hub page. The reader has shipped their first playbook (or browsed\nthe examples gallery); this page points them at the right next stop based\non what they want to do.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Next steps\"\ndescription: \"Where to go next, depending on what you want to build.\"\nsources:\n  - docs/_ia.json\nsidebar:\n  order: 5\n---\n```\n\n## Required structure\n\nA single intro paragraph, then 5-6 \"if you want X, read Y\" sign-posts.\nThe first sign-post points to the Examples gallery, since that's the\nfastest path from problem to working playbook.\n\n```markdown\nYou have a working playbook. Where next depends on what you want to build.\n\n### If you want to see real-world examples first\n→ [Examples gallery](/examples/) — 21 working playbooks across software,\nresearch, creative work, security, and protocol demos. Find the closest\nmatch to your problem and copy it.\n\n### If you want to articulate your own problem as a playbook\n→ [From your problem to a playbook](/getting-started/from-problem-to-playbook)\nwalks a non-technical reader through goal articulation, picking an\nexample, and tweaking it.\n\n### If you want a real, multi-step playbook\n→ [Build a software project](/guides/build-a-software-project) walks\nthrough structure, naming conventions, and dependency ordering.\n\n### If you want to switch providers (or use multiple)\n→ [Switch providers](/guides/switch-providers) covers Claude, Gemini,\nKimi, Qwen.\n\n### If a run gets stuck\n→ [Troubleshooting](/troubleshooting/) — symptom-indexed fixes.\n\n### If you want the conceptual model\n→ [Gap-driven model](/concepts/gap-driven-model).\n```\n\nAdjust based on what `docs/_ia.json` actually contains.\n\n## Banned\n\n- A long \"where we're going next\" roadmap. This is sign-posts.\n- Linking to internal/_internal docs.\n- More than 6 sign-posts. Decision fatigue is the enemy here.",
+              "taskId": "04-getting-started/005-next-steps",
+              "taskTitle": "Write docs/getting-started/next-steps.md",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/04-getting-started/tasks/005-next-steps",
+              "factId": "check:links-into-reference"
+            }
+          }
+        ],
+        "durationMs": 21
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 17
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 24
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#7",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 71087
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T07:43:34.872Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T07:43:34.872Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T07:43:34.893Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T07:43:34.893Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T07:43:34.910Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#7",
+      "iteration": 1,
+      "ts": "2026-04-26T07:44:45.997Z"
+    },
+    {
+      "from": "run-strategy:task-run#7",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T07:44:46.022Z"
+    }
+  ]
+}

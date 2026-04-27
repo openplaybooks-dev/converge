@@ -1,0 +1,372 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "02-bootstrap-astro/002-scaffold-fresh-missing-output-apps/landing/src",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-bootstrap-astro/002-scaffold-fresh",
+            "severity": "high",
+            "description": "[02-bootstrap-astro/002-scaffold-fresh] Task output not created: apps/landing/src",
+            "source": "unit",
+            "detected": "2026-04-26T17:24:13.900Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/02-bootstrap-astro/tasks/002-scaffold-fresh",
+              "taskId": "02-bootstrap-astro/002-scaffold-fresh",
+              "taskTitle": "Scaffold a fresh Astro project (minimal template) into apps/landing/",
+              "taskPrompt": "# Scaffold fresh Astro\n\nRun `npm create astro@latest` with the **minimal** template into a temp\ndirectory, then move the scaffolded files into `apps/landing/` while\npreserving our existing `package.json`#name.\n\n## Process\n\n```bash\nTMP=$(mktemp -d)\ncd \"$TMP\"\n\n# Create a minimal Astro project. --template minimal gives us:\n#   src/pages/index.astro (placeholder)\n#   src/layouts/Layout.astro\n#   astro.config.mjs\n#   tsconfig.json\n#   package.json (with astro + typescript deps)\n#   public/favicon.svg\nnpm create astro@latest -- new-landing \\\n  --template minimal \\\n  --typescript strict \\\n  --no-git \\\n  --skip-install \\\n  --no-houston\n\n# Move scaffolded files into apps/landing/, preserving our package.json\ncd \"$OLDPWD\"\nLANDING=\"$(pwd)/apps/landing\"\n\n# Save our existing package.json (already has @converge/landing name + workspace wiring)\ncp \"$LANDING/package.json\" /tmp/converge-landing-package.json.preserve\n\n# Copy scaffold artifacts in\ncp -r \"$TMP/new-landing/src\" \"$LANDING/src\"\ncp -r \"$TMP/new-landing/public\" \"$LANDING/public\"\ncp \"$TMP/new-landing/astro.config.mjs\" \"$LANDING/astro.config.mjs\"\ncp \"$TMP/new-landing/tsconfig.json\" \"$LANDING/tsconfig.json\"\n\n# Merge dependencies from scaffold into our package.json (we keep our name + scripts)\nnode <<'EOF'\nconst fs = require('node:fs');\nconst ours = JSON.parse(fs.readFileSync('/tmp/converge-landing-package.json.preserve', 'utf8'));\nconst scaffold = JSON.parse(fs.readFileSync(process.env.SCAFFOLD_PKG, 'utf8'));\nours.dependencies = { ...(ours.dependencies ?? {}), ...(scaffold.dependencies ?? {}) };\nours.devDependencies = { ...(ours.devDependencies ?? {}), ...(scaffold.devDependencies ?? {}) };\nfs.writeFileSync('apps/landing/package.json', JSON.stringify(ours, null, 2) + '\\n');\nEOF\n\n# Cleanup\nrm -rf \"$TMP\" /tmp/converge-landing-package.json.preserve\n```\n\n(In practice, set `SCAFFOLD_PKG=$TMP/new-landing/package.json` before the\nnode block, or inline the path.)\n\n## Banned\n\n- Copying the scaffold's `package.json` over ours. Our `package.json` is the source of truth for `name`, `scripts`, and any project-specific config. Only deps merge in.\n- Letting the scaffolder install dependencies (`--skip-install`). The workspace runs `pnpm install` once at the workspace root in the next task.\n- Templates other than `minimal`. Other templates (`blog`, `starlight`) ship demo content we'd have to delete — exactly the v1 mistake.\n- Adding any non-Astro-default file in this task. Tailwind, MDX, etc. are added in 003-install-integrations. This task ONLY produces the bare Astro skeleton.",
+              "taskInputs": [
+                "apps/landing/.wiped"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/src\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-bootstrap-astro/002-scaffold-fresh-missing-output-apps/landing/astro.config.mjs",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-bootstrap-astro/002-scaffold-fresh",
+            "severity": "high",
+            "description": "[02-bootstrap-astro/002-scaffold-fresh] Task output not created: apps/landing/astro.config.mjs",
+            "source": "unit",
+            "detected": "2026-04-26T17:24:13.902Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/02-bootstrap-astro/tasks/002-scaffold-fresh",
+              "taskId": "02-bootstrap-astro/002-scaffold-fresh",
+              "taskTitle": "Scaffold a fresh Astro project (minimal template) into apps/landing/",
+              "taskPrompt": "# Scaffold fresh Astro\n\nRun `npm create astro@latest` with the **minimal** template into a temp\ndirectory, then move the scaffolded files into `apps/landing/` while\npreserving our existing `package.json`#name.\n\n## Process\n\n```bash\nTMP=$(mktemp -d)\ncd \"$TMP\"\n\n# Create a minimal Astro project. --template minimal gives us:\n#   src/pages/index.astro (placeholder)\n#   src/layouts/Layout.astro\n#   astro.config.mjs\n#   tsconfig.json\n#   package.json (with astro + typescript deps)\n#   public/favicon.svg\nnpm create astro@latest -- new-landing \\\n  --template minimal \\\n  --typescript strict \\\n  --no-git \\\n  --skip-install \\\n  --no-houston\n\n# Move scaffolded files into apps/landing/, preserving our package.json\ncd \"$OLDPWD\"\nLANDING=\"$(pwd)/apps/landing\"\n\n# Save our existing package.json (already has @converge/landing name + workspace wiring)\ncp \"$LANDING/package.json\" /tmp/converge-landing-package.json.preserve\n\n# Copy scaffold artifacts in\ncp -r \"$TMP/new-landing/src\" \"$LANDING/src\"\ncp -r \"$TMP/new-landing/public\" \"$LANDING/public\"\ncp \"$TMP/new-landing/astro.config.mjs\" \"$LANDING/astro.config.mjs\"\ncp \"$TMP/new-landing/tsconfig.json\" \"$LANDING/tsconfig.json\"\n\n# Merge dependencies from scaffold into our package.json (we keep our name + scripts)\nnode <<'EOF'\nconst fs = require('node:fs');\nconst ours = JSON.parse(fs.readFileSync('/tmp/converge-landing-package.json.preserve', 'utf8'));\nconst scaffold = JSON.parse(fs.readFileSync(process.env.SCAFFOLD_PKG, 'utf8'));\nours.dependencies = { ...(ours.dependencies ?? {}), ...(scaffold.dependencies ?? {}) };\nours.devDependencies = { ...(ours.devDependencies ?? {}), ...(scaffold.devDependencies ?? {}) };\nfs.writeFileSync('apps/landing/package.json', JSON.stringify(ours, null, 2) + '\\n');\nEOF\n\n# Cleanup\nrm -rf \"$TMP\" /tmp/converge-landing-package.json.preserve\n```\n\n(In practice, set `SCAFFOLD_PKG=$TMP/new-landing/package.json` before the\nnode block, or inline the path.)\n\n## Banned\n\n- Copying the scaffold's `package.json` over ours. Our `package.json` is the source of truth for `name`, `scripts`, and any project-specific config. Only deps merge in.\n- Letting the scaffolder install dependencies (`--skip-install`). The workspace runs `pnpm install` once at the workspace root in the next task.\n- Templates other than `minimal`. Other templates (`blog`, `starlight`) ship demo content we'd have to delete — exactly the v1 mistake.\n- Adding any non-Astro-default file in this task. Tailwind, MDX, etc. are added in 003-install-integrations. This task ONLY produces the bare Astro skeleton.",
+              "taskInputs": [
+                "apps/landing/.wiped"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/astro.config.mjs\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-bootstrap-astro/002-scaffold-fresh-missing-output-apps/landing/tsconfig.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-bootstrap-astro/002-scaffold-fresh",
+            "severity": "high",
+            "description": "[02-bootstrap-astro/002-scaffold-fresh] Task output not created: apps/landing/tsconfig.json",
+            "source": "unit",
+            "detected": "2026-04-26T17:24:13.905Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/02-bootstrap-astro/tasks/002-scaffold-fresh",
+              "taskId": "02-bootstrap-astro/002-scaffold-fresh",
+              "taskTitle": "Scaffold a fresh Astro project (minimal template) into apps/landing/",
+              "taskPrompt": "# Scaffold fresh Astro\n\nRun `npm create astro@latest` with the **minimal** template into a temp\ndirectory, then move the scaffolded files into `apps/landing/` while\npreserving our existing `package.json`#name.\n\n## Process\n\n```bash\nTMP=$(mktemp -d)\ncd \"$TMP\"\n\n# Create a minimal Astro project. --template minimal gives us:\n#   src/pages/index.astro (placeholder)\n#   src/layouts/Layout.astro\n#   astro.config.mjs\n#   tsconfig.json\n#   package.json (with astro + typescript deps)\n#   public/favicon.svg\nnpm create astro@latest -- new-landing \\\n  --template minimal \\\n  --typescript strict \\\n  --no-git \\\n  --skip-install \\\n  --no-houston\n\n# Move scaffolded files into apps/landing/, preserving our package.json\ncd \"$OLDPWD\"\nLANDING=\"$(pwd)/apps/landing\"\n\n# Save our existing package.json (already has @converge/landing name + workspace wiring)\ncp \"$LANDING/package.json\" /tmp/converge-landing-package.json.preserve\n\n# Copy scaffold artifacts in\ncp -r \"$TMP/new-landing/src\" \"$LANDING/src\"\ncp -r \"$TMP/new-landing/public\" \"$LANDING/public\"\ncp \"$TMP/new-landing/astro.config.mjs\" \"$LANDING/astro.config.mjs\"\ncp \"$TMP/new-landing/tsconfig.json\" \"$LANDING/tsconfig.json\"\n\n# Merge dependencies from scaffold into our package.json (we keep our name + scripts)\nnode <<'EOF'\nconst fs = require('node:fs');\nconst ours = JSON.parse(fs.readFileSync('/tmp/converge-landing-package.json.preserve', 'utf8'));\nconst scaffold = JSON.parse(fs.readFileSync(process.env.SCAFFOLD_PKG, 'utf8'));\nours.dependencies = { ...(ours.dependencies ?? {}), ...(scaffold.dependencies ?? {}) };\nours.devDependencies = { ...(ours.devDependencies ?? {}), ...(scaffold.devDependencies ?? {}) };\nfs.writeFileSync('apps/landing/package.json', JSON.stringify(ours, null, 2) + '\\n');\nEOF\n\n# Cleanup\nrm -rf \"$TMP\" /tmp/converge-landing-package.json.preserve\n```\n\n(In practice, set `SCAFFOLD_PKG=$TMP/new-landing/package.json` before the\nnode block, or inline the path.)\n\n## Banned\n\n- Copying the scaffold's `package.json` over ours. Our `package.json` is the source of truth for `name`, `scripts`, and any project-specific config. Only deps merge in.\n- Letting the scaffolder install dependencies (`--skip-install`). The workspace runs `pnpm install` once at the workspace root in the next task.\n- Templates other than `minimal`. Other templates (`blog`, `starlight`) ship demo content we'd have to delete — exactly the v1 mistake.\n- Adding any non-Astro-default file in this task. Tailwind, MDX, etc. are added in 003-install-integrations. This task ONLY produces the bare Astro skeleton.",
+              "taskInputs": [
+                "apps/landing/.wiped"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/tsconfig.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-bootstrap-astro/002-scaffold-fresh-check-failed-src-pages-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-bootstrap-astro/002-scaffold-fresh",
+            "severity": "high",
+            "description": "[02-bootstrap-astro/002-scaffold-fresh] Check failed: src/pages directory exists",
+            "source": "unit",
+            "detected": "2026-04-26T17:24:13.907Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "src-pages-exists",
+              "checkCmd": "test -d apps/landing/src/pages",
+              "checkDescription": "src/pages directory exists",
+              "checkOutput": "Command failed: test -d apps/landing/src/pages\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Scaffold fresh Astro\n\nRun `npm create astro@latest` with the **minimal** template into a temp\ndirectory, then move the scaffolded files into `apps/landing/` while\npreserving our existing `package.json`#name.\n\n## Process\n\n```bash\nTMP=$(mktemp -d)\ncd \"$TMP\"\n\n# Create a minimal Astro project. --template minimal gives us:\n#   src/pages/index.astro (placeholder)\n#   src/layouts/Layout.astro\n#   astro.config.mjs\n#   tsconfig.json\n#   package.json (with astro + typescript deps)\n#   public/favicon.svg\nnpm create astro@latest -- new-landing \\\n  --template minimal \\\n  --typescript strict \\\n  --no-git \\\n  --skip-install \\\n  --no-houston\n\n# Move scaffolded files into apps/landing/, preserving our package.json\ncd \"$OLDPWD\"\nLANDING=\"$(pwd)/apps/landing\"\n\n# Save our existing package.json (already has @converge/landing name + workspace wiring)\ncp \"$LANDING/package.json\" /tmp/converge-landing-package.json.preserve\n\n# Copy scaffold artifacts in\ncp -r \"$TMP/new-landing/src\" \"$LANDING/src\"\ncp -r \"$TMP/new-landing/public\" \"$LANDING/public\"\ncp \"$TMP/new-landing/astro.config.mjs\" \"$LANDING/astro.config.mjs\"\ncp \"$TMP/new-landing/tsconfig.json\" \"$LANDING/tsconfig.json\"\n\n# Merge dependencies from scaffold into our package.json (we keep our name + scripts)\nnode <<'EOF'\nconst fs = require('node:fs');\nconst ours = JSON.parse(fs.readFileSync('/tmp/converge-landing-package.json.preserve', 'utf8'));\nconst scaffold = JSON.parse(fs.readFileSync(process.env.SCAFFOLD_PKG, 'utf8'));\nours.dependencies = { ...(ours.dependencies ?? {}), ...(scaffold.dependencies ?? {}) };\nours.devDependencies = { ...(ours.devDependencies ?? {}), ...(scaffold.devDependencies ?? {}) };\nfs.writeFileSync('apps/landing/package.json', JSON.stringify(ours, null, 2) + '\\n');\nEOF\n\n# Cleanup\nrm -rf \"$TMP\" /tmp/converge-landing-package.json.preserve\n```\n\n(In practice, set `SCAFFOLD_PKG=$TMP/new-landing/package.json` before the\nnode block, or inline the path.)\n\n## Banned\n\n- Copying the scaffold's `package.json` over ours. Our `package.json` is the source of truth for `name`, `scripts`, and any project-specific config. Only deps merge in.\n- Letting the scaffolder install dependencies (`--skip-install`). The workspace runs `pnpm install` once at the workspace root in the next task.\n- Templates other than `minimal`. Other templates (`blog`, `starlight`) ship demo content we'd have to delete — exactly the v1 mistake.\n- Adding any non-Astro-default file in this task. Tailwind, MDX, etc. are added in 003-install-integrations. This task ONLY produces the bare Astro skeleton.",
+              "taskId": "02-bootstrap-astro/002-scaffold-fresh",
+              "taskTitle": "Scaffold a fresh Astro project (minimal template) into apps/landing/",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/02-bootstrap-astro/tasks/002-scaffold-fresh",
+              "factId": "check:src-pages-exists"
+            }
+          },
+          {
+            "id": "02-bootstrap-astro/002-scaffold-fresh-check-failed-index-astro-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-bootstrap-astro/002-scaffold-fresh",
+            "severity": "high",
+            "description": "[02-bootstrap-astro/002-scaffold-fresh] Check failed: index.astro exists",
+            "source": "unit",
+            "detected": "2026-04-26T17:24:13.909Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "index-astro-exists",
+              "checkCmd": "test -f apps/landing/src/pages/index.astro",
+              "checkDescription": "index.astro exists",
+              "checkOutput": "Command failed: test -f apps/landing/src/pages/index.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Scaffold fresh Astro\n\nRun `npm create astro@latest` with the **minimal** template into a temp\ndirectory, then move the scaffolded files into `apps/landing/` while\npreserving our existing `package.json`#name.\n\n## Process\n\n```bash\nTMP=$(mktemp -d)\ncd \"$TMP\"\n\n# Create a minimal Astro project. --template minimal gives us:\n#   src/pages/index.astro (placeholder)\n#   src/layouts/Layout.astro\n#   astro.config.mjs\n#   tsconfig.json\n#   package.json (with astro + typescript deps)\n#   public/favicon.svg\nnpm create astro@latest -- new-landing \\\n  --template minimal \\\n  --typescript strict \\\n  --no-git \\\n  --skip-install \\\n  --no-houston\n\n# Move scaffolded files into apps/landing/, preserving our package.json\ncd \"$OLDPWD\"\nLANDING=\"$(pwd)/apps/landing\"\n\n# Save our existing package.json (already has @converge/landing name + workspace wiring)\ncp \"$LANDING/package.json\" /tmp/converge-landing-package.json.preserve\n\n# Copy scaffold artifacts in\ncp -r \"$TMP/new-landing/src\" \"$LANDING/src\"\ncp -r \"$TMP/new-landing/public\" \"$LANDING/public\"\ncp \"$TMP/new-landing/astro.config.mjs\" \"$LANDING/astro.config.mjs\"\ncp \"$TMP/new-landing/tsconfig.json\" \"$LANDING/tsconfig.json\"\n\n# Merge dependencies from scaffold into our package.json (we keep our name + scripts)\nnode <<'EOF'\nconst fs = require('node:fs');\nconst ours = JSON.parse(fs.readFileSync('/tmp/converge-landing-package.json.preserve', 'utf8'));\nconst scaffold = JSON.parse(fs.readFileSync(process.env.SCAFFOLD_PKG, 'utf8'));\nours.dependencies = { ...(ours.dependencies ?? {}), ...(scaffold.dependencies ?? {}) };\nours.devDependencies = { ...(ours.devDependencies ?? {}), ...(scaffold.devDependencies ?? {}) };\nfs.writeFileSync('apps/landing/package.json', JSON.stringify(ours, null, 2) + '\\n');\nEOF\n\n# Cleanup\nrm -rf \"$TMP\" /tmp/converge-landing-package.json.preserve\n```\n\n(In practice, set `SCAFFOLD_PKG=$TMP/new-landing/package.json` before the\nnode block, or inline the path.)\n\n## Banned\n\n- Copying the scaffold's `package.json` over ours. Our `package.json` is the source of truth for `name`, `scripts`, and any project-specific config. Only deps merge in.\n- Letting the scaffolder install dependencies (`--skip-install`). The workspace runs `pnpm install` once at the workspace root in the next task.\n- Templates other than `minimal`. Other templates (`blog`, `starlight`) ship demo content we'd have to delete — exactly the v1 mistake.\n- Adding any non-Astro-default file in this task. Tailwind, MDX, etc. are added in 003-install-integrations. This task ONLY produces the bare Astro skeleton.",
+              "taskId": "02-bootstrap-astro/002-scaffold-fresh",
+              "taskTitle": "Scaffold a fresh Astro project (minimal template) into apps/landing/",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/02-bootstrap-astro/tasks/002-scaffold-fresh",
+              "factId": "check:index-astro-exists"
+            }
+          },
+          {
+            "id": "02-bootstrap-astro/002-scaffold-fresh-check-failed-astro-config-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-bootstrap-astro/002-scaffold-fresh",
+            "severity": "high",
+            "description": "[02-bootstrap-astro/002-scaffold-fresh] Check failed: astro.config.mjs exists",
+            "source": "unit",
+            "detected": "2026-04-26T17:24:13.911Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "astro-config-exists",
+              "checkCmd": "test -f apps/landing/astro.config.mjs",
+              "checkDescription": "astro.config.mjs exists",
+              "checkOutput": "Command failed: test -f apps/landing/astro.config.mjs\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Scaffold fresh Astro\n\nRun `npm create astro@latest` with the **minimal** template into a temp\ndirectory, then move the scaffolded files into `apps/landing/` while\npreserving our existing `package.json`#name.\n\n## Process\n\n```bash\nTMP=$(mktemp -d)\ncd \"$TMP\"\n\n# Create a minimal Astro project. --template minimal gives us:\n#   src/pages/index.astro (placeholder)\n#   src/layouts/Layout.astro\n#   astro.config.mjs\n#   tsconfig.json\n#   package.json (with astro + typescript deps)\n#   public/favicon.svg\nnpm create astro@latest -- new-landing \\\n  --template minimal \\\n  --typescript strict \\\n  --no-git \\\n  --skip-install \\\n  --no-houston\n\n# Move scaffolded files into apps/landing/, preserving our package.json\ncd \"$OLDPWD\"\nLANDING=\"$(pwd)/apps/landing\"\n\n# Save our existing package.json (already has @converge/landing name + workspace wiring)\ncp \"$LANDING/package.json\" /tmp/converge-landing-package.json.preserve\n\n# Copy scaffold artifacts in\ncp -r \"$TMP/new-landing/src\" \"$LANDING/src\"\ncp -r \"$TMP/new-landing/public\" \"$LANDING/public\"\ncp \"$TMP/new-landing/astro.config.mjs\" \"$LANDING/astro.config.mjs\"\ncp \"$TMP/new-landing/tsconfig.json\" \"$LANDING/tsconfig.json\"\n\n# Merge dependencies from scaffold into our package.json (we keep our name + scripts)\nnode <<'EOF'\nconst fs = require('node:fs');\nconst ours = JSON.parse(fs.readFileSync('/tmp/converge-landing-package.json.preserve', 'utf8'));\nconst scaffold = JSON.parse(fs.readFileSync(process.env.SCAFFOLD_PKG, 'utf8'));\nours.dependencies = { ...(ours.dependencies ?? {}), ...(scaffold.dependencies ?? {}) };\nours.devDependencies = { ...(ours.devDependencies ?? {}), ...(scaffold.devDependencies ?? {}) };\nfs.writeFileSync('apps/landing/package.json', JSON.stringify(ours, null, 2) + '\\n');\nEOF\n\n# Cleanup\nrm -rf \"$TMP\" /tmp/converge-landing-package.json.preserve\n```\n\n(In practice, set `SCAFFOLD_PKG=$TMP/new-landing/package.json` before the\nnode block, or inline the path.)\n\n## Banned\n\n- Copying the scaffold's `package.json` over ours. Our `package.json` is the source of truth for `name`, `scripts`, and any project-specific config. Only deps merge in.\n- Letting the scaffolder install dependencies (`--skip-install`). The workspace runs `pnpm install` once at the workspace root in the next task.\n- Templates other than `minimal`. Other templates (`blog`, `starlight`) ship demo content we'd have to delete — exactly the v1 mistake.\n- Adding any non-Astro-default file in this task. Tailwind, MDX, etc. are added in 003-install-integrations. This task ONLY produces the bare Astro skeleton.",
+              "taskId": "02-bootstrap-astro/002-scaffold-fresh",
+              "taskTitle": "Scaffold a fresh Astro project (minimal template) into apps/landing/",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/02-bootstrap-astro/tasks/002-scaffold-fresh",
+              "factId": "check:astro-config-exists"
+            }
+          },
+          {
+            "id": "02-bootstrap-astro/002-scaffold-fresh-check-failed-tsconfig-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-bootstrap-astro/002-scaffold-fresh",
+            "severity": "high",
+            "description": "[02-bootstrap-astro/002-scaffold-fresh] Check failed: tsconfig.json exists",
+            "source": "unit",
+            "detected": "2026-04-26T17:24:13.913Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "tsconfig-exists",
+              "checkCmd": "test -f apps/landing/tsconfig.json",
+              "checkDescription": "tsconfig.json exists",
+              "checkOutput": "Command failed: test -f apps/landing/tsconfig.json\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Scaffold fresh Astro\n\nRun `npm create astro@latest` with the **minimal** template into a temp\ndirectory, then move the scaffolded files into `apps/landing/` while\npreserving our existing `package.json`#name.\n\n## Process\n\n```bash\nTMP=$(mktemp -d)\ncd \"$TMP\"\n\n# Create a minimal Astro project. --template minimal gives us:\n#   src/pages/index.astro (placeholder)\n#   src/layouts/Layout.astro\n#   astro.config.mjs\n#   tsconfig.json\n#   package.json (with astro + typescript deps)\n#   public/favicon.svg\nnpm create astro@latest -- new-landing \\\n  --template minimal \\\n  --typescript strict \\\n  --no-git \\\n  --skip-install \\\n  --no-houston\n\n# Move scaffolded files into apps/landing/, preserving our package.json\ncd \"$OLDPWD\"\nLANDING=\"$(pwd)/apps/landing\"\n\n# Save our existing package.json (already has @converge/landing name + workspace wiring)\ncp \"$LANDING/package.json\" /tmp/converge-landing-package.json.preserve\n\n# Copy scaffold artifacts in\ncp -r \"$TMP/new-landing/src\" \"$LANDING/src\"\ncp -r \"$TMP/new-landing/public\" \"$LANDING/public\"\ncp \"$TMP/new-landing/astro.config.mjs\" \"$LANDING/astro.config.mjs\"\ncp \"$TMP/new-landing/tsconfig.json\" \"$LANDING/tsconfig.json\"\n\n# Merge dependencies from scaffold into our package.json (we keep our name + scripts)\nnode <<'EOF'\nconst fs = require('node:fs');\nconst ours = JSON.parse(fs.readFileSync('/tmp/converge-landing-package.json.preserve', 'utf8'));\nconst scaffold = JSON.parse(fs.readFileSync(process.env.SCAFFOLD_PKG, 'utf8'));\nours.dependencies = { ...(ours.dependencies ?? {}), ...(scaffold.dependencies ?? {}) };\nours.devDependencies = { ...(ours.devDependencies ?? {}), ...(scaffold.devDependencies ?? {}) };\nfs.writeFileSync('apps/landing/package.json', JSON.stringify(ours, null, 2) + '\\n');\nEOF\n\n# Cleanup\nrm -rf \"$TMP\" /tmp/converge-landing-package.json.preserve\n```\n\n(In practice, set `SCAFFOLD_PKG=$TMP/new-landing/package.json` before the\nnode block, or inline the path.)\n\n## Banned\n\n- Copying the scaffold's `package.json` over ours. Our `package.json` is the source of truth for `name`, `scripts`, and any project-specific config. Only deps merge in.\n- Letting the scaffolder install dependencies (`--skip-install`). The workspace runs `pnpm install` once at the workspace root in the next task.\n- Templates other than `minimal`. Other templates (`blog`, `starlight`) ship demo content we'd have to delete — exactly the v1 mistake.\n- Adding any non-Astro-default file in this task. Tailwind, MDX, etc. are added in 003-install-integrations. This task ONLY produces the bare Astro skeleton.",
+              "taskId": "02-bootstrap-astro/002-scaffold-fresh",
+              "taskTitle": "Scaffold a fresh Astro project (minimal template) into apps/landing/",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/02-bootstrap-astro/tasks/002-scaffold-fresh",
+              "factId": "check:tsconfig-exists"
+            }
+          },
+          {
+            "id": "02-bootstrap-astro/002-scaffold-fresh-check-failed-no-upstream-brand",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-bootstrap-astro/002-scaffold-fresh",
+            "severity": "high",
+            "description": "[02-bootstrap-astro/002-scaffold-fresh] Check failed: no forked-theme brand strings anywhere in src/",
+            "source": "unit",
+            "detected": "2026-04-26T17:24:13.915Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "no-upstream-brand",
+              "checkCmd": "test -d apps/landing/src && ! grep -rIqE 'ScrewFast|AstroWind|Foxi|AstroPaper|Astroship' apps/landing/src/",
+              "checkDescription": "no forked-theme brand strings anywhere in src/",
+              "checkOutput": "Command failed: test -d apps/landing/src && ! grep -rIqE 'ScrewFast|AstroWind|Foxi|AstroPaper|Astroship' apps/landing/src/\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Scaffold fresh Astro\n\nRun `npm create astro@latest` with the **minimal** template into a temp\ndirectory, then move the scaffolded files into `apps/landing/` while\npreserving our existing `package.json`#name.\n\n## Process\n\n```bash\nTMP=$(mktemp -d)\ncd \"$TMP\"\n\n# Create a minimal Astro project. --template minimal gives us:\n#   src/pages/index.astro (placeholder)\n#   src/layouts/Layout.astro\n#   astro.config.mjs\n#   tsconfig.json\n#   package.json (with astro + typescript deps)\n#   public/favicon.svg\nnpm create astro@latest -- new-landing \\\n  --template minimal \\\n  --typescript strict \\\n  --no-git \\\n  --skip-install \\\n  --no-houston\n\n# Move scaffolded files into apps/landing/, preserving our package.json\ncd \"$OLDPWD\"\nLANDING=\"$(pwd)/apps/landing\"\n\n# Save our existing package.json (already has @converge/landing name + workspace wiring)\ncp \"$LANDING/package.json\" /tmp/converge-landing-package.json.preserve\n\n# Copy scaffold artifacts in\ncp -r \"$TMP/new-landing/src\" \"$LANDING/src\"\ncp -r \"$TMP/new-landing/public\" \"$LANDING/public\"\ncp \"$TMP/new-landing/astro.config.mjs\" \"$LANDING/astro.config.mjs\"\ncp \"$TMP/new-landing/tsconfig.json\" \"$LANDING/tsconfig.json\"\n\n# Merge dependencies from scaffold into our package.json (we keep our name + scripts)\nnode <<'EOF'\nconst fs = require('node:fs');\nconst ours = JSON.parse(fs.readFileSync('/tmp/converge-landing-package.json.preserve', 'utf8'));\nconst scaffold = JSON.parse(fs.readFileSync(process.env.SCAFFOLD_PKG, 'utf8'));\nours.dependencies = { ...(ours.dependencies ?? {}), ...(scaffold.dependencies ?? {}) };\nours.devDependencies = { ...(ours.devDependencies ?? {}), ...(scaffold.devDependencies ?? {}) };\nfs.writeFileSync('apps/landing/package.json', JSON.stringify(ours, null, 2) + '\\n');\nEOF\n\n# Cleanup\nrm -rf \"$TMP\" /tmp/converge-landing-package.json.preserve\n```\n\n(In practice, set `SCAFFOLD_PKG=$TMP/new-landing/package.json` before the\nnode block, or inline the path.)\n\n## Banned\n\n- Copying the scaffold's `package.json` over ours. Our `package.json` is the source of truth for `name`, `scripts`, and any project-specific config. Only deps merge in.\n- Letting the scaffolder install dependencies (`--skip-install`). The workspace runs `pnpm install` once at the workspace root in the next task.\n- Templates other than `minimal`. Other templates (`blog`, `starlight`) ship demo content we'd have to delete — exactly the v1 mistake.\n- Adding any non-Astro-default file in this task. Tailwind, MDX, etc. are added in 003-install-integrations. This task ONLY produces the bare Astro skeleton.",
+              "taskId": "02-bootstrap-astro/002-scaffold-fresh",
+              "taskTitle": "Scaffold a fresh Astro project (minimal template) into apps/landing/",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/02-bootstrap-astro/tasks/002-scaffold-fresh",
+              "factId": "check:no-upstream-brand"
+            }
+          }
+        ],
+        "durationMs": 75
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 34
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 97
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#5",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 204013
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T17:24:13.865Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T17:24:13.865Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T17:24:13.940Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T17:24:13.940Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T17:24:13.976Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#5",
+      "iteration": 1,
+      "ts": "2026-04-26T17:27:37.990Z"
+    },
+    {
+      "from": "run-strategy:task-run#5",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T17:27:38.088Z"
+    }
+  ]
+}

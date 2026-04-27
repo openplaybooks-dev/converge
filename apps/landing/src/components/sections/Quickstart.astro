@@ -1,0 +1,63 @@
+---
+import Section from '../layout/Section.astro';
+import Container from '../layout/Container.astro';
+
+interface Props {}
+const {} = Astro.props;
+---
+
+<Section id="quickstart" padY="lg" bg="default">
+  <Container>
+    <div class="text-center mb-10">
+      <h2 class="text-3xl sm:text-4xl font-bold text-text mb-4">From zero to converged in 60s</h2>
+      <p class="text-lg text-text-muted max-w-xl mx-auto">Three steps from a blank directory to a running project.</p>
+    </div>
+
+    <div class="max-w-2xl mx-auto space-y-4">
+      <!-- Step 1: Install -->
+      <div class="flex items-start gap-4 bg-muted rounded-lg p-4">
+        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo text-white flex items-center justify-center font-bold text-sm">1</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-text-muted mb-2">Install the CLI</p>
+          <div class="relative">
+            <pre class="bg-default border border-border rounded-md px-4 py-3 text-sm font-mono text-text overflow-x-auto"><code>npm install -g @converge/core</code></pre>
+            <button
+              class="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 text-xs bg-indigo text-white rounded hover:bg-indigo/80 transition-colors"
+              data-copy="npm install -g @converge/core"
+            >Copy</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Init -->
+      <div class="flex items-start gap-4 bg-muted rounded-lg p-4">
+        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo text-white flex items-center justify-center font-bold text-sm">2</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-text-muted mb-2">Initialize your project</p>
+          <div class="relative">
+            <pre class="bg-default border border-border rounded-md px-4 py-3 text-sm font-mono text-text overflow-x-auto"><code>converge init --name="my-api"</code></pre>
+            <button
+              class="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 text-xs bg-indigo text-white rounded hover:bg-indigo/80 transition-colors"
+              data-copy="converge init --name="my-api""
+            >Copy</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Run -->
+      <div class="flex items-start gap-4 bg-muted rounded-lg p-4">
+        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo text-white flex items-center justify-center font-bold text-sm">3</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-text-muted mb-2">Converge to done</p>
+          <div class="relative">
+            <pre class="bg-default border border-border rounded-md px-4 py-3 text-sm font-mono text-text overflow-x-auto"><code>converge run</code></pre>
+            <button
+              class="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 text-xs bg-indigo text-white rounded hover:bg-indigo/80 transition-colors"
+              data-copy="converge run"
+            >Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Container>
+</Section>

@@ -1,0 +1,29 @@
+{
+  "hash": "ca3c303a4a9d59bf98c58345b7369fdaa438662b766aea8428996a98f316057b",
+  "timestamp": "2026-04-26T17:24:03.543Z",
+  "files": [
+    "README.md",
+    "playbook.yml",
+    "tasks/01-setup-art-style/TASK.md",
+    "tasks/02-asset-breakdown/TASK.md",
+    "tasks/03-characters/01-analysis/TASK.md",
+    "tasks/03-characters/02-shared-references/TASK.md",
+    "tasks/03-characters/02-shared-references/tasks/class-mage/TASK.md",
+    "tasks/03-characters/02-shared-references/tasks/class-ranger/TASK.md",
+    "tasks/03-characters/02-shared-references/tasks/class-warrior/TASK.md",
+    "tasks/03-characters/02-shared-references/wbs/index.js",
+    "tasks/03-characters/02-shared-references/wbs/templates/class-style-guide/TASK.md",
+    "tasks/03-characters/02-shared-references/wbs/templates/shared-effect/TASK.md",
+    "tasks/03-characters/03-generation/TASK.md",
+    "tasks/03-characters/03-generation/wbs/index.js",
+    "tasks/03-characters/03-generation/wbs/templates/character/01-spec/TASK.md",
+    "tasks/03-characters/03-generation/wbs/templates/character/02-angles/TASK.md",
+    "tasks/03-characters/03-generation/wbs/templates/character/03-poses/TASK.md",
+    "tasks/03-characters/03-generation/wbs/templates/character/03-poses/wbs/index.js",
+    "tasks/03-characters/03-generation/wbs/templates/character/03-poses/wbs/templates/pose/TASK.md",
+    "tasks/03-characters/03-generation/wbs/templates/character/04-spritesheets/TASK.md",
+    "tasks/03-characters/03-generation/wbs/templates/character/04-spritesheets/wbs/index.js",
+    "tasks/03-characters/03-generation/wbs/templates/character/04-spritesheets/wbs/templates/state/TASK.md",
+    "tasks/03-characters/TASK.md"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "taskId": "10-verify/002-dev-smoke",
+  "checks": [
+    {
+      "id": "dev-server-curl-tagline",
+      "description": "dev server starts in <10s, GET / is 200, body contains the tagline",
+      "cmd": "cd apps/landing && pnpm dev > /tmp/converge-landing-dev.log 2>&1 &\nDEV_PID=$!\nsleep 8\nRES=$(curl -s -o /tmp/converge-landing-curl.html -w \"%{http_code}\" http://localhost:4321/ || echo \"fail\")\nkill $DEV_PID 2>/dev/null\nwait $DEV_PID 2>/dev/null\ntest \"$RES\" = \"200\" && grep -q \"Define done. Converge gets there.\" /tmp/converge-landing-curl.html\n"
+    }
+  ]
+}

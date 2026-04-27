@@ -1,0 +1,267 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-ui/017-export-missing-output-packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/export",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/017-export",
+            "severity": "high",
+            "description": "[04-ui/017-export] Task output not created: packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/export",
+            "source": "unit",
+            "detected": "2026-04-26T05:58:19.185Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/017-export",
+              "taskId": "04-ui/017-export",
+              "taskTitle": "Export run sessions and playbook definitions",
+              "taskPrompt": "Two download endpoints + two buttons. No format conversion beyond what's already on disk.\n\n**Add `src/app/api/runs/[playbook]/[sessionId]/export/route.ts`:**\n- `GET` returns the session's full data — the session metadata (from `readSession`) plus the events array (from `readSessionEvents` introduced in `011-logs-panel`) — as a single JSON document.\n- Headers: `Content-Type: application/json`, `Content-Disposition: attachment; filename=\"session-${playbook}-${sessionId}.json\"`.\n\n**Add `src/app/api/playbooks/[name]/export/route.ts`:**\n- `GET` returns the playbook's full definition: the `playbook.yml` contents plus all task `TASK.md` files keyed by their relative path.\n- Format: a single YAML document `{ playbook: <yaml>, tasks: { <relpath>: <task-md-with-frontmatter>, ... } }`. Use the YAML lib already in deps.\n- Headers: `Content-Type: application/x-yaml`, `Content-Disposition: attachment; filename=\"${name}.playbook.yaml\"`.\n- Note: this is a flattened, portable representation. It is not a backup of the journal — for that, the user should `tar` the directory directly.\n\n**Wire UI buttons:**\n- On `src/app/runs/[playbook]/[sessionId]/page.tsx`: add an \"Export JSON\" button in the page header that triggers `window.location.href = '/api/runs/<playbook>/<sessionId>/export'` (browser handles the download via `Content-Disposition`).\n- On `src/app/playbooks/[name]/page.tsx`: add an \"Export YAML\" button in the page header that triggers the same pattern against the playbook export endpoint.\n\n**No import yet.** Round-tripping (export, edit offline, re-import) is more work than this task warrants — defer to a follow-up if users actually ask for it.\n\n**Verification:**\n- Click Export JSON on a run → browser downloads `session-implement-studio-<id>.json`. Open it: it parses as JSON; contains the events array.\n- Click Export YAML on a playbook → browser downloads `implement-studio.playbook.yaml`. Open it: it parses as YAML; contains the `playbook.yml` contents and a `tasks` map.\n- `curl -s -o /dev/null -w \"%{http_code}\" http://localhost:4000/api/playbooks/implement-studio/export` returns 200.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/export\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-ui/017-export-missing-output-packages/converge-studio/src/app/api/playbooks/[name]/export",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/017-export",
+            "severity": "high",
+            "description": "[04-ui/017-export] Task output not created: packages/converge-studio/src/app/api/playbooks/[name]/export",
+            "source": "unit",
+            "detected": "2026-04-26T05:58:19.187Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/017-export",
+              "taskId": "04-ui/017-export",
+              "taskTitle": "Export run sessions and playbook definitions",
+              "taskPrompt": "Two download endpoints + two buttons. No format conversion beyond what's already on disk.\n\n**Add `src/app/api/runs/[playbook]/[sessionId]/export/route.ts`:**\n- `GET` returns the session's full data — the session metadata (from `readSession`) plus the events array (from `readSessionEvents` introduced in `011-logs-panel`) — as a single JSON document.\n- Headers: `Content-Type: application/json`, `Content-Disposition: attachment; filename=\"session-${playbook}-${sessionId}.json\"`.\n\n**Add `src/app/api/playbooks/[name]/export/route.ts`:**\n- `GET` returns the playbook's full definition: the `playbook.yml` contents plus all task `TASK.md` files keyed by their relative path.\n- Format: a single YAML document `{ playbook: <yaml>, tasks: { <relpath>: <task-md-with-frontmatter>, ... } }`. Use the YAML lib already in deps.\n- Headers: `Content-Type: application/x-yaml`, `Content-Disposition: attachment; filename=\"${name}.playbook.yaml\"`.\n- Note: this is a flattened, portable representation. It is not a backup of the journal — for that, the user should `tar` the directory directly.\n\n**Wire UI buttons:**\n- On `src/app/runs/[playbook]/[sessionId]/page.tsx`: add an \"Export JSON\" button in the page header that triggers `window.location.href = '/api/runs/<playbook>/<sessionId>/export'` (browser handles the download via `Content-Disposition`).\n- On `src/app/playbooks/[name]/page.tsx`: add an \"Export YAML\" button in the page header that triggers the same pattern against the playbook export endpoint.\n\n**No import yet.** Round-tripping (export, edit offline, re-import) is more work than this task warrants — defer to a follow-up if users actually ask for it.\n\n**Verification:**\n- Click Export JSON on a run → browser downloads `session-implement-studio-<id>.json`. Open it: it parses as JSON; contains the events array.\n- Click Export YAML on a playbook → browser downloads `implement-studio.playbook.yaml`. Open it: it parses as YAML; contains the `playbook.yml` contents and a `tasks` map.\n- `curl -s -o /dev/null -w \"%{http_code}\" http://localhost:4000/api/playbooks/implement-studio/export` returns 200.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/app/api/playbooks/[name]/export\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-ui/017-export-check-failed-session-export-route-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/017-export",
+            "severity": "high",
+            "description": "[04-ui/017-export] Check failed: Session export route exists",
+            "source": "unit",
+            "detected": "2026-04-26T05:58:19.189Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "session-export-route-exists",
+              "checkCmd": "test -f 'packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/export/route.ts'",
+              "checkDescription": "Session export route exists",
+              "checkOutput": "Command failed: test -f 'packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/export/route.ts'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Two download endpoints + two buttons. No format conversion beyond what's already on disk.\n\n**Add `src/app/api/runs/[playbook]/[sessionId]/export/route.ts`:**\n- `GET` returns the session's full data — the session metadata (from `readSession`) plus the events array (from `readSessionEvents` introduced in `011-logs-panel`) — as a single JSON document.\n- Headers: `Content-Type: application/json`, `Content-Disposition: attachment; filename=\"session-${playbook}-${sessionId}.json\"`.\n\n**Add `src/app/api/playbooks/[name]/export/route.ts`:**\n- `GET` returns the playbook's full definition: the `playbook.yml` contents plus all task `TASK.md` files keyed by their relative path.\n- Format: a single YAML document `{ playbook: <yaml>, tasks: { <relpath>: <task-md-with-frontmatter>, ... } }`. Use the YAML lib already in deps.\n- Headers: `Content-Type: application/x-yaml`, `Content-Disposition: attachment; filename=\"${name}.playbook.yaml\"`.\n- Note: this is a flattened, portable representation. It is not a backup of the journal — for that, the user should `tar` the directory directly.\n\n**Wire UI buttons:**\n- On `src/app/runs/[playbook]/[sessionId]/page.tsx`: add an \"Export JSON\" button in the page header that triggers `window.location.href = '/api/runs/<playbook>/<sessionId>/export'` (browser handles the download via `Content-Disposition`).\n- On `src/app/playbooks/[name]/page.tsx`: add an \"Export YAML\" button in the page header that triggers the same pattern against the playbook export endpoint.\n\n**No import yet.** Round-tripping (export, edit offline, re-import) is more work than this task warrants — defer to a follow-up if users actually ask for it.\n\n**Verification:**\n- Click Export JSON on a run → browser downloads `session-implement-studio-<id>.json`. Open it: it parses as JSON; contains the events array.\n- Click Export YAML on a playbook → browser downloads `implement-studio.playbook.yaml`. Open it: it parses as YAML; contains the `playbook.yml` contents and a `tasks` map.\n- `curl -s -o /dev/null -w \"%{http_code}\" http://localhost:4000/api/playbooks/implement-studio/export` returns 200.",
+              "taskId": "04-ui/017-export",
+              "taskTitle": "Export run sessions and playbook definitions",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/017-export",
+              "factId": "check:session-export-route-exists"
+            }
+          },
+          {
+            "id": "04-ui/017-export-check-failed-playbook-export-route-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/017-export",
+            "severity": "high",
+            "description": "[04-ui/017-export] Check failed: Playbook export route exists",
+            "source": "unit",
+            "detected": "2026-04-26T05:58:19.191Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "playbook-export-route-exists",
+              "checkCmd": "test -f 'packages/converge-studio/src/app/api/playbooks/[name]/export/route.ts'",
+              "checkDescription": "Playbook export route exists",
+              "checkOutput": "Command failed: test -f 'packages/converge-studio/src/app/api/playbooks/[name]/export/route.ts'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Two download endpoints + two buttons. No format conversion beyond what's already on disk.\n\n**Add `src/app/api/runs/[playbook]/[sessionId]/export/route.ts`:**\n- `GET` returns the session's full data — the session metadata (from `readSession`) plus the events array (from `readSessionEvents` introduced in `011-logs-panel`) — as a single JSON document.\n- Headers: `Content-Type: application/json`, `Content-Disposition: attachment; filename=\"session-${playbook}-${sessionId}.json\"`.\n\n**Add `src/app/api/playbooks/[name]/export/route.ts`:**\n- `GET` returns the playbook's full definition: the `playbook.yml` contents plus all task `TASK.md` files keyed by their relative path.\n- Format: a single YAML document `{ playbook: <yaml>, tasks: { <relpath>: <task-md-with-frontmatter>, ... } }`. Use the YAML lib already in deps.\n- Headers: `Content-Type: application/x-yaml`, `Content-Disposition: attachment; filename=\"${name}.playbook.yaml\"`.\n- Note: this is a flattened, portable representation. It is not a backup of the journal — for that, the user should `tar` the directory directly.\n\n**Wire UI buttons:**\n- On `src/app/runs/[playbook]/[sessionId]/page.tsx`: add an \"Export JSON\" button in the page header that triggers `window.location.href = '/api/runs/<playbook>/<sessionId>/export'` (browser handles the download via `Content-Disposition`).\n- On `src/app/playbooks/[name]/page.tsx`: add an \"Export YAML\" button in the page header that triggers the same pattern against the playbook export endpoint.\n\n**No import yet.** Round-tripping (export, edit offline, re-import) is more work than this task warrants — defer to a follow-up if users actually ask for it.\n\n**Verification:**\n- Click Export JSON on a run → browser downloads `session-implement-studio-<id>.json`. Open it: it parses as JSON; contains the events array.\n- Click Export YAML on a playbook → browser downloads `implement-studio.playbook.yaml`. Open it: it parses as YAML; contains the `playbook.yml` contents and a `tasks` map.\n- `curl -s -o /dev/null -w \"%{http_code}\" http://localhost:4000/api/playbooks/implement-studio/export` returns 200.",
+              "taskId": "04-ui/017-export",
+              "taskTitle": "Export run sessions and playbook definitions",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/017-export",
+              "factId": "check:playbook-export-route-exists"
+            }
+          }
+        ],
+        "durationMs": 3918
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3821
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 3853
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#12",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 75885
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T05:58:19.183Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T05:58:19.183Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T05:58:23.101Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T05:58:23.101Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T05:58:26.924Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#12",
+      "iteration": 1,
+      "ts": "2026-04-26T05:59:42.810Z"
+    },
+    {
+      "from": "run-strategy:task-run#12",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T05:59:46.663Z"
+    }
+  ]
+}

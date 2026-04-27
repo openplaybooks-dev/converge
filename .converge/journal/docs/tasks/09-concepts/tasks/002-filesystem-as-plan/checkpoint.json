@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "09-concepts/002-filesystem-as-plan",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T15:43:55.616Z",
+  "createdAt": "2026-04-26T09:56:03.036Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T09:56:03.036Z",
+      "completedAt": "2026-04-26T09:57:24.864Z",
+      "outcome": "success",
+      "durationMs": 81828
+    }
+  ],
+  "currentAttempt": 1
+}

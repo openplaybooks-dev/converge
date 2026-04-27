@@ -1,0 +1,30 @@
+{
+  "taskId": "06-guides/003-research-a-topic-deeply",
+  "checks": [
+    {
+      "id": "page-exists",
+      "description": "page exists",
+      "cmd": "test -f docs/guides/research-a-topic-deeply.md"
+    },
+    {
+      "id": "page-frontmatter",
+      "description": "title + sources frontmatter",
+      "cmd": "head -10 docs/guides/research-a-topic-deeply.md | grep -q '^title:' && head -10 docs/guides/research-a-topic-deeply.md | grep -q '^sources:'"
+    },
+    {
+      "id": "anchored-on-research-examples",
+      "description": "page anchors on a real research example",
+      "cmd": "grep -qE 'deep-research|frontier-research|scientific-research' docs/guides/research-a-topic-deeply.md"
+    },
+    {
+      "id": "explains-layered-or-iterative",
+      "description": "explains layered / iterative deepening",
+      "cmd": "grep -qiE 'layer|iterat|deepen|round|pass' docs/guides/research-a-topic-deeply.md"
+    },
+    {
+      "id": "word-count-ok",
+      "description": "700-1500 words",
+      "cmd": "wc -w docs/guides/research-a-topic-deeply.md | awk '{exit ($1>=700&&$1<=1500?0:1)}'"
+    }
+  ]
+}

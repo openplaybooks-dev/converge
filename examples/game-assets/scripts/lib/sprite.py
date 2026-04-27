@@ -38,6 +38,272 @@ def find_project_root(start: Path | None = None) -> Path:
 
 
 # ---------------------------------------------------------------------------
+# Grid auto-detection
+#
+# We tell the model "draw a 4x2 grid" but it sometimes lays out 4x3 or 3x3
+# anyway. Rather than fighting the model, we detect the actual grid from
+# the rendered sheet's alpha channel and write the atlas to match.
+
+
+def detect_grid_layout(
+    image_bytes_or_path,
+    *,
+    expected_cols: int | None = None,
+    expected_rows: int | None = None,
+    min_band_height_ratio: float = 0.05,
+    min_band_density_ratio: float = 0.03,
+) -> dict:
+    """Scan the alpha channel of a sprite sheet and infer the actual grid.
+
+    Parameters
+    ----------
+    image_bytes_or_path : bytes | Path | str
+        Raw PNG bytes or a path to a PNG. Must have an alpha channel.
+    expected_cols, expected_rows : int | None
+        Hints used only as fallback if detection comes back empty (e.g.
+        a fully-opaque sheet with no gaps).
+    min_band_height_ratio : float
+        A row of pixels counts as "occupied" when more than this fraction
+        of its width is opaque. 5% works for sparse silhouettes.
+    min_band_density_ratio : float
+        A column of pixels counts as "occupied" when more than this
+        fraction of its height is opaque.
+
+    Returns
+    -------
+    dict with:
+        cols, rows : int
+        sheet_size : {w, h}
+        frame_size : {w, h}    — derived from sheet/cols, sheet/rows
+        frames : list[{filename, frame: {x,y,w,h}}]
+        cell_origins : list[(x, y)]  — top-left of each cell in row-major order
+        detected : bool        — True if we found bands; False if we fell
+                                   back to the expected hint or to 1x1
+
+    The returned `frame_size` is sheet/cols × sheet/rows, not the band
+    bounding boxes — atlas consumers expect uniform cells. The cells will
+    contain transparent margin around the actual character.
+    """
+    from PIL import Image
+    import numpy as np
+    import io
+
+    if isinstance(image_bytes_or_path, (str, Path)):
+        img = Image.open(image_bytes_or_path)
+    else:
+        img = Image.open(io.BytesIO(image_bytes_or_path))
+    if img.mode != 'RGBA':
+        img = img.convert('RGBA')
+    arr = np.array(img)
+    alpha = arr[:, :, 3]
+    sheet_h, sheet_w = alpha.shape
+
+    occupied_per_row = (alpha > 32).sum(axis=1)
+    occupied_per_col = (alpha > 32).sum(axis=0)
+
+    row_threshold = sheet_w * min_band_height_ratio
+    col_threshold = sheet_h * min_band_density_ratio
+
+    h_bands = _find_runs(occupied_per_row, row_threshold, min_run=max(8, sheet_h // 50))
+    v_bands = _find_runs(occupied_per_col, col_threshold, min_run=max(8, sheet_w // 50))
+
+    detected_rows = len(h_bands)
+    detected_cols = len(v_bands)
+
+    if detected_rows == 0 or detected_cols == 0:
+        # Fully transparent or fully opaque — fall back to the hint.
+        rows = expected_rows or 1
+        cols = expected_cols or 1
+        detected = False
+    else:
+        rows = detected_rows
+        cols = detected_cols
+        detected = True
+
+    frame_w = sheet_w // cols
+    frame_h = sheet_h // rows
+
+    cell_origins = []
+    frames = []
+    for r in range(rows):
+        for c in range(cols):
+            x = c * frame_w
+            y = r * frame_h
+            cell_origins.append((x, y))
+            frames.append({
+                "filename": f"frame_{r * cols + c:03d}.png",
+                "frame": {"x": x, "y": y, "w": frame_w, "h": frame_h},
+            })
+
+    return {
+        "cols": cols,
+        "rows": rows,
+        "sheet_size": {"w": sheet_w, "h": sheet_h},
+        "frame_size": {"w": frame_w, "h": frame_h},
+        "frames": frames,
+        "cell_origins": cell_origins,
+        "detected": detected,
+        "h_bands": h_bands,
+        "v_bands": v_bands,
+    }
+
+
+def _find_runs(occupancy: "np.ndarray", threshold: float, min_run: int = 1) -> list[tuple[int, int]]:
+    """Find runs of indices where occupancy[i] > threshold. Discard runs
+    shorter than `min_run` (filters single-pixel speckle on cell borders)."""
+    occupied = occupancy > threshold
+    runs: list[tuple[int, int]] = []
+    in_run = False
+    start = 0
+    for i, v in enumerate(occupied):
+        if v and not in_run:
+            start = i
+            in_run = True
+        elif not v and in_run:
+            if i - start >= min_run:
+                runs.append((start, i - 1))
+            in_run = False
+    if in_run and len(occupied) - start >= min_run:
+        runs.append((start, len(occupied) - 1))
+    return runs
+
+
+# ---------------------------------------------------------------------------
+# Frame alignment
+#
+# After auto-detecting the grid we still have a per-cell jitter problem:
+# the model draws each pose at a slightly different (x, y) within its
+# cell. Phaser plays each frame at a fixed sprite anchor, so the
+# character appears to slide horizontally and float vertically.
+#
+# align_frames_in_sheet() fixes this by re-pasting each character's bbox
+# into a canonical position within its cell: centered horizontally,
+# feet at the bottom edge. The PNG is rewritten in place. Per-frame
+# anchor offsets (the original character's bbox center) are also
+# returned so callers can record them in the atlas as a debug trail.
+
+
+def align_frames_in_sheet(
+    image_bytes: bytes,
+    cols: int,
+    rows: int,
+    *,
+    foot_padding: int = 4,
+    alpha_threshold: int = 32,
+) -> tuple[bytes, list[dict]]:
+    """Re-paste each cell's subject into a canonical (torso-x, feet-bottom) position.
+
+    Why torso-column instead of bbox-center: a walk cycle has wide-stride
+    poses (arms forward + back leg trailing → bbox extends both directions)
+    and tight-passing poses (limbs near body → narrow bbox). Centering by
+    bbox makes the torso bob left/right between frames, which the eye
+    reads as a horizontal jitter once per cycle.
+
+    The torso column is estimated from the densest vertical opacity in the
+    upper third of the bbox — the head/shoulders/chest stay still while
+    arms and legs swing. That column is then placed at cell horizontal
+    center.
+
+    Returns (new_png_bytes, per_frame_anchors). Each anchor entry has:
+      - original_bbox: (x0, y0, x1, y1) before alignment, in cell-local coords
+      - torso_x:       column the aligner used as the horizontal anchor
+      - aligned_bbox:  (x0, y0, x1, y1) after alignment, in cell-local coords
+      - shift: (dx, dy) applied to move the character
+
+    `foot_padding` leaves a few pixels below the feet so descenders
+    (long shadows, weapon tips touching ground) don't get clipped.
+    """
+    from PIL import Image
+    import numpy as np
+    import io
+
+    img = Image.open(io.BytesIO(image_bytes)).convert("RGBA")
+    sheet_w, sheet_h = img.size
+    cell_w = sheet_w // cols
+    cell_h = sheet_h // rows
+
+    arr = np.array(img)
+    alpha = arr[:, :, 3]
+
+    # Build a fresh transparent canvas, paste aligned cells into it.
+    out = Image.new("RGBA", (sheet_w, sheet_h), (0, 0, 0, 0))
+    anchors: list[dict] = []
+
+    for r in range(rows):
+        for c in range(cols):
+            cx0, cy0 = c * cell_w, r * cell_h
+            cell_alpha = alpha[cy0:cy0 + cell_h, cx0:cx0 + cell_w]
+            ys, xs = np.where(cell_alpha > alpha_threshold)
+            if len(xs) == 0:
+                anchors.append({
+                    "original_bbox": None,
+                    "torso_x": None,
+                    "aligned_bbox": None,
+                    "shift": (0, 0),
+                })
+                continue
+
+            x0, x1 = int(xs.min()), int(xs.max())
+            y0, y1 = int(ys.min()), int(ys.max())
+            char_w = x1 - x0 + 1
+            char_h = y1 - y0 + 1
+
+            # Estimate the horizontal anchor from the MID-TORSO BAND
+            # (char_h * [0.25, 0.75]). This skips the head silhouette
+            # (which can connect to a hat or hair, throwing off detection)
+            # and skips the legs/feet (which fan wide during stride). The
+            # torso/hip band is the body's stable mass center across the
+            # cycle. We weight by per-column opacity so the result is
+            # the "center of mass x" within the band — robust against
+            # arm extensions on either side because arms in the mid-band
+            # are thin compared to the torso column.
+            mid_y0 = y0 + char_h // 4
+            mid_y1 = y0 + (char_h * 3) // 4
+            mid_band = cell_alpha[mid_y0:mid_y1 + 1, x0:x1 + 1]
+            col_density = (mid_band > alpha_threshold).sum(axis=0)
+            total_mass = col_density.sum()
+            if total_mass == 0:
+                torso_local = (x1 - x0) // 2
+            else:
+                col_indices = np.arange(col_density.size)
+                torso_local = int((col_indices * col_density).sum() / total_mass)
+            torso_x_in_cell = x0 + torso_local  # cell-local x of the torso column
+
+            # Crop the actual character from the source cell.
+            src_box = (cx0 + x0, cy0 + y0, cx0 + x1 + 1, cy0 + y1 + 1)
+            cropped = img.crop(src_box)
+
+            # Place torso column at cell horizontal center.
+            target_torso = cell_w // 2
+            new_x0 = target_torso - torso_local
+            # Clamp so we don't push the bbox out of the cell.
+            if new_x0 < 0:
+                new_x0 = 0
+            if new_x0 + char_w > cell_w:
+                new_x0 = cell_w - char_w
+
+            # Feet at bottom (unchanged from before).
+            new_y1 = cell_h - 1 - foot_padding
+            new_y0 = new_y1 - char_h + 1
+            if new_y0 < 0:
+                new_y0 = 0
+                new_y1 = char_h - 1
+
+            out.paste(cropped, (cx0 + new_x0, cy0 + new_y0), cropped)
+
+            anchors.append({
+                "original_bbox": [x0, y0, x1, y1],
+                "torso_x": torso_x_in_cell,
+                "aligned_bbox": [new_x0, new_y0, new_x0 + char_w - 1, new_y0 + char_h - 1],
+                "shift": [new_x0 - x0, new_y0 - y0],
+            })
+
+    buf = io.BytesIO()
+    out.save(buf, format="PNG")
+    return buf.getvalue(), anchors
+
+
+# ---------------------------------------------------------------------------
 # Sprite sheet builder
 
 

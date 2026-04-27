@@ -1,0 +1,10 @@
+{
+  "taskId": "01-clone-and-rename/001-clone-mc",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/studio/UPSTREAM_SHA",
+    "packages/studio/package.json"
+  ],
+  "blocked": false
+}

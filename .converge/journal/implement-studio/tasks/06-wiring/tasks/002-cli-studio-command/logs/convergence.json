@@ -1,0 +1,488 @@
+{
+  "iteration": 2,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "06-wiring/002-cli-studio-command-missing-output-packages/cli/src/commands-studio.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-wiring/002-cli-studio-command",
+            "severity": "high",
+            "description": "[06-wiring/002-cli-studio-command] Task output not created: packages/cli/src/commands-studio.ts",
+            "source": "unit",
+            "detected": "2026-04-26T03:39:00.179Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/06-wiring/tasks/002-cli-studio-command",
+              "taskId": "06-wiring/002-cli-studio-command",
+              "taskTitle": "Add `converge studio` CLI subcommand",
+              "taskPrompt": "Add a `converge studio` subcommand that launches the studio against the user's converge project.\n\n**`packages/cli/src/commands-studio.ts`**:\n\n```ts\nimport { spawn } from 'node:child_process';\nimport * as path from 'node:path';\nimport { findConvergeRoot } from '@converge/project-root';\nimport { createRequire } from 'node:module';\n\ninterface StudioOptions {\n  dev?: boolean;\n  port?: number;\n  host?: string;  // default 127.0.0.1\n}\n\nexport async function runStudio(opts: StudioOptions = {}): Promise<number> {\n  const projectRoot = findConvergeRoot(process.cwd());\n  if (!projectRoot) {\n    console.error('No .converge/ directory found. Run `converge init` first.');\n    return 1;\n  }\n\n  // Resolve @converge/studio package directory\n  let studioDir: string;\n  try {\n    const req = createRequire(import.meta.url);\n    const pkgPath = req.resolve('@converge/studio/package.json');\n    studioDir = path.dirname(pkgPath);\n  } catch {\n    console.error('@converge/studio is not installed. From the converge repo: `pnpm install`.');\n    return 1;\n  }\n\n  if (opts.host && opts.host !== '127.0.0.1' && opts.host !== 'localhost') {\n    console.warn(`Warning: binding studio to ${opts.host} — no auth in MVP. Anyone with network access can read/edit your project.`);\n  }\n\n  const port = String(opts.port ?? process.env.PORT ?? 4000);\n  const host = opts.host ?? '127.0.0.1';\n  const cmd = opts.dev ? 'dev' : 'start';\n\n  const child = spawn('pnpm', ['exec', 'next', cmd, '-p', port, '-H', host], {\n    cwd: studioDir,\n    env: { ...process.env, CONVERGE_PROJECT_ROOT: projectRoot, PORT: port },\n    stdio: 'inherit',\n  });\n\n  return new Promise((resolve) => child.on('exit', (code) => resolve(code ?? 0)));\n}\n```\n\n**Wire into `packages/cli/src/main.ts`**: register the subcommand using whatever CLI framework `main.ts` already uses (look for the registration pattern from existing `run`/`init`/`status`/`plan` commands). Accept flags `--dev`, `--port <n>`, `--host <h>`.\n\n**`packages/cli/package.json`**: add `@converge/studio` to `optionalDependencies`:\n\n```jsonc\n{\n  \"optionalDependencies\": {\n    \"@converge/studio\": \"workspace:*\"\n  }\n}\n```\n\nThis way the CLI builds even in environments where the studio is not built; the runStudio command catches the import error and prints a friendly message.\n\n**Process**:\n1. Read `packages/cli/src/main.ts` to learn the command-registration convention.\n2. Implement `commands-studio.ts`.\n3. Register in `main.ts`.\n4. Update `cli/package.json`.\n5. `pnpm --filter @converge/cli build`.\n6. Run `node packages/cli/dist/index.js studio --help` to verify.",
+              "factId": "file-exists:test -f \"packages/cli/src/commands-studio.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "06-wiring/002-cli-studio-command-check-failed-command-file-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-wiring/002-cli-studio-command",
+            "severity": "high",
+            "description": "[06-wiring/002-cli-studio-command] Check failed: commands-studio.ts exists",
+            "source": "unit",
+            "detected": "2026-04-26T03:39:00.241Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "command-file-exists",
+              "checkCmd": "test -f packages/cli/src/commands-studio.ts",
+              "checkDescription": "commands-studio.ts exists",
+              "checkOutput": "Command failed: test -f packages/cli/src/commands-studio.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Add a `converge studio` subcommand that launches the studio against the user's converge project.\n\n**`packages/cli/src/commands-studio.ts`**:\n\n```ts\nimport { spawn } from 'node:child_process';\nimport * as path from 'node:path';\nimport { findConvergeRoot } from '@converge/project-root';\nimport { createRequire } from 'node:module';\n\ninterface StudioOptions {\n  dev?: boolean;\n  port?: number;\n  host?: string;  // default 127.0.0.1\n}\n\nexport async function runStudio(opts: StudioOptions = {}): Promise<number> {\n  const projectRoot = findConvergeRoot(process.cwd());\n  if (!projectRoot) {\n    console.error('No .converge/ directory found. Run `converge init` first.');\n    return 1;\n  }\n\n  // Resolve @converge/studio package directory\n  let studioDir: string;\n  try {\n    const req = createRequire(import.meta.url);\n    const pkgPath = req.resolve('@converge/studio/package.json');\n    studioDir = path.dirname(pkgPath);\n  } catch {\n    console.error('@converge/studio is not installed. From the converge repo: `pnpm install`.');\n    return 1;\n  }\n\n  if (opts.host && opts.host !== '127.0.0.1' && opts.host !== 'localhost') {\n    console.warn(`Warning: binding studio to ${opts.host} — no auth in MVP. Anyone with network access can read/edit your project.`);\n  }\n\n  const port = String(opts.port ?? process.env.PORT ?? 4000);\n  const host = opts.host ?? '127.0.0.1';\n  const cmd = opts.dev ? 'dev' : 'start';\n\n  const child = spawn('pnpm', ['exec', 'next', cmd, '-p', port, '-H', host], {\n    cwd: studioDir,\n    env: { ...process.env, CONVERGE_PROJECT_ROOT: projectRoot, PORT: port },\n    stdio: 'inherit',\n  });\n\n  return new Promise((resolve) => child.on('exit', (code) => resolve(code ?? 0)));\n}\n```\n\n**Wire into `packages/cli/src/main.ts`**: register the subcommand using whatever CLI framework `main.ts` already uses (look for the registration pattern from existing `run`/`init`/`status`/`plan` commands). Accept flags `--dev`, `--port <n>`, `--host <h>`.\n\n**`packages/cli/package.json`**: add `@converge/studio` to `optionalDependencies`:\n\n```jsonc\n{\n  \"optionalDependencies\": {\n    \"@converge/studio\": \"workspace:*\"\n  }\n}\n```\n\nThis way the CLI builds even in environments where the studio is not built; the runStudio command catches the import error and prints a friendly message.\n\n**Process**:\n1. Read `packages/cli/src/main.ts` to learn the command-registration convention.\n2. Implement `commands-studio.ts`.\n3. Register in `main.ts`.\n4. Update `cli/package.json`.\n5. `pnpm --filter @converge/cli build`.\n6. Run `node packages/cli/dist/index.js studio --help` to verify.",
+              "taskId": "06-wiring/002-cli-studio-command",
+              "taskTitle": "Add `converge studio` CLI subcommand",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/06-wiring/tasks/002-cli-studio-command",
+              "factId": "check:command-file-exists"
+            }
+          },
+          {
+            "id": "06-wiring/002-cli-studio-command-check-failed-registered-in-main",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-wiring/002-cli-studio-command",
+            "severity": "high",
+            "description": "[06-wiring/002-cli-studio-command] Check failed: main.ts references commands-studio",
+            "source": "unit",
+            "detected": "2026-04-26T03:39:00.246Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "registered-in-main",
+              "checkCmd": "grep -q 'commands-studio\\|runStudio' packages/cli/src/main.ts",
+              "checkDescription": "main.ts references commands-studio",
+              "checkOutput": "Command failed: grep -q 'commands-studio\\|runStudio' packages/cli/src/main.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Add a `converge studio` subcommand that launches the studio against the user's converge project.\n\n**`packages/cli/src/commands-studio.ts`**:\n\n```ts\nimport { spawn } from 'node:child_process';\nimport * as path from 'node:path';\nimport { findConvergeRoot } from '@converge/project-root';\nimport { createRequire } from 'node:module';\n\ninterface StudioOptions {\n  dev?: boolean;\n  port?: number;\n  host?: string;  // default 127.0.0.1\n}\n\nexport async function runStudio(opts: StudioOptions = {}): Promise<number> {\n  const projectRoot = findConvergeRoot(process.cwd());\n  if (!projectRoot) {\n    console.error('No .converge/ directory found. Run `converge init` first.');\n    return 1;\n  }\n\n  // Resolve @converge/studio package directory\n  let studioDir: string;\n  try {\n    const req = createRequire(import.meta.url);\n    const pkgPath = req.resolve('@converge/studio/package.json');\n    studioDir = path.dirname(pkgPath);\n  } catch {\n    console.error('@converge/studio is not installed. From the converge repo: `pnpm install`.');\n    return 1;\n  }\n\n  if (opts.host && opts.host !== '127.0.0.1' && opts.host !== 'localhost') {\n    console.warn(`Warning: binding studio to ${opts.host} — no auth in MVP. Anyone with network access can read/edit your project.`);\n  }\n\n  const port = String(opts.port ?? process.env.PORT ?? 4000);\n  const host = opts.host ?? '127.0.0.1';\n  const cmd = opts.dev ? 'dev' : 'start';\n\n  const child = spawn('pnpm', ['exec', 'next', cmd, '-p', port, '-H', host], {\n    cwd: studioDir,\n    env: { ...process.env, CONVERGE_PROJECT_ROOT: projectRoot, PORT: port },\n    stdio: 'inherit',\n  });\n\n  return new Promise((resolve) => child.on('exit', (code) => resolve(code ?? 0)));\n}\n```\n\n**Wire into `packages/cli/src/main.ts`**: register the subcommand using whatever CLI framework `main.ts` already uses (look for the registration pattern from existing `run`/`init`/`status`/`plan` commands). Accept flags `--dev`, `--port <n>`, `--host <h>`.\n\n**`packages/cli/package.json`**: add `@converge/studio` to `optionalDependencies`:\n\n```jsonc\n{\n  \"optionalDependencies\": {\n    \"@converge/studio\": \"workspace:*\"\n  }\n}\n```\n\nThis way the CLI builds even in environments where the studio is not built; the runStudio command catches the import error and prints a friendly message.\n\n**Process**:\n1. Read `packages/cli/src/main.ts` to learn the command-registration convention.\n2. Implement `commands-studio.ts`.\n3. Register in `main.ts`.\n4. Update `cli/package.json`.\n5. `pnpm --filter @converge/cli build`.\n6. Run `node packages/cli/dist/index.js studio --help` to verify.",
+              "taskId": "06-wiring/002-cli-studio-command",
+              "taskTitle": "Add `converge studio` CLI subcommand",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/06-wiring/tasks/002-cli-studio-command",
+              "factId": "check:registered-in-main"
+            }
+          },
+          {
+            "id": "06-wiring/002-cli-studio-command-check-failed-optional-dep-on-studio",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-wiring/002-cli-studio-command",
+            "severity": "high",
+            "description": "[06-wiring/002-cli-studio-command] Check failed: cli has optionalDependency on @converge/studio",
+            "source": "unit",
+            "detected": "2026-04-26T03:39:00.269Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "optional-dep-on-studio",
+              "checkCmd": "node -e \"const p=require('./packages/cli/package.json');process.exit(p.optionalDependencies&&p.optionalDependencies['@converge/studio']?0:1)\"",
+              "checkDescription": "cli has optionalDependency on @converge/studio",
+              "checkOutput": "Command failed: node -e \"const p=require('./packages/cli/package.json');process.exit(p.optionalDependencies&&p.optionalDependencies['@converge/studio']?0:1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Add a `converge studio` subcommand that launches the studio against the user's converge project.\n\n**`packages/cli/src/commands-studio.ts`**:\n\n```ts\nimport { spawn } from 'node:child_process';\nimport * as path from 'node:path';\nimport { findConvergeRoot } from '@converge/project-root';\nimport { createRequire } from 'node:module';\n\ninterface StudioOptions {\n  dev?: boolean;\n  port?: number;\n  host?: string;  // default 127.0.0.1\n}\n\nexport async function runStudio(opts: StudioOptions = {}): Promise<number> {\n  const projectRoot = findConvergeRoot(process.cwd());\n  if (!projectRoot) {\n    console.error('No .converge/ directory found. Run `converge init` first.');\n    return 1;\n  }\n\n  // Resolve @converge/studio package directory\n  let studioDir: string;\n  try {\n    const req = createRequire(import.meta.url);\n    const pkgPath = req.resolve('@converge/studio/package.json');\n    studioDir = path.dirname(pkgPath);\n  } catch {\n    console.error('@converge/studio is not installed. From the converge repo: `pnpm install`.');\n    return 1;\n  }\n\n  if (opts.host && opts.host !== '127.0.0.1' && opts.host !== 'localhost') {\n    console.warn(`Warning: binding studio to ${opts.host} — no auth in MVP. Anyone with network access can read/edit your project.`);\n  }\n\n  const port = String(opts.port ?? process.env.PORT ?? 4000);\n  const host = opts.host ?? '127.0.0.1';\n  const cmd = opts.dev ? 'dev' : 'start';\n\n  const child = spawn('pnpm', ['exec', 'next', cmd, '-p', port, '-H', host], {\n    cwd: studioDir,\n    env: { ...process.env, CONVERGE_PROJECT_ROOT: projectRoot, PORT: port },\n    stdio: 'inherit',\n  });\n\n  return new Promise((resolve) => child.on('exit', (code) => resolve(code ?? 0)));\n}\n```\n\n**Wire into `packages/cli/src/main.ts`**: register the subcommand using whatever CLI framework `main.ts` already uses (look for the registration pattern from existing `run`/`init`/`status`/`plan` commands). Accept flags `--dev`, `--port <n>`, `--host <h>`.\n\n**`packages/cli/package.json`**: add `@converge/studio` to `optionalDependencies`:\n\n```jsonc\n{\n  \"optionalDependencies\": {\n    \"@converge/studio\": \"workspace:*\"\n  }\n}\n```\n\nThis way the CLI builds even in environments where the studio is not built; the runStudio command catches the import error and prints a friendly message.\n\n**Process**:\n1. Read `packages/cli/src/main.ts` to learn the command-registration convention.\n2. Implement `commands-studio.ts`.\n3. Register in `main.ts`.\n4. Update `cli/package.json`.\n5. `pnpm --filter @converge/cli build`.\n6. Run `node packages/cli/dist/index.js studio --help` to verify.",
+              "taskId": "06-wiring/002-cli-studio-command",
+              "taskTitle": "Add `converge studio` CLI subcommand",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/06-wiring/tasks/002-cli-studio-command",
+              "factId": "check:optional-dep-on-studio"
+            }
+          }
+        ],
+        "durationMs": 2567
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2469
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "06-wiring/002-cli-studio-command-check-failed-studio-help",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-wiring/002-cli-studio-command",
+            "severity": "high",
+            "description": "[06-wiring/002-cli-studio-command] Check failed: `converge studio --help` runs and mentions studio",
+            "source": "unit",
+            "detected": "2026-04-26T03:39:47.733Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "studio-help",
+              "checkCmd": "pnpm --filter @converge/cli build 2>&1 | tail -3 && node packages/cli/dist/index.js studio --help 2>&1 | grep -qi studio",
+              "checkDescription": "`converge studio --help` runs and mentions studio",
+              "checkOutput": "/Users/minh/Documents/converge/packages/cli:\n ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @converge/cli@0.1.0 build: `tsup`\nExit status 1",
+              "checkExitCode": 1,
+              "taskPrompt": "Add a `converge studio` subcommand that launches the studio against the user's converge project.\n\n**`packages/cli/src/commands-studio.ts`**:\n\n```ts\nimport { spawn } from 'node:child_process';\nimport * as path from 'node:path';\nimport { findConvergeRoot } from '@converge/project-root';\nimport { createRequire } from 'node:module';\n\ninterface StudioOptions {\n  dev?: boolean;\n  port?: number;\n  host?: string;  // default 127.0.0.1\n}\n\nexport async function runStudio(opts: StudioOptions = {}): Promise<number> {\n  const projectRoot = findConvergeRoot(process.cwd());\n  if (!projectRoot) {\n    console.error('No .converge/ directory found. Run `converge init` first.');\n    return 1;\n  }\n\n  // Resolve @converge/studio package directory\n  let studioDir: string;\n  try {\n    const req = createRequire(import.meta.url);\n    const pkgPath = req.resolve('@converge/studio/package.json');\n    studioDir = path.dirname(pkgPath);\n  } catch {\n    console.error('@converge/studio is not installed. From the converge repo: `pnpm install`.');\n    return 1;\n  }\n\n  if (opts.host && opts.host !== '127.0.0.1' && opts.host !== 'localhost') {\n    console.warn(`Warning: binding studio to ${opts.host} — no auth in MVP. Anyone with network access can read/edit your project.`);\n  }\n\n  const port = String(opts.port ?? process.env.PORT ?? 4000);\n  const host = opts.host ?? '127.0.0.1';\n  const cmd = opts.dev ? 'dev' : 'start';\n\n  const child = spawn('pnpm', ['exec', 'next', cmd, '-p', port, '-H', host], {\n    cwd: studioDir,\n    env: { ...process.env, CONVERGE_PROJECT_ROOT: projectRoot, PORT: port },\n    stdio: 'inherit',\n  });\n\n  return new Promise((resolve) => child.on('exit', (code) => resolve(code ?? 0)));\n}\n```\n\n**Wire into `packages/cli/src/main.ts`**: register the subcommand using whatever CLI framework `main.ts` already uses (look for the registration pattern from existing `run`/`init`/`status`/`plan` commands). Accept flags `--dev`, `--port <n>`, `--host <h>`.\n\n**`packages/cli/package.json`**: add `@converge/studio` to `optionalDependencies`:\n\n```jsonc\n{\n  \"optionalDependencies\": {\n    \"@converge/studio\": \"workspace:*\"\n  }\n}\n```\n\nThis way the CLI builds even in environments where the studio is not built; the runStudio command catches the import error and prints a friendly message.\n\n**Process**:\n1. Read `packages/cli/src/main.ts` to learn the command-registration convention.\n2. Implement `commands-studio.ts`.\n3. Register in `main.ts`.\n4. Update `cli/package.json`.\n5. `pnpm --filter @converge/cli build`.\n6. Run `node packages/cli/dist/index.js studio --help` to verify.",
+              "taskId": "06-wiring/002-cli-studio-command",
+              "taskTitle": "Add `converge studio` CLI subcommand",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/06-wiring/tasks/002-cli-studio-command",
+              "factId": "check:studio-help"
+            }
+          }
+        ],
+        "durationMs": 674
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 41844
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "06-wiring/002-cli-studio-command-check-failed-studio-help",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-wiring/002-cli-studio-command",
+            "severity": "high",
+            "description": "[06-wiring/002-cli-studio-command] Check failed: `converge studio --help` runs and mentions studio",
+            "source": "unit",
+            "detected": "2026-04-26T03:39:48.400Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "studio-help",
+              "checkCmd": "pnpm --filter @converge/cli build 2>&1 | tail -3 && node packages/cli/dist/index.js studio --help 2>&1 | grep -qi studio",
+              "checkDescription": "`converge studio --help` runs and mentions studio",
+              "checkOutput": "/Users/minh/Documents/converge/packages/cli:\n ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @converge/cli@0.1.0 build: `tsup`\nExit status 1",
+              "checkExitCode": 1,
+              "taskPrompt": "Add a `converge studio` subcommand that launches the studio against the user's converge project.\n\n**`packages/cli/src/commands-studio.ts`**:\n\n```ts\nimport { spawn } from 'node:child_process';\nimport * as path from 'node:path';\nimport { findConvergeRoot } from '@converge/project-root';\nimport { createRequire } from 'node:module';\n\ninterface StudioOptions {\n  dev?: boolean;\n  port?: number;\n  host?: string;  // default 127.0.0.1\n}\n\nexport async function runStudio(opts: StudioOptions = {}): Promise<number> {\n  const projectRoot = findConvergeRoot(process.cwd());\n  if (!projectRoot) {\n    console.error('No .converge/ directory found. Run `converge init` first.');\n    return 1;\n  }\n\n  // Resolve @converge/studio package directory\n  let studioDir: string;\n  try {\n    const req = createRequire(import.meta.url);\n    const pkgPath = req.resolve('@converge/studio/package.json');\n    studioDir = path.dirname(pkgPath);\n  } catch {\n    console.error('@converge/studio is not installed. From the converge repo: `pnpm install`.');\n    return 1;\n  }\n\n  if (opts.host && opts.host !== '127.0.0.1' && opts.host !== 'localhost') {\n    console.warn(`Warning: binding studio to ${opts.host} — no auth in MVP. Anyone with network access can read/edit your project.`);\n  }\n\n  const port = String(opts.port ?? process.env.PORT ?? 4000);\n  const host = opts.host ?? '127.0.0.1';\n  const cmd = opts.dev ? 'dev' : 'start';\n\n  const child = spawn('pnpm', ['exec', 'next', cmd, '-p', port, '-H', host], {\n    cwd: studioDir,\n    env: { ...process.env, CONVERGE_PROJECT_ROOT: projectRoot, PORT: port },\n    stdio: 'inherit',\n  });\n\n  return new Promise((resolve) => child.on('exit', (code) => resolve(code ?? 0)));\n}\n```\n\n**Wire into `packages/cli/src/main.ts`**: register the subcommand using whatever CLI framework `main.ts` already uses (look for the registration pattern from existing `run`/`init`/`status`/`plan` commands). Accept flags `--dev`, `--port <n>`, `--host <h>`.\n\n**`packages/cli/package.json`**: add `@converge/studio` to `optionalDependencies`:\n\n```jsonc\n{\n  \"optionalDependencies\": {\n    \"@converge/studio\": \"workspace:*\"\n  }\n}\n```\n\nThis way the CLI builds even in environments where the studio is not built; the runStudio command catches the import error and prints a friendly message.\n\n**Process**:\n1. Read `packages/cli/src/main.ts` to learn the command-registration convention.\n2. Implement `commands-studio.ts`.\n3. Register in `main.ts`.\n4. Update `cli/package.json`.\n5. `pnpm --filter @converge/cli build`.\n6. Run `node packages/cli/dist/index.js studio --help` to verify.",
+              "taskId": "06-wiring/002-cli-studio-command",
+              "taskTitle": "Add `converge studio` CLI subcommand",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/06-wiring/tasks/002-cli-studio-command",
+              "factId": "check:studio-help"
+            }
+          }
+        ],
+        "durationMs": 663
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#2",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 575
+      }
+    },
+    {
+      "id": "run-strategy:task-run#2",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 65826
+      }
+    },
+    {
+      "id": "verify#2",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 2442
+      }
+    },
+    {
+      "id": "check-stall#2",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt#2",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T03:39:00.175Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T03:39:00.176Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T03:39:02.743Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T03:39:02.745Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T03:39:05.214Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-04-26T03:39:47.058Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T03:39:47.733Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-26T03:39:47.734Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-26T03:39:47.735Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-26T03:39:47.736Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-26T03:39:47.737Z"
+    },
+    {
+      "from": "check-outputs-exist#2",
+      "to": "detect-gaps#2",
+      "iteration": 2,
+      "ts": "2026-04-26T03:39:48.400Z"
+    },
+    {
+      "from": "detect-gaps#2",
+      "to": "repair-loop#2",
+      "iteration": 2,
+      "ts": "2026-04-26T03:39:48.976Z"
+    },
+    {
+      "from": "repair-loop#2",
+      "to": "run-strategy:task-run#2",
+      "iteration": 2,
+      "ts": "2026-04-26T03:40:54.803Z"
+    },
+    {
+      "from": "run-strategy:task-run#2",
+      "to": "verify#2",
+      "iteration": 2,
+      "ts": "2026-04-26T03:40:57.245Z"
+    }
+  ]
+}

@@ -1,0 +1,271 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "02-data-layer/001-core-studio-api-export-missing-output-packages/core/src/studio-api.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-data-layer/001-core-studio-api-export",
+            "severity": "high",
+            "description": "[02-data-layer/001-core-studio-api-export] Task output not created: packages/core/src/studio-api.ts",
+            "source": "unit",
+            "detected": "2026-04-26T01:33:01.411Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/02-data-layer/tasks/001-core-studio-api-export",
+              "taskId": "02-data-layer/001-core-studio-api-export",
+              "taskTitle": "Add @converge/core/studio-api re-export module",
+              "taskPrompt": "Create a re-export module that surfaces every symbol the studio needs from `@converge/core`. This is required because `@converge/core/package.json` uses an explicit `exports` map (no `./*` glob), so the studio cannot import internal subpaths directly.\n\n**File: `packages/core/src/studio-api.ts`**\n\nRe-export from these existing modules (verify each path before re-exporting; if a symbol moved, find it):\n\n```ts\n// Playbook discovery and loading\nexport {\n  discoverPlaybooks,\n  loadPlaybook,\n  validatePlaybook,\n  parseDuration,\n} from './task/playbook/loader.js';\n\n// Storage / config schemas\nexport {\n  PlaybookConfigSchema,\n  ProjectConfigSchema,\n  TaskStatusSchema,\n  CheckpointSchema,\n} from './storage/types.js';\n\n// Journal types and reader\nexport type { JournalEvent, EventType, TaskStatus } from './journal/types.js';\nexport { readEvents, readTaskStatus } from './journal/reader.js';\nexport { SimpleLogTailer } from './journal/simple-log-tailer.js';\n\n// Task definition shape (for editor validation)\nexport type { TaskDefinition } from './config/task-definition.js';\n```\n\n**Update `packages/core/package.json`**: add a new entry to the `exports` map:\n\n```jsonc\n{\n  \"exports\": {\n    \".\": { \"import\": \"./dist/index.js\", \"types\": \"./dist/index.d.ts\" },\n    \"./studio-api\": {\n      \"import\": \"./dist/studio-api.js\",\n      \"types\": \"./dist/studio-api.d.ts\"\n    },\n    /* ... existing entries ... */\n  }\n}\n```\n\nMake sure the build pipeline (likely `tsup` — check `packages/core/tsup.config.ts` or `package.json#scripts.build`) includes `studio-api` as an entry. If `tsup` is configured with `entries: ['src/index.ts', 'src/planner.ts', ...]`, append `'src/studio-api.ts'`.\n\n**Process**:\n1. Read existing modules to confirm exact symbol names and paths (some may have moved during prior refactors).\n2. Write `studio-api.ts`.\n3. Update `package.json` `exports`.\n4. Update `tsup.config.ts` (or equivalent build config) to include the new entry.\n5. Run `pnpm --filter @converge/core build`.\n6. Verify import works.",
+              "factId": "file-exists:test -f \"packages/core/src/studio-api.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-data-layer/001-core-studio-api-export-check-failed-studio-api-file-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-data-layer/001-core-studio-api-export",
+            "severity": "high",
+            "description": "[02-data-layer/001-core-studio-api-export] Check failed: studio-api.ts module exists",
+            "source": "unit",
+            "detected": "2026-04-26T01:33:01.476Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "studio-api-file-exists",
+              "checkCmd": "test -f packages/core/src/studio-api.ts",
+              "checkDescription": "studio-api.ts module exists",
+              "checkOutput": "Command failed: test -f packages/core/src/studio-api.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Create a re-export module that surfaces every symbol the studio needs from `@converge/core`. This is required because `@converge/core/package.json` uses an explicit `exports` map (no `./*` glob), so the studio cannot import internal subpaths directly.\n\n**File: `packages/core/src/studio-api.ts`**\n\nRe-export from these existing modules (verify each path before re-exporting; if a symbol moved, find it):\n\n```ts\n// Playbook discovery and loading\nexport {\n  discoverPlaybooks,\n  loadPlaybook,\n  validatePlaybook,\n  parseDuration,\n} from './task/playbook/loader.js';\n\n// Storage / config schemas\nexport {\n  PlaybookConfigSchema,\n  ProjectConfigSchema,\n  TaskStatusSchema,\n  CheckpointSchema,\n} from './storage/types.js';\n\n// Journal types and reader\nexport type { JournalEvent, EventType, TaskStatus } from './journal/types.js';\nexport { readEvents, readTaskStatus } from './journal/reader.js';\nexport { SimpleLogTailer } from './journal/simple-log-tailer.js';\n\n// Task definition shape (for editor validation)\nexport type { TaskDefinition } from './config/task-definition.js';\n```\n\n**Update `packages/core/package.json`**: add a new entry to the `exports` map:\n\n```jsonc\n{\n  \"exports\": {\n    \".\": { \"import\": \"./dist/index.js\", \"types\": \"./dist/index.d.ts\" },\n    \"./studio-api\": {\n      \"import\": \"./dist/studio-api.js\",\n      \"types\": \"./dist/studio-api.d.ts\"\n    },\n    /* ... existing entries ... */\n  }\n}\n```\n\nMake sure the build pipeline (likely `tsup` — check `packages/core/tsup.config.ts` or `package.json#scripts.build`) includes `studio-api` as an entry. If `tsup` is configured with `entries: ['src/index.ts', 'src/planner.ts', ...]`, append `'src/studio-api.ts'`.\n\n**Process**:\n1. Read existing modules to confirm exact symbol names and paths (some may have moved during prior refactors).\n2. Write `studio-api.ts`.\n3. Update `package.json` `exports`.\n4. Update `tsup.config.ts` (or equivalent build config) to include the new entry.\n5. Run `pnpm --filter @converge/core build`.\n6. Verify import works.",
+              "taskId": "02-data-layer/001-core-studio-api-export",
+              "taskTitle": "Add @converge/core/studio-api re-export module",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/02-data-layer/tasks/001-core-studio-api-export",
+              "factId": "check:studio-api-file-exists"
+            }
+          },
+          {
+            "id": "02-data-layer/001-core-studio-api-export-check-failed-exports-entry",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-data-layer/001-core-studio-api-export",
+            "severity": "high",
+            "description": "[02-data-layer/001-core-studio-api-export] Check failed: package.json exports map has ./studio-api entry",
+            "source": "unit",
+            "detected": "2026-04-26T01:33:01.502Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "exports-entry",
+              "checkCmd": "node -e \"const e=require('./packages/core/package.json').exports;process.exit(e['./studio-api']?0:1)\"",
+              "checkDescription": "package.json exports map has ./studio-api entry",
+              "checkOutput": "Command failed: node -e \"const e=require('./packages/core/package.json').exports;process.exit(e['./studio-api']?0:1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Create a re-export module that surfaces every symbol the studio needs from `@converge/core`. This is required because `@converge/core/package.json` uses an explicit `exports` map (no `./*` glob), so the studio cannot import internal subpaths directly.\n\n**File: `packages/core/src/studio-api.ts`**\n\nRe-export from these existing modules (verify each path before re-exporting; if a symbol moved, find it):\n\n```ts\n// Playbook discovery and loading\nexport {\n  discoverPlaybooks,\n  loadPlaybook,\n  validatePlaybook,\n  parseDuration,\n} from './task/playbook/loader.js';\n\n// Storage / config schemas\nexport {\n  PlaybookConfigSchema,\n  ProjectConfigSchema,\n  TaskStatusSchema,\n  CheckpointSchema,\n} from './storage/types.js';\n\n// Journal types and reader\nexport type { JournalEvent, EventType, TaskStatus } from './journal/types.js';\nexport { readEvents, readTaskStatus } from './journal/reader.js';\nexport { SimpleLogTailer } from './journal/simple-log-tailer.js';\n\n// Task definition shape (for editor validation)\nexport type { TaskDefinition } from './config/task-definition.js';\n```\n\n**Update `packages/core/package.json`**: add a new entry to the `exports` map:\n\n```jsonc\n{\n  \"exports\": {\n    \".\": { \"import\": \"./dist/index.js\", \"types\": \"./dist/index.d.ts\" },\n    \"./studio-api\": {\n      \"import\": \"./dist/studio-api.js\",\n      \"types\": \"./dist/studio-api.d.ts\"\n    },\n    /* ... existing entries ... */\n  }\n}\n```\n\nMake sure the build pipeline (likely `tsup` — check `packages/core/tsup.config.ts` or `package.json#scripts.build`) includes `studio-api` as an entry. If `tsup` is configured with `entries: ['src/index.ts', 'src/planner.ts', ...]`, append `'src/studio-api.ts'`.\n\n**Process**:\n1. Read existing modules to confirm exact symbol names and paths (some may have moved during prior refactors).\n2. Write `studio-api.ts`.\n3. Update `package.json` `exports`.\n4. Update `tsup.config.ts` (or equivalent build config) to include the new entry.\n5. Run `pnpm --filter @converge/core build`.\n6. Verify import works.",
+              "taskId": "02-data-layer/001-core-studio-api-export",
+              "taskTitle": "Add @converge/core/studio-api re-export module",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/02-data-layer/tasks/001-core-studio-api-export",
+              "factId": "check:exports-entry"
+            }
+          },
+          {
+            "id": "02-data-layer/001-core-studio-api-export-check-failed-import-resolves",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-data-layer/001-core-studio-api-export",
+            "severity": "high",
+            "description": "[02-data-layer/001-core-studio-api-export] Check failed: Import resolves and exposes SimpleLogTailer + loadPlaybook",
+            "source": "unit",
+            "detected": "2026-04-26T01:33:03.714Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "import-resolves",
+              "checkCmd": "cd packages/core && pnpm build 2>&1 | tail -3 && node --input-type=module -e \"import('@converge/core/studio-api').then(m=>{if(!m.SimpleLogTailer||!m.loadPlaybook)process.exit(1)}).catch(e=>{console.error(e);process.exit(1)})\"",
+              "checkDescription": "Import resolves and exposes SimpleLogTailer + loadPlaybook",
+              "checkOutput": "Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/minh/Documents/converge/packages/core/src/studio-api' imported from /Users/minh/Documents/converge/packages/core/[eval1]\n    at finalizeResolution (node:internal/modules/esm/resolve:274:11)\n    at moduleResolve (node:internal/modules/esm/resolve:859:10)\n    at defaultResolve (node:internal/modules/esm/resolve:983:11)\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:717:20)\n    at ModuleLoader.resolve (node:internal/modules/esm/loader:694:38)\n    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:308:38)\n    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:650:36)\n    at TracingChannel.tracePromise (node:diagnostics_channel:344:14)\n    at ModuleLoader.import (node:internal/modules/esm/loader:649:21)\n    at defaultImportModuleDynamicallyForModule (node:internal/modules/esm/utils:222:31) {\n  code: 'ERR_MODULE_NOT_FOUND',\n  url: 'file:///Users/minh/Documents/converge/packages/core/src/studio-api'\n}\nESM dist/index.js      1.79 MB\nESM dist/index.js.map  4.23 MB\nESM ⚡️ Build success in 1395ms",
+              "checkExitCode": 1,
+              "taskPrompt": "Create a re-export module that surfaces every symbol the studio needs from `@converge/core`. This is required because `@converge/core/package.json` uses an explicit `exports` map (no `./*` glob), so the studio cannot import internal subpaths directly.\n\n**File: `packages/core/src/studio-api.ts`**\n\nRe-export from these existing modules (verify each path before re-exporting; if a symbol moved, find it):\n\n```ts\n// Playbook discovery and loading\nexport {\n  discoverPlaybooks,\n  loadPlaybook,\n  validatePlaybook,\n  parseDuration,\n} from './task/playbook/loader.js';\n\n// Storage / config schemas\nexport {\n  PlaybookConfigSchema,\n  ProjectConfigSchema,\n  TaskStatusSchema,\n  CheckpointSchema,\n} from './storage/types.js';\n\n// Journal types and reader\nexport type { JournalEvent, EventType, TaskStatus } from './journal/types.js';\nexport { readEvents, readTaskStatus } from './journal/reader.js';\nexport { SimpleLogTailer } from './journal/simple-log-tailer.js';\n\n// Task definition shape (for editor validation)\nexport type { TaskDefinition } from './config/task-definition.js';\n```\n\n**Update `packages/core/package.json`**: add a new entry to the `exports` map:\n\n```jsonc\n{\n  \"exports\": {\n    \".\": { \"import\": \"./dist/index.js\", \"types\": \"./dist/index.d.ts\" },\n    \"./studio-api\": {\n      \"import\": \"./dist/studio-api.js\",\n      \"types\": \"./dist/studio-api.d.ts\"\n    },\n    /* ... existing entries ... */\n  }\n}\n```\n\nMake sure the build pipeline (likely `tsup` — check `packages/core/tsup.config.ts` or `package.json#scripts.build`) includes `studio-api` as an entry. If `tsup` is configured with `entries: ['src/index.ts', 'src/planner.ts', ...]`, append `'src/studio-api.ts'`.\n\n**Process**:\n1. Read existing modules to confirm exact symbol names and paths (some may have moved during prior refactors).\n2. Write `studio-api.ts`.\n3. Update `package.json` `exports`.\n4. Update `tsup.config.ts` (or equivalent build config) to include the new entry.\n5. Run `pnpm --filter @converge/core build`.\n6. Verify import works.",
+              "taskId": "02-data-layer/001-core-studio-api-export",
+              "taskTitle": "Add @converge/core/studio-api re-export module",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/02-data-layer/tasks/001-core-studio-api-export",
+              "factId": "check:import-resolves"
+            }
+          }
+        ],
+        "durationMs": 2307
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1871
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 1921
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#6",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 66636
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T01:33:01.407Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T01:33:01.408Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T01:33:03.715Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T01:33:03.715Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T01:33:05.587Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#6",
+      "iteration": 1,
+      "ts": "2026-04-26T01:34:12.224Z"
+    },
+    {
+      "from": "run-strategy:task-run#6",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T01:34:14.145Z"
+    }
+  ]
+}

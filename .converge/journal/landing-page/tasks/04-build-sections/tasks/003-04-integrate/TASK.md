@@ -1,0 +1,92 @@
+---
+id: 003-04-integrate
+title: "Integrate: Define how vs. define done"
+description: Mount the ProblemSolution component in src/pages/index.astro at the correct position.
+dependencies:
+  - 003-03-build
+tags:
+  - integrate
+  - section-problem-solution
+inputs:
+  - apps/landing/src/components/sections/ProblemSolution.astro
+  - apps/landing/.content/sections.json
+outputs:
+  - apps/landing/src/pages/index.astro
+checks:
+  - id: index-astro-exists
+    description: index.astro exists
+    cmd: test -f apps/landing/src/pages/index.astro
+  - id: component-imported
+    description: ProblemSolution is imported in index.astro
+    cmd: "test -f apps/landing/src/pages/index.astro && grep -qE \"import\\s+ProblemSolution\\s+from\" apps/landing/src/pages/index.astro"
+  - id: component-rendered
+    description: "<ProblemSolution> is rendered in index.astro"
+    cmd: "test -f apps/landing/src/pages/index.astro && grep -qE '<ProblemSolution\\b' apps/landing/src/pages/index.astro"
+  - id: build-clean
+    description: astro check still passes after integration
+    cmd: "test -f apps/landing/package.json && pnpm --filter @converge/landing astro check"
+vars:
+  prefix: 003
+  sectionId: problem-solution
+  title: Define how vs. define done
+  componentName: ProblemSolution
+  componentPath: apps/landing/src/components/sections/ProblemSolution.astro
+  contentDir: apps/landing/.content/sections/problem-solution
+  intent: "Side-by-side: left shows imperative step-driven framework code; right shows declarative converge TASK.md. Visualizes the paradigm flip."
+  specPath: apps/landing/.content/sections/problem-solution/SPEC.md
+  designPath: apps/landing/.content/sections/problem-solution/DESIGN.md
+  passedPath: apps/landing/.content/sections/problem-solution/PASSED
+  sectionTaskId: 003-problem-solution
+  prevLastId: 002-05-verify
+  kebabName: problem-solution
+---
+
+# Integrate: Define how vs. define done
+
+Add the import + render of `<ProblemSolution>` to
+`apps/landing/src/pages/index.astro` at the right position.
+
+The "right position" is the order defined in
+`apps/landing/.content/sections.json`. Section #003 renders in
+position #003.
+
+## Process
+
+1. Read `apps/landing/.content/sections.json` to confirm position order.
+2. Read current `apps/landing/src/pages/index.astro`.
+3. Add the import: `import ProblemSolution from '@/components/sections/ProblemSolution.astro';` (insert in alphabetical order with other section imports).
+4. Add the render: `<ProblemSolution />` in the page body, in the position dictated by sections.json. If earlier sections (`<Hero />`, `<SocialProof />`, etc.) are already mounted, place this one after them but before any later-ordered sections.
+5. The page should be wrapped in `<MainLayout>` (built later in phase 05). For now, if MainLayout doesn't exist yet, use the default `<Layout>` from the Astro scaffold — phase 05 will swap it.
+6. Run `pnpm --filter @converge/landing astro check` to verify.
+
+## Example shape after several sections are mounted
+
+```astro
+---
+import Layout from '@/layouts/Layout.astro';   // or MainLayout once phase 05 lands
+import CtaBanner from '@/components/sections/CtaBanner.astro';
+import Faq from '@/components/sections/Faq.astro';
+import FeatureGrid from '@/components/sections/FeatureGrid.astro';
+import Hero from '@/components/sections/Hero.astro';
+import InteractiveComparison from '@/components/sections/InteractiveComparison.astro';
+import ProblemSolution from '@/components/sections/ProblemSolution.astro';
+import Quickstart from '@/components/sections/Quickstart.astro';
+import SocialProof from '@/components/sections/SocialProof.astro';
+---
+
+<Layout>
+  <Hero />
+  <SocialProof />
+  <ProblemSolution />
+  <FeatureGrid />
+  <InteractiveComparison />
+  <Quickstart />
+  <Faq />
+  <CtaBanner />
+</Layout>
+```
+
+## Banned
+
+- Mounting at the wrong position. Position 1 is hero; position 8 is cta-banner. The order in sections.json IS the render order.
+- Adding logic to index.astro beyond the imports + section tags. The page is a manifest, not a controller.

@@ -1,0 +1,31 @@
+{
+  "type": "task",
+  "id": "04-ui/010-shell-and-branding",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T08:08:44.101Z",
+  "createdAt": "2026-04-26T07:22:25.105Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T07:22:25.105Z",
+      "completedAt": "2026-04-26T07:24:38.646Z",
+      "outcome": "success",
+      "durationMs": 133541
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-26T07:21:21.164Z",
+      "completedAt": "2026-04-26T07:22:58.389Z",
+      "outcome": "success",
+      "durationMs": 97225
+    },
+    {
+      "attempt": 3,
+      "startedAt": "2026-04-26T08:07:14.303Z",
+      "completedAt": "2026-04-26T08:08:44.099Z",
+      "outcome": "success",
+      "durationMs": 89796
+    }
+  ],
+  "currentAttempt": 3
+}

@@ -1,0 +1,25 @@
+{
+  "taskId": "05-build-layout/003-footer",
+  "checks": [
+    {
+      "id": "footer-exists",
+      "description": "Footer.astro exists",
+      "cmd": "test -f apps/landing/src/components/layout/Footer.astro"
+    },
+    {
+      "id": "footer-has-brand-name",
+      "description": "Footer mentions the brand name",
+      "cmd": "test -f apps/landing/src/components/layout/Footer.astro && grep -qE 'Converge' apps/landing/src/components/layout/Footer.astro"
+    },
+    {
+      "id": "footer-has-license",
+      "description": "Footer mentions the MIT license",
+      "cmd": "test -f apps/landing/src/components/layout/Footer.astro && grep -qE 'MIT' apps/landing/src/components/layout/Footer.astro"
+    },
+    {
+      "id": "footer-no-screwfast",
+      "description": "no upstream-theme references",
+      "cmd": "test -f apps/landing/src/components/layout/Footer.astro && ! grep -qiE 'screwfast|astrowind|foxi' apps/landing/src/components/layout/Footer.astro"
+    }
+  ]
+}

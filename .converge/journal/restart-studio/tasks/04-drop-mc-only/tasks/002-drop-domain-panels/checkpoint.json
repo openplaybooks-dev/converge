@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "04-drop-mc-only/002-drop-domain-panels",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T10:03:46.746Z",
+  "createdAt": "2026-04-26T10:02:04.516Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T10:02:04.516Z",
+      "completedAt": "2026-04-26T10:03:46.738Z",
+      "outcome": "success",
+      "durationMs": 102222
+    }
+  ],
+  "currentAttempt": 1
+}

@@ -1,26 +1,36 @@
 name: default
 description: |
-  Generate game sprites and assets using Nano-banana (Gemini 2.5 Flash Image).
-  Produces character sprites, object assets, tile maps, and backgrounds ready for
-  game engine import (Godot, Unity, or raw PNG + JSON atlas).
+  Generate a complete platformer asset library using Nano-banana (Gemini 2.5
+  Flash Image). Produces character spritesheets, props/hazards, terrain
+  tilesheets, parallax backgrounds, and engine-ready master atlases (raw,
+  Godot, Unity).
 
   ## Asset Types
 
-  - characters: Player and NPC sprites with animation states
-  - objects: Items, props, and structures
-  - tile_maps: Grid-based terrain tiles
-  - backgrounds: Environmental parallax layers
+  - characters: Player + NPC sprites with per-state 4×4 spritesheets
+  - props (objects.json): Items, hazards, and interactive props with
+    per-state 4×4 spritesheets. `category` field distinguishes
+    "item" / "hazard" / "interactive"
+  - tile_maps: Per-tile generation + composited tilesheet + JSON atlas
+  - backgrounds: One image-gen call per parallax layer (far/mid/near)
+  - master atlas: Aggregated `assets/atlas.{json,godot.json,unity.json}`
 
   ## Pipeline
 
-  idea.md → manifests → locked refs → sprite sheets → animation keyframes → exported assets
+  idea.md → manifests → 03-characters / 04-tile-maps / 05-backgrounds /
+  06-props (parallel) → 07-export
 
-  ## Run Modes
+  ## Run Modes (gated in each phase's wbs/index.js)
 
   Controlled by `vars.stop_after`:
-    - "sprites" (default) → stop after 04-animation-keyframes. Fast, cheap validation.
-    - "export" → run 05-export-ready. Full asset export with atlas generation.
-    - "full" → run all phases including tilemap and background generation.
+    - "characters" → run 01, 02, 03 only. Today's fast iteration loop —
+      use this when you're tuning character art and don't want to spend
+      the cost on tiles/backgrounds/props/atlas every cycle.
+    - "sprites" (default) → run 01–06. All sheet categories generated;
+      master atlas skipped. Useful for previewing the full library.
+    - "export" → run 01–07. Adds master atlas (raw + Godot + Unity).
+    - "full" → identical to "export" today; reserved as a future hook
+      (animation videos, variant atlases, etc.).
 
 vars:
   sprite_resolution: 128      # pixels per sprite frame (64, 128, 256)
@@ -41,7 +51,7 @@ vars:
   max_states_per_character: 2 # test scope
   max_objects: 5
   max_backgrounds: 2
-  stop_after: sprites        # "sprites" | "export" | "full"
+  stop_after: sprites        # "characters" | "sprites" | "export" | "full" — see description
 
 run:
   mode: oneoff
@@ -52,29 +62,28 @@ run:
     backoffMs: 60000
 
 tasks:
-  - id: 01-define-assets
-  - id: 02-character-refs
+  - id: 01-setup-art-style
+  - id: 02-asset-breakdown
     depends_on:
-      - 01-define-assets
-  - id: 02-object-refs
+      - 01-setup-art-style
+  - id: 03-characters
     depends_on:
-      - 01-define-assets
-  - id: 02-background-refs
+      - 02-asset-breakdown
+  - id: 04-tile-maps
     depends_on:
-      - 01-define-assets
-  - id: 03-sprite-sheet-gen
+      - 02-asset-breakdown
+  - id: 05-backgrounds
     depends_on:
-      - 02-character-refs
-  - id: 03-object-sheet-gen
+      - 02-asset-breakdown
+  - id: 06-props
     depends_on:
-      - 02-object-refs
-  - id: 04-animation-keyframes
+      - 02-asset-breakdown
+  - id: 07-export
     depends_on:
-      - 03-sprite-sheet-gen
-  - id: 05-export-ready
-    depends_on:
-      - 04-animation-keyframes
-      - 03-object-sheet-gen
+      - 03-characters
+      - 04-tile-maps
+      - 05-backgrounds
+      - 06-props
 
 checks:
   - id: idea-exists
@@ -86,3 +95,75 @@ checks:
   - id: at-least-one-character-ref
     cmd: node -e "const fs=require('fs');const chars=fs.readdirSync('assets/characters');const n=chars.filter(d=>fs.existsSync('assets/characters/'+d+'/ref/ref.png')).length;if(n<1){console.error('No character refs found');process.exit(1)}else{console.log(n)}"
     description: At least one character reference was generated
+  # The next four checks short-circuit cleanly when their category is absent
+  # (skipped by stop_after gating), so they're safe to run in any mode.
+  - id: tilesheets-match-atlas-when-present
+    cmd: |
+      python -c "
+      import json, sys
+      from pathlib import Path
+      from PIL import Image
+      root = Path('assets/tile_maps')
+      if not root.exists(): sys.exit(0)
+      for atlas in root.rglob('tilesheet.atlas.json'):
+          a = json.load(open(atlas))
+          png = atlas.parent / a['image']
+          im = Image.open(png)
+          assert a['meta']['sheet_size']['w']==im.size[0] and a['meta']['sheet_size']['h']==im.size[1], f'{atlas}: size mismatch'
+          assert len(a['frames'])==a['meta']['rows']*a['meta']['cols'], f'{atlas}: frame count mismatch'
+      "
+    description: Every generated tilesheet's atlas matches its PNG dimensions and frame count
+  - id: backgrounds-match-resolution-when-present
+    cmd: |
+      python -c "
+      import json, sys
+      from pathlib import Path
+      from PIL import Image
+      bg_manifest = Path('assets/backgrounds.json')
+      bg_dir = Path('assets/backgrounds')
+      if not bg_dir.exists(): sys.exit(0)
+      manifest = {b['id']: b for b in json.load(open(bg_manifest))}
+      for bg_id_dir in bg_dir.iterdir():
+          if not bg_id_dir.is_dir(): continue
+          png = bg_id_dir / f'{bg_id_dir.name}.png'
+          if not png.exists(): continue
+          expected = tuple(manifest[bg_id_dir.name]['resolution'])
+          actual = Image.open(png).size
+          assert expected==actual, f'{png}: expected {expected}, got {actual}'
+      "
+    description: Every generated background PNG matches its manifest resolution
+  - id: prop-spritesheets-are-4x4-when-present
+    cmd: |
+      python -c "
+      import json, sys
+      from pathlib import Path
+      from PIL import Image
+      root = Path('assets/objects')
+      if not root.exists(): sys.exit(0)
+      for atlas in root.rglob('spritesheets/*/*.atlas.json'):
+          a = json.load(open(atlas))
+          png = atlas.parent / a['image']
+          im = Image.open(png)
+          assert a['meta']['rows']==4 and a['meta']['cols']==4, f'{atlas}: not 4x4'
+          assert len(a['frames'])==16, f'{atlas}: expected 16 frames'
+          assert a['meta']['sheet_size']['w']==im.size[0] and a['meta']['sheet_size']['h']==im.size[1], f'{atlas}: size mismatch'
+      "
+    description: Every generated prop spritesheet is a valid 4x4 / 16-frame atlas
+  - id: master-atlas-aggregates-all-sheets-when-present
+    cmd: |
+      python -c "
+      import json, sys
+      from pathlib import Path
+      master = Path('assets/atlas.json')
+      if not master.exists(): sys.exit(0)  # only required when 07-export ran
+      agg = json.load(open(master))
+      master_n = sum(len(s['frames']) for slices in agg['categories'].values() for s in slices)
+      per_sheet_n = 0
+      for cat in agg['categories']:
+          d = Path('assets') / cat
+          if not d.exists(): continue
+          for atl in d.rglob('*.atlas.json'):
+              per_sheet_n += len(json.load(open(atl))['frames'])
+      assert master_n==per_sheet_n, f'master={master_n} per-sheet sum={per_sheet_n}'
+      "
+    description: Master atlas frame count equals sum of all per-sheet atlas frame counts

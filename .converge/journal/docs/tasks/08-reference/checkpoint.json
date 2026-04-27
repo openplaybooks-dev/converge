@@ -1,0 +1,20 @@
+{
+  "type": "task",
+  "id": "08-reference",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T15:43:55.523Z",
+  "createdAt": "2026-04-26T07:34:28.987Z",
+  "progress": {
+    "totalChildren": 5,
+    "completedChildren": 5,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-cli-index",
+      "002-playbook-yml",
+      "003-task-md",
+      "004-project-yml",
+      "005-core-api"
+    ],
+    "lastProgressUpdate": "2026-04-26T15:43:55.504Z"
+  }
+}

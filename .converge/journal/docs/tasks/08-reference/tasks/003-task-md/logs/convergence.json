@@ -1,0 +1,301 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "08-reference/003-task-md-missing-output-docs/reference/task-md.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-reference/003-task-md",
+            "severity": "high",
+            "description": "[08-reference/003-task-md] Task output not created: docs/reference/task-md.md",
+            "source": "unit",
+            "detected": "2026-04-26T09:48:51.131Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/08-reference/tasks/003-task-md",
+              "taskId": "08-reference/003-task-md",
+              "taskTitle": "Write docs/reference/task-md.md (TASK.md frontmatter schema)",
+              "taskPrompt": "# Write `docs/reference/task-md.md`\n\nComplete reference for `TASK.md` frontmatter.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"TASK.md\"\ndescription: \"Complete schema reference for TASK.md frontmatter.\"\nsources:\n  - packages/core/src/config/task-definition.ts\n  - packages/core/src/storage/types.ts\nsidebar:\n  order: 3\n---\n```\n\n## Required structure\n\n1. **At-a-glance example.** Show a complete leaf TASK.md (frontmatter + a\n   short body). Use a real one from `implement-studio` or `landing-page`.\n\n2. **Frontmatter fields.** Document every field. Group as:\n\n   **Identity**\n   - `id` (string, required for leaves) — unique within the playbook\n   - `title` (string, required)\n   - `description` (string, optional)\n\n   **Hierarchy / dependencies**\n   - `dependencies` (string[], optional) — task IDs this one waits on\n   - `blocking` (boolean, default false on leaves, true on phases)\n\n   **I/O contract**\n   - `inputs` (string[], optional) — files this task reads\n   - `outputs` (string[], optional) — files this task produces\n   - `references` (string[], optional) — knowledge-base IDs the agent should consult\n   - `tags` (string[], optional)\n\n   **Validation**\n   - `checks` (CheckDef[], required for leaves)\n     - `id` (string, required)\n     - `description` (string, optional)\n     - `cmd` (string, required) — shell command, exit 0 = pass\n   - `backlogs` (BacklogDef[], optional) — non-blocking checks; warn rather than fail\n\n   **Dynamic children**\n   - `wbs` (object, optional) — `type: nodejs`, `path: ./wbs/index.js`\n\n   **Skill / routing**\n   - `skill` (string, optional) — execute via a registered skill\n   - `vars` (object, optional) — variables passed to children (used by WBS templates)\n\n3. **Body.** The markdown after the closing `---` is the prompt the agent\n   reads. Keep it focused — a TASK.md body should explain the *intent* and\n   *constraints*, not the implementation.\n\n4. **Inheritance.** Children inherit some context from parents (sources,\n   skills). Document what's inherited if `task-definition.ts` codifies it.\n\n## Read first\n\n- `packages/core/src/config/task-definition.ts` — `TaskDefinition` and\n  `TaskFrontmatterSchema` (or whatever they're called). Pull field names\n  and types verbatim.\n- `packages/core/src/storage/types.ts` for `CheckSchema` etc.\n\n## Banned\n\n- Inventing inheritance rules not in the source.\n- Documenting fields from a previous V1 schema if the codebase has moved on.\n  Verify against current source.",
+              "taskInputs": [
+                "packages/core/src/config/task-definition.ts",
+                "packages/core/src/storage/types.ts",
+                ".converge/playbooks/implement-studio/tasks/02-data-layer/tasks/001-core-studio-api-export/TASK.md"
+              ],
+              "factId": "file-exists:test -f \"docs/reference/task-md.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "08-reference/003-task-md-check-failed-page-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-reference/003-task-md",
+            "severity": "high",
+            "description": "[08-reference/003-task-md] Check failed: page exists",
+            "source": "unit",
+            "detected": "2026-04-26T09:48:51.134Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "page-exists",
+              "checkCmd": "test -f docs/reference/task-md.md",
+              "checkDescription": "page exists",
+              "checkOutput": "Command failed: test -f docs/reference/task-md.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Write `docs/reference/task-md.md`\n\nComplete reference for `TASK.md` frontmatter.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"TASK.md\"\ndescription: \"Complete schema reference for TASK.md frontmatter.\"\nsources:\n  - packages/core/src/config/task-definition.ts\n  - packages/core/src/storage/types.ts\nsidebar:\n  order: 3\n---\n```\n\n## Required structure\n\n1. **At-a-glance example.** Show a complete leaf TASK.md (frontmatter + a\n   short body). Use a real one from `implement-studio` or `landing-page`.\n\n2. **Frontmatter fields.** Document every field. Group as:\n\n   **Identity**\n   - `id` (string, required for leaves) — unique within the playbook\n   - `title` (string, required)\n   - `description` (string, optional)\n\n   **Hierarchy / dependencies**\n   - `dependencies` (string[], optional) — task IDs this one waits on\n   - `blocking` (boolean, default false on leaves, true on phases)\n\n   **I/O contract**\n   - `inputs` (string[], optional) — files this task reads\n   - `outputs` (string[], optional) — files this task produces\n   - `references` (string[], optional) — knowledge-base IDs the agent should consult\n   - `tags` (string[], optional)\n\n   **Validation**\n   - `checks` (CheckDef[], required for leaves)\n     - `id` (string, required)\n     - `description` (string, optional)\n     - `cmd` (string, required) — shell command, exit 0 = pass\n   - `backlogs` (BacklogDef[], optional) — non-blocking checks; warn rather than fail\n\n   **Dynamic children**\n   - `wbs` (object, optional) — `type: nodejs`, `path: ./wbs/index.js`\n\n   **Skill / routing**\n   - `skill` (string, optional) — execute via a registered skill\n   - `vars` (object, optional) — variables passed to children (used by WBS templates)\n\n3. **Body.** The markdown after the closing `---` is the prompt the agent\n   reads. Keep it focused — a TASK.md body should explain the *intent* and\n   *constraints*, not the implementation.\n\n4. **Inheritance.** Children inherit some context from parents (sources,\n   skills). Document what's inherited if `task-definition.ts` codifies it.\n\n## Read first\n\n- `packages/core/src/config/task-definition.ts` — `TaskDefinition` and\n  `TaskFrontmatterSchema` (or whatever they're called). Pull field names\n  and types verbatim.\n- `packages/core/src/storage/types.ts` for `CheckSchema` etc.\n\n## Banned\n\n- Inventing inheritance rules not in the source.\n- Documenting fields from a previous V1 schema if the codebase has moved on.\n  Verify against current source.",
+              "taskId": "08-reference/003-task-md",
+              "taskTitle": "Write docs/reference/task-md.md (TASK.md frontmatter schema)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/08-reference/tasks/003-task-md",
+              "factId": "check:page-exists"
+            }
+          },
+          {
+            "id": "08-reference/003-task-md-check-failed-documents-id-and-outputs",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-reference/003-task-md",
+            "severity": "high",
+            "description": "[08-reference/003-task-md] Check failed: documents id and outputs",
+            "source": "unit",
+            "detected": "2026-04-26T09:48:51.140Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "documents-id-and-outputs",
+              "checkCmd": "grep -qE '`id`|^###\\s+id' docs/reference/task-md.md && grep -qE '`outputs`|^###\\s+outputs' docs/reference/task-md.md",
+              "checkDescription": "documents id and outputs",
+              "checkOutput": "grep: docs/reference/task-md.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Write `docs/reference/task-md.md`\n\nComplete reference for `TASK.md` frontmatter.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"TASK.md\"\ndescription: \"Complete schema reference for TASK.md frontmatter.\"\nsources:\n  - packages/core/src/config/task-definition.ts\n  - packages/core/src/storage/types.ts\nsidebar:\n  order: 3\n---\n```\n\n## Required structure\n\n1. **At-a-glance example.** Show a complete leaf TASK.md (frontmatter + a\n   short body). Use a real one from `implement-studio` or `landing-page`.\n\n2. **Frontmatter fields.** Document every field. Group as:\n\n   **Identity**\n   - `id` (string, required for leaves) — unique within the playbook\n   - `title` (string, required)\n   - `description` (string, optional)\n\n   **Hierarchy / dependencies**\n   - `dependencies` (string[], optional) — task IDs this one waits on\n   - `blocking` (boolean, default false on leaves, true on phases)\n\n   **I/O contract**\n   - `inputs` (string[], optional) — files this task reads\n   - `outputs` (string[], optional) — files this task produces\n   - `references` (string[], optional) — knowledge-base IDs the agent should consult\n   - `tags` (string[], optional)\n\n   **Validation**\n   - `checks` (CheckDef[], required for leaves)\n     - `id` (string, required)\n     - `description` (string, optional)\n     - `cmd` (string, required) — shell command, exit 0 = pass\n   - `backlogs` (BacklogDef[], optional) — non-blocking checks; warn rather than fail\n\n   **Dynamic children**\n   - `wbs` (object, optional) — `type: nodejs`, `path: ./wbs/index.js`\n\n   **Skill / routing**\n   - `skill` (string, optional) — execute via a registered skill\n   - `vars` (object, optional) — variables passed to children (used by WBS templates)\n\n3. **Body.** The markdown after the closing `---` is the prompt the agent\n   reads. Keep it focused — a TASK.md body should explain the *intent* and\n   *constraints*, not the implementation.\n\n4. **Inheritance.** Children inherit some context from parents (sources,\n   skills). Document what's inherited if `task-definition.ts` codifies it.\n\n## Read first\n\n- `packages/core/src/config/task-definition.ts` — `TaskDefinition` and\n  `TaskFrontmatterSchema` (or whatever they're called). Pull field names\n  and types verbatim.\n- `packages/core/src/storage/types.ts` for `CheckSchema` etc.\n\n## Banned\n\n- Inventing inheritance rules not in the source.\n- Documenting fields from a previous V1 schema if the codebase has moved on.\n  Verify against current source.",
+              "taskId": "08-reference/003-task-md",
+              "taskTitle": "Write docs/reference/task-md.md (TASK.md frontmatter schema)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/08-reference/tasks/003-task-md",
+              "factId": "check:documents-id-and-outputs"
+            }
+          },
+          {
+            "id": "08-reference/003-task-md-check-failed-documents-checks",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-reference/003-task-md",
+            "severity": "high",
+            "description": "[08-reference/003-task-md] Check failed: documents checks",
+            "source": "unit",
+            "detected": "2026-04-26T09:48:51.144Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "documents-checks",
+              "checkCmd": "grep -qE '`checks`|^###\\s+checks' docs/reference/task-md.md",
+              "checkDescription": "documents checks",
+              "checkOutput": "grep: docs/reference/task-md.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Write `docs/reference/task-md.md`\n\nComplete reference for `TASK.md` frontmatter.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"TASK.md\"\ndescription: \"Complete schema reference for TASK.md frontmatter.\"\nsources:\n  - packages/core/src/config/task-definition.ts\n  - packages/core/src/storage/types.ts\nsidebar:\n  order: 3\n---\n```\n\n## Required structure\n\n1. **At-a-glance example.** Show a complete leaf TASK.md (frontmatter + a\n   short body). Use a real one from `implement-studio` or `landing-page`.\n\n2. **Frontmatter fields.** Document every field. Group as:\n\n   **Identity**\n   - `id` (string, required for leaves) — unique within the playbook\n   - `title` (string, required)\n   - `description` (string, optional)\n\n   **Hierarchy / dependencies**\n   - `dependencies` (string[], optional) — task IDs this one waits on\n   - `blocking` (boolean, default false on leaves, true on phases)\n\n   **I/O contract**\n   - `inputs` (string[], optional) — files this task reads\n   - `outputs` (string[], optional) — files this task produces\n   - `references` (string[], optional) — knowledge-base IDs the agent should consult\n   - `tags` (string[], optional)\n\n   **Validation**\n   - `checks` (CheckDef[], required for leaves)\n     - `id` (string, required)\n     - `description` (string, optional)\n     - `cmd` (string, required) — shell command, exit 0 = pass\n   - `backlogs` (BacklogDef[], optional) — non-blocking checks; warn rather than fail\n\n   **Dynamic children**\n   - `wbs` (object, optional) — `type: nodejs`, `path: ./wbs/index.js`\n\n   **Skill / routing**\n   - `skill` (string, optional) — execute via a registered skill\n   - `vars` (object, optional) — variables passed to children (used by WBS templates)\n\n3. **Body.** The markdown after the closing `---` is the prompt the agent\n   reads. Keep it focused — a TASK.md body should explain the *intent* and\n   *constraints*, not the implementation.\n\n4. **Inheritance.** Children inherit some context from parents (sources,\n   skills). Document what's inherited if `task-definition.ts` codifies it.\n\n## Read first\n\n- `packages/core/src/config/task-definition.ts` — `TaskDefinition` and\n  `TaskFrontmatterSchema` (or whatever they're called). Pull field names\n  and types verbatim.\n- `packages/core/src/storage/types.ts` for `CheckSchema` etc.\n\n## Banned\n\n- Inventing inheritance rules not in the source.\n- Documenting fields from a previous V1 schema if the codebase has moved on.\n  Verify against current source.",
+              "taskId": "08-reference/003-task-md",
+              "taskTitle": "Write docs/reference/task-md.md (TASK.md frontmatter schema)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/08-reference/tasks/003-task-md",
+              "factId": "check:documents-checks"
+            }
+          },
+          {
+            "id": "08-reference/003-task-md-check-failed-documents-wbs",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-reference/003-task-md",
+            "severity": "high",
+            "description": "[08-reference/003-task-md] Check failed: documents wbs",
+            "source": "unit",
+            "detected": "2026-04-26T09:48:51.149Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "documents-wbs",
+              "checkCmd": "grep -qiE 'wbs' docs/reference/task-md.md",
+              "checkDescription": "documents wbs",
+              "checkOutput": "grep: docs/reference/task-md.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Write `docs/reference/task-md.md`\n\nComplete reference for `TASK.md` frontmatter.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"TASK.md\"\ndescription: \"Complete schema reference for TASK.md frontmatter.\"\nsources:\n  - packages/core/src/config/task-definition.ts\n  - packages/core/src/storage/types.ts\nsidebar:\n  order: 3\n---\n```\n\n## Required structure\n\n1. **At-a-glance example.** Show a complete leaf TASK.md (frontmatter + a\n   short body). Use a real one from `implement-studio` or `landing-page`.\n\n2. **Frontmatter fields.** Document every field. Group as:\n\n   **Identity**\n   - `id` (string, required for leaves) — unique within the playbook\n   - `title` (string, required)\n   - `description` (string, optional)\n\n   **Hierarchy / dependencies**\n   - `dependencies` (string[], optional) — task IDs this one waits on\n   - `blocking` (boolean, default false on leaves, true on phases)\n\n   **I/O contract**\n   - `inputs` (string[], optional) — files this task reads\n   - `outputs` (string[], optional) — files this task produces\n   - `references` (string[], optional) — knowledge-base IDs the agent should consult\n   - `tags` (string[], optional)\n\n   **Validation**\n   - `checks` (CheckDef[], required for leaves)\n     - `id` (string, required)\n     - `description` (string, optional)\n     - `cmd` (string, required) — shell command, exit 0 = pass\n   - `backlogs` (BacklogDef[], optional) — non-blocking checks; warn rather than fail\n\n   **Dynamic children**\n   - `wbs` (object, optional) — `type: nodejs`, `path: ./wbs/index.js`\n\n   **Skill / routing**\n   - `skill` (string, optional) — execute via a registered skill\n   - `vars` (object, optional) — variables passed to children (used by WBS templates)\n\n3. **Body.** The markdown after the closing `---` is the prompt the agent\n   reads. Keep it focused — a TASK.md body should explain the *intent* and\n   *constraints*, not the implementation.\n\n4. **Inheritance.** Children inherit some context from parents (sources,\n   skills). Document what's inherited if `task-definition.ts` codifies it.\n\n## Read first\n\n- `packages/core/src/config/task-definition.ts` — `TaskDefinition` and\n  `TaskFrontmatterSchema` (or whatever they're called). Pull field names\n  and types verbatim.\n- `packages/core/src/storage/types.ts` for `CheckSchema` etc.\n\n## Banned\n\n- Inventing inheritance rules not in the source.\n- Documenting fields from a previous V1 schema if the codebase has moved on.\n  Verify against current source.",
+              "taskId": "08-reference/003-task-md",
+              "taskTitle": "Write docs/reference/task-md.md (TASK.md frontmatter schema)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/08-reference/tasks/003-task-md",
+              "factId": "check:documents-wbs"
+            }
+          }
+        ],
+        "durationMs": 32
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 18
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 29
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#2",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 174912
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T09:48:51.118Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T09:48:51.118Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T09:48:51.150Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T09:48:51.151Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T09:48:51.169Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#2",
+      "iteration": 1,
+      "ts": "2026-04-26T09:51:46.082Z"
+    },
+    {
+      "from": "run-strategy:task-run#2",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T09:51:46.112Z"
+    }
+  ]
+}

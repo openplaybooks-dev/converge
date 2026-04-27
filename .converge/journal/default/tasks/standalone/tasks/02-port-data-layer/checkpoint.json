@@ -1,0 +1,23 @@
+{
+  "type": "task",
+  "id": "02-port-data-layer",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T23:06:29.909Z",
+  "createdAt": "2026-04-26T23:04:30.619Z",
+  "progress": {
+    "totalChildren": 8,
+    "completedChildren": 8,
+    "failedChildren": 0,
+    "childIds": [
+      "001-copy-adapter",
+      "002-copy-views",
+      "003-copy-supporting-libs",
+      "004-copy-api-routes",
+      "001-copy-adapter",
+      "002-copy-views",
+      "003-copy-supporting-libs",
+      "004-copy-api-routes"
+    ],
+    "lastProgressUpdate": "2026-04-26T23:04:30.619Z"
+  }
+}

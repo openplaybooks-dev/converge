@@ -34,11 +34,16 @@ import { Unit } from "@converge/core/task/unit/unit.ts";
 import { TaskTree } from "@converge/core/task/tree/index.ts";
 import { UnitCheckpointManager } from "@converge/core/checkpoint/unit-checkpoint.ts";
 import { findGaps } from "@converge/core/task/unit/find-gaps.ts";
-import { readdir, readFile } from "node:fs/promises";
+import { readdir, readFile, stat } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { generateInterruptedMd } from "@converge/core/task/lifecycle/learn.ts";
 import { getEpicsDir, getSessionsDir } from "@converge/core/journal/structure.ts";
+import { UnblockStrategy } from "@converge/core/navigator/repair/strategies/unblock.ts";
+import { ExecutionTimeline } from "@converge/core/navigator/repair/timeline.ts";
+import { createAIContext } from "@converge/core/ai/context.ts";
+import type { StrategyContext } from "@converge/core/navigator/repair/types.ts";
+import type { Gap } from "@converge/core/task/gap/types.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Config                                                             */
@@ -351,6 +356,161 @@ export async function recoverStuckTasks(
 }
 
 /**
+ * Detect tasks marked `complete` whose source TASK.md has been edited since
+ * the checkpoint was last written, and reset them to pending so the runner
+ * re-runs their checks against the current spec.
+ *
+ * Without this, a user editing TASK.md mid-flight (between sessions) would
+ * see their changes silently ignored because the checkpoint records the task
+ * as complete and the runner never revisits it.
+ *
+ * Returns the count of tasks that were reset.
+ */
+export async function recheckEditedCompletedTasks(
+  projectDir: string,
+): Promise<number> {
+  const journalEpicsDir = getEpicsDir(projectDir);
+  if (!existsSync(journalEpicsDir)) return 0;
+
+  let reset = 0;
+  const epicEntries = await readdir(journalEpicsDir, { withFileTypes: true });
+  for (const epicEntry of epicEntries) {
+    if (!epicEntry.isDirectory()) continue;
+    const epicId = epicEntry.name;
+    const epicDir = path.join(journalEpicsDir, epicId);
+
+    const checkpointPaths = await collectCheckpointsRecursive(epicDir);
+    for (const ckptPath of checkpointPaths) {
+      try {
+        const raw = JSON.parse(await readFile(ckptPath, "utf-8"));
+        if (raw.status !== "complete") continue;
+
+        // Resolve the source TASK.md path. Materialized journal layout:
+        //   <epicDir>/tasks/<task-path>/checkpoint.json
+        // Source TASK.md lives at the same task-path under playbooks/<epic>:
+        //   .converge/playbooks/<epic>/tasks/<task-path>/TASK.md
+        const taskJournalDir = path.dirname(ckptPath);
+        const journalTaskMd = path.join(taskJournalDir, "TASK.md");
+        if (!existsSync(journalTaskMd)) continue;
+
+        const ckptTime = raw.lastUpdated
+          ? Date.parse(raw.lastUpdated)
+          : raw.attempts?.length
+            ? Date.parse(
+                raw.attempts[raw.attempts.length - 1].completedAt ??
+                  raw.attempts[raw.attempts.length - 1].startedAt,
+              )
+            : 0;
+        if (!Number.isFinite(ckptTime) || ckptTime === 0) continue;
+
+        const taskMdStat = await stat(journalTaskMd);
+        const taskMdMtime = taskMdStat.mtimeMs;
+        // 2-second slack: filesystem mtime granularity + clock drift between
+        // checkpoint write and TASK.md write within a single attempt.
+        if (taskMdMtime <= ckptTime + 2000) continue;
+
+        // TASK.md was edited after the checkpoint was written. Don't blindly
+        // reset to `pending` — that forces a full agent re-run which can
+        // regress an entire phase when only a check path was tweaked. Instead:
+        // re-validate cheaply first (declared outputs exist? checks still
+        // pass?). Only escalate to `pending` if cheap re-validation fails.
+        const rel = path
+          .relative(epicDir, taskJournalDir)
+          .replace(/\\/g, "/");
+        const taskId =
+          !rel || rel === "." ? epicId : rel.replace(/(^|\/)tasks\//g, "$1");
+        const unitCkpt = new UnitCheckpointManager(
+          projectDir,
+          "task",
+          epicId,
+          taskId,
+        );
+        const checkpoint = await unitCkpt.load();
+        if (!checkpoint || checkpoint.status !== "complete") continue;
+
+        // Cheap re-validation: outputs exist + checks pass.
+        let revalidationPassed = false;
+        try {
+          const { Unit } = await import("@converge/core/task/unit/unit.ts");
+          const unit = await Unit.fromPath(journalTaskMd);
+          // Skip WBS parents — they complete via children, not direct checks.
+          if (unit.wbsFn) continue;
+
+          // Outputs exist?
+          const outputs = unit.config.outputs ?? [];
+          let outputsExist = true;
+          for (const out of outputs) {
+            if (!existsSync(path.join(projectDir, out))) {
+              outputsExist = false;
+              break;
+            }
+          }
+
+          if (outputsExist) {
+            // Checks pass?
+            const checks = unit.checks ?? [];
+            const { execSync } = await import("node:child_process");
+            let allChecksPassed = true;
+            for (const chk of checks) {
+              if (!chk.cmd) continue;
+              try {
+                execSync(chk.cmd, {
+                  cwd: projectDir,
+                  stdio: "pipe",
+                  timeout: 30_000,
+                  shell: process.platform === "win32" ? "bash" : "/bin/bash",
+                });
+              } catch {
+                allChecksPassed = false;
+                break;
+              }
+            }
+            revalidationPassed = allChecksPassed;
+          }
+        } catch {
+          /* fall through to pessimistic reset */
+        }
+
+        if (revalidationPassed) {
+          // Stamp the checkpoint forward so we don't keep re-validating it.
+          checkpoint.lastUpdated = new Date().toISOString();
+          await unitCkpt.save(checkpoint);
+          console.log(
+            `   ✓ Re-validated: ${epicId}/${taskId} (TASK.md edited but outputs+checks still pass)`,
+          );
+        } else {
+          checkpoint.status = "pending";
+          await unitCkpt.save(checkpoint);
+          console.log(
+            `   ↻ Re-check: ${epicId}/${taskId} (TASK.md edited ${formatAgeBetween(taskMdMtime, ckptTime)} after completion; outputs/checks no longer pass)`,
+          );
+          reset++;
+        }
+      } catch {
+        /* ignore corrupt checkpoint */
+      }
+    }
+  }
+
+  if (reset > 0) {
+    console.log(
+      `\n⚡ ${reset} completed task(s) had edited TASK.md → reset for re-check\n`,
+    );
+  }
+  return reset;
+}
+
+function formatAgeBetween(newerMs: number, olderMs: number): string {
+  const deltaMs = newerMs - olderMs;
+  const s = Math.round(deltaMs / 1000);
+  if (s < 60) return `${s}s`;
+  const m = Math.round(s / 60);
+  if (m < 60) return `${m}m`;
+  const h = Math.round(m / 60);
+  return `${h}h`;
+}
+
+/**
  * Reset ALL non-complete tasks to pending (--restart mode).
  * Scans all checkpoints recursively and resets status + attempt records for stuck tasks.
  */
@@ -424,12 +584,20 @@ async function collectCheckpointsRecursive(dir: string): Promise<string[]> {
 }
 
 /**
- * Recover failed tasks for retry.
- * 
- * Scans all failed tasks and resets them to pending if they haven't exceeded max attempts.
- * This ensures failed tasks are retried on subsequent runs instead of being skipped forever.
- * 
- * Returns a map of taskId → attempt count for all failed tasks that were reset.
+ * Recover INTERRUPTED tasks for retry.
+ *
+ * "Interrupted" = the process died mid-attempt (crash, kill, OS signal). The
+ * agent never got to finish, so retrying is safe and almost always succeeds.
+ *
+ * "Failed" = the agent ran to completion and the result was rejected
+ * (validation said no, or the agent gave up). Retrying does the same thing
+ * and silently overwrites the failure record if it happens to "succeed" the
+ * second time — masking real bugs and letting downstream tasks proceed on a
+ * broken foundation. Failed tasks must remain failed so the blocking
+ * contract holds; the user fixes the underlying cause and re-runs.
+ *
+ * Returns a map of taskId → attempt count for all interrupted tasks that
+ * were reset.
  */
 export async function recoverFailedTasks(
   projectDir: string,
@@ -460,12 +628,14 @@ export async function recoverFailedTasks(
     const checkpoint = await unitCkpt.load();
     if (!checkpoint) continue;
 
-    // Only process failed or interrupted tasks
-    if (checkpoint.status !== "failed" && checkpoint.status !== "interrupted") {
+    // Only auto-recover interrupted tasks (crashes). Terminal failures stay
+    // failed so the blocking contract holds.
+    if (checkpoint.status !== "interrupted") {
       continue;
     }
 
-    // Get the number of completed attempts from history
+    // Count attempts that produced a terminal outcome (any of success,
+    // failed, interrupted). Used to enforce the per-task retry cap.
     const attemptCount = checkpoint.attempts
       ? checkpoint.attempts.filter(
           (a) => a.outcome === "success" || a.outcome === "failed" || a.outcome === "interrupted"
@@ -482,11 +652,98 @@ export async function recoverFailedTasks(
 
   if (resetCount > 0) {
     console.log(
-      `\n🔄 Reset ${resetCount} failed task(s) for retry (attempts < ${maxTaskAttempts})\n`,
+      `\n🔄 Reset ${resetCount} interrupted task(s) for retry (attempts < ${maxTaskAttempts})\n`,
     );
   }
 
   return taskAttempts;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Post-Failure Auto-Repair                                           */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Invoked once per failed-attempt when the per-task retry budget hasn't been
+ * exhausted. Runs the repair pipeline (UnblockStrategy) against a synthetic
+ * gap representing "this task failed." If a strategy succeeds, reset the
+ * task's checkpoint to pending so the scheduler picks it up on the next
+ * iteration with whatever fix the strategy applied (re-running a producer,
+ * patching TASK.md, etc.). If no strategy succeeds, leave the checkpoint
+ * failed — downstream blocking takes over.
+ *
+ * Termination is bounded by the same maxTaskAttempts counter that gates
+ * the surrounding retry loop. No new infinite-loop hazard.
+ */
+async function runAutoRepair(
+  ctx: RunContext,
+  selected: SelectedNode,
+  attempts: number,
+): Promise<void> {
+  console.log(
+    `   🔧 Attempting auto-repair (attempt ${attempts}/${ctx.maxTaskAttempts})...`,
+  );
+
+  const journalCtx = {
+    epicId: selected.epicId,
+    taskId: selected.journalTaskId,
+  };
+  const timeline = new ExecutionTimeline(ctx.projectDir);
+  const strategyCtx: StrategyContext = {
+    projectDir: ctx.projectDir,
+    journalCtx,
+    timeline,
+    attempt: attempts,
+    ai: () => createAIContext(ctx.projectDir, journalCtx),
+  };
+
+  // Synthesize a Gap representing the terminal failure. Using gapKind
+  // "blocker" makes UnblockStrategy.canHandle return true so its
+  // sub-strategies (DependencyBackoffStrategy first) get a shot.
+  const failureGap: Gap = {
+    id: `task-failed-${selected.journalTaskId}-${attempts}`,
+    type: "missing-intermediate",
+    level: "task",
+    scope: selected.journalTaskId,
+    description: `Task ${selected.journalTaskId} failed on attempt ${attempts}`,
+    detected: new Date().toISOString(),
+    resolved: false,
+    checks: [],
+    metadata: {
+      gapKind: "blocker",
+      sourceTaskFile: selected.filePath,
+      failedTaskId: selected.journalTaskId,
+      failedTaskEpicId: selected.epicId,
+      attemptNumber: attempts,
+    },
+  };
+
+  const outcome = await new UnblockStrategy().tryFix(failureGap, strategyCtx);
+
+  if (!outcome.success) {
+    console.log(
+      `   ↳ No repair strategy applied (${outcome.reason}) — leaving task failed.`,
+    );
+    return;
+  }
+
+  console.log(
+    `   ↳ Repair strategy succeeded (${outcome.metadata?.solvedBy ?? "unblock-coordinator"}): ${outcome.reason}`,
+  );
+
+  // The strategy mutated state (re-ran a producer, patched TASK.md,
+  // injected LEARN.md, etc.). Reset the failed task's checkpoint to
+  // pending so the next scheduler iteration picks it up with the new
+  // foundation. The per-task attempt counter (ctx.taskAttempts) is the
+  // source of truth for the retry budget — if the next attempt also
+  // fails, it'll burn through to maxTaskAttempts and become terminal.
+  const ckpt = new UnitCheckpointManager(
+    ctx.projectDir,
+    "task",
+    selected.epicId,
+    selected.journalTaskId,
+  );
+  await ckpt.resetToPending();
 }
 
 /* ------------------------------------------------------------------ */
@@ -661,6 +918,14 @@ async function stateInit(ctx: RunContext): Promise<RunState> {
 
   // Load tree once — SCAN will reload after mutations
   ctx.tree = await TaskTree.load(config.projectDir, config.convergeConfig);
+
+  // On --resume, re-check completed tasks whose source TASK.md was edited
+  // after the checkpoint was written. Without this, the runner trusts a
+  // stale completion and the user's edits are silently ignored.
+  if (config.resume) {
+    const rechecked = await recheckEditedCompletedTasks(config.projectDir);
+    if (rechecked > 0) await ctx.tree.reload();
+  }
 
   // Handle stuck tasks from previous session
   const stuckTasks = await detectStuckTasks(config.projectDir, ctx.tree);
@@ -979,19 +1244,74 @@ async function stateCommit(ctx: RunContext): Promise<RunState> {
       console.error(`   ↳ This will block downstream tasks with explicit dependencies.\n`);
     }
 
-    if (attempts >= ctx.maxTaskAttempts) {
+    // Repeat-failure detector tripped inside the navigator → terminal.
+    // Skip the retry budget; further attempts on the same prompt won't
+    // help (the agent already exhausted its options on this task).
+    const lastBail = (global as any).__CONVERGE_LAST_BAIL__ as
+      | { taskId: string; journalTaskId?: string; kind: string; reason: string }
+      | undefined;
+    // Match short id or full journal id from either marker field. The
+    // navigator stamps both forms because sub-task units sometimes load
+    // with a non-canonical id (no frontmatter on the materialized TASK.md).
+    const markerMatchesTask =
+      !!lastBail &&
+      lastBail.kind === "repeat-failure-stall" &&
+      (lastBail.taskId === selectedNode!.taskId ||
+        lastBail.taskId === selectedNode!.journalTaskId ||
+        lastBail.journalTaskId === selectedNode!.taskId ||
+        lastBail.journalTaskId === selectedNode!.journalTaskId);
+    const stalledTerminally = markerMatchesTask;
+    if (stalledTerminally) {
+      delete (global as any).__CONVERGE_LAST_BAIL__;
       console.log(
-        `   ⛔ Max attempts (${ctx.maxTaskAttempts}) reached for ${selectedNode!.taskId} — permanently skipping.`,
+        `   ⛔ Repeat-failure detector tripped for ${selectedNode!.taskId} — marking permanently failed (skipping further retries).`,
       );
-      console.log(`   ↳  Retry manually with: converge reset ${selectedNode!.taskId}`);
+      console.log(`      Reason: ${lastBail!.reason}`);
+      console.log(
+        `      To resume after fixing the underlying issue: edit TASK.md, then 'converge run --resume'.`,
+      );
       ctx.consecutiveFailures++;
       ctx.tasksFailed++;
       await sessionLogger.logConvergence(selectedNode!.journalTaskId, false);
       if (selectedNode!.treeNode) {
         await tree!.markFailed(selectedNode!.treeNode);
       }
+      // Skip the normal "retry until cap" path below.
+      await tree!.reload();
+      ctx.selectedNode = null;
+      ctx.execResult = null;
+      return undefined;
     }
-    // If attempts < max: task will be retried; don't increment consecutiveFailures
+
+    if (attempts >= ctx.maxTaskAttempts) {
+      console.log(
+        `   ⛔ Max attempts (${ctx.maxTaskAttempts}) reached for ${selectedNode!.taskId} — terminal failure.`,
+      );
+      ctx.consecutiveFailures++;
+      ctx.tasksFailed++;
+      await sessionLogger.logConvergence(selectedNode!.journalTaskId, false);
+      if (selectedNode!.treeNode) {
+        await tree!.markFailed(selectedNode!.treeNode);
+      }
+    } else {
+      // Auto-repair before next attempt.
+      //
+      // The task's checkpoint is now `failed` (task-runner wrote it). On
+      // the next iteration the scheduler will skip the task because of
+      // that status — defeating the per-task retry budget. Instead of
+      // a blind reset (which masked real failures pre-fix), invoke the
+      // repair pipeline once. If a strategy nominates a producer to
+      // re-run or patches TASK.md, reset this task's checkpoint to
+      // pending so the next iteration picks it up with a different
+      // foundation. If no strategy applies, leave the checkpoint
+      // failed — downstream blocking takes over and the user sees the
+      // failure.
+      try {
+        await runAutoRepair(ctx, selectedNode!, attempts);
+      } catch (err: any) {
+        console.warn(`   ⚠️  Auto-repair errored: ${err.message}`);
+      }
+    }
   }
 
   await tree!.reload();
@@ -1025,7 +1345,7 @@ async function stateCheck(ctx: RunContext): Promise<RunState> {
   // Max iterations guard
   if (iteration >= maxIterations) {
     console.log(
-      `\n⚠️  Max iterations (${maxIterations}) reached. Use --max-iterations to increase.\n`,
+      `\n⚠️  Max iterations (${maxIterations}) reached.\n`,
     );
     await sessionLogger.writeSessionEnd(
       {
@@ -1056,7 +1376,19 @@ export async function autonomousRun(
     config.projectDir,
     generateSessionId(),
     config.convergeConfig.name || "Unknown Project",
-    { maxIterations: config.maxIterations ?? 100, maxAttemptsPerTask: config.maxTaskAttempts ?? 2 },
+    { maxIterations: config.maxIterations ?? 500, maxAttemptsPerTask: config.maxTaskAttempts ?? 2 },
+  );
+
+  // Effective caps. 500 outer iterations is generous (covers a 50-task
+  // playbook at 10 attempts each) but not the previous "effectively
+  // infinite" 1M default. Surface the caps at startup so users can see
+  // what the run is bounded by.
+  const effectiveMaxIterations = config.maxIterations ?? 500;
+  const effectiveMaxTaskAttempts = config.maxTaskAttempts ?? 2;
+  const effectiveMaxRunDurationMs =
+    config.maxRunDurationMs ?? 72 * 60 * 60 * 1000;
+  console.log(
+    `   ⚙️  Run caps: maxIterations=${effectiveMaxIterations} · maxTaskAttempts=${effectiveMaxTaskAttempts} · maxDuration=${Math.round(effectiveMaxRunDurationMs / 1000 / 60)}min`,
   );
 
   const ctx: RunContext = {
@@ -1064,9 +1396,9 @@ export async function autonomousRun(
     projectDir: config.projectDir,
     checkpointMgr,
     sessionLogger,
-    maxIterations: config.maxIterations ?? 100,
-    maxTaskAttempts: config.maxTaskAttempts ?? 2,
-    maxRunDurationMs: config.maxRunDurationMs ?? 72 * 60 * 60 * 1000,
+    maxIterations: effectiveMaxIterations,
+    maxTaskAttempts: effectiveMaxTaskAttempts,
+    maxRunDurationMs: effectiveMaxRunDurationMs,
     iteration: 0,
     tasksCompleted: 0,
     tasksFailed: 0,

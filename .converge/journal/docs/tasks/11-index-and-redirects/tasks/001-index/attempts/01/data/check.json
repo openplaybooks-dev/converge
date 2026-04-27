@@ -1,0 +1,30 @@
+{
+  "taskId": "11-index-and-redirects/001-index",
+  "checks": [
+    {
+      "id": "page-exists",
+      "description": "page exists",
+      "cmd": "test -f docs/index.md"
+    },
+    {
+      "id": "links-to-getting-started",
+      "description": "links into Getting Started",
+      "cmd": "grep -qE 'getting-started/' docs/index.md"
+    },
+    {
+      "id": "links-to-examples",
+      "description": "links into Examples gallery",
+      "cmd": "grep -qE 'examples/' docs/index.md"
+    },
+    {
+      "id": "links-to-troubleshooting",
+      "description": "links into Troubleshooting",
+      "cmd": "grep -qE 'troubleshooting/' docs/index.md"
+    },
+    {
+      "id": "short",
+      "description": "<=500 words (it's a hub, not a topic)",
+      "cmd": "wc -w docs/index.md | awk '{exit ($1<=500?0:1)}'"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+---
+import Section from '../layout/Section.astro';
+import Container from '../layout/Container.astro';
+import Button from '../ui/Button.astro';
+
+interface Props {}
+const {} = Astro.props;
+---
+
+<Section id="hero" padY="lg" bg="default">
+  <Container>
+    <!-- Animated convergence motif -->
+    <div class="flex justify-center mb-6" aria-hidden="true">
+      <svg class="w-[clamp(200px,50vw,400px)] h-[clamp(200px,50vw,400px)] opacity-20 animate-spin-slow" viewBox="0 0 600 600" fill="none" style="animation-duration: 60s;">
+        <circle cx="300" cy="300" r="250" stroke="currentColor" stroke-width="1" class="text-indigo" />
+        <circle cx="300" cy="300" r="200" stroke="currentColor" stroke-width="1" class="text-indigo" />
+        <circle cx="300" cy="300" r="150" stroke="currentColor" stroke-width="1" class="text-indigo" />
+        <circle cx="300" cy="300" r="100" stroke="currentColor" stroke-width="1" class="text-indigo" />
+        <line x1="50" y1="300" x2="550" y2="300" stroke="currentColor" stroke-width="1" class="text-indigo" />
+        <line x1="300" y1="50" x2="300" y2="550" stroke="currentColor" stroke-width="1" class="text-indigo" />
+      </svg>
+    </div>
+
+    <div class="text-center">
+      <p class="text-sm font-medium tracking-widest text-indigo uppercase mb-4">Converge</p>
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-text mb-4">
+        Define done. Converge gets there.
+      </h1>
+      <p class="text-lg text-text-muted mb-8 max-w-2xl mx-auto">
+        A task management system that adapts to how you work — not the other way around.
+      </p>
+      <div class="flex flex-wrap gap-4 justify-center items-center">
+        <Button href="/docs/getting-started/why-converge" variant="primary" size="lg">Get started</Button>
+        <Button href="https://github.com/myanlabs/converge" external variant="ghost" size="lg">Star on GitHub</Button>
+      </div>
+    </div>
+  </Container>
+</Section>

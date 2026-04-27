@@ -1,0 +1,15 @@
+{
+  "taskId": "02-port-data-layer/004-copy-api-routes",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/studio/src/app/api/playbooks",
+    "packages/studio/src/app/api/runs",
+    "packages/studio/src/app/api/run",
+    "packages/studio/src/app/api/watch",
+    "packages/studio/src/app/api/events",
+    "packages/studio/src/app/api/search",
+    "packages/studio/src/app/api/settings"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,31 @@
+{
+  "image": "forest-mid.png",
+  "meta": {
+    "bg_id": "forest-mid",
+    "parallax_layer": "mid",
+    "rows": 1,
+    "cols": 1,
+    "frame_count": 1,
+    "frame_size": {
+      "w": 1920,
+      "h": 1080
+    },
+    "sheet_size": {
+      "w": 1920,
+      "h": 1080
+    },
+    "frame_order": "single",
+    "seed": 1327557984
+  },
+  "frames": [
+    {
+      "filename": "forest-mid.png",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 1920,
+        "h": 1080
+      }
+    }
+  ]
+}

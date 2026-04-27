@@ -1,0 +1,37 @@
+{
+  "taskId": "06-guides/003-research-a-topic-deeply",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "examples/deep-research/README.md",
+      "count": 1,
+      "samples": [
+        "examples/deep-research/README.md"
+      ]
+    },
+    {
+      "pattern": "examples/deep-research/.converge/playbooks/default/playbook.yml",
+      "count": 0,
+      "samples": []
+    },
+    {
+      "pattern": "examples/frontier-research/README.md",
+      "count": 1,
+      "samples": [
+        "examples/frontier-research/README.md"
+      ]
+    },
+    {
+      "pattern": "examples/scientific-research/README.md",
+      "count": 1,
+      "samples": [
+        "examples/scientific-research/README.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/guides/research-a-topic-deeply.md"
+  ],
+  "blocked": true,
+  "blockedReason": "Missing required inputs: examples/deep-research/.converge/playbooks/default/playbook.yml"
+}

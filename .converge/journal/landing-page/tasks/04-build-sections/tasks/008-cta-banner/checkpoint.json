@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "04-build-sections/008-cta-banner",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T19:27:38.535Z",
+  "createdAt": "2026-04-26T19:27:10.889Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T19:27:10.889Z",
+      "completedAt": "2026-04-26T19:27:38.501Z",
+      "outcome": "success",
+      "durationMs": 27612
+    }
+  ],
+  "currentAttempt": 1
+}

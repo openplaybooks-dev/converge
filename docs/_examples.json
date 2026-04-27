@@ -1,0 +1,233 @@
+[
+  {
+    "slug": "acp-demo",
+    "title": "ACP (Agent SDK) Provider Demo",
+    "category": "agent-protocol",
+    "hasReadme": true,
+    "hasPlaybook": true,
+    "readmePath": "examples/acp-demo/README.md",
+    "playbookPath": "examples/acp-demo/.converge/playbooks/default/playbook.yml",
+    "tagline": "This example demonstrates how to use the `@converge/scpfn` package via the `@converge/agentfn` unified interface with the `\"acp\"` provider.",
+    "complexity": "trivial"
+  },
+  {
+    "slug": "autonomous-pentest",
+    "title": "Autonomous Pentest",
+    "category": "security",
+    "hasReadme": true,
+    "hasPlaybook": true,
+    "readmePath": "examples/autonomous-pentest/README.md",
+    "playbookPath": "examples/autonomous-pentest/.converge/playbooks/autonomous-pentest/playbook.yml",
+    "tagline": "A **one-off, sequential, exhaustive** pentest sweep playbook. For every endpoint discovered, it walks every attack technique. Findings reac",
+    "complexity": null
+  },
+  {
+    "slug": "baby-app",
+    "title": "Example Harness Workspace: Flutter Mobile App Generator",
+    "category": "software",
+    "hasReadme": true,
+    "hasPlaybook": true,
+    "readmePath": "examples/baby-app/README.md",
+    "playbookPath": "examples/baby-app/.converge/playbooks/default/playbook.yml",
+    "tagline": "Demonstrates autonomous mobile app generation using the Harness V2 framework with Flutter and Dart.",
+    "complexity": "large"
+  },
+  {
+    "slug": "cinematic-video-production",
+    "title": "cinematic-video-production",
+    "category": "creative",
+    "hasReadme": true,
+    "hasPlaybook": true,
+    "readmePath": "examples/cinematic-video-production/README.md",
+    "playbookPath": "examples/cinematic-video-production/.converge/playbooks/default/playbook.yml",
+    "tagline": "End-to-end AI film director. Input an `idea.md`, get a `clips/` folder with consistent cinematic shots and a `clips.json` manifest ready fo",
+    "complexity": "large"
+  },
+  {
+    "slug": "data-pipeline",
+    "title": "Data Pipeline",
+    "category": "learning",
+    "hasReadme": true,
+    "hasPlaybook": true,
+    "readmePath": "examples/data-pipeline/README.md",
+    "playbookPath": "examples/data-pipeline/.converge/playbooks/default/playbook.yml",
+    "tagline": "Sequential pipeline with task dependencies: fetch → transform → validate.",
+    "complexity": "medium"
+  },
+  {
+    "slug": "deep-regulatory-research",
+    "title": "Deep Regulatory Research",
+    "category": "research",
+    "hasReadme": false,
+    "hasPlaybook": false,
+    "readmePath": null,
+    "playbookPath": null,
+    "tagline": null,
+    "complexity": null
+  },
+  {
+    "slug": "deep-research",
+    "title": "Deep Research",
+    "category": "research",
+    "hasReadme": true,
+    "hasPlaybook": true,
+    "readmePath": "examples/deep-research/README.md",
+    "playbookPath": "examples/deep-research/.converge/playbooks/deep-research/playbook.yml",
+    "tagline": "Layered deep research with iterative deepening — each layer aggregates findings, identifies promising areas, and triggers deeper investigat",
+    "complexity": null
+  },
+  {
+    "slug": "enterprise-contract-compliance",
+    "title": "Enterprise Contract Compliance",
+    "category": "research",
+    "hasReadme": false,
+    "hasPlaybook": false,
+    "readmePath": null,
+    "playbookPath": null,
+    "tagline": null,
+    "complexity": null
+  },
+  {
+    "slug": "evolutionary-optimization",
+    "title": "Evolutionary Optimization — LLM Training",
+    "category": "creative",
+    "hasReadme": true,
+    "hasPlaybook": false,
+    "readmePath": "examples/evolutionary-optimization/README.md",
+    "playbookPath": null,
+    "tagline": "Evolve LLM training configurations through iterative generation, evaluation, selection, and crossover. Explores architectures, hyperparamet",
+    "complexity": null
+  },
+  {
+    "slug": "flutter-app",
+    "title": "Example Harness Workspace: Flutter Mobile App Generator",
+    "category": "software",
+    "hasReadme": true,
+    "hasPlaybook": true,
+    "readmePath": "examples/flutter-app/README.md",
+    "playbookPath": "examples/flutter-app/.converge/playbooks/default/playbook.yml",
+    "tagline": "Demonstrates autonomous mobile app generation using the Harness V2 framework with Flutter and Dart.",
+    "complexity": "large"
+  },
+  {
+    "slug": "frontier-research",
+    "title": "Frontier Research",
+    "category": "research",
+    "hasReadme": true,
+    "hasPlaybook": false,
+    "readmePath": "examples/frontier-research/README.md",
+    "playbookPath": null,
+    "tagline": "Beam-search frontier research — explores unknown solution spaces using parallel beams, multi-dimensional scoring, and gradient-descent conv",
+    "complexity": null
+  },
+  {
+    "slug": "fullstack-app",
+    "title": "Fullstack App",
+    "category": "software",
+    "hasReadme": true,
+    "hasPlaybook": true,
+    "readmePath": "examples/fullstack-app/README.md",
+    "playbookPath": "examples/fullstack-app/.converge/playbooks/default/playbook.yml",
+    "tagline": "WBS-driven playbook that dynamically spawns component tasks.",
+    "complexity": "small"
+  },
+  {
+    "slug": "game-aiwolf",
+    "title": "Game Aiwolf",
+    "category": "software",
+    "hasReadme": true,
+    "hasPlaybook": true,
+    "readmePath": "examples/game-aiwolf/README.md",
+    "playbookPath": "examples/game-aiwolf/.converge/playbooks/default/playbook.yml",
+    "tagline": "<p align=\"center\">",
+    "complexity": "large"
+  },
+  {
+    "slug": "game-assets",
+    "title": "Game Assets Generation Example",
+    "category": "software",
+    "hasReadme": true,
+    "hasPlaybook": true,
+    "readmePath": "examples/game-assets/README.md",
+    "playbookPath": "examples/game-assets/.converge/playbooks/default/playbook.yml",
+    "tagline": "An example Converge playbook that generates game sprites and assets using Nano-banana (Gemini 2.5 Flash Image).",
+    "complexity": "large"
+  },
+  {
+    "slug": "godot-game-asset-pipeline",
+    "title": "Godot Game Asset Pipeline",
+    "category": "software",
+    "hasReadme": false,
+    "hasPlaybook": false,
+    "readmePath": null,
+    "playbookPath": null,
+    "tagline": null,
+    "complexity": null
+  },
+  {
+    "slug": "hello-world",
+    "title": "Hello World",
+    "category": "learning",
+    "hasReadme": true,
+    "hasPlaybook": true,
+    "readmePath": "examples/hello-world/README.md",
+    "playbookPath": "examples/hello-world/.converge/playbooks/default/playbook.yml",
+    "tagline": "Simplest possible Converge playbook. Creates a file and verifies it exists.",
+    "complexity": "small"
+  },
+  {
+    "slug": "scientific-research",
+    "title": "Scientific Research",
+    "category": "research",
+    "hasReadme": true,
+    "hasPlaybook": false,
+    "readmePath": "examples/scientific-research/README.md",
+    "playbookPath": null,
+    "tagline": "Autonomous scientific research pipeline with iterative evidence synthesis, Bayesian reasoning, GRADE methodology, meta-analysis, and academ",
+    "complexity": null
+  },
+  {
+    "slug": "social-sim",
+    "title": "Social Sim",
+    "category": "creative",
+    "hasReadme": false,
+    "hasPlaybook": true,
+    "readmePath": null,
+    "playbookPath": "examples/social-sim/.converge/playbooks/social-sim/playbook.yml",
+    "tagline": null,
+    "complexity": null
+  },
+  {
+    "slug": "stitch-to-flutter-baby-watch-v2",
+    "title": "stitch-to-flutter-baby-watch (v2)",
+    "category": "software",
+    "hasReadme": true,
+    "hasPlaybook": true,
+    "readmePath": "examples/stitch-to-flutter-baby-watch-v2/README.md",
+    "playbookPath": "examples/stitch-to-flutter-baby-watch-v2/.converge/playbooks/default/playbook.yml",
+    "tagline": "Second-generation version of the `stitch-to-flutter-baby-watch` example.",
+    "complexity": "large"
+  },
+  {
+    "slug": "stitch-to-flutter-baby-watch",
+    "title": "Example Harness Workspace: Flutter Mobile App Generator",
+    "category": "software",
+    "hasReadme": true,
+    "hasPlaybook": true,
+    "readmePath": "examples/stitch-to-flutter-baby-watch/README.md",
+    "playbookPath": "examples/stitch-to-flutter-baby-watch/.converge/playbooks/default/playbook.yml",
+    "tagline": "Demonstrates autonomous mobile app generation using the Harness V2 framework with Flutter and Dart.",
+    "complexity": "large"
+  },
+  {
+    "slug": "stitch-to-flutter",
+    "title": "Example Harness Workspace: Flutter Mobile App Generator",
+    "category": "software",
+    "hasReadme": true,
+    "hasPlaybook": true,
+    "readmePath": "examples/stitch-to-flutter/README.md",
+    "playbookPath": "examples/stitch-to-flutter/.converge/playbooks/default/playbook.yml",
+    "tagline": "Demonstrates autonomous mobile app generation using the Harness V2 framework with Flutter and Dart.",
+    "complexity": "large"
+  }
+]

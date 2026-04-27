@@ -1,0 +1,9 @@
+{
+  "taskId": "04-ui/021-root-redirects-to-playbooks",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/src/app/page.tsx"
+  ],
+  "blocked": false
+}

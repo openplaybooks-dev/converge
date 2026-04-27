@@ -1,0 +1,10 @@
+{
+  "taskId": "01-vendor/002-package-rename",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/package.json",
+    "packages/converge-studio/tsconfig.json"
+  ],
+  "blocked": false
+}

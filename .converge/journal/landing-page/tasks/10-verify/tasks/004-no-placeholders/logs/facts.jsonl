@@ -1,0 +1,1 @@
+{"type":"check","checkId":"no-placeholders","cmd":"node .converge/playbooks/landing-page/scripts/check-no-placeholders.mjs","description":"zero placeholder strings in built site","id":"check:no-placeholders","ok":true,"output":"OK no placeholder strings in apps/landing/dist","exitCode":0,"collectedAt":"2026-04-26T23:28:09.789Z"}

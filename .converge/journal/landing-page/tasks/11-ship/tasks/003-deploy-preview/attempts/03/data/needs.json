@@ -1,0 +1,24 @@
+{
+  "taskId": "11-ship/003-deploy-preview",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "apps/landing/wrangler.toml",
+      "count": 1,
+      "samples": [
+        "apps/landing/wrangler.toml"
+      ]
+    },
+    {
+      "pattern": "apps/landing/dist",
+      "count": 1,
+      "samples": [
+        "apps/landing/dist"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/.preview-deploy-url"
+  ],
+  "blocked": false
+}

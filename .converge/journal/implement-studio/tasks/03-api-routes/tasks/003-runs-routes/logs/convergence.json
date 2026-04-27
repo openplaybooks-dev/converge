@@ -1,0 +1,309 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-api-routes/003-runs-routes-missing-output-packages/converge-studio/src/app/api/runs/route.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/003-runs-routes",
+            "severity": "high",
+            "description": "[03-api-routes/003-runs-routes] Task output not created: packages/converge-studio/src/app/api/runs/route.ts",
+            "source": "unit",
+            "detected": "2026-04-26T02:38:25.145Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/003-runs-routes",
+              "taskId": "03-api-routes/003-runs-routes",
+              "taskTitle": "/api/runs routes (list, metadata, events, SSE tail)",
+              "taskPrompt": "Implement runs listing, single-session metadata, paginated events, and SSE event tail.\n\n**Path scheme**: sessions are scoped per-playbook in converge (`.converge/journal/<playbook>/sessions/<sessionId>`), so the route must be `/api/runs/[playbook]/[sessionId]`.\n\n**`api/runs/route.ts`** — `GET` lists sessions across all playbooks (or filter via `?playbook=`):\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { listPlaybooks, listSessions } from '@/lib/converge-adapter';\n\nexport async function GET(req: Request) {\n  const { searchParams } = new URL(req.url);\n  const filter = searchParams.get('playbook');\n  const playbooks = filter ? [{ name: filter }] : await listPlaybooks();\n  const all = (await Promise.all(playbooks.map(p => listSessions(p.name)))).flat();\n  all.sort((a, b) => (b.startTime ?? '').localeCompare(a.startTime ?? ''));\n  return Response.json({ items: all });\n}\n```\n\n**`runs/[playbook]/[sessionId]/route.ts`** — metadata:\n\n```ts\nimport { readMetadata } from '@/lib/converge-adapter';\n\nexport async function GET(_req: Request, { params }: { params: { playbook: string; sessionId: string } }) {\n  return Response.json(await readMetadata(params.playbook, params.sessionId));\n}\n```\n\n**`events/route.ts`** — paginated events:\n\n```ts\nimport { readEventsPaginated } from '@/lib/converge-adapter';\n\nexport async function GET(req: Request, { params }: { params: { playbook: string; sessionId: string } }) {\n  const { searchParams } = new URL(req.url);\n  const offset = Number(searchParams.get('offset') ?? 0);\n  const limit = Number(searchParams.get('limit') ?? 200);\n  return Response.json({\n    items: await readEventsPaginated(params.playbook, params.sessionId, { offset, limit }),\n  });\n}\n```\n\n**`stream/route.ts`** — SSE tail:\n\n```ts\nimport { tailEvents } from '@/lib/converge-adapter';\n\nexport async function GET(req: Request, { params }: { params: { playbook: string; sessionId: string } }) {\n  const stream = new ReadableStream({\n    async start(controller) {\n      const enc = new TextEncoder();\n      const send = (event: string, data: unknown) =>\n        controller.enqueue(enc.encode(`event: ${event}\\ndata: ${JSON.stringify(data)}\\n\\n`));\n      try {\n        for await (const ev of tailEvents(params.playbook, params.sessionId)) {\n          if (req.signal.aborted) break;\n          send('event', ev);\n        }\n      } finally {\n        controller.close();\n      }\n    },\n  });\n  return new Response(stream, {\n    headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', 'Connection': 'keep-alive' },\n  });\n}\n```\n\n**Resume support**: support `Last-Event-ID` header so reconnecting clients skip already-seen events. Set the SSE `id:` field per event.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/app/api/runs/route.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-api-routes/003-runs-routes-missing-output-packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/route.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/003-runs-routes",
+            "severity": "high",
+            "description": "[03-api-routes/003-runs-routes] Task output not created: packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/route.ts",
+            "source": "unit",
+            "detected": "2026-04-26T02:38:25.146Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/003-runs-routes",
+              "taskId": "03-api-routes/003-runs-routes",
+              "taskTitle": "/api/runs routes (list, metadata, events, SSE tail)",
+              "taskPrompt": "Implement runs listing, single-session metadata, paginated events, and SSE event tail.\n\n**Path scheme**: sessions are scoped per-playbook in converge (`.converge/journal/<playbook>/sessions/<sessionId>`), so the route must be `/api/runs/[playbook]/[sessionId]`.\n\n**`api/runs/route.ts`** — `GET` lists sessions across all playbooks (or filter via `?playbook=`):\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { listPlaybooks, listSessions } from '@/lib/converge-adapter';\n\nexport async function GET(req: Request) {\n  const { searchParams } = new URL(req.url);\n  const filter = searchParams.get('playbook');\n  const playbooks = filter ? [{ name: filter }] : await listPlaybooks();\n  const all = (await Promise.all(playbooks.map(p => listSessions(p.name)))).flat();\n  all.sort((a, b) => (b.startTime ?? '').localeCompare(a.startTime ?? ''));\n  return Response.json({ items: all });\n}\n```\n\n**`runs/[playbook]/[sessionId]/route.ts`** — metadata:\n\n```ts\nimport { readMetadata } from '@/lib/converge-adapter';\n\nexport async function GET(_req: Request, { params }: { params: { playbook: string; sessionId: string } }) {\n  return Response.json(await readMetadata(params.playbook, params.sessionId));\n}\n```\n\n**`events/route.ts`** — paginated events:\n\n```ts\nimport { readEventsPaginated } from '@/lib/converge-adapter';\n\nexport async function GET(req: Request, { params }: { params: { playbook: string; sessionId: string } }) {\n  const { searchParams } = new URL(req.url);\n  const offset = Number(searchParams.get('offset') ?? 0);\n  const limit = Number(searchParams.get('limit') ?? 200);\n  return Response.json({\n    items: await readEventsPaginated(params.playbook, params.sessionId, { offset, limit }),\n  });\n}\n```\n\n**`stream/route.ts`** — SSE tail:\n\n```ts\nimport { tailEvents } from '@/lib/converge-adapter';\n\nexport async function GET(req: Request, { params }: { params: { playbook: string; sessionId: string } }) {\n  const stream = new ReadableStream({\n    async start(controller) {\n      const enc = new TextEncoder();\n      const send = (event: string, data: unknown) =>\n        controller.enqueue(enc.encode(`event: ${event}\\ndata: ${JSON.stringify(data)}\\n\\n`));\n      try {\n        for await (const ev of tailEvents(params.playbook, params.sessionId)) {\n          if (req.signal.aborted) break;\n          send('event', ev);\n        }\n      } finally {\n        controller.close();\n      }\n    },\n  });\n  return new Response(stream, {\n    headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', 'Connection': 'keep-alive' },\n  });\n}\n```\n\n**Resume support**: support `Last-Event-ID` header so reconnecting clients skip already-seen events. Set the SSE `id:` field per event.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/route.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-api-routes/003-runs-routes-missing-output-packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/events/route.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/003-runs-routes",
+            "severity": "high",
+            "description": "[03-api-routes/003-runs-routes] Task output not created: packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/events/route.ts",
+            "source": "unit",
+            "detected": "2026-04-26T02:38:25.148Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/003-runs-routes",
+              "taskId": "03-api-routes/003-runs-routes",
+              "taskTitle": "/api/runs routes (list, metadata, events, SSE tail)",
+              "taskPrompt": "Implement runs listing, single-session metadata, paginated events, and SSE event tail.\n\n**Path scheme**: sessions are scoped per-playbook in converge (`.converge/journal/<playbook>/sessions/<sessionId>`), so the route must be `/api/runs/[playbook]/[sessionId]`.\n\n**`api/runs/route.ts`** — `GET` lists sessions across all playbooks (or filter via `?playbook=`):\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { listPlaybooks, listSessions } from '@/lib/converge-adapter';\n\nexport async function GET(req: Request) {\n  const { searchParams } = new URL(req.url);\n  const filter = searchParams.get('playbook');\n  const playbooks = filter ? [{ name: filter }] : await listPlaybooks();\n  const all = (await Promise.all(playbooks.map(p => listSessions(p.name)))).flat();\n  all.sort((a, b) => (b.startTime ?? '').localeCompare(a.startTime ?? ''));\n  return Response.json({ items: all });\n}\n```\n\n**`runs/[playbook]/[sessionId]/route.ts`** — metadata:\n\n```ts\nimport { readMetadata } from '@/lib/converge-adapter';\n\nexport async function GET(_req: Request, { params }: { params: { playbook: string; sessionId: string } }) {\n  return Response.json(await readMetadata(params.playbook, params.sessionId));\n}\n```\n\n**`events/route.ts`** — paginated events:\n\n```ts\nimport { readEventsPaginated } from '@/lib/converge-adapter';\n\nexport async function GET(req: Request, { params }: { params: { playbook: string; sessionId: string } }) {\n  const { searchParams } = new URL(req.url);\n  const offset = Number(searchParams.get('offset') ?? 0);\n  const limit = Number(searchParams.get('limit') ?? 200);\n  return Response.json({\n    items: await readEventsPaginated(params.playbook, params.sessionId, { offset, limit }),\n  });\n}\n```\n\n**`stream/route.ts`** — SSE tail:\n\n```ts\nimport { tailEvents } from '@/lib/converge-adapter';\n\nexport async function GET(req: Request, { params }: { params: { playbook: string; sessionId: string } }) {\n  const stream = new ReadableStream({\n    async start(controller) {\n      const enc = new TextEncoder();\n      const send = (event: string, data: unknown) =>\n        controller.enqueue(enc.encode(`event: ${event}\\ndata: ${JSON.stringify(data)}\\n\\n`));\n      try {\n        for await (const ev of tailEvents(params.playbook, params.sessionId)) {\n          if (req.signal.aborted) break;\n          send('event', ev);\n        }\n      } finally {\n        controller.close();\n      }\n    },\n  });\n  return new Response(stream, {\n    headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', 'Connection': 'keep-alive' },\n  });\n}\n```\n\n**Resume support**: support `Last-Event-ID` header so reconnecting clients skip already-seen events. Set the SSE `id:` field per event.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/events/route.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-api-routes/003-runs-routes-missing-output-packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/stream/route.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/003-runs-routes",
+            "severity": "high",
+            "description": "[03-api-routes/003-runs-routes] Task output not created: packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/stream/route.ts",
+            "source": "unit",
+            "detected": "2026-04-26T02:38:25.150Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/003-runs-routes",
+              "taskId": "03-api-routes/003-runs-routes",
+              "taskTitle": "/api/runs routes (list, metadata, events, SSE tail)",
+              "taskPrompt": "Implement runs listing, single-session metadata, paginated events, and SSE event tail.\n\n**Path scheme**: sessions are scoped per-playbook in converge (`.converge/journal/<playbook>/sessions/<sessionId>`), so the route must be `/api/runs/[playbook]/[sessionId]`.\n\n**`api/runs/route.ts`** — `GET` lists sessions across all playbooks (or filter via `?playbook=`):\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { listPlaybooks, listSessions } from '@/lib/converge-adapter';\n\nexport async function GET(req: Request) {\n  const { searchParams } = new URL(req.url);\n  const filter = searchParams.get('playbook');\n  const playbooks = filter ? [{ name: filter }] : await listPlaybooks();\n  const all = (await Promise.all(playbooks.map(p => listSessions(p.name)))).flat();\n  all.sort((a, b) => (b.startTime ?? '').localeCompare(a.startTime ?? ''));\n  return Response.json({ items: all });\n}\n```\n\n**`runs/[playbook]/[sessionId]/route.ts`** — metadata:\n\n```ts\nimport { readMetadata } from '@/lib/converge-adapter';\n\nexport async function GET(_req: Request, { params }: { params: { playbook: string; sessionId: string } }) {\n  return Response.json(await readMetadata(params.playbook, params.sessionId));\n}\n```\n\n**`events/route.ts`** — paginated events:\n\n```ts\nimport { readEventsPaginated } from '@/lib/converge-adapter';\n\nexport async function GET(req: Request, { params }: { params: { playbook: string; sessionId: string } }) {\n  const { searchParams } = new URL(req.url);\n  const offset = Number(searchParams.get('offset') ?? 0);\n  const limit = Number(searchParams.get('limit') ?? 200);\n  return Response.json({\n    items: await readEventsPaginated(params.playbook, params.sessionId, { offset, limit }),\n  });\n}\n```\n\n**`stream/route.ts`** — SSE tail:\n\n```ts\nimport { tailEvents } from '@/lib/converge-adapter';\n\nexport async function GET(req: Request, { params }: { params: { playbook: string; sessionId: string } }) {\n  const stream = new ReadableStream({\n    async start(controller) {\n      const enc = new TextEncoder();\n      const send = (event: string, data: unknown) =>\n        controller.enqueue(enc.encode(`event: ${event}\\ndata: ${JSON.stringify(data)}\\n\\n`));\n      try {\n        for await (const ev of tailEvents(params.playbook, params.sessionId)) {\n          if (req.signal.aborted) break;\n          send('event', ev);\n        }\n      } finally {\n        controller.close();\n      }\n    },\n  });\n  return new Response(stream, {\n    headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', 'Connection': 'keep-alive' },\n  });\n}\n```\n\n**Resume support**: support `Last-Event-ID` header so reconnecting clients skip already-seen events. Set the SSE `id:` field per event.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/stream/route.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-api-routes/003-runs-routes-check-failed-runs-routes-exist",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/003-runs-routes",
+            "severity": "high",
+            "description": "[03-api-routes/003-runs-routes] Check failed: All four runs route handlers exist",
+            "source": "unit",
+            "detected": "2026-04-26T02:38:25.152Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "runs-routes-exist",
+              "checkCmd": "test -f packages/converge-studio/src/app/api/runs/route.ts && test -f 'packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/route.ts' && test -f 'packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/events/route.ts' && test -f 'packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/stream/route.ts'",
+              "checkDescription": "All four runs route handlers exist",
+              "checkOutput": "Command failed: test -f packages/converge-studio/src/app/api/runs/route.ts && test -f 'packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/route.ts' && test -f 'packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/events/route.ts' && test -f 'packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/stream/route.ts'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Implement runs listing, single-session metadata, paginated events, and SSE event tail.\n\n**Path scheme**: sessions are scoped per-playbook in converge (`.converge/journal/<playbook>/sessions/<sessionId>`), so the route must be `/api/runs/[playbook]/[sessionId]`.\n\n**`api/runs/route.ts`** — `GET` lists sessions across all playbooks (or filter via `?playbook=`):\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { listPlaybooks, listSessions } from '@/lib/converge-adapter';\n\nexport async function GET(req: Request) {\n  const { searchParams } = new URL(req.url);\n  const filter = searchParams.get('playbook');\n  const playbooks = filter ? [{ name: filter }] : await listPlaybooks();\n  const all = (await Promise.all(playbooks.map(p => listSessions(p.name)))).flat();\n  all.sort((a, b) => (b.startTime ?? '').localeCompare(a.startTime ?? ''));\n  return Response.json({ items: all });\n}\n```\n\n**`runs/[playbook]/[sessionId]/route.ts`** — metadata:\n\n```ts\nimport { readMetadata } from '@/lib/converge-adapter';\n\nexport async function GET(_req: Request, { params }: { params: { playbook: string; sessionId: string } }) {\n  return Response.json(await readMetadata(params.playbook, params.sessionId));\n}\n```\n\n**`events/route.ts`** — paginated events:\n\n```ts\nimport { readEventsPaginated } from '@/lib/converge-adapter';\n\nexport async function GET(req: Request, { params }: { params: { playbook: string; sessionId: string } }) {\n  const { searchParams } = new URL(req.url);\n  const offset = Number(searchParams.get('offset') ?? 0);\n  const limit = Number(searchParams.get('limit') ?? 200);\n  return Response.json({\n    items: await readEventsPaginated(params.playbook, params.sessionId, { offset, limit }),\n  });\n}\n```\n\n**`stream/route.ts`** — SSE tail:\n\n```ts\nimport { tailEvents } from '@/lib/converge-adapter';\n\nexport async function GET(req: Request, { params }: { params: { playbook: string; sessionId: string } }) {\n  const stream = new ReadableStream({\n    async start(controller) {\n      const enc = new TextEncoder();\n      const send = (event: string, data: unknown) =>\n        controller.enqueue(enc.encode(`event: ${event}\\ndata: ${JSON.stringify(data)}\\n\\n`));\n      try {\n        for await (const ev of tailEvents(params.playbook, params.sessionId)) {\n          if (req.signal.aborted) break;\n          send('event', ev);\n        }\n      } finally {\n        controller.close();\n      }\n    },\n  });\n  return new Response(stream, {\n    headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', 'Connection': 'keep-alive' },\n  });\n}\n```\n\n**Resume support**: support `Last-Event-ID` header so reconnecting clients skip already-seen events. Set the SSE `id:` field per event.",
+              "taskId": "03-api-routes/003-runs-routes",
+              "taskTitle": "/api/runs routes (list, metadata, events, SSE tail)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/003-runs-routes",
+              "factId": "check:runs-routes-exist"
+            }
+          },
+          {
+            "id": "03-api-routes/003-runs-routes-check-failed-nodejs-runtime",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/003-runs-routes",
+            "severity": "high",
+            "description": "[03-api-routes/003-runs-routes] Check failed: All four routes export runtime = 'nodejs'",
+            "source": "unit",
+            "detected": "2026-04-26T02:38:25.158Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "nodejs-runtime",
+              "checkCmd": "find packages/converge-studio/src/app/api/runs -name 'route.ts' | xargs grep -l \"runtime = 'nodejs'\" | wc -l | xargs test 4 -eq",
+              "checkDescription": "All four routes export runtime = 'nodejs'",
+              "checkOutput": "find: packages/converge-studio/src/app/api/runs: No such file or directory",
+              "checkExitCode": 1,
+              "taskPrompt": "Implement runs listing, single-session metadata, paginated events, and SSE event tail.\n\n**Path scheme**: sessions are scoped per-playbook in converge (`.converge/journal/<playbook>/sessions/<sessionId>`), so the route must be `/api/runs/[playbook]/[sessionId]`.\n\n**`api/runs/route.ts`** — `GET` lists sessions across all playbooks (or filter via `?playbook=`):\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { listPlaybooks, listSessions } from '@/lib/converge-adapter';\n\nexport async function GET(req: Request) {\n  const { searchParams } = new URL(req.url);\n  const filter = searchParams.get('playbook');\n  const playbooks = filter ? [{ name: filter }] : await listPlaybooks();\n  const all = (await Promise.all(playbooks.map(p => listSessions(p.name)))).flat();\n  all.sort((a, b) => (b.startTime ?? '').localeCompare(a.startTime ?? ''));\n  return Response.json({ items: all });\n}\n```\n\n**`runs/[playbook]/[sessionId]/route.ts`** — metadata:\n\n```ts\nimport { readMetadata } from '@/lib/converge-adapter';\n\nexport async function GET(_req: Request, { params }: { params: { playbook: string; sessionId: string } }) {\n  return Response.json(await readMetadata(params.playbook, params.sessionId));\n}\n```\n\n**`events/route.ts`** — paginated events:\n\n```ts\nimport { readEventsPaginated } from '@/lib/converge-adapter';\n\nexport async function GET(req: Request, { params }: { params: { playbook: string; sessionId: string } }) {\n  const { searchParams } = new URL(req.url);\n  const offset = Number(searchParams.get('offset') ?? 0);\n  const limit = Number(searchParams.get('limit') ?? 200);\n  return Response.json({\n    items: await readEventsPaginated(params.playbook, params.sessionId, { offset, limit }),\n  });\n}\n```\n\n**`stream/route.ts`** — SSE tail:\n\n```ts\nimport { tailEvents } from '@/lib/converge-adapter';\n\nexport async function GET(req: Request, { params }: { params: { playbook: string; sessionId: string } }) {\n  const stream = new ReadableStream({\n    async start(controller) {\n      const enc = new TextEncoder();\n      const send = (event: string, data: unknown) =>\n        controller.enqueue(enc.encode(`event: ${event}\\ndata: ${JSON.stringify(data)}\\n\\n`));\n      try {\n        for await (const ev of tailEvents(params.playbook, params.sessionId)) {\n          if (req.signal.aborted) break;\n          send('event', ev);\n        }\n      } finally {\n        controller.close();\n      }\n    },\n  });\n  return new Response(stream, {\n    headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', 'Connection': 'keep-alive' },\n  });\n}\n```\n\n**Resume support**: support `Last-Event-ID` header so reconnecting clients skip already-seen events. Set the SSE `id:` field per event.",
+              "taskId": "03-api-routes/003-runs-routes",
+              "taskTitle": "/api/runs routes (list, metadata, events, SSE tail)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/003-runs-routes",
+              "factId": "check:nodejs-runtime"
+            }
+          }
+        ],
+        "durationMs": 3885
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3885
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 3809
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#7",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 51626
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T02:38:25.142Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T02:38:25.142Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T02:38:29.027Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T02:38:29.028Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T02:38:32.913Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#7",
+      "iteration": 1,
+      "ts": "2026-04-26T02:39:24.540Z"
+    },
+    {
+      "from": "run-strategy:task-run#7",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T02:39:28.350Z"
+    }
+  ]
+}

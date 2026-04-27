@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "04-getting-started/002-install",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T07:41:08.897Z",
+  "createdAt": "2026-04-26T07:39:42.075Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T07:39:42.075Z",
+      "completedAt": "2026-04-26T07:41:08.893Z",
+      "outcome": "success",
+      "durationMs": 86818
+    }
+  ],
+  "currentAttempt": 1
+}

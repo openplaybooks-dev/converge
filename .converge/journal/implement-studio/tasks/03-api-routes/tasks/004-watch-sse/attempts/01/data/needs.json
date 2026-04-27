@@ -1,0 +1,10 @@
+{
+  "taskId": "03-api-routes/004-watch-sse",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/src/app/api/watch/route.ts",
+    "packages/converge-studio/src/lib/watcher-singleton.ts"
+  ],
+  "blocked": false
+}

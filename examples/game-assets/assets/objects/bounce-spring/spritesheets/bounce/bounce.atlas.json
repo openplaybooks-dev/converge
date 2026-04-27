@@ -1,0 +1,253 @@
+{
+  "image": "bounce.png",
+  "meta": {
+    "obj_id": "bounce-spring",
+    "state": "bounce",
+    "category": "interactive",
+    "rows": 2,
+    "cols": 4,
+    "frame_count": 8,
+    "frame_size": {
+      "w": 384,
+      "h": 512
+    },
+    "sheet_size": {
+      "w": 1536,
+      "h": 1024
+    },
+    "frame_order": "left-to-right, top-to-bottom",
+    "requested_cols": 4,
+    "requested_rows": 2,
+    "detected": true,
+    "aligned": true,
+    "frameRate": 10,
+    "yoyo": true,
+    "seed": 515115367
+  },
+  "frames": [
+    {
+      "filename": "bounce_000.png",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          96,
+          132,
+          355,
+          458
+        ],
+        "torso_x": 224,
+        "aligned_bbox": [
+          64,
+          181,
+          323,
+          507
+        ],
+        "shift": [
+          -32,
+          49
+        ]
+      }
+    },
+    {
+      "filename": "bounce_001.png",
+      "frame": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          62,
+          137,
+          324,
+          458
+        ],
+        "torso_x": 191,
+        "aligned_bbox": [
+          63,
+          186,
+          325,
+          507
+        ],
+        "shift": [
+          1,
+          49
+        ]
+      }
+    },
+    {
+      "filename": "bounce_002.png",
+      "frame": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          36,
+          133,
+          295,
+          458
+        ],
+        "torso_x": 163,
+        "aligned_bbox": [
+          65,
+          182,
+          324,
+          507
+        ],
+        "shift": [
+          29,
+          49
+        ]
+      }
+    },
+    {
+      "filename": "bounce_003.png",
+      "frame": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          7,
+          45,
+          266,
+          457
+        ],
+        "torso_x": 134,
+        "aligned_bbox": [
+          65,
+          95,
+          324,
+          507
+        ],
+        "shift": [
+          58,
+          50
+        ]
+      }
+    },
+    {
+      "filename": "bounce_004.png",
+      "frame": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          97,
+          65,
+          356,
+          393
+        ],
+        "torso_x": 225,
+        "aligned_bbox": [
+          64,
+          179,
+          323,
+          507
+        ],
+        "shift": [
+          -33,
+          114
+        ]
+      }
+    },
+    {
+      "filename": "bounce_005.png",
+      "frame": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          64,
+          72,
+          321,
+          392
+        ],
+        "torso_x": 192,
+        "aligned_bbox": [
+          64,
+          187,
+          321,
+          507
+        ],
+        "shift": [
+          0,
+          115
+        ]
+      }
+    },
+    {
+      "filename": "bounce_006.png",
+      "frame": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          36,
+          45,
+          295,
+          392
+        ],
+        "torso_x": 170,
+        "aligned_bbox": [
+          58,
+          160,
+          317,
+          507
+        ],
+        "shift": [
+          22,
+          115
+        ]
+      }
+    },
+    {
+      "filename": "bounce_007.png",
+      "frame": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          7,
+          68,
+          265,
+          392
+        ],
+        "torso_x": 136,
+        "aligned_bbox": [
+          63,
+          183,
+          321,
+          507
+        ],
+        "shift": [
+          56,
+          115
+        ]
+      }
+    }
+  ]
+}

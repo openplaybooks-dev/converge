@@ -1,15 +1,28 @@
-# Lirael
+# Character Spec: Lirael
 
-**ID:** forest-elf
-**Palette:** 16-bit retro, green and brown earth tones, limited to 16 colors
+- **ID**: forest-elf
+- **Name**: Lirael
 
 ## Description
 
-Forest elf archer with green cloak, leather armor, and longbow
+Nimble elf with green cloak, pointed hat, and bow. Quick movements, graceful poses.
 
-## Reference Angles
+## Visual Style
 
-- **Front View** (Y: 0°): `front.png`
-- **Left Side View** (Y: -90°): `side_left.png`
-- **Right Side View** (Y: 90°): `side_right.png`
-- **Back View** (Y: 180°): `back.png`
+- 16-bit retro pixel art
+- Green and brown tones, natural forest colors
+- Palette limited to 16 colors
+- Clean silhouette readable at sprite size
+- Graceful, agile posture conveying speed
+
+## Animation States
+
+- **idle**: relaxed standing pose with subtle breathing/sway
+- **walk**: forward locomotion cycle, light-footed
+
+## Technical Specifications
+
+- Format: PNG sprite sheet per animation state
+- Palette: 16 colors max, indexed
+- Style: 16-bit retro
+- Required states: `idle`, `walk`

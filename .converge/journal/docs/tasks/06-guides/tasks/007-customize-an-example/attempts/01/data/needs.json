@@ -1,0 +1,31 @@
+{
+  "taskId": "06-guides/007-customize-an-example",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "docs/_examples.json",
+      "count": 1,
+      "samples": [
+        "docs/_examples.json"
+      ]
+    },
+    {
+      "pattern": "examples/cinematic-video-production/README.md",
+      "count": 1,
+      "samples": [
+        "examples/cinematic-video-production/README.md"
+      ]
+    },
+    {
+      "pattern": "examples/data-pipeline/.converge/playbooks/default/playbook.yml",
+      "count": 1,
+      "samples": [
+        "examples/data-pipeline/.converge/playbooks/default/playbook.yml"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/guides/customize-an-example.md"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,31 @@
+{
+  "taskId": "03-ia",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "docs/_sources.json",
+      "count": 1,
+      "samples": [
+        "docs/_sources.json"
+      ]
+    },
+    {
+      "pattern": "docs/_cli-commands.json",
+      "count": 1,
+      "samples": [
+        "docs/_cli-commands.json"
+      ]
+    },
+    {
+      "pattern": "docs/_examples.json",
+      "count": 1,
+      "samples": [
+        "docs/_examples.json"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/_ia.json"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,8 @@
+{"ts":"2026-04-26T07:30:15.354Z","type":"action","iter":1,"handler":"check-wbs-seeded","result":"continue","ms":0}
+{"ts":"2026-04-26T07:30:15.355Z","type":"action","iter":1,"handler":"check-outputs-exist","result":"continue","ms":0}
+{"ts":"2026-04-26T07:30:18.677Z","type":"action","iter":1,"handler":"check-wbs-seeded","result":"continue","ms":0}
+{"ts":"2026-04-26T07:30:19.116Z","type":"gaps-detected","iter":1,"count":0,"kinds":[],"delta":0}
+{"ts":"2026-04-26T07:30:19.117Z","type":"action","iter":1,"handler":"detect-gaps","result":"continue","ms":3762}
+{"ts":"2026-04-26T07:30:19.118Z","type":"outcome","iter":1,"result":"done","reason":"Converged (outputs already exist)"}
+{"ts":"2026-04-26T07:30:22.379Z","type":"action","iter":1,"handler":"check-outputs-exist","result":"done","ms":3702,"reason":"Outputs already present"}
+{"ts":"2026-04-26T07:30:22.380Z","type":"outcome","iter":1,"result":"done","reason":"Outputs already present"}

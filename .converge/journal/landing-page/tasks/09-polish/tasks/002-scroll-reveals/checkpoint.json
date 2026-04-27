@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "09-polish/002-scroll-reveals",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T20:21:44.279Z",
+  "createdAt": "2026-04-26T20:21:00.464Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T20:21:00.464Z",
+      "completedAt": "2026-04-26T20:21:44.238Z",
+      "outcome": "success",
+      "durationMs": 43774
+    }
+  ],
+  "currentAttempt": 1
+}

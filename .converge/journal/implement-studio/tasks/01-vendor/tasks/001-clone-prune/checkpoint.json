@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "01-vendor/001-clone-prune",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T01:26:08.252Z",
+  "createdAt": "2026-04-26T01:24:45.668Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T01:24:45.668Z",
+      "completedAt": "2026-04-26T01:26:08.249Z",
+      "outcome": "success",
+      "durationMs": 82581
+    }
+  ],
+  "currentAttempt": 1
+}

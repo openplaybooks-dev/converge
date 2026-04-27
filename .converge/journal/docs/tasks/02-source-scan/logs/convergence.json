@@ -1,0 +1,434 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "02-source-scan-missing-output-docs/_sources.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-source-scan",
+            "severity": "high",
+            "description": "[02-source-scan] Task output not created: docs/_sources.json",
+            "source": "unit",
+            "detected": "2026-04-26T07:34:37.974Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/02-source-scan",
+              "taskId": "02-source-scan",
+              "taskTitle": "Phase 02 — Scan source files; emit docs-sources.json + examples manifest",
+              "taskPrompt": "# Source scan\n\nBuild a structured map of every source file later phases can derive doc\ncontent from. The output is the *cross-validation universe* — every `sources:`\nfrontmatter field in any doc page must reference a file in this map.\n\nThis phase also produces `docs/_examples.json` — the data file the Examples\nGallery WBS (`05-examples`) consumes to spawn one task per example.\n\n## Process\n\n### 1. CLI command seed list\n\n```bash\nnode .converge/playbooks/docs/scripts/scan-cli-commands.mjs docs/_cli-commands.json\n```\n\nPattern-matches `case \"<cmd>\":` blocks in `packages/cli/src/main.ts` and\nmaps each to its handler file. Best-effort — the CLI uses ad-hoc parsing,\nso the list may include aliases or miss handlers. The `08-reference` phase\nrefines this by reading each handler file directly.\n\n### 2. Examples manifest (docs/_examples.json)\n\nFor each subdirectory of `examples/`:\n\n```json\n[\n  {\n    \"slug\": \"hello-world\",\n    \"title\": \"Hello World\",\n    \"category\": \"learning\",\n    \"hasReadme\": true,\n    \"hasPlaybook\": true,\n    \"readmePath\": \"examples/hello-world/README.md\",\n    \"playbookPath\": \"examples/hello-world/.converge/playbooks/default/playbook.yml\",\n    \"tagline\": \"Simplest possible Converge playbook. Creates a file and verifies it exists.\",\n    \"complexity\": \"trivial\"\n  }\n]\n```\n\nField rules:\n\n- `slug` — directory name under `examples/`. Skip non-directory entries\n  (e.g. `context-chain-demo.ts`).\n- `title` — first `# ` heading from the example's README. If no README, fall\n  back to a title-cased version of `slug`.\n- `category` — assign one of these (best-fit; document edge cases in the body):\n  - `learning` — beginner-friendly, single-concept (`hello-world`,\n    `data-pipeline`, `acp-demo`, `baby-app`).\n  - `software` — building runnable software (`flutter-app`, `fullstack-app`,\n    `stitch-to-flutter*`, `game-aiwolf`, `game-assets`,\n    `godot-game-asset-pipeline`).\n  - `research` — multi-pass deep research / analysis\n    (`deep-research`, `frontier-research`, `deep-regulatory-research`,\n    `enterprise-contract-compliance`, `scientific-research`).\n  - `creative` — creative output / simulation\n    (`cinematic-video-production`, `social-sim`,\n    `evolutionary-optimization`).\n  - `security` — security work (`autonomous-pentest`).\n  - `agent-protocol` — protocol / SDK demo (`acp-demo`). Note: also fits\n    `learning`. Prefer `agent-protocol` for now since this category is small.\n- `hasReadme` — boolean. `examples/<slug>/README.md` exists.\n- `hasPlaybook` — boolean. *Any* `playbook.yml` exists under `examples/<slug>/`.\n- `readmePath` — relative path to the README, or `null`.\n- `playbookPath` — relative path to the *primary* playbook (typically\n  `examples/<slug>/.converge/playbooks/default/playbook.yml`); `null` if\n  none exists.\n- `tagline` — first non-heading paragraph from the README, trimmed to <140\n  chars; null if no README.\n- `complexity` — one of `trivial | small | medium | large` based on number\n  of phases in the playbook (0=trivial, 1-3=small, 4-7=medium, 8+=large).\n  Use `null` if no playbook.\n\nWalk with shell:\n\n```bash\nfor dir in examples/*/; do\n  name=$(basename \"$dir\")\n  [ -d \"$dir\" ] || continue\n  # build entry\ndone\n```\n\nExamples without a README **or** without a playbook still get an entry\n(with `hasReadme: false` / `hasPlaybook: false`). The Examples Gallery\nWBS will spawn a degraded page for them (\"this example is undocumented;\nhere's the file tree\").\n\n### 3. Source manifest (docs/_sources.json)\n\nWrite `docs/_sources.json` with this shape:\n\n```json\n{\n  \"$schema\": \"./_sources.schema.json\",\n  \"generatedAt\": \"<ISO timestamp>\",\n  \"cli\": [\n    \"packages/cli/src/main.ts\",\n    \"packages/cli/src/commands.ts\",\n    \"packages/cli/src/commands-run.ts\",\n    \"...\"\n  ],\n  \"core\": [\n    \"packages/core/src/index.ts\",\n    \"packages/core/src/playbook/loader.ts\",\n    \"packages/core/src/journal/types.ts\",\n    \"...\"\n  ],\n  \"examples\": [\n    \"examples/hello-world/.converge/playbooks/default/playbook.yml\",\n    \"...\"\n  ],\n  \"schemas\": [\n    \"packages/core/src/storage/types.ts\",\n    \"packages/core/src/config/task-definition.ts\",\n    \"...\"\n  ],\n  \"troubleshooting\": [\n    \"skills/converge-control/troubleshooting/playbook.md\"\n  ],\n  \"topLevel\": [\n    \"README.md\",\n    \"CHANGELOG.md\"\n  ]\n}\n```\n\nWalk the directories yourself with `find` / `git ls-files`:\n\n```bash\ngit ls-files 'packages/cli/src/*.ts' | sort\ngit ls-files 'packages/core/src/**/*.ts' | sort | head -100\ngit ls-files 'examples/*/.converge/playbooks/*/playbook.yml' | sort\ngit ls-files 'examples/*/.converge/playbooks/*/playbook.yaml' | sort\n```\n\n### 4. Schema files\n\nIdentify the files that define the *schemas* the user interacts with —\ntypically zod or TypeScript interfaces for `playbook.yml`, `TASK.md`\nfrontmatter, and `project.yml`. These are the load-bearing files for\nthe `08-reference` schema pages. Common names:\n\n- `packages/core/src/storage/types.ts` — `PlaybookConfigSchema`, `ProjectConfigSchema`\n- `packages/core/src/config/task-definition.ts` — `TaskDefinition`, `TaskFrontmatterSchema`\n\nConfirm by grep'ing for `Schema` or `defineSchema` in `packages/core/src/`.\n\n## Banned\n\n- Listing every TS file in `packages/core/src/`. The manifest is curated —\n  only files a doc page might reasonably cite as a source. Internal helpers\n  don't make the list.\n- Hard-coding paths the scanner found that don't exist. Every entry must\n  pass `test -f`.\n- Skipping examples that don't have a README — they still get an entry\n  with `hasReadme: false`. The gallery degrades gracefully.\n- Editing source files. This is read-only.",
+              "taskInputs": [
+                "packages",
+                "examples",
+                "skills/converge-control/troubleshooting/playbook.md",
+                "README.md",
+                "CHANGELOG.md"
+              ],
+              "factId": "file-exists:test -f \"docs/_sources.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-source-scan-missing-output-docs/_cli-commands.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-source-scan",
+            "severity": "high",
+            "description": "[02-source-scan] Task output not created: docs/_cli-commands.json",
+            "source": "unit",
+            "detected": "2026-04-26T07:34:37.976Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/02-source-scan",
+              "taskId": "02-source-scan",
+              "taskTitle": "Phase 02 — Scan source files; emit docs-sources.json + examples manifest",
+              "taskPrompt": "# Source scan\n\nBuild a structured map of every source file later phases can derive doc\ncontent from. The output is the *cross-validation universe* — every `sources:`\nfrontmatter field in any doc page must reference a file in this map.\n\nThis phase also produces `docs/_examples.json` — the data file the Examples\nGallery WBS (`05-examples`) consumes to spawn one task per example.\n\n## Process\n\n### 1. CLI command seed list\n\n```bash\nnode .converge/playbooks/docs/scripts/scan-cli-commands.mjs docs/_cli-commands.json\n```\n\nPattern-matches `case \"<cmd>\":` blocks in `packages/cli/src/main.ts` and\nmaps each to its handler file. Best-effort — the CLI uses ad-hoc parsing,\nso the list may include aliases or miss handlers. The `08-reference` phase\nrefines this by reading each handler file directly.\n\n### 2. Examples manifest (docs/_examples.json)\n\nFor each subdirectory of `examples/`:\n\n```json\n[\n  {\n    \"slug\": \"hello-world\",\n    \"title\": \"Hello World\",\n    \"category\": \"learning\",\n    \"hasReadme\": true,\n    \"hasPlaybook\": true,\n    \"readmePath\": \"examples/hello-world/README.md\",\n    \"playbookPath\": \"examples/hello-world/.converge/playbooks/default/playbook.yml\",\n    \"tagline\": \"Simplest possible Converge playbook. Creates a file and verifies it exists.\",\n    \"complexity\": \"trivial\"\n  }\n]\n```\n\nField rules:\n\n- `slug` — directory name under `examples/`. Skip non-directory entries\n  (e.g. `context-chain-demo.ts`).\n- `title` — first `# ` heading from the example's README. If no README, fall\n  back to a title-cased version of `slug`.\n- `category` — assign one of these (best-fit; document edge cases in the body):\n  - `learning` — beginner-friendly, single-concept (`hello-world`,\n    `data-pipeline`, `acp-demo`, `baby-app`).\n  - `software` — building runnable software (`flutter-app`, `fullstack-app`,\n    `stitch-to-flutter*`, `game-aiwolf`, `game-assets`,\n    `godot-game-asset-pipeline`).\n  - `research` — multi-pass deep research / analysis\n    (`deep-research`, `frontier-research`, `deep-regulatory-research`,\n    `enterprise-contract-compliance`, `scientific-research`).\n  - `creative` — creative output / simulation\n    (`cinematic-video-production`, `social-sim`,\n    `evolutionary-optimization`).\n  - `security` — security work (`autonomous-pentest`).\n  - `agent-protocol` — protocol / SDK demo (`acp-demo`). Note: also fits\n    `learning`. Prefer `agent-protocol` for now since this category is small.\n- `hasReadme` — boolean. `examples/<slug>/README.md` exists.\n- `hasPlaybook` — boolean. *Any* `playbook.yml` exists under `examples/<slug>/`.\n- `readmePath` — relative path to the README, or `null`.\n- `playbookPath` — relative path to the *primary* playbook (typically\n  `examples/<slug>/.converge/playbooks/default/playbook.yml`); `null` if\n  none exists.\n- `tagline` — first non-heading paragraph from the README, trimmed to <140\n  chars; null if no README.\n- `complexity` — one of `trivial | small | medium | large` based on number\n  of phases in the playbook (0=trivial, 1-3=small, 4-7=medium, 8+=large).\n  Use `null` if no playbook.\n\nWalk with shell:\n\n```bash\nfor dir in examples/*/; do\n  name=$(basename \"$dir\")\n  [ -d \"$dir\" ] || continue\n  # build entry\ndone\n```\n\nExamples without a README **or** without a playbook still get an entry\n(with `hasReadme: false` / `hasPlaybook: false`). The Examples Gallery\nWBS will spawn a degraded page for them (\"this example is undocumented;\nhere's the file tree\").\n\n### 3. Source manifest (docs/_sources.json)\n\nWrite `docs/_sources.json` with this shape:\n\n```json\n{\n  \"$schema\": \"./_sources.schema.json\",\n  \"generatedAt\": \"<ISO timestamp>\",\n  \"cli\": [\n    \"packages/cli/src/main.ts\",\n    \"packages/cli/src/commands.ts\",\n    \"packages/cli/src/commands-run.ts\",\n    \"...\"\n  ],\n  \"core\": [\n    \"packages/core/src/index.ts\",\n    \"packages/core/src/playbook/loader.ts\",\n    \"packages/core/src/journal/types.ts\",\n    \"...\"\n  ],\n  \"examples\": [\n    \"examples/hello-world/.converge/playbooks/default/playbook.yml\",\n    \"...\"\n  ],\n  \"schemas\": [\n    \"packages/core/src/storage/types.ts\",\n    \"packages/core/src/config/task-definition.ts\",\n    \"...\"\n  ],\n  \"troubleshooting\": [\n    \"skills/converge-control/troubleshooting/playbook.md\"\n  ],\n  \"topLevel\": [\n    \"README.md\",\n    \"CHANGELOG.md\"\n  ]\n}\n```\n\nWalk the directories yourself with `find` / `git ls-files`:\n\n```bash\ngit ls-files 'packages/cli/src/*.ts' | sort\ngit ls-files 'packages/core/src/**/*.ts' | sort | head -100\ngit ls-files 'examples/*/.converge/playbooks/*/playbook.yml' | sort\ngit ls-files 'examples/*/.converge/playbooks/*/playbook.yaml' | sort\n```\n\n### 4. Schema files\n\nIdentify the files that define the *schemas* the user interacts with —\ntypically zod or TypeScript interfaces for `playbook.yml`, `TASK.md`\nfrontmatter, and `project.yml`. These are the load-bearing files for\nthe `08-reference` schema pages. Common names:\n\n- `packages/core/src/storage/types.ts` — `PlaybookConfigSchema`, `ProjectConfigSchema`\n- `packages/core/src/config/task-definition.ts` — `TaskDefinition`, `TaskFrontmatterSchema`\n\nConfirm by grep'ing for `Schema` or `defineSchema` in `packages/core/src/`.\n\n## Banned\n\n- Listing every TS file in `packages/core/src/`. The manifest is curated —\n  only files a doc page might reasonably cite as a source. Internal helpers\n  don't make the list.\n- Hard-coding paths the scanner found that don't exist. Every entry must\n  pass `test -f`.\n- Skipping examples that don't have a README — they still get an entry\n  with `hasReadme: false`. The gallery degrades gracefully.\n- Editing source files. This is read-only.",
+              "taskInputs": [
+                "packages",
+                "examples",
+                "skills/converge-control/troubleshooting/playbook.md",
+                "README.md",
+                "CHANGELOG.md"
+              ],
+              "factId": "file-exists:test -f \"docs/_cli-commands.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-source-scan-missing-output-docs/_examples.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-source-scan",
+            "severity": "high",
+            "description": "[02-source-scan] Task output not created: docs/_examples.json",
+            "source": "unit",
+            "detected": "2026-04-26T07:34:37.979Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/02-source-scan",
+              "taskId": "02-source-scan",
+              "taskTitle": "Phase 02 — Scan source files; emit docs-sources.json + examples manifest",
+              "taskPrompt": "# Source scan\n\nBuild a structured map of every source file later phases can derive doc\ncontent from. The output is the *cross-validation universe* — every `sources:`\nfrontmatter field in any doc page must reference a file in this map.\n\nThis phase also produces `docs/_examples.json` — the data file the Examples\nGallery WBS (`05-examples`) consumes to spawn one task per example.\n\n## Process\n\n### 1. CLI command seed list\n\n```bash\nnode .converge/playbooks/docs/scripts/scan-cli-commands.mjs docs/_cli-commands.json\n```\n\nPattern-matches `case \"<cmd>\":` blocks in `packages/cli/src/main.ts` and\nmaps each to its handler file. Best-effort — the CLI uses ad-hoc parsing,\nso the list may include aliases or miss handlers. The `08-reference` phase\nrefines this by reading each handler file directly.\n\n### 2. Examples manifest (docs/_examples.json)\n\nFor each subdirectory of `examples/`:\n\n```json\n[\n  {\n    \"slug\": \"hello-world\",\n    \"title\": \"Hello World\",\n    \"category\": \"learning\",\n    \"hasReadme\": true,\n    \"hasPlaybook\": true,\n    \"readmePath\": \"examples/hello-world/README.md\",\n    \"playbookPath\": \"examples/hello-world/.converge/playbooks/default/playbook.yml\",\n    \"tagline\": \"Simplest possible Converge playbook. Creates a file and verifies it exists.\",\n    \"complexity\": \"trivial\"\n  }\n]\n```\n\nField rules:\n\n- `slug` — directory name under `examples/`. Skip non-directory entries\n  (e.g. `context-chain-demo.ts`).\n- `title` — first `# ` heading from the example's README. If no README, fall\n  back to a title-cased version of `slug`.\n- `category` — assign one of these (best-fit; document edge cases in the body):\n  - `learning` — beginner-friendly, single-concept (`hello-world`,\n    `data-pipeline`, `acp-demo`, `baby-app`).\n  - `software` — building runnable software (`flutter-app`, `fullstack-app`,\n    `stitch-to-flutter*`, `game-aiwolf`, `game-assets`,\n    `godot-game-asset-pipeline`).\n  - `research` — multi-pass deep research / analysis\n    (`deep-research`, `frontier-research`, `deep-regulatory-research`,\n    `enterprise-contract-compliance`, `scientific-research`).\n  - `creative` — creative output / simulation\n    (`cinematic-video-production`, `social-sim`,\n    `evolutionary-optimization`).\n  - `security` — security work (`autonomous-pentest`).\n  - `agent-protocol` — protocol / SDK demo (`acp-demo`). Note: also fits\n    `learning`. Prefer `agent-protocol` for now since this category is small.\n- `hasReadme` — boolean. `examples/<slug>/README.md` exists.\n- `hasPlaybook` — boolean. *Any* `playbook.yml` exists under `examples/<slug>/`.\n- `readmePath` — relative path to the README, or `null`.\n- `playbookPath` — relative path to the *primary* playbook (typically\n  `examples/<slug>/.converge/playbooks/default/playbook.yml`); `null` if\n  none exists.\n- `tagline` — first non-heading paragraph from the README, trimmed to <140\n  chars; null if no README.\n- `complexity` — one of `trivial | small | medium | large` based on number\n  of phases in the playbook (0=trivial, 1-3=small, 4-7=medium, 8+=large).\n  Use `null` if no playbook.\n\nWalk with shell:\n\n```bash\nfor dir in examples/*/; do\n  name=$(basename \"$dir\")\n  [ -d \"$dir\" ] || continue\n  # build entry\ndone\n```\n\nExamples without a README **or** without a playbook still get an entry\n(with `hasReadme: false` / `hasPlaybook: false`). The Examples Gallery\nWBS will spawn a degraded page for them (\"this example is undocumented;\nhere's the file tree\").\n\n### 3. Source manifest (docs/_sources.json)\n\nWrite `docs/_sources.json` with this shape:\n\n```json\n{\n  \"$schema\": \"./_sources.schema.json\",\n  \"generatedAt\": \"<ISO timestamp>\",\n  \"cli\": [\n    \"packages/cli/src/main.ts\",\n    \"packages/cli/src/commands.ts\",\n    \"packages/cli/src/commands-run.ts\",\n    \"...\"\n  ],\n  \"core\": [\n    \"packages/core/src/index.ts\",\n    \"packages/core/src/playbook/loader.ts\",\n    \"packages/core/src/journal/types.ts\",\n    \"...\"\n  ],\n  \"examples\": [\n    \"examples/hello-world/.converge/playbooks/default/playbook.yml\",\n    \"...\"\n  ],\n  \"schemas\": [\n    \"packages/core/src/storage/types.ts\",\n    \"packages/core/src/config/task-definition.ts\",\n    \"...\"\n  ],\n  \"troubleshooting\": [\n    \"skills/converge-control/troubleshooting/playbook.md\"\n  ],\n  \"topLevel\": [\n    \"README.md\",\n    \"CHANGELOG.md\"\n  ]\n}\n```\n\nWalk the directories yourself with `find` / `git ls-files`:\n\n```bash\ngit ls-files 'packages/cli/src/*.ts' | sort\ngit ls-files 'packages/core/src/**/*.ts' | sort | head -100\ngit ls-files 'examples/*/.converge/playbooks/*/playbook.yml' | sort\ngit ls-files 'examples/*/.converge/playbooks/*/playbook.yaml' | sort\n```\n\n### 4. Schema files\n\nIdentify the files that define the *schemas* the user interacts with —\ntypically zod or TypeScript interfaces for `playbook.yml`, `TASK.md`\nfrontmatter, and `project.yml`. These are the load-bearing files for\nthe `08-reference` schema pages. Common names:\n\n- `packages/core/src/storage/types.ts` — `PlaybookConfigSchema`, `ProjectConfigSchema`\n- `packages/core/src/config/task-definition.ts` — `TaskDefinition`, `TaskFrontmatterSchema`\n\nConfirm by grep'ing for `Schema` or `defineSchema` in `packages/core/src/`.\n\n## Banned\n\n- Listing every TS file in `packages/core/src/`. The manifest is curated —\n  only files a doc page might reasonably cite as a source. Internal helpers\n  don't make the list.\n- Hard-coding paths the scanner found that don't exist. Every entry must\n  pass `test -f`.\n- Skipping examples that don't have a README — they still get an entry\n  with `hasReadme: false`. The gallery degrades gracefully.\n- Editing source files. This is read-only.",
+              "taskInputs": [
+                "packages",
+                "examples",
+                "skills/converge-control/troubleshooting/playbook.md",
+                "README.md",
+                "CHANGELOG.md"
+              ],
+              "factId": "file-exists:test -f \"docs/_examples.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-source-scan-check-failed-sources-json-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-source-scan",
+            "severity": "high",
+            "description": "[02-source-scan] Check failed: docs/_sources.json exists and is valid JSON",
+            "source": "unit",
+            "detected": "2026-04-26T07:34:37.981Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "sources-json-exists",
+              "checkCmd": "test -f docs/_sources.json && node -e \"JSON.parse(require('fs').readFileSync('docs/_sources.json','utf8'))\"",
+              "checkDescription": "docs/_sources.json exists and is valid JSON",
+              "checkOutput": "Command failed: test -f docs/_sources.json && node -e \"JSON.parse(require('fs').readFileSync('docs/_sources.json','utf8'))\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Source scan\n\nBuild a structured map of every source file later phases can derive doc\ncontent from. The output is the *cross-validation universe* — every `sources:`\nfrontmatter field in any doc page must reference a file in this map.\n\nThis phase also produces `docs/_examples.json` — the data file the Examples\nGallery WBS (`05-examples`) consumes to spawn one task per example.\n\n## Process\n\n### 1. CLI command seed list\n\n```bash\nnode .converge/playbooks/docs/scripts/scan-cli-commands.mjs docs/_cli-commands.json\n```\n\nPattern-matches `case \"<cmd>\":` blocks in `packages/cli/src/main.ts` and\nmaps each to its handler file. Best-effort — the CLI uses ad-hoc parsing,\nso the list may include aliases or miss handlers. The `08-reference` phase\nrefines this by reading each handler file directly.\n\n### 2. Examples manifest (docs/_examples.json)\n\nFor each subdirectory of `examples/`:\n\n```json\n[\n  {\n    \"slug\": \"hello-world\",\n    \"title\": \"Hello World\",\n    \"category\": \"learning\",\n    \"hasReadme\": true,\n    \"hasPlaybook\": true,\n    \"readmePath\": \"examples/hello-world/README.md\",\n    \"playbookPath\": \"examples/hello-world/.converge/playbooks/default/playbook.yml\",\n    \"tagline\": \"Simplest possible Converge playbook. Creates a file and verifies it exists.\",\n    \"complexity\": \"trivial\"\n  }\n]\n```\n\nField rules:\n\n- `slug` — directory name under `examples/`. Skip non-directory entries\n  (e.g. `context-chain-demo.ts`).\n- `title` — first `# ` heading from the example's README. If no README, fall\n  back to a title-cased version of `slug`.\n- `category` — assign one of these (best-fit; document edge cases in the body):\n  - `learning` — beginner-friendly, single-concept (`hello-world`,\n    `data-pipeline`, `acp-demo`, `baby-app`).\n  - `software` — building runnable software (`flutter-app`, `fullstack-app`,\n    `stitch-to-flutter*`, `game-aiwolf`, `game-assets`,\n    `godot-game-asset-pipeline`).\n  - `research` — multi-pass deep research / analysis\n    (`deep-research`, `frontier-research`, `deep-regulatory-research`,\n    `enterprise-contract-compliance`, `scientific-research`).\n  - `creative` — creative output / simulation\n    (`cinematic-video-production`, `social-sim`,\n    `evolutionary-optimization`).\n  - `security` — security work (`autonomous-pentest`).\n  - `agent-protocol` — protocol / SDK demo (`acp-demo`). Note: also fits\n    `learning`. Prefer `agent-protocol` for now since this category is small.\n- `hasReadme` — boolean. `examples/<slug>/README.md` exists.\n- `hasPlaybook` — boolean. *Any* `playbook.yml` exists under `examples/<slug>/`.\n- `readmePath` — relative path to the README, or `null`.\n- `playbookPath` — relative path to the *primary* playbook (typically\n  `examples/<slug>/.converge/playbooks/default/playbook.yml`); `null` if\n  none exists.\n- `tagline` — first non-heading paragraph from the README, trimmed to <140\n  chars; null if no README.\n- `complexity` — one of `trivial | small | medium | large` based on number\n  of phases in the playbook (0=trivial, 1-3=small, 4-7=medium, 8+=large).\n  Use `null` if no playbook.\n\nWalk with shell:\n\n```bash\nfor dir in examples/*/; do\n  name=$(basename \"$dir\")\n  [ -d \"$dir\" ] || continue\n  # build entry\ndone\n```\n\nExamples without a README **or** without a playbook still get an entry\n(with `hasReadme: false` / `hasPlaybook: false`). The Examples Gallery\nWBS will spawn a degraded page for them (\"this example is undocumented;\nhere's the file tree\").\n\n### 3. Source manifest (docs/_sources.json)\n\nWrite `docs/_sources.json` with this shape:\n\n```json\n{\n  \"$schema\": \"./_sources.schema.json\",\n  \"generatedAt\": \"<ISO timestamp>\",\n  \"cli\": [\n    \"packages/cli/src/main.ts\",\n    \"packages/cli/src/commands.ts\",\n    \"packages/cli/src/commands-run.ts\",\n    \"...\"\n  ],\n  \"core\": [\n    \"packages/core/src/index.ts\",\n    \"packages/core/src/playbook/loader.ts\",\n    \"packages/core/src/journal/types.ts\",\n    \"...\"\n  ],\n  \"examples\": [\n    \"examples/hello-world/.converge/playbooks/default/playbook.yml\",\n    \"...\"\n  ],\n  \"schemas\": [\n    \"packages/core/src/storage/types.ts\",\n    \"packages/core/src/config/task-definition.ts\",\n    \"...\"\n  ],\n  \"troubleshooting\": [\n    \"skills/converge-control/troubleshooting/playbook.md\"\n  ],\n  \"topLevel\": [\n    \"README.md\",\n    \"CHANGELOG.md\"\n  ]\n}\n```\n\nWalk the directories yourself with `find` / `git ls-files`:\n\n```bash\ngit ls-files 'packages/cli/src/*.ts' | sort\ngit ls-files 'packages/core/src/**/*.ts' | sort | head -100\ngit ls-files 'examples/*/.converge/playbooks/*/playbook.yml' | sort\ngit ls-files 'examples/*/.converge/playbooks/*/playbook.yaml' | sort\n```\n\n### 4. Schema files\n\nIdentify the files that define the *schemas* the user interacts with —\ntypically zod or TypeScript interfaces for `playbook.yml`, `TASK.md`\nfrontmatter, and `project.yml`. These are the load-bearing files for\nthe `08-reference` schema pages. Common names:\n\n- `packages/core/src/storage/types.ts` — `PlaybookConfigSchema`, `ProjectConfigSchema`\n- `packages/core/src/config/task-definition.ts` — `TaskDefinition`, `TaskFrontmatterSchema`\n\nConfirm by grep'ing for `Schema` or `defineSchema` in `packages/core/src/`.\n\n## Banned\n\n- Listing every TS file in `packages/core/src/`. The manifest is curated —\n  only files a doc page might reasonably cite as a source. Internal helpers\n  don't make the list.\n- Hard-coding paths the scanner found that don't exist. Every entry must\n  pass `test -f`.\n- Skipping examples that don't have a README — they still get an entry\n  with `hasReadme: false`. The gallery degrades gracefully.\n- Editing source files. This is read-only.",
+              "taskId": "02-source-scan",
+              "taskTitle": "Phase 02 — Scan source files; emit docs-sources.json + examples manifest",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/02-source-scan",
+              "factId": "check:sources-json-exists"
+            }
+          },
+          {
+            "id": "02-source-scan-check-failed-sources-json-has-cli",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-source-scan",
+            "severity": "high",
+            "description": "[02-source-scan] Check failed: sources include CLI files",
+            "source": "unit",
+            "detected": "2026-04-26T07:34:38.006Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "sources-json-has-cli",
+              "checkCmd": "node -e \"const s=require('./docs/_sources.json');process.exit(Array.isArray(s.cli)&&s.cli.length>0?0:1)\"",
+              "checkDescription": "sources include CLI files",
+              "checkOutput": "node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nError: Cannot find module './docs/_sources.json'\nRequire stack:\n- /Users/minh/Documents/converge/[eval]\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\n    at Function._load (node:internal/modules/cjs/loader:1192:37)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\n    at Module.require (node:internal/modules/cjs/loader:1463:12)\n    at require (node:internal/modules/helpers:147:16)\n    at [eval]:1:9\n    at runScriptInThisContext (node:internal/vm:209:10) {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: [ '/Users/minh/Documents/converge/[eval]' ]\n}\n\nNode.js v22.19.0",
+              "checkExitCode": 1,
+              "taskPrompt": "# Source scan\n\nBuild a structured map of every source file later phases can derive doc\ncontent from. The output is the *cross-validation universe* — every `sources:`\nfrontmatter field in any doc page must reference a file in this map.\n\nThis phase also produces `docs/_examples.json` — the data file the Examples\nGallery WBS (`05-examples`) consumes to spawn one task per example.\n\n## Process\n\n### 1. CLI command seed list\n\n```bash\nnode .converge/playbooks/docs/scripts/scan-cli-commands.mjs docs/_cli-commands.json\n```\n\nPattern-matches `case \"<cmd>\":` blocks in `packages/cli/src/main.ts` and\nmaps each to its handler file. Best-effort — the CLI uses ad-hoc parsing,\nso the list may include aliases or miss handlers. The `08-reference` phase\nrefines this by reading each handler file directly.\n\n### 2. Examples manifest (docs/_examples.json)\n\nFor each subdirectory of `examples/`:\n\n```json\n[\n  {\n    \"slug\": \"hello-world\",\n    \"title\": \"Hello World\",\n    \"category\": \"learning\",\n    \"hasReadme\": true,\n    \"hasPlaybook\": true,\n    \"readmePath\": \"examples/hello-world/README.md\",\n    \"playbookPath\": \"examples/hello-world/.converge/playbooks/default/playbook.yml\",\n    \"tagline\": \"Simplest possible Converge playbook. Creates a file and verifies it exists.\",\n    \"complexity\": \"trivial\"\n  }\n]\n```\n\nField rules:\n\n- `slug` — directory name under `examples/`. Skip non-directory entries\n  (e.g. `context-chain-demo.ts`).\n- `title` — first `# ` heading from the example's README. If no README, fall\n  back to a title-cased version of `slug`.\n- `category` — assign one of these (best-fit; document edge cases in the body):\n  - `learning` — beginner-friendly, single-concept (`hello-world`,\n    `data-pipeline`, `acp-demo`, `baby-app`).\n  - `software` — building runnable software (`flutter-app`, `fullstack-app`,\n    `stitch-to-flutter*`, `game-aiwolf`, `game-assets`,\n    `godot-game-asset-pipeline`).\n  - `research` — multi-pass deep research / analysis\n    (`deep-research`, `frontier-research`, `deep-regulatory-research`,\n    `enterprise-contract-compliance`, `scientific-research`).\n  - `creative` — creative output / simulation\n    (`cinematic-video-production`, `social-sim`,\n    `evolutionary-optimization`).\n  - `security` — security work (`autonomous-pentest`).\n  - `agent-protocol` — protocol / SDK demo (`acp-demo`). Note: also fits\n    `learning`. Prefer `agent-protocol` for now since this category is small.\n- `hasReadme` — boolean. `examples/<slug>/README.md` exists.\n- `hasPlaybook` — boolean. *Any* `playbook.yml` exists under `examples/<slug>/`.\n- `readmePath` — relative path to the README, or `null`.\n- `playbookPath` — relative path to the *primary* playbook (typically\n  `examples/<slug>/.converge/playbooks/default/playbook.yml`); `null` if\n  none exists.\n- `tagline` — first non-heading paragraph from the README, trimmed to <140\n  chars; null if no README.\n- `complexity` — one of `trivial | small | medium | large` based on number\n  of phases in the playbook (0=trivial, 1-3=small, 4-7=medium, 8+=large).\n  Use `null` if no playbook.\n\nWalk with shell:\n\n```bash\nfor dir in examples/*/; do\n  name=$(basename \"$dir\")\n  [ -d \"$dir\" ] || continue\n  # build entry\ndone\n```\n\nExamples without a README **or** without a playbook still get an entry\n(with `hasReadme: false` / `hasPlaybook: false`). The Examples Gallery\nWBS will spawn a degraded page for them (\"this example is undocumented;\nhere's the file tree\").\n\n### 3. Source manifest (docs/_sources.json)\n\nWrite `docs/_sources.json` with this shape:\n\n```json\n{\n  \"$schema\": \"./_sources.schema.json\",\n  \"generatedAt\": \"<ISO timestamp>\",\n  \"cli\": [\n    \"packages/cli/src/main.ts\",\n    \"packages/cli/src/commands.ts\",\n    \"packages/cli/src/commands-run.ts\",\n    \"...\"\n  ],\n  \"core\": [\n    \"packages/core/src/index.ts\",\n    \"packages/core/src/playbook/loader.ts\",\n    \"packages/core/src/journal/types.ts\",\n    \"...\"\n  ],\n  \"examples\": [\n    \"examples/hello-world/.converge/playbooks/default/playbook.yml\",\n    \"...\"\n  ],\n  \"schemas\": [\n    \"packages/core/src/storage/types.ts\",\n    \"packages/core/src/config/task-definition.ts\",\n    \"...\"\n  ],\n  \"troubleshooting\": [\n    \"skills/converge-control/troubleshooting/playbook.md\"\n  ],\n  \"topLevel\": [\n    \"README.md\",\n    \"CHANGELOG.md\"\n  ]\n}\n```\n\nWalk the directories yourself with `find` / `git ls-files`:\n\n```bash\ngit ls-files 'packages/cli/src/*.ts' | sort\ngit ls-files 'packages/core/src/**/*.ts' | sort | head -100\ngit ls-files 'examples/*/.converge/playbooks/*/playbook.yml' | sort\ngit ls-files 'examples/*/.converge/playbooks/*/playbook.yaml' | sort\n```\n\n### 4. Schema files\n\nIdentify the files that define the *schemas* the user interacts with —\ntypically zod or TypeScript interfaces for `playbook.yml`, `TASK.md`\nfrontmatter, and `project.yml`. These are the load-bearing files for\nthe `08-reference` schema pages. Common names:\n\n- `packages/core/src/storage/types.ts` — `PlaybookConfigSchema`, `ProjectConfigSchema`\n- `packages/core/src/config/task-definition.ts` — `TaskDefinition`, `TaskFrontmatterSchema`\n\nConfirm by grep'ing for `Schema` or `defineSchema` in `packages/core/src/`.\n\n## Banned\n\n- Listing every TS file in `packages/core/src/`. The manifest is curated —\n  only files a doc page might reasonably cite as a source. Internal helpers\n  don't make the list.\n- Hard-coding paths the scanner found that don't exist. Every entry must\n  pass `test -f`.\n- Skipping examples that don't have a README — they still get an entry\n  with `hasReadme: false`. The gallery degrades gracefully.\n- Editing source files. This is read-only.",
+              "taskId": "02-source-scan",
+              "taskTitle": "Phase 02 — Scan source files; emit docs-sources.json + examples manifest",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/02-source-scan",
+              "factId": "check:sources-json-has-cli"
+            }
+          },
+          {
+            "id": "02-source-scan-check-failed-sources-json-has-core",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-source-scan",
+            "severity": "high",
+            "description": "[02-source-scan] Check failed: sources include @converge/core files",
+            "source": "unit",
+            "detected": "2026-04-26T07:34:38.031Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "sources-json-has-core",
+              "checkCmd": "node -e \"const s=require('./docs/_sources.json');process.exit(Array.isArray(s.core)&&s.core.length>0?0:1)\"",
+              "checkDescription": "sources include @converge/core files",
+              "checkOutput": "node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nError: Cannot find module './docs/_sources.json'\nRequire stack:\n- /Users/minh/Documents/converge/[eval]\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\n    at Function._load (node:internal/modules/cjs/loader:1192:37)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\n    at Module.require (node:internal/modules/cjs/loader:1463:12)\n    at require (node:internal/modules/helpers:147:16)\n    at [eval]:1:9\n    at runScriptInThisContext (node:internal/vm:209:10) {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: [ '/Users/minh/Documents/converge/[eval]' ]\n}\n\nNode.js v22.19.0",
+              "checkExitCode": 1,
+              "taskPrompt": "# Source scan\n\nBuild a structured map of every source file later phases can derive doc\ncontent from. The output is the *cross-validation universe* — every `sources:`\nfrontmatter field in any doc page must reference a file in this map.\n\nThis phase also produces `docs/_examples.json` — the data file the Examples\nGallery WBS (`05-examples`) consumes to spawn one task per example.\n\n## Process\n\n### 1. CLI command seed list\n\n```bash\nnode .converge/playbooks/docs/scripts/scan-cli-commands.mjs docs/_cli-commands.json\n```\n\nPattern-matches `case \"<cmd>\":` blocks in `packages/cli/src/main.ts` and\nmaps each to its handler file. Best-effort — the CLI uses ad-hoc parsing,\nso the list may include aliases or miss handlers. The `08-reference` phase\nrefines this by reading each handler file directly.\n\n### 2. Examples manifest (docs/_examples.json)\n\nFor each subdirectory of `examples/`:\n\n```json\n[\n  {\n    \"slug\": \"hello-world\",\n    \"title\": \"Hello World\",\n    \"category\": \"learning\",\n    \"hasReadme\": true,\n    \"hasPlaybook\": true,\n    \"readmePath\": \"examples/hello-world/README.md\",\n    \"playbookPath\": \"examples/hello-world/.converge/playbooks/default/playbook.yml\",\n    \"tagline\": \"Simplest possible Converge playbook. Creates a file and verifies it exists.\",\n    \"complexity\": \"trivial\"\n  }\n]\n```\n\nField rules:\n\n- `slug` — directory name under `examples/`. Skip non-directory entries\n  (e.g. `context-chain-demo.ts`).\n- `title` — first `# ` heading from the example's README. If no README, fall\n  back to a title-cased version of `slug`.\n- `category` — assign one of these (best-fit; document edge cases in the body):\n  - `learning` — beginner-friendly, single-concept (`hello-world`,\n    `data-pipeline`, `acp-demo`, `baby-app`).\n  - `software` — building runnable software (`flutter-app`, `fullstack-app`,\n    `stitch-to-flutter*`, `game-aiwolf`, `game-assets`,\n    `godot-game-asset-pipeline`).\n  - `research` — multi-pass deep research / analysis\n    (`deep-research`, `frontier-research`, `deep-regulatory-research`,\n    `enterprise-contract-compliance`, `scientific-research`).\n  - `creative` — creative output / simulation\n    (`cinematic-video-production`, `social-sim`,\n    `evolutionary-optimization`).\n  - `security` — security work (`autonomous-pentest`).\n  - `agent-protocol` — protocol / SDK demo (`acp-demo`). Note: also fits\n    `learning`. Prefer `agent-protocol` for now since this category is small.\n- `hasReadme` — boolean. `examples/<slug>/README.md` exists.\n- `hasPlaybook` — boolean. *Any* `playbook.yml` exists under `examples/<slug>/`.\n- `readmePath` — relative path to the README, or `null`.\n- `playbookPath` — relative path to the *primary* playbook (typically\n  `examples/<slug>/.converge/playbooks/default/playbook.yml`); `null` if\n  none exists.\n- `tagline` — first non-heading paragraph from the README, trimmed to <140\n  chars; null if no README.\n- `complexity` — one of `trivial | small | medium | large` based on number\n  of phases in the playbook (0=trivial, 1-3=small, 4-7=medium, 8+=large).\n  Use `null` if no playbook.\n\nWalk with shell:\n\n```bash\nfor dir in examples/*/; do\n  name=$(basename \"$dir\")\n  [ -d \"$dir\" ] || continue\n  # build entry\ndone\n```\n\nExamples without a README **or** without a playbook still get an entry\n(with `hasReadme: false` / `hasPlaybook: false`). The Examples Gallery\nWBS will spawn a degraded page for them (\"this example is undocumented;\nhere's the file tree\").\n\n### 3. Source manifest (docs/_sources.json)\n\nWrite `docs/_sources.json` with this shape:\n\n```json\n{\n  \"$schema\": \"./_sources.schema.json\",\n  \"generatedAt\": \"<ISO timestamp>\",\n  \"cli\": [\n    \"packages/cli/src/main.ts\",\n    \"packages/cli/src/commands.ts\",\n    \"packages/cli/src/commands-run.ts\",\n    \"...\"\n  ],\n  \"core\": [\n    \"packages/core/src/index.ts\",\n    \"packages/core/src/playbook/loader.ts\",\n    \"packages/core/src/journal/types.ts\",\n    \"...\"\n  ],\n  \"examples\": [\n    \"examples/hello-world/.converge/playbooks/default/playbook.yml\",\n    \"...\"\n  ],\n  \"schemas\": [\n    \"packages/core/src/storage/types.ts\",\n    \"packages/core/src/config/task-definition.ts\",\n    \"...\"\n  ],\n  \"troubleshooting\": [\n    \"skills/converge-control/troubleshooting/playbook.md\"\n  ],\n  \"topLevel\": [\n    \"README.md\",\n    \"CHANGELOG.md\"\n  ]\n}\n```\n\nWalk the directories yourself with `find` / `git ls-files`:\n\n```bash\ngit ls-files 'packages/cli/src/*.ts' | sort\ngit ls-files 'packages/core/src/**/*.ts' | sort | head -100\ngit ls-files 'examples/*/.converge/playbooks/*/playbook.yml' | sort\ngit ls-files 'examples/*/.converge/playbooks/*/playbook.yaml' | sort\n```\n\n### 4. Schema files\n\nIdentify the files that define the *schemas* the user interacts with —\ntypically zod or TypeScript interfaces for `playbook.yml`, `TASK.md`\nfrontmatter, and `project.yml`. These are the load-bearing files for\nthe `08-reference` schema pages. Common names:\n\n- `packages/core/src/storage/types.ts` — `PlaybookConfigSchema`, `ProjectConfigSchema`\n- `packages/core/src/config/task-definition.ts` — `TaskDefinition`, `TaskFrontmatterSchema`\n\nConfirm by grep'ing for `Schema` or `defineSchema` in `packages/core/src/`.\n\n## Banned\n\n- Listing every TS file in `packages/core/src/`. The manifest is curated —\n  only files a doc page might reasonably cite as a source. Internal helpers\n  don't make the list.\n- Hard-coding paths the scanner found that don't exist. Every entry must\n  pass `test -f`.\n- Skipping examples that don't have a README — they still get an entry\n  with `hasReadme: false`. The gallery degrades gracefully.\n- Editing source files. This is read-only.",
+              "taskId": "02-source-scan",
+              "taskTitle": "Phase 02 — Scan source files; emit docs-sources.json + examples manifest",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/02-source-scan",
+              "factId": "check:sources-json-has-core"
+            }
+          },
+          {
+            "id": "02-source-scan-check-failed-sources-json-has-troubleshooting",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-source-scan",
+            "severity": "high",
+            "description": "[02-source-scan] Check failed: sources include the troubleshooting reference file",
+            "source": "unit",
+            "detected": "2026-04-26T07:34:38.056Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "sources-json-has-troubleshooting",
+              "checkCmd": "node -e \"const s=require('./docs/_sources.json');process.exit(Array.isArray(s.troubleshooting)&&s.troubleshooting.length>0?0:1)\"",
+              "checkDescription": "sources include the troubleshooting reference file",
+              "checkOutput": "node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nError: Cannot find module './docs/_sources.json'\nRequire stack:\n- /Users/minh/Documents/converge/[eval]\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\n    at Function._load (node:internal/modules/cjs/loader:1192:37)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\n    at Module.require (node:internal/modules/cjs/loader:1463:12)\n    at require (node:internal/modules/helpers:147:16)\n    at [eval]:1:9\n    at runScriptInThisContext (node:internal/vm:209:10) {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: [ '/Users/minh/Documents/converge/[eval]' ]\n}\n\nNode.js v22.19.0",
+              "checkExitCode": 1,
+              "taskPrompt": "# Source scan\n\nBuild a structured map of every source file later phases can derive doc\ncontent from. The output is the *cross-validation universe* — every `sources:`\nfrontmatter field in any doc page must reference a file in this map.\n\nThis phase also produces `docs/_examples.json` — the data file the Examples\nGallery WBS (`05-examples`) consumes to spawn one task per example.\n\n## Process\n\n### 1. CLI command seed list\n\n```bash\nnode .converge/playbooks/docs/scripts/scan-cli-commands.mjs docs/_cli-commands.json\n```\n\nPattern-matches `case \"<cmd>\":` blocks in `packages/cli/src/main.ts` and\nmaps each to its handler file. Best-effort — the CLI uses ad-hoc parsing,\nso the list may include aliases or miss handlers. The `08-reference` phase\nrefines this by reading each handler file directly.\n\n### 2. Examples manifest (docs/_examples.json)\n\nFor each subdirectory of `examples/`:\n\n```json\n[\n  {\n    \"slug\": \"hello-world\",\n    \"title\": \"Hello World\",\n    \"category\": \"learning\",\n    \"hasReadme\": true,\n    \"hasPlaybook\": true,\n    \"readmePath\": \"examples/hello-world/README.md\",\n    \"playbookPath\": \"examples/hello-world/.converge/playbooks/default/playbook.yml\",\n    \"tagline\": \"Simplest possible Converge playbook. Creates a file and verifies it exists.\",\n    \"complexity\": \"trivial\"\n  }\n]\n```\n\nField rules:\n\n- `slug` — directory name under `examples/`. Skip non-directory entries\n  (e.g. `context-chain-demo.ts`).\n- `title` — first `# ` heading from the example's README. If no README, fall\n  back to a title-cased version of `slug`.\n- `category` — assign one of these (best-fit; document edge cases in the body):\n  - `learning` — beginner-friendly, single-concept (`hello-world`,\n    `data-pipeline`, `acp-demo`, `baby-app`).\n  - `software` — building runnable software (`flutter-app`, `fullstack-app`,\n    `stitch-to-flutter*`, `game-aiwolf`, `game-assets`,\n    `godot-game-asset-pipeline`).\n  - `research` — multi-pass deep research / analysis\n    (`deep-research`, `frontier-research`, `deep-regulatory-research`,\n    `enterprise-contract-compliance`, `scientific-research`).\n  - `creative` — creative output / simulation\n    (`cinematic-video-production`, `social-sim`,\n    `evolutionary-optimization`).\n  - `security` — security work (`autonomous-pentest`).\n  - `agent-protocol` — protocol / SDK demo (`acp-demo`). Note: also fits\n    `learning`. Prefer `agent-protocol` for now since this category is small.\n- `hasReadme` — boolean. `examples/<slug>/README.md` exists.\n- `hasPlaybook` — boolean. *Any* `playbook.yml` exists under `examples/<slug>/`.\n- `readmePath` — relative path to the README, or `null`.\n- `playbookPath` — relative path to the *primary* playbook (typically\n  `examples/<slug>/.converge/playbooks/default/playbook.yml`); `null` if\n  none exists.\n- `tagline` — first non-heading paragraph from the README, trimmed to <140\n  chars; null if no README.\n- `complexity` — one of `trivial | small | medium | large` based on number\n  of phases in the playbook (0=trivial, 1-3=small, 4-7=medium, 8+=large).\n  Use `null` if no playbook.\n\nWalk with shell:\n\n```bash\nfor dir in examples/*/; do\n  name=$(basename \"$dir\")\n  [ -d \"$dir\" ] || continue\n  # build entry\ndone\n```\n\nExamples without a README **or** without a playbook still get an entry\n(with `hasReadme: false` / `hasPlaybook: false`). The Examples Gallery\nWBS will spawn a degraded page for them (\"this example is undocumented;\nhere's the file tree\").\n\n### 3. Source manifest (docs/_sources.json)\n\nWrite `docs/_sources.json` with this shape:\n\n```json\n{\n  \"$schema\": \"./_sources.schema.json\",\n  \"generatedAt\": \"<ISO timestamp>\",\n  \"cli\": [\n    \"packages/cli/src/main.ts\",\n    \"packages/cli/src/commands.ts\",\n    \"packages/cli/src/commands-run.ts\",\n    \"...\"\n  ],\n  \"core\": [\n    \"packages/core/src/index.ts\",\n    \"packages/core/src/playbook/loader.ts\",\n    \"packages/core/src/journal/types.ts\",\n    \"...\"\n  ],\n  \"examples\": [\n    \"examples/hello-world/.converge/playbooks/default/playbook.yml\",\n    \"...\"\n  ],\n  \"schemas\": [\n    \"packages/core/src/storage/types.ts\",\n    \"packages/core/src/config/task-definition.ts\",\n    \"...\"\n  ],\n  \"troubleshooting\": [\n    \"skills/converge-control/troubleshooting/playbook.md\"\n  ],\n  \"topLevel\": [\n    \"README.md\",\n    \"CHANGELOG.md\"\n  ]\n}\n```\n\nWalk the directories yourself with `find` / `git ls-files`:\n\n```bash\ngit ls-files 'packages/cli/src/*.ts' | sort\ngit ls-files 'packages/core/src/**/*.ts' | sort | head -100\ngit ls-files 'examples/*/.converge/playbooks/*/playbook.yml' | sort\ngit ls-files 'examples/*/.converge/playbooks/*/playbook.yaml' | sort\n```\n\n### 4. Schema files\n\nIdentify the files that define the *schemas* the user interacts with —\ntypically zod or TypeScript interfaces for `playbook.yml`, `TASK.md`\nfrontmatter, and `project.yml`. These are the load-bearing files for\nthe `08-reference` schema pages. Common names:\n\n- `packages/core/src/storage/types.ts` — `PlaybookConfigSchema`, `ProjectConfigSchema`\n- `packages/core/src/config/task-definition.ts` — `TaskDefinition`, `TaskFrontmatterSchema`\n\nConfirm by grep'ing for `Schema` or `defineSchema` in `packages/core/src/`.\n\n## Banned\n\n- Listing every TS file in `packages/core/src/`. The manifest is curated —\n  only files a doc page might reasonably cite as a source. Internal helpers\n  don't make the list.\n- Hard-coding paths the scanner found that don't exist. Every entry must\n  pass `test -f`.\n- Skipping examples that don't have a README — they still get an entry\n  with `hasReadme: false`. The gallery degrades gracefully.\n- Editing source files. This is read-only.",
+              "taskId": "02-source-scan",
+              "taskTitle": "Phase 02 — Scan source files; emit docs-sources.json + examples manifest",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/02-source-scan",
+              "factId": "check:sources-json-has-troubleshooting"
+            }
+          },
+          {
+            "id": "02-source-scan-check-failed-cli-commands-extracted",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-source-scan",
+            "severity": "high",
+            "description": "[02-source-scan] Check failed: at least 10 CLI commands extracted by scan-cli-commands.mjs",
+            "source": "unit",
+            "detected": "2026-04-26T07:34:38.059Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "cli-commands-extracted",
+              "checkCmd": "test -f docs/_cli-commands.json && node -e \"const c=require('./docs/_cli-commands.json');process.exit(c.length>=10?0:1)\"",
+              "checkDescription": "at least 10 CLI commands extracted by scan-cli-commands.mjs",
+              "checkOutput": "Command failed: test -f docs/_cli-commands.json && node -e \"const c=require('./docs/_cli-commands.json');process.exit(c.length>=10?0:1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Source scan\n\nBuild a structured map of every source file later phases can derive doc\ncontent from. The output is the *cross-validation universe* — every `sources:`\nfrontmatter field in any doc page must reference a file in this map.\n\nThis phase also produces `docs/_examples.json` — the data file the Examples\nGallery WBS (`05-examples`) consumes to spawn one task per example.\n\n## Process\n\n### 1. CLI command seed list\n\n```bash\nnode .converge/playbooks/docs/scripts/scan-cli-commands.mjs docs/_cli-commands.json\n```\n\nPattern-matches `case \"<cmd>\":` blocks in `packages/cli/src/main.ts` and\nmaps each to its handler file. Best-effort — the CLI uses ad-hoc parsing,\nso the list may include aliases or miss handlers. The `08-reference` phase\nrefines this by reading each handler file directly.\n\n### 2. Examples manifest (docs/_examples.json)\n\nFor each subdirectory of `examples/`:\n\n```json\n[\n  {\n    \"slug\": \"hello-world\",\n    \"title\": \"Hello World\",\n    \"category\": \"learning\",\n    \"hasReadme\": true,\n    \"hasPlaybook\": true,\n    \"readmePath\": \"examples/hello-world/README.md\",\n    \"playbookPath\": \"examples/hello-world/.converge/playbooks/default/playbook.yml\",\n    \"tagline\": \"Simplest possible Converge playbook. Creates a file and verifies it exists.\",\n    \"complexity\": \"trivial\"\n  }\n]\n```\n\nField rules:\n\n- `slug` — directory name under `examples/`. Skip non-directory entries\n  (e.g. `context-chain-demo.ts`).\n- `title` — first `# ` heading from the example's README. If no README, fall\n  back to a title-cased version of `slug`.\n- `category` — assign one of these (best-fit; document edge cases in the body):\n  - `learning` — beginner-friendly, single-concept (`hello-world`,\n    `data-pipeline`, `acp-demo`, `baby-app`).\n  - `software` — building runnable software (`flutter-app`, `fullstack-app`,\n    `stitch-to-flutter*`, `game-aiwolf`, `game-assets`,\n    `godot-game-asset-pipeline`).\n  - `research` — multi-pass deep research / analysis\n    (`deep-research`, `frontier-research`, `deep-regulatory-research`,\n    `enterprise-contract-compliance`, `scientific-research`).\n  - `creative` — creative output / simulation\n    (`cinematic-video-production`, `social-sim`,\n    `evolutionary-optimization`).\n  - `security` — security work (`autonomous-pentest`).\n  - `agent-protocol` — protocol / SDK demo (`acp-demo`). Note: also fits\n    `learning`. Prefer `agent-protocol` for now since this category is small.\n- `hasReadme` — boolean. `examples/<slug>/README.md` exists.\n- `hasPlaybook` — boolean. *Any* `playbook.yml` exists under `examples/<slug>/`.\n- `readmePath` — relative path to the README, or `null`.\n- `playbookPath` — relative path to the *primary* playbook (typically\n  `examples/<slug>/.converge/playbooks/default/playbook.yml`); `null` if\n  none exists.\n- `tagline` — first non-heading paragraph from the README, trimmed to <140\n  chars; null if no README.\n- `complexity` — one of `trivial | small | medium | large` based on number\n  of phases in the playbook (0=trivial, 1-3=small, 4-7=medium, 8+=large).\n  Use `null` if no playbook.\n\nWalk with shell:\n\n```bash\nfor dir in examples/*/; do\n  name=$(basename \"$dir\")\n  [ -d \"$dir\" ] || continue\n  # build entry\ndone\n```\n\nExamples without a README **or** without a playbook still get an entry\n(with `hasReadme: false` / `hasPlaybook: false`). The Examples Gallery\nWBS will spawn a degraded page for them (\"this example is undocumented;\nhere's the file tree\").\n\n### 3. Source manifest (docs/_sources.json)\n\nWrite `docs/_sources.json` with this shape:\n\n```json\n{\n  \"$schema\": \"./_sources.schema.json\",\n  \"generatedAt\": \"<ISO timestamp>\",\n  \"cli\": [\n    \"packages/cli/src/main.ts\",\n    \"packages/cli/src/commands.ts\",\n    \"packages/cli/src/commands-run.ts\",\n    \"...\"\n  ],\n  \"core\": [\n    \"packages/core/src/index.ts\",\n    \"packages/core/src/playbook/loader.ts\",\n    \"packages/core/src/journal/types.ts\",\n    \"...\"\n  ],\n  \"examples\": [\n    \"examples/hello-world/.converge/playbooks/default/playbook.yml\",\n    \"...\"\n  ],\n  \"schemas\": [\n    \"packages/core/src/storage/types.ts\",\n    \"packages/core/src/config/task-definition.ts\",\n    \"...\"\n  ],\n  \"troubleshooting\": [\n    \"skills/converge-control/troubleshooting/playbook.md\"\n  ],\n  \"topLevel\": [\n    \"README.md\",\n    \"CHANGELOG.md\"\n  ]\n}\n```\n\nWalk the directories yourself with `find` / `git ls-files`:\n\n```bash\ngit ls-files 'packages/cli/src/*.ts' | sort\ngit ls-files 'packages/core/src/**/*.ts' | sort | head -100\ngit ls-files 'examples/*/.converge/playbooks/*/playbook.yml' | sort\ngit ls-files 'examples/*/.converge/playbooks/*/playbook.yaml' | sort\n```\n\n### 4. Schema files\n\nIdentify the files that define the *schemas* the user interacts with —\ntypically zod or TypeScript interfaces for `playbook.yml`, `TASK.md`\nfrontmatter, and `project.yml`. These are the load-bearing files for\nthe `08-reference` schema pages. Common names:\n\n- `packages/core/src/storage/types.ts` — `PlaybookConfigSchema`, `ProjectConfigSchema`\n- `packages/core/src/config/task-definition.ts` — `TaskDefinition`, `TaskFrontmatterSchema`\n\nConfirm by grep'ing for `Schema` or `defineSchema` in `packages/core/src/`.\n\n## Banned\n\n- Listing every TS file in `packages/core/src/`. The manifest is curated —\n  only files a doc page might reasonably cite as a source. Internal helpers\n  don't make the list.\n- Hard-coding paths the scanner found that don't exist. Every entry must\n  pass `test -f`.\n- Skipping examples that don't have a README — they still get an entry\n  with `hasReadme: false`. The gallery degrades gracefully.\n- Editing source files. This is read-only.",
+              "taskId": "02-source-scan",
+              "taskTitle": "Phase 02 — Scan source files; emit docs-sources.json + examples manifest",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/02-source-scan",
+              "factId": "check:cli-commands-extracted"
+            }
+          },
+          {
+            "id": "02-source-scan-check-failed-examples-manifest-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-source-scan",
+            "severity": "high",
+            "description": "[02-source-scan] Check failed: docs/_examples.json lists at least 15 examples with category and metadata",
+            "source": "unit",
+            "detected": "2026-04-26T07:34:38.061Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "examples-manifest-exists",
+              "checkCmd": "test -f docs/_examples.json && node -e \"const e=JSON.parse(require('fs').readFileSync('docs/_examples.json','utf8'));process.exit(Array.isArray(e)&&e.length>=15?0:1)\"",
+              "checkDescription": "docs/_examples.json lists at least 15 examples with category and metadata",
+              "checkOutput": "Command failed: test -f docs/_examples.json && node -e \"const e=JSON.parse(require('fs').readFileSync('docs/_examples.json','utf8'));process.exit(Array.isArray(e)&&e.length>=15?0:1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Source scan\n\nBuild a structured map of every source file later phases can derive doc\ncontent from. The output is the *cross-validation universe* — every `sources:`\nfrontmatter field in any doc page must reference a file in this map.\n\nThis phase also produces `docs/_examples.json` — the data file the Examples\nGallery WBS (`05-examples`) consumes to spawn one task per example.\n\n## Process\n\n### 1. CLI command seed list\n\n```bash\nnode .converge/playbooks/docs/scripts/scan-cli-commands.mjs docs/_cli-commands.json\n```\n\nPattern-matches `case \"<cmd>\":` blocks in `packages/cli/src/main.ts` and\nmaps each to its handler file. Best-effort — the CLI uses ad-hoc parsing,\nso the list may include aliases or miss handlers. The `08-reference` phase\nrefines this by reading each handler file directly.\n\n### 2. Examples manifest (docs/_examples.json)\n\nFor each subdirectory of `examples/`:\n\n```json\n[\n  {\n    \"slug\": \"hello-world\",\n    \"title\": \"Hello World\",\n    \"category\": \"learning\",\n    \"hasReadme\": true,\n    \"hasPlaybook\": true,\n    \"readmePath\": \"examples/hello-world/README.md\",\n    \"playbookPath\": \"examples/hello-world/.converge/playbooks/default/playbook.yml\",\n    \"tagline\": \"Simplest possible Converge playbook. Creates a file and verifies it exists.\",\n    \"complexity\": \"trivial\"\n  }\n]\n```\n\nField rules:\n\n- `slug` — directory name under `examples/`. Skip non-directory entries\n  (e.g. `context-chain-demo.ts`).\n- `title` — first `# ` heading from the example's README. If no README, fall\n  back to a title-cased version of `slug`.\n- `category` — assign one of these (best-fit; document edge cases in the body):\n  - `learning` — beginner-friendly, single-concept (`hello-world`,\n    `data-pipeline`, `acp-demo`, `baby-app`).\n  - `software` — building runnable software (`flutter-app`, `fullstack-app`,\n    `stitch-to-flutter*`, `game-aiwolf`, `game-assets`,\n    `godot-game-asset-pipeline`).\n  - `research` — multi-pass deep research / analysis\n    (`deep-research`, `frontier-research`, `deep-regulatory-research`,\n    `enterprise-contract-compliance`, `scientific-research`).\n  - `creative` — creative output / simulation\n    (`cinematic-video-production`, `social-sim`,\n    `evolutionary-optimization`).\n  - `security` — security work (`autonomous-pentest`).\n  - `agent-protocol` — protocol / SDK demo (`acp-demo`). Note: also fits\n    `learning`. Prefer `agent-protocol` for now since this category is small.\n- `hasReadme` — boolean. `examples/<slug>/README.md` exists.\n- `hasPlaybook` — boolean. *Any* `playbook.yml` exists under `examples/<slug>/`.\n- `readmePath` — relative path to the README, or `null`.\n- `playbookPath` — relative path to the *primary* playbook (typically\n  `examples/<slug>/.converge/playbooks/default/playbook.yml`); `null` if\n  none exists.\n- `tagline` — first non-heading paragraph from the README, trimmed to <140\n  chars; null if no README.\n- `complexity` — one of `trivial | small | medium | large` based on number\n  of phases in the playbook (0=trivial, 1-3=small, 4-7=medium, 8+=large).\n  Use `null` if no playbook.\n\nWalk with shell:\n\n```bash\nfor dir in examples/*/; do\n  name=$(basename \"$dir\")\n  [ -d \"$dir\" ] || continue\n  # build entry\ndone\n```\n\nExamples without a README **or** without a playbook still get an entry\n(with `hasReadme: false` / `hasPlaybook: false`). The Examples Gallery\nWBS will spawn a degraded page for them (\"this example is undocumented;\nhere's the file tree\").\n\n### 3. Source manifest (docs/_sources.json)\n\nWrite `docs/_sources.json` with this shape:\n\n```json\n{\n  \"$schema\": \"./_sources.schema.json\",\n  \"generatedAt\": \"<ISO timestamp>\",\n  \"cli\": [\n    \"packages/cli/src/main.ts\",\n    \"packages/cli/src/commands.ts\",\n    \"packages/cli/src/commands-run.ts\",\n    \"...\"\n  ],\n  \"core\": [\n    \"packages/core/src/index.ts\",\n    \"packages/core/src/playbook/loader.ts\",\n    \"packages/core/src/journal/types.ts\",\n    \"...\"\n  ],\n  \"examples\": [\n    \"examples/hello-world/.converge/playbooks/default/playbook.yml\",\n    \"...\"\n  ],\n  \"schemas\": [\n    \"packages/core/src/storage/types.ts\",\n    \"packages/core/src/config/task-definition.ts\",\n    \"...\"\n  ],\n  \"troubleshooting\": [\n    \"skills/converge-control/troubleshooting/playbook.md\"\n  ],\n  \"topLevel\": [\n    \"README.md\",\n    \"CHANGELOG.md\"\n  ]\n}\n```\n\nWalk the directories yourself with `find` / `git ls-files`:\n\n```bash\ngit ls-files 'packages/cli/src/*.ts' | sort\ngit ls-files 'packages/core/src/**/*.ts' | sort | head -100\ngit ls-files 'examples/*/.converge/playbooks/*/playbook.yml' | sort\ngit ls-files 'examples/*/.converge/playbooks/*/playbook.yaml' | sort\n```\n\n### 4. Schema files\n\nIdentify the files that define the *schemas* the user interacts with —\ntypically zod or TypeScript interfaces for `playbook.yml`, `TASK.md`\nfrontmatter, and `project.yml`. These are the load-bearing files for\nthe `08-reference` schema pages. Common names:\n\n- `packages/core/src/storage/types.ts` — `PlaybookConfigSchema`, `ProjectConfigSchema`\n- `packages/core/src/config/task-definition.ts` — `TaskDefinition`, `TaskFrontmatterSchema`\n\nConfirm by grep'ing for `Schema` or `defineSchema` in `packages/core/src/`.\n\n## Banned\n\n- Listing every TS file in `packages/core/src/`. The manifest is curated —\n  only files a doc page might reasonably cite as a source. Internal helpers\n  don't make the list.\n- Hard-coding paths the scanner found that don't exist. Every entry must\n  pass `test -f`.\n- Skipping examples that don't have a README — they still get an entry\n  with `hasReadme: false`. The gallery degrades gracefully.\n- Editing source files. This is read-only.",
+              "taskId": "02-source-scan",
+              "taskTitle": "Phase 02 — Scan source files; emit docs-sources.json + examples manifest",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/02-source-scan",
+              "factId": "check:examples-manifest-exists"
+            }
+          },
+          {
+            "id": "02-source-scan-check-failed-examples-have-required-fields",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-source-scan",
+            "severity": "high",
+            "description": "[02-source-scan] Check failed: every examples entry has slug, category, hasReadme, hasPlaybook",
+            "source": "unit",
+            "detected": "2026-04-26T07:34:38.085Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "examples-have-required-fields",
+              "checkCmd": "node -e \"const e=JSON.parse(require('fs').readFileSync('./docs/_examples.json','utf8'));const ok=e.every(x=>x.slug&&x.category&&typeof x.hasReadme==='boolean'&&typeof x.hasPlaybook==='boolean');process.exit(ok?0:1)\"",
+              "checkDescription": "every examples entry has slug, category, hasReadme, hasPlaybook",
+              "checkOutput": "node:fs:441\n    return binding.readFileUtf8(path, stringToFlags(options.flag));\n                   ^\n\nError: ENOENT: no such file or directory, open './docs/_examples.json'\n    at Object.readFileSync (node:fs:441:20)\n    at [eval]:1:34\n    at runScriptInThisContext (node:internal/vm:209:10)\n    at node:internal/process/execution:446:12\n    at [eval]-wrapper:6:24\n    at runScriptInContext (node:internal/process/execution:444:60)\n    at evalFunction (node:internal/process/execution:279:30)\n    at evalTypeScript (node:internal/process/execution:291:3)\n    at node:internal/main/eval_string:74:3 {\n  errno: -2,\n  code: 'ENOENT',\n  syscall: 'open',\n  path: './docs/_examples.json'\n}\n\nNode.js v22.19.0",
+              "checkExitCode": 1,
+              "taskPrompt": "# Source scan\n\nBuild a structured map of every source file later phases can derive doc\ncontent from. The output is the *cross-validation universe* — every `sources:`\nfrontmatter field in any doc page must reference a file in this map.\n\nThis phase also produces `docs/_examples.json` — the data file the Examples\nGallery WBS (`05-examples`) consumes to spawn one task per example.\n\n## Process\n\n### 1. CLI command seed list\n\n```bash\nnode .converge/playbooks/docs/scripts/scan-cli-commands.mjs docs/_cli-commands.json\n```\n\nPattern-matches `case \"<cmd>\":` blocks in `packages/cli/src/main.ts` and\nmaps each to its handler file. Best-effort — the CLI uses ad-hoc parsing,\nso the list may include aliases or miss handlers. The `08-reference` phase\nrefines this by reading each handler file directly.\n\n### 2. Examples manifest (docs/_examples.json)\n\nFor each subdirectory of `examples/`:\n\n```json\n[\n  {\n    \"slug\": \"hello-world\",\n    \"title\": \"Hello World\",\n    \"category\": \"learning\",\n    \"hasReadme\": true,\n    \"hasPlaybook\": true,\n    \"readmePath\": \"examples/hello-world/README.md\",\n    \"playbookPath\": \"examples/hello-world/.converge/playbooks/default/playbook.yml\",\n    \"tagline\": \"Simplest possible Converge playbook. Creates a file and verifies it exists.\",\n    \"complexity\": \"trivial\"\n  }\n]\n```\n\nField rules:\n\n- `slug` — directory name under `examples/`. Skip non-directory entries\n  (e.g. `context-chain-demo.ts`).\n- `title` — first `# ` heading from the example's README. If no README, fall\n  back to a title-cased version of `slug`.\n- `category` — assign one of these (best-fit; document edge cases in the body):\n  - `learning` — beginner-friendly, single-concept (`hello-world`,\n    `data-pipeline`, `acp-demo`, `baby-app`).\n  - `software` — building runnable software (`flutter-app`, `fullstack-app`,\n    `stitch-to-flutter*`, `game-aiwolf`, `game-assets`,\n    `godot-game-asset-pipeline`).\n  - `research` — multi-pass deep research / analysis\n    (`deep-research`, `frontier-research`, `deep-regulatory-research`,\n    `enterprise-contract-compliance`, `scientific-research`).\n  - `creative` — creative output / simulation\n    (`cinematic-video-production`, `social-sim`,\n    `evolutionary-optimization`).\n  - `security` — security work (`autonomous-pentest`).\n  - `agent-protocol` — protocol / SDK demo (`acp-demo`). Note: also fits\n    `learning`. Prefer `agent-protocol` for now since this category is small.\n- `hasReadme` — boolean. `examples/<slug>/README.md` exists.\n- `hasPlaybook` — boolean. *Any* `playbook.yml` exists under `examples/<slug>/`.\n- `readmePath` — relative path to the README, or `null`.\n- `playbookPath` — relative path to the *primary* playbook (typically\n  `examples/<slug>/.converge/playbooks/default/playbook.yml`); `null` if\n  none exists.\n- `tagline` — first non-heading paragraph from the README, trimmed to <140\n  chars; null if no README.\n- `complexity` — one of `trivial | small | medium | large` based on number\n  of phases in the playbook (0=trivial, 1-3=small, 4-7=medium, 8+=large).\n  Use `null` if no playbook.\n\nWalk with shell:\n\n```bash\nfor dir in examples/*/; do\n  name=$(basename \"$dir\")\n  [ -d \"$dir\" ] || continue\n  # build entry\ndone\n```\n\nExamples without a README **or** without a playbook still get an entry\n(with `hasReadme: false` / `hasPlaybook: false`). The Examples Gallery\nWBS will spawn a degraded page for them (\"this example is undocumented;\nhere's the file tree\").\n\n### 3. Source manifest (docs/_sources.json)\n\nWrite `docs/_sources.json` with this shape:\n\n```json\n{\n  \"$schema\": \"./_sources.schema.json\",\n  \"generatedAt\": \"<ISO timestamp>\",\n  \"cli\": [\n    \"packages/cli/src/main.ts\",\n    \"packages/cli/src/commands.ts\",\n    \"packages/cli/src/commands-run.ts\",\n    \"...\"\n  ],\n  \"core\": [\n    \"packages/core/src/index.ts\",\n    \"packages/core/src/playbook/loader.ts\",\n    \"packages/core/src/journal/types.ts\",\n    \"...\"\n  ],\n  \"examples\": [\n    \"examples/hello-world/.converge/playbooks/default/playbook.yml\",\n    \"...\"\n  ],\n  \"schemas\": [\n    \"packages/core/src/storage/types.ts\",\n    \"packages/core/src/config/task-definition.ts\",\n    \"...\"\n  ],\n  \"troubleshooting\": [\n    \"skills/converge-control/troubleshooting/playbook.md\"\n  ],\n  \"topLevel\": [\n    \"README.md\",\n    \"CHANGELOG.md\"\n  ]\n}\n```\n\nWalk the directories yourself with `find` / `git ls-files`:\n\n```bash\ngit ls-files 'packages/cli/src/*.ts' | sort\ngit ls-files 'packages/core/src/**/*.ts' | sort | head -100\ngit ls-files 'examples/*/.converge/playbooks/*/playbook.yml' | sort\ngit ls-files 'examples/*/.converge/playbooks/*/playbook.yaml' | sort\n```\n\n### 4. Schema files\n\nIdentify the files that define the *schemas* the user interacts with —\ntypically zod or TypeScript interfaces for `playbook.yml`, `TASK.md`\nfrontmatter, and `project.yml`. These are the load-bearing files for\nthe `08-reference` schema pages. Common names:\n\n- `packages/core/src/storage/types.ts` — `PlaybookConfigSchema`, `ProjectConfigSchema`\n- `packages/core/src/config/task-definition.ts` — `TaskDefinition`, `TaskFrontmatterSchema`\n\nConfirm by grep'ing for `Schema` or `defineSchema` in `packages/core/src/`.\n\n## Banned\n\n- Listing every TS file in `packages/core/src/`. The manifest is curated —\n  only files a doc page might reasonably cite as a source. Internal helpers\n  don't make the list.\n- Hard-coding paths the scanner found that don't exist. Every entry must\n  pass `test -f`.\n- Skipping examples that don't have a README — they still get an entry\n  with `hasReadme: false`. The gallery degrades gracefully.\n- Editing source files. This is read-only.",
+              "taskId": "02-source-scan",
+              "taskTitle": "Phase 02 — Scan source files; emit docs-sources.json + examples manifest",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/02-source-scan",
+              "factId": "check:examples-have-required-fields"
+            }
+          }
+        ],
+        "durationMs": 125
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 106
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 367
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 163522
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T07:34:37.960Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T07:34:37.961Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T07:34:38.086Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T07:34:38.087Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T07:34:38.194Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-04-26T07:37:21.718Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T07:37:22.086Z"
+    }
+  ]
+}

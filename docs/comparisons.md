@@ -1,3 +1,8 @@
+---
+title: "Framework Comparisons"
+description: "How Converge compares to other AI agent orchestration frameworks"
+---
+
 # Framework Comparisons
 
 How Converge compares to other AI agent orchestration frameworks.

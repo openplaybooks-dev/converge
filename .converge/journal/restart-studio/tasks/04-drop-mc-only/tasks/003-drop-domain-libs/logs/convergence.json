@@ -1,0 +1,247 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-drop-mc-only/003-drop-domain-libs-missing-output-.converge/studio-state/dropped-domain-libs.txt",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-drop-mc-only/003-drop-domain-libs",
+            "severity": "high",
+            "description": "[04-drop-mc-only/003-drop-domain-libs] Task output not created: .converge/studio-state/dropped-domain-libs.txt",
+            "source": "unit",
+            "detected": "2026-04-26T10:03:46.826Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/04-drop-mc-only/tasks/003-drop-domain-libs",
+              "taskId": "04-drop-mc-only/003-drop-domain-libs",
+              "taskTitle": "Drop MC-domain libs (gateway-*, openclaw-*, websocket-*, etc.)",
+              "taskPrompt": "```bash\ncd packages/studio/src/lib\nrm -f gateway-*.ts openclaw-*.ts onboarding-*.ts pty-*.ts websocket*.ts \\\n      agent-*.ts \\\n      auth.ts auto-credentials.ts claude-sessions.ts claude-tasks.ts \\\n      codex-sessions.ts opencode-sessions.ts \\\n      hermes-*.ts gnap-*.ts mcp-*.ts \\\n      docs-knowledge.ts github-*.ts hook-profiles.ts \\\n      local-agent-sync.ts memory-*.ts navigation*.ts office-layout.ts \\\n      provider-subscriptions.ts receipt-signing.ts recurring-tasks.ts \\\n      runs.ts scheduler.ts security-*.ts spawn-history.ts \\\n      task-status.ts use-server-events.ts use-smart-poll.ts \\\n      webhooks.ts coordinator-routing.ts framework-templates.ts \\\n      command.ts config.ts db.ts device-identity.ts json-relaxed.ts \\\n      mentions.ts migrations.ts runtime-env.ts schema.sql sessions.ts \\\n      skill-registry.ts skill-sync.ts super-admin.ts tailscale-serve.ts \\\n      transcript-parser.ts validation.ts agent-evals.ts agent-optimizer.ts \\\n      rate-limit.ts token-pricing.ts auto-credentials.ts \\\n      navigation.ts nav-rail.tsx 2>/dev/null\n\n# Adapters dir (MC's framework adapters)\nrm -rf adapters\n\n# Wipe MC's tests dir (we don't have converge tests yet)\nrm -rf __tests__\n\ncd /Users/minh/Documents/converge\n\nmkdir -p .converge/studio-state\necho \"Dropped MC-domain libs at $(date -u +%Y-%m-%dT%H:%M:%SZ)\" > .converge/studio-state/dropped-domain-libs.txt\n```\n\n**Keep** (these are converge libs, copied in Phase 02):\n- `converge-adapter/`\n- `use-converge-events.ts`, `use-view-mode.ts`\n- `watcher-singleton.ts`, `schedule-parser.ts`\n- `run-supervisor.ts`, `ring-buffer.ts`, `session-correlator.ts`\n- `utils.ts` (shadcn `cn()` helper, kept from MC fork)\n- `themes.ts` (Bucket 1 theme registry)",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \".converge/studio-state/dropped-domain-libs.txt\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-drop-mc-only/003-drop-domain-libs-check-failed-domain-libs-gone",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-drop-mc-only/003-drop-domain-libs",
+            "severity": "high",
+            "description": "[04-drop-mc-only/003-drop-domain-libs] Check failed: gateway-*, openclaw-*, websocket-*, agent-* lib files are gone",
+            "source": "unit",
+            "detected": "2026-04-26T10:03:46.833Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "domain-libs-gone",
+              "checkCmd": "test -z \"$(ls packages/studio/src/lib/gateway-*.ts 2>/dev/null)\" && test -z \"$(ls packages/studio/src/lib/openclaw-*.ts 2>/dev/null)\" && test -z \"$(ls packages/studio/src/lib/websocket*.ts 2>/dev/null)\" && test -z \"$(ls packages/studio/src/lib/agent-*.ts 2>/dev/null)\" && test -z \"$(ls packages/studio/src/lib/onboarding-*.ts 2>/dev/null)\"",
+              "checkDescription": "gateway-*, openclaw-*, websocket-*, agent-* lib files are gone",
+              "checkOutput": "Command failed: test -z \"$(ls packages/studio/src/lib/gateway-*.ts 2>/dev/null)\" && test -z \"$(ls packages/studio/src/lib/openclaw-*.ts 2>/dev/null)\" && test -z \"$(ls packages/studio/src/lib/websocket*.ts 2>/dev/null)\" && test -z \"$(ls packages/studio/src/lib/agent-*.ts 2>/dev/null)\" && test -z \"$(ls packages/studio/src/lib/onboarding-*.ts 2>/dev/null)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "```bash\ncd packages/studio/src/lib\nrm -f gateway-*.ts openclaw-*.ts onboarding-*.ts pty-*.ts websocket*.ts \\\n      agent-*.ts \\\n      auth.ts auto-credentials.ts claude-sessions.ts claude-tasks.ts \\\n      codex-sessions.ts opencode-sessions.ts \\\n      hermes-*.ts gnap-*.ts mcp-*.ts \\\n      docs-knowledge.ts github-*.ts hook-profiles.ts \\\n      local-agent-sync.ts memory-*.ts navigation*.ts office-layout.ts \\\n      provider-subscriptions.ts receipt-signing.ts recurring-tasks.ts \\\n      runs.ts scheduler.ts security-*.ts spawn-history.ts \\\n      task-status.ts use-server-events.ts use-smart-poll.ts \\\n      webhooks.ts coordinator-routing.ts framework-templates.ts \\\n      command.ts config.ts db.ts device-identity.ts json-relaxed.ts \\\n      mentions.ts migrations.ts runtime-env.ts schema.sql sessions.ts \\\n      skill-registry.ts skill-sync.ts super-admin.ts tailscale-serve.ts \\\n      transcript-parser.ts validation.ts agent-evals.ts agent-optimizer.ts \\\n      rate-limit.ts token-pricing.ts auto-credentials.ts \\\n      navigation.ts nav-rail.tsx 2>/dev/null\n\n# Adapters dir (MC's framework adapters)\nrm -rf adapters\n\n# Wipe MC's tests dir (we don't have converge tests yet)\nrm -rf __tests__\n\ncd /Users/minh/Documents/converge\n\nmkdir -p .converge/studio-state\necho \"Dropped MC-domain libs at $(date -u +%Y-%m-%dT%H:%M:%SZ)\" > .converge/studio-state/dropped-domain-libs.txt\n```\n\n**Keep** (these are converge libs, copied in Phase 02):\n- `converge-adapter/`\n- `use-converge-events.ts`, `use-view-mode.ts`\n- `watcher-singleton.ts`, `schedule-parser.ts`\n- `run-supervisor.ts`, `ring-buffer.ts`, `session-correlator.ts`\n- `utils.ts` (shadcn `cn()` helper, kept from MC fork)\n- `themes.ts` (Bucket 1 theme registry)",
+              "taskId": "04-drop-mc-only/003-drop-domain-libs",
+              "taskTitle": "Drop MC-domain libs (gateway-*, openclaw-*, websocket-*, etc.)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/04-drop-mc-only/tasks/003-drop-domain-libs",
+              "factId": "check:domain-libs-gone"
+            }
+          },
+          {
+            "id": "04-drop-mc-only/003-drop-domain-libs-check-failed-marker-written",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-drop-mc-only/003-drop-domain-libs",
+            "severity": "high",
+            "description": "[04-drop-mc-only/003-drop-domain-libs] Check failed: A marker file recording the drop is written",
+            "source": "unit",
+            "detected": "2026-04-26T10:03:46.835Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "marker-written",
+              "checkCmd": "test -f .converge/studio-state/dropped-domain-libs.txt",
+              "checkDescription": "A marker file recording the drop is written",
+              "checkOutput": "Command failed: test -f .converge/studio-state/dropped-domain-libs.txt\n",
+              "checkExitCode": 1,
+              "taskPrompt": "```bash\ncd packages/studio/src/lib\nrm -f gateway-*.ts openclaw-*.ts onboarding-*.ts pty-*.ts websocket*.ts \\\n      agent-*.ts \\\n      auth.ts auto-credentials.ts claude-sessions.ts claude-tasks.ts \\\n      codex-sessions.ts opencode-sessions.ts \\\n      hermes-*.ts gnap-*.ts mcp-*.ts \\\n      docs-knowledge.ts github-*.ts hook-profiles.ts \\\n      local-agent-sync.ts memory-*.ts navigation*.ts office-layout.ts \\\n      provider-subscriptions.ts receipt-signing.ts recurring-tasks.ts \\\n      runs.ts scheduler.ts security-*.ts spawn-history.ts \\\n      task-status.ts use-server-events.ts use-smart-poll.ts \\\n      webhooks.ts coordinator-routing.ts framework-templates.ts \\\n      command.ts config.ts db.ts device-identity.ts json-relaxed.ts \\\n      mentions.ts migrations.ts runtime-env.ts schema.sql sessions.ts \\\n      skill-registry.ts skill-sync.ts super-admin.ts tailscale-serve.ts \\\n      transcript-parser.ts validation.ts agent-evals.ts agent-optimizer.ts \\\n      rate-limit.ts token-pricing.ts auto-credentials.ts \\\n      navigation.ts nav-rail.tsx 2>/dev/null\n\n# Adapters dir (MC's framework adapters)\nrm -rf adapters\n\n# Wipe MC's tests dir (we don't have converge tests yet)\nrm -rf __tests__\n\ncd /Users/minh/Documents/converge\n\nmkdir -p .converge/studio-state\necho \"Dropped MC-domain libs at $(date -u +%Y-%m-%dT%H:%M:%SZ)\" > .converge/studio-state/dropped-domain-libs.txt\n```\n\n**Keep** (these are converge libs, copied in Phase 02):\n- `converge-adapter/`\n- `use-converge-events.ts`, `use-view-mode.ts`\n- `watcher-singleton.ts`, `schedule-parser.ts`\n- `run-supervisor.ts`, `ring-buffer.ts`, `session-correlator.ts`\n- `utils.ts` (shadcn `cn()` helper, kept from MC fork)\n- `themes.ts` (Bucket 1 theme registry)",
+              "taskId": "04-drop-mc-only/003-drop-domain-libs",
+              "taskTitle": "Drop MC-domain libs (gateway-*, openclaw-*, websocket-*, etc.)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/04-drop-mc-only/tasks/003-drop-domain-libs",
+              "factId": "check:marker-written"
+            }
+          }
+        ],
+        "durationMs": 12
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 19
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#20",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 112031
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T10:03:46.822Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T10:03:46.822Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T10:03:46.836Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T10:03:46.836Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T10:03:46.844Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#20",
+      "iteration": 1,
+      "ts": "2026-04-26T10:05:38.875Z"
+    },
+    {
+      "from": "run-strategy:task-run#20",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T10:05:38.895Z"
+    }
+  ]
+}

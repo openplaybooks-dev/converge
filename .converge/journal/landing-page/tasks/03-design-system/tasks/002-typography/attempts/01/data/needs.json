@@ -1,0 +1,25 @@
+{
+  "taskId": "03-design-system/002-typography",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "apps/landing/src/styles/tokens.css",
+      "count": 1,
+      "samples": [
+        "apps/landing/src/styles/tokens.css"
+      ]
+    },
+    {
+      "pattern": "apps/landing/.content/brand.json",
+      "count": 1,
+      "samples": [
+        "apps/landing/.content/brand.json"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/src/styles/typography.css",
+    "apps/landing/package.json"
+  ],
+  "blocked": false
+}

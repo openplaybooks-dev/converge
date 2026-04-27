@@ -1,0 +1,35 @@
+{
+  "taskId": "01-prepare-spec/002-sections-inventory",
+  "checks": [
+    {
+      "id": "sections-json-exists",
+      "description": "sections.json exists",
+      "cmd": "test -f apps/landing/.content/sections.json"
+    },
+    {
+      "id": "sections-json-valid",
+      "description": "sections.json is valid JSON",
+      "cmd": "test -f apps/landing/.content/sections.json && node -e \"JSON.parse(require('fs').readFileSync('apps/landing/.content/sections.json','utf8'))\""
+    },
+    {
+      "id": "sections-count",
+      "description": "at least 8 sections defined",
+      "cmd": "test -f apps/landing/.content/sections.json && node -e \"const r=require('./apps/landing/.content/sections.json');const s=Array.isArray(r)?r:r.sections;process.exit(s.length>=8?0:1)\""
+    },
+    {
+      "id": "sections-have-required-fields",
+      "description": "every section has id, title, componentName, intent",
+      "cmd": "test -f apps/landing/.content/sections.json && node -e \"const r=require('./apps/landing/.content/sections.json');const s=Array.isArray(r)?r:r.sections;const ok=s.every(x=>x.id&&x.title&&x.componentName&&x.intent);process.exit(ok?0:1)\""
+    },
+    {
+      "id": "hero-first",
+      "description": "first section is hero",
+      "cmd": "test -f apps/landing/.content/sections.json && node -e \"const r=require('./apps/landing/.content/sections.json');const s=Array.isArray(r)?r:r.sections;process.exit(s[0].id==='hero'?0:1)\""
+    },
+    {
+      "id": "cta-last",
+      "description": "last section is cta-banner",
+      "cmd": "test -f apps/landing/.content/sections.json && node -e \"const r=require('./apps/landing/.content/sections.json');const s=Array.isArray(r)?r:r.sections;process.exit(s[s.length-1].id==='cta-banner'?0:1)\""
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "taskId": "04-ui/015-empty-state-onboarding",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/src/components/empty-state.tsx"
+  ],
+  "blocked": false
+}

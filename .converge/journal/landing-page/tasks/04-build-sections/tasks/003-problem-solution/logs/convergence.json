@@ -1,0 +1,201 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-build-sections/003-problem-solution-missing-output-apps/landing/src/components/sections/ProblemSolution.astro",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-build-sections/003-problem-solution",
+            "severity": "high",
+            "description": "[04-build-sections/003-problem-solution] Task output not created: apps/landing/src/components/sections/ProblemSolution.astro",
+            "source": "unit",
+            "detected": "2026-04-26T18:01:26.765Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/journal/landing-page/tasks/04-build-sections/tasks/003-problem-solution",
+              "taskId": "04-build-sections/003-problem-solution",
+              "taskTitle": "Section: Define how vs. define done",
+              "taskPrompt": "Parent task for the \"Define how vs. define done\" section.\n\nPipeline: spec → design → build → integrate → verify.\n\nIntent: Side-by-side: left shows imperative step-driven framework code; right shows declarative converge TASK.md. Visualizes the paradigm flip.\nComponent: `apps/landing/src/components/sections/ProblemSolution.astro`.",
+              "taskInputs": [
+                "apps/landing/.content/sections.json",
+                "apps/landing/.content/brand.json",
+                "apps/landing/src/styles/tokens.json"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/src/components/sections/ProblemSolution.astro\"",
+              "awaitingUserInput": false
+            }
+          }
+        ],
+        "durationMs": 10
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 12
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#34",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 63427
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T18:01:26.755Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T18:01:26.755Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T18:01:26.765Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T18:01:26.766Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T18:01:26.767Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#34",
+      "iteration": 1,
+      "ts": "2026-04-26T18:02:30.194Z"
+    },
+    {
+      "from": "run-strategy:task-run#34",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T18:02:30.207Z"
+    }
+  ]
+}

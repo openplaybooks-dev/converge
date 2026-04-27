@@ -1,0 +1,35 @@
+{
+  "taskId": "06-guides/006-read-the-journal",
+  "checks": [
+    {
+      "id": "page-exists",
+      "description": "page exists",
+      "cmd": "test -f docs/guides/read-the-journal.md"
+    },
+    {
+      "id": "page-frontmatter",
+      "description": "title + sources frontmatter",
+      "cmd": "head -10 docs/guides/read-the-journal.md | grep -q '^title:' && head -10 docs/guides/read-the-journal.md | grep -q '^sources:'"
+    },
+    {
+      "id": "shows-journal-path",
+      "description": "documents the journal location",
+      "cmd": "grep -qE '\\.converge/journal' docs/guides/read-the-journal.md"
+    },
+    {
+      "id": "shows-learn-md",
+      "description": "covers LEARN.md",
+      "cmd": "grep -qE 'LEARN\\.md' docs/guides/read-the-journal.md"
+    },
+    {
+      "id": "shows-cat-or-jq",
+      "description": "shows shell debugging commands",
+      "cmd": "grep -qE 'cat|jq|tail|less' docs/guides/read-the-journal.md"
+    },
+    {
+      "id": "word-count-ok",
+      "description": "600-1500 words",
+      "cmd": "wc -w docs/guides/read-the-journal.md | awk '{exit ($1>=600&&$1<=1500?0:1)}'"
+    }
+  ]
+}

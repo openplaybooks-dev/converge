@@ -1,0 +1,2023 @@
+{
+  "sprites": [
+    {
+      "name": "forest-elf/idle/idle_000",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-elf/idle/idle_001",
+      "rect": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-elf/idle/idle_002",
+      "rect": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-elf/idle/idle_003",
+      "rect": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-elf/idle/idle_004",
+      "rect": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-elf/idle/idle_005",
+      "rect": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-elf/idle/idle_006",
+      "rect": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-elf/idle/idle_007",
+      "rect": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-elf/walk/walk_000",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-elf/walk/walk_001",
+      "rect": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-elf/walk/walk_002",
+      "rect": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-elf/walk/walk_003",
+      "rect": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-elf/walk/walk_004",
+      "rect": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-elf/walk/walk_005",
+      "rect": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-elf/walk/walk_006",
+      "rect": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-elf/walk/walk_007",
+      "rect": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "hero-knight/idle/idle_000",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "hero-knight/idle/idle_001",
+      "rect": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "hero-knight/idle/idle_002",
+      "rect": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "hero-knight/idle/idle_003",
+      "rect": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "hero-knight/idle/idle_004",
+      "rect": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "hero-knight/idle/idle_005",
+      "rect": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "hero-knight/idle/idle_006",
+      "rect": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "hero-knight/idle/idle_007",
+      "rect": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "hero-knight/walk/walk_000",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "hero-knight/walk/walk_001",
+      "rect": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "hero-knight/walk/walk_002",
+      "rect": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "hero-knight/walk/walk_003",
+      "rect": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "hero-knight/walk/walk_004",
+      "rect": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "hero-knight/walk/walk_005",
+      "rect": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "hero-knight/walk/walk_006",
+      "rect": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "hero-knight/walk/walk_007",
+      "rect": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "bounce-spring/bounce/bounce_000",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "bounce-spring/bounce/bounce_001",
+      "rect": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "bounce-spring/bounce/bounce_002",
+      "rect": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "bounce-spring/bounce/bounce_003",
+      "rect": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "bounce-spring/bounce/bounce_004",
+      "rect": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "bounce-spring/bounce/bounce_005",
+      "rect": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "bounce-spring/bounce/bounce_006",
+      "rect": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "bounce-spring/bounce/bounce_007",
+      "rect": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "bounce-spring/idle/idle_000",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "bounce-spring/idle/idle_001",
+      "rect": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "bounce-spring/idle/idle_002",
+      "rect": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "bounce-spring/idle/idle_003",
+      "rect": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "bounce-spring/idle/idle_004",
+      "rect": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "bounce-spring/idle/idle_005",
+      "rect": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "bounce-spring/idle/idle_006",
+      "rect": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "bounce-spring/idle/idle_007",
+      "rect": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/activate/activate_000",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/activate/activate_001",
+      "rect": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/activate/activate_002",
+      "rect": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/activate/activate_003",
+      "rect": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/activate/activate_004",
+      "rect": {
+        "x": 0,
+        "y": 256,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/activate/activate_005",
+      "rect": {
+        "x": 384,
+        "y": 256,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/activate/activate_006",
+      "rect": {
+        "x": 768,
+        "y": 256,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/activate/activate_007",
+      "rect": {
+        "x": 1152,
+        "y": 256,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/activate/activate_008",
+      "rect": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/activate/activate_009",
+      "rect": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/activate/activate_010",
+      "rect": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/activate/activate_011",
+      "rect": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/activate/activate_012",
+      "rect": {
+        "x": 0,
+        "y": 768,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/activate/activate_013",
+      "rect": {
+        "x": 384,
+        "y": 768,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/activate/activate_014",
+      "rect": {
+        "x": 768,
+        "y": 768,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/activate/activate_015",
+      "rect": {
+        "x": 1152,
+        "y": 768,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/idle/idle_000",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/idle/idle_001",
+      "rect": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/idle/idle_002",
+      "rect": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/idle/idle_003",
+      "rect": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/idle/idle_004",
+      "rect": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/idle/idle_005",
+      "rect": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/idle/idle_006",
+      "rect": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "checkpoint-flag/idle/idle_007",
+      "rect": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/collect/collect_000",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/collect/collect_001",
+      "rect": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/collect/collect_002",
+      "rect": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/collect/collect_003",
+      "rect": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/collect/collect_004",
+      "rect": {
+        "x": 0,
+        "y": 256,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/collect/collect_005",
+      "rect": {
+        "x": 384,
+        "y": 256,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/collect/collect_006",
+      "rect": {
+        "x": 768,
+        "y": 256,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/collect/collect_007",
+      "rect": {
+        "x": 1152,
+        "y": 256,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/collect/collect_008",
+      "rect": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/collect/collect_009",
+      "rect": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/collect/collect_010",
+      "rect": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/collect/collect_011",
+      "rect": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/collect/collect_012",
+      "rect": {
+        "x": 0,
+        "y": 768,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/collect/collect_013",
+      "rect": {
+        "x": 384,
+        "y": 768,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/collect/collect_014",
+      "rect": {
+        "x": 768,
+        "y": 768,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/collect/collect_015",
+      "rect": {
+        "x": 1152,
+        "y": 768,
+        "w": 384,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/idle/idle_000",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/idle/idle_001",
+      "rect": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/idle/idle_002",
+      "rect": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/idle/idle_003",
+      "rect": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/idle/idle_004",
+      "rect": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/idle/idle_005",
+      "rect": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/idle/idle_006",
+      "rect": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/idle/idle_007",
+      "rect": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/collect/collect_000",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/collect/collect_001",
+      "rect": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/collect/collect_002",
+      "rect": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/collect/collect_003",
+      "rect": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/collect/collect_004",
+      "rect": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/collect/collect_005",
+      "rect": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/collect/collect_006",
+      "rect": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/collect/collect_007",
+      "rect": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/idle/idle_000",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/idle/idle_001",
+      "rect": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/idle/idle_002",
+      "rect": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/idle/idle_003",
+      "rect": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/idle/idle_004",
+      "rect": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/idle/idle_005",
+      "rect": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/idle/idle_006",
+      "rect": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/idle/idle_007",
+      "rect": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "spike-trap/idle/idle_000",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "spike-trap/idle/idle_001",
+      "rect": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "spike-trap/idle/idle_002",
+      "rect": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "spike-trap/idle/idle_003",
+      "rect": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "spike-trap/idle/idle_004",
+      "rect": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "spike-trap/idle/idle_005",
+      "rect": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "spike-trap/idle/idle_006",
+      "rect": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "spike-trap/idle/idle_007",
+      "rect": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "spike-trap/trigger/trigger_000",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "spike-trap/trigger/trigger_001",
+      "rect": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "spike-trap/trigger/trigger_002",
+      "rect": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "spike-trap/trigger/trigger_003",
+      "rect": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "spike-trap/trigger/trigger_004",
+      "rect": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "spike-trap/trigger/trigger_005",
+      "rect": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "spike-trap/trigger/trigger_006",
+      "rect": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "spike-trap/trigger/trigger_007",
+      "rect": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "wood-ladder/idle/idle_000",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "wood-ladder/idle/idle_001",
+      "rect": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "wood-ladder/idle/idle_002",
+      "rect": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "wood-ladder/idle/idle_003",
+      "rect": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "wood-ladder/idle/idle_004",
+      "rect": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "wood-ladder/idle/idle_005",
+      "rect": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "wood-ladder/idle/idle_006",
+      "rect": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "wood-ladder/idle/idle_007",
+      "rect": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "grassland/sheet/grass-base",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 128,
+        "h": 128
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "grassland/sheet/grass-edge-left",
+      "rect": {
+        "x": 128,
+        "y": 0,
+        "w": 128,
+        "h": 128
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "grassland/sheet/grass-edge-right",
+      "rect": {
+        "x": 256,
+        "y": 0,
+        "w": 128,
+        "h": 128
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "grassland/sheet/grass-tall",
+      "rect": {
+        "x": 384,
+        "y": 0,
+        "w": 128,
+        "h": 128
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "grassland/sheet/earth-fill",
+      "rect": {
+        "x": 0,
+        "y": 128,
+        "w": 128,
+        "h": 128
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "grassland/sheet/earth-rocky",
+      "rect": {
+        "x": 128,
+        "y": 128,
+        "w": 128,
+        "h": 128
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "grassland/sheet/flower-yellow",
+      "rect": {
+        "x": 256,
+        "y": 128,
+        "w": 128,
+        "h": 128
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "grassland/sheet/flower-pink",
+      "rect": {
+        "x": 384,
+        "y": 128,
+        "w": 128,
+        "h": 128
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "grassland/sheet/flower-white",
+      "rect": {
+        "x": 0,
+        "y": 256,
+        "w": 128,
+        "h": 128
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "grassland/sheet/weed-clump",
+      "rect": {
+        "x": 128,
+        "y": 256,
+        "w": 128,
+        "h": 128
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "grassland/sheet/stone-small",
+      "rect": {
+        "x": 256,
+        "y": 256,
+        "w": 128,
+        "h": 128
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "grassland/sheet/stone-pair",
+      "rect": {
+        "x": 384,
+        "y": 256,
+        "w": 128,
+        "h": 128
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "grassland/sheet/stone-large",
+      "rect": {
+        "x": 0,
+        "y": 384,
+        "w": 128,
+        "h": 128
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "grassland/sheet/log-mossy",
+      "rect": {
+        "x": 128,
+        "y": 384,
+        "w": 128,
+        "h": 128
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "grassland/sheet/mushroom-red",
+      "rect": {
+        "x": 256,
+        "y": 384,
+        "w": 128,
+        "h": 128
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "grassland/sheet/filler-grass",
+      "rect": {
+        "x": 384,
+        "y": 384,
+        "w": 128,
+        "h": 128
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-far/sheet/forest-far",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 1920,
+        "h": 1080
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-mid/sheet/forest-mid",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 1920,
+        "h": 1080
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-near/sheet/forest-near",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 1920,
+        "h": 1080
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    }
+  ],
+  "meta": {
+    "spriteResolution": 0,
+    "format": "SpriteAtlas"
+  }
+}

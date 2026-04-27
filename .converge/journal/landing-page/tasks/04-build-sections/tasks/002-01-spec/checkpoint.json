@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "04-build-sections/002-01-spec",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T23:16:20.106Z",
+  "createdAt": "2026-04-26T17:53:38.329Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T17:53:38.329Z",
+      "completedAt": "2026-04-26T17:54:25.296Z",
+      "outcome": "success",
+      "durationMs": 46967
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-26T23:16:19.768Z",
+      "completedAt": "2026-04-26T23:16:20.081Z",
+      "outcome": "success",
+      "durationMs": 313
+    }
+  ],
+  "currentAttempt": 2
+}

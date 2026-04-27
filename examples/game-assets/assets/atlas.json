@@ -1,0 +1,4615 @@
+{
+  "meta": {
+    "categories": [
+      "characters",
+      "objects",
+      "tile_maps",
+      "backgrounds"
+    ],
+    "sources": {
+      "characters": 4,
+      "objects": 11,
+      "tile_maps": 1,
+      "backgrounds": 3
+    }
+  },
+  "categories": {
+    "characters": [
+      {
+        "asset_id": "forest-elf",
+        "state": "idle",
+        "sheet_path": "assets/characters/forest-elf/spritesheets/idle/idle.png",
+        "atlas_path": "assets/characters/forest-elf/spritesheets/idle/idle.atlas.json",
+        "meta": {
+          "char_id": "forest-elf",
+          "state": "idle",
+          "rows": 2,
+          "cols": 4,
+          "frame_count": 8,
+          "frame_size": {
+            "w": 384,
+            "h": 512
+          },
+          "sheet_size": {
+            "w": 1536,
+            "h": 1024
+          },
+          "frame_order": "left-to-right, top-to-bottom",
+          "requested_cols": 4,
+          "requested_rows": 2,
+          "detected": true,
+          "aligned": true,
+          "frameRate": 6,
+          "yoyo": true,
+          "seed": 1440185455
+        },
+        "frames": [
+          {
+            "filename": "idle_000.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                84,
+                32,
+                360,
+                511
+              ],
+              "torso_x": 203,
+              "aligned_bbox": [
+                73,
+                28,
+                349,
+                507
+              ],
+              "shift": [
+                -11,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "idle_001.png",
+            "frame": {
+              "x": 384,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                67,
+                32,
+                338,
+                511
+              ],
+              "torso_x": 188,
+              "aligned_bbox": [
+                71,
+                28,
+                342,
+                507
+              ],
+              "shift": [
+                4,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "idle_002.png",
+            "frame": {
+              "x": 768,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                24,
+                35,
+                313,
+                511
+              ],
+              "torso_x": 147,
+              "aligned_bbox": [
+                69,
+                31,
+                358,
+                507
+              ],
+              "shift": [
+                45,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "idle_003.png",
+            "frame": {
+              "x": 1152,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                16,
+                32,
+                302,
+                511
+              ],
+              "torso_x": 141,
+              "aligned_bbox": [
+                67,
+                28,
+                353,
+                507
+              ],
+              "shift": [
+                51,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "idle_004.png",
+            "frame": {
+              "x": 0,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                86,
+                0,
+                360,
+                498
+              ],
+              "torso_x": 206,
+              "aligned_bbox": [
+                72,
+                9,
+                346,
+                507
+              ],
+              "shift": [
+                -14,
+                9
+              ]
+            }
+          },
+          {
+            "filename": "idle_005.png",
+            "frame": {
+              "x": 384,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                72,
+                0,
+                346,
+                496
+              ],
+              "torso_x": 193,
+              "aligned_bbox": [
+                71,
+                11,
+                345,
+                507
+              ],
+              "shift": [
+                -1,
+                11
+              ]
+            }
+          },
+          {
+            "filename": "idle_006.png",
+            "frame": {
+              "x": 768,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                40,
+                0,
+                323,
+                496
+              ],
+              "torso_x": 163,
+              "aligned_bbox": [
+                69,
+                11,
+                352,
+                507
+              ],
+              "shift": [
+                29,
+                11
+              ]
+            }
+          },
+          {
+            "filename": "idle_007.png",
+            "frame": {
+              "x": 1152,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                27,
+                0,
+                308,
+                496
+              ],
+              "torso_x": 150,
+              "aligned_bbox": [
+                69,
+                11,
+                350,
+                507
+              ],
+              "shift": [
+                42,
+                11
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "asset_id": "forest-elf",
+        "state": "walk",
+        "sheet_path": "assets/characters/forest-elf/spritesheets/walk/walk.png",
+        "atlas_path": "assets/characters/forest-elf/spritesheets/walk/walk.atlas.json",
+        "meta": {
+          "char_id": "forest-elf",
+          "state": "walk",
+          "rows": 2,
+          "cols": 4,
+          "frame_count": 8,
+          "frame_size": {
+            "w": 384,
+            "h": 512
+          },
+          "sheet_size": {
+            "w": 1536,
+            "h": 1024
+          },
+          "frame_order": "left-to-right, top-to-bottom",
+          "requested_cols": 4,
+          "requested_rows": 2,
+          "detected": true,
+          "aligned": true,
+          "frameRate": 10,
+          "yoyo": false,
+          "seed": 661522113
+        },
+        "frames": [
+          {
+            "filename": "walk_000.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                119,
+                25,
+                383,
+                501
+              ],
+              "torso_x": 242,
+              "aligned_bbox": [
+                69,
+                31,
+                333,
+                507
+              ],
+              "shift": [
+                -50,
+                6
+              ]
+            }
+          },
+          {
+            "filename": "walk_001.png",
+            "frame": {
+              "x": 384,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                28,
+                363,
+                502
+              ],
+              "torso_x": 196,
+              "aligned_bbox": [
+                0,
+                33,
+                363,
+                507
+              ],
+              "shift": [
+                0,
+                5
+              ]
+            }
+          },
+          {
+            "filename": "walk_002.png",
+            "frame": {
+              "x": 768,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                18,
+                34,
+                383,
+                501
+              ],
+              "torso_x": 159,
+              "aligned_bbox": [
+                18,
+                40,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                6
+              ]
+            }
+          },
+          {
+            "filename": "walk_003.png",
+            "frame": {
+              "x": 1152,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                29,
+                276,
+                501
+              ],
+              "torso_x": 111,
+              "aligned_bbox": [
+                81,
+                35,
+                357,
+                507
+              ],
+              "shift": [
+                81,
+                6
+              ]
+            }
+          },
+          {
+            "filename": "walk_004.png",
+            "frame": {
+              "x": 0,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                115,
+                12,
+                383,
+                470
+              ],
+              "torso_x": 243,
+              "aligned_bbox": [
+                64,
+                49,
+                332,
+                507
+              ],
+              "shift": [
+                -51,
+                37
+              ]
+            }
+          },
+          {
+            "filename": "walk_005.png",
+            "frame": {
+              "x": 384,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                13,
+                362,
+                471
+              ],
+              "torso_x": 197,
+              "aligned_bbox": [
+                0,
+                49,
+                362,
+                507
+              ],
+              "shift": [
+                0,
+                36
+              ]
+            }
+          },
+          {
+            "filename": "walk_006.png",
+            "frame": {
+              "x": 768,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                18,
+                13,
+                383,
+                472
+              ],
+              "torso_x": 157,
+              "aligned_bbox": [
+                18,
+                48,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                35
+              ]
+            }
+          },
+          {
+            "filename": "walk_007.png",
+            "frame": {
+              "x": 1152,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                15,
+                275,
+                471
+              ],
+              "torso_x": 110,
+              "aligned_bbox": [
+                82,
+                51,
+                357,
+                507
+              ],
+              "shift": [
+                82,
+                36
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "asset_id": "hero-knight",
+        "state": "idle",
+        "sheet_path": "assets/characters/hero-knight/spritesheets/idle/idle.png",
+        "atlas_path": "assets/characters/hero-knight/spritesheets/idle/idle.atlas.json",
+        "meta": {
+          "char_id": "hero-knight",
+          "state": "idle",
+          "rows": 2,
+          "cols": 4,
+          "frame_count": 8,
+          "frame_size": {
+            "w": 384,
+            "h": 512
+          },
+          "sheet_size": {
+            "w": 1536,
+            "h": 1024
+          },
+          "frame_order": "left-to-right, top-to-bottom",
+          "requested_cols": 4,
+          "requested_rows": 2,
+          "detected": true,
+          "aligned": true,
+          "frameRate": 6,
+          "yoyo": true,
+          "seed": 1343783920
+        },
+        "frames": [
+          {
+            "filename": "idle_000.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                62,
+                36,
+                383,
+                501
+              ],
+              "torso_x": 229,
+              "aligned_bbox": [
+                25,
+                42,
+                346,
+                507
+              ],
+              "shift": [
+                -37,
+                6
+              ]
+            }
+          },
+          {
+            "filename": "idle_001.png",
+            "frame": {
+              "x": 384,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                36,
+                376,
+                500
+              ],
+              "torso_x": 201,
+              "aligned_bbox": [
+                0,
+                43,
+                376,
+                507
+              ],
+              "shift": [
+                0,
+                7
+              ]
+            }
+          },
+          {
+            "filename": "idle_002.png",
+            "frame": {
+              "x": 768,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                9,
+                35,
+                383,
+                500
+              ],
+              "torso_x": 176,
+              "aligned_bbox": [
+                9,
+                42,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                7
+              ]
+            }
+          },
+          {
+            "filename": "idle_003.png",
+            "frame": {
+              "x": 1152,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                35,
+                321,
+                501
+              ],
+              "torso_x": 141,
+              "aligned_bbox": [
+                51,
+                41,
+                372,
+                507
+              ],
+              "shift": [
+                51,
+                6
+              ]
+            }
+          },
+          {
+            "filename": "idle_004.png",
+            "frame": {
+              "x": 0,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                67,
+                13,
+                383,
+                475
+              ],
+              "torso_x": 228,
+              "aligned_bbox": [
+                31,
+                45,
+                347,
+                507
+              ],
+              "shift": [
+                -36,
+                32
+              ]
+            }
+          },
+          {
+            "filename": "idle_005.png",
+            "frame": {
+              "x": 384,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                13,
+                377,
+                475
+              ],
+              "torso_x": 201,
+              "aligned_bbox": [
+                0,
+                45,
+                377,
+                507
+              ],
+              "shift": [
+                0,
+                32
+              ]
+            }
+          },
+          {
+            "filename": "idle_006.png",
+            "frame": {
+              "x": 768,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                10,
+                13,
+                383,
+                475
+              ],
+              "torso_x": 176,
+              "aligned_bbox": [
+                10,
+                45,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                32
+              ]
+            }
+          },
+          {
+            "filename": "idle_007.png",
+            "frame": {
+              "x": 1152,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                13,
+                318,
+                475
+              ],
+              "torso_x": 141,
+              "aligned_bbox": [
+                51,
+                45,
+                369,
+                507
+              ],
+              "shift": [
+                51,
+                32
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "asset_id": "hero-knight",
+        "state": "walk",
+        "sheet_path": "assets/characters/hero-knight/spritesheets/walk/walk.png",
+        "atlas_path": "assets/characters/hero-knight/spritesheets/walk/walk.atlas.json",
+        "meta": {
+          "char_id": "hero-knight",
+          "state": "walk",
+          "rows": 2,
+          "cols": 4,
+          "frame_count": 8,
+          "frame_size": {
+            "w": 384,
+            "h": 512
+          },
+          "sheet_size": {
+            "w": 1536,
+            "h": 1024
+          },
+          "frame_order": "left-to-right, top-to-bottom",
+          "requested_cols": 4,
+          "requested_rows": 2,
+          "detected": true,
+          "aligned": true,
+          "frameRate": 10,
+          "yoyo": false,
+          "seed": 214939653
+        },
+        "frames": [
+          {
+            "filename": "walk_000.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                49,
+                37,
+                383,
+                488
+              ],
+              "torso_x": 222,
+              "aligned_bbox": [
+                19,
+                56,
+                353,
+                507
+              ],
+              "shift": [
+                -30,
+                19
+              ]
+            }
+          },
+          {
+            "filename": "walk_001.png",
+            "frame": {
+              "x": 384,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                37,
+                383,
+                487
+              ],
+              "torso_x": 188,
+              "aligned_bbox": [
+                0,
+                57,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                20
+              ]
+            }
+          },
+          {
+            "filename": "walk_002.png",
+            "frame": {
+              "x": 768,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                40,
+                383,
+                488
+              ],
+              "torso_x": 161,
+              "aligned_bbox": [
+                0,
+                59,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                19
+              ]
+            }
+          },
+          {
+            "filename": "walk_003.png",
+            "frame": {
+              "x": 1152,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                36,
+                274,
+                488
+              ],
+              "torso_x": 105,
+              "aligned_bbox": [
+                87,
+                55,
+                361,
+                507
+              ],
+              "shift": [
+                87,
+                19
+              ]
+            }
+          },
+          {
+            "filename": "walk_004.png",
+            "frame": {
+              "x": 0,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                41,
+                14,
+                383,
+                464
+              ],
+              "torso_x": 211,
+              "aligned_bbox": [
+                22,
+                57,
+                364,
+                507
+              ],
+              "shift": [
+                -19,
+                43
+              ]
+            }
+          },
+          {
+            "filename": "walk_005.png",
+            "frame": {
+              "x": 384,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                14,
+                383,
+                465
+              ],
+              "torso_x": 179,
+              "aligned_bbox": [
+                0,
+                56,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                42
+              ]
+            }
+          },
+          {
+            "filename": "walk_006.png",
+            "frame": {
+              "x": 768,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                13,
+                383,
+                465
+              ],
+              "torso_x": 154,
+              "aligned_bbox": [
+                0,
+                55,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                42
+              ]
+            }
+          },
+          {
+            "filename": "walk_007.png",
+            "frame": {
+              "x": 1152,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                13,
+                302,
+                466
+              ],
+              "torso_x": 93,
+              "aligned_bbox": [
+                81,
+                54,
+                383,
+                507
+              ],
+              "shift": [
+                81,
+                41
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "objects": [
+      {
+        "asset_id": "bounce-spring",
+        "state": "bounce",
+        "sheet_path": "assets/objects/bounce-spring/spritesheets/bounce/bounce.png",
+        "atlas_path": "assets/objects/bounce-spring/spritesheets/bounce/bounce.atlas.json",
+        "meta": {
+          "obj_id": "bounce-spring",
+          "state": "bounce",
+          "category": "interactive",
+          "rows": 2,
+          "cols": 4,
+          "frame_count": 8,
+          "frame_size": {
+            "w": 384,
+            "h": 512
+          },
+          "sheet_size": {
+            "w": 1536,
+            "h": 1024
+          },
+          "frame_order": "left-to-right, top-to-bottom",
+          "requested_cols": 4,
+          "requested_rows": 2,
+          "detected": true,
+          "aligned": true,
+          "frameRate": 10,
+          "yoyo": true,
+          "seed": 515115367
+        },
+        "frames": [
+          {
+            "filename": "bounce_000.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                96,
+                132,
+                355,
+                458
+              ],
+              "torso_x": 224,
+              "aligned_bbox": [
+                64,
+                181,
+                323,
+                507
+              ],
+              "shift": [
+                -32,
+                49
+              ]
+            }
+          },
+          {
+            "filename": "bounce_001.png",
+            "frame": {
+              "x": 384,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                62,
+                137,
+                324,
+                458
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                63,
+                186,
+                325,
+                507
+              ],
+              "shift": [
+                1,
+                49
+              ]
+            }
+          },
+          {
+            "filename": "bounce_002.png",
+            "frame": {
+              "x": 768,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                36,
+                133,
+                295,
+                458
+              ],
+              "torso_x": 163,
+              "aligned_bbox": [
+                65,
+                182,
+                324,
+                507
+              ],
+              "shift": [
+                29,
+                49
+              ]
+            }
+          },
+          {
+            "filename": "bounce_003.png",
+            "frame": {
+              "x": 1152,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                7,
+                45,
+                266,
+                457
+              ],
+              "torso_x": 134,
+              "aligned_bbox": [
+                65,
+                95,
+                324,
+                507
+              ],
+              "shift": [
+                58,
+                50
+              ]
+            }
+          },
+          {
+            "filename": "bounce_004.png",
+            "frame": {
+              "x": 0,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                97,
+                65,
+                356,
+                393
+              ],
+              "torso_x": 225,
+              "aligned_bbox": [
+                64,
+                179,
+                323,
+                507
+              ],
+              "shift": [
+                -33,
+                114
+              ]
+            }
+          },
+          {
+            "filename": "bounce_005.png",
+            "frame": {
+              "x": 384,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                64,
+                72,
+                321,
+                392
+              ],
+              "torso_x": 192,
+              "aligned_bbox": [
+                64,
+                187,
+                321,
+                507
+              ],
+              "shift": [
+                0,
+                115
+              ]
+            }
+          },
+          {
+            "filename": "bounce_006.png",
+            "frame": {
+              "x": 768,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                36,
+                45,
+                295,
+                392
+              ],
+              "torso_x": 170,
+              "aligned_bbox": [
+                58,
+                160,
+                317,
+                507
+              ],
+              "shift": [
+                22,
+                115
+              ]
+            }
+          },
+          {
+            "filename": "bounce_007.png",
+            "frame": {
+              "x": 1152,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                7,
+                68,
+                265,
+                392
+              ],
+              "torso_x": 136,
+              "aligned_bbox": [
+                63,
+                183,
+                321,
+                507
+              ],
+              "shift": [
+                56,
+                115
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "asset_id": "bounce-spring",
+        "state": "idle",
+        "sheet_path": "assets/objects/bounce-spring/spritesheets/idle/idle.png",
+        "atlas_path": "assets/objects/bounce-spring/spritesheets/idle/idle.atlas.json",
+        "meta": {
+          "obj_id": "bounce-spring",
+          "state": "idle",
+          "category": "interactive",
+          "rows": 2,
+          "cols": 4,
+          "frame_count": 8,
+          "frame_size": {
+            "w": 384,
+            "h": 512
+          },
+          "sheet_size": {
+            "w": 1536,
+            "h": 1024
+          },
+          "frame_order": "left-to-right, top-to-bottom",
+          "requested_cols": 4,
+          "requested_rows": 2,
+          "detected": true,
+          "aligned": true,
+          "frameRate": 6,
+          "yoyo": true,
+          "seed": 816823302
+        },
+        "frames": [
+          {
+            "filename": "idle_000.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                96,
+                110,
+                376,
+                481
+              ],
+              "torso_x": 231,
+              "aligned_bbox": [
+                57,
+                136,
+                337,
+                507
+              ],
+              "shift": [
+                -39,
+                26
+              ]
+            }
+          },
+          {
+            "filename": "idle_001.png",
+            "frame": {
+              "x": 384,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                69,
+                128,
+                344,
+                481
+              ],
+              "torso_x": 199,
+              "aligned_bbox": [
+                62,
+                154,
+                337,
+                507
+              ],
+              "shift": [
+                -7,
+                26
+              ]
+            }
+          },
+          {
+            "filename": "idle_002.png",
+            "frame": {
+              "x": 768,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                47,
+                48,
+                324,
+                481
+              ],
+              "torso_x": 175,
+              "aligned_bbox": [
+                64,
+                74,
+                341,
+                507
+              ],
+              "shift": [
+                17,
+                26
+              ]
+            }
+          },
+          {
+            "filename": "idle_003.png",
+            "frame": {
+              "x": 1152,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                26,
+                136,
+                300,
+                481
+              ],
+              "torso_x": 157,
+              "aligned_bbox": [
+                61,
+                162,
+                335,
+                507
+              ],
+              "shift": [
+                35,
+                26
+              ]
+            }
+          },
+          {
+            "filename": "idle_004.png",
+            "frame": {
+              "x": 0,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                96,
+                50,
+                375,
+                423
+              ],
+              "torso_x": 231,
+              "aligned_bbox": [
+                57,
+                134,
+                336,
+                507
+              ],
+              "shift": [
+                -39,
+                84
+              ]
+            }
+          },
+          {
+            "filename": "idle_005.png",
+            "frame": {
+              "x": 384,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                69,
+                59,
+                342,
+                421
+              ],
+              "torso_x": 200,
+              "aligned_bbox": [
+                61,
+                145,
+                334,
+                507
+              ],
+              "shift": [
+                -8,
+                86
+              ]
+            }
+          },
+          {
+            "filename": "idle_006.png",
+            "frame": {
+              "x": 768,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                44,
+                64,
+                321,
+                421
+              ],
+              "torso_x": 175,
+              "aligned_bbox": [
+                61,
+                150,
+                338,
+                507
+              ],
+              "shift": [
+                17,
+                86
+              ]
+            }
+          },
+          {
+            "filename": "idle_007.png",
+            "frame": {
+              "x": 1152,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                25,
+                71,
+                298,
+                421
+              ],
+              "torso_x": 156,
+              "aligned_bbox": [
+                61,
+                157,
+                334,
+                507
+              ],
+              "shift": [
+                36,
+                86
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "asset_id": "checkpoint-flag",
+        "state": "activate",
+        "sheet_path": "assets/objects/checkpoint-flag/spritesheets/activate/activate.png",
+        "atlas_path": "assets/objects/checkpoint-flag/spritesheets/activate/activate.atlas.json",
+        "meta": {
+          "obj_id": "checkpoint-flag",
+          "state": "activate",
+          "category": "interactive",
+          "rows": 4,
+          "cols": 4,
+          "frame_count": 16,
+          "frame_size": {
+            "w": 384,
+            "h": 256
+          },
+          "sheet_size": {
+            "w": 1536,
+            "h": 1024
+          },
+          "frame_order": "left-to-right, top-to-bottom",
+          "requested_cols": 4,
+          "requested_rows": 2,
+          "detected": true,
+          "aligned": true,
+          "frameRate": 8,
+          "yoyo": true,
+          "seed": 1288411757
+        },
+        "frames": [
+          {
+            "filename": "activate_000.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                121,
+                55,
+                333,
+                255
+              ],
+              "torso_x": 205,
+              "aligned_bbox": [
+                108,
+                51,
+                320,
+                251
+              ],
+              "shift": [
+                -13,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "activate_001.png",
+            "frame": {
+              "x": 384,
+              "y": 0,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                109,
+                55,
+                207,
+                255
+              ],
+              "torso_x": 160,
+              "aligned_bbox": [
+                141,
+                51,
+                239,
+                251
+              ],
+              "shift": [
+                32,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "activate_002.png",
+            "frame": {
+              "x": 768,
+              "y": 0,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                91,
+                55,
+                215,
+                255
+              ],
+              "torso_x": 150,
+              "aligned_bbox": [
+                133,
+                51,
+                257,
+                251
+              ],
+              "shift": [
+                42,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "activate_003.png",
+            "frame": {
+              "x": 1152,
+              "y": 0,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                55,
+                285,
+                255
+              ],
+              "torso_x": 138,
+              "aligned_bbox": [
+                54,
+                51,
+                339,
+                251
+              ],
+              "shift": [
+                54,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "activate_004.png",
+            "frame": {
+              "x": 0,
+              "y": 256,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                56,
+                0,
+                235,
+                222
+              ],
+              "torso_x": 138,
+              "aligned_bbox": [
+                110,
+                29,
+                289,
+                251
+              ],
+              "shift": [
+                54,
+                29
+              ]
+            }
+          },
+          {
+            "filename": "activate_005.png",
+            "frame": {
+              "x": 384,
+              "y": 256,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                47,
+                0,
+                220,
+                224
+              ],
+              "torso_x": 124,
+              "aligned_bbox": [
+                115,
+                27,
+                288,
+                251
+              ],
+              "shift": [
+                68,
+                27
+              ]
+            }
+          },
+          {
+            "filename": "activate_006.png",
+            "frame": {
+              "x": 768,
+              "y": 256,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                31,
+                0,
+                383,
+                222
+              ],
+              "torso_x": 124,
+              "aligned_bbox": [
+                31,
+                29,
+                383,
+                251
+              ],
+              "shift": [
+                0,
+                29
+              ]
+            }
+          },
+          {
+            "filename": "activate_007.png",
+            "frame": {
+              "x": 1152,
+              "y": 256,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                152,
+                222
+              ],
+              "torso_x": 50,
+              "aligned_bbox": [
+                142,
+                29,
+                294,
+                251
+              ],
+              "shift": [
+                142,
+                29
+              ]
+            }
+          },
+          {
+            "filename": "activate_008.png",
+            "frame": {
+              "x": 0,
+              "y": 512,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                91,
+                27,
+                368,
+                255
+              ],
+              "torso_x": 209,
+              "aligned_bbox": [
+                74,
+                23,
+                351,
+                251
+              ],
+              "shift": [
+                -17,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "activate_009.png",
+            "frame": {
+              "x": 384,
+              "y": 512,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                78,
+                27,
+                363,
+                255
+              ],
+              "torso_x": 195,
+              "aligned_bbox": [
+                75,
+                23,
+                360,
+                251
+              ],
+              "shift": [
+                -3,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "activate_010.png",
+            "frame": {
+              "x": 768,
+              "y": 512,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                90,
+                27,
+                302,
+                255
+              ],
+              "torso_x": 158,
+              "aligned_bbox": [
+                124,
+                23,
+                336,
+                251
+              ],
+              "shift": [
+                34,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "activate_011.png",
+            "frame": {
+              "x": 1152,
+              "y": 512,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                27,
+                27,
+                243,
+                255
+              ],
+              "torso_x": 115,
+              "aligned_bbox": [
+                104,
+                23,
+                320,
+                251
+              ],
+              "shift": [
+                77,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "activate_012.png",
+            "frame": {
+              "x": 0,
+              "y": 768,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                61,
+                0,
+                236,
+                194
+              ],
+              "torso_x": 140,
+              "aligned_bbox": [
+                113,
+                57,
+                288,
+                251
+              ],
+              "shift": [
+                52,
+                57
+              ]
+            }
+          },
+          {
+            "filename": "activate_013.png",
+            "frame": {
+              "x": 384,
+              "y": 768,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                37,
+                0,
+                227,
+                194
+              ],
+              "torso_x": 124,
+              "aligned_bbox": [
+                105,
+                57,
+                295,
+                251
+              ],
+              "shift": [
+                68,
+                57
+              ]
+            }
+          },
+          {
+            "filename": "activate_014.png",
+            "frame": {
+              "x": 768,
+              "y": 768,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                28,
+                0,
+                383,
+                195
+              ],
+              "torso_x": 124,
+              "aligned_bbox": [
+                28,
+                56,
+                383,
+                251
+              ],
+              "shift": [
+                0,
+                56
+              ]
+            }
+          },
+          {
+            "filename": "activate_015.png",
+            "frame": {
+              "x": 1152,
+              "y": 768,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                140,
+                193
+              ],
+              "torso_x": 47,
+              "aligned_bbox": [
+                145,
+                58,
+                285,
+                251
+              ],
+              "shift": [
+                145,
+                58
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "asset_id": "checkpoint-flag",
+        "state": "idle",
+        "sheet_path": "assets/objects/checkpoint-flag/spritesheets/idle/idle.png",
+        "atlas_path": "assets/objects/checkpoint-flag/spritesheets/idle/idle.atlas.json",
+        "meta": {
+          "obj_id": "checkpoint-flag",
+          "state": "idle",
+          "category": "interactive",
+          "rows": 2,
+          "cols": 4,
+          "frame_count": 8,
+          "frame_size": {
+            "w": 384,
+            "h": 512
+          },
+          "sheet_size": {
+            "w": 1536,
+            "h": 1024
+          },
+          "frame_order": "left-to-right, top-to-bottom",
+          "requested_cols": 4,
+          "requested_rows": 2,
+          "detected": true,
+          "aligned": true,
+          "frameRate": 6,
+          "yoyo": true,
+          "seed": 800139422
+        },
+        "frames": [
+          {
+            "filename": "idle_000.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                491
+              ],
+              "torso_x": 227,
+              "aligned_bbox": [
+                0,
+                16,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                16
+              ]
+            }
+          },
+          {
+            "filename": "idle_001.png",
+            "frame": {
+              "x": 384,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                491
+              ],
+              "torso_x": 193,
+              "aligned_bbox": [
+                0,
+                16,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                16
+              ]
+            }
+          },
+          {
+            "filename": "idle_002.png",
+            "frame": {
+              "x": 768,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                491
+              ],
+              "torso_x": 144,
+              "aligned_bbox": [
+                0,
+                16,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                16
+              ]
+            }
+          },
+          {
+            "filename": "idle_003.png",
+            "frame": {
+              "x": 1152,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                490
+              ],
+              "torso_x": 113,
+              "aligned_bbox": [
+                0,
+                17,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                17
+              ]
+            }
+          },
+          {
+            "filename": "idle_004.png",
+            "frame": {
+              "x": 0,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                28,
+                383,
+                511
+              ],
+              "torso_x": 194,
+              "aligned_bbox": [
+                0,
+                24,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "idle_005.png",
+            "frame": {
+              "x": 384,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                28,
+                383,
+                511
+              ],
+              "torso_x": 167,
+              "aligned_bbox": [
+                0,
+                24,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "idle_006.png",
+            "frame": {
+              "x": 768,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                30,
+                383,
+                511
+              ],
+              "torso_x": 126,
+              "aligned_bbox": [
+                0,
+                26,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "idle_007.png",
+            "frame": {
+              "x": 1152,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                34,
+                383,
+                511
+              ],
+              "torso_x": 90,
+              "aligned_bbox": [
+                0,
+                30,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                -4
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "asset_id": "gold-key",
+        "state": "collect",
+        "sheet_path": "assets/objects/gold-key/spritesheets/collect/collect.png",
+        "atlas_path": "assets/objects/gold-key/spritesheets/collect/collect.atlas.json",
+        "meta": {
+          "obj_id": "gold-key",
+          "state": "collect",
+          "category": "item",
+          "rows": 4,
+          "cols": 4,
+          "frame_count": 16,
+          "frame_size": {
+            "w": 384,
+            "h": 256
+          },
+          "sheet_size": {
+            "w": 1536,
+            "h": 1024
+          },
+          "frame_order": "left-to-right, top-to-bottom",
+          "requested_cols": 4,
+          "requested_rows": 2,
+          "detected": true,
+          "aligned": true,
+          "frameRate": 12,
+          "yoyo": false,
+          "seed": 1272331498
+        },
+        "frames": [
+          {
+            "filename": "collect_000.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                158,
+                205,
+                316,
+                255
+              ],
+              "torso_x": 235,
+              "aligned_bbox": [
+                115,
+                201,
+                273,
+                251
+              ],
+              "shift": [
+                -43,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "collect_001.png",
+            "frame": {
+              "x": 384,
+              "y": 0,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                116,
+                200,
+                269,
+                255
+              ],
+              "torso_x": 189,
+              "aligned_bbox": [
+                119,
+                196,
+                272,
+                251
+              ],
+              "shift": [
+                3,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "collect_002.png",
+            "frame": {
+              "x": 768,
+              "y": 0,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                69,
+                95,
+                229,
+                255
+              ],
+              "torso_x": 144,
+              "aligned_bbox": [
+                117,
+                91,
+                277,
+                251
+              ],
+              "shift": [
+                48,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "collect_003.png",
+            "frame": {
+              "x": 1152,
+              "y": 0,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                22,
+                101,
+                246,
+                255
+              ],
+              "torso_x": 128,
+              "aligned_bbox": [
+                86,
+                97,
+                310,
+                251
+              ],
+              "shift": [
+                64,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "collect_004.png",
+            "frame": {
+              "x": 0,
+              "y": 256,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                82,
+                0,
+                317,
+                220
+              ],
+              "torso_x": 188,
+              "aligned_bbox": [
+                86,
+                31,
+                321,
+                251
+              ],
+              "shift": [
+                4,
+                31
+              ]
+            }
+          },
+          {
+            "filename": "collect_005.png",
+            "frame": {
+              "x": 384,
+              "y": 256,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                54,
+                0,
+                273,
+                220
+              ],
+              "torso_x": 147,
+              "aligned_bbox": [
+                99,
+                31,
+                318,
+                251
+              ],
+              "shift": [
+                45,
+                31
+              ]
+            }
+          },
+          {
+            "filename": "collect_006.png",
+            "frame": {
+              "x": 768,
+              "y": 256,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                13,
+                0,
+                383,
+                220
+              ],
+              "torso_x": 73,
+              "aligned_bbox": [
+                13,
+                31,
+                383,
+                251
+              ],
+              "shift": [
+                0,
+                31
+              ]
+            }
+          },
+          {
+            "filename": "collect_007.png",
+            "frame": {
+              "x": 1152,
+              "y": 256,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                210,
+                220
+              ],
+              "torso_x": 56,
+              "aligned_bbox": [
+                136,
+                31,
+                346,
+                251
+              ],
+              "shift": [
+                136,
+                31
+              ]
+            }
+          },
+          {
+            "filename": "collect_008.png",
+            "frame": {
+              "x": 0,
+              "y": 512,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                149,
+                103,
+                314,
+                255
+              ],
+              "torso_x": 242,
+              "aligned_bbox": [
+                99,
+                99,
+                264,
+                251
+              ],
+              "shift": [
+                -50,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "collect_009.png",
+            "frame": {
+              "x": 384,
+              "y": 512,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                108,
+                66,
+                272,
+                255
+              ],
+              "torso_x": 202,
+              "aligned_bbox": [
+                98,
+                62,
+                262,
+                251
+              ],
+              "shift": [
+                -10,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "collect_010.png",
+            "frame": {
+              "x": 768,
+              "y": 512,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                81,
+                51,
+                199,
+                255
+              ],
+              "torso_x": 149,
+              "aligned_bbox": [
+                124,
+                47,
+                242,
+                251
+              ],
+              "shift": [
+                43,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "collect_011.png",
+            "frame": {
+              "x": 1152,
+              "y": 512,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                58,
+                147,
+                149,
+                255
+              ],
+              "torso_x": 96,
+              "aligned_bbox": [
+                154,
+                143,
+                245,
+                251
+              ],
+              "shift": [
+                96,
+                -4
+              ]
+            }
+          },
+          {
+            "filename": "collect_012.png",
+            "frame": {
+              "x": 0,
+              "y": 768,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                94,
+                0,
+                296,
+                159
+              ],
+              "torso_x": 137,
+              "aligned_bbox": [
+                149,
+                92,
+                351,
+                251
+              ],
+              "shift": [
+                55,
+                92
+              ]
+            }
+          },
+          {
+            "filename": "collect_013.png",
+            "frame": {
+              "x": 384,
+              "y": 768,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                54,
+                0,
+                248,
+                159
+              ],
+              "torso_x": 98,
+              "aligned_bbox": [
+                148,
+                92,
+                342,
+                251
+              ],
+              "shift": [
+                94,
+                92
+              ]
+            }
+          },
+          {
+            "filename": "collect_014.png",
+            "frame": {
+              "x": 768,
+              "y": 768,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                103,
+                0,
+                194,
+                71
+              ],
+              "torso_x": 109,
+              "aligned_bbox": [
+                186,
+                180,
+                277,
+                251
+              ],
+              "shift": [
+                83,
+                180
+              ]
+            }
+          },
+          {
+            "filename": "collect_015.png",
+            "frame": {
+              "x": 1152,
+              "y": 768,
+              "w": 384,
+              "h": 256
+            },
+            "anchor": {
+              "original_bbox": [
+                60,
+                0,
+                141,
+                81
+              ],
+              "torso_x": 115,
+              "aligned_bbox": [
+                137,
+                170,
+                218,
+                251
+              ],
+              "shift": [
+                77,
+                170
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "asset_id": "gold-key",
+        "state": "idle",
+        "sheet_path": "assets/objects/gold-key/spritesheets/idle/idle.png",
+        "atlas_path": "assets/objects/gold-key/spritesheets/idle/idle.atlas.json",
+        "meta": {
+          "obj_id": "gold-key",
+          "state": "idle",
+          "category": "item",
+          "rows": 2,
+          "cols": 4,
+          "frame_count": 8,
+          "frame_size": {
+            "w": 384,
+            "h": 512
+          },
+          "sheet_size": {
+            "w": 1536,
+            "h": 1024
+          },
+          "frame_order": "left-to-right, top-to-bottom",
+          "requested_cols": 4,
+          "requested_rows": 2,
+          "detected": true,
+          "aligned": true,
+          "frameRate": 6,
+          "yoyo": true,
+          "seed": 1883471416
+        },
+        "frames": [
+          {
+            "filename": "idle_000.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                151,
+                93,
+                348,
+                464
+              ],
+              "torso_x": 249,
+              "aligned_bbox": [
+                94,
+                136,
+                291,
+                507
+              ],
+              "shift": [
+                -57,
+                43
+              ]
+            }
+          },
+          {
+            "filename": "idle_001.png",
+            "frame": {
+              "x": 384,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                100,
+                91,
+                296,
+                462
+              ],
+              "torso_x": 197,
+              "aligned_bbox": [
+                95,
+                136,
+                291,
+                507
+              ],
+              "shift": [
+                -5,
+                45
+              ]
+            }
+          },
+          {
+            "filename": "idle_002.png",
+            "frame": {
+              "x": 768,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                42,
+                86,
+                240,
+                468
+              ],
+              "torso_x": 141,
+              "aligned_bbox": [
+                93,
+                125,
+                291,
+                507
+              ],
+              "shift": [
+                51,
+                39
+              ]
+            }
+          },
+          {
+            "filename": "idle_003.png",
+            "frame": {
+              "x": 1152,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                28,
+                81,
+                231,
+                465
+              ],
+              "torso_x": 128,
+              "aligned_bbox": [
+                92,
+                123,
+                295,
+                507
+              ],
+              "shift": [
+                64,
+                42
+              ]
+            }
+          },
+          {
+            "filename": "idle_004.png",
+            "frame": {
+              "x": 0,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                149,
+                45,
+                345,
+                420
+              ],
+              "torso_x": 246,
+              "aligned_bbox": [
+                95,
+                132,
+                291,
+                507
+              ],
+              "shift": [
+                -54,
+                87
+              ]
+            }
+          },
+          {
+            "filename": "idle_005.png",
+            "frame": {
+              "x": 384,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                99,
+                45,
+                297,
+                419
+              ],
+              "torso_x": 196,
+              "aligned_bbox": [
+                95,
+                133,
+                293,
+                507
+              ],
+              "shift": [
+                -4,
+                88
+              ]
+            }
+          },
+          {
+            "filename": "idle_006.png",
+            "frame": {
+              "x": 768,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                41,
+                40,
+                239,
+                419
+              ],
+              "torso_x": 139,
+              "aligned_bbox": [
+                94,
+                128,
+                292,
+                507
+              ],
+              "shift": [
+                53,
+                88
+              ]
+            }
+          },
+          {
+            "filename": "idle_007.png",
+            "frame": {
+              "x": 1152,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                27,
+                38,
+                228,
+                418
+              ],
+              "torso_x": 126,
+              "aligned_bbox": [
+                93,
+                127,
+                294,
+                507
+              ],
+              "shift": [
+                66,
+                89
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "asset_id": "health-potion",
+        "state": "collect",
+        "sheet_path": "assets/objects/health-potion/spritesheets/collect/collect.png",
+        "atlas_path": "assets/objects/health-potion/spritesheets/collect/collect.atlas.json",
+        "meta": {
+          "obj_id": "health-potion",
+          "state": "collect",
+          "category": "item",
+          "rows": 2,
+          "cols": 4,
+          "frame_count": 8,
+          "frame_size": {
+            "w": 384,
+            "h": 512
+          },
+          "sheet_size": {
+            "w": 1536,
+            "h": 1024
+          },
+          "frame_order": "left-to-right, top-to-bottom",
+          "requested_cols": 4,
+          "requested_rows": 2,
+          "detected": true,
+          "aligned": true,
+          "frameRate": 12,
+          "yoyo": false,
+          "seed": 462896289
+        },
+        "frames": [
+          {
+            "filename": "collect_000.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                101,
+                196,
+                279,
+                446
+              ],
+              "torso_x": 194,
+              "aligned_bbox": [
+                99,
+                257,
+                277,
+                507
+              ],
+              "shift": [
+                -2,
+                61
+              ]
+            }
+          },
+          {
+            "filename": "collect_001.png",
+            "frame": {
+              "x": 384,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                57,
+                176,
+                228,
+                448
+              ],
+              "torso_x": 143,
+              "aligned_bbox": [
+                106,
+                235,
+                277,
+                507
+              ],
+              "shift": [
+                49,
+                59
+              ]
+            }
+          },
+          {
+            "filename": "collect_002.png",
+            "frame": {
+              "x": 768,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                37,
+                138,
+                221,
+                458
+              ],
+              "torso_x": 129,
+              "aligned_bbox": [
+                100,
+                187,
+                284,
+                507
+              ],
+              "shift": [
+                63,
+                49
+              ]
+            }
+          },
+          {
+            "filename": "collect_003.png",
+            "frame": {
+              "x": 1152,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                15,
+                80,
+                237,
+                458
+              ],
+              "torso_x": 131,
+              "aligned_bbox": [
+                76,
+                129,
+                298,
+                507
+              ],
+              "shift": [
+                61,
+                49
+              ]
+            }
+          },
+          {
+            "filename": "collect_004.png",
+            "frame": {
+              "x": 0,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                99,
+                88,
+                275,
+                395
+              ],
+              "torso_x": 187,
+              "aligned_bbox": [
+                104,
+                200,
+                280,
+                507
+              ],
+              "shift": [
+                5,
+                112
+              ]
+            }
+          },
+          {
+            "filename": "collect_005.png",
+            "frame": {
+              "x": 384,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                55,
+                86,
+                236,
+                394
+              ],
+              "torso_x": 140,
+              "aligned_bbox": [
+                107,
+                199,
+                288,
+                507
+              ],
+              "shift": [
+                52,
+                113
+              ]
+            }
+          },
+          {
+            "filename": "collect_006.png",
+            "frame": {
+              "x": 768,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                76,
+                149,
+                216,
+                395
+              ],
+              "torso_x": 136,
+              "aligned_bbox": [
+                132,
+                261,
+                272,
+                507
+              ],
+              "shift": [
+                56,
+                112
+              ]
+            }
+          },
+          {
+            "filename": "collect_007.png",
+            "frame": {
+              "x": 1152,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                106,
+                187,
+                177,
+                348
+              ],
+              "torso_x": 145,
+              "aligned_bbox": [
+                153,
+                346,
+                224,
+                507
+              ],
+              "shift": [
+                47,
+                159
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "asset_id": "health-potion",
+        "state": "idle",
+        "sheet_path": "assets/objects/health-potion/spritesheets/idle/idle.png",
+        "atlas_path": "assets/objects/health-potion/spritesheets/idle/idle.atlas.json",
+        "meta": {
+          "obj_id": "health-potion",
+          "state": "idle",
+          "category": "item",
+          "rows": 2,
+          "cols": 4,
+          "frame_count": 8,
+          "frame_size": {
+            "w": 384,
+            "h": 512
+          },
+          "sheet_size": {
+            "w": 1536,
+            "h": 1024
+          },
+          "frame_order": "left-to-right, top-to-bottom",
+          "requested_cols": 4,
+          "requested_rows": 2,
+          "detected": true,
+          "aligned": true,
+          "frameRate": 6,
+          "yoyo": true,
+          "seed": 350908673
+        },
+        "frames": [
+          {
+            "filename": "idle_000.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                126,
+                91,
+                371,
+                480
+              ],
+              "torso_x": 243,
+              "aligned_bbox": [
+                75,
+                118,
+                320,
+                507
+              ],
+              "shift": [
+                -51,
+                27
+              ]
+            }
+          },
+          {
+            "filename": "idle_001.png",
+            "frame": {
+              "x": 384,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                75,
+                92,
+                321,
+                480
+              ],
+              "torso_x": 192,
+              "aligned_bbox": [
+                75,
+                119,
+                321,
+                507
+              ],
+              "shift": [
+                0,
+                27
+              ]
+            }
+          },
+          {
+            "filename": "idle_002.png",
+            "frame": {
+              "x": 768,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                39,
+                48,
+                293,
+                480
+              ],
+              "torso_x": 158,
+              "aligned_bbox": [
+                73,
+                75,
+                327,
+                507
+              ],
+              "shift": [
+                34,
+                27
+              ]
+            }
+          },
+          {
+            "filename": "idle_003.png",
+            "frame": {
+              "x": 1152,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                15,
+                93,
+                268,
+                481
+              ],
+              "torso_x": 136,
+              "aligned_bbox": [
+                71,
+                119,
+                324,
+                507
+              ],
+              "shift": [
+                56,
+                26
+              ]
+            }
+          },
+          {
+            "filename": "idle_004.png",
+            "frame": {
+              "x": 0,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                125,
+                42,
+                369,
+                433
+              ],
+              "torso_x": 243,
+              "aligned_bbox": [
+                74,
+                116,
+                318,
+                507
+              ],
+              "shift": [
+                -51,
+                74
+              ]
+            }
+          },
+          {
+            "filename": "idle_005.png",
+            "frame": {
+              "x": 384,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                74,
+                42,
+                318,
+                433
+              ],
+              "torso_x": 192,
+              "aligned_bbox": [
+                74,
+                116,
+                318,
+                507
+              ],
+              "shift": [
+                0,
+                74
+              ]
+            }
+          },
+          {
+            "filename": "idle_006.png",
+            "frame": {
+              "x": 768,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                37,
+                42,
+                288,
+                433
+              ],
+              "torso_x": 157,
+              "aligned_bbox": [
+                72,
+                116,
+                323,
+                507
+              ],
+              "shift": [
+                35,
+                74
+              ]
+            }
+          },
+          {
+            "filename": "idle_007.png",
+            "frame": {
+              "x": 1152,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                17,
+                42,
+                262,
+                433
+              ],
+              "torso_x": 136,
+              "aligned_bbox": [
+                73,
+                116,
+                318,
+                507
+              ],
+              "shift": [
+                56,
+                74
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "asset_id": "spike-trap",
+        "state": "idle",
+        "sheet_path": "assets/objects/spike-trap/spritesheets/idle/idle.png",
+        "atlas_path": "assets/objects/spike-trap/spritesheets/idle/idle.atlas.json",
+        "meta": {
+          "obj_id": "spike-trap",
+          "state": "idle",
+          "category": "hazard",
+          "rows": 2,
+          "cols": 4,
+          "frame_count": 8,
+          "frame_size": {
+            "w": 384,
+            "h": 512
+          },
+          "sheet_size": {
+            "w": 1536,
+            "h": 1024
+          },
+          "frame_order": "left-to-right, top-to-bottom",
+          "requested_cols": 4,
+          "requested_rows": 2,
+          "detected": true,
+          "aligned": true,
+          "frameRate": 6,
+          "yoyo": true,
+          "seed": 1018029876
+        },
+        "frames": [
+          {
+            "filename": "idle_000.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                65,
+                160,
+                383,
+                450
+              ],
+              "torso_x": 243,
+              "aligned_bbox": [
+                14,
+                217,
+                332,
+                507
+              ],
+              "shift": [
+                -51,
+                57
+              ]
+            }
+          },
+          {
+            "filename": "idle_001.png",
+            "frame": {
+              "x": 384,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                163,
+                367,
+                464
+              ],
+              "torso_x": 201,
+              "aligned_bbox": [
+                0,
+                206,
+                367,
+                507
+              ],
+              "shift": [
+                0,
+                43
+              ]
+            }
+          },
+          {
+            "filename": "idle_002.png",
+            "frame": {
+              "x": 768,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                24,
+                161,
+                383,
+                465
+              ],
+              "torso_x": 183,
+              "aligned_bbox": [
+                24,
+                203,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                42
+              ]
+            }
+          },
+          {
+            "filename": "idle_003.png",
+            "frame": {
+              "x": 1152,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                69,
+                288,
+                464
+              ],
+              "torso_x": 140,
+              "aligned_bbox": [
+                52,
+                112,
+                340,
+                507
+              ],
+              "shift": [
+                52,
+                43
+              ]
+            }
+          },
+          {
+            "filename": "idle_004.png",
+            "frame": {
+              "x": 0,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                70,
+                69,
+                383,
+                382
+              ],
+              "torso_x": 244,
+              "aligned_bbox": [
+                18,
+                194,
+                331,
+                507
+              ],
+              "shift": [
+                -52,
+                125
+              ]
+            }
+          },
+          {
+            "filename": "idle_005.png",
+            "frame": {
+              "x": 384,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                77,
+                367,
+                387
+              ],
+              "torso_x": 203,
+              "aligned_bbox": [
+                0,
+                197,
+                367,
+                507
+              ],
+              "shift": [
+                0,
+                120
+              ]
+            }
+          },
+          {
+            "filename": "idle_006.png",
+            "frame": {
+              "x": 768,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                15,
+                84,
+                383,
+                386
+              ],
+              "torso_x": 183,
+              "aligned_bbox": [
+                15,
+                205,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                121
+              ]
+            }
+          },
+          {
+            "filename": "idle_007.png",
+            "frame": {
+              "x": 1152,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                99,
+                287,
+                381
+              ],
+              "torso_x": 140,
+              "aligned_bbox": [
+                52,
+                225,
+                339,
+                507
+              ],
+              "shift": [
+                52,
+                126
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "asset_id": "spike-trap",
+        "state": "trigger",
+        "sheet_path": "assets/objects/spike-trap/spritesheets/trigger/trigger.png",
+        "atlas_path": "assets/objects/spike-trap/spritesheets/trigger/trigger.atlas.json",
+        "meta": {
+          "obj_id": "spike-trap",
+          "state": "trigger",
+          "category": "hazard",
+          "rows": 2,
+          "cols": 4,
+          "frame_count": 8,
+          "frame_size": {
+            "w": 384,
+            "h": 512
+          },
+          "sheet_size": {
+            "w": 1536,
+            "h": 1024
+          },
+          "frame_order": "left-to-right, top-to-bottom",
+          "requested_cols": 4,
+          "requested_rows": 2,
+          "detected": true,
+          "aligned": true,
+          "frameRate": 12,
+          "yoyo": false,
+          "seed": 1751434203
+        },
+        "frames": [
+          {
+            "filename": "trigger_000.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                50,
+                308,
+                376,
+                476
+              ],
+              "torso_x": 211,
+              "aligned_bbox": [
+                31,
+                339,
+                357,
+                507
+              ],
+              "shift": [
+                -19,
+                31
+              ]
+            }
+          },
+          {
+            "filename": "trigger_001.png",
+            "frame": {
+              "x": 384,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                22,
+                311,
+                383,
+                473
+              ],
+              "torso_x": 185,
+              "aligned_bbox": [
+                22,
+                345,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                34
+              ]
+            }
+          },
+          {
+            "filename": "trigger_002.png",
+            "frame": {
+              "x": 768,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                135,
+                383,
+                479
+              ],
+              "torso_x": 155,
+              "aligned_bbox": [
+                0,
+                163,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                28
+              ]
+            }
+          },
+          {
+            "filename": "trigger_003.png",
+            "frame": {
+              "x": 1152,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                70,
+                304,
+                477
+              ],
+              "torso_x": 137,
+              "aligned_bbox": [
+                55,
+                100,
+                359,
+                507
+              ],
+              "shift": [
+                55,
+                30
+              ]
+            }
+          },
+          {
+            "filename": "trigger_004.png",
+            "frame": {
+              "x": 0,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                52,
+                19,
+                375,
+                419
+              ],
+              "torso_x": 213,
+              "aligned_bbox": [
+                31,
+                107,
+                354,
+                507
+              ],
+              "shift": [
+                -21,
+                88
+              ]
+            }
+          },
+          {
+            "filename": "trigger_005.png",
+            "frame": {
+              "x": 384,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                26,
+                18,
+                383,
+                422
+              ],
+              "torso_x": 185,
+              "aligned_bbox": [
+                26,
+                103,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                85
+              ]
+            }
+          },
+          {
+            "filename": "trigger_006.png",
+            "frame": {
+              "x": 768,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                63,
+                383,
+                419
+              ],
+              "torso_x": 156,
+              "aligned_bbox": [
+                0,
+                151,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                88
+              ]
+            }
+          },
+          {
+            "filename": "trigger_007.png",
+            "frame": {
+              "x": 1152,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                127,
+                296,
+                420
+              ],
+              "torso_x": 138,
+              "aligned_bbox": [
+                54,
+                214,
+                350,
+                507
+              ],
+              "shift": [
+                54,
+                87
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "asset_id": "wood-ladder",
+        "state": "idle",
+        "sheet_path": "assets/objects/wood-ladder/spritesheets/idle/idle.png",
+        "atlas_path": "assets/objects/wood-ladder/spritesheets/idle/idle.atlas.json",
+        "meta": {
+          "obj_id": "wood-ladder",
+          "state": "idle",
+          "category": "interactive",
+          "rows": 2,
+          "cols": 4,
+          "frame_count": 8,
+          "frame_size": {
+            "w": 384,
+            "h": 512
+          },
+          "sheet_size": {
+            "w": 1536,
+            "h": 1024
+          },
+          "frame_order": "left-to-right, top-to-bottom",
+          "requested_cols": 4,
+          "requested_rows": 2,
+          "detected": true,
+          "aligned": true,
+          "frameRate": 6,
+          "yoyo": true,
+          "seed": 1635847597
+        },
+        "frames": [
+          {
+            "filename": "idle_000.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                102,
+                101,
+                309,
+                451
+              ],
+              "torso_x": 206,
+              "aligned_bbox": [
+                88,
+                157,
+                295,
+                507
+              ],
+              "shift": [
+                -14,
+                56
+              ]
+            }
+          },
+          {
+            "filename": "idle_001.png",
+            "frame": {
+              "x": 384,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                47,
+                98,
+                256,
+                451
+              ],
+              "torso_x": 151,
+              "aligned_bbox": [
+                88,
+                154,
+                297,
+                507
+              ],
+              "shift": [
+                41,
+                56
+              ]
+            }
+          },
+          {
+            "filename": "idle_002.png",
+            "frame": {
+              "x": 768,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                13,
+                90,
+                224,
+                452
+              ],
+              "torso_x": 117,
+              "aligned_bbox": [
+                88,
+                145,
+                299,
+                507
+              ],
+              "shift": [
+                75,
+                55
+              ]
+            }
+          },
+          {
+            "filename": "idle_003.png",
+            "frame": {
+              "x": 1152,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                1,
+                79,
+                208,
+                423
+              ],
+              "torso_x": 105,
+              "aligned_bbox": [
+                88,
+                163,
+                295,
+                507
+              ],
+              "shift": [
+                87,
+                84
+              ]
+            }
+          },
+          {
+            "filename": "idle_004.png",
+            "frame": {
+              "x": 0,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                106,
+                60,
+                306,
+                410
+              ],
+              "torso_x": 206,
+              "aligned_bbox": [
+                92,
+                157,
+                292,
+                507
+              ],
+              "shift": [
+                -14,
+                97
+              ]
+            }
+          },
+          {
+            "filename": "idle_005.png",
+            "frame": {
+              "x": 384,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                46,
+                60,
+                246,
+                410
+              ],
+              "torso_x": 146,
+              "aligned_bbox": [
+                92,
+                157,
+                292,
+                507
+              ],
+              "shift": [
+                46,
+                97
+              ]
+            }
+          },
+          {
+            "filename": "idle_006.png",
+            "frame": {
+              "x": 768,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                10,
+                53,
+                383,
+                412
+              ],
+              "torso_x": 111,
+              "aligned_bbox": [
+                10,
+                148,
+                383,
+                507
+              ],
+              "shift": [
+                0,
+                95
+              ]
+            }
+          },
+          {
+            "filename": "idle_007.png",
+            "frame": {
+              "x": 1152,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                52,
+                201,
+                411
+              ],
+              "torso_x": 100,
+              "aligned_bbox": [
+                92,
+                148,
+                293,
+                507
+              ],
+              "shift": [
+                92,
+                96
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "tile_maps": [
+      {
+        "asset_id": "grassland",
+        "state": "",
+        "sheet_path": "assets/tile_maps/grassland/tilesheet/tilesheet.png",
+        "atlas_path": "assets/tile_maps/grassland/tilesheet/tilesheet.atlas.json",
+        "meta": {
+          "tilemap_id": "grassland",
+          "rows": 4,
+          "cols": 4,
+          "frame_count": 16,
+          "frame_size": {
+            "w": 128,
+            "h": 128
+          },
+          "sheet_size": {
+            "w": 512,
+            "h": 512
+          },
+          "in_game_tile_size": {
+            "w": 16,
+            "h": 16
+          },
+          "frame_order": "left-to-right, top-to-bottom"
+        },
+        "frames": [
+          {
+            "filename": "grass-base.png",
+            "tile_id": "grass-base",
+            "layer": "base",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 128,
+              "h": 128
+            }
+          },
+          {
+            "filename": "grass-edge-left.png",
+            "tile_id": "grass-edge-left",
+            "layer": "base",
+            "frame": {
+              "x": 128,
+              "y": 0,
+              "w": 128,
+              "h": 128
+            }
+          },
+          {
+            "filename": "grass-edge-right.png",
+            "tile_id": "grass-edge-right",
+            "layer": "base",
+            "frame": {
+              "x": 256,
+              "y": 0,
+              "w": 128,
+              "h": 128
+            }
+          },
+          {
+            "filename": "grass-tall.png",
+            "tile_id": "grass-tall",
+            "layer": "base",
+            "frame": {
+              "x": 384,
+              "y": 0,
+              "w": 128,
+              "h": 128
+            }
+          },
+          {
+            "filename": "earth-fill.png",
+            "tile_id": "earth-fill",
+            "layer": "base",
+            "frame": {
+              "x": 0,
+              "y": 128,
+              "w": 128,
+              "h": 128
+            }
+          },
+          {
+            "filename": "earth-rocky.png",
+            "tile_id": "earth-rocky",
+            "layer": "base",
+            "frame": {
+              "x": 128,
+              "y": 128,
+              "w": 128,
+              "h": 128
+            }
+          },
+          {
+            "filename": "flower-yellow.png",
+            "tile_id": "flower-yellow",
+            "layer": "detail",
+            "frame": {
+              "x": 256,
+              "y": 128,
+              "w": 128,
+              "h": 128
+            }
+          },
+          {
+            "filename": "flower-pink.png",
+            "tile_id": "flower-pink",
+            "layer": "detail",
+            "frame": {
+              "x": 384,
+              "y": 128,
+              "w": 128,
+              "h": 128
+            }
+          },
+          {
+            "filename": "flower-white.png",
+            "tile_id": "flower-white",
+            "layer": "detail",
+            "frame": {
+              "x": 0,
+              "y": 256,
+              "w": 128,
+              "h": 128
+            }
+          },
+          {
+            "filename": "weed-clump.png",
+            "tile_id": "weed-clump",
+            "layer": "detail",
+            "frame": {
+              "x": 128,
+              "y": 256,
+              "w": 128,
+              "h": 128
+            }
+          },
+          {
+            "filename": "stone-small.png",
+            "tile_id": "stone-small",
+            "layer": "decoration",
+            "frame": {
+              "x": 256,
+              "y": 256,
+              "w": 128,
+              "h": 128
+            }
+          },
+          {
+            "filename": "stone-pair.png",
+            "tile_id": "stone-pair",
+            "layer": "decoration",
+            "frame": {
+              "x": 384,
+              "y": 256,
+              "w": 128,
+              "h": 128
+            }
+          },
+          {
+            "filename": "stone-large.png",
+            "tile_id": "stone-large",
+            "layer": "decoration",
+            "frame": {
+              "x": 0,
+              "y": 384,
+              "w": 128,
+              "h": 128
+            }
+          },
+          {
+            "filename": "log-mossy.png",
+            "tile_id": "log-mossy",
+            "layer": "decoration",
+            "frame": {
+              "x": 128,
+              "y": 384,
+              "w": 128,
+              "h": 128
+            }
+          },
+          {
+            "filename": "mushroom-red.png",
+            "tile_id": "mushroom-red",
+            "layer": "decoration",
+            "frame": {
+              "x": 256,
+              "y": 384,
+              "w": 128,
+              "h": 128
+            }
+          },
+          {
+            "filename": "filler-grass.png",
+            "tile_id": "filler-grass",
+            "layer": "decoration",
+            "frame": {
+              "x": 384,
+              "y": 384,
+              "w": 128,
+              "h": 128
+            }
+          }
+        ]
+      }
+    ],
+    "backgrounds": [
+      {
+        "asset_id": "forest-far",
+        "state": "",
+        "sheet_path": "assets/backgrounds/forest-far/forest-far.png",
+        "atlas_path": "assets/backgrounds/forest-far/forest-far.atlas.json",
+        "meta": {
+          "bg_id": "forest-far",
+          "parallax_layer": "far",
+          "rows": 1,
+          "cols": 1,
+          "frame_count": 1,
+          "frame_size": {
+            "w": 1920,
+            "h": 1080
+          },
+          "sheet_size": {
+            "w": 1920,
+            "h": 1080
+          },
+          "frame_order": "single",
+          "seed": 760350930
+        },
+        "frames": [
+          {
+            "filename": "forest-far.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 1920,
+              "h": 1080
+            }
+          }
+        ]
+      },
+      {
+        "asset_id": "forest-mid",
+        "state": "",
+        "sheet_path": "assets/backgrounds/forest-mid/forest-mid.png",
+        "atlas_path": "assets/backgrounds/forest-mid/forest-mid.atlas.json",
+        "meta": {
+          "bg_id": "forest-mid",
+          "parallax_layer": "mid",
+          "rows": 1,
+          "cols": 1,
+          "frame_count": 1,
+          "frame_size": {
+            "w": 1920,
+            "h": 1080
+          },
+          "sheet_size": {
+            "w": 1920,
+            "h": 1080
+          },
+          "frame_order": "single",
+          "seed": 1327557984
+        },
+        "frames": [
+          {
+            "filename": "forest-mid.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 1920,
+              "h": 1080
+            }
+          }
+        ]
+      },
+      {
+        "asset_id": "forest-near",
+        "state": "",
+        "sheet_path": "assets/backgrounds/forest-near/forest-near.png",
+        "atlas_path": "assets/backgrounds/forest-near/forest-near.atlas.json",
+        "meta": {
+          "bg_id": "forest-near",
+          "parallax_layer": "near",
+          "rows": 1,
+          "cols": 1,
+          "frame_count": 1,
+          "frame_size": {
+            "w": 1920,
+            "h": 1080
+          },
+          "sheet_size": {
+            "w": 1920,
+            "h": 1080
+          },
+          "frame_order": "single",
+          "seed": 1239484275
+        },
+        "frames": [
+          {
+            "filename": "forest-near.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 1920,
+              "h": 1080
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

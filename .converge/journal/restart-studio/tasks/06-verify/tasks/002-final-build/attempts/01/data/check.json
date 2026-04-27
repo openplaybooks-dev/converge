@@ -1,0 +1,10 @@
+{
+  "taskId": "06-verify/002-final-build",
+  "checks": [
+    {
+      "id": "build-succeeded",
+      "description": "Build report shows exit 0",
+      "cmd": "test -f .converge/studio-state/final-build.json && node -e \"const r=JSON.parse(require('fs').readFileSync('.converge/studio-state/final-build.json','utf8'));process.exit(r.exitCode===0?0:1)\""
+    }
+  ]
+}

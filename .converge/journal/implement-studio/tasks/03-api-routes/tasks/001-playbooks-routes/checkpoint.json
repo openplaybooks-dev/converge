@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-api-routes/001-playbooks-routes",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T02:37:28.063Z",
+  "createdAt": "2026-04-26T02:33:53.403Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T02:33:53.403Z",
+      "completedAt": "2026-04-26T02:37:28.060Z",
+      "outcome": "success",
+      "durationMs": 214657
+    }
+  ],
+  "currentAttempt": 1
+}

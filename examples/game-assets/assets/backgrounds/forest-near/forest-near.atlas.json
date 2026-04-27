@@ -1,0 +1,31 @@
+{
+  "image": "forest-near.png",
+  "meta": {
+    "bg_id": "forest-near",
+    "parallax_layer": "near",
+    "rows": 1,
+    "cols": 1,
+    "frame_count": 1,
+    "frame_size": {
+      "w": 1920,
+      "h": 1080
+    },
+    "sheet_size": {
+      "w": 1920,
+      "h": 1080
+    },
+    "frame_order": "single",
+    "seed": 1239484275
+  },
+  "frames": [
+    {
+      "filename": "forest-near.png",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 1920,
+        "h": 1080
+      }
+    }
+  ]
+}

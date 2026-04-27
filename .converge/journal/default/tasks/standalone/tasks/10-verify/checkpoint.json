@@ -1,0 +1,34 @@
+{
+  "type": "task",
+  "id": "10-verify",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T23:04:30.619Z",
+  "createdAt": "2026-04-26T23:04:30.619Z",
+  "progress": {
+    "totalChildren": 19,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "001-build-clean",
+      "002-dev-smoke",
+      "003-no-upstream-brand",
+      "004-no-placeholders",
+      "005-lighthouse-perf",
+      "006-lighthouse-a11y",
+      "007-link-check",
+      "008-meta-validation",
+      "009-tagline-drift",
+      "001-build-clean",
+      "002-dev-smoke",
+      "003-no-upstream-brand",
+      "004-no-placeholders",
+      "005-lighthouse-perf",
+      "006-lighthouse-a11y",
+      "007-link-check",
+      "008-meta-validation",
+      "009-tagline-drift",
+      "001-build-clean"
+    ],
+    "lastProgressUpdate": "2026-04-26T23:04:30.618Z"
+  }
+}

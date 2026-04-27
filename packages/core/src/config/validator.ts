@@ -31,7 +31,6 @@ const DiscoveryConfigSchema = z
 
 const RuntimeConfigSchema = z
   .object({
-    maxIterations: z.number().int().positive().optional(),
     maxStallCount: z.number().int().positive().optional(),
     parallelExecution: z.boolean().optional(),
     maxParallelTasks: z.number().int().positive().optional(),

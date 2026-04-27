@@ -1,0 +1,31 @@
+{
+  "taskId": "04-getting-started/003-your-first-playbook",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "README.md",
+      "count": 1,
+      "samples": [
+        "README.md"
+      ]
+    },
+    {
+      "pattern": "examples",
+      "count": 1,
+      "samples": [
+        "examples"
+      ]
+    },
+    {
+      "pattern": "packages/cli/src/commands.ts",
+      "count": 1,
+      "samples": [
+        "packages/cli/src/commands.ts"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/getting-started/your-first-playbook.md"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,31 @@
+{
+  "taskId": "06-guides/006-read-the-journal",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "packages/core/src/journal/types.ts",
+      "count": 1,
+      "samples": [
+        "packages/core/src/journal/types.ts"
+      ]
+    },
+    {
+      "pattern": "packages/core/src/journal/reader.ts",
+      "count": 1,
+      "samples": [
+        "packages/core/src/journal/reader.ts"
+      ]
+    },
+    {
+      "pattern": ".converge/journal",
+      "count": 1,
+      "samples": [
+        ".converge/journal"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/guides/read-the-journal.md"
+  ],
+  "blocked": false
+}

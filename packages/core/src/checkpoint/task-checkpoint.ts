@@ -15,7 +15,8 @@
  * Task checkpoint tracks what happened *within* a single task across attempts.
  */
 
-import { writeFile, readFile, mkdir } from "fs/promises";
+import { readFile, mkdir } from "fs/promises";
+import { atomicWriteFile } from "./atomic-write.ts";
 import { existsSync } from "fs";
 import path from "path";
 import { getJournalStructure } from "../journal/structure.ts";
@@ -112,7 +113,7 @@ export class TaskCheckpointManager {
   async save(checkpoint: TaskCheckpoint): Promise<void> {
     await mkdir(path.dirname(this.filePath), { recursive: true });
     checkpoint.lastUpdated = new Date().toISOString();
-    await writeFile(this.filePath, JSON.stringify(checkpoint, null, 2));
+    await atomicWriteFile(this.filePath, JSON.stringify(checkpoint, null, 2));
   }
 
   /**

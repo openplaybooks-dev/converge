@@ -1,0 +1,246 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3226
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-api-routes/002-tasks-routes-missing-output-packages/converge-studio/src/app/api/playbooks/[name]/tasks/[...path]/reset/route.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/002-tasks-routes",
+            "severity": "high",
+            "description": "[03-api-routes/002-tasks-routes] Task output not created: packages/converge-studio/src/app/api/playbooks/[name]/tasks/[...path]/reset/route.ts",
+            "source": "unit",
+            "detected": "2026-04-26T08:27:56.574Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/002-tasks-routes",
+              "taskId": "03-api-routes/002-tasks-routes",
+              "taskTitle": "/api/playbooks/[name]/tasks routes (list, read, update, reset)",
+              "taskPrompt": "Implement task list/read/update/reset routes. Note Next.js App Router catch-all syntax: `[...path]` produces `params.path` as `string[]` — join with `/` to get the relative `taskPath` the adapter expects.\n\n**`tasks/route.ts`** — `GET` lists tasks under a playbook:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { listTasks } from '@/lib/converge-adapter';\n\nexport async function GET(_req: Request, { params }: { params: { name: string } }) {\n  const items = await listTasks(params.name);\n  return Response.json({ items });\n}\n```\n\n**`tasks/[...path]/route.ts`** — `GET`/`PUT` for a single task:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { readTaskMd, writeTaskMd } from '@/lib/converge-adapter';\n\nexport async function GET(_req: Request, { params }: { params: { name: string; path: string[] } }) {\n  const taskPath = params.path.join('/');\n  const data = await readTaskMd(params.name, taskPath);\n  return Response.json(data);\n}\n\nexport async function PUT(req: Request, { params }: { params: { name: string; path: string[] } }) {\n  const taskPath = params.path.join('/');\n  const { frontmatter, body } = (await req.json()) as { frontmatter: Record<string, unknown>; body: string };\n  await writeTaskMd(params.name, taskPath, frontmatter, body);\n  return Response.json({ ok: true });\n}\n```\n\n**`tasks/[...path]/reset/route.ts`** — `POST` resets the task checkpoint:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { resetTask } from '@/lib/converge-adapter';\n\nexport async function POST(_req: Request, { params }: { params: { name: string; path: string[] } }) {\n  await resetTask(params.name, params.path.join('/'));\n  return Response.json({ ok: true });\n}\n```\n\n**Validation**: reject `taskPath` containing `..` segments. Sanitize at the adapter boundary too — defense in depth.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/app/api/playbooks/[name]/tasks/[...path]/reset/route.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-api-routes/002-tasks-routes-check-failed-tasks-routes-exist",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/002-tasks-routes",
+            "severity": "high",
+            "description": "[03-api-routes/002-tasks-routes] Check failed: All three route handlers exist",
+            "source": "unit",
+            "detected": "2026-04-26T08:27:56.576Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "tasks-routes-exist",
+              "checkCmd": "test -f 'packages/converge-studio/src/app/api/playbooks/[name]/tasks/route.ts' && test -f 'packages/converge-studio/src/app/api/playbooks/[name]/tasks/[...path]/route.ts' && test -f 'packages/converge-studio/src/app/api/playbooks/[name]/tasks/[...path]/reset/route.ts'",
+              "checkDescription": "All three route handlers exist",
+              "checkOutput": "Command failed: test -f 'packages/converge-studio/src/app/api/playbooks/[name]/tasks/route.ts' && test -f 'packages/converge-studio/src/app/api/playbooks/[name]/tasks/[...path]/route.ts' && test -f 'packages/converge-studio/src/app/api/playbooks/[name]/tasks/[...path]/reset/route.ts'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Implement task list/read/update/reset routes. Note Next.js App Router catch-all syntax: `[...path]` produces `params.path` as `string[]` — join with `/` to get the relative `taskPath` the adapter expects.\n\n**`tasks/route.ts`** — `GET` lists tasks under a playbook:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { listTasks } from '@/lib/converge-adapter';\n\nexport async function GET(_req: Request, { params }: { params: { name: string } }) {\n  const items = await listTasks(params.name);\n  return Response.json({ items });\n}\n```\n\n**`tasks/[...path]/route.ts`** — `GET`/`PUT` for a single task:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { readTaskMd, writeTaskMd } from '@/lib/converge-adapter';\n\nexport async function GET(_req: Request, { params }: { params: { name: string; path: string[] } }) {\n  const taskPath = params.path.join('/');\n  const data = await readTaskMd(params.name, taskPath);\n  return Response.json(data);\n}\n\nexport async function PUT(req: Request, { params }: { params: { name: string; path: string[] } }) {\n  const taskPath = params.path.join('/');\n  const { frontmatter, body } = (await req.json()) as { frontmatter: Record<string, unknown>; body: string };\n  await writeTaskMd(params.name, taskPath, frontmatter, body);\n  return Response.json({ ok: true });\n}\n```\n\n**`tasks/[...path]/reset/route.ts`** — `POST` resets the task checkpoint:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { resetTask } from '@/lib/converge-adapter';\n\nexport async function POST(_req: Request, { params }: { params: { name: string; path: string[] } }) {\n  await resetTask(params.name, params.path.join('/'));\n  return Response.json({ ok: true });\n}\n```\n\n**Validation**: reject `taskPath` containing `..` segments. Sanitize at the adapter boundary too — defense in depth.",
+              "taskId": "03-api-routes/002-tasks-routes",
+              "taskTitle": "/api/playbooks/[name]/tasks routes (list, read, update, reset)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/002-tasks-routes",
+              "factId": "check:tasks-routes-exist"
+            }
+          },
+          {
+            "id": "03-api-routes/002-tasks-routes-check-failed-nodejs-runtime",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/002-tasks-routes",
+            "severity": "high",
+            "description": "[03-api-routes/002-tasks-routes] Check failed: All three routes export runtime = 'nodejs'",
+            "source": "unit",
+            "detected": "2026-04-26T08:27:56.585Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "nodejs-runtime",
+              "checkCmd": "find 'packages/converge-studio/src/app/api/playbooks/[name]/tasks' -name 'route.ts' | xargs grep -l \"runtime = 'nodejs'\" | wc -l | xargs test 3 -eq",
+              "checkDescription": "All three routes export runtime = 'nodejs'",
+              "checkOutput": "Command failed: find 'packages/converge-studio/src/app/api/playbooks/[name]/tasks' -name 'route.ts' | xargs grep -l \"runtime = 'nodejs'\" | wc -l | xargs test 3 -eq\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Implement task list/read/update/reset routes. Note Next.js App Router catch-all syntax: `[...path]` produces `params.path` as `string[]` — join with `/` to get the relative `taskPath` the adapter expects.\n\n**`tasks/route.ts`** — `GET` lists tasks under a playbook:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { listTasks } from '@/lib/converge-adapter';\n\nexport async function GET(_req: Request, { params }: { params: { name: string } }) {\n  const items = await listTasks(params.name);\n  return Response.json({ items });\n}\n```\n\n**`tasks/[...path]/route.ts`** — `GET`/`PUT` for a single task:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { readTaskMd, writeTaskMd } from '@/lib/converge-adapter';\n\nexport async function GET(_req: Request, { params }: { params: { name: string; path: string[] } }) {\n  const taskPath = params.path.join('/');\n  const data = await readTaskMd(params.name, taskPath);\n  return Response.json(data);\n}\n\nexport async function PUT(req: Request, { params }: { params: { name: string; path: string[] } }) {\n  const taskPath = params.path.join('/');\n  const { frontmatter, body } = (await req.json()) as { frontmatter: Record<string, unknown>; body: string };\n  await writeTaskMd(params.name, taskPath, frontmatter, body);\n  return Response.json({ ok: true });\n}\n```\n\n**`tasks/[...path]/reset/route.ts`** — `POST` resets the task checkpoint:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { resetTask } from '@/lib/converge-adapter';\n\nexport async function POST(_req: Request, { params }: { params: { name: string; path: string[] } }) {\n  await resetTask(params.name, params.path.join('/'));\n  return Response.json({ ok: true });\n}\n```\n\n**Validation**: reject `taskPath` containing `..` segments. Sanitize at the adapter boundary too — defense in depth.",
+              "taskId": "03-api-routes/002-tasks-routes",
+              "taskTitle": "/api/playbooks/[name]/tasks routes (list, read, update, reset)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/002-tasks-routes",
+              "factId": "check:nodejs-runtime"
+            }
+          }
+        ],
+        "durationMs": 3311
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3499
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 3192
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 135798
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T08:27:53.340Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T08:27:56.567Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T08:27:59.878Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T08:27:59.879Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T08:28:03.378Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-04-26T08:30:19.177Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T08:30:22.370Z"
+    }
+  ]
+}

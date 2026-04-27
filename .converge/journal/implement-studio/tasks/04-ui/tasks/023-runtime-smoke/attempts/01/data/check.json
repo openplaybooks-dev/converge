@@ -1,0 +1,10 @@
+{
+  "taskId": "04-ui/023-runtime-smoke",
+  "checks": [
+    {
+      "id": "smoke-report-exists",
+      "description": "Smoke report file exists and reports root-redirect-200 = true",
+      "cmd": "test -f .converge/studio-state/runtime-smoke.json && node -e \"const r=JSON.parse(require('fs').readFileSync('.converge/studio-state/runtime-smoke.json','utf8'));process.exit(r.rootRedirectsToPlaybooks===true&&r.playbooksIndexHas200===true?0:1)\""
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "taskId": "02-port-data-layer/002-copy-views",
+  "checks": [
+    {
+      "id": "views-present",
+      "description": "All 5 view primitives + index exist",
+      "cmd": "for f in KanbanBoard SessionGantt TableView TaskTree ViewSwitcher; do test -f packages/studio/src/components/views/$f.tsx || exit 1; done && test -f packages/studio/src/components/views/index.ts"
+    }
+  ]
+}

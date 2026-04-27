@@ -18,7 +18,7 @@ The ranger class embodies the spirit of the wilderness - agile, precise, and in 
 
 **Accent Colors:**
 - Deep Leaf (#1a3d0f)
-- Sunlit Gold (#daa520) - for highlights and details
+- Sunlit Gold (#daa520) - **Use sparingly.** Reserved for tiny highlights only — arrowhead glints, bowstring sheen, a single buckle. Never armor, cloak trim, or large surfaces. Target ≤3% of sprite pixels. Never use #FFD700 (canonical gold) — too saturated for this palette.
 
 ## Materials
 

@@ -1,0 +1,20 @@
+{
+  "taskId": "02-data-layer/004-tasks-rw",
+  "checks": [
+    {
+      "id": "tasks-module-exists",
+      "description": "tasks.ts and frontmatter.ts exist",
+      "cmd": "test -f packages/converge-studio/src/lib/converge-adapter/tasks.ts && test -f packages/converge-studio/src/lib/converge-adapter/frontmatter.ts"
+    },
+    {
+      "id": "typecheck",
+      "description": "Modules typecheck",
+      "cmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    },
+    {
+      "id": "read-real-task",
+      "description": "readTaskMd returns frontmatter for a known task",
+      "cmd": "cd packages/converge-studio && CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge tsx -e \"import('./src/lib/converge-adapter/tasks.ts').then(async m=>{const t=await m.readTaskMd('oss-standardize','01-brand');process.exit(t.frontmatter.title==='Brand Consolidation'?0:1)}).catch(e=>{console.error(e);process.exit(1)})\""
+    }
+  ]
+}

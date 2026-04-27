@@ -1,0 +1,14 @@
+{
+  "taskId": "03-design-system/003-base-components",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "apps/landing/src/components/ui/Button.astro",
+    "apps/landing/src/components/ui/Badge.astro",
+    "apps/landing/src/components/ui/Card.astro",
+    "apps/landing/src/components/ui/CodeBlock.astro",
+    "apps/landing/src/components/ui/Pill.astro",
+    "apps/landing/src/components/ui/Disclosure.astro"
+  ],
+  "blocked": false
+}

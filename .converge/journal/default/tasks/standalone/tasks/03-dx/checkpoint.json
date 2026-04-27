@@ -1,0 +1,26 @@
+{
+  "type": "task",
+  "id": "03-dx",
+  "status": "failed",
+  "lastUpdated": "2026-04-26T23:04:30.696Z",
+  "createdAt": "2026-04-26T01:19:09.344Z",
+  "progress": {
+    "totalChildren": 11,
+    "completedChildren": 8,
+    "failedChildren": 3,
+    "childTaskIds": [
+      "001-getting-started",
+      "001-getting-started",
+      "001-getting-started",
+      "002-example-playbooks",
+      "002-example-playbooks",
+      "002-example-playbooks",
+      "003-cli-help",
+      "003-cli-help",
+      "003-cli-help",
+      "004-scaffold-command",
+      "004-scaffold-command"
+    ],
+    "lastProgressUpdate": "2026-04-26T23:04:30.621Z"
+  }
+}

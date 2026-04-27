@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-build-layout/004-head-seo",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T19:37:35.136Z",
+  "createdAt": "2026-04-26T19:37:11.295Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T19:37:11.295Z",
+      "completedAt": "2026-04-26T19:37:35.096Z",
+      "outcome": "success",
+      "durationMs": 23801
+    }
+  ],
+  "currentAttempt": 1
+}

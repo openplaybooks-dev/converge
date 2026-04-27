@@ -1,0 +1,110 @@
+name: default
+description: |
+  Character production line: idea.md → 5 rigged + animated GLBs.
+
+  ## Pipeline (8 tasks)
+
+  idea.md
+    01-design                parse → pitch.md + characters.json
+    02-class-guides          WBS: per unique class, generate style-guide.md + reference.png (nanobanana)
+    03-references            WBS: per character, generate reference.png (nanobanana, conditioned on class ref)
+    04-meshy-preview         WBS: image-to-3D preview per character
+    05-meshy-refine          WBS: PBR refine per character
+    06-meshy-rig             WBS: auto-rig humanoids
+    07-meshy-animate         WBS: per (humanoid × clip) — Idle, Walk, class action
+    08-gallery               static viewer/gallery.html with one card per character
+
+  ## Stack
+
+  - nanobanana / Gemini 2.5 Flash Image for reference images
+  - Meshy AI for image-to-3D + rig + animation
+  - three.js + GLTFLoader + OrbitControls in static gallery (no build step)
+  - Stub backends ship by default — full pipeline runs offline with zero credentials
+
+  ## Cost (5 characters × 3 classes)
+
+  Stub: $0
+  Real (Meshy Pro): ~120 Meshy cr (~$2.40 of $20/mo Pro tier) + ~8 Gemini calls.
+
+vars:
+  meshy_model_version: meshy-6
+  meshy_model_type: lowpoly
+  meshy_topology: quad
+  meshy_target_polycount: 8000
+  ref_resolution: 1024
+  ref_aspect_ratio: "1:1"
+  three_version: 0.160.0
+
+run:
+  mode: oneoff
+  maxIterations: 1000
+  maxTaskAttempts: 3
+  stall:
+    maxConsecutive: 3
+    backoffMs: 30000
+
+tasks:
+  - id: 01-design
+  - id: 02-class-guides
+    depends_on: [01-design]
+  - id: 03-references
+    depends_on: [02-class-guides]
+  - id: 04-meshy-preview
+    depends_on: [03-references]
+  - id: 05-meshy-refine
+    depends_on: [04-meshy-preview]
+  - id: 06-meshy-rig
+    depends_on: [05-meshy-refine]
+  - id: 07-meshy-animate
+    depends_on: [06-meshy-rig]
+  - id: 08-gallery
+    depends_on: [05-meshy-refine]
+  - id: 09-environment
+    depends_on: [01-design]
+  - id: 10-prop-pipeline
+    depends_on: [01-design]
+  - id: 11-scene-layout
+    depends_on: [05-meshy-refine, 10-prop-pipeline]
+  - id: 12-scene-viewer
+    depends_on: [07-meshy-animate, 09-environment, 11-scene-layout]
+
+checks:
+  - id: idea-exists
+    cmd: test -s idea.md
+    description: idea.md is present
+  - id: characters-json-shape
+    cmd: |
+      node -e "const c=require('./assets/characters.json');if(!Array.isArray(c)||c.length<1)process.exit(1);for(const x of c)for(const k of ['id','class','humanoid','description','animations'])if(!(k in x))process.exit(1)"
+    description: characters.json is a non-empty array with required fields
+  - id: every-character-has-glb
+    cmd: |
+      node -e "const fs=require('fs');const c=require('./assets/characters.json');for(const x of c){const p='assets/characters/'+x.id+'/model.glb';if(!fs.existsSync(p))process.exit(1)}"
+    description: every character has a model.glb
+  - id: humanoids-rigged-and-animated
+    cmd: |
+      node -e "const fs=require('fs');const c=require('./assets/characters.json');for(const x of c.filter(y=>y.humanoid)){if(!fs.existsSync('assets/characters/'+x.id+'/rigged.glb'))process.exit(1);for(const a of x.animations)if(!fs.existsSync('assets/characters/'+x.id+'/anims/'+a+'.glb'))process.exit(1)}"
+    description: every humanoid has rigged.glb and a clip per declared animation
+  - id: class-guides-exist
+    cmd: |
+      node -e "const fs=require('fs');const c=require('./assets/characters.json');const classes=[...new Set(c.map(x=>x.class))];for(const cl of classes){if(!fs.existsSync('assets/shared/classes/'+cl+'/style-guide.md'))process.exit(1);if(!fs.existsSync('assets/shared/classes/'+cl+'/reference.png'))process.exit(1)}"
+    description: every unique class has a style-guide.md and reference.png
+  - id: gallery-references-all-characters
+    cmd: |
+      node -e "const fs=require('fs');const c=require('./assets/characters.json');const h=fs.readFileSync('viewer/gallery.html','utf-8');for(const x of c)if(!h.includes('characters/'+x.id+'/model.glb'))process.exit(1)"
+    description: gallery.html references every character GLB by literal path
+  - id: every-prop-has-glb
+    cmd: |
+      node -e "const fs=require('fs');const p=require('./assets/props.json');for(const x of p){const f='assets/props/'+x.id+'/model.glb';if(!fs.existsSync(f))process.exit(1)}"
+    description: every prop has a model.glb
+  - id: scene-json-has-placements
+    cmd: |
+      node -e "const s=require('./assets/scene.json');if(!Array.isArray(s.placements)||s.placements.length<1)process.exit(1)"
+    description: scene.json has at least one placement
+  - id: scene-html-imports-environment
+    cmd: |
+      node -e "const fs=require('fs');const h=fs.readFileSync('viewer/scene.html','utf-8');for(const x of ['buildEnvironment','GLTFLoader','OrbitControls','AnimationMixer','environment/scene-shell.js'])if(!h.includes(x))process.exit(1)"
+    description: scene.html imports environment + GLTFLoader + OrbitControls + AnimationMixer
+  - id: env-scene-shell-exports
+    cmd: |
+      node -e "const fs=require('fs');const s=fs.readFileSync('assets/environment/scene-shell.js','utf-8');if(!s.includes('export function buildEnvironment'))process.exit(1)"
+    description: scene-shell.js exports buildEnvironment

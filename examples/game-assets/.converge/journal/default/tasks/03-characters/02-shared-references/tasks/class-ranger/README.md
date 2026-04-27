@@ -1,6 +1,6 @@
 # Task Journal: 03-characters/02-shared-references/class-ranger
 
-## Current attempt — `attempts/wip/`
+## Current attempt — `attempts/01/`
 
 | File | Purpose |
 |------|---------|

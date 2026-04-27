@@ -1,0 +1,250 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "07-integrate-blog/001-collection-schema-check-failed-blog-collection-defined",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-integrate-blog/001-collection-schema",
+            "severity": "high",
+            "description": "[07-integrate-blog/001-collection-schema] Check failed: src/content.config.ts defines a blog collection",
+            "source": "unit",
+            "detected": "2026-04-26T19:47:58.277Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "blog-collection-defined",
+              "checkCmd": "test -f apps/landing/src/content.config.ts && grep -qE 'blog\\s*:\\s*defineCollection' apps/landing/src/content.config.ts",
+              "checkDescription": "src/content.config.ts defines a blog collection",
+              "checkOutput": "Command failed: test -f apps/landing/src/content.config.ts && grep -qE 'blog\\s*:\\s*defineCollection' apps/landing/src/content.config.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Blog collection schema\n\nExtend `src/content.config.ts` (created in 06-integrate-docs/002) with\na `blog` collection. After this, the content layer knows about blog\nposts even though no posts exist yet.\n\n## File\n\n```ts\n// apps/landing/src/content.config.ts\nimport { defineCollection, z } from 'astro:content';\nimport { docsLoader } from '@astrojs/starlight/loaders';\nimport { docsSchema } from '@astrojs/starlight/schema';\nimport { glob } from 'astro/loaders';\n\nexport const collections = {\n  // Existing docs collection (from phase 06)\n  docs: defineCollection({\n    loader: docsLoader({ base: '../../docs', pattern: '**/*.{md,mdx}' }),\n    schema: docsSchema(),\n  }),\n\n  // NEW: blog collection\n  blog: defineCollection({\n    loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),\n    schema: z.object({\n      title:       z.string().min(10).max(120),\n      description: z.string().min(40).max(220),\n      date:        z.coerce.date(),\n      author:      z.string().default('Converge Team'),\n      tags:        z.array(z.string()).default([]),\n      draft:       z.boolean().default(false),\n      pinned:      z.boolean().default(false),\n      ogImage:     z.string().optional(),\n    }),\n  }),\n};\n```\n\n## Process\n\n1. Read the existing `src/content.config.ts` (it has the docs collection).\n2. Add the blog collection alongside.\n3. Create the directory: `mkdir -p apps/landing/src/content/blog` (the seed posts task will populate it).\n4. Run `pnpm --filter @converge/landing build`. Should succeed (no posts yet, but the collection is registered).\n\n## Banned\n\n- Removing the docs collection. Both collections coexist.\n- Schema fields beyond the list above. Keep the front-matter contract minimal — every additional field is one more thing to drift across posts.",
+              "taskId": "07-integrate-blog/001-collection-schema",
+              "taskTitle": "Extend src/content.config.ts with a blog collection schema",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/07-integrate-blog/tasks/001-collection-schema",
+              "factId": "check:blog-collection-defined"
+            }
+          },
+          {
+            "id": "07-integrate-blog/001-collection-schema-check-failed-schema-uses-zod",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-integrate-blog/001-collection-schema",
+            "severity": "high",
+            "description": "[07-integrate-blog/001-collection-schema] Check failed: schema uses zod fields",
+            "source": "unit",
+            "detected": "2026-04-26T19:47:58.281Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "schema-uses-zod",
+              "checkCmd": "test -f apps/landing/src/content.config.ts && grep -qE 'z\\.string|z\\.coerce\\.date|z\\.array' apps/landing/src/content.config.ts",
+              "checkDescription": "schema uses zod fields",
+              "checkOutput": "Command failed: test -f apps/landing/src/content.config.ts && grep -qE 'z\\.string|z\\.coerce\\.date|z\\.array' apps/landing/src/content.config.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Blog collection schema\n\nExtend `src/content.config.ts` (created in 06-integrate-docs/002) with\na `blog` collection. After this, the content layer knows about blog\nposts even though no posts exist yet.\n\n## File\n\n```ts\n// apps/landing/src/content.config.ts\nimport { defineCollection, z } from 'astro:content';\nimport { docsLoader } from '@astrojs/starlight/loaders';\nimport { docsSchema } from '@astrojs/starlight/schema';\nimport { glob } from 'astro/loaders';\n\nexport const collections = {\n  // Existing docs collection (from phase 06)\n  docs: defineCollection({\n    loader: docsLoader({ base: '../../docs', pattern: '**/*.{md,mdx}' }),\n    schema: docsSchema(),\n  }),\n\n  // NEW: blog collection\n  blog: defineCollection({\n    loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),\n    schema: z.object({\n      title:       z.string().min(10).max(120),\n      description: z.string().min(40).max(220),\n      date:        z.coerce.date(),\n      author:      z.string().default('Converge Team'),\n      tags:        z.array(z.string()).default([]),\n      draft:       z.boolean().default(false),\n      pinned:      z.boolean().default(false),\n      ogImage:     z.string().optional(),\n    }),\n  }),\n};\n```\n\n## Process\n\n1. Read the existing `src/content.config.ts` (it has the docs collection).\n2. Add the blog collection alongside.\n3. Create the directory: `mkdir -p apps/landing/src/content/blog` (the seed posts task will populate it).\n4. Run `pnpm --filter @converge/landing build`. Should succeed (no posts yet, but the collection is registered).\n\n## Banned\n\n- Removing the docs collection. Both collections coexist.\n- Schema fields beyond the list above. Keep the front-matter contract minimal — every additional field is one more thing to drift across posts.",
+              "taskId": "07-integrate-blog/001-collection-schema",
+              "taskTitle": "Extend src/content.config.ts with a blog collection schema",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/07-integrate-blog/tasks/001-collection-schema",
+              "factId": "check:schema-uses-zod"
+            }
+          },
+          {
+            "id": "07-integrate-blog/001-collection-schema-check-failed-blog-content-dir-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-integrate-blog/001-collection-schema",
+            "severity": "high",
+            "description": "[07-integrate-blog/001-collection-schema] Check failed: src/content/blog/ directory exists (empty is fine, seed posts come later)",
+            "source": "unit",
+            "detected": "2026-04-26T19:47:58.283Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "blog-content-dir-exists",
+              "checkCmd": "test -d apps/landing/src/content/blog",
+              "checkDescription": "src/content/blog/ directory exists (empty is fine, seed posts come later)",
+              "checkOutput": "Command failed: test -d apps/landing/src/content/blog\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Blog collection schema\n\nExtend `src/content.config.ts` (created in 06-integrate-docs/002) with\na `blog` collection. After this, the content layer knows about blog\nposts even though no posts exist yet.\n\n## File\n\n```ts\n// apps/landing/src/content.config.ts\nimport { defineCollection, z } from 'astro:content';\nimport { docsLoader } from '@astrojs/starlight/loaders';\nimport { docsSchema } from '@astrojs/starlight/schema';\nimport { glob } from 'astro/loaders';\n\nexport const collections = {\n  // Existing docs collection (from phase 06)\n  docs: defineCollection({\n    loader: docsLoader({ base: '../../docs', pattern: '**/*.{md,mdx}' }),\n    schema: docsSchema(),\n  }),\n\n  // NEW: blog collection\n  blog: defineCollection({\n    loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),\n    schema: z.object({\n      title:       z.string().min(10).max(120),\n      description: z.string().min(40).max(220),\n      date:        z.coerce.date(),\n      author:      z.string().default('Converge Team'),\n      tags:        z.array(z.string()).default([]),\n      draft:       z.boolean().default(false),\n      pinned:      z.boolean().default(false),\n      ogImage:     z.string().optional(),\n    }),\n  }),\n};\n```\n\n## Process\n\n1. Read the existing `src/content.config.ts` (it has the docs collection).\n2. Add the blog collection alongside.\n3. Create the directory: `mkdir -p apps/landing/src/content/blog` (the seed posts task will populate it).\n4. Run `pnpm --filter @converge/landing build`. Should succeed (no posts yet, but the collection is registered).\n\n## Banned\n\n- Removing the docs collection. Both collections coexist.\n- Schema fields beyond the list above. Keep the front-matter contract minimal — every additional field is one more thing to drift across posts.",
+              "taskId": "07-integrate-blog/001-collection-schema",
+              "taskTitle": "Extend src/content.config.ts with a blog collection schema",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/07-integrate-blog/tasks/001-collection-schema",
+              "factId": "check:blog-content-dir-exists"
+            }
+          }
+        ],
+        "durationMs": 6606
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 6407
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 6115
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#95",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 27305
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T19:47:58.267Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T19:47:58.267Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T19:48:04.873Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T19:48:04.873Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T19:48:11.281Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#95",
+      "iteration": 1,
+      "ts": "2026-04-26T19:48:38.586Z"
+    },
+    {
+      "from": "run-strategy:task-run#95",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T19:48:44.701Z"
+    }
+  ]
+}

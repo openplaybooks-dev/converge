@@ -1,0 +1,22 @@
+{
+  "hash": "a5d75683dcc820ae4d2beed37ecc3aa2f1ff6e9c8d8e96c39f7b4d6e4ce7f37f",
+  "timestamp": "2026-04-27T02:00:38.089Z",
+  "files": [
+    "README.md",
+    "TASK.md",
+    "playbook.yml",
+    "wbs/index.js",
+    "wbs/prs.json",
+    "wbs/templates/item/TASK.md",
+    "wbs/templates/item/tasks/analyze/TASK.md",
+    "wbs/templates/item/tasks/implement/TASK.md",
+    "wbs/templates/item/tasks/implement/tasks/plan/TASK.md",
+    "wbs/templates/item/tasks/implement/tasks/todos/TASK.md",
+    "wbs/templates/item/tasks/implement/tasks/todos/wbs.js",
+    "wbs/templates/item/tasks/implement/tasks/verify/TASK.md",
+    "wbs/templates/item/tasks/implement/wbs.js",
+    "wbs/templates/item/tasks/quality/TASK.md",
+    "wbs/templates/item/tasks/review/TASK.md",
+    "wbs/templates/item/wbs.js"
+  ]
+}

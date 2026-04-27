@@ -1,0 +1,292 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-api-routes/004-watch-sse-missing-output-packages/converge-studio/src/app/api/watch/route.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/004-watch-sse",
+            "severity": "high",
+            "description": "[03-api-routes/004-watch-sse] Task output not created: packages/converge-studio/src/app/api/watch/route.ts",
+            "source": "unit",
+            "detected": "2026-04-26T02:39:32.243Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/004-watch-sse",
+              "taskId": "03-api-routes/004-watch-sse",
+              "taskTitle": "/api/watch SSE filesystem-change stream",
+              "taskPrompt": "Expose the filesystem watcher as an SSE stream so the UI auto-refreshes on `.converge/` changes.\n\n**`src/lib/watcher-singleton.ts`**:\n\n```ts\nimport { ConvergeWatcher, resolveProjectRoot } from './converge-adapter/index.js';\n\nlet _watcher: ConvergeWatcher | undefined;\n\nexport function getWatcher(): ConvergeWatcher {\n  if (!_watcher) {\n    _watcher = new ConvergeWatcher(resolveProjectRoot());\n    _watcher.start();\n    process.on('exit', () => _watcher?.stop());\n  }\n  return _watcher;\n}\n```\n\nThis makes one watcher per Node process — multiple SSE subscribers share it via `EventEmitter` listeners.\n\n**`src/app/api/watch/route.ts`**:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { getWatcher } from '@/lib/watcher-singleton';\n\nexport async function GET(req: Request) {\n  const watcher = getWatcher();\n  const stream = new ReadableStream({\n    start(controller) {\n      const enc = new TextEncoder();\n      const handler = (ev: unknown) => {\n        if (req.signal.aborted) return;\n        controller.enqueue(enc.encode(`event: change\\ndata: ${JSON.stringify(ev)}\\n\\n`));\n      };\n      watcher.on('change', handler);\n      // initial heartbeat\n      controller.enqueue(enc.encode(`event: ready\\ndata: {}\\n\\n`));\n      req.signal.addEventListener('abort', () => {\n        watcher.off('change', handler);\n        controller.close();\n      });\n    },\n  });\n  return new Response(stream, {\n    headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' },\n  });\n}\n```\n\n**Risk**: with many simultaneous SSE clients, the watcher emitter listener cap (default 10) will warn. Bump it on the singleton: `_watcher.setMaxListeners(100)`.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/app/api/watch/route.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-api-routes/004-watch-sse-missing-output-packages/converge-studio/src/lib/watcher-singleton.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/004-watch-sse",
+            "severity": "high",
+            "description": "[03-api-routes/004-watch-sse] Task output not created: packages/converge-studio/src/lib/watcher-singleton.ts",
+            "source": "unit",
+            "detected": "2026-04-26T02:39:32.245Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/004-watch-sse",
+              "taskId": "03-api-routes/004-watch-sse",
+              "taskTitle": "/api/watch SSE filesystem-change stream",
+              "taskPrompt": "Expose the filesystem watcher as an SSE stream so the UI auto-refreshes on `.converge/` changes.\n\n**`src/lib/watcher-singleton.ts`**:\n\n```ts\nimport { ConvergeWatcher, resolveProjectRoot } from './converge-adapter/index.js';\n\nlet _watcher: ConvergeWatcher | undefined;\n\nexport function getWatcher(): ConvergeWatcher {\n  if (!_watcher) {\n    _watcher = new ConvergeWatcher(resolveProjectRoot());\n    _watcher.start();\n    process.on('exit', () => _watcher?.stop());\n  }\n  return _watcher;\n}\n```\n\nThis makes one watcher per Node process — multiple SSE subscribers share it via `EventEmitter` listeners.\n\n**`src/app/api/watch/route.ts`**:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { getWatcher } from '@/lib/watcher-singleton';\n\nexport async function GET(req: Request) {\n  const watcher = getWatcher();\n  const stream = new ReadableStream({\n    start(controller) {\n      const enc = new TextEncoder();\n      const handler = (ev: unknown) => {\n        if (req.signal.aborted) return;\n        controller.enqueue(enc.encode(`event: change\\ndata: ${JSON.stringify(ev)}\\n\\n`));\n      };\n      watcher.on('change', handler);\n      // initial heartbeat\n      controller.enqueue(enc.encode(`event: ready\\ndata: {}\\n\\n`));\n      req.signal.addEventListener('abort', () => {\n        watcher.off('change', handler);\n        controller.close();\n      });\n    },\n  });\n  return new Response(stream, {\n    headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' },\n  });\n}\n```\n\n**Risk**: with many simultaneous SSE clients, the watcher emitter listener cap (default 10) will warn. Bump it on the singleton: `_watcher.setMaxListeners(100)`.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/lib/watcher-singleton.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-api-routes/004-watch-sse-check-failed-watch-route-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/004-watch-sse",
+            "severity": "high",
+            "description": "[03-api-routes/004-watch-sse] Check failed: Watch route exists",
+            "source": "unit",
+            "detected": "2026-04-26T02:39:32.246Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "watch-route-exists",
+              "checkCmd": "test -f packages/converge-studio/src/app/api/watch/route.ts",
+              "checkDescription": "Watch route exists",
+              "checkOutput": "Command failed: test -f packages/converge-studio/src/app/api/watch/route.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Expose the filesystem watcher as an SSE stream so the UI auto-refreshes on `.converge/` changes.\n\n**`src/lib/watcher-singleton.ts`**:\n\n```ts\nimport { ConvergeWatcher, resolveProjectRoot } from './converge-adapter/index.js';\n\nlet _watcher: ConvergeWatcher | undefined;\n\nexport function getWatcher(): ConvergeWatcher {\n  if (!_watcher) {\n    _watcher = new ConvergeWatcher(resolveProjectRoot());\n    _watcher.start();\n    process.on('exit', () => _watcher?.stop());\n  }\n  return _watcher;\n}\n```\n\nThis makes one watcher per Node process — multiple SSE subscribers share it via `EventEmitter` listeners.\n\n**`src/app/api/watch/route.ts`**:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { getWatcher } from '@/lib/watcher-singleton';\n\nexport async function GET(req: Request) {\n  const watcher = getWatcher();\n  const stream = new ReadableStream({\n    start(controller) {\n      const enc = new TextEncoder();\n      const handler = (ev: unknown) => {\n        if (req.signal.aborted) return;\n        controller.enqueue(enc.encode(`event: change\\ndata: ${JSON.stringify(ev)}\\n\\n`));\n      };\n      watcher.on('change', handler);\n      // initial heartbeat\n      controller.enqueue(enc.encode(`event: ready\\ndata: {}\\n\\n`));\n      req.signal.addEventListener('abort', () => {\n        watcher.off('change', handler);\n        controller.close();\n      });\n    },\n  });\n  return new Response(stream, {\n    headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' },\n  });\n}\n```\n\n**Risk**: with many simultaneous SSE clients, the watcher emitter listener cap (default 10) will warn. Bump it on the singleton: `_watcher.setMaxListeners(100)`.",
+              "taskId": "03-api-routes/004-watch-sse",
+              "taskTitle": "/api/watch SSE filesystem-change stream",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/004-watch-sse",
+              "factId": "check:watch-route-exists"
+            }
+          },
+          {
+            "id": "03-api-routes/004-watch-sse-check-failed-nodejs-runtime",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/004-watch-sse",
+            "severity": "high",
+            "description": "[03-api-routes/004-watch-sse] Check failed: Route exports runtime = 'nodejs'",
+            "source": "unit",
+            "detected": "2026-04-26T02:39:32.249Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "nodejs-runtime",
+              "checkCmd": "grep -q \"runtime = 'nodejs'\" packages/converge-studio/src/app/api/watch/route.ts",
+              "checkDescription": "Route exports runtime = 'nodejs'",
+              "checkOutput": "grep: packages/converge-studio/src/app/api/watch/route.ts: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "Expose the filesystem watcher as an SSE stream so the UI auto-refreshes on `.converge/` changes.\n\n**`src/lib/watcher-singleton.ts`**:\n\n```ts\nimport { ConvergeWatcher, resolveProjectRoot } from './converge-adapter/index.js';\n\nlet _watcher: ConvergeWatcher | undefined;\n\nexport function getWatcher(): ConvergeWatcher {\n  if (!_watcher) {\n    _watcher = new ConvergeWatcher(resolveProjectRoot());\n    _watcher.start();\n    process.on('exit', () => _watcher?.stop());\n  }\n  return _watcher;\n}\n```\n\nThis makes one watcher per Node process — multiple SSE subscribers share it via `EventEmitter` listeners.\n\n**`src/app/api/watch/route.ts`**:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { getWatcher } from '@/lib/watcher-singleton';\n\nexport async function GET(req: Request) {\n  const watcher = getWatcher();\n  const stream = new ReadableStream({\n    start(controller) {\n      const enc = new TextEncoder();\n      const handler = (ev: unknown) => {\n        if (req.signal.aborted) return;\n        controller.enqueue(enc.encode(`event: change\\ndata: ${JSON.stringify(ev)}\\n\\n`));\n      };\n      watcher.on('change', handler);\n      // initial heartbeat\n      controller.enqueue(enc.encode(`event: ready\\ndata: {}\\n\\n`));\n      req.signal.addEventListener('abort', () => {\n        watcher.off('change', handler);\n        controller.close();\n      });\n    },\n  });\n  return new Response(stream, {\n    headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' },\n  });\n}\n```\n\n**Risk**: with many simultaneous SSE clients, the watcher emitter listener cap (default 10) will warn. Bump it on the singleton: `_watcher.setMaxListeners(100)`.",
+              "taskId": "03-api-routes/004-watch-sse",
+              "taskTitle": "/api/watch SSE filesystem-change stream",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/004-watch-sse",
+              "factId": "check:nodejs-runtime"
+            }
+          },
+          {
+            "id": "03-api-routes/004-watch-sse-check-failed-singleton-watcher",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/004-watch-sse",
+            "severity": "high",
+            "description": "[03-api-routes/004-watch-sse] Check failed: Watcher is a module-level singleton (avoids one watcher per request)",
+            "source": "unit",
+            "detected": "2026-04-26T02:39:32.251Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "singleton-watcher",
+              "checkCmd": "test -f packages/converge-studio/src/lib/watcher-singleton.ts && grep -q 'getWatcher\\|sharedWatcher' packages/converge-studio/src/lib/watcher-singleton.ts",
+              "checkDescription": "Watcher is a module-level singleton (avoids one watcher per request)",
+              "checkOutput": "Command failed: test -f packages/converge-studio/src/lib/watcher-singleton.ts && grep -q 'getWatcher\\|sharedWatcher' packages/converge-studio/src/lib/watcher-singleton.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Expose the filesystem watcher as an SSE stream so the UI auto-refreshes on `.converge/` changes.\n\n**`src/lib/watcher-singleton.ts`**:\n\n```ts\nimport { ConvergeWatcher, resolveProjectRoot } from './converge-adapter/index.js';\n\nlet _watcher: ConvergeWatcher | undefined;\n\nexport function getWatcher(): ConvergeWatcher {\n  if (!_watcher) {\n    _watcher = new ConvergeWatcher(resolveProjectRoot());\n    _watcher.start();\n    process.on('exit', () => _watcher?.stop());\n  }\n  return _watcher;\n}\n```\n\nThis makes one watcher per Node process — multiple SSE subscribers share it via `EventEmitter` listeners.\n\n**`src/app/api/watch/route.ts`**:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { getWatcher } from '@/lib/watcher-singleton';\n\nexport async function GET(req: Request) {\n  const watcher = getWatcher();\n  const stream = new ReadableStream({\n    start(controller) {\n      const enc = new TextEncoder();\n      const handler = (ev: unknown) => {\n        if (req.signal.aborted) return;\n        controller.enqueue(enc.encode(`event: change\\ndata: ${JSON.stringify(ev)}\\n\\n`));\n      };\n      watcher.on('change', handler);\n      // initial heartbeat\n      controller.enqueue(enc.encode(`event: ready\\ndata: {}\\n\\n`));\n      req.signal.addEventListener('abort', () => {\n        watcher.off('change', handler);\n        controller.close();\n      });\n    },\n  });\n  return new Response(stream, {\n    headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' },\n  });\n}\n```\n\n**Risk**: with many simultaneous SSE clients, the watcher emitter listener cap (default 10) will warn. Bump it on the singleton: `_watcher.setMaxListeners(100)`.",
+              "taskId": "03-api-routes/004-watch-sse",
+              "taskTitle": "/api/watch SSE filesystem-change stream",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/004-watch-sse",
+              "factId": "check:singleton-watcher"
+            }
+          }
+        ],
+        "durationMs": 3908
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3934
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 3855
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#8",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 81849
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T02:39:32.240Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T02:39:32.240Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T02:39:36.148Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T02:39:36.149Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T02:39:40.083Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#8",
+      "iteration": 1,
+      "ts": "2026-04-26T02:41:01.932Z"
+    },
+    {
+      "from": "run-strategy:task-run#8",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T02:41:05.788Z"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+# NEEDS.result.md — Attempt 2
+
+## Input State
+
+### `apps/landing/.content/brand.json`
+⛔ **NO FILES FOUND**
+
+### `apps/landing/src/icons/converge-mark.svg`
+✓ **1 file(s)**
+
+- `apps/landing/src/icons/converge-mark.svg`
+
+## Status
+
+⛔ **BLOCKED — needs not met**
+
+- `apps/landing/.content/brand.json` — no files found

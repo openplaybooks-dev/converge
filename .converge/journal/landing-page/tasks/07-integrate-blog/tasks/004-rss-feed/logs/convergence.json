@@ -1,0 +1,247 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "07-integrate-blog/004-rss-feed-missing-output-apps/landing/src/pages/rss.xml.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-integrate-blog/004-rss-feed",
+            "severity": "high",
+            "description": "[07-integrate-blog/004-rss-feed] Task output not created: apps/landing/src/pages/rss.xml.ts",
+            "source": "unit",
+            "detected": "2026-04-26T19:49:39.358Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/07-integrate-blog/tasks/004-rss-feed",
+              "taskId": "07-integrate-blog/004-rss-feed",
+              "taskTitle": "/rss.xml — Atom feed of all non-draft blog posts",
+              "taskPrompt": "# RSS feed\n\nGenerate `/rss.xml` listing every non-draft blog post.\n\n## File\n\n```ts\n// apps/landing/src/pages/rss.xml.ts\nimport rss from '@astrojs/rss';\nimport { getCollection } from 'astro:content';\nimport type { APIContext } from 'astro';\n\nexport async function GET(context: APIContext) {\n  const posts = (await getCollection('blog'))\n    .filter((p) => !p.data.draft)\n    .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());\n\n  return rss({\n    title: 'Converge — Blog',\n    description: 'Notes on goal-driven workflows from the Converge team.',\n    site: context.site!,\n    items: posts.map((p) => ({\n      title: p.data.title,\n      description: p.data.description,\n      pubDate: p.data.date,\n      link: `/blog/${p.id.replace(/\\.mdx?$/, '')}`,\n      author: p.data.author,\n      categories: p.data.tags,\n    })),\n    customData: '<language>en-us</language>',\n  });\n}\n```\n\nAfter build, `dist/rss.xml` will exist with one `<item>` per non-draft post.\n\n## Banned\n\n- Including post bodies in the feed. Description-only keeps the feed lean and respects future paywall/full-text decisions.\n- Setting `pubDate` to anything but `data.date`. Drift here breaks feed readers.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"apps/landing/src/pages/rss.xml.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "07-integrate-blog/004-rss-feed-check-failed-rss-route-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-integrate-blog/004-rss-feed",
+            "severity": "high",
+            "description": "[07-integrate-blog/004-rss-feed] Check failed: rss.xml.ts route handler exists",
+            "source": "unit",
+            "detected": "2026-04-26T19:49:39.384Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "rss-route-exists",
+              "checkCmd": "test -f apps/landing/src/pages/rss.xml.ts",
+              "checkDescription": "rss.xml.ts route handler exists",
+              "checkOutput": "Command failed: test -f apps/landing/src/pages/rss.xml.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# RSS feed\n\nGenerate `/rss.xml` listing every non-draft blog post.\n\n## File\n\n```ts\n// apps/landing/src/pages/rss.xml.ts\nimport rss from '@astrojs/rss';\nimport { getCollection } from 'astro:content';\nimport type { APIContext } from 'astro';\n\nexport async function GET(context: APIContext) {\n  const posts = (await getCollection('blog'))\n    .filter((p) => !p.data.draft)\n    .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());\n\n  return rss({\n    title: 'Converge — Blog',\n    description: 'Notes on goal-driven workflows from the Converge team.',\n    site: context.site!,\n    items: posts.map((p) => ({\n      title: p.data.title,\n      description: p.data.description,\n      pubDate: p.data.date,\n      link: `/blog/${p.id.replace(/\\.mdx?$/, '')}`,\n      author: p.data.author,\n      categories: p.data.tags,\n    })),\n    customData: '<language>en-us</language>',\n  });\n}\n```\n\nAfter build, `dist/rss.xml` will exist with one `<item>` per non-draft post.\n\n## Banned\n\n- Including post bodies in the feed. Description-only keeps the feed lean and respects future paywall/full-text decisions.\n- Setting `pubDate` to anything but `data.date`. Drift here breaks feed readers.",
+              "taskId": "07-integrate-blog/004-rss-feed",
+              "taskTitle": "/rss.xml — Atom feed of all non-draft blog posts",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/07-integrate-blog/tasks/004-rss-feed",
+              "factId": "check:rss-route-exists"
+            }
+          },
+          {
+            "id": "07-integrate-blog/004-rss-feed-check-failed-rss-uses-astrojs-rss",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-integrate-blog/004-rss-feed",
+            "severity": "high",
+            "description": "[07-integrate-blog/004-rss-feed] Check failed: uses @astrojs/rss helper",
+            "source": "unit",
+            "detected": "2026-04-26T19:49:39.412Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "rss-uses-astrojs-rss",
+              "checkCmd": "test -f apps/landing/src/pages/rss.xml.ts && grep -qE '@astrojs/rss' apps/landing/src/pages/rss.xml.ts",
+              "checkDescription": "uses @astrojs/rss helper",
+              "checkOutput": "Command failed: test -f apps/landing/src/pages/rss.xml.ts && grep -qE '@astrojs/rss' apps/landing/src/pages/rss.xml.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# RSS feed\n\nGenerate `/rss.xml` listing every non-draft blog post.\n\n## File\n\n```ts\n// apps/landing/src/pages/rss.xml.ts\nimport rss from '@astrojs/rss';\nimport { getCollection } from 'astro:content';\nimport type { APIContext } from 'astro';\n\nexport async function GET(context: APIContext) {\n  const posts = (await getCollection('blog'))\n    .filter((p) => !p.data.draft)\n    .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());\n\n  return rss({\n    title: 'Converge — Blog',\n    description: 'Notes on goal-driven workflows from the Converge team.',\n    site: context.site!,\n    items: posts.map((p) => ({\n      title: p.data.title,\n      description: p.data.description,\n      pubDate: p.data.date,\n      link: `/blog/${p.id.replace(/\\.mdx?$/, '')}`,\n      author: p.data.author,\n      categories: p.data.tags,\n    })),\n    customData: '<language>en-us</language>',\n  });\n}\n```\n\nAfter build, `dist/rss.xml` will exist with one `<item>` per non-draft post.\n\n## Banned\n\n- Including post bodies in the feed. Description-only keeps the feed lean and respects future paywall/full-text decisions.\n- Setting `pubDate` to anything but `data.date`. Drift here breaks feed readers.",
+              "taskId": "07-integrate-blog/004-rss-feed",
+              "taskTitle": "/rss.xml — Atom feed of all non-draft blog posts",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/07-integrate-blog/tasks/004-rss-feed",
+              "factId": "check:rss-uses-astrojs-rss"
+            }
+          }
+        ],
+        "durationMs": 59
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 11
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 15
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#98",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 17456
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T19:49:39.352Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T19:49:39.353Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T19:49:39.413Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T19:49:39.413Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T19:49:39.425Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#98",
+      "iteration": 1,
+      "ts": "2026-04-26T19:49:56.883Z"
+    },
+    {
+      "from": "run-strategy:task-run#98",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T19:49:56.898Z"
+    }
+  ]
+}

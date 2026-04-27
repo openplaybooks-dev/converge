@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "11-ship/002-cloudflare-headers",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T00:55:44.469Z",
+  "createdAt": "2026-04-27T00:54:54.933Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T00:54:54.933Z",
+      "completedAt": "2026-04-27T00:55:44.435Z",
+      "outcome": "success",
+      "durationMs": 49502
+    }
+  ],
+  "currentAttempt": 1
+}

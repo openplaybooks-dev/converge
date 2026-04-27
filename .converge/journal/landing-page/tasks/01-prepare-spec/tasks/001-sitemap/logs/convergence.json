@@ -1,0 +1,300 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 22
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-prepare-spec/001-sitemap-missing-output-apps/landing/.content/sitemap.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-spec/001-sitemap",
+            "severity": "high",
+            "description": "[01-prepare-spec/001-sitemap] Task output not created: apps/landing/.content/sitemap.json",
+            "source": "unit",
+            "detected": "2026-04-26T20:12:57.915Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/01-prepare-spec/tasks/001-sitemap",
+              "taskId": "01-prepare-spec/001-sitemap",
+              "taskTitle": "Emit sitemap.json — every route the site will serve",
+              "taskPrompt": "# Sitemap\n\nRead `docs/_ia.json` to enumerate every doc route. Combine with the\ncanonical site routes (`/`, `/blog`, `/404`) to produce\n`apps/landing/.content/sitemap.json`.\n\n## Required shape\n\n```json\n{\n  \"$schema\": \"../.content/schemas/sitemap.schema.json\",\n  \"domain\": \"https://converge.dev\",\n  \"routes\": [\n    { \"path\": \"/\",                          \"kind\": \"page\",  \"title\": \"Home\",                 \"priority\": 1.0 },\n    { \"path\": \"/blog\",                      \"kind\": \"page\",  \"title\": \"Blog\",                 \"priority\": 0.7 },\n    { \"path\": \"/blog/[slug]\",               \"kind\": \"dynamic\",\"title\": \"Blog post\",           \"priority\": 0.6 },\n    { \"path\": \"/docs/getting-started/why-converge\", \"kind\": \"doc\", \"title\": \"Why Converge\",   \"priority\": 0.9 },\n    { \"path\": \"/docs/concepts/context-interpolation\", \"kind\": \"doc\", \"title\": \"Context interpolation\", \"priority\": 0.8 },\n    { \"path\": \"/404\",                       \"kind\": \"error\", \"title\": \"Not found\",             \"priority\": 0.1 }\n  ]\n}\n```\n\n`priority` follows the standard sitemap.xml convention (0.0–1.0). Home is\n1.0; landing-relevant docs are ≥ 0.8; error pages are 0.1.\n\n## Process\n\n1. Read `docs/_ia.json`. For each `pages: [...]` entry under each `groups: [...]`, emit a route at `/docs/<slug>`.\n2. Add the four canonical site routes (`/`, `/blog`, `/blog/[slug]`, `/404`).\n3. Write the JSON file. The `domain` field is `https://converge.dev` — this is the canonical production URL.\n\n## Banned\n\n- Hardcoding doc routes that aren't in `docs/_ia.json`. The IA is the source of truth; if a route is missing here, fix `docs/_ia.json` first.\n- Adding routes that don't exist (e.g. `/pricing`, `/about`). The site is a single landing page + docs + blog. No marketing-bloat routes.",
+              "taskInputs": [
+                "docs/_ia.json",
+                "README.md"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/.content/sitemap.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "01-prepare-spec/001-sitemap-check-failed-sitemap-json-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-spec/001-sitemap",
+            "severity": "high",
+            "description": "[01-prepare-spec/001-sitemap] Check failed: sitemap.json exists",
+            "source": "unit",
+            "detected": "2026-04-26T20:12:57.920Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "sitemap-json-exists",
+              "checkCmd": "test -f apps/landing/.content/sitemap.json",
+              "checkDescription": "sitemap.json exists",
+              "checkOutput": "Command failed: test -f apps/landing/.content/sitemap.json\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Sitemap\n\nRead `docs/_ia.json` to enumerate every doc route. Combine with the\ncanonical site routes (`/`, `/blog`, `/404`) to produce\n`apps/landing/.content/sitemap.json`.\n\n## Required shape\n\n```json\n{\n  \"$schema\": \"../.content/schemas/sitemap.schema.json\",\n  \"domain\": \"https://converge.dev\",\n  \"routes\": [\n    { \"path\": \"/\",                          \"kind\": \"page\",  \"title\": \"Home\",                 \"priority\": 1.0 },\n    { \"path\": \"/blog\",                      \"kind\": \"page\",  \"title\": \"Blog\",                 \"priority\": 0.7 },\n    { \"path\": \"/blog/[slug]\",               \"kind\": \"dynamic\",\"title\": \"Blog post\",           \"priority\": 0.6 },\n    { \"path\": \"/docs/getting-started/why-converge\", \"kind\": \"doc\", \"title\": \"Why Converge\",   \"priority\": 0.9 },\n    { \"path\": \"/docs/concepts/context-interpolation\", \"kind\": \"doc\", \"title\": \"Context interpolation\", \"priority\": 0.8 },\n    { \"path\": \"/404\",                       \"kind\": \"error\", \"title\": \"Not found\",             \"priority\": 0.1 }\n  ]\n}\n```\n\n`priority` follows the standard sitemap.xml convention (0.0–1.0). Home is\n1.0; landing-relevant docs are ≥ 0.8; error pages are 0.1.\n\n## Process\n\n1. Read `docs/_ia.json`. For each `pages: [...]` entry under each `groups: [...]`, emit a route at `/docs/<slug>`.\n2. Add the four canonical site routes (`/`, `/blog`, `/blog/[slug]`, `/404`).\n3. Write the JSON file. The `domain` field is `https://converge.dev` — this is the canonical production URL.\n\n## Banned\n\n- Hardcoding doc routes that aren't in `docs/_ia.json`. The IA is the source of truth; if a route is missing here, fix `docs/_ia.json` first.\n- Adding routes that don't exist (e.g. `/pricing`, `/about`). The site is a single landing page + docs + blog. No marketing-bloat routes.",
+              "taskId": "01-prepare-spec/001-sitemap",
+              "taskTitle": "Emit sitemap.json — every route the site will serve",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/01-prepare-spec/tasks/001-sitemap",
+              "factId": "check:sitemap-json-exists"
+            }
+          },
+          {
+            "id": "01-prepare-spec/001-sitemap-check-failed-sitemap-valid-json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-spec/001-sitemap",
+            "severity": "high",
+            "description": "[01-prepare-spec/001-sitemap] Check failed: sitemap.json is valid JSON",
+            "source": "unit",
+            "detected": "2026-04-26T20:12:57.923Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "sitemap-valid-json",
+              "checkCmd": "test -f apps/landing/.content/sitemap.json && node -e \"JSON.parse(require('fs').readFileSync('apps/landing/.content/sitemap.json','utf8'))\"",
+              "checkDescription": "sitemap.json is valid JSON",
+              "checkOutput": "Command failed: test -f apps/landing/.content/sitemap.json && node -e \"JSON.parse(require('fs').readFileSync('apps/landing/.content/sitemap.json','utf8'))\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Sitemap\n\nRead `docs/_ia.json` to enumerate every doc route. Combine with the\ncanonical site routes (`/`, `/blog`, `/404`) to produce\n`apps/landing/.content/sitemap.json`.\n\n## Required shape\n\n```json\n{\n  \"$schema\": \"../.content/schemas/sitemap.schema.json\",\n  \"domain\": \"https://converge.dev\",\n  \"routes\": [\n    { \"path\": \"/\",                          \"kind\": \"page\",  \"title\": \"Home\",                 \"priority\": 1.0 },\n    { \"path\": \"/blog\",                      \"kind\": \"page\",  \"title\": \"Blog\",                 \"priority\": 0.7 },\n    { \"path\": \"/blog/[slug]\",               \"kind\": \"dynamic\",\"title\": \"Blog post\",           \"priority\": 0.6 },\n    { \"path\": \"/docs/getting-started/why-converge\", \"kind\": \"doc\", \"title\": \"Why Converge\",   \"priority\": 0.9 },\n    { \"path\": \"/docs/concepts/context-interpolation\", \"kind\": \"doc\", \"title\": \"Context interpolation\", \"priority\": 0.8 },\n    { \"path\": \"/404\",                       \"kind\": \"error\", \"title\": \"Not found\",             \"priority\": 0.1 }\n  ]\n}\n```\n\n`priority` follows the standard sitemap.xml convention (0.0–1.0). Home is\n1.0; landing-relevant docs are ≥ 0.8; error pages are 0.1.\n\n## Process\n\n1. Read `docs/_ia.json`. For each `pages: [...]` entry under each `groups: [...]`, emit a route at `/docs/<slug>`.\n2. Add the four canonical site routes (`/`, `/blog`, `/blog/[slug]`, `/404`).\n3. Write the JSON file. The `domain` field is `https://converge.dev` — this is the canonical production URL.\n\n## Banned\n\n- Hardcoding doc routes that aren't in `docs/_ia.json`. The IA is the source of truth; if a route is missing here, fix `docs/_ia.json` first.\n- Adding routes that don't exist (e.g. `/pricing`, `/about`). The site is a single landing page + docs + blog. No marketing-bloat routes.",
+              "taskId": "01-prepare-spec/001-sitemap",
+              "taskTitle": "Emit sitemap.json — every route the site will serve",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/01-prepare-spec/tasks/001-sitemap",
+              "factId": "check:sitemap-valid-json"
+            }
+          },
+          {
+            "id": "01-prepare-spec/001-sitemap-check-failed-includes-home-and-docs",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-spec/001-sitemap",
+            "severity": "high",
+            "description": "[01-prepare-spec/001-sitemap] Check failed: includes / and at least one /docs/ route",
+            "source": "unit",
+            "detected": "2026-04-26T20:12:57.926Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "includes-home-and-docs",
+              "checkCmd": "test -f apps/landing/.content/sitemap.json && node -e \"const r=require('./apps/landing/.content/sitemap.json');const routes=r.routes||r;const set=new Set(routes.map(x=>x.path||x));process.exit(set.has('/') && [...set].some(p=>p.startsWith('/docs/')) ? 0 : 1)\"",
+              "checkDescription": "includes / and at least one /docs/ route",
+              "checkOutput": "Command failed: test -f apps/landing/.content/sitemap.json && node -e \"const r=require('./apps/landing/.content/sitemap.json');const routes=r.routes||r;const set=new Set(routes.map(x=>x.path||x));process.exit(set.has('/') && [...set].some(p=>p.startsWith('/docs/')) ? 0 : 1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Sitemap\n\nRead `docs/_ia.json` to enumerate every doc route. Combine with the\ncanonical site routes (`/`, `/blog`, `/404`) to produce\n`apps/landing/.content/sitemap.json`.\n\n## Required shape\n\n```json\n{\n  \"$schema\": \"../.content/schemas/sitemap.schema.json\",\n  \"domain\": \"https://converge.dev\",\n  \"routes\": [\n    { \"path\": \"/\",                          \"kind\": \"page\",  \"title\": \"Home\",                 \"priority\": 1.0 },\n    { \"path\": \"/blog\",                      \"kind\": \"page\",  \"title\": \"Blog\",                 \"priority\": 0.7 },\n    { \"path\": \"/blog/[slug]\",               \"kind\": \"dynamic\",\"title\": \"Blog post\",           \"priority\": 0.6 },\n    { \"path\": \"/docs/getting-started/why-converge\", \"kind\": \"doc\", \"title\": \"Why Converge\",   \"priority\": 0.9 },\n    { \"path\": \"/docs/concepts/context-interpolation\", \"kind\": \"doc\", \"title\": \"Context interpolation\", \"priority\": 0.8 },\n    { \"path\": \"/404\",                       \"kind\": \"error\", \"title\": \"Not found\",             \"priority\": 0.1 }\n  ]\n}\n```\n\n`priority` follows the standard sitemap.xml convention (0.0–1.0). Home is\n1.0; landing-relevant docs are ≥ 0.8; error pages are 0.1.\n\n## Process\n\n1. Read `docs/_ia.json`. For each `pages: [...]` entry under each `groups: [...]`, emit a route at `/docs/<slug>`.\n2. Add the four canonical site routes (`/`, `/blog`, `/blog/[slug]`, `/404`).\n3. Write the JSON file. The `domain` field is `https://converge.dev` — this is the canonical production URL.\n\n## Banned\n\n- Hardcoding doc routes that aren't in `docs/_ia.json`. The IA is the source of truth; if a route is missing here, fix `docs/_ia.json` first.\n- Adding routes that don't exist (e.g. `/pricing`, `/about`). The site is a single landing page + docs + blog. No marketing-bloat routes.",
+              "taskId": "01-prepare-spec/001-sitemap",
+              "taskTitle": "Emit sitemap.json — every route the site will serve",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/01-prepare-spec/tasks/001-sitemap",
+              "factId": "check:includes-home-and-docs"
+            }
+          },
+          {
+            "id": "01-prepare-spec/001-sitemap-check-failed-includes-blog",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-spec/001-sitemap",
+            "severity": "high",
+            "description": "[01-prepare-spec/001-sitemap] Check failed: includes /blog route",
+            "source": "unit",
+            "detected": "2026-04-26T20:12:57.929Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "includes-blog",
+              "checkCmd": "test -f apps/landing/.content/sitemap.json && node -e \"const r=require('./apps/landing/.content/sitemap.json');const routes=r.routes||r;process.exit(routes.some(x=>(x.path||x)==='/blog') ? 0 : 1)\"",
+              "checkDescription": "includes /blog route",
+              "checkOutput": "Command failed: test -f apps/landing/.content/sitemap.json && node -e \"const r=require('./apps/landing/.content/sitemap.json');const routes=r.routes||r;process.exit(routes.some(x=>(x.path||x)==='/blog') ? 0 : 1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Sitemap\n\nRead `docs/_ia.json` to enumerate every doc route. Combine with the\ncanonical site routes (`/`, `/blog`, `/404`) to produce\n`apps/landing/.content/sitemap.json`.\n\n## Required shape\n\n```json\n{\n  \"$schema\": \"../.content/schemas/sitemap.schema.json\",\n  \"domain\": \"https://converge.dev\",\n  \"routes\": [\n    { \"path\": \"/\",                          \"kind\": \"page\",  \"title\": \"Home\",                 \"priority\": 1.0 },\n    { \"path\": \"/blog\",                      \"kind\": \"page\",  \"title\": \"Blog\",                 \"priority\": 0.7 },\n    { \"path\": \"/blog/[slug]\",               \"kind\": \"dynamic\",\"title\": \"Blog post\",           \"priority\": 0.6 },\n    { \"path\": \"/docs/getting-started/why-converge\", \"kind\": \"doc\", \"title\": \"Why Converge\",   \"priority\": 0.9 },\n    { \"path\": \"/docs/concepts/context-interpolation\", \"kind\": \"doc\", \"title\": \"Context interpolation\", \"priority\": 0.8 },\n    { \"path\": \"/404\",                       \"kind\": \"error\", \"title\": \"Not found\",             \"priority\": 0.1 }\n  ]\n}\n```\n\n`priority` follows the standard sitemap.xml convention (0.0–1.0). Home is\n1.0; landing-relevant docs are ≥ 0.8; error pages are 0.1.\n\n## Process\n\n1. Read `docs/_ia.json`. For each `pages: [...]` entry under each `groups: [...]`, emit a route at `/docs/<slug>`.\n2. Add the four canonical site routes (`/`, `/blog`, `/blog/[slug]`, `/404`).\n3. Write the JSON file. The `domain` field is `https://converge.dev` — this is the canonical production URL.\n\n## Banned\n\n- Hardcoding doc routes that aren't in `docs/_ia.json`. The IA is the source of truth; if a route is missing here, fix `docs/_ia.json` first.\n- Adding routes that don't exist (e.g. `/pricing`, `/about`). The site is a single landing page + docs + blog. No marketing-bloat routes.",
+              "taskId": "01-prepare-spec/001-sitemap",
+              "taskTitle": "Emit sitemap.json — every route the site will serve",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/01-prepare-spec/tasks/001-sitemap",
+              "factId": "check:includes-blog"
+            }
+          }
+        ],
+        "durationMs": 23
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 74
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 146
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#105",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 41399
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T20:12:57.884Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T20:12:57.906Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T20:12:57.929Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T20:12:57.930Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T20:12:58.005Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#105",
+      "iteration": 1,
+      "ts": "2026-04-26T20:13:39.406Z"
+    },
+    {
+      "from": "run-strategy:task-run#105",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T20:13:39.554Z"
+    }
+  ]
+}

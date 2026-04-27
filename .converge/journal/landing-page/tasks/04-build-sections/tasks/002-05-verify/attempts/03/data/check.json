@@ -1,0 +1,25 @@
+{
+  "taskId": "04-build-sections/002-05-verify",
+  "checks": [
+    {
+      "id": "build-succeeds",
+      "description": "pnpm build succeeds with this section integrated",
+      "cmd": "test -f apps/landing/package.json && pnpm --filter @converge/landing build"
+    },
+    {
+      "id": "rendered-output-exists",
+      "description": "dist/index.html was emitted",
+      "cmd": "test -f apps/landing/dist/client/index.html"
+    },
+    {
+      "id": "section-id-rendered",
+      "description": "<section id=social-proof> is in the rendered HTML",
+      "cmd": "test -f apps/landing/dist/client/index.html && grep -qE 'id=\"social-proof\"' apps/landing/dist/client/index.html"
+    },
+    {
+      "id": "passed-marker",
+      "description": "PASSED marker file written (signals next section can start)",
+      "cmd": "test -f apps/landing/.content/sections/social-proof/PASSED"
+    }
+  ]
+}

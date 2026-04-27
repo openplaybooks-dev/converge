@@ -1,0 +1,20 @@
+{
+  "taskId": "02-data-layer/006-watcher",
+  "checks": [
+    {
+      "id": "watcher-module-exists",
+      "description": "watcher.ts and index.ts exist",
+      "cmd": "test -f packages/converge-studio/src/lib/converge-adapter/watcher.ts && test -f packages/converge-studio/src/lib/converge-adapter/index.ts"
+    },
+    {
+      "id": "typecheck",
+      "description": "Modules typecheck",
+      "cmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    },
+    {
+      "id": "adapter-public-api",
+      "description": "index.ts re-exports the full adapter surface",
+      "cmd": "grep -q 'listPlaybooks\\|listTasks\\|listSessions\\|watch' packages/converge-studio/src/lib/converge-adapter/index.ts"
+    }
+  ]
+}

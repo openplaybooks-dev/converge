@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "01-clone-and-rename/001-clone-mc",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T09:35:58.906Z",
+  "createdAt": "2026-04-26T09:35:11.292Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T09:35:11.292Z",
+      "completedAt": "2026-04-26T09:35:58.902Z",
+      "outcome": "success",
+      "durationMs": 47610
+    }
+  ],
+  "currentAttempt": 1
+}

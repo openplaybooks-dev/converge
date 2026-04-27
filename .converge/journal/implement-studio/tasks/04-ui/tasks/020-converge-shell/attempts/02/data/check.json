@@ -1,0 +1,30 @@
+{
+  "taskId": "04-ui/020-converge-shell",
+  "checks": [
+    {
+      "id": "layout-exists",
+      "description": "Slim layout.tsx exists",
+      "cmd": "test -f packages/converge-studio/src/app/layout.tsx"
+    },
+    {
+      "id": "header-exists",
+      "description": "Converge header component exists",
+      "cmd": "test -f packages/converge-studio/src/components/layout/converge-header.tsx"
+    },
+    {
+      "id": "header-imported-by-layout",
+      "description": "layout.tsx imports the converge header",
+      "cmd": "grep -q 'converge-header' packages/converge-studio/src/app/layout.tsx"
+    },
+    {
+      "id": "layout-has-no-mc-imports",
+      "description": "layout.tsx imports no Mission Control component",
+      "cmd": "bash -c 'L=packages/converge-studio/src/app/layout.tsx; ! grep -qE \"nav-rail|site-header|live-feed|local-mode-banner|launch|onboarding|fleet|gateway|openclaw\" $L'"
+    },
+    {
+      "id": "typecheck-passes",
+      "description": "Studio typechecks",
+      "cmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    }
+  ]
+}

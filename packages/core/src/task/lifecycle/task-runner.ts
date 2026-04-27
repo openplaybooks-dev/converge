@@ -20,6 +20,11 @@ import {
   rollUpCompletion,
 } from "./ancestor-propagation.ts";
 import { generateLearnMd } from "./learn.ts";
+import {
+  detectAttemptLoop,
+  augmentLearnMdWithLoopHint,
+} from "./loop-detector.ts";
+import { tryRelaxBuggyCheck } from "./buggy-check-relaxer.ts";
 import { writeResultSnapshot } from "./result-snapshot.ts";
 import { writeContextSnapshot } from "./context-snapshot.ts";
 import type { ContextSnapshotParams } from "./context-snapshot.ts";
@@ -33,6 +38,10 @@ import { FactsLogger } from "../facts/api.ts";
 import type { FactsApiFn, FactsContext } from "../../config/task-definition.ts";
 import type { TaskContext } from "../unit/task-context.ts";
 import { UnblockStrategy } from "../../navigator/repair/strategies/unblock.ts";
+import {
+  findProducersForInputs,
+  producerCheckpointStatusIsFailed,
+} from "../../navigator/repair/strategies/dependency-backoff.ts";
 import type { ProducerInfo } from "../../navigator/repair/strategies/dependency-backoff.ts";
 import { ExecutionTimeline } from "../../navigator/repair/timeline.ts";
 import type { Gap } from "../gap/types.ts";
@@ -605,6 +614,50 @@ export async function executeTask(
 
     console.log(`   📋 Context snapshot created → wip/`);
 
+    // Pre-flight upstream-failure check.
+    //
+    // The snapshot reports `blocked: true` only when an input file is
+    // missing. But a producer may have terminally failed *with* its
+    // declared output already written to disk (e.g., partial output,
+    // agent gave up later). In that case the snapshot is not blocked,
+    // we'd happily run on top of a broken foundation, and the user has
+    // to debug a cascade. Force the same UnblockStrategy path that
+    // already handles missing inputs — DependencyBackoffStrategy will
+    // re-run the failed producer.
+    let failedUpstreamProducers: ProducerInfo[] = [];
+    if (!snapshotPaths.blocked && Array.isArray(inputs) && inputs.length > 0) {
+      try {
+        const producers = await findProducersForInputs(inputs, ctx.projectDir);
+        for (const p of producers) {
+          if (await producerCheckpointStatusIsFailed(p, ctx.projectDir)) {
+            failedUpstreamProducers.push(p);
+          }
+        }
+      } catch (err: any) {
+        console.warn(
+          `   ⚠️  Upstream-failure pre-flight check errored: ${err.message}`,
+        );
+      }
+      if (failedUpstreamProducers.length > 0) {
+        const ids = failedUpstreamProducers
+          .map((p) => `${p.epicId}/${p.journalTaskId}`)
+          .join(", ");
+        console.log(
+          `   ⛔ Upstream task(s) in failed state: ${ids} — invoking repair before execution`,
+        );
+        // Mutate snapshotPaths to drive the existing repair branch below.
+        // The blockedInputs list carries the failed producers' declared
+        // outputs so DependencyBackoffStrategy can re-discover them.
+        const failedOutputs = failedUpstreamProducers.flatMap((p) => p.outputs);
+        snapshotPaths = {
+          ...snapshotPaths,
+          blocked: true,
+          blockedReason: `Upstream task(s) failed: ${ids}`,
+          blockedInputs: failedOutputs,
+        };
+      }
+    }
+
     // Self-healing: required inputs missing — try repair strategies before failing
     if (snapshotPaths.blocked) {
       console.log(`   ⛔ Needs not met: ${snapshotPaths.blockedReason}`);
@@ -701,9 +754,30 @@ export async function executeTask(
           }
 
           if (producers.length > 0) {
+            // Per-producer attempt-budget guard. Without this, an
+            // exhausted-budget failed producer gets re-run by the repair
+            // path (no per-task counter scopes this caller), the empty
+            // task auto-succeeds, and the original failure is silently
+            // erased. The budget here matches autonomous-run's default
+            // (2). When exhausted, skip the re-run; the consumer's
+            // failure will roll up and downstream blocking takes over.
+            const PRODUCER_RETRY_BUDGET = 2;
             for (const producer of producers) {
+              const producerCkpt = new UnitCheckpointManager(
+                ctx.projectDir,
+                "task",
+                producer.epicId,
+                producer.journalTaskId,
+              );
+              const producerAttempts = await producerCkpt.getAttemptCount();
+              if (producerAttempts >= PRODUCER_RETRY_BUDGET) {
+                console.log(
+                  `\n   ⛔ Producer ${producer.epicId}/${producer.journalTaskId} has exhausted retry budget (${producerAttempts}/${PRODUCER_RETRY_BUDGET}) — leaving terminal failure intact.`,
+                );
+                continue;
+              }
               console.log(
-                `\n   ▶  Re-running producer: ${producer.epicId}/${producer.journalTaskId}`,
+                `\n   ▶  Re-running producer: ${producer.epicId}/${producer.journalTaskId} (attempts: ${producerAttempts}/${PRODUCER_RETRY_BUDGET})`,
               );
               try {
                 await executeTask(
@@ -1036,6 +1110,13 @@ export async function executeTask(
       await rm(learnMdPath, { force: true });
     }
 
+    // Settle delay: after the AI's spawn ends, give the filesystem a moment
+    // for buffered writes to flush before running the post-attempt check
+    // pass. Without this, fast-completing tasks routinely show false-negative
+    // FEEDBACK.md (declared outputs missing, checks failing on files that
+    // are about to appear), forcing a wasteful retry attempt.
+    await new Promise((r) => setTimeout(r, 250));
+
     await writeResultSnapshot(
       wipDir,
       ctx.projectDir,
@@ -1098,6 +1179,39 @@ export async function executeTask(
 
     // Self-correction: generate LEARN.md from check results if AI didn't write one
     await generateLearnMd(wipDir, ctx.projectDir, attemptNumber);
+
+    // Loop detection: scan attempt's tool-call log for thrashing, append hint
+    // to LEARN.md so the next attempt knows to question the check predicate.
+    try {
+      const loopResult = await detectAttemptLoop(wipDir);
+      if (loopResult.detected) {
+        await augmentLearnMdWithLoopHint(wipDir, loopResult);
+        console.log(
+          `   🔁 Loop detected (${loopResult.hotSignatures.length} hot signature(s)) — hint appended to LEARN.md`,
+        );
+      }
+    } catch (err) {
+      console.warn(`   ⚠️  Loop detector skipped: ${(err as Error).message}`);
+    }
+
+    // Buggy-check relaxer: if the agent flagged a check as wrong via
+    // BUGGY_CHECK.md, validate the proposed cmd and patch the materialized
+    // TASK.md so the next attempt sees the corrected predicate. Source
+    // TASK.md is intentionally not touched.
+    try {
+      const relax = await tryRelaxBuggyCheck(wipDir);
+      if (relax.applied) {
+        console.log(
+          `   🛠  Buggy-check relaxer applied to "${relax.checkId}":`,
+        );
+        console.log(`      old: ${relax.oldCmd}`);
+        console.log(`      new: ${relax.newCmd}`);
+      } else if (relax.reason !== "no BUGGY_CHECK.md present") {
+        console.log(`   ⚠️  Buggy-check proposal rejected: ${relax.reason}`);
+      }
+    } catch (err) {
+      console.warn(`   ⚠️  Buggy-check relaxer skipped: ${(err as Error).message}`);
+    }
 
     try {
       // Update universal unit checkpoint

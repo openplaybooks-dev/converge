@@ -1,0 +1,15 @@
+{
+  "taskId": "11-index-and-redirects/002-redirects",
+  "checks": [
+    {
+      "id": "redirects-exists",
+      "description": "redirects manifest exists and is valid JSON",
+      "cmd": "test -f docs/_redirects.json && node -e \"JSON.parse(require('fs').readFileSync('docs/_redirects.json','utf8'))\""
+    },
+    {
+      "id": "redirects-array",
+      "description": "has a redirects array (possibly empty)",
+      "cmd": "node -e \"const r=require('./docs/_redirects.json');process.exit(Array.isArray(r.redirects)?0:1)\""
+    }
+  ]
+}

@@ -108,7 +108,7 @@ export class TreeTraversal {
     } = {},
   ) {
     this.visitor = options.visitor;
-    this.maxIterations = options.maxIterations || 100;
+    this.maxIterations = options.maxIterations || 1_000_000;
     this.checkpointInterval = options.checkpointInterval || 1; // Checkpoint after each iteration
   }
 

@@ -1,0 +1,77 @@
+---
+title: "Define done, not how: introducing Converge"
+description: "Why we built a goal-driven framework instead of another graph-driven one — and what that means for AI workflows."
+pubDate: 2026-04-26
+author: "Converge Team"
+tags: [announcements, philosophy]
+pinned: true
+---
+
+> Define done. Converge gets there.
+
+Most agent frameworks ask you to define *how*: a graph of nodes, a sequence of steps, a set of roles. You spend days wiring the machine before it runs. Converge asks you to define done — the target state — and handles the rest. Like SQL, like Terraform, like every tool that survived the distance between "instructions" and "result."
+
+## Goal-driven, not step-driven
+
+Describe the finished project. Let the agent figure out the path.
+
+Traditional agent frameworks ask you to pre-declare the shape of the work: wire up nodes, define edges, decide which agent does what in which order. The problem is that the shape of the work often depends on the work itself. "Document each CLI command" — how many commands? Depends on what's in the source. "Cross-validate every doc page" — how many pages? Depends on what the playbook has produced. Without a runtime escape hatch, you either over-engineer the graph or fall back to imperative scripts outside the framework.
+
+Converge inverts this. The AI proposes work; a deterministic shell predicate decides whether the work satisfies the contract. The AI never gets to declare itself done.
+
+## Define how vs. define done
+
+**How** frameworks ask: "What steps should the agent follow?"
+
+**Done** frameworks ask: "What must be true when we're finished?"
+
+The difference is fundamental. A steps framework knows whether it's executing — it's following the steps. A done framework knows whether it's *finished* — the checks pass. Execution and completion are not the same thing, and conflating them is where most agent thrashing comes from.
+
+Converge runs a continuous loop: scan the task tree for incomplete work, pick the next gap, execute it with an AI agent following markdown instructions, and verify with shell-based checks. When a check fails, the agent writes a LEARN.md capturing what went wrong. The next attempt reads that analysis and applies targeted corrections. The loop repeats until every task passes or the budget is exhausted.
+
+## What this looks like in practice
+
+A six-line TASK.md says it all:
+
+```markdown
+---
+outputs:
+  - src/api/health.ts
+  - src/api/health.test.ts
+checks:
+  - id: server-starts
+    cmd: npx tsx src/index.ts &; sleep 2; curl -sf http://localhost:3000/health; kill %1
+    description: Health endpoint returns 200
+  - id: tests-pass
+    cmd: npx vitest run src/routes/health.test.ts
+    description: Health check tests pass
+---
+
+Implement a GET /health endpoint returning `{ "status": "ok" }`.
+Write unit tests covering the success case and response shape.
+```
+
+What you get from that framing:
+
+- **Gap-driven self-correction.** When a check fails, Converge writes a structured LEARN.md analyzing what went wrong. The next attempt reads that analysis and applies targeted corrections — not a blind retry.
+- **Filesystem as plan.** Your `.converge/` directory is the execution plan. `ls` is your dashboard, `git diff` shows exactly what changed.
+- **Multi-provider.** Claude, Gemini, Kimi, Qwen via the `agentfn` abstraction. No vendor lock-in.
+- **Crash-safe.** Every task attempt is checkpointed atomically. Kill the runner mid-task, `converge run --resume` picks up exactly where it left off — no rework, no duplicate side effects.
+
+## Try it in 60 seconds
+
+```bash
+npm install -g @converge/core
+converge init --name="my-api"
+converge plan "REST API with health check endpoint and test suite"
+converge run  # Auto-detects default playbook or the only playbook
+```
+
+Converge generates a task tree from your description. Each task includes target files, shell-based checks, and instructions for the AI agent.
+
+## What's next
+
+- **[Your first playbook](/docs/getting-started/your-first-playbook)** — Go deeper on the playbook format and execution model.
+- **[Core concepts](/docs/concepts/)** — Understand deterministic checks, dynamic work breakdown, and self-correction in depth.
+
+Goal-driven. Deterministic. Self-correcting.

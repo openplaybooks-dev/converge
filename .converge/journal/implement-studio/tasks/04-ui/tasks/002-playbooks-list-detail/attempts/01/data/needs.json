@@ -1,0 +1,10 @@
+{
+  "taskId": "04-ui/002-playbooks-list-detail",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/src/app/playbooks/page.tsx",
+    "packages/converge-studio/src/app/playbooks/[name]/page.tsx"
+  ],
+  "blocked": false
+}

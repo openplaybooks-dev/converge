@@ -1,0 +1,30 @@
+{
+  "taskId": "03-design-system/003-base-components",
+  "checks": [
+    {
+      "id": "components-exist",
+      "description": "all six base components exist",
+      "cmd": "for f in Button Badge Card CodeBlock Pill Disclosure; do test -f apps/landing/src/components/ui/$f.astro || exit 1; done"
+    },
+    {
+      "id": "components-typecheck",
+      "description": "astro check has no errors in components/ui",
+      "cmd": "test -d apps/landing/src/components/ui && pnpm --filter @converge/landing astro check 2>&1 | (! grep -E 'error.*components/ui')"
+    },
+    {
+      "id": "button-supports-variants",
+      "description": "Button supports primary/secondary/ghost variants",
+      "cmd": "test -f apps/landing/src/components/ui/Button.astro && grep -qE 'primary|secondary|ghost' apps/landing/src/components/ui/Button.astro"
+    },
+    {
+      "id": "codeblock-uses-shiki",
+      "description": "CodeBlock uses shiki / astro-code highlighting",
+      "cmd": "test -f apps/landing/src/components/ui/CodeBlock.astro && grep -qE 'shiki|astro-code|language-' apps/landing/src/components/ui/CodeBlock.astro"
+    },
+    {
+      "id": "no-react-no-vue",
+      "description": "components are pure Astro (no React/Vue/Svelte/JSX)",
+      "cmd": "test -d apps/landing/src/components/ui && test -z \"$(find apps/landing/src/components/ui -name '*.tsx' -o -name '*.jsx' -o -name '*.vue' -o -name '*.svelte' 2>/dev/null)\""
+    }
+  ]
+}

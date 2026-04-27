@@ -1,0 +1,303 @@
+{
+  "iteration": 2,
+  "stallCount": 1,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "06-integrate-docs/003-pagefind-search-check-failed-pagefind-built",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-integrate-docs/003-pagefind-search",
+            "severity": "high",
+            "description": "[06-integrate-docs/003-pagefind-search] Check failed: dist/pagefind directory was created by the build",
+            "source": "unit",
+            "detected": "2026-04-26T19:46:27.420Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "pagefind-built",
+              "checkCmd": "test -f apps/landing/package.json && pnpm --filter @converge/landing build && test -d apps/landing/dist/pagefind",
+              "checkDescription": "dist/pagefind directory was created by the build",
+              "checkOutput": "Default inspector port 9229 not available, using 9231 instead\n\nThe collection \"docs\" does not exist or is empty. Please check your content config file for errors.\npackages/studio                          |  WARN  The field \"pnpm.onlyBuiltDependencies\" was found in /Users/minh/Documents/converge/packages/studio/package.json. This will not take effect. You should configure \"pnpm.onlyBuiltDependencies\" at the root of the workspace instead.\n\n> @converge/landing@0.0.0 build /Users/minh/Documents/converge/apps/landing\n> astro build\n\n02:46:23 [@astrojs/cloudflare] Enabling image processing with Cloudflare Images for production with the \"IMAGES\" Images binding.\n02:46:23 [@astrojs/cloudflare] Enabling sessions with Cloudflare KV with the \"SESSION\" KV binding.\n02:46:23 [WARN] [router] The route \"/404\" is defined in both \"src/pages/404.astro\" and \"../../node_modules/@astrojs/starlight/routes/static/404.astro\". A static route cannot be defined more than once.\n02:46:23 [WARN] [router] A collision will result in a hard error in following versions of Astro.\n02:46:23 [WARN] [router] The route \"/404\" is defined in both \"src/pages/404.astro\" and \"../../node_modules/@astrojs/starlight/routes/static/404.astro\". A static route cannot be defined more than once.\n02:46:23 [WARN] [router] A collision will result in a hard error in following versions of Astro.\n02:46:23 [WARN] [vite] Default inspector port 9229 not available, using 9230 instead\n\n02:46:24 [content] Syncing content\n02:46:24 [WARN] [starlight-docs-loader] The base directory \"/Users/minh/Documents/converge/apps/landing/src/content/docs/\" does not exist.\n02:46:24 [content] Synced content\n02:46:24 [types] Generated 1.18s\n02:46:24 [build] output: \"server\"\n02:46:24 [build] mode: \"server\"\n02:46:24 [build] directory: /Users/minh/Documents/converge/apps/landing/dist/\n02:46:24 [build] adapter: @astrojs/cloudflare\n02:46:24 [build] Collecting build info...\n02:46:24 [build] ✓ Completed in 1.21s.\n02:46:24 [build] Building server entrypoints...\n02:46:26 [vite] ✓ built in 1.73s\n02:46:26 [astro-icon] Loaded icons from src/icons, lucide\n02:46:26 [vite] ✓ built in 824ms\n02:46:27 [vite] ✓ built in 101ms\n\n prerendering static routes \n02:46:27   ├─ /404.html (+18ms) \n02:46:27 ✓ Completed in 299ms.\n\n02:46:27 [build] Rearranging server assets...\n02:46:27 [build] ✓ Completed in 3.00s.\n02:46:27 [@astrojs/sitemap] `sitemap-index.xml` created at `dist/client`\n02:46:27 [starlight:pagefind] Building search index with Pagefind...\n02:46:27 [starlight:pagefind] Found 1 HTML files.\n02:46:27 [starlight:pagefind] Finished building search index in 10ms.\n02:46:27 [build] Server built in 4.23s\n02:46:27 [build] Complete!",
+              "checkExitCode": 1,
+              "taskPrompt": "# Pagefind search\n\nStarlight ships Pagefind out of the box. Confirm it's enabled and the\nbuild produces the search index.\n\n## Process\n\nIn `apps/landing/astro.config.mjs`, the starlight() call should already\nhave `pagefind: true` (added in 001-starlight-mount). If it doesn't, add it:\n\n```js\nstarlight({\n  title: 'Converge',\n  sidebar,\n  social: { github: '...' },\n  pagefind: true,   // ← this line\n}),\n```\n\nThen run `pnpm --filter @converge/landing build` and verify\n`apps/landing/dist/pagefind/` was created.\n\n## Banned\n\n- Adding a separate search component. Pagefind is integrated into Starlight's UI; nothing more to wire.\n- Disabling pagefind. The docs are the bulk of the site; without search the docs are barely usable.",
+              "taskId": "06-integrate-docs/003-pagefind-search",
+              "taskTitle": "Enable Pagefind search in Starlight",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/06-integrate-docs/tasks/003-pagefind-search",
+              "factId": "check:pagefind-built"
+            }
+          }
+        ],
+        "durationMs": 6344
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 6315
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "06-integrate-docs/003-pagefind-search-check-failed-pagefind-built",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-integrate-docs/003-pagefind-search",
+            "severity": "high",
+            "description": "[06-integrate-docs/003-pagefind-search] Check failed: dist/pagefind directory was created by the build",
+            "source": "unit",
+            "detected": "2026-04-26T19:47:15.995Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "pagefind-built",
+              "checkCmd": "test -f apps/landing/package.json && pnpm --filter @converge/landing build && test -d apps/landing/dist/pagefind",
+              "checkDescription": "dist/pagefind directory was created by the build",
+              "checkOutput": "Default inspector port 9229 not available, using 9231 instead\n\nThe collection \"docs\" does not exist or is empty. Please check your content config file for errors.\npackages/studio                          |  WARN  The field \"pnpm.onlyBuiltDependencies\" was found in /Users/minh/Documents/converge/packages/studio/package.json. This will not take effect. You should configure \"pnpm.onlyBuiltDependencies\" at the root of the workspace instead.\n\n> @converge/landing@0.0.0 build /Users/minh/Documents/converge/apps/landing\n> astro build\n\n02:47:11 [@astrojs/cloudflare] Enabling image processing with Cloudflare Images for production with the \"IMAGES\" Images binding.\n02:47:11 [@astrojs/cloudflare] Enabling sessions with Cloudflare KV with the \"SESSION\" KV binding.\n02:47:11 [WARN] [router] The route \"/404\" is defined in both \"src/pages/404.astro\" and \"../../node_modules/@astrojs/starlight/routes/static/404.astro\". A static route cannot be defined more than once.\n02:47:11 [WARN] [router] A collision will result in a hard error in following versions of Astro.\n02:47:11 [WARN] [router] The route \"/404\" is defined in both \"src/pages/404.astro\" and \"../../node_modules/@astrojs/starlight/routes/static/404.astro\". A static route cannot be defined more than once.\n02:47:11 [WARN] [router] A collision will result in a hard error in following versions of Astro.\n02:47:11 [WARN] [vite] Default inspector port 9229 not available, using 9230 instead\n\n02:47:12 [content] Syncing content\n02:47:12 [WARN] [starlight-docs-loader] The base directory \"/Users/minh/Documents/converge/apps/landing/src/content/docs/\" does not exist.\n02:47:13 [content] Synced content\n02:47:13 [types] Generated 1.11s\n02:47:13 [build] output: \"server\"\n02:47:13 [build] mode: \"server\"\n02:47:13 [build] directory: /Users/minh/Documents/converge/apps/landing/dist/\n02:47:13 [build] adapter: @astrojs/cloudflare\n02:47:13 [build] Collecting build info...\n02:47:13 [build] ✓ Completed in 1.14s.\n02:47:13 [build] Building server entrypoints...\n02:47:14 [vite] ✓ built in 1.72s\n02:47:15 [astro-icon] Loaded icons from src/icons, lucide\n02:47:15 [vite] ✓ built in 825ms\n02:47:15 [vite] ✓ built in 93ms\n\n prerendering static routes \n02:47:15   ├─ /404.html (+16ms) \n02:47:15 ✓ Completed in 244ms.\n\n02:47:15 [build] Rearranging server assets...\n02:47:15 [build] ✓ Completed in 2.93s.\n02:47:15 [@astrojs/sitemap] `sitemap-index.xml` created at `dist/client`\n02:47:15 [starlight:pagefind] Building search index with Pagefind...\n02:47:15 [starlight:pagefind] Found 1 HTML files.\n02:47:15 [starlight:pagefind] Finished building search index in 9ms.\n02:47:15 [build] Server built in 4.09s\n02:47:15 [build] Complete!",
+              "checkExitCode": 1,
+              "taskPrompt": "# Pagefind search\n\nStarlight ships Pagefind out of the box. Confirm it's enabled and the\nbuild produces the search index.\n\n## Process\n\nIn `apps/landing/astro.config.mjs`, the starlight() call should already\nhave `pagefind: true` (added in 001-starlight-mount). If it doesn't, add it:\n\n```js\nstarlight({\n  title: 'Converge',\n  sidebar,\n  social: { github: '...' },\n  pagefind: true,   // ← this line\n}),\n```\n\nThen run `pnpm --filter @converge/landing build` and verify\n`apps/landing/dist/pagefind/` was created.\n\n## Banned\n\n- Adding a separate search component. Pagefind is integrated into Starlight's UI; nothing more to wire.\n- Disabling pagefind. The docs are the bulk of the site; without search the docs are barely usable.",
+              "taskId": "06-integrate-docs/003-pagefind-search",
+              "taskTitle": "Enable Pagefind search in Starlight",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/06-integrate-docs/tasks/003-pagefind-search",
+              "factId": "check:pagefind-built"
+            }
+          }
+        ],
+        "durationMs": 6183
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "run-strategy:task-run#93",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 36075
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "Outputs already present",
+        "durationMs": 6514
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T19:46:21.076Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T19:46:21.076Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T19:46:27.420Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T19:46:27.421Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T19:46:33.737Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#93",
+      "iteration": 1,
+      "ts": "2026-04-26T19:47:09.812Z"
+    },
+    {
+      "from": "run-strategy:task-run#93",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T19:47:15.995Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-26T19:47:15.996Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-26T19:47:15.997Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-26T19:47:15.997Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-26T19:47:22.511Z"
+    }
+  ]
+}

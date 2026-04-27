@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "02-bootstrap-astro/003-install-integrations",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T17:33:54.078Z",
+  "createdAt": "2026-04-26T17:27:38.615Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T17:27:38.615Z",
+      "completedAt": "2026-04-26T17:32:17.818Z",
+      "outcome": "failed",
+      "durationMs": 279203
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-26T17:32:18.064Z",
+      "completedAt": "2026-04-26T17:33:54.046Z",
+      "outcome": "success",
+      "durationMs": 95982
+    }
+  ],
+  "currentAttempt": 2
+}

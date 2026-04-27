@@ -1,0 +1,25 @@
+{
+  "taskId": "06-wiring/002-cli-studio-command",
+  "checks": [
+    {
+      "id": "command-file-exists",
+      "description": "commands-studio.ts exists",
+      "cmd": "test -f packages/cli/src/commands-studio.ts"
+    },
+    {
+      "id": "registered-in-main",
+      "description": "main.ts references commands-studio",
+      "cmd": "grep -q 'commands-studio\\|runStudio' packages/cli/src/main.ts"
+    },
+    {
+      "id": "optional-dep-on-studio",
+      "description": "cli has optionalDependency on @converge/studio",
+      "cmd": "node -e \"const p=require('./packages/cli/package.json');process.exit(p.optionalDependencies&&p.optionalDependencies['@converge/studio']?0:1)\""
+    },
+    {
+      "id": "studio-help",
+      "description": "`converge studio --help` runs and mentions studio",
+      "cmd": "pnpm --filter @converge/cli build 2>&1 | tail -3 && node packages/cli/dist/index.js studio --help 2>&1 | grep -qi studio"
+    }
+  ]
+}

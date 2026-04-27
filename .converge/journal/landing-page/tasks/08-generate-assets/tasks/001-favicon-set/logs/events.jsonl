@@ -1,0 +1,6 @@
+{"ts":"2026-04-26T20:09:47.773Z","type":"action","iter":1,"handler":"check-wbs-seeded","result":"continue","ms":0}
+{"ts":"2026-04-26T20:09:47.793Z","type":"action","iter":1,"handler":"check-outputs-exist","result":"continue","ms":19}
+{"ts":"2026-04-26T20:09:47.811Z","type":"gaps-detected","iter":1,"count":6,"kinds":["blocker","output","check-failed"],"delta":6}
+{"ts":"2026-04-26T20:09:47.811Z","type":"action","iter":1,"handler":"detect-gaps","result":"continue","ms":17}
+{"ts":"2026-04-26T20:09:47.830Z","type":"action","iter":1,"handler":"resolve-blockers","result":"bail","ms":18,"reason":"1 unresolvable blockers"}
+{"ts":"2026-04-26T20:09:47.831Z","type":"outcome","iter":1,"result":"bail","reason":"1 unresolvable blockers"}

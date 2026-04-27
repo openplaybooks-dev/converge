@@ -1,0 +1,25 @@
+{
+  "taskId": "03-api-routes/004-watch-sse",
+  "checks": [
+    {
+      "id": "watch-route-exists",
+      "description": "Watch route exists",
+      "cmd": "test -f packages/converge-studio/src/app/api/watch/route.ts"
+    },
+    {
+      "id": "nodejs-runtime",
+      "description": "Route exports runtime = 'nodejs'",
+      "cmd": "grep -q \"runtime = 'nodejs'\" packages/converge-studio/src/app/api/watch/route.ts"
+    },
+    {
+      "id": "singleton-watcher",
+      "description": "Watcher is a module-level singleton (avoids one watcher per request)",
+      "cmd": "test -f packages/converge-studio/src/lib/watcher-singleton.ts && grep -q 'getWatcher\\|sharedWatcher' packages/converge-studio/src/lib/watcher-singleton.ts"
+    },
+    {
+      "id": "typecheck",
+      "description": "Module typechecks",
+      "cmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    }
+  ]
+}

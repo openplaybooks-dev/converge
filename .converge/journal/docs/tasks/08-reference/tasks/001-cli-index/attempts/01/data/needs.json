@@ -1,0 +1,24 @@
+{
+  "taskId": "08-reference/001-cli-index",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "docs/_cli-commands.json",
+      "count": 1,
+      "samples": [
+        "docs/_cli-commands.json"
+      ]
+    },
+    {
+      "pattern": "packages/cli/src/main.ts",
+      "count": 1,
+      "samples": [
+        "packages/cli/src/main.ts"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/reference/cli/index.md"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "04-build-sections/003-problem-solution",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T18:02:30.530Z",
+  "createdAt": "2026-04-26T18:01:26.745Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T18:01:26.745Z",
+      "completedAt": "2026-04-26T18:02:30.493Z",
+      "outcome": "success",
+      "durationMs": 63748
+    }
+  ],
+  "currentAttempt": 1
+}

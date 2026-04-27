@@ -1,0 +1,96 @@
+---
+title: "From LangGraph to goal-driven: a side-by-side rewrite"
+description: "We took the same workflow goal and expressed it two ways. Here's what changes when you swap from steps to a target state."
+pubDate: 2026-04-27
+author: "Converge Team"
+tags: [comparisons, tutorial]
+---
+
+Most agent frameworks assume you know the shape of the work before you start. You wire up the DAG, and execution follows the wires. That's fine when the problem has a fixed shape. It breaks when the shape depends on the project.
+
+## The task
+
+Fetch a URL and write a 5-bullet summary to a file. Simple enough to contrast clearly, complex enough to show the difference.
+
+## In LangGraph
+
+```python
+from langgraph.graph import StateGraph, END
+from langgraph.prebuilt import ToolNode
+from typing import TypedDict
+
+class AgentState(TypedDict):
+    url: str
+    summary: str
+
+def fetch_url(state: AgentState):
+    response = requests.get(state["url"])
+    return {"content": response.text}
+
+def summarize(state: AgentState):
+    bullets = extract_bullets(state["content"])
+    return {"summary": "\n".join(bullets)}
+
+builder = StateGraph(AgentState)
+builder.add_node("fetch", fetch_url)
+builder.add_node("summarize", summarize)
+builder.set_entry_point("fetch")
+builder.add_edge("fetch", "summarize")
+builder.add_edge("summarize", END)
+
+graph = builder.compile()
+result = graph.invoke({"url": "https://example.com"})
+write_file("out/summary.md", result["summary"])
+```
+
+The graph is explicit. The state schema is explicit. The edges are explicit. You can see the control flow.
+
+## In Converge
+
+```yaml
+---
+id: 01-summarize
+outputs: [out/summary.md]
+checks:
+  - id: file-exists
+    cmd: test -f out/summary.md
+---
+
+Fetch {{url}} and write a 5-bullet summary to out/summary.md.
+```
+
+Run it:
+
+```bash
+converge run --var url=https://example.com
+```
+
+No graph. No state schema. No edges. Just the target and the checks.
+
+## What changed?
+
+| | LangGraph | Converge |
+|---|---|---|
+| **Programming model** | Nodes + edges (DAG) | Target state + checks |
+| **Failure handling** | Exception/retry at node level | Check failure → LEARN.md → targeted fix |
+| **State store** | In-memory state dict | Filesystem (outputs are files) |
+| **Provider abstraction** | ToolNode adapter pattern | `agentfn` abstraction, multi-provider |
+| **Debuggability** | Inspect state dict at each node | `git diff` on `.converge/`, check output in LEARN.md |
+
+## When each shines
+
+**LangGraph** makes sense when:
+- The workflow has a fixed shape you can predeclare
+- You need fine-grained control over execution order
+- The state carries complex intermediate data structures
+- You're building a chatbot or multi-turn conversation flow
+
+**Converge** makes sense when:
+- The problem's scope is data-dependent (one task per discovered unit)
+- Verification is measurable: file exists, grep matches, test passes
+- You want the execution plan visible on disk (git-diffable TASK.md files)
+- You want self-correction without rewriting the workflow by hand
+
+The judgement problem cuts both ways. LangGraph trusts the AI to follow edges correctly. Converge trusts the checks to measure outcomes correctly. Neither is universally better — they solve different problems.
+
+Both approaches face the same fundamental challenge: knowing when you're done. LangGraph answers it structurally ("I followed all the edges"). Converge answers it empirically ("the checks passed"). Neither answer is complete without the other.

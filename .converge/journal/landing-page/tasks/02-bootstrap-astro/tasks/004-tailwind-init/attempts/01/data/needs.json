@@ -1,0 +1,18 @@
+{
+  "taskId": "02-bootstrap-astro/004-tailwind-init",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "apps/landing/.content/brand.json",
+      "count": 1,
+      "samples": [
+        "apps/landing/.content/brand.json"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/tailwind.config.mjs",
+    "apps/landing/src/styles/globals.css"
+  ],
+  "blocked": false
+}

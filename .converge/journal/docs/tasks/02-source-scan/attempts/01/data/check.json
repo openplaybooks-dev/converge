@@ -1,0 +1,40 @@
+{
+  "taskId": "02-source-scan",
+  "checks": [
+    {
+      "id": "sources-json-exists",
+      "description": "docs/_sources.json exists and is valid JSON",
+      "cmd": "test -f docs/_sources.json && node -e \"JSON.parse(require('fs').readFileSync('docs/_sources.json','utf8'))\""
+    },
+    {
+      "id": "sources-json-has-cli",
+      "description": "sources include CLI files",
+      "cmd": "node -e \"const s=require('./docs/_sources.json');process.exit(Array.isArray(s.cli)&&s.cli.length>0?0:1)\""
+    },
+    {
+      "id": "sources-json-has-core",
+      "description": "sources include @converge/core files",
+      "cmd": "node -e \"const s=require('./docs/_sources.json');process.exit(Array.isArray(s.core)&&s.core.length>0?0:1)\""
+    },
+    {
+      "id": "sources-json-has-troubleshooting",
+      "description": "sources include the troubleshooting reference file",
+      "cmd": "node -e \"const s=require('./docs/_sources.json');process.exit(Array.isArray(s.troubleshooting)&&s.troubleshooting.length>0?0:1)\""
+    },
+    {
+      "id": "cli-commands-extracted",
+      "description": "at least 10 CLI commands extracted by scan-cli-commands.mjs",
+      "cmd": "test -f docs/_cli-commands.json && node -e \"const c=require('./docs/_cli-commands.json');process.exit(c.length>=10?0:1)\""
+    },
+    {
+      "id": "examples-manifest-exists",
+      "description": "docs/_examples.json lists at least 15 examples with category and metadata",
+      "cmd": "test -f docs/_examples.json && node -e \"const e=JSON.parse(require('fs').readFileSync('docs/_examples.json','utf8'));process.exit(Array.isArray(e)&&e.length>=15?0:1)\""
+    },
+    {
+      "id": "examples-have-required-fields",
+      "description": "every examples entry has slug, category, hasReadme, hasPlaybook",
+      "cmd": "node -e \"const e=JSON.parse(require('fs').readFileSync('./docs/_examples.json','utf8'));const ok=e.every(x=>x.slug&&x.category&&typeof x.hasReadme==='boolean'&&typeof x.hasPlaybook==='boolean');process.exit(ok?0:1)\""
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "taskId": "01-archive-existing",
+  "checks": [
+    {
+      "id": "internal-dir-exists",
+      "description": "docs/_internal/ directory exists (created idempotently)",
+      "cmd": "mkdir -p docs/_internal && test -d docs/_internal"
+    },
+    {
+      "id": "no-legacy-files-at-docs-root",
+      "description": "no known-legacy markdown files remain at docs/ root",
+      "cmd": "test ! -f docs/brand-messaging.md && test ! -f docs/converge-gtm.md && test ! -f docs/comparisons.md && test ! -f docs/comparison-matrix.md && test ! -f docs/social-kit.md && test ! -f docs/why-converge.md && test ! -f docs/getting-started.md && test ! -f docs/scaffolding.md && test ! -f docs/FEATURE-DEVELOPMENT-ANALYSIS.md"
+    },
+    {
+      "id": "no-legacy-dirs-at-docs-root",
+      "description": "no known-legacy subdirectories remain at docs/ root (blog, cli, playbooks moved to _internal)",
+      "cmd": "test ! -d docs/blog && test ! -d docs/cli && test ! -d docs/playbooks"
+    }
+  ]
+}

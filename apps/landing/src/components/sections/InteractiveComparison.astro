@@ -1,0 +1,130 @@
+---
+import Section from '../layout/Section.astro';
+import Container from '../layout/Container.astro';
+import CodeBlock from '../ui/CodeBlock.astro';
+
+interface Props {}
+const {} = Astro.props;
+
+const tabs = [
+  { id: 'langgraph', label: 'LangGraph' },
+  { id: 'converge',  label: 'Converge'  },
+];
+
+const features = [
+  { label: 'Verification',        langGraph: 'AI judges output',        converge: 'Shell predicates' },
+  { label: 'Task scope',          langGraph: 'Pre-declared graph',     converge: 'Runtime emerges'  },
+  { label: 'Failure recovery',    langGraph: 'Manual retry',           converge: 'Repair strategies' },
+  { label: 'Checkpoint/restart',  langGraph: 'Varies by tooling',       converge: 'Native'           },
+  { label: 'Provider lock-in',    langGraph: 'Graph-specific',          converge: 'Multi-provider'   },
+  { label: 'Review surface',      langGraph: 'Code + execution trace',  converge: 'Spec + check output' },
+];
+---
+
+<Section id="comparison" padY="lg" bg="default">
+  <Container>
+    <div class="text-center mb-12">
+      <p class="text-sm font-medium tracking-widest text-indigo uppercase mb-4">Same goal, different approaches</p>
+      <h2 class="text-3xl sm:text-4xl font-bold text-text">
+        Converge vs. step-driven
+      </h2>
+    </div>
+
+    <div class="mb-8">
+      <div class="flex border-b border-border">
+        {tabs.map((tab) => (
+          <button
+            data-tab={tab.id}
+            class="tab-btn px-6 py-3 text-sm font-medium text-text-muted border-b-2 border-transparent hover:text-text transition-colors"
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div class="tab-content mt-6" id="tab-langgraph">
+        <CodeBlock language="python" filename="workflow.py">
+{`from langgraph.graph import StateGraph, END
+
+class State(TypedDict):
+    input: str
+    result: str
+
+def nodes(state):
+    return {"result": process(state["input"])}
+
+graph = StateGraph(State)
+graph.add_node("process", nodes)
+graph.set_entry_point("process")
+graph.add_edge("process", END)
+
+app = graph.compile()
+result = app.invoke({"input": "hello"})`}
+        </CodeBlock>
+        <p class="text-sm text-text-muted mt-3 text-center">
+          You define the graph. You manage retries. You verify the output.
+        </p>
+      </div>
+
+      <div class="tab-content hidden mt-6" id="tab-converge">
+        <CodeBlock language="yaml" filename="TASK.md">
+{`title: Process input
+
+steps:
+  - id: process
+    fn: process-message
+    input: "{ { ctx.input } }"
+
+checks:
+  - id: result-valid
+    cmd: "test -n \"$RESULT\""`}
+        </CodeBlock>
+        <p class="text-sm text-text-muted mt-3 text-center">
+          You define done. Converge handles the how.
+        </p>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto rounded-lg border border-border">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-border bg-bg-elev">
+            <th class="text-left px-4 py-3 font-medium text-text">Feature</th>
+            <th class="text-left px-4 py-3 font-medium text-text">LangGraph</th>
+            <th class="text-left px-4 py-3 font-medium text-text">Converge</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-border">
+          {features.map(({ label, langGraph, converge }) => (
+            <tr class="bg-bg hover:bg-bg-elev transition-colors">
+              <td class="px-4 py-3 font-medium text-text">{label}</td>
+              <td class="px-4 py-3 text-text-muted">{langGraph}</td>
+              <td class="px-4 py-3 text-text-muted">{converge}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </Container>
+</Section>
+
+<script>
+  const buttons = document.querySelectorAll('.tab-btn');
+  const contents = document.querySelectorAll('.tab-content');
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const target = btn.getAttribute('data-tab');
+
+      buttons.forEach((b) => {
+        b.classList.toggle('border-indigo', b.getAttribute('data-tab') === target);
+        b.classList.toggle('text-text', b.getAttribute('data-tab') === target);
+        b.classList.toggle('text-text-muted', b.getAttribute('data-tab') !== target);
+      });
+
+      contents.forEach((c) => {
+        c.classList.toggle('hidden', c.id !== `tab-${target}`);
+      });
+    });
+  });
+</script>

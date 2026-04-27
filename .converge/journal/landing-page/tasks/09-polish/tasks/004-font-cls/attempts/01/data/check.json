@@ -1,0 +1,15 @@
+{
+  "taskId": "09-polish/004-font-cls",
+  "checks": [
+    {
+      "id": "typography-uses-font-display",
+      "description": "font-display is set to swap/optional/fallback",
+      "cmd": "test -f apps/landing/src/styles/typography.css && grep -qE 'font-display\\s*:\\s*(swap|optional|fallback)' apps/landing/src/styles/typography.css"
+    },
+    {
+      "id": "has-fallback-font",
+      "description": "declares system-font fallbacks",
+      "cmd": "test -f apps/landing/src/styles/typography.css && grep -qE 'system-ui|sans-serif|monospace' apps/landing/src/styles/typography.css"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+# Real env file — never commit (contains API keys)
+.env
+
+# Generated outputs (regeneratable from idea.md)
+assets/characters/
+assets/props/
+assets/shared/
+assets/environment/
+assets/scene.json
+assets/pitch.md
+assets/characters.json
+assets/props.json
+viewer/gallery.html
+viewer/scene.html
+
+# Converge runtime state
+.converge/journal/
+.converge/logs/

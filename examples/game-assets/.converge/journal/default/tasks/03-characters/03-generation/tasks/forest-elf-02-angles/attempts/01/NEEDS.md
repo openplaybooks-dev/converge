@@ -2,16 +2,16 @@
 
 ## Description
 
-Create reference images for all viewing angles
+Generate source.png (high-res) and canonical.png (downsized working ref) for the character's locked viewpoint.
 
 ## Expected Outputs
 
-- `assets/characters/forest-elf/ref/angles/angles.json`
-- `assets/characters/forest-elf/ref/angles/front.png`
-- `assets/characters/forest-elf/ref/angles/side_left.png`
-- `assets/characters/forest-elf/ref/angles/side_right.png`
-- `assets/characters/forest-elf/ref/angles/back.png`
+- `assets/characters/forest-elf/ref/source/source.png`
+- `assets/characters/forest-elf/ref/canonical/canonical.png`
+- `assets/characters/forest-elf/ref/manifest.json`
 
 ## Checks
 
-- **angles-exist**: Angle references exist
+- **source-png-is-real**: source.png is at least 256x256 (rejects placeholder stubs)
+- **canonical-png-is-real**: canonical.png is at least 64x64 (rejects placeholder stubs)
+- **manifest-has-canonical-angle**: manifest.json declares the locked viewport

@@ -1,0 +1,18 @@
+{
+  "taskId": "09-polish/002-scroll-reveals",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "apps/landing/src/components/layout/Section.astro",
+      "count": 1,
+      "samples": [
+        "apps/landing/src/components/layout/Section.astro"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/src/components/layout/Section.astro",
+    "apps/landing/src/styles/animations.css"
+  ],
+  "blocked": false
+}

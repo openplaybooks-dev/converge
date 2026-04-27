@@ -1,0 +1,10 @@
+{
+  "taskId": "10-verify/007-link-check",
+  "checks": [
+    {
+      "id": "link-check",
+      "description": "internal link checker passes (no broken links)",
+      "cmd": "test -d apps/landing/dist && (pnpm --filter @converge/landing exec lychee --no-progress --offline ./dist 2>&1 || pnpm --filter @converge/landing exec linkinator ./dist --recurse --silent 2>&1)"
+    }
+  ]
+}

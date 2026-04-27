@@ -95,7 +95,7 @@ export interface EvolveResult {
 
 export async function evolveRun(config: EvolveRunConfig): Promise<EvolveResult> {
   const { projectDir, convergeConfig, playbook, verbose } = config;
-  const maxEpochs = config.maxIterations ?? 20;
+  const maxEpochs = config.maxIterations ?? 1_000_000;
   const maxConsecutiveStalls = config.stall?.maxConsecutive ?? 2;
 
   console.log(`🔄 Starting converge run (max ${maxEpochs} epochs)\n`);

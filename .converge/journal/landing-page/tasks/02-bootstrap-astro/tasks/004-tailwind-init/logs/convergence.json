@@ -1,0 +1,348 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "02-bootstrap-astro/004-tailwind-init-missing-output-apps/landing/tailwind.config.mjs",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-bootstrap-astro/004-tailwind-init",
+            "severity": "high",
+            "description": "[02-bootstrap-astro/004-tailwind-init] Task output not created: apps/landing/tailwind.config.mjs",
+            "source": "unit",
+            "detected": "2026-04-26T17:33:54.316Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/02-bootstrap-astro/tasks/004-tailwind-init",
+              "taskId": "02-bootstrap-astro/004-tailwind-init",
+              "taskTitle": "Initialize Tailwind config + global styles from brand.json",
+              "taskPrompt": "# Tailwind init\n\nWire Tailwind to read from `apps/landing/.content/brand.json` so the\npalette + typography defined there flow through to every component.\n\n## Files\n\n### `apps/landing/tailwind.config.mjs`\n\n```js\nimport brand from './.content/brand.json' with { type: 'json' };\n\n/** @type {import('tailwindcss').Config} */\nexport default {\n  content: [\n    './src/**/*.{astro,html,js,ts,jsx,tsx,md,mdx,svelte,vue}',\n  ],\n  theme: {\n    extend: {\n      colors: {\n        bg:        brand.palette.bg,\n        bgElev:    brand.palette.bgElev,\n        indigo:    brand.palette.indigo,\n        cyan:      brand.palette.cyan,\n        violet:    brand.palette.violet,\n        text:      brand.palette.text,\n        textMuted: brand.palette.textMuted,\n        textDim:   brand.palette.textDim,\n        accent:    brand.palette.accent,\n        border:    brand.palette.border,\n      },\n      fontFamily: {\n        sans: [brand.typography.body, 'system-ui', 'sans-serif'],\n        mono: [brand.typography.mono, 'monospace'],\n        display: [brand.typography.display, 'system-ui', 'sans-serif'],\n      },\n    },\n  },\n};\n```\n\n### `apps/landing/src/styles/globals.css` (Tailwind v4)\n\n```css\n@import \"tailwindcss\";\n\n@layer base {\n  html { font-family: theme(fontFamily.sans); -webkit-font-smoothing: antialiased; }\n  body { background-color: theme(colors.bg); color: theme(colors.text); }\n  :focus-visible { outline: 2px solid theme(colors.indigo); outline-offset: 2px; }\n}\n```\n\n(If the integrations task installed Tailwind v3 via `@astrojs/tailwind`,\nuse `@tailwind base; @tailwind components; @tailwind utilities;` instead\nof the `@import \"tailwindcss\"` line.)\n\n## Process\n\n1. Read `apps/landing/.content/brand.json` to confirm the palette is in scope.\n2. Write `tailwind.config.mjs` with the palette + typography pulled in via JSON import.\n3. Write `src/styles/globals.css` with the imports + minimal base layer.\n4. Verify by running `pnpm --filter @converge/landing astro check` — no Tailwind errors.\n\n## Banned\n\n- Hardcoding colors in `tailwind.config.mjs`. Read them from brand.json so a brand update flows through one file.\n- Adding `@apply` rules in `globals.css` for arbitrary components. Keep base only — components own their own styles.\n- Loading Tailwind in `astro.config.mjs` AND in `globals.css`. Pick one — for v4 it's `globals.css`; for v3 it's the `@astrojs/tailwind` integration in astro.config.",
+              "taskInputs": [
+                "apps/landing/.content/brand.json"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/tailwind.config.mjs\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-bootstrap-astro/004-tailwind-init-missing-output-apps/landing/src/styles/globals.css",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-bootstrap-astro/004-tailwind-init",
+            "severity": "high",
+            "description": "[02-bootstrap-astro/004-tailwind-init] Task output not created: apps/landing/src/styles/globals.css",
+            "source": "unit",
+            "detected": "2026-04-26T17:33:54.318Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/02-bootstrap-astro/tasks/004-tailwind-init",
+              "taskId": "02-bootstrap-astro/004-tailwind-init",
+              "taskTitle": "Initialize Tailwind config + global styles from brand.json",
+              "taskPrompt": "# Tailwind init\n\nWire Tailwind to read from `apps/landing/.content/brand.json` so the\npalette + typography defined there flow through to every component.\n\n## Files\n\n### `apps/landing/tailwind.config.mjs`\n\n```js\nimport brand from './.content/brand.json' with { type: 'json' };\n\n/** @type {import('tailwindcss').Config} */\nexport default {\n  content: [\n    './src/**/*.{astro,html,js,ts,jsx,tsx,md,mdx,svelte,vue}',\n  ],\n  theme: {\n    extend: {\n      colors: {\n        bg:        brand.palette.bg,\n        bgElev:    brand.palette.bgElev,\n        indigo:    brand.palette.indigo,\n        cyan:      brand.palette.cyan,\n        violet:    brand.palette.violet,\n        text:      brand.palette.text,\n        textMuted: brand.palette.textMuted,\n        textDim:   brand.palette.textDim,\n        accent:    brand.palette.accent,\n        border:    brand.palette.border,\n      },\n      fontFamily: {\n        sans: [brand.typography.body, 'system-ui', 'sans-serif'],\n        mono: [brand.typography.mono, 'monospace'],\n        display: [brand.typography.display, 'system-ui', 'sans-serif'],\n      },\n    },\n  },\n};\n```\n\n### `apps/landing/src/styles/globals.css` (Tailwind v4)\n\n```css\n@import \"tailwindcss\";\n\n@layer base {\n  html { font-family: theme(fontFamily.sans); -webkit-font-smoothing: antialiased; }\n  body { background-color: theme(colors.bg); color: theme(colors.text); }\n  :focus-visible { outline: 2px solid theme(colors.indigo); outline-offset: 2px; }\n}\n```\n\n(If the integrations task installed Tailwind v3 via `@astrojs/tailwind`,\nuse `@tailwind base; @tailwind components; @tailwind utilities;` instead\nof the `@import \"tailwindcss\"` line.)\n\n## Process\n\n1. Read `apps/landing/.content/brand.json` to confirm the palette is in scope.\n2. Write `tailwind.config.mjs` with the palette + typography pulled in via JSON import.\n3. Write `src/styles/globals.css` with the imports + minimal base layer.\n4. Verify by running `pnpm --filter @converge/landing astro check` — no Tailwind errors.\n\n## Banned\n\n- Hardcoding colors in `tailwind.config.mjs`. Read them from brand.json so a brand update flows through one file.\n- Adding `@apply` rules in `globals.css` for arbitrary components. Keep base only — components own their own styles.\n- Loading Tailwind in `astro.config.mjs` AND in `globals.css`. Pick one — for v4 it's `globals.css`; for v3 it's the `@astrojs/tailwind` integration in astro.config.",
+              "taskInputs": [
+                "apps/landing/.content/brand.json"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/src/styles/globals.css\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-bootstrap-astro/004-tailwind-init-check-failed-tailwind-config-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-bootstrap-astro/004-tailwind-init",
+            "severity": "high",
+            "description": "[02-bootstrap-astro/004-tailwind-init] Check failed: tailwind.config.mjs exists",
+            "source": "unit",
+            "detected": "2026-04-26T17:33:54.320Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "tailwind-config-exists",
+              "checkCmd": "test -f apps/landing/tailwind.config.mjs",
+              "checkDescription": "tailwind.config.mjs exists",
+              "checkOutput": "Command failed: test -f apps/landing/tailwind.config.mjs\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Tailwind init\n\nWire Tailwind to read from `apps/landing/.content/brand.json` so the\npalette + typography defined there flow through to every component.\n\n## Files\n\n### `apps/landing/tailwind.config.mjs`\n\n```js\nimport brand from './.content/brand.json' with { type: 'json' };\n\n/** @type {import('tailwindcss').Config} */\nexport default {\n  content: [\n    './src/**/*.{astro,html,js,ts,jsx,tsx,md,mdx,svelte,vue}',\n  ],\n  theme: {\n    extend: {\n      colors: {\n        bg:        brand.palette.bg,\n        bgElev:    brand.palette.bgElev,\n        indigo:    brand.palette.indigo,\n        cyan:      brand.palette.cyan,\n        violet:    brand.palette.violet,\n        text:      brand.palette.text,\n        textMuted: brand.palette.textMuted,\n        textDim:   brand.palette.textDim,\n        accent:    brand.palette.accent,\n        border:    brand.palette.border,\n      },\n      fontFamily: {\n        sans: [brand.typography.body, 'system-ui', 'sans-serif'],\n        mono: [brand.typography.mono, 'monospace'],\n        display: [brand.typography.display, 'system-ui', 'sans-serif'],\n      },\n    },\n  },\n};\n```\n\n### `apps/landing/src/styles/globals.css` (Tailwind v4)\n\n```css\n@import \"tailwindcss\";\n\n@layer base {\n  html { font-family: theme(fontFamily.sans); -webkit-font-smoothing: antialiased; }\n  body { background-color: theme(colors.bg); color: theme(colors.text); }\n  :focus-visible { outline: 2px solid theme(colors.indigo); outline-offset: 2px; }\n}\n```\n\n(If the integrations task installed Tailwind v3 via `@astrojs/tailwind`,\nuse `@tailwind base; @tailwind components; @tailwind utilities;` instead\nof the `@import \"tailwindcss\"` line.)\n\n## Process\n\n1. Read `apps/landing/.content/brand.json` to confirm the palette is in scope.\n2. Write `tailwind.config.mjs` with the palette + typography pulled in via JSON import.\n3. Write `src/styles/globals.css` with the imports + minimal base layer.\n4. Verify by running `pnpm --filter @converge/landing astro check` — no Tailwind errors.\n\n## Banned\n\n- Hardcoding colors in `tailwind.config.mjs`. Read them from brand.json so a brand update flows through one file.\n- Adding `@apply` rules in `globals.css` for arbitrary components. Keep base only — components own their own styles.\n- Loading Tailwind in `astro.config.mjs` AND in `globals.css`. Pick one — for v4 it's `globals.css`; for v3 it's the `@astrojs/tailwind` integration in astro.config.",
+              "taskId": "02-bootstrap-astro/004-tailwind-init",
+              "taskTitle": "Initialize Tailwind config + global styles from brand.json",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/02-bootstrap-astro/tasks/004-tailwind-init",
+              "factId": "check:tailwind-config-exists"
+            }
+          },
+          {
+            "id": "02-bootstrap-astro/004-tailwind-init-check-failed-globals-css-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-bootstrap-astro/004-tailwind-init",
+            "severity": "high",
+            "description": "[02-bootstrap-astro/004-tailwind-init] Check failed: src/styles/globals.css exists",
+            "source": "unit",
+            "detected": "2026-04-26T17:33:54.322Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "globals-css-exists",
+              "checkCmd": "test -f apps/landing/src/styles/globals.css",
+              "checkDescription": "src/styles/globals.css exists",
+              "checkOutput": "Command failed: test -f apps/landing/src/styles/globals.css\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Tailwind init\n\nWire Tailwind to read from `apps/landing/.content/brand.json` so the\npalette + typography defined there flow through to every component.\n\n## Files\n\n### `apps/landing/tailwind.config.mjs`\n\n```js\nimport brand from './.content/brand.json' with { type: 'json' };\n\n/** @type {import('tailwindcss').Config} */\nexport default {\n  content: [\n    './src/**/*.{astro,html,js,ts,jsx,tsx,md,mdx,svelte,vue}',\n  ],\n  theme: {\n    extend: {\n      colors: {\n        bg:        brand.palette.bg,\n        bgElev:    brand.palette.bgElev,\n        indigo:    brand.palette.indigo,\n        cyan:      brand.palette.cyan,\n        violet:    brand.palette.violet,\n        text:      brand.palette.text,\n        textMuted: brand.palette.textMuted,\n        textDim:   brand.palette.textDim,\n        accent:    brand.palette.accent,\n        border:    brand.palette.border,\n      },\n      fontFamily: {\n        sans: [brand.typography.body, 'system-ui', 'sans-serif'],\n        mono: [brand.typography.mono, 'monospace'],\n        display: [brand.typography.display, 'system-ui', 'sans-serif'],\n      },\n    },\n  },\n};\n```\n\n### `apps/landing/src/styles/globals.css` (Tailwind v4)\n\n```css\n@import \"tailwindcss\";\n\n@layer base {\n  html { font-family: theme(fontFamily.sans); -webkit-font-smoothing: antialiased; }\n  body { background-color: theme(colors.bg); color: theme(colors.text); }\n  :focus-visible { outline: 2px solid theme(colors.indigo); outline-offset: 2px; }\n}\n```\n\n(If the integrations task installed Tailwind v3 via `@astrojs/tailwind`,\nuse `@tailwind base; @tailwind components; @tailwind utilities;` instead\nof the `@import \"tailwindcss\"` line.)\n\n## Process\n\n1. Read `apps/landing/.content/brand.json` to confirm the palette is in scope.\n2. Write `tailwind.config.mjs` with the palette + typography pulled in via JSON import.\n3. Write `src/styles/globals.css` with the imports + minimal base layer.\n4. Verify by running `pnpm --filter @converge/landing astro check` — no Tailwind errors.\n\n## Banned\n\n- Hardcoding colors in `tailwind.config.mjs`. Read them from brand.json so a brand update flows through one file.\n- Adding `@apply` rules in `globals.css` for arbitrary components. Keep base only — components own their own styles.\n- Loading Tailwind in `astro.config.mjs` AND in `globals.css`. Pick one — for v4 it's `globals.css`; for v3 it's the `@astrojs/tailwind` integration in astro.config.",
+              "taskId": "02-bootstrap-astro/004-tailwind-init",
+              "taskTitle": "Initialize Tailwind config + global styles from brand.json",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/02-bootstrap-astro/tasks/004-tailwind-init",
+              "factId": "check:globals-css-exists"
+            }
+          },
+          {
+            "id": "02-bootstrap-astro/004-tailwind-init-check-failed-globals-imports-tailwind",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-bootstrap-astro/004-tailwind-init",
+            "severity": "high",
+            "description": "[02-bootstrap-astro/004-tailwind-init] Check failed: globals.css imports tailwind (v3 @tailwind or v4 @import)",
+            "source": "unit",
+            "detected": "2026-04-26T17:33:54.324Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "globals-imports-tailwind",
+              "checkCmd": "test -f apps/landing/src/styles/globals.css && grep -qE '@import\\s+\"tailwindcss\"|@tailwind\\s+(base|components|utilities)' apps/landing/src/styles/globals.css",
+              "checkDescription": "globals.css imports tailwind (v3 @tailwind or v4 @import)",
+              "checkOutput": "Command failed: test -f apps/landing/src/styles/globals.css && grep -qE '@import\\s+\"tailwindcss\"|@tailwind\\s+(base|components|utilities)' apps/landing/src/styles/globals.css\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Tailwind init\n\nWire Tailwind to read from `apps/landing/.content/brand.json` so the\npalette + typography defined there flow through to every component.\n\n## Files\n\n### `apps/landing/tailwind.config.mjs`\n\n```js\nimport brand from './.content/brand.json' with { type: 'json' };\n\n/** @type {import('tailwindcss').Config} */\nexport default {\n  content: [\n    './src/**/*.{astro,html,js,ts,jsx,tsx,md,mdx,svelte,vue}',\n  ],\n  theme: {\n    extend: {\n      colors: {\n        bg:        brand.palette.bg,\n        bgElev:    brand.palette.bgElev,\n        indigo:    brand.palette.indigo,\n        cyan:      brand.palette.cyan,\n        violet:    brand.palette.violet,\n        text:      brand.palette.text,\n        textMuted: brand.palette.textMuted,\n        textDim:   brand.palette.textDim,\n        accent:    brand.palette.accent,\n        border:    brand.palette.border,\n      },\n      fontFamily: {\n        sans: [brand.typography.body, 'system-ui', 'sans-serif'],\n        mono: [brand.typography.mono, 'monospace'],\n        display: [brand.typography.display, 'system-ui', 'sans-serif'],\n      },\n    },\n  },\n};\n```\n\n### `apps/landing/src/styles/globals.css` (Tailwind v4)\n\n```css\n@import \"tailwindcss\";\n\n@layer base {\n  html { font-family: theme(fontFamily.sans); -webkit-font-smoothing: antialiased; }\n  body { background-color: theme(colors.bg); color: theme(colors.text); }\n  :focus-visible { outline: 2px solid theme(colors.indigo); outline-offset: 2px; }\n}\n```\n\n(If the integrations task installed Tailwind v3 via `@astrojs/tailwind`,\nuse `@tailwind base; @tailwind components; @tailwind utilities;` instead\nof the `@import \"tailwindcss\"` line.)\n\n## Process\n\n1. Read `apps/landing/.content/brand.json` to confirm the palette is in scope.\n2. Write `tailwind.config.mjs` with the palette + typography pulled in via JSON import.\n3. Write `src/styles/globals.css` with the imports + minimal base layer.\n4. Verify by running `pnpm --filter @converge/landing astro check` — no Tailwind errors.\n\n## Banned\n\n- Hardcoding colors in `tailwind.config.mjs`. Read them from brand.json so a brand update flows through one file.\n- Adding `@apply` rules in `globals.css` for arbitrary components. Keep base only — components own their own styles.\n- Loading Tailwind in `astro.config.mjs` AND in `globals.css`. Pick one — for v4 it's `globals.css`; for v3 it's the `@astrojs/tailwind` integration in astro.config.",
+              "taskId": "02-bootstrap-astro/004-tailwind-init",
+              "taskTitle": "Initialize Tailwind config + global styles from brand.json",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/02-bootstrap-astro/tasks/004-tailwind-init",
+              "factId": "check:globals-imports-tailwind"
+            }
+          },
+          {
+            "id": "02-bootstrap-astro/004-tailwind-init-check-failed-tailwind-content-includes-src",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-bootstrap-astro/004-tailwind-init",
+            "severity": "high",
+            "description": "[02-bootstrap-astro/004-tailwind-init] Check failed: tailwind.config content paths include src/**/*.astro",
+            "source": "unit",
+            "detected": "2026-04-26T17:33:54.326Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "tailwind-content-includes-src",
+              "checkCmd": "test -f apps/landing/tailwind.config.mjs && grep -qE \"src/.*astro|src/.*\\\\{astro\" apps/landing/tailwind.config.mjs",
+              "checkDescription": "tailwind.config content paths include src/**/*.astro",
+              "checkOutput": "Command failed: test -f apps/landing/tailwind.config.mjs && grep -qE \"src/.*astro|src/.*\\\\{astro\" apps/landing/tailwind.config.mjs\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Tailwind init\n\nWire Tailwind to read from `apps/landing/.content/brand.json` so the\npalette + typography defined there flow through to every component.\n\n## Files\n\n### `apps/landing/tailwind.config.mjs`\n\n```js\nimport brand from './.content/brand.json' with { type: 'json' };\n\n/** @type {import('tailwindcss').Config} */\nexport default {\n  content: [\n    './src/**/*.{astro,html,js,ts,jsx,tsx,md,mdx,svelte,vue}',\n  ],\n  theme: {\n    extend: {\n      colors: {\n        bg:        brand.palette.bg,\n        bgElev:    brand.palette.bgElev,\n        indigo:    brand.palette.indigo,\n        cyan:      brand.palette.cyan,\n        violet:    brand.palette.violet,\n        text:      brand.palette.text,\n        textMuted: brand.palette.textMuted,\n        textDim:   brand.palette.textDim,\n        accent:    brand.palette.accent,\n        border:    brand.palette.border,\n      },\n      fontFamily: {\n        sans: [brand.typography.body, 'system-ui', 'sans-serif'],\n        mono: [brand.typography.mono, 'monospace'],\n        display: [brand.typography.display, 'system-ui', 'sans-serif'],\n      },\n    },\n  },\n};\n```\n\n### `apps/landing/src/styles/globals.css` (Tailwind v4)\n\n```css\n@import \"tailwindcss\";\n\n@layer base {\n  html { font-family: theme(fontFamily.sans); -webkit-font-smoothing: antialiased; }\n  body { background-color: theme(colors.bg); color: theme(colors.text); }\n  :focus-visible { outline: 2px solid theme(colors.indigo); outline-offset: 2px; }\n}\n```\n\n(If the integrations task installed Tailwind v3 via `@astrojs/tailwind`,\nuse `@tailwind base; @tailwind components; @tailwind utilities;` instead\nof the `@import \"tailwindcss\"` line.)\n\n## Process\n\n1. Read `apps/landing/.content/brand.json` to confirm the palette is in scope.\n2. Write `tailwind.config.mjs` with the palette + typography pulled in via JSON import.\n3. Write `src/styles/globals.css` with the imports + minimal base layer.\n4. Verify by running `pnpm --filter @converge/landing astro check` — no Tailwind errors.\n\n## Banned\n\n- Hardcoding colors in `tailwind.config.mjs`. Read them from brand.json so a brand update flows through one file.\n- Adding `@apply` rules in `globals.css` for arbitrary components. Keep base only — components own their own styles.\n- Loading Tailwind in `astro.config.mjs` AND in `globals.css`. Pick one — for v4 it's `globals.css`; for v3 it's the `@astrojs/tailwind` integration in astro.config.",
+              "taskId": "02-bootstrap-astro/004-tailwind-init",
+              "taskTitle": "Initialize Tailwind config + global styles from brand.json",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/02-bootstrap-astro/tasks/004-tailwind-init",
+              "factId": "check:tailwind-content-includes-src"
+            }
+          },
+          {
+            "id": "02-bootstrap-astro/004-tailwind-init-check-failed-theme-uses-brand-palette",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-bootstrap-astro/004-tailwind-init",
+            "severity": "high",
+            "description": "[02-bootstrap-astro/004-tailwind-init] Check failed: tailwind theme references brand palette colors",
+            "source": "unit",
+            "detected": "2026-04-26T17:33:54.328Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "theme-uses-brand-palette",
+              "checkCmd": "test -f apps/landing/tailwind.config.mjs && test -f apps/landing/.content/brand.json && grep -qE 'indigo|6366F1' apps/landing/tailwind.config.mjs",
+              "checkDescription": "tailwind theme references brand palette colors",
+              "checkOutput": "Command failed: test -f apps/landing/tailwind.config.mjs && test -f apps/landing/.content/brand.json && grep -qE 'indigo|6366F1' apps/landing/tailwind.config.mjs\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Tailwind init\n\nWire Tailwind to read from `apps/landing/.content/brand.json` so the\npalette + typography defined there flow through to every component.\n\n## Files\n\n### `apps/landing/tailwind.config.mjs`\n\n```js\nimport brand from './.content/brand.json' with { type: 'json' };\n\n/** @type {import('tailwindcss').Config} */\nexport default {\n  content: [\n    './src/**/*.{astro,html,js,ts,jsx,tsx,md,mdx,svelte,vue}',\n  ],\n  theme: {\n    extend: {\n      colors: {\n        bg:        brand.palette.bg,\n        bgElev:    brand.palette.bgElev,\n        indigo:    brand.palette.indigo,\n        cyan:      brand.palette.cyan,\n        violet:    brand.palette.violet,\n        text:      brand.palette.text,\n        textMuted: brand.palette.textMuted,\n        textDim:   brand.palette.textDim,\n        accent:    brand.palette.accent,\n        border:    brand.palette.border,\n      },\n      fontFamily: {\n        sans: [brand.typography.body, 'system-ui', 'sans-serif'],\n        mono: [brand.typography.mono, 'monospace'],\n        display: [brand.typography.display, 'system-ui', 'sans-serif'],\n      },\n    },\n  },\n};\n```\n\n### `apps/landing/src/styles/globals.css` (Tailwind v4)\n\n```css\n@import \"tailwindcss\";\n\n@layer base {\n  html { font-family: theme(fontFamily.sans); -webkit-font-smoothing: antialiased; }\n  body { background-color: theme(colors.bg); color: theme(colors.text); }\n  :focus-visible { outline: 2px solid theme(colors.indigo); outline-offset: 2px; }\n}\n```\n\n(If the integrations task installed Tailwind v3 via `@astrojs/tailwind`,\nuse `@tailwind base; @tailwind components; @tailwind utilities;` instead\nof the `@import \"tailwindcss\"` line.)\n\n## Process\n\n1. Read `apps/landing/.content/brand.json` to confirm the palette is in scope.\n2. Write `tailwind.config.mjs` with the palette + typography pulled in via JSON import.\n3. Write `src/styles/globals.css` with the imports + minimal base layer.\n4. Verify by running `pnpm --filter @converge/landing astro check` — no Tailwind errors.\n\n## Banned\n\n- Hardcoding colors in `tailwind.config.mjs`. Read them from brand.json so a brand update flows through one file.\n- Adding `@apply` rules in `globals.css` for arbitrary components. Keep base only — components own their own styles.\n- Loading Tailwind in `astro.config.mjs` AND in `globals.css`. Pick one — for v4 it's `globals.css`; for v3 it's the `@astrojs/tailwind` integration in astro.config.",
+              "taskId": "02-bootstrap-astro/004-tailwind-init",
+              "taskTitle": "Initialize Tailwind config + global styles from brand.json",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/02-bootstrap-astro/tasks/004-tailwind-init",
+              "factId": "check:theme-uses-brand-palette"
+            }
+          }
+        ],
+        "durationMs": 17
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 12
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 50
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#10",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 47284
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T17:33:54.311Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T17:33:54.311Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T17:33:54.328Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T17:33:54.329Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T17:33:54.341Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#10",
+      "iteration": 1,
+      "ts": "2026-04-26T17:34:41.626Z"
+    },
+    {
+      "from": "run-strategy:task-run#10",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T17:34:41.680Z"
+    }
+  ]
+}

@@ -1,0 +1,300 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "09-concepts/001-gap-driven-model-missing-output-docs/concepts/gap-driven-model.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-concepts/001-gap-driven-model",
+            "severity": "high",
+            "description": "[09-concepts/001-gap-driven-model] Task output not created: docs/concepts/gap-driven-model.md",
+            "source": "unit",
+            "detected": "2026-04-26T09:54:31.253Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/09-concepts/tasks/001-gap-driven-model",
+              "taskId": "09-concepts/001-gap-driven-model",
+              "taskTitle": "Write docs/concepts/gap-driven-model.md",
+              "taskPrompt": "# Write `docs/concepts/gap-driven-model.md`\n\nThe central paradigm. Reader leaves this page able to explain \"what is\ngap-driven\" to a colleague.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Gap-driven model\"\ndescription: \"Define done. Measure the gap to current state. Close the gap. Repeat.\"\nsources:\n  - packages/core/src/index.ts\n  - packages/core/src/storage/types.ts\nsidebar:\n  order: 1\n---\n```\n\n## Required structure\n\n1. **The frame.** Most workflow systems are *imperative*: declare steps, then\n   run them. Gap-driven is *declarative*: declare done, let the runtime\n   figure out the steps.\n\n2. **Anatomy.** A task has:\n   - **target state** — `outputs:` (files that should exist) and `checks:`\n     (commands that should pass)\n   - **current state** — what exists right now\n   The gap is the diff. The agent's job is to close it.\n\n3. **The convergence loop.**\n   - Measure: which checks fail? → these are gaps.\n   - Plan: what work would close them?\n   - Act: do the work.\n   - Re-measure. If gap remains, learn (LEARN.md), retry.\n   - Loop until all checks pass or max attempts reached.\n\n4. **Why this is different from step-driven.** Compare to LangGraph\n   (or any node-and-edge system):\n   - Steps assume you know the path. Gaps don't.\n   - Steps are brittle to environmental changes. Gaps adapt — if a check is\n     already passing because someone fixed it manually, the agent skips that\n     work.\n   - Steps debug by retracing the graph. Gaps debug by reading which check\n     failed.\n\n5. **Trade-offs (be honest).**\n   - Less control over *how* work happens. If you need exact step ordering,\n     gap-driven is the wrong tool.\n   - Checks must be deterministic. Flaky checks make gap-driven thrash.\n   - The agent has more latitude — and more cost — than a step runner.\n\n6. **Where in the codebase.** One-line pointer: the gap-detection logic\n   lives in `packages/core/src/...`. (Verify the path; if there's a\n   `Gap` / `GapDetector` symbol, name it.)\n\n## Read first\n\n- `packages/core/src/index.ts` — confirm `Gap`, `GapDetector` are exported.\n  If they are, name them; if not, describe the model without claiming the\n  symbols.\n\n## Banned\n\n- Cheerleading. The trade-offs section is non-negotiable; if gap-driven is\n  always better, no one would write step-driven systems. We win on a\n  specific axis; name it.\n- Made-up code paths. Cite real files.",
+              "taskInputs": [
+                "packages/core/src/index.ts",
+                "packages/core/src/storage/types.ts"
+              ],
+              "factId": "file-exists:test -f \"docs/concepts/gap-driven-model.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "09-concepts/001-gap-driven-model-check-failed-page-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-concepts/001-gap-driven-model",
+            "severity": "high",
+            "description": "[09-concepts/001-gap-driven-model] Check failed: page exists",
+            "source": "unit",
+            "detected": "2026-04-26T09:54:31.255Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "page-exists",
+              "checkCmd": "test -f docs/concepts/gap-driven-model.md",
+              "checkDescription": "page exists",
+              "checkOutput": "Command failed: test -f docs/concepts/gap-driven-model.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Write `docs/concepts/gap-driven-model.md`\n\nThe central paradigm. Reader leaves this page able to explain \"what is\ngap-driven\" to a colleague.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Gap-driven model\"\ndescription: \"Define done. Measure the gap to current state. Close the gap. Repeat.\"\nsources:\n  - packages/core/src/index.ts\n  - packages/core/src/storage/types.ts\nsidebar:\n  order: 1\n---\n```\n\n## Required structure\n\n1. **The frame.** Most workflow systems are *imperative*: declare steps, then\n   run them. Gap-driven is *declarative*: declare done, let the runtime\n   figure out the steps.\n\n2. **Anatomy.** A task has:\n   - **target state** — `outputs:` (files that should exist) and `checks:`\n     (commands that should pass)\n   - **current state** — what exists right now\n   The gap is the diff. The agent's job is to close it.\n\n3. **The convergence loop.**\n   - Measure: which checks fail? → these are gaps.\n   - Plan: what work would close them?\n   - Act: do the work.\n   - Re-measure. If gap remains, learn (LEARN.md), retry.\n   - Loop until all checks pass or max attempts reached.\n\n4. **Why this is different from step-driven.** Compare to LangGraph\n   (or any node-and-edge system):\n   - Steps assume you know the path. Gaps don't.\n   - Steps are brittle to environmental changes. Gaps adapt — if a check is\n     already passing because someone fixed it manually, the agent skips that\n     work.\n   - Steps debug by retracing the graph. Gaps debug by reading which check\n     failed.\n\n5. **Trade-offs (be honest).**\n   - Less control over *how* work happens. If you need exact step ordering,\n     gap-driven is the wrong tool.\n   - Checks must be deterministic. Flaky checks make gap-driven thrash.\n   - The agent has more latitude — and more cost — than a step runner.\n\n6. **Where in the codebase.** One-line pointer: the gap-detection logic\n   lives in `packages/core/src/...`. (Verify the path; if there's a\n   `Gap` / `GapDetector` symbol, name it.)\n\n## Read first\n\n- `packages/core/src/index.ts` — confirm `Gap`, `GapDetector` are exported.\n  If they are, name them; if not, describe the model without claiming the\n  symbols.\n\n## Banned\n\n- Cheerleading. The trade-offs section is non-negotiable; if gap-driven is\n  always better, no one would write step-driven systems. We win on a\n  specific axis; name it.\n- Made-up code paths. Cite real files.",
+              "taskId": "09-concepts/001-gap-driven-model",
+              "taskTitle": "Write docs/concepts/gap-driven-model.md",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/09-concepts/tasks/001-gap-driven-model",
+              "factId": "check:page-exists"
+            }
+          },
+          {
+            "id": "09-concepts/001-gap-driven-model-check-failed-defines-gap",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-concepts/001-gap-driven-model",
+            "severity": "high",
+            "description": "[09-concepts/001-gap-driven-model] Check failed: defines what a gap is",
+            "source": "unit",
+            "detected": "2026-04-26T09:54:31.259Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "defines-gap",
+              "checkCmd": "grep -qiE 'gap' docs/concepts/gap-driven-model.md",
+              "checkDescription": "defines what a gap is",
+              "checkOutput": "grep: docs/concepts/gap-driven-model.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Write `docs/concepts/gap-driven-model.md`\n\nThe central paradigm. Reader leaves this page able to explain \"what is\ngap-driven\" to a colleague.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Gap-driven model\"\ndescription: \"Define done. Measure the gap to current state. Close the gap. Repeat.\"\nsources:\n  - packages/core/src/index.ts\n  - packages/core/src/storage/types.ts\nsidebar:\n  order: 1\n---\n```\n\n## Required structure\n\n1. **The frame.** Most workflow systems are *imperative*: declare steps, then\n   run them. Gap-driven is *declarative*: declare done, let the runtime\n   figure out the steps.\n\n2. **Anatomy.** A task has:\n   - **target state** — `outputs:` (files that should exist) and `checks:`\n     (commands that should pass)\n   - **current state** — what exists right now\n   The gap is the diff. The agent's job is to close it.\n\n3. **The convergence loop.**\n   - Measure: which checks fail? → these are gaps.\n   - Plan: what work would close them?\n   - Act: do the work.\n   - Re-measure. If gap remains, learn (LEARN.md), retry.\n   - Loop until all checks pass or max attempts reached.\n\n4. **Why this is different from step-driven.** Compare to LangGraph\n   (or any node-and-edge system):\n   - Steps assume you know the path. Gaps don't.\n   - Steps are brittle to environmental changes. Gaps adapt — if a check is\n     already passing because someone fixed it manually, the agent skips that\n     work.\n   - Steps debug by retracing the graph. Gaps debug by reading which check\n     failed.\n\n5. **Trade-offs (be honest).**\n   - Less control over *how* work happens. If you need exact step ordering,\n     gap-driven is the wrong tool.\n   - Checks must be deterministic. Flaky checks make gap-driven thrash.\n   - The agent has more latitude — and more cost — than a step runner.\n\n6. **Where in the codebase.** One-line pointer: the gap-detection logic\n   lives in `packages/core/src/...`. (Verify the path; if there's a\n   `Gap` / `GapDetector` symbol, name it.)\n\n## Read first\n\n- `packages/core/src/index.ts` — confirm `Gap`, `GapDetector` are exported.\n  If they are, name them; if not, describe the model without claiming the\n  symbols.\n\n## Banned\n\n- Cheerleading. The trade-offs section is non-negotiable; if gap-driven is\n  always better, no one would write step-driven systems. We win on a\n  specific axis; name it.\n- Made-up code paths. Cite real files.",
+              "taskId": "09-concepts/001-gap-driven-model",
+              "taskTitle": "Write docs/concepts/gap-driven-model.md",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/09-concepts/tasks/001-gap-driven-model",
+              "factId": "check:defines-gap"
+            }
+          },
+          {
+            "id": "09-concepts/001-gap-driven-model-check-failed-contrasts-with-step-driven",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-concepts/001-gap-driven-model",
+            "severity": "high",
+            "description": "[09-concepts/001-gap-driven-model] Check failed: contrasts with step/graph-driven systems",
+            "source": "unit",
+            "detected": "2026-04-26T09:54:31.263Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "contrasts-with-step-driven",
+              "checkCmd": "grep -qiE 'step|graph|node' docs/concepts/gap-driven-model.md",
+              "checkDescription": "contrasts with step/graph-driven systems",
+              "checkOutput": "grep: docs/concepts/gap-driven-model.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Write `docs/concepts/gap-driven-model.md`\n\nThe central paradigm. Reader leaves this page able to explain \"what is\ngap-driven\" to a colleague.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Gap-driven model\"\ndescription: \"Define done. Measure the gap to current state. Close the gap. Repeat.\"\nsources:\n  - packages/core/src/index.ts\n  - packages/core/src/storage/types.ts\nsidebar:\n  order: 1\n---\n```\n\n## Required structure\n\n1. **The frame.** Most workflow systems are *imperative*: declare steps, then\n   run them. Gap-driven is *declarative*: declare done, let the runtime\n   figure out the steps.\n\n2. **Anatomy.** A task has:\n   - **target state** — `outputs:` (files that should exist) and `checks:`\n     (commands that should pass)\n   - **current state** — what exists right now\n   The gap is the diff. The agent's job is to close it.\n\n3. **The convergence loop.**\n   - Measure: which checks fail? → these are gaps.\n   - Plan: what work would close them?\n   - Act: do the work.\n   - Re-measure. If gap remains, learn (LEARN.md), retry.\n   - Loop until all checks pass or max attempts reached.\n\n4. **Why this is different from step-driven.** Compare to LangGraph\n   (or any node-and-edge system):\n   - Steps assume you know the path. Gaps don't.\n   - Steps are brittle to environmental changes. Gaps adapt — if a check is\n     already passing because someone fixed it manually, the agent skips that\n     work.\n   - Steps debug by retracing the graph. Gaps debug by reading which check\n     failed.\n\n5. **Trade-offs (be honest).**\n   - Less control over *how* work happens. If you need exact step ordering,\n     gap-driven is the wrong tool.\n   - Checks must be deterministic. Flaky checks make gap-driven thrash.\n   - The agent has more latitude — and more cost — than a step runner.\n\n6. **Where in the codebase.** One-line pointer: the gap-detection logic\n   lives in `packages/core/src/...`. (Verify the path; if there's a\n   `Gap` / `GapDetector` symbol, name it.)\n\n## Read first\n\n- `packages/core/src/index.ts` — confirm `Gap`, `GapDetector` are exported.\n  If they are, name them; if not, describe the model without claiming the\n  symbols.\n\n## Banned\n\n- Cheerleading. The trade-offs section is non-negotiable; if gap-driven is\n  always better, no one would write step-driven systems. We win on a\n  specific axis; name it.\n- Made-up code paths. Cite real files.",
+              "taskId": "09-concepts/001-gap-driven-model",
+              "taskTitle": "Write docs/concepts/gap-driven-model.md",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/09-concepts/tasks/001-gap-driven-model",
+              "factId": "check:contrasts-with-step-driven"
+            }
+          },
+          {
+            "id": "09-concepts/001-gap-driven-model-check-failed-word-count",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-concepts/001-gap-driven-model",
+            "severity": "high",
+            "description": "[09-concepts/001-gap-driven-model] Check failed: 600-1200 words",
+            "source": "unit",
+            "detected": "2026-04-26T09:54:31.265Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "word-count",
+              "checkCmd": "test -f docs/concepts/gap-driven-model.md && wc -w docs/concepts/gap-driven-model.md | awk '{exit ($1>=600&&$1<=1200?0:1)}'",
+              "checkDescription": "600-1200 words",
+              "checkOutput": "Command failed: test -f docs/concepts/gap-driven-model.md && wc -w docs/concepts/gap-driven-model.md | awk '{exit ($1>=600&&$1<=1200?0:1)}'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Write `docs/concepts/gap-driven-model.md`\n\nThe central paradigm. Reader leaves this page able to explain \"what is\ngap-driven\" to a colleague.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Gap-driven model\"\ndescription: \"Define done. Measure the gap to current state. Close the gap. Repeat.\"\nsources:\n  - packages/core/src/index.ts\n  - packages/core/src/storage/types.ts\nsidebar:\n  order: 1\n---\n```\n\n## Required structure\n\n1. **The frame.** Most workflow systems are *imperative*: declare steps, then\n   run them. Gap-driven is *declarative*: declare done, let the runtime\n   figure out the steps.\n\n2. **Anatomy.** A task has:\n   - **target state** — `outputs:` (files that should exist) and `checks:`\n     (commands that should pass)\n   - **current state** — what exists right now\n   The gap is the diff. The agent's job is to close it.\n\n3. **The convergence loop.**\n   - Measure: which checks fail? → these are gaps.\n   - Plan: what work would close them?\n   - Act: do the work.\n   - Re-measure. If gap remains, learn (LEARN.md), retry.\n   - Loop until all checks pass or max attempts reached.\n\n4. **Why this is different from step-driven.** Compare to LangGraph\n   (or any node-and-edge system):\n   - Steps assume you know the path. Gaps don't.\n   - Steps are brittle to environmental changes. Gaps adapt — if a check is\n     already passing because someone fixed it manually, the agent skips that\n     work.\n   - Steps debug by retracing the graph. Gaps debug by reading which check\n     failed.\n\n5. **Trade-offs (be honest).**\n   - Less control over *how* work happens. If you need exact step ordering,\n     gap-driven is the wrong tool.\n   - Checks must be deterministic. Flaky checks make gap-driven thrash.\n   - The agent has more latitude — and more cost — than a step runner.\n\n6. **Where in the codebase.** One-line pointer: the gap-detection logic\n   lives in `packages/core/src/...`. (Verify the path; if there's a\n   `Gap` / `GapDetector` symbol, name it.)\n\n## Read first\n\n- `packages/core/src/index.ts` — confirm `Gap`, `GapDetector` are exported.\n  If they are, name them; if not, describe the model without claiming the\n  symbols.\n\n## Banned\n\n- Cheerleading. The trade-offs section is non-negotiable; if gap-driven is\n  always better, no one would write step-driven systems. We win on a\n  specific axis; name it.\n- Made-up code paths. Cite real files.",
+              "taskId": "09-concepts/001-gap-driven-model",
+              "taskTitle": "Write docs/concepts/gap-driven-model.md",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/09-concepts/tasks/001-gap-driven-model",
+              "factId": "check:word-count"
+            }
+          }
+        ],
+        "durationMs": 20
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 14
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 23
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#5",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 91273
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T09:54:31.245Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T09:54:31.245Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T09:54:31.265Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T09:54:31.266Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T09:54:31.280Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#5",
+      "iteration": 1,
+      "ts": "2026-04-26T09:56:02.553Z"
+    },
+    {
+      "from": "run-strategy:task-run#5",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T09:56:02.577Z"
+    }
+  ]
+}

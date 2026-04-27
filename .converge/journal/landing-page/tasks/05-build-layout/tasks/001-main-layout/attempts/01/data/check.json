@@ -1,0 +1,30 @@
+{
+  "taskId": "05-build-layout/001-main-layout",
+  "checks": [
+    {
+      "id": "layout-exists",
+      "description": "MainLayout.astro exists",
+      "cmd": "test -f apps/landing/src/layouts/MainLayout.astro"
+    },
+    {
+      "id": "layout-imports-head",
+      "description": "imports Head component",
+      "cmd": "test -f apps/landing/src/layouts/MainLayout.astro && grep -qE \"import\\s+Head\" apps/landing/src/layouts/MainLayout.astro"
+    },
+    {
+      "id": "layout-reads-seo-json",
+      "description": "reads seo.json (directly or via Head)",
+      "cmd": "test -f apps/landing/src/layouts/MainLayout.astro && grep -qE \"\\.content/seo\\.json|seo\\.json\" apps/landing/src/layouts/MainLayout.astro"
+    },
+    {
+      "id": "layout-no-screwfast",
+      "description": "no upstream-theme references",
+      "cmd": "test -f apps/landing/src/layouts/MainLayout.astro && ! grep -qiE 'screwfast|astrowind|foxi|sitedata|siteData' apps/landing/src/layouts/MainLayout.astro"
+    },
+    {
+      "id": "layout-imports-globals",
+      "description": "imports globals.css (or tokens.css directly)",
+      "cmd": "test -f apps/landing/src/layouts/MainLayout.astro && grep -qE \"globals\\.css|tokens\\.css\" apps/landing/src/layouts/MainLayout.astro"
+    }
+  ]
+}

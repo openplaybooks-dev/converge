@@ -1,0 +1,10 @@
+{
+  "taskId": "03-characters/03-generation/hero-knight-spritesheet-walk",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/characters/hero-knight/spritesheets/walk/walk.png",
+    "assets/characters/hero-knight/spritesheets/walk/walk.prompt.txt"
+  ],
+  "blocked": false
+}

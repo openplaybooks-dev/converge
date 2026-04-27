@@ -1,0 +1,39 @@
+{
+  "type": "task",
+  "id": "02-docs",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T23:04:30.696Z",
+  "createdAt": "2026-04-26T01:19:09.344Z",
+  "progress": {
+    "totalChildren": 24,
+    "completedChildren": 24,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-move-readme",
+      "001-move-readme",
+      "001-move-readme",
+      "002-generate-banner",
+      "002-generate-banner",
+      "002-generate-banner",
+      "003-root-readme",
+      "003-root-readme",
+      "003-root-readme",
+      "004-core-readme",
+      "004-core-readme",
+      "004-core-readme",
+      "005-contributing",
+      "005-contributing",
+      "005-contributing",
+      "006-comparisons",
+      "006-comparisons",
+      "006-comparisons",
+      "007-adrs",
+      "007-adrs",
+      "007-adrs",
+      "008-changelog",
+      "008-changelog",
+      "008-changelog"
+    ],
+    "lastProgressUpdate": "2026-04-26T23:04:30.621Z"
+  }
+}

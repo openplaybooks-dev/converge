@@ -1,0 +1,24 @@
+{
+  "taskId": "01-prepare-spec/003-brand-spec",
+  "attemptNumber": 4,
+  "inputs": [
+    {
+      "pattern": "banner.svg",
+      "count": 1,
+      "samples": [
+        "banner.svg"
+      ]
+    },
+    {
+      "pattern": "README.md",
+      "count": 1,
+      "samples": [
+        "README.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/.content/brand.json"
+  ],
+  "blocked": false
+}

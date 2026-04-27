@@ -1,0 +1,15 @@
+---
+interface Props {
+  id?: string;
+  padY?: 'md' | 'lg' | 'xl';
+  bg?: 'default' | 'elev' | 'gradient';
+  noReveal?: boolean;
+}
+const { id, padY = 'md', bg = 'default', noReveal = false } = Astro.props;
+const padYClasses = { md: 'py-12', lg: 'py-16', xl: 'py-24' };
+const bgClasses = { default: '', elev: 'bg-surface-elevated', gradient: 'bg-gradient-to-b from-surface to-surface-elevated' };
+const revealClass = noReveal ? '' : 'reveal-on-scroll';
+---
+<section id={id} class={`${padYClasses[padY]} ${bgClasses[bg]} ${revealClass}`}>
+  <slot />
+</section>

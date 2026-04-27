@@ -1,0 +1,35 @@
+{
+  "type": "task",
+  "id": "04-getting-started",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T23:04:30.689Z",
+  "createdAt": "2026-04-26T06:36:14.590Z",
+  "progress": {
+    "totalChildren": 20,
+    "completedChildren": 20,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-why-converge",
+      "002-install",
+      "003-your-first-playbook",
+      "004-from-problem-to-playbook",
+      "005-next-steps",
+      "001-why-converge",
+      "002-install",
+      "003-your-first-playbook",
+      "004-from-problem-to-playbook",
+      "005-next-steps",
+      "001-why-converge",
+      "002-install",
+      "003-your-first-playbook",
+      "004-from-problem-to-playbook",
+      "005-next-steps",
+      "001-why-converge",
+      "002-install",
+      "003-your-first-playbook",
+      "004-from-problem-to-playbook",
+      "005-next-steps"
+    ],
+    "lastProgressUpdate": "2026-04-26T23:04:30.621Z"
+  }
+}

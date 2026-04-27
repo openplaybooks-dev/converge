@@ -1,0 +1,30 @@
+{
+  "taskId": "02-bootstrap-astro/001-wipe",
+  "checks": [
+    {
+      "id": "src-removed",
+      "description": "apps/landing/src no longer exists (apps/landing dir intact, src wiped)",
+      "cmd": "test -d apps/landing && test ! -d apps/landing/src"
+    },
+    {
+      "id": "astro-config-removed",
+      "description": "no astro.config remains (apps/landing dir intact, configs wiped)",
+      "cmd": "test -d apps/landing && test ! -f apps/landing/astro.config.mjs && test ! -f apps/landing/astro.config.ts && test ! -f apps/landing/astro.config.js"
+    },
+    {
+      "id": "package-json-kept",
+      "description": "package.json was preserved",
+      "cmd": "test -f apps/landing/package.json"
+    },
+    {
+      "id": "package-name-correct",
+      "description": "package.json#name is still @converge/landing",
+      "cmd": "test -f apps/landing/package.json && node -e \"process.exit(require('./apps/landing/package.json').name === '@converge/landing' ? 0 : 1)\""
+    },
+    {
+      "id": "wipe-marker",
+      "description": ".wiped marker file exists (so the next task knows the wipe ran)",
+      "cmd": "test -f apps/landing/.wiped"
+    }
+  ]
+}

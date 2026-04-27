@@ -1,0 +1,9 @@
+{
+  "taskId": "04-ui/010-shell-and-branding",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/src/app/layout.tsx"
+  ],
+  "blocked": false
+}

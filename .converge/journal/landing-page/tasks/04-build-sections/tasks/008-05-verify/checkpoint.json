@@ -1,0 +1,31 @@
+{
+  "type": "task",
+  "id": "04-build-sections/008-05-verify",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T23:18:21.149Z",
+  "createdAt": "2026-04-26T19:29:36.684Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T19:29:36.684Z",
+      "completedAt": "2026-04-26T19:34:07.917Z",
+      "outcome": "failed",
+      "durationMs": 271233
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-26T19:34:08.111Z",
+      "completedAt": "2026-04-26T19:34:16.616Z",
+      "outcome": "success",
+      "durationMs": 8506
+    },
+    {
+      "attempt": 3,
+      "startedAt": "2026-04-26T23:18:04.745Z",
+      "completedAt": "2026-04-26T23:18:21.122Z",
+      "outcome": "success",
+      "durationMs": 16377
+    }
+  ],
+  "currentAttempt": 3
+}

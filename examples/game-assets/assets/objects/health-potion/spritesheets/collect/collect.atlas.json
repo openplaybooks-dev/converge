@@ -1,0 +1,253 @@
+{
+  "image": "collect.png",
+  "meta": {
+    "obj_id": "health-potion",
+    "state": "collect",
+    "category": "item",
+    "rows": 2,
+    "cols": 4,
+    "frame_count": 8,
+    "frame_size": {
+      "w": 384,
+      "h": 512
+    },
+    "sheet_size": {
+      "w": 1536,
+      "h": 1024
+    },
+    "frame_order": "left-to-right, top-to-bottom",
+    "requested_cols": 4,
+    "requested_rows": 2,
+    "detected": true,
+    "aligned": true,
+    "frameRate": 12,
+    "yoyo": false,
+    "seed": 462896289
+  },
+  "frames": [
+    {
+      "filename": "collect_000.png",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          101,
+          196,
+          279,
+          446
+        ],
+        "torso_x": 194,
+        "aligned_bbox": [
+          99,
+          257,
+          277,
+          507
+        ],
+        "shift": [
+          -2,
+          61
+        ]
+      }
+    },
+    {
+      "filename": "collect_001.png",
+      "frame": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          57,
+          176,
+          228,
+          448
+        ],
+        "torso_x": 143,
+        "aligned_bbox": [
+          106,
+          235,
+          277,
+          507
+        ],
+        "shift": [
+          49,
+          59
+        ]
+      }
+    },
+    {
+      "filename": "collect_002.png",
+      "frame": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          37,
+          138,
+          221,
+          458
+        ],
+        "torso_x": 129,
+        "aligned_bbox": [
+          100,
+          187,
+          284,
+          507
+        ],
+        "shift": [
+          63,
+          49
+        ]
+      }
+    },
+    {
+      "filename": "collect_003.png",
+      "frame": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          15,
+          80,
+          237,
+          458
+        ],
+        "torso_x": 131,
+        "aligned_bbox": [
+          76,
+          129,
+          298,
+          507
+        ],
+        "shift": [
+          61,
+          49
+        ]
+      }
+    },
+    {
+      "filename": "collect_004.png",
+      "frame": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          99,
+          88,
+          275,
+          395
+        ],
+        "torso_x": 187,
+        "aligned_bbox": [
+          104,
+          200,
+          280,
+          507
+        ],
+        "shift": [
+          5,
+          112
+        ]
+      }
+    },
+    {
+      "filename": "collect_005.png",
+      "frame": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          55,
+          86,
+          236,
+          394
+        ],
+        "torso_x": 140,
+        "aligned_bbox": [
+          107,
+          199,
+          288,
+          507
+        ],
+        "shift": [
+          52,
+          113
+        ]
+      }
+    },
+    {
+      "filename": "collect_006.png",
+      "frame": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          76,
+          149,
+          216,
+          395
+        ],
+        "torso_x": 136,
+        "aligned_bbox": [
+          132,
+          261,
+          272,
+          507
+        ],
+        "shift": [
+          56,
+          112
+        ]
+      }
+    },
+    {
+      "filename": "collect_007.png",
+      "frame": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          106,
+          187,
+          177,
+          348
+        ],
+        "torso_x": 145,
+        "aligned_bbox": [
+          153,
+          346,
+          224,
+          507
+        ],
+        "shift": [
+          47,
+          159
+        ]
+      }
+    }
+  ]
+}

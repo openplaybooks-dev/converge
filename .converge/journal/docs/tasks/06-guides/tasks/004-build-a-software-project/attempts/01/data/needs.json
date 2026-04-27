@@ -1,0 +1,45 @@
+{
+  "taskId": "06-guides/004-build-a-software-project",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "examples/flutter-app/README.md",
+      "count": 1,
+      "samples": [
+        "examples/flutter-app/README.md"
+      ]
+    },
+    {
+      "pattern": "examples/fullstack-app/README.md",
+      "count": 1,
+      "samples": [
+        "examples/fullstack-app/README.md"
+      ]
+    },
+    {
+      "pattern": "examples/stitch-to-flutter/README.md",
+      "count": 1,
+      "samples": [
+        "examples/stitch-to-flutter/README.md"
+      ]
+    },
+    {
+      "pattern": "examples/stitch-to-flutter-baby-watch-v2/.converge/playbooks/default/playbook.yml",
+      "count": 1,
+      "samples": [
+        "examples/stitch-to-flutter-baby-watch-v2/.converge/playbooks/default/playbook.yml"
+      ]
+    },
+    {
+      "pattern": "packages/core/src/storage/types.ts",
+      "count": 1,
+      "samples": [
+        "packages/core/src/storage/types.ts"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/guides/build-a-software-project.md"
+  ],
+  "blocked": false
+}

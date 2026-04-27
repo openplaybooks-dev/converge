@@ -1,0 +1,35 @@
+{
+  "taskId": "04-ui/022-no-mc-data-models",
+  "checks": [
+    {
+      "id": "no-mc-string",
+      "description": "'Mission Control' literal does not appear in src/ or messages/",
+      "cmd": "test -z \"$(grep -ril 'mission control' packages/converge-studio/src packages/converge-studio/messages 2>/dev/null)\""
+    },
+    {
+      "id": "no-fleet",
+      "description": "No 'fleet' identifier or string in src/",
+      "cmd": "test -z \"$(grep -rl '\\bfleet\\b\\|Fleet[A-Z]\\|FLEET' packages/converge-studio/src 2>/dev/null)\""
+    },
+    {
+      "id": "no-launch-sequence",
+      "description": "No 'launch sequence' / 'launchSequence' / 'LaunchSequence' references",
+      "cmd": "test -z \"$(grep -ril 'launch sequence\\|launchsequence\\|launch_sequence' packages/converge-studio/src packages/converge-studio/messages 2>/dev/null)\""
+    },
+    {
+      "id": "no-dispatch-task",
+      "description": "No 'dispatch a task' / 'dock an agent' UI strings",
+      "cmd": "test -z \"$(grep -ril 'dispatch a task\\|dock an agent\\|dock agent\\|register your first agent' packages/converge-studio/src packages/converge-studio/messages 2>/dev/null)\""
+    },
+    {
+      "id": "no-gateway",
+      "description": "No gateway/openclaw type names or imports",
+      "cmd": "test -z \"$(grep -rl '\\bGateway\\b\\|OpenClaw\\|openclaw\\|gatewayUrl\\|gateway_url' packages/converge-studio/src 2>/dev/null)\""
+    },
+    {
+      "id": "no-agent-runtime",
+      "description": "No agent-runtime / fleet-status type or import",
+      "cmd": "test -z \"$(grep -rl 'agent-runtime\\|agentRuntime\\|AgentRuntime\\|fleetStatus\\|FleetStatus' packages/converge-studio/src 2>/dev/null)\""
+    }
+  ]
+}

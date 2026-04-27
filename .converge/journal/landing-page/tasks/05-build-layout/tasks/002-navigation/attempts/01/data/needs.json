@@ -1,0 +1,31 @@
+{
+  "taskId": "05-build-layout/002-navigation",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "apps/landing/.content/sitemap.json",
+      "count": 1,
+      "samples": [
+        "apps/landing/.content/sitemap.json"
+      ]
+    },
+    {
+      "pattern": "apps/landing/.content/brand.json",
+      "count": 1,
+      "samples": [
+        "apps/landing/.content/brand.json"
+      ]
+    },
+    {
+      "pattern": "apps/landing/src/icons/converge-mark.svg",
+      "count": 1,
+      "samples": [
+        "apps/landing/src/icons/converge-mark.svg"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/src/components/layout/Header.astro"
+  ],
+  "blocked": false
+}

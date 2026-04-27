@@ -1,0 +1,484 @@
+{
+  "iteration": 2,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-vendor/001-clone-prune-missing-output-packages/converge-studio/src/app",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-vendor/001-clone-prune",
+            "severity": "high",
+            "description": "[01-vendor/001-clone-prune] Task output not created: packages/converge-studio/src/app",
+            "source": "unit",
+            "detected": "2026-04-26T01:24:45.675Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/01-vendor/tasks/001-clone-prune",
+              "taskId": "01-vendor/001-clone-prune",
+              "taskTitle": "Clone Mission Control and prune to studio shell",
+              "taskPrompt": "Clone `https://github.com/builderz-labs/mission-control` into a temp directory, drop its `.git`, capture the head commit SHA, then move the contents into `packages/converge-studio/`.\n\n**Process**:\n\n```bash\nmkdir -p /tmp/mc-fork\ngit clone --depth 1 https://github.com/builderz-labs/mission-control /tmp/mc-fork\ncd /tmp/mc-fork\nSHA=$(git rev-parse HEAD)\necho \"$SHA\" > UPSTREAM_SHA\nrm -rf .git\nmkdir -p /Users/minh/Documents/converge/packages/converge-studio\nmv * /Users/minh/Documents/converge/packages/converge-studio/  # plus dotfiles\n```\n\n**Prune** (delete from `packages/converge-studio/`):\n\n- `prisma/` (we don't use SQLite/Prisma)\n- Framework-adapter directories: any `src/lib/adapters/{openclaw,crewai,langgraph,autogen}/` and corresponding API routes under `src/app/api/{openclaw,crewai,langgraph,autogen}/`\n- Auth: `src/app/api/auth/**`, NextAuth config files, RBAC middleware\n- Agent registry UI pages and API routes (`src/app/api/agents/**`, agent registry pages)\n- Multi-tenant org/project switcher pages\n- Any tests, mocks, or seeds tied to the removed code\n\n**Keep**: app shell (`src/app/layout.tsx`), sidebar/theme components, tasks/runs/logs UI, gantt component, Tailwind config, base API plumbing (SSE/WS helpers).\n\nIf a directory is uncertain, leave it for the next task to address — better to keep extra than delete needed code.\n\n**Outputs**: `packages/converge-studio/` populated; `packages/converge-studio/UPSTREAM_SHA` contains the upstream commit SHA.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/app\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "01-vendor/001-clone-prune-missing-output-packages/converge-studio/UPSTREAM_SHA",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-vendor/001-clone-prune",
+            "severity": "high",
+            "description": "[01-vendor/001-clone-prune] Task output not created: packages/converge-studio/UPSTREAM_SHA",
+            "source": "unit",
+            "detected": "2026-04-26T01:24:45.677Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/01-vendor/tasks/001-clone-prune",
+              "taskId": "01-vendor/001-clone-prune",
+              "taskTitle": "Clone Mission Control and prune to studio shell",
+              "taskPrompt": "Clone `https://github.com/builderz-labs/mission-control` into a temp directory, drop its `.git`, capture the head commit SHA, then move the contents into `packages/converge-studio/`.\n\n**Process**:\n\n```bash\nmkdir -p /tmp/mc-fork\ngit clone --depth 1 https://github.com/builderz-labs/mission-control /tmp/mc-fork\ncd /tmp/mc-fork\nSHA=$(git rev-parse HEAD)\necho \"$SHA\" > UPSTREAM_SHA\nrm -rf .git\nmkdir -p /Users/minh/Documents/converge/packages/converge-studio\nmv * /Users/minh/Documents/converge/packages/converge-studio/  # plus dotfiles\n```\n\n**Prune** (delete from `packages/converge-studio/`):\n\n- `prisma/` (we don't use SQLite/Prisma)\n- Framework-adapter directories: any `src/lib/adapters/{openclaw,crewai,langgraph,autogen}/` and corresponding API routes under `src/app/api/{openclaw,crewai,langgraph,autogen}/`\n- Auth: `src/app/api/auth/**`, NextAuth config files, RBAC middleware\n- Agent registry UI pages and API routes (`src/app/api/agents/**`, agent registry pages)\n- Multi-tenant org/project switcher pages\n- Any tests, mocks, or seeds tied to the removed code\n\n**Keep**: app shell (`src/app/layout.tsx`), sidebar/theme components, tasks/runs/logs UI, gantt component, Tailwind config, base API plumbing (SSE/WS helpers).\n\nIf a directory is uncertain, leave it for the next task to address — better to keep extra than delete needed code.\n\n**Outputs**: `packages/converge-studio/` populated; `packages/converge-studio/UPSTREAM_SHA` contains the upstream commit SHA.",
+              "factId": "file-exists:test -f \"packages/converge-studio/UPSTREAM_SHA\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "01-vendor/001-clone-prune-check-failed-studio-dir-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-vendor/001-clone-prune",
+            "severity": "high",
+            "description": "[01-vendor/001-clone-prune] Check failed: Studio package directory exists with Next.js app/ tree",
+            "source": "unit",
+            "detected": "2026-04-26T01:24:45.679Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "studio-dir-exists",
+              "checkCmd": "test -d packages/converge-studio/src/app && test -f packages/converge-studio/next.config.mjs -o -f packages/converge-studio/next.config.js",
+              "checkDescription": "Studio package directory exists with Next.js app/ tree",
+              "checkOutput": "Command failed: test -d packages/converge-studio/src/app && test -f packages/converge-studio/next.config.mjs -o -f packages/converge-studio/next.config.js\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Clone `https://github.com/builderz-labs/mission-control` into a temp directory, drop its `.git`, capture the head commit SHA, then move the contents into `packages/converge-studio/`.\n\n**Process**:\n\n```bash\nmkdir -p /tmp/mc-fork\ngit clone --depth 1 https://github.com/builderz-labs/mission-control /tmp/mc-fork\ncd /tmp/mc-fork\nSHA=$(git rev-parse HEAD)\necho \"$SHA\" > UPSTREAM_SHA\nrm -rf .git\nmkdir -p /Users/minh/Documents/converge/packages/converge-studio\nmv * /Users/minh/Documents/converge/packages/converge-studio/  # plus dotfiles\n```\n\n**Prune** (delete from `packages/converge-studio/`):\n\n- `prisma/` (we don't use SQLite/Prisma)\n- Framework-adapter directories: any `src/lib/adapters/{openclaw,crewai,langgraph,autogen}/` and corresponding API routes under `src/app/api/{openclaw,crewai,langgraph,autogen}/`\n- Auth: `src/app/api/auth/**`, NextAuth config files, RBAC middleware\n- Agent registry UI pages and API routes (`src/app/api/agents/**`, agent registry pages)\n- Multi-tenant org/project switcher pages\n- Any tests, mocks, or seeds tied to the removed code\n\n**Keep**: app shell (`src/app/layout.tsx`), sidebar/theme components, tasks/runs/logs UI, gantt component, Tailwind config, base API plumbing (SSE/WS helpers).\n\nIf a directory is uncertain, leave it for the next task to address — better to keep extra than delete needed code.\n\n**Outputs**: `packages/converge-studio/` populated; `packages/converge-studio/UPSTREAM_SHA` contains the upstream commit SHA.",
+              "taskId": "01-vendor/001-clone-prune",
+              "taskTitle": "Clone Mission Control and prune to studio shell",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/01-vendor/tasks/001-clone-prune",
+              "factId": "check:studio-dir-exists"
+            }
+          },
+          {
+            "id": "01-vendor/001-clone-prune-check-failed-upstream-sha-pinned",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-vendor/001-clone-prune",
+            "severity": "high",
+            "description": "[01-vendor/001-clone-prune] Check failed: UPSTREAM_SHA file records the upstream commit",
+            "source": "unit",
+            "detected": "2026-04-26T01:24:45.692Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "upstream-sha-pinned",
+              "checkCmd": "test -s packages/converge-studio/UPSTREAM_SHA && grep -qE '^[0-9a-f]{7,40}' packages/converge-studio/UPSTREAM_SHA",
+              "checkDescription": "UPSTREAM_SHA file records the upstream commit",
+              "checkOutput": "Command failed: test -s packages/converge-studio/UPSTREAM_SHA && grep -qE '^[0-9a-f]{7,40}' packages/converge-studio/UPSTREAM_SHA\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Clone `https://github.com/builderz-labs/mission-control` into a temp directory, drop its `.git`, capture the head commit SHA, then move the contents into `packages/converge-studio/`.\n\n**Process**:\n\n```bash\nmkdir -p /tmp/mc-fork\ngit clone --depth 1 https://github.com/builderz-labs/mission-control /tmp/mc-fork\ncd /tmp/mc-fork\nSHA=$(git rev-parse HEAD)\necho \"$SHA\" > UPSTREAM_SHA\nrm -rf .git\nmkdir -p /Users/minh/Documents/converge/packages/converge-studio\nmv * /Users/minh/Documents/converge/packages/converge-studio/  # plus dotfiles\n```\n\n**Prune** (delete from `packages/converge-studio/`):\n\n- `prisma/` (we don't use SQLite/Prisma)\n- Framework-adapter directories: any `src/lib/adapters/{openclaw,crewai,langgraph,autogen}/` and corresponding API routes under `src/app/api/{openclaw,crewai,langgraph,autogen}/`\n- Auth: `src/app/api/auth/**`, NextAuth config files, RBAC middleware\n- Agent registry UI pages and API routes (`src/app/api/agents/**`, agent registry pages)\n- Multi-tenant org/project switcher pages\n- Any tests, mocks, or seeds tied to the removed code\n\n**Keep**: app shell (`src/app/layout.tsx`), sidebar/theme components, tasks/runs/logs UI, gantt component, Tailwind config, base API plumbing (SSE/WS helpers).\n\nIf a directory is uncertain, leave it for the next task to address — better to keep extra than delete needed code.\n\n**Outputs**: `packages/converge-studio/` populated; `packages/converge-studio/UPSTREAM_SHA` contains the upstream commit SHA.",
+              "taskId": "01-vendor/001-clone-prune",
+              "taskTitle": "Clone Mission Control and prune to studio shell",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/01-vendor/tasks/001-clone-prune",
+              "factId": "check:upstream-sha-pinned"
+            }
+          }
+        ],
+        "durationMs": 21
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 15
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-vendor/001-clone-prune-check-failed-adapters-removed",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-vendor/001-clone-prune",
+            "severity": "high",
+            "description": "[01-vendor/001-clone-prune] Check failed: Framework-specific adapter dirs removed (openclaw/crewai/langgraph/autogen)",
+            "source": "unit",
+            "detected": "2026-04-26T01:25:47.712Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "adapters-removed",
+              "checkCmd": "test -z \"$(find packages/converge-studio/src -type d \\( -iname 'openclaw' -o -iname 'crewai' -o -iname 'langgraph' -o -iname 'autogen' \\) 2>/dev/null)\"",
+              "checkDescription": "Framework-specific adapter dirs removed (openclaw/crewai/langgraph/autogen)",
+              "checkOutput": "Command failed: test -z \"$(find packages/converge-studio/src -type d \\( -iname 'openclaw' -o -iname 'crewai' -o -iname 'langgraph' -o -iname 'autogen' \\) 2>/dev/null)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Clone `https://github.com/builderz-labs/mission-control` into a temp directory, drop its `.git`, capture the head commit SHA, then move the contents into `packages/converge-studio/`.\n\n**Process**:\n\n```bash\nmkdir -p /tmp/mc-fork\ngit clone --depth 1 https://github.com/builderz-labs/mission-control /tmp/mc-fork\ncd /tmp/mc-fork\nSHA=$(git rev-parse HEAD)\necho \"$SHA\" > UPSTREAM_SHA\nrm -rf .git\nmkdir -p /Users/minh/Documents/converge/packages/converge-studio\nmv * /Users/minh/Documents/converge/packages/converge-studio/  # plus dotfiles\n```\n\n**Prune** (delete from `packages/converge-studio/`):\n\n- `prisma/` (we don't use SQLite/Prisma)\n- Framework-adapter directories: any `src/lib/adapters/{openclaw,crewai,langgraph,autogen}/` and corresponding API routes under `src/app/api/{openclaw,crewai,langgraph,autogen}/`\n- Auth: `src/app/api/auth/**`, NextAuth config files, RBAC middleware\n- Agent registry UI pages and API routes (`src/app/api/agents/**`, agent registry pages)\n- Multi-tenant org/project switcher pages\n- Any tests, mocks, or seeds tied to the removed code\n\n**Keep**: app shell (`src/app/layout.tsx`), sidebar/theme components, tasks/runs/logs UI, gantt component, Tailwind config, base API plumbing (SSE/WS helpers).\n\nIf a directory is uncertain, leave it for the next task to address — better to keep extra than delete needed code.\n\n**Outputs**: `packages/converge-studio/` populated; `packages/converge-studio/UPSTREAM_SHA` contains the upstream commit SHA.",
+              "taskId": "01-vendor/001-clone-prune",
+              "taskTitle": "Clone Mission Control and prune to studio shell",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/01-vendor/tasks/001-clone-prune",
+              "factId": "check:adapters-removed"
+            }
+          }
+        ],
+        "durationMs": 28
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 61979
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-vendor/001-clone-prune-check-failed-adapters-removed",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-vendor/001-clone-prune",
+            "severity": "high",
+            "description": "[01-vendor/001-clone-prune] Check failed: Framework-specific adapter dirs removed (openclaw/crewai/langgraph/autogen)",
+            "source": "unit",
+            "detected": "2026-04-26T01:25:47.739Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "adapters-removed",
+              "checkCmd": "test -z \"$(find packages/converge-studio/src -type d \\( -iname 'openclaw' -o -iname 'crewai' -o -iname 'langgraph' -o -iname 'autogen' \\) 2>/dev/null)\"",
+              "checkDescription": "Framework-specific adapter dirs removed (openclaw/crewai/langgraph/autogen)",
+              "checkOutput": "Command failed: test -z \"$(find packages/converge-studio/src -type d \\( -iname 'openclaw' -o -iname 'crewai' -o -iname 'langgraph' -o -iname 'autogen' \\) 2>/dev/null)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Clone `https://github.com/builderz-labs/mission-control` into a temp directory, drop its `.git`, capture the head commit SHA, then move the contents into `packages/converge-studio/`.\n\n**Process**:\n\n```bash\nmkdir -p /tmp/mc-fork\ngit clone --depth 1 https://github.com/builderz-labs/mission-control /tmp/mc-fork\ncd /tmp/mc-fork\nSHA=$(git rev-parse HEAD)\necho \"$SHA\" > UPSTREAM_SHA\nrm -rf .git\nmkdir -p /Users/minh/Documents/converge/packages/converge-studio\nmv * /Users/minh/Documents/converge/packages/converge-studio/  # plus dotfiles\n```\n\n**Prune** (delete from `packages/converge-studio/`):\n\n- `prisma/` (we don't use SQLite/Prisma)\n- Framework-adapter directories: any `src/lib/adapters/{openclaw,crewai,langgraph,autogen}/` and corresponding API routes under `src/app/api/{openclaw,crewai,langgraph,autogen}/`\n- Auth: `src/app/api/auth/**`, NextAuth config files, RBAC middleware\n- Agent registry UI pages and API routes (`src/app/api/agents/**`, agent registry pages)\n- Multi-tenant org/project switcher pages\n- Any tests, mocks, or seeds tied to the removed code\n\n**Keep**: app shell (`src/app/layout.tsx`), sidebar/theme components, tasks/runs/logs UI, gantt component, Tailwind config, base API plumbing (SSE/WS helpers).\n\nIf a directory is uncertain, leave it for the next task to address — better to keep extra than delete needed code.\n\n**Outputs**: `packages/converge-studio/` populated; `packages/converge-studio/UPSTREAM_SHA` contains the upstream commit SHA.",
+              "taskId": "01-vendor/001-clone-prune",
+              "taskTitle": "Clone Mission Control and prune to studio shell",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/01-vendor/tasks/001-clone-prune",
+              "factId": "check:adapters-removed"
+            }
+          }
+        ],
+        "durationMs": 25
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#2",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 10
+      }
+    },
+    {
+      "id": "run-strategy:task-run#2",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 20423
+      }
+    },
+    {
+      "id": "verify#2",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 33
+      }
+    },
+    {
+      "id": "check-stall#2",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt#2",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T01:24:45.670Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T01:24:45.671Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T01:24:45.692Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T01:24:45.693Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T01:24:45.709Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-04-26T01:25:47.688Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T01:25:47.716Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-26T01:25:47.717Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-26T01:25:47.718Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-26T01:25:47.718Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-26T01:25:47.718Z"
+    },
+    {
+      "from": "check-outputs-exist#2",
+      "to": "detect-gaps#2",
+      "iteration": 2,
+      "ts": "2026-04-26T01:25:47.744Z"
+    },
+    {
+      "from": "detect-gaps#2",
+      "to": "repair-loop#2",
+      "iteration": 2,
+      "ts": "2026-04-26T01:25:47.754Z"
+    },
+    {
+      "from": "repair-loop#2",
+      "to": "run-strategy:task-run#2",
+      "iteration": 2,
+      "ts": "2026-04-26T01:26:08.178Z"
+    },
+    {
+      "from": "run-strategy:task-run#2",
+      "to": "verify#2",
+      "iteration": 2,
+      "ts": "2026-04-26T01:26:08.211Z"
+    }
+  ]
+}

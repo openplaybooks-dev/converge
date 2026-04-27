@@ -1,0 +1,31 @@
+{
+  "taskId": "04-getting-started/002-install",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "README.md",
+      "count": 1,
+      "samples": [
+        "README.md"
+      ]
+    },
+    {
+      "pattern": "packages/cli/package.json",
+      "count": 1,
+      "samples": [
+        "packages/cli/package.json"
+      ]
+    },
+    {
+      "pattern": "package.json",
+      "count": 1,
+      "samples": [
+        "package.json"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/getting-started/install.md"
+  ],
+  "blocked": false
+}

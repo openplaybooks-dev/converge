@@ -1,0 +1,23 @@
+{
+  "type": "task",
+  "id": "11-index-and-redirects",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T23:04:30.693Z",
+  "createdAt": "2026-04-26T08:46:38.641Z",
+  "progress": {
+    "totalChildren": 8,
+    "completedChildren": 4,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-index",
+      "002-redirects",
+      "001-index",
+      "002-redirects",
+      "001-index",
+      "002-redirects",
+      "001-index",
+      "002-redirects"
+    ],
+    "lastProgressUpdate": "2026-04-26T23:04:30.621Z"
+  }
+}

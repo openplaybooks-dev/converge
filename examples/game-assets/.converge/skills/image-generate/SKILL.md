@@ -44,9 +44,14 @@ Thin adapter over Google's Gemini 2.5 Flash Image via the Gemini API. Used for:
 
 ## Environment
 
-Set `GEMINI_API_KEY` in the converge runtime environment.
+- `GEMINI_API_KEY` — required when the active backend is `gemini`
+- `OPENAI_API_KEY` — required when the active backend is `openai`
+- `IMAGE_BACKEND` (optional) — overrides the `ACTIVE` file at runtime
 
 ## Backends
 
-- `stub/` — returns 1x1 PNG placeholder, for testing without API costs
-- Active backend selected via `.converge/skills/image-generate/backends/ACTIVE` file
+- `gemini/` — Gemini 2.5 Flash Image (nano-banana). Generates on a green background and chroma-keys it out.
+- `openai/` — OpenAI `gpt-image-1`. Uses `background="transparent"` natively; reference images flow through `/v1/images/edits`. No chroma-key post-process.
+- `stub/` — returns a 1x1 PNG placeholder, for testing without API costs.
+
+Active backend selected via `.converge/skills/image-generate/backends/ACTIVE` (one line, e.g. `gemini` or `openai`), or overridden per-process by the `IMAGE_BACKEND` env var.

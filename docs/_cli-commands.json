@@ -1,0 +1,177 @@
+[
+  {
+    "name": "run",
+    "line": 557,
+    "handler": null
+  },
+  {
+    "name": "init",
+    "line": 930,
+    "handler": "initCommand",
+    "handlerFile": "./commands.ts"
+  },
+  {
+    "name": "verify",
+    "line": 944,
+    "handler": "verifyFullCommand",
+    "handlerFile": null
+  },
+  {
+    "name": "status",
+    "line": 961,
+    "handler": "checkpointCommand",
+    "handlerFile": "./commands.ts"
+  },
+  {
+    "name": "reset",
+    "line": 1054,
+    "handler": "resetCommand",
+    "handlerFile": "./commands-reset.ts"
+  },
+  {
+    "name": "plugins",
+    "line": 1064,
+    "handler": "pluginsCommand",
+    "handlerFile": "./commands.ts"
+  },
+  {
+    "name": "show",
+    "line": 1072,
+    "handler": null
+  },
+  {
+    "name": "gantt",
+    "line": 1082,
+    "handler": "ganttCommand",
+    "handlerFile": "./commands-gantt.ts"
+  },
+  {
+    "name": "graph",
+    "line": 1089,
+    "handler": "graphCommand",
+    "handlerFile": "./commands-graph.ts"
+  },
+  {
+    "name": "journal",
+    "line": 1096,
+    "handler": "journalCommand",
+    "handlerFile": "./commands-journal.ts"
+  },
+  {
+    "name": "backlog",
+    "line": 1103,
+    "handler": "backlogCommand",
+    "handlerFile": "./commands-backlog.ts"
+  },
+  {
+    "name": "trend",
+    "line": 1111,
+    "handler": null
+  },
+  {
+    "name": "goals",
+    "line": 1129,
+    "handler": "evaluateCommand",
+    "handlerFile": "./commands-goals.ts"
+  },
+  {
+    "name": "migrate",
+    "line": 1140,
+    "handler": "migrateCommand",
+    "handlerFile": "./commands-migrate.ts"
+  },
+  {
+    "name": "cleanup",
+    "line": 1150,
+    "handler": null
+  },
+  {
+    "name": "plan",
+    "line": 1167,
+    "handler": null
+  },
+  {
+    "name": "skills",
+    "line": 1328,
+    "handler": null
+  },
+  {
+    "name": "list",
+    "line": 1332,
+    "handler": "skillsListCommand",
+    "handlerFile": "./commands-skills.ts"
+  },
+  {
+    "name": "install",
+    "line": 1340,
+    "handler": "skillsInstallCommand",
+    "handlerFile": "./commands-skills.ts"
+  },
+  {
+    "name": "playbook",
+    "line": 1360,
+    "handler": null
+  },
+  {
+    "name": "info",
+    "line": 1372,
+    "handler": "playbookInfoCommand",
+    "handlerFile": "./commands-playbook.ts"
+  },
+  {
+    "name": "history",
+    "line": 1384,
+    "handler": "playbookHistoryCommand",
+    "handlerFile": "./commands-playbook.ts"
+  },
+  {
+    "name": "inspect",
+    "line": 1408,
+    "handler": "inspectCommand",
+    "handlerFile": "./commands-inspect.ts"
+  },
+  {
+    "name": "shims",
+    "line": 1421,
+    "handler": null
+  },
+  {
+    "name": "metrics",
+    "line": 1494,
+    "handler": "metricsCommand",
+    "handlerFile": "./commands-metrics.ts"
+  },
+  {
+    "name": "swebench",
+    "line": 1507,
+    "handler": "swebenchCommand",
+    "handlerFile": null
+  },
+  {
+    "name": "tbench",
+    "line": 1547,
+    "handler": "tbenchCommand",
+    "handlerFile": null
+  },
+  {
+    "name": "studio",
+    "line": 1593,
+    "handler": "studioCommand",
+    "handlerFile": "./commands-studio.ts"
+  },
+  {
+    "name": "help",
+    "line": 1605,
+    "handler": null
+  },
+  {
+    "name": "--help",
+    "line": 1606,
+    "handler": null
+  },
+  {
+    "name": "-h",
+    "line": 1607,
+    "handler": null
+  }
+]

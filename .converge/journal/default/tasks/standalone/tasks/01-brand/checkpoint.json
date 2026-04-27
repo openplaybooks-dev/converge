@@ -1,0 +1,28 @@
+{
+  "type": "task",
+  "id": "01-brand",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T23:04:30.696Z",
+  "createdAt": "2026-04-26T01:19:09.344Z",
+  "progress": {
+    "totalChildren": 13,
+    "completedChildren": 8,
+    "failedChildren": 3,
+    "childTaskIds": [
+      "001-source-rename",
+      "001-source-rename",
+      "001-source-rename",
+      "002-docs-rename",
+      "002-docs-rename",
+      "003-config-rename",
+      "003-config-rename",
+      "004-license-security",
+      "004-license-security",
+      "005-cli-rename",
+      "005-cli-rename",
+      "006-verification-audit",
+      "006-verification-audit"
+    ],
+    "lastProgressUpdate": "2026-04-26T23:04:30.621Z"
+  }
+}

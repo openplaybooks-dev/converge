@@ -1,0 +1,29 @@
+{
+  "name": "Converge",
+  "tagline": "Define done. Converge gets there.",
+  "domain": "converge.dev",
+  "github": "https://github.com/myanlabs/converge",
+  "palette": {
+    "bg":        "#0F1117",
+    "bgElev":    "#1E293B",
+    "indigo":    "#6366F1",
+    "cyan":      "#22D3EE",
+    "violet":    "#A78BFA",
+    "text":      "#F8FAFC",
+    "textMuted": "#94A3B8",
+    "textDim":   "#64748B",
+    "accent":    "#EF4444",
+    "border":    "#1E293B"
+  },
+  "typography": {
+    "display": "Inter",
+    "body":    "Inter",
+    "mono":    "JetBrains Mono"
+  },
+  "motif": ["convergence-journey", "gap-closing", "iterative-arrow"],
+  "voice": {
+    "tone": ["direct", "technical", "honest-about-trade-offs"],
+    "banned": ["revolutionary", "next-generation", "AI-native", "game-changing"],
+    "preferred": ["concrete", "shipped", "measurable", "verifiable"]
+  }
+}

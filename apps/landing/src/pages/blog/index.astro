@@ -1,0 +1,42 @@
+---
+export const prerender = true;
+import { getCollection } from 'astro:content';
+import MainLayout from '@/layouts/MainLayout.astro';
+
+const posts = (await getCollection('blog'))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => {
+    if ((a.data.pinned ?? false) !== (b.data.pinned ?? false)) return (a.data.pinned ?? false) ? -1 : 1;
+    return b.data.pubDate.getTime() - a.data.pubDate.getTime();
+  });
+---
+
+<MainLayout page="blog">
+  <section class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <h1 class="text-4xl sm:text-5xl font-display font-bold text-text">Blog</h1>
+    <p class="mt-3 text-text-muted">
+      Notes on goal-driven workflows, comparisons with step-driven frameworks, and lessons from the field.
+    </p>
+
+    <ul class="mt-12 space-y-8">
+      {posts.map((p) => (
+        <li class="border-b border-border pb-8 last:border-b-0">
+          <article>
+            <a href={`/blog/${p.id.replace(/\.mdx?$/, '')}`} class="group">
+              <h2 class="text-2xl font-display font-semibold text-text group-hover:text-indigo transition-colors">
+                {p.data.title}
+              </h2>
+              <p class="mt-2 text-text-muted">{p.data.description}</p>
+              <p class="mt-3 text-sm text-text-dim">
+                <time datetime={p.data.pubDate.toISOString()}>
+                  {p.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </time>
+                {(p.data.pinned ?? false) && <span class="ml-3 text-indigo">★ Pinned</span>}
+              </p>
+            </a>
+          </article>
+        </li>
+      ))}
+    </ul>
+  </section>
+</MainLayout>

@@ -1,0 +1,24 @@
+{
+  "taskId": "06-guides/005-switch-providers",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "examples/stitch-to-flutter-baby-watch-v2/.converge/project.yml",
+      "count": 1,
+      "samples": [
+        "examples/stitch-to-flutter-baby-watch-v2/.converge/project.yml"
+      ]
+    },
+    {
+      "pattern": "packages/core/src/config",
+      "count": 1,
+      "samples": [
+        "packages/core/src/config"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/guides/switch-providers.md"
+  ],
+  "blocked": false
+}

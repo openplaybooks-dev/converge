@@ -1,0 +1,20 @@
+{
+  "taskId": "07-integrate-blog/003-post-template",
+  "checks": [
+    {
+      "id": "post-template-exists",
+      "description": "blog/[slug].astro exists",
+      "cmd": "test -f apps/landing/src/pages/blog/[slug].astro"
+    },
+    {
+      "id": "post-uses-getStaticPaths",
+      "description": "uses getStaticPaths to enumerate slugs",
+      "cmd": "test -f apps/landing/src/pages/blog/[slug].astro && grep -qE 'getStaticPaths' apps/landing/src/pages/blog/[slug].astro"
+    },
+    {
+      "id": "post-renders-content",
+      "description": "renders post content via the entry's render() result",
+      "cmd": "test -f apps/landing/src/pages/blog/[slug].astro && grep -qE 'render\\(\\)|<Content\\s' apps/landing/src/pages/blog/[slug].astro"
+    }
+  ]
+}

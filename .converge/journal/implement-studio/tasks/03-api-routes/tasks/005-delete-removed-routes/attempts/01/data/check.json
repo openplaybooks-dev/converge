@@ -1,0 +1,25 @@
+{
+  "taskId": "03-api-routes/005-delete-removed-routes",
+  "checks": [
+    {
+      "id": "agents-removed",
+      "description": "/api/agents routes removed",
+      "cmd": "! test -d packages/converge-studio/src/app/api/agents"
+    },
+    {
+      "id": "auth-removed",
+      "description": "/api/auth routes removed (no NextAuth in MVP)",
+      "cmd": "! test -d packages/converge-studio/src/app/api/auth"
+    },
+    {
+      "id": "framework-adapters-removed",
+      "description": "Framework adapter API routes removed",
+      "cmd": "test -z \"$(find packages/converge-studio/src/app/api -type d \\( -iname 'openclaw' -o -iname 'crewai' -o -iname 'langgraph' -o -iname 'autogen' \\) 2>/dev/null)\""
+    },
+    {
+      "id": "build-still-passes",
+      "description": "Studio still builds after deletions",
+      "cmd": "pnpm --filter @converge/studio build 2>&1 | tail -10 | grep -qE 'Compiled|build successful|Generating' || pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    }
+  ]
+}

@@ -1,0 +1,225 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-ui/013-audit-log-check-failed-audit-uses-runs-api",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/013-audit-log",
+            "severity": "high",
+            "description": "[04-ui/013-audit-log] Check failed: audit page fetches from /api/runs (no separate /api/audit route)",
+            "source": "unit",
+            "detected": "2026-04-26T07:22:58.497Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "audit-uses-runs-api",
+              "checkCmd": "grep -q '/api/runs' packages/converge-studio/src/app/audit/page.tsx",
+              "checkDescription": "audit page fetches from /api/runs (no separate /api/audit route)",
+              "checkOutput": "Command failed: grep -q '/api/runs' packages/converge-studio/src/app/audit/page.tsx\n",
+              "checkExitCode": 1,
+              "taskPrompt": "The runs page (`005-runs-list`) shows currently-known sessions. The audit log shows the *historical* picture: every session that ever existed across every playbook, with status transitions, durations, and which user/process triggered it. Different shape (flat history table) and different lens (operational accountability vs. live monitoring).\n\n**Reuse:** `src/lib/converge-adapter/sessions.ts::listSessions()` already enumerates sessions. Extend it (or compose) into a `listAllSessionsAcrossPlaybooks()` that walks `.converge/journal/*/sessions/*` and reads each session's metadata header. If the file count gets large, sort newest-first and accept a `?limit=N&offset=M` query.\n\n**Add `src/app/api/audit/route.ts`:**\n- `GET ?limit=200&offset=0&playbook=<name>&status=<succeeded|failed|running>` returns `{ items: AuditEntry[], total: number }`.\n- `AuditEntry`: `{ playbook, sessionId, startedAt, finishedAt, status, durationMs, actor?: string, taskCount: number }`. `actor` is whatever the journal records as the trigger (CLI user, cron, \"manual\"); leave undefined if not stored.\n- Cache the listing in-memory for 5 s — these reads can hit the disk hard if the journal is big and the page is reloaded often.\n\n**Add `src/app/audit/page.tsx`:**\n- A filter bar at the top: playbook dropdown (populated from `/api/playbooks`), status dropdown, date range (last 24h / 7d / 30d / all).\n- A paginated table: timestamp · playbook · session ID · status · duration · actor · task count. Click a row → `/runs/<playbook>/<sessionId>`.\n- Column sorting (client-side over the loaded page is fine).\n\n**Add the route to the SiteHeader nav** (from `010-shell-and-branding`) — fourth link `Audit` between `Runs` and `Settings`.\n\n**Verification:**\n- After a few runs of `implement-studio` exist on disk, `/audit` shows them in a table.\n- Filtering by status=failed reduces rows.\n- Clicking a row navigates to the live session view.\n- `/api/audit?limit=1` returns one item; the response shape matches `AuditEntry`.",
+              "taskId": "04-ui/013-audit-log",
+              "taskTitle": "Historical run audit log",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/013-audit-log",
+              "factId": "check:audit-uses-runs-api"
+            }
+          },
+          {
+            "id": "04-ui/013-audit-log-check-failed-typecheck-passes",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/013-audit-log",
+            "severity": "high",
+            "description": "[04-ui/013-audit-log] Check failed: typecheck-passes",
+            "source": "unit",
+            "detected": "2026-04-26T07:23:01.846Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "typecheck-passes",
+              "checkCmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq",
+              "checkDescription": "typecheck-passes",
+              "checkOutput": "Command failed: pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq\n",
+              "checkExitCode": 1,
+              "taskPrompt": "The runs page (`005-runs-list`) shows currently-known sessions. The audit log shows the *historical* picture: every session that ever existed across every playbook, with status transitions, durations, and which user/process triggered it. Different shape (flat history table) and different lens (operational accountability vs. live monitoring).\n\n**Reuse:** `src/lib/converge-adapter/sessions.ts::listSessions()` already enumerates sessions. Extend it (or compose) into a `listAllSessionsAcrossPlaybooks()` that walks `.converge/journal/*/sessions/*` and reads each session's metadata header. If the file count gets large, sort newest-first and accept a `?limit=N&offset=M` query.\n\n**Add `src/app/api/audit/route.ts`:**\n- `GET ?limit=200&offset=0&playbook=<name>&status=<succeeded|failed|running>` returns `{ items: AuditEntry[], total: number }`.\n- `AuditEntry`: `{ playbook, sessionId, startedAt, finishedAt, status, durationMs, actor?: string, taskCount: number }`. `actor` is whatever the journal records as the trigger (CLI user, cron, \"manual\"); leave undefined if not stored.\n- Cache the listing in-memory for 5 s — these reads can hit the disk hard if the journal is big and the page is reloaded often.\n\n**Add `src/app/audit/page.tsx`:**\n- A filter bar at the top: playbook dropdown (populated from `/api/playbooks`), status dropdown, date range (last 24h / 7d / 30d / all).\n- A paginated table: timestamp · playbook · session ID · status · duration · actor · task count. Click a row → `/runs/<playbook>/<sessionId>`.\n- Column sorting (client-side over the loaded page is fine).\n\n**Add the route to the SiteHeader nav** (from `010-shell-and-branding`) — fourth link `Audit` between `Runs` and `Settings`.\n\n**Verification:**\n- After a few runs of `implement-studio` exist on disk, `/audit` shows them in a table.\n- Filtering by status=failed reduces rows.\n- Clicking a row navigates to the live session view.\n- `/api/audit?limit=1` returns one item; the response shape matches `AuditEntry`.",
+              "taskId": "04-ui/013-audit-log",
+              "taskTitle": "Historical run audit log",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/013-audit-log",
+              "factId": "check:typecheck-passes"
+            }
+          }
+        ],
+        "durationMs": 3361
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3347
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 3367
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#2",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 65163
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T07:22:58.485Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T07:22:58.485Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T07:23:01.846Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T07:23:01.846Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T07:23:05.195Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#2",
+      "iteration": 1,
+      "ts": "2026-04-26T07:24:10.358Z"
+    },
+    {
+      "from": "run-strategy:task-run#2",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T07:24:13.725Z"
+    }
+  ]
+}

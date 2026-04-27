@@ -1,0 +1,9 @@
+{
+  "taskId": "02-bootstrap-astro/001-wipe",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "apps/landing/.wiped"
+  ],
+  "blocked": false
+}

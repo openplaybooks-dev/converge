@@ -1,0 +1,20 @@
+{
+  "taskId": "09-polish/001-hero-animation",
+  "checks": [
+    {
+      "id": "animation-component-exists",
+      "description": "ConvergenceJourney.astro exists",
+      "cmd": "test -f apps/landing/src/components/animations/ConvergenceJourney.astro"
+    },
+    {
+      "id": "animation-respects-reduced-motion",
+      "description": "respects prefers-reduced-motion",
+      "cmd": "test -f apps/landing/src/components/animations/ConvergenceJourney.astro && grep -qE 'prefers-reduced-motion|prefersReducedMotion' apps/landing/src/components/animations/ConvergenceJourney.astro"
+    },
+    {
+      "id": "animation-uses-css-only",
+      "description": "animation is CSS-only (no JS) — keeps Lighthouse perf up",
+      "cmd": "test -f apps/landing/src/components/animations/ConvergenceJourney.astro && ! grep -qE 'addEventListener|requestAnimationFrame|setInterval' apps/landing/src/components/animations/ConvergenceJourney.astro"
+    }
+  ]
+}

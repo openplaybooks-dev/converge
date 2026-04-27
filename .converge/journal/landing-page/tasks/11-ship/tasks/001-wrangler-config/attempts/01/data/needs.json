@@ -1,0 +1,17 @@
+{
+  "taskId": "11-ship/001-wrangler-config",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "apps/landing/.verify-passed",
+      "count": 1,
+      "samples": [
+        "apps/landing/.verify-passed"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/wrangler.toml"
+  ],
+  "blocked": false
+}

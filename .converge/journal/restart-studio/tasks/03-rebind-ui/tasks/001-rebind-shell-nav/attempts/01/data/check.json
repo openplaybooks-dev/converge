@@ -1,0 +1,15 @@
+{
+  "taskId": "03-rebind-ui/001-rebind-shell-nav",
+  "checks": [
+    {
+      "id": "nav-has-converge-routes",
+      "description": "nav-rail has /playbooks /runs /settings links",
+      "cmd": "grep -q '/playbooks' packages/studio/src/components/layout/nav-rail.tsx && grep -q '/runs' packages/studio/src/components/layout/nav-rail.tsx && grep -q '/settings' packages/studio/src/components/layout/nav-rail.tsx"
+    },
+    {
+      "id": "header-uses-converge-data",
+      "description": "header-bar references converge events or search",
+      "cmd": "grep -q 'useConvergeEvents\\|/api/search\\|/api/events' packages/studio/src/components/layout/header-bar.tsx"
+    }
+  ]
+}

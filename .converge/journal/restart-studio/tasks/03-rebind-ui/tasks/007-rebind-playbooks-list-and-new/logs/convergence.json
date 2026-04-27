@@ -1,0 +1,269 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-rebind-ui/007-rebind-playbooks-list-and-new-missing-output-packages/studio/src/app/playbooks/page.tsx",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-rebind-ui/007-rebind-playbooks-list-and-new",
+            "severity": "high",
+            "description": "[03-rebind-ui/007-rebind-playbooks-list-and-new] Task output not created: packages/studio/src/app/playbooks/page.tsx",
+            "source": "unit",
+            "detected": "2026-04-26T09:56:41.524Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/03-rebind-ui/tasks/007-rebind-playbooks-list-and-new",
+              "taskId": "03-rebind-ui/007-rebind-playbooks-list-and-new",
+              "taskTitle": "Build /playbooks list page and /playbooks/new form",
+              "taskPrompt": "**`/playbooks/page.tsx`** (list):\n- Server-render `listPlaybooks()`\n- Card grid (or table — match MC's existing visual treatment for list views): name, description, mode, task count, last-run time, status pill\n- Each card → `/playbooks/<name>`\n- Top-right \"+ New playbook\" button → `/playbooks/new`\n- Empty state: `<EmptyStateLaunchpad>` with \"Create your first playbook\" CTA\n\n**`/playbooks/new/page.tsx`** (form):\n- Form fields: name (required, lowercase-slug), description, inputs[] (repeatable), run config (mode select, maxTaskAttempts, maxDuration, resume checkbox)\n- Submit → `POST /api/playbooks` with NewPlaybookSpec JSON\n- On 201 → redirect to `/playbooks/<name>`\n- On 4xx → render error inline\n\nUse MC's form primitives (input/select/textarea — already in `src/components/ui/`). Match MC's card padding and density.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"packages/studio/src/app/playbooks/page.tsx\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-rebind-ui/007-rebind-playbooks-list-and-new-missing-output-packages/studio/src/app/playbooks/new/page.tsx",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-rebind-ui/007-rebind-playbooks-list-and-new",
+            "severity": "high",
+            "description": "[03-rebind-ui/007-rebind-playbooks-list-and-new] Task output not created: packages/studio/src/app/playbooks/new/page.tsx",
+            "source": "unit",
+            "detected": "2026-04-26T09:56:41.526Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/03-rebind-ui/tasks/007-rebind-playbooks-list-and-new",
+              "taskId": "03-rebind-ui/007-rebind-playbooks-list-and-new",
+              "taskTitle": "Build /playbooks list page and /playbooks/new form",
+              "taskPrompt": "**`/playbooks/page.tsx`** (list):\n- Server-render `listPlaybooks()`\n- Card grid (or table — match MC's existing visual treatment for list views): name, description, mode, task count, last-run time, status pill\n- Each card → `/playbooks/<name>`\n- Top-right \"+ New playbook\" button → `/playbooks/new`\n- Empty state: `<EmptyStateLaunchpad>` with \"Create your first playbook\" CTA\n\n**`/playbooks/new/page.tsx`** (form):\n- Form fields: name (required, lowercase-slug), description, inputs[] (repeatable), run config (mode select, maxTaskAttempts, maxDuration, resume checkbox)\n- Submit → `POST /api/playbooks` with NewPlaybookSpec JSON\n- On 201 → redirect to `/playbooks/<name>`\n- On 4xx → render error inline\n\nUse MC's form primitives (input/select/textarea — already in `src/components/ui/`). Match MC's card padding and density.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"packages/studio/src/app/playbooks/new/page.tsx\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-rebind-ui/007-rebind-playbooks-list-and-new-check-failed-list-page-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-rebind-ui/007-rebind-playbooks-list-and-new",
+            "severity": "high",
+            "description": "[03-rebind-ui/007-rebind-playbooks-list-and-new] Check failed: /playbooks/page.tsx exists and lists playbooks",
+            "source": "unit",
+            "detected": "2026-04-26T09:56:41.528Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "list-page-exists",
+              "checkCmd": "test -f packages/studio/src/app/playbooks/page.tsx && grep -q 'listPlaybooks\\|/api/playbooks' packages/studio/src/app/playbooks/page.tsx",
+              "checkDescription": "/playbooks/page.tsx exists and lists playbooks",
+              "checkOutput": "Command failed: test -f packages/studio/src/app/playbooks/page.tsx && grep -q 'listPlaybooks\\|/api/playbooks' packages/studio/src/app/playbooks/page.tsx\n",
+              "checkExitCode": 1,
+              "taskPrompt": "**`/playbooks/page.tsx`** (list):\n- Server-render `listPlaybooks()`\n- Card grid (or table — match MC's existing visual treatment for list views): name, description, mode, task count, last-run time, status pill\n- Each card → `/playbooks/<name>`\n- Top-right \"+ New playbook\" button → `/playbooks/new`\n- Empty state: `<EmptyStateLaunchpad>` with \"Create your first playbook\" CTA\n\n**`/playbooks/new/page.tsx`** (form):\n- Form fields: name (required, lowercase-slug), description, inputs[] (repeatable), run config (mode select, maxTaskAttempts, maxDuration, resume checkbox)\n- Submit → `POST /api/playbooks` with NewPlaybookSpec JSON\n- On 201 → redirect to `/playbooks/<name>`\n- On 4xx → render error inline\n\nUse MC's form primitives (input/select/textarea — already in `src/components/ui/`). Match MC's card padding and density.",
+              "taskId": "03-rebind-ui/007-rebind-playbooks-list-and-new",
+              "taskTitle": "Build /playbooks list page and /playbooks/new form",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/03-rebind-ui/tasks/007-rebind-playbooks-list-and-new",
+              "factId": "check:list-page-exists"
+            }
+          },
+          {
+            "id": "03-rebind-ui/007-rebind-playbooks-list-and-new-check-failed-new-page-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-rebind-ui/007-rebind-playbooks-list-and-new",
+            "severity": "high",
+            "description": "[03-rebind-ui/007-rebind-playbooks-list-and-new] Check failed: /playbooks/new/page.tsx exists with a form posting to /api/playbooks",
+            "source": "unit",
+            "detected": "2026-04-26T09:56:41.531Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "new-page-exists",
+              "checkCmd": "test -f packages/studio/src/app/playbooks/new/page.tsx && grep -q '/api/playbooks' packages/studio/src/app/playbooks/new/page.tsx",
+              "checkDescription": "/playbooks/new/page.tsx exists with a form posting to /api/playbooks",
+              "checkOutput": "Command failed: test -f packages/studio/src/app/playbooks/new/page.tsx && grep -q '/api/playbooks' packages/studio/src/app/playbooks/new/page.tsx\n",
+              "checkExitCode": 1,
+              "taskPrompt": "**`/playbooks/page.tsx`** (list):\n- Server-render `listPlaybooks()`\n- Card grid (or table — match MC's existing visual treatment for list views): name, description, mode, task count, last-run time, status pill\n- Each card → `/playbooks/<name>`\n- Top-right \"+ New playbook\" button → `/playbooks/new`\n- Empty state: `<EmptyStateLaunchpad>` with \"Create your first playbook\" CTA\n\n**`/playbooks/new/page.tsx`** (form):\n- Form fields: name (required, lowercase-slug), description, inputs[] (repeatable), run config (mode select, maxTaskAttempts, maxDuration, resume checkbox)\n- Submit → `POST /api/playbooks` with NewPlaybookSpec JSON\n- On 201 → redirect to `/playbooks/<name>`\n- On 4xx → render error inline\n\nUse MC's form primitives (input/select/textarea — already in `src/components/ui/`). Match MC's card padding and density.",
+              "taskId": "03-rebind-ui/007-rebind-playbooks-list-and-new",
+              "taskTitle": "Build /playbooks list page and /playbooks/new form",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/03-rebind-ui/tasks/007-rebind-playbooks-list-and-new",
+              "factId": "check:new-page-exists"
+            }
+          }
+        ],
+        "durationMs": 11
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 15
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#15",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 145374
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T09:56:41.520Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T09:56:41.520Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T09:56:41.531Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T09:56:41.532Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T09:56:41.538Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#15",
+      "iteration": 1,
+      "ts": "2026-04-26T09:59:06.912Z"
+    },
+    {
+      "from": "run-strategy:task-run#15",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T09:59:06.928Z"
+    }
+  ]
+}

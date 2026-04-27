@@ -1,0 +1,10 @@
+{
+  "taskId": "03-rebind-ui/005-rebind-runs-pages",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/studio/src/app/runs/page.tsx",
+    "packages/studio/src/app/runs/[playbook]/[sessionId]/page.tsx"
+  ],
+  "blocked": false
+}

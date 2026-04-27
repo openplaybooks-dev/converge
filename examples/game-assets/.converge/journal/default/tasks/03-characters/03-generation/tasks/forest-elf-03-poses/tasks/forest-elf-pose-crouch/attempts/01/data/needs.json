@@ -1,9 +1,0 @@
-{
-  "taskId": "03-characters/03-generation/forest-elf-03-poses/forest-elf-pose-crouch",
-  "attemptNumber": 1,
-  "inputs": [],
-  "outputs": [
-    "assets/characters/forest-elf/variants/crouch/crouch.png"
-  ],
-  "blocked": false
-}

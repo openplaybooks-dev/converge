@@ -1,0 +1,30 @@
+{
+  "taskId": "02-bootstrap-astro/004-tailwind-init",
+  "checks": [
+    {
+      "id": "tailwind-config-exists",
+      "description": "tailwind.config.mjs exists",
+      "cmd": "test -f apps/landing/tailwind.config.mjs"
+    },
+    {
+      "id": "globals-css-exists",
+      "description": "src/styles/globals.css exists",
+      "cmd": "test -f apps/landing/src/styles/globals.css"
+    },
+    {
+      "id": "globals-imports-tailwind",
+      "description": "globals.css imports tailwind (v3 @tailwind or v4 @import)",
+      "cmd": "test -f apps/landing/src/styles/globals.css && grep -qE '@import\\s+\"tailwindcss\"|@tailwind\\s+(base|components|utilities)' apps/landing/src/styles/globals.css"
+    },
+    {
+      "id": "tailwind-content-includes-src",
+      "description": "tailwind.config content paths include src/**/*.astro",
+      "cmd": "test -f apps/landing/tailwind.config.mjs && grep -qE \"src/.*astro|src/.*\\\\{astro\" apps/landing/tailwind.config.mjs"
+    },
+    {
+      "id": "theme-uses-brand-palette",
+      "description": "tailwind theme references brand palette colors",
+      "cmd": "test -f apps/landing/tailwind.config.mjs && test -f apps/landing/.content/brand.json && grep -qE 'indigo|6366F1' apps/landing/tailwind.config.mjs"
+    }
+  ]
+}

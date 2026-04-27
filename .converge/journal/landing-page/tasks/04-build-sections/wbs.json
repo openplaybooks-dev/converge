@@ -1,0 +1,199 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-26T17:41:04.425Z",
+  "spawnCount": 48,
+  "subtasks": [
+    {
+      "id": "001-hero",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/001-hero/TASK.md"
+    },
+    {
+      "id": "001-01-spec",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/001-01-spec/TASK.md"
+    },
+    {
+      "id": "001-02-design",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/001-02-design/TASK.md"
+    },
+    {
+      "id": "001-03-build",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/001-03-build/TASK.md"
+    },
+    {
+      "id": "001-04-integrate",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/001-04-integrate/TASK.md"
+    },
+    {
+      "id": "001-05-verify",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/001-05-verify/TASK.md"
+    },
+    {
+      "id": "002-social-proof",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/002-social-proof/TASK.md"
+    },
+    {
+      "id": "002-01-spec",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/002-01-spec/TASK.md"
+    },
+    {
+      "id": "002-02-design",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/002-02-design/TASK.md"
+    },
+    {
+      "id": "002-03-build",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/002-03-build/TASK.md"
+    },
+    {
+      "id": "002-04-integrate",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/002-04-integrate/TASK.md"
+    },
+    {
+      "id": "002-05-verify",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/002-05-verify/TASK.md"
+    },
+    {
+      "id": "003-problem-solution",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/003-problem-solution/TASK.md"
+    },
+    {
+      "id": "003-01-spec",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/003-01-spec/TASK.md"
+    },
+    {
+      "id": "003-02-design",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/003-02-design/TASK.md"
+    },
+    {
+      "id": "003-03-build",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/003-03-build/TASK.md"
+    },
+    {
+      "id": "003-04-integrate",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/003-04-integrate/TASK.md"
+    },
+    {
+      "id": "003-05-verify",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/003-05-verify/TASK.md"
+    },
+    {
+      "id": "004-feature-grid",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/004-feature-grid/TASK.md"
+    },
+    {
+      "id": "004-01-spec",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/004-01-spec/TASK.md"
+    },
+    {
+      "id": "004-02-design",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/004-02-design/TASK.md"
+    },
+    {
+      "id": "004-03-build",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/004-03-build/TASK.md"
+    },
+    {
+      "id": "004-04-integrate",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/004-04-integrate/TASK.md"
+    },
+    {
+      "id": "004-05-verify",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/004-05-verify/TASK.md"
+    },
+    {
+      "id": "005-comparison",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/005-comparison/TASK.md"
+    },
+    {
+      "id": "005-01-spec",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/005-01-spec/TASK.md"
+    },
+    {
+      "id": "005-02-design",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/005-02-design/TASK.md"
+    },
+    {
+      "id": "005-03-build",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/005-03-build/TASK.md"
+    },
+    {
+      "id": "005-04-integrate",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/005-04-integrate/TASK.md"
+    },
+    {
+      "id": "005-05-verify",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/005-05-verify/TASK.md"
+    },
+    {
+      "id": "006-quickstart",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/006-quickstart/TASK.md"
+    },
+    {
+      "id": "006-01-spec",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/006-01-spec/TASK.md"
+    },
+    {
+      "id": "006-02-design",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/006-02-design/TASK.md"
+    },
+    {
+      "id": "006-03-build",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/006-03-build/TASK.md"
+    },
+    {
+      "id": "006-04-integrate",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/006-04-integrate/TASK.md"
+    },
+    {
+      "id": "006-05-verify",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/006-05-verify/TASK.md"
+    },
+    {
+      "id": "007-faq",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/007-faq/TASK.md"
+    },
+    {
+      "id": "007-01-spec",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/007-01-spec/TASK.md"
+    },
+    {
+      "id": "007-02-design",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/007-02-design/TASK.md"
+    },
+    {
+      "id": "007-03-build",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/007-03-build/TASK.md"
+    },
+    {
+      "id": "007-04-integrate",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/007-04-integrate/TASK.md"
+    },
+    {
+      "id": "007-05-verify",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/007-05-verify/TASK.md"
+    },
+    {
+      "id": "008-cta-banner",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/008-cta-banner/TASK.md"
+    },
+    {
+      "id": "008-01-spec",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/008-01-spec/TASK.md"
+    },
+    {
+      "id": "008-02-design",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/008-02-design/TASK.md"
+    },
+    {
+      "id": "008-03-build",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/008-03-build/TASK.md"
+    },
+    {
+      "id": "008-04-integrate",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/008-04-integrate/TASK.md"
+    },
+    {
+      "id": "008-05-verify",
+      "writeToPath": ".converge/journal/landing-page/tasks/04-build-sections/tasks/008-05-verify/TASK.md"
+    }
+  ]
+}

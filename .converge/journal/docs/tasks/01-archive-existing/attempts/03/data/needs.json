@@ -1,0 +1,17 @@
+{
+  "taskId": "01-archive-existing",
+  "attemptNumber": 3,
+  "inputs": [
+    {
+      "pattern": ".claude",
+      "count": 1,
+      "samples": [
+        ".claude"
+      ]
+    }
+  ],
+  "outputs": [
+    ".claude/_internal"
+  ],
+  "blocked": false
+}

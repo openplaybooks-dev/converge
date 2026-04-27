@@ -48,6 +48,61 @@ export interface ProducerInfo {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Module-level producer discovery (shared with task-runner)          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Find producer tasks across all epics that declare any of the given paths
+ * as outputs. Returns one entry per producer (de-duplication is the caller's
+ * responsibility).
+ *
+ * Exported so task-runner can do an upstream-failed pre-flight check
+ * without duplicating the SKILL.md / TASK.md scanning logic.
+ */
+export async function findProducersForInputs(
+  inputPaths: string[],
+  projectDir: string,
+): Promise<ProducerInfo[]> {
+  // Delegate to a fresh strategy instance — keeps the (private) glob and
+  // path-extraction logic in one place.
+  const strategy = new DependencyBackoffStrategy();
+  // @ts-expect-error: deliberate access to private; this module owns it.
+  return await strategy.findProducerTasksCrossEpic(inputPaths, projectDir);
+}
+
+/**
+ * True if a producer task has a checkpoint and its terminal status is
+ * "failed". Mirrors DependencyBackoffStrategy.producerCheckpointFailed
+ * but is exported so task-runner can call it during pre-execution
+ * upstream-failure detection.
+ */
+export async function producerCheckpointStatusIsFailed(
+  producer: ProducerInfo,
+  projectDir: string,
+): Promise<boolean> {
+  const segments = producer.journalTaskId.split("/");
+  const pathParts: string[] = [segments[0]];
+  for (let i = 1; i < segments.length; i++) {
+    pathParts.push("tasks", segments[i]);
+  }
+  const journalEpicsDir = getEpicsDir(projectDir);
+  const checkpointPath = join(
+    journalEpicsDir,
+    producer.epicId,
+    ...pathParts,
+    "checkpoint.json",
+  );
+  if (!existsSync(checkpointPath)) return false;
+  try {
+    const raw = await readFile(checkpointPath, "utf-8");
+    const cp = JSON.parse(raw) as { status?: string };
+    return cp.status === "failed";
+  } catch {
+    return false;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /*  DependencyBackoffStrategy                                          */
 /* ------------------------------------------------------------------ */
 
@@ -714,20 +769,60 @@ export class DependencyBackoffStrategy implements FixStrategy {
 
       if (!hasRun) {
         pending.push(producer);
-      } else {
-        // Task ran - verify it actually created outputs
-        const hasOutputs = await this.verifyOutputsExist(
-          producer.outputs,
-          projectDir,
-        );
-        if (!hasOutputs) {
-          // Task ran but didn't create expected outputs → needs re-run
-          pending.push(producer);
-        }
+        continue;
+      }
+
+      // Producer ran. Three reasons to re-run it:
+      //   (a) its checkpoint says `failed` — agent gave up; outputs (if any)
+      //       can't be trusted as a foundation for downstream work
+      //   (b) declared outputs don't exist on disk
+      //   (c) neither — it ran cleanly, skip
+      const isFailed = await this.producerCheckpointFailed(producer, projectDir);
+      if (isFailed) {
+        pending.push(producer);
+        continue;
+      }
+      const hasOutputs = await this.verifyOutputsExist(
+        producer.outputs,
+        projectDir,
+      );
+      if (!hasOutputs) {
+        pending.push(producer);
       }
     }
 
     return pending;
+  }
+
+  /**
+   * True if the producer has a checkpoint and its status is "failed".
+   * Used by filterPendingProducers to schedule re-run of a producer whose
+   * agent gave up — even if some outputs happen to exist on disk.
+   */
+  private async producerCheckpointFailed(
+    producer: ProducerInfo,
+    projectDir: string,
+  ): Promise<boolean> {
+    const segments = producer.journalTaskId.split("/");
+    const pathParts: string[] = [segments[0]];
+    for (let i = 1; i < segments.length; i++) {
+      pathParts.push("tasks", segments[i]);
+    }
+    const journalEpicsDir = getEpicsDir(projectDir);
+    const checkpointPath = join(
+      journalEpicsDir,
+      producer.epicId,
+      ...pathParts,
+      "checkpoint.json",
+    );
+    if (!existsSync(checkpointPath)) return false;
+    try {
+      const raw = await readFile(checkpointPath, "utf-8");
+      const cp = JSON.parse(raw) as { status?: string };
+      return cp.status === "failed";
+    } catch {
+      return false;
+    }
   }
 
   private async hasProducerRun(

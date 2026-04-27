@@ -1,0 +1,477 @@
+{
+  "image": "activate.png",
+  "meta": {
+    "obj_id": "checkpoint-flag",
+    "state": "activate",
+    "category": "interactive",
+    "rows": 4,
+    "cols": 4,
+    "frame_count": 16,
+    "frame_size": {
+      "w": 384,
+      "h": 256
+    },
+    "sheet_size": {
+      "w": 1536,
+      "h": 1024
+    },
+    "frame_order": "left-to-right, top-to-bottom",
+    "requested_cols": 4,
+    "requested_rows": 2,
+    "detected": true,
+    "aligned": true,
+    "frameRate": 8,
+    "yoyo": true,
+    "seed": 1288411757
+  },
+  "frames": [
+    {
+      "filename": "activate_000.png",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 256
+      },
+      "anchor": {
+        "original_bbox": [
+          121,
+          55,
+          333,
+          255
+        ],
+        "torso_x": 205,
+        "aligned_bbox": [
+          108,
+          51,
+          320,
+          251
+        ],
+        "shift": [
+          -13,
+          -4
+        ]
+      }
+    },
+    {
+      "filename": "activate_001.png",
+      "frame": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 256
+      },
+      "anchor": {
+        "original_bbox": [
+          109,
+          55,
+          207,
+          255
+        ],
+        "torso_x": 160,
+        "aligned_bbox": [
+          141,
+          51,
+          239,
+          251
+        ],
+        "shift": [
+          32,
+          -4
+        ]
+      }
+    },
+    {
+      "filename": "activate_002.png",
+      "frame": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 256
+      },
+      "anchor": {
+        "original_bbox": [
+          91,
+          55,
+          215,
+          255
+        ],
+        "torso_x": 150,
+        "aligned_bbox": [
+          133,
+          51,
+          257,
+          251
+        ],
+        "shift": [
+          42,
+          -4
+        ]
+      }
+    },
+    {
+      "filename": "activate_003.png",
+      "frame": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 256
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          55,
+          285,
+          255
+        ],
+        "torso_x": 138,
+        "aligned_bbox": [
+          54,
+          51,
+          339,
+          251
+        ],
+        "shift": [
+          54,
+          -4
+        ]
+      }
+    },
+    {
+      "filename": "activate_004.png",
+      "frame": {
+        "x": 0,
+        "y": 256,
+        "w": 384,
+        "h": 256
+      },
+      "anchor": {
+        "original_bbox": [
+          56,
+          0,
+          235,
+          222
+        ],
+        "torso_x": 138,
+        "aligned_bbox": [
+          110,
+          29,
+          289,
+          251
+        ],
+        "shift": [
+          54,
+          29
+        ]
+      }
+    },
+    {
+      "filename": "activate_005.png",
+      "frame": {
+        "x": 384,
+        "y": 256,
+        "w": 384,
+        "h": 256
+      },
+      "anchor": {
+        "original_bbox": [
+          47,
+          0,
+          220,
+          224
+        ],
+        "torso_x": 124,
+        "aligned_bbox": [
+          115,
+          27,
+          288,
+          251
+        ],
+        "shift": [
+          68,
+          27
+        ]
+      }
+    },
+    {
+      "filename": "activate_006.png",
+      "frame": {
+        "x": 768,
+        "y": 256,
+        "w": 384,
+        "h": 256
+      },
+      "anchor": {
+        "original_bbox": [
+          31,
+          0,
+          383,
+          222
+        ],
+        "torso_x": 124,
+        "aligned_bbox": [
+          31,
+          29,
+          383,
+          251
+        ],
+        "shift": [
+          0,
+          29
+        ]
+      }
+    },
+    {
+      "filename": "activate_007.png",
+      "frame": {
+        "x": 1152,
+        "y": 256,
+        "w": 384,
+        "h": 256
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          0,
+          152,
+          222
+        ],
+        "torso_x": 50,
+        "aligned_bbox": [
+          142,
+          29,
+          294,
+          251
+        ],
+        "shift": [
+          142,
+          29
+        ]
+      }
+    },
+    {
+      "filename": "activate_008.png",
+      "frame": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 256
+      },
+      "anchor": {
+        "original_bbox": [
+          91,
+          27,
+          368,
+          255
+        ],
+        "torso_x": 209,
+        "aligned_bbox": [
+          74,
+          23,
+          351,
+          251
+        ],
+        "shift": [
+          -17,
+          -4
+        ]
+      }
+    },
+    {
+      "filename": "activate_009.png",
+      "frame": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 256
+      },
+      "anchor": {
+        "original_bbox": [
+          78,
+          27,
+          363,
+          255
+        ],
+        "torso_x": 195,
+        "aligned_bbox": [
+          75,
+          23,
+          360,
+          251
+        ],
+        "shift": [
+          -3,
+          -4
+        ]
+      }
+    },
+    {
+      "filename": "activate_010.png",
+      "frame": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 256
+      },
+      "anchor": {
+        "original_bbox": [
+          90,
+          27,
+          302,
+          255
+        ],
+        "torso_x": 158,
+        "aligned_bbox": [
+          124,
+          23,
+          336,
+          251
+        ],
+        "shift": [
+          34,
+          -4
+        ]
+      }
+    },
+    {
+      "filename": "activate_011.png",
+      "frame": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 256
+      },
+      "anchor": {
+        "original_bbox": [
+          27,
+          27,
+          243,
+          255
+        ],
+        "torso_x": 115,
+        "aligned_bbox": [
+          104,
+          23,
+          320,
+          251
+        ],
+        "shift": [
+          77,
+          -4
+        ]
+      }
+    },
+    {
+      "filename": "activate_012.png",
+      "frame": {
+        "x": 0,
+        "y": 768,
+        "w": 384,
+        "h": 256
+      },
+      "anchor": {
+        "original_bbox": [
+          61,
+          0,
+          236,
+          194
+        ],
+        "torso_x": 140,
+        "aligned_bbox": [
+          113,
+          57,
+          288,
+          251
+        ],
+        "shift": [
+          52,
+          57
+        ]
+      }
+    },
+    {
+      "filename": "activate_013.png",
+      "frame": {
+        "x": 384,
+        "y": 768,
+        "w": 384,
+        "h": 256
+      },
+      "anchor": {
+        "original_bbox": [
+          37,
+          0,
+          227,
+          194
+        ],
+        "torso_x": 124,
+        "aligned_bbox": [
+          105,
+          57,
+          295,
+          251
+        ],
+        "shift": [
+          68,
+          57
+        ]
+      }
+    },
+    {
+      "filename": "activate_014.png",
+      "frame": {
+        "x": 768,
+        "y": 768,
+        "w": 384,
+        "h": 256
+      },
+      "anchor": {
+        "original_bbox": [
+          28,
+          0,
+          383,
+          195
+        ],
+        "torso_x": 124,
+        "aligned_bbox": [
+          28,
+          56,
+          383,
+          251
+        ],
+        "shift": [
+          0,
+          56
+        ]
+      }
+    },
+    {
+      "filename": "activate_015.png",
+      "frame": {
+        "x": 1152,
+        "y": 768,
+        "w": 384,
+        "h": 256
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          0,
+          140,
+          193
+        ],
+        "torso_x": 47,
+        "aligned_bbox": [
+          145,
+          58,
+          285,
+          251
+        ],
+        "shift": [
+          145,
+          58
+        ]
+      }
+    }
+  ]
+}

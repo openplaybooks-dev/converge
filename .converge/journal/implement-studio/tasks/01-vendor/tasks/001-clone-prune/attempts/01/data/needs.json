@@ -1,0 +1,10 @@
+{
+  "taskId": "01-vendor/001-clone-prune",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/src/app",
+    "packages/converge-studio/UPSTREAM_SHA"
+  ],
+  "blocked": false
+}

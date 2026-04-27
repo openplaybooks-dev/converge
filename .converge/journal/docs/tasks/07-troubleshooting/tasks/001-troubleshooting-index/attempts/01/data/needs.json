@@ -1,0 +1,23 @@
+{
+  "taskId": "07-troubleshooting/001-troubleshooting-index",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "docs/_troubleshooting.json",
+      "count": 0,
+      "samples": []
+    },
+    {
+      "pattern": "skills/converge-control/troubleshooting/playbook.md",
+      "count": 1,
+      "samples": [
+        "skills/converge-control/troubleshooting/playbook.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/troubleshooting/index.md"
+  ],
+  "blocked": true,
+  "blockedReason": "Missing required inputs: docs/_troubleshooting.json"
+}

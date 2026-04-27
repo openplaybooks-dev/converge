@@ -1,0 +1,30 @@
+{
+  "taskId": "04-build-sections/002-03-build",
+  "checks": [
+    {
+      "id": "component-exists",
+      "description": "SocialProof.astro was created",
+      "cmd": "test -f apps/landing/src/components/sections/SocialProof.astro"
+    },
+    {
+      "id": "component-uses-section-wrapper",
+      "description": "component uses <Section> layout primitive",
+      "cmd": "test -f apps/landing/src/components/sections/SocialProof.astro && grep -qE '<Section\\s' apps/landing/src/components/sections/SocialProof.astro"
+    },
+    {
+      "id": "component-typecheck",
+      "description": "astro check passes for this component",
+      "cmd": "test -f apps/landing/src/components/sections/SocialProof.astro && pnpm --filter @converge/landing astro check 2>&1 | (! grep -E 'error.*SocialProof\\.astro')"
+    },
+    {
+      "id": "no-hardcoded-hex",
+      "description": "no hardcoded hex colors (use brand tokens via Tailwind classes)",
+      "cmd": "test -f apps/landing/src/components/sections/SocialProof.astro && ! grep -qE '#[0-9a-fA-F]{3,6}\\b' apps/landing/src/components/sections/SocialProof.astro"
+    },
+    {
+      "id": "no-placeholders",
+      "description": "no placeholder copy",
+      "cmd": "test -f apps/landing/src/components/sections/SocialProof.astro && ! grep -qE 'Lorem|placeholder content|TBD|FIXME|TODO:' apps/landing/src/components/sections/SocialProof.astro"
+    }
+  ]
+}

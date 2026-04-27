@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-integrate-docs/004-redirects",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T19:47:58.110Z",
+  "createdAt": "2026-04-26T19:47:29.451Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T19:47:29.451Z",
+      "completedAt": "2026-04-26T19:47:58.071Z",
+      "outcome": "success",
+      "durationMs": 28620
+    }
+  ],
+  "currentAttempt": 1
+}

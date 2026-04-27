@@ -29,11 +29,10 @@ export async function run(ctx) {
     };
 
     const templatePath = `${WBS_ROOT}/shot/tasks/01-thumb/TASK.md`;
-    const writeToPath = `.converge/playbooks/default/tasks/06-storyboard/tasks/${shot.id}/TASK.md`;
 
     await ctx.spawn(
       { _type: 'template-ref', path: templatePath, vars },
-      { id: shot.id, writeToPath },
+      { id: shot.id },
     );
   }
 

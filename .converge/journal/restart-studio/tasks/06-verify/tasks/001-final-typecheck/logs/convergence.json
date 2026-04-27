@@ -1,0 +1,222 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "06-verify/001-final-typecheck-missing-output-.converge/studio-state/final-typecheck.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-verify/001-final-typecheck",
+            "severity": "high",
+            "description": "[06-verify/001-final-typecheck] Task output not created: .converge/studio-state/final-typecheck.json",
+            "source": "unit",
+            "detected": "2026-04-26T10:19:28.414Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/06-verify/tasks/001-final-typecheck",
+              "taskId": "06-verify/001-final-typecheck",
+              "taskTitle": "Final typecheck — must be 0 errors",
+              "taskPrompt": "```bash\npnpm --filter @converge/studio typecheck 2>&1 | tee /tmp/studio-final-typecheck.log\nCOUNT=$(grep -c 'error TS' /tmp/studio-final-typecheck.log || echo 0)\nmkdir -p .converge/studio-state\nnode -e \"\n  const fs = require('fs');\n  fs.writeFileSync('.converge/studio-state/final-typecheck.json', JSON.stringify({\n    timestamp: new Date().toISOString(),\n    errorCount: $COUNT,\n    logTail: fs.readFileSync('/tmp/studio-final-typecheck.log','utf8').split('\\\\n').slice(-30).join('\\\\n')\n  }, null, 2));\n  process.exit($COUNT === 0 ? 0 : 1);\n\"\n```",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \".converge/studio-state/final-typecheck.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "06-verify/001-final-typecheck-check-failed-report-written",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-verify/001-final-typecheck",
+            "severity": "high",
+            "description": "[06-verify/001-final-typecheck] Check failed: Final typecheck report exists",
+            "source": "unit",
+            "detected": "2026-04-26T10:19:30.261Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "report-written",
+              "checkCmd": "test -f .converge/studio-state/final-typecheck.json",
+              "checkDescription": "Final typecheck report exists",
+              "checkOutput": "Command failed: test -f .converge/studio-state/final-typecheck.json\n",
+              "checkExitCode": 1,
+              "taskPrompt": "```bash\npnpm --filter @converge/studio typecheck 2>&1 | tee /tmp/studio-final-typecheck.log\nCOUNT=$(grep -c 'error TS' /tmp/studio-final-typecheck.log || echo 0)\nmkdir -p .converge/studio-state\nnode -e \"\n  const fs = require('fs');\n  fs.writeFileSync('.converge/studio-state/final-typecheck.json', JSON.stringify({\n    timestamp: new Date().toISOString(),\n    errorCount: $COUNT,\n    logTail: fs.readFileSync('/tmp/studio-final-typecheck.log','utf8').split('\\\\n').slice(-30).join('\\\\n')\n  }, null, 2));\n  process.exit($COUNT === 0 ? 0 : 1);\n\"\n```",
+              "taskId": "06-verify/001-final-typecheck",
+              "taskTitle": "Final typecheck — must be 0 errors",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/06-verify/tasks/001-final-typecheck",
+              "factId": "check:report-written"
+            }
+          }
+        ],
+        "durationMs": 1850
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1821
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 1883
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#27",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 63667
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T10:19:28.410Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T10:19:28.411Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T10:19:30.261Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T10:19:30.262Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T10:19:32.083Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#27",
+      "iteration": 1,
+      "ts": "2026-04-26T10:20:35.750Z"
+    },
+    {
+      "from": "run-strategy:task-run#27",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T10:20:37.635Z"
+    }
+  ]
+}

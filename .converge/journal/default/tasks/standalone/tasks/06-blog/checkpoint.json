@@ -1,0 +1,27 @@
+{
+  "type": "task",
+  "id": "06-blog",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T08:48:00.038Z",
+  "createdAt": "2026-04-26T06:32:54.051Z",
+  "progress": {
+    "totalChildren": 12,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-collection-schema",
+      "001-collection-schema",
+      "002-mdx-setup",
+      "002-mdx-setup",
+      "003-listing-page",
+      "003-listing-page",
+      "004-post-template",
+      "004-post-template",
+      "005-rss-and-og",
+      "005-rss-and-og",
+      "006-seed-posts",
+      "006-seed-posts"
+    ],
+    "lastProgressUpdate": "2026-04-26T08:48:00.035Z"
+  }
+}

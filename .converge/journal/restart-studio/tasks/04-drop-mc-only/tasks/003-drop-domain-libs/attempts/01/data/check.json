@@ -1,0 +1,15 @@
+{
+  "taskId": "04-drop-mc-only/003-drop-domain-libs",
+  "checks": [
+    {
+      "id": "domain-libs-gone",
+      "description": "gateway-*, openclaw-*, websocket-*, agent-* lib files are gone",
+      "cmd": "test -z \"$(ls packages/studio/src/lib/gateway-*.ts 2>/dev/null)\" && test -z \"$(ls packages/studio/src/lib/openclaw-*.ts 2>/dev/null)\" && test -z \"$(ls packages/studio/src/lib/websocket*.ts 2>/dev/null)\" && test -z \"$(ls packages/studio/src/lib/agent-*.ts 2>/dev/null)\" && test -z \"$(ls packages/studio/src/lib/onboarding-*.ts 2>/dev/null)\""
+    },
+    {
+      "id": "marker-written",
+      "description": "A marker file recording the drop is written",
+      "cmd": "test -f .converge/studio-state/dropped-domain-libs.txt"
+    }
+  ]
+}

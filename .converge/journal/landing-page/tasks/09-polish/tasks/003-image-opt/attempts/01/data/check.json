@@ -1,0 +1,25 @@
+{
+  "taskId": "09-polish/003-image-opt",
+  "checks": [
+    {
+      "id": "image-component-exists",
+      "description": "Image.astro exists",
+      "cmd": "test -f apps/landing/src/components/ui/Image.astro"
+    },
+    {
+      "id": "image-uses-astro-assets",
+      "description": "uses astro:assets Image component",
+      "cmd": "test -f apps/landing/src/components/ui/Image.astro && grep -qE 'astro:assets' apps/landing/src/components/ui/Image.astro"
+    },
+    {
+      "id": "image-defaults-to-avif-or-webp",
+      "description": "defaults format to avif or webp",
+      "cmd": "test -f apps/landing/src/components/ui/Image.astro && grep -qE 'avif|webp' apps/landing/src/components/ui/Image.astro"
+    },
+    {
+      "id": "image-defaults-to-lazy",
+      "description": "defaults loading to lazy",
+      "cmd": "test -f apps/landing/src/components/ui/Image.astro && grep -qE \"loading.*lazy|loading=['\\\"]lazy\" apps/landing/src/components/ui/Image.astro"
+    }
+  ]
+}

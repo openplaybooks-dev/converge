@@ -1,0 +1,313 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-ui/018-secrets-scan-missing-output-packages/converge-studio/src/app/api/playbooks/[name]/secrets-scan",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/018-secrets-scan",
+            "severity": "high",
+            "description": "[04-ui/018-secrets-scan] Task output not created: packages/converge-studio/src/app/api/playbooks/[name]/secrets-scan",
+            "source": "unit",
+            "detected": "2026-04-26T05:59:50.921Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/018-secrets-scan",
+              "taskId": "04-ui/018-secrets-scan",
+              "taskTitle": "Scan playbook tasks for hardcoded secrets",
+              "taskPrompt": "Best-effort scan that flags obviously hardcoded secrets in playbook task files. Not a security tool — it's a \"you probably didn't mean to commit this\" reminder. Pattern-based, not contextual.\n\n**Add `src/lib/secrets-scan.ts`:**\n\n```ts\nexport interface SecretFinding {\n  taskPath: string\n  line: number\n  pattern: string\n  preview: string\n}\n\nexport function scanText(text: string, taskPath: string): SecretFinding[]\nexport function scanPlaybook(playbook: string): Promise<SecretFinding[]>\n```\n\nPattern set (keep it tight — false positives are worse than false negatives for this UI):\n- AWS access key id: `AKIA[0-9A-Z]{16}`\n- AWS secret key: `(?i)aws(.{0,20})?(secret|private)(.{0,20})?[=:][^=:]{40}`\n- GitHub PAT: `ghp_[A-Za-z0-9]{36}` and `github_pat_[A-Za-z0-9_]{82}`\n- Generic high-entropy assignment: `(?i)(password|passwd|pwd|secret|token|api[_-]?key)\\s*[:=]\\s*['\"][A-Za-z0-9+/=_-]{16,}['\"]`\n- Private key headers: `-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----`\n\nWalk all `TASK.md` files under the playbook (use `converge-adapter/tasks.ts::listTasks`), apply each pattern line-by-line, return findings with line numbers and a 60-char preview (with the matched substring redacted to `***`).\n\n**Add `src/app/api/playbooks/[name]/secrets-scan/route.ts`:**\n- `GET` returns `{ findings: SecretFinding[], scannedFiles: number, durationMs: number }`. Cache for 30 s per playbook (filesystem mtime check is fine).\n\n**Add `src/components/secrets-scan-card.tsx`** (server component):\n- Renders nothing if findings is empty.\n- Otherwise: a yellow warning card with the count, a list (taskPath:line · pattern · redacted preview), and a \"Dismiss\" button that sets a localStorage flag per playbook (so users can mute it after acknowledging).\n\n**Wire it in:** add `<SecretsScanCard playbook={name} />` to `src/app/playbooks/[name]/page.tsx` near the top of the detail page. The card is invisible when there's nothing to flag, so it doesn't cost vertical space in the common case.\n\n**Verification:**\n- Add a fake secret to a task file: `echo 'AWS_SECRET_ACCESS_KEY=\"AKIAIOSFODNN7EXAMPLE\"' >> .converge/playbooks/implement-studio/tasks/01-vendor/TASK.md`. Reload the playbook detail page — the card appears.\n- Remove the line; the card disappears within 30 s (cache window).\n- The preview is redacted (the `AKIA...` portion shows as `***`).",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/app/api/playbooks/[name]/secrets-scan\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-ui/018-secrets-scan-missing-output-packages/converge-studio/src/lib/secrets-scan.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/018-secrets-scan",
+            "severity": "high",
+            "description": "[04-ui/018-secrets-scan] Task output not created: packages/converge-studio/src/lib/secrets-scan.ts",
+            "source": "unit",
+            "detected": "2026-04-26T05:59:50.923Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/018-secrets-scan",
+              "taskId": "04-ui/018-secrets-scan",
+              "taskTitle": "Scan playbook tasks for hardcoded secrets",
+              "taskPrompt": "Best-effort scan that flags obviously hardcoded secrets in playbook task files. Not a security tool — it's a \"you probably didn't mean to commit this\" reminder. Pattern-based, not contextual.\n\n**Add `src/lib/secrets-scan.ts`:**\n\n```ts\nexport interface SecretFinding {\n  taskPath: string\n  line: number\n  pattern: string\n  preview: string\n}\n\nexport function scanText(text: string, taskPath: string): SecretFinding[]\nexport function scanPlaybook(playbook: string): Promise<SecretFinding[]>\n```\n\nPattern set (keep it tight — false positives are worse than false negatives for this UI):\n- AWS access key id: `AKIA[0-9A-Z]{16}`\n- AWS secret key: `(?i)aws(.{0,20})?(secret|private)(.{0,20})?[=:][^=:]{40}`\n- GitHub PAT: `ghp_[A-Za-z0-9]{36}` and `github_pat_[A-Za-z0-9_]{82}`\n- Generic high-entropy assignment: `(?i)(password|passwd|pwd|secret|token|api[_-]?key)\\s*[:=]\\s*['\"][A-Za-z0-9+/=_-]{16,}['\"]`\n- Private key headers: `-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----`\n\nWalk all `TASK.md` files under the playbook (use `converge-adapter/tasks.ts::listTasks`), apply each pattern line-by-line, return findings with line numbers and a 60-char preview (with the matched substring redacted to `***`).\n\n**Add `src/app/api/playbooks/[name]/secrets-scan/route.ts`:**\n- `GET` returns `{ findings: SecretFinding[], scannedFiles: number, durationMs: number }`. Cache for 30 s per playbook (filesystem mtime check is fine).\n\n**Add `src/components/secrets-scan-card.tsx`** (server component):\n- Renders nothing if findings is empty.\n- Otherwise: a yellow warning card with the count, a list (taskPath:line · pattern · redacted preview), and a \"Dismiss\" button that sets a localStorage flag per playbook (so users can mute it after acknowledging).\n\n**Wire it in:** add `<SecretsScanCard playbook={name} />` to `src/app/playbooks/[name]/page.tsx` near the top of the detail page. The card is invisible when there's nothing to flag, so it doesn't cost vertical space in the common case.\n\n**Verification:**\n- Add a fake secret to a task file: `echo 'AWS_SECRET_ACCESS_KEY=\"AKIAIOSFODNN7EXAMPLE\"' >> .converge/playbooks/implement-studio/tasks/01-vendor/TASK.md`. Reload the playbook detail page — the card appears.\n- Remove the line; the card disappears within 30 s (cache window).\n- The preview is redacted (the `AKIA...` portion shows as `***`).",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/lib/secrets-scan.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-ui/018-secrets-scan-missing-output-packages/converge-studio/src/components/secrets-scan-card.tsx",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/018-secrets-scan",
+            "severity": "high",
+            "description": "[04-ui/018-secrets-scan] Task output not created: packages/converge-studio/src/components/secrets-scan-card.tsx",
+            "source": "unit",
+            "detected": "2026-04-26T05:59:50.925Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/018-secrets-scan",
+              "taskId": "04-ui/018-secrets-scan",
+              "taskTitle": "Scan playbook tasks for hardcoded secrets",
+              "taskPrompt": "Best-effort scan that flags obviously hardcoded secrets in playbook task files. Not a security tool — it's a \"you probably didn't mean to commit this\" reminder. Pattern-based, not contextual.\n\n**Add `src/lib/secrets-scan.ts`:**\n\n```ts\nexport interface SecretFinding {\n  taskPath: string\n  line: number\n  pattern: string\n  preview: string\n}\n\nexport function scanText(text: string, taskPath: string): SecretFinding[]\nexport function scanPlaybook(playbook: string): Promise<SecretFinding[]>\n```\n\nPattern set (keep it tight — false positives are worse than false negatives for this UI):\n- AWS access key id: `AKIA[0-9A-Z]{16}`\n- AWS secret key: `(?i)aws(.{0,20})?(secret|private)(.{0,20})?[=:][^=:]{40}`\n- GitHub PAT: `ghp_[A-Za-z0-9]{36}` and `github_pat_[A-Za-z0-9_]{82}`\n- Generic high-entropy assignment: `(?i)(password|passwd|pwd|secret|token|api[_-]?key)\\s*[:=]\\s*['\"][A-Za-z0-9+/=_-]{16,}['\"]`\n- Private key headers: `-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----`\n\nWalk all `TASK.md` files under the playbook (use `converge-adapter/tasks.ts::listTasks`), apply each pattern line-by-line, return findings with line numbers and a 60-char preview (with the matched substring redacted to `***`).\n\n**Add `src/app/api/playbooks/[name]/secrets-scan/route.ts`:**\n- `GET` returns `{ findings: SecretFinding[], scannedFiles: number, durationMs: number }`. Cache for 30 s per playbook (filesystem mtime check is fine).\n\n**Add `src/components/secrets-scan-card.tsx`** (server component):\n- Renders nothing if findings is empty.\n- Otherwise: a yellow warning card with the count, a list (taskPath:line · pattern · redacted preview), and a \"Dismiss\" button that sets a localStorage flag per playbook (so users can mute it after acknowledging).\n\n**Wire it in:** add `<SecretsScanCard playbook={name} />` to `src/app/playbooks/[name]/page.tsx` near the top of the detail page. The card is invisible when there's nothing to flag, so it doesn't cost vertical space in the common case.\n\n**Verification:**\n- Add a fake secret to a task file: `echo 'AWS_SECRET_ACCESS_KEY=\"AKIAIOSFODNN7EXAMPLE\"' >> .converge/playbooks/implement-studio/tasks/01-vendor/TASK.md`. Reload the playbook detail page — the card appears.\n- Remove the line; the card disappears within 30 s (cache window).\n- The preview is redacted (the `AKIA...` portion shows as `***`).",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/components/secrets-scan-card.tsx\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-ui/018-secrets-scan-check-failed-scan-lib-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/018-secrets-scan",
+            "severity": "high",
+            "description": "[04-ui/018-secrets-scan] Check failed: Secrets scan library exists",
+            "source": "unit",
+            "detected": "2026-04-26T05:59:50.928Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "scan-lib-exists",
+              "checkCmd": "test -f packages/converge-studio/src/lib/secrets-scan.ts",
+              "checkDescription": "Secrets scan library exists",
+              "checkOutput": "Command failed: test -f packages/converge-studio/src/lib/secrets-scan.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Best-effort scan that flags obviously hardcoded secrets in playbook task files. Not a security tool — it's a \"you probably didn't mean to commit this\" reminder. Pattern-based, not contextual.\n\n**Add `src/lib/secrets-scan.ts`:**\n\n```ts\nexport interface SecretFinding {\n  taskPath: string\n  line: number\n  pattern: string\n  preview: string\n}\n\nexport function scanText(text: string, taskPath: string): SecretFinding[]\nexport function scanPlaybook(playbook: string): Promise<SecretFinding[]>\n```\n\nPattern set (keep it tight — false positives are worse than false negatives for this UI):\n- AWS access key id: `AKIA[0-9A-Z]{16}`\n- AWS secret key: `(?i)aws(.{0,20})?(secret|private)(.{0,20})?[=:][^=:]{40}`\n- GitHub PAT: `ghp_[A-Za-z0-9]{36}` and `github_pat_[A-Za-z0-9_]{82}`\n- Generic high-entropy assignment: `(?i)(password|passwd|pwd|secret|token|api[_-]?key)\\s*[:=]\\s*['\"][A-Za-z0-9+/=_-]{16,}['\"]`\n- Private key headers: `-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----`\n\nWalk all `TASK.md` files under the playbook (use `converge-adapter/tasks.ts::listTasks`), apply each pattern line-by-line, return findings with line numbers and a 60-char preview (with the matched substring redacted to `***`).\n\n**Add `src/app/api/playbooks/[name]/secrets-scan/route.ts`:**\n- `GET` returns `{ findings: SecretFinding[], scannedFiles: number, durationMs: number }`. Cache for 30 s per playbook (filesystem mtime check is fine).\n\n**Add `src/components/secrets-scan-card.tsx`** (server component):\n- Renders nothing if findings is empty.\n- Otherwise: a yellow warning card with the count, a list (taskPath:line · pattern · redacted preview), and a \"Dismiss\" button that sets a localStorage flag per playbook (so users can mute it after acknowledging).\n\n**Wire it in:** add `<SecretsScanCard playbook={name} />` to `src/app/playbooks/[name]/page.tsx` near the top of the detail page. The card is invisible when there's nothing to flag, so it doesn't cost vertical space in the common case.\n\n**Verification:**\n- Add a fake secret to a task file: `echo 'AWS_SECRET_ACCESS_KEY=\"AKIAIOSFODNN7EXAMPLE\"' >> .converge/playbooks/implement-studio/tasks/01-vendor/TASK.md`. Reload the playbook detail page — the card appears.\n- Remove the line; the card disappears within 30 s (cache window).\n- The preview is redacted (the `AKIA...` portion shows as `***`).",
+              "taskId": "04-ui/018-secrets-scan",
+              "taskTitle": "Scan playbook tasks for hardcoded secrets",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/018-secrets-scan",
+              "factId": "check:scan-lib-exists"
+            }
+          },
+          {
+            "id": "04-ui/018-secrets-scan-check-failed-scan-api-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/018-secrets-scan",
+            "severity": "high",
+            "description": "[04-ui/018-secrets-scan] Check failed: /api/playbooks/[name]/secrets-scan returns findings",
+            "source": "unit",
+            "detected": "2026-04-26T05:59:50.930Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "scan-api-exists",
+              "checkCmd": "test -f 'packages/converge-studio/src/app/api/playbooks/[name]/secrets-scan/route.ts'",
+              "checkDescription": "/api/playbooks/[name]/secrets-scan returns findings",
+              "checkOutput": "Command failed: test -f 'packages/converge-studio/src/app/api/playbooks/[name]/secrets-scan/route.ts'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Best-effort scan that flags obviously hardcoded secrets in playbook task files. Not a security tool — it's a \"you probably didn't mean to commit this\" reminder. Pattern-based, not contextual.\n\n**Add `src/lib/secrets-scan.ts`:**\n\n```ts\nexport interface SecretFinding {\n  taskPath: string\n  line: number\n  pattern: string\n  preview: string\n}\n\nexport function scanText(text: string, taskPath: string): SecretFinding[]\nexport function scanPlaybook(playbook: string): Promise<SecretFinding[]>\n```\n\nPattern set (keep it tight — false positives are worse than false negatives for this UI):\n- AWS access key id: `AKIA[0-9A-Z]{16}`\n- AWS secret key: `(?i)aws(.{0,20})?(secret|private)(.{0,20})?[=:][^=:]{40}`\n- GitHub PAT: `ghp_[A-Za-z0-9]{36}` and `github_pat_[A-Za-z0-9_]{82}`\n- Generic high-entropy assignment: `(?i)(password|passwd|pwd|secret|token|api[_-]?key)\\s*[:=]\\s*['\"][A-Za-z0-9+/=_-]{16,}['\"]`\n- Private key headers: `-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----`\n\nWalk all `TASK.md` files under the playbook (use `converge-adapter/tasks.ts::listTasks`), apply each pattern line-by-line, return findings with line numbers and a 60-char preview (with the matched substring redacted to `***`).\n\n**Add `src/app/api/playbooks/[name]/secrets-scan/route.ts`:**\n- `GET` returns `{ findings: SecretFinding[], scannedFiles: number, durationMs: number }`. Cache for 30 s per playbook (filesystem mtime check is fine).\n\n**Add `src/components/secrets-scan-card.tsx`** (server component):\n- Renders nothing if findings is empty.\n- Otherwise: a yellow warning card with the count, a list (taskPath:line · pattern · redacted preview), and a \"Dismiss\" button that sets a localStorage flag per playbook (so users can mute it after acknowledging).\n\n**Wire it in:** add `<SecretsScanCard playbook={name} />` to `src/app/playbooks/[name]/page.tsx` near the top of the detail page. The card is invisible when there's nothing to flag, so it doesn't cost vertical space in the common case.\n\n**Verification:**\n- Add a fake secret to a task file: `echo 'AWS_SECRET_ACCESS_KEY=\"AKIAIOSFODNN7EXAMPLE\"' >> .converge/playbooks/implement-studio/tasks/01-vendor/TASK.md`. Reload the playbook detail page — the card appears.\n- Remove the line; the card disappears within 30 s (cache window).\n- The preview is redacted (the `AKIA...` portion shows as `***`).",
+              "taskId": "04-ui/018-secrets-scan",
+              "taskTitle": "Scan playbook tasks for hardcoded secrets",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/018-secrets-scan",
+              "factId": "check:scan-api-exists"
+            }
+          },
+          {
+            "id": "04-ui/018-secrets-scan-check-failed-card-component-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/018-secrets-scan",
+            "severity": "high",
+            "description": "[04-ui/018-secrets-scan] Check failed: SecretsScanCard component exists",
+            "source": "unit",
+            "detected": "2026-04-26T05:59:50.932Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "card-component-exists",
+              "checkCmd": "test -f packages/converge-studio/src/components/secrets-scan-card.tsx",
+              "checkDescription": "SecretsScanCard component exists",
+              "checkOutput": "Command failed: test -f packages/converge-studio/src/components/secrets-scan-card.tsx\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Best-effort scan that flags obviously hardcoded secrets in playbook task files. Not a security tool — it's a \"you probably didn't mean to commit this\" reminder. Pattern-based, not contextual.\n\n**Add `src/lib/secrets-scan.ts`:**\n\n```ts\nexport interface SecretFinding {\n  taskPath: string\n  line: number\n  pattern: string\n  preview: string\n}\n\nexport function scanText(text: string, taskPath: string): SecretFinding[]\nexport function scanPlaybook(playbook: string): Promise<SecretFinding[]>\n```\n\nPattern set (keep it tight — false positives are worse than false negatives for this UI):\n- AWS access key id: `AKIA[0-9A-Z]{16}`\n- AWS secret key: `(?i)aws(.{0,20})?(secret|private)(.{0,20})?[=:][^=:]{40}`\n- GitHub PAT: `ghp_[A-Za-z0-9]{36}` and `github_pat_[A-Za-z0-9_]{82}`\n- Generic high-entropy assignment: `(?i)(password|passwd|pwd|secret|token|api[_-]?key)\\s*[:=]\\s*['\"][A-Za-z0-9+/=_-]{16,}['\"]`\n- Private key headers: `-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----`\n\nWalk all `TASK.md` files under the playbook (use `converge-adapter/tasks.ts::listTasks`), apply each pattern line-by-line, return findings with line numbers and a 60-char preview (with the matched substring redacted to `***`).\n\n**Add `src/app/api/playbooks/[name]/secrets-scan/route.ts`:**\n- `GET` returns `{ findings: SecretFinding[], scannedFiles: number, durationMs: number }`. Cache for 30 s per playbook (filesystem mtime check is fine).\n\n**Add `src/components/secrets-scan-card.tsx`** (server component):\n- Renders nothing if findings is empty.\n- Otherwise: a yellow warning card with the count, a list (taskPath:line · pattern · redacted preview), and a \"Dismiss\" button that sets a localStorage flag per playbook (so users can mute it after acknowledging).\n\n**Wire it in:** add `<SecretsScanCard playbook={name} />` to `src/app/playbooks/[name]/page.tsx` near the top of the detail page. The card is invisible when there's nothing to flag, so it doesn't cost vertical space in the common case.\n\n**Verification:**\n- Add a fake secret to a task file: `echo 'AWS_SECRET_ACCESS_KEY=\"AKIAIOSFODNN7EXAMPLE\"' >> .converge/playbooks/implement-studio/tasks/01-vendor/TASK.md`. Reload the playbook detail page — the card appears.\n- Remove the line; the card disappears within 30 s (cache window).\n- The preview is redacted (the `AKIA...` portion shows as `***`).",
+              "taskId": "04-ui/018-secrets-scan",
+              "taskTitle": "Scan playbook tasks for hardcoded secrets",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/018-secrets-scan",
+              "factId": "check:card-component-exists"
+            }
+          }
+        ],
+        "durationMs": 4017
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3881
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 3917
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#13",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 206113
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T05:59:50.918Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T05:59:50.918Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T05:59:54.936Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T05:59:54.936Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T05:59:58.819Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#13",
+      "iteration": 1,
+      "ts": "2026-04-26T06:03:24.932Z"
+    },
+    {
+      "from": "run-strategy:task-run#13",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T06:03:28.849Z"
+    }
+  ]
+}

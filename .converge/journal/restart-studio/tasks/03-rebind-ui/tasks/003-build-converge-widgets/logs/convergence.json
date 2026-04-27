@@ -1,0 +1,291 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-rebind-ui/003-build-converge-widgets-missing-output-packages/studio/src/components/dashboard/widgets/recent-runs-widget.tsx",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-rebind-ui/003-build-converge-widgets",
+            "severity": "high",
+            "description": "[03-rebind-ui/003-build-converge-widgets] Task output not created: packages/studio/src/components/dashboard/widgets/recent-runs-widget.tsx",
+            "source": "unit",
+            "detected": "2026-04-26T09:46:46.835Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/03-rebind-ui/tasks/003-build-converge-widgets",
+              "taskId": "03-rebind-ui/003-build-converge-widgets",
+              "taskTitle": "Build 4 converge dashboard widgets",
+              "taskPrompt": "Build four converge-native widgets that reuse MC's widget primitives (`src/components/dashboard/widget-primitives.tsx` — MetricCard, SignalPill, HealthRow, StatRow, LogRow, QuickAction).\n\n**1. RecentRunsWidget**\n- `listSessions({ limit: 10 })` from converge-adapter\n- Each row: `StatRow` with playbook + sessionId (truncated) + age\n- Status indicator: `SignalPill` colored by session status\n- Each row → `/runs/<playbook>/<sessionId>`\n\n**2. PlaybookHealthWidget**\n- `listPlaybooks()` + per-playbook `lastSession`\n- Per playbook: name, total tasks, completion %, last-run-time, status pill\n- Use `HealthRow` primitive\n\n**3. LiveActivityWidget**\n- `useConvergeEvents()` SSE → 40-event buffer\n- Pulsing green dot at top, color-coded events (info/warn/error)\n- Use `LogRow` primitive\n- Idle state (\"All quiet\") if no events in 60s\n\n**4. QuickActionsWidget**\n- Static tiles using `QuickAction` primitive\n- \"New playbook\" → `/playbooks/new`\n- \"View all runs\" → `/runs`\n- \"Open settings\" → `/settings`\n- \"Documentation\" → external link to converge docs\n\nAll four import from `../widget-primitives.tsx`.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"packages/studio/src/components/dashboard/widgets/recent-runs-widget.tsx\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-rebind-ui/003-build-converge-widgets-missing-output-packages/studio/src/components/dashboard/widgets/playbook-health-widget.tsx",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-rebind-ui/003-build-converge-widgets",
+            "severity": "high",
+            "description": "[03-rebind-ui/003-build-converge-widgets] Task output not created: packages/studio/src/components/dashboard/widgets/playbook-health-widget.tsx",
+            "source": "unit",
+            "detected": "2026-04-26T09:46:46.840Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/03-rebind-ui/tasks/003-build-converge-widgets",
+              "taskId": "03-rebind-ui/003-build-converge-widgets",
+              "taskTitle": "Build 4 converge dashboard widgets",
+              "taskPrompt": "Build four converge-native widgets that reuse MC's widget primitives (`src/components/dashboard/widget-primitives.tsx` — MetricCard, SignalPill, HealthRow, StatRow, LogRow, QuickAction).\n\n**1. RecentRunsWidget**\n- `listSessions({ limit: 10 })` from converge-adapter\n- Each row: `StatRow` with playbook + sessionId (truncated) + age\n- Status indicator: `SignalPill` colored by session status\n- Each row → `/runs/<playbook>/<sessionId>`\n\n**2. PlaybookHealthWidget**\n- `listPlaybooks()` + per-playbook `lastSession`\n- Per playbook: name, total tasks, completion %, last-run-time, status pill\n- Use `HealthRow` primitive\n\n**3. LiveActivityWidget**\n- `useConvergeEvents()` SSE → 40-event buffer\n- Pulsing green dot at top, color-coded events (info/warn/error)\n- Use `LogRow` primitive\n- Idle state (\"All quiet\") if no events in 60s\n\n**4. QuickActionsWidget**\n- Static tiles using `QuickAction` primitive\n- \"New playbook\" → `/playbooks/new`\n- \"View all runs\" → `/runs`\n- \"Open settings\" → `/settings`\n- \"Documentation\" → external link to converge docs\n\nAll four import from `../widget-primitives.tsx`.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"packages/studio/src/components/dashboard/widgets/playbook-health-widget.tsx\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-rebind-ui/003-build-converge-widgets-missing-output-packages/studio/src/components/dashboard/widgets/live-activity-widget.tsx",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-rebind-ui/003-build-converge-widgets",
+            "severity": "high",
+            "description": "[03-rebind-ui/003-build-converge-widgets] Task output not created: packages/studio/src/components/dashboard/widgets/live-activity-widget.tsx",
+            "source": "unit",
+            "detected": "2026-04-26T09:46:46.843Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/03-rebind-ui/tasks/003-build-converge-widgets",
+              "taskId": "03-rebind-ui/003-build-converge-widgets",
+              "taskTitle": "Build 4 converge dashboard widgets",
+              "taskPrompt": "Build four converge-native widgets that reuse MC's widget primitives (`src/components/dashboard/widget-primitives.tsx` — MetricCard, SignalPill, HealthRow, StatRow, LogRow, QuickAction).\n\n**1. RecentRunsWidget**\n- `listSessions({ limit: 10 })` from converge-adapter\n- Each row: `StatRow` with playbook + sessionId (truncated) + age\n- Status indicator: `SignalPill` colored by session status\n- Each row → `/runs/<playbook>/<sessionId>`\n\n**2. PlaybookHealthWidget**\n- `listPlaybooks()` + per-playbook `lastSession`\n- Per playbook: name, total tasks, completion %, last-run-time, status pill\n- Use `HealthRow` primitive\n\n**3. LiveActivityWidget**\n- `useConvergeEvents()` SSE → 40-event buffer\n- Pulsing green dot at top, color-coded events (info/warn/error)\n- Use `LogRow` primitive\n- Idle state (\"All quiet\") if no events in 60s\n\n**4. QuickActionsWidget**\n- Static tiles using `QuickAction` primitive\n- \"New playbook\" → `/playbooks/new`\n- \"View all runs\" → `/runs`\n- \"Open settings\" → `/settings`\n- \"Documentation\" → external link to converge docs\n\nAll four import from `../widget-primitives.tsx`.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"packages/studio/src/components/dashboard/widgets/live-activity-widget.tsx\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-rebind-ui/003-build-converge-widgets-check-failed-all-four-widgets-exist",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-rebind-ui/003-build-converge-widgets",
+            "severity": "high",
+            "description": "[03-rebind-ui/003-build-converge-widgets] Check failed: All four converge widgets exist",
+            "source": "unit",
+            "detected": "2026-04-26T09:46:46.850Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "all-four-widgets-exist",
+              "checkCmd": "test -f packages/studio/src/components/dashboard/widgets/recent-runs-widget.tsx && test -f packages/studio/src/components/dashboard/widgets/playbook-health-widget.tsx && test -f packages/studio/src/components/dashboard/widgets/live-activity-widget.tsx && test -f packages/studio/src/components/dashboard/widgets/quick-actions-widget.tsx",
+              "checkDescription": "All four converge widgets exist",
+              "checkOutput": "Command failed: test -f packages/studio/src/components/dashboard/widgets/recent-runs-widget.tsx && test -f packages/studio/src/components/dashboard/widgets/playbook-health-widget.tsx && test -f packages/studio/src/components/dashboard/widgets/live-activity-widget.tsx && test -f packages/studio/src/components/dashboard/widgets/quick-actions-widget.tsx\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Build four converge-native widgets that reuse MC's widget primitives (`src/components/dashboard/widget-primitives.tsx` — MetricCard, SignalPill, HealthRow, StatRow, LogRow, QuickAction).\n\n**1. RecentRunsWidget**\n- `listSessions({ limit: 10 })` from converge-adapter\n- Each row: `StatRow` with playbook + sessionId (truncated) + age\n- Status indicator: `SignalPill` colored by session status\n- Each row → `/runs/<playbook>/<sessionId>`\n\n**2. PlaybookHealthWidget**\n- `listPlaybooks()` + per-playbook `lastSession`\n- Per playbook: name, total tasks, completion %, last-run-time, status pill\n- Use `HealthRow` primitive\n\n**3. LiveActivityWidget**\n- `useConvergeEvents()` SSE → 40-event buffer\n- Pulsing green dot at top, color-coded events (info/warn/error)\n- Use `LogRow` primitive\n- Idle state (\"All quiet\") if no events in 60s\n\n**4. QuickActionsWidget**\n- Static tiles using `QuickAction` primitive\n- \"New playbook\" → `/playbooks/new`\n- \"View all runs\" → `/runs`\n- \"Open settings\" → `/settings`\n- \"Documentation\" → external link to converge docs\n\nAll four import from `../widget-primitives.tsx`.",
+              "taskId": "03-rebind-ui/003-build-converge-widgets",
+              "taskTitle": "Build 4 converge dashboard widgets",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/03-rebind-ui/tasks/003-build-converge-widgets",
+              "factId": "check:all-four-widgets-exist"
+            }
+          },
+          {
+            "id": "03-rebind-ui/003-build-converge-widgets-check-failed-widgets-use-converge-data",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-rebind-ui/003-build-converge-widgets",
+            "severity": "high",
+            "description": "[03-rebind-ui/003-build-converge-widgets] Check failed: Widgets reference converge data hooks or APIs",
+            "source": "unit",
+            "detected": "2026-04-26T09:46:46.854Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "widgets-use-converge-data",
+              "checkCmd": "grep -ql 'listSessions\\|listPlaybooks\\|useConvergeEvents\\|/api/runs\\|/api/playbooks\\|/api/events' packages/studio/src/components/dashboard/widgets/recent-runs-widget.tsx packages/studio/src/components/dashboard/widgets/playbook-health-widget.tsx packages/studio/src/components/dashboard/widgets/live-activity-widget.tsx 2>/dev/null",
+              "checkDescription": "Widgets reference converge data hooks or APIs",
+              "checkOutput": "Command failed: grep -ql 'listSessions\\|listPlaybooks\\|useConvergeEvents\\|/api/runs\\|/api/playbooks\\|/api/events' packages/studio/src/components/dashboard/widgets/recent-runs-widget.tsx packages/studio/src/components/dashboard/widgets/playbook-health-widget.tsx packages/studio/src/components/dashboard/widgets/live-activity-widget.tsx 2>/dev/null\n",
+              "checkExitCode": 2,
+              "taskPrompt": "Build four converge-native widgets that reuse MC's widget primitives (`src/components/dashboard/widget-primitives.tsx` — MetricCard, SignalPill, HealthRow, StatRow, LogRow, QuickAction).\n\n**1. RecentRunsWidget**\n- `listSessions({ limit: 10 })` from converge-adapter\n- Each row: `StatRow` with playbook + sessionId (truncated) + age\n- Status indicator: `SignalPill` colored by session status\n- Each row → `/runs/<playbook>/<sessionId>`\n\n**2. PlaybookHealthWidget**\n- `listPlaybooks()` + per-playbook `lastSession`\n- Per playbook: name, total tasks, completion %, last-run-time, status pill\n- Use `HealthRow` primitive\n\n**3. LiveActivityWidget**\n- `useConvergeEvents()` SSE → 40-event buffer\n- Pulsing green dot at top, color-coded events (info/warn/error)\n- Use `LogRow` primitive\n- Idle state (\"All quiet\") if no events in 60s\n\n**4. QuickActionsWidget**\n- Static tiles using `QuickAction` primitive\n- \"New playbook\" → `/playbooks/new`\n- \"View all runs\" → `/runs`\n- \"Open settings\" → `/settings`\n- \"Documentation\" → external link to converge docs\n\nAll four import from `../widget-primitives.tsx`.",
+              "taskId": "03-rebind-ui/003-build-converge-widgets",
+              "taskTitle": "Build 4 converge dashboard widgets",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/03-rebind-ui/tasks/003-build-converge-widgets",
+              "factId": "check:widgets-use-converge-data"
+            }
+          }
+        ],
+        "durationMs": 25
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 15
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#11",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 173498
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T09:46:46.828Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T09:46:46.829Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T09:46:46.855Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T09:46:46.855Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T09:46:46.865Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#11",
+      "iteration": 1,
+      "ts": "2026-04-26T09:49:40.365Z"
+    },
+    {
+      "from": "run-strategy:task-run#11",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T09:49:40.380Z"
+    }
+  ]
+}

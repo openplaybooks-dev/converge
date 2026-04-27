@@ -1,0 +1,20 @@
+{
+  "taskId": "01-clone-and-rename/001-clone-mc",
+  "checks": [
+    {
+      "id": "studio-dir-populated",
+      "description": "packages/studio/ has src/app and package.json",
+      "cmd": "test -d packages/studio/src/app && test -f packages/studio/package.json"
+    },
+    {
+      "id": "upstream-sha-pinned",
+      "description": "UPSTREAM_SHA matches the pin",
+      "cmd": "grep -q '^a020d1b7d045e0e09616663ffb39963f432a3f4c' packages/studio/UPSTREAM_SHA"
+    },
+    {
+      "id": "dot-git-removed",
+      "description": ".git directory removed",
+      "cmd": "test ! -d packages/studio/.git"
+    }
+  ]
+}

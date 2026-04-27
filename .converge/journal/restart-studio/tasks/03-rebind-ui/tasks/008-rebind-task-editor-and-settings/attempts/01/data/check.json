@@ -1,0 +1,15 @@
+{
+  "taskId": "03-rebind-ui/008-rebind-task-editor-and-settings",
+  "checks": [
+    {
+      "id": "task-editor-exists",
+      "description": "Task editor page exists",
+      "cmd": "test -f 'packages/studio/src/app/playbooks/[name]/tasks/by-path/[...path]/page.tsx'"
+    },
+    {
+      "id": "settings-page-exists",
+      "description": "/settings/page.tsx exists",
+      "cmd": "test -f packages/studio/src/app/settings/page.tsx"
+    }
+  ]
+}

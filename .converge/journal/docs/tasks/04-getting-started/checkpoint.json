@@ -1,0 +1,20 @@
+{
+  "type": "task",
+  "id": "04-getting-started",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T15:43:55.514Z",
+  "createdAt": "2026-04-26T07:34:28.987Z",
+  "progress": {
+    "totalChildren": 5,
+    "completedChildren": 5,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-why-converge",
+      "002-install",
+      "003-your-first-playbook",
+      "004-from-problem-to-playbook",
+      "005-next-steps"
+    ],
+    "lastProgressUpdate": "2026-04-26T15:43:55.503Z"
+  }
+}

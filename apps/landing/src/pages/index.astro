@@ -1,0 +1,23 @@
+---
+export const prerender = true;
+import Layout from '../layouts/MainLayout.astro';
+import CtaBanner from '../components/sections/CtaBanner.astro';
+import Faq from '../components/sections/Faq.astro';
+import FeatureGrid from '../components/sections/FeatureGrid.astro';
+import Hero from '../components/sections/Hero.astro';
+import InteractiveComparison from '../components/sections/InteractiveComparison.astro';
+import ProblemSolution from '../components/sections/ProblemSolution.astro';
+import Quickstart from '../components/sections/Quickstart.astro';
+import SocialProof from '../components/sections/SocialProof.astro';
+---
+
+<Layout>
+    <Hero />
+    <SocialProof />
+    <ProblemSolution />
+    <FeatureGrid />
+    <InteractiveComparison />
+    <Quickstart />
+    <Faq />
+    <CtaBanner />
+</Layout>

@@ -1,0 +1,47 @@
+{
+  "taskId": "02-source-scan",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "packages",
+      "count": 1,
+      "samples": [
+        "packages"
+      ]
+    },
+    {
+      "pattern": "examples",
+      "count": 1,
+      "samples": [
+        "examples"
+      ]
+    },
+    {
+      "pattern": "skills/converge-control/troubleshooting/playbook.md",
+      "count": 1,
+      "samples": [
+        "skills/converge-control/troubleshooting/playbook.md"
+      ]
+    },
+    {
+      "pattern": "README.md",
+      "count": 1,
+      "samples": [
+        "README.md"
+      ]
+    },
+    {
+      "pattern": "CHANGELOG.md",
+      "count": 1,
+      "samples": [
+        "CHANGELOG.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/_sources.json",
+    "docs/_cli-commands.json",
+    "docs/_examples.json"
+  ],
+  "blocked": false
+}

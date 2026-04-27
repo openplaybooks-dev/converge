@@ -1,0 +1,25 @@
+{
+  "taskId": "11-ship/001-wrangler-config",
+  "checks": [
+    {
+      "id": "verify-passed-exists",
+      "description": "phase 10 verify-passed marker exists (deploy gate)",
+      "cmd": "test -f apps/landing/.verify-passed"
+    },
+    {
+      "id": "wrangler-toml-exists",
+      "description": "wrangler.toml exists",
+      "cmd": "test -f apps/landing/wrangler.toml"
+    },
+    {
+      "id": "wrangler-has-project-name",
+      "description": "project name is converge-landing",
+      "cmd": "test -f apps/landing/wrangler.toml && grep -qE \"name\\s*=\\s*['\\\"]converge-landing['\\\"]\" apps/landing/wrangler.toml"
+    },
+    {
+      "id": "wrangler-has-output-dir",
+      "description": "pages_build_output_dir is set",
+      "cmd": "test -f apps/landing/wrangler.toml && grep -qE \"pages_build_output_dir\\s*=\" apps/landing/wrangler.toml"
+    }
+  ]
+}

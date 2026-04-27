@@ -1,0 +1,19 @@
+{
+  "type": "task",
+  "id": "05-finalize",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T09:35:11.241Z",
+  "createdAt": "2026-04-26T09:34:43.950Z",
+  "progress": {
+    "totalChildren": 4,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-root-redirect",
+      "002-layout-imports-globals",
+      "003-next-config-workspace",
+      "004-fix-broken-imports"
+    ],
+    "lastProgressUpdate": "2026-04-26T09:35:11.240Z"
+  }
+}

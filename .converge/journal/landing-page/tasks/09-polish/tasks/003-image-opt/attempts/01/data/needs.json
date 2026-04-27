@@ -1,0 +1,9 @@
+{
+  "taskId": "09-polish/003-image-opt",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "apps/landing/src/components/ui/Image.astro"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,820 @@
+{
+  "iteration": 3,
+  "stallCount": 3,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "11-ship/003-deploy-preview-missing-output-apps/landing/.preview-deploy-url",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "11-ship/003-deploy-preview",
+            "severity": "high",
+            "description": "[11-ship/003-deploy-preview] Task output not created: apps/landing/.preview-deploy-url",
+            "source": "unit",
+            "detected": "2026-04-27T00:57:57.328Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/11-ship/tasks/003-deploy-preview",
+              "taskId": "11-ship/003-deploy-preview",
+              "taskTitle": "Deploy to Cloudflare Pages preview environment",
+              "taskPrompt": "# Deploy preview\n\nRun `wrangler pages deploy` against a preview environment. Capture the\nreturned preview URL.\n\n## Process\n\n```bash\n# Requires CF_API_TOKEN env var (Cloudflare API token with Pages: Edit permission)\n# AND CF_ACCOUNT_ID\ntest -n \"$CF_API_TOKEN\" || { echo \"CF_API_TOKEN not set — preview deploy requires it\"; exit 1; }\ntest -n \"$CF_ACCOUNT_ID\" || { echo \"CF_ACCOUNT_ID not set — preview deploy requires it\"; exit 1; }\n\ncd apps/landing\npnpm exec wrangler pages deploy ./dist \\\n  --project-name=converge-landing \\\n  --branch=preview \\\n  --commit-dirty=true \\\n  | tee /tmp/converge-deploy.log\n\n# Extract the preview URL from wrangler's output\ngrep -oE 'https://[a-z0-9-]+\\.converge-landing\\.pages\\.dev' /tmp/converge-deploy.log \\\n  | head -1 > apps/landing/.preview-deploy-url\n\ncat apps/landing/.preview-deploy-url\n```\n\n## Banned\n\n- Skipping the env-var checks. If `CF_API_TOKEN` isn't set, fail fast — don't try to deploy and produce a confusing error.\n- Deploying to `--branch=main` from the playbook. Production deploys are intentionally manual (the launch checklist task lists the steps); the playbook only deploys to preview.\n- Running `wrangler` without `--commit-dirty=true`. The repo will have uncommitted state after a fresh playbook run; that's expected.",
+              "taskInputs": [
+                "apps/landing/wrangler.toml",
+                "apps/landing/dist"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/.preview-deploy-url\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "11-ship/003-deploy-preview-check-failed-preview-deployed",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "11-ship/003-deploy-preview",
+            "severity": "high",
+            "description": "[11-ship/003-deploy-preview] Check failed: preview deploy succeeded and URL is captured",
+            "source": "unit",
+            "detected": "2026-04-27T00:57:57.330Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "preview-deployed",
+              "checkCmd": "test -f apps/landing/.preview-deploy-url && grep -qE 'pages\\.dev|workers\\.dev' apps/landing/.preview-deploy-url",
+              "checkDescription": "preview deploy succeeded and URL is captured",
+              "checkOutput": "Command failed: test -f apps/landing/.preview-deploy-url && grep -qE 'pages\\.dev|workers\\.dev' apps/landing/.preview-deploy-url\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Deploy preview\n\nRun `wrangler pages deploy` against a preview environment. Capture the\nreturned preview URL.\n\n## Process\n\n```bash\n# Requires CF_API_TOKEN env var (Cloudflare API token with Pages: Edit permission)\n# AND CF_ACCOUNT_ID\ntest -n \"$CF_API_TOKEN\" || { echo \"CF_API_TOKEN not set — preview deploy requires it\"; exit 1; }\ntest -n \"$CF_ACCOUNT_ID\" || { echo \"CF_ACCOUNT_ID not set — preview deploy requires it\"; exit 1; }\n\ncd apps/landing\npnpm exec wrangler pages deploy ./dist \\\n  --project-name=converge-landing \\\n  --branch=preview \\\n  --commit-dirty=true \\\n  | tee /tmp/converge-deploy.log\n\n# Extract the preview URL from wrangler's output\ngrep -oE 'https://[a-z0-9-]+\\.converge-landing\\.pages\\.dev' /tmp/converge-deploy.log \\\n  | head -1 > apps/landing/.preview-deploy-url\n\ncat apps/landing/.preview-deploy-url\n```\n\n## Banned\n\n- Skipping the env-var checks. If `CF_API_TOKEN` isn't set, fail fast — don't try to deploy and produce a confusing error.\n- Deploying to `--branch=main` from the playbook. Production deploys are intentionally manual (the launch checklist task lists the steps); the playbook only deploys to preview.\n- Running `wrangler` without `--commit-dirty=true`. The repo will have uncommitted state after a fresh playbook run; that's expected.",
+              "taskId": "11-ship/003-deploy-preview",
+              "taskTitle": "Deploy to Cloudflare Pages preview environment",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/11-ship/tasks/003-deploy-preview",
+              "factId": "check:preview-deployed"
+            }
+          }
+        ],
+        "durationMs": 8
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "11-ship/003-deploy-preview-missing-output-apps/landing/.preview-deploy-url",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "11-ship/003-deploy-preview",
+            "severity": "high",
+            "description": "[11-ship/003-deploy-preview] Task output not created: apps/landing/.preview-deploy-url",
+            "source": "unit",
+            "detected": "2026-04-27T00:59:10.353Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/11-ship/tasks/003-deploy-preview",
+              "taskId": "11-ship/003-deploy-preview",
+              "taskTitle": "Deploy to Cloudflare Pages preview environment",
+              "taskPrompt": "# Deploy preview\n\nRun `wrangler pages deploy` against a preview environment. Capture the\nreturned preview URL.\n\n## Process\n\n```bash\n# Requires CF_API_TOKEN env var (Cloudflare API token with Pages: Edit permission)\n# AND CF_ACCOUNT_ID\ntest -n \"$CF_API_TOKEN\" || { echo \"CF_API_TOKEN not set — preview deploy requires it\"; exit 1; }\ntest -n \"$CF_ACCOUNT_ID\" || { echo \"CF_ACCOUNT_ID not set — preview deploy requires it\"; exit 1; }\n\ncd apps/landing\npnpm exec wrangler pages deploy ./dist \\\n  --project-name=converge-landing \\\n  --branch=preview \\\n  --commit-dirty=true \\\n  | tee /tmp/converge-deploy.log\n\n# Extract the preview URL from wrangler's output\ngrep -oE 'https://[a-z0-9-]+\\.converge-landing\\.pages\\.dev' /tmp/converge-deploy.log \\\n  | head -1 > apps/landing/.preview-deploy-url\n\ncat apps/landing/.preview-deploy-url\n```\n\n## Banned\n\n- Skipping the env-var checks. If `CF_API_TOKEN` isn't set, fail fast — don't try to deploy and produce a confusing error.\n- Deploying to `--branch=main` from the playbook. Production deploys are intentionally manual (the launch checklist task lists the steps); the playbook only deploys to preview.\n- Running `wrangler` without `--commit-dirty=true`. The repo will have uncommitted state after a fresh playbook run; that's expected.",
+              "taskInputs": [
+                "apps/landing/wrangler.toml",
+                "apps/landing/dist"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/.preview-deploy-url\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "11-ship/003-deploy-preview-check-failed-preview-deployed",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "11-ship/003-deploy-preview",
+            "severity": "high",
+            "description": "[11-ship/003-deploy-preview] Check failed: preview deploy succeeded and URL is captured",
+            "source": "unit",
+            "detected": "2026-04-27T00:59:10.359Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "preview-deployed",
+              "checkCmd": "test -f apps/landing/.preview-deploy-url && grep -qE 'pages\\.dev|workers\\.dev' apps/landing/.preview-deploy-url",
+              "checkDescription": "preview deploy succeeded and URL is captured",
+              "checkOutput": "Command failed: test -f apps/landing/.preview-deploy-url && grep -qE 'pages\\.dev|workers\\.dev' apps/landing/.preview-deploy-url\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Deploy preview\n\nRun `wrangler pages deploy` against a preview environment. Capture the\nreturned preview URL.\n\n## Process\n\n```bash\n# Requires CF_API_TOKEN env var (Cloudflare API token with Pages: Edit permission)\n# AND CF_ACCOUNT_ID\ntest -n \"$CF_API_TOKEN\" || { echo \"CF_API_TOKEN not set — preview deploy requires it\"; exit 1; }\ntest -n \"$CF_ACCOUNT_ID\" || { echo \"CF_ACCOUNT_ID not set — preview deploy requires it\"; exit 1; }\n\ncd apps/landing\npnpm exec wrangler pages deploy ./dist \\\n  --project-name=converge-landing \\\n  --branch=preview \\\n  --commit-dirty=true \\\n  | tee /tmp/converge-deploy.log\n\n# Extract the preview URL from wrangler's output\ngrep -oE 'https://[a-z0-9-]+\\.converge-landing\\.pages\\.dev' /tmp/converge-deploy.log \\\n  | head -1 > apps/landing/.preview-deploy-url\n\ncat apps/landing/.preview-deploy-url\n```\n\n## Banned\n\n- Skipping the env-var checks. If `CF_API_TOKEN` isn't set, fail fast — don't try to deploy and produce a confusing error.\n- Deploying to `--branch=main` from the playbook. Production deploys are intentionally manual (the launch checklist task lists the steps); the playbook only deploys to preview.\n- Running `wrangler` without `--commit-dirty=true`. The repo will have uncommitted state after a fresh playbook run; that's expected.",
+              "taskId": "11-ship/003-deploy-preview",
+              "taskTitle": "Deploy to Cloudflare Pages preview environment",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/11-ship/tasks/003-deploy-preview",
+              "factId": "check:preview-deployed"
+            }
+          }
+        ],
+        "durationMs": 20
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "run-strategy:task-run#10",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 73003
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 28
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "11-ship/003-deploy-preview-missing-output-apps/landing/.preview-deploy-url",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "11-ship/003-deploy-preview",
+            "severity": "high",
+            "description": "[11-ship/003-deploy-preview] Task output not created: apps/landing/.preview-deploy-url",
+            "source": "unit",
+            "detected": "2026-04-27T00:59:10.405Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/11-ship/tasks/003-deploy-preview",
+              "taskId": "11-ship/003-deploy-preview",
+              "taskTitle": "Deploy to Cloudflare Pages preview environment",
+              "taskPrompt": "# Deploy preview\n\nRun `wrangler pages deploy` against a preview environment. Capture the\nreturned preview URL.\n\n## Process\n\n```bash\n# Requires CF_API_TOKEN env var (Cloudflare API token with Pages: Edit permission)\n# AND CF_ACCOUNT_ID\ntest -n \"$CF_API_TOKEN\" || { echo \"CF_API_TOKEN not set — preview deploy requires it\"; exit 1; }\ntest -n \"$CF_ACCOUNT_ID\" || { echo \"CF_ACCOUNT_ID not set — preview deploy requires it\"; exit 1; }\n\ncd apps/landing\npnpm exec wrangler pages deploy ./dist \\\n  --project-name=converge-landing \\\n  --branch=preview \\\n  --commit-dirty=true \\\n  | tee /tmp/converge-deploy.log\n\n# Extract the preview URL from wrangler's output\ngrep -oE 'https://[a-z0-9-]+\\.converge-landing\\.pages\\.dev' /tmp/converge-deploy.log \\\n  | head -1 > apps/landing/.preview-deploy-url\n\ncat apps/landing/.preview-deploy-url\n```\n\n## Banned\n\n- Skipping the env-var checks. If `CF_API_TOKEN` isn't set, fail fast — don't try to deploy and produce a confusing error.\n- Deploying to `--branch=main` from the playbook. Production deploys are intentionally manual (the launch checklist task lists the steps); the playbook only deploys to preview.\n- Running `wrangler` without `--commit-dirty=true`. The repo will have uncommitted state after a fresh playbook run; that's expected.",
+              "taskInputs": [
+                "apps/landing/wrangler.toml",
+                "apps/landing/dist"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/.preview-deploy-url\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "11-ship/003-deploy-preview-check-failed-preview-deployed",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "11-ship/003-deploy-preview",
+            "severity": "high",
+            "description": "[11-ship/003-deploy-preview] Check failed: preview deploy succeeded and URL is captured",
+            "source": "unit",
+            "detected": "2026-04-27T00:59:10.408Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "preview-deployed",
+              "checkCmd": "test -f apps/landing/.preview-deploy-url && grep -qE 'pages\\.dev|workers\\.dev' apps/landing/.preview-deploy-url",
+              "checkDescription": "preview deploy succeeded and URL is captured",
+              "checkOutput": "Command failed: test -f apps/landing/.preview-deploy-url && grep -qE 'pages\\.dev|workers\\.dev' apps/landing/.preview-deploy-url\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Deploy preview\n\nRun `wrangler pages deploy` against a preview environment. Capture the\nreturned preview URL.\n\n## Process\n\n```bash\n# Requires CF_API_TOKEN env var (Cloudflare API token with Pages: Edit permission)\n# AND CF_ACCOUNT_ID\ntest -n \"$CF_API_TOKEN\" || { echo \"CF_API_TOKEN not set — preview deploy requires it\"; exit 1; }\ntest -n \"$CF_ACCOUNT_ID\" || { echo \"CF_ACCOUNT_ID not set — preview deploy requires it\"; exit 1; }\n\ncd apps/landing\npnpm exec wrangler pages deploy ./dist \\\n  --project-name=converge-landing \\\n  --branch=preview \\\n  --commit-dirty=true \\\n  | tee /tmp/converge-deploy.log\n\n# Extract the preview URL from wrangler's output\ngrep -oE 'https://[a-z0-9-]+\\.converge-landing\\.pages\\.dev' /tmp/converge-deploy.log \\\n  | head -1 > apps/landing/.preview-deploy-url\n\ncat apps/landing/.preview-deploy-url\n```\n\n## Banned\n\n- Skipping the env-var checks. If `CF_API_TOKEN` isn't set, fail fast — don't try to deploy and produce a confusing error.\n- Deploying to `--branch=main` from the playbook. Production deploys are intentionally manual (the launch checklist task lists the steps); the playbook only deploys to preview.\n- Running `wrangler` without `--commit-dirty=true`. The repo will have uncommitted state after a fresh playbook run; that's expected.",
+              "taskId": "11-ship/003-deploy-preview",
+              "taskTitle": "Deploy to Cloudflare Pages preview environment",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/11-ship/tasks/003-deploy-preview",
+              "factId": "check:preview-deployed"
+            }
+          }
+        ],
+        "durationMs": 13
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#2",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "run-strategy:task-run#11",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 105470
+      }
+    },
+    {
+      "id": "verify#2",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "11-ship/003-deploy-preview-missing-output-apps/landing/.preview-deploy-url",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "11-ship/003-deploy-preview",
+            "severity": "high",
+            "description": "[11-ship/003-deploy-preview] Task output not created: apps/landing/.preview-deploy-url",
+            "source": "unit",
+            "detected": "2026-04-27T01:00:55.896Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/11-ship/tasks/003-deploy-preview",
+              "taskId": "11-ship/003-deploy-preview",
+              "taskTitle": "Deploy to Cloudflare Pages preview environment",
+              "taskPrompt": "# Deploy preview\n\nRun `wrangler pages deploy` against a preview environment. Capture the\nreturned preview URL.\n\n## Process\n\n```bash\n# Requires CF_API_TOKEN env var (Cloudflare API token with Pages: Edit permission)\n# AND CF_ACCOUNT_ID\ntest -n \"$CF_API_TOKEN\" || { echo \"CF_API_TOKEN not set — preview deploy requires it\"; exit 1; }\ntest -n \"$CF_ACCOUNT_ID\" || { echo \"CF_ACCOUNT_ID not set — preview deploy requires it\"; exit 1; }\n\ncd apps/landing\npnpm exec wrangler pages deploy ./dist \\\n  --project-name=converge-landing \\\n  --branch=preview \\\n  --commit-dirty=true \\\n  | tee /tmp/converge-deploy.log\n\n# Extract the preview URL from wrangler's output\ngrep -oE 'https://[a-z0-9-]+\\.converge-landing\\.pages\\.dev' /tmp/converge-deploy.log \\\n  | head -1 > apps/landing/.preview-deploy-url\n\ncat apps/landing/.preview-deploy-url\n```\n\n## Banned\n\n- Skipping the env-var checks. If `CF_API_TOKEN` isn't set, fail fast — don't try to deploy and produce a confusing error.\n- Deploying to `--branch=main` from the playbook. Production deploys are intentionally manual (the launch checklist task lists the steps); the playbook only deploys to preview.\n- Running `wrangler` without `--commit-dirty=true`. The repo will have uncommitted state after a fresh playbook run; that's expected.",
+              "taskInputs": [
+                "apps/landing/wrangler.toml",
+                "apps/landing/dist"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/.preview-deploy-url\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "11-ship/003-deploy-preview-check-failed-preview-deployed",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "11-ship/003-deploy-preview",
+            "severity": "high",
+            "description": "[11-ship/003-deploy-preview] Check failed: preview deploy succeeded and URL is captured",
+            "source": "unit",
+            "detected": "2026-04-27T01:00:55.898Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "preview-deployed",
+              "checkCmd": "test -f apps/landing/.preview-deploy-url && grep -qE 'pages\\.dev|workers\\.dev' apps/landing/.preview-deploy-url",
+              "checkDescription": "preview deploy succeeded and URL is captured",
+              "checkOutput": "Command failed: test -f apps/landing/.preview-deploy-url && grep -qE 'pages\\.dev|workers\\.dev' apps/landing/.preview-deploy-url\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Deploy preview\n\nRun `wrangler pages deploy` against a preview environment. Capture the\nreturned preview URL.\n\n## Process\n\n```bash\n# Requires CF_API_TOKEN env var (Cloudflare API token with Pages: Edit permission)\n# AND CF_ACCOUNT_ID\ntest -n \"$CF_API_TOKEN\" || { echo \"CF_API_TOKEN not set — preview deploy requires it\"; exit 1; }\ntest -n \"$CF_ACCOUNT_ID\" || { echo \"CF_ACCOUNT_ID not set — preview deploy requires it\"; exit 1; }\n\ncd apps/landing\npnpm exec wrangler pages deploy ./dist \\\n  --project-name=converge-landing \\\n  --branch=preview \\\n  --commit-dirty=true \\\n  | tee /tmp/converge-deploy.log\n\n# Extract the preview URL from wrangler's output\ngrep -oE 'https://[a-z0-9-]+\\.converge-landing\\.pages\\.dev' /tmp/converge-deploy.log \\\n  | head -1 > apps/landing/.preview-deploy-url\n\ncat apps/landing/.preview-deploy-url\n```\n\n## Banned\n\n- Skipping the env-var checks. If `CF_API_TOKEN` isn't set, fail fast — don't try to deploy and produce a confusing error.\n- Deploying to `--branch=main` from the playbook. Production deploys are intentionally manual (the launch checklist task lists the steps); the playbook only deploys to preview.\n- Running `wrangler` without `--commit-dirty=true`. The repo will have uncommitted state after a fresh playbook run; that's expected.",
+              "taskId": "11-ship/003-deploy-preview",
+              "taskTitle": "Deploy to Cloudflare Pages preview environment",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/11-ship/tasks/003-deploy-preview",
+              "factId": "check:preview-deployed"
+            }
+          }
+        ],
+        "durationMs": 13
+      }
+    },
+    {
+      "id": "check-stall#2",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt#2",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-wbs-seeded#3",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#3",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 10
+      }
+    },
+    {
+      "id": "detect-gaps#3",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "11-ship/003-deploy-preview-missing-output-apps/landing/.preview-deploy-url",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "11-ship/003-deploy-preview",
+            "severity": "high",
+            "description": "[11-ship/003-deploy-preview] Task output not created: apps/landing/.preview-deploy-url",
+            "source": "unit",
+            "detected": "2026-04-27T01:00:55.918Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/11-ship/tasks/003-deploy-preview",
+              "taskId": "11-ship/003-deploy-preview",
+              "taskTitle": "Deploy to Cloudflare Pages preview environment",
+              "taskPrompt": "# Deploy preview\n\nRun `wrangler pages deploy` against a preview environment. Capture the\nreturned preview URL.\n\n## Process\n\n```bash\n# Requires CF_API_TOKEN env var (Cloudflare API token with Pages: Edit permission)\n# AND CF_ACCOUNT_ID\ntest -n \"$CF_API_TOKEN\" || { echo \"CF_API_TOKEN not set — preview deploy requires it\"; exit 1; }\ntest -n \"$CF_ACCOUNT_ID\" || { echo \"CF_ACCOUNT_ID not set — preview deploy requires it\"; exit 1; }\n\ncd apps/landing\npnpm exec wrangler pages deploy ./dist \\\n  --project-name=converge-landing \\\n  --branch=preview \\\n  --commit-dirty=true \\\n  | tee /tmp/converge-deploy.log\n\n# Extract the preview URL from wrangler's output\ngrep -oE 'https://[a-z0-9-]+\\.converge-landing\\.pages\\.dev' /tmp/converge-deploy.log \\\n  | head -1 > apps/landing/.preview-deploy-url\n\ncat apps/landing/.preview-deploy-url\n```\n\n## Banned\n\n- Skipping the env-var checks. If `CF_API_TOKEN` isn't set, fail fast — don't try to deploy and produce a confusing error.\n- Deploying to `--branch=main` from the playbook. Production deploys are intentionally manual (the launch checklist task lists the steps); the playbook only deploys to preview.\n- Running `wrangler` without `--commit-dirty=true`. The repo will have uncommitted state after a fresh playbook run; that's expected.",
+              "taskInputs": [
+                "apps/landing/wrangler.toml",
+                "apps/landing/dist"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/.preview-deploy-url\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "11-ship/003-deploy-preview-check-failed-preview-deployed",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "11-ship/003-deploy-preview",
+            "severity": "high",
+            "description": "[11-ship/003-deploy-preview] Check failed: preview deploy succeeded and URL is captured",
+            "source": "unit",
+            "detected": "2026-04-27T01:00:55.920Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "preview-deployed",
+              "checkCmd": "test -f apps/landing/.preview-deploy-url && grep -qE 'pages\\.dev|workers\\.dev' apps/landing/.preview-deploy-url",
+              "checkDescription": "preview deploy succeeded and URL is captured",
+              "checkOutput": "Command failed: test -f apps/landing/.preview-deploy-url && grep -qE 'pages\\.dev|workers\\.dev' apps/landing/.preview-deploy-url\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Deploy preview\n\nRun `wrangler pages deploy` against a preview environment. Capture the\nreturned preview URL.\n\n## Process\n\n```bash\n# Requires CF_API_TOKEN env var (Cloudflare API token with Pages: Edit permission)\n# AND CF_ACCOUNT_ID\ntest -n \"$CF_API_TOKEN\" || { echo \"CF_API_TOKEN not set — preview deploy requires it\"; exit 1; }\ntest -n \"$CF_ACCOUNT_ID\" || { echo \"CF_ACCOUNT_ID not set — preview deploy requires it\"; exit 1; }\n\ncd apps/landing\npnpm exec wrangler pages deploy ./dist \\\n  --project-name=converge-landing \\\n  --branch=preview \\\n  --commit-dirty=true \\\n  | tee /tmp/converge-deploy.log\n\n# Extract the preview URL from wrangler's output\ngrep -oE 'https://[a-z0-9-]+\\.converge-landing\\.pages\\.dev' /tmp/converge-deploy.log \\\n  | head -1 > apps/landing/.preview-deploy-url\n\ncat apps/landing/.preview-deploy-url\n```\n\n## Banned\n\n- Skipping the env-var checks. If `CF_API_TOKEN` isn't set, fail fast — don't try to deploy and produce a confusing error.\n- Deploying to `--branch=main` from the playbook. Production deploys are intentionally manual (the launch checklist task lists the steps); the playbook only deploys to preview.\n- Running `wrangler` without `--commit-dirty=true`. The repo will have uncommitted state after a fresh playbook run; that's expected.",
+              "taskId": "11-ship/003-deploy-preview",
+              "taskTitle": "Deploy to Cloudflare Pages preview environment",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/11-ship/tasks/003-deploy-preview",
+              "factId": "check:preview-deployed"
+            }
+          }
+        ],
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "signal-done#3",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#3",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 4
+      }
+    },
+    {
+      "id": "run-strategy:task-run#12",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 112383
+      }
+    },
+    {
+      "id": "verify#3",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "11-ship/003-deploy-preview-missing-output-apps/landing/.preview-deploy-url",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "11-ship/003-deploy-preview",
+            "severity": "high",
+            "description": "[11-ship/003-deploy-preview] Task output not created: apps/landing/.preview-deploy-url",
+            "source": "unit",
+            "detected": "2026-04-27T01:02:48.318Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/11-ship/tasks/003-deploy-preview",
+              "taskId": "11-ship/003-deploy-preview",
+              "taskTitle": "Deploy to Cloudflare Pages preview environment",
+              "taskPrompt": "# Deploy preview\n\nRun `wrangler pages deploy` against a preview environment. Capture the\nreturned preview URL.\n\n## Process\n\n```bash\n# Requires CF_API_TOKEN env var (Cloudflare API token with Pages: Edit permission)\n# AND CF_ACCOUNT_ID\ntest -n \"$CF_API_TOKEN\" || { echo \"CF_API_TOKEN not set — preview deploy requires it\"; exit 1; }\ntest -n \"$CF_ACCOUNT_ID\" || { echo \"CF_ACCOUNT_ID not set — preview deploy requires it\"; exit 1; }\n\ncd apps/landing\npnpm exec wrangler pages deploy ./dist \\\n  --project-name=converge-landing \\\n  --branch=preview \\\n  --commit-dirty=true \\\n  | tee /tmp/converge-deploy.log\n\n# Extract the preview URL from wrangler's output\ngrep -oE 'https://[a-z0-9-]+\\.converge-landing\\.pages\\.dev' /tmp/converge-deploy.log \\\n  | head -1 > apps/landing/.preview-deploy-url\n\ncat apps/landing/.preview-deploy-url\n```\n\n## Banned\n\n- Skipping the env-var checks. If `CF_API_TOKEN` isn't set, fail fast — don't try to deploy and produce a confusing error.\n- Deploying to `--branch=main` from the playbook. Production deploys are intentionally manual (the launch checklist task lists the steps); the playbook only deploys to preview.\n- Running `wrangler` without `--commit-dirty=true`. The repo will have uncommitted state after a fresh playbook run; that's expected.",
+              "taskInputs": [
+                "apps/landing/wrangler.toml",
+                "apps/landing/dist"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/.preview-deploy-url\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "11-ship/003-deploy-preview-check-failed-preview-deployed",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "11-ship/003-deploy-preview",
+            "severity": "high",
+            "description": "[11-ship/003-deploy-preview] Check failed: preview deploy succeeded and URL is captured",
+            "source": "unit",
+            "detected": "2026-04-27T01:02:48.321Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "preview-deployed",
+              "checkCmd": "test -f apps/landing/.preview-deploy-url && grep -qE 'pages\\.dev|workers\\.dev' apps/landing/.preview-deploy-url",
+              "checkDescription": "preview deploy succeeded and URL is captured",
+              "checkOutput": "Command failed: test -f apps/landing/.preview-deploy-url && grep -qE 'pages\\.dev|workers\\.dev' apps/landing/.preview-deploy-url\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Deploy preview\n\nRun `wrangler pages deploy` against a preview environment. Capture the\nreturned preview URL.\n\n## Process\n\n```bash\n# Requires CF_API_TOKEN env var (Cloudflare API token with Pages: Edit permission)\n# AND CF_ACCOUNT_ID\ntest -n \"$CF_API_TOKEN\" || { echo \"CF_API_TOKEN not set — preview deploy requires it\"; exit 1; }\ntest -n \"$CF_ACCOUNT_ID\" || { echo \"CF_ACCOUNT_ID not set — preview deploy requires it\"; exit 1; }\n\ncd apps/landing\npnpm exec wrangler pages deploy ./dist \\\n  --project-name=converge-landing \\\n  --branch=preview \\\n  --commit-dirty=true \\\n  | tee /tmp/converge-deploy.log\n\n# Extract the preview URL from wrangler's output\ngrep -oE 'https://[a-z0-9-]+\\.converge-landing\\.pages\\.dev' /tmp/converge-deploy.log \\\n  | head -1 > apps/landing/.preview-deploy-url\n\ncat apps/landing/.preview-deploy-url\n```\n\n## Banned\n\n- Skipping the env-var checks. If `CF_API_TOKEN` isn't set, fail fast — don't try to deploy and produce a confusing error.\n- Deploying to `--branch=main` from the playbook. Production deploys are intentionally manual (the launch checklist task lists the steps); the playbook only deploys to preview.\n- Running `wrangler` without `--commit-dirty=true`. The repo will have uncommitted state after a fresh playbook run; that's expected.",
+              "taskId": "11-ship/003-deploy-preview",
+              "taskTitle": "Deploy to Cloudflare Pages preview environment",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/11-ship/tasks/003-deploy-preview",
+              "factId": "check:preview-deployed"
+            }
+          }
+        ],
+        "durationMs": 13
+      }
+    },
+    {
+      "id": "check-stall#3",
+      "handler": "check-stall",
+      "status": "failed",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "bail",
+        "success": false,
+        "reason": "Repeat-failure detector tripped (same gap on 3 attempts)",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt#3",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-27T00:57:57.321Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-27T00:57:57.322Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-27T00:57:57.330Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-27T00:57:57.330Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-27T00:57:57.334Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#10",
+      "iteration": 1,
+      "ts": "2026-04-27T00:59:10.338Z"
+    },
+    {
+      "from": "run-strategy:task-run#10",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-27T00:59:10.359Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-27T00:59:10.360Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-27T00:59:10.363Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-27T00:59:10.364Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-27T00:59:10.394Z"
+    },
+    {
+      "from": "check-outputs-exist#2",
+      "to": "detect-gaps#2",
+      "iteration": 2,
+      "ts": "2026-04-27T00:59:10.408Z"
+    },
+    {
+      "from": "detect-gaps#2",
+      "to": "repair-loop#2",
+      "iteration": 2,
+      "ts": "2026-04-27T00:59:10.413Z"
+    },
+    {
+      "from": "repair-loop#2",
+      "to": "run-strategy:task-run#11",
+      "iteration": 2,
+      "ts": "2026-04-27T01:00:55.885Z"
+    },
+    {
+      "from": "run-strategy:task-run#11",
+      "to": "verify#2",
+      "iteration": 2,
+      "ts": "2026-04-27T01:00:55.899Z"
+    },
+    {
+      "from": "verify#2",
+      "to": "check-stall#2",
+      "iteration": 2,
+      "ts": "2026-04-27T01:00:55.899Z"
+    },
+    {
+      "from": "check-stall#2",
+      "to": "advance-attempt#2",
+      "iteration": 2,
+      "ts": "2026-04-27T01:00:55.900Z"
+    },
+    {
+      "from": "advance-attempt#2",
+      "to": "check-wbs-seeded#3",
+      "iteration": 3,
+      "ts": "2026-04-27T01:00:55.901Z"
+    },
+    {
+      "from": "check-wbs-seeded#3",
+      "to": "check-outputs-exist#3",
+      "iteration": 3,
+      "ts": "2026-04-27T01:00:55.911Z"
+    },
+    {
+      "from": "check-outputs-exist#3",
+      "to": "detect-gaps#3",
+      "iteration": 3,
+      "ts": "2026-04-27T01:00:55.921Z"
+    },
+    {
+      "from": "detect-gaps#3",
+      "to": "repair-loop#3",
+      "iteration": 3,
+      "ts": "2026-04-27T01:00:55.925Z"
+    },
+    {
+      "from": "repair-loop#3",
+      "to": "run-strategy:task-run#12",
+      "iteration": 3,
+      "ts": "2026-04-27T01:02:48.309Z"
+    },
+    {
+      "from": "run-strategy:task-run#12",
+      "to": "verify#3",
+      "iteration": 3,
+      "ts": "2026-04-27T01:02:48.322Z"
+    },
+    {
+      "from": "verify#3",
+      "to": "check-stall#3",
+      "iteration": 3,
+      "ts": "2026-04-27T01:02:48.323Z"
+    }
+  ]
+}

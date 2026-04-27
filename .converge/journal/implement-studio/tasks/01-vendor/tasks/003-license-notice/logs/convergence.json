@@ -1,0 +1,267 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-vendor/003-license-notice-missing-output-packages/converge-studio/LICENSE.upstream",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-vendor/003-license-notice",
+            "severity": "high",
+            "description": "[01-vendor/003-license-notice] Task output not created: packages/converge-studio/LICENSE.upstream",
+            "source": "unit",
+            "detected": "2026-04-26T01:32:12.717Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/01-vendor/tasks/003-license-notice",
+              "taskId": "01-vendor/003-license-notice",
+              "taskTitle": "Preserve upstream license and add NOTICE",
+              "taskPrompt": "Preserve attribution for the Mission Control fork.\n\n**Steps**:\n\n1. **Move upstream LICENSE**: rename `packages/converge-studio/LICENSE` → `packages/converge-studio/LICENSE.upstream`. (Whatever was at `LICENSE` in the upstream clone — typically MIT.)\n\n2. **Write a fresh `LICENSE`** for `@converge/studio` (MIT, copyright Converge contributors). Use the same MIT template as `packages/core/LICENSE` if present.\n\n3. **Write `NOTICE`** with attribution:\n\n   ```\n   @converge/studio\n\n   This package is derived from builderz-labs/mission-control\n   (https://github.com/builderz-labs/mission-control), licensed under MIT.\n   See LICENSE.upstream for the original copyright and license terms.\n\n   Forked at upstream commit: <SHA from packages/converge-studio/UPSTREAM_SHA>\n   Fork date: <ISO date>\n\n   Modifications:\n   - Replaced SQLite/Prisma data layer with a filesystem adapter that reads\n     converge's .converge/ directory directly.\n   - Removed framework-specific adapters (OpenClaw, CrewAI, LangGraph, AutoGen),\n     auth (NextAuth), agent registry, and multi-tenant support.\n   - Added playbook authoring, task editing, and run-supervisor surfaces\n     specific to converge's playbook + journal model.\n   ```\n\n   Read the SHA from `packages/converge-studio/UPSTREAM_SHA` (created by 001-clone-prune) and substitute it.\n\n4. **Write `packages/converge-studio/README.md`** documenting:\n   - That this is a Next.js app forked from `builderz-labs/mission-control` (link).\n   - The upstream commit SHA pinned at fork time.\n   - High-level architecture: filesystem-canonical (no SQLite); reads `.converge/` via `ConvergeAdapter`.\n   - How to run: `pnpm --filter @converge/studio dev` or `converge studio` from any converge project.\n\n**Verify**: all four manifest checks pass.",
+              "factId": "file-exists:test -f \"packages/converge-studio/LICENSE.upstream\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "01-vendor/003-license-notice-missing-output-packages/converge-studio/NOTICE",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-vendor/003-license-notice",
+            "severity": "high",
+            "description": "[01-vendor/003-license-notice] Task output not created: packages/converge-studio/NOTICE",
+            "source": "unit",
+            "detected": "2026-04-26T01:32:12.719Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/01-vendor/tasks/003-license-notice",
+              "taskId": "01-vendor/003-license-notice",
+              "taskTitle": "Preserve upstream license and add NOTICE",
+              "taskPrompt": "Preserve attribution for the Mission Control fork.\n\n**Steps**:\n\n1. **Move upstream LICENSE**: rename `packages/converge-studio/LICENSE` → `packages/converge-studio/LICENSE.upstream`. (Whatever was at `LICENSE` in the upstream clone — typically MIT.)\n\n2. **Write a fresh `LICENSE`** for `@converge/studio` (MIT, copyright Converge contributors). Use the same MIT template as `packages/core/LICENSE` if present.\n\n3. **Write `NOTICE`** with attribution:\n\n   ```\n   @converge/studio\n\n   This package is derived from builderz-labs/mission-control\n   (https://github.com/builderz-labs/mission-control), licensed under MIT.\n   See LICENSE.upstream for the original copyright and license terms.\n\n   Forked at upstream commit: <SHA from packages/converge-studio/UPSTREAM_SHA>\n   Fork date: <ISO date>\n\n   Modifications:\n   - Replaced SQLite/Prisma data layer with a filesystem adapter that reads\n     converge's .converge/ directory directly.\n   - Removed framework-specific adapters (OpenClaw, CrewAI, LangGraph, AutoGen),\n     auth (NextAuth), agent registry, and multi-tenant support.\n   - Added playbook authoring, task editing, and run-supervisor surfaces\n     specific to converge's playbook + journal model.\n   ```\n\n   Read the SHA from `packages/converge-studio/UPSTREAM_SHA` (created by 001-clone-prune) and substitute it.\n\n4. **Write `packages/converge-studio/README.md`** documenting:\n   - That this is a Next.js app forked from `builderz-labs/mission-control` (link).\n   - The upstream commit SHA pinned at fork time.\n   - High-level architecture: filesystem-canonical (no SQLite); reads `.converge/` via `ConvergeAdapter`.\n   - How to run: `pnpm --filter @converge/studio dev` or `converge studio` from any converge project.\n\n**Verify**: all four manifest checks pass.",
+              "factId": "file-exists:test -f \"packages/converge-studio/NOTICE\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "01-vendor/003-license-notice-check-failed-upstream-license-preserved",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-vendor/003-license-notice",
+            "severity": "high",
+            "description": "[01-vendor/003-license-notice] Check failed: LICENSE.upstream is the original Mission Control LICENSE",
+            "source": "unit",
+            "detected": "2026-04-26T01:32:12.723Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "upstream-license-preserved",
+              "checkCmd": "test -f packages/converge-studio/LICENSE.upstream && grep -qi 'MIT' packages/converge-studio/LICENSE.upstream",
+              "checkDescription": "LICENSE.upstream is the original Mission Control LICENSE",
+              "checkOutput": "Command failed: test -f packages/converge-studio/LICENSE.upstream && grep -qi 'MIT' packages/converge-studio/LICENSE.upstream\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Preserve attribution for the Mission Control fork.\n\n**Steps**:\n\n1. **Move upstream LICENSE**: rename `packages/converge-studio/LICENSE` → `packages/converge-studio/LICENSE.upstream`. (Whatever was at `LICENSE` in the upstream clone — typically MIT.)\n\n2. **Write a fresh `LICENSE`** for `@converge/studio` (MIT, copyright Converge contributors). Use the same MIT template as `packages/core/LICENSE` if present.\n\n3. **Write `NOTICE`** with attribution:\n\n   ```\n   @converge/studio\n\n   This package is derived from builderz-labs/mission-control\n   (https://github.com/builderz-labs/mission-control), licensed under MIT.\n   See LICENSE.upstream for the original copyright and license terms.\n\n   Forked at upstream commit: <SHA from packages/converge-studio/UPSTREAM_SHA>\n   Fork date: <ISO date>\n\n   Modifications:\n   - Replaced SQLite/Prisma data layer with a filesystem adapter that reads\n     converge's .converge/ directory directly.\n   - Removed framework-specific adapters (OpenClaw, CrewAI, LangGraph, AutoGen),\n     auth (NextAuth), agent registry, and multi-tenant support.\n   - Added playbook authoring, task editing, and run-supervisor surfaces\n     specific to converge's playbook + journal model.\n   ```\n\n   Read the SHA from `packages/converge-studio/UPSTREAM_SHA` (created by 001-clone-prune) and substitute it.\n\n4. **Write `packages/converge-studio/README.md`** documenting:\n   - That this is a Next.js app forked from `builderz-labs/mission-control` (link).\n   - The upstream commit SHA pinned at fork time.\n   - High-level architecture: filesystem-canonical (no SQLite); reads `.converge/` via `ConvergeAdapter`.\n   - How to run: `pnpm --filter @converge/studio dev` or `converge studio` from any converge project.\n\n**Verify**: all four manifest checks pass.",
+              "taskId": "01-vendor/003-license-notice",
+              "taskTitle": "Preserve upstream license and add NOTICE",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/01-vendor/tasks/003-license-notice",
+              "factId": "check:upstream-license-preserved"
+            }
+          },
+          {
+            "id": "01-vendor/003-license-notice-check-failed-notice-attribution",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-vendor/003-license-notice",
+            "severity": "high",
+            "description": "[01-vendor/003-license-notice] Check failed: NOTICE file mentions builderz-labs/mission-control and includes upstream SHA",
+            "source": "unit",
+            "detected": "2026-04-26T01:32:12.725Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "notice-attribution",
+              "checkCmd": "test -f packages/converge-studio/NOTICE && grep -qi 'mission-control' packages/converge-studio/NOTICE && grep -qE '[0-9a-f]{7,40}' packages/converge-studio/NOTICE",
+              "checkDescription": "NOTICE file mentions builderz-labs/mission-control and includes upstream SHA",
+              "checkOutput": "Command failed: test -f packages/converge-studio/NOTICE && grep -qi 'mission-control' packages/converge-studio/NOTICE && grep -qE '[0-9a-f]{7,40}' packages/converge-studio/NOTICE\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Preserve attribution for the Mission Control fork.\n\n**Steps**:\n\n1. **Move upstream LICENSE**: rename `packages/converge-studio/LICENSE` → `packages/converge-studio/LICENSE.upstream`. (Whatever was at `LICENSE` in the upstream clone — typically MIT.)\n\n2. **Write a fresh `LICENSE`** for `@converge/studio` (MIT, copyright Converge contributors). Use the same MIT template as `packages/core/LICENSE` if present.\n\n3. **Write `NOTICE`** with attribution:\n\n   ```\n   @converge/studio\n\n   This package is derived from builderz-labs/mission-control\n   (https://github.com/builderz-labs/mission-control), licensed under MIT.\n   See LICENSE.upstream for the original copyright and license terms.\n\n   Forked at upstream commit: <SHA from packages/converge-studio/UPSTREAM_SHA>\n   Fork date: <ISO date>\n\n   Modifications:\n   - Replaced SQLite/Prisma data layer with a filesystem adapter that reads\n     converge's .converge/ directory directly.\n   - Removed framework-specific adapters (OpenClaw, CrewAI, LangGraph, AutoGen),\n     auth (NextAuth), agent registry, and multi-tenant support.\n   - Added playbook authoring, task editing, and run-supervisor surfaces\n     specific to converge's playbook + journal model.\n   ```\n\n   Read the SHA from `packages/converge-studio/UPSTREAM_SHA` (created by 001-clone-prune) and substitute it.\n\n4. **Write `packages/converge-studio/README.md`** documenting:\n   - That this is a Next.js app forked from `builderz-labs/mission-control` (link).\n   - The upstream commit SHA pinned at fork time.\n   - High-level architecture: filesystem-canonical (no SQLite); reads `.converge/` via `ConvergeAdapter`.\n   - How to run: `pnpm --filter @converge/studio dev` or `converge studio` from any converge project.\n\n**Verify**: all four manifest checks pass.",
+              "taskId": "01-vendor/003-license-notice",
+              "taskTitle": "Preserve upstream license and add NOTICE",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/01-vendor/tasks/003-license-notice",
+              "factId": "check:notice-attribution"
+            }
+          }
+        ],
+        "durationMs": 21
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 14
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 27
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#5",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 48564
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T01:32:12.712Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T01:32:12.712Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T01:32:12.733Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T01:32:12.734Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T01:32:12.748Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#5",
+      "iteration": 1,
+      "ts": "2026-04-26T01:33:01.312Z"
+    },
+    {
+      "from": "run-strategy:task-run#5",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T01:33:01.340Z"
+    }
+  ]
+}

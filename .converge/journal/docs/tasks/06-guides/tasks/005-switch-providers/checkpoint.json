@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "06-guides/005-switch-providers",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T09:48:49.445Z",
+  "createdAt": "2026-04-26T07:51:54.878Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T07:51:54.878Z",
+      "completedAt": "2026-04-26T07:53:11.669Z",
+      "outcome": "success",
+      "durationMs": 76791
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-26T09:48:49.118Z",
+      "completedAt": "2026-04-26T09:48:49.444Z",
+      "outcome": "success",
+      "durationMs": 326
+    }
+  ],
+  "currentAttempt": 2
+}

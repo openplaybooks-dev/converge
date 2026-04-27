@@ -1,0 +1,66 @@
+---
+import Section from '../layout/Section.astro';
+import Container from '../layout/Container.astro';
+import Icon from '../ui/Icon.astro';
+
+interface Props {}
+const {} = Astro.props;
+
+const differentiators = [
+  {
+    icon: 'lucide:target',
+    headline: 'Goal-driven, not step-driven',
+    body: 'Describe the finished project. Let the agent figure out the path. SQL declares the data you want, not the API calls to fetch it.',
+  },
+  {
+    icon: 'lucide:circle-check',
+    headline: 'Deterministic checks, not AI judgement',
+    body: 'Verification runs as shell commands. The agent has latitude in how it solves the problem; it has zero latitude on whether the predicate passes.',
+  },
+  {
+    icon: 'lucide:wrench',
+    headline: 'Strategy-based self-correction',
+    body: 'When a check fails, the framework dispatches to named repair strategies — fix the missing input, schedule the upstream producer, relax a buggy check.',
+  },
+  {
+    icon: 'lucide:git-branch',
+    headline: 'Dynamic task spawning',
+    body: 'WBS scripts decompose work at runtime based on project state. Scope emerges from the problem, not from a predetermined graph.',
+  },
+  {
+    icon: 'lucide:shield',
+    headline: 'Crash-safe checkpoints',
+    body: 'Kill the process, restart, and Converge picks up exactly where it left off. Long-running workflows survive interruptions.',
+  },
+  {
+    icon: 'lucide:globe',
+    headline: 'Multi-provider',
+    body: 'Claude, Gemini, Kimi, and Qwen via the agentfn abstraction. No vendor lock-in.',
+  },
+];
+---
+
+<Section id="feature-grid" padY="lg" bg="default">
+  <Container>
+    <div class="text-center mb-12">
+      <p class="text-sm font-medium tracking-widest text-indigo uppercase mb-4">Why Converge?</p>
+      <h2 class="text-3xl sm:text-4xl font-bold text-text">
+        The modern alternative to AI-assisted scripting
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {differentiators.map(({ icon, headline, body }) => (
+        <div class="flex flex-col gap-3 p-6 rounded-lg border border-border bg-bg card">
+          <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center w-10 h-10 rounded-full bg-indigo/10">
+              <Icon name={icon} size={20} class="text-indigo" aria-label={headline} />
+            </div>
+            <h3 class="text-lg font-semibold text-text">{headline}</h3>
+          </div>
+          <p class="text-sm text-text-muted leading-relaxed">{body}</p>
+        </div>
+      ))}
+    </div>
+  </Container>
+</Section>

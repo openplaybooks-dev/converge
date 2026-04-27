@@ -1,0 +1,15 @@
+{
+  "taskId": "05-finalize/001-root-redirect",
+  "checks": [
+    {
+      "id": "page-exists",
+      "description": "src/app/page.tsx exists",
+      "cmd": "test -f packages/studio/src/app/page.tsx"
+    },
+    {
+      "id": "redirect-to-playbooks",
+      "description": "page.tsx redirects to /playbooks",
+      "cmd": "grep -q 'next/navigation' packages/studio/src/app/page.tsx && grep -q 'redirect' packages/studio/src/app/page.tsx && grep -q '/playbooks' packages/studio/src/app/page.tsx"
+    }
+  ]
+}

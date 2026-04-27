@@ -1,0 +1,432 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-design-system/003-base-components-missing-output-apps/landing/src/components/ui/Button.astro",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/003-base-components",
+            "severity": "high",
+            "description": "[03-design-system/003-base-components] Task output not created: apps/landing/src/components/ui/Button.astro",
+            "source": "unit",
+            "detected": "2026-04-26T17:36:56.427Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/003-base-components",
+              "taskId": "03-design-system/003-base-components",
+              "taskTitle": "Base UI components (Button, Badge, Card, CodeBlock, Pill, Disclosure)",
+              "taskPrompt": "# Base components\n\nSix primitives in `src/components/ui/`. Every section component in phase\n04 imports from here. Section components must NOT reimplement these.\n\n## Components\n\n### `Button.astro`\nProps: `variant` (`primary` | `secondary` | `ghost`), `size` (`sm` | `md` | `lg`), `href` (renders as `<a>` if set), `external` (adds `target=\"_blank\" rel=\"noopener\"`).\n- `primary`: filled bg-indigo, white text, hover scale\n- `secondary`: bordered, transparent bg, indigo text\n- `ghost`: no border, just text + hover bg-bgElev\n\n### `Badge.astro`\nProps: `variant` (`info` | `success` | `warning` | `accent`), `size` (`sm` | `md`).\nA small inline pill — typically used for \"NEW\" or \"Beta\" labels.\n\n### `Card.astro`\nProps: `padding` (`md` | `lg`), `bg` (`default` | `elev`).\nSlot for content. Used by FeatureGrid for each card cell.\n\n### `CodeBlock.astro`\nProps: `language` (`bash` | `typescript` | `python` | `yaml` | `markdown`), `filename` (optional, renders as a tab), `copyable` (default true).\nUses Astro's built-in shiki for syntax highlighting (no client JS needed for highlighting itself; the copy button is a small island).\n\n### `Pill.astro`\nProps: `href` (optional). Smaller than Badge, used for inline links / filter pills.\n\n### `Disclosure.astro`\nProps: `id` (anchor), `open` (default false). Wraps `<details><summary>...</summary><div>...</div></details>`. Used by FAQ.\n\n## Process\n\n1. Create each `.astro` file with frontmatter (TS prop types) + template.\n2. Use Tailwind classes referencing the brand tokens (`bg-indigo`, `text-text`, etc.) — never raw hex.\n3. Run `pnpm --filter @converge/landing astro check` to verify TS validates.\n\n## Banned\n\n- React/Vue/Svelte components in `ui/`. Pure Astro only — these primitives must work without client JS.\n- Hardcoded colors in any of these files. Use Tailwind classes that reference brand tokens.\n- Variants beyond what's specified. If a section needs a new variant, add it here (one place, one diff) — don't fork the component.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"apps/landing/src/components/ui/Button.astro\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-design-system/003-base-components-missing-output-apps/landing/src/components/ui/Badge.astro",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/003-base-components",
+            "severity": "high",
+            "description": "[03-design-system/003-base-components] Task output not created: apps/landing/src/components/ui/Badge.astro",
+            "source": "unit",
+            "detected": "2026-04-26T17:36:56.430Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/003-base-components",
+              "taskId": "03-design-system/003-base-components",
+              "taskTitle": "Base UI components (Button, Badge, Card, CodeBlock, Pill, Disclosure)",
+              "taskPrompt": "# Base components\n\nSix primitives in `src/components/ui/`. Every section component in phase\n04 imports from here. Section components must NOT reimplement these.\n\n## Components\n\n### `Button.astro`\nProps: `variant` (`primary` | `secondary` | `ghost`), `size` (`sm` | `md` | `lg`), `href` (renders as `<a>` if set), `external` (adds `target=\"_blank\" rel=\"noopener\"`).\n- `primary`: filled bg-indigo, white text, hover scale\n- `secondary`: bordered, transparent bg, indigo text\n- `ghost`: no border, just text + hover bg-bgElev\n\n### `Badge.astro`\nProps: `variant` (`info` | `success` | `warning` | `accent`), `size` (`sm` | `md`).\nA small inline pill — typically used for \"NEW\" or \"Beta\" labels.\n\n### `Card.astro`\nProps: `padding` (`md` | `lg`), `bg` (`default` | `elev`).\nSlot for content. Used by FeatureGrid for each card cell.\n\n### `CodeBlock.astro`\nProps: `language` (`bash` | `typescript` | `python` | `yaml` | `markdown`), `filename` (optional, renders as a tab), `copyable` (default true).\nUses Astro's built-in shiki for syntax highlighting (no client JS needed for highlighting itself; the copy button is a small island).\n\n### `Pill.astro`\nProps: `href` (optional). Smaller than Badge, used for inline links / filter pills.\n\n### `Disclosure.astro`\nProps: `id` (anchor), `open` (default false). Wraps `<details><summary>...</summary><div>...</div></details>`. Used by FAQ.\n\n## Process\n\n1. Create each `.astro` file with frontmatter (TS prop types) + template.\n2. Use Tailwind classes referencing the brand tokens (`bg-indigo`, `text-text`, etc.) — never raw hex.\n3. Run `pnpm --filter @converge/landing astro check` to verify TS validates.\n\n## Banned\n\n- React/Vue/Svelte components in `ui/`. Pure Astro only — these primitives must work without client JS.\n- Hardcoded colors in any of these files. Use Tailwind classes that reference brand tokens.\n- Variants beyond what's specified. If a section needs a new variant, add it here (one place, one diff) — don't fork the component.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"apps/landing/src/components/ui/Badge.astro\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-design-system/003-base-components-missing-output-apps/landing/src/components/ui/Card.astro",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/003-base-components",
+            "severity": "high",
+            "description": "[03-design-system/003-base-components] Task output not created: apps/landing/src/components/ui/Card.astro",
+            "source": "unit",
+            "detected": "2026-04-26T17:36:56.432Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/003-base-components",
+              "taskId": "03-design-system/003-base-components",
+              "taskTitle": "Base UI components (Button, Badge, Card, CodeBlock, Pill, Disclosure)",
+              "taskPrompt": "# Base components\n\nSix primitives in `src/components/ui/`. Every section component in phase\n04 imports from here. Section components must NOT reimplement these.\n\n## Components\n\n### `Button.astro`\nProps: `variant` (`primary` | `secondary` | `ghost`), `size` (`sm` | `md` | `lg`), `href` (renders as `<a>` if set), `external` (adds `target=\"_blank\" rel=\"noopener\"`).\n- `primary`: filled bg-indigo, white text, hover scale\n- `secondary`: bordered, transparent bg, indigo text\n- `ghost`: no border, just text + hover bg-bgElev\n\n### `Badge.astro`\nProps: `variant` (`info` | `success` | `warning` | `accent`), `size` (`sm` | `md`).\nA small inline pill — typically used for \"NEW\" or \"Beta\" labels.\n\n### `Card.astro`\nProps: `padding` (`md` | `lg`), `bg` (`default` | `elev`).\nSlot for content. Used by FeatureGrid for each card cell.\n\n### `CodeBlock.astro`\nProps: `language` (`bash` | `typescript` | `python` | `yaml` | `markdown`), `filename` (optional, renders as a tab), `copyable` (default true).\nUses Astro's built-in shiki for syntax highlighting (no client JS needed for highlighting itself; the copy button is a small island).\n\n### `Pill.astro`\nProps: `href` (optional). Smaller than Badge, used for inline links / filter pills.\n\n### `Disclosure.astro`\nProps: `id` (anchor), `open` (default false). Wraps `<details><summary>...</summary><div>...</div></details>`. Used by FAQ.\n\n## Process\n\n1. Create each `.astro` file with frontmatter (TS prop types) + template.\n2. Use Tailwind classes referencing the brand tokens (`bg-indigo`, `text-text`, etc.) — never raw hex.\n3. Run `pnpm --filter @converge/landing astro check` to verify TS validates.\n\n## Banned\n\n- React/Vue/Svelte components in `ui/`. Pure Astro only — these primitives must work without client JS.\n- Hardcoded colors in any of these files. Use Tailwind classes that reference brand tokens.\n- Variants beyond what's specified. If a section needs a new variant, add it here (one place, one diff) — don't fork the component.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"apps/landing/src/components/ui/Card.astro\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-design-system/003-base-components-missing-output-apps/landing/src/components/ui/CodeBlock.astro",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/003-base-components",
+            "severity": "high",
+            "description": "[03-design-system/003-base-components] Task output not created: apps/landing/src/components/ui/CodeBlock.astro",
+            "source": "unit",
+            "detected": "2026-04-26T17:36:56.435Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/003-base-components",
+              "taskId": "03-design-system/003-base-components",
+              "taskTitle": "Base UI components (Button, Badge, Card, CodeBlock, Pill, Disclosure)",
+              "taskPrompt": "# Base components\n\nSix primitives in `src/components/ui/`. Every section component in phase\n04 imports from here. Section components must NOT reimplement these.\n\n## Components\n\n### `Button.astro`\nProps: `variant` (`primary` | `secondary` | `ghost`), `size` (`sm` | `md` | `lg`), `href` (renders as `<a>` if set), `external` (adds `target=\"_blank\" rel=\"noopener\"`).\n- `primary`: filled bg-indigo, white text, hover scale\n- `secondary`: bordered, transparent bg, indigo text\n- `ghost`: no border, just text + hover bg-bgElev\n\n### `Badge.astro`\nProps: `variant` (`info` | `success` | `warning` | `accent`), `size` (`sm` | `md`).\nA small inline pill — typically used for \"NEW\" or \"Beta\" labels.\n\n### `Card.astro`\nProps: `padding` (`md` | `lg`), `bg` (`default` | `elev`).\nSlot for content. Used by FeatureGrid for each card cell.\n\n### `CodeBlock.astro`\nProps: `language` (`bash` | `typescript` | `python` | `yaml` | `markdown`), `filename` (optional, renders as a tab), `copyable` (default true).\nUses Astro's built-in shiki for syntax highlighting (no client JS needed for highlighting itself; the copy button is a small island).\n\n### `Pill.astro`\nProps: `href` (optional). Smaller than Badge, used for inline links / filter pills.\n\n### `Disclosure.astro`\nProps: `id` (anchor), `open` (default false). Wraps `<details><summary>...</summary><div>...</div></details>`. Used by FAQ.\n\n## Process\n\n1. Create each `.astro` file with frontmatter (TS prop types) + template.\n2. Use Tailwind classes referencing the brand tokens (`bg-indigo`, `text-text`, etc.) — never raw hex.\n3. Run `pnpm --filter @converge/landing astro check` to verify TS validates.\n\n## Banned\n\n- React/Vue/Svelte components in `ui/`. Pure Astro only — these primitives must work without client JS.\n- Hardcoded colors in any of these files. Use Tailwind classes that reference brand tokens.\n- Variants beyond what's specified. If a section needs a new variant, add it here (one place, one diff) — don't fork the component.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"apps/landing/src/components/ui/CodeBlock.astro\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-design-system/003-base-components-missing-output-apps/landing/src/components/ui/Pill.astro",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/003-base-components",
+            "severity": "high",
+            "description": "[03-design-system/003-base-components] Task output not created: apps/landing/src/components/ui/Pill.astro",
+            "source": "unit",
+            "detected": "2026-04-26T17:36:56.438Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/003-base-components",
+              "taskId": "03-design-system/003-base-components",
+              "taskTitle": "Base UI components (Button, Badge, Card, CodeBlock, Pill, Disclosure)",
+              "taskPrompt": "# Base components\n\nSix primitives in `src/components/ui/`. Every section component in phase\n04 imports from here. Section components must NOT reimplement these.\n\n## Components\n\n### `Button.astro`\nProps: `variant` (`primary` | `secondary` | `ghost`), `size` (`sm` | `md` | `lg`), `href` (renders as `<a>` if set), `external` (adds `target=\"_blank\" rel=\"noopener\"`).\n- `primary`: filled bg-indigo, white text, hover scale\n- `secondary`: bordered, transparent bg, indigo text\n- `ghost`: no border, just text + hover bg-bgElev\n\n### `Badge.astro`\nProps: `variant` (`info` | `success` | `warning` | `accent`), `size` (`sm` | `md`).\nA small inline pill — typically used for \"NEW\" or \"Beta\" labels.\n\n### `Card.astro`\nProps: `padding` (`md` | `lg`), `bg` (`default` | `elev`).\nSlot for content. Used by FeatureGrid for each card cell.\n\n### `CodeBlock.astro`\nProps: `language` (`bash` | `typescript` | `python` | `yaml` | `markdown`), `filename` (optional, renders as a tab), `copyable` (default true).\nUses Astro's built-in shiki for syntax highlighting (no client JS needed for highlighting itself; the copy button is a small island).\n\n### `Pill.astro`\nProps: `href` (optional). Smaller than Badge, used for inline links / filter pills.\n\n### `Disclosure.astro`\nProps: `id` (anchor), `open` (default false). Wraps `<details><summary>...</summary><div>...</div></details>`. Used by FAQ.\n\n## Process\n\n1. Create each `.astro` file with frontmatter (TS prop types) + template.\n2. Use Tailwind classes referencing the brand tokens (`bg-indigo`, `text-text`, etc.) — never raw hex.\n3. Run `pnpm --filter @converge/landing astro check` to verify TS validates.\n\n## Banned\n\n- React/Vue/Svelte components in `ui/`. Pure Astro only — these primitives must work without client JS.\n- Hardcoded colors in any of these files. Use Tailwind classes that reference brand tokens.\n- Variants beyond what's specified. If a section needs a new variant, add it here (one place, one diff) — don't fork the component.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"apps/landing/src/components/ui/Pill.astro\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-design-system/003-base-components-missing-output-apps/landing/src/components/ui/Disclosure.astro",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/003-base-components",
+            "severity": "high",
+            "description": "[03-design-system/003-base-components] Task output not created: apps/landing/src/components/ui/Disclosure.astro",
+            "source": "unit",
+            "detected": "2026-04-26T17:36:56.440Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/003-base-components",
+              "taskId": "03-design-system/003-base-components",
+              "taskTitle": "Base UI components (Button, Badge, Card, CodeBlock, Pill, Disclosure)",
+              "taskPrompt": "# Base components\n\nSix primitives in `src/components/ui/`. Every section component in phase\n04 imports from here. Section components must NOT reimplement these.\n\n## Components\n\n### `Button.astro`\nProps: `variant` (`primary` | `secondary` | `ghost`), `size` (`sm` | `md` | `lg`), `href` (renders as `<a>` if set), `external` (adds `target=\"_blank\" rel=\"noopener\"`).\n- `primary`: filled bg-indigo, white text, hover scale\n- `secondary`: bordered, transparent bg, indigo text\n- `ghost`: no border, just text + hover bg-bgElev\n\n### `Badge.astro`\nProps: `variant` (`info` | `success` | `warning` | `accent`), `size` (`sm` | `md`).\nA small inline pill — typically used for \"NEW\" or \"Beta\" labels.\n\n### `Card.astro`\nProps: `padding` (`md` | `lg`), `bg` (`default` | `elev`).\nSlot for content. Used by FeatureGrid for each card cell.\n\n### `CodeBlock.astro`\nProps: `language` (`bash` | `typescript` | `python` | `yaml` | `markdown`), `filename` (optional, renders as a tab), `copyable` (default true).\nUses Astro's built-in shiki for syntax highlighting (no client JS needed for highlighting itself; the copy button is a small island).\n\n### `Pill.astro`\nProps: `href` (optional). Smaller than Badge, used for inline links / filter pills.\n\n### `Disclosure.astro`\nProps: `id` (anchor), `open` (default false). Wraps `<details><summary>...</summary><div>...</div></details>`. Used by FAQ.\n\n## Process\n\n1. Create each `.astro` file with frontmatter (TS prop types) + template.\n2. Use Tailwind classes referencing the brand tokens (`bg-indigo`, `text-text`, etc.) — never raw hex.\n3. Run `pnpm --filter @converge/landing astro check` to verify TS validates.\n\n## Banned\n\n- React/Vue/Svelte components in `ui/`. Pure Astro only — these primitives must work without client JS.\n- Hardcoded colors in any of these files. Use Tailwind classes that reference brand tokens.\n- Variants beyond what's specified. If a section needs a new variant, add it here (one place, one diff) — don't fork the component.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"apps/landing/src/components/ui/Disclosure.astro\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-design-system/003-base-components-check-failed-components-exist",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/003-base-components",
+            "severity": "high",
+            "description": "[03-design-system/003-base-components] Check failed: all six base components exist",
+            "source": "unit",
+            "detected": "2026-04-26T17:36:56.443Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "components-exist",
+              "checkCmd": "for f in Button Badge Card CodeBlock Pill Disclosure; do test -f apps/landing/src/components/ui/$f.astro || exit 1; done",
+              "checkDescription": "all six base components exist",
+              "checkOutput": "Command failed: for f in Button Badge Card CodeBlock Pill Disclosure; do test -f apps/landing/src/components/ui/$f.astro || exit 1; done\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Base components\n\nSix primitives in `src/components/ui/`. Every section component in phase\n04 imports from here. Section components must NOT reimplement these.\n\n## Components\n\n### `Button.astro`\nProps: `variant` (`primary` | `secondary` | `ghost`), `size` (`sm` | `md` | `lg`), `href` (renders as `<a>` if set), `external` (adds `target=\"_blank\" rel=\"noopener\"`).\n- `primary`: filled bg-indigo, white text, hover scale\n- `secondary`: bordered, transparent bg, indigo text\n- `ghost`: no border, just text + hover bg-bgElev\n\n### `Badge.astro`\nProps: `variant` (`info` | `success` | `warning` | `accent`), `size` (`sm` | `md`).\nA small inline pill — typically used for \"NEW\" or \"Beta\" labels.\n\n### `Card.astro`\nProps: `padding` (`md` | `lg`), `bg` (`default` | `elev`).\nSlot for content. Used by FeatureGrid for each card cell.\n\n### `CodeBlock.astro`\nProps: `language` (`bash` | `typescript` | `python` | `yaml` | `markdown`), `filename` (optional, renders as a tab), `copyable` (default true).\nUses Astro's built-in shiki for syntax highlighting (no client JS needed for highlighting itself; the copy button is a small island).\n\n### `Pill.astro`\nProps: `href` (optional). Smaller than Badge, used for inline links / filter pills.\n\n### `Disclosure.astro`\nProps: `id` (anchor), `open` (default false). Wraps `<details><summary>...</summary><div>...</div></details>`. Used by FAQ.\n\n## Process\n\n1. Create each `.astro` file with frontmatter (TS prop types) + template.\n2. Use Tailwind classes referencing the brand tokens (`bg-indigo`, `text-text`, etc.) — never raw hex.\n3. Run `pnpm --filter @converge/landing astro check` to verify TS validates.\n\n## Banned\n\n- React/Vue/Svelte components in `ui/`. Pure Astro only — these primitives must work without client JS.\n- Hardcoded colors in any of these files. Use Tailwind classes that reference brand tokens.\n- Variants beyond what's specified. If a section needs a new variant, add it here (one place, one diff) — don't fork the component.",
+              "taskId": "03-design-system/003-base-components",
+              "taskTitle": "Base UI components (Button, Badge, Card, CodeBlock, Pill, Disclosure)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/003-base-components",
+              "factId": "check:components-exist"
+            }
+          },
+          {
+            "id": "03-design-system/003-base-components-check-failed-components-typecheck",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/003-base-components",
+            "severity": "high",
+            "description": "[03-design-system/003-base-components] Check failed: astro check has no errors in components/ui",
+            "source": "unit",
+            "detected": "2026-04-26T17:36:56.445Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "components-typecheck",
+              "checkCmd": "test -d apps/landing/src/components/ui && pnpm --filter @converge/landing astro check 2>&1 | (! grep -E 'error.*components/ui')",
+              "checkDescription": "astro check has no errors in components/ui",
+              "checkOutput": "Command failed: test -d apps/landing/src/components/ui && pnpm --filter @converge/landing astro check 2>&1 | (! grep -E 'error.*components/ui')\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Base components\n\nSix primitives in `src/components/ui/`. Every section component in phase\n04 imports from here. Section components must NOT reimplement these.\n\n## Components\n\n### `Button.astro`\nProps: `variant` (`primary` | `secondary` | `ghost`), `size` (`sm` | `md` | `lg`), `href` (renders as `<a>` if set), `external` (adds `target=\"_blank\" rel=\"noopener\"`).\n- `primary`: filled bg-indigo, white text, hover scale\n- `secondary`: bordered, transparent bg, indigo text\n- `ghost`: no border, just text + hover bg-bgElev\n\n### `Badge.astro`\nProps: `variant` (`info` | `success` | `warning` | `accent`), `size` (`sm` | `md`).\nA small inline pill — typically used for \"NEW\" or \"Beta\" labels.\n\n### `Card.astro`\nProps: `padding` (`md` | `lg`), `bg` (`default` | `elev`).\nSlot for content. Used by FeatureGrid for each card cell.\n\n### `CodeBlock.astro`\nProps: `language` (`bash` | `typescript` | `python` | `yaml` | `markdown`), `filename` (optional, renders as a tab), `copyable` (default true).\nUses Astro's built-in shiki for syntax highlighting (no client JS needed for highlighting itself; the copy button is a small island).\n\n### `Pill.astro`\nProps: `href` (optional). Smaller than Badge, used for inline links / filter pills.\n\n### `Disclosure.astro`\nProps: `id` (anchor), `open` (default false). Wraps `<details><summary>...</summary><div>...</div></details>`. Used by FAQ.\n\n## Process\n\n1. Create each `.astro` file with frontmatter (TS prop types) + template.\n2. Use Tailwind classes referencing the brand tokens (`bg-indigo`, `text-text`, etc.) — never raw hex.\n3. Run `pnpm --filter @converge/landing astro check` to verify TS validates.\n\n## Banned\n\n- React/Vue/Svelte components in `ui/`. Pure Astro only — these primitives must work without client JS.\n- Hardcoded colors in any of these files. Use Tailwind classes that reference brand tokens.\n- Variants beyond what's specified. If a section needs a new variant, add it here (one place, one diff) — don't fork the component.",
+              "taskId": "03-design-system/003-base-components",
+              "taskTitle": "Base UI components (Button, Badge, Card, CodeBlock, Pill, Disclosure)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/003-base-components",
+              "factId": "check:components-typecheck"
+            }
+          },
+          {
+            "id": "03-design-system/003-base-components-check-failed-button-supports-variants",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/003-base-components",
+            "severity": "high",
+            "description": "[03-design-system/003-base-components] Check failed: Button supports primary/secondary/ghost variants",
+            "source": "unit",
+            "detected": "2026-04-26T17:36:56.447Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "button-supports-variants",
+              "checkCmd": "test -f apps/landing/src/components/ui/Button.astro && grep -qE 'primary|secondary|ghost' apps/landing/src/components/ui/Button.astro",
+              "checkDescription": "Button supports primary/secondary/ghost variants",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/ui/Button.astro && grep -qE 'primary|secondary|ghost' apps/landing/src/components/ui/Button.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Base components\n\nSix primitives in `src/components/ui/`. Every section component in phase\n04 imports from here. Section components must NOT reimplement these.\n\n## Components\n\n### `Button.astro`\nProps: `variant` (`primary` | `secondary` | `ghost`), `size` (`sm` | `md` | `lg`), `href` (renders as `<a>` if set), `external` (adds `target=\"_blank\" rel=\"noopener\"`).\n- `primary`: filled bg-indigo, white text, hover scale\n- `secondary`: bordered, transparent bg, indigo text\n- `ghost`: no border, just text + hover bg-bgElev\n\n### `Badge.astro`\nProps: `variant` (`info` | `success` | `warning` | `accent`), `size` (`sm` | `md`).\nA small inline pill — typically used for \"NEW\" or \"Beta\" labels.\n\n### `Card.astro`\nProps: `padding` (`md` | `lg`), `bg` (`default` | `elev`).\nSlot for content. Used by FeatureGrid for each card cell.\n\n### `CodeBlock.astro`\nProps: `language` (`bash` | `typescript` | `python` | `yaml` | `markdown`), `filename` (optional, renders as a tab), `copyable` (default true).\nUses Astro's built-in shiki for syntax highlighting (no client JS needed for highlighting itself; the copy button is a small island).\n\n### `Pill.astro`\nProps: `href` (optional). Smaller than Badge, used for inline links / filter pills.\n\n### `Disclosure.astro`\nProps: `id` (anchor), `open` (default false). Wraps `<details><summary>...</summary><div>...</div></details>`. Used by FAQ.\n\n## Process\n\n1. Create each `.astro` file with frontmatter (TS prop types) + template.\n2. Use Tailwind classes referencing the brand tokens (`bg-indigo`, `text-text`, etc.) — never raw hex.\n3. Run `pnpm --filter @converge/landing astro check` to verify TS validates.\n\n## Banned\n\n- React/Vue/Svelte components in `ui/`. Pure Astro only — these primitives must work without client JS.\n- Hardcoded colors in any of these files. Use Tailwind classes that reference brand tokens.\n- Variants beyond what's specified. If a section needs a new variant, add it here (one place, one diff) — don't fork the component.",
+              "taskId": "03-design-system/003-base-components",
+              "taskTitle": "Base UI components (Button, Badge, Card, CodeBlock, Pill, Disclosure)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/003-base-components",
+              "factId": "check:button-supports-variants"
+            }
+          },
+          {
+            "id": "03-design-system/003-base-components-check-failed-codeblock-uses-shiki",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/003-base-components",
+            "severity": "high",
+            "description": "[03-design-system/003-base-components] Check failed: CodeBlock uses shiki / astro-code highlighting",
+            "source": "unit",
+            "detected": "2026-04-26T17:36:56.449Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "codeblock-uses-shiki",
+              "checkCmd": "test -f apps/landing/src/components/ui/CodeBlock.astro && grep -qE 'shiki|astro-code|language-' apps/landing/src/components/ui/CodeBlock.astro",
+              "checkDescription": "CodeBlock uses shiki / astro-code highlighting",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/ui/CodeBlock.astro && grep -qE 'shiki|astro-code|language-' apps/landing/src/components/ui/CodeBlock.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Base components\n\nSix primitives in `src/components/ui/`. Every section component in phase\n04 imports from here. Section components must NOT reimplement these.\n\n## Components\n\n### `Button.astro`\nProps: `variant` (`primary` | `secondary` | `ghost`), `size` (`sm` | `md` | `lg`), `href` (renders as `<a>` if set), `external` (adds `target=\"_blank\" rel=\"noopener\"`).\n- `primary`: filled bg-indigo, white text, hover scale\n- `secondary`: bordered, transparent bg, indigo text\n- `ghost`: no border, just text + hover bg-bgElev\n\n### `Badge.astro`\nProps: `variant` (`info` | `success` | `warning` | `accent`), `size` (`sm` | `md`).\nA small inline pill — typically used for \"NEW\" or \"Beta\" labels.\n\n### `Card.astro`\nProps: `padding` (`md` | `lg`), `bg` (`default` | `elev`).\nSlot for content. Used by FeatureGrid for each card cell.\n\n### `CodeBlock.astro`\nProps: `language` (`bash` | `typescript` | `python` | `yaml` | `markdown`), `filename` (optional, renders as a tab), `copyable` (default true).\nUses Astro's built-in shiki for syntax highlighting (no client JS needed for highlighting itself; the copy button is a small island).\n\n### `Pill.astro`\nProps: `href` (optional). Smaller than Badge, used for inline links / filter pills.\n\n### `Disclosure.astro`\nProps: `id` (anchor), `open` (default false). Wraps `<details><summary>...</summary><div>...</div></details>`. Used by FAQ.\n\n## Process\n\n1. Create each `.astro` file with frontmatter (TS prop types) + template.\n2. Use Tailwind classes referencing the brand tokens (`bg-indigo`, `text-text`, etc.) — never raw hex.\n3. Run `pnpm --filter @converge/landing astro check` to verify TS validates.\n\n## Banned\n\n- React/Vue/Svelte components in `ui/`. Pure Astro only — these primitives must work without client JS.\n- Hardcoded colors in any of these files. Use Tailwind classes that reference brand tokens.\n- Variants beyond what's specified. If a section needs a new variant, add it here (one place, one diff) — don't fork the component.",
+              "taskId": "03-design-system/003-base-components",
+              "taskTitle": "Base UI components (Button, Badge, Card, CodeBlock, Pill, Disclosure)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/003-base-components",
+              "factId": "check:codeblock-uses-shiki"
+            }
+          },
+          {
+            "id": "03-design-system/003-base-components-check-failed-no-react-no-vue",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/003-base-components",
+            "severity": "high",
+            "description": "[03-design-system/003-base-components] Check failed: components are pure Astro (no React/Vue/Svelte/JSX)",
+            "source": "unit",
+            "detected": "2026-04-26T17:36:56.451Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "no-react-no-vue",
+              "checkCmd": "test -d apps/landing/src/components/ui && test -z \"$(find apps/landing/src/components/ui -name '*.tsx' -o -name '*.jsx' -o -name '*.vue' -o -name '*.svelte' 2>/dev/null)\"",
+              "checkDescription": "components are pure Astro (no React/Vue/Svelte/JSX)",
+              "checkOutput": "Command failed: test -d apps/landing/src/components/ui && test -z \"$(find apps/landing/src/components/ui -name '*.tsx' -o -name '*.jsx' -o -name '*.vue' -o -name '*.svelte' 2>/dev/null)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Base components\n\nSix primitives in `src/components/ui/`. Every section component in phase\n04 imports from here. Section components must NOT reimplement these.\n\n## Components\n\n### `Button.astro`\nProps: `variant` (`primary` | `secondary` | `ghost`), `size` (`sm` | `md` | `lg`), `href` (renders as `<a>` if set), `external` (adds `target=\"_blank\" rel=\"noopener\"`).\n- `primary`: filled bg-indigo, white text, hover scale\n- `secondary`: bordered, transparent bg, indigo text\n- `ghost`: no border, just text + hover bg-bgElev\n\n### `Badge.astro`\nProps: `variant` (`info` | `success` | `warning` | `accent`), `size` (`sm` | `md`).\nA small inline pill — typically used for \"NEW\" or \"Beta\" labels.\n\n### `Card.astro`\nProps: `padding` (`md` | `lg`), `bg` (`default` | `elev`).\nSlot for content. Used by FeatureGrid for each card cell.\n\n### `CodeBlock.astro`\nProps: `language` (`bash` | `typescript` | `python` | `yaml` | `markdown`), `filename` (optional, renders as a tab), `copyable` (default true).\nUses Astro's built-in shiki for syntax highlighting (no client JS needed for highlighting itself; the copy button is a small island).\n\n### `Pill.astro`\nProps: `href` (optional). Smaller than Badge, used for inline links / filter pills.\n\n### `Disclosure.astro`\nProps: `id` (anchor), `open` (default false). Wraps `<details><summary>...</summary><div>...</div></details>`. Used by FAQ.\n\n## Process\n\n1. Create each `.astro` file with frontmatter (TS prop types) + template.\n2. Use Tailwind classes referencing the brand tokens (`bg-indigo`, `text-text`, etc.) — never raw hex.\n3. Run `pnpm --filter @converge/landing astro check` to verify TS validates.\n\n## Banned\n\n- React/Vue/Svelte components in `ui/`. Pure Astro only — these primitives must work without client JS.\n- Hardcoded colors in any of these files. Use Tailwind classes that reference brand tokens.\n- Variants beyond what's specified. If a section needs a new variant, add it here (one place, one diff) — don't fork the component.",
+              "taskId": "03-design-system/003-base-components",
+              "taskTitle": "Base UI components (Button, Badge, Card, CodeBlock, Pill, Disclosure)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/003-base-components",
+              "factId": "check:no-react-no-vue"
+            }
+          }
+        ],
+        "durationMs": 28
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 13
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 301
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#14",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 76814
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T17:36:56.423Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T17:36:56.423Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T17:36:56.452Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T17:36:56.453Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T17:36:56.466Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#14",
+      "iteration": 1,
+      "ts": "2026-04-26T17:38:13.282Z"
+    },
+    {
+      "from": "run-strategy:task-run#14",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T17:38:13.584Z"
+    }
+  ]
+}

@@ -143,13 +143,12 @@ async function spawnBabySizeAssets(ctx, startIdx, templateBase, vars) {
     for (const step of steps) {
       const id = `${prefix}-${step}`;
       const templatePath = `${templateBase}/tasks/${step}/TASK.md`;
-      const writeToPath = `${basePath}/tasks/${id}/TASK.md`;
 
       const rendered = renderTemplate(templatePath, assetVars);
       if (rendered) {
         await ctx.spawn(
           { _type: 'raw-markdown', content: rendered },
-          { id, writeToPath }
+          { id }
         );
       }
     }
@@ -220,13 +219,12 @@ async function spawnFeatureIcons(ctx, startIdx, templateBase, vars) {
     for (const step of steps) {
       const id = `${prefix}-${step}`;
       const templatePath = `${templateBase}/tasks/${step}/TASK.md`;
-      const writeToPath = `${basePath}/tasks/${id}/TASK.md`;
 
       const rendered = renderTemplate(templatePath, assetVars);
       if (rendered) {
         await ctx.spawn(
           { _type: 'raw-markdown', content: rendered },
-          { id, writeToPath }
+          { id }
         );
       }
     }
@@ -285,13 +283,12 @@ async function spawnEmptyStates(ctx, startIdx, templateBase, vars) {
     for (const step of steps) {
       const id = `${prefix}-${step}`;
       const templatePath = `${templateBase}/tasks/${step}/TASK.md`;
-      const writeToPath = `${basePath}/tasks/${id}/TASK.md`;
 
       const rendered = renderTemplate(templatePath, assetVars);
       if (rendered) {
         await ctx.spawn(
           { _type: 'raw-markdown', content: rendered },
-          { id, writeToPath }
+          { id }
         );
       }
     }

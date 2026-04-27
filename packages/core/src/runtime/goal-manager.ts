@@ -71,7 +71,7 @@ export class GoalManagerImpl implements GoalManager {
     }
 
     // Run convergence loop for this goal
-    const maxIterations = config?.maxIterations ?? 10;
+    const maxIterations = config?.maxIterations ?? 1_000_000;
     let iteration = 0;
 
     while (iteration < maxIterations) {

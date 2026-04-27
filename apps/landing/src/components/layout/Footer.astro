@@ -1,0 +1,33 @@
+---
+// apps/landing/src/components/layout/Footer.astro
+import brand from '../../.content/brand.json' with { type: 'json' };
+
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-border bg-bg-elev/30 py-12 mt-24">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid gap-8 md:grid-cols-3">
+    <div>
+      <p class="font-display font-bold text-text">{brand.name}</p>
+      <p class="text-sm text-text-muted mt-2 max-w-sm">{brand.tagline}</p>
+    </div>
+
+    <nav class="flex flex-col gap-2 text-sm">
+      <p class="text-text-dim uppercase text-xs tracking-wide font-semibold mb-2">Project</p>
+      <a href="/docs/getting-started/why-converge" class="text-text-muted hover:text-text">Documentation</a>
+      <a href="/blog" class="text-text-muted hover:text-text">Blog</a>
+      <a href={brand.github} target="_blank" rel="noopener noreferrer" class="text-text-muted hover:text-text">GitHub</a>
+    </nav>
+
+    <nav class="flex flex-col gap-2 text-sm">
+      <p class="text-text-dim uppercase text-xs tracking-wide font-semibold mb-2">Learn</p>
+      <a href="/blog" class="text-text-muted hover:text-text">Blog</a>
+      <a href={brand.github} target="_blank" rel="noopener noreferrer" class="text-text-muted hover:text-text">GitHub</a>
+    </nav>
+  </div>
+
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-text-dim">
+    <p>© {year} Converge — MIT License</p>
+    <p>Built with Converge.</p>
+  </div>
+</footer>

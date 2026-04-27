@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-integrate-docs/002-sidebar-from-ia",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T19:40:02.109Z",
+  "createdAt": "2026-04-26T19:39:32.699Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T19:39:32.699Z",
+      "completedAt": "2026-04-26T19:40:02.063Z",
+      "outcome": "success",
+      "durationMs": 29364
+    }
+  ],
+  "currentAttempt": 1
+}

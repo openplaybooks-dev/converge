@@ -1,0 +1,287 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 19
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "08-generate-assets/001-favicon-set-missing-input-apps/landing/.content/brand.json",
+            "type": "missing-dependency",
+            "level": "task",
+            "scope": "08-generate-assets/001-favicon-set",
+            "severity": "high",
+            "description": "[08-generate-assets/001-favicon-set] Missing required input: apps/landing/.content/brand.json",
+            "source": "unit",
+            "detected": "2026-04-26T20:09:47.798Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "blocker",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/08-generate-assets/tasks/001-favicon-set",
+              "taskId": "08-generate-assets/001-favicon-set",
+              "taskTitle": "favicon.svg + apple-touch-icon.png + site.webmanifest",
+              "factId": "file-exists:test -f \"apps/landing/.content/brand.json\""
+            }
+          },
+          {
+            "id": "08-generate-assets/001-favicon-set-missing-output-apps/landing/public/apple-touch-icon.png",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-generate-assets/001-favicon-set",
+            "severity": "high",
+            "description": "[08-generate-assets/001-favicon-set] Task output not created: apps/landing/public/apple-touch-icon.png",
+            "source": "unit",
+            "detected": "2026-04-26T20:09:47.802Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/08-generate-assets/tasks/001-favicon-set",
+              "taskId": "08-generate-assets/001-favicon-set",
+              "taskTitle": "favicon.svg + apple-touch-icon.png + site.webmanifest",
+              "taskPrompt": "# Favicon set\n\nThree files in `public/`. Cross-browser favicon coverage in 2026 is\nmostly: SVG (modern browsers), PNG (Apple touch), webmanifest (Android/PWA).\n\n## Files\n\n### `apps/landing/public/favicon.svg`\nCopy `apps/landing/src/icons/converge-mark.svg`. The SVG mark IS the favicon.\n\n### `apps/landing/public/apple-touch-icon.png` (180×180)\nRender the converge mark on a solid `#0F1117` (brand bg) background at 180×180.\nUse `sharp` (already common in Astro projects) or `librsvg` to convert SVG → PNG.\n\n```bash\n# If sharp is available\nnode -e \"\nconst sharp = require('sharp');\nconst fs = require('fs');\nconst svg = fs.readFileSync('apps/landing/src/icons/converge-mark.svg', 'utf8');\nsharp(Buffer.from(svg))\n  .resize(180, 180)\n  .flatten({ background: '#0F1117' })\n  .png()\n  .toFile('apps/landing/public/apple-touch-icon.png');\n\"\n```\n\n### `apps/landing/public/site.webmanifest`\n```json\n{\n  \"name\": \"Converge\",\n  \"short_name\": \"Converge\",\n  \"description\": \"Define done. Converge gets there.\",\n  \"start_url\": \"/\",\n  \"display\": \"standalone\",\n  \"background_color\": \"#0F1117\",\n  \"theme_color\": \"#0F1117\",\n  \"icons\": [\n    { \"src\": \"/apple-touch-icon.png\", \"sizes\": \"180x180\", \"type\": \"image/png\" },\n    { \"src\": \"/favicon.svg\", \"sizes\": \"any\", \"type\": \"image/svg+xml\", \"purpose\": \"any\" }\n  ]\n}\n```\n\n## Banned\n\n- Generating .ico files. Modern browsers don't need them; SVG covers it.\n- Hardcoding the theme color. Read `brand.palette.bg` from brand.json.",
+              "taskInputs": [
+                "apps/landing/src/icons/converge-mark.svg",
+                "apps/landing/.content/brand.json"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/public/apple-touch-icon.png\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "08-generate-assets/001-favicon-set-missing-output-apps/landing/public/site.webmanifest",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-generate-assets/001-favicon-set",
+            "severity": "high",
+            "description": "[08-generate-assets/001-favicon-set] Task output not created: apps/landing/public/site.webmanifest",
+            "source": "unit",
+            "detected": "2026-04-26T20:09:47.804Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/08-generate-assets/tasks/001-favicon-set",
+              "taskId": "08-generate-assets/001-favicon-set",
+              "taskTitle": "favicon.svg + apple-touch-icon.png + site.webmanifest",
+              "taskPrompt": "# Favicon set\n\nThree files in `public/`. Cross-browser favicon coverage in 2026 is\nmostly: SVG (modern browsers), PNG (Apple touch), webmanifest (Android/PWA).\n\n## Files\n\n### `apps/landing/public/favicon.svg`\nCopy `apps/landing/src/icons/converge-mark.svg`. The SVG mark IS the favicon.\n\n### `apps/landing/public/apple-touch-icon.png` (180×180)\nRender the converge mark on a solid `#0F1117` (brand bg) background at 180×180.\nUse `sharp` (already common in Astro projects) or `librsvg` to convert SVG → PNG.\n\n```bash\n# If sharp is available\nnode -e \"\nconst sharp = require('sharp');\nconst fs = require('fs');\nconst svg = fs.readFileSync('apps/landing/src/icons/converge-mark.svg', 'utf8');\nsharp(Buffer.from(svg))\n  .resize(180, 180)\n  .flatten({ background: '#0F1117' })\n  .png()\n  .toFile('apps/landing/public/apple-touch-icon.png');\n\"\n```\n\n### `apps/landing/public/site.webmanifest`\n```json\n{\n  \"name\": \"Converge\",\n  \"short_name\": \"Converge\",\n  \"description\": \"Define done. Converge gets there.\",\n  \"start_url\": \"/\",\n  \"display\": \"standalone\",\n  \"background_color\": \"#0F1117\",\n  \"theme_color\": \"#0F1117\",\n  \"icons\": [\n    { \"src\": \"/apple-touch-icon.png\", \"sizes\": \"180x180\", \"type\": \"image/png\" },\n    { \"src\": \"/favicon.svg\", \"sizes\": \"any\", \"type\": \"image/svg+xml\", \"purpose\": \"any\" }\n  ]\n}\n```\n\n## Banned\n\n- Generating .ico files. Modern browsers don't need them; SVG covers it.\n- Hardcoding the theme color. Read `brand.palette.bg` from brand.json.",
+              "taskInputs": [
+                "apps/landing/src/icons/converge-mark.svg",
+                "apps/landing/.content/brand.json"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/public/site.webmanifest\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "08-generate-assets/001-favicon-set-check-failed-apple-touch-icon-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-generate-assets/001-favicon-set",
+            "severity": "high",
+            "description": "[08-generate-assets/001-favicon-set] Check failed: apple-touch-icon.png exists",
+            "source": "unit",
+            "detected": "2026-04-26T20:09:47.808Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "apple-touch-icon-exists",
+              "checkCmd": "test -f apps/landing/public/apple-touch-icon.png",
+              "checkDescription": "apple-touch-icon.png exists",
+              "checkOutput": "Command failed: test -f apps/landing/public/apple-touch-icon.png\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Favicon set\n\nThree files in `public/`. Cross-browser favicon coverage in 2026 is\nmostly: SVG (modern browsers), PNG (Apple touch), webmanifest (Android/PWA).\n\n## Files\n\n### `apps/landing/public/favicon.svg`\nCopy `apps/landing/src/icons/converge-mark.svg`. The SVG mark IS the favicon.\n\n### `apps/landing/public/apple-touch-icon.png` (180×180)\nRender the converge mark on a solid `#0F1117` (brand bg) background at 180×180.\nUse `sharp` (already common in Astro projects) or `librsvg` to convert SVG → PNG.\n\n```bash\n# If sharp is available\nnode -e \"\nconst sharp = require('sharp');\nconst fs = require('fs');\nconst svg = fs.readFileSync('apps/landing/src/icons/converge-mark.svg', 'utf8');\nsharp(Buffer.from(svg))\n  .resize(180, 180)\n  .flatten({ background: '#0F1117' })\n  .png()\n  .toFile('apps/landing/public/apple-touch-icon.png');\n\"\n```\n\n### `apps/landing/public/site.webmanifest`\n```json\n{\n  \"name\": \"Converge\",\n  \"short_name\": \"Converge\",\n  \"description\": \"Define done. Converge gets there.\",\n  \"start_url\": \"/\",\n  \"display\": \"standalone\",\n  \"background_color\": \"#0F1117\",\n  \"theme_color\": \"#0F1117\",\n  \"icons\": [\n    { \"src\": \"/apple-touch-icon.png\", \"sizes\": \"180x180\", \"type\": \"image/png\" },\n    { \"src\": \"/favicon.svg\", \"sizes\": \"any\", \"type\": \"image/svg+xml\", \"purpose\": \"any\" }\n  ]\n}\n```\n\n## Banned\n\n- Generating .ico files. Modern browsers don't need them; SVG covers it.\n- Hardcoding the theme color. Read `brand.palette.bg` from brand.json.",
+              "taskId": "08-generate-assets/001-favicon-set",
+              "taskTitle": "favicon.svg + apple-touch-icon.png + site.webmanifest",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/08-generate-assets/tasks/001-favicon-set",
+              "factId": "check:apple-touch-icon-exists"
+            }
+          },
+          {
+            "id": "08-generate-assets/001-favicon-set-check-failed-webmanifest-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-generate-assets/001-favicon-set",
+            "severity": "high",
+            "description": "[08-generate-assets/001-favicon-set] Check failed: site.webmanifest exists and is valid JSON",
+            "source": "unit",
+            "detected": "2026-04-26T20:09:47.809Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "webmanifest-exists",
+              "checkCmd": "test -f apps/landing/public/site.webmanifest && node -e \"JSON.parse(require('fs').readFileSync('apps/landing/public/site.webmanifest','utf8'))\"",
+              "checkDescription": "site.webmanifest exists and is valid JSON",
+              "checkOutput": "Command failed: test -f apps/landing/public/site.webmanifest && node -e \"JSON.parse(require('fs').readFileSync('apps/landing/public/site.webmanifest','utf8'))\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Favicon set\n\nThree files in `public/`. Cross-browser favicon coverage in 2026 is\nmostly: SVG (modern browsers), PNG (Apple touch), webmanifest (Android/PWA).\n\n## Files\n\n### `apps/landing/public/favicon.svg`\nCopy `apps/landing/src/icons/converge-mark.svg`. The SVG mark IS the favicon.\n\n### `apps/landing/public/apple-touch-icon.png` (180×180)\nRender the converge mark on a solid `#0F1117` (brand bg) background at 180×180.\nUse `sharp` (already common in Astro projects) or `librsvg` to convert SVG → PNG.\n\n```bash\n# If sharp is available\nnode -e \"\nconst sharp = require('sharp');\nconst fs = require('fs');\nconst svg = fs.readFileSync('apps/landing/src/icons/converge-mark.svg', 'utf8');\nsharp(Buffer.from(svg))\n  .resize(180, 180)\n  .flatten({ background: '#0F1117' })\n  .png()\n  .toFile('apps/landing/public/apple-touch-icon.png');\n\"\n```\n\n### `apps/landing/public/site.webmanifest`\n```json\n{\n  \"name\": \"Converge\",\n  \"short_name\": \"Converge\",\n  \"description\": \"Define done. Converge gets there.\",\n  \"start_url\": \"/\",\n  \"display\": \"standalone\",\n  \"background_color\": \"#0F1117\",\n  \"theme_color\": \"#0F1117\",\n  \"icons\": [\n    { \"src\": \"/apple-touch-icon.png\", \"sizes\": \"180x180\", \"type\": \"image/png\" },\n    { \"src\": \"/favicon.svg\", \"sizes\": \"any\", \"type\": \"image/svg+xml\", \"purpose\": \"any\" }\n  ]\n}\n```\n\n## Banned\n\n- Generating .ico files. Modern browsers don't need them; SVG covers it.\n- Hardcoding the theme color. Read `brand.palette.bg` from brand.json.",
+              "taskId": "08-generate-assets/001-favicon-set",
+              "taskTitle": "favicon.svg + apple-touch-icon.png + site.webmanifest",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/08-generate-assets/tasks/001-favicon-set",
+              "factId": "check:webmanifest-exists"
+            }
+          },
+          {
+            "id": "08-generate-assets/001-favicon-set-check-failed-webmanifest-has-name",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-generate-assets/001-favicon-set",
+            "severity": "high",
+            "description": "[08-generate-assets/001-favicon-set] Check failed: webmanifest name is Converge",
+            "source": "unit",
+            "detected": "2026-04-26T20:09:47.811Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "webmanifest-has-name",
+              "checkCmd": "test -f apps/landing/public/site.webmanifest && node -e \"const m=require('./apps/landing/public/site.webmanifest');process.exit(m.name==='Converge'?0:1)\"",
+              "checkDescription": "webmanifest name is Converge",
+              "checkOutput": "Command failed: test -f apps/landing/public/site.webmanifest && node -e \"const m=require('./apps/landing/public/site.webmanifest');process.exit(m.name==='Converge'?0:1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Favicon set\n\nThree files in `public/`. Cross-browser favicon coverage in 2026 is\nmostly: SVG (modern browsers), PNG (Apple touch), webmanifest (Android/PWA).\n\n## Files\n\n### `apps/landing/public/favicon.svg`\nCopy `apps/landing/src/icons/converge-mark.svg`. The SVG mark IS the favicon.\n\n### `apps/landing/public/apple-touch-icon.png` (180×180)\nRender the converge mark on a solid `#0F1117` (brand bg) background at 180×180.\nUse `sharp` (already common in Astro projects) or `librsvg` to convert SVG → PNG.\n\n```bash\n# If sharp is available\nnode -e \"\nconst sharp = require('sharp');\nconst fs = require('fs');\nconst svg = fs.readFileSync('apps/landing/src/icons/converge-mark.svg', 'utf8');\nsharp(Buffer.from(svg))\n  .resize(180, 180)\n  .flatten({ background: '#0F1117' })\n  .png()\n  .toFile('apps/landing/public/apple-touch-icon.png');\n\"\n```\n\n### `apps/landing/public/site.webmanifest`\n```json\n{\n  \"name\": \"Converge\",\n  \"short_name\": \"Converge\",\n  \"description\": \"Define done. Converge gets there.\",\n  \"start_url\": \"/\",\n  \"display\": \"standalone\",\n  \"background_color\": \"#0F1117\",\n  \"theme_color\": \"#0F1117\",\n  \"icons\": [\n    { \"src\": \"/apple-touch-icon.png\", \"sizes\": \"180x180\", \"type\": \"image/png\" },\n    { \"src\": \"/favicon.svg\", \"sizes\": \"any\", \"type\": \"image/svg+xml\", \"purpose\": \"any\" }\n  ]\n}\n```\n\n## Banned\n\n- Generating .ico files. Modern browsers don't need them; SVG covers it.\n- Hardcoding the theme color. Read `brand.palette.bg` from brand.json.",
+              "taskId": "08-generate-assets/001-favicon-set",
+              "taskTitle": "favicon.svg + apple-touch-icon.png + site.webmanifest",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/08-generate-assets/tasks/001-favicon-set",
+              "factId": "check:webmanifest-has-name"
+            }
+          }
+        ],
+        "durationMs": 17
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "resolve-blockers",
+      "handler": "resolve-blockers",
+      "status": "failed",
+      "origin": "initial",
+      "data": {
+        "priority": 80
+      },
+      "result": {
+        "action": "bail",
+        "success": false,
+        "reason": "1 unresolvable blockers",
+        "durationMs": 18
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T20:09:47.774Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T20:09:47.793Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T20:09:47.811Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "resolve-blockers",
+      "iteration": 1,
+      "ts": "2026-04-26T20:09:47.830Z"
+    }
+  ]
+}

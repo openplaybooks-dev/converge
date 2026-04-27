@@ -1,0 +1,25 @@
+{
+  "taskId": "07-troubleshooting/001-troubleshooting-index",
+  "checks": [
+    {
+      "id": "page-exists",
+      "description": "page exists",
+      "cmd": "test -f docs/troubleshooting/index.md"
+    },
+    {
+      "id": "page-frontmatter",
+      "description": "title + sources frontmatter",
+      "cmd": "head -10 docs/troubleshooting/index.md | grep -q '^title:' && head -10 docs/troubleshooting/index.md | grep -q '^sources:'"
+    },
+    {
+      "id": "lists-most-symptoms",
+      "description": "lists at least 10 symptom entries",
+      "cmd": "test $(grep -cE '^\\s*-\\s+\\[|^\\*\\s+\\[|^[0-9]+\\.\\s+\\[' docs/troubleshooting/index.md) -ge 10"
+    },
+    {
+      "id": "links-to-read-the-journal",
+      "description": "links to the read-the-journal guide",
+      "cmd": "grep -qE '/guides/read-the-journal|\\.\\./guides/read-the-journal' docs/troubleshooting/index.md"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "01-prepare-spec/001-sitemap",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T20:13:39.981Z",
+  "createdAt": "2026-04-26T17:19:33.048Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T17:19:33.048Z",
+      "completedAt": "2026-04-26T17:21:04.703Z",
+      "outcome": "success",
+      "durationMs": 91655
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-26T20:12:57.871Z",
+      "completedAt": "2026-04-26T20:13:39.937Z",
+      "outcome": "success",
+      "durationMs": 42066
+    }
+  ],
+  "currentAttempt": 2
+}

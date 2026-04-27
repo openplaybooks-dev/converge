@@ -1,0 +1,275 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "09-concepts/003-self-correction-missing-output-docs/concepts/self-correction.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-concepts/003-self-correction",
+            "severity": "high",
+            "description": "[09-concepts/003-self-correction] Task output not created: docs/concepts/self-correction.md",
+            "source": "unit",
+            "detected": "2026-04-26T09:57:25.001Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/09-concepts/tasks/003-self-correction",
+              "taskId": "09-concepts/003-self-correction",
+              "taskTitle": "Write docs/concepts/self-correction.md",
+              "taskPrompt": "# Write `docs/concepts/self-correction.md`\n\nThe third pillar: how converge handles failure. The mental model that makes\nLEARN.md make sense.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Self-correction\"\ndescription: \"Failure as context, not retry-and-hope. How LEARN.md carries information forward.\"\nsources:\n  - packages/core/src/journal/types.ts\n  - packages/core/src/index.ts\nsidebar:\n  order: 3\n---\n```\n\n## Required structure\n\n1. **The failure problem.** When a check fails, the agent has two options:\n   give up, or try again. Most frameworks pick \"try again with the same\n   prompt\" — retry-and-hope. The next attempt has no idea why the previous\n   one failed, so often it makes the same mistake.\n\n2. **The fix: structured failure context.** When a check fails in converge,\n   the agent writes a `LEARN.md` block: what was attempted, what the check\n   said, what the agent thinks went wrong. The next attempt reads this\n   *before* generating a new approach.\n\n3. **Anatomy of a LEARN.md block.** Show the rough format. Pull from a real\n   one in `.converge/journal/.../LEARN.md` if available; otherwise reverse-\n   engineer from `packages/core/src/journal/`.\n\n4. **What this buys you.**\n   - Convergence on hard problems where the first attempt is unlikely to\n     succeed.\n   - Visible debugging trail — the LEARN.md is a human-readable forensic\n     record.\n   - Cost-bounded retries — `run.maxTaskAttempts` caps the loop; you don't\n     pay for infinite hope.\n\n5. **What it doesn't fix.**\n   - Wrong target state — if the checks are wrong, no amount of LEARN.md\n     analysis converges. The reader is on the hook for writing right checks.\n   - Non-deterministic failures — flaky checks (network, time-of-day, etc.)\n     thrash the loop.\n   - Provider-side issues — if the model itself can't solve the problem\n     class, more context doesn't help.\n\n6. **The convergence loop, revisited.**\n   ```\n   measure → plan → act → measure → ┬─ all checks pass: done.\n                                    └─ check failed: write LEARN.md → loop.\n   ```\n   `run.maxTaskAttempts` (default 3) caps the loop count.\n\n## Read first\n\n- `packages/core/src/journal/types.ts` for `LEARN.md` event shape (if\n  represented as a journal event type).\n- A real LEARN.md from `.converge/journal/.../` if any task has failed.\n\n## Banned\n\n- Selling self-correction as magic. It's bounded, observable, and has clear\n  limits. Name them.\n- Inventing the LEARN.md format. Cite a real example or the source.",
+              "taskInputs": [
+                "packages/core/src/journal/types.ts",
+                "packages/core/src/index.ts"
+              ],
+              "factId": "file-exists:test -f \"docs/concepts/self-correction.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "09-concepts/003-self-correction-check-failed-page-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-concepts/003-self-correction",
+            "severity": "high",
+            "description": "[09-concepts/003-self-correction] Check failed: page exists",
+            "source": "unit",
+            "detected": "2026-04-26T09:57:25.002Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "page-exists",
+              "checkCmd": "test -f docs/concepts/self-correction.md",
+              "checkDescription": "page exists",
+              "checkOutput": "Command failed: test -f docs/concepts/self-correction.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Write `docs/concepts/self-correction.md`\n\nThe third pillar: how converge handles failure. The mental model that makes\nLEARN.md make sense.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Self-correction\"\ndescription: \"Failure as context, not retry-and-hope. How LEARN.md carries information forward.\"\nsources:\n  - packages/core/src/journal/types.ts\n  - packages/core/src/index.ts\nsidebar:\n  order: 3\n---\n```\n\n## Required structure\n\n1. **The failure problem.** When a check fails, the agent has two options:\n   give up, or try again. Most frameworks pick \"try again with the same\n   prompt\" — retry-and-hope. The next attempt has no idea why the previous\n   one failed, so often it makes the same mistake.\n\n2. **The fix: structured failure context.** When a check fails in converge,\n   the agent writes a `LEARN.md` block: what was attempted, what the check\n   said, what the agent thinks went wrong. The next attempt reads this\n   *before* generating a new approach.\n\n3. **Anatomy of a LEARN.md block.** Show the rough format. Pull from a real\n   one in `.converge/journal/.../LEARN.md` if available; otherwise reverse-\n   engineer from `packages/core/src/journal/`.\n\n4. **What this buys you.**\n   - Convergence on hard problems where the first attempt is unlikely to\n     succeed.\n   - Visible debugging trail — the LEARN.md is a human-readable forensic\n     record.\n   - Cost-bounded retries — `run.maxTaskAttempts` caps the loop; you don't\n     pay for infinite hope.\n\n5. **What it doesn't fix.**\n   - Wrong target state — if the checks are wrong, no amount of LEARN.md\n     analysis converges. The reader is on the hook for writing right checks.\n   - Non-deterministic failures — flaky checks (network, time-of-day, etc.)\n     thrash the loop.\n   - Provider-side issues — if the model itself can't solve the problem\n     class, more context doesn't help.\n\n6. **The convergence loop, revisited.**\n   ```\n   measure → plan → act → measure → ┬─ all checks pass: done.\n                                    └─ check failed: write LEARN.md → loop.\n   ```\n   `run.maxTaskAttempts` (default 3) caps the loop count.\n\n## Read first\n\n- `packages/core/src/journal/types.ts` for `LEARN.md` event shape (if\n  represented as a journal event type).\n- A real LEARN.md from `.converge/journal/.../` if any task has failed.\n\n## Banned\n\n- Selling self-correction as magic. It's bounded, observable, and has clear\n  limits. Name them.\n- Inventing the LEARN.md format. Cite a real example or the source.",
+              "taskId": "09-concepts/003-self-correction",
+              "taskTitle": "Write docs/concepts/self-correction.md",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/09-concepts/tasks/003-self-correction",
+              "factId": "check:page-exists"
+            }
+          },
+          {
+            "id": "09-concepts/003-self-correction-check-failed-covers-learn-md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-concepts/003-self-correction",
+            "severity": "high",
+            "description": "[09-concepts/003-self-correction] Check failed: covers LEARN.md",
+            "source": "unit",
+            "detected": "2026-04-26T09:57:25.006Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "covers-learn-md",
+              "checkCmd": "grep -q 'LEARN\\.md' docs/concepts/self-correction.md",
+              "checkDescription": "covers LEARN.md",
+              "checkOutput": "grep: docs/concepts/self-correction.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Write `docs/concepts/self-correction.md`\n\nThe third pillar: how converge handles failure. The mental model that makes\nLEARN.md make sense.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Self-correction\"\ndescription: \"Failure as context, not retry-and-hope. How LEARN.md carries information forward.\"\nsources:\n  - packages/core/src/journal/types.ts\n  - packages/core/src/index.ts\nsidebar:\n  order: 3\n---\n```\n\n## Required structure\n\n1. **The failure problem.** When a check fails, the agent has two options:\n   give up, or try again. Most frameworks pick \"try again with the same\n   prompt\" — retry-and-hope. The next attempt has no idea why the previous\n   one failed, so often it makes the same mistake.\n\n2. **The fix: structured failure context.** When a check fails in converge,\n   the agent writes a `LEARN.md` block: what was attempted, what the check\n   said, what the agent thinks went wrong. The next attempt reads this\n   *before* generating a new approach.\n\n3. **Anatomy of a LEARN.md block.** Show the rough format. Pull from a real\n   one in `.converge/journal/.../LEARN.md` if available; otherwise reverse-\n   engineer from `packages/core/src/journal/`.\n\n4. **What this buys you.**\n   - Convergence on hard problems where the first attempt is unlikely to\n     succeed.\n   - Visible debugging trail — the LEARN.md is a human-readable forensic\n     record.\n   - Cost-bounded retries — `run.maxTaskAttempts` caps the loop; you don't\n     pay for infinite hope.\n\n5. **What it doesn't fix.**\n   - Wrong target state — if the checks are wrong, no amount of LEARN.md\n     analysis converges. The reader is on the hook for writing right checks.\n   - Non-deterministic failures — flaky checks (network, time-of-day, etc.)\n     thrash the loop.\n   - Provider-side issues — if the model itself can't solve the problem\n     class, more context doesn't help.\n\n6. **The convergence loop, revisited.**\n   ```\n   measure → plan → act → measure → ┬─ all checks pass: done.\n                                    └─ check failed: write LEARN.md → loop.\n   ```\n   `run.maxTaskAttempts` (default 3) caps the loop count.\n\n## Read first\n\n- `packages/core/src/journal/types.ts` for `LEARN.md` event shape (if\n  represented as a journal event type).\n- A real LEARN.md from `.converge/journal/.../` if any task has failed.\n\n## Banned\n\n- Selling self-correction as magic. It's bounded, observable, and has clear\n  limits. Name them.\n- Inventing the LEARN.md format. Cite a real example or the source.",
+              "taskId": "09-concepts/003-self-correction",
+              "taskTitle": "Write docs/concepts/self-correction.md",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/09-concepts/tasks/003-self-correction",
+              "factId": "check:covers-learn-md"
+            }
+          },
+          {
+            "id": "09-concepts/003-self-correction-check-failed-contrasts-retry-and-hope",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-concepts/003-self-correction",
+            "severity": "high",
+            "description": "[09-concepts/003-self-correction] Check failed: explains how this differs from retry-and-hope",
+            "source": "unit",
+            "detected": "2026-04-26T09:57:25.010Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "contrasts-retry-and-hope",
+              "checkCmd": "grep -qiE 'retry|context|feedback' docs/concepts/self-correction.md",
+              "checkDescription": "explains how this differs from retry-and-hope",
+              "checkOutput": "grep: docs/concepts/self-correction.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Write `docs/concepts/self-correction.md`\n\nThe third pillar: how converge handles failure. The mental model that makes\nLEARN.md make sense.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Self-correction\"\ndescription: \"Failure as context, not retry-and-hope. How LEARN.md carries information forward.\"\nsources:\n  - packages/core/src/journal/types.ts\n  - packages/core/src/index.ts\nsidebar:\n  order: 3\n---\n```\n\n## Required structure\n\n1. **The failure problem.** When a check fails, the agent has two options:\n   give up, or try again. Most frameworks pick \"try again with the same\n   prompt\" — retry-and-hope. The next attempt has no idea why the previous\n   one failed, so often it makes the same mistake.\n\n2. **The fix: structured failure context.** When a check fails in converge,\n   the agent writes a `LEARN.md` block: what was attempted, what the check\n   said, what the agent thinks went wrong. The next attempt reads this\n   *before* generating a new approach.\n\n3. **Anatomy of a LEARN.md block.** Show the rough format. Pull from a real\n   one in `.converge/journal/.../LEARN.md` if available; otherwise reverse-\n   engineer from `packages/core/src/journal/`.\n\n4. **What this buys you.**\n   - Convergence on hard problems where the first attempt is unlikely to\n     succeed.\n   - Visible debugging trail — the LEARN.md is a human-readable forensic\n     record.\n   - Cost-bounded retries — `run.maxTaskAttempts` caps the loop; you don't\n     pay for infinite hope.\n\n5. **What it doesn't fix.**\n   - Wrong target state — if the checks are wrong, no amount of LEARN.md\n     analysis converges. The reader is on the hook for writing right checks.\n   - Non-deterministic failures — flaky checks (network, time-of-day, etc.)\n     thrash the loop.\n   - Provider-side issues — if the model itself can't solve the problem\n     class, more context doesn't help.\n\n6. **The convergence loop, revisited.**\n   ```\n   measure → plan → act → measure → ┬─ all checks pass: done.\n                                    └─ check failed: write LEARN.md → loop.\n   ```\n   `run.maxTaskAttempts` (default 3) caps the loop count.\n\n## Read first\n\n- `packages/core/src/journal/types.ts` for `LEARN.md` event shape (if\n  represented as a journal event type).\n- A real LEARN.md from `.converge/journal/.../` if any task has failed.\n\n## Banned\n\n- Selling self-correction as magic. It's bounded, observable, and has clear\n  limits. Name them.\n- Inventing the LEARN.md format. Cite a real example or the source.",
+              "taskId": "09-concepts/003-self-correction",
+              "taskTitle": "Write docs/concepts/self-correction.md",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/09-concepts/tasks/003-self-correction",
+              "factId": "check:contrasts-retry-and-hope"
+            }
+          }
+        ],
+        "durationMs": 17
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 10
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 18
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#7",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 46550
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T09:57:24.993Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T09:57:24.993Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T09:57:25.010Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T09:57:25.010Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T09:57:25.020Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#7",
+      "iteration": 1,
+      "ts": "2026-04-26T09:58:11.570Z"
+    },
+    {
+      "from": "run-strategy:task-run#7",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T09:58:11.589Z"
+    }
+  ]
+}

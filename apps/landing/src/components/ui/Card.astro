@@ -1,0 +1,28 @@
+---
+interface Props {
+  padding?: 'md' | 'lg';
+  bg?: 'default' | 'elev';
+}
+
+const { padding = 'md', bg = 'default' } = Astro.props;
+
+const paddingClasses = {
+  md: 'p-4',
+  lg: 'p-6',
+};
+
+const bgClasses = {
+  default: 'bg-bg',
+  elev: 'bg-bgElev',
+};
+
+const classes = [
+  'rounded-lg border border-border',
+  paddingClasses[padding],
+  bgClasses[bg],
+].join(' ');
+---
+
+<div class={classes}>
+  <slot />
+</div>

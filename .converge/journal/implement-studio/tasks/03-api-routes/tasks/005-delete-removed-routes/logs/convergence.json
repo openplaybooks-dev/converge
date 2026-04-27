@@ -1,0 +1,397 @@
+{
+  "iteration": 2,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-api-routes/005-delete-removed-routes-check-failed-agents-removed",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/005-delete-removed-routes",
+            "severity": "high",
+            "description": "[03-api-routes/005-delete-removed-routes] Check failed: /api/agents routes removed",
+            "source": "unit",
+            "detected": "2026-04-26T02:41:09.661Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "agents-removed",
+              "checkCmd": "! test -d packages/converge-studio/src/app/api/agents",
+              "checkDescription": "/api/agents routes removed",
+              "checkOutput": "Command failed: ! test -d packages/converge-studio/src/app/api/agents\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Delete API routes brought in from upstream that we don't use. Phase 01 already pruned at fork time, but anything missed should be cleaned up here.\n\n**Delete**:\n- `src/app/api/agents/**` — agent registry, heartbeats, capability sync\n- `src/app/api/auth/**` — NextAuth routes (no auth in MVP)\n- `src/app/api/{openclaw,crewai,langgraph,autogen}/**` — framework adapter routes\n- `src/app/api/orgs/**`, `src/app/api/users/**` — multi-tenant + user mgmt if present\n- `src/app/api/cost/**` if it depends on a removed cost ledger (otherwise keep, leave dormant)\n\n**Process**:\n1. List `src/app/api/` directories.\n2. For each, check whether it's referenced by any kept UI page (grep). If unreferenced and matches the delete list above, remove it.\n3. Run `pnpm --filter @converge/studio typecheck` after deletions; fix dangling imports in kept code by either re-routing to converge-adapter or stubbing.\n\n**Do not delete**: `api/playbooks`, `api/runs`, `api/watch`, `api/run` (Phase 05). These are the converge surface.",
+              "taskId": "03-api-routes/005-delete-removed-routes",
+              "taskTitle": "Delete obsolete Mission Control routes",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/005-delete-removed-routes",
+              "factId": "check:agents-removed"
+            }
+          },
+          {
+            "id": "03-api-routes/005-delete-removed-routes-check-failed-auth-removed",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/005-delete-removed-routes",
+            "severity": "high",
+            "description": "[03-api-routes/005-delete-removed-routes] Check failed: /api/auth routes removed (no NextAuth in MVP)",
+            "source": "unit",
+            "detected": "2026-04-26T02:41:09.663Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "auth-removed",
+              "checkCmd": "! test -d packages/converge-studio/src/app/api/auth",
+              "checkDescription": "/api/auth routes removed (no NextAuth in MVP)",
+              "checkOutput": "Command failed: ! test -d packages/converge-studio/src/app/api/auth\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Delete API routes brought in from upstream that we don't use. Phase 01 already pruned at fork time, but anything missed should be cleaned up here.\n\n**Delete**:\n- `src/app/api/agents/**` — agent registry, heartbeats, capability sync\n- `src/app/api/auth/**` — NextAuth routes (no auth in MVP)\n- `src/app/api/{openclaw,crewai,langgraph,autogen}/**` — framework adapter routes\n- `src/app/api/orgs/**`, `src/app/api/users/**` — multi-tenant + user mgmt if present\n- `src/app/api/cost/**` if it depends on a removed cost ledger (otherwise keep, leave dormant)\n\n**Process**:\n1. List `src/app/api/` directories.\n2. For each, check whether it's referenced by any kept UI page (grep). If unreferenced and matches the delete list above, remove it.\n3. Run `pnpm --filter @converge/studio typecheck` after deletions; fix dangling imports in kept code by either re-routing to converge-adapter or stubbing.\n\n**Do not delete**: `api/playbooks`, `api/runs`, `api/watch`, `api/run` (Phase 05). These are the converge surface.",
+              "taskId": "03-api-routes/005-delete-removed-routes",
+              "taskTitle": "Delete obsolete Mission Control routes",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/005-delete-removed-routes",
+              "factId": "check:auth-removed"
+            }
+          },
+          {
+            "id": "03-api-routes/005-delete-removed-routes-check-failed-build-still-passes",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/005-delete-removed-routes",
+            "severity": "high",
+            "description": "[03-api-routes/005-delete-removed-routes] Check failed: Studio still builds after deletions",
+            "source": "unit",
+            "detected": "2026-04-26T02:41:24.676Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "build-still-passes",
+              "checkCmd": "pnpm --filter @converge/studio build 2>&1 | tail -10 | grep -qE 'Compiled|build successful|Generating' || pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq",
+              "checkDescription": "Studio still builds after deletions",
+              "checkOutput": "Command timed out after 15000ms",
+              "checkExitCode": 124,
+              "taskPrompt": "Delete API routes brought in from upstream that we don't use. Phase 01 already pruned at fork time, but anything missed should be cleaned up here.\n\n**Delete**:\n- `src/app/api/agents/**` — agent registry, heartbeats, capability sync\n- `src/app/api/auth/**` — NextAuth routes (no auth in MVP)\n- `src/app/api/{openclaw,crewai,langgraph,autogen}/**` — framework adapter routes\n- `src/app/api/orgs/**`, `src/app/api/users/**` — multi-tenant + user mgmt if present\n- `src/app/api/cost/**` if it depends on a removed cost ledger (otherwise keep, leave dormant)\n\n**Process**:\n1. List `src/app/api/` directories.\n2. For each, check whether it's referenced by any kept UI page (grep). If unreferenced and matches the delete list above, remove it.\n3. Run `pnpm --filter @converge/studio typecheck` after deletions; fix dangling imports in kept code by either re-routing to converge-adapter or stubbing.\n\n**Do not delete**: `api/playbooks`, `api/runs`, `api/watch`, `api/run` (Phase 05). These are the converge surface.",
+              "taskId": "03-api-routes/005-delete-removed-routes",
+              "taskTitle": "Delete obsolete Mission Control routes",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/005-delete-removed-routes",
+              "factId": "check:build-still-passes"
+            }
+          }
+        ],
+        "durationMs": 15020
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 15033
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-api-routes/005-delete-removed-routes-check-failed-build-still-passes",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/005-delete-removed-routes",
+            "severity": "high",
+            "description": "[03-api-routes/005-delete-removed-routes] Check failed: Studio still builds after deletions",
+            "source": "unit",
+            "detected": "2026-04-26T02:43:59.973Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "build-still-passes",
+              "checkCmd": "pnpm --filter @converge/studio build 2>&1 | tail -10 | grep -qE 'Compiled|build successful|Generating' || pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq",
+              "checkDescription": "Studio still builds after deletions",
+              "checkOutput": "Command timed out after 15000ms",
+              "checkExitCode": 124,
+              "taskPrompt": "Delete API routes brought in from upstream that we don't use. Phase 01 already pruned at fork time, but anything missed should be cleaned up here.\n\n**Delete**:\n- `src/app/api/agents/**` — agent registry, heartbeats, capability sync\n- `src/app/api/auth/**` — NextAuth routes (no auth in MVP)\n- `src/app/api/{openclaw,crewai,langgraph,autogen}/**` — framework adapter routes\n- `src/app/api/orgs/**`, `src/app/api/users/**` — multi-tenant + user mgmt if present\n- `src/app/api/cost/**` if it depends on a removed cost ledger (otherwise keep, leave dormant)\n\n**Process**:\n1. List `src/app/api/` directories.\n2. For each, check whether it's referenced by any kept UI page (grep). If unreferenced and matches the delete list above, remove it.\n3. Run `pnpm --filter @converge/studio typecheck` after deletions; fix dangling imports in kept code by either re-routing to converge-adapter or stubbing.\n\n**Do not delete**: `api/playbooks`, `api/runs`, `api/watch`, `api/run` (Phase 05). These are the converge surface.",
+              "taskId": "03-api-routes/005-delete-removed-routes",
+              "taskTitle": "Delete obsolete Mission Control routes",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/005-delete-removed-routes",
+              "factId": "check:build-still-passes"
+            }
+          }
+        ],
+        "durationMs": 15025
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "run-strategy:task-run#9",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 125229
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-api-routes/005-delete-removed-routes-check-failed-build-still-passes",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/005-delete-removed-routes",
+            "severity": "high",
+            "description": "[03-api-routes/005-delete-removed-routes] Check failed: Studio still builds after deletions",
+            "source": "unit",
+            "detected": "2026-04-26T02:44:15.005Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "build-still-passes",
+              "checkCmd": "pnpm --filter @converge/studio build 2>&1 | tail -10 | grep -qE 'Compiled|build successful|Generating' || pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq",
+              "checkDescription": "Studio still builds after deletions",
+              "checkOutput": "Command timed out after 15000ms",
+              "checkExitCode": 124,
+              "taskPrompt": "Delete API routes brought in from upstream that we don't use. Phase 01 already pruned at fork time, but anything missed should be cleaned up here.\n\n**Delete**:\n- `src/app/api/agents/**` — agent registry, heartbeats, capability sync\n- `src/app/api/auth/**` — NextAuth routes (no auth in MVP)\n- `src/app/api/{openclaw,crewai,langgraph,autogen}/**` — framework adapter routes\n- `src/app/api/orgs/**`, `src/app/api/users/**` — multi-tenant + user mgmt if present\n- `src/app/api/cost/**` if it depends on a removed cost ledger (otherwise keep, leave dormant)\n\n**Process**:\n1. List `src/app/api/` directories.\n2. For each, check whether it's referenced by any kept UI page (grep). If unreferenced and matches the delete list above, remove it.\n3. Run `pnpm --filter @converge/studio typecheck` after deletions; fix dangling imports in kept code by either re-routing to converge-adapter or stubbing.\n\n**Do not delete**: `api/playbooks`, `api/runs`, `api/watch`, `api/run` (Phase 05). These are the converge surface.",
+              "taskId": "03-api-routes/005-delete-removed-routes",
+              "taskTitle": "Delete obsolete Mission Control routes",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/005-delete-removed-routes",
+              "factId": "check:build-still-passes"
+            }
+          }
+        ],
+        "durationMs": 15029
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#2",
+      "handler": "repair-loop",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T02:41:09.656Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T02:41:09.657Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T02:41:24.677Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T02:41:24.678Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T02:41:39.716Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#9",
+      "iteration": 1,
+      "ts": "2026-04-26T02:43:44.946Z"
+    },
+    {
+      "from": "run-strategy:task-run#9",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T02:43:59.974Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-26T02:43:59.974Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-26T02:43:59.975Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-26T02:43:59.976Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-26T02:43:59.976Z"
+    },
+    {
+      "from": "check-outputs-exist#2",
+      "to": "detect-gaps#2",
+      "iteration": 2,
+      "ts": "2026-04-26T02:44:15.007Z"
+    }
+  ]
+}

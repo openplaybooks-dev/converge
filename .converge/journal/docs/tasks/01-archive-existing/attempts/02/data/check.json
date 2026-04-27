@@ -1,0 +1,20 @@
+{
+  "taskId": "01-archive-existing",
+  "checks": [
+    {
+      "id": "internal-dir-exists",
+      "description": ".claude/_internal/ directory exists (created idempotently)",
+      "cmd": "mkdir -p .claude/_internal && test -d .claude/_internal"
+    },
+    {
+      "id": "no-legacy-files-at-.claude-root",
+      "description": "no known-legacy markdown files remain at .claude/ root",
+      "cmd": "test ! -f .claude/brand-messaging.md && test ! -f .claude/converge-gtm.md && test ! -f .claude/comparisons.md && test ! -f .claude/comparison-matrix.md && test ! -f .claude/social-kit.md && test ! -f .claude/why-converge.md && test ! -f .claude/getting-started.md && test ! -f .claude/scaffolding.md && test ! -f .claude/FEATURE-DEVELOPMENT-ANALYSIS.md"
+    },
+    {
+      "id": "no-legacy-dirs-at-.claude-root",
+      "description": "no known-legacy subdirectories remain at .claude/ root (blog, cli, playbooks moved to _internal)",
+      "cmd": "test ! -d .claude/blog && test ! -d .claude/cli && test ! -d .claude/playbooks"
+    }
+  ]
+}

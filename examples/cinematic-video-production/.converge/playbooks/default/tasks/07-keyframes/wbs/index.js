@@ -56,18 +56,16 @@ export async function run(ctx) {
         body: `Render ${frame} keyframe for ${shot.id} via composition → preview → blend.`,
       });
 
-      const basePath = `.converge/playbooks/default/tasks/07-keyframes/tasks/${pipelineId}`;
       const steps = ['01-author-composition', '02-preview', '03-blend'];
       const templateBase = `${WBS_ROOT}/frame`;
 
       for (const step of steps) {
         const id = `${pipelineId}-${step}`;
         const templatePath = `${templateBase}/tasks/${step}/TASK.md`;
-        const writeToPath = `${basePath}/tasks/${id}/TASK.md`;
 
         await ctx.spawn(
           { _type: 'template-ref', path: templatePath, vars },
-          { id, writeToPath },
+          { id },
         );
       }
 

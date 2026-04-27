@@ -1,0 +1,440 @@
+{
+  "iteration": 2,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "02-data-layer/003-playbooks-rw-missing-output-packages/converge-studio/src/lib/converge-adapter/playbooks.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-data-layer/003-playbooks-rw",
+            "severity": "high",
+            "description": "[02-data-layer/003-playbooks-rw] Task output not created: packages/converge-studio/src/lib/converge-adapter/playbooks.ts",
+            "source": "unit",
+            "detected": "2026-04-26T02:11:33.469Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/02-data-layer/tasks/003-playbooks-rw",
+              "taskId": "02-data-layer/003-playbooks-rw",
+              "taskTitle": "Playbook list/read/write/create with atomic writes",
+              "taskPrompt": "Implement `packages/converge-studio/src/lib/converge-adapter/playbooks.ts` exposing functions to list, read, write, and create playbooks. Atomic writes (temp + rename) so the chokidar watcher never sees half-written files.\n\n**API**:\n\n```ts\nimport { discoverPlaybooks, loadPlaybook, validatePlaybook, PlaybookConfigSchema }\n  from '@converge/core/studio-api';\nimport * as fs from 'node:fs/promises';\nimport * as path from 'node:path';\nimport YAML from 'yaml';\nimport { playbooksDir, playbookManifestPath, playbookDir } from './paths.js';\n\nexport interface PlaybookSummary {\n  name: string;\n  description?: string;\n  mode?: string;\n  taskCount: number;\n  lastSessionAt?: string;  // ISO from latest journal session, if any\n}\n\nexport interface NewPlaybookSpec {\n  name: string;\n  description?: string;\n  inputs?: Record<string, { description?: string; required?: boolean }>;\n  run?: {\n    mode?: 'oneoff' | 'dispatch' | 'converge' | 'loop';\n    maxTaskAttempts?: number;\n    maxDuration?: string;\n    resume?: boolean;\n    stall?: { maxConsecutive?: number; backoffMs?: number };\n  };\n  checks?: Array<{ id: string; cmd: string; description?: string }>;\n}\n\nexport async function listPlaybooks(root?: string): Promise<PlaybookSummary[]>;\nexport async function readPlaybook(name: string, root?: string):\n  Promise<{ raw: string; parsed: ReturnType<typeof loadPlaybook> }>;\nexport async function writePlaybook(name: string, yamlText: string, root?: string): Promise<void>;\nexport async function createPlaybook(spec: NewPlaybookSpec, root?: string): Promise<void>;\n```\n\n**Implementation notes**:\n\n- `listPlaybooks` — call `discoverPlaybooks()` from core; for each, count tasks under `tasks/` and find the latest session under `.converge/journal/<name>/sessions/`.\n- `readPlaybook` — read `playbook.yml` raw, then call `loadPlaybook` for the parsed form.\n- `writePlaybook` — parse YAML, validate via `validatePlaybook`/`PlaybookConfigSchema`, then atomic write: `fs.writeFile(target+'.tmp', text)` → `fs.rename(target+'.tmp', target)`.\n- `createPlaybook` — validate name is a safe slug (`/^[a-z0-9][a-z0-9-]*$/`), check the dir doesn't already exist, build the YAML from `spec` using the `yaml` package, create `playbookDir/name`, write `playbook.yml` atomically, create empty `tasks/` directory.\n\n**Reuse**: `discoverPlaybooks`, `loadPlaybook`, `validatePlaybook`, `PlaybookConfigSchema` from `@converge/core/studio-api`. Do not duplicate YAML parsing for validation.\n\n**Manual smoke test**: import the module from a small script with `CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge` and confirm `listPlaybooks()` returns the existing playbooks (`oss-standardize`, `split-cli-monolith`, etc).",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/lib/converge-adapter/playbooks.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-data-layer/003-playbooks-rw-check-failed-playbooks-module-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-data-layer/003-playbooks-rw",
+            "severity": "high",
+            "description": "[02-data-layer/003-playbooks-rw] Check failed: playbooks.ts exists",
+            "source": "unit",
+            "detected": "2026-04-26T02:11:33.471Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "playbooks-module-exists",
+              "checkCmd": "test -f packages/converge-studio/src/lib/converge-adapter/playbooks.ts",
+              "checkDescription": "playbooks.ts exists",
+              "checkOutput": "Command failed: test -f packages/converge-studio/src/lib/converge-adapter/playbooks.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Implement `packages/converge-studio/src/lib/converge-adapter/playbooks.ts` exposing functions to list, read, write, and create playbooks. Atomic writes (temp + rename) so the chokidar watcher never sees half-written files.\n\n**API**:\n\n```ts\nimport { discoverPlaybooks, loadPlaybook, validatePlaybook, PlaybookConfigSchema }\n  from '@converge/core/studio-api';\nimport * as fs from 'node:fs/promises';\nimport * as path from 'node:path';\nimport YAML from 'yaml';\nimport { playbooksDir, playbookManifestPath, playbookDir } from './paths.js';\n\nexport interface PlaybookSummary {\n  name: string;\n  description?: string;\n  mode?: string;\n  taskCount: number;\n  lastSessionAt?: string;  // ISO from latest journal session, if any\n}\n\nexport interface NewPlaybookSpec {\n  name: string;\n  description?: string;\n  inputs?: Record<string, { description?: string; required?: boolean }>;\n  run?: {\n    mode?: 'oneoff' | 'dispatch' | 'converge' | 'loop';\n    maxTaskAttempts?: number;\n    maxDuration?: string;\n    resume?: boolean;\n    stall?: { maxConsecutive?: number; backoffMs?: number };\n  };\n  checks?: Array<{ id: string; cmd: string; description?: string }>;\n}\n\nexport async function listPlaybooks(root?: string): Promise<PlaybookSummary[]>;\nexport async function readPlaybook(name: string, root?: string):\n  Promise<{ raw: string; parsed: ReturnType<typeof loadPlaybook> }>;\nexport async function writePlaybook(name: string, yamlText: string, root?: string): Promise<void>;\nexport async function createPlaybook(spec: NewPlaybookSpec, root?: string): Promise<void>;\n```\n\n**Implementation notes**:\n\n- `listPlaybooks` — call `discoverPlaybooks()` from core; for each, count tasks under `tasks/` and find the latest session under `.converge/journal/<name>/sessions/`.\n- `readPlaybook` — read `playbook.yml` raw, then call `loadPlaybook` for the parsed form.\n- `writePlaybook` — parse YAML, validate via `validatePlaybook`/`PlaybookConfigSchema`, then atomic write: `fs.writeFile(target+'.tmp', text)` → `fs.rename(target+'.tmp', target)`.\n- `createPlaybook` — validate name is a safe slug (`/^[a-z0-9][a-z0-9-]*$/`), check the dir doesn't already exist, build the YAML from `spec` using the `yaml` package, create `playbookDir/name`, write `playbook.yml` atomically, create empty `tasks/` directory.\n\n**Reuse**: `discoverPlaybooks`, `loadPlaybook`, `validatePlaybook`, `PlaybookConfigSchema` from `@converge/core/studio-api`. Do not duplicate YAML parsing for validation.\n\n**Manual smoke test**: import the module from a small script with `CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge` and confirm `listPlaybooks()` returns the existing playbooks (`oss-standardize`, `split-cli-monolith`, etc).",
+              "taskId": "02-data-layer/003-playbooks-rw",
+              "taskTitle": "Playbook list/read/write/create with atomic writes",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/02-data-layer/tasks/003-playbooks-rw",
+              "factId": "check:playbooks-module-exists"
+            }
+          },
+          {
+            "id": "02-data-layer/003-playbooks-rw-check-failed-list-real-playbooks",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-data-layer/003-playbooks-rw",
+            "severity": "high",
+            "description": "[02-data-layer/003-playbooks-rw] Check failed: listPlaybooks returns at least one of the real playbooks in this repo",
+            "source": "unit",
+            "detected": "2026-04-26T02:11:37.332Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "list-real-playbooks",
+              "checkCmd": "cd packages/converge-studio && CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge node --input-type=module -e \"import('./src/lib/converge-adapter/playbooks.ts').then(async m=>{const ps=await m.listPlaybooks();process.exit(ps.find(p=>p.name==='oss-standardize')?0:1)}).catch(e=>{console.error(e);process.exit(1)})\"",
+              "checkDescription": "listPlaybooks returns at least one of the real playbooks in this repo",
+              "checkOutput": "Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/minh/Documents/converge/packages/converge-studio/src/lib/converge-adapter/playbooks.ts' imported from /Users/minh/Documents/converge/packages/converge-studio/[eval1]\n    at finalizeResolution (node:internal/modules/esm/resolve:274:11)\n    at moduleResolve (node:internal/modules/esm/resolve:859:10)\n    at defaultResolve (node:internal/modules/esm/resolve:983:11)\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:717:20)\n    at ModuleLoader.resolve (node:internal/modules/esm/loader:694:38)\n    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:308:38)\n    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:650:36)\n    at TracingChannel.tracePromise (node:diagnostics_channel:344:14)\n    at ModuleLoader.import (node:internal/modules/esm/loader:649:21)\n    at defaultImportModuleDynamicallyForModule (node:internal/modules/esm/utils:222:31) {\n  code: 'ERR_MODULE_NOT_FOUND',\n  url: 'file:///Users/minh/Documents/converge/packages/converge-studio/src/lib/converge-adapter/playbooks.ts'\n}",
+              "checkExitCode": 1,
+              "taskPrompt": "Implement `packages/converge-studio/src/lib/converge-adapter/playbooks.ts` exposing functions to list, read, write, and create playbooks. Atomic writes (temp + rename) so the chokidar watcher never sees half-written files.\n\n**API**:\n\n```ts\nimport { discoverPlaybooks, loadPlaybook, validatePlaybook, PlaybookConfigSchema }\n  from '@converge/core/studio-api';\nimport * as fs from 'node:fs/promises';\nimport * as path from 'node:path';\nimport YAML from 'yaml';\nimport { playbooksDir, playbookManifestPath, playbookDir } from './paths.js';\n\nexport interface PlaybookSummary {\n  name: string;\n  description?: string;\n  mode?: string;\n  taskCount: number;\n  lastSessionAt?: string;  // ISO from latest journal session, if any\n}\n\nexport interface NewPlaybookSpec {\n  name: string;\n  description?: string;\n  inputs?: Record<string, { description?: string; required?: boolean }>;\n  run?: {\n    mode?: 'oneoff' | 'dispatch' | 'converge' | 'loop';\n    maxTaskAttempts?: number;\n    maxDuration?: string;\n    resume?: boolean;\n    stall?: { maxConsecutive?: number; backoffMs?: number };\n  };\n  checks?: Array<{ id: string; cmd: string; description?: string }>;\n}\n\nexport async function listPlaybooks(root?: string): Promise<PlaybookSummary[]>;\nexport async function readPlaybook(name: string, root?: string):\n  Promise<{ raw: string; parsed: ReturnType<typeof loadPlaybook> }>;\nexport async function writePlaybook(name: string, yamlText: string, root?: string): Promise<void>;\nexport async function createPlaybook(spec: NewPlaybookSpec, root?: string): Promise<void>;\n```\n\n**Implementation notes**:\n\n- `listPlaybooks` — call `discoverPlaybooks()` from core; for each, count tasks under `tasks/` and find the latest session under `.converge/journal/<name>/sessions/`.\n- `readPlaybook` — read `playbook.yml` raw, then call `loadPlaybook` for the parsed form.\n- `writePlaybook` — parse YAML, validate via `validatePlaybook`/`PlaybookConfigSchema`, then atomic write: `fs.writeFile(target+'.tmp', text)` → `fs.rename(target+'.tmp', target)`.\n- `createPlaybook` — validate name is a safe slug (`/^[a-z0-9][a-z0-9-]*$/`), check the dir doesn't already exist, build the YAML from `spec` using the `yaml` package, create `playbookDir/name`, write `playbook.yml` atomically, create empty `tasks/` directory.\n\n**Reuse**: `discoverPlaybooks`, `loadPlaybook`, `validatePlaybook`, `PlaybookConfigSchema` from `@converge/core/studio-api`. Do not duplicate YAML parsing for validation.\n\n**Manual smoke test**: import the module from a small script with `CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge` and confirm `listPlaybooks()` returns the existing playbooks (`oss-standardize`, `split-cli-monolith`, etc).",
+              "taskId": "02-data-layer/003-playbooks-rw",
+              "taskTitle": "Playbook list/read/write/create with atomic writes",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/02-data-layer/tasks/003-playbooks-rw",
+              "factId": "check:list-real-playbooks"
+            }
+          }
+        ],
+        "durationMs": 3867
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3881
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "02-data-layer/003-playbooks-rw-check-failed-list-real-playbooks",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-data-layer/003-playbooks-rw",
+            "severity": "high",
+            "description": "[02-data-layer/003-playbooks-rw] Check failed: listPlaybooks returns at least one of the real playbooks in this repo",
+            "source": "unit",
+            "detected": "2026-04-26T02:16:10.341Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "list-real-playbooks",
+              "checkCmd": "cd packages/converge-studio && CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge node --input-type=module -e \"import('./src/lib/converge-adapter/playbooks.ts').then(async m=>{const ps=await m.listPlaybooks();process.exit(ps.find(p=>p.name==='oss-standardize')?0:1)}).catch(e=>{console.error(e);process.exit(1)})\"",
+              "checkDescription": "listPlaybooks returns at least one of the real playbooks in this repo",
+              "checkOutput": "Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/minh/Documents/converge/packages/converge-studio/src/lib/converge-adapter/paths.js' imported from /Users/minh/Documents/converge/packages/converge-studio/src/lib/converge-adapter/playbooks.ts\n    at finalizeResolution (node:internal/modules/esm/resolve:274:11)\n    at moduleResolve (node:internal/modules/esm/resolve:859:10)\n    at defaultResolve (node:internal/modules/esm/resolve:983:11)\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:717:20)\n    at ModuleLoader.resolve (node:internal/modules/esm/loader:694:38)\n    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:308:38)\n    at ModuleJob._link (node:internal/modules/esm/module_job:183:49) {\n  code: 'ERR_MODULE_NOT_FOUND',\n  url: 'file:///Users/minh/Documents/converge/packages/converge-studio/src/lib/converge-adapter/paths.js'\n}",
+              "checkExitCode": 1,
+              "taskPrompt": "Implement `packages/converge-studio/src/lib/converge-adapter/playbooks.ts` exposing functions to list, read, write, and create playbooks. Atomic writes (temp + rename) so the chokidar watcher never sees half-written files.\n\n**API**:\n\n```ts\nimport { discoverPlaybooks, loadPlaybook, validatePlaybook, PlaybookConfigSchema }\n  from '@converge/core/studio-api';\nimport * as fs from 'node:fs/promises';\nimport * as path from 'node:path';\nimport YAML from 'yaml';\nimport { playbooksDir, playbookManifestPath, playbookDir } from './paths.js';\n\nexport interface PlaybookSummary {\n  name: string;\n  description?: string;\n  mode?: string;\n  taskCount: number;\n  lastSessionAt?: string;  // ISO from latest journal session, if any\n}\n\nexport interface NewPlaybookSpec {\n  name: string;\n  description?: string;\n  inputs?: Record<string, { description?: string; required?: boolean }>;\n  run?: {\n    mode?: 'oneoff' | 'dispatch' | 'converge' | 'loop';\n    maxTaskAttempts?: number;\n    maxDuration?: string;\n    resume?: boolean;\n    stall?: { maxConsecutive?: number; backoffMs?: number };\n  };\n  checks?: Array<{ id: string; cmd: string; description?: string }>;\n}\n\nexport async function listPlaybooks(root?: string): Promise<PlaybookSummary[]>;\nexport async function readPlaybook(name: string, root?: string):\n  Promise<{ raw: string; parsed: ReturnType<typeof loadPlaybook> }>;\nexport async function writePlaybook(name: string, yamlText: string, root?: string): Promise<void>;\nexport async function createPlaybook(spec: NewPlaybookSpec, root?: string): Promise<void>;\n```\n\n**Implementation notes**:\n\n- `listPlaybooks` — call `discoverPlaybooks()` from core; for each, count tasks under `tasks/` and find the latest session under `.converge/journal/<name>/sessions/`.\n- `readPlaybook` — read `playbook.yml` raw, then call `loadPlaybook` for the parsed form.\n- `writePlaybook` — parse YAML, validate via `validatePlaybook`/`PlaybookConfigSchema`, then atomic write: `fs.writeFile(target+'.tmp', text)` → `fs.rename(target+'.tmp', target)`.\n- `createPlaybook` — validate name is a safe slug (`/^[a-z0-9][a-z0-9-]*$/`), check the dir doesn't already exist, build the YAML from `spec` using the `yaml` package, create `playbookDir/name`, write `playbook.yml` atomically, create empty `tasks/` directory.\n\n**Reuse**: `discoverPlaybooks`, `loadPlaybook`, `validatePlaybook`, `PlaybookConfigSchema` from `@converge/core/studio-api`. Do not duplicate YAML parsing for validation.\n\n**Manual smoke test**: import the module from a small script with `CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge` and confirm `listPlaybooks()` returns the existing playbooks (`oss-standardize`, `split-cli-monolith`, etc).",
+              "taskId": "02-data-layer/003-playbooks-rw",
+              "taskTitle": "Playbook list/read/write/create with atomic writes",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/02-data-layer/tasks/003-playbooks-rw",
+              "factId": "check:list-real-playbooks"
+            }
+          }
+        ],
+        "durationMs": 3846
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 265278
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "02-data-layer/003-playbooks-rw-check-failed-list-real-playbooks",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-data-layer/003-playbooks-rw",
+            "severity": "high",
+            "description": "[02-data-layer/003-playbooks-rw] Check failed: listPlaybooks returns at least one of the real playbooks in this repo",
+            "source": "unit",
+            "detected": "2026-04-26T02:16:14.343Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "list-real-playbooks",
+              "checkCmd": "cd packages/converge-studio && CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge node --input-type=module -e \"import('./src/lib/converge-adapter/playbooks.ts').then(async m=>{const ps=await m.listPlaybooks();process.exit(ps.find(p=>p.name==='oss-standardize')?0:1)}).catch(e=>{console.error(e);process.exit(1)})\"",
+              "checkDescription": "listPlaybooks returns at least one of the real playbooks in this repo",
+              "checkOutput": "Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/minh/Documents/converge/packages/converge-studio/src/lib/converge-adapter/paths.js' imported from /Users/minh/Documents/converge/packages/converge-studio/src/lib/converge-adapter/playbooks.ts\n    at finalizeResolution (node:internal/modules/esm/resolve:274:11)\n    at moduleResolve (node:internal/modules/esm/resolve:859:10)\n    at defaultResolve (node:internal/modules/esm/resolve:983:11)\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:717:20)\n    at ModuleLoader.resolve (node:internal/modules/esm/loader:694:38)\n    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:308:38)\n    at ModuleJob._link (node:internal/modules/esm/module_job:183:49) {\n  code: 'ERR_MODULE_NOT_FOUND',\n  url: 'file:///Users/minh/Documents/converge/packages/converge-studio/src/lib/converge-adapter/paths.js'\n}",
+              "checkExitCode": 1,
+              "taskPrompt": "Implement `packages/converge-studio/src/lib/converge-adapter/playbooks.ts` exposing functions to list, read, write, and create playbooks. Atomic writes (temp + rename) so the chokidar watcher never sees half-written files.\n\n**API**:\n\n```ts\nimport { discoverPlaybooks, loadPlaybook, validatePlaybook, PlaybookConfigSchema }\n  from '@converge/core/studio-api';\nimport * as fs from 'node:fs/promises';\nimport * as path from 'node:path';\nimport YAML from 'yaml';\nimport { playbooksDir, playbookManifestPath, playbookDir } from './paths.js';\n\nexport interface PlaybookSummary {\n  name: string;\n  description?: string;\n  mode?: string;\n  taskCount: number;\n  lastSessionAt?: string;  // ISO from latest journal session, if any\n}\n\nexport interface NewPlaybookSpec {\n  name: string;\n  description?: string;\n  inputs?: Record<string, { description?: string; required?: boolean }>;\n  run?: {\n    mode?: 'oneoff' | 'dispatch' | 'converge' | 'loop';\n    maxTaskAttempts?: number;\n    maxDuration?: string;\n    resume?: boolean;\n    stall?: { maxConsecutive?: number; backoffMs?: number };\n  };\n  checks?: Array<{ id: string; cmd: string; description?: string }>;\n}\n\nexport async function listPlaybooks(root?: string): Promise<PlaybookSummary[]>;\nexport async function readPlaybook(name: string, root?: string):\n  Promise<{ raw: string; parsed: ReturnType<typeof loadPlaybook> }>;\nexport async function writePlaybook(name: string, yamlText: string, root?: string): Promise<void>;\nexport async function createPlaybook(spec: NewPlaybookSpec, root?: string): Promise<void>;\n```\n\n**Implementation notes**:\n\n- `listPlaybooks` — call `discoverPlaybooks()` from core; for each, count tasks under `tasks/` and find the latest session under `.converge/journal/<name>/sessions/`.\n- `readPlaybook` — read `playbook.yml` raw, then call `loadPlaybook` for the parsed form.\n- `writePlaybook` — parse YAML, validate via `validatePlaybook`/`PlaybookConfigSchema`, then atomic write: `fs.writeFile(target+'.tmp', text)` → `fs.rename(target+'.tmp', target)`.\n- `createPlaybook` — validate name is a safe slug (`/^[a-z0-9][a-z0-9-]*$/`), check the dir doesn't already exist, build the YAML from `spec` using the `yaml` package, create `playbookDir/name`, write `playbook.yml` atomically, create empty `tasks/` directory.\n\n**Reuse**: `discoverPlaybooks`, `loadPlaybook`, `validatePlaybook`, `PlaybookConfigSchema` from `@converge/core/studio-api`. Do not duplicate YAML parsing for validation.\n\n**Manual smoke test**: import the module from a small script with `CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge` and confirm `listPlaybooks()` returns the existing playbooks (`oss-standardize`, `split-cli-monolith`, etc).",
+              "taskId": "02-data-layer/003-playbooks-rw",
+              "taskTitle": "Playbook list/read/write/create with atomic writes",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/02-data-layer/tasks/003-playbooks-rw",
+              "factId": "check:list-real-playbooks"
+            }
+          }
+        ],
+        "durationMs": 3999
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#2",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 66
+      }
+    },
+    {
+      "id": "run-strategy:task-run#2",
+      "handler": "run-strategy",
+      "status": "buffered",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      }
+    },
+    {
+      "id": "verify#2",
+      "handler": "verify",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      }
+    },
+    {
+      "id": "check-stall#2",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt#2",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T02:11:33.464Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T02:11:33.465Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T02:11:37.332Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T02:11:37.333Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T02:11:41.216Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-04-26T02:16:06.494Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T02:16:10.341Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-26T02:16:10.342Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-26T02:16:10.343Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-26T02:16:10.343Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-26T02:16:10.344Z"
+    },
+    {
+      "from": "check-outputs-exist#2",
+      "to": "detect-gaps#2",
+      "iteration": 2,
+      "ts": "2026-04-26T02:16:14.344Z"
+    },
+    {
+      "from": "detect-gaps#2",
+      "to": "repair-loop#2",
+      "iteration": 2,
+      "ts": "2026-04-26T02:16:14.410Z"
+    }
+  ]
+}

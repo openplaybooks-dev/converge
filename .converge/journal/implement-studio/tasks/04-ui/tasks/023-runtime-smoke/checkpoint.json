@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "04-ui/023-runtime-smoke",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T08:25:20.532Z",
+  "createdAt": "2026-04-26T08:14:53.818Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T08:14:53.818Z",
+      "completedAt": "2026-04-26T08:25:20.527Z",
+      "outcome": "success",
+      "durationMs": 626709
+    }
+  ],
+  "currentAttempt": 1
+}

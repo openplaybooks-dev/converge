@@ -1,0 +1,15 @@
+{
+  "taskId": "06-integrate-docs/001-starlight-mount",
+  "checks": [
+    {
+      "id": "starlight-in-config",
+      "description": "astro.config.mjs imports + uses starlight()",
+      "cmd": "test -f apps/landing/astro.config.mjs && grep -qE '@astrojs/starlight' apps/landing/astro.config.mjs"
+    },
+    {
+      "id": "starlight-installed",
+      "description": "@astrojs/starlight is installed",
+      "cmd": "test -d apps/landing/node_modules/@astrojs/starlight"
+    }
+  ]
+}

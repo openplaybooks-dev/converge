@@ -1,0 +1,12 @@
+{
+  "taskId": "01-vendor/003-license-notice",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/LICENSE",
+    "packages/converge-studio/LICENSE.upstream",
+    "packages/converge-studio/NOTICE",
+    "packages/converge-studio/README.md"
+  ],
+  "blocked": false
+}

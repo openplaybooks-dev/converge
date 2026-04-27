@@ -1,0 +1,15 @@
+{
+  "taskId": "05-finalize/003-next-config-workspace",
+  "checks": [
+    {
+      "id": "next-config-exists",
+      "description": "next.config.mjs exists",
+      "cmd": "test -f packages/studio/next.config.mjs"
+    },
+    {
+      "id": "transpile-packages",
+      "description": "next.config.mjs declares transpilePackages with @converge/core",
+      "cmd": "grep -q 'transpilePackages' packages/studio/next.config.mjs && grep -q '@converge/core' packages/studio/next.config.mjs"
+    }
+  ]
+}

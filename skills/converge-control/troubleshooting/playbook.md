@@ -16,6 +16,9 @@ If your symptom isn't in this file, **STOP** and surface to the user with: faili
 8. [Tree doesn't see WBS-spawned children — phase stuck `seeded`](#8-tree-doesnt-see-wbs-spawned-children--phase-stuck-seeded)
 9. [Parent stays `seeded` while all children show complete](#9-parent-stays-seeded-while-all-children-show-complete)
 10. [Secondary playbook fails after main one finishes](#10-secondary-playbook-fails-after-main-one-finishes)
+11. [Pre-existing typecheck/build errors in vendored code](#11-pre-existing-typecheckbuild-errors-in-vendored-code)
+12. [Verification task expects browser/server E2E inside an AI spawn](#12-verification-task-expects-browserserver-e2e-inside-an-ai-spawn)
+13. [Mixed-shape task: file-creation + tree-wide cleanup in one task](#13-mixed-shape-task-file-creation--tree-wide-cleanup-in-one-task)
 
 ---
 
@@ -353,6 +356,137 @@ rm -rf .converge/playbooks/<secondary>
 Use option A first (less destructive). Use option B only if the user confirms the secondary playbook isn't needed.
 
 **Verification:** `converge run` no longer starts tasks from the secondary playbook. The primary playbook completes cleanly.
+
+---
+
+## 11. Pre-existing typecheck/build errors in vendored code
+
+**Symptom:** A `typecheck` or `build` check fails identically across many tasks. Inspecting the output reveals the failing file isn't anything the AI just wrote — it's a file that was already in the repo before the run started (commonly: code copied in from an upstream fork, a vendored dep with type drift, a dead module the playbook didn't think to prune).
+
+```
+src/components/panels/system-monitor-panel.tsx(196,19): error TS2322: ...
+src/components/panels/system-monitor-panel.tsx(232,19): error TS2322: ...
+```
+
+**Root cause:** the playbook's `typecheck` check is "all-or-nothing" — it fails if there are *any* errors, even ones that pre-date this run. Once vendored code is wedged, every downstream task with the same check will fail forever.
+
+**Fix recipe (1-time prune, then resume):**
+
+1. **Identify the offending file(s)**:
+   ```bash
+   pnpm --filter @<pkg> typecheck 2>&1 | grep "error TS" | head -20
+   ```
+
+2. **Decide**: are these files ones the playbook was going to use? If yes, fix the types. If no (vestigial vendored code), delete them. Most cases are #2 — you forked a generic upstream dashboard / framework and the file is feature-bloat you didn't need.
+
+3. **Delete and clean imports**:
+   ```bash
+   rm <offending-file>
+   grep -rln "import.*<offending-symbol>" src | xargs sed -i '' '/<offending-symbol>/d'
+   pnpm --filter @<pkg> typecheck 2>&1 | grep -c "error TS"
+   ```
+   Repeat until count is 0.
+
+4. **Resume the run** with `--resume`. The previously-blocked tasks will pass on the next CHECK pass (now that the typecheck check returns 0 errors).
+
+**Prevention** (in the playbook itself, not the framework):
+- Add a Phase 01 "prune-vendored-debt" task that runs typecheck and deletes any pre-existing failing files BEFORE downstream tasks need typecheck-clean state.
+- Or scope typecheck checks to a subset path: `pnpm --filter @<pkg> typecheck -- --noEmit src/lib/converge-adapter` instead of the whole package.
+
+**Verification:** `pnpm --filter @<pkg> typecheck 2>&1 | grep -c 'error TS'` returns `0`. The next attempt's FEEDBACK.md shows the typecheck check passing.
+
+---
+
+## 12. Verification task expects browser/server E2E inside an AI spawn
+
+**Symptom:** A task says "spin up `pnpm dev`, curl `localhost:N`, exercise pages, write a JSON report with `allPassed: true`". The AI tries — runs `pnpm dev &`, curls, sometimes runs aggressive cleanups like `pkill -f "node"` (which can kill the *runner itself*) — and either times out, deadlocks on a port, or scaffolds a report with all `false` and the gate stays red forever.
+
+**Root cause:** convergence loops have no port management, no headless browser, no reliable way to "start a long-lived server, query it, kill it cleanly" inside an attempt. AI spawns are designed for file edits + short shell commands, not multi-process choreography.
+
+**Fix recipe — restructure the task, not the runner:**
+
+1. **Drop the `allPassed === true` gate.** Replace it with a "report file exists + has expected schema" check:
+   ```yaml
+   checks:
+     - id: report-written
+       description: E2E verification report exists with expected schema (human review required for verdicts)
+       cmd: "test -f .converge/<state>/e2e-verify.json && node -e \"const r=JSON.parse(require('fs').readFileSync('.converge/<state>/e2e-verify.json','utf8'));process.exit(Array.isArray(r.scenarios)&&r.scenarios.length>0?0:1)\""
+   ```
+
+2. **Reframe the task body** as "scaffold the report file, leave verdicts as `null`/`false` for human review." The AI's job is to produce the *checklist*, not run it.
+
+3. **Add a separate human runbook** (`docs/e2e-checklist.md` or similar) that humans walk through after the playbook completes. The checklist mirrors `scenarios[]` in the JSON file.
+
+4. **If you genuinely need automated E2E**, structure as TWO tasks:
+   - Task A (in playbook): spawn `pnpm dev`, write a `pid` and `port` file, exit immediately.
+   - Task B (in playbook, depends on A): run a smoke script that reads the pid/port, hits endpoints, kills the pid, writes the report.
+   - This still has port-collision risk but at least the AI isn't trying to do everything in one attempt.
+
+**Anti-patterns to avoid in playbook authoring:**
+- ❌ `pkill -f "node"` or `pkill -f "converge"` — will kill the runner.
+- ❌ `pnpm dev &; sleep 8; curl ...; kill %1` — backgrounded job survival is unreliable across AI shells.
+- ❌ "Verify all 12 scenarios pass" gate on a task that has 1 attempt budget.
+
+**Verification:** Task either passes its (relaxed) gate cleanly OR is split into spawn-and-smoke variants that converge in <2 attempts each. No `pkill -f "node"` in any task body.
+
+---
+
+## 13. Mixed-shape task: file-creation + tree-wide cleanup in one task
+
+**Symptom:** A single task takes 15+ minutes and 2+ attempts to converge. The check list contains both "new file X exists" (`test -f some/path.ts`) AND "no occurrences of pattern Y in src/" (`grep -r 'badPattern' src | wc -l | xargs test 0 -eq`). Each attempt scrubs a few files but new ones keep being found because the AI grep-cleans the tree iteratively.
+
+`converge verify` will surface this at authoring time:
+
+```
+[structure/warning] mixed-shape-checks: Task mixes existence checks (route-exists, hook-exists)
+  with tree-wide negation checks (no-legacy-websocket).
+  This shape systematically needs ≥2 attempts to converge.
+```
+
+**Root cause:** existence and negation checks converge at different rates. Existence flips from false → true once when the file is written. Negation drains chunk-by-chunk over many edits. A task with both can only complete when *both* shapes finish, so its attempt count is bounded below by the slower shape — but the AI also has to do the existence work in attempt 1, which crowds out cleanup time.
+
+**Fix recipe — split into creator + cleanup, two sibling tasks:**
+
+```yaml
+# Before (one task, slow):
+- id: 009-converge-event-stream
+  outputs:
+    - src/app/api/events/route.ts
+    - src/lib/use-converge-events.ts
+  checks:
+    - id: route-exists
+      cmd: "test -f src/app/api/events/route.ts"
+    - id: hook-exists
+      cmd: "test -f src/lib/use-converge-events.ts"
+    - id: no-legacy-websocket
+      cmd: "test -z \"$(grep -rl 'useWebSocket\\|gateway-ws' src 2>/dev/null)\""
+
+# After (two tasks, fast):
+- id: 009-converge-event-stream
+  outputs:
+    - src/app/api/events/route.ts
+    - src/lib/use-converge-events.ts
+  checks:
+    - id: route-exists
+      cmd: "test -f src/app/api/events/route.ts"
+    - id: hook-exists
+      cmd: "test -f src/lib/use-converge-events.ts"
+
+- id: 009b-purge-legacy-websocket
+  dependencies: [009-converge-event-stream]
+  checks:
+    - id: no-legacy-websocket
+      cmd: "test -z \"$(grep -rl 'useWebSocket\\|gateway-ws' src 2>/dev/null)\""
+    - id: no-broken-imports
+      cmd: "pnpm typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+```
+
+The creator task converges in 1 attempt (drops file → existence flips). The cleanup task converges in 1–2 attempts (mechanical grep-and-delete with a hard "must be zero" gate). Total wall-clock is *less* than the merged version because the AI isn't context-switching between unrelated work.
+
+**When the lint may yield false positives:**
+- A task that creates a file AND verifies its content via grep negation (e.g. `! grep 'TODO' src/lib/converge-adapter/paths.ts`) — that's not tree-wide. The lint pattern catches `-r` recursive variants only, but reading the warning and confirming is faster than disabling the rule.
+
+**Verification:** `converge verify` no longer flags the task. The (now) single-shape tasks each converge in 1–2 attempts. No 15-minute attempts in the run.
 
 ---
 

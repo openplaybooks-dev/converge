@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "01-prepare-spec/004-seo-spec",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T20:20:35.779Z",
+  "createdAt": "2026-04-26T17:23:34.511Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T17:23:34.511Z",
+      "completedAt": "2026-04-26T17:24:13.222Z",
+      "outcome": "success",
+      "durationMs": 38712
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-26T20:20:03.285Z",
+      "completedAt": "2026-04-26T20:20:35.742Z",
+      "outcome": "success",
+      "durationMs": 32457
+    }
+  ],
+  "currentAttempt": 2
+}

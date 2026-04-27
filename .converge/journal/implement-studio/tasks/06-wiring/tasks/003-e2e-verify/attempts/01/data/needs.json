@@ -1,0 +1,9 @@
+{
+  "taskId": "06-wiring/003-e2e-verify",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    ".converge/studio-state/e2e-verify.json"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,25 @@
+{
+  "taskId": "10-cross-validate",
+  "checks": [
+    {
+      "id": "report-exists",
+      "description": "validation report exists and is valid JSON",
+      "cmd": "test -f docs/_validation-report.json && node -e \"JSON.parse(require('fs').readFileSync('docs/_validation-report.json','utf8'))\""
+    },
+    {
+      "id": "zero-stale-claims",
+      "description": "zero stale claims (every documented behavior verified against source)",
+      "cmd": "node -e \"const r=require('./docs/_validation-report.json');process.exit((r.staleClaims||[]).length===0?0:1)\""
+    },
+    {
+      "id": "zero-missing-sources",
+      "description": "zero missing source files",
+      "cmd": "node -e \"const r=require('./docs/_validation-report.json');process.exit((r.missingSources||[]).length===0?0:1)\""
+    },
+    {
+      "id": "pre-flight-passes",
+      "description": "mechanical validate-docs.mjs passes",
+      "cmd": "node .converge/playbooks/docs/scripts/validate-docs.mjs"
+    }
+  ]
+}

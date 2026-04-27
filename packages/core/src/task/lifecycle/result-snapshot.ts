@@ -15,11 +15,61 @@
 
 import { writeFile, readFile, stat, mkdir } from "node:fs/promises";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
+import YAML from "yaml";
 
 const execAsync = promisify(exec);
+
+/**
+ * Re-read check definitions directly from the materialized journal TASK.md.
+ * The runner caches checks in `data/check.json` at attempt-start, but a
+ * mid-run edit to TASK.md (source or journal) wouldn't take effect for the
+ * current attempt. By re-reading from the materialized TASK.md at check time,
+ * we always run the freshest check commands.
+ *
+ * Returns null if TASK.md cannot be located or has no `checks:` frontmatter,
+ * in which case the caller should fall back to the cached `data/check.json`.
+ */
+function reReadChecksFromTaskMd(
+  wipDir: string,
+): Array<{ id: string; description: string; cmd: string }> | null {
+  // wipDir is `<task-root>/attempts/wip` (or `attempts/<NN>` for archived).
+  // Materialized journal TASK.md lives at `<task-root>/TASK.md`.
+  const taskRoot = dirname(dirname(wipDir));
+  const taskMdPath = join(taskRoot, "TASK.md");
+  if (!existsSync(taskMdPath)) return null;
+  let raw: string;
+  try {
+    raw = readFileSync(taskMdPath, "utf-8");
+  } catch {
+    return null;
+  }
+  const m = raw.match(/^---\n([\s\S]*?)\n---/);
+  if (!m) return null;
+  let parsed: any;
+  try {
+    parsed = YAML.parse(m[1]);
+  } catch {
+    return null;
+  }
+  if (!parsed || !Array.isArray(parsed.checks)) return null;
+  const out: Array<{ id: string; description: string; cmd: string }> = [];
+  for (const c of parsed.checks) {
+    if (!c || typeof c !== "object") continue;
+    const id = typeof c.id === "string" ? c.id : "";
+    const cmd = typeof c.cmd === "string" ? c.cmd : "";
+    if (!id || !cmd) continue;
+    out.push({
+      id,
+      description:
+        typeof c.description === "string" && c.description ? c.description : id,
+      cmd,
+    });
+  }
+  return out.length > 0 ? out : null;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -95,6 +145,14 @@ export async function writeResultSnapshot(
     }
   }
 
+  // Prefer freshly-parsed checks from the materialized journal TASK.md so
+  // mid-run edits take effect immediately. Falls back to cached check.json
+  // when TASK.md has no `checks:` block (e.g. WBS parents).
+  const fresh = reReadChecksFromTaskMd(wipDir);
+  if (fresh) {
+    checkManifest = { taskId: manifest.taskId, checks: fresh };
+  }
+
   // ── Re-check each expected output ────────────────────────────────
   const outputResults: OutputResult[] = [];
   for (const outputPath of manifest.outputs) {
@@ -122,7 +180,7 @@ export async function writeResultSnapshot(
       try {
         const { stdout, stderr } = await execAsync(check.cmd, {
           cwd: projectDir,
-          timeout: 15_000,
+          timeout: 120_000,
         });
         checkResults.push({
           ...check,

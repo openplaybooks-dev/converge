@@ -1,0 +1,25 @@
+{
+  "taskId": "05-build-layout/002-navigation",
+  "checks": [
+    {
+      "id": "header-exists",
+      "description": "Header.astro exists",
+      "cmd": "test -f apps/landing/src/components/layout/Header.astro"
+    },
+    {
+      "id": "header-has-converge-mark",
+      "description": "Header references the brand mark / name",
+      "cmd": "test -f apps/landing/src/components/layout/Header.astro && grep -qE 'converge-mark|Converge' apps/landing/src/components/layout/Header.astro"
+    },
+    {
+      "id": "header-has-docs-link",
+      "description": "Header has a /docs link",
+      "cmd": "test -f apps/landing/src/components/layout/Header.astro && grep -qE 'href=\"/docs|href=\"/docs/' apps/landing/src/components/layout/Header.astro"
+    },
+    {
+      "id": "header-has-github-link",
+      "description": "Header has the GitHub link",
+      "cmd": "test -f apps/landing/src/components/layout/Header.astro && grep -qE 'github\\.com/myanlabs/converge' apps/landing/src/components/layout/Header.astro"
+    }
+  ]
+}

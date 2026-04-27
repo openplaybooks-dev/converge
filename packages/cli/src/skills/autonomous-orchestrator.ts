@@ -70,7 +70,7 @@ export class AutonomousOrchestrator {
    * Run autonomous orchestration
    */
   async run(
-    options: { maxIterations?: number; watch?: boolean } = {},
+    options: { watch?: boolean } = {},
   ): Promise<void> {
     this.log("AutonomousOrchestrator is temporarily disabled (epic support removed)");
     throw new Error("AutonomousOrchestrator is temporarily disabled (epic support removed)");
@@ -91,7 +91,7 @@ export class AutonomousOrchestrator {
 
 export async function runAutonomousOrchestrator(
   projectFile: string,
-  options: { maxIterations?: number; watch?: boolean } = {},
+  options: { watch?: boolean } = {},
 ): Promise<void> {
   const orchestrator = new AutonomousOrchestrator(projectFile);
   await orchestrator.run(options);
@@ -101,12 +101,8 @@ export async function runAutonomousOrchestrator(
 if (import.meta.url === `file://${process.argv[1]}`) {
   const projectFile = process.argv[2] || "project.ts";
   const watch = process.argv.includes("--watch");
-  const maxIterations = parseInt(
-    process.argv.find((arg) => arg.startsWith("--max="))?.split("=")[1] ||
-      "100",
-  );
 
-  runAutonomousOrchestrator(projectFile, { watch, maxIterations }).catch(
+  runAutonomousOrchestrator(projectFile, { watch }).catch(
     (error) => {
       console.error("Orchestrator failed:", error);
       process.exit(1);

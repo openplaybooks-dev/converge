@@ -1,0 +1,9 @@
+{
+  "taskId": "04-drop-mc-only/001-drop-domain-components",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    ".converge/studio-state/dropped-domain-components.txt"
+  ],
+  "blocked": false
+}

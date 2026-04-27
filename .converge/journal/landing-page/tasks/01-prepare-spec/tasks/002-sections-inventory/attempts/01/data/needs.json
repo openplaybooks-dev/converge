@@ -1,0 +1,31 @@
+{
+  "taskId": "01-prepare-spec/002-sections-inventory",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "README.md",
+      "count": 1,
+      "samples": [
+        "README.md"
+      ]
+    },
+    {
+      "pattern": "docs/concepts",
+      "count": 1,
+      "samples": [
+        "docs/concepts"
+      ]
+    },
+    {
+      "pattern": "docs/getting-started/why-converge.md",
+      "count": 1,
+      "samples": [
+        "docs/getting-started/why-converge.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/.content/sections.json"
+  ],
+  "blocked": false
+}

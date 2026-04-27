@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "04-ui/002-playbooks-list-detail",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T06:57:55.302Z",
+  "createdAt": "2026-04-26T06:57:46.509Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T06:57:46.509Z",
+      "completedAt": "2026-04-26T06:57:55.300Z",
+      "outcome": "success",
+      "durationMs": 8791
+    }
+  ],
+  "currentAttempt": 1
+}

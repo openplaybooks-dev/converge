@@ -1,0 +1,10 @@
+{
+  "taskId": "06-verify/003-dev-smoke",
+  "checks": [
+    {
+      "id": "smoke-passes",
+      "description": "Smoke shows root redirects and /playbooks 200",
+      "cmd": "test -f .converge/studio-state/dev-smoke.json && node -e \"const r=JSON.parse(require('fs').readFileSync('.converge/studio-state/dev-smoke.json','utf8'));process.exit(r.playbooksIndexHas200===true&&r.rootFollowedHttpCode===200?0:1)\""
+    }
+  ]
+}

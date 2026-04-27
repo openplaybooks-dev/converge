@@ -1,0 +1,17 @@
+---
+interface Props {
+  id?: string;
+  open?: boolean;
+}
+
+const { id, open = false } = Astro.props;
+---
+
+<details id={id} class="border border-border rounded-lg" {...open ? { open: true } : {}}>
+  <summary class="px-4 py-3 cursor-pointer list-none text-text hover:bg-bgElev transition-colors">
+    <slot name="summary" />
+  </summary>
+  <div class="px-4 py-3 border-t border-border text-textMuted">
+    <slot />
+  </div>
+</details>

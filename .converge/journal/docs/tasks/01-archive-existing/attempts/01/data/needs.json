@@ -1,0 +1,16 @@
+{
+  "taskId": "01-archive-existing",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "docs",
+      "count": 0,
+      "samples": []
+    }
+  ],
+  "outputs": [
+    "docs/_internal"
+  ],
+  "blocked": true,
+  "blockedReason": "Missing required inputs: docs"
+}

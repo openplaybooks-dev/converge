@@ -1,5 +1,0 @@
-{"ts":"2026-04-23T08:28:20.209Z","type":"session","event":"started","data":{"session_id":"74f1c587-5982-4f2d-b3a3-b2bbba4db5b5","timeout_ms":300000}}
-{"ts":"2026-04-23T08:28:20.212Z","type":"process","event":"spawned","data":{"pid":74167}}
-{"ts":"2026-04-23T08:28:20.641Z","type":"process","event":"first_output","duration_ms":433}
-{"ts":"2026-04-23T09:02:09.664Z","type":"output","event":"text","data":{"text":"I'll analyze the missing outputs and failed checks for the shadow-mage walk state task.","size":87}}
-{"ts":"2026-04-23T09:46:46.818Z","type":"error","event":"timeout","duration_ms":4706610,"data":{"reason":"idle","message":"claudefn idle-timed out after 300000ms of inactivity","timeout_ms":300000}}

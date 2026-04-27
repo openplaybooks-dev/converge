@@ -1,0 +1,22 @@
+{
+  "type": "task",
+  "id": "06-verify",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T23:04:30.620Z",
+  "createdAt": "2026-04-26T23:04:30.619Z",
+  "progress": {
+    "totalChildren": 7,
+    "completedChildren": 4,
+    "failedChildren": 0,
+    "childIds": [
+      "001-final-typecheck",
+      "002-final-build",
+      "003-dev-smoke",
+      "004-visual-checklist",
+      "001-final-typecheck",
+      "002-final-build",
+      "003-dev-smoke"
+    ],
+    "lastProgressUpdate": "2026-04-26T23:04:30.619Z"
+  }
+}

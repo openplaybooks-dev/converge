@@ -1,0 +1,17 @@
+{
+  "taskId": "09-polish/004-font-cls",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "apps/landing/src/styles/typography.css",
+      "count": 1,
+      "samples": [
+        "apps/landing/src/styles/typography.css"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/src/styles/typography.css"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,53 @@
+{
+  "taskId": "07-integrate-blog/006-seed-posts",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "README.md",
+      "count": 1,
+      "samples": [
+        "README.md"
+      ]
+    },
+    {
+      "pattern": "docs/getting-started/why-converge.md",
+      "count": 1,
+      "samples": [
+        "docs/getting-started/why-converge.md"
+      ]
+    },
+    {
+      "pattern": "docs/concepts/context-interpolation.md",
+      "count": 1,
+      "samples": [
+        "docs/concepts/context-interpolation.md"
+      ]
+    },
+    {
+      "pattern": "docs/concepts/deterministic-checks.md",
+      "count": 1,
+      "samples": [
+        "docs/concepts/deterministic-checks.md"
+      ]
+    },
+    {
+      "pattern": "docs/concepts/dynamic-work-breakdown.md",
+      "count": 1,
+      "samples": [
+        "docs/concepts/dynamic-work-breakdown.md"
+      ]
+    },
+    {
+      "pattern": "docs/concepts/self-correction.md",
+      "count": 1,
+      "samples": [
+        "docs/concepts/self-correction.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/src/content/blog/introducing-converge.mdx",
+    "apps/landing/src/content/blog/from-langgraph-to-goal-driven.mdx"
+  ],
+  "blocked": false
+}

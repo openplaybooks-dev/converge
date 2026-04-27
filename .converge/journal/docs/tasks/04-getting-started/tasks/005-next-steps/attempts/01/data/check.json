@@ -1,0 +1,30 @@
+{
+  "taskId": "04-getting-started/005-next-steps",
+  "checks": [
+    {
+      "id": "page-exists",
+      "description": "page exists",
+      "cmd": "test -f docs/getting-started/next-steps.md"
+    },
+    {
+      "id": "links-into-examples",
+      "description": "links into Examples gallery",
+      "cmd": "grep -qE '\\(/examples/|\\(\\.\\./examples/' docs/getting-started/next-steps.md"
+    },
+    {
+      "id": "links-into-guides",
+      "description": "links into Guides",
+      "cmd": "grep -qE '\\(/guides/|\\(\\.\\./guides/' docs/getting-started/next-steps.md"
+    },
+    {
+      "id": "links-into-reference",
+      "description": "links into Reference",
+      "cmd": "grep -qE '\\(/reference/|\\(\\.\\./reference/' docs/getting-started/next-steps.md"
+    },
+    {
+      "id": "short",
+      "description": "<=350 words (this is a hub, not a topic)",
+      "cmd": "wc -w docs/getting-started/next-steps.md | awk '{exit ($1<=350?0:1)}'"
+    }
+  ]
+}

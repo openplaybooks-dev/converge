@@ -1,0 +1,20 @@
+{
+  "taskId": "09-polish/002-scroll-reveals",
+  "checks": [
+    {
+      "id": "animations-css-exists",
+      "description": "animations.css exists",
+      "cmd": "test -f apps/landing/src/styles/animations.css"
+    },
+    {
+      "id": "section-uses-reveal-class",
+      "description": "Section component supports the reveal class",
+      "cmd": "test -f apps/landing/src/components/layout/Section.astro && grep -qE 'reveal-on-scroll|fade-in-up|data-reveal' apps/landing/src/components/layout/Section.astro"
+    },
+    {
+      "id": "respects-reduced-motion",
+      "description": "animations.css respects prefers-reduced-motion",
+      "cmd": "test -f apps/landing/src/styles/animations.css && grep -qE 'prefers-reduced-motion' apps/landing/src/styles/animations.css"
+    }
+  ]
+}

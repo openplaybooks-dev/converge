@@ -1,0 +1,10 @@
+{
+  "taskId": "02-port-data-layer/003-copy-supporting-libs",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/studio/src/lib/use-converge-events.ts",
+    "packages/studio/src/lib/run-supervisor.ts"
+  ],
+  "blocked": false
+}

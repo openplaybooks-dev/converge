@@ -1,0 +1,25 @@
+{
+  "taskId": "08-reference/003-task-md",
+  "checks": [
+    {
+      "id": "page-exists",
+      "description": "page exists",
+      "cmd": "test -f docs/reference/task-md.md"
+    },
+    {
+      "id": "documents-id-and-outputs",
+      "description": "documents id and outputs",
+      "cmd": "grep -qE '`id`|^###\\s+id' docs/reference/task-md.md && grep -qE '`outputs`|^###\\s+outputs' docs/reference/task-md.md"
+    },
+    {
+      "id": "documents-checks",
+      "description": "documents checks",
+      "cmd": "grep -qE '`checks`|^###\\s+checks' docs/reference/task-md.md"
+    },
+    {
+      "id": "documents-wbs",
+      "description": "documents wbs",
+      "cmd": "grep -qiE 'wbs' docs/reference/task-md.md"
+    }
+  ]
+}

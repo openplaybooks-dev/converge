@@ -1,0 +1,23 @@
+{
+  "type": "task",
+  "id": "01-clone-and-rename",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T23:06:29.909Z",
+  "createdAt": "2026-04-26T23:04:30.619Z",
+  "progress": {
+    "totalChildren": 8,
+    "completedChildren": 8,
+    "failedChildren": 0,
+    "childIds": [
+      "001-clone-mc",
+      "002-rename-package",
+      "003-license-notice",
+      "004-install",
+      "001-clone-mc",
+      "002-rename-package",
+      "003-license-notice",
+      "004-install"
+    ],
+    "lastProgressUpdate": "2026-04-26T23:04:30.619Z"
+  }
+}

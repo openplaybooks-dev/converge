@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "02-bootstrap-astro/005-cloudflare-adapter",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T17:35:36.293Z",
+  "createdAt": "2026-04-26T17:34:42.132Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T17:34:42.132Z",
+      "completedAt": "2026-04-26T17:35:36.230Z",
+      "outcome": "success",
+      "durationMs": 54098
+    }
+  ],
+  "currentAttempt": 1
+}

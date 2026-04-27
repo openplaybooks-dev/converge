@@ -1,0 +1,633 @@
+{
+  "iteration": 3,
+  "stallCount": 1,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "06-verify/003-dev-smoke-missing-output-.converge/studio-state/dev-smoke.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-verify/003-dev-smoke",
+            "severity": "high",
+            "description": "[06-verify/003-dev-smoke] Task output not created: .converge/studio-state/dev-smoke.json",
+            "source": "unit",
+            "detected": "2026-04-26T10:22:04.473Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/06-verify/tasks/003-dev-smoke",
+              "taskId": "06-verify/003-dev-smoke",
+              "taskTitle": "Boot dev server, verify root redirect and /playbooks 200",
+              "taskPrompt": "Boot the dev server in background on port 4000, hit `/`, confirm 307→/playbooks→200.\n\n**NEVER `pkill -f node`** — capture `$DEV_PID` and use `lsof -ti :4000 | xargs -r kill -9`.\n\n```bash\nlsof -ti :4000 2>/dev/null | xargs -r kill -9\nsleep 1\n\nPORT=4000 CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge \\\n  pnpm --filter @converge/studio dev > /tmp/dev-smoke.log 2>&1 &\nDEV_PID=$!\n\nfor i in $(seq 1 60); do\n  CODE=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:4000/playbooks 2>/dev/null || echo 000)\n  [ \"$CODE\" = \"200\" ] && break\n  sleep 1\ndone\n\nROOT_FOLLOWED=$(curl -sL -o /dev/null -w '%{http_code}' http://localhost:4000/)\nROOT_FINAL_URL=$(curl -sL -o /dev/null -w '%{url_effective}' http://localhost:4000/)\nPLAYBOOKS_CODE=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:4000/playbooks)\nINDEX_HTML=$(curl -s http://localhost:4000/playbooks | head -c 50000)\nTHEME_PRESENT=false\necho \"$INDEX_HTML\" | grep -q 'data-theme=' && THEME_PRESENT=true\n\nkill $DEV_PID 2>/dev/null\nsleep 1\nlsof -ti :4000 2>/dev/null | xargs -r kill -9\n\nmkdir -p .converge/studio-state\nnode -e \"\n  const fs = require('fs');\n  fs.writeFileSync('.converge/studio-state/dev-smoke.json', JSON.stringify({\n    timestamp: new Date().toISOString(),\n    rootFollowedHttpCode: $ROOT_FOLLOWED,\n    rootFinalUrl: '$ROOT_FINAL_URL',\n    rootRedirectsToPlaybooks: $ROOT_FOLLOWED === 200 && '$ROOT_FINAL_URL'.endsWith('/playbooks'),\n    playbooksIndexHas200: $PLAYBOOKS_CODE === 200,\n    themeAttributePresent: $THEME_PRESENT,\n    logTail: fs.readFileSync('/tmp/dev-smoke.log','utf8').split('\\\\n').slice(-30).join('\\\\n')\n  }, null, 2));\n\"\n```",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \".converge/studio-state/dev-smoke.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "06-verify/003-dev-smoke-check-failed-smoke-passes",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-verify/003-dev-smoke",
+            "severity": "high",
+            "description": "[06-verify/003-dev-smoke] Check failed: Smoke shows root redirects and /playbooks 200",
+            "source": "unit",
+            "detected": "2026-04-26T10:22:04.475Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "smoke-passes",
+              "checkCmd": "test -f .converge/studio-state/dev-smoke.json && node -e \"const r=JSON.parse(require('fs').readFileSync('.converge/studio-state/dev-smoke.json','utf8'));process.exit(r.rootRedirectsToPlaybooks===true&&r.playbooksIndexHas200===true?0:1)\"",
+              "checkDescription": "Smoke shows root redirects and /playbooks 200",
+              "checkOutput": "Command failed: test -f .converge/studio-state/dev-smoke.json && node -e \"const r=JSON.parse(require('fs').readFileSync('.converge/studio-state/dev-smoke.json','utf8'));process.exit(r.rootRedirectsToPlaybooks===true&&r.playbooksIndexHas200===true?0:1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Boot the dev server in background on port 4000, hit `/`, confirm 307→/playbooks→200.\n\n**NEVER `pkill -f node`** — capture `$DEV_PID` and use `lsof -ti :4000 | xargs -r kill -9`.\n\n```bash\nlsof -ti :4000 2>/dev/null | xargs -r kill -9\nsleep 1\n\nPORT=4000 CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge \\\n  pnpm --filter @converge/studio dev > /tmp/dev-smoke.log 2>&1 &\nDEV_PID=$!\n\nfor i in $(seq 1 60); do\n  CODE=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:4000/playbooks 2>/dev/null || echo 000)\n  [ \"$CODE\" = \"200\" ] && break\n  sleep 1\ndone\n\nROOT_FOLLOWED=$(curl -sL -o /dev/null -w '%{http_code}' http://localhost:4000/)\nROOT_FINAL_URL=$(curl -sL -o /dev/null -w '%{url_effective}' http://localhost:4000/)\nPLAYBOOKS_CODE=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:4000/playbooks)\nINDEX_HTML=$(curl -s http://localhost:4000/playbooks | head -c 50000)\nTHEME_PRESENT=false\necho \"$INDEX_HTML\" | grep -q 'data-theme=' && THEME_PRESENT=true\n\nkill $DEV_PID 2>/dev/null\nsleep 1\nlsof -ti :4000 2>/dev/null | xargs -r kill -9\n\nmkdir -p .converge/studio-state\nnode -e \"\n  const fs = require('fs');\n  fs.writeFileSync('.converge/studio-state/dev-smoke.json', JSON.stringify({\n    timestamp: new Date().toISOString(),\n    rootFollowedHttpCode: $ROOT_FOLLOWED,\n    rootFinalUrl: '$ROOT_FINAL_URL',\n    rootRedirectsToPlaybooks: $ROOT_FOLLOWED === 200 && '$ROOT_FINAL_URL'.endsWith('/playbooks'),\n    playbooksIndexHas200: $PLAYBOOKS_CODE === 200,\n    themeAttributePresent: $THEME_PRESENT,\n    logTail: fs.readFileSync('/tmp/dev-smoke.log','utf8').split('\\\\n').slice(-30).join('\\\\n')\n  }, null, 2));\n\"\n```",
+              "taskId": "06-verify/003-dev-smoke",
+              "taskTitle": "Boot dev server, verify root redirect and /playbooks 200",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/06-verify/tasks/003-dev-smoke",
+              "factId": "check:smoke-passes"
+            }
+          }
+        ],
+        "durationMs": 4
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "06-verify/003-dev-smoke-check-failed-smoke-passes",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-verify/003-dev-smoke",
+            "severity": "high",
+            "description": "[06-verify/003-dev-smoke] Check failed: Smoke shows root redirects and /playbooks 200",
+            "source": "unit",
+            "detected": "2026-04-26T11:08:35.901Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "smoke-passes",
+              "checkCmd": "test -f .converge/studio-state/dev-smoke.json && node -e \"const r=JSON.parse(require('fs').readFileSync('.converge/studio-state/dev-smoke.json','utf8'));process.exit(r.rootRedirectsToPlaybooks===true&&r.playbooksIndexHas200===true?0:1)\"",
+              "checkDescription": "Smoke shows root redirects and /playbooks 200",
+              "checkOutput": "Command failed: test -f .converge/studio-state/dev-smoke.json && node -e \"const r=JSON.parse(require('fs').readFileSync('.converge/studio-state/dev-smoke.json','utf8'));process.exit(r.rootRedirectsToPlaybooks===true&&r.playbooksIndexHas200===true?0:1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Boot the dev server in background on port 4000, hit `/`, confirm 307→/playbooks→200.\n\n**NEVER `pkill -f node`** — capture `$DEV_PID` and use `lsof -ti :4000 | xargs -r kill -9`.\n\n```bash\nlsof -ti :4000 2>/dev/null | xargs -r kill -9\nsleep 1\n\nPORT=4000 CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge \\\n  pnpm --filter @converge/studio dev > /tmp/dev-smoke.log 2>&1 &\nDEV_PID=$!\n\nfor i in $(seq 1 60); do\n  CODE=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:4000/playbooks 2>/dev/null || echo 000)\n  [ \"$CODE\" = \"200\" ] && break\n  sleep 1\ndone\n\nROOT_FOLLOWED=$(curl -sL -o /dev/null -w '%{http_code}' http://localhost:4000/)\nROOT_FINAL_URL=$(curl -sL -o /dev/null -w '%{url_effective}' http://localhost:4000/)\nPLAYBOOKS_CODE=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:4000/playbooks)\nINDEX_HTML=$(curl -s http://localhost:4000/playbooks | head -c 50000)\nTHEME_PRESENT=false\necho \"$INDEX_HTML\" | grep -q 'data-theme=' && THEME_PRESENT=true\n\nkill $DEV_PID 2>/dev/null\nsleep 1\nlsof -ti :4000 2>/dev/null | xargs -r kill -9\n\nmkdir -p .converge/studio-state\nnode -e \"\n  const fs = require('fs');\n  fs.writeFileSync('.converge/studio-state/dev-smoke.json', JSON.stringify({\n    timestamp: new Date().toISOString(),\n    rootFollowedHttpCode: $ROOT_FOLLOWED,\n    rootFinalUrl: '$ROOT_FINAL_URL',\n    rootRedirectsToPlaybooks: $ROOT_FOLLOWED === 200 && '$ROOT_FINAL_URL'.endsWith('/playbooks'),\n    playbooksIndexHas200: $PLAYBOOKS_CODE === 200,\n    themeAttributePresent: $THEME_PRESENT,\n    logTail: fs.readFileSync('/tmp/dev-smoke.log','utf8').split('\\\\n').slice(-30).join('\\\\n')\n  }, null, 2));\n\"\n```",
+              "taskId": "06-verify/003-dev-smoke",
+              "taskTitle": "Boot dev server, verify root redirect and /playbooks 200",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/06-verify/tasks/003-dev-smoke",
+              "factId": "check:smoke-passes"
+            }
+          }
+        ],
+        "durationMs": 75
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "run-strategy:task-run#29",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2791346
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "06-verify/003-dev-smoke-check-failed-smoke-passes",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-verify/003-dev-smoke",
+            "severity": "high",
+            "description": "[06-verify/003-dev-smoke] Check failed: Smoke shows root redirects and /playbooks 200",
+            "source": "unit",
+            "detected": "2026-04-26T11:08:35.980Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "smoke-passes",
+              "checkCmd": "test -f .converge/studio-state/dev-smoke.json && node -e \"const r=JSON.parse(require('fs').readFileSync('.converge/studio-state/dev-smoke.json','utf8'));process.exit(r.rootRedirectsToPlaybooks===true&&r.playbooksIndexHas200===true?0:1)\"",
+              "checkDescription": "Smoke shows root redirects and /playbooks 200",
+              "checkOutput": "Command failed: test -f .converge/studio-state/dev-smoke.json && node -e \"const r=JSON.parse(require('fs').readFileSync('.converge/studio-state/dev-smoke.json','utf8'));process.exit(r.rootRedirectsToPlaybooks===true&&r.playbooksIndexHas200===true?0:1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Boot the dev server in background on port 4000, hit `/`, confirm 307→/playbooks→200.\n\n**NEVER `pkill -f node`** — capture `$DEV_PID` and use `lsof -ti :4000 | xargs -r kill -9`.\n\n```bash\nlsof -ti :4000 2>/dev/null | xargs -r kill -9\nsleep 1\n\nPORT=4000 CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge \\\n  pnpm --filter @converge/studio dev > /tmp/dev-smoke.log 2>&1 &\nDEV_PID=$!\n\nfor i in $(seq 1 60); do\n  CODE=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:4000/playbooks 2>/dev/null || echo 000)\n  [ \"$CODE\" = \"200\" ] && break\n  sleep 1\ndone\n\nROOT_FOLLOWED=$(curl -sL -o /dev/null -w '%{http_code}' http://localhost:4000/)\nROOT_FINAL_URL=$(curl -sL -o /dev/null -w '%{url_effective}' http://localhost:4000/)\nPLAYBOOKS_CODE=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:4000/playbooks)\nINDEX_HTML=$(curl -s http://localhost:4000/playbooks | head -c 50000)\nTHEME_PRESENT=false\necho \"$INDEX_HTML\" | grep -q 'data-theme=' && THEME_PRESENT=true\n\nkill $DEV_PID 2>/dev/null\nsleep 1\nlsof -ti :4000 2>/dev/null | xargs -r kill -9\n\nmkdir -p .converge/studio-state\nnode -e \"\n  const fs = require('fs');\n  fs.writeFileSync('.converge/studio-state/dev-smoke.json', JSON.stringify({\n    timestamp: new Date().toISOString(),\n    rootFollowedHttpCode: $ROOT_FOLLOWED,\n    rootFinalUrl: '$ROOT_FINAL_URL',\n    rootRedirectsToPlaybooks: $ROOT_FOLLOWED === 200 && '$ROOT_FINAL_URL'.endsWith('/playbooks'),\n    playbooksIndexHas200: $PLAYBOOKS_CODE === 200,\n    themeAttributePresent: $THEME_PRESENT,\n    logTail: fs.readFileSync('/tmp/dev-smoke.log','utf8').split('\\\\n').slice(-30).join('\\\\n')\n  }, null, 2));\n\"\n```",
+              "taskId": "06-verify/003-dev-smoke",
+              "taskTitle": "Boot dev server, verify root redirect and /playbooks 200",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/06-verify/tasks/003-dev-smoke",
+              "factId": "check:smoke-passes"
+            }
+          }
+        ],
+        "durationMs": 76
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#2",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 23
+      }
+    },
+    {
+      "id": "run-strategy:task-run#30",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 244200
+      }
+    },
+    {
+      "id": "verify#2",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "06-verify/003-dev-smoke-check-failed-smoke-passes",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-verify/003-dev-smoke",
+            "severity": "high",
+            "description": "[06-verify/003-dev-smoke] Check failed: Smoke shows root redirects and /playbooks 200",
+            "source": "unit",
+            "detected": "2026-04-26T11:12:40.281Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "smoke-passes",
+              "checkCmd": "test -f .converge/studio-state/dev-smoke.json && node -e \"const r=JSON.parse(require('fs').readFileSync('.converge/studio-state/dev-smoke.json','utf8'));process.exit(r.rootRedirectsToPlaybooks===true&&r.playbooksIndexHas200===true?0:1)\"",
+              "checkDescription": "Smoke shows root redirects and /playbooks 200",
+              "checkOutput": "Command failed: test -f .converge/studio-state/dev-smoke.json && node -e \"const r=JSON.parse(require('fs').readFileSync('.converge/studio-state/dev-smoke.json','utf8'));process.exit(r.rootRedirectsToPlaybooks===true&&r.playbooksIndexHas200===true?0:1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Boot the dev server in background on port 4000, hit `/`, confirm 307→/playbooks→200.\n\n**NEVER `pkill -f node`** — capture `$DEV_PID` and use `lsof -ti :4000 | xargs -r kill -9`.\n\n```bash\nlsof -ti :4000 2>/dev/null | xargs -r kill -9\nsleep 1\n\nPORT=4000 CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge \\\n  pnpm --filter @converge/studio dev > /tmp/dev-smoke.log 2>&1 &\nDEV_PID=$!\n\nfor i in $(seq 1 60); do\n  CODE=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:4000/playbooks 2>/dev/null || echo 000)\n  [ \"$CODE\" = \"200\" ] && break\n  sleep 1\ndone\n\nROOT_FOLLOWED=$(curl -sL -o /dev/null -w '%{http_code}' http://localhost:4000/)\nROOT_FINAL_URL=$(curl -sL -o /dev/null -w '%{url_effective}' http://localhost:4000/)\nPLAYBOOKS_CODE=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:4000/playbooks)\nINDEX_HTML=$(curl -s http://localhost:4000/playbooks | head -c 50000)\nTHEME_PRESENT=false\necho \"$INDEX_HTML\" | grep -q 'data-theme=' && THEME_PRESENT=true\n\nkill $DEV_PID 2>/dev/null\nsleep 1\nlsof -ti :4000 2>/dev/null | xargs -r kill -9\n\nmkdir -p .converge/studio-state\nnode -e \"\n  const fs = require('fs');\n  fs.writeFileSync('.converge/studio-state/dev-smoke.json', JSON.stringify({\n    timestamp: new Date().toISOString(),\n    rootFollowedHttpCode: $ROOT_FOLLOWED,\n    rootFinalUrl: '$ROOT_FINAL_URL',\n    rootRedirectsToPlaybooks: $ROOT_FOLLOWED === 200 && '$ROOT_FINAL_URL'.endsWith('/playbooks'),\n    playbooksIndexHas200: $PLAYBOOKS_CODE === 200,\n    themeAttributePresent: $THEME_PRESENT,\n    logTail: fs.readFileSync('/tmp/dev-smoke.log','utf8').split('\\\\n').slice(-30).join('\\\\n')\n  }, null, 2));\n\"\n```",
+              "taskId": "06-verify/003-dev-smoke",
+              "taskTitle": "Boot dev server, verify root redirect and /playbooks 200",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/06-verify/tasks/003-dev-smoke",
+              "factId": "check:smoke-passes"
+            }
+          }
+        ],
+        "durationMs": 76
+      }
+    },
+    {
+      "id": "check-stall#2",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "advance-attempt#2",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-wbs-seeded#3",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#3",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps#3",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "06-verify/003-dev-smoke-check-failed-smoke-passes",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-verify/003-dev-smoke",
+            "severity": "high",
+            "description": "[06-verify/003-dev-smoke] Check failed: Smoke shows root redirects and /playbooks 200",
+            "source": "unit",
+            "detected": "2026-04-26T11:12:40.361Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "smoke-passes",
+              "checkCmd": "test -f .converge/studio-state/dev-smoke.json && node -e \"const r=JSON.parse(require('fs').readFileSync('.converge/studio-state/dev-smoke.json','utf8'));process.exit(r.rootRedirectsToPlaybooks===true&&r.playbooksIndexHas200===true?0:1)\"",
+              "checkDescription": "Smoke shows root redirects and /playbooks 200",
+              "checkOutput": "Command failed: test -f .converge/studio-state/dev-smoke.json && node -e \"const r=JSON.parse(require('fs').readFileSync('.converge/studio-state/dev-smoke.json','utf8'));process.exit(r.rootRedirectsToPlaybooks===true&&r.playbooksIndexHas200===true?0:1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Boot the dev server in background on port 4000, hit `/`, confirm 307→/playbooks→200.\n\n**NEVER `pkill -f node`** — capture `$DEV_PID` and use `lsof -ti :4000 | xargs -r kill -9`.\n\n```bash\nlsof -ti :4000 2>/dev/null | xargs -r kill -9\nsleep 1\n\nPORT=4000 CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge \\\n  pnpm --filter @converge/studio dev > /tmp/dev-smoke.log 2>&1 &\nDEV_PID=$!\n\nfor i in $(seq 1 60); do\n  CODE=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:4000/playbooks 2>/dev/null || echo 000)\n  [ \"$CODE\" = \"200\" ] && break\n  sleep 1\ndone\n\nROOT_FOLLOWED=$(curl -sL -o /dev/null -w '%{http_code}' http://localhost:4000/)\nROOT_FINAL_URL=$(curl -sL -o /dev/null -w '%{url_effective}' http://localhost:4000/)\nPLAYBOOKS_CODE=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:4000/playbooks)\nINDEX_HTML=$(curl -s http://localhost:4000/playbooks | head -c 50000)\nTHEME_PRESENT=false\necho \"$INDEX_HTML\" | grep -q 'data-theme=' && THEME_PRESENT=true\n\nkill $DEV_PID 2>/dev/null\nsleep 1\nlsof -ti :4000 2>/dev/null | xargs -r kill -9\n\nmkdir -p .converge/studio-state\nnode -e \"\n  const fs = require('fs');\n  fs.writeFileSync('.converge/studio-state/dev-smoke.json', JSON.stringify({\n    timestamp: new Date().toISOString(),\n    rootFollowedHttpCode: $ROOT_FOLLOWED,\n    rootFinalUrl: '$ROOT_FINAL_URL',\n    rootRedirectsToPlaybooks: $ROOT_FOLLOWED === 200 && '$ROOT_FINAL_URL'.endsWith('/playbooks'),\n    playbooksIndexHas200: $PLAYBOOKS_CODE === 200,\n    themeAttributePresent: $THEME_PRESENT,\n    logTail: fs.readFileSync('/tmp/dev-smoke.log','utf8').split('\\\\n').slice(-30).join('\\\\n')\n  }, null, 2));\n\"\n```",
+              "taskId": "06-verify/003-dev-smoke",
+              "taskTitle": "Boot dev server, verify root redirect and /playbooks 200",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/06-verify/tasks/003-dev-smoke",
+              "factId": "check:smoke-passes"
+            }
+          }
+        ],
+        "durationMs": 77
+      }
+    },
+    {
+      "id": "signal-done#3",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#3",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 25
+      }
+    },
+    {
+      "id": "run-strategy:task-run#31",
+      "handler": "run-strategy",
+      "status": "buffered",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      }
+    },
+    {
+      "id": "verify#3",
+      "handler": "verify",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      }
+    },
+    {
+      "id": "check-stall#3",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt#3",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T10:22:04.470Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T10:22:04.470Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T10:22:04.475Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T10:22:04.475Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T10:22:04.478Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#29",
+      "iteration": 1,
+      "ts": "2026-04-26T11:08:35.825Z"
+    },
+    {
+      "from": "run-strategy:task-run#29",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T11:08:35.902Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-26T11:08:35.902Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-26T11:08:35.903Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-26T11:08:35.904Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-26T11:08:35.904Z"
+    },
+    {
+      "from": "check-outputs-exist#2",
+      "to": "detect-gaps#2",
+      "iteration": 2,
+      "ts": "2026-04-26T11:08:35.980Z"
+    },
+    {
+      "from": "detect-gaps#2",
+      "to": "repair-loop#2",
+      "iteration": 2,
+      "ts": "2026-04-26T11:08:36.003Z"
+    },
+    {
+      "from": "repair-loop#2",
+      "to": "run-strategy:task-run#30",
+      "iteration": 2,
+      "ts": "2026-04-26T11:12:40.204Z"
+    },
+    {
+      "from": "run-strategy:task-run#30",
+      "to": "verify#2",
+      "iteration": 2,
+      "ts": "2026-04-26T11:12:40.281Z"
+    },
+    {
+      "from": "verify#2",
+      "to": "check-stall#2",
+      "iteration": 2,
+      "ts": "2026-04-26T11:12:40.282Z"
+    },
+    {
+      "from": "check-stall#2",
+      "to": "advance-attempt#2",
+      "iteration": 2,
+      "ts": "2026-04-26T11:12:40.283Z"
+    },
+    {
+      "from": "advance-attempt#2",
+      "to": "check-wbs-seeded#3",
+      "iteration": 3,
+      "ts": "2026-04-26T11:12:40.283Z"
+    },
+    {
+      "from": "check-wbs-seeded#3",
+      "to": "check-outputs-exist#3",
+      "iteration": 3,
+      "ts": "2026-04-26T11:12:40.284Z"
+    },
+    {
+      "from": "check-outputs-exist#3",
+      "to": "detect-gaps#3",
+      "iteration": 3,
+      "ts": "2026-04-26T11:12:40.362Z"
+    },
+    {
+      "from": "detect-gaps#3",
+      "to": "repair-loop#3",
+      "iteration": 3,
+      "ts": "2026-04-26T11:12:40.387Z"
+    }
+  ]
+}

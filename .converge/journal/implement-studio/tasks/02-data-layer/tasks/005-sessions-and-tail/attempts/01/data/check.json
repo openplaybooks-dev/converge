@@ -1,0 +1,20 @@
+{
+  "taskId": "02-data-layer/005-sessions-and-tail",
+  "checks": [
+    {
+      "id": "sessions-module-exists",
+      "description": "sessions.ts exists",
+      "cmd": "test -f packages/converge-studio/src/lib/converge-adapter/sessions.ts"
+    },
+    {
+      "id": "typecheck",
+      "description": "Module typechecks",
+      "cmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    },
+    {
+      "id": "list-real-sessions",
+      "description": "listSessions returns sessions for an existing journal",
+      "cmd": "cd packages/converge-studio && CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge tsx -e \"import('./src/lib/converge-adapter/sessions.ts').then(async m=>{const s=await m.listSessions('oss-standardize');process.exit(s.length>0?0:1)}).catch(e=>{console.error(e);process.exit(1)})\""
+    }
+  ]
+}

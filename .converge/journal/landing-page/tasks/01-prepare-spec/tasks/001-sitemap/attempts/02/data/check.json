@@ -1,0 +1,25 @@
+{
+  "taskId": "01-prepare-spec/001-sitemap",
+  "checks": [
+    {
+      "id": "sitemap-json-exists",
+      "description": "sitemap.json exists",
+      "cmd": "test -f apps/landing/.content/sitemap.json"
+    },
+    {
+      "id": "sitemap-valid-json",
+      "description": "sitemap.json is valid JSON",
+      "cmd": "test -f apps/landing/.content/sitemap.json && node -e \"JSON.parse(require('fs').readFileSync('apps/landing/.content/sitemap.json','utf8'))\""
+    },
+    {
+      "id": "includes-home-and-docs",
+      "description": "includes / and at least one /docs/ route",
+      "cmd": "test -f apps/landing/.content/sitemap.json && node -e \"const r=require('./apps/landing/.content/sitemap.json');const routes=r.routes||r;const set=new Set(routes.map(x=>x.path||x));process.exit(set.has('/') && [...set].some(p=>p.startsWith('/docs/')) ? 0 : 1)\""
+    },
+    {
+      "id": "includes-blog",
+      "description": "includes /blog route",
+      "cmd": "test -f apps/landing/.content/sitemap.json && node -e \"const r=require('./apps/landing/.content/sitemap.json');const routes=r.routes||r;process.exit(routes.some(x=>(x.path||x)==='/blog') ? 0 : 1)\""
+    }
+  ]
+}

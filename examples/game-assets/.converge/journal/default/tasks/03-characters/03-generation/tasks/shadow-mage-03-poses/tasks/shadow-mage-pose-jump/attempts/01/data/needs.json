@@ -1,9 +1,0 @@
-{
-  "taskId": "03-characters/03-generation/shadow-mage-03-poses/shadow-mage-pose-jump",
-  "attemptNumber": 1,
-  "inputs": [],
-  "outputs": [
-    "assets/characters/shadow-mage/variants/jump/jump.png"
-  ],
-  "blocked": false
-}

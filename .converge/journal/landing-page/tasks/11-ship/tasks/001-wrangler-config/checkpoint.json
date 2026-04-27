@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "11-ship/001-wrangler-config",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T00:54:54.847Z",
+  "createdAt": "2026-04-27T00:54:54.512Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T00:54:54.512Z",
+      "completedAt": "2026-04-27T00:54:54.825Z",
+      "outcome": "success",
+      "durationMs": 313
+    }
+  ],
+  "currentAttempt": 1
+}

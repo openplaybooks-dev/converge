@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "02-port-data-layer/004-copy-api-routes",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T09:41:56.293Z",
+  "createdAt": "2026-04-26T09:41:30.458Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T09:41:30.458Z",
+      "completedAt": "2026-04-26T09:41:56.286Z",
+      "outcome": "success",
+      "durationMs": 25829
+    }
+  ],
+  "currentAttempt": 1
+}

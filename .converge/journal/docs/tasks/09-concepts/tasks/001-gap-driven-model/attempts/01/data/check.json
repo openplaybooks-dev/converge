@@ -1,0 +1,25 @@
+{
+  "taskId": "09-concepts/001-gap-driven-model",
+  "checks": [
+    {
+      "id": "page-exists",
+      "description": "page exists",
+      "cmd": "test -f docs/concepts/gap-driven-model.md"
+    },
+    {
+      "id": "defines-gap",
+      "description": "defines what a gap is",
+      "cmd": "grep -qiE 'gap' docs/concepts/gap-driven-model.md"
+    },
+    {
+      "id": "contrasts-with-step-driven",
+      "description": "contrasts with step/graph-driven systems",
+      "cmd": "grep -qiE 'step|graph|node' docs/concepts/gap-driven-model.md"
+    },
+    {
+      "id": "word-count",
+      "description": "600-1200 words",
+      "cmd": "test -f docs/concepts/gap-driven-model.md && wc -w docs/concepts/gap-driven-model.md | awk '{exit ($1>=600&&$1<=1200?0:1)}'"
+    }
+  ]
+}

@@ -1,0 +1,271 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3221
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-ui/020-converge-shell-missing-output-packages/converge-studio/src/components/layout/converge-header.tsx",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/020-converge-shell",
+            "severity": "high",
+            "description": "[04-ui/020-converge-shell] Task output not created: packages/converge-studio/src/components/layout/converge-header.tsx",
+            "source": "unit",
+            "detected": "2026-04-26T08:33:56.134Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/020-converge-shell",
+              "taskId": "04-ui/020-converge-shell",
+              "taskTitle": "Minimal converge-native app shell (layout + header)",
+              "taskPrompt": "Replace the inherited Mission Control layout with a minimal converge-native shell.\n\n**`src/components/layout/converge-header.tsx`** — server component, renders:\n- Logo / wordmark on the left (\"converge studio\" — small, no Mission Control branding).\n- Nav links: `/playbooks`, `/runs`, `/settings` (only these three, in this order).\n- Theme toggle on the right (reuse the existing `next-themes` toggle if present; otherwise inline a small `<button>` that calls `useTheme().setTheme`).\n- That's all. No fleet stats, no live activity feed, no banners, no gateway status, no \"Launch Sequence\" CTA.\n\n**`src/app/layout.tsx`** — must:\n- Render `<NextIntlClientProvider>` (server-side `getLocale()`, message catalog from `messages/`).\n- Render `<ThemeProvider>` from `next-themes`.\n- Render `<ConvergeHeader />` once, at the top.\n- Render `{children}` in a `<main>` element.\n- Set `<html lang={locale}>` and a sensible `<title>`.\n- Import zero MC components. Specifically: no `nav-rail`, `site-header`, `live-feed`, `local-mode-banner`, anything with `launch`, `onboarding`, `fleet`, `gateway`, or `openclaw` in the name.\n\n**`messages/*.json`** — replace any string containing \"Mission Control\" with \"Converge Studio\". Replace \"Launch Sequence\", \"Dock an Agent\", \"Dispatch a Task\" entries by deleting the keys; the new shell doesn't reference them.\n\n**Process:**\n1. Write the new `converge-header.tsx`.\n2. Rewrite `layout.tsx`.\n3. Update `messages/en.json` and any other locale files: replace MC strings, delete obsolete keys.\n4. Run typecheck. Fix any dangling imports the new layout introduces.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/components/layout/converge-header.tsx\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-ui/020-converge-shell-check-failed-header-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/020-converge-shell",
+            "severity": "high",
+            "description": "[04-ui/020-converge-shell] Check failed: Converge header component exists",
+            "source": "unit",
+            "detected": "2026-04-26T08:33:56.138Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "header-exists",
+              "checkCmd": "test -f packages/converge-studio/src/components/layout/converge-header.tsx",
+              "checkDescription": "Converge header component exists",
+              "checkOutput": "Command failed: test -f packages/converge-studio/src/components/layout/converge-header.tsx\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Replace the inherited Mission Control layout with a minimal converge-native shell.\n\n**`src/components/layout/converge-header.tsx`** — server component, renders:\n- Logo / wordmark on the left (\"converge studio\" — small, no Mission Control branding).\n- Nav links: `/playbooks`, `/runs`, `/settings` (only these three, in this order).\n- Theme toggle on the right (reuse the existing `next-themes` toggle if present; otherwise inline a small `<button>` that calls `useTheme().setTheme`).\n- That's all. No fleet stats, no live activity feed, no banners, no gateway status, no \"Launch Sequence\" CTA.\n\n**`src/app/layout.tsx`** — must:\n- Render `<NextIntlClientProvider>` (server-side `getLocale()`, message catalog from `messages/`).\n- Render `<ThemeProvider>` from `next-themes`.\n- Render `<ConvergeHeader />` once, at the top.\n- Render `{children}` in a `<main>` element.\n- Set `<html lang={locale}>` and a sensible `<title>`.\n- Import zero MC components. Specifically: no `nav-rail`, `site-header`, `live-feed`, `local-mode-banner`, anything with `launch`, `onboarding`, `fleet`, `gateway`, or `openclaw` in the name.\n\n**`messages/*.json`** — replace any string containing \"Mission Control\" with \"Converge Studio\". Replace \"Launch Sequence\", \"Dock an Agent\", \"Dispatch a Task\" entries by deleting the keys; the new shell doesn't reference them.\n\n**Process:**\n1. Write the new `converge-header.tsx`.\n2. Rewrite `layout.tsx`.\n3. Update `messages/en.json` and any other locale files: replace MC strings, delete obsolete keys.\n4. Run typecheck. Fix any dangling imports the new layout introduces.",
+              "taskId": "04-ui/020-converge-shell",
+              "taskTitle": "Minimal converge-native app shell (layout + header)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/020-converge-shell",
+              "factId": "check:header-exists"
+            }
+          },
+          {
+            "id": "04-ui/020-converge-shell-check-failed-header-imported-by-layout",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/020-converge-shell",
+            "severity": "high",
+            "description": "[04-ui/020-converge-shell] Check failed: layout.tsx imports the converge header",
+            "source": "unit",
+            "detected": "2026-04-26T08:33:56.141Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "header-imported-by-layout",
+              "checkCmd": "grep -q 'converge-header' packages/converge-studio/src/app/layout.tsx",
+              "checkDescription": "layout.tsx imports the converge header",
+              "checkOutput": "Command failed: grep -q 'converge-header' packages/converge-studio/src/app/layout.tsx\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Replace the inherited Mission Control layout with a minimal converge-native shell.\n\n**`src/components/layout/converge-header.tsx`** — server component, renders:\n- Logo / wordmark on the left (\"converge studio\" — small, no Mission Control branding).\n- Nav links: `/playbooks`, `/runs`, `/settings` (only these three, in this order).\n- Theme toggle on the right (reuse the existing `next-themes` toggle if present; otherwise inline a small `<button>` that calls `useTheme().setTheme`).\n- That's all. No fleet stats, no live activity feed, no banners, no gateway status, no \"Launch Sequence\" CTA.\n\n**`src/app/layout.tsx`** — must:\n- Render `<NextIntlClientProvider>` (server-side `getLocale()`, message catalog from `messages/`).\n- Render `<ThemeProvider>` from `next-themes`.\n- Render `<ConvergeHeader />` once, at the top.\n- Render `{children}` in a `<main>` element.\n- Set `<html lang={locale}>` and a sensible `<title>`.\n- Import zero MC components. Specifically: no `nav-rail`, `site-header`, `live-feed`, `local-mode-banner`, anything with `launch`, `onboarding`, `fleet`, `gateway`, or `openclaw` in the name.\n\n**`messages/*.json`** — replace any string containing \"Mission Control\" with \"Converge Studio\". Replace \"Launch Sequence\", \"Dock an Agent\", \"Dispatch a Task\" entries by deleting the keys; the new shell doesn't reference them.\n\n**Process:**\n1. Write the new `converge-header.tsx`.\n2. Rewrite `layout.tsx`.\n3. Update `messages/en.json` and any other locale files: replace MC strings, delete obsolete keys.\n4. Run typecheck. Fix any dangling imports the new layout introduces.",
+              "taskId": "04-ui/020-converge-shell",
+              "taskTitle": "Minimal converge-native app shell (layout + header)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/020-converge-shell",
+              "factId": "check:header-imported-by-layout"
+            }
+          },
+          {
+            "id": "04-ui/020-converge-shell-check-failed-layout-has-no-mc-imports",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/020-converge-shell",
+            "severity": "high",
+            "description": "[04-ui/020-converge-shell] Check failed: layout.tsx imports no Mission Control component",
+            "source": "unit",
+            "detected": "2026-04-26T08:33:56.146Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "layout-has-no-mc-imports",
+              "checkCmd": "bash -c 'L=packages/converge-studio/src/app/layout.tsx; ! grep -qE \"nav-rail|site-header|live-feed|local-mode-banner|launch|onboarding|fleet|gateway|openclaw\" $L'",
+              "checkDescription": "layout.tsx imports no Mission Control component",
+              "checkOutput": "Command failed: bash -c 'L=packages/converge-studio/src/app/layout.tsx; ! grep -qE \"nav-rail|site-header|live-feed|local-mode-banner|launch|onboarding|fleet|gateway|openclaw\" $L'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Replace the inherited Mission Control layout with a minimal converge-native shell.\n\n**`src/components/layout/converge-header.tsx`** — server component, renders:\n- Logo / wordmark on the left (\"converge studio\" — small, no Mission Control branding).\n- Nav links: `/playbooks`, `/runs`, `/settings` (only these three, in this order).\n- Theme toggle on the right (reuse the existing `next-themes` toggle if present; otherwise inline a small `<button>` that calls `useTheme().setTheme`).\n- That's all. No fleet stats, no live activity feed, no banners, no gateway status, no \"Launch Sequence\" CTA.\n\n**`src/app/layout.tsx`** — must:\n- Render `<NextIntlClientProvider>` (server-side `getLocale()`, message catalog from `messages/`).\n- Render `<ThemeProvider>` from `next-themes`.\n- Render `<ConvergeHeader />` once, at the top.\n- Render `{children}` in a `<main>` element.\n- Set `<html lang={locale}>` and a sensible `<title>`.\n- Import zero MC components. Specifically: no `nav-rail`, `site-header`, `live-feed`, `local-mode-banner`, anything with `launch`, `onboarding`, `fleet`, `gateway`, or `openclaw` in the name.\n\n**`messages/*.json`** — replace any string containing \"Mission Control\" with \"Converge Studio\". Replace \"Launch Sequence\", \"Dock an Agent\", \"Dispatch a Task\" entries by deleting the keys; the new shell doesn't reference them.\n\n**Process:**\n1. Write the new `converge-header.tsx`.\n2. Rewrite `layout.tsx`.\n3. Update `messages/en.json` and any other locale files: replace MC strings, delete obsolete keys.\n4. Run typecheck. Fix any dangling imports the new layout introduces.",
+              "taskId": "04-ui/020-converge-shell",
+              "taskTitle": "Minimal converge-native app shell (layout + header)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/020-converge-shell",
+              "factId": "check:layout-has-no-mc-imports"
+            }
+          }
+        ],
+        "durationMs": 3221
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3168
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 3187
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#4",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 97819
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T08:33:52.908Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T08:33:56.130Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T08:33:59.351Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T08:33:59.352Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T08:34:02.520Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#4",
+      "iteration": 1,
+      "ts": "2026-04-26T08:35:40.341Z"
+    },
+    {
+      "from": "run-strategy:task-run#4",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T08:35:43.529Z"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "taskId": "04-getting-started/001-why-converge",
+  "checks": [
+    {
+      "id": "page-exists",
+      "description": "page exists",
+      "cmd": "test -f docs/getting-started/why-converge.md"
+    },
+    {
+      "id": "page-has-frontmatter",
+      "description": "page has title + sources frontmatter",
+      "cmd": "head -10 docs/getting-started/why-converge.md | grep -q '^title:' && head -10 docs/getting-started/why-converge.md | grep -q '^sources:'"
+    },
+    {
+      "id": "page-has-define-done",
+      "description": "page introduces the 'define done' framing",
+      "cmd": "grep -q 'define done' docs/getting-started/why-converge.md || grep -q 'Define done' docs/getting-started/why-converge.md"
+    },
+    {
+      "id": "page-not-too-long",
+      "description": "page is <=600 words (under 3 min read)",
+      "cmd": "wc -w docs/getting-started/why-converge.md | awk '{exit ($1<=600?0:1)}'"
+    },
+    {
+      "id": "page-not-too-short",
+      "description": "page is >=200 words (substantive)",
+      "cmd": "wc -w docs/getting-started/why-converge.md | awk '{exit ($1>=200?0:1)}'"
+    }
+  ]
+}

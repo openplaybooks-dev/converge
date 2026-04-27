@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "06-integrate-docs/003-pagefind-search",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T19:47:29.206Z",
+  "createdAt": "2026-04-26T19:40:02.242Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T19:40:02.242Z",
+      "completedAt": "2026-04-26T19:46:20.867Z",
+      "outcome": "failed",
+      "durationMs": 378625
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-26T19:46:21.064Z",
+      "completedAt": "2026-04-26T19:47:29.170Z",
+      "outcome": "success",
+      "durationMs": 68106
+    }
+  ],
+  "currentAttempt": 2
+}

@@ -1,0 +1,225 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "10-verify/008-meta-validation-check-failed-meta-validation",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "10-verify/008-meta-validation",
+            "severity": "high",
+            "description": "[10-verify/008-meta-validation] Check failed: all required meta tags present in dist/index.html",
+            "source": "unit",
+            "detected": "2026-04-27T00:51:40.206Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "meta-validation",
+              "checkCmd": "node .converge/playbooks/landing-page/scripts/check-meta-validation.mjs",
+              "checkDescription": "all required meta tags present in dist/index.html",
+              "checkOutput": "check-meta-validation: missing or empty meta tags:\n  ✗ title (got: \"Welcome to Astro\")\nok html-lang: en\n  ok meta-description: Open-source TypeScript framework for AI workflows. Goal-driv…\n  ok canonical: https://converge.dev/\n  ok og-title: Welcome to Astro\n  ok og-description: Open-source TypeScript framework for AI workflows. Goal-driv…\n  ok og-image: https://converge.dev/og/home.png\n  ok twitter-card: summary_large_image",
+              "checkExitCode": 1,
+              "taskPrompt": "# Meta validation\n\nRun the meta-validation script + verify the static SEO files exist.\n\n```bash\nnode .converge/playbooks/landing-page/scripts/check-meta-validation.mjs\n```\n\nThe script asserts:\n- `<html lang=\"...\">` (non-empty)\n- `<title>` (non-empty, NOT \"Astro\" or any forked-theme name)\n- `<meta name=\"description\" content=\"...\">` (non-empty)\n- `<link rel=\"canonical\" href=\"...\">` (non-empty)\n- `<meta property=\"og:title\">`, `og:description`, `og:image` (all non-empty)\n- `<meta name=\"twitter:card\" content=\"...\">` (any value)\n\nPlus this task verifies:\n- `dist/sitemap.xml` (or `sitemap-index.xml`) exists — emitted by `@astrojs/sitemap`\n- `dist/robots.txt` exists — written by phase 11 or by Astro static\n- `dist/og/default.png` (or `dist/og.png`) exists — from phase 08\n\nIf any of these is missing, fix the responsible upstream task and re-build.",
+              "taskId": "10-verify/008-meta-validation",
+              "taskTitle": "OG / Twitter / canonical / lang meta tags all present and non-empty",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/10-verify/tasks/008-meta-validation",
+              "factId": "check:meta-validation"
+            }
+          },
+          {
+            "id": "10-verify/008-meta-validation-check-failed-robots-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "10-verify/008-meta-validation",
+            "severity": "high",
+            "description": "[10-verify/008-meta-validation] Check failed: robots.txt is emitted",
+            "source": "unit",
+            "detected": "2026-04-27T00:51:40.212Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "robots-exists",
+              "checkCmd": "test -f apps/landing/dist/robots.txt",
+              "checkDescription": "robots.txt is emitted",
+              "checkOutput": "Command failed: test -f apps/landing/dist/robots.txt\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Meta validation\n\nRun the meta-validation script + verify the static SEO files exist.\n\n```bash\nnode .converge/playbooks/landing-page/scripts/check-meta-validation.mjs\n```\n\nThe script asserts:\n- `<html lang=\"...\">` (non-empty)\n- `<title>` (non-empty, NOT \"Astro\" or any forked-theme name)\n- `<meta name=\"description\" content=\"...\">` (non-empty)\n- `<link rel=\"canonical\" href=\"...\">` (non-empty)\n- `<meta property=\"og:title\">`, `og:description`, `og:image` (all non-empty)\n- `<meta name=\"twitter:card\" content=\"...\">` (any value)\n\nPlus this task verifies:\n- `dist/sitemap.xml` (or `sitemap-index.xml`) exists — emitted by `@astrojs/sitemap`\n- `dist/robots.txt` exists — written by phase 11 or by Astro static\n- `dist/og/default.png` (or `dist/og.png`) exists — from phase 08\n\nIf any of these is missing, fix the responsible upstream task and re-build.",
+              "taskId": "10-verify/008-meta-validation",
+              "taskTitle": "OG / Twitter / canonical / lang meta tags all present and non-empty",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/10-verify/tasks/008-meta-validation",
+              "factId": "check:robots-exists"
+            }
+          }
+        ],
+        "durationMs": 39
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 38
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 37
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#4",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 130640
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-27T00:51:40.175Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-27T00:51:40.175Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-27T00:51:40.214Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-27T00:51:40.215Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-27T00:51:40.253Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#4",
+      "iteration": 1,
+      "ts": "2026-04-27T00:53:50.894Z"
+    },
+    {
+      "from": "run-strategy:task-run#4",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-27T00:53:50.931Z"
+    }
+  ]
+}

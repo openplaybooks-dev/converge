@@ -1,81 +1,53 @@
 #!/usr/bin/env python3
 """
-generate_character_angles.py — Generate character reference images from multiple angles.
+generate_character_angles.py — Generate the canonical-angle reference for a character.
 
-This creates a reference set with different viewing angles (front, side, back, etc.)
-and poses that will be used as locked references for all downstream sprite generation.
+Produces two artifacts: a high-resolution `source.png` (the original Gemini
+output) and a downsized `canonical.png` (the working reference used by every
+downstream variant and sprite-sheet task). Each artifact lives in its own
+folder with a sibling prompt + seed/derived-from file for debugging.
+
+Reads everything except char_id from `assets/sprites.json` so converge's
+shell-WBS executor can invoke this with a single arg.
 
 Usage:
-  python scripts/generate_character_angles.py <char_id> <char_name> <char_description> <char_palette>
+  python scripts/generate_character_angles.py <char_id> [--seed N]
 
 Outputs:
-  assets/characters/{char_id}/ref/front.png
-  assets/characters/{char_id}/ref/side.png
-  assets/characters/{char_id}/ref/back.png
-  assets/characters/{char_id}/ref/angles.json  # Angle metadata
+  assets/characters/{char_id}/ref/source/source.png            # source_resolution
+  assets/characters/{char_id}/ref/source/source.prompt.txt
+  assets/characters/{char_id}/ref/source/source.seed.txt
+  assets/characters/{char_id}/ref/canonical/canonical.png      # working_resolution
+  assets/characters/{char_id}/ref/canonical/derived-from.txt
+  assets/characters/{char_id}/ref/manifest.json
 """
 
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import sys
 from pathlib import Path
 
-from lib.image_api import generate_image_with_edit
+from PIL import Image
+
+from lib.image_api import generate_image_with_edit, VIEWPORT_CONTRACT
 from lib.sprite import find_project_root
 
 
-# Standard game sprite angles
-STANDARD_ANGLES = {
-    "front": {
-        "name": "Front View",
-        "description": "Character facing directly toward camera",
-        "rotation_y": 0,
-        "rotation_x": 0
-    },
-    "front_left": {
-        "name": "Front-Left 45°",
-        "description": "Character facing 45 degrees left from front",
-        "rotation_y": -45,
-        "rotation_x": 0
-    },
-    "side_left": {
-        "name": "Left Side View",
-        "description": "Character facing left, side profile",
-        "rotation_y": -90,
-        "rotation_x": 0
-    },
-    "back_left": {
-        "name": "Back-Left 45°",
-        "description": "Character facing 45 degrees left from back",
-        "rotation_y": -135,
-        "rotation_x": 0
-    },
-    "back": {
-        "name": "Back View",
-        "description": "Character facing away from camera",
-        "rotation_y": 180,
-        "rotation_x": 0
-    },
-    "front_right": {
-        "name": "Front-Right 45°",
-        "description": "Character facing 45 degrees right from front",
-        "rotation_y": 45,
-        "rotation_x": 0
-    },
-    "side_right": {
-        "name": "Right Side View",
-        "description": "Character facing right, side profile",
-        "rotation_y": 90,
-        "rotation_x": 0
-    },
-    "back_right": {
-        "name": "Back-Right 45°",
-        "description": "Character facing 45 degrees right from back",
-        "rotation_y": 135,
-        "rotation_x": 0
-    }
+# Canonical angles. Only the ones referenced from sprites.json's
+# canonical_angle field are ever generated; the rest exist so we can
+# expand later without changing the script.
+STANDARD_ANGLES: dict[str, dict] = {
+    "front":      {"name": "Front View",      "description": "Character facing directly toward camera",        "rotation_y": 0,    "rotation_x": 0},
+    "front_left": {"name": "Front-Left 45°",  "description": "Character facing 45 degrees left from front",    "rotation_y": -45,  "rotation_x": 0},
+    "side_left":  {"name": "Left Side View",  "description": "Character facing left, side profile",            "rotation_y": -90,  "rotation_x": 0},
+    "back_left":  {"name": "Back-Left 45°",   "description": "Character facing 45 degrees left from back",     "rotation_y": -135, "rotation_x": 0},
+    "back":       {"name": "Back View",       "description": "Character facing away from camera",              "rotation_y": 180,  "rotation_x": 0},
+    "front_right":{"name": "Front-Right 45°", "description": "Character facing 45 degrees right from front",   "rotation_y": 45,   "rotation_x": 0},
+    "side_right": {"name": "Right Side View", "description": "Character facing right, side profile",           "rotation_y": 90,   "rotation_x": 0},
+    "back_right": {"name": "Back-Right 45°",  "description": "Character facing 45 degrees right from back",    "rotation_y": 135,  "rotation_x": 0},
 }
 
 
@@ -83,161 +55,191 @@ def build_angle_prompt(
     char_name: str,
     char_description: str,
     char_palette: str,
+    char_palette_constraints: str,
     angle_key: str,
-    angle_info: dict
+    angle_info: dict,
+    art_style: str | None = None,
 ) -> str:
-    """Build JSON prompt for generating character at specific angle."""
-    
+    """Top-level natural-language directives first, structured JSON below.
+
+    Background is fully transparent — no chroma key. Art style comes from
+    the active preset in lib/art_styles unless overridden per-character.
+    """
+    from lib.art_styles import get_preset
+    preset = get_preset(art_style)
+
     prompt_data = {
-        "task": "edit_image_add_character_at_angle",
-        "instruction": f"Add a game character sprite to this green background at a specific viewing angle",
-        "character": {
-            "name": char_name,
-            "description": char_description
-        },
+        "task": "generate_character_at_angle",
+        "instruction": "Draw a single game character sprite, full-body, at the requested viewing angle, on a fully transparent background",
+        "character": {"name": char_name, "description": char_description},
         "viewing_angle": {
             "angle_name": angle_info["name"],
             "description": angle_info["description"],
             "rotation_y": angle_info["rotation_y"],
-            "rotation_x": angle_info["rotation_x"]
+            "rotation_x": angle_info["rotation_x"],
         },
-        "technical_requirements": {
-            "format": "pixel_art",
-            "keep_green_background": True,
-            "do_not_change_background": True,
-            "only_add_character": True,
-            "palette": char_palette,
-            "style": "16bit_retro_game_sprite"
-        },
+        "art_style": preset["style_name"],
+        "art_style_description": preset["style_description"],
+        "palette": char_palette or preset["palette_guidance"],
+        "palette_constraints": char_palette_constraints,
         "composition": {
             "pose": "standing_neutral_idle",
             "view_angle": angle_info["description"],
             "framing": "full_body_centered_in_frame",
             "character_centered": True,
-            "no_green_in_character": True,
-            "avoid_green_colors_in_sprite": True,
-            "clean_sprite_cutout": True,
-            "consistent_character_design": True
+            "consistent_character_design": True,
         },
+        "background": "TRANSPARENT (alpha=0) — output a PNG with native transparency, no painted background",
         "critical_instructions": [
-            "KEEP THE GREEN BACKGROUND UNCHANGED",
             f"Show character from {angle_info['name']} angle",
             f"Rotation: Y={angle_info['rotation_y']}°, X={angle_info['rotation_x']}°",
             "Character must be recognizable from this angle",
-            "Maintain consistent character design across all angles",
-            "Do NOT use green colors in the character"
-        ]
+            "Maintain consistent character design",
+            "Background is FULLY TRANSPARENT — every non-character pixel must have alpha = 0. Do NOT paint any background color (no green, no white, no sky, no ground). The PNG must have a real alpha channel.",
+            *preset.get("negative_directives", []),
+        ],
     }
 
     json_str = json.dumps(prompt_data, indent=2)
 
-    return f"""Edit this green background image by adding a character sprite at a specific angle:
+    return f"""Draw a single game character on a fully transparent canvas.
+
+ART STYLE (mandatory): {preset["style_description"]}
+
+Character: {char_name} — {char_description}
+View: {angle_info['name']} — character body rotated to rotation_y={angle_info['rotation_y']}°, rotation_x={angle_info['rotation_x']}° (no tilt). Standing neutral idle pose.
+
+{VIEWPORT_CONTRACT}
+Palette discipline:
+{char_palette_constraints or preset['palette_guidance']}
+
+Background is FULLY TRANSPARENT across the entire canvas. Do NOT paint a background color (no green, no white, no sky, no ground, no shadow). The PNG output must have a real alpha channel where every non-character pixel has alpha = 0. Subject pixels are fully opaque; everything else has alpha = 0.
+
+Structured spec for reference:
 
 {json_str}
+"""
 
-CRITICAL: Keep the green background (#00FF00) unchanged. Show the character from {angle_info['name']} (Y rotation: {angle_info['rotation_y']}°). The character must be recognizable and consistent with other angles."""
+
+def load_character(project_root: Path, char_id: str) -> dict:
+    sprites_file = project_root / "assets" / "sprites.json"
+    sprites_data = json.loads(sprites_file.read_text(encoding="utf-8"))
+    for sprite in sprites_data:
+        if sprite.get("id") == char_id:
+            return sprite
+    raise SystemExit(f"Character '{char_id}' not found in {sprites_file}")
+
+
+def pick_green_template(project_root: Path, source_resolution: int) -> Path:
+    """Pick the closest available green template for the source resolution.
+    Larger templates give Gemini more canvas to work with, so prefer the
+    biggest <= source_resolution; fall back to the largest available."""
+    available = sorted(
+        (int(p.stem.split("_")[1].split("x")[0]), p)
+        for p in (project_root / ".templates").glob("green_*.png")
+    )
+    if not available:
+        raise SystemExit(f"No green templates in {project_root / '.templates'}")
+    for size, path in reversed(available):
+        if size <= source_resolution:
+            return path
+    return available[-1][1]
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("char_id", help="Character ID (e.g., hero-knight)")
-    ap.add_argument("char_name", help="Character name (e.g., Sir Aldric)")
-    ap.add_argument("char_description", help="Character description")
-    ap.add_argument("char_palette", help="Art style/palette description")
-    ap.add_argument("--angles", nargs="+", default=["front", "side_left", "side_right", "back"],
-                    help="Angles to generate (default: front side_left side_right back)")
-    ap.add_argument("--seed", type=int, default=None)
+    ap.add_argument("char_id", help="Character ID (e.g., hero-knight) — must exist in assets/sprites.json")
+    ap.add_argument("--seed", type=int, default=None, help="Random seed (default: random)")
     args = ap.parse_args()
 
     project_root = find_project_root(Path.cwd())
+    char = load_character(project_root, args.char_id)
 
-    # Setup output directory - angles go in ref/angles subdirectory
-    ref_dir = project_root / "assets" / "characters" / args.char_id / "ref"
-    angles_dir = ref_dir / "angles"
-    angles_dir.mkdir(parents=True, exist_ok=True)
+    char_name = char["name"]
+    char_description = char.get("description", f"Character: {char_name}")
+    char_palette = char.get("palette", "")  # empty → preset's palette_guidance fills in
+    char_palette_constraints = char.get("palette_constraints", "")
+    art_style = char.get("art_style")  # None → project default preset
+    # Default to side_right so the character faces right (toward the level).
+    # Phaser's setFlipX(movingX < 0) idiom assumes the texture's natural
+    # facing direction is right; left-facing canonicals end up displayed
+    # backwards when standing or moving right.
+    canonical_angle = char.get("canonical_angle", "side_right")
+    source_resolution = int(char.get("source_resolution", 512))
+    working_resolution = int(char.get("working_resolution", 128))
 
-    # Get green template
-    template_path = project_root / ".templates" / "green_128x128.png"
-    if not template_path.exists():
-        print(f"Error: Green template not found at {template_path}", file=sys.stderr)
-        print("Run: python scripts/create_green_template.py", file=sys.stderr)
-        return 1
-
-    # Generate each angle
-    angles_metadata = {}
-    
-    print(f"Generating {len(args.angles)} angle(s) for {args.char_name}...")
-    
-    for angle_key in args.angles:
-        if angle_key not in STANDARD_ANGLES:
-            print(f"Warning: Unknown angle '{angle_key}', skipping", file=sys.stderr)
-            continue
-
-        angle_info = STANDARD_ANGLES[angle_key]
-        print(f"  - {angle_key}: {angle_info['name']}")
-
-        # Build prompt
-        prompt = build_angle_prompt(
-            args.char_name,
-            args.char_description,
-            args.char_palette,
-            angle_key,
-            angle_info
+    if canonical_angle not in STANDARD_ANGLES:
+        raise SystemExit(
+            f"Unknown canonical_angle '{canonical_angle}' for {args.char_id}. "
+            f"Known: {sorted(STANDARD_ANGLES.keys())}"
         )
 
-        # Generate image
-        img_bytes, seed_used = generate_image_with_edit(
-            prompt,
-            template_path,
-            [],
-            seed=args.seed,
-            resolution=128
-        )
+    angle_info = STANDARD_ANGLES[canonical_angle]
+    template_path = pick_green_template(project_root, source_resolution)
 
-        # Save image to angles subdirectory
-        out_path = angles_dir / f"{angle_key}.png"
-        out_path.write_bytes(img_bytes)
+    # Output layout: each artifact is its own folder.
+    char_root = project_root / "assets" / "characters" / args.char_id
+    source_dir = char_root / "ref" / "source"
+    canonical_dir = char_root / "ref" / "canonical"
+    source_dir.mkdir(parents=True, exist_ok=True)
+    canonical_dir.mkdir(parents=True, exist_ok=True)
 
-        # Save prompt
-        prompt_path = angles_dir / f"{angle_key}.prompt.txt"
-        prompt_path.write_text(prompt, encoding="utf-8")
-
-        # Save seed
-        seed_path = angles_dir / f"{angle_key}.seed.txt"
-        seed_path.write_text(str(seed_used), encoding="utf-8")
-
-        # Store metadata
-        angles_metadata[angle_key] = {
-            "name": angle_info["name"],
-            "description": angle_info["description"],
-            "rotation_y": angle_info["rotation_y"],
-            "rotation_x": angle_info["rotation_x"],
-            "file": f"{angle_key}.png",
-            "seed": seed_used
-        }
-
-        print(f"    wrote {angle_key}.png  seed={seed_used}")
-
-    # Save angles metadata to angles subdirectory
-    angles_json_path = angles_dir / "angles.json"
-    angles_json_path.write_text(json.dumps(angles_metadata, indent=2), encoding="utf-8")
-
-    # Save character spec
-    spec_path = ref_dir.parent / "SPEC.md"
-    spec_path.write_text(
-        f"# {args.char_name}\n\n"
-        f"**ID:** {args.char_id}\n"
-        f"**Palette:** {args.char_palette}\n\n"
-        f"## Description\n\n{args.char_description}\n\n"
-        f"## Reference Angles\n\n"
-        + "\n".join([f"- **{info['name']}** (Y: {info['rotation_y']}°): `{info['file']}`" 
-                     for info in angles_metadata.values()]),
-        encoding="utf-8"
+    # Build the prompt and call Gemini once, at source_resolution.
+    prompt = build_angle_prompt(
+        char_name, char_description, char_palette, char_palette_constraints,
+        canonical_angle, angle_info, art_style=art_style,
     )
 
-    print(f"\nGenerated {len(angles_metadata)} angle reference(s) for {args.char_name}")
-    print(f"Metadata saved to: {angles_json_path.relative_to(project_root)}")
+    print(f"[{args.char_id}] generating {canonical_angle} reference at {source_resolution}x{source_resolution} (template={template_path.name})", file=sys.stderr)
+    img_bytes, seed_used = generate_image_with_edit(
+        prompt,
+        template_path,
+        [],
+        seed=args.seed,
+        resolution=source_resolution,
+    )
 
+    # Write source artifact (PNG + prompt + seed).
+    source_png = source_dir / "source.png"
+    source_png.write_bytes(img_bytes)
+    (source_dir / "source.prompt.txt").write_text(prompt, encoding="utf-8")
+    (source_dir / "source.seed.txt").write_text(str(seed_used), encoding="utf-8")
+    print(f"  wrote {source_png.relative_to(project_root)} (seed={seed_used})", file=sys.stderr)
+
+    # Derive canonical (downsized) from source. Pure local operation, no API.
+    src_img = Image.open(io.BytesIO(img_bytes)).convert("RGBA")
+    canonical_img = src_img.resize((working_resolution, working_resolution), Image.LANCZOS)
+    canonical_png = canonical_dir / "canonical.png"
+    canonical_buf = io.BytesIO()
+    canonical_img.save(canonical_buf, format="PNG")
+    canonical_png.write_bytes(canonical_buf.getvalue())
+    (canonical_dir / "derived-from.txt").write_text(
+        f"derived from: ../source/source.png\n"
+        f"resize: {source_resolution}x{source_resolution} -> {working_resolution}x{working_resolution} (LANCZOS)\n"
+        f"source seed: {seed_used}\n",
+        encoding="utf-8",
+    )
+    print(f"  wrote {canonical_png.relative_to(project_root)} (downsized {source_resolution}->{working_resolution})", file=sys.stderr)
+
+    # Manifest captures the locked viewport everything else inherits.
+    manifest = {
+        "char_id": args.char_id,
+        "char_name": char_name,
+        "canonical_angle": canonical_angle,
+        "rotation_y": angle_info["rotation_y"],
+        "rotation_x": angle_info["rotation_x"],
+        "source_resolution": source_resolution,
+        "working_resolution": working_resolution,
+        "source_seed": seed_used,
+    }
+    manifest_path = char_root / "ref" / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    print(f"  wrote {manifest_path.relative_to(project_root)}", file=sys.stderr)
+
+    # The converge runner treats wbs.type=shell as a task seeder and parses
+    # stdout as JSON. We do the work directly and have no children to spawn —
+    # emitting nothing on stdout makes the runner log "no tasks to spawn" and
+    # continue (emitting "[]" trips the "spawned 0 tasks → repair" path).
     return 0
 
 

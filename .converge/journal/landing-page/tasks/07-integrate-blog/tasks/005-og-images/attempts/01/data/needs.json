@@ -1,0 +1,9 @@
+{
+  "taskId": "07-integrate-blog/005-og-images",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "apps/landing/src/pages/og/[slug].png.ts"
+  ],
+  "blocked": false
+}

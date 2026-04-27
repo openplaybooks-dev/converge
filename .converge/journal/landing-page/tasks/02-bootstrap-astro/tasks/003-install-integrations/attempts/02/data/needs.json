@@ -1,0 +1,17 @@
+{
+  "taskId": "02-bootstrap-astro/003-install-integrations",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "apps/landing/package.json",
+      "count": 1,
+      "samples": [
+        "apps/landing/package.json"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/package.json"
+  ],
+  "blocked": false
+}

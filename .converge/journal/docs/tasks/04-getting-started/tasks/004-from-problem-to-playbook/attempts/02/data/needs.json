@@ -1,0 +1,24 @@
+{
+  "taskId": "04-getting-started/004-from-problem-to-playbook",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "docs/_examples.json",
+      "count": 1,
+      "samples": [
+        "docs/_examples.json"
+      ]
+    },
+    {
+      "pattern": "examples",
+      "count": 1,
+      "samples": [
+        "examples"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/getting-started/from-problem-to-playbook.md"
+  ],
+  "blocked": false
+}

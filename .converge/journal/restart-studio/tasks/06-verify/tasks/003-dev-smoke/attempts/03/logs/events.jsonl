@@ -1,0 +1,1 @@
+{"timestamp":"2026-04-26T11:12:40.389Z","eventType":"CLAUDEFN_START","level":"task","scope":"restart-studio.06-verify/003-dev-smoke","message":"claudefn run_task: Boot dev server, verify root redirect and /playbooks 200","metadata":{"phase":"run_task"}}

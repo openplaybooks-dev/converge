@@ -1,0 +1,21 @@
+{
+  "type": "task",
+  "id": "002-implement",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T23:04:30.696Z",
+  "createdAt": "2026-04-26T01:19:09.344Z",
+  "progress": {
+    "totalChildren": 6,
+    "completedChildren": 2,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-plan",
+      "001-plan",
+      "002-todos",
+      "002-todos",
+      "003-verify",
+      "003-verify"
+    ],
+    "lastProgressUpdate": "2026-04-26T23:04:30.621Z"
+  }
+}

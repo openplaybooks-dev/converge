@@ -1,0 +1,9 @@
+{
+  "taskId": "07-integrate-blog/004-rss-feed",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "apps/landing/src/pages/rss.xml.ts"
+  ],
+  "blocked": false
+}

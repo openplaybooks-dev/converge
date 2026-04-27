@@ -1,0 +1,131 @@
+name: docs
+description: |
+  Authoritative documentation generator for the Converge framework.
+
+  Re-runnable: every time framework code changes (CLI flags, schemas,
+  exported APIs, new examples), re-run this playbook to refresh docs/
+  from source. The output at docs/ is the single source of truth that
+  both human readers and the landing-page playbook (Starlight /docs route)
+  consume.
+
+  Audience model:
+    - Primary: a non-technical user with a real-world problem who needs to
+      turn it into a playbook. They land in Getting Started, then jump to
+      Examples to find the closest match, then tweak.
+    - Secondary: a technical user who wants to understand internals, switch
+      providers, debug a stuck run, or read CLI / schema reference.
+
+  How it stays accurate:
+    - Every doc page declares its `sources:` (files in packages/, examples/,
+      README.md) in frontmatter.
+    - Phase 10-cross-validate re-reads each declared source on every run
+      and fails any page whose claims drifted from the code.
+    - The IA lives in one file (docs/_ia.json) consumed by the landing page.
+
+  This playbook owns docs/ entirely. Pre-existing files are archived to
+  docs/_internal/ in phase 01-archive-existing on first run; subsequent
+  runs are no-ops because the archive already exists.
+
+  Inputs:
+    - packages/cli/src/main.ts        CLI command surface
+    - packages/cli/src/commands*.ts   per-command implementations
+    - packages/core/src/index.ts      public API exports
+    - packages/core/package.json      exports map
+    - examples/                       canonical playbooks for the gallery + tutorial material
+    - skills/converge-control/troubleshooting/playbook.md   troubleshooting recipes
+    - README.md                       project intro
+    - CHANGELOG.md                    version history
+
+  Outputs: docs/ (markdown only — Starlight-ready frontmatter, no .astro).
+
+run:
+  mode: oneoff
+  maxIterations: 250
+  maxTaskAttempts: 3
+  maxDuration: 6h
+  resume: true
+  stall:
+    maxConsecutive: 3
+    backoffMs: 30000
+
+tasks:
+  - id: 01-archive-existing
+  - id: 02-source-scan
+    depends_on: [01-archive-existing]
+  - id: 03-ia
+    depends_on: [02-source-scan]
+  - id: 04-getting-started
+    depends_on: [03-ia]
+  - id: 05-examples
+    depends_on: [03-ia]
+  - id: 06-guides
+    depends_on: [03-ia, 05-examples]
+  - id: 07-troubleshooting
+    depends_on: [03-ia]
+  - id: 08-reference
+    depends_on: [03-ia]
+  - id: 09-concepts
+    depends_on: [03-ia]
+  - id: 10-cross-validate
+    depends_on:
+      - 04-getting-started
+      - 05-examples
+      - 06-guides
+      - 07-troubleshooting
+      - 08-reference
+      - 09-concepts
+  - id: 11-index-and-redirects
+    depends_on: [10-cross-validate]
+
+checks:
+  - id: ia-manifest-exists
+    cmd: "test -f docs/_ia.json && node -e \"JSON.parse(require('fs').readFileSync('docs/_ia.json','utf8'))\""
+    description: docs/_ia.json exists and is valid JSON
+  - id: sources-manifest-exists
+    cmd: "test -f docs/_sources.json && node -e \"JSON.parse(require('fs').readFileSync('docs/_sources.json','utf8'))\""
+    description: docs/_sources.json (cross-validation map) exists and is valid JSON
+  - id: examples-manifest-exists
+    cmd: "test -f docs/_examples.json && node -e \"const e=JSON.parse(require('fs').readFileSync('docs/_examples.json','utf8'));process.exit(Array.isArray(e)&&e.length>=15?0:1)\""
+    description: docs/_examples.json exists and lists at least 15 examples
+  - id: index-page-exists
+    cmd: "test -f docs/index.md"
+    description: docs/index.md exists (root landing page)
+  - id: getting-started-complete
+    cmd: "test $(find docs/getting-started -maxdepth 1 -name '*.md' | wc -l) -ge 5"
+    description: at least 5 Getting Started pages (why, install, first playbook, problem-to-playbook, next-steps)
+  - id: getting-started-problem-to-playbook
+    cmd: "test -f docs/getting-started/from-problem-to-playbook.md"
+    description: the non-technical 'from your problem to a playbook' page exists
+  - id: examples-gallery-exists
+    cmd: "test -f docs/examples/index.md && test $(find docs/examples -maxdepth 2 -name '*.md' | wc -l) -ge 16"
+    description: examples gallery hub plus at least 15 per-example pages exist
+  - id: guides-problem-shaped
+    cmd: "test $(find docs/guides -maxdepth 1 -name '*.md' | wc -l) -ge 6"
+    description: at least 6 problem-shaped guides
+  - id: troubleshooting-complete
+    cmd: "test -f docs/troubleshooting/index.md && test $(find docs/troubleshooting -maxdepth 1 -name '*.md' | wc -l) -ge 10"
+    description: troubleshooting index plus at least 9 symptom pages exist
+  - id: reference-cli-populated
+    cmd: "test -d docs/reference/cli && test $(find docs/reference/cli -name '*.md' | wc -l) -ge 5"
+    description: at least 5 CLI reference pages (one per command)
+  - id: reference-schemas-complete
+    cmd: "test -f docs/reference/playbook-yml.md && test -f docs/reference/task-md.md && test -f docs/reference/project-yml.md"
+    description: all 3 schema reference pages exist
+  - id: concepts-complete
+    cmd: "test -f docs/concepts/gap-driven-model.md && test -f docs/concepts/filesystem-as-plan.md && test -f docs/concepts/self-correction.md"
+    description: all 3 Concepts pages exist
+  - id: every-page-has-sources
+    cmd: "node .converge/playbooks/docs/scripts/check-frontmatter.mjs sources"
+    description: every docs/**/*.md page declares at least one source
+  - id: every-page-has-title
+    cmd: "node .converge/playbooks/docs/scripts/check-frontmatter.mjs title"
+    description: every docs/**/*.md page has a title in frontmatter
+  - id: cross-validation-passes
+    cmd: "node .converge/playbooks/docs/scripts/validate-docs.mjs"
+    description: every page's claims match its declared sources (AI-assisted)
+  - id: archived-internals
+    cmd: "test -d docs/_internal"
+    description: docs/_internal/ exists (archive directory present, even if empty)
+  - id: redirects-file-exists
+    cmd: "test -f docs/_redirects.json && node -e \"JSON.parse(require('fs').readFileSync('docs/_redirects.json','utf8'))\""
+    description: redirects manifest exists

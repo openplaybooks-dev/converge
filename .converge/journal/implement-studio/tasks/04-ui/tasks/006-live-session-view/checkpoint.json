@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "04-ui/006-live-session-view",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T06:58:28.067Z",
+  "createdAt": "2026-04-26T06:58:19.923Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T06:58:19.923Z",
+      "completedAt": "2026-04-26T06:58:28.065Z",
+      "outcome": "success",
+      "durationMs": 8142
+    }
+  ],
+  "currentAttempt": 1
+}

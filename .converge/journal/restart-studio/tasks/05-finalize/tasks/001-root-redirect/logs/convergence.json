@@ -1,0 +1,247 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "05-finalize/001-root-redirect-missing-output-packages/studio/src/app/page.tsx",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-finalize/001-root-redirect",
+            "severity": "high",
+            "description": "[05-finalize/001-root-redirect] Task output not created: packages/studio/src/app/page.tsx",
+            "source": "unit",
+            "detected": "2026-04-26T10:07:53.013Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/05-finalize/tasks/001-root-redirect",
+              "taskId": "05-finalize/001-root-redirect",
+              "taskTitle": "Make / redirect to /playbooks",
+              "taskPrompt": "```tsx\nimport { redirect } from 'next/navigation';\n\nexport default function RootPage(): never {\n  redirect('/playbooks');\n}\n```\n\nThat's the entire file. Server-side redirect; the user never sees a flash of any other page at `/`.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"packages/studio/src/app/page.tsx\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "05-finalize/001-root-redirect-check-failed-page-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-finalize/001-root-redirect",
+            "severity": "high",
+            "description": "[05-finalize/001-root-redirect] Check failed: src/app/page.tsx exists",
+            "source": "unit",
+            "detected": "2026-04-26T10:07:53.015Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "page-exists",
+              "checkCmd": "test -f packages/studio/src/app/page.tsx",
+              "checkDescription": "src/app/page.tsx exists",
+              "checkOutput": "Command failed: test -f packages/studio/src/app/page.tsx\n",
+              "checkExitCode": 1,
+              "taskPrompt": "```tsx\nimport { redirect } from 'next/navigation';\n\nexport default function RootPage(): never {\n  redirect('/playbooks');\n}\n```\n\nThat's the entire file. Server-side redirect; the user never sees a flash of any other page at `/`.",
+              "taskId": "05-finalize/001-root-redirect",
+              "taskTitle": "Make / redirect to /playbooks",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/05-finalize/tasks/001-root-redirect",
+              "factId": "check:page-exists"
+            }
+          },
+          {
+            "id": "05-finalize/001-root-redirect-check-failed-redirect-to-playbooks",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-finalize/001-root-redirect",
+            "severity": "high",
+            "description": "[05-finalize/001-root-redirect] Check failed: page.tsx redirects to /playbooks",
+            "source": "unit",
+            "detected": "2026-04-26T10:07:53.019Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "redirect-to-playbooks",
+              "checkCmd": "grep -q 'next/navigation' packages/studio/src/app/page.tsx && grep -q 'redirect' packages/studio/src/app/page.tsx && grep -q '/playbooks' packages/studio/src/app/page.tsx",
+              "checkDescription": "page.tsx redirects to /playbooks",
+              "checkOutput": "grep: packages/studio/src/app/page.tsx: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "```tsx\nimport { redirect } from 'next/navigation';\n\nexport default function RootPage(): never {\n  redirect('/playbooks');\n}\n```\n\nThat's the entire file. Server-side redirect; the user never sees a flash of any other page at `/`.",
+              "taskId": "05-finalize/001-root-redirect",
+              "taskTitle": "Make / redirect to /playbooks",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/05-finalize/tasks/001-root-redirect",
+              "factId": "check:redirect-to-playbooks"
+            }
+          }
+        ],
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 18
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#24",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 40013
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T10:07:53.009Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T10:07:53.010Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T10:07:53.019Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T10:07:53.020Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T10:07:53.027Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#24",
+      "iteration": 1,
+      "ts": "2026-04-26T10:08:33.040Z"
+    },
+    {
+      "from": "run-strategy:task-run#24",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T10:08:33.059Z"
+    }
+  ]
+}

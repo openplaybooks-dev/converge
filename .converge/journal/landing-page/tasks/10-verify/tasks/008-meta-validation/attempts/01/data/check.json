@@ -1,0 +1,25 @@
+{
+  "taskId": "10-verify/008-meta-validation",
+  "checks": [
+    {
+      "id": "meta-validation",
+      "description": "all required meta tags present in dist/index.html",
+      "cmd": "node .converge/playbooks/landing-page/scripts/check-meta-validation.mjs"
+    },
+    {
+      "id": "sitemap-exists",
+      "description": "sitemap.xml is emitted",
+      "cmd": "test -d apps/landing/dist && (test -f apps/landing/dist/sitemap-index.xml || test -f apps/landing/dist/sitemap.xml)"
+    },
+    {
+      "id": "robots-exists",
+      "description": "robots.txt is emitted",
+      "cmd": "test -f apps/landing/dist/robots.txt"
+    },
+    {
+      "id": "og-default-shipped",
+      "description": "default OG image is in dist",
+      "cmd": "test -d apps/landing/dist && (test -f apps/landing/dist/og.png || test -f apps/landing/dist/og/default.png)"
+    }
+  ]
+}

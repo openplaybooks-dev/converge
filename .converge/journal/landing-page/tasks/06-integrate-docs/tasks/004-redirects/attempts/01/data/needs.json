@@ -1,0 +1,17 @@
+{
+  "taskId": "06-integrate-docs/004-redirects",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "docs/_redirects.json",
+      "count": 1,
+      "samples": [
+        "docs/_redirects.json"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/public/_redirects"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "09-polish/003-image-opt",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T20:22:15.541Z",
+  "createdAt": "2026-04-26T20:21:44.362Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T20:21:44.362Z",
+      "completedAt": "2026-04-26T20:22:15.498Z",
+      "outcome": "success",
+      "durationMs": 31136
+    }
+  ],
+  "currentAttempt": 1
+}

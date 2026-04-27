@@ -1,0 +1,17 @@
+{
+  "taskId": "02-bootstrap-astro/005-cloudflare-adapter",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "apps/landing/.content/brand.json",
+      "count": 1,
+      "samples": [
+        "apps/landing/.content/brand.json"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/astro.config.mjs"
+  ],
+  "blocked": false
+}

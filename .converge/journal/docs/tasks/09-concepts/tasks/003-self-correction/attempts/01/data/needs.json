@@ -1,0 +1,24 @@
+{
+  "taskId": "09-concepts/003-self-correction",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "packages/core/src/journal/types.ts",
+      "count": 1,
+      "samples": [
+        "packages/core/src/journal/types.ts"
+      ]
+    },
+    {
+      "pattern": "packages/core/src/index.ts",
+      "count": 1,
+      "samples": [
+        "packages/core/src/index.ts"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/concepts/self-correction.md"
+  ],
+  "blocked": false
+}

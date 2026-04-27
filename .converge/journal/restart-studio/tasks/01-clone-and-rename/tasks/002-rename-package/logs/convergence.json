@@ -1,0 +1,225 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-clone-and-rename/002-rename-package-check-failed-package-name",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-clone-and-rename/002-rename-package",
+            "severity": "high",
+            "description": "[01-clone-and-rename/002-rename-package] Check failed: package.json name is @converge/studio",
+            "source": "unit",
+            "detected": "2026-04-26T09:35:59.054Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "package-name",
+              "checkCmd": "node -e \"process.exit(require('./packages/studio/package.json').name==='@converge/studio'?0:1)\"",
+              "checkDescription": "package.json name is @converge/studio",
+              "checkOutput": "Command failed: node -e \"process.exit(require('./packages/studio/package.json').name==='@converge/studio'?0:1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Edit `packages/studio/package.json`:\n- `name` → `\"@converge/studio\"`\n- `version` → `\"0.1.0\"`\n- `private` → `true`\n- `type` → `\"module\"`\n- Ensure scripts: `dev`, `build`, `start`, `typecheck`\n- Add to `dependencies`:\n  - `\"@converge/core\": \"workspace:*\"`\n  - `\"@converge/project-root\": \"workspace:*\"`\n  - `\"chokidar\": \"^4.0.0\"`\n  - `\"gray-matter\": \"^4.0.3\"`\n  - `\"yaml\": \"^2.7.0\"`\n  - `\"uuid\": \"^11.0.3\"`\n  - `\"@monaco-editor/react\": \"^4.6.0\"`\n\nKeep upstream's existing deps (next, react, etc.).",
+              "taskId": "01-clone-and-rename/002-rename-package",
+              "taskTitle": "Rename package to @converge/studio with workspace deps",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/01-clone-and-rename/tasks/002-rename-package",
+              "factId": "check:package-name"
+            }
+          },
+          {
+            "id": "01-clone-and-rename/002-rename-package-check-failed-workspace-deps",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-clone-and-rename/002-rename-package",
+            "severity": "high",
+            "description": "[01-clone-and-rename/002-rename-package] Check failed: Has @converge/core and @converge/project-root as workspace deps",
+            "source": "unit",
+            "detected": "2026-04-26T09:35:59.077Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "workspace-deps",
+              "checkCmd": "node -e \"const p=require('./packages/studio/package.json');const d={...p.dependencies,...p.devDependencies};process.exit(d['@converge/core']==='workspace:*'&&d['@converge/project-root']==='workspace:*'?0:1)\"",
+              "checkDescription": "Has @converge/core and @converge/project-root as workspace deps",
+              "checkOutput": "Command failed: node -e \"const p=require('./packages/studio/package.json');const d={...p.dependencies,...p.devDependencies};process.exit(d['@converge/core']==='workspace:*'&&d['@converge/project-root']==='workspace:*'?0:1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Edit `packages/studio/package.json`:\n- `name` → `\"@converge/studio\"`\n- `version` → `\"0.1.0\"`\n- `private` → `true`\n- `type` → `\"module\"`\n- Ensure scripts: `dev`, `build`, `start`, `typecheck`\n- Add to `dependencies`:\n  - `\"@converge/core\": \"workspace:*\"`\n  - `\"@converge/project-root\": \"workspace:*\"`\n  - `\"chokidar\": \"^4.0.0\"`\n  - `\"gray-matter\": \"^4.0.3\"`\n  - `\"yaml\": \"^2.7.0\"`\n  - `\"uuid\": \"^11.0.3\"`\n  - `\"@monaco-editor/react\": \"^4.6.0\"`\n\nKeep upstream's existing deps (next, react, etc.).",
+              "taskId": "01-clone-and-rename/002-rename-package",
+              "taskTitle": "Rename package to @converge/studio with workspace deps",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/01-clone-and-rename/tasks/002-rename-package",
+              "factId": "check:workspace-deps"
+            }
+          }
+        ],
+        "durationMs": 104
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 49
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 100
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#2",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 47211
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T09:35:58.973Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T09:35:58.974Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T09:35:59.078Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T09:35:59.079Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T09:35:59.128Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#2",
+      "iteration": 1,
+      "ts": "2026-04-26T09:36:46.341Z"
+    },
+    {
+      "from": "run-strategy:task-run#2",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T09:36:46.441Z"
+    }
+  ]
+}

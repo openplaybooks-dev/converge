@@ -1,0 +1,24 @@
+{
+  "taskId": "08-reference/005-core-api",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "packages/core/src/index.ts",
+      "count": 1,
+      "samples": [
+        "packages/core/src/index.ts"
+      ]
+    },
+    {
+      "pattern": "packages/core/package.json",
+      "count": 1,
+      "samples": [
+        "packages/core/package.json"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/reference/core-api.md"
+  ],
+  "blocked": false
+}

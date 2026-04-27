@@ -1,0 +1,299 @@
+{
+  "iteration": 2,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3844
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-ui/010-shell-and-branding-missing-output-packages/converge-studio/src/components/layout/site-header.tsx",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/010-shell-and-branding",
+            "severity": "high",
+            "description": "[04-ui/010-shell-and-branding] Task output not created: packages/converge-studio/src/components/layout/site-header.tsx",
+            "source": "unit",
+            "detected": "2026-04-26T08:07:18.156Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/010-shell-and-branding",
+              "taskId": "04-ui/010-shell-and-branding",
+              "taskTitle": "Slim app shell, converge branding, minimal nav",
+              "taskPrompt": "The legacy `layout.tsx` mounts a Mission Control onboarding wizard, three banner stacks (LocalMode / Update / OpenClaw), a project-manager modal, and an exec-approval overlay. None of that belongs in a converge-only studio. Replace with a minimal shell.\n\n**Rewrite `src/app/layout.tsx`** to:\n- Keep: `next-intl` provider + `getLocale` / `getMessages` server boot, `next-themes` ThemeProvider, the font setup, `<html lang>` + `<body>` skeleton, the no-FOUC inline theme script.\n- Drop: `OnboardingWizard`, `ProjectManagerModal`, `ExecApprovalOverlay`, `LocalModeBanner`, `UpdateBanner`, `OpenClawUpdateBanner`, `OpenClawDoctorBanner`, `NavRail`, `HeaderBar`, `LiveFeed`, `useWebSocket`, `useServerEvents`, `useMissionControl` (the legacy Zustand store), `OrchestrationBar`, `Loader` boot screen.\n- Mount: a new `<SiteHeader />` (described below) above `{children}`, nothing else.\n- Metadata: `title: 'converge — playbooks'`, `description: 'Web UI for managing converge playbooks, tasks, and runs.'`, no `appleWebApp.title: 'Mission Control'`, no Mission Control OG tags.\n- Icons: investigate whether converge brand assets exist (look in `packages/cli/`, `packages/core/`, repo root). If yes, reference them; if no, drop the icon set down to a single favicon and a TODO.\n\n**Add `src/components/layout/site-header.tsx`** (≤ 60 LOC):\n- A flex row with the converge wordmark (text only is fine if no asset exists) on the left.\n- Three nav links on the right: `Playbooks` → `/`, `Runs` → `/runs`, `Settings` → `/settings` (route may not exist yet — that's acceptable; it 404s harmlessly).\n- A small `<LiveActivity />` indicator (from task 009) on the far right, showing connection state with a colored dot. Optional; keep it minimal.\n- Use `usePathname()` to mark the current section.\n\n**Verification:**\n- `grep -ri 'mission control' packages/converge-studio/src packages/converge-studio/messages` returns nothing.\n- `pnpm --filter @converge/studio dev` boots; `curl -s http://localhost:4000/` returns 200; the body contains `converge` and the literal `Playbooks` from the nav.\n- DevTools console on `/` shows no errors about missing components, missing translations, or missing icons.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/components/layout/site-header.tsx\"",
+              "awaitingUserInput": false
+            }
+          }
+        ],
+        "durationMs": 3383
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-ui/010-shell-and-branding-check-failed-typecheck-passes",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/010-shell-and-branding",
+            "severity": "high",
+            "description": "[04-ui/010-shell-and-branding] Check failed: Studio still typechecks",
+            "source": "unit",
+            "detected": "2026-04-26T08:08:37.228Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "typecheck-passes",
+              "checkCmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq",
+              "checkDescription": "Studio still typechecks",
+              "checkOutput": "Command failed: pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq\n",
+              "checkExitCode": 1,
+              "taskPrompt": "The legacy `layout.tsx` mounts a Mission Control onboarding wizard, three banner stacks (LocalMode / Update / OpenClaw), a project-manager modal, and an exec-approval overlay. None of that belongs in a converge-only studio. Replace with a minimal shell.\n\n**Rewrite `src/app/layout.tsx`** to:\n- Keep: `next-intl` provider + `getLocale` / `getMessages` server boot, `next-themes` ThemeProvider, the font setup, `<html lang>` + `<body>` skeleton, the no-FOUC inline theme script.\n- Drop: `OnboardingWizard`, `ProjectManagerModal`, `ExecApprovalOverlay`, `LocalModeBanner`, `UpdateBanner`, `OpenClawUpdateBanner`, `OpenClawDoctorBanner`, `NavRail`, `HeaderBar`, `LiveFeed`, `useWebSocket`, `useServerEvents`, `useMissionControl` (the legacy Zustand store), `OrchestrationBar`, `Loader` boot screen.\n- Mount: a new `<SiteHeader />` (described below) above `{children}`, nothing else.\n- Metadata: `title: 'converge — playbooks'`, `description: 'Web UI for managing converge playbooks, tasks, and runs.'`, no `appleWebApp.title: 'Mission Control'`, no Mission Control OG tags.\n- Icons: investigate whether converge brand assets exist (look in `packages/cli/`, `packages/core/`, repo root). If yes, reference them; if no, drop the icon set down to a single favicon and a TODO.\n\n**Add `src/components/layout/site-header.tsx`** (≤ 60 LOC):\n- A flex row with the converge wordmark (text only is fine if no asset exists) on the left.\n- Three nav links on the right: `Playbooks` → `/`, `Runs` → `/runs`, `Settings` → `/settings` (route may not exist yet — that's acceptable; it 404s harmlessly).\n- A small `<LiveActivity />` indicator (from task 009) on the far right, showing connection state with a colored dot. Optional; keep it minimal.\n- Use `usePathname()` to mark the current section.\n\n**Verification:**\n- `grep -ri 'mission control' packages/converge-studio/src packages/converge-studio/messages` returns nothing.\n- `pnpm --filter @converge/studio dev` boots; `curl -s http://localhost:4000/` returns 200; the body contains `converge` and the literal `Playbooks` from the nav.\n- DevTools console on `/` shows no errors about missing components, missing translations, or missing icons.",
+              "taskId": "04-ui/010-shell-and-branding",
+              "taskTitle": "Slim app shell, converge branding, minimal nav",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/010-shell-and-branding",
+              "factId": "check:typecheck-passes"
+            }
+          }
+        ],
+        "durationMs": 3175
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 72515
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "Outputs already present",
+        "durationMs": 3271
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T08:07:14.305Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T08:07:18.150Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T08:07:21.533Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T08:07:21.534Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T08:07:21.538Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-04-26T08:08:34.053Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T08:08:37.229Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-26T08:08:37.230Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-26T08:08:37.231Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-26T08:08:37.231Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-26T08:08:40.503Z"
+    }
+  ]
+}

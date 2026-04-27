@@ -1,0 +1,299 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "11-index-and-redirects/001-index-missing-output-docs/index.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "11-index-and-redirects/001-index",
+            "severity": "high",
+            "description": "[11-index-and-redirects/001-index] Task output not created: docs/index.md",
+            "source": "unit",
+            "detected": "2026-04-26T10:04:35.087Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/11-index-and-redirects/tasks/001-index",
+              "taskId": "11-index-and-redirects/001-index",
+              "taskTitle": "Write docs/index.md (root landing)",
+              "taskPrompt": "# Write `docs/index.md`\n\nRoot of the docs site. What users land on at `/docs`.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Converge\"\ndescription: \"Define done. Converge gets there.\"\n---\n```\n\n(No `sources:` — this is a hub, not a content page. The `validate-docs`\nscript skips `docs/index.md`.)\n\n## Required structure\n\nA short hello + six entry points (one per top-level group from\n`docs/_ia.json`). Order: Getting Started, Examples, Guides,\nTroubleshooting, Reference, Concepts. Group the entry points into two\nclusters — \"Start here\" (the first three) and \"Go deeper / get\nunstuck\" (the last three).\n\n```markdown\n# Converge\n\n> Define done. Converge gets there.\n\nConverge is a TypeScript framework for AI workflows that runs gap-driven\ninstead of step-driven. You declare what \"done\" looks like; Converge closes\nthe gap.\n\n## Start here\n\n- **[Getting Started](./getting-started/why-converge)** — install and ship\n  your first playbook in five minutes.\n- **[Examples gallery](./examples/)** — 21 working playbooks across\n  software, research, creative work, security, and protocol demos.\n- **[Guides](./guides/articulate-your-goal)** — problem-shaped how-tos\n  (\"research a topic deeply\", \"build a software project\").\n\n## Go deeper / get unstuck\n\n- **[Troubleshooting](./troubleshooting/)** — symptom-indexed fixes for\n  stuck runs.\n- **[Reference](./reference/cli/)** — every CLI command and config\n  schema.\n- **[Concepts](./concepts/gap-driven-model)** — the mental model behind\n  the framework.\n```\n\n## Banned\n\n- A wall of feature claims. The reader is here to *navigate*.\n- More than six entry points. The IA has six groups; mirror that.\n- A \"What's new\" section. Belongs in CHANGELOG, not the docs root.\n- Linking to `_internal/` from the root.",
+              "taskInputs": [
+                "docs/_ia.json"
+              ],
+              "factId": "file-exists:test -f \"docs/index.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "11-index-and-redirects/001-index-check-failed-page-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "11-index-and-redirects/001-index",
+            "severity": "high",
+            "description": "[11-index-and-redirects/001-index] Check failed: page exists",
+            "source": "unit",
+            "detected": "2026-04-26T10:04:35.089Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "page-exists",
+              "checkCmd": "test -f docs/index.md",
+              "checkDescription": "page exists",
+              "checkOutput": "Command failed: test -f docs/index.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Write `docs/index.md`\n\nRoot of the docs site. What users land on at `/docs`.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Converge\"\ndescription: \"Define done. Converge gets there.\"\n---\n```\n\n(No `sources:` — this is a hub, not a content page. The `validate-docs`\nscript skips `docs/index.md`.)\n\n## Required structure\n\nA short hello + six entry points (one per top-level group from\n`docs/_ia.json`). Order: Getting Started, Examples, Guides,\nTroubleshooting, Reference, Concepts. Group the entry points into two\nclusters — \"Start here\" (the first three) and \"Go deeper / get\nunstuck\" (the last three).\n\n```markdown\n# Converge\n\n> Define done. Converge gets there.\n\nConverge is a TypeScript framework for AI workflows that runs gap-driven\ninstead of step-driven. You declare what \"done\" looks like; Converge closes\nthe gap.\n\n## Start here\n\n- **[Getting Started](./getting-started/why-converge)** — install and ship\n  your first playbook in five minutes.\n- **[Examples gallery](./examples/)** — 21 working playbooks across\n  software, research, creative work, security, and protocol demos.\n- **[Guides](./guides/articulate-your-goal)** — problem-shaped how-tos\n  (\"research a topic deeply\", \"build a software project\").\n\n## Go deeper / get unstuck\n\n- **[Troubleshooting](./troubleshooting/)** — symptom-indexed fixes for\n  stuck runs.\n- **[Reference](./reference/cli/)** — every CLI command and config\n  schema.\n- **[Concepts](./concepts/gap-driven-model)** — the mental model behind\n  the framework.\n```\n\n## Banned\n\n- A wall of feature claims. The reader is here to *navigate*.\n- More than six entry points. The IA has six groups; mirror that.\n- A \"What's new\" section. Belongs in CHANGELOG, not the docs root.\n- Linking to `_internal/` from the root.",
+              "taskId": "11-index-and-redirects/001-index",
+              "taskTitle": "Write docs/index.md (root landing)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/11-index-and-redirects/tasks/001-index",
+              "factId": "check:page-exists"
+            }
+          },
+          {
+            "id": "11-index-and-redirects/001-index-check-failed-links-to-getting-started",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "11-index-and-redirects/001-index",
+            "severity": "high",
+            "description": "[11-index-and-redirects/001-index] Check failed: links into Getting Started",
+            "source": "unit",
+            "detected": "2026-04-26T10:04:35.093Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "links-to-getting-started",
+              "checkCmd": "grep -qE 'getting-started/' docs/index.md",
+              "checkDescription": "links into Getting Started",
+              "checkOutput": "grep: docs/index.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Write `docs/index.md`\n\nRoot of the docs site. What users land on at `/docs`.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Converge\"\ndescription: \"Define done. Converge gets there.\"\n---\n```\n\n(No `sources:` — this is a hub, not a content page. The `validate-docs`\nscript skips `docs/index.md`.)\n\n## Required structure\n\nA short hello + six entry points (one per top-level group from\n`docs/_ia.json`). Order: Getting Started, Examples, Guides,\nTroubleshooting, Reference, Concepts. Group the entry points into two\nclusters — \"Start here\" (the first three) and \"Go deeper / get\nunstuck\" (the last three).\n\n```markdown\n# Converge\n\n> Define done. Converge gets there.\n\nConverge is a TypeScript framework for AI workflows that runs gap-driven\ninstead of step-driven. You declare what \"done\" looks like; Converge closes\nthe gap.\n\n## Start here\n\n- **[Getting Started](./getting-started/why-converge)** — install and ship\n  your first playbook in five minutes.\n- **[Examples gallery](./examples/)** — 21 working playbooks across\n  software, research, creative work, security, and protocol demos.\n- **[Guides](./guides/articulate-your-goal)** — problem-shaped how-tos\n  (\"research a topic deeply\", \"build a software project\").\n\n## Go deeper / get unstuck\n\n- **[Troubleshooting](./troubleshooting/)** — symptom-indexed fixes for\n  stuck runs.\n- **[Reference](./reference/cli/)** — every CLI command and config\n  schema.\n- **[Concepts](./concepts/gap-driven-model)** — the mental model behind\n  the framework.\n```\n\n## Banned\n\n- A wall of feature claims. The reader is here to *navigate*.\n- More than six entry points. The IA has six groups; mirror that.\n- A \"What's new\" section. Belongs in CHANGELOG, not the docs root.\n- Linking to `_internal/` from the root.",
+              "taskId": "11-index-and-redirects/001-index",
+              "taskTitle": "Write docs/index.md (root landing)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/11-index-and-redirects/tasks/001-index",
+              "factId": "check:links-to-getting-started"
+            }
+          },
+          {
+            "id": "11-index-and-redirects/001-index-check-failed-links-to-examples",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "11-index-and-redirects/001-index",
+            "severity": "high",
+            "description": "[11-index-and-redirects/001-index] Check failed: links into Examples gallery",
+            "source": "unit",
+            "detected": "2026-04-26T10:04:35.096Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "links-to-examples",
+              "checkCmd": "grep -qE 'examples/' docs/index.md",
+              "checkDescription": "links into Examples gallery",
+              "checkOutput": "grep: docs/index.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Write `docs/index.md`\n\nRoot of the docs site. What users land on at `/docs`.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Converge\"\ndescription: \"Define done. Converge gets there.\"\n---\n```\n\n(No `sources:` — this is a hub, not a content page. The `validate-docs`\nscript skips `docs/index.md`.)\n\n## Required structure\n\nA short hello + six entry points (one per top-level group from\n`docs/_ia.json`). Order: Getting Started, Examples, Guides,\nTroubleshooting, Reference, Concepts. Group the entry points into two\nclusters — \"Start here\" (the first three) and \"Go deeper / get\nunstuck\" (the last three).\n\n```markdown\n# Converge\n\n> Define done. Converge gets there.\n\nConverge is a TypeScript framework for AI workflows that runs gap-driven\ninstead of step-driven. You declare what \"done\" looks like; Converge closes\nthe gap.\n\n## Start here\n\n- **[Getting Started](./getting-started/why-converge)** — install and ship\n  your first playbook in five minutes.\n- **[Examples gallery](./examples/)** — 21 working playbooks across\n  software, research, creative work, security, and protocol demos.\n- **[Guides](./guides/articulate-your-goal)** — problem-shaped how-tos\n  (\"research a topic deeply\", \"build a software project\").\n\n## Go deeper / get unstuck\n\n- **[Troubleshooting](./troubleshooting/)** — symptom-indexed fixes for\n  stuck runs.\n- **[Reference](./reference/cli/)** — every CLI command and config\n  schema.\n- **[Concepts](./concepts/gap-driven-model)** — the mental model behind\n  the framework.\n```\n\n## Banned\n\n- A wall of feature claims. The reader is here to *navigate*.\n- More than six entry points. The IA has six groups; mirror that.\n- A \"What's new\" section. Belongs in CHANGELOG, not the docs root.\n- Linking to `_internal/` from the root.",
+              "taskId": "11-index-and-redirects/001-index",
+              "taskTitle": "Write docs/index.md (root landing)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/11-index-and-redirects/tasks/001-index",
+              "factId": "check:links-to-examples"
+            }
+          },
+          {
+            "id": "11-index-and-redirects/001-index-check-failed-links-to-troubleshooting",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "11-index-and-redirects/001-index",
+            "severity": "high",
+            "description": "[11-index-and-redirects/001-index] Check failed: links into Troubleshooting",
+            "source": "unit",
+            "detected": "2026-04-26T10:04:35.099Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "links-to-troubleshooting",
+              "checkCmd": "grep -qE 'troubleshooting/' docs/index.md",
+              "checkDescription": "links into Troubleshooting",
+              "checkOutput": "grep: docs/index.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Write `docs/index.md`\n\nRoot of the docs site. What users land on at `/docs`.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Converge\"\ndescription: \"Define done. Converge gets there.\"\n---\n```\n\n(No `sources:` — this is a hub, not a content page. The `validate-docs`\nscript skips `docs/index.md`.)\n\n## Required structure\n\nA short hello + six entry points (one per top-level group from\n`docs/_ia.json`). Order: Getting Started, Examples, Guides,\nTroubleshooting, Reference, Concepts. Group the entry points into two\nclusters — \"Start here\" (the first three) and \"Go deeper / get\nunstuck\" (the last three).\n\n```markdown\n# Converge\n\n> Define done. Converge gets there.\n\nConverge is a TypeScript framework for AI workflows that runs gap-driven\ninstead of step-driven. You declare what \"done\" looks like; Converge closes\nthe gap.\n\n## Start here\n\n- **[Getting Started](./getting-started/why-converge)** — install and ship\n  your first playbook in five minutes.\n- **[Examples gallery](./examples/)** — 21 working playbooks across\n  software, research, creative work, security, and protocol demos.\n- **[Guides](./guides/articulate-your-goal)** — problem-shaped how-tos\n  (\"research a topic deeply\", \"build a software project\").\n\n## Go deeper / get unstuck\n\n- **[Troubleshooting](./troubleshooting/)** — symptom-indexed fixes for\n  stuck runs.\n- **[Reference](./reference/cli/)** — every CLI command and config\n  schema.\n- **[Concepts](./concepts/gap-driven-model)** — the mental model behind\n  the framework.\n```\n\n## Banned\n\n- A wall of feature claims. The reader is here to *navigate*.\n- More than six entry points. The IA has six groups; mirror that.\n- A \"What's new\" section. Belongs in CHANGELOG, not the docs root.\n- Linking to `_internal/` from the root.",
+              "taskId": "11-index-and-redirects/001-index",
+              "taskTitle": "Write docs/index.md (root landing)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/11-index-and-redirects/tasks/001-index",
+              "factId": "check:links-to-troubleshooting"
+            }
+          }
+        ],
+        "durationMs": 22
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 16
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 24
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#9",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 51691
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T10:04:35.082Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T10:04:35.082Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T10:04:35.104Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T10:04:35.104Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T10:04:35.121Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#9",
+      "iteration": 1,
+      "ts": "2026-04-26T10:05:26.814Z"
+    },
+    {
+      "from": "run-strategy:task-run#9",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T10:05:26.839Z"
+    }
+  ]
+}

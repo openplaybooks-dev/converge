@@ -1,0 +1,9 @@
+{
+  "taskId": "05-finalize/003-next-config-workspace",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/studio/next.config.mjs"
+  ],
+  "blocked": false
+}

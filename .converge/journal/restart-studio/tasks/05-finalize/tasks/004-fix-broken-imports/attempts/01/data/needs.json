@@ -1,0 +1,9 @@
+{
+  "taskId": "05-finalize/004-fix-broken-imports",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    ".converge/studio-state/typecheck-fix.json"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,20 @@
+{
+  "taskId": "04-ui/001-prune-mc-pages",
+  "checks": [
+    {
+      "id": "agent-pages-removed",
+      "description": "Agent registry pages removed",
+      "cmd": "test -z \"$(find packages/converge-studio/src/app -type d \\( -iname 'agents' -o -iname 'agent-registry' \\) 2>/dev/null)\""
+    },
+    {
+      "id": "settings-pruned",
+      "description": "RBAC/multi-tenant settings pages removed",
+      "cmd": "test -z \"$(find packages/converge-studio/src/app -type d \\( -iname 'orgs' -o -iname 'users' -o -iname 'rbac' \\) 2>/dev/null)\""
+    },
+    {
+      "id": "build-or-typecheck-passes",
+      "description": "Studio still typechecks after deletions",
+      "cmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    }
+  ]
+}

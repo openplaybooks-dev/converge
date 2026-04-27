@@ -1,0 +1,267 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-api-routes/001-playbooks-routes-missing-output-packages/converge-studio/src/app/api/playbooks/route.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/001-playbooks-routes",
+            "severity": "high",
+            "description": "[03-api-routes/001-playbooks-routes] Task output not created: packages/converge-studio/src/app/api/playbooks/route.ts",
+            "source": "unit",
+            "detected": "2026-04-26T02:33:53.407Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/001-playbooks-routes",
+              "taskId": "03-api-routes/001-playbooks-routes",
+              "taskTitle": "/api/playbooks routes (list, create, read, update)",
+              "taskPrompt": "Implement the playbook collection and item routes.\n\n**`src/app/api/playbooks/route.ts`**:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { NextRequest, NextResponse } from 'next/server';\nimport { listPlaybooks, createPlaybook, type NewPlaybookSpec }\n  from '@/lib/converge-adapter';\n\nexport async function GET() {\n  const items = await listPlaybooks();\n  return NextResponse.json({ items });\n}\n\nexport async function POST(req: NextRequest) {\n  const body = (await req.json()) as NewPlaybookSpec;\n  // validate name shape, required fields\n  await createPlaybook(body);\n  return NextResponse.json({ ok: true, name: body.name }, { status: 201 });\n}\n```\n\n**`src/app/api/playbooks/[name]/route.ts`**:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { NextRequest, NextResponse } from 'next/server';\nimport { readPlaybook, writePlaybook } from '@/lib/converge-adapter';\n\nexport async function GET(_req: NextRequest, { params }: { params: { name: string } }) {\n  const { raw, parsed } = await readPlaybook(params.name);\n  return NextResponse.json({ raw, parsed });\n}\n\nexport async function PUT(req: NextRequest, { params }: { params: { name: string } }) {\n  const { yaml } = (await req.json()) as { yaml: string };\n  await writePlaybook(params.name, yaml);\n  return NextResponse.json({ ok: true });\n}\n```\n\n**Error handling**: wrap handlers in a small helper that catches errors, returns 4xx for validation errors (e.g. invalid YAML, name conflict) and 5xx for unexpected. Mission Control likely already has such a helper — use it if so, otherwise inline a small `withErrorHandling`.\n\n**Path alias** `@/` should already be configured in `tsconfig.json` from the upstream Mission Control. If not, add `\"paths\": { \"@/*\": [\"./src/*\"] }`.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/app/api/playbooks/route.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-api-routes/001-playbooks-routes-missing-output-packages/converge-studio/src/app/api/playbooks/[name]/route.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/001-playbooks-routes",
+            "severity": "high",
+            "description": "[03-api-routes/001-playbooks-routes] Task output not created: packages/converge-studio/src/app/api/playbooks/[name]/route.ts",
+            "source": "unit",
+            "detected": "2026-04-26T02:33:53.409Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/001-playbooks-routes",
+              "taskId": "03-api-routes/001-playbooks-routes",
+              "taskTitle": "/api/playbooks routes (list, create, read, update)",
+              "taskPrompt": "Implement the playbook collection and item routes.\n\n**`src/app/api/playbooks/route.ts`**:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { NextRequest, NextResponse } from 'next/server';\nimport { listPlaybooks, createPlaybook, type NewPlaybookSpec }\n  from '@/lib/converge-adapter';\n\nexport async function GET() {\n  const items = await listPlaybooks();\n  return NextResponse.json({ items });\n}\n\nexport async function POST(req: NextRequest) {\n  const body = (await req.json()) as NewPlaybookSpec;\n  // validate name shape, required fields\n  await createPlaybook(body);\n  return NextResponse.json({ ok: true, name: body.name }, { status: 201 });\n}\n```\n\n**`src/app/api/playbooks/[name]/route.ts`**:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { NextRequest, NextResponse } from 'next/server';\nimport { readPlaybook, writePlaybook } from '@/lib/converge-adapter';\n\nexport async function GET(_req: NextRequest, { params }: { params: { name: string } }) {\n  const { raw, parsed } = await readPlaybook(params.name);\n  return NextResponse.json({ raw, parsed });\n}\n\nexport async function PUT(req: NextRequest, { params }: { params: { name: string } }) {\n  const { yaml } = (await req.json()) as { yaml: string };\n  await writePlaybook(params.name, yaml);\n  return NextResponse.json({ ok: true });\n}\n```\n\n**Error handling**: wrap handlers in a small helper that catches errors, returns 4xx for validation errors (e.g. invalid YAML, name conflict) and 5xx for unexpected. Mission Control likely already has such a helper — use it if so, otherwise inline a small `withErrorHandling`.\n\n**Path alias** `@/` should already be configured in `tsconfig.json` from the upstream Mission Control. If not, add `\"paths\": { \"@/*\": [\"./src/*\"] }`.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/app/api/playbooks/[name]/route.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-api-routes/001-playbooks-routes-check-failed-routes-exist",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/001-playbooks-routes",
+            "severity": "high",
+            "description": "[03-api-routes/001-playbooks-routes] Check failed: Both route handlers exist",
+            "source": "unit",
+            "detected": "2026-04-26T02:33:53.411Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "routes-exist",
+              "checkCmd": "test -f packages/converge-studio/src/app/api/playbooks/route.ts && test -f 'packages/converge-studio/src/app/api/playbooks/[name]/route.ts'",
+              "checkDescription": "Both route handlers exist",
+              "checkOutput": "Command failed: test -f packages/converge-studio/src/app/api/playbooks/route.ts && test -f 'packages/converge-studio/src/app/api/playbooks/[name]/route.ts'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Implement the playbook collection and item routes.\n\n**`src/app/api/playbooks/route.ts`**:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { NextRequest, NextResponse } from 'next/server';\nimport { listPlaybooks, createPlaybook, type NewPlaybookSpec }\n  from '@/lib/converge-adapter';\n\nexport async function GET() {\n  const items = await listPlaybooks();\n  return NextResponse.json({ items });\n}\n\nexport async function POST(req: NextRequest) {\n  const body = (await req.json()) as NewPlaybookSpec;\n  // validate name shape, required fields\n  await createPlaybook(body);\n  return NextResponse.json({ ok: true, name: body.name }, { status: 201 });\n}\n```\n\n**`src/app/api/playbooks/[name]/route.ts`**:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { NextRequest, NextResponse } from 'next/server';\nimport { readPlaybook, writePlaybook } from '@/lib/converge-adapter';\n\nexport async function GET(_req: NextRequest, { params }: { params: { name: string } }) {\n  const { raw, parsed } = await readPlaybook(params.name);\n  return NextResponse.json({ raw, parsed });\n}\n\nexport async function PUT(req: NextRequest, { params }: { params: { name: string } }) {\n  const { yaml } = (await req.json()) as { yaml: string };\n  await writePlaybook(params.name, yaml);\n  return NextResponse.json({ ok: true });\n}\n```\n\n**Error handling**: wrap handlers in a small helper that catches errors, returns 4xx for validation errors (e.g. invalid YAML, name conflict) and 5xx for unexpected. Mission Control likely already has such a helper — use it if so, otherwise inline a small `withErrorHandling`.\n\n**Path alias** `@/` should already be configured in `tsconfig.json` from the upstream Mission Control. If not, add `\"paths\": { \"@/*\": [\"./src/*\"] }`.",
+              "taskId": "03-api-routes/001-playbooks-routes",
+              "taskTitle": "/api/playbooks routes (list, create, read, update)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/001-playbooks-routes",
+              "factId": "check:routes-exist"
+            }
+          },
+          {
+            "id": "03-api-routes/001-playbooks-routes-check-failed-nodejs-runtime",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-api-routes/001-playbooks-routes",
+            "severity": "high",
+            "description": "[03-api-routes/001-playbooks-routes] Check failed: Both routes export runtime = 'nodejs'",
+            "source": "unit",
+            "detected": "2026-04-26T02:33:53.418Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "nodejs-runtime",
+              "checkCmd": "grep -l \"runtime = 'nodejs'\" packages/converge-studio/src/app/api/playbooks/route.ts 'packages/converge-studio/src/app/api/playbooks/[name]/route.ts' | wc -l | xargs test 2 -eq",
+              "checkDescription": "Both routes export runtime = 'nodejs'",
+              "checkOutput": "grep: packages/converge-studio/src/app/api/playbooks/route.ts: No such file or directory\ngrep: packages/converge-studio/src/app/api/playbooks/[name]/route.ts: No such file or directory",
+              "checkExitCode": 1,
+              "taskPrompt": "Implement the playbook collection and item routes.\n\n**`src/app/api/playbooks/route.ts`**:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { NextRequest, NextResponse } from 'next/server';\nimport { listPlaybooks, createPlaybook, type NewPlaybookSpec }\n  from '@/lib/converge-adapter';\n\nexport async function GET() {\n  const items = await listPlaybooks();\n  return NextResponse.json({ items });\n}\n\nexport async function POST(req: NextRequest) {\n  const body = (await req.json()) as NewPlaybookSpec;\n  // validate name shape, required fields\n  await createPlaybook(body);\n  return NextResponse.json({ ok: true, name: body.name }, { status: 201 });\n}\n```\n\n**`src/app/api/playbooks/[name]/route.ts`**:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { NextRequest, NextResponse } from 'next/server';\nimport { readPlaybook, writePlaybook } from '@/lib/converge-adapter';\n\nexport async function GET(_req: NextRequest, { params }: { params: { name: string } }) {\n  const { raw, parsed } = await readPlaybook(params.name);\n  return NextResponse.json({ raw, parsed });\n}\n\nexport async function PUT(req: NextRequest, { params }: { params: { name: string } }) {\n  const { yaml } = (await req.json()) as { yaml: string };\n  await writePlaybook(params.name, yaml);\n  return NextResponse.json({ ok: true });\n}\n```\n\n**Error handling**: wrap handlers in a small helper that catches errors, returns 4xx for validation errors (e.g. invalid YAML, name conflict) and 5xx for unexpected. Mission Control likely already has such a helper — use it if so, otherwise inline a small `withErrorHandling`.\n\n**Path alias** `@/` should already be configured in `tsconfig.json` from the upstream Mission Control. If not, add `\"paths\": { \"@/*\": [\"./src/*\"] }`.",
+              "taskId": "03-api-routes/001-playbooks-routes",
+              "taskTitle": "/api/playbooks routes (list, create, read, update)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/03-api-routes/tasks/001-playbooks-routes",
+              "factId": "check:nodejs-runtime"
+            }
+          }
+        ],
+        "durationMs": 3882
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3883
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 3844
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#5",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 199185
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T02:33:53.404Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T02:33:53.405Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T02:33:57.287Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T02:33:57.288Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T02:34:01.171Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#5",
+      "iteration": 1,
+      "ts": "2026-04-26T02:37:20.356Z"
+    },
+    {
+      "from": "run-strategy:task-run#5",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T02:37:24.201Z"
+    }
+  ]
+}

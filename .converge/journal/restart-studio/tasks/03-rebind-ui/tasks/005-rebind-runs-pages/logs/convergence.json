@@ -1,0 +1,269 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-rebind-ui/005-rebind-runs-pages-missing-output-packages/studio/src/app/runs/page.tsx",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-rebind-ui/005-rebind-runs-pages",
+            "severity": "high",
+            "description": "[03-rebind-ui/005-rebind-runs-pages] Task output not created: packages/studio/src/app/runs/page.tsx",
+            "source": "unit",
+            "detected": "2026-04-26T09:50:29.488Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/03-rebind-ui/tasks/005-rebind-runs-pages",
+              "taskId": "03-rebind-ui/005-rebind-runs-pages",
+              "taskTitle": "Rebind /runs list and live session view to converge data",
+              "taskPrompt": "Build the two `/runs` pages. Reuse MC's polished panels: log-viewer-panel, activity-feed-panel, gantt visual treatment.\n\n**`/runs/page.tsx`** (list):\n- ViewSwitcher: `table` (default) | `kanban` (grouped by status)\n- TableView columns: playbook, sessionId, startTime, duration, iterations, status pill\n- KanbanBoard columns: running / completed / failed\n- Live indicator pill on running rows (subscribe to `/api/events`)\n- Empty state: `<EmptyStateLaunchpad>` with copy \"No runs yet\"\n\n**`/runs/[playbook]/[sessionId]/page.tsx`** (live session view):\n- Header: playbook · sessionId · status pill · iters\n- ViewSwitcher: gantt | tree | table\n- Gantt mode → embed `views/SessionGantt`\n- Tree mode → `views/TaskTree`\n- Table mode → `views/TableView`\n- Side panel: `<LogViewerPanel>` + `<ActivityFeedPanel>` (rebind both to subscribe to `/api/runs/<playbook>/<sessionId>/stream` SSE)\n- Resizable split-pane (use MC's `terminal/split-pane-layout.tsx`)\n\nReplace MC's WebSocket subscriptions in those panels with `EventSource('/api/runs/...')`.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"packages/studio/src/app/runs/page.tsx\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-rebind-ui/005-rebind-runs-pages-missing-output-packages/studio/src/app/runs/[playbook]/[sessionId]/page.tsx",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-rebind-ui/005-rebind-runs-pages",
+            "severity": "high",
+            "description": "[03-rebind-ui/005-rebind-runs-pages] Task output not created: packages/studio/src/app/runs/[playbook]/[sessionId]/page.tsx",
+            "source": "unit",
+            "detected": "2026-04-26T09:50:29.490Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/03-rebind-ui/tasks/005-rebind-runs-pages",
+              "taskId": "03-rebind-ui/005-rebind-runs-pages",
+              "taskTitle": "Rebind /runs list and live session view to converge data",
+              "taskPrompt": "Build the two `/runs` pages. Reuse MC's polished panels: log-viewer-panel, activity-feed-panel, gantt visual treatment.\n\n**`/runs/page.tsx`** (list):\n- ViewSwitcher: `table` (default) | `kanban` (grouped by status)\n- TableView columns: playbook, sessionId, startTime, duration, iterations, status pill\n- KanbanBoard columns: running / completed / failed\n- Live indicator pill on running rows (subscribe to `/api/events`)\n- Empty state: `<EmptyStateLaunchpad>` with copy \"No runs yet\"\n\n**`/runs/[playbook]/[sessionId]/page.tsx`** (live session view):\n- Header: playbook · sessionId · status pill · iters\n- ViewSwitcher: gantt | tree | table\n- Gantt mode → embed `views/SessionGantt`\n- Tree mode → `views/TaskTree`\n- Table mode → `views/TableView`\n- Side panel: `<LogViewerPanel>` + `<ActivityFeedPanel>` (rebind both to subscribe to `/api/runs/<playbook>/<sessionId>/stream` SSE)\n- Resizable split-pane (use MC's `terminal/split-pane-layout.tsx`)\n\nReplace MC's WebSocket subscriptions in those panels with `EventSource('/api/runs/...')`.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"packages/studio/src/app/runs/[playbook]/[sessionId]/page.tsx\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-rebind-ui/005-rebind-runs-pages-check-failed-runs-list-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-rebind-ui/005-rebind-runs-pages",
+            "severity": "high",
+            "description": "[03-rebind-ui/005-rebind-runs-pages] Check failed: /runs/page.tsx exists and uses views primitives",
+            "source": "unit",
+            "detected": "2026-04-26T09:50:29.492Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "runs-list-exists",
+              "checkCmd": "test -f packages/studio/src/app/runs/page.tsx && grep -q 'TableView\\|KanbanBoard\\|ViewSwitcher' packages/studio/src/app/runs/page.tsx",
+              "checkDescription": "/runs/page.tsx exists and uses views primitives",
+              "checkOutput": "Command failed: test -f packages/studio/src/app/runs/page.tsx && grep -q 'TableView\\|KanbanBoard\\|ViewSwitcher' packages/studio/src/app/runs/page.tsx\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Build the two `/runs` pages. Reuse MC's polished panels: log-viewer-panel, activity-feed-panel, gantt visual treatment.\n\n**`/runs/page.tsx`** (list):\n- ViewSwitcher: `table` (default) | `kanban` (grouped by status)\n- TableView columns: playbook, sessionId, startTime, duration, iterations, status pill\n- KanbanBoard columns: running / completed / failed\n- Live indicator pill on running rows (subscribe to `/api/events`)\n- Empty state: `<EmptyStateLaunchpad>` with copy \"No runs yet\"\n\n**`/runs/[playbook]/[sessionId]/page.tsx`** (live session view):\n- Header: playbook · sessionId · status pill · iters\n- ViewSwitcher: gantt | tree | table\n- Gantt mode → embed `views/SessionGantt`\n- Tree mode → `views/TaskTree`\n- Table mode → `views/TableView`\n- Side panel: `<LogViewerPanel>` + `<ActivityFeedPanel>` (rebind both to subscribe to `/api/runs/<playbook>/<sessionId>/stream` SSE)\n- Resizable split-pane (use MC's `terminal/split-pane-layout.tsx`)\n\nReplace MC's WebSocket subscriptions in those panels with `EventSource('/api/runs/...')`.",
+              "taskId": "03-rebind-ui/005-rebind-runs-pages",
+              "taskTitle": "Rebind /runs list and live session view to converge data",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/03-rebind-ui/tasks/005-rebind-runs-pages",
+              "factId": "check:runs-list-exists"
+            }
+          },
+          {
+            "id": "03-rebind-ui/005-rebind-runs-pages-check-failed-live-session-view-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-rebind-ui/005-rebind-runs-pages",
+            "severity": "high",
+            "description": "[03-rebind-ui/005-rebind-runs-pages] Check failed: live session view exists and consumes runs SSE",
+            "source": "unit",
+            "detected": "2026-04-26T09:50:29.493Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "live-session-view-exists",
+              "checkCmd": "test -f 'packages/studio/src/app/runs/[playbook]/[sessionId]/page.tsx' && grep -q '/api/runs\\|stream\\|EventSource' 'packages/studio/src/app/runs/[playbook]/[sessionId]/page.tsx'",
+              "checkDescription": "live session view exists and consumes runs SSE",
+              "checkOutput": "Command failed: test -f 'packages/studio/src/app/runs/[playbook]/[sessionId]/page.tsx' && grep -q '/api/runs\\|stream\\|EventSource' 'packages/studio/src/app/runs/[playbook]/[sessionId]/page.tsx'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Build the two `/runs` pages. Reuse MC's polished panels: log-viewer-panel, activity-feed-panel, gantt visual treatment.\n\n**`/runs/page.tsx`** (list):\n- ViewSwitcher: `table` (default) | `kanban` (grouped by status)\n- TableView columns: playbook, sessionId, startTime, duration, iterations, status pill\n- KanbanBoard columns: running / completed / failed\n- Live indicator pill on running rows (subscribe to `/api/events`)\n- Empty state: `<EmptyStateLaunchpad>` with copy \"No runs yet\"\n\n**`/runs/[playbook]/[sessionId]/page.tsx`** (live session view):\n- Header: playbook · sessionId · status pill · iters\n- ViewSwitcher: gantt | tree | table\n- Gantt mode → embed `views/SessionGantt`\n- Tree mode → `views/TaskTree`\n- Table mode → `views/TableView`\n- Side panel: `<LogViewerPanel>` + `<ActivityFeedPanel>` (rebind both to subscribe to `/api/runs/<playbook>/<sessionId>/stream` SSE)\n- Resizable split-pane (use MC's `terminal/split-pane-layout.tsx`)\n\nReplace MC's WebSocket subscriptions in those panels with `EventSource('/api/runs/...')`.",
+              "taskId": "03-rebind-ui/005-rebind-runs-pages",
+              "taskTitle": "Rebind /runs list and live session view to converge data",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/03-rebind-ui/tasks/005-rebind-runs-pages",
+              "factId": "check:live-session-view-exists"
+            }
+          }
+        ],
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 5
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 16
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#13",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 193809
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T09:50:29.485Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T09:50:29.485Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T09:50:29.494Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T09:50:29.494Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T09:50:29.499Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#13",
+      "iteration": 1,
+      "ts": "2026-04-26T09:53:43.308Z"
+    },
+    {
+      "from": "run-strategy:task-run#13",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T09:53:43.326Z"
+    }
+  ]
+}

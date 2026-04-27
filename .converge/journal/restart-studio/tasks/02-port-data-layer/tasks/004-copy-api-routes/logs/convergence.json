@@ -1,0 +1,288 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "02-port-data-layer/004-copy-api-routes-missing-output-packages/studio/src/app/api/playbooks",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-port-data-layer/004-copy-api-routes",
+            "severity": "high",
+            "description": "[02-port-data-layer/004-copy-api-routes] Task output not created: packages/studio/src/app/api/playbooks",
+            "source": "unit",
+            "detected": "2026-04-26T09:41:30.463Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/02-port-data-layer/tasks/004-copy-api-routes",
+              "taskId": "02-port-data-layer/004-copy-api-routes",
+              "taskTitle": "Copy converge-native API routes from rescue",
+              "taskPrompt": "```bash\nmkdir -p packages/studio/src/app/api\nfor d in playbooks runs run watch events search settings; do\n  cp -R /tmp/converge-studio-rescue/api/$d packages/studio/src/app/api/\ndone\n```\n\nAfter this leaf, the new package has:\n- MC's polished UI components (from clone)\n- The converge-native data layer (from rescue)\n- The converge-native API routes (from rescue)\n\nPhase 03 ties the UI to the data.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"packages/studio/src/app/api/playbooks\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-port-data-layer/004-copy-api-routes-missing-output-packages/studio/src/app/api/runs",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-port-data-layer/004-copy-api-routes",
+            "severity": "high",
+            "description": "[02-port-data-layer/004-copy-api-routes] Task output not created: packages/studio/src/app/api/runs",
+            "source": "unit",
+            "detected": "2026-04-26T09:41:30.465Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/02-port-data-layer/tasks/004-copy-api-routes",
+              "taskId": "02-port-data-layer/004-copy-api-routes",
+              "taskTitle": "Copy converge-native API routes from rescue",
+              "taskPrompt": "```bash\nmkdir -p packages/studio/src/app/api\nfor d in playbooks runs run watch events search settings; do\n  cp -R /tmp/converge-studio-rescue/api/$d packages/studio/src/app/api/\ndone\n```\n\nAfter this leaf, the new package has:\n- MC's polished UI components (from clone)\n- The converge-native data layer (from rescue)\n- The converge-native API routes (from rescue)\n\nPhase 03 ties the UI to the data.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"packages/studio/src/app/api/runs\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-port-data-layer/004-copy-api-routes-missing-output-packages/studio/src/app/api/run",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-port-data-layer/004-copy-api-routes",
+            "severity": "high",
+            "description": "[02-port-data-layer/004-copy-api-routes] Task output not created: packages/studio/src/app/api/run",
+            "source": "unit",
+            "detected": "2026-04-26T09:41:30.467Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/02-port-data-layer/tasks/004-copy-api-routes",
+              "taskId": "02-port-data-layer/004-copy-api-routes",
+              "taskTitle": "Copy converge-native API routes from rescue",
+              "taskPrompt": "```bash\nmkdir -p packages/studio/src/app/api\nfor d in playbooks runs run watch events search settings; do\n  cp -R /tmp/converge-studio-rescue/api/$d packages/studio/src/app/api/\ndone\n```\n\nAfter this leaf, the new package has:\n- MC's polished UI components (from clone)\n- The converge-native data layer (from rescue)\n- The converge-native API routes (from rescue)\n\nPhase 03 ties the UI to the data.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"packages/studio/src/app/api/run\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-port-data-layer/004-copy-api-routes-missing-output-packages/studio/src/app/api/watch",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-port-data-layer/004-copy-api-routes",
+            "severity": "high",
+            "description": "[02-port-data-layer/004-copy-api-routes] Task output not created: packages/studio/src/app/api/watch",
+            "source": "unit",
+            "detected": "2026-04-26T09:41:30.469Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/02-port-data-layer/tasks/004-copy-api-routes",
+              "taskId": "02-port-data-layer/004-copy-api-routes",
+              "taskTitle": "Copy converge-native API routes from rescue",
+              "taskPrompt": "```bash\nmkdir -p packages/studio/src/app/api\nfor d in playbooks runs run watch events search settings; do\n  cp -R /tmp/converge-studio-rescue/api/$d packages/studio/src/app/api/\ndone\n```\n\nAfter this leaf, the new package has:\n- MC's polished UI components (from clone)\n- The converge-native data layer (from rescue)\n- The converge-native API routes (from rescue)\n\nPhase 03 ties the UI to the data.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"packages/studio/src/app/api/watch\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-port-data-layer/004-copy-api-routes-check-failed-api-routes-all-copied",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-port-data-layer/004-copy-api-routes",
+            "severity": "high",
+            "description": "[02-port-data-layer/004-copy-api-routes] Check failed: All 7 converge-native API route trees exist",
+            "source": "unit",
+            "detected": "2026-04-26T09:41:30.476Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "api-routes-all-copied",
+              "checkCmd": "for d in playbooks runs run watch events search settings; do test -d packages/studio/src/app/api/$d || exit 1; done",
+              "checkDescription": "All 7 converge-native API route trees exist",
+              "checkOutput": "Command failed: for d in playbooks runs run watch events search settings; do test -d packages/studio/src/app/api/$d || exit 1; done\n",
+              "checkExitCode": 1,
+              "taskPrompt": "```bash\nmkdir -p packages/studio/src/app/api\nfor d in playbooks runs run watch events search settings; do\n  cp -R /tmp/converge-studio-rescue/api/$d packages/studio/src/app/api/\ndone\n```\n\nAfter this leaf, the new package has:\n- MC's polished UI components (from clone)\n- The converge-native data layer (from rescue)\n- The converge-native API routes (from rescue)\n\nPhase 03 ties the UI to the data.",
+              "taskId": "02-port-data-layer/004-copy-api-routes",
+              "taskTitle": "Copy converge-native API routes from rescue",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/02-port-data-layer/tasks/004-copy-api-routes",
+              "factId": "check:api-routes-all-copied"
+            }
+          }
+        ],
+        "durationMs": 16
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 22
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#8",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 25506
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T09:41:30.459Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T09:41:30.460Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T09:41:30.476Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T09:41:30.476Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T09:41:30.480Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#8",
+      "iteration": 1,
+      "ts": "2026-04-26T09:41:55.986Z"
+    },
+    {
+      "from": "run-strategy:task-run#8",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T09:41:56.008Z"
+    }
+  ]
+}

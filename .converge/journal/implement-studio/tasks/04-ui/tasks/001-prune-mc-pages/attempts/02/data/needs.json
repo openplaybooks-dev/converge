@@ -1,0 +1,11 @@
+{
+  "taskId": "04-ui/001-prune-mc-pages",
+  "attemptNumber": 2,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/src/app",
+    "packages/converge-studio/src/components",
+    "packages/converge-studio/src/lib"
+  ],
+  "blocked": false
+}

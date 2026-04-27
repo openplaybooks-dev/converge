@@ -1,9 +1,0 @@
-{
-  "char_id": "hero-knight",
-  "char_name": "Sir Aldric",
-  "state": "idle",
-  "frame_index": 0,
-  "total_frames": 4,
-  "resolution": 256,
-  "palette": "16-bit retro, blue and silver armor, red accent, limited to 16 colors"
-}

@@ -142,18 +142,6 @@ describe("PROJECT.md rules", () => {
       expect(issues).toHaveLength(1);
     });
 
-    it("flags negative maxIterations", () => {
-      const issues = runRule(
-        "project-runtime-shape",
-        makeInput({
-          runtime: { maxIterations: -1 },
-        }),
-      );
-      expect(issues.some((i) => i.field === "runtime.maxIterations")).toBe(
-        true,
-      );
-    });
-
     it("flags non-boolean parallelExecution", () => {
       const issues = runRule(
         "project-runtime-shape",

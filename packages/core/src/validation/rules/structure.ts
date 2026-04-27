@@ -214,4 +214,130 @@ export const structureRules: ValidationRule[] = [
       return issues;
     },
   },
+
+  // ──────────────────────────────────────────────────────────────────
+  // Mixed-shape lint: a task that mixes "create new file X" checks with
+  // "no occurrences of pattern Y in tree" checks will systematically need
+  // ≥2 attempts to converge — the first attempt creates files, the second
+  // begins the cleanup. Often takes 3–4 because the negation set shrinks
+  // file-by-file. Encourage authors to split these into a creator task and
+  // a cleanup task.
+  // ──────────────────────────────────────────────────────────────────
+  {
+    id: "mixed-shape-checks",
+    layer: "structure",
+    severity: "warning",
+    description:
+      "Task mixes file-creation checks with tree-wide pattern-negation checks",
+    check: ({ shape, filePath }) => {
+      const checks = shape.checks as
+        | Array<{ id?: string; cmd?: string }>
+        | undefined;
+      if (!checks || checks.length < 2) return [];
+
+      // "Existence" check: starts with `test -f` or `test -d`, optionally
+      // wrapped in a single quoted path. (Negated with `!` is excluded —
+      // that's a deletion-verification check, which is itself negation.)
+      const existenceRe = /^\s*test\s+-[fd]\s+/;
+      // "Tree-negation" check: any of the common shapes —
+      //   test -z "$(grep -r ... )"
+      //   ! grep -rq ...
+      //   grep -rl ... | wc -l | xargs test 0 -eq
+      //   find ... -type f | wc -l | xargs test 0 -eq
+      // Use a substring heuristic that captures the recursive scan + zero-result test.
+      const negationRe =
+        /(test\s+-z\s+"?\$\(\s*(grep|find)\s|^\s*!\s*(grep|find)\s|(grep|find)\s+-r[^|]*\|\s*wc\s+-l\s*\|\s*xargs\s+test\s+0\s+-eq)/m;
+
+      const existenceChecks: string[] = [];
+      const negationChecks: string[] = [];
+      for (const c of checks) {
+        const cmd = (c?.cmd ?? "").trim();
+        if (!cmd) continue;
+        if (existenceRe.test(cmd)) existenceChecks.push(c.id ?? "?");
+        else if (negationRe.test(cmd)) negationChecks.push(c.id ?? "?");
+      }
+
+      if (existenceChecks.length === 0 || negationChecks.length === 0) {
+        return [];
+      }
+
+      return [
+        {
+          ruleId: "mixed-shape-checks",
+          layer: "structure",
+          severity: "warning",
+          message: `Task mixes existence checks (${existenceChecks.join(", ")}) with tree-wide negation checks (${negationChecks.join(", ")}). This shape systematically needs ≥2 attempts to converge.`,
+          path: filePath,
+          field: "checks",
+          fix: "Split into two sibling tasks: a creator task with the existence checks, and a follow-up cleanup task with the negation checks. See troubleshooting recipe #13.",
+        },
+      ];
+    },
+  },
+
+  // ────────────────────────────────────────────────────────────────────
+  // Suspicious-regex lint for check `cmd:` strings.
+  //
+  // Catches two regex bugs that have bitten us in real runs:
+  //   1. BSD-grep `-E` alternation containing a bare `+` between pipes
+  //      (e.g. 'Done|+|installed') — this fails on macOS with a cryptic
+  //      "repetition-operator operand invalid" error.
+  //   2. Quantifier-as-literal mistakes — sequences of two or more `.`
+  //      characters between `grep` and the pattern (e.g.
+  //      `redirect..../playbooks.`) which usually meant `redirect.*'/playbooks'`
+  //      but are interpreted as exact-character placeholders, causing
+  //      false negatives.
+  // ────────────────────────────────────────────────────────────────────
+  {
+    id: "suspicious-check-regex",
+    layer: "structure",
+    severity: "warning",
+    description: "Check command contains a regex pattern that often misfires",
+    check: ({ shape, filePath }) => {
+      const checks = shape.checks as
+        | Array<{ id?: string; cmd?: string }>
+        | undefined;
+      if (!checks) return [];
+
+      const issues: ValidationIssue[] = [];
+      for (const c of checks) {
+        const cmd = (c?.cmd ?? "").trim();
+        if (!cmd) continue;
+
+        // Bug 1: bare + or ? between alternation pipes inside grep -E
+        const bsdGrepBare = /grep\s+-[a-z]*E[a-z]*\s+['"][^'"]*\|[+?]\|/m;
+        if (bsdGrepBare.test(cmd)) {
+          issues.push({
+            ruleId: "suspicious-check-regex",
+            layer: "structure",
+            severity: "warning",
+            message: `Check "${c.id ?? "?"}" uses bare '+' or '?' inside a grep -E alternation. macOS BSD grep parses this as 'repetition-operator operand invalid' and the check fails at runtime.`,
+            path: filePath,
+            field: `checks.${c.id ?? "?"}.cmd`,
+            actual: cmd,
+            fix: "Either escape the literal (\\+) or replace the alternation with a character class.",
+          });
+        }
+
+        // Bug 2: 2+ consecutive dots between `grep` and a path-shaped pattern
+        // (excluding `..` directory traversal which is rare in checks).
+        // Triggers on patterns like `redirect..../playbooks.` where `.*` was
+        // intended.
+        const consecDots = /grep[^|]*['"][^'"]*\.{2,}[a-zA-Z/]/m;
+        if (consecDots.test(cmd) && !cmd.includes("\\.")) {
+          issues.push({
+            ruleId: "suspicious-check-regex",
+            layer: "structure",
+            severity: "warning",
+            message: `Check "${c.id ?? "?"}" has 2+ consecutive '.' characters in a regex pattern. This requires that many literal characters; you probably meant '.*' or '\\.'.`,
+            path: filePath,
+            field: `checks.${c.id ?? "?"}.cmd`,
+            actual: cmd,
+            fix: "Replace consecutive dots with .* (greedy match) or \\. (literal period).",
+          });
+        }
+      }
+      return issues;
+    },
+  },
 ];

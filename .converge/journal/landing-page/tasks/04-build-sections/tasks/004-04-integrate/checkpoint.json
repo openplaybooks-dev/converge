@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "04-build-sections/004-04-integrate",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T18:18:16.942Z",
+  "createdAt": "2026-04-26T18:16:48.028Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T18:16:48.028Z",
+      "completedAt": "2026-04-26T18:18:16.915Z",
+      "outcome": "success",
+      "durationMs": 88887
+    }
+  ],
+  "currentAttempt": 1
+}

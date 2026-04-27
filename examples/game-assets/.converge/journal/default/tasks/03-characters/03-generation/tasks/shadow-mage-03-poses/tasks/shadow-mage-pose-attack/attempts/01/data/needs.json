@@ -1,9 +1,0 @@
-{
-  "taskId": "03-characters/03-generation/shadow-mage-03-poses/shadow-mage-pose-attack",
-  "attemptNumber": 1,
-  "inputs": [],
-  "outputs": [
-    "assets/characters/shadow-mage/variants/attack/attack.png"
-  ],
-  "blocked": false
-}

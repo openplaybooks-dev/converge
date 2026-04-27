@@ -17,8 +17,8 @@ The warrior class embodies strength, valor, and martial prowess. Characters in t
 - Crimson (#DC143C) - Cape, cloth details
 
 **Accent Colors:**
-- Gold (#FFD700) - Emblems, rank insignia
 - Silver (#C0C0C0) - Blade edges, highlights
+- Gold (#FFD700) - **Use sparingly.** Reserved for a single small heraldic emblem or rank insignia, never armor plates, pauldrons, trim, weapon body, or grip wrap. Target ≤5% of sprite pixels.
 
 ## Materials
 

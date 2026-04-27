@@ -1,0 +1,19 @@
+{
+  "taskId": "02-bootstrap-astro/002-scaffold-fresh",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "apps/landing/.wiped",
+      "count": 1,
+      "samples": [
+        "apps/landing/.wiped"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/src",
+    "apps/landing/astro.config.mjs",
+    "apps/landing/tsconfig.json"
+  ],
+  "blocked": false
+}

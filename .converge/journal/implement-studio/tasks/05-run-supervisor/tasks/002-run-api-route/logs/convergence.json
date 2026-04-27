@@ -1,0 +1,267 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "05-run-supervisor/002-run-api-route-missing-output-packages/converge-studio/src/app/api/run/route.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-run-supervisor/002-run-api-route",
+            "severity": "high",
+            "description": "[05-run-supervisor/002-run-api-route] Task output not created: packages/converge-studio/src/app/api/run/route.ts",
+            "source": "unit",
+            "detected": "2026-04-26T03:19:41.262Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/05-run-supervisor/tasks/002-run-api-route",
+              "taskId": "05-run-supervisor/002-run-api-route",
+              "taskTitle": "/api/run POST + /api/run/[runId]/stream SSE",
+              "taskPrompt": "Wire the run launcher to the supervisor.\n\n**`src/app/api/run/route.ts`** — `POST` to start a run:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { startRun } from '@/lib/run-supervisor';\n\nexport async function POST(req: Request) {\n  const { playbook, inputs } = (await req.json()) as { playbook: string; inputs?: Record<string, unknown> };\n  if (!playbook) return Response.json({ error: 'playbook required' }, { status: 400 });\n  try {\n    const h = startRun(playbook, inputs);\n    return Response.json({ runId: h.runId, pid: h.pid, startedAt: h.startedAt }, { status: 201 });\n  } catch (e: any) {\n    return Response.json({ error: e.message }, { status: 409 });\n  }\n}\n```\n\n**`src/app/api/run/[runId]/stream/route.ts`** — SSE for stdout/stderr/exit:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { getRun } from '@/lib/run-supervisor';\n\nexport async function GET(req: Request, { params }: { params: { runId: string } }) {\n  const handle = getRun(params.runId);\n  if (!handle) return new Response('not found', { status: 404 });\n\n  const enc = new TextEncoder();\n  const stream = new ReadableStream({\n    start(controller) {\n      const send = (event: string, data: unknown, id?: string) =>\n        controller.enqueue(enc.encode(\n          (id ? `id: ${id}\\n` : '') + `event: ${event}\\ndata: ${JSON.stringify(data)}\\n\\n`\n        ));\n\n      // Replay: include current ring-buffer contents\n      const bo = handle.stdout.read();\n      const be = handle.stderr.read();\n      if (bo.length) send('stdout', bo.toString('utf8'));\n      if (be.length) send('stderr', be.toString('utf8'));\n      if (handle.sessionId) send('session', { sessionId: handle.sessionId });\n\n      const onOut = (c: Buffer) => send('stdout', c.toString('utf8'));\n      const onErr = (c: Buffer) => send('stderr', c.toString('utf8'));\n      const onSession = (info: { sessionId: string }) => send('session', info);\n      const onExit = (info: { code: number }) => { send('exit', info); controller.close(); };\n\n      handle.emitter.on('stdout-chunk', onOut);\n      handle.emitter.on('stderr-chunk', onErr);\n      handle.emitter.on('session-detected', onSession);\n      handle.emitter.on('exit', onExit);\n\n      req.signal.addEventListener('abort', () => {\n        handle.emitter.off('stdout-chunk', onOut);\n        handle.emitter.off('stderr-chunk', onErr);\n        handle.emitter.off('session-detected', onSession);\n        handle.emitter.off('exit', onExit);\n        controller.close();\n      });\n\n      if (handle.status === 'exited') {\n        send('exit', { code: handle.exitCode ?? -1 });\n        controller.close();\n      }\n    },\n  });\n\n  return new Response(stream, {\n    headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' },\n  });\n}\n```\n\n**Last-Event-ID resume**: nice-to-have for MVP. If implementing, attach a sequence id to each chunk pushed into the ring buffer and include it in the `id:` SSE field; on reconnect read the request's `Last-Event-ID` header and skip chunks ≤ that id.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/app/api/run/route.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "05-run-supervisor/002-run-api-route-missing-output-packages/converge-studio/src/app/api/run/[runId]/stream/route.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-run-supervisor/002-run-api-route",
+            "severity": "high",
+            "description": "[05-run-supervisor/002-run-api-route] Task output not created: packages/converge-studio/src/app/api/run/[runId]/stream/route.ts",
+            "source": "unit",
+            "detected": "2026-04-26T03:19:41.264Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/05-run-supervisor/tasks/002-run-api-route",
+              "taskId": "05-run-supervisor/002-run-api-route",
+              "taskTitle": "/api/run POST + /api/run/[runId]/stream SSE",
+              "taskPrompt": "Wire the run launcher to the supervisor.\n\n**`src/app/api/run/route.ts`** — `POST` to start a run:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { startRun } from '@/lib/run-supervisor';\n\nexport async function POST(req: Request) {\n  const { playbook, inputs } = (await req.json()) as { playbook: string; inputs?: Record<string, unknown> };\n  if (!playbook) return Response.json({ error: 'playbook required' }, { status: 400 });\n  try {\n    const h = startRun(playbook, inputs);\n    return Response.json({ runId: h.runId, pid: h.pid, startedAt: h.startedAt }, { status: 201 });\n  } catch (e: any) {\n    return Response.json({ error: e.message }, { status: 409 });\n  }\n}\n```\n\n**`src/app/api/run/[runId]/stream/route.ts`** — SSE for stdout/stderr/exit:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { getRun } from '@/lib/run-supervisor';\n\nexport async function GET(req: Request, { params }: { params: { runId: string } }) {\n  const handle = getRun(params.runId);\n  if (!handle) return new Response('not found', { status: 404 });\n\n  const enc = new TextEncoder();\n  const stream = new ReadableStream({\n    start(controller) {\n      const send = (event: string, data: unknown, id?: string) =>\n        controller.enqueue(enc.encode(\n          (id ? `id: ${id}\\n` : '') + `event: ${event}\\ndata: ${JSON.stringify(data)}\\n\\n`\n        ));\n\n      // Replay: include current ring-buffer contents\n      const bo = handle.stdout.read();\n      const be = handle.stderr.read();\n      if (bo.length) send('stdout', bo.toString('utf8'));\n      if (be.length) send('stderr', be.toString('utf8'));\n      if (handle.sessionId) send('session', { sessionId: handle.sessionId });\n\n      const onOut = (c: Buffer) => send('stdout', c.toString('utf8'));\n      const onErr = (c: Buffer) => send('stderr', c.toString('utf8'));\n      const onSession = (info: { sessionId: string }) => send('session', info);\n      const onExit = (info: { code: number }) => { send('exit', info); controller.close(); };\n\n      handle.emitter.on('stdout-chunk', onOut);\n      handle.emitter.on('stderr-chunk', onErr);\n      handle.emitter.on('session-detected', onSession);\n      handle.emitter.on('exit', onExit);\n\n      req.signal.addEventListener('abort', () => {\n        handle.emitter.off('stdout-chunk', onOut);\n        handle.emitter.off('stderr-chunk', onErr);\n        handle.emitter.off('session-detected', onSession);\n        handle.emitter.off('exit', onExit);\n        controller.close();\n      });\n\n      if (handle.status === 'exited') {\n        send('exit', { code: handle.exitCode ?? -1 });\n        controller.close();\n      }\n    },\n  });\n\n  return new Response(stream, {\n    headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' },\n  });\n}\n```\n\n**Last-Event-ID resume**: nice-to-have for MVP. If implementing, attach a sequence id to each chunk pushed into the ring buffer and include it in the `id:` SSE field; on reconnect read the request's `Last-Event-ID` header and skip chunks ≤ that id.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/app/api/run/[runId]/stream/route.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "05-run-supervisor/002-run-api-route-check-failed-routes-exist",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-run-supervisor/002-run-api-route",
+            "severity": "high",
+            "description": "[05-run-supervisor/002-run-api-route] Check failed: Both run routes exist",
+            "source": "unit",
+            "detected": "2026-04-26T03:19:41.266Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "routes-exist",
+              "checkCmd": "test -f packages/converge-studio/src/app/api/run/route.ts && test -f 'packages/converge-studio/src/app/api/run/[runId]/stream/route.ts'",
+              "checkDescription": "Both run routes exist",
+              "checkOutput": "Command failed: test -f packages/converge-studio/src/app/api/run/route.ts && test -f 'packages/converge-studio/src/app/api/run/[runId]/stream/route.ts'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Wire the run launcher to the supervisor.\n\n**`src/app/api/run/route.ts`** — `POST` to start a run:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { startRun } from '@/lib/run-supervisor';\n\nexport async function POST(req: Request) {\n  const { playbook, inputs } = (await req.json()) as { playbook: string; inputs?: Record<string, unknown> };\n  if (!playbook) return Response.json({ error: 'playbook required' }, { status: 400 });\n  try {\n    const h = startRun(playbook, inputs);\n    return Response.json({ runId: h.runId, pid: h.pid, startedAt: h.startedAt }, { status: 201 });\n  } catch (e: any) {\n    return Response.json({ error: e.message }, { status: 409 });\n  }\n}\n```\n\n**`src/app/api/run/[runId]/stream/route.ts`** — SSE for stdout/stderr/exit:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { getRun } from '@/lib/run-supervisor';\n\nexport async function GET(req: Request, { params }: { params: { runId: string } }) {\n  const handle = getRun(params.runId);\n  if (!handle) return new Response('not found', { status: 404 });\n\n  const enc = new TextEncoder();\n  const stream = new ReadableStream({\n    start(controller) {\n      const send = (event: string, data: unknown, id?: string) =>\n        controller.enqueue(enc.encode(\n          (id ? `id: ${id}\\n` : '') + `event: ${event}\\ndata: ${JSON.stringify(data)}\\n\\n`\n        ));\n\n      // Replay: include current ring-buffer contents\n      const bo = handle.stdout.read();\n      const be = handle.stderr.read();\n      if (bo.length) send('stdout', bo.toString('utf8'));\n      if (be.length) send('stderr', be.toString('utf8'));\n      if (handle.sessionId) send('session', { sessionId: handle.sessionId });\n\n      const onOut = (c: Buffer) => send('stdout', c.toString('utf8'));\n      const onErr = (c: Buffer) => send('stderr', c.toString('utf8'));\n      const onSession = (info: { sessionId: string }) => send('session', info);\n      const onExit = (info: { code: number }) => { send('exit', info); controller.close(); };\n\n      handle.emitter.on('stdout-chunk', onOut);\n      handle.emitter.on('stderr-chunk', onErr);\n      handle.emitter.on('session-detected', onSession);\n      handle.emitter.on('exit', onExit);\n\n      req.signal.addEventListener('abort', () => {\n        handle.emitter.off('stdout-chunk', onOut);\n        handle.emitter.off('stderr-chunk', onErr);\n        handle.emitter.off('session-detected', onSession);\n        handle.emitter.off('exit', onExit);\n        controller.close();\n      });\n\n      if (handle.status === 'exited') {\n        send('exit', { code: handle.exitCode ?? -1 });\n        controller.close();\n      }\n    },\n  });\n\n  return new Response(stream, {\n    headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' },\n  });\n}\n```\n\n**Last-Event-ID resume**: nice-to-have for MVP. If implementing, attach a sequence id to each chunk pushed into the ring buffer and include it in the `id:` SSE field; on reconnect read the request's `Last-Event-ID` header and skip chunks ≤ that id.",
+              "taskId": "05-run-supervisor/002-run-api-route",
+              "taskTitle": "/api/run POST + /api/run/[runId]/stream SSE",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/05-run-supervisor/tasks/002-run-api-route",
+              "factId": "check:routes-exist"
+            }
+          },
+          {
+            "id": "05-run-supervisor/002-run-api-route-check-failed-nodejs-runtime",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-run-supervisor/002-run-api-route",
+            "severity": "high",
+            "description": "[05-run-supervisor/002-run-api-route] Check failed: Both routes export runtime = 'nodejs'",
+            "source": "unit",
+            "detected": "2026-04-26T03:19:41.270Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "nodejs-runtime",
+              "checkCmd": "grep -q \"runtime = 'nodejs'\" packages/converge-studio/src/app/api/run/route.ts && grep -q \"runtime = 'nodejs'\" 'packages/converge-studio/src/app/api/run/[runId]/stream/route.ts'",
+              "checkDescription": "Both routes export runtime = 'nodejs'",
+              "checkOutput": "grep: packages/converge-studio/src/app/api/run/route.ts: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "Wire the run launcher to the supervisor.\n\n**`src/app/api/run/route.ts`** — `POST` to start a run:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { startRun } from '@/lib/run-supervisor';\n\nexport async function POST(req: Request) {\n  const { playbook, inputs } = (await req.json()) as { playbook: string; inputs?: Record<string, unknown> };\n  if (!playbook) return Response.json({ error: 'playbook required' }, { status: 400 });\n  try {\n    const h = startRun(playbook, inputs);\n    return Response.json({ runId: h.runId, pid: h.pid, startedAt: h.startedAt }, { status: 201 });\n  } catch (e: any) {\n    return Response.json({ error: e.message }, { status: 409 });\n  }\n}\n```\n\n**`src/app/api/run/[runId]/stream/route.ts`** — SSE for stdout/stderr/exit:\n\n```ts\nexport const runtime = 'nodejs';\nexport const dynamic = 'force-dynamic';\n\nimport { getRun } from '@/lib/run-supervisor';\n\nexport async function GET(req: Request, { params }: { params: { runId: string } }) {\n  const handle = getRun(params.runId);\n  if (!handle) return new Response('not found', { status: 404 });\n\n  const enc = new TextEncoder();\n  const stream = new ReadableStream({\n    start(controller) {\n      const send = (event: string, data: unknown, id?: string) =>\n        controller.enqueue(enc.encode(\n          (id ? `id: ${id}\\n` : '') + `event: ${event}\\ndata: ${JSON.stringify(data)}\\n\\n`\n        ));\n\n      // Replay: include current ring-buffer contents\n      const bo = handle.stdout.read();\n      const be = handle.stderr.read();\n      if (bo.length) send('stdout', bo.toString('utf8'));\n      if (be.length) send('stderr', be.toString('utf8'));\n      if (handle.sessionId) send('session', { sessionId: handle.sessionId });\n\n      const onOut = (c: Buffer) => send('stdout', c.toString('utf8'));\n      const onErr = (c: Buffer) => send('stderr', c.toString('utf8'));\n      const onSession = (info: { sessionId: string }) => send('session', info);\n      const onExit = (info: { code: number }) => { send('exit', info); controller.close(); };\n\n      handle.emitter.on('stdout-chunk', onOut);\n      handle.emitter.on('stderr-chunk', onErr);\n      handle.emitter.on('session-detected', onSession);\n      handle.emitter.on('exit', onExit);\n\n      req.signal.addEventListener('abort', () => {\n        handle.emitter.off('stdout-chunk', onOut);\n        handle.emitter.off('stderr-chunk', onErr);\n        handle.emitter.off('session-detected', onSession);\n        handle.emitter.off('exit', onExit);\n        controller.close();\n      });\n\n      if (handle.status === 'exited') {\n        send('exit', { code: handle.exitCode ?? -1 });\n        controller.close();\n      }\n    },\n  });\n\n  return new Response(stream, {\n    headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' },\n  });\n}\n```\n\n**Last-Event-ID resume**: nice-to-have for MVP. If implementing, attach a sequence id to each chunk pushed into the ring buffer and include it in the `id:` SSE field; on reconnect read the request's `Last-Event-ID` header and skip chunks ≤ that id.",
+              "taskId": "05-run-supervisor/002-run-api-route",
+              "taskTitle": "/api/run POST + /api/run/[runId]/stream SSE",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/05-run-supervisor/tasks/002-run-api-route",
+              "factId": "check:nodejs-runtime"
+            }
+          }
+        ],
+        "durationMs": 4380
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 4031
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 3916
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#10",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 62583
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T03:19:41.259Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T03:19:41.260Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T03:19:45.640Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T03:19:45.641Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T03:19:49.672Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#10",
+      "iteration": 1,
+      "ts": "2026-04-26T03:20:52.256Z"
+    },
+    {
+      "from": "run-strategy:task-run#10",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T03:20:56.172Z"
+    }
+  ]
+}

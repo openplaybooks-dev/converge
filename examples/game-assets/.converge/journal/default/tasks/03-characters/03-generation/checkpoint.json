@@ -1,27 +1,7 @@
 {
   "type": "task",
   "id": "03-characters/03-generation",
-  "status": "pending",
-  "lastUpdated": "2026-04-23T06:02:56.190Z",
-  "createdAt": "2026-04-23T05:53:26.809Z",
-  "progress": {
-    "totalChildren": 12,
-    "completedChildren": 2,
-    "failedChildren": 0,
-    "childTaskIds": [
-      "forest-elf-01-spec",
-      "forest-elf-02-angles",
-      "forest-elf-03-poses",
-      "forest-elf-04-states",
-      "hero-knight-01-spec",
-      "hero-knight-02-angles",
-      "hero-knight-03-poses",
-      "hero-knight-04-states",
-      "shadow-mage-01-spec",
-      "shadow-mage-02-angles",
-      "shadow-mage-03-poses",
-      "shadow-mage-04-states"
-    ],
-    "lastProgressUpdate": "2026-04-23T06:02:56.188Z"
-  }
+  "status": "seeded",
+  "lastUpdated": "2026-04-26T17:24:06.273Z",
+  "createdAt": "2026-04-26T17:24:06.263Z"
 }

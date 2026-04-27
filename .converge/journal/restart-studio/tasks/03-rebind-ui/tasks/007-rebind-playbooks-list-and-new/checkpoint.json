@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-rebind-ui/007-rebind-playbooks-list-and-new",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T09:59:07.234Z",
+  "createdAt": "2026-04-26T09:56:41.519Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T09:56:41.519Z",
+      "completedAt": "2026-04-26T09:59:07.229Z",
+      "outcome": "success",
+      "durationMs": 145710
+    }
+  ],
+  "currentAttempt": 1
+}

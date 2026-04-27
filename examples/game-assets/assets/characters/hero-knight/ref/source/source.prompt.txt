@@ -1,0 +1,58 @@
+Draw a single game character on a fully transparent canvas.
+
+ART STYLE (mandatory): Modern hand-drawn 2D game art in the spirit of Studio Ghibli and contemporary indie titles like Hollow Knight, Hades, Spiritfarer, Cuphead, and Ori and the Blind Forest. Soft painterly shading, gentle gradients, clean rounded silhouettes, expressive eyes and faces, warm storybook lighting. Characters have appealing proportions (slightly stylized: larger heads, simplified bodies) and read as friendly and inviting at first glance. Color is rich and saturated but not garish — think watercolor + ink, not pixel art. Edges are smooth (no jaggies). Subtle ambient rim light hints at depth without heavy shadows.
+
+Character: Sir Aldric — Cute, modern hand-drawn knight character with rounded blue-steel armor, a flowing red cape, and an oversized friendly sword and shield. Slightly stylized proportions (larger head, simplified hands), expressive eyes, painterly shading.
+View: Right Side View — character body rotated to rotation_y=90°, rotation_x=0° (no tilt). Standing neutral idle pose.
+
+Viewport (locked, identical across every reference and every animation frame of this character — do not deviate):
+- Orthographic camera (no perspective foreshortening), parallel projection.
+- Camera height: chest level. Look straight at the character (camera tilt / rotation_x = 0°). No high angle, no low angle, no Dutch tilt.
+- Distance / framing: full body fits in the square frame with ~10% padding on top, bottom, left, and right. Feet near the bottom edge, head near the top.
+- Character is centered horizontally. The ground line (where feet stand) is at the same Y in every frame.
+- Sprite scale stays identical across frames — do not zoom in or out, do not resize the character between frames.
+- No ground plane drawn, no shadow cast on the ground, no environment.
+
+Palette discipline:
+Dominant colors: cool blue steel and silver-highlight metal. Cape is rich crimson red. Avoid heavy gold or brass — a single small heraldic emblem on the chest or shield boss is the only gold-tone accent. The character reads as friendly hero, not grimdark.
+
+Background is FULLY TRANSPARENT across the entire canvas. Do NOT paint a background color (no green, no white, no sky, no ground, no shadow). The PNG output must have a real alpha channel where every non-character pixel has alpha = 0. Subject pixels are fully opaque; everything else has alpha = 0.
+
+Structured spec for reference:
+
+{
+  "task": "generate_character_at_angle",
+  "instruction": "Draw a single game character sprite, full-body, at the requested viewing angle, on a fully transparent background",
+  "character": {
+    "name": "Sir Aldric",
+    "description": "Cute, modern hand-drawn knight character with rounded blue-steel armor, a flowing red cape, and an oversized friendly sword and shield. Slightly stylized proportions (larger head, simplified hands), expressive eyes, painterly shading."
+  },
+  "viewing_angle": {
+    "angle_name": "Right Side View",
+    "description": "Character facing right, side profile",
+    "rotation_y": 90,
+    "rotation_x": 0
+  },
+  "art_style": "modern_indie_ghibli_inspired",
+  "art_style_description": "Modern hand-drawn 2D game art in the spirit of Studio Ghibli and contemporary indie titles like Hollow Knight, Hades, Spiritfarer, Cuphead, and Ori and the Blind Forest. Soft painterly shading, gentle gradients, clean rounded silhouettes, expressive eyes and faces, warm storybook lighting. Characters have appealing proportions (slightly stylized: larger heads, simplified bodies) and read as friendly and inviting at first glance. Color is rich and saturated but not garish \u2014 think watercolor + ink, not pixel art. Edges are smooth (no jaggies). Subtle ambient rim light hints at depth without heavy shadows.",
+  "palette": "Cool blue-steel armor with silver highlights, deep crimson cape with gentle gradient, warm leather accents on belt and grips. Painterly soft shading, rich saturated mids, ambient rim light.",
+  "palette_constraints": "Dominant colors: cool blue steel and silver-highlight metal. Cape is rich crimson red. Avoid heavy gold or brass \u2014 a single small heraldic emblem on the chest or shield boss is the only gold-tone accent. The character reads as friendly hero, not grimdark.",
+  "composition": {
+    "pose": "standing_neutral_idle",
+    "view_angle": "Character facing right, side profile",
+    "framing": "full_body_centered_in_frame",
+    "character_centered": true,
+    "consistent_character_design": true
+  },
+  "background": "TRANSPARENT (alpha=0) \u2014 output a PNG with native transparency, no painted background",
+  "critical_instructions": [
+    "Show character from Right Side View angle",
+    "Rotation: Y=90\u00b0, X=0\u00b0",
+    "Character must be recognizable from this angle",
+    "Maintain consistent character design",
+    "Background is FULLY TRANSPARENT \u2014 every non-character pixel must have alpha = 0. Do NOT paint any background color (no green, no white, no sky, no ground). The PNG must have a real alpha channel.",
+    "Do NOT produce pixel art, 8-bit, or 16-bit retro game graphics",
+    "Do NOT use a hard-edged limited color palette, dithering, or visible chunky pixels",
+    "Do NOT use the chunky aliased outlines typical of NES/SNES sprites"
+  ]
+}

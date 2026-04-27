@@ -1,0 +1,20 @@
+{
+  "taskId": "06-integrate-docs/004-redirects",
+  "checks": [
+    {
+      "id": "redirects-file-exists",
+      "description": "public/_redirects exists",
+      "cmd": "test -f apps/landing/public/_redirects"
+    },
+    {
+      "id": "docs-root-redirect",
+      "description": "/docs redirects to a real doc page",
+      "cmd": "test -f apps/landing/public/_redirects && grep -qE '^/docs\\s+/docs/getting-started/why-converge' apps/landing/public/_redirects"
+    },
+    {
+      "id": "legacy-redirects-merged",
+      "description": "every entry in docs/_redirects.json appears in public/_redirects",
+      "cmd": "test -f apps/landing/public/_redirects && test -f docs/_redirects.json && node -e \"const r=require('./docs/_redirects.json').redirects;const f=require('fs').readFileSync('apps/landing/public/_redirects','utf8');const ok=r.every(x=>f.includes(x.from)||f.includes(x.from.replace(/^\\/docs\\//,'/')));process.exit(ok?0:1)\""
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "taskId": "04-drop-mc-only/002-drop-domain-panels",
+  "checks": [
+    {
+      "id": "domain-panels-gone",
+      "description": "A representative set of MC-domain panels are gone",
+      "cmd": "test ! -f packages/studio/src/components/panels/channels-panel.tsx && test ! -f packages/studio/src/components/panels/cron-management-panel.tsx && test ! -f packages/studio/src/components/panels/memory-browser-panel.tsx && test ! -f packages/studio/src/components/panels/multi-gateway-panel.tsx && test ! -f packages/studio/src/components/panels/gateway-config-panel.tsx && test ! -f packages/studio/src/components/panels/gateway-control-panel.tsx && test ! -f packages/studio/src/components/panels/orchestration-bar.tsx && test ! -f packages/studio/src/components/panels/pipeline-tab.tsx && test ! -f packages/studio/src/components/panels/skills-panel.tsx && test ! -f packages/studio/src/components/panels/standup-panel.tsx"
+    },
+    {
+      "id": "marker-written",
+      "description": "A marker file recording the drop is written",
+      "cmd": "test -f .converge/studio-state/dropped-domain-panels.txt"
+    }
+  ]
+}

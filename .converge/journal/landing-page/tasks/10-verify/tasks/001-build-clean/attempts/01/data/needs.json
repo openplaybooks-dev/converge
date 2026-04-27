@@ -1,0 +1,17 @@
+{
+  "taskId": "10-verify/001-build-clean",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "apps/landing/src",
+      "count": 1,
+      "samples": [
+        "apps/landing/src"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/dist"
+  ],
+  "blocked": false
+}

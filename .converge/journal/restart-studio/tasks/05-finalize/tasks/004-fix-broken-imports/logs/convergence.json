@@ -1,0 +1,247 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "05-finalize/004-fix-broken-imports-missing-output-.converge/studio-state/typecheck-fix.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-finalize/004-fix-broken-imports",
+            "severity": "high",
+            "description": "[05-finalize/004-fix-broken-imports] Task output not created: .converge/studio-state/typecheck-fix.json",
+            "source": "unit",
+            "detected": "2026-04-26T10:10:21.855Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/05-finalize/tasks/004-fix-broken-imports",
+              "taskId": "05-finalize/004-fix-broken-imports",
+              "taskTitle": "Run typecheck and fix any dangling MC imports",
+              "taskPrompt": "Phase 04's deletes will have left some dangling imports — files that reference modules we just deleted. Run typecheck and fix each:\n\n```bash\npnpm --filter @converge/studio typecheck 2>&1 | tee /tmp/studio-typecheck.log\nCOUNT=$(grep -c 'error TS' /tmp/studio-typecheck.log)\n```\n\nFor each `Cannot find module '@/lib/<X>'` error:\n- If the importer is itself MC-domain (a deleted-and-then-undeleted file) → delete the importer too\n- If the importer is converge-native (one of our rebound components) → strip the bad import; replace with an inline value or comment if needed\n\nAfter all fixes, typecheck must return 0 errors.\n\nWrite a report at `.converge/studio-state/typecheck-fix.json`:\n```json\n{\n  \"timestamp\": \"<ISO>\",\n  \"initialErrorCount\": <int>,\n  \"finalErrorCount\": 0,\n  \"filesEdited\": [<list>],\n  \"filesDeleted\": [<list>]\n}\n```\n\nThis task can iterate (each AI attempt fixes a batch of errors); accept multi-attempt convergence.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \".converge/studio-state/typecheck-fix.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "05-finalize/004-fix-broken-imports-check-failed-typecheck-passes",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-finalize/004-fix-broken-imports",
+            "severity": "high",
+            "description": "[05-finalize/004-fix-broken-imports] Check failed: Studio typecheck has zero errors",
+            "source": "unit",
+            "detected": "2026-04-26T10:10:26.709Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "typecheck-passes",
+              "checkCmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq",
+              "checkDescription": "Studio typecheck has zero errors",
+              "checkOutput": "Command failed: pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Phase 04's deletes will have left some dangling imports — files that reference modules we just deleted. Run typecheck and fix each:\n\n```bash\npnpm --filter @converge/studio typecheck 2>&1 | tee /tmp/studio-typecheck.log\nCOUNT=$(grep -c 'error TS' /tmp/studio-typecheck.log)\n```\n\nFor each `Cannot find module '@/lib/<X>'` error:\n- If the importer is itself MC-domain (a deleted-and-then-undeleted file) → delete the importer too\n- If the importer is converge-native (one of our rebound components) → strip the bad import; replace with an inline value or comment if needed\n\nAfter all fixes, typecheck must return 0 errors.\n\nWrite a report at `.converge/studio-state/typecheck-fix.json`:\n```json\n{\n  \"timestamp\": \"<ISO>\",\n  \"initialErrorCount\": <int>,\n  \"finalErrorCount\": 0,\n  \"filesEdited\": [<list>],\n  \"filesDeleted\": [<list>]\n}\n```\n\nThis task can iterate (each AI attempt fixes a batch of errors); accept multi-attempt convergence.",
+              "taskId": "05-finalize/004-fix-broken-imports",
+              "taskTitle": "Run typecheck and fix any dangling MC imports",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/05-finalize/tasks/004-fix-broken-imports",
+              "factId": "check:typecheck-passes"
+            }
+          },
+          {
+            "id": "05-finalize/004-fix-broken-imports-check-failed-fix-report-written",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-finalize/004-fix-broken-imports",
+            "severity": "high",
+            "description": "[05-finalize/004-fix-broken-imports] Check failed: Typecheck-fix report exists",
+            "source": "unit",
+            "detected": "2026-04-26T10:10:26.711Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "fix-report-written",
+              "checkCmd": "test -f .converge/studio-state/typecheck-fix.json",
+              "checkDescription": "Typecheck-fix report exists",
+              "checkOutput": "Command failed: test -f .converge/studio-state/typecheck-fix.json\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Phase 04's deletes will have left some dangling imports — files that reference modules we just deleted. Run typecheck and fix each:\n\n```bash\npnpm --filter @converge/studio typecheck 2>&1 | tee /tmp/studio-typecheck.log\nCOUNT=$(grep -c 'error TS' /tmp/studio-typecheck.log)\n```\n\nFor each `Cannot find module '@/lib/<X>'` error:\n- If the importer is itself MC-domain (a deleted-and-then-undeleted file) → delete the importer too\n- If the importer is converge-native (one of our rebound components) → strip the bad import; replace with an inline value or comment if needed\n\nAfter all fixes, typecheck must return 0 errors.\n\nWrite a report at `.converge/studio-state/typecheck-fix.json`:\n```json\n{\n  \"timestamp\": \"<ISO>\",\n  \"initialErrorCount\": <int>,\n  \"finalErrorCount\": 0,\n  \"filesEdited\": [<list>],\n  \"filesDeleted\": [<list>]\n}\n```\n\nThis task can iterate (each AI attempt fixes a batch of errors); accept multi-attempt convergence.",
+              "taskId": "05-finalize/004-fix-broken-imports",
+              "taskTitle": "Run typecheck and fix any dangling MC imports",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/05-finalize/tasks/004-fix-broken-imports",
+              "factId": "check:fix-report-written"
+            }
+          }
+        ],
+        "durationMs": 4859
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1848
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 1895
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#26",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 535769
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T10:10:21.852Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T10:10:21.852Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T10:10:26.711Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T10:10:26.712Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T10:10:28.560Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#26",
+      "iteration": 1,
+      "ts": "2026-04-26T10:19:24.330Z"
+    },
+    {
+      "from": "run-strategy:task-run#26",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T10:19:26.226Z"
+    }
+  ]
+}

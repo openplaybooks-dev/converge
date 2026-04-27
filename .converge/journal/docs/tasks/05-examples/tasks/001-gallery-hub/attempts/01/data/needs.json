@@ -1,0 +1,17 @@
+{
+  "taskId": "05-examples/001-gallery-hub",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "docs/_examples.json",
+      "count": 1,
+      "samples": [
+        "docs/_examples.json"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/examples/index.md"
+  ],
+  "blocked": false
+}

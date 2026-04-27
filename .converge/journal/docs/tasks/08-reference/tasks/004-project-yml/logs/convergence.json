@@ -1,0 +1,276 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "08-reference/004-project-yml-missing-output-docs/reference/project-yml.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-reference/004-project-yml",
+            "severity": "high",
+            "description": "[08-reference/004-project-yml] Task output not created: docs/reference/project-yml.md",
+            "source": "unit",
+            "detected": "2026-04-26T09:51:46.564Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/08-reference/tasks/004-project-yml",
+              "taskId": "08-reference/004-project-yml",
+              "taskTitle": "Write docs/reference/project-yml.md (project.yml schema)",
+              "taskPrompt": "# Write `docs/reference/project-yml.md`\n\nComplete reference for `.converge/project.yml` (the project-level config,\ndistinct from per-playbook `playbook.yml`).\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"project.yml\"\ndescription: \"Project-level configuration: providers, defaults, plugins.\"\nsources:\n  - packages/core/src/storage/types.ts\n  - examples/stitch-to-flutter-baby-watch-v2/.converge/project.yml\nsidebar:\n  order: 4\n---\n```\n\n## Required structure\n\n1. **At-a-glance example.** A complete `project.yml`. The\n   `examples/stitch-to-flutter-baby-watch-v2/.converge/project.yml` is the\n   canonical example — it shows the full `ai:` block with multiple providers.\n\n2. **Field reference.**\n   - `name` (string, required)\n   - `description` (string, optional)\n   - `ai` (object, required)\n     - `default` (provider id, required)\n     - `providers` (record of provider configs)\n       - per-provider: `provider` type, `apiKey`, `baseUrl`, `model`,\n         `timeoutMs`, `env` block\n   - `metrics` (object, optional)\n   - `variables` (object, optional)\n   - `plugins` (array, optional)\n\n3. **Provider types.** Enumerate from the source:\n   - `claude` — Claude CLI, supports `env` block for `ANTHROPIC_BASE_URL` etc.\n   - `acp` — Agent SDK, supports OpenAI-compatible base URLs\n   - `gemini`, `kimi`, `qwen`, `opencode` — verify each by reading the source.\n\n4. **Env interpolation.** `${VAR_NAME}` works in string values. Show the\n   syntax. Recommend keeping API keys out of the file (use shell env).\n\n## Read first\n\n- `packages/core/src/storage/types.ts` — `ProjectConfigSchema` (or similarly\n  named).\n- `examples/stitch-to-flutter-baby-watch-v2/.converge/project.yml` — every\n  field that's actually used.\n- `.converge/project.yaml` (the converge repo's own config) for a real\n  in-tree example.\n\n## Banned\n\n- Documenting providers not implemented in the codebase. List only those that\n  have working implementations.\n- Documenting `metrics` fields not in the schema (the example has them; the\n  schema is the contract).",
+              "taskInputs": [
+                "packages/core/src/storage/types.ts",
+                "examples/stitch-to-flutter-baby-watch-v2/.converge/project.yml",
+                ".converge/project.yaml"
+              ],
+              "factId": "file-exists:test -f \"docs/reference/project-yml.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "08-reference/004-project-yml-check-failed-page-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-reference/004-project-yml",
+            "severity": "high",
+            "description": "[08-reference/004-project-yml] Check failed: page exists",
+            "source": "unit",
+            "detected": "2026-04-26T09:51:46.566Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "page-exists",
+              "checkCmd": "test -f docs/reference/project-yml.md",
+              "checkDescription": "page exists",
+              "checkOutput": "Command failed: test -f docs/reference/project-yml.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Write `docs/reference/project-yml.md`\n\nComplete reference for `.converge/project.yml` (the project-level config,\ndistinct from per-playbook `playbook.yml`).\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"project.yml\"\ndescription: \"Project-level configuration: providers, defaults, plugins.\"\nsources:\n  - packages/core/src/storage/types.ts\n  - examples/stitch-to-flutter-baby-watch-v2/.converge/project.yml\nsidebar:\n  order: 4\n---\n```\n\n## Required structure\n\n1. **At-a-glance example.** A complete `project.yml`. The\n   `examples/stitch-to-flutter-baby-watch-v2/.converge/project.yml` is the\n   canonical example — it shows the full `ai:` block with multiple providers.\n\n2. **Field reference.**\n   - `name` (string, required)\n   - `description` (string, optional)\n   - `ai` (object, required)\n     - `default` (provider id, required)\n     - `providers` (record of provider configs)\n       - per-provider: `provider` type, `apiKey`, `baseUrl`, `model`,\n         `timeoutMs`, `env` block\n   - `metrics` (object, optional)\n   - `variables` (object, optional)\n   - `plugins` (array, optional)\n\n3. **Provider types.** Enumerate from the source:\n   - `claude` — Claude CLI, supports `env` block for `ANTHROPIC_BASE_URL` etc.\n   - `acp` — Agent SDK, supports OpenAI-compatible base URLs\n   - `gemini`, `kimi`, `qwen`, `opencode` — verify each by reading the source.\n\n4. **Env interpolation.** `${VAR_NAME}` works in string values. Show the\n   syntax. Recommend keeping API keys out of the file (use shell env).\n\n## Read first\n\n- `packages/core/src/storage/types.ts` — `ProjectConfigSchema` (or similarly\n  named).\n- `examples/stitch-to-flutter-baby-watch-v2/.converge/project.yml` — every\n  field that's actually used.\n- `.converge/project.yaml` (the converge repo's own config) for a real\n  in-tree example.\n\n## Banned\n\n- Documenting providers not implemented in the codebase. List only those that\n  have working implementations.\n- Documenting `metrics` fields not in the schema (the example has them; the\n  schema is the contract).",
+              "taskId": "08-reference/004-project-yml",
+              "taskTitle": "Write docs/reference/project-yml.md (project.yml schema)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/08-reference/tasks/004-project-yml",
+              "factId": "check:page-exists"
+            }
+          },
+          {
+            "id": "08-reference/004-project-yml-check-failed-documents-ai-section",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-reference/004-project-yml",
+            "severity": "high",
+            "description": "[08-reference/004-project-yml] Check failed: documents the ai/providers section",
+            "source": "unit",
+            "detected": "2026-04-26T09:51:46.570Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "documents-ai-section",
+              "checkCmd": "grep -qiE 'ai|provider' docs/reference/project-yml.md",
+              "checkDescription": "documents the ai/providers section",
+              "checkOutput": "grep: docs/reference/project-yml.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Write `docs/reference/project-yml.md`\n\nComplete reference for `.converge/project.yml` (the project-level config,\ndistinct from per-playbook `playbook.yml`).\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"project.yml\"\ndescription: \"Project-level configuration: providers, defaults, plugins.\"\nsources:\n  - packages/core/src/storage/types.ts\n  - examples/stitch-to-flutter-baby-watch-v2/.converge/project.yml\nsidebar:\n  order: 4\n---\n```\n\n## Required structure\n\n1. **At-a-glance example.** A complete `project.yml`. The\n   `examples/stitch-to-flutter-baby-watch-v2/.converge/project.yml` is the\n   canonical example — it shows the full `ai:` block with multiple providers.\n\n2. **Field reference.**\n   - `name` (string, required)\n   - `description` (string, optional)\n   - `ai` (object, required)\n     - `default` (provider id, required)\n     - `providers` (record of provider configs)\n       - per-provider: `provider` type, `apiKey`, `baseUrl`, `model`,\n         `timeoutMs`, `env` block\n   - `metrics` (object, optional)\n   - `variables` (object, optional)\n   - `plugins` (array, optional)\n\n3. **Provider types.** Enumerate from the source:\n   - `claude` — Claude CLI, supports `env` block for `ANTHROPIC_BASE_URL` etc.\n   - `acp` — Agent SDK, supports OpenAI-compatible base URLs\n   - `gemini`, `kimi`, `qwen`, `opencode` — verify each by reading the source.\n\n4. **Env interpolation.** `${VAR_NAME}` works in string values. Show the\n   syntax. Recommend keeping API keys out of the file (use shell env).\n\n## Read first\n\n- `packages/core/src/storage/types.ts` — `ProjectConfigSchema` (or similarly\n  named).\n- `examples/stitch-to-flutter-baby-watch-v2/.converge/project.yml` — every\n  field that's actually used.\n- `.converge/project.yaml` (the converge repo's own config) for a real\n  in-tree example.\n\n## Banned\n\n- Documenting providers not implemented in the codebase. List only those that\n  have working implementations.\n- Documenting `metrics` fields not in the schema (the example has them; the\n  schema is the contract).",
+              "taskId": "08-reference/004-project-yml",
+              "taskTitle": "Write docs/reference/project-yml.md (project.yml schema)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/08-reference/tasks/004-project-yml",
+              "factId": "check:documents-ai-section"
+            }
+          },
+          {
+            "id": "08-reference/004-project-yml-check-failed-documents-name-description",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-reference/004-project-yml",
+            "severity": "high",
+            "description": "[08-reference/004-project-yml] Check failed: documents name and description fields",
+            "source": "unit",
+            "detected": "2026-04-26T09:51:46.574Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "documents-name-description",
+              "checkCmd": "grep -qE '`name`|^###\\s+name' docs/reference/project-yml.md && grep -qE '`description`|^###\\s+description' docs/reference/project-yml.md",
+              "checkDescription": "documents name and description fields",
+              "checkOutput": "grep: docs/reference/project-yml.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Write `docs/reference/project-yml.md`\n\nComplete reference for `.converge/project.yml` (the project-level config,\ndistinct from per-playbook `playbook.yml`).\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"project.yml\"\ndescription: \"Project-level configuration: providers, defaults, plugins.\"\nsources:\n  - packages/core/src/storage/types.ts\n  - examples/stitch-to-flutter-baby-watch-v2/.converge/project.yml\nsidebar:\n  order: 4\n---\n```\n\n## Required structure\n\n1. **At-a-glance example.** A complete `project.yml`. The\n   `examples/stitch-to-flutter-baby-watch-v2/.converge/project.yml` is the\n   canonical example — it shows the full `ai:` block with multiple providers.\n\n2. **Field reference.**\n   - `name` (string, required)\n   - `description` (string, optional)\n   - `ai` (object, required)\n     - `default` (provider id, required)\n     - `providers` (record of provider configs)\n       - per-provider: `provider` type, `apiKey`, `baseUrl`, `model`,\n         `timeoutMs`, `env` block\n   - `metrics` (object, optional)\n   - `variables` (object, optional)\n   - `plugins` (array, optional)\n\n3. **Provider types.** Enumerate from the source:\n   - `claude` — Claude CLI, supports `env` block for `ANTHROPIC_BASE_URL` etc.\n   - `acp` — Agent SDK, supports OpenAI-compatible base URLs\n   - `gemini`, `kimi`, `qwen`, `opencode` — verify each by reading the source.\n\n4. **Env interpolation.** `${VAR_NAME}` works in string values. Show the\n   syntax. Recommend keeping API keys out of the file (use shell env).\n\n## Read first\n\n- `packages/core/src/storage/types.ts` — `ProjectConfigSchema` (or similarly\n  named).\n- `examples/stitch-to-flutter-baby-watch-v2/.converge/project.yml` — every\n  field that's actually used.\n- `.converge/project.yaml` (the converge repo's own config) for a real\n  in-tree example.\n\n## Banned\n\n- Documenting providers not implemented in the codebase. List only those that\n  have working implementations.\n- Documenting `metrics` fields not in the schema (the example has them; the\n  schema is the contract).",
+              "taskId": "08-reference/004-project-yml",
+              "taskTitle": "Write docs/reference/project-yml.md (project.yml schema)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/08-reference/tasks/004-project-yml",
+              "factId": "check:documents-name-description"
+            }
+          }
+        ],
+        "durationMs": 20
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 11
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 24
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#3",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 45029
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T09:51:46.554Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T09:51:46.554Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T09:51:46.574Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T09:51:46.574Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T09:51:46.586Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#3",
+      "iteration": 1,
+      "ts": "2026-04-26T09:52:31.615Z"
+    },
+    {
+      "from": "run-strategy:task-run#3",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T09:52:31.640Z"
+    }
+  ]
+}

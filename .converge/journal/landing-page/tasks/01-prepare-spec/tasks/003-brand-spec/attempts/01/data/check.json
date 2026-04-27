@@ -1,0 +1,30 @@
+{
+  "taskId": "01-prepare-spec/003-brand-spec",
+  "checks": [
+    {
+      "id": "brand-json-exists",
+      "description": "brand.json exists",
+      "cmd": "test -f apps/landing/.content/brand.json"
+    },
+    {
+      "id": "brand-json-valid",
+      "description": "brand.json is valid JSON",
+      "cmd": "test -f apps/landing/.content/brand.json && node -e \"JSON.parse(require('fs').readFileSync('apps/landing/.content/brand.json','utf8'))\""
+    },
+    {
+      "id": "has-palette",
+      "description": "palette has at least 4 named colors",
+      "cmd": "test -f apps/landing/.content/brand.json && node -e \"const b=require('./apps/landing/.content/brand.json');const ok=b.palette&&Object.keys(b.palette).length>=4;process.exit(ok?0:1)\""
+    },
+    {
+      "id": "has-tagline",
+      "description": "tagline matches canonical",
+      "cmd": "test -f apps/landing/.content/brand.json && node -e \"const b=require('./apps/landing/.content/brand.json');process.exit(b.tagline==='Define done. Converge gets there.'?0:1)\""
+    },
+    {
+      "id": "has-voice",
+      "description": "voice has tone descriptors",
+      "cmd": "test -f apps/landing/.content/brand.json && node -e \"const b=require('./apps/landing/.content/brand.json');const ok=b.voice&&Array.isArray(b.voice.tone)&&b.voice.tone.length>=3;process.exit(ok?0:1)\""
+    }
+  ]
+}

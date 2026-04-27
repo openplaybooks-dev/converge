@@ -1,0 +1,20 @@
+{
+  "taskId": "03-api-routes/001-playbooks-routes",
+  "checks": [
+    {
+      "id": "routes-exist",
+      "description": "Both route handlers exist",
+      "cmd": "test -f packages/converge-studio/src/app/api/playbooks/route.ts && test -f 'packages/converge-studio/src/app/api/playbooks/[name]/route.ts'"
+    },
+    {
+      "id": "nodejs-runtime",
+      "description": "Both routes export runtime = 'nodejs'",
+      "cmd": "grep -l \"runtime = 'nodejs'\" packages/converge-studio/src/app/api/playbooks/route.ts 'packages/converge-studio/src/app/api/playbooks/[name]/route.ts' | wc -l | xargs test 2 -eq"
+    },
+    {
+      "id": "typecheck",
+      "description": "Routes typecheck",
+      "cmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    }
+  ]
+}

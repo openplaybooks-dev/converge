@@ -1,0 +1,31 @@
+{
+  "taskId": "04-build-sections/008-02-design",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "apps/landing/.content/sections/cta-banner/SPEC.md",
+      "count": 1,
+      "samples": [
+        "apps/landing/.content/sections/cta-banner/SPEC.md"
+      ]
+    },
+    {
+      "pattern": "apps/landing/src/components/ui",
+      "count": 1,
+      "samples": [
+        "apps/landing/src/components/ui"
+      ]
+    },
+    {
+      "pattern": "apps/landing/src/components/layout",
+      "count": 1,
+      "samples": [
+        "apps/landing/src/components/layout"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/.content/sections/cta-banner/DESIGN.md"
+  ],
+  "blocked": false
+}

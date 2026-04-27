@@ -1,0 +1,9 @@
+{
+  "taskId": "10-verify/009-tagline-drift",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "apps/landing/.verify-passed"
+  ],
+  "blocked": false
+}

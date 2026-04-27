@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "09-polish/001-hero-animation",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T20:21:00.304Z",
+  "createdAt": "2026-04-26T20:20:35.940Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T20:20:35.940Z",
+      "completedAt": "2026-04-26T20:21:00.263Z",
+      "outcome": "success",
+      "durationMs": 24323
+    }
+  ],
+  "currentAttempt": 1
+}

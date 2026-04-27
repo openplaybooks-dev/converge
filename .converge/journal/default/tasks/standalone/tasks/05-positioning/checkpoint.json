@@ -1,0 +1,30 @@
+{
+  "type": "task",
+  "id": "05-positioning",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T23:04:30.696Z",
+  "createdAt": "2026-04-26T01:19:09.344Z",
+  "progress": {
+    "totalChildren": 15,
+    "completedChildren": 15,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-tagline-pitch",
+      "001-tagline-pitch",
+      "001-tagline-pitch",
+      "002-comparison-matrix",
+      "002-comparison-matrix",
+      "002-comparison-matrix",
+      "003-why-converge",
+      "003-why-converge",
+      "003-why-converge",
+      "004-launch-blog",
+      "004-launch-blog",
+      "004-launch-blog",
+      "005-social-kit",
+      "005-social-kit",
+      "005-social-kit"
+    ],
+    "lastProgressUpdate": "2026-04-26T23:04:30.621Z"
+  }
+}

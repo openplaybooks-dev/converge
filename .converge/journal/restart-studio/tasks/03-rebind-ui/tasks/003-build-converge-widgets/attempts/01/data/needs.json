@@ -1,0 +1,12 @@
+{
+  "taskId": "03-rebind-ui/003-build-converge-widgets",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/studio/src/components/dashboard/widgets/recent-runs-widget.tsx",
+    "packages/studio/src/components/dashboard/widgets/playbook-health-widget.tsx",
+    "packages/studio/src/components/dashboard/widgets/live-activity-widget.tsx",
+    "packages/studio/src/components/dashboard/widgets/quick-actions-widget.tsx"
+  ],
+  "blocked": false
+}

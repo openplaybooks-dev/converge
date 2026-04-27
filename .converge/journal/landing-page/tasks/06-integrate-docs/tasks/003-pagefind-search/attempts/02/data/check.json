@@ -1,0 +1,15 @@
+{
+  "taskId": "06-integrate-docs/003-pagefind-search",
+  "checks": [
+    {
+      "id": "pagefind-enabled",
+      "description": "pagefind is enabled in starlight config",
+      "cmd": "test -f apps/landing/astro.config.mjs && grep -qE 'pagefind:\\s*true' apps/landing/astro.config.mjs"
+    },
+    {
+      "id": "pagefind-built",
+      "description": "dist/pagefind directory was created by the build",
+      "cmd": "test -f apps/landing/package.json && pnpm --filter @converge/landing build && test -d apps/landing/dist/pagefind"
+    }
+  ]
+}

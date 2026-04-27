@@ -1,0 +1,269 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-rebind-ui/006-rebind-playbook-detail-missing-output-packages/studio/src/app/playbooks/[name]/page.tsx",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-rebind-ui/006-rebind-playbook-detail",
+            "severity": "high",
+            "description": "[03-rebind-ui/006-rebind-playbook-detail] Task output not created: packages/studio/src/app/playbooks/[name]/page.tsx",
+            "source": "unit",
+            "detected": "2026-04-26T09:53:43.690Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/03-rebind-ui/tasks/006-rebind-playbook-detail",
+              "taskId": "03-rebind-ui/006-rebind-playbook-detail",
+              "taskTitle": "Rebind playbook detail page using agent-detail-tabs as visual template",
+              "taskPrompt": "Clone MC's `src/components/panels/agent-detail-tabs.tsx` → `src/components/playbook-detail-tabs.tsx` and rebind:\n\n**Tabs:** Overview / Tasks / Runs / Config (replace MC's 7 agent tabs)\n\n**Overview:** description, run config (mode/maxIterations/maxDuration), last-run summary (timestamp, duration, status pill, iterations). MetricCard + SignalPill + StatRow primitives.\n\n**Tasks:** ViewSwitcher (tree default) over `views/TaskTree`, `views/TableView`, `views/KanbanBoard`. Click → `/playbooks/<name>/tasks/<taskPath>`.\n\n**Runs:** TableView filtered by playbook. \"Trigger run\" button → POST `/api/run`.\n\n**Config:** Monaco YAML editor. Initial: `fetch('/api/playbooks/<name>')`. Save: `PUT /api/playbooks/<name>` with new YAML. Theme follows `useTheme()`.\n\n**`/playbooks/[name]/page.tsx`** mounts `<PlaybookDetailTabs playbook={playbook} />`. Server-render the playbook fetch.\n\n**Keep:** MC's tab nav visual treatment, sticky tab on scroll, status pill in header.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"packages/studio/src/app/playbooks/[name]/page.tsx\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-rebind-ui/006-rebind-playbook-detail-missing-output-packages/studio/src/components/playbook-detail-tabs.tsx",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-rebind-ui/006-rebind-playbook-detail",
+            "severity": "high",
+            "description": "[03-rebind-ui/006-rebind-playbook-detail] Task output not created: packages/studio/src/components/playbook-detail-tabs.tsx",
+            "source": "unit",
+            "detected": "2026-04-26T09:53:43.692Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/03-rebind-ui/tasks/006-rebind-playbook-detail",
+              "taskId": "03-rebind-ui/006-rebind-playbook-detail",
+              "taskTitle": "Rebind playbook detail page using agent-detail-tabs as visual template",
+              "taskPrompt": "Clone MC's `src/components/panels/agent-detail-tabs.tsx` → `src/components/playbook-detail-tabs.tsx` and rebind:\n\n**Tabs:** Overview / Tasks / Runs / Config (replace MC's 7 agent tabs)\n\n**Overview:** description, run config (mode/maxIterations/maxDuration), last-run summary (timestamp, duration, status pill, iterations). MetricCard + SignalPill + StatRow primitives.\n\n**Tasks:** ViewSwitcher (tree default) over `views/TaskTree`, `views/TableView`, `views/KanbanBoard`. Click → `/playbooks/<name>/tasks/<taskPath>`.\n\n**Runs:** TableView filtered by playbook. \"Trigger run\" button → POST `/api/run`.\n\n**Config:** Monaco YAML editor. Initial: `fetch('/api/playbooks/<name>')`. Save: `PUT /api/playbooks/<name>` with new YAML. Theme follows `useTheme()`.\n\n**`/playbooks/[name]/page.tsx`** mounts `<PlaybookDetailTabs playbook={playbook} />`. Server-render the playbook fetch.\n\n**Keep:** MC's tab nav visual treatment, sticky tab on scroll, status pill in header.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"packages/studio/src/components/playbook-detail-tabs.tsx\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-rebind-ui/006-rebind-playbook-detail-check-failed-detail-page-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-rebind-ui/006-rebind-playbook-detail",
+            "severity": "high",
+            "description": "[03-rebind-ui/006-rebind-playbook-detail] Check failed: /playbooks/[name]/page.tsx exists",
+            "source": "unit",
+            "detected": "2026-04-26T09:53:43.694Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "detail-page-exists",
+              "checkCmd": "test -f 'packages/studio/src/app/playbooks/[name]/page.tsx'",
+              "checkDescription": "/playbooks/[name]/page.tsx exists",
+              "checkOutput": "Command failed: test -f 'packages/studio/src/app/playbooks/[name]/page.tsx'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Clone MC's `src/components/panels/agent-detail-tabs.tsx` → `src/components/playbook-detail-tabs.tsx` and rebind:\n\n**Tabs:** Overview / Tasks / Runs / Config (replace MC's 7 agent tabs)\n\n**Overview:** description, run config (mode/maxIterations/maxDuration), last-run summary (timestamp, duration, status pill, iterations). MetricCard + SignalPill + StatRow primitives.\n\n**Tasks:** ViewSwitcher (tree default) over `views/TaskTree`, `views/TableView`, `views/KanbanBoard`. Click → `/playbooks/<name>/tasks/<taskPath>`.\n\n**Runs:** TableView filtered by playbook. \"Trigger run\" button → POST `/api/run`.\n\n**Config:** Monaco YAML editor. Initial: `fetch('/api/playbooks/<name>')`. Save: `PUT /api/playbooks/<name>` with new YAML. Theme follows `useTheme()`.\n\n**`/playbooks/[name]/page.tsx`** mounts `<PlaybookDetailTabs playbook={playbook} />`. Server-render the playbook fetch.\n\n**Keep:** MC's tab nav visual treatment, sticky tab on scroll, status pill in header.",
+              "taskId": "03-rebind-ui/006-rebind-playbook-detail",
+              "taskTitle": "Rebind playbook detail page using agent-detail-tabs as visual template",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/03-rebind-ui/tasks/006-rebind-playbook-detail",
+              "factId": "check:detail-page-exists"
+            }
+          },
+          {
+            "id": "03-rebind-ui/006-rebind-playbook-detail-check-failed-detail-tabs-component-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-rebind-ui/006-rebind-playbook-detail",
+            "severity": "high",
+            "description": "[03-rebind-ui/006-rebind-playbook-detail] Check failed: playbook-detail-tabs.tsx exists with 4 tabs",
+            "source": "unit",
+            "detected": "2026-04-26T09:53:43.696Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "detail-tabs-component-exists",
+              "checkCmd": "test -f packages/studio/src/components/playbook-detail-tabs.tsx && grep -q 'Overview' packages/studio/src/components/playbook-detail-tabs.tsx && grep -q 'Tasks' packages/studio/src/components/playbook-detail-tabs.tsx && grep -q 'Runs' packages/studio/src/components/playbook-detail-tabs.tsx && grep -q 'Config' packages/studio/src/components/playbook-detail-tabs.tsx",
+              "checkDescription": "playbook-detail-tabs.tsx exists with 4 tabs",
+              "checkOutput": "Command failed: test -f packages/studio/src/components/playbook-detail-tabs.tsx && grep -q 'Overview' packages/studio/src/components/playbook-detail-tabs.tsx && grep -q 'Tasks' packages/studio/src/components/playbook-detail-tabs.tsx && grep -q 'Runs' packages/studio/src/components/playbook-detail-tabs.tsx && grep -q 'Config' packages/studio/src/components/playbook-detail-tabs.tsx\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Clone MC's `src/components/panels/agent-detail-tabs.tsx` → `src/components/playbook-detail-tabs.tsx` and rebind:\n\n**Tabs:** Overview / Tasks / Runs / Config (replace MC's 7 agent tabs)\n\n**Overview:** description, run config (mode/maxIterations/maxDuration), last-run summary (timestamp, duration, status pill, iterations). MetricCard + SignalPill + StatRow primitives.\n\n**Tasks:** ViewSwitcher (tree default) over `views/TaskTree`, `views/TableView`, `views/KanbanBoard`. Click → `/playbooks/<name>/tasks/<taskPath>`.\n\n**Runs:** TableView filtered by playbook. \"Trigger run\" button → POST `/api/run`.\n\n**Config:** Monaco YAML editor. Initial: `fetch('/api/playbooks/<name>')`. Save: `PUT /api/playbooks/<name>` with new YAML. Theme follows `useTheme()`.\n\n**`/playbooks/[name]/page.tsx`** mounts `<PlaybookDetailTabs playbook={playbook} />`. Server-render the playbook fetch.\n\n**Keep:** MC's tab nav visual treatment, sticky tab on scroll, status pill in header.",
+              "taskId": "03-rebind-ui/006-rebind-playbook-detail",
+              "taskTitle": "Rebind playbook detail page using agent-detail-tabs as visual template",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/03-rebind-ui/tasks/006-rebind-playbook-detail",
+              "factId": "check:detail-tabs-component-exists"
+            }
+          }
+        ],
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 4
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 19
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#14",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 177424
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T09:53:43.686Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T09:53:43.687Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T09:53:43.696Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T09:53:43.696Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T09:53:43.701Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#14",
+      "iteration": 1,
+      "ts": "2026-04-26T09:56:41.126Z"
+    },
+    {
+      "from": "run-strategy:task-run#14",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T09:56:41.147Z"
+    }
+  ]
+}

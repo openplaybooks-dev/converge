@@ -1,0 +1,29 @@
+name: implement-studio
+description: Build @converge/studio — a web UI for managing converge playbooks, tasks, and runs. Forks builderz-labs/mission-control (MIT) into packages/converge-studio and replaces its data layer with a filesystem adapter reading .converge/ directly. Filesystem stays canonical; SQLite/Prisma dropped.
+
+run:
+  mode: oneoff
+  maxIterations: 100
+  maxTaskAttempts: 3
+  maxDuration: 6h
+  resume: true
+  stall:
+    maxConsecutive: 3
+    backoffMs: 30000
+
+checks:
+  - id: studio-package-exists
+    cmd: "test -f packages/converge-studio/package.json && node -e \"process.exit(require('./packages/converge-studio/package.json').name === '@converge/studio' ? 0 : 1)\""
+    description: "@converge/studio package exists with correct name"
+  - id: studio-typecheck
+    cmd: "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    description: Zero TypeScript errors in studio
+  - id: filesystem-canonical
+    cmd: "test -z \"$(grep -rln 'sqlite\\|@prisma\\|prisma/client' packages/converge-studio/src 2>/dev/null)\""
+    description: No SQLite/Prisma in studio source — filesystem is canonical
+  - id: license-attribution
+    cmd: "test -f packages/converge-studio/LICENSE.upstream && test -f packages/converge-studio/NOTICE && grep -qi 'mission-control' packages/converge-studio/NOTICE"
+    description: Upstream LICENSE preserved as LICENSE.upstream and NOTICE attributes mission-control
+  - id: cli-studio-command
+    cmd: "node packages/cli/dist/index.js studio --help 2>&1 | grep -qi studio"
+    description: "`converge studio` subcommand registered"

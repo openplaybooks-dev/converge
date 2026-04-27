@@ -1,0 +1,17 @@
+{
+  "taskId": "07-integrate-blog/003-post-template",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "apps/landing/src/content.config.ts",
+      "count": 1,
+      "samples": [
+        "apps/landing/src/content.config.ts"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/src/pages/blog/[slug].astro"
+  ],
+  "blocked": false
+}

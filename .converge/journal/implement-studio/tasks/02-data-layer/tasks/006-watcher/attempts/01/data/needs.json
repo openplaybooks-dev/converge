@@ -1,0 +1,10 @@
+{
+  "taskId": "02-data-layer/006-watcher",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/src/lib/converge-adapter/watcher.ts",
+    "packages/converge-studio/src/lib/converge-adapter/index.ts"
+  ],
+  "blocked": false
+}

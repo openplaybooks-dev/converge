@@ -1,0 +1,301 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "08-reference/002-playbook-yml-missing-output-docs/reference/playbook-yml.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-reference/002-playbook-yml",
+            "severity": "high",
+            "description": "[08-reference/002-playbook-yml] Task output not created: docs/reference/playbook-yml.md",
+            "source": "unit",
+            "detected": "2026-04-26T09:47:35.524Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/08-reference/tasks/002-playbook-yml",
+              "taskId": "08-reference/002-playbook-yml",
+              "taskTitle": "Write docs/reference/playbook-yml.md (playbook.yml schema)",
+              "taskPrompt": "# Write `docs/reference/playbook-yml.md`\n\nThe complete reference for `playbook.yml`. Every field, every constraint.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"playbook.yml\"\ndescription: \"Complete schema reference for playbook.yml.\"\nsources:\n  - packages/core/src/storage/types.ts\n  - examples/stitch-to-flutter-baby-watch-v2/.converge/playbooks/default/playbook.yml\n  - .converge/playbooks/implement-studio/playbook.yml\nsidebar:\n  order: 2\n---\n```\n\n## Required structure\n\n1. **At-a-glance example.** Show a complete `playbook.yml` (~40 lines) at the\n   top so readers can scroll back to it. Use `implement-studio`'s manifest\n   as the canonical example.\n\n2. **Field-by-field reference.** For each top-level field:\n   - `name` (string, required)\n   - `description` (string, optional)\n   - `run` (object, required)\n     - `mode` (`oneoff` | `loop` | `dispatch`)\n     - `maxIterations` (integer)\n     - `maxTaskAttempts` (integer)\n     - `maxDuration` (duration string, e.g. `8h`)\n     - `resume` (boolean)\n     - `stall` (object: `maxConsecutive`, `backoffMs`)\n   - `tasks` (array, required) — phase list with `id` + optional `depends_on`\n   - `checks` (array, optional) — global checks\n   - `variables` (object, optional)\n\n   For each field, document:\n   - Type (from the schema in `packages/core/src/storage/types.ts`)\n   - Required vs optional\n   - Default (if any)\n   - One-line description\n   - One-line example\n\n3. **Common patterns.**\n   - File-nested phases vs explicit `tasks:` list\n   - When to declare global checks vs per-task checks\n   - `run.mode` choices\n\n## Read first\n\n- `packages/core/src/storage/types.ts` — find `PlaybookConfigSchema` (or\n  similarly-named zod schema). Pull field names + types from there. **Do not\n  invent fields.**\n- The two example `playbook.yml` files cited in `sources:`.\n\n## Banned\n\n- Documenting fields not in the schema. If `run.timeout` doesn't exist in\n  `PlaybookConfigSchema`, do not document it.\n- Marking a field \"required\" without verifying. Check the zod schema's\n  `.optional()` calls.\n- Skipping the at-a-glance example. Reference pages live or die on having\n  one.",
+              "taskInputs": [
+                "packages/core/src/storage/types.ts",
+                "examples/stitch-to-flutter-baby-watch-v2/.converge/playbooks/default/playbook.yml",
+                ".converge/playbooks/implement-studio/playbook.yml"
+              ],
+              "factId": "file-exists:test -f \"docs/reference/playbook-yml.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "08-reference/002-playbook-yml-check-failed-page-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-reference/002-playbook-yml",
+            "severity": "high",
+            "description": "[08-reference/002-playbook-yml] Check failed: page exists",
+            "source": "unit",
+            "detected": "2026-04-26T09:47:35.526Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "page-exists",
+              "checkCmd": "test -f docs/reference/playbook-yml.md",
+              "checkDescription": "page exists",
+              "checkOutput": "Command failed: test -f docs/reference/playbook-yml.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Write `docs/reference/playbook-yml.md`\n\nThe complete reference for `playbook.yml`. Every field, every constraint.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"playbook.yml\"\ndescription: \"Complete schema reference for playbook.yml.\"\nsources:\n  - packages/core/src/storage/types.ts\n  - examples/stitch-to-flutter-baby-watch-v2/.converge/playbooks/default/playbook.yml\n  - .converge/playbooks/implement-studio/playbook.yml\nsidebar:\n  order: 2\n---\n```\n\n## Required structure\n\n1. **At-a-glance example.** Show a complete `playbook.yml` (~40 lines) at the\n   top so readers can scroll back to it. Use `implement-studio`'s manifest\n   as the canonical example.\n\n2. **Field-by-field reference.** For each top-level field:\n   - `name` (string, required)\n   - `description` (string, optional)\n   - `run` (object, required)\n     - `mode` (`oneoff` | `loop` | `dispatch`)\n     - `maxIterations` (integer)\n     - `maxTaskAttempts` (integer)\n     - `maxDuration` (duration string, e.g. `8h`)\n     - `resume` (boolean)\n     - `stall` (object: `maxConsecutive`, `backoffMs`)\n   - `tasks` (array, required) — phase list with `id` + optional `depends_on`\n   - `checks` (array, optional) — global checks\n   - `variables` (object, optional)\n\n   For each field, document:\n   - Type (from the schema in `packages/core/src/storage/types.ts`)\n   - Required vs optional\n   - Default (if any)\n   - One-line description\n   - One-line example\n\n3. **Common patterns.**\n   - File-nested phases vs explicit `tasks:` list\n   - When to declare global checks vs per-task checks\n   - `run.mode` choices\n\n## Read first\n\n- `packages/core/src/storage/types.ts` — find `PlaybookConfigSchema` (or\n  similarly-named zod schema). Pull field names + types from there. **Do not\n  invent fields.**\n- The two example `playbook.yml` files cited in `sources:`.\n\n## Banned\n\n- Documenting fields not in the schema. If `run.timeout` doesn't exist in\n  `PlaybookConfigSchema`, do not document it.\n- Marking a field \"required\" without verifying. Check the zod schema's\n  `.optional()` calls.\n- Skipping the at-a-glance example. Reference pages live or die on having\n  one.",
+              "taskId": "08-reference/002-playbook-yml",
+              "taskTitle": "Write docs/reference/playbook-yml.md (playbook.yml schema)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/08-reference/tasks/002-playbook-yml",
+              "factId": "check:page-exists"
+            }
+          },
+          {
+            "id": "08-reference/002-playbook-yml-check-failed-documents-name-and-tasks",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-reference/002-playbook-yml",
+            "severity": "high",
+            "description": "[08-reference/002-playbook-yml] Check failed: documents name and tasks fields",
+            "source": "unit",
+            "detected": "2026-04-26T09:47:35.531Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "documents-name-and-tasks",
+              "checkCmd": "grep -qE '^##\\s+name|^###\\s+name' docs/reference/playbook-yml.md && grep -qE '^##\\s+tasks|^###\\s+tasks' docs/reference/playbook-yml.md",
+              "checkDescription": "documents name and tasks fields",
+              "checkOutput": "grep: docs/reference/playbook-yml.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Write `docs/reference/playbook-yml.md`\n\nThe complete reference for `playbook.yml`. Every field, every constraint.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"playbook.yml\"\ndescription: \"Complete schema reference for playbook.yml.\"\nsources:\n  - packages/core/src/storage/types.ts\n  - examples/stitch-to-flutter-baby-watch-v2/.converge/playbooks/default/playbook.yml\n  - .converge/playbooks/implement-studio/playbook.yml\nsidebar:\n  order: 2\n---\n```\n\n## Required structure\n\n1. **At-a-glance example.** Show a complete `playbook.yml` (~40 lines) at the\n   top so readers can scroll back to it. Use `implement-studio`'s manifest\n   as the canonical example.\n\n2. **Field-by-field reference.** For each top-level field:\n   - `name` (string, required)\n   - `description` (string, optional)\n   - `run` (object, required)\n     - `mode` (`oneoff` | `loop` | `dispatch`)\n     - `maxIterations` (integer)\n     - `maxTaskAttempts` (integer)\n     - `maxDuration` (duration string, e.g. `8h`)\n     - `resume` (boolean)\n     - `stall` (object: `maxConsecutive`, `backoffMs`)\n   - `tasks` (array, required) — phase list with `id` + optional `depends_on`\n   - `checks` (array, optional) — global checks\n   - `variables` (object, optional)\n\n   For each field, document:\n   - Type (from the schema in `packages/core/src/storage/types.ts`)\n   - Required vs optional\n   - Default (if any)\n   - One-line description\n   - One-line example\n\n3. **Common patterns.**\n   - File-nested phases vs explicit `tasks:` list\n   - When to declare global checks vs per-task checks\n   - `run.mode` choices\n\n## Read first\n\n- `packages/core/src/storage/types.ts` — find `PlaybookConfigSchema` (or\n  similarly-named zod schema). Pull field names + types from there. **Do not\n  invent fields.**\n- The two example `playbook.yml` files cited in `sources:`.\n\n## Banned\n\n- Documenting fields not in the schema. If `run.timeout` doesn't exist in\n  `PlaybookConfigSchema`, do not document it.\n- Marking a field \"required\" without verifying. Check the zod schema's\n  `.optional()` calls.\n- Skipping the at-a-glance example. Reference pages live or die on having\n  one.",
+              "taskId": "08-reference/002-playbook-yml",
+              "taskTitle": "Write docs/reference/playbook-yml.md (playbook.yml schema)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/08-reference/tasks/002-playbook-yml",
+              "factId": "check:documents-name-and-tasks"
+            }
+          },
+          {
+            "id": "08-reference/002-playbook-yml-check-failed-documents-checks",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-reference/002-playbook-yml",
+            "severity": "high",
+            "description": "[08-reference/002-playbook-yml] Check failed: documents checks field",
+            "source": "unit",
+            "detected": "2026-04-26T09:47:35.536Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "documents-checks",
+              "checkCmd": "grep -qE '^##\\s+checks|^###\\s+checks' docs/reference/playbook-yml.md",
+              "checkDescription": "documents checks field",
+              "checkOutput": "grep: docs/reference/playbook-yml.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Write `docs/reference/playbook-yml.md`\n\nThe complete reference for `playbook.yml`. Every field, every constraint.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"playbook.yml\"\ndescription: \"Complete schema reference for playbook.yml.\"\nsources:\n  - packages/core/src/storage/types.ts\n  - examples/stitch-to-flutter-baby-watch-v2/.converge/playbooks/default/playbook.yml\n  - .converge/playbooks/implement-studio/playbook.yml\nsidebar:\n  order: 2\n---\n```\n\n## Required structure\n\n1. **At-a-glance example.** Show a complete `playbook.yml` (~40 lines) at the\n   top so readers can scroll back to it. Use `implement-studio`'s manifest\n   as the canonical example.\n\n2. **Field-by-field reference.** For each top-level field:\n   - `name` (string, required)\n   - `description` (string, optional)\n   - `run` (object, required)\n     - `mode` (`oneoff` | `loop` | `dispatch`)\n     - `maxIterations` (integer)\n     - `maxTaskAttempts` (integer)\n     - `maxDuration` (duration string, e.g. `8h`)\n     - `resume` (boolean)\n     - `stall` (object: `maxConsecutive`, `backoffMs`)\n   - `tasks` (array, required) — phase list with `id` + optional `depends_on`\n   - `checks` (array, optional) — global checks\n   - `variables` (object, optional)\n\n   For each field, document:\n   - Type (from the schema in `packages/core/src/storage/types.ts`)\n   - Required vs optional\n   - Default (if any)\n   - One-line description\n   - One-line example\n\n3. **Common patterns.**\n   - File-nested phases vs explicit `tasks:` list\n   - When to declare global checks vs per-task checks\n   - `run.mode` choices\n\n## Read first\n\n- `packages/core/src/storage/types.ts` — find `PlaybookConfigSchema` (or\n  similarly-named zod schema). Pull field names + types from there. **Do not\n  invent fields.**\n- The two example `playbook.yml` files cited in `sources:`.\n\n## Banned\n\n- Documenting fields not in the schema. If `run.timeout` doesn't exist in\n  `PlaybookConfigSchema`, do not document it.\n- Marking a field \"required\" without verifying. Check the zod schema's\n  `.optional()` calls.\n- Skipping the at-a-glance example. Reference pages live or die on having\n  one.",
+              "taskId": "08-reference/002-playbook-yml",
+              "taskTitle": "Write docs/reference/playbook-yml.md (playbook.yml schema)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/08-reference/tasks/002-playbook-yml",
+              "factId": "check:documents-checks"
+            }
+          },
+          {
+            "id": "08-reference/002-playbook-yml-check-failed-shows-full-example",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-reference/002-playbook-yml",
+            "severity": "high",
+            "description": "[08-reference/002-playbook-yml] Check failed: shows a complete playbook.yml example",
+            "source": "unit",
+            "detected": "2026-04-26T09:47:35.542Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "shows-full-example",
+              "checkCmd": "grep -qE '^name:.+\\n.+description:' docs/reference/playbook-yml.md || grep -A20 '```yaml' docs/reference/playbook-yml.md | grep -q 'name:'",
+              "checkDescription": "shows a complete playbook.yml example",
+              "checkOutput": "grep: docs/reference/playbook-yml.md: No such file or directory\ngrep: docs/reference/playbook-yml.md: No such file or directory",
+              "checkExitCode": 1,
+              "taskPrompt": "# Write `docs/reference/playbook-yml.md`\n\nThe complete reference for `playbook.yml`. Every field, every constraint.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"playbook.yml\"\ndescription: \"Complete schema reference for playbook.yml.\"\nsources:\n  - packages/core/src/storage/types.ts\n  - examples/stitch-to-flutter-baby-watch-v2/.converge/playbooks/default/playbook.yml\n  - .converge/playbooks/implement-studio/playbook.yml\nsidebar:\n  order: 2\n---\n```\n\n## Required structure\n\n1. **At-a-glance example.** Show a complete `playbook.yml` (~40 lines) at the\n   top so readers can scroll back to it. Use `implement-studio`'s manifest\n   as the canonical example.\n\n2. **Field-by-field reference.** For each top-level field:\n   - `name` (string, required)\n   - `description` (string, optional)\n   - `run` (object, required)\n     - `mode` (`oneoff` | `loop` | `dispatch`)\n     - `maxIterations` (integer)\n     - `maxTaskAttempts` (integer)\n     - `maxDuration` (duration string, e.g. `8h`)\n     - `resume` (boolean)\n     - `stall` (object: `maxConsecutive`, `backoffMs`)\n   - `tasks` (array, required) — phase list with `id` + optional `depends_on`\n   - `checks` (array, optional) — global checks\n   - `variables` (object, optional)\n\n   For each field, document:\n   - Type (from the schema in `packages/core/src/storage/types.ts`)\n   - Required vs optional\n   - Default (if any)\n   - One-line description\n   - One-line example\n\n3. **Common patterns.**\n   - File-nested phases vs explicit `tasks:` list\n   - When to declare global checks vs per-task checks\n   - `run.mode` choices\n\n## Read first\n\n- `packages/core/src/storage/types.ts` — find `PlaybookConfigSchema` (or\n  similarly-named zod schema). Pull field names + types from there. **Do not\n  invent fields.**\n- The two example `playbook.yml` files cited in `sources:`.\n\n## Banned\n\n- Documenting fields not in the schema. If `run.timeout` doesn't exist in\n  `PlaybookConfigSchema`, do not document it.\n- Marking a field \"required\" without verifying. Check the zod schema's\n  `.optional()` calls.\n- Skipping the at-a-glance example. Reference pages live or die on having\n  one.",
+              "taskId": "08-reference/002-playbook-yml",
+              "taskTitle": "Write docs/reference/playbook-yml.md (playbook.yml schema)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/08-reference/tasks/002-playbook-yml",
+              "factId": "check:shows-full-example"
+            }
+          }
+        ],
+        "durationMs": 27
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 18
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 32
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 71298
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T09:47:35.514Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T09:47:35.515Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T09:47:35.542Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T09:47:35.543Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T09:47:35.561Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-04-26T09:48:46.860Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T09:48:46.893Z"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "taskId": "06-verify/002-final-build",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    ".converge/studio-state/final-build.json"
+  ],
+  "blocked": false
+}

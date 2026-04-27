@@ -1,0 +1,10 @@
+{
+  "taskId": "05-run-supervisor/002-run-api-route",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/src/app/api/run/route.ts",
+    "packages/converge-studio/src/app/api/run/[runId]/stream/route.ts"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,14 @@
+# FEEDBACK.md — Check Results
+
+**Status**: ❌ 1/1 check(s) failed
+
+- ❌ **install-completed**
+
+## ❌ install-completed
+
+**Command**: `test -f apps/landing/package.json && test -d apps/landing/node_modules && test -d apps/landing/node_modules/astro`
+**Exit code**: 1
+**Output**:
+```
+Command failed: test -f apps/landing/package.json && test -d apps/landing/node_modules && test -d apps/landing/node_modules/astro
+```

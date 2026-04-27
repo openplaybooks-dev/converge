@@ -1,0 +1,10 @@
+{
+  "taskId": "04-ui/020-converge-shell",
+  "attemptNumber": 3,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/src/app/layout.tsx",
+    "packages/converge-studio/src/components/layout/converge-header.tsx"
+  ],
+  "blocked": false
+}

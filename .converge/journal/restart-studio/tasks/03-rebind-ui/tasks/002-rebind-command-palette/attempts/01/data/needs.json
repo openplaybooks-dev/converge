@@ -1,0 +1,9 @@
+{
+  "taskId": "03-rebind-ui/002-rebind-command-palette",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/studio/src/components/command-palette.tsx"
+  ],
+  "blocked": false
+}

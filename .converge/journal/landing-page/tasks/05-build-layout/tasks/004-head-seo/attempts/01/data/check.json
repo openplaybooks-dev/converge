@@ -1,0 +1,30 @@
+{
+  "taskId": "05-build-layout/004-head-seo",
+  "checks": [
+    {
+      "id": "head-exists",
+      "description": "Head.astro exists",
+      "cmd": "test -f apps/landing/src/components/layout/Head.astro"
+    },
+    {
+      "id": "head-emits-title",
+      "description": "emits a <title> tag",
+      "cmd": "test -f apps/landing/src/components/layout/Head.astro && grep -qE '<title>' apps/landing/src/components/layout/Head.astro"
+    },
+    {
+      "id": "head-emits-og",
+      "description": "emits Open Graph meta tags",
+      "cmd": "test -f apps/landing/src/components/layout/Head.astro && grep -qE 'og:title|og:description|og:image' apps/landing/src/components/layout/Head.astro"
+    },
+    {
+      "id": "head-emits-twitter",
+      "description": "emits Twitter card meta",
+      "cmd": "test -f apps/landing/src/components/layout/Head.astro && grep -qE 'twitter:card' apps/landing/src/components/layout/Head.astro"
+    },
+    {
+      "id": "head-emits-canonical",
+      "description": "emits canonical link",
+      "cmd": "test -f apps/landing/src/components/layout/Head.astro && grep -qE 'rel=\"canonical\"' apps/landing/src/components/layout/Head.astro"
+    }
+  ]
+}

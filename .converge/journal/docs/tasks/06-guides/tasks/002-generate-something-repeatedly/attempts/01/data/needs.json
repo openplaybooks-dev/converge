@@ -1,0 +1,45 @@
+{
+  "taskId": "06-guides/002-generate-something-repeatedly",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "examples/data-pipeline/README.md",
+      "count": 1,
+      "samples": [
+        "examples/data-pipeline/README.md"
+      ]
+    },
+    {
+      "pattern": "examples/data-pipeline/.converge/playbooks/default/playbook.yml",
+      "count": 1,
+      "samples": [
+        "examples/data-pipeline/.converge/playbooks/default/playbook.yml"
+      ]
+    },
+    {
+      "pattern": "examples/cinematic-video-production/README.md",
+      "count": 1,
+      "samples": [
+        "examples/cinematic-video-production/README.md"
+      ]
+    },
+    {
+      "pattern": "examples/cinematic-video-production/.converge/playbooks/default/playbook.yml",
+      "count": 1,
+      "samples": [
+        "examples/cinematic-video-production/.converge/playbooks/default/playbook.yml"
+      ]
+    },
+    {
+      "pattern": "packages/core/src/storage/types.ts",
+      "count": 1,
+      "samples": [
+        "packages/core/src/storage/types.ts"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/guides/generate-something-repeatedly.md"
+  ],
+  "blocked": false
+}

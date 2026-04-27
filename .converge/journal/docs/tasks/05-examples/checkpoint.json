@@ -1,0 +1,16 @@
+{
+  "type": "task",
+  "id": "05-examples",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T15:43:55.601Z",
+  "createdAt": "2026-04-26T07:34:28.987Z",
+  "progress": {
+    "totalChildren": 1,
+    "completedChildren": 1,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-gallery-hub"
+    ],
+    "lastProgressUpdate": "2026-04-26T15:41:47.046Z"
+  }
+}

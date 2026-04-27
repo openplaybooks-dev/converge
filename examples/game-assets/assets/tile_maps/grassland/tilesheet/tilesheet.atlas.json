@@ -1,0 +1,200 @@
+{
+  "image": "tilesheet.png",
+  "meta": {
+    "tilemap_id": "grassland",
+    "rows": 4,
+    "cols": 4,
+    "frame_count": 16,
+    "frame_size": {
+      "w": 128,
+      "h": 128
+    },
+    "sheet_size": {
+      "w": 512,
+      "h": 512
+    },
+    "in_game_tile_size": {
+      "w": 16,
+      "h": 16
+    },
+    "frame_order": "left-to-right, top-to-bottom"
+  },
+  "frames": [
+    {
+      "filename": "grass-base.png",
+      "tile_id": "grass-base",
+      "layer": "base",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 128,
+        "h": 128
+      }
+    },
+    {
+      "filename": "grass-edge-left.png",
+      "tile_id": "grass-edge-left",
+      "layer": "base",
+      "frame": {
+        "x": 128,
+        "y": 0,
+        "w": 128,
+        "h": 128
+      }
+    },
+    {
+      "filename": "grass-edge-right.png",
+      "tile_id": "grass-edge-right",
+      "layer": "base",
+      "frame": {
+        "x": 256,
+        "y": 0,
+        "w": 128,
+        "h": 128
+      }
+    },
+    {
+      "filename": "grass-tall.png",
+      "tile_id": "grass-tall",
+      "layer": "base",
+      "frame": {
+        "x": 384,
+        "y": 0,
+        "w": 128,
+        "h": 128
+      }
+    },
+    {
+      "filename": "earth-fill.png",
+      "tile_id": "earth-fill",
+      "layer": "base",
+      "frame": {
+        "x": 0,
+        "y": 128,
+        "w": 128,
+        "h": 128
+      }
+    },
+    {
+      "filename": "earth-rocky.png",
+      "tile_id": "earth-rocky",
+      "layer": "base",
+      "frame": {
+        "x": 128,
+        "y": 128,
+        "w": 128,
+        "h": 128
+      }
+    },
+    {
+      "filename": "flower-yellow.png",
+      "tile_id": "flower-yellow",
+      "layer": "detail",
+      "frame": {
+        "x": 256,
+        "y": 128,
+        "w": 128,
+        "h": 128
+      }
+    },
+    {
+      "filename": "flower-pink.png",
+      "tile_id": "flower-pink",
+      "layer": "detail",
+      "frame": {
+        "x": 384,
+        "y": 128,
+        "w": 128,
+        "h": 128
+      }
+    },
+    {
+      "filename": "flower-white.png",
+      "tile_id": "flower-white",
+      "layer": "detail",
+      "frame": {
+        "x": 0,
+        "y": 256,
+        "w": 128,
+        "h": 128
+      }
+    },
+    {
+      "filename": "weed-clump.png",
+      "tile_id": "weed-clump",
+      "layer": "detail",
+      "frame": {
+        "x": 128,
+        "y": 256,
+        "w": 128,
+        "h": 128
+      }
+    },
+    {
+      "filename": "stone-small.png",
+      "tile_id": "stone-small",
+      "layer": "decoration",
+      "frame": {
+        "x": 256,
+        "y": 256,
+        "w": 128,
+        "h": 128
+      }
+    },
+    {
+      "filename": "stone-pair.png",
+      "tile_id": "stone-pair",
+      "layer": "decoration",
+      "frame": {
+        "x": 384,
+        "y": 256,
+        "w": 128,
+        "h": 128
+      }
+    },
+    {
+      "filename": "stone-large.png",
+      "tile_id": "stone-large",
+      "layer": "decoration",
+      "frame": {
+        "x": 0,
+        "y": 384,
+        "w": 128,
+        "h": 128
+      }
+    },
+    {
+      "filename": "log-mossy.png",
+      "tile_id": "log-mossy",
+      "layer": "decoration",
+      "frame": {
+        "x": 128,
+        "y": 384,
+        "w": 128,
+        "h": 128
+      }
+    },
+    {
+      "filename": "mushroom-red.png",
+      "tile_id": "mushroom-red",
+      "layer": "decoration",
+      "frame": {
+        "x": 256,
+        "y": 384,
+        "w": 128,
+        "h": 128
+      }
+    },
+    {
+      "filename": "filler-grass.png",
+      "tile_id": "filler-grass",
+      "layer": "decoration",
+      "frame": {
+        "x": 384,
+        "y": 384,
+        "w": 128,
+        "h": 128
+      }
+    }
+  ]
+}

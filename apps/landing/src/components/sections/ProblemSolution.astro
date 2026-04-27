@@ -1,0 +1,123 @@
+---
+import Section from '../layout/Section.astro';
+import Container from '../layout/Container.astro';
+import CodeBlock from '../ui/CodeBlock.astro';
+
+interface Props {}
+const {} = Astro.props;
+---
+
+<Section id="problem-solution" padY="lg" bg="default">
+  <Container>
+    <div class="text-center mb-12">
+      <p class="text-sm font-medium tracking-widest text-indigo uppercase mb-4">Define how vs. define done</p>
+      <h2 class="text-3xl sm:text-4xl font-bold text-text mb-4">
+        The old way: you figure out the steps
+      </h2>
+      <p class="text-lg text-text-muted max-w-2xl mx-auto">
+        Imperative code tells the machine exactly what to do, step by step. You're responsible for the how.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8 mb-16">
+      <div>
+        <h3 class="text-lg font-semibold text-text mb-4">The problem</h3>
+        <CodeBlock language="typescript" filename="scripts/build-nav.ts">
+{`import { chromium } from 'playwright';
+import fs from 'fs';
+
+const browser = await chromium.launch();
+const page = await browser.newPage();
+
+await page.goto('https://example.com');
+await page.waitForSelector('nav');
+
+// Click each nav item and wait
+const links = await page.$$('nav a');
+for (let i = 0; i < links.length; i++) {
+  await links[i].click();
+  await page.waitForLoadState('networkidle');
+  const title = await page.title();
+  console.log(\`Navigated to: \${title}\`);
+  await page.goBack();
+  await page.waitForSelector('nav');
+}
+
+await browser.close();
+fs.writeFileSync('results.json', JSON.stringify(results));`}
+        </CodeBlock>
+        <p class="text-sm text-text-muted mt-3">
+          brittle — one UI change breaks everything
+        </p>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-semibold text-text mb-4">The problem with problems</h3>
+        <div class="space-y-3 text-text-muted">
+          <div class="p-4 rounded-lg border border-border bg-surface">
+            <p class="font-medium text-text">Too many steps to get right</p>
+            <p class="text-sm">Each step is a new failure point. Debugging means tracing through the entire sequence.</p>
+          </div>
+          <div class="p-4 rounded-lg border border-border bg-surface">
+            <p class="font-medium text-text">Tied to implementation details</p>
+            <p class="text-sm">Selectors change, APIs evolve, wait times shift. The script knows too much about how things work.</p>
+          </div>
+          <div class="p-4 rounded-lg border border-border bg-surface">
+            <p class="font-medium text-text">Not a spec — a procedure</p>
+            <p class="text-sm">You can't review intent at a glance. You have to mentally execute to understand.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mb-12">
+      <h2 class="text-3xl sm:text-4xl font-bold text-text mb-4">
+        The converge way: define done, not how
+      </h2>
+      <p class="text-lg text-text-muted max-w-2xl mx-auto">
+        Declarative TASK.md describes the outcome. Converge figures out the path.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-lg font-semibold text-text mb-4">The solution</h3>
+        <CodeBlock language="yaml" filename="TASK.md">
+{`title: Verify nav links work
+
+probe:
+  url: https://example.com
+  select: nav a
+  forEach:
+    - expect: status 200
+    - expect: title not empty
+
+reports:
+  - type: summary
+    into: results.json`}
+        </CodeBlock>
+        <p class="text-sm text-text-muted mt-3">
+          readable by anyone — no code knowledge required
+        </p>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-semibold text-text mb-4">Why this works</h3>
+        <div class="space-y-3 text-text-muted">
+          <div class="p-4 rounded-lg border border-indigo/30 bg-indigo/5">
+            <p class="font-medium text-text">Intent is visible</p>
+            <p class="text-sm">"Verify nav links return 200" — that's the whole point. You can read it, review it, question it.</p>
+          </div>
+          <div class="p-4 rounded-lg border border-indigo/30 bg-indigo/5">
+            <p class="font-medium text-text">Converge handles the how</p>
+            <p class="text-sm">Selectors, retries, timing — that's infrastructure, not your job.</p>
+          </div>
+          <div class="p-4 rounded-lg border border-indigo/30 bg-indigo/5">
+            <p class="font-medium text-text">A spec you can version</p>
+            <p class="text-sm">This lives in git. It's part of the codebase, not a throwaway script.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Container>
+</Section>

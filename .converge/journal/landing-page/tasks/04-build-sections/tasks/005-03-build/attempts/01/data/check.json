@@ -1,0 +1,30 @@
+{
+  "taskId": "04-build-sections/005-03-build",
+  "checks": [
+    {
+      "id": "component-exists",
+      "description": "InteractiveComparison.astro was created",
+      "cmd": "test -f apps/landing/src/components/sections/InteractiveComparison.astro"
+    },
+    {
+      "id": "component-uses-section-wrapper",
+      "description": "component uses <Section> layout primitive",
+      "cmd": "test -f apps/landing/src/components/sections/InteractiveComparison.astro && grep -qE '<Section\\s' apps/landing/src/components/sections/InteractiveComparison.astro"
+    },
+    {
+      "id": "component-typecheck",
+      "description": "astro check passes for this component",
+      "cmd": "test -f apps/landing/src/components/sections/InteractiveComparison.astro && pnpm --filter @converge/landing astro check 2>&1 | (! grep -E 'error.*InteractiveComparison\\.astro')"
+    },
+    {
+      "id": "no-hardcoded-hex",
+      "description": "no hardcoded hex colors (use brand tokens via Tailwind classes)",
+      "cmd": "test -f apps/landing/src/components/sections/InteractiveComparison.astro && ! grep -qE '#[0-9a-fA-F]{3,6}\\b' apps/landing/src/components/sections/InteractiveComparison.astro"
+    },
+    {
+      "id": "no-placeholders",
+      "description": "no placeholder copy",
+      "cmd": "test -f apps/landing/src/components/sections/InteractiveComparison.astro && ! grep -qE 'Lorem|placeholder content|TBD|FIXME|TODO:' apps/landing/src/components/sections/InteractiveComparison.astro"
+    }
+  ]
+}

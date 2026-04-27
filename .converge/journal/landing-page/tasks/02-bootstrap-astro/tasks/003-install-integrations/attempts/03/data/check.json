@@ -1,0 +1,40 @@
+{
+  "taskId": "02-bootstrap-astro/003-install-integrations",
+  "checks": [
+    {
+      "id": "tailwind-installed",
+      "description": "tailwindcss (any of the 3 install styles) is in deps",
+      "cmd": "test -f apps/landing/package.json && node -e \"const p=require('./apps/landing/package.json');const all={...p.dependencies,...p.devDependencies};process.exit((all['@tailwindcss/vite']||all['@astrojs/tailwind']||all['tailwindcss'])?0:1)\""
+    },
+    {
+      "id": "mdx-installed",
+      "description": "@astrojs/mdx is in deps",
+      "cmd": "test -f apps/landing/package.json && node -e \"const p=require('./apps/landing/package.json');const all={...p.dependencies,...p.devDependencies};process.exit(all['@astrojs/mdx']?0:1)\""
+    },
+    {
+      "id": "sitemap-installed",
+      "description": "@astrojs/sitemap is in deps",
+      "cmd": "test -f apps/landing/package.json && node -e \"const p=require('./apps/landing/package.json');const all={...p.dependencies,...p.devDependencies};process.exit(all['@astrojs/sitemap']?0:1)\""
+    },
+    {
+      "id": "rss-installed",
+      "description": "@astrojs/rss is in deps",
+      "cmd": "test -f apps/landing/package.json && node -e \"const p=require('./apps/landing/package.json');const all={...p.dependencies,...p.devDependencies};process.exit(all['@astrojs/rss']?0:1)\""
+    },
+    {
+      "id": "starlight-installed",
+      "description": "@astrojs/starlight is in deps",
+      "cmd": "test -f apps/landing/package.json && node -e \"const p=require('./apps/landing/package.json');const all={...p.dependencies,...p.devDependencies};process.exit(all['@astrojs/starlight']?0:1)\""
+    },
+    {
+      "id": "cloudflare-adapter-installed",
+      "description": "@astrojs/cloudflare is in deps",
+      "cmd": "test -f apps/landing/package.json && node -e \"const p=require('./apps/landing/package.json');const all={...p.dependencies,...p.devDependencies};process.exit(all['@astrojs/cloudflare']?0:1)\""
+    },
+    {
+      "id": "install-completed",
+      "description": "pnpm install completed and astro is resolvable",
+      "cmd": "test -f apps/landing/package.json && node -e \"const p=require('./apps/landing/package.json');process.exit(p.dependencies?.astro||p.devDependencies?.astro?0:1)\" && node -e \"require.resolve('astro', {paths:['apps/landing']})\""
+    }
+  ]
+}

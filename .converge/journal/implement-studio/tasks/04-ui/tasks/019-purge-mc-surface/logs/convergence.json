@@ -1,0 +1,300 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-ui/019-purge-mc-surface-check-failed-catchall-deleted",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/019-purge-mc-surface",
+            "severity": "high",
+            "description": "[04-ui/019-purge-mc-surface] Check failed: The [[...panel]] catch-all is gone",
+            "source": "unit",
+            "detected": "2026-04-26T07:03:10.071Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "catchall-deleted",
+              "checkCmd": "test ! -d 'packages/converge-studio/src/app/[[...panel]]'",
+              "checkDescription": "The [[...panel]] catch-all is gone",
+              "checkOutput": "Command failed: test ! -d 'packages/converge-studio/src/app/[[...panel]]'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Hard-delete every Mission Control surface that survived earlier prune passes. The acceptance gate is binary: each listed directory/file MUST be gone, the API route surface MUST be reduced to the converge-native subset.\n\n**Routes to delete:**\n- `src/app/[[...panel]]/` — the legacy MC catch-all that currently renders the Launch Sequence dashboard at `/`. Whole directory.\n- Any `src/app/(studio)/agents/`, `(studio)/skills/`, `(studio)/office/`, `(studio)/memory/`, `(studio)/inbox/` if they exist.\n\n**Components to delete (whole directories):**\n- `src/components/dashboard/` — fleet/launchpad/sessions-list/widgets.\n- `src/components/panels/` — every panel that the catch-all routed to (~30 files, all MC-specific).\n- `src/components/modals/` — exec-approval, project-manager, etc.\n- `src/components/hud/` — heads-up display widgets.\n- `src/components/terminal/` — pty terminal.\n- `src/components/chat/` — agent-comms chat.\n- `src/components/onboarding/` — launch-sequence wizard.\n\n**Layout files to delete (one-by-one, leave the directory):**\n- `src/components/layout/nav-rail.tsx`\n- `src/components/layout/header-bar.tsx`\n- `src/components/layout/live-feed.tsx`\n- `src/components/layout/site-header.tsx`\n- `src/components/layout/local-mode-banner.tsx`\n- `src/components/layout/update-banner.tsx`\n- `src/components/layout/promo-banner.tsx`\n- `src/components/layout/openclaw-doctor-banner.tsx`\n- `src/components/layout/openclaw-update-banner.tsx`\n\n**Lib files to delete (glob-style):**\n- `src/lib/gateway-*.ts`\n- `src/lib/openclaw-*.ts`\n- `src/lib/onboarding-*.ts`\n- `src/lib/pty-*.ts`\n- `src/lib/websocket-*.ts`, `src/lib/websocket.ts`\n- `src/lib/use-server-events.ts` (replaced by `use-converge-events.ts`)\n\n**API routes to delete — keep ONLY these top-level dirs in `src/app/api/`:**\n- `playbooks/`\n- `runs/`\n- `run/`\n- `watch/`\n- `events/`\n\n**Delete every other directory under `src/app/api/`**, including: `activities`, `adapters`, `agent-runtimes`, `alerts`, `audit`, `backup`, `channels`, `chat`, `claude`, `claude-tasks`, `cleanup`, `connect`, `cron`, `debug`, `diagnostics`, `docs`, `exec-approvals`, `export`, `frameworks`, `gateway-config`, `gateways`, `github`, `gnap`, `hermes`, `index`, `integrations`, `local`, `logs`, `mcp-audit`, `memory`, `mentions`, `nodes`, `notifications`, `onboarding`, `pipelines`, `projects`, `pty`, `quality-review`, `releases`, `schedule-parse`, `scheduler`, `search`, `security-audit`, `security-scan`, `sessions`, `settings`, `setup`, `skills`, `spawn`, `standup`, `status`, `super`, `system-monitor`, `tasks`, `tokens`, `v1`, `webhooks`, `workflows`, `workload`, `workspaces`.\n\n(If any of these are absent, that's fine — the check just enforces the *positive* allowlist.)\n\n**Process:**\n1. Delete every directory and file listed above.\n2. Run `pnpm --filter @converge/studio typecheck`. There WILL be dangling imports — the previous shell, page modules, and several lib files import from the deleted MC code. Resolve each by:\n   - **If the importer is itself MC-only** → delete the importer too.\n   - **If the importer is converge-native** (e.g. `(studio)/playbooks/page.tsx`) → strip the import and inline-or-stub the symbol.\n3. Repeat 2 until typecheck returns `0`.\n4. Re-run all the manifest checks; every one must pass.\n\n**Do not** keep any \"compatibility shim\" or \"deprecated re-export\" — the goal is zero MC code in the tree.",
+              "taskId": "04-ui/019-purge-mc-surface",
+              "taskTitle": "Hard-delete every Mission Control UI surface",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/019-purge-mc-surface",
+              "factId": "check:catchall-deleted"
+            }
+          },
+          {
+            "id": "04-ui/019-purge-mc-surface-check-failed-dashboard-tree-deleted",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/019-purge-mc-surface",
+            "severity": "high",
+            "description": "[04-ui/019-purge-mc-surface] Check failed: src/components/dashboard, panels, modals, hud, terminal, chat, onboarding all deleted",
+            "source": "unit",
+            "detected": "2026-04-26T07:03:10.074Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dashboard-tree-deleted",
+              "checkCmd": "test ! -d 'packages/converge-studio/src/components/dashboard' && test ! -d 'packages/converge-studio/src/components/panels' && test ! -d 'packages/converge-studio/src/components/modals' && test ! -d 'packages/converge-studio/src/components/hud' && test ! -d 'packages/converge-studio/src/components/terminal' && test ! -d 'packages/converge-studio/src/components/chat' && test ! -d 'packages/converge-studio/src/components/onboarding'",
+              "checkDescription": "src/components/dashboard, panels, modals, hud, terminal, chat, onboarding all deleted",
+              "checkOutput": "Command failed: test ! -d 'packages/converge-studio/src/components/dashboard' && test ! -d 'packages/converge-studio/src/components/panels' && test ! -d 'packages/converge-studio/src/components/modals' && test ! -d 'packages/converge-studio/src/components/hud' && test ! -d 'packages/converge-studio/src/components/terminal' && test ! -d 'packages/converge-studio/src/components/chat' && test ! -d 'packages/converge-studio/src/components/onboarding'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Hard-delete every Mission Control surface that survived earlier prune passes. The acceptance gate is binary: each listed directory/file MUST be gone, the API route surface MUST be reduced to the converge-native subset.\n\n**Routes to delete:**\n- `src/app/[[...panel]]/` — the legacy MC catch-all that currently renders the Launch Sequence dashboard at `/`. Whole directory.\n- Any `src/app/(studio)/agents/`, `(studio)/skills/`, `(studio)/office/`, `(studio)/memory/`, `(studio)/inbox/` if they exist.\n\n**Components to delete (whole directories):**\n- `src/components/dashboard/` — fleet/launchpad/sessions-list/widgets.\n- `src/components/panels/` — every panel that the catch-all routed to (~30 files, all MC-specific).\n- `src/components/modals/` — exec-approval, project-manager, etc.\n- `src/components/hud/` — heads-up display widgets.\n- `src/components/terminal/` — pty terminal.\n- `src/components/chat/` — agent-comms chat.\n- `src/components/onboarding/` — launch-sequence wizard.\n\n**Layout files to delete (one-by-one, leave the directory):**\n- `src/components/layout/nav-rail.tsx`\n- `src/components/layout/header-bar.tsx`\n- `src/components/layout/live-feed.tsx`\n- `src/components/layout/site-header.tsx`\n- `src/components/layout/local-mode-banner.tsx`\n- `src/components/layout/update-banner.tsx`\n- `src/components/layout/promo-banner.tsx`\n- `src/components/layout/openclaw-doctor-banner.tsx`\n- `src/components/layout/openclaw-update-banner.tsx`\n\n**Lib files to delete (glob-style):**\n- `src/lib/gateway-*.ts`\n- `src/lib/openclaw-*.ts`\n- `src/lib/onboarding-*.ts`\n- `src/lib/pty-*.ts`\n- `src/lib/websocket-*.ts`, `src/lib/websocket.ts`\n- `src/lib/use-server-events.ts` (replaced by `use-converge-events.ts`)\n\n**API routes to delete — keep ONLY these top-level dirs in `src/app/api/`:**\n- `playbooks/`\n- `runs/`\n- `run/`\n- `watch/`\n- `events/`\n\n**Delete every other directory under `src/app/api/`**, including: `activities`, `adapters`, `agent-runtimes`, `alerts`, `audit`, `backup`, `channels`, `chat`, `claude`, `claude-tasks`, `cleanup`, `connect`, `cron`, `debug`, `diagnostics`, `docs`, `exec-approvals`, `export`, `frameworks`, `gateway-config`, `gateways`, `github`, `gnap`, `hermes`, `index`, `integrations`, `local`, `logs`, `mcp-audit`, `memory`, `mentions`, `nodes`, `notifications`, `onboarding`, `pipelines`, `projects`, `pty`, `quality-review`, `releases`, `schedule-parse`, `scheduler`, `search`, `security-audit`, `security-scan`, `sessions`, `settings`, `setup`, `skills`, `spawn`, `standup`, `status`, `super`, `system-monitor`, `tasks`, `tokens`, `v1`, `webhooks`, `workflows`, `workload`, `workspaces`.\n\n(If any of these are absent, that's fine — the check just enforces the *positive* allowlist.)\n\n**Process:**\n1. Delete every directory and file listed above.\n2. Run `pnpm --filter @converge/studio typecheck`. There WILL be dangling imports — the previous shell, page modules, and several lib files import from the deleted MC code. Resolve each by:\n   - **If the importer is itself MC-only** → delete the importer too.\n   - **If the importer is converge-native** (e.g. `(studio)/playbooks/page.tsx`) → strip the import and inline-or-stub the symbol.\n3. Repeat 2 until typecheck returns `0`.\n4. Re-run all the manifest checks; every one must pass.\n\n**Do not** keep any \"compatibility shim\" or \"deprecated re-export\" — the goal is zero MC code in the tree.",
+              "taskId": "04-ui/019-purge-mc-surface",
+              "taskTitle": "Hard-delete every Mission Control UI surface",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/019-purge-mc-surface",
+              "factId": "check:dashboard-tree-deleted"
+            }
+          },
+          {
+            "id": "04-ui/019-purge-mc-surface-check-failed-layout-banners-deleted",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/019-purge-mc-surface",
+            "severity": "high",
+            "description": "[04-ui/019-purge-mc-surface] Check failed: nav-rail, header-bar, live-feed, banner files in src/components/layout/ are deleted",
+            "source": "unit",
+            "detected": "2026-04-26T07:03:10.077Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "layout-banners-deleted",
+              "checkCmd": "bash -c 'cd packages/converge-studio/src/components/layout && for f in nav-rail.tsx header-bar.tsx live-feed.tsx site-header.tsx local-mode-banner.tsx update-banner.tsx promo-banner.tsx openclaw-doctor-banner.tsx openclaw-update-banner.tsx; do test ! -f \"$f\" || { echo \"$f still present\"; exit 1; }; done'",
+              "checkDescription": "nav-rail, header-bar, live-feed, banner files in src/components/layout/ are deleted",
+              "checkOutput": "nav-rail.tsx still present",
+              "checkExitCode": 1,
+              "taskPrompt": "Hard-delete every Mission Control surface that survived earlier prune passes. The acceptance gate is binary: each listed directory/file MUST be gone, the API route surface MUST be reduced to the converge-native subset.\n\n**Routes to delete:**\n- `src/app/[[...panel]]/` — the legacy MC catch-all that currently renders the Launch Sequence dashboard at `/`. Whole directory.\n- Any `src/app/(studio)/agents/`, `(studio)/skills/`, `(studio)/office/`, `(studio)/memory/`, `(studio)/inbox/` if they exist.\n\n**Components to delete (whole directories):**\n- `src/components/dashboard/` — fleet/launchpad/sessions-list/widgets.\n- `src/components/panels/` — every panel that the catch-all routed to (~30 files, all MC-specific).\n- `src/components/modals/` — exec-approval, project-manager, etc.\n- `src/components/hud/` — heads-up display widgets.\n- `src/components/terminal/` — pty terminal.\n- `src/components/chat/` — agent-comms chat.\n- `src/components/onboarding/` — launch-sequence wizard.\n\n**Layout files to delete (one-by-one, leave the directory):**\n- `src/components/layout/nav-rail.tsx`\n- `src/components/layout/header-bar.tsx`\n- `src/components/layout/live-feed.tsx`\n- `src/components/layout/site-header.tsx`\n- `src/components/layout/local-mode-banner.tsx`\n- `src/components/layout/update-banner.tsx`\n- `src/components/layout/promo-banner.tsx`\n- `src/components/layout/openclaw-doctor-banner.tsx`\n- `src/components/layout/openclaw-update-banner.tsx`\n\n**Lib files to delete (glob-style):**\n- `src/lib/gateway-*.ts`\n- `src/lib/openclaw-*.ts`\n- `src/lib/onboarding-*.ts`\n- `src/lib/pty-*.ts`\n- `src/lib/websocket-*.ts`, `src/lib/websocket.ts`\n- `src/lib/use-server-events.ts` (replaced by `use-converge-events.ts`)\n\n**API routes to delete — keep ONLY these top-level dirs in `src/app/api/`:**\n- `playbooks/`\n- `runs/`\n- `run/`\n- `watch/`\n- `events/`\n\n**Delete every other directory under `src/app/api/`**, including: `activities`, `adapters`, `agent-runtimes`, `alerts`, `audit`, `backup`, `channels`, `chat`, `claude`, `claude-tasks`, `cleanup`, `connect`, `cron`, `debug`, `diagnostics`, `docs`, `exec-approvals`, `export`, `frameworks`, `gateway-config`, `gateways`, `github`, `gnap`, `hermes`, `index`, `integrations`, `local`, `logs`, `mcp-audit`, `memory`, `mentions`, `nodes`, `notifications`, `onboarding`, `pipelines`, `projects`, `pty`, `quality-review`, `releases`, `schedule-parse`, `scheduler`, `search`, `security-audit`, `security-scan`, `sessions`, `settings`, `setup`, `skills`, `spawn`, `standup`, `status`, `super`, `system-monitor`, `tasks`, `tokens`, `v1`, `webhooks`, `workflows`, `workload`, `workspaces`.\n\n(If any of these are absent, that's fine — the check just enforces the *positive* allowlist.)\n\n**Process:**\n1. Delete every directory and file listed above.\n2. Run `pnpm --filter @converge/studio typecheck`. There WILL be dangling imports — the previous shell, page modules, and several lib files import from the deleted MC code. Resolve each by:\n   - **If the importer is itself MC-only** → delete the importer too.\n   - **If the importer is converge-native** (e.g. `(studio)/playbooks/page.tsx`) → strip the import and inline-or-stub the symbol.\n3. Repeat 2 until typecheck returns `0`.\n4. Re-run all the manifest checks; every one must pass.\n\n**Do not** keep any \"compatibility shim\" or \"deprecated re-export\" — the goal is zero MC code in the tree.",
+              "taskId": "04-ui/019-purge-mc-surface",
+              "taskTitle": "Hard-delete every Mission Control UI surface",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/019-purge-mc-surface",
+              "factId": "check:layout-banners-deleted"
+            }
+          },
+          {
+            "id": "04-ui/019-purge-mc-surface-check-failed-mc-libs-deleted",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/019-purge-mc-surface",
+            "severity": "high",
+            "description": "[04-ui/019-purge-mc-surface] Check failed: gateway-*, openclaw-*, onboarding-*, pty-*, websocket-* lib modules are deleted",
+            "source": "unit",
+            "detected": "2026-04-26T07:03:10.081Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "mc-libs-deleted",
+              "checkCmd": "bash -c 'cd packages/converge-studio/src/lib && for pat in gateway- openclaw- onboarding- pty- websocket-; do for f in ${pat}*.ts; do [ \"$f\" = \"${pat}*.ts\" ] || { echo \"$f still present\"; exit 1; }; done; done'",
+              "checkDescription": "gateway-*, openclaw-*, onboarding-*, pty-*, websocket-* lib modules are deleted",
+              "checkOutput": "gateway-runtime.ts still present",
+              "checkExitCode": 1,
+              "taskPrompt": "Hard-delete every Mission Control surface that survived earlier prune passes. The acceptance gate is binary: each listed directory/file MUST be gone, the API route surface MUST be reduced to the converge-native subset.\n\n**Routes to delete:**\n- `src/app/[[...panel]]/` — the legacy MC catch-all that currently renders the Launch Sequence dashboard at `/`. Whole directory.\n- Any `src/app/(studio)/agents/`, `(studio)/skills/`, `(studio)/office/`, `(studio)/memory/`, `(studio)/inbox/` if they exist.\n\n**Components to delete (whole directories):**\n- `src/components/dashboard/` — fleet/launchpad/sessions-list/widgets.\n- `src/components/panels/` — every panel that the catch-all routed to (~30 files, all MC-specific).\n- `src/components/modals/` — exec-approval, project-manager, etc.\n- `src/components/hud/` — heads-up display widgets.\n- `src/components/terminal/` — pty terminal.\n- `src/components/chat/` — agent-comms chat.\n- `src/components/onboarding/` — launch-sequence wizard.\n\n**Layout files to delete (one-by-one, leave the directory):**\n- `src/components/layout/nav-rail.tsx`\n- `src/components/layout/header-bar.tsx`\n- `src/components/layout/live-feed.tsx`\n- `src/components/layout/site-header.tsx`\n- `src/components/layout/local-mode-banner.tsx`\n- `src/components/layout/update-banner.tsx`\n- `src/components/layout/promo-banner.tsx`\n- `src/components/layout/openclaw-doctor-banner.tsx`\n- `src/components/layout/openclaw-update-banner.tsx`\n\n**Lib files to delete (glob-style):**\n- `src/lib/gateway-*.ts`\n- `src/lib/openclaw-*.ts`\n- `src/lib/onboarding-*.ts`\n- `src/lib/pty-*.ts`\n- `src/lib/websocket-*.ts`, `src/lib/websocket.ts`\n- `src/lib/use-server-events.ts` (replaced by `use-converge-events.ts`)\n\n**API routes to delete — keep ONLY these top-level dirs in `src/app/api/`:**\n- `playbooks/`\n- `runs/`\n- `run/`\n- `watch/`\n- `events/`\n\n**Delete every other directory under `src/app/api/`**, including: `activities`, `adapters`, `agent-runtimes`, `alerts`, `audit`, `backup`, `channels`, `chat`, `claude`, `claude-tasks`, `cleanup`, `connect`, `cron`, `debug`, `diagnostics`, `docs`, `exec-approvals`, `export`, `frameworks`, `gateway-config`, `gateways`, `github`, `gnap`, `hermes`, `index`, `integrations`, `local`, `logs`, `mcp-audit`, `memory`, `mentions`, `nodes`, `notifications`, `onboarding`, `pipelines`, `projects`, `pty`, `quality-review`, `releases`, `schedule-parse`, `scheduler`, `search`, `security-audit`, `security-scan`, `sessions`, `settings`, `setup`, `skills`, `spawn`, `standup`, `status`, `super`, `system-monitor`, `tasks`, `tokens`, `v1`, `webhooks`, `workflows`, `workload`, `workspaces`.\n\n(If any of these are absent, that's fine — the check just enforces the *positive* allowlist.)\n\n**Process:**\n1. Delete every directory and file listed above.\n2. Run `pnpm --filter @converge/studio typecheck`. There WILL be dangling imports — the previous shell, page modules, and several lib files import from the deleted MC code. Resolve each by:\n   - **If the importer is itself MC-only** → delete the importer too.\n   - **If the importer is converge-native** (e.g. `(studio)/playbooks/page.tsx`) → strip the import and inline-or-stub the symbol.\n3. Repeat 2 until typecheck returns `0`.\n4. Re-run all the manifest checks; every one must pass.\n\n**Do not** keep any \"compatibility shim\" or \"deprecated re-export\" — the goal is zero MC code in the tree.",
+              "taskId": "04-ui/019-purge-mc-surface",
+              "taskTitle": "Hard-delete every Mission Control UI surface",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/019-purge-mc-surface",
+              "factId": "check:mc-libs-deleted"
+            }
+          },
+          {
+            "id": "04-ui/019-purge-mc-surface-check-failed-api-purged",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/019-purge-mc-surface",
+            "severity": "high",
+            "description": "[04-ui/019-purge-mc-surface] Check failed: src/app/api/ contains only converge-native routes",
+            "source": "unit",
+            "detected": "2026-04-26T07:03:10.084Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "api-purged",
+              "checkCmd": "bash -c 'cd packages/converge-studio/src/app/api && allowed=\"playbooks runs run watch events\"; for d in */; do d=${d%/}; case \" $allowed \" in *\" $d \"*) ;; *) echo \"$d still present\"; exit 1 ;; esac; done'",
+              "checkDescription": "src/app/api/ contains only converge-native routes",
+              "checkOutput": "activities still present",
+              "checkExitCode": 1,
+              "taskPrompt": "Hard-delete every Mission Control surface that survived earlier prune passes. The acceptance gate is binary: each listed directory/file MUST be gone, the API route surface MUST be reduced to the converge-native subset.\n\n**Routes to delete:**\n- `src/app/[[...panel]]/` — the legacy MC catch-all that currently renders the Launch Sequence dashboard at `/`. Whole directory.\n- Any `src/app/(studio)/agents/`, `(studio)/skills/`, `(studio)/office/`, `(studio)/memory/`, `(studio)/inbox/` if they exist.\n\n**Components to delete (whole directories):**\n- `src/components/dashboard/` — fleet/launchpad/sessions-list/widgets.\n- `src/components/panels/` — every panel that the catch-all routed to (~30 files, all MC-specific).\n- `src/components/modals/` — exec-approval, project-manager, etc.\n- `src/components/hud/` — heads-up display widgets.\n- `src/components/terminal/` — pty terminal.\n- `src/components/chat/` — agent-comms chat.\n- `src/components/onboarding/` — launch-sequence wizard.\n\n**Layout files to delete (one-by-one, leave the directory):**\n- `src/components/layout/nav-rail.tsx`\n- `src/components/layout/header-bar.tsx`\n- `src/components/layout/live-feed.tsx`\n- `src/components/layout/site-header.tsx`\n- `src/components/layout/local-mode-banner.tsx`\n- `src/components/layout/update-banner.tsx`\n- `src/components/layout/promo-banner.tsx`\n- `src/components/layout/openclaw-doctor-banner.tsx`\n- `src/components/layout/openclaw-update-banner.tsx`\n\n**Lib files to delete (glob-style):**\n- `src/lib/gateway-*.ts`\n- `src/lib/openclaw-*.ts`\n- `src/lib/onboarding-*.ts`\n- `src/lib/pty-*.ts`\n- `src/lib/websocket-*.ts`, `src/lib/websocket.ts`\n- `src/lib/use-server-events.ts` (replaced by `use-converge-events.ts`)\n\n**API routes to delete — keep ONLY these top-level dirs in `src/app/api/`:**\n- `playbooks/`\n- `runs/`\n- `run/`\n- `watch/`\n- `events/`\n\n**Delete every other directory under `src/app/api/`**, including: `activities`, `adapters`, `agent-runtimes`, `alerts`, `audit`, `backup`, `channels`, `chat`, `claude`, `claude-tasks`, `cleanup`, `connect`, `cron`, `debug`, `diagnostics`, `docs`, `exec-approvals`, `export`, `frameworks`, `gateway-config`, `gateways`, `github`, `gnap`, `hermes`, `index`, `integrations`, `local`, `logs`, `mcp-audit`, `memory`, `mentions`, `nodes`, `notifications`, `onboarding`, `pipelines`, `projects`, `pty`, `quality-review`, `releases`, `schedule-parse`, `scheduler`, `search`, `security-audit`, `security-scan`, `sessions`, `settings`, `setup`, `skills`, `spawn`, `standup`, `status`, `super`, `system-monitor`, `tasks`, `tokens`, `v1`, `webhooks`, `workflows`, `workload`, `workspaces`.\n\n(If any of these are absent, that's fine — the check just enforces the *positive* allowlist.)\n\n**Process:**\n1. Delete every directory and file listed above.\n2. Run `pnpm --filter @converge/studio typecheck`. There WILL be dangling imports — the previous shell, page modules, and several lib files import from the deleted MC code. Resolve each by:\n   - **If the importer is itself MC-only** → delete the importer too.\n   - **If the importer is converge-native** (e.g. `(studio)/playbooks/page.tsx`) → strip the import and inline-or-stub the symbol.\n3. Repeat 2 until typecheck returns `0`.\n4. Re-run all the manifest checks; every one must pass.\n\n**Do not** keep any \"compatibility shim\" or \"deprecated re-export\" — the goal is zero MC code in the tree.",
+              "taskId": "04-ui/019-purge-mc-surface",
+              "taskTitle": "Hard-delete every Mission Control UI surface",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/019-purge-mc-surface",
+              "factId": "check:api-purged"
+            }
+          }
+        ],
+        "durationMs": 3944
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 4114
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 3466
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#2",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 157719
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T07:03:10.068Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T07:03:10.068Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T07:03:14.013Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T07:03:14.014Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T07:03:18.129Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#2",
+      "iteration": 1,
+      "ts": "2026-04-26T07:05:55.850Z"
+    },
+    {
+      "from": "run-strategy:task-run#2",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T07:05:59.318Z"
+    }
+  ]
+}

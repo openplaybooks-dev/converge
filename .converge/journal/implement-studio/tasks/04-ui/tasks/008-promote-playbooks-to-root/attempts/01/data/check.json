@@ -1,0 +1,25 @@
+{
+  "taskId": "04-ui/008-promote-playbooks-to-root",
+  "checks": [
+    {
+      "id": "root-page-exists",
+      "description": "src/app/page.tsx exists (i.e. / is served by the playbooks index)",
+      "cmd": "test -f packages/converge-studio/src/app/page.tsx"
+    },
+    {
+      "id": "studio-route-group-removed",
+      "description": "The (studio) route group is gone",
+      "cmd": "test ! -d 'packages/converge-studio/src/app/(studio)'"
+    },
+    {
+      "id": "playbooks-routes-at-root",
+      "description": "/playbooks/[name] and /runs are at the URL root",
+      "cmd": "test -f 'packages/converge-studio/src/app/playbooks/[name]/page.tsx' && test -f 'packages/converge-studio/src/app/runs/page.tsx'"
+    },
+    {
+      "id": "typecheck-passes",
+      "description": "Studio still typechecks after the move",
+      "cmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    }
+  ]
+}

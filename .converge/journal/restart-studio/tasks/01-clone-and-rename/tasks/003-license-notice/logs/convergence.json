@@ -1,0 +1,269 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-clone-and-rename/003-license-notice-missing-output-packages/studio/LICENSE.upstream",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-clone-and-rename/003-license-notice",
+            "severity": "high",
+            "description": "[01-clone-and-rename/003-license-notice] Task output not created: packages/studio/LICENSE.upstream",
+            "source": "unit",
+            "detected": "2026-04-26T09:36:46.870Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/01-clone-and-rename/tasks/003-license-notice",
+              "taskId": "01-clone-and-rename/003-license-notice",
+              "taskTitle": "Preserve upstream LICENSE and write NOTICE attribution",
+              "taskPrompt": "```bash\nmv packages/studio/LICENSE packages/studio/LICENSE.upstream\n```\n\nWrite a fresh `packages/studio/LICENSE` (MIT, copyright Converge contributors) and `packages/studio/NOTICE`:\n\n```\n@converge/studio\n\nThis package is derived from builderz-labs/mission-control\n(https://github.com/builderz-labs/mission-control), licensed under MIT.\nSee LICENSE.upstream for the original copyright and license terms.\n\nForked at upstream commit: a020d1b7d045e0e09616663ffb39963f432a3f4c\n\nModifications:\n- Replaced SQLite/Prisma data layer with a filesystem adapter that reads\n  converge's .converge/ directory directly.\n- Removed framework-specific adapters (OpenClaw, CrewAI, LangGraph, AutoGen),\n  multi-tenant gateway support, and agent-fleet domain components.\n- Rebound dashboard, sidebar, header, and detail-page surfaces to converge's\n  playbook + run + journal model.\n```",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"packages/studio/LICENSE.upstream\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "01-clone-and-rename/003-license-notice-missing-output-packages/studio/NOTICE",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-clone-and-rename/003-license-notice",
+            "severity": "high",
+            "description": "[01-clone-and-rename/003-license-notice] Task output not created: packages/studio/NOTICE",
+            "source": "unit",
+            "detected": "2026-04-26T09:36:46.872Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/01-clone-and-rename/tasks/003-license-notice",
+              "taskId": "01-clone-and-rename/003-license-notice",
+              "taskTitle": "Preserve upstream LICENSE and write NOTICE attribution",
+              "taskPrompt": "```bash\nmv packages/studio/LICENSE packages/studio/LICENSE.upstream\n```\n\nWrite a fresh `packages/studio/LICENSE` (MIT, copyright Converge contributors) and `packages/studio/NOTICE`:\n\n```\n@converge/studio\n\nThis package is derived from builderz-labs/mission-control\n(https://github.com/builderz-labs/mission-control), licensed under MIT.\nSee LICENSE.upstream for the original copyright and license terms.\n\nForked at upstream commit: a020d1b7d045e0e09616663ffb39963f432a3f4c\n\nModifications:\n- Replaced SQLite/Prisma data layer with a filesystem adapter that reads\n  converge's .converge/ directory directly.\n- Removed framework-specific adapters (OpenClaw, CrewAI, LangGraph, AutoGen),\n  multi-tenant gateway support, and agent-fleet domain components.\n- Rebound dashboard, sidebar, header, and detail-page surfaces to converge's\n  playbook + run + journal model.\n```",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"packages/studio/NOTICE\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "01-clone-and-rename/003-license-notice-check-failed-upstream-license-preserved",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-clone-and-rename/003-license-notice",
+            "severity": "high",
+            "description": "[01-clone-and-rename/003-license-notice] Check failed: LICENSE.upstream contains MIT",
+            "source": "unit",
+            "detected": "2026-04-26T09:36:46.874Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "upstream-license-preserved",
+              "checkCmd": "test -f packages/studio/LICENSE.upstream && grep -qi 'MIT' packages/studio/LICENSE.upstream",
+              "checkDescription": "LICENSE.upstream contains MIT",
+              "checkOutput": "Command failed: test -f packages/studio/LICENSE.upstream && grep -qi 'MIT' packages/studio/LICENSE.upstream\n",
+              "checkExitCode": 1,
+              "taskPrompt": "```bash\nmv packages/studio/LICENSE packages/studio/LICENSE.upstream\n```\n\nWrite a fresh `packages/studio/LICENSE` (MIT, copyright Converge contributors) and `packages/studio/NOTICE`:\n\n```\n@converge/studio\n\nThis package is derived from builderz-labs/mission-control\n(https://github.com/builderz-labs/mission-control), licensed under MIT.\nSee LICENSE.upstream for the original copyright and license terms.\n\nForked at upstream commit: a020d1b7d045e0e09616663ffb39963f432a3f4c\n\nModifications:\n- Replaced SQLite/Prisma data layer with a filesystem adapter that reads\n  converge's .converge/ directory directly.\n- Removed framework-specific adapters (OpenClaw, CrewAI, LangGraph, AutoGen),\n  multi-tenant gateway support, and agent-fleet domain components.\n- Rebound dashboard, sidebar, header, and detail-page surfaces to converge's\n  playbook + run + journal model.\n```",
+              "taskId": "01-clone-and-rename/003-license-notice",
+              "taskTitle": "Preserve upstream LICENSE and write NOTICE attribution",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/01-clone-and-rename/tasks/003-license-notice",
+              "factId": "check:upstream-license-preserved"
+            }
+          },
+          {
+            "id": "01-clone-and-rename/003-license-notice-check-failed-notice-attribution",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-clone-and-rename/003-license-notice",
+            "severity": "high",
+            "description": "[01-clone-and-rename/003-license-notice] Check failed: NOTICE attributes mission-control with the SHA",
+            "source": "unit",
+            "detected": "2026-04-26T09:36:46.876Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "notice-attribution",
+              "checkCmd": "test -f packages/studio/NOTICE && grep -qi 'mission-control' packages/studio/NOTICE && grep -q 'a020d1b7' packages/studio/NOTICE",
+              "checkDescription": "NOTICE attributes mission-control with the SHA",
+              "checkOutput": "Command failed: test -f packages/studio/NOTICE && grep -qi 'mission-control' packages/studio/NOTICE && grep -q 'a020d1b7' packages/studio/NOTICE\n",
+              "checkExitCode": 1,
+              "taskPrompt": "```bash\nmv packages/studio/LICENSE packages/studio/LICENSE.upstream\n```\n\nWrite a fresh `packages/studio/LICENSE` (MIT, copyright Converge contributors) and `packages/studio/NOTICE`:\n\n```\n@converge/studio\n\nThis package is derived from builderz-labs/mission-control\n(https://github.com/builderz-labs/mission-control), licensed under MIT.\nSee LICENSE.upstream for the original copyright and license terms.\n\nForked at upstream commit: a020d1b7d045e0e09616663ffb39963f432a3f4c\n\nModifications:\n- Replaced SQLite/Prisma data layer with a filesystem adapter that reads\n  converge's .converge/ directory directly.\n- Removed framework-specific adapters (OpenClaw, CrewAI, LangGraph, AutoGen),\n  multi-tenant gateway support, and agent-fleet domain components.\n- Rebound dashboard, sidebar, header, and detail-page surfaces to converge's\n  playbook + run + journal model.\n```",
+              "taskId": "01-clone-and-rename/003-license-notice",
+              "taskTitle": "Preserve upstream LICENSE and write NOTICE attribution",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/01-clone-and-rename/tasks/003-license-notice",
+              "factId": "check:notice-attribution"
+            }
+          }
+        ],
+        "durationMs": 11
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 5
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 21
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#3",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 55533
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T09:36:46.864Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T09:36:46.865Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T09:36:46.876Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T09:36:46.877Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T09:36:46.882Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#3",
+      "iteration": 1,
+      "ts": "2026-04-26T09:37:42.417Z"
+    },
+    {
+      "from": "run-strategy:task-run#3",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T09:37:42.439Z"
+    }
+  ]
+}

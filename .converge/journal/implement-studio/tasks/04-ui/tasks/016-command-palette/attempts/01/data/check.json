@@ -1,0 +1,25 @@
+{
+  "taskId": "04-ui/016-command-palette",
+  "checks": [
+    {
+      "id": "palette-component-exists",
+      "description": "CommandPalette component exists",
+      "cmd": "test -f packages/converge-studio/src/components/command-palette.tsx"
+    },
+    {
+      "id": "search-api-exists",
+      "description": "/api/search returns combined results",
+      "cmd": "test -f packages/converge-studio/src/app/api/search/route.ts"
+    },
+    {
+      "id": "palette-mounted-in-layout",
+      "description": "CommandPalette is mounted in layout.tsx (so Cmd-K works on every page)",
+      "cmd": "grep -q CommandPalette packages/converge-studio/src/app/layout.tsx"
+    },
+    {
+      "id": "typecheck-passes",
+      "description": "typecheck-passes",
+      "cmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    }
+  ]
+}

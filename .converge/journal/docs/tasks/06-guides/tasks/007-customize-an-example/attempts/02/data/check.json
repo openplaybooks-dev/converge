@@ -1,0 +1,30 @@
+{
+  "taskId": "06-guides/007-customize-an-example",
+  "checks": [
+    {
+      "id": "page-exists",
+      "description": "page exists",
+      "cmd": "test -f docs/guides/customize-an-example.md"
+    },
+    {
+      "id": "page-frontmatter",
+      "description": "title + sources frontmatter",
+      "cmd": "head -10 docs/guides/customize-an-example.md | grep -q '^title:' && head -10 docs/guides/customize-an-example.md | grep -q '^sources:'"
+    },
+    {
+      "id": "lists-edit-targets",
+      "description": "lists the most-edited files",
+      "cmd": "grep -qiE 'playbook\\.yml|TASK\\.md|input file|topic|idea\\.md' docs/guides/customize-an-example.md"
+    },
+    {
+      "id": "links-back-to-gallery",
+      "description": "links back to the examples gallery",
+      "cmd": "grep -qE '\\(/examples/|\\(\\.\\./examples/' docs/guides/customize-an-example.md"
+    },
+    {
+      "id": "word-count-ok",
+      "description": "600-1500 words",
+      "cmd": "test -f docs/guides/customize-an-example.md && wc -w docs/guides/customize-an-example.md | awk '{exit ($1>=600&&$1<=1500?0:1)}'"
+    }
+  ]
+}

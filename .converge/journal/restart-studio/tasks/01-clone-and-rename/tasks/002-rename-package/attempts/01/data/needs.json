@@ -1,0 +1,9 @@
+{
+  "taskId": "01-clone-and-rename/002-rename-package",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/studio/package.json"
+  ],
+  "blocked": false
+}

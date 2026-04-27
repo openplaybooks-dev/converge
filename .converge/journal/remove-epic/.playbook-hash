@@ -1,0 +1,18 @@
+{
+  "hash": "2240f96e73746a3752b0624c4a7be2214067a04bad2683cb0b1255847386f1ea",
+  "timestamp": "2026-04-27T02:00:38.070Z",
+  "files": [
+    "playbook.yml",
+    "tasks/01-delete-epic-files/TASK.md",
+    "tasks/02-remove-epic-types/TASK.md",
+    "tasks/03-add-playbook-context/TASK.md",
+    "tasks/04-refactor-path-utils/TASK.md",
+    "tasks/05-refactor-tree-and-dataflow/TASK.md",
+    "tasks/06-refactor-storage-checkpoint/TASK.md",
+    "tasks/07-refactor-journal/TASK.md",
+    "tasks/08-refactor-lifecycle-executor-repair/TASK.md",
+    "tasks/09-refactor-cli/TASK.md",
+    "tasks/10-refactor-remaining-systems/TASK.md",
+    "tasks/11-clean-exports-and-verify/TASK.md"
+  ]
+}

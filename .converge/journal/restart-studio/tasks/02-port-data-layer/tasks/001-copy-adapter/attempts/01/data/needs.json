@@ -1,0 +1,9 @@
+{
+  "taskId": "02-port-data-layer/001-copy-adapter",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/studio/src/lib/converge-adapter"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,351 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 23
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-prepare-spec/004-seo-spec-missing-output-apps/landing/.content/seo.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-spec/004-seo-spec",
+            "severity": "high",
+            "description": "[01-prepare-spec/004-seo-spec] Task output not created: apps/landing/.content/seo.json",
+            "source": "unit",
+            "detected": "2026-04-26T20:20:03.331Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/01-prepare-spec/tasks/004-seo-spec",
+              "taskId": "01-prepare-spec/004-seo-spec",
+              "taskTitle": "Emit seo.json — site-wide SEO defaults + per-route overrides",
+              "taskPrompt": "# SEO spec\n\nCentralize all metadata in one JSON. The MainLayout (built in phase 05)\nimports this and renders the right `<meta>` and `<link>` tags per route.\n\n## Required shape\n\n```json\n{\n  \"site\": {\n    \"title\": \"Converge — Define done. Converge gets there.\",\n    \"titleTemplate\": \"%s — Converge\",\n    \"description\": \"Open-source TypeScript framework for AI workflows. Goal-driven, deterministic, self-correcting.\",\n    \"canonical\": \"https://converge.dev\",\n    \"ogImage\": \"/og/default.png\",\n    \"twitterHandle\": \"@convergeframework\",\n    \"themeColor\": \"#0F1117\",\n    \"locale\": \"en_US\"\n  },\n  \"pages\": {\n    \"home\": {\n      \"title\": \"Converge — Define done. Converge gets there.\",\n      \"description\": \"Open-source TypeScript framework for AI workflows. Goal-driven, deterministic, self-correcting.\",\n      \"ogImage\": \"/og/home.png\"\n    },\n    \"docs\": {\n      \"title\": \"Docs\",\n      \"description\": \"Install, configure, and run Converge — the goal-driven AI orchestration framework.\",\n      \"ogImage\": \"/og/docs.png\"\n    },\n    \"blog\": {\n      \"title\": \"Blog\",\n      \"description\": \"Posts on goal-driven workflows, comparisons with step-driven frameworks, and lessons from the field.\",\n      \"ogImage\": \"/og/blog.png\"\n    }\n  }\n}\n```\n\n## Process\n\n1. Read `apps/landing/.content/brand.json` — `name`, `tagline`, `palette.bg` (themeColor) come from there.\n2. Read `apps/landing/.content/sitemap.json` — verify `pages.*` keys cover the home/docs/blog routes listed.\n3. Read `README.md` — the description should paraphrase the README's first paragraph; the `Why Converge?` bullets should not be referenced verbatim here (those are in feature grid copy, not SEO).\n4. Write `apps/landing/.content/seo.json`.\n\n## Banned\n\n- `keywords` meta. Search engines stopped using it ~2009.\n- Per-route titles that are identical to `site.title`. The site title is the fallback; per-route titles should be specific.\n- Hardcoded brand strings that aren't in brand.json. If the title pattern changes, update brand.json first.",
+              "taskInputs": [
+                "apps/landing/.content/sitemap.json",
+                "apps/landing/.content/brand.json",
+                "README.md"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/.content/seo.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "01-prepare-spec/004-seo-spec-check-failed-seo-json-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-spec/004-seo-spec",
+            "severity": "high",
+            "description": "[01-prepare-spec/004-seo-spec] Check failed: seo.json exists",
+            "source": "unit",
+            "detected": "2026-04-26T20:20:03.334Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "seo-json-exists",
+              "checkCmd": "test -f apps/landing/.content/seo.json",
+              "checkDescription": "seo.json exists",
+              "checkOutput": "Command failed: test -f apps/landing/.content/seo.json\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# SEO spec\n\nCentralize all metadata in one JSON. The MainLayout (built in phase 05)\nimports this and renders the right `<meta>` and `<link>` tags per route.\n\n## Required shape\n\n```json\n{\n  \"site\": {\n    \"title\": \"Converge — Define done. Converge gets there.\",\n    \"titleTemplate\": \"%s — Converge\",\n    \"description\": \"Open-source TypeScript framework for AI workflows. Goal-driven, deterministic, self-correcting.\",\n    \"canonical\": \"https://converge.dev\",\n    \"ogImage\": \"/og/default.png\",\n    \"twitterHandle\": \"@convergeframework\",\n    \"themeColor\": \"#0F1117\",\n    \"locale\": \"en_US\"\n  },\n  \"pages\": {\n    \"home\": {\n      \"title\": \"Converge — Define done. Converge gets there.\",\n      \"description\": \"Open-source TypeScript framework for AI workflows. Goal-driven, deterministic, self-correcting.\",\n      \"ogImage\": \"/og/home.png\"\n    },\n    \"docs\": {\n      \"title\": \"Docs\",\n      \"description\": \"Install, configure, and run Converge — the goal-driven AI orchestration framework.\",\n      \"ogImage\": \"/og/docs.png\"\n    },\n    \"blog\": {\n      \"title\": \"Blog\",\n      \"description\": \"Posts on goal-driven workflows, comparisons with step-driven frameworks, and lessons from the field.\",\n      \"ogImage\": \"/og/blog.png\"\n    }\n  }\n}\n```\n\n## Process\n\n1. Read `apps/landing/.content/brand.json` — `name`, `tagline`, `palette.bg` (themeColor) come from there.\n2. Read `apps/landing/.content/sitemap.json` — verify `pages.*` keys cover the home/docs/blog routes listed.\n3. Read `README.md` — the description should paraphrase the README's first paragraph; the `Why Converge?` bullets should not be referenced verbatim here (those are in feature grid copy, not SEO).\n4. Write `apps/landing/.content/seo.json`.\n\n## Banned\n\n- `keywords` meta. Search engines stopped using it ~2009.\n- Per-route titles that are identical to `site.title`. The site title is the fallback; per-route titles should be specific.\n- Hardcoded brand strings that aren't in brand.json. If the title pattern changes, update brand.json first.",
+              "taskId": "01-prepare-spec/004-seo-spec",
+              "taskTitle": "Emit seo.json — site-wide SEO defaults + per-route overrides",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/01-prepare-spec/tasks/004-seo-spec",
+              "factId": "check:seo-json-exists"
+            }
+          },
+          {
+            "id": "01-prepare-spec/004-seo-spec-check-failed-seo-json-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-spec/004-seo-spec",
+            "severity": "high",
+            "description": "[01-prepare-spec/004-seo-spec] Check failed: seo.json is valid JSON",
+            "source": "unit",
+            "detected": "2026-04-26T20:20:03.337Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "seo-json-valid",
+              "checkCmd": "test -f apps/landing/.content/seo.json && node -e \"JSON.parse(require('fs').readFileSync('apps/landing/.content/seo.json','utf8'))\"",
+              "checkDescription": "seo.json is valid JSON",
+              "checkOutput": "Command failed: test -f apps/landing/.content/seo.json && node -e \"JSON.parse(require('fs').readFileSync('apps/landing/.content/seo.json','utf8'))\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# SEO spec\n\nCentralize all metadata in one JSON. The MainLayout (built in phase 05)\nimports this and renders the right `<meta>` and `<link>` tags per route.\n\n## Required shape\n\n```json\n{\n  \"site\": {\n    \"title\": \"Converge — Define done. Converge gets there.\",\n    \"titleTemplate\": \"%s — Converge\",\n    \"description\": \"Open-source TypeScript framework for AI workflows. Goal-driven, deterministic, self-correcting.\",\n    \"canonical\": \"https://converge.dev\",\n    \"ogImage\": \"/og/default.png\",\n    \"twitterHandle\": \"@convergeframework\",\n    \"themeColor\": \"#0F1117\",\n    \"locale\": \"en_US\"\n  },\n  \"pages\": {\n    \"home\": {\n      \"title\": \"Converge — Define done. Converge gets there.\",\n      \"description\": \"Open-source TypeScript framework for AI workflows. Goal-driven, deterministic, self-correcting.\",\n      \"ogImage\": \"/og/home.png\"\n    },\n    \"docs\": {\n      \"title\": \"Docs\",\n      \"description\": \"Install, configure, and run Converge — the goal-driven AI orchestration framework.\",\n      \"ogImage\": \"/og/docs.png\"\n    },\n    \"blog\": {\n      \"title\": \"Blog\",\n      \"description\": \"Posts on goal-driven workflows, comparisons with step-driven frameworks, and lessons from the field.\",\n      \"ogImage\": \"/og/blog.png\"\n    }\n  }\n}\n```\n\n## Process\n\n1. Read `apps/landing/.content/brand.json` — `name`, `tagline`, `palette.bg` (themeColor) come from there.\n2. Read `apps/landing/.content/sitemap.json` — verify `pages.*` keys cover the home/docs/blog routes listed.\n3. Read `README.md` — the description should paraphrase the README's first paragraph; the `Why Converge?` bullets should not be referenced verbatim here (those are in feature grid copy, not SEO).\n4. Write `apps/landing/.content/seo.json`.\n\n## Banned\n\n- `keywords` meta. Search engines stopped using it ~2009.\n- Per-route titles that are identical to `site.title`. The site title is the fallback; per-route titles should be specific.\n- Hardcoded brand strings that aren't in brand.json. If the title pattern changes, update brand.json first.",
+              "taskId": "01-prepare-spec/004-seo-spec",
+              "taskTitle": "Emit seo.json — site-wide SEO defaults + per-route overrides",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/01-prepare-spec/tasks/004-seo-spec",
+              "factId": "check:seo-json-valid"
+            }
+          },
+          {
+            "id": "01-prepare-spec/004-seo-spec-check-failed-site-fields-present",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-spec/004-seo-spec",
+            "severity": "high",
+            "description": "[01-prepare-spec/004-seo-spec] Check failed: site has title, description, ogImage, canonical, locale",
+            "source": "unit",
+            "detected": "2026-04-26T20:20:03.341Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "site-fields-present",
+              "checkCmd": "test -f apps/landing/.content/seo.json && node -e \"const s=require('./apps/landing/.content/seo.json').site;['title','description','ogImage','canonical','locale'].forEach(k=>{if(!s[k])process.exit(1)});process.exit(0)\"",
+              "checkDescription": "site has title, description, ogImage, canonical, locale",
+              "checkOutput": "Command failed: test -f apps/landing/.content/seo.json && node -e \"const s=require('./apps/landing/.content/seo.json').site;['title','description','ogImage','canonical','locale'].forEach(k=>{if(!s[k])process.exit(1)});process.exit(0)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# SEO spec\n\nCentralize all metadata in one JSON. The MainLayout (built in phase 05)\nimports this and renders the right `<meta>` and `<link>` tags per route.\n\n## Required shape\n\n```json\n{\n  \"site\": {\n    \"title\": \"Converge — Define done. Converge gets there.\",\n    \"titleTemplate\": \"%s — Converge\",\n    \"description\": \"Open-source TypeScript framework for AI workflows. Goal-driven, deterministic, self-correcting.\",\n    \"canonical\": \"https://converge.dev\",\n    \"ogImage\": \"/og/default.png\",\n    \"twitterHandle\": \"@convergeframework\",\n    \"themeColor\": \"#0F1117\",\n    \"locale\": \"en_US\"\n  },\n  \"pages\": {\n    \"home\": {\n      \"title\": \"Converge — Define done. Converge gets there.\",\n      \"description\": \"Open-source TypeScript framework for AI workflows. Goal-driven, deterministic, self-correcting.\",\n      \"ogImage\": \"/og/home.png\"\n    },\n    \"docs\": {\n      \"title\": \"Docs\",\n      \"description\": \"Install, configure, and run Converge — the goal-driven AI orchestration framework.\",\n      \"ogImage\": \"/og/docs.png\"\n    },\n    \"blog\": {\n      \"title\": \"Blog\",\n      \"description\": \"Posts on goal-driven workflows, comparisons with step-driven frameworks, and lessons from the field.\",\n      \"ogImage\": \"/og/blog.png\"\n    }\n  }\n}\n```\n\n## Process\n\n1. Read `apps/landing/.content/brand.json` — `name`, `tagline`, `palette.bg` (themeColor) come from there.\n2. Read `apps/landing/.content/sitemap.json` — verify `pages.*` keys cover the home/docs/blog routes listed.\n3. Read `README.md` — the description should paraphrase the README's first paragraph; the `Why Converge?` bullets should not be referenced verbatim here (those are in feature grid copy, not SEO).\n4. Write `apps/landing/.content/seo.json`.\n\n## Banned\n\n- `keywords` meta. Search engines stopped using it ~2009.\n- Per-route titles that are identical to `site.title`. The site title is the fallback; per-route titles should be specific.\n- Hardcoded brand strings that aren't in brand.json. If the title pattern changes, update brand.json first.",
+              "taskId": "01-prepare-spec/004-seo-spec",
+              "taskTitle": "Emit seo.json — site-wide SEO defaults + per-route overrides",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/01-prepare-spec/tasks/004-seo-spec",
+              "factId": "check:site-fields-present"
+            }
+          },
+          {
+            "id": "01-prepare-spec/004-seo-spec-check-failed-home-route-meta",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-spec/004-seo-spec",
+            "severity": "high",
+            "description": "[01-prepare-spec/004-seo-spec] Check failed: pages.home is defined",
+            "source": "unit",
+            "detected": "2026-04-26T20:20:03.344Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "home-route-meta",
+              "checkCmd": "test -f apps/landing/.content/seo.json && node -e \"process.exit(require('./apps/landing/.content/seo.json').pages?.home ? 0 : 1)\"",
+              "checkDescription": "pages.home is defined",
+              "checkOutput": "Command failed: test -f apps/landing/.content/seo.json && node -e \"process.exit(require('./apps/landing/.content/seo.json').pages?.home ? 0 : 1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# SEO spec\n\nCentralize all metadata in one JSON. The MainLayout (built in phase 05)\nimports this and renders the right `<meta>` and `<link>` tags per route.\n\n## Required shape\n\n```json\n{\n  \"site\": {\n    \"title\": \"Converge — Define done. Converge gets there.\",\n    \"titleTemplate\": \"%s — Converge\",\n    \"description\": \"Open-source TypeScript framework for AI workflows. Goal-driven, deterministic, self-correcting.\",\n    \"canonical\": \"https://converge.dev\",\n    \"ogImage\": \"/og/default.png\",\n    \"twitterHandle\": \"@convergeframework\",\n    \"themeColor\": \"#0F1117\",\n    \"locale\": \"en_US\"\n  },\n  \"pages\": {\n    \"home\": {\n      \"title\": \"Converge — Define done. Converge gets there.\",\n      \"description\": \"Open-source TypeScript framework for AI workflows. Goal-driven, deterministic, self-correcting.\",\n      \"ogImage\": \"/og/home.png\"\n    },\n    \"docs\": {\n      \"title\": \"Docs\",\n      \"description\": \"Install, configure, and run Converge — the goal-driven AI orchestration framework.\",\n      \"ogImage\": \"/og/docs.png\"\n    },\n    \"blog\": {\n      \"title\": \"Blog\",\n      \"description\": \"Posts on goal-driven workflows, comparisons with step-driven frameworks, and lessons from the field.\",\n      \"ogImage\": \"/og/blog.png\"\n    }\n  }\n}\n```\n\n## Process\n\n1. Read `apps/landing/.content/brand.json` — `name`, `tagline`, `palette.bg` (themeColor) come from there.\n2. Read `apps/landing/.content/sitemap.json` — verify `pages.*` keys cover the home/docs/blog routes listed.\n3. Read `README.md` — the description should paraphrase the README's first paragraph; the `Why Converge?` bullets should not be referenced verbatim here (those are in feature grid copy, not SEO).\n4. Write `apps/landing/.content/seo.json`.\n\n## Banned\n\n- `keywords` meta. Search engines stopped using it ~2009.\n- Per-route titles that are identical to `site.title`. The site title is the fallback; per-route titles should be specific.\n- Hardcoded brand strings that aren't in brand.json. If the title pattern changes, update brand.json first.",
+              "taskId": "01-prepare-spec/004-seo-spec",
+              "taskTitle": "Emit seo.json — site-wide SEO defaults + per-route overrides",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/01-prepare-spec/tasks/004-seo-spec",
+              "factId": "check:home-route-meta"
+            }
+          },
+          {
+            "id": "01-prepare-spec/004-seo-spec-check-failed-docs-route-meta",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-spec/004-seo-spec",
+            "severity": "high",
+            "description": "[01-prepare-spec/004-seo-spec] Check failed: pages.docs is defined",
+            "source": "unit",
+            "detected": "2026-04-26T20:20:03.348Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "docs-route-meta",
+              "checkCmd": "test -f apps/landing/.content/seo.json && node -e \"process.exit(require('./apps/landing/.content/seo.json').pages?.docs ? 0 : 1)\"",
+              "checkDescription": "pages.docs is defined",
+              "checkOutput": "Command failed: test -f apps/landing/.content/seo.json && node -e \"process.exit(require('./apps/landing/.content/seo.json').pages?.docs ? 0 : 1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# SEO spec\n\nCentralize all metadata in one JSON. The MainLayout (built in phase 05)\nimports this and renders the right `<meta>` and `<link>` tags per route.\n\n## Required shape\n\n```json\n{\n  \"site\": {\n    \"title\": \"Converge — Define done. Converge gets there.\",\n    \"titleTemplate\": \"%s — Converge\",\n    \"description\": \"Open-source TypeScript framework for AI workflows. Goal-driven, deterministic, self-correcting.\",\n    \"canonical\": \"https://converge.dev\",\n    \"ogImage\": \"/og/default.png\",\n    \"twitterHandle\": \"@convergeframework\",\n    \"themeColor\": \"#0F1117\",\n    \"locale\": \"en_US\"\n  },\n  \"pages\": {\n    \"home\": {\n      \"title\": \"Converge — Define done. Converge gets there.\",\n      \"description\": \"Open-source TypeScript framework for AI workflows. Goal-driven, deterministic, self-correcting.\",\n      \"ogImage\": \"/og/home.png\"\n    },\n    \"docs\": {\n      \"title\": \"Docs\",\n      \"description\": \"Install, configure, and run Converge — the goal-driven AI orchestration framework.\",\n      \"ogImage\": \"/og/docs.png\"\n    },\n    \"blog\": {\n      \"title\": \"Blog\",\n      \"description\": \"Posts on goal-driven workflows, comparisons with step-driven frameworks, and lessons from the field.\",\n      \"ogImage\": \"/og/blog.png\"\n    }\n  }\n}\n```\n\n## Process\n\n1. Read `apps/landing/.content/brand.json` — `name`, `tagline`, `palette.bg` (themeColor) come from there.\n2. Read `apps/landing/.content/sitemap.json` — verify `pages.*` keys cover the home/docs/blog routes listed.\n3. Read `README.md` — the description should paraphrase the README's first paragraph; the `Why Converge?` bullets should not be referenced verbatim here (those are in feature grid copy, not SEO).\n4. Write `apps/landing/.content/seo.json`.\n\n## Banned\n\n- `keywords` meta. Search engines stopped using it ~2009.\n- Per-route titles that are identical to `site.title`. The site title is the fallback; per-route titles should be specific.\n- Hardcoded brand strings that aren't in brand.json. If the title pattern changes, update brand.json first.",
+              "taskId": "01-prepare-spec/004-seo-spec",
+              "taskTitle": "Emit seo.json — site-wide SEO defaults + per-route overrides",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/01-prepare-spec/tasks/004-seo-spec",
+              "factId": "check:docs-route-meta"
+            }
+          },
+          {
+            "id": "01-prepare-spec/004-seo-spec-check-failed-blog-route-meta",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-prepare-spec/004-seo-spec",
+            "severity": "high",
+            "description": "[01-prepare-spec/004-seo-spec] Check failed: pages.blog is defined",
+            "source": "unit",
+            "detected": "2026-04-26T20:20:03.352Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "blog-route-meta",
+              "checkCmd": "test -f apps/landing/.content/seo.json && node -e \"process.exit(require('./apps/landing/.content/seo.json').pages?.blog ? 0 : 1)\"",
+              "checkDescription": "pages.blog is defined",
+              "checkOutput": "Command failed: test -f apps/landing/.content/seo.json && node -e \"process.exit(require('./apps/landing/.content/seo.json').pages?.blog ? 0 : 1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# SEO spec\n\nCentralize all metadata in one JSON. The MainLayout (built in phase 05)\nimports this and renders the right `<meta>` and `<link>` tags per route.\n\n## Required shape\n\n```json\n{\n  \"site\": {\n    \"title\": \"Converge — Define done. Converge gets there.\",\n    \"titleTemplate\": \"%s — Converge\",\n    \"description\": \"Open-source TypeScript framework for AI workflows. Goal-driven, deterministic, self-correcting.\",\n    \"canonical\": \"https://converge.dev\",\n    \"ogImage\": \"/og/default.png\",\n    \"twitterHandle\": \"@convergeframework\",\n    \"themeColor\": \"#0F1117\",\n    \"locale\": \"en_US\"\n  },\n  \"pages\": {\n    \"home\": {\n      \"title\": \"Converge — Define done. Converge gets there.\",\n      \"description\": \"Open-source TypeScript framework for AI workflows. Goal-driven, deterministic, self-correcting.\",\n      \"ogImage\": \"/og/home.png\"\n    },\n    \"docs\": {\n      \"title\": \"Docs\",\n      \"description\": \"Install, configure, and run Converge — the goal-driven AI orchestration framework.\",\n      \"ogImage\": \"/og/docs.png\"\n    },\n    \"blog\": {\n      \"title\": \"Blog\",\n      \"description\": \"Posts on goal-driven workflows, comparisons with step-driven frameworks, and lessons from the field.\",\n      \"ogImage\": \"/og/blog.png\"\n    }\n  }\n}\n```\n\n## Process\n\n1. Read `apps/landing/.content/brand.json` — `name`, `tagline`, `palette.bg` (themeColor) come from there.\n2. Read `apps/landing/.content/sitemap.json` — verify `pages.*` keys cover the home/docs/blog routes listed.\n3. Read `README.md` — the description should paraphrase the README's first paragraph; the `Why Converge?` bullets should not be referenced verbatim here (those are in feature grid copy, not SEO).\n4. Write `apps/landing/.content/seo.json`.\n\n## Banned\n\n- `keywords` meta. Search engines stopped using it ~2009.\n- Per-route titles that are identical to `site.title`. The site title is the fallback; per-route titles should be specific.\n- Hardcoded brand strings that aren't in brand.json. If the title pattern changes, update brand.json first.",
+              "taskId": "01-prepare-spec/004-seo-spec",
+              "taskTitle": "Emit seo.json — site-wide SEO defaults + per-route overrides",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/01-prepare-spec/tasks/004-seo-spec",
+              "factId": "check:blog-route-meta"
+            }
+          }
+        ],
+        "durationMs": 32
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 18
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 224
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#113",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 31714
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T20:20:03.296Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T20:20:03.319Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T20:20:03.352Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T20:20:03.355Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T20:20:03.375Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#113",
+      "iteration": 1,
+      "ts": "2026-04-26T20:20:35.091Z"
+    },
+    {
+      "from": "run-strategy:task-run#113",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T20:20:35.316Z"
+    }
+  ]
+}

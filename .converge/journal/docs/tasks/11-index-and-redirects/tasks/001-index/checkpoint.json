@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "11-index-and-redirects/001-index",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T15:43:55.616Z",
+  "createdAt": "2026-04-26T10:04:35.081Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T10:04:35.081Z",
+      "completedAt": "2026-04-26T10:05:27.123Z",
+      "outcome": "success",
+      "durationMs": 52042
+    }
+  ],
+  "currentAttempt": 1
+}

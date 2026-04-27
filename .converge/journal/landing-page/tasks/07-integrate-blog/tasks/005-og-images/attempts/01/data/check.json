@@ -1,0 +1,15 @@
+{
+  "taskId": "07-integrate-blog/005-og-images",
+  "checks": [
+    {
+      "id": "og-route-exists",
+      "description": "dynamic OG image route exists",
+      "cmd": "test -f apps/landing/src/pages/og/[slug].png.ts"
+    },
+    {
+      "id": "og-uses-canvas-or-svg",
+      "description": "uses a real image-generation library or SVG-to-PNG path",
+      "cmd": "test -f apps/landing/src/pages/og/[slug].png.ts && grep -qE 'astro-og-canvas|sharp|satori|svg' apps/landing/src/pages/og/[slug].png.ts"
+    }
+  ]
+}

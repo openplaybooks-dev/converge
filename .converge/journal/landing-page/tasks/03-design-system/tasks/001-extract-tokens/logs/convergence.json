@@ -1,0 +1,348 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-design-system/001-extract-tokens-missing-output-apps/landing/src/styles/tokens.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/001-extract-tokens",
+            "severity": "high",
+            "description": "[03-design-system/001-extract-tokens] Task output not created: apps/landing/src/styles/tokens.json",
+            "source": "unit",
+            "detected": "2026-04-26T17:35:36.490Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/001-extract-tokens",
+              "taskId": "03-design-system/001-extract-tokens",
+              "taskTitle": "Extract design tokens from brand.json into tokens.json + tokens.css",
+              "taskPrompt": "# Extract tokens\n\nGenerate two files from `brand.json`:\n\n### `apps/landing/src/styles/tokens.json` (machine-readable)\n\n```json\n{\n  \"$schema\": \"https://design-tokens.github.io/community-group/format/\",\n  \"color\": {\n    \"bg\":         \"#0F1117\",\n    \"bgElev\":     \"#1E293B\",\n    \"indigo\":     \"#6366F1\",\n    \"cyan\":       \"#22D3EE\",\n    \"violet\":     \"#A78BFA\",\n    \"text\":       \"#F8FAFC\",\n    \"textMuted\":  \"#94A3B8\",\n    \"textDim\":    \"#64748B\",\n    \"accent\":     \"#EF4444\",\n    \"border\":     \"#1E293B\"\n  },\n  \"spacing\": {\n    \"1\": \"0.25rem\",  \"2\": \"0.5rem\",  \"3\": \"0.75rem\", \"4\": \"1rem\",\n    \"6\": \"1.5rem\",   \"8\": \"2rem\",    \"10\": \"2.5rem\", \"12\": \"3rem\",\n    \"16\": \"4rem\",    \"20\": \"5rem\",   \"24\": \"6rem\",   \"32\": \"8rem\"\n  },\n  \"radius\": { \"sm\": \"0.25rem\", \"md\": \"0.5rem\", \"lg\": \"0.75rem\", \"xl\": \"1rem\", \"2xl\": \"1.5rem\" },\n  \"type\": {\n    \"scale\": {\n      \"xs\": \"0.75rem\", \"sm\": \"0.875rem\", \"base\": \"1rem\", \"lg\": \"1.125rem\",\n      \"xl\": \"1.25rem\", \"2xl\": \"1.5rem\", \"3xl\": \"1.875rem\", \"4xl\": \"2.25rem\",\n      \"5xl\": \"3rem\",   \"6xl\": \"3.75rem\", \"7xl\": \"4.5rem\"\n    }\n  }\n}\n```\n\n(Read color values from `apps/landing/.content/brand.json#palette`. Don't hardcode if brand.json differs.)\n\n### `apps/landing/src/styles/tokens.css` (CSS custom properties)\n\n```css\n/* Generated from tokens.json — do not edit by hand. */\n:root {\n  --color-bg:        #0F1117;\n  --color-bg-elev:   #1E293B;\n  --color-indigo:    #6366F1;\n  --color-cyan:      #22D3EE;\n  --color-violet:    #A78BFA;\n  --color-text:      #F8FAFC;\n  --color-text-muted:#94A3B8;\n  --color-text-dim:  #64748B;\n  --color-accent:    #EF4444;\n  --color-border:    #1E293B;\n\n  --space-1: 0.25rem;  --space-2: 0.5rem;  --space-3: 0.75rem;\n  --space-4: 1rem;     --space-6: 1.5rem;  --space-8: 2rem;\n  --space-10: 2.5rem;  --space-12: 3rem;   --space-16: 4rem;\n  --space-20: 5rem;    --space-24: 6rem;   --space-32: 8rem;\n\n  --radius-sm: 0.25rem; --radius-md: 0.5rem; --radius-lg: 0.75rem;\n  --radius-xl: 1rem;    --radius-2xl: 1.5rem;\n}\n```\n\nThen update `globals.css` to import tokens:\n\n```css\n@import \"tailwindcss\";\n@import \"./tokens.css\";\n```\n\n## Process\n\n1. Read `apps/landing/.content/brand.json`.\n2. Generate `tokens.json` with colors from brand, plus the spacing/radius/type scale shown above (those are framework-wide constants, not brand-derived).\n3. Generate `tokens.css` from `tokens.json`. The two files mirror each other.\n4. Update `globals.css` to import tokens.css.",
+              "taskInputs": [
+                "apps/landing/.content/brand.json"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/src/styles/tokens.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-design-system/001-extract-tokens-missing-output-apps/landing/src/styles/tokens.css",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/001-extract-tokens",
+            "severity": "high",
+            "description": "[03-design-system/001-extract-tokens] Task output not created: apps/landing/src/styles/tokens.css",
+            "source": "unit",
+            "detected": "2026-04-26T17:35:36.492Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/001-extract-tokens",
+              "taskId": "03-design-system/001-extract-tokens",
+              "taskTitle": "Extract design tokens from brand.json into tokens.json + tokens.css",
+              "taskPrompt": "# Extract tokens\n\nGenerate two files from `brand.json`:\n\n### `apps/landing/src/styles/tokens.json` (machine-readable)\n\n```json\n{\n  \"$schema\": \"https://design-tokens.github.io/community-group/format/\",\n  \"color\": {\n    \"bg\":         \"#0F1117\",\n    \"bgElev\":     \"#1E293B\",\n    \"indigo\":     \"#6366F1\",\n    \"cyan\":       \"#22D3EE\",\n    \"violet\":     \"#A78BFA\",\n    \"text\":       \"#F8FAFC\",\n    \"textMuted\":  \"#94A3B8\",\n    \"textDim\":    \"#64748B\",\n    \"accent\":     \"#EF4444\",\n    \"border\":     \"#1E293B\"\n  },\n  \"spacing\": {\n    \"1\": \"0.25rem\",  \"2\": \"0.5rem\",  \"3\": \"0.75rem\", \"4\": \"1rem\",\n    \"6\": \"1.5rem\",   \"8\": \"2rem\",    \"10\": \"2.5rem\", \"12\": \"3rem\",\n    \"16\": \"4rem\",    \"20\": \"5rem\",   \"24\": \"6rem\",   \"32\": \"8rem\"\n  },\n  \"radius\": { \"sm\": \"0.25rem\", \"md\": \"0.5rem\", \"lg\": \"0.75rem\", \"xl\": \"1rem\", \"2xl\": \"1.5rem\" },\n  \"type\": {\n    \"scale\": {\n      \"xs\": \"0.75rem\", \"sm\": \"0.875rem\", \"base\": \"1rem\", \"lg\": \"1.125rem\",\n      \"xl\": \"1.25rem\", \"2xl\": \"1.5rem\", \"3xl\": \"1.875rem\", \"4xl\": \"2.25rem\",\n      \"5xl\": \"3rem\",   \"6xl\": \"3.75rem\", \"7xl\": \"4.5rem\"\n    }\n  }\n}\n```\n\n(Read color values from `apps/landing/.content/brand.json#palette`. Don't hardcode if brand.json differs.)\n\n### `apps/landing/src/styles/tokens.css` (CSS custom properties)\n\n```css\n/* Generated from tokens.json — do not edit by hand. */\n:root {\n  --color-bg:        #0F1117;\n  --color-bg-elev:   #1E293B;\n  --color-indigo:    #6366F1;\n  --color-cyan:      #22D3EE;\n  --color-violet:    #A78BFA;\n  --color-text:      #F8FAFC;\n  --color-text-muted:#94A3B8;\n  --color-text-dim:  #64748B;\n  --color-accent:    #EF4444;\n  --color-border:    #1E293B;\n\n  --space-1: 0.25rem;  --space-2: 0.5rem;  --space-3: 0.75rem;\n  --space-4: 1rem;     --space-6: 1.5rem;  --space-8: 2rem;\n  --space-10: 2.5rem;  --space-12: 3rem;   --space-16: 4rem;\n  --space-20: 5rem;    --space-24: 6rem;   --space-32: 8rem;\n\n  --radius-sm: 0.25rem; --radius-md: 0.5rem; --radius-lg: 0.75rem;\n  --radius-xl: 1rem;    --radius-2xl: 1.5rem;\n}\n```\n\nThen update `globals.css` to import tokens:\n\n```css\n@import \"tailwindcss\";\n@import \"./tokens.css\";\n```\n\n## Process\n\n1. Read `apps/landing/.content/brand.json`.\n2. Generate `tokens.json` with colors from brand, plus the spacing/radius/type scale shown above (those are framework-wide constants, not brand-derived).\n3. Generate `tokens.css` from `tokens.json`. The two files mirror each other.\n4. Update `globals.css` to import tokens.css.",
+              "taskInputs": [
+                "apps/landing/.content/brand.json"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/src/styles/tokens.css\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-design-system/001-extract-tokens-check-failed-tokens-json-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/001-extract-tokens",
+            "severity": "high",
+            "description": "[03-design-system/001-extract-tokens] Check failed: tokens.json exists and is valid JSON",
+            "source": "unit",
+            "detected": "2026-04-26T17:35:36.495Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "tokens-json-exists",
+              "checkCmd": "test -f apps/landing/src/styles/tokens.json && node -e \"JSON.parse(require('fs').readFileSync('apps/landing/src/styles/tokens.json','utf8'))\"",
+              "checkDescription": "tokens.json exists and is valid JSON",
+              "checkOutput": "Command failed: test -f apps/landing/src/styles/tokens.json && node -e \"JSON.parse(require('fs').readFileSync('apps/landing/src/styles/tokens.json','utf8'))\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Extract tokens\n\nGenerate two files from `brand.json`:\n\n### `apps/landing/src/styles/tokens.json` (machine-readable)\n\n```json\n{\n  \"$schema\": \"https://design-tokens.github.io/community-group/format/\",\n  \"color\": {\n    \"bg\":         \"#0F1117\",\n    \"bgElev\":     \"#1E293B\",\n    \"indigo\":     \"#6366F1\",\n    \"cyan\":       \"#22D3EE\",\n    \"violet\":     \"#A78BFA\",\n    \"text\":       \"#F8FAFC\",\n    \"textMuted\":  \"#94A3B8\",\n    \"textDim\":    \"#64748B\",\n    \"accent\":     \"#EF4444\",\n    \"border\":     \"#1E293B\"\n  },\n  \"spacing\": {\n    \"1\": \"0.25rem\",  \"2\": \"0.5rem\",  \"3\": \"0.75rem\", \"4\": \"1rem\",\n    \"6\": \"1.5rem\",   \"8\": \"2rem\",    \"10\": \"2.5rem\", \"12\": \"3rem\",\n    \"16\": \"4rem\",    \"20\": \"5rem\",   \"24\": \"6rem\",   \"32\": \"8rem\"\n  },\n  \"radius\": { \"sm\": \"0.25rem\", \"md\": \"0.5rem\", \"lg\": \"0.75rem\", \"xl\": \"1rem\", \"2xl\": \"1.5rem\" },\n  \"type\": {\n    \"scale\": {\n      \"xs\": \"0.75rem\", \"sm\": \"0.875rem\", \"base\": \"1rem\", \"lg\": \"1.125rem\",\n      \"xl\": \"1.25rem\", \"2xl\": \"1.5rem\", \"3xl\": \"1.875rem\", \"4xl\": \"2.25rem\",\n      \"5xl\": \"3rem\",   \"6xl\": \"3.75rem\", \"7xl\": \"4.5rem\"\n    }\n  }\n}\n```\n\n(Read color values from `apps/landing/.content/brand.json#palette`. Don't hardcode if brand.json differs.)\n\n### `apps/landing/src/styles/tokens.css` (CSS custom properties)\n\n```css\n/* Generated from tokens.json — do not edit by hand. */\n:root {\n  --color-bg:        #0F1117;\n  --color-bg-elev:   #1E293B;\n  --color-indigo:    #6366F1;\n  --color-cyan:      #22D3EE;\n  --color-violet:    #A78BFA;\n  --color-text:      #F8FAFC;\n  --color-text-muted:#94A3B8;\n  --color-text-dim:  #64748B;\n  --color-accent:    #EF4444;\n  --color-border:    #1E293B;\n\n  --space-1: 0.25rem;  --space-2: 0.5rem;  --space-3: 0.75rem;\n  --space-4: 1rem;     --space-6: 1.5rem;  --space-8: 2rem;\n  --space-10: 2.5rem;  --space-12: 3rem;   --space-16: 4rem;\n  --space-20: 5rem;    --space-24: 6rem;   --space-32: 8rem;\n\n  --radius-sm: 0.25rem; --radius-md: 0.5rem; --radius-lg: 0.75rem;\n  --radius-xl: 1rem;    --radius-2xl: 1.5rem;\n}\n```\n\nThen update `globals.css` to import tokens:\n\n```css\n@import \"tailwindcss\";\n@import \"./tokens.css\";\n```\n\n## Process\n\n1. Read `apps/landing/.content/brand.json`.\n2. Generate `tokens.json` with colors from brand, plus the spacing/radius/type scale shown above (those are framework-wide constants, not brand-derived).\n3. Generate `tokens.css` from `tokens.json`. The two files mirror each other.\n4. Update `globals.css` to import tokens.css.",
+              "taskId": "03-design-system/001-extract-tokens",
+              "taskTitle": "Extract design tokens from brand.json into tokens.json + tokens.css",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/001-extract-tokens",
+              "factId": "check:tokens-json-exists"
+            }
+          },
+          {
+            "id": "03-design-system/001-extract-tokens-check-failed-tokens-css-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/001-extract-tokens",
+            "severity": "high",
+            "description": "[03-design-system/001-extract-tokens] Check failed: tokens.css exists",
+            "source": "unit",
+            "detected": "2026-04-26T17:35:36.498Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "tokens-css-exists",
+              "checkCmd": "test -f apps/landing/src/styles/tokens.css",
+              "checkDescription": "tokens.css exists",
+              "checkOutput": "Command failed: test -f apps/landing/src/styles/tokens.css\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Extract tokens\n\nGenerate two files from `brand.json`:\n\n### `apps/landing/src/styles/tokens.json` (machine-readable)\n\n```json\n{\n  \"$schema\": \"https://design-tokens.github.io/community-group/format/\",\n  \"color\": {\n    \"bg\":         \"#0F1117\",\n    \"bgElev\":     \"#1E293B\",\n    \"indigo\":     \"#6366F1\",\n    \"cyan\":       \"#22D3EE\",\n    \"violet\":     \"#A78BFA\",\n    \"text\":       \"#F8FAFC\",\n    \"textMuted\":  \"#94A3B8\",\n    \"textDim\":    \"#64748B\",\n    \"accent\":     \"#EF4444\",\n    \"border\":     \"#1E293B\"\n  },\n  \"spacing\": {\n    \"1\": \"0.25rem\",  \"2\": \"0.5rem\",  \"3\": \"0.75rem\", \"4\": \"1rem\",\n    \"6\": \"1.5rem\",   \"8\": \"2rem\",    \"10\": \"2.5rem\", \"12\": \"3rem\",\n    \"16\": \"4rem\",    \"20\": \"5rem\",   \"24\": \"6rem\",   \"32\": \"8rem\"\n  },\n  \"radius\": { \"sm\": \"0.25rem\", \"md\": \"0.5rem\", \"lg\": \"0.75rem\", \"xl\": \"1rem\", \"2xl\": \"1.5rem\" },\n  \"type\": {\n    \"scale\": {\n      \"xs\": \"0.75rem\", \"sm\": \"0.875rem\", \"base\": \"1rem\", \"lg\": \"1.125rem\",\n      \"xl\": \"1.25rem\", \"2xl\": \"1.5rem\", \"3xl\": \"1.875rem\", \"4xl\": \"2.25rem\",\n      \"5xl\": \"3rem\",   \"6xl\": \"3.75rem\", \"7xl\": \"4.5rem\"\n    }\n  }\n}\n```\n\n(Read color values from `apps/landing/.content/brand.json#palette`. Don't hardcode if brand.json differs.)\n\n### `apps/landing/src/styles/tokens.css` (CSS custom properties)\n\n```css\n/* Generated from tokens.json — do not edit by hand. */\n:root {\n  --color-bg:        #0F1117;\n  --color-bg-elev:   #1E293B;\n  --color-indigo:    #6366F1;\n  --color-cyan:      #22D3EE;\n  --color-violet:    #A78BFA;\n  --color-text:      #F8FAFC;\n  --color-text-muted:#94A3B8;\n  --color-text-dim:  #64748B;\n  --color-accent:    #EF4444;\n  --color-border:    #1E293B;\n\n  --space-1: 0.25rem;  --space-2: 0.5rem;  --space-3: 0.75rem;\n  --space-4: 1rem;     --space-6: 1.5rem;  --space-8: 2rem;\n  --space-10: 2.5rem;  --space-12: 3rem;   --space-16: 4rem;\n  --space-20: 5rem;    --space-24: 6rem;   --space-32: 8rem;\n\n  --radius-sm: 0.25rem; --radius-md: 0.5rem; --radius-lg: 0.75rem;\n  --radius-xl: 1rem;    --radius-2xl: 1.5rem;\n}\n```\n\nThen update `globals.css` to import tokens:\n\n```css\n@import \"tailwindcss\";\n@import \"./tokens.css\";\n```\n\n## Process\n\n1. Read `apps/landing/.content/brand.json`.\n2. Generate `tokens.json` with colors from brand, plus the spacing/radius/type scale shown above (those are framework-wide constants, not brand-derived).\n3. Generate `tokens.css` from `tokens.json`. The two files mirror each other.\n4. Update `globals.css` to import tokens.css.",
+              "taskId": "03-design-system/001-extract-tokens",
+              "taskTitle": "Extract design tokens from brand.json into tokens.json + tokens.css",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/001-extract-tokens",
+              "factId": "check:tokens-css-exists"
+            }
+          },
+          {
+            "id": "03-design-system/001-extract-tokens-check-failed-palette-keys",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/001-extract-tokens",
+            "severity": "high",
+            "description": "[03-design-system/001-extract-tokens] Check failed: tokens.json has at least bg/indigo/text/accent colors",
+            "source": "unit",
+            "detected": "2026-04-26T17:35:36.500Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "palette-keys",
+              "checkCmd": "test -f apps/landing/src/styles/tokens.json && node -e \"const t=require('./apps/landing/src/styles/tokens.json');const ok=t.color&&['bg','indigo','text','accent'].every(k=>t.color[k]);process.exit(ok?0:1)\"",
+              "checkDescription": "tokens.json has at least bg/indigo/text/accent colors",
+              "checkOutput": "Command failed: test -f apps/landing/src/styles/tokens.json && node -e \"const t=require('./apps/landing/src/styles/tokens.json');const ok=t.color&&['bg','indigo','text','accent'].every(k=>t.color[k]);process.exit(ok?0:1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Extract tokens\n\nGenerate two files from `brand.json`:\n\n### `apps/landing/src/styles/tokens.json` (machine-readable)\n\n```json\n{\n  \"$schema\": \"https://design-tokens.github.io/community-group/format/\",\n  \"color\": {\n    \"bg\":         \"#0F1117\",\n    \"bgElev\":     \"#1E293B\",\n    \"indigo\":     \"#6366F1\",\n    \"cyan\":       \"#22D3EE\",\n    \"violet\":     \"#A78BFA\",\n    \"text\":       \"#F8FAFC\",\n    \"textMuted\":  \"#94A3B8\",\n    \"textDim\":    \"#64748B\",\n    \"accent\":     \"#EF4444\",\n    \"border\":     \"#1E293B\"\n  },\n  \"spacing\": {\n    \"1\": \"0.25rem\",  \"2\": \"0.5rem\",  \"3\": \"0.75rem\", \"4\": \"1rem\",\n    \"6\": \"1.5rem\",   \"8\": \"2rem\",    \"10\": \"2.5rem\", \"12\": \"3rem\",\n    \"16\": \"4rem\",    \"20\": \"5rem\",   \"24\": \"6rem\",   \"32\": \"8rem\"\n  },\n  \"radius\": { \"sm\": \"0.25rem\", \"md\": \"0.5rem\", \"lg\": \"0.75rem\", \"xl\": \"1rem\", \"2xl\": \"1.5rem\" },\n  \"type\": {\n    \"scale\": {\n      \"xs\": \"0.75rem\", \"sm\": \"0.875rem\", \"base\": \"1rem\", \"lg\": \"1.125rem\",\n      \"xl\": \"1.25rem\", \"2xl\": \"1.5rem\", \"3xl\": \"1.875rem\", \"4xl\": \"2.25rem\",\n      \"5xl\": \"3rem\",   \"6xl\": \"3.75rem\", \"7xl\": \"4.5rem\"\n    }\n  }\n}\n```\n\n(Read color values from `apps/landing/.content/brand.json#palette`. Don't hardcode if brand.json differs.)\n\n### `apps/landing/src/styles/tokens.css` (CSS custom properties)\n\n```css\n/* Generated from tokens.json — do not edit by hand. */\n:root {\n  --color-bg:        #0F1117;\n  --color-bg-elev:   #1E293B;\n  --color-indigo:    #6366F1;\n  --color-cyan:      #22D3EE;\n  --color-violet:    #A78BFA;\n  --color-text:      #F8FAFC;\n  --color-text-muted:#94A3B8;\n  --color-text-dim:  #64748B;\n  --color-accent:    #EF4444;\n  --color-border:    #1E293B;\n\n  --space-1: 0.25rem;  --space-2: 0.5rem;  --space-3: 0.75rem;\n  --space-4: 1rem;     --space-6: 1.5rem;  --space-8: 2rem;\n  --space-10: 2.5rem;  --space-12: 3rem;   --space-16: 4rem;\n  --space-20: 5rem;    --space-24: 6rem;   --space-32: 8rem;\n\n  --radius-sm: 0.25rem; --radius-md: 0.5rem; --radius-lg: 0.75rem;\n  --radius-xl: 1rem;    --radius-2xl: 1.5rem;\n}\n```\n\nThen update `globals.css` to import tokens:\n\n```css\n@import \"tailwindcss\";\n@import \"./tokens.css\";\n```\n\n## Process\n\n1. Read `apps/landing/.content/brand.json`.\n2. Generate `tokens.json` with colors from brand, plus the spacing/radius/type scale shown above (those are framework-wide constants, not brand-derived).\n3. Generate `tokens.css` from `tokens.json`. The two files mirror each other.\n4. Update `globals.css` to import tokens.css.",
+              "taskId": "03-design-system/001-extract-tokens",
+              "taskTitle": "Extract design tokens from brand.json into tokens.json + tokens.css",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/001-extract-tokens",
+              "factId": "check:palette-keys"
+            }
+          },
+          {
+            "id": "03-design-system/001-extract-tokens-check-failed-tokens-css-has-variables",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/001-extract-tokens",
+            "severity": "high",
+            "description": "[03-design-system/001-extract-tokens] Check failed: tokens.css defines at least 3 color custom properties",
+            "source": "unit",
+            "detected": "2026-04-26T17:35:36.503Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "tokens-css-has-variables",
+              "checkCmd": "test -f apps/landing/src/styles/tokens.css && grep -qE -- '--color-(bg|indigo|text)' apps/landing/src/styles/tokens.css",
+              "checkDescription": "tokens.css defines at least 3 color custom properties",
+              "checkOutput": "Command failed: test -f apps/landing/src/styles/tokens.css && grep -qE -- '--color-(bg|indigo|text)' apps/landing/src/styles/tokens.css\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Extract tokens\n\nGenerate two files from `brand.json`:\n\n### `apps/landing/src/styles/tokens.json` (machine-readable)\n\n```json\n{\n  \"$schema\": \"https://design-tokens.github.io/community-group/format/\",\n  \"color\": {\n    \"bg\":         \"#0F1117\",\n    \"bgElev\":     \"#1E293B\",\n    \"indigo\":     \"#6366F1\",\n    \"cyan\":       \"#22D3EE\",\n    \"violet\":     \"#A78BFA\",\n    \"text\":       \"#F8FAFC\",\n    \"textMuted\":  \"#94A3B8\",\n    \"textDim\":    \"#64748B\",\n    \"accent\":     \"#EF4444\",\n    \"border\":     \"#1E293B\"\n  },\n  \"spacing\": {\n    \"1\": \"0.25rem\",  \"2\": \"0.5rem\",  \"3\": \"0.75rem\", \"4\": \"1rem\",\n    \"6\": \"1.5rem\",   \"8\": \"2rem\",    \"10\": \"2.5rem\", \"12\": \"3rem\",\n    \"16\": \"4rem\",    \"20\": \"5rem\",   \"24\": \"6rem\",   \"32\": \"8rem\"\n  },\n  \"radius\": { \"sm\": \"0.25rem\", \"md\": \"0.5rem\", \"lg\": \"0.75rem\", \"xl\": \"1rem\", \"2xl\": \"1.5rem\" },\n  \"type\": {\n    \"scale\": {\n      \"xs\": \"0.75rem\", \"sm\": \"0.875rem\", \"base\": \"1rem\", \"lg\": \"1.125rem\",\n      \"xl\": \"1.25rem\", \"2xl\": \"1.5rem\", \"3xl\": \"1.875rem\", \"4xl\": \"2.25rem\",\n      \"5xl\": \"3rem\",   \"6xl\": \"3.75rem\", \"7xl\": \"4.5rem\"\n    }\n  }\n}\n```\n\n(Read color values from `apps/landing/.content/brand.json#palette`. Don't hardcode if brand.json differs.)\n\n### `apps/landing/src/styles/tokens.css` (CSS custom properties)\n\n```css\n/* Generated from tokens.json — do not edit by hand. */\n:root {\n  --color-bg:        #0F1117;\n  --color-bg-elev:   #1E293B;\n  --color-indigo:    #6366F1;\n  --color-cyan:      #22D3EE;\n  --color-violet:    #A78BFA;\n  --color-text:      #F8FAFC;\n  --color-text-muted:#94A3B8;\n  --color-text-dim:  #64748B;\n  --color-accent:    #EF4444;\n  --color-border:    #1E293B;\n\n  --space-1: 0.25rem;  --space-2: 0.5rem;  --space-3: 0.75rem;\n  --space-4: 1rem;     --space-6: 1.5rem;  --space-8: 2rem;\n  --space-10: 2.5rem;  --space-12: 3rem;   --space-16: 4rem;\n  --space-20: 5rem;    --space-24: 6rem;   --space-32: 8rem;\n\n  --radius-sm: 0.25rem; --radius-md: 0.5rem; --radius-lg: 0.75rem;\n  --radius-xl: 1rem;    --radius-2xl: 1.5rem;\n}\n```\n\nThen update `globals.css` to import tokens:\n\n```css\n@import \"tailwindcss\";\n@import \"./tokens.css\";\n```\n\n## Process\n\n1. Read `apps/landing/.content/brand.json`.\n2. Generate `tokens.json` with colors from brand, plus the spacing/radius/type scale shown above (those are framework-wide constants, not brand-derived).\n3. Generate `tokens.css` from `tokens.json`. The two files mirror each other.\n4. Update `globals.css` to import tokens.css.",
+              "taskId": "03-design-system/001-extract-tokens",
+              "taskTitle": "Extract design tokens from brand.json into tokens.json + tokens.css",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/001-extract-tokens",
+              "factId": "check:tokens-css-has-variables"
+            }
+          },
+          {
+            "id": "03-design-system/001-extract-tokens-check-failed-globals-imports-tokens",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/001-extract-tokens",
+            "severity": "high",
+            "description": "[03-design-system/001-extract-tokens] Check failed: globals.css imports tokens.css",
+            "source": "unit",
+            "detected": "2026-04-26T17:35:36.508Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "globals-imports-tokens",
+              "checkCmd": "test -f apps/landing/src/styles/globals.css && grep -qE \"@import.*tokens\\.css|@import.*['\\\"]\\./tokens\" apps/landing/src/styles/globals.css",
+              "checkDescription": "globals.css imports tokens.css",
+              "checkOutput": "Command failed: test -f apps/landing/src/styles/globals.css && grep -qE \"@import.*tokens\\.css|@import.*['\\\"]\\./tokens\" apps/landing/src/styles/globals.css\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Extract tokens\n\nGenerate two files from `brand.json`:\n\n### `apps/landing/src/styles/tokens.json` (machine-readable)\n\n```json\n{\n  \"$schema\": \"https://design-tokens.github.io/community-group/format/\",\n  \"color\": {\n    \"bg\":         \"#0F1117\",\n    \"bgElev\":     \"#1E293B\",\n    \"indigo\":     \"#6366F1\",\n    \"cyan\":       \"#22D3EE\",\n    \"violet\":     \"#A78BFA\",\n    \"text\":       \"#F8FAFC\",\n    \"textMuted\":  \"#94A3B8\",\n    \"textDim\":    \"#64748B\",\n    \"accent\":     \"#EF4444\",\n    \"border\":     \"#1E293B\"\n  },\n  \"spacing\": {\n    \"1\": \"0.25rem\",  \"2\": \"0.5rem\",  \"3\": \"0.75rem\", \"4\": \"1rem\",\n    \"6\": \"1.5rem\",   \"8\": \"2rem\",    \"10\": \"2.5rem\", \"12\": \"3rem\",\n    \"16\": \"4rem\",    \"20\": \"5rem\",   \"24\": \"6rem\",   \"32\": \"8rem\"\n  },\n  \"radius\": { \"sm\": \"0.25rem\", \"md\": \"0.5rem\", \"lg\": \"0.75rem\", \"xl\": \"1rem\", \"2xl\": \"1.5rem\" },\n  \"type\": {\n    \"scale\": {\n      \"xs\": \"0.75rem\", \"sm\": \"0.875rem\", \"base\": \"1rem\", \"lg\": \"1.125rem\",\n      \"xl\": \"1.25rem\", \"2xl\": \"1.5rem\", \"3xl\": \"1.875rem\", \"4xl\": \"2.25rem\",\n      \"5xl\": \"3rem\",   \"6xl\": \"3.75rem\", \"7xl\": \"4.5rem\"\n    }\n  }\n}\n```\n\n(Read color values from `apps/landing/.content/brand.json#palette`. Don't hardcode if brand.json differs.)\n\n### `apps/landing/src/styles/tokens.css` (CSS custom properties)\n\n```css\n/* Generated from tokens.json — do not edit by hand. */\n:root {\n  --color-bg:        #0F1117;\n  --color-bg-elev:   #1E293B;\n  --color-indigo:    #6366F1;\n  --color-cyan:      #22D3EE;\n  --color-violet:    #A78BFA;\n  --color-text:      #F8FAFC;\n  --color-text-muted:#94A3B8;\n  --color-text-dim:  #64748B;\n  --color-accent:    #EF4444;\n  --color-border:    #1E293B;\n\n  --space-1: 0.25rem;  --space-2: 0.5rem;  --space-3: 0.75rem;\n  --space-4: 1rem;     --space-6: 1.5rem;  --space-8: 2rem;\n  --space-10: 2.5rem;  --space-12: 3rem;   --space-16: 4rem;\n  --space-20: 5rem;    --space-24: 6rem;   --space-32: 8rem;\n\n  --radius-sm: 0.25rem; --radius-md: 0.5rem; --radius-lg: 0.75rem;\n  --radius-xl: 1rem;    --radius-2xl: 1.5rem;\n}\n```\n\nThen update `globals.css` to import tokens:\n\n```css\n@import \"tailwindcss\";\n@import \"./tokens.css\";\n```\n\n## Process\n\n1. Read `apps/landing/.content/brand.json`.\n2. Generate `tokens.json` with colors from brand, plus the spacing/radius/type scale shown above (those are framework-wide constants, not brand-derived).\n3. Generate `tokens.css` from `tokens.json`. The two files mirror each other.\n4. Update `globals.css` to import tokens.css.",
+              "taskId": "03-design-system/001-extract-tokens",
+              "taskTitle": "Extract design tokens from brand.json into tokens.json + tokens.css",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/001-extract-tokens",
+              "factId": "check:globals-imports-tokens"
+            }
+          }
+        ],
+        "durationMs": 24
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 19
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 162
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#12",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 30303
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T17:35:36.483Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T17:35:36.484Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T17:35:36.508Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T17:35:36.509Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T17:35:36.528Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#12",
+      "iteration": 1,
+      "ts": "2026-04-26T17:36:06.832Z"
+    },
+    {
+      "from": "run-strategy:task-run#12",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T17:36:06.994Z"
+    }
+  ]
+}

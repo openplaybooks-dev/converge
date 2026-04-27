@@ -1,0 +1,24 @@
+{
+  "taskId": "04-build-sections/001-05-verify",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "apps/landing/src/pages/index.astro",
+      "count": 1,
+      "samples": [
+        "apps/landing/src/pages/index.astro"
+      ]
+    },
+    {
+      "pattern": "apps/landing/src/components/sections/Hero.astro",
+      "count": 1,
+      "samples": [
+        "apps/landing/src/components/sections/Hero.astro"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/.content/sections/hero/PASSED"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,363 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-design-system/004-layout-primitives-missing-output-apps/landing/src/components/layout/Container.astro",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/004-layout-primitives",
+            "severity": "high",
+            "description": "[03-design-system/004-layout-primitives] Task output not created: apps/landing/src/components/layout/Container.astro",
+            "source": "unit",
+            "detected": "2026-04-26T17:38:14.320Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/004-layout-primitives",
+              "taskId": "03-design-system/004-layout-primitives",
+              "taskTitle": "Layout primitives (Container, Section, Grid, Spacer)",
+              "taskPrompt": "# Layout primitives\n\nFour primitives in `src/components/layout/`. Every section uses these\ninstead of reimplementing padding/max-width logic.\n\n## Components\n\n### `Container.astro`\nCaps page width at the breakpoints we use. Default `max-w-6xl mx-auto px-4 sm:px-6 lg:px-8`. Slot for content.\n\n### `Section.astro`\nWraps a section with vertical padding and an optional bg variant.\nProps: `id` (anchor), `padY` (`md` | `lg` | `xl`), `bg` (`default` | `elev` | `gradient`).\nRenders `<section id={id} class=\"...\">{slot}</section>`. The `id` prop is what enables `/#hero`-style deep links.\n\n### `Grid.astro`\nResponsive column layout. Props: `cols` (number 1–4 or object like `{ base: 1, md: 2, lg: 3 }`), `gap` (`sm` | `md` | `lg`).\nUsed by FeatureGrid for 3×2 layout.\n\n### `Spacer.astro`\nVertical gap. Props: `size` (token from `space-N`). Renders `<div class=\"h-{size}\">`. Use sparingly — prefer Section's padY.\n\n## Process\n\n1. Write each `.astro` file with TS prop types + Tailwind classes referencing brand tokens.\n2. Run `astro check` to verify.\n\n## Banned\n\n- Re-doing max-width logic outside `Container`. If a section needs a wider container, add a prop to Container, don't write it inline.\n- Margin-collapsing tricks. Use Section's padY consistently.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"apps/landing/src/components/layout/Container.astro\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-design-system/004-layout-primitives-missing-output-apps/landing/src/components/layout/Section.astro",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/004-layout-primitives",
+            "severity": "high",
+            "description": "[03-design-system/004-layout-primitives] Task output not created: apps/landing/src/components/layout/Section.astro",
+            "source": "unit",
+            "detected": "2026-04-26T17:38:14.322Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/004-layout-primitives",
+              "taskId": "03-design-system/004-layout-primitives",
+              "taskTitle": "Layout primitives (Container, Section, Grid, Spacer)",
+              "taskPrompt": "# Layout primitives\n\nFour primitives in `src/components/layout/`. Every section uses these\ninstead of reimplementing padding/max-width logic.\n\n## Components\n\n### `Container.astro`\nCaps page width at the breakpoints we use. Default `max-w-6xl mx-auto px-4 sm:px-6 lg:px-8`. Slot for content.\n\n### `Section.astro`\nWraps a section with vertical padding and an optional bg variant.\nProps: `id` (anchor), `padY` (`md` | `lg` | `xl`), `bg` (`default` | `elev` | `gradient`).\nRenders `<section id={id} class=\"...\">{slot}</section>`. The `id` prop is what enables `/#hero`-style deep links.\n\n### `Grid.astro`\nResponsive column layout. Props: `cols` (number 1–4 or object like `{ base: 1, md: 2, lg: 3 }`), `gap` (`sm` | `md` | `lg`).\nUsed by FeatureGrid for 3×2 layout.\n\n### `Spacer.astro`\nVertical gap. Props: `size` (token from `space-N`). Renders `<div class=\"h-{size}\">`. Use sparingly — prefer Section's padY.\n\n## Process\n\n1. Write each `.astro` file with TS prop types + Tailwind classes referencing brand tokens.\n2. Run `astro check` to verify.\n\n## Banned\n\n- Re-doing max-width logic outside `Container`. If a section needs a wider container, add a prop to Container, don't write it inline.\n- Margin-collapsing tricks. Use Section's padY consistently.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"apps/landing/src/components/layout/Section.astro\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-design-system/004-layout-primitives-missing-output-apps/landing/src/components/layout/Grid.astro",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/004-layout-primitives",
+            "severity": "high",
+            "description": "[03-design-system/004-layout-primitives] Task output not created: apps/landing/src/components/layout/Grid.astro",
+            "source": "unit",
+            "detected": "2026-04-26T17:38:14.324Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/004-layout-primitives",
+              "taskId": "03-design-system/004-layout-primitives",
+              "taskTitle": "Layout primitives (Container, Section, Grid, Spacer)",
+              "taskPrompt": "# Layout primitives\n\nFour primitives in `src/components/layout/`. Every section uses these\ninstead of reimplementing padding/max-width logic.\n\n## Components\n\n### `Container.astro`\nCaps page width at the breakpoints we use. Default `max-w-6xl mx-auto px-4 sm:px-6 lg:px-8`. Slot for content.\n\n### `Section.astro`\nWraps a section with vertical padding and an optional bg variant.\nProps: `id` (anchor), `padY` (`md` | `lg` | `xl`), `bg` (`default` | `elev` | `gradient`).\nRenders `<section id={id} class=\"...\">{slot}</section>`. The `id` prop is what enables `/#hero`-style deep links.\n\n### `Grid.astro`\nResponsive column layout. Props: `cols` (number 1–4 or object like `{ base: 1, md: 2, lg: 3 }`), `gap` (`sm` | `md` | `lg`).\nUsed by FeatureGrid for 3×2 layout.\n\n### `Spacer.astro`\nVertical gap. Props: `size` (token from `space-N`). Renders `<div class=\"h-{size}\">`. Use sparingly — prefer Section's padY.\n\n## Process\n\n1. Write each `.astro` file with TS prop types + Tailwind classes referencing brand tokens.\n2. Run `astro check` to verify.\n\n## Banned\n\n- Re-doing max-width logic outside `Container`. If a section needs a wider container, add a prop to Container, don't write it inline.\n- Margin-collapsing tricks. Use Section's padY consistently.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"apps/landing/src/components/layout/Grid.astro\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-design-system/004-layout-primitives-missing-output-apps/landing/src/components/layout/Spacer.astro",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/004-layout-primitives",
+            "severity": "high",
+            "description": "[03-design-system/004-layout-primitives] Task output not created: apps/landing/src/components/layout/Spacer.astro",
+            "source": "unit",
+            "detected": "2026-04-26T17:38:14.326Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/004-layout-primitives",
+              "taskId": "03-design-system/004-layout-primitives",
+              "taskTitle": "Layout primitives (Container, Section, Grid, Spacer)",
+              "taskPrompt": "# Layout primitives\n\nFour primitives in `src/components/layout/`. Every section uses these\ninstead of reimplementing padding/max-width logic.\n\n## Components\n\n### `Container.astro`\nCaps page width at the breakpoints we use. Default `max-w-6xl mx-auto px-4 sm:px-6 lg:px-8`. Slot for content.\n\n### `Section.astro`\nWraps a section with vertical padding and an optional bg variant.\nProps: `id` (anchor), `padY` (`md` | `lg` | `xl`), `bg` (`default` | `elev` | `gradient`).\nRenders `<section id={id} class=\"...\">{slot}</section>`. The `id` prop is what enables `/#hero`-style deep links.\n\n### `Grid.astro`\nResponsive column layout. Props: `cols` (number 1–4 or object like `{ base: 1, md: 2, lg: 3 }`), `gap` (`sm` | `md` | `lg`).\nUsed by FeatureGrid for 3×2 layout.\n\n### `Spacer.astro`\nVertical gap. Props: `size` (token from `space-N`). Renders `<div class=\"h-{size}\">`. Use sparingly — prefer Section's padY.\n\n## Process\n\n1. Write each `.astro` file with TS prop types + Tailwind classes referencing brand tokens.\n2. Run `astro check` to verify.\n\n## Banned\n\n- Re-doing max-width logic outside `Container`. If a section needs a wider container, add a prop to Container, don't write it inline.\n- Margin-collapsing tricks. Use Section's padY consistently.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"apps/landing/src/components/layout/Spacer.astro\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-design-system/004-layout-primitives-check-failed-primitives-exist",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/004-layout-primitives",
+            "severity": "high",
+            "description": "[03-design-system/004-layout-primitives] Check failed: all four layout primitives exist",
+            "source": "unit",
+            "detected": "2026-04-26T17:38:14.328Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "primitives-exist",
+              "checkCmd": "for f in Container Section Grid Spacer; do test -f apps/landing/src/components/layout/$f.astro || exit 1; done",
+              "checkDescription": "all four layout primitives exist",
+              "checkOutput": "Command failed: for f in Container Section Grid Spacer; do test -f apps/landing/src/components/layout/$f.astro || exit 1; done\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Layout primitives\n\nFour primitives in `src/components/layout/`. Every section uses these\ninstead of reimplementing padding/max-width logic.\n\n## Components\n\n### `Container.astro`\nCaps page width at the breakpoints we use. Default `max-w-6xl mx-auto px-4 sm:px-6 lg:px-8`. Slot for content.\n\n### `Section.astro`\nWraps a section with vertical padding and an optional bg variant.\nProps: `id` (anchor), `padY` (`md` | `lg` | `xl`), `bg` (`default` | `elev` | `gradient`).\nRenders `<section id={id} class=\"...\">{slot}</section>`. The `id` prop is what enables `/#hero`-style deep links.\n\n### `Grid.astro`\nResponsive column layout. Props: `cols` (number 1–4 or object like `{ base: 1, md: 2, lg: 3 }`), `gap` (`sm` | `md` | `lg`).\nUsed by FeatureGrid for 3×2 layout.\n\n### `Spacer.astro`\nVertical gap. Props: `size` (token from `space-N`). Renders `<div class=\"h-{size}\">`. Use sparingly — prefer Section's padY.\n\n## Process\n\n1. Write each `.astro` file with TS prop types + Tailwind classes referencing brand tokens.\n2. Run `astro check` to verify.\n\n## Banned\n\n- Re-doing max-width logic outside `Container`. If a section needs a wider container, add a prop to Container, don't write it inline.\n- Margin-collapsing tricks. Use Section's padY consistently.",
+              "taskId": "03-design-system/004-layout-primitives",
+              "taskTitle": "Layout primitives (Container, Section, Grid, Spacer)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/004-layout-primitives",
+              "factId": "check:primitives-exist"
+            }
+          },
+          {
+            "id": "03-design-system/004-layout-primitives-check-failed-primitives-typecheck",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/004-layout-primitives",
+            "severity": "high",
+            "description": "[03-design-system/004-layout-primitives] Check failed: astro check has no errors in components/layout",
+            "source": "unit",
+            "detected": "2026-04-26T17:38:14.330Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "primitives-typecheck",
+              "checkCmd": "test -d apps/landing/src/components/layout && pnpm --filter @converge/landing astro check 2>&1 | (! grep -E 'error.*components/layout')",
+              "checkDescription": "astro check has no errors in components/layout",
+              "checkOutput": "Command failed: test -d apps/landing/src/components/layout && pnpm --filter @converge/landing astro check 2>&1 | (! grep -E 'error.*components/layout')\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Layout primitives\n\nFour primitives in `src/components/layout/`. Every section uses these\ninstead of reimplementing padding/max-width logic.\n\n## Components\n\n### `Container.astro`\nCaps page width at the breakpoints we use. Default `max-w-6xl mx-auto px-4 sm:px-6 lg:px-8`. Slot for content.\n\n### `Section.astro`\nWraps a section with vertical padding and an optional bg variant.\nProps: `id` (anchor), `padY` (`md` | `lg` | `xl`), `bg` (`default` | `elev` | `gradient`).\nRenders `<section id={id} class=\"...\">{slot}</section>`. The `id` prop is what enables `/#hero`-style deep links.\n\n### `Grid.astro`\nResponsive column layout. Props: `cols` (number 1–4 or object like `{ base: 1, md: 2, lg: 3 }`), `gap` (`sm` | `md` | `lg`).\nUsed by FeatureGrid for 3×2 layout.\n\n### `Spacer.astro`\nVertical gap. Props: `size` (token from `space-N`). Renders `<div class=\"h-{size}\">`. Use sparingly — prefer Section's padY.\n\n## Process\n\n1. Write each `.astro` file with TS prop types + Tailwind classes referencing brand tokens.\n2. Run `astro check` to verify.\n\n## Banned\n\n- Re-doing max-width logic outside `Container`. If a section needs a wider container, add a prop to Container, don't write it inline.\n- Margin-collapsing tricks. Use Section's padY consistently.",
+              "taskId": "03-design-system/004-layout-primitives",
+              "taskTitle": "Layout primitives (Container, Section, Grid, Spacer)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/004-layout-primitives",
+              "factId": "check:primitives-typecheck"
+            }
+          },
+          {
+            "id": "03-design-system/004-layout-primitives-check-failed-section-takes-id-prop",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/004-layout-primitives",
+            "severity": "high",
+            "description": "[03-design-system/004-layout-primitives] Check failed: Section accepts an id prop (for anchor navigation)",
+            "source": "unit",
+            "detected": "2026-04-26T17:38:14.333Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "section-takes-id-prop",
+              "checkCmd": "test -f apps/landing/src/components/layout/Section.astro && grep -qE 'id\\??:|id:\\s*string|Astro\\.props' apps/landing/src/components/layout/Section.astro",
+              "checkDescription": "Section accepts an id prop (for anchor navigation)",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/layout/Section.astro && grep -qE 'id\\??:|id:\\s*string|Astro\\.props' apps/landing/src/components/layout/Section.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Layout primitives\n\nFour primitives in `src/components/layout/`. Every section uses these\ninstead of reimplementing padding/max-width logic.\n\n## Components\n\n### `Container.astro`\nCaps page width at the breakpoints we use. Default `max-w-6xl mx-auto px-4 sm:px-6 lg:px-8`. Slot for content.\n\n### `Section.astro`\nWraps a section with vertical padding and an optional bg variant.\nProps: `id` (anchor), `padY` (`md` | `lg` | `xl`), `bg` (`default` | `elev` | `gradient`).\nRenders `<section id={id} class=\"...\">{slot}</section>`. The `id` prop is what enables `/#hero`-style deep links.\n\n### `Grid.astro`\nResponsive column layout. Props: `cols` (number 1–4 or object like `{ base: 1, md: 2, lg: 3 }`), `gap` (`sm` | `md` | `lg`).\nUsed by FeatureGrid for 3×2 layout.\n\n### `Spacer.astro`\nVertical gap. Props: `size` (token from `space-N`). Renders `<div class=\"h-{size}\">`. Use sparingly — prefer Section's padY.\n\n## Process\n\n1. Write each `.astro` file with TS prop types + Tailwind classes referencing brand tokens.\n2. Run `astro check` to verify.\n\n## Banned\n\n- Re-doing max-width logic outside `Container`. If a section needs a wider container, add a prop to Container, don't write it inline.\n- Margin-collapsing tricks. Use Section's padY consistently.",
+              "taskId": "03-design-system/004-layout-primitives",
+              "taskTitle": "Layout primitives (Container, Section, Grid, Spacer)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/004-layout-primitives",
+              "factId": "check:section-takes-id-prop"
+            }
+          },
+          {
+            "id": "03-design-system/004-layout-primitives-check-failed-container-max-width",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/004-layout-primitives",
+            "severity": "high",
+            "description": "[03-design-system/004-layout-primitives] Check failed: Container caps width",
+            "source": "unit",
+            "detected": "2026-04-26T17:38:14.335Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "container-max-width",
+              "checkCmd": "test -f apps/landing/src/components/layout/Container.astro && grep -qE 'max-w-' apps/landing/src/components/layout/Container.astro",
+              "checkDescription": "Container caps width",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/layout/Container.astro && grep -qE 'max-w-' apps/landing/src/components/layout/Container.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Layout primitives\n\nFour primitives in `src/components/layout/`. Every section uses these\ninstead of reimplementing padding/max-width logic.\n\n## Components\n\n### `Container.astro`\nCaps page width at the breakpoints we use. Default `max-w-6xl mx-auto px-4 sm:px-6 lg:px-8`. Slot for content.\n\n### `Section.astro`\nWraps a section with vertical padding and an optional bg variant.\nProps: `id` (anchor), `padY` (`md` | `lg` | `xl`), `bg` (`default` | `elev` | `gradient`).\nRenders `<section id={id} class=\"...\">{slot}</section>`. The `id` prop is what enables `/#hero`-style deep links.\n\n### `Grid.astro`\nResponsive column layout. Props: `cols` (number 1–4 or object like `{ base: 1, md: 2, lg: 3 }`), `gap` (`sm` | `md` | `lg`).\nUsed by FeatureGrid for 3×2 layout.\n\n### `Spacer.astro`\nVertical gap. Props: `size` (token from `space-N`). Renders `<div class=\"h-{size}\">`. Use sparingly — prefer Section's padY.\n\n## Process\n\n1. Write each `.astro` file with TS prop types + Tailwind classes referencing brand tokens.\n2. Run `astro check` to verify.\n\n## Banned\n\n- Re-doing max-width logic outside `Container`. If a section needs a wider container, add a prop to Container, don't write it inline.\n- Margin-collapsing tricks. Use Section's padY consistently.",
+              "taskId": "03-design-system/004-layout-primitives",
+              "taskTitle": "Layout primitives (Container, Section, Grid, Spacer)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/004-layout-primitives",
+              "factId": "check:container-max-width"
+            }
+          }
+        ],
+        "durationMs": 18
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 284
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#15",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 91894
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T17:38:14.317Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T17:38:14.317Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T17:38:14.335Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T17:38:14.335Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T17:38:14.345Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#15",
+      "iteration": 1,
+      "ts": "2026-04-26T17:39:46.239Z"
+    },
+    {
+      "from": "run-strategy:task-run#15",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T17:39:46.524Z"
+    }
+  ]
+}

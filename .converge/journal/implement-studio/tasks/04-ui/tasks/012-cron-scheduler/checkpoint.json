@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "04-ui/012-cron-scheduler",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T05:44:40.006Z",
+  "createdAt": "2026-04-26T05:41:51.819Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T05:41:51.819Z",
+      "completedAt": "2026-04-26T05:44:40.004Z",
+      "outcome": "success",
+      "durationMs": 168185
+    }
+  ],
+  "currentAttempt": 1
+}

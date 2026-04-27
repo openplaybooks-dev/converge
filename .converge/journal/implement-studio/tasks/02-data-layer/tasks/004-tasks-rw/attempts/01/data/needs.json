@@ -1,0 +1,10 @@
+{
+  "taskId": "02-data-layer/004-tasks-rw",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/src/lib/converge-adapter/tasks.ts",
+    "packages/converge-studio/src/lib/converge-adapter/frontmatter.ts"
+  ],
+  "blocked": false
+}

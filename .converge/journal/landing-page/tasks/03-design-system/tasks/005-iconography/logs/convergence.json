@@ -1,0 +1,322 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-design-system/005-iconography-missing-output-apps/landing/src/icons/converge-mark.svg",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/005-iconography",
+            "severity": "high",
+            "description": "[03-design-system/005-iconography] Task output not created: apps/landing/src/icons/converge-mark.svg",
+            "source": "unit",
+            "detected": "2026-04-26T17:39:47.287Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/005-iconography",
+              "taskId": "03-design-system/005-iconography",
+              "taskTitle": "Iconography — Lucide set + custom converge mark + journey SVG",
+              "taskPrompt": "# Iconography\n\nThree deliverables:\n\n1. **Lucide icon set** — install `astro-icon` + `@iconify-json/lucide` so any component can `<Icon name=\"lucide:check\" />` without per-icon imports.\n2. **`converge-mark.svg`** — the brand monogram. Extract from `banner.svg` (the wordmark + logo glyph). Used in Header, Footer, OG images.\n3. **`convergence-journey.svg`** — placeholder for the hero animation (phase 09 polishes this into the actual animation). For now: a static SVG showing 3–5 dots converging on a target.\n\n## Process\n\n```bash\npnpm --filter @converge/landing add astro-icon @iconify-json/lucide\n```\n\nThen write:\n\n### `apps/landing/src/components/ui/Icon.astro`\nWraps `<Icon>` from `astro-icon/components`. Adds default `aria-hidden=\"true\"` if no `aria-label` is passed.\n\n### `apps/landing/src/icons/converge-mark.svg`\nThe Converge brand mark. Extract the SVG paths from `banner.svg` (the small mark, not the full banner). Should be ~24×24 viewBox.\n\n### `apps/landing/src/icons/convergence-journey.svg`\nA simple SVG: 3 starting dots on the left, an arrow / paths converging to a single target on the right. Viewbox 400×160. Static for now; phase 09 may animate paths via `<animate>` or replace with a more elaborate component.\n\n## Banned\n\n- Bringing in the full Heroicons OR Phosphor icon sets too. Lucide alone is the choice — avoid bloating the bundle.\n- Inline SVG copy-paste into components. Use the `<Icon>` wrapper everywhere so a future global change (color, stroke-width) is one diff.",
+              "taskInputs": [
+                "banner.svg"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/src/icons/converge-mark.svg\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-design-system/005-iconography-missing-output-apps/landing/src/icons/convergence-journey.svg",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/005-iconography",
+            "severity": "high",
+            "description": "[03-design-system/005-iconography] Task output not created: apps/landing/src/icons/convergence-journey.svg",
+            "source": "unit",
+            "detected": "2026-04-26T17:39:47.290Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/005-iconography",
+              "taskId": "03-design-system/005-iconography",
+              "taskTitle": "Iconography — Lucide set + custom converge mark + journey SVG",
+              "taskPrompt": "# Iconography\n\nThree deliverables:\n\n1. **Lucide icon set** — install `astro-icon` + `@iconify-json/lucide` so any component can `<Icon name=\"lucide:check\" />` without per-icon imports.\n2. **`converge-mark.svg`** — the brand monogram. Extract from `banner.svg` (the wordmark + logo glyph). Used in Header, Footer, OG images.\n3. **`convergence-journey.svg`** — placeholder for the hero animation (phase 09 polishes this into the actual animation). For now: a static SVG showing 3–5 dots converging on a target.\n\n## Process\n\n```bash\npnpm --filter @converge/landing add astro-icon @iconify-json/lucide\n```\n\nThen write:\n\n### `apps/landing/src/components/ui/Icon.astro`\nWraps `<Icon>` from `astro-icon/components`. Adds default `aria-hidden=\"true\"` if no `aria-label` is passed.\n\n### `apps/landing/src/icons/converge-mark.svg`\nThe Converge brand mark. Extract the SVG paths from `banner.svg` (the small mark, not the full banner). Should be ~24×24 viewBox.\n\n### `apps/landing/src/icons/convergence-journey.svg`\nA simple SVG: 3 starting dots on the left, an arrow / paths converging to a single target on the right. Viewbox 400×160. Static for now; phase 09 may animate paths via `<animate>` or replace with a more elaborate component.\n\n## Banned\n\n- Bringing in the full Heroicons OR Phosphor icon sets too. Lucide alone is the choice — avoid bloating the bundle.\n- Inline SVG copy-paste into components. Use the `<Icon>` wrapper everywhere so a future global change (color, stroke-width) is one diff.",
+              "taskInputs": [
+                "banner.svg"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/src/icons/convergence-journey.svg\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-design-system/005-iconography-missing-output-apps/landing/src/components/ui/Icon.astro",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/005-iconography",
+            "severity": "high",
+            "description": "[03-design-system/005-iconography] Task output not created: apps/landing/src/components/ui/Icon.astro",
+            "source": "unit",
+            "detected": "2026-04-26T17:39:47.292Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/005-iconography",
+              "taskId": "03-design-system/005-iconography",
+              "taskTitle": "Iconography — Lucide set + custom converge mark + journey SVG",
+              "taskPrompt": "# Iconography\n\nThree deliverables:\n\n1. **Lucide icon set** — install `astro-icon` + `@iconify-json/lucide` so any component can `<Icon name=\"lucide:check\" />` without per-icon imports.\n2. **`converge-mark.svg`** — the brand monogram. Extract from `banner.svg` (the wordmark + logo glyph). Used in Header, Footer, OG images.\n3. **`convergence-journey.svg`** — placeholder for the hero animation (phase 09 polishes this into the actual animation). For now: a static SVG showing 3–5 dots converging on a target.\n\n## Process\n\n```bash\npnpm --filter @converge/landing add astro-icon @iconify-json/lucide\n```\n\nThen write:\n\n### `apps/landing/src/components/ui/Icon.astro`\nWraps `<Icon>` from `astro-icon/components`. Adds default `aria-hidden=\"true\"` if no `aria-label` is passed.\n\n### `apps/landing/src/icons/converge-mark.svg`\nThe Converge brand mark. Extract the SVG paths from `banner.svg` (the small mark, not the full banner). Should be ~24×24 viewBox.\n\n### `apps/landing/src/icons/convergence-journey.svg`\nA simple SVG: 3 starting dots on the left, an arrow / paths converging to a single target on the right. Viewbox 400×160. Static for now; phase 09 may animate paths via `<animate>` or replace with a more elaborate component.\n\n## Banned\n\n- Bringing in the full Heroicons OR Phosphor icon sets too. Lucide alone is the choice — avoid bloating the bundle.\n- Inline SVG copy-paste into components. Use the `<Icon>` wrapper everywhere so a future global change (color, stroke-width) is one diff.",
+              "taskInputs": [
+                "banner.svg"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/src/components/ui/Icon.astro\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-design-system/005-iconography-check-failed-converge-mark-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/005-iconography",
+            "severity": "high",
+            "description": "[03-design-system/005-iconography] Check failed: converge-mark.svg exists and is valid SVG",
+            "source": "unit",
+            "detected": "2026-04-26T17:39:47.380Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "converge-mark-exists",
+              "checkCmd": "test -f apps/landing/src/icons/converge-mark.svg && grep -q '<svg' apps/landing/src/icons/converge-mark.svg",
+              "checkDescription": "converge-mark.svg exists and is valid SVG",
+              "checkOutput": "Command failed: test -f apps/landing/src/icons/converge-mark.svg && grep -q '<svg' apps/landing/src/icons/converge-mark.svg\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Iconography\n\nThree deliverables:\n\n1. **Lucide icon set** — install `astro-icon` + `@iconify-json/lucide` so any component can `<Icon name=\"lucide:check\" />` without per-icon imports.\n2. **`converge-mark.svg`** — the brand monogram. Extract from `banner.svg` (the wordmark + logo glyph). Used in Header, Footer, OG images.\n3. **`convergence-journey.svg`** — placeholder for the hero animation (phase 09 polishes this into the actual animation). For now: a static SVG showing 3–5 dots converging on a target.\n\n## Process\n\n```bash\npnpm --filter @converge/landing add astro-icon @iconify-json/lucide\n```\n\nThen write:\n\n### `apps/landing/src/components/ui/Icon.astro`\nWraps `<Icon>` from `astro-icon/components`. Adds default `aria-hidden=\"true\"` if no `aria-label` is passed.\n\n### `apps/landing/src/icons/converge-mark.svg`\nThe Converge brand mark. Extract the SVG paths from `banner.svg` (the small mark, not the full banner). Should be ~24×24 viewBox.\n\n### `apps/landing/src/icons/convergence-journey.svg`\nA simple SVG: 3 starting dots on the left, an arrow / paths converging to a single target on the right. Viewbox 400×160. Static for now; phase 09 may animate paths via `<animate>` or replace with a more elaborate component.\n\n## Banned\n\n- Bringing in the full Heroicons OR Phosphor icon sets too. Lucide alone is the choice — avoid bloating the bundle.\n- Inline SVG copy-paste into components. Use the `<Icon>` wrapper everywhere so a future global change (color, stroke-width) is one diff.",
+              "taskId": "03-design-system/005-iconography",
+              "taskTitle": "Iconography — Lucide set + custom converge mark + journey SVG",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/005-iconography",
+              "factId": "check:converge-mark-exists"
+            }
+          },
+          {
+            "id": "03-design-system/005-iconography-check-failed-journey-svg-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/005-iconography",
+            "severity": "high",
+            "description": "[03-design-system/005-iconography] Check failed: convergence-journey.svg exists and is valid SVG",
+            "source": "unit",
+            "detected": "2026-04-26T17:39:47.382Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "journey-svg-exists",
+              "checkCmd": "test -f apps/landing/src/icons/convergence-journey.svg && grep -q '<svg' apps/landing/src/icons/convergence-journey.svg",
+              "checkDescription": "convergence-journey.svg exists and is valid SVG",
+              "checkOutput": "Command failed: test -f apps/landing/src/icons/convergence-journey.svg && grep -q '<svg' apps/landing/src/icons/convergence-journey.svg\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Iconography\n\nThree deliverables:\n\n1. **Lucide icon set** — install `astro-icon` + `@iconify-json/lucide` so any component can `<Icon name=\"lucide:check\" />` without per-icon imports.\n2. **`converge-mark.svg`** — the brand monogram. Extract from `banner.svg` (the wordmark + logo glyph). Used in Header, Footer, OG images.\n3. **`convergence-journey.svg`** — placeholder for the hero animation (phase 09 polishes this into the actual animation). For now: a static SVG showing 3–5 dots converging on a target.\n\n## Process\n\n```bash\npnpm --filter @converge/landing add astro-icon @iconify-json/lucide\n```\n\nThen write:\n\n### `apps/landing/src/components/ui/Icon.astro`\nWraps `<Icon>` from `astro-icon/components`. Adds default `aria-hidden=\"true\"` if no `aria-label` is passed.\n\n### `apps/landing/src/icons/converge-mark.svg`\nThe Converge brand mark. Extract the SVG paths from `banner.svg` (the small mark, not the full banner). Should be ~24×24 viewBox.\n\n### `apps/landing/src/icons/convergence-journey.svg`\nA simple SVG: 3 starting dots on the left, an arrow / paths converging to a single target on the right. Viewbox 400×160. Static for now; phase 09 may animate paths via `<animate>` or replace with a more elaborate component.\n\n## Banned\n\n- Bringing in the full Heroicons OR Phosphor icon sets too. Lucide alone is the choice — avoid bloating the bundle.\n- Inline SVG copy-paste into components. Use the `<Icon>` wrapper everywhere so a future global change (color, stroke-width) is one diff.",
+              "taskId": "03-design-system/005-iconography",
+              "taskTitle": "Iconography — Lucide set + custom converge mark + journey SVG",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/005-iconography",
+              "factId": "check:journey-svg-exists"
+            }
+          },
+          {
+            "id": "03-design-system/005-iconography-check-failed-icon-component-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-design-system/005-iconography",
+            "severity": "high",
+            "description": "[03-design-system/005-iconography] Check failed: Icon.astro wrapper exists",
+            "source": "unit",
+            "detected": "2026-04-26T17:39:47.385Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "icon-component-exists",
+              "checkCmd": "test -f apps/landing/src/components/ui/Icon.astro",
+              "checkDescription": "Icon.astro wrapper exists",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/ui/Icon.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Iconography\n\nThree deliverables:\n\n1. **Lucide icon set** — install `astro-icon` + `@iconify-json/lucide` so any component can `<Icon name=\"lucide:check\" />` without per-icon imports.\n2. **`converge-mark.svg`** — the brand monogram. Extract from `banner.svg` (the wordmark + logo glyph). Used in Header, Footer, OG images.\n3. **`convergence-journey.svg`** — placeholder for the hero animation (phase 09 polishes this into the actual animation). For now: a static SVG showing 3–5 dots converging on a target.\n\n## Process\n\n```bash\npnpm --filter @converge/landing add astro-icon @iconify-json/lucide\n```\n\nThen write:\n\n### `apps/landing/src/components/ui/Icon.astro`\nWraps `<Icon>` from `astro-icon/components`. Adds default `aria-hidden=\"true\"` if no `aria-label` is passed.\n\n### `apps/landing/src/icons/converge-mark.svg`\nThe Converge brand mark. Extract the SVG paths from `banner.svg` (the small mark, not the full banner). Should be ~24×24 viewBox.\n\n### `apps/landing/src/icons/convergence-journey.svg`\nA simple SVG: 3 starting dots on the left, an arrow / paths converging to a single target on the right. Viewbox 400×160. Static for now; phase 09 may animate paths via `<animate>` or replace with a more elaborate component.\n\n## Banned\n\n- Bringing in the full Heroicons OR Phosphor icon sets too. Lucide alone is the choice — avoid bloating the bundle.\n- Inline SVG copy-paste into components. Use the `<Icon>` wrapper everywhere so a future global change (color, stroke-width) is one diff.",
+              "taskId": "03-design-system/005-iconography",
+              "taskTitle": "Iconography — Lucide set + custom converge mark + journey SVG",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/03-design-system/tasks/005-iconography",
+              "factId": "check:icon-component-exists"
+            }
+          }
+        ],
+        "durationMs": 103
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 32
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 144
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#16",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 76388
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T17:39:47.282Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T17:39:47.282Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T17:39:47.385Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T17:39:47.386Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T17:39:47.419Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#16",
+      "iteration": 1,
+      "ts": "2026-04-26T17:41:03.808Z"
+    },
+    {
+      "from": "run-strategy:task-run#16",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T17:41:03.953Z"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "type": "task",
+  "id": "07-polish",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T08:48:00.039Z",
+  "createdAt": "2026-04-26T06:32:54.051Z",
+  "progress": {
+    "totalChildren": 12,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-hero-animation",
+      "001-hero-animation",
+      "002-scroll-reveals",
+      "002-scroll-reveals",
+      "003-image-optimization",
+      "003-image-optimization",
+      "004-font-loading-cls",
+      "004-font-loading-cls",
+      "005-a11y-audit",
+      "005-a11y-audit",
+      "006-lighthouse-tune",
+      "006-lighthouse-tune"
+    ],
+    "lastProgressUpdate": "2026-04-26T08:48:00.035Z"
+  }
+}

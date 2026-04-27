@@ -1,0 +1,670 @@
+{
+  "iteration": 3,
+  "stallCount": 3,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "10-verify/005-lighthouse-perf-check-failed-lighthouse-perf-95",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "10-verify/005-lighthouse-perf",
+            "severity": "high",
+            "description": "[10-verify/005-lighthouse-perf] Check failed: Lighthouse Performance >= 95 on /",
+            "source": "unit",
+            "detected": "2026-04-26T23:42:49.818Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "lighthouse-perf-95",
+              "checkCmd": "cd apps/landing && pnpm preview > /tmp/converge-landing-preview.log 2>&1 &\nPREVIEW_PID=$!\nsleep 5\nLH_URL=http://localhost:4321/ node .converge/playbooks/landing-page/scripts/lighthouse-gate.mjs performance 95\nRC=$?\nkill $PREVIEW_PID 2>/dev/null\nwait $PREVIEW_PID 2>/dev/null\nexit $RC\n",
+              "checkDescription": "Lighthouse Performance >= 95 on /",
+              "checkOutput": "Command timed out after 15000ms",
+              "checkExitCode": 124,
+              "taskPrompt": "# Lighthouse Performance ≥ 95\n\nSpawn the preview server (built dist), run Lighthouse against `/` in\nperformance-only mode, parse the JSON report, exit 0 if score >= 95.\n\nIf this fails:\n- Check if the hero animation is JS-heavy (it shouldn't be — phase 09's spec says CSS-only).\n- Check if fonts are preloaded with `<link rel=\"preload\">` for the variable Inter.\n- Check if any image is missing `width`/`height` (causes CLS, hits perf).\n- Check the network tab for unexpectedly large bundles.\n\nThe polish phase exists specifically to keep this metric green. If it\nfails after polish, that's a real regression — investigate the cause,\ndon't lower the bar.\n\n## Banned\n\n- Lowering the threshold below 95. The bar is non-negotiable for v1 of \"production ready\".\n- Using `--throttling-method=disabled` to fake-pass the score. Mobile-throttled is the default and what real users experience.",
+              "taskId": "10-verify/005-lighthouse-perf",
+              "taskTitle": "Lighthouse Performance ≥ 95 on home page",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/10-verify/tasks/005-lighthouse-perf",
+              "factId": "check:lighthouse-perf-95"
+            }
+          }
+        ],
+        "durationMs": 15003
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 16072
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "10-verify/005-lighthouse-perf-check-failed-lighthouse-perf-95",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "10-verify/005-lighthouse-perf",
+            "severity": "high",
+            "description": "[10-verify/005-lighthouse-perf] Check failed: Lighthouse Performance >= 95 on /",
+            "source": "unit",
+            "detected": "2026-04-26T23:44:57.528Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "lighthouse-perf-95",
+              "checkCmd": "cd apps/landing && pnpm preview > /tmp/converge-landing-preview.log 2>&1 &\nPREVIEW_PID=$!\nsleep 5\nLH_URL=http://localhost:4321/ node .converge/playbooks/landing-page/scripts/lighthouse-gate.mjs performance 95\nRC=$?\nkill $PREVIEW_PID 2>/dev/null\nwait $PREVIEW_PID 2>/dev/null\nexit $RC\n",
+              "checkDescription": "Lighthouse Performance >= 95 on /",
+              "checkOutput": "Command timed out after 15000ms",
+              "checkExitCode": 124,
+              "taskPrompt": "# Lighthouse Performance ≥ 95\n\nSpawn the preview server (built dist), run Lighthouse against `/` in\nperformance-only mode, parse the JSON report, exit 0 if score >= 95.\n\nIf this fails:\n- Check if the hero animation is JS-heavy (it shouldn't be — phase 09's spec says CSS-only).\n- Check if fonts are preloaded with `<link rel=\"preload\">` for the variable Inter.\n- Check if any image is missing `width`/`height` (causes CLS, hits perf).\n- Check the network tab for unexpectedly large bundles.\n\nThe polish phase exists specifically to keep this metric green. If it\nfails after polish, that's a real regression — investigate the cause,\ndon't lower the bar.\n\n## Banned\n\n- Lowering the threshold below 95. The bar is non-negotiable for v1 of \"production ready\".\n- Using `--throttling-method=disabled` to fake-pass the score. Mobile-throttled is the default and what real users experience.",
+              "taskId": "10-verify/005-lighthouse-perf",
+              "taskTitle": "Lighthouse Performance ≥ 95 on home page",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/10-verify/tasks/005-lighthouse-perf",
+              "factId": "check:lighthouse-perf-95"
+            }
+          }
+        ],
+        "durationMs": 15009
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "run-strategy:task-run#6",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 96623
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "10-verify/005-lighthouse-perf-check-failed-lighthouse-perf-95",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "10-verify/005-lighthouse-perf",
+            "severity": "high",
+            "description": "[10-verify/005-lighthouse-perf] Check failed: Lighthouse Performance >= 95 on /",
+            "source": "unit",
+            "detected": "2026-04-26T23:45:12.550Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "lighthouse-perf-95",
+              "checkCmd": "cd apps/landing && pnpm preview > /tmp/converge-landing-preview.log 2>&1 &\nPREVIEW_PID=$!\nsleep 5\nLH_URL=http://localhost:4321/ node .converge/playbooks/landing-page/scripts/lighthouse-gate.mjs performance 95\nRC=$?\nkill $PREVIEW_PID 2>/dev/null\nwait $PREVIEW_PID 2>/dev/null\nexit $RC\n",
+              "checkDescription": "Lighthouse Performance >= 95 on /",
+              "checkOutput": "/bin/bash: line 1: 60772 Killed: 9               pnpm preview > /tmp/converge-landing-preview.log 2>&1",
+              "checkExitCode": 124,
+              "taskPrompt": "# Lighthouse Performance ≥ 95\n\nSpawn the preview server (built dist), run Lighthouse against `/` in\nperformance-only mode, parse the JSON report, exit 0 if score >= 95.\n\nIf this fails:\n- Check if the hero animation is JS-heavy (it shouldn't be — phase 09's spec says CSS-only).\n- Check if fonts are preloaded with `<link rel=\"preload\">` for the variable Inter.\n- Check if any image is missing `width`/`height` (causes CLS, hits perf).\n- Check the network tab for unexpectedly large bundles.\n\nThe polish phase exists specifically to keep this metric green. If it\nfails after polish, that's a real regression — investigate the cause,\ndon't lower the bar.\n\n## Banned\n\n- Lowering the threshold below 95. The bar is non-negotiable for v1 of \"production ready\".\n- Using `--throttling-method=disabled` to fake-pass the score. Mobile-throttled is the default and what real users experience.",
+              "taskId": "10-verify/005-lighthouse-perf",
+              "taskTitle": "Lighthouse Performance ≥ 95 on home page",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/10-verify/tasks/005-lighthouse-perf",
+              "factId": "check:lighthouse-perf-95"
+            }
+          }
+        ],
+        "durationMs": 15007
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#2",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 15533
+      }
+    },
+    {
+      "id": "run-strategy:task-run#7",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 67947
+      }
+    },
+    {
+      "id": "verify#2",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "10-verify/005-lighthouse-perf-check-failed-lighthouse-perf-95",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "10-verify/005-lighthouse-perf",
+            "severity": "high",
+            "description": "[10-verify/005-lighthouse-perf] Check failed: Lighthouse Performance >= 95 on /",
+            "source": "unit",
+            "detected": "2026-04-26T23:46:51.039Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "lighthouse-perf-95",
+              "checkCmd": "cd apps/landing && pnpm preview > /tmp/converge-landing-preview.log 2>&1 &\nPREVIEW_PID=$!\nsleep 5\nLH_URL=http://localhost:4321/ node .converge/playbooks/landing-page/scripts/lighthouse-gate.mjs performance 95\nRC=$?\nkill $PREVIEW_PID 2>/dev/null\nwait $PREVIEW_PID 2>/dev/null\nexit $RC\n",
+              "checkDescription": "Lighthouse Performance >= 95 on /",
+              "checkOutput": "Command timed out after 15000ms",
+              "checkExitCode": 124,
+              "taskPrompt": "# Lighthouse Performance ≥ 95\n\nSpawn the preview server (built dist), run Lighthouse against `/` in\nperformance-only mode, parse the JSON report, exit 0 if score >= 95.\n\nIf this fails:\n- Check if the hero animation is JS-heavy (it shouldn't be — phase 09's spec says CSS-only).\n- Check if fonts are preloaded with `<link rel=\"preload\">` for the variable Inter.\n- Check if any image is missing `width`/`height` (causes CLS, hits perf).\n- Check the network tab for unexpectedly large bundles.\n\nThe polish phase exists specifically to keep this metric green. If it\nfails after polish, that's a real regression — investigate the cause,\ndon't lower the bar.\n\n## Banned\n\n- Lowering the threshold below 95. The bar is non-negotiable for v1 of \"production ready\".\n- Using `--throttling-method=disabled` to fake-pass the score. Mobile-throttled is the default and what real users experience.",
+              "taskId": "10-verify/005-lighthouse-perf",
+              "taskTitle": "Lighthouse Performance ≥ 95 on home page",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/10-verify/tasks/005-lighthouse-perf",
+              "factId": "check:lighthouse-perf-95"
+            }
+          }
+        ],
+        "durationMs": 15005
+      }
+    },
+    {
+      "id": "check-stall#2",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt#2",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "check-wbs-seeded#3",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#3",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps#3",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "10-verify/005-lighthouse-perf-check-failed-lighthouse-perf-95",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "10-verify/005-lighthouse-perf",
+            "severity": "high",
+            "description": "[10-verify/005-lighthouse-perf] Check failed: Lighthouse Performance >= 95 on /",
+            "source": "unit",
+            "detected": "2026-04-26T23:47:06.056Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "lighthouse-perf-95",
+              "checkCmd": "cd apps/landing && pnpm preview > /tmp/converge-landing-preview.log 2>&1 &\nPREVIEW_PID=$!\nsleep 5\nLH_URL=http://localhost:4321/ node .converge/playbooks/landing-page/scripts/lighthouse-gate.mjs performance 95\nRC=$?\nkill $PREVIEW_PID 2>/dev/null\nwait $PREVIEW_PID 2>/dev/null\nexit $RC\n",
+              "checkDescription": "Lighthouse Performance >= 95 on /",
+              "checkOutput": "Command timed out after 15000ms",
+              "checkExitCode": 124,
+              "taskPrompt": "# Lighthouse Performance ≥ 95\n\nSpawn the preview server (built dist), run Lighthouse against `/` in\nperformance-only mode, parse the JSON report, exit 0 if score >= 95.\n\nIf this fails:\n- Check if the hero animation is JS-heavy (it shouldn't be — phase 09's spec says CSS-only).\n- Check if fonts are preloaded with `<link rel=\"preload\">` for the variable Inter.\n- Check if any image is missing `width`/`height` (causes CLS, hits perf).\n- Check the network tab for unexpectedly large bundles.\n\nThe polish phase exists specifically to keep this metric green. If it\nfails after polish, that's a real regression — investigate the cause,\ndon't lower the bar.\n\n## Banned\n\n- Lowering the threshold below 95. The bar is non-negotiable for v1 of \"production ready\".\n- Using `--throttling-method=disabled` to fake-pass the score. Mobile-throttled is the default and what real users experience.",
+              "taskId": "10-verify/005-lighthouse-perf",
+              "taskTitle": "Lighthouse Performance ≥ 95 on home page",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/10-verify/tasks/005-lighthouse-perf",
+              "factId": "check:lighthouse-perf-95"
+            }
+          }
+        ],
+        "durationMs": 15005
+      }
+    },
+    {
+      "id": "signal-done#3",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#3",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 10363
+      }
+    },
+    {
+      "id": "run-strategy:task-run#8",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 132062
+      }
+    },
+    {
+      "id": "verify#3",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "10-verify/005-lighthouse-perf-check-failed-lighthouse-perf-95",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "10-verify/005-lighthouse-perf",
+            "severity": "high",
+            "description": "[10-verify/005-lighthouse-perf] Check failed: Lighthouse Performance >= 95 on /",
+            "source": "unit",
+            "detected": "2026-04-26T23:49:43.493Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "lighthouse-perf-95",
+              "checkCmd": "cd apps/landing && pnpm preview > /tmp/converge-landing-preview.log 2>&1 &\nPREVIEW_PID=$!\nsleep 5\nLH_URL=http://localhost:4321/ node .converge/playbooks/landing-page/scripts/lighthouse-gate.mjs performance 95\nRC=$?\nkill $PREVIEW_PID 2>/dev/null\nwait $PREVIEW_PID 2>/dev/null\nexit $RC\n",
+              "checkDescription": "Lighthouse Performance >= 95 on /",
+              "checkOutput": "Command timed out after 15000ms",
+              "checkExitCode": 124,
+              "taskPrompt": "# Lighthouse Performance ≥ 95\n\nSpawn the preview server (built dist), run Lighthouse against `/` in\nperformance-only mode, parse the JSON report, exit 0 if score >= 95.\n\nIf this fails:\n- Check if the hero animation is JS-heavy (it shouldn't be — phase 09's spec says CSS-only).\n- Check if fonts are preloaded with `<link rel=\"preload\">` for the variable Inter.\n- Check if any image is missing `width`/`height` (causes CLS, hits perf).\n- Check the network tab for unexpectedly large bundles.\n\nThe polish phase exists specifically to keep this metric green. If it\nfails after polish, that's a real regression — investigate the cause,\ndon't lower the bar.\n\n## Banned\n\n- Lowering the threshold below 95. The bar is non-negotiable for v1 of \"production ready\".\n- Using `--throttling-method=disabled` to fake-pass the score. Mobile-throttled is the default and what real users experience.",
+              "taskId": "10-verify/005-lighthouse-perf",
+              "taskTitle": "Lighthouse Performance ≥ 95 on home page",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/10-verify/tasks/005-lighthouse-perf",
+              "factId": "check:lighthouse-perf-95"
+            }
+          }
+        ],
+        "durationMs": 15008
+      }
+    },
+    {
+      "id": "check-stall#3",
+      "handler": "check-stall",
+      "status": "failed",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "bail",
+        "success": false,
+        "reason": "Repeat-failure detector tripped (same gap on 3 attempts)",
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "advance-attempt#3",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T23:42:34.815Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T23:42:34.815Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T23:42:49.819Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T23:42:49.819Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T23:43:05.893Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#6",
+      "iteration": 1,
+      "ts": "2026-04-26T23:44:42.518Z"
+    },
+    {
+      "from": "run-strategy:task-run#6",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T23:44:57.530Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-26T23:44:57.532Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-26T23:44:57.537Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-26T23:44:57.542Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-26T23:44:57.543Z"
+    },
+    {
+      "from": "check-outputs-exist#2",
+      "to": "detect-gaps#2",
+      "iteration": 2,
+      "ts": "2026-04-26T23:45:12.551Z"
+    },
+    {
+      "from": "detect-gaps#2",
+      "to": "repair-loop#2",
+      "iteration": 2,
+      "ts": "2026-04-26T23:45:28.085Z"
+    },
+    {
+      "from": "repair-loop#2",
+      "to": "run-strategy:task-run#7",
+      "iteration": 2,
+      "ts": "2026-04-26T23:46:36.033Z"
+    },
+    {
+      "from": "run-strategy:task-run#7",
+      "to": "verify#2",
+      "iteration": 2,
+      "ts": "2026-04-26T23:46:51.040Z"
+    },
+    {
+      "from": "verify#2",
+      "to": "check-stall#2",
+      "iteration": 2,
+      "ts": "2026-04-26T23:46:51.043Z"
+    },
+    {
+      "from": "check-stall#2",
+      "to": "advance-attempt#2",
+      "iteration": 2,
+      "ts": "2026-04-26T23:46:51.046Z"
+    },
+    {
+      "from": "advance-attempt#2",
+      "to": "check-wbs-seeded#3",
+      "iteration": 3,
+      "ts": "2026-04-26T23:46:51.048Z"
+    },
+    {
+      "from": "check-wbs-seeded#3",
+      "to": "check-outputs-exist#3",
+      "iteration": 3,
+      "ts": "2026-04-26T23:46:51.050Z"
+    },
+    {
+      "from": "check-outputs-exist#3",
+      "to": "detect-gaps#3",
+      "iteration": 3,
+      "ts": "2026-04-26T23:47:06.057Z"
+    },
+    {
+      "from": "detect-gaps#3",
+      "to": "repair-loop#3",
+      "iteration": 3,
+      "ts": "2026-04-26T23:47:16.421Z"
+    },
+    {
+      "from": "repair-loop#3",
+      "to": "run-strategy:task-run#8",
+      "iteration": 3,
+      "ts": "2026-04-26T23:49:28.484Z"
+    },
+    {
+      "from": "run-strategy:task-run#8",
+      "to": "verify#3",
+      "iteration": 3,
+      "ts": "2026-04-26T23:49:43.494Z"
+    },
+    {
+      "from": "verify#3",
+      "to": "check-stall#3",
+      "iteration": 3,
+      "ts": "2026-04-26T23:49:43.499Z"
+    }
+  ]
+}

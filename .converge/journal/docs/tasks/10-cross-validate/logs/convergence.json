@@ -1,0 +1,302 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "10-cross-validate-missing-output-docs/_validation-report.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "10-cross-validate",
+            "severity": "high",
+            "description": "[10-cross-validate] Task output not created: docs/_validation-report.json",
+            "source": "unit",
+            "detected": "2026-04-26T09:58:12.016Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/10-cross-validate",
+              "taskId": "10-cross-validate",
+              "taskTitle": "Phase 10 — Cross-validate every doc against its declared sources",
+              "taskPrompt": "# Cross-validate\n\nThe contract: every claim in every doc page about framework behavior must\nmatch what the code actually does. This phase is the enforcement.\n\n## Two passes\n\n### Pass 1 — mechanical (validate-docs.mjs)\n\nAlready runs as a check. Verifies:\n- Every page has a `sources:` field.\n- Every source path exists on disk.\n- Pages aren't suspiciously empty (<200 chars).\n- (Warning only) Pages whose declared sources have been modified after the\n  page was written.\n\n### Pass 2 — semantic (this task body)\n\nFor each doc page under `docs/` (excluding `_internal/`, `_*.json`, `index.md`):\n\n1. Read the page's `sources:` from frontmatter.\n2. Read each source file.\n3. Re-derive what the page *should* say from the source.\n4. Compare to what the page *does* say.\n5. Record findings in `docs/_validation-report.json`:\n\n```json\n{\n  \"$schema\": \"./_validation-report.schema.json\",\n  \"validatedAt\": \"<ISO>\",\n  \"totalPages\": <number>,\n  \"verified\": <number>,\n  \"missingSources\": [],\n  \"staleClaims\": [\n    {\n      \"page\": \"docs/reference/cli/run.md\",\n      \"source\": \"packages/cli/src/commands-run.ts\",\n      \"claim\": \"documents --filter flag\",\n      \"actual\": \"the handler reads `options.filter` and calls TaskManager\",\n      \"discrepancy\": \"page mentions --target flag which is not in handler\"\n    }\n  ],\n  \"warnings\": [\n    {\n      \"page\": \"docs/concepts/gap-driven-model.md\",\n      \"warning\": \"references Gap class but packages/core/src/index.ts doesn't export it (now lives at internal path)\"\n    }\n  ]\n}\n```\n\n6. **If staleClaims is non-empty**, fix the doc page. The source is canonical.\n\n## Process\n\n1. Run `node .converge/playbooks/docs/scripts/validate-docs.mjs` for the\n   mechanical pre-flight. Fix any missing-source or empty-page issues.\n\n2. Walk every `docs/**/*.md` (excluding `_internal/`, `index.md`, top-level\n   `_*.json`). For each:\n   - Parse the frontmatter, extract `sources:`.\n   - Read each source.\n   - **Sample claims** — pick 3-5 specific assertions (a CLI flag, a config\n     field, a function name, a behavior). Verify each against the source.\n   - Record in the report.\n\n   Per-section sampling priorities:\n   - **`docs/examples/**`** — verify the playbook phase list and \"how to\n     run\" commands against `examples/<slug>/.converge/playbooks/*/playbook.yml`.\n     The most common drift is renamed phases.\n   - **`docs/troubleshooting/**`** — verify the symptom text matches\n     verbatim against `skills/converge-control/troubleshooting/playbook.md`.\n     The most common drift is paraphrased symptom text that no longer\n     matches what the user sees.\n   - **`docs/reference/cli/**`** — verify documented flags exist in the\n     handler file the page declares.\n   - **`docs/reference/<schema>.md`** — verify field names against the\n     schema file.\n   - **`docs/guides/**`** — verify any anchor example reference matches\n     `docs/_examples.json`.\n\n3. For every entry in `staleClaims`, edit the offending doc page to bring\n   it back into alignment with the source.\n\n4. Re-run after fixes. The terminal state is `staleClaims: []`.\n\n## Banned\n\n- Marking a claim \"verified\" without actually reading the source.\n- Updating the *source* to match a wrong doc claim. Source is canonical here.\n- Suppressing claims you can't verify cheaply. If you're not sure, flag it\n  in `warnings` and pick a different claim to verify deeply.",
+              "taskInputs": [
+                "docs",
+                "packages",
+                "examples",
+                "skills/converge-control/troubleshooting/playbook.md"
+              ],
+              "factId": "file-exists:test -f \"docs/_validation-report.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "10-cross-validate-check-failed-report-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "10-cross-validate",
+            "severity": "high",
+            "description": "[10-cross-validate] Check failed: validation report exists and is valid JSON",
+            "source": "unit",
+            "detected": "2026-04-26T09:58:12.019Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "report-exists",
+              "checkCmd": "test -f docs/_validation-report.json && node -e \"JSON.parse(require('fs').readFileSync('docs/_validation-report.json','utf8'))\"",
+              "checkDescription": "validation report exists and is valid JSON",
+              "checkOutput": "Command failed: test -f docs/_validation-report.json && node -e \"JSON.parse(require('fs').readFileSync('docs/_validation-report.json','utf8'))\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Cross-validate\n\nThe contract: every claim in every doc page about framework behavior must\nmatch what the code actually does. This phase is the enforcement.\n\n## Two passes\n\n### Pass 1 — mechanical (validate-docs.mjs)\n\nAlready runs as a check. Verifies:\n- Every page has a `sources:` field.\n- Every source path exists on disk.\n- Pages aren't suspiciously empty (<200 chars).\n- (Warning only) Pages whose declared sources have been modified after the\n  page was written.\n\n### Pass 2 — semantic (this task body)\n\nFor each doc page under `docs/` (excluding `_internal/`, `_*.json`, `index.md`):\n\n1. Read the page's `sources:` from frontmatter.\n2. Read each source file.\n3. Re-derive what the page *should* say from the source.\n4. Compare to what the page *does* say.\n5. Record findings in `docs/_validation-report.json`:\n\n```json\n{\n  \"$schema\": \"./_validation-report.schema.json\",\n  \"validatedAt\": \"<ISO>\",\n  \"totalPages\": <number>,\n  \"verified\": <number>,\n  \"missingSources\": [],\n  \"staleClaims\": [\n    {\n      \"page\": \"docs/reference/cli/run.md\",\n      \"source\": \"packages/cli/src/commands-run.ts\",\n      \"claim\": \"documents --filter flag\",\n      \"actual\": \"the handler reads `options.filter` and calls TaskManager\",\n      \"discrepancy\": \"page mentions --target flag which is not in handler\"\n    }\n  ],\n  \"warnings\": [\n    {\n      \"page\": \"docs/concepts/gap-driven-model.md\",\n      \"warning\": \"references Gap class but packages/core/src/index.ts doesn't export it (now lives at internal path)\"\n    }\n  ]\n}\n```\n\n6. **If staleClaims is non-empty**, fix the doc page. The source is canonical.\n\n## Process\n\n1. Run `node .converge/playbooks/docs/scripts/validate-docs.mjs` for the\n   mechanical pre-flight. Fix any missing-source or empty-page issues.\n\n2. Walk every `docs/**/*.md` (excluding `_internal/`, `index.md`, top-level\n   `_*.json`). For each:\n   - Parse the frontmatter, extract `sources:`.\n   - Read each source.\n   - **Sample claims** — pick 3-5 specific assertions (a CLI flag, a config\n     field, a function name, a behavior). Verify each against the source.\n   - Record in the report.\n\n   Per-section sampling priorities:\n   - **`docs/examples/**`** — verify the playbook phase list and \"how to\n     run\" commands against `examples/<slug>/.converge/playbooks/*/playbook.yml`.\n     The most common drift is renamed phases.\n   - **`docs/troubleshooting/**`** — verify the symptom text matches\n     verbatim against `skills/converge-control/troubleshooting/playbook.md`.\n     The most common drift is paraphrased symptom text that no longer\n     matches what the user sees.\n   - **`docs/reference/cli/**`** — verify documented flags exist in the\n     handler file the page declares.\n   - **`docs/reference/<schema>.md`** — verify field names against the\n     schema file.\n   - **`docs/guides/**`** — verify any anchor example reference matches\n     `docs/_examples.json`.\n\n3. For every entry in `staleClaims`, edit the offending doc page to bring\n   it back into alignment with the source.\n\n4. Re-run after fixes. The terminal state is `staleClaims: []`.\n\n## Banned\n\n- Marking a claim \"verified\" without actually reading the source.\n- Updating the *source* to match a wrong doc claim. Source is canonical here.\n- Suppressing claims you can't verify cheaply. If you're not sure, flag it\n  in `warnings` and pick a different claim to verify deeply.",
+              "taskId": "10-cross-validate",
+              "taskTitle": "Phase 10 — Cross-validate every doc against its declared sources",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/10-cross-validate",
+              "factId": "check:report-exists"
+            }
+          },
+          {
+            "id": "10-cross-validate-check-failed-zero-stale-claims",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "10-cross-validate",
+            "severity": "high",
+            "description": "[10-cross-validate] Check failed: zero stale claims (every documented behavior verified against source)",
+            "source": "unit",
+            "detected": "2026-04-26T09:58:12.045Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "zero-stale-claims",
+              "checkCmd": "node -e \"const r=require('./docs/_validation-report.json');process.exit((r.staleClaims||[]).length===0?0:1)\"",
+              "checkDescription": "zero stale claims (every documented behavior verified against source)",
+              "checkOutput": "node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nError: Cannot find module './docs/_validation-report.json'\nRequire stack:\n- /Users/minh/Documents/converge/[eval]\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\n    at Function._load (node:internal/modules/cjs/loader:1192:37)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\n    at Module.require (node:internal/modules/cjs/loader:1463:12)\n    at require (node:internal/modules/helpers:147:16)\n    at [eval]:1:9\n    at runScriptInThisContext (node:internal/vm:209:10) {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: [ '/Users/minh/Documents/converge/[eval]' ]\n}\n\nNode.js v22.19.0",
+              "checkExitCode": 1,
+              "taskPrompt": "# Cross-validate\n\nThe contract: every claim in every doc page about framework behavior must\nmatch what the code actually does. This phase is the enforcement.\n\n## Two passes\n\n### Pass 1 — mechanical (validate-docs.mjs)\n\nAlready runs as a check. Verifies:\n- Every page has a `sources:` field.\n- Every source path exists on disk.\n- Pages aren't suspiciously empty (<200 chars).\n- (Warning only) Pages whose declared sources have been modified after the\n  page was written.\n\n### Pass 2 — semantic (this task body)\n\nFor each doc page under `docs/` (excluding `_internal/`, `_*.json`, `index.md`):\n\n1. Read the page's `sources:` from frontmatter.\n2. Read each source file.\n3. Re-derive what the page *should* say from the source.\n4. Compare to what the page *does* say.\n5. Record findings in `docs/_validation-report.json`:\n\n```json\n{\n  \"$schema\": \"./_validation-report.schema.json\",\n  \"validatedAt\": \"<ISO>\",\n  \"totalPages\": <number>,\n  \"verified\": <number>,\n  \"missingSources\": [],\n  \"staleClaims\": [\n    {\n      \"page\": \"docs/reference/cli/run.md\",\n      \"source\": \"packages/cli/src/commands-run.ts\",\n      \"claim\": \"documents --filter flag\",\n      \"actual\": \"the handler reads `options.filter` and calls TaskManager\",\n      \"discrepancy\": \"page mentions --target flag which is not in handler\"\n    }\n  ],\n  \"warnings\": [\n    {\n      \"page\": \"docs/concepts/gap-driven-model.md\",\n      \"warning\": \"references Gap class but packages/core/src/index.ts doesn't export it (now lives at internal path)\"\n    }\n  ]\n}\n```\n\n6. **If staleClaims is non-empty**, fix the doc page. The source is canonical.\n\n## Process\n\n1. Run `node .converge/playbooks/docs/scripts/validate-docs.mjs` for the\n   mechanical pre-flight. Fix any missing-source or empty-page issues.\n\n2. Walk every `docs/**/*.md` (excluding `_internal/`, `index.md`, top-level\n   `_*.json`). For each:\n   - Parse the frontmatter, extract `sources:`.\n   - Read each source.\n   - **Sample claims** — pick 3-5 specific assertions (a CLI flag, a config\n     field, a function name, a behavior). Verify each against the source.\n   - Record in the report.\n\n   Per-section sampling priorities:\n   - **`docs/examples/**`** — verify the playbook phase list and \"how to\n     run\" commands against `examples/<slug>/.converge/playbooks/*/playbook.yml`.\n     The most common drift is renamed phases.\n   - **`docs/troubleshooting/**`** — verify the symptom text matches\n     verbatim against `skills/converge-control/troubleshooting/playbook.md`.\n     The most common drift is paraphrased symptom text that no longer\n     matches what the user sees.\n   - **`docs/reference/cli/**`** — verify documented flags exist in the\n     handler file the page declares.\n   - **`docs/reference/<schema>.md`** — verify field names against the\n     schema file.\n   - **`docs/guides/**`** — verify any anchor example reference matches\n     `docs/_examples.json`.\n\n3. For every entry in `staleClaims`, edit the offending doc page to bring\n   it back into alignment with the source.\n\n4. Re-run after fixes. The terminal state is `staleClaims: []`.\n\n## Banned\n\n- Marking a claim \"verified\" without actually reading the source.\n- Updating the *source* to match a wrong doc claim. Source is canonical here.\n- Suppressing claims you can't verify cheaply. If you're not sure, flag it\n  in `warnings` and pick a different claim to verify deeply.",
+              "taskId": "10-cross-validate",
+              "taskTitle": "Phase 10 — Cross-validate every doc against its declared sources",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/10-cross-validate",
+              "factId": "check:zero-stale-claims"
+            }
+          },
+          {
+            "id": "10-cross-validate-check-failed-zero-missing-sources",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "10-cross-validate",
+            "severity": "high",
+            "description": "[10-cross-validate] Check failed: zero missing source files",
+            "source": "unit",
+            "detected": "2026-04-26T09:58:12.071Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "zero-missing-sources",
+              "checkCmd": "node -e \"const r=require('./docs/_validation-report.json');process.exit((r.missingSources||[]).length===0?0:1)\"",
+              "checkDescription": "zero missing source files",
+              "checkOutput": "node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nError: Cannot find module './docs/_validation-report.json'\nRequire stack:\n- /Users/minh/Documents/converge/[eval]\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\n    at Function._load (node:internal/modules/cjs/loader:1192:37)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\n    at Module.require (node:internal/modules/cjs/loader:1463:12)\n    at require (node:internal/modules/helpers:147:16)\n    at [eval]:1:9\n    at runScriptInThisContext (node:internal/vm:209:10) {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: [ '/Users/minh/Documents/converge/[eval]' ]\n}\n\nNode.js v22.19.0",
+              "checkExitCode": 1,
+              "taskPrompt": "# Cross-validate\n\nThe contract: every claim in every doc page about framework behavior must\nmatch what the code actually does. This phase is the enforcement.\n\n## Two passes\n\n### Pass 1 — mechanical (validate-docs.mjs)\n\nAlready runs as a check. Verifies:\n- Every page has a `sources:` field.\n- Every source path exists on disk.\n- Pages aren't suspiciously empty (<200 chars).\n- (Warning only) Pages whose declared sources have been modified after the\n  page was written.\n\n### Pass 2 — semantic (this task body)\n\nFor each doc page under `docs/` (excluding `_internal/`, `_*.json`, `index.md`):\n\n1. Read the page's `sources:` from frontmatter.\n2. Read each source file.\n3. Re-derive what the page *should* say from the source.\n4. Compare to what the page *does* say.\n5. Record findings in `docs/_validation-report.json`:\n\n```json\n{\n  \"$schema\": \"./_validation-report.schema.json\",\n  \"validatedAt\": \"<ISO>\",\n  \"totalPages\": <number>,\n  \"verified\": <number>,\n  \"missingSources\": [],\n  \"staleClaims\": [\n    {\n      \"page\": \"docs/reference/cli/run.md\",\n      \"source\": \"packages/cli/src/commands-run.ts\",\n      \"claim\": \"documents --filter flag\",\n      \"actual\": \"the handler reads `options.filter` and calls TaskManager\",\n      \"discrepancy\": \"page mentions --target flag which is not in handler\"\n    }\n  ],\n  \"warnings\": [\n    {\n      \"page\": \"docs/concepts/gap-driven-model.md\",\n      \"warning\": \"references Gap class but packages/core/src/index.ts doesn't export it (now lives at internal path)\"\n    }\n  ]\n}\n```\n\n6. **If staleClaims is non-empty**, fix the doc page. The source is canonical.\n\n## Process\n\n1. Run `node .converge/playbooks/docs/scripts/validate-docs.mjs` for the\n   mechanical pre-flight. Fix any missing-source or empty-page issues.\n\n2. Walk every `docs/**/*.md` (excluding `_internal/`, `index.md`, top-level\n   `_*.json`). For each:\n   - Parse the frontmatter, extract `sources:`.\n   - Read each source.\n   - **Sample claims** — pick 3-5 specific assertions (a CLI flag, a config\n     field, a function name, a behavior). Verify each against the source.\n   - Record in the report.\n\n   Per-section sampling priorities:\n   - **`docs/examples/**`** — verify the playbook phase list and \"how to\n     run\" commands against `examples/<slug>/.converge/playbooks/*/playbook.yml`.\n     The most common drift is renamed phases.\n   - **`docs/troubleshooting/**`** — verify the symptom text matches\n     verbatim against `skills/converge-control/troubleshooting/playbook.md`.\n     The most common drift is paraphrased symptom text that no longer\n     matches what the user sees.\n   - **`docs/reference/cli/**`** — verify documented flags exist in the\n     handler file the page declares.\n   - **`docs/reference/<schema>.md`** — verify field names against the\n     schema file.\n   - **`docs/guides/**`** — verify any anchor example reference matches\n     `docs/_examples.json`.\n\n3. For every entry in `staleClaims`, edit the offending doc page to bring\n   it back into alignment with the source.\n\n4. Re-run after fixes. The terminal state is `staleClaims: []`.\n\n## Banned\n\n- Marking a claim \"verified\" without actually reading the source.\n- Updating the *source* to match a wrong doc claim. Source is canonical here.\n- Suppressing claims you can't verify cheaply. If you're not sure, flag it\n  in `warnings` and pick a different claim to verify deeply.",
+              "taskId": "10-cross-validate",
+              "taskTitle": "Phase 10 — Cross-validate every doc against its declared sources",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/10-cross-validate",
+              "factId": "check:zero-missing-sources"
+            }
+          },
+          {
+            "id": "10-cross-validate-check-failed-pre-flight-passes",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "10-cross-validate",
+            "severity": "high",
+            "description": "[10-cross-validate] Check failed: mechanical validate-docs.mjs passes",
+            "source": "unit",
+            "detected": "2026-04-26T09:58:12.109Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "pre-flight-passes",
+              "checkCmd": "node .converge/playbooks/docs/scripts/validate-docs.mjs",
+              "checkDescription": "mechanical validate-docs.mjs passes",
+              "checkOutput": "validate-docs: 1 pages reference missing sources:\n  ✗ docs/getting-started/your-first-playbook.md → missing examples/*/.converge/playbooks/*/playbook.yml\n\nvalidate-docs: 2 pages may be stale (source modified after page):\n  ⚠ docs/reference/cli/index.md (last refreshed 2h ago) ← packages/cli/src/main.ts (modified 51m ago)\n  ⚠ docs/guides/read-the-journal.md (last refreshed 2h ago) ← .converge/journal/ (modified 23m ago)\n\nFAIL: validate-docs found unrecoverable issues across 22 pages.",
+              "checkExitCode": 1,
+              "taskPrompt": "# Cross-validate\n\nThe contract: every claim in every doc page about framework behavior must\nmatch what the code actually does. This phase is the enforcement.\n\n## Two passes\n\n### Pass 1 — mechanical (validate-docs.mjs)\n\nAlready runs as a check. Verifies:\n- Every page has a `sources:` field.\n- Every source path exists on disk.\n- Pages aren't suspiciously empty (<200 chars).\n- (Warning only) Pages whose declared sources have been modified after the\n  page was written.\n\n### Pass 2 — semantic (this task body)\n\nFor each doc page under `docs/` (excluding `_internal/`, `_*.json`, `index.md`):\n\n1. Read the page's `sources:` from frontmatter.\n2. Read each source file.\n3. Re-derive what the page *should* say from the source.\n4. Compare to what the page *does* say.\n5. Record findings in `docs/_validation-report.json`:\n\n```json\n{\n  \"$schema\": \"./_validation-report.schema.json\",\n  \"validatedAt\": \"<ISO>\",\n  \"totalPages\": <number>,\n  \"verified\": <number>,\n  \"missingSources\": [],\n  \"staleClaims\": [\n    {\n      \"page\": \"docs/reference/cli/run.md\",\n      \"source\": \"packages/cli/src/commands-run.ts\",\n      \"claim\": \"documents --filter flag\",\n      \"actual\": \"the handler reads `options.filter` and calls TaskManager\",\n      \"discrepancy\": \"page mentions --target flag which is not in handler\"\n    }\n  ],\n  \"warnings\": [\n    {\n      \"page\": \"docs/concepts/gap-driven-model.md\",\n      \"warning\": \"references Gap class but packages/core/src/index.ts doesn't export it (now lives at internal path)\"\n    }\n  ]\n}\n```\n\n6. **If staleClaims is non-empty**, fix the doc page. The source is canonical.\n\n## Process\n\n1. Run `node .converge/playbooks/docs/scripts/validate-docs.mjs` for the\n   mechanical pre-flight. Fix any missing-source or empty-page issues.\n\n2. Walk every `docs/**/*.md` (excluding `_internal/`, `index.md`, top-level\n   `_*.json`). For each:\n   - Parse the frontmatter, extract `sources:`.\n   - Read each source.\n   - **Sample claims** — pick 3-5 specific assertions (a CLI flag, a config\n     field, a function name, a behavior). Verify each against the source.\n   - Record in the report.\n\n   Per-section sampling priorities:\n   - **`docs/examples/**`** — verify the playbook phase list and \"how to\n     run\" commands against `examples/<slug>/.converge/playbooks/*/playbook.yml`.\n     The most common drift is renamed phases.\n   - **`docs/troubleshooting/**`** — verify the symptom text matches\n     verbatim against `skills/converge-control/troubleshooting/playbook.md`.\n     The most common drift is paraphrased symptom text that no longer\n     matches what the user sees.\n   - **`docs/reference/cli/**`** — verify documented flags exist in the\n     handler file the page declares.\n   - **`docs/reference/<schema>.md`** — verify field names against the\n     schema file.\n   - **`docs/guides/**`** — verify any anchor example reference matches\n     `docs/_examples.json`.\n\n3. For every entry in `staleClaims`, edit the offending doc page to bring\n   it back into alignment with the source.\n\n4. Re-run after fixes. The terminal state is `staleClaims: []`.\n\n## Banned\n\n- Marking a claim \"verified\" without actually reading the source.\n- Updating the *source* to match a wrong doc claim. Source is canonical here.\n- Suppressing claims you can't verify cheaply. If you're not sure, flag it\n  in `warnings` and pick a different claim to verify deeply.",
+              "taskId": "10-cross-validate",
+              "taskTitle": "Phase 10 — Cross-validate every doc against its declared sources",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/10-cross-validate",
+              "factId": "check:pre-flight-passes"
+            }
+          }
+        ],
+        "durationMs": 103
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 87
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 265
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#8",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 382084
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T09:58:12.005Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T09:58:12.006Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T09:58:12.109Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T09:58:12.110Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T09:58:12.197Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#8",
+      "iteration": 1,
+      "ts": "2026-04-26T10:04:34.281Z"
+    },
+    {
+      "from": "run-strategy:task-run#8",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T10:04:34.547Z"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "04-ui/021-root-redirects-to-playbooks",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T07:30:26.331Z",
+  "createdAt": "2026-04-26T07:30:15.352Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T07:30:15.352Z",
+      "completedAt": "2026-04-26T07:30:23.124Z",
+      "outcome": "success",
+      "durationMs": 7772
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-26T07:30:18.676Z",
+      "completedAt": "2026-04-26T07:30:26.329Z",
+      "outcome": "success",
+      "durationMs": 7653
+    }
+  ],
+  "currentAttempt": 2
+}

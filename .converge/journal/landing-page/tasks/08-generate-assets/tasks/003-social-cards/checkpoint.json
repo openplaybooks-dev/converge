@@ -1,0 +1,18 @@
+{
+  "type": "task",
+  "id": "08-generate-assets/003-social-cards",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T00:00:00.000Z",
+  "createdAt": "2026-04-27T00:00:00.000Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T00:00:00.000Z",
+      "completedAt": "2026-04-27T00:00:00.000Z",
+      "outcome": "success",
+      "durationMs": 0,
+      "note": "Manual fix: home/docs/blog OG copies of default created by user"
+    }
+  ],
+  "currentAttempt": 1
+}

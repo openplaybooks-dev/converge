@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "06-guides/004-build-a-software-project",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T09:48:49.013Z",
+  "createdAt": "2026-04-26T07:49:51.670Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T07:49:51.670Z",
+      "completedAt": "2026-04-26T07:51:54.742Z",
+      "outcome": "success",
+      "durationMs": 123072
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-26T09:48:48.676Z",
+      "completedAt": "2026-04-26T09:48:49.010Z",
+      "outcome": "success",
+      "durationMs": 334
+    }
+  ],
+  "currentAttempt": 2
+}

@@ -1,0 +1,10 @@
+{
+  "taskId": "04-ui/014-app-settings",
+  "attemptNumber": 2,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/src/app/settings",
+    "packages/converge-studio/src/app/api/settings"
+  ],
+  "blocked": false
+}

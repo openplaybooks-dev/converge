@@ -1,0 +1,20 @@
+{
+  "taskId": "04-ui/007-view-modes",
+  "checks": [
+    {
+      "id": "components-exist",
+      "description": "All five view components exist",
+      "cmd": "test -f packages/converge-studio/src/components/views/ViewSwitcher.tsx && test -f packages/converge-studio/src/components/views/KanbanBoard.tsx && test -f packages/converge-studio/src/components/views/TaskTree.tsx && test -f packages/converge-studio/src/components/views/SessionGantt.tsx && test -f packages/converge-studio/src/components/views/TableView.tsx"
+    },
+    {
+      "id": "hook-exists",
+      "description": "useViewMode hook exists",
+      "cmd": "test -f packages/converge-studio/src/lib/use-view-mode.ts"
+    },
+    {
+      "id": "typecheck",
+      "description": "All components typecheck",
+      "cmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "taskId": "08-reference/001-cli-index",
+  "checks": [
+    {
+      "id": "page-exists",
+      "description": "page exists",
+      "cmd": "test -f docs/reference/cli/index.md"
+    },
+    {
+      "id": "lists-commands",
+      "description": "lists at least 8 commands",
+      "cmd": "test $(grep -cE '^\\*?\\s*\\[?\\s*`?converge\\s+\\w+' docs/reference/cli/index.md) -ge 8"
+    }
+  ]
+}

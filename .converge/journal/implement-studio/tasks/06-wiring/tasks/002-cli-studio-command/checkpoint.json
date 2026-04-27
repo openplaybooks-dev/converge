@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-wiring/002-cli-studio-command",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T03:40:59.664Z",
+  "createdAt": "2026-04-26T03:39:00.174Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T03:39:00.174Z",
+      "completedAt": "2026-04-26T03:40:59.661Z",
+      "outcome": "success",
+      "durationMs": 119487
+    }
+  ],
+  "currentAttempt": 1
+}

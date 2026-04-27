@@ -1,0 +1,222 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-clone-and-rename/004-install-missing-output-packages/studio/node_modules",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-clone-and-rename/004-install",
+            "severity": "high",
+            "description": "[01-clone-and-rename/004-install] Task output not created: packages/studio/node_modules",
+            "source": "unit",
+            "detected": "2026-04-26T09:37:42.822Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/01-clone-and-rename/tasks/004-install",
+              "taskId": "01-clone-and-rename/004-install",
+              "taskTitle": "pnpm install at workspace root",
+              "taskPrompt": "Run `pnpm install` at the workspace root so the new package's deps resolve.\n\n```bash\npnpm install\n```\n\nIf the install reports a missing dep, surface in INTERRUPTED.md — likely a peer dep we missed in 002-rename-package.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"packages/studio/node_modules\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "01-clone-and-rename/004-install-check-failed-install-success",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-clone-and-rename/004-install",
+            "severity": "high",
+            "description": "[01-clone-and-rename/004-install] Check failed: packages/studio has node_modules linked or symlinked",
+            "source": "unit",
+            "detected": "2026-04-26T09:37:42.825Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "install-success",
+              "checkCmd": "test -e packages/studio/node_modules || test -d node_modules/@converge/studio",
+              "checkDescription": "packages/studio has node_modules linked or symlinked",
+              "checkOutput": "Command failed: test -e packages/studio/node_modules || test -d node_modules/@converge/studio\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Run `pnpm install` at the workspace root so the new package's deps resolve.\n\n```bash\npnpm install\n```\n\nIf the install reports a missing dep, surface in INTERRUPTED.md — likely a peer dep we missed in 002-rename-package.",
+              "taskId": "01-clone-and-rename/004-install",
+              "taskTitle": "pnpm install at workspace root",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/01-clone-and-rename/tasks/004-install",
+              "factId": "check:install-success"
+            }
+          }
+        ],
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#4",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 62954
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T09:37:42.819Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T09:37:42.819Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T09:37:42.825Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T09:37:42.826Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T09:37:42.829Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#4",
+      "iteration": 1,
+      "ts": "2026-04-26T09:38:45.784Z"
+    },
+    {
+      "from": "run-strategy:task-run#4",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T09:38:45.794Z"
+    }
+  ]
+}

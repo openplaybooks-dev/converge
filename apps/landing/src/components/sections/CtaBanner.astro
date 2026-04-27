@@ -1,0 +1,25 @@
+---
+import Section from '../layout/Section.astro';
+import Container from '../layout/Container.astro';
+import Button from '../ui/Button.astro';
+
+interface Props {}
+const {} = Astro.props;
+---
+
+<Section id="cta" padY="lg" bg="indigo-glow">
+  <Container>
+    <div class="text-center">
+      <p class="text-2xl sm:text-3xl font-bold text-text mb-4">
+        Define done. Converge gets there.
+      </p>
+      <p class="text-base text-text-muted mb-8 max-w-xl mx-auto">
+        Start shipping faster with a task system that adapts to your workflow.
+      </p>
+      <div class="flex flex-wrap gap-4 justify-center items-center">
+        <Button href="/docs/getting-started/why-converge" variant="primary" size="lg">Read the docs</Button>
+        <Button href="https://github.com/myanlabs/converge" external variant="ghost" size="lg">Star on GitHub</Button>
+      </div>
+    </div>
+  </Container>
+</Section>

@@ -1,0 +1,31 @@
+{
+  "taskId": "01-prepare-spec/004-seo-spec",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "apps/landing/.content/sitemap.json",
+      "count": 1,
+      "samples": [
+        "apps/landing/.content/sitemap.json"
+      ]
+    },
+    {
+      "pattern": "apps/landing/.content/brand.json",
+      "count": 1,
+      "samples": [
+        "apps/landing/.content/brand.json"
+      ]
+    },
+    {
+      "pattern": "README.md",
+      "count": 1,
+      "samples": [
+        "README.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/.content/seo.json"
+  ],
+  "blocked": false
+}

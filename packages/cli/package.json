@@ -38,10 +38,12 @@
     "@converge/claudefn": "workspace:*",
     "@converge/core": "workspace:*",
     "@converge/navigator": "workspace:*",
+    "@converge/project-root": "workspace:*",
     "glob": "^11.1.0",
     "yaml": "^2.8.3"
   },
   "optionalDependencies": {
+    "@converge/studio": "workspace:*",
     "@converge/swebench": "workspace:*",
     "@converge/tbench": "workspace:*"
   },

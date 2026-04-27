@@ -1,0 +1,23 @@
+{
+  "taskId": "08-generate-assets/002-og-default",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "apps/landing/.content/brand.json",
+      "count": 0,
+      "samples": []
+    },
+    {
+      "pattern": "apps/landing/src/icons/converge-mark.svg",
+      "count": 1,
+      "samples": [
+        "apps/landing/src/icons/converge-mark.svg"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/public/og/default.png"
+  ],
+  "blocked": true,
+  "blockedReason": "Missing required inputs: apps/landing/.content/brand.json"
+}

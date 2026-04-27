@@ -1,0 +1,200 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-rebind-ui/004-rebind-dashboard-page-check-failed-dashboard-imports-converge-widgets",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-rebind-ui/004-rebind-dashboard-page",
+            "severity": "high",
+            "description": "[03-rebind-ui/004-rebind-dashboard-page] Check failed: dashboard.tsx imports all four converge widgets",
+            "source": "unit",
+            "detected": "2026-04-26T09:49:40.751Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dashboard-imports-converge-widgets",
+              "checkCmd": "grep -q 'recent-runs-widget' packages/studio/src/components/dashboard/dashboard.tsx && grep -q 'playbook-health-widget' packages/studio/src/components/dashboard/dashboard.tsx && grep -q 'live-activity-widget' packages/studio/src/components/dashboard/dashboard.tsx && grep -q 'quick-actions-widget' packages/studio/src/components/dashboard/dashboard.tsx",
+              "checkDescription": "dashboard.tsx imports all four converge widgets",
+              "checkOutput": "Command failed: grep -q 'recent-runs-widget' packages/studio/src/components/dashboard/dashboard.tsx && grep -q 'playbook-health-widget' packages/studio/src/components/dashboard/dashboard.tsx && grep -q 'live-activity-widget' packages/studio/src/components/dashboard/dashboard.tsx && grep -q 'quick-actions-widget' packages/studio/src/components/dashboard/dashboard.tsx\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Edit `src/components/dashboard/dashboard.tsx`. **Keep MC's grid layout, density, padding, responsive breakpoints.** Replace its widget imports with the four from leaf 003.\n\nSuggested 2x2 grid:\n```\n┌─────────────────────┬─────────────────────┐\n│  PlaybookHealth     │  RecentRuns         │\n├─────────────────────┼─────────────────────┤\n│  LiveActivity       │  QuickActions       │\n└─────────────────────┴─────────────────────┘\n```\n\nIf MC's dashboard imports MC widgets we'll delete in Phase 04 (fleet-status, agent-network, system-health, etc.), drop those imports.",
+              "taskId": "03-rebind-ui/004-rebind-dashboard-page",
+              "taskTitle": "Rebind dashboard.tsx to render the four converge widgets",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/03-rebind-ui/tasks/004-rebind-dashboard-page",
+              "factId": "check:dashboard-imports-converge-widgets"
+            }
+          }
+        ],
+        "durationMs": 8
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 5
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 18
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#12",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 48347
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T09:49:40.744Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T09:49:40.744Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T09:49:40.752Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T09:49:40.752Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T09:49:40.757Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#12",
+      "iteration": 1,
+      "ts": "2026-04-26T09:50:29.104Z"
+    },
+    {
+      "from": "run-strategy:task-run#12",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T09:50:29.123Z"
+    }
+  ]
+}

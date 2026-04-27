@@ -1,0 +1,25 @@
+{
+  "taskId": "07-integrate-blog/006-seed-posts",
+  "checks": [
+    {
+      "id": "both-posts-exist",
+      "description": "both seed posts exist",
+      "cmd": "test -f apps/landing/src/content/blog/introducing-converge.mdx && test -f apps/landing/src/content/blog/from-langgraph-to-goal-driven.mdx"
+    },
+    {
+      "id": "posts-have-frontmatter",
+      "description": "both posts have valid frontmatter (title + date)",
+      "cmd": "for f in apps/landing/src/content/blog/introducing-converge.mdx apps/landing/src/content/blog/from-langgraph-to-goal-driven.mdx; do test -f \"$f\" && head -20 \"$f\" | grep -q '^title:' && head -20 \"$f\" | grep -q '^date:' || exit 1; done"
+    },
+    {
+      "id": "rss-includes-posts",
+      "description": "built rss.xml references both posts",
+      "cmd": "test -f apps/landing/package.json && pnpm --filter @converge/landing build >/dev/null 2>&1 && grep -q 'introducing-converge' apps/landing/dist/rss.xml && grep -q 'from-langgraph-to-goal-driven' apps/landing/dist/rss.xml"
+    },
+    {
+      "id": "tagline-in-intro-post",
+      "description": "introducing-converge contains the canonical tagline",
+      "cmd": "test -f apps/landing/src/content/blog/introducing-converge.mdx && grep -q 'Define done. Converge gets there.' apps/landing/src/content/blog/introducing-converge.mdx"
+    }
+  ]
+}

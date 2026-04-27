@@ -1,0 +1,252 @@
+{
+  "image": "walk.png",
+  "meta": {
+    "char_id": "hero-knight",
+    "state": "walk",
+    "rows": 2,
+    "cols": 4,
+    "frame_count": 8,
+    "frame_size": {
+      "w": 384,
+      "h": 512
+    },
+    "sheet_size": {
+      "w": 1536,
+      "h": 1024
+    },
+    "frame_order": "left-to-right, top-to-bottom",
+    "requested_cols": 4,
+    "requested_rows": 2,
+    "detected": true,
+    "aligned": true,
+    "frameRate": 10,
+    "yoyo": false,
+    "seed": 214939653
+  },
+  "frames": [
+    {
+      "filename": "walk_000.png",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          49,
+          37,
+          383,
+          488
+        ],
+        "torso_x": 222,
+        "aligned_bbox": [
+          19,
+          56,
+          353,
+          507
+        ],
+        "shift": [
+          -30,
+          19
+        ]
+      }
+    },
+    {
+      "filename": "walk_001.png",
+      "frame": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          37,
+          383,
+          487
+        ],
+        "torso_x": 188,
+        "aligned_bbox": [
+          0,
+          57,
+          383,
+          507
+        ],
+        "shift": [
+          0,
+          20
+        ]
+      }
+    },
+    {
+      "filename": "walk_002.png",
+      "frame": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          40,
+          383,
+          488
+        ],
+        "torso_x": 161,
+        "aligned_bbox": [
+          0,
+          59,
+          383,
+          507
+        ],
+        "shift": [
+          0,
+          19
+        ]
+      }
+    },
+    {
+      "filename": "walk_003.png",
+      "frame": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          36,
+          274,
+          488
+        ],
+        "torso_x": 105,
+        "aligned_bbox": [
+          87,
+          55,
+          361,
+          507
+        ],
+        "shift": [
+          87,
+          19
+        ]
+      }
+    },
+    {
+      "filename": "walk_004.png",
+      "frame": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          41,
+          14,
+          383,
+          464
+        ],
+        "torso_x": 211,
+        "aligned_bbox": [
+          22,
+          57,
+          364,
+          507
+        ],
+        "shift": [
+          -19,
+          43
+        ]
+      }
+    },
+    {
+      "filename": "walk_005.png",
+      "frame": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          14,
+          383,
+          465
+        ],
+        "torso_x": 179,
+        "aligned_bbox": [
+          0,
+          56,
+          383,
+          507
+        ],
+        "shift": [
+          0,
+          42
+        ]
+      }
+    },
+    {
+      "filename": "walk_006.png",
+      "frame": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          13,
+          383,
+          465
+        ],
+        "torso_x": 154,
+        "aligned_bbox": [
+          0,
+          55,
+          383,
+          507
+        ],
+        "shift": [
+          0,
+          42
+        ]
+      }
+    },
+    {
+      "filename": "walk_007.png",
+      "frame": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          13,
+          302,
+          466
+        ],
+        "torso_x": 93,
+        "aligned_bbox": [
+          81,
+          54,
+          383,
+          507
+        ],
+        "shift": [
+          81,
+          41
+        ]
+      }
+    }
+  ]
+}

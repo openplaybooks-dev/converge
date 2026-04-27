@@ -1,0 +1,35 @@
+{
+  "taskId": "04-getting-started/003-your-first-playbook",
+  "checks": [
+    {
+      "id": "page-exists",
+      "description": "page exists",
+      "cmd": "test -f docs/getting-started/your-first-playbook.md"
+    },
+    {
+      "id": "shows-init",
+      "description": "walks through converge init",
+      "cmd": "grep -qE 'converge\\s+init' docs/getting-started/your-first-playbook.md"
+    },
+    {
+      "id": "shows-run",
+      "description": "walks through converge run",
+      "cmd": "grep -qE 'converge\\s+run' docs/getting-started/your-first-playbook.md"
+    },
+    {
+      "id": "shows-task-md",
+      "description": "shows the TASK.md file",
+      "cmd": "grep -qE 'TASK\\.md' docs/getting-started/your-first-playbook.md"
+    },
+    {
+      "id": "shows-checks",
+      "description": "introduces the checks concept",
+      "cmd": "grep -qE '^checks:|`checks:`|checks block' docs/getting-started/your-first-playbook.md"
+    },
+    {
+      "id": "word-count-tight",
+      "description": "<=1200 words (target 5 min read)",
+      "cmd": "test -f docs/getting-started/your-first-playbook.md && wc -w docs/getting-started/your-first-playbook.md | awk '{exit ($1<=1200?0:1)}'"
+    }
+  ]
+}

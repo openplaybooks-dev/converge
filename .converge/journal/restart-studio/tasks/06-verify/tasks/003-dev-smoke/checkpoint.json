@@ -1,0 +1,14 @@
+{
+  "type": "task",
+  "id": "06-verify/003-dev-smoke",
+  "status": "running",
+  "lastUpdated": "2026-04-26T10:22:04.469Z",
+  "createdAt": "2026-04-26T10:22:04.469Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T10:22:04.469Z"
+    }
+  ],
+  "currentAttempt": 1
+}

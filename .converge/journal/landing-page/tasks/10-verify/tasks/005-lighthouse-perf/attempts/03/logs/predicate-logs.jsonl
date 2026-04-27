@@ -1,0 +1,15 @@
+{"ts":"2026-04-26T23:40:30.775Z","iter":2,"gaps":1,"stall":2,"node":"action","handler":"advance-attempt","status":"done","result":"continue"}
+{"ts":"2026-04-26T23:40:30.776Z","iter":2,"gaps":1,"stall":2,"node":"action","handler":"check-wbs-seeded","status":"start"}
+{"ts":"2026-04-26T23:40:30.776Z","iter":2,"gaps":1,"stall":2,"node":"action","handler":"check-wbs-seeded","status":"done","result":"continue"}
+{"ts":"2026-04-26T23:40:30.777Z","iter":3,"gaps":1,"stall":2,"node":"action","handler":"check-outputs-exist","status":"start"}
+{"ts":"2026-04-26T23:40:30.777Z","iter":3,"gaps":1,"stall":2,"node":"action","handler":"check-outputs-exist","status":"done","result":"continue"}
+{"ts":"2026-04-26T23:40:30.778Z","iter":3,"gaps":1,"stall":2,"node":"action","handler":"detect-gaps","status":"start"}
+{"ts":"2026-04-26T23:40:45.783Z","iter":3,"gaps":1,"stall":2,"node":"action","handler":"detect-gaps","status":"done","result":"continue","newGaps":1}
+{"ts":"2026-04-26T23:40:45.785Z","iter":3,"gaps":1,"stall":2,"node":"action","handler":"repair-loop","status":"start"}
+{"ts":"2026-04-26T23:41:01.450Z","iter":3,"gaps":1,"stall":2,"node":"action","handler":"repair-loop","status":"done","result":"continue"}
+{"ts":"2026-04-26T23:41:01.451Z","iter":3,"gaps":1,"stall":2,"node":"action","handler":"run-strategy","status":"start"}
+{"ts":"2026-04-26T23:41:47.611Z","iter":3,"gaps":1,"stall":2,"node":"action","handler":"run-strategy","status":"done","result":"continue"}
+{"ts":"2026-04-26T23:41:47.612Z","iter":3,"gaps":1,"stall":2,"node":"action","handler":"verify","status":"start"}
+{"ts":"2026-04-26T23:42:02.617Z","iter":3,"gaps":1,"stall":2,"node":"action","handler":"verify","status":"done","result":"continue","newGaps":1}
+{"ts":"2026-04-26T23:42:02.620Z","iter":3,"gaps":1,"stall":2,"node":"action","handler":"check-stall","status":"start"}
+{"ts":"2026-04-26T23:42:02.621Z","iter":3,"gaps":1,"stall":2,"node":"action","handler":"check-stall","status":"done","result":"bail","reason":"Repeat-failure detector tripped (same gap on 3 attempts)"}

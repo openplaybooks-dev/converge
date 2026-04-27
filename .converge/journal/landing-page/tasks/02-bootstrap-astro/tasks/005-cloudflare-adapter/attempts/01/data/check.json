@@ -1,0 +1,30 @@
+{
+  "taskId": "02-bootstrap-astro/005-cloudflare-adapter",
+  "checks": [
+    {
+      "id": "astro-config-exists",
+      "description": "astro.config.mjs exists",
+      "cmd": "test -f apps/landing/astro.config.mjs"
+    },
+    {
+      "id": "cloudflare-adapter",
+      "description": "astro.config.mjs imports @astrojs/cloudflare",
+      "cmd": "test -f apps/landing/astro.config.mjs && grep -q '@astrojs/cloudflare' apps/landing/astro.config.mjs"
+    },
+    {
+      "id": "output-server",
+      "description": "output is 'server' (Astro 6 valid value for SSR)",
+      "cmd": "test -f apps/landing/astro.config.mjs && grep -qE \"output:\\s*['\\\"]server['\\\"]\" apps/landing/astro.config.mjs"
+    },
+    {
+      "id": "site-set",
+      "description": "site is set to https://converge.dev",
+      "cmd": "test -f apps/landing/astro.config.mjs && grep -qE \"site:\\s*['\\\"]https://converge.dev\" apps/landing/astro.config.mjs"
+    },
+    {
+      "id": "build-clean",
+      "description": "production build succeeds against the bootstrap state",
+      "cmd": "test -f apps/landing/package.json && pnpm --filter @converge/landing build"
+    }
+  ]
+}

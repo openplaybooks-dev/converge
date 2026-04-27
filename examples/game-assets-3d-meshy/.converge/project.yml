@@ -1,0 +1,31 @@
+name: game-assets-3d-meshy
+description: |
+  Character-pipeline example: nanobanana (Gemini) generates a single full-size
+  reference image per character; Meshy turns each image into a textured GLB,
+  auto-rigs humanoids, and applies animation library clips. Class style guides
+  keep the cast visually coherent.
+
+  Sibling to:
+    - examples/game-assets       (2D pixel sprites — same idea, different media)
+    - examples/game-assets-3d    (procedural three.js code-meshes)
+    - examples/playable-mvp-3d   (full game MVP — environment + gameplay loop)
+
+  This example is the "character production line": no environment, no gameplay,
+  just rigged + animated GLB characters that drop into any 3D engine.
+
+run:
+  mode: oneoff
+
+vars:
+  # Meshy generation defaults
+  meshy_model_version: meshy-6
+  meshy_model_type: lowpoly
+  meshy_topology: quad
+  meshy_target_polycount: 8000
+
+  # Reference image generation (nanobanana / Gemini 2.5 Flash Image)
+  ref_resolution: 1024
+  ref_aspect_ratio: "1:1"
+
+  # three.js version for the gallery
+  three_version: 0.160.0

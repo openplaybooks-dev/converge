@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "04-build-sections/004-02-design",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T23:16:55.476Z",
+  "createdAt": "2026-04-26T18:15:55.975Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T18:15:55.975Z",
+      "completedAt": "2026-04-26T18:16:46.716Z",
+      "outcome": "success",
+      "durationMs": 50741
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-26T23:16:55.136Z",
+      "completedAt": "2026-04-26T23:16:55.455Z",
+      "outcome": "success",
+      "durationMs": 319
+    }
+  ],
+  "currentAttempt": 2
+}

@@ -1,0 +1,9 @@
+{
+  "taskId": "06-wiring/004-route-validation",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/src/app"
+  ],
+  "blocked": false
+}

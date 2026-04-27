@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "10-verify/008-meta-validation",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T00:53:51.293Z",
+  "createdAt": "2026-04-27T00:51:40.165Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T00:51:40.165Z",
+      "completedAt": "2026-04-27T00:53:51.254Z",
+      "outcome": "success",
+      "durationMs": 131089
+    }
+  ],
+  "currentAttempt": 1
+}

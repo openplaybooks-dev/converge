@@ -1,0 +1,9 @@
+{
+  "taskId": "04-drop-mc-only/005-drop-domain-pages",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    ".converge/studio-state/dropped-domain-pages.txt"
+  ],
+  "blocked": false
+}

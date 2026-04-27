@@ -1,0 +1,10 @@
+{
+  "taskId": "05-run-supervisor/001-supervisor-module",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/src/lib/run-supervisor.ts",
+    "packages/converge-studio/src/lib/ring-buffer.ts"
+  ],
+  "blocked": false
+}

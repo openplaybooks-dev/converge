@@ -42,7 +42,7 @@ export interface LoopResult {
 /* ------------------------------------------------------------------ */
 
 export async function loopRun(config: LoopRunConfig): Promise<LoopResult> {
-  const maxCycles = config.maxCycles ?? config.maxIterations ?? Infinity;
+  const maxCycles = config.maxCycles ?? Infinity;
   const backoffMs = config.stall?.backoffMs ?? 30000;
   const maxConsecutiveStalls = config.stall?.maxConsecutive ?? 0; // 0 = never stop
   const startTime = Date.now();

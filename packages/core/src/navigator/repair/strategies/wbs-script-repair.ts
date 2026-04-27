@@ -38,22 +38,33 @@ export class WbsScriptRepairStrategy implements FixStrategy {
     // Resolve script path — may already be a concrete file, or a task
     // directory containing the script under a conventional layout.
     // Also check for wbs/wbs.js sibling pattern (sibling to parent dir, like deep-research/wbs/wbs.js)
-    const candidates =
+    const isFile =
       scriptPath.endsWith(".js") ||
       scriptPath.endsWith(".ts") ||
       scriptPath.endsWith(".mjs") ||
-      scriptPath.endsWith(".cjs")
-        ? [scriptPath]
-        : [
-            join(scriptPath, "wbs.js"),
-            join(scriptPath, "wbs.ts"),
-            join(scriptPath, "wbs", "index.js"),
-            join(scriptPath, "wbs", "index.ts"),
-            join(scriptPath, "wbs", "index.mjs"),
-            join(scriptPath, "wbs.mjs"),
-            // Also check for sibling wbs/ directory pattern (deep-research/wbs/wbs.js)
-            join(scriptPath, "wbs", "wbs.js"),
-          ];
+      scriptPath.endsWith(".cjs") ||
+      scriptPath.endsWith(".py") ||
+      scriptPath.endsWith(".sh");
+
+    // For relative paths, also try resolution against the project root —
+    // matches the script-WBS executor's project-dir fallback so shared
+    // tooling like `scripts/foo.py` is reachable from any task.
+    const projectRel = scriptPath.startsWith("/")
+      ? []
+      : [join(projectDir, scriptPath)];
+
+    const candidates = isFile
+      ? [scriptPath, ...projectRel]
+      : [
+          join(scriptPath, "wbs.js"),
+          join(scriptPath, "wbs.ts"),
+          join(scriptPath, "wbs", "index.js"),
+          join(scriptPath, "wbs", "index.ts"),
+          join(scriptPath, "wbs", "index.mjs"),
+          join(scriptPath, "wbs.mjs"),
+          // Also check for sibling wbs/ directory pattern (deep-research/wbs/wbs.js)
+          join(scriptPath, "wbs", "wbs.js"),
+        ];
 
     let resolvedScriptPath: string | undefined;
     for (const c of candidates) {
@@ -165,97 +176,122 @@ export class WbsScriptRepairStrategy implements FixStrategy {
   }
 
   /**
-   * Self-test validation for fixed WBS script.
-   * Validates the script without executing it — checks placeholders, syntax,
-   * required exports, and referenced helper functions.
+   * Self-test validation for a fixed WBS script.
+   *
+   * Runs the script in a sandbox with a mock `ctx` and a captured `spawn`.
+   * Pass = the script's `run()` completes without throwing AND spawns at
+   * least one child. Fail = it throws, or it returns without spawning
+   * (which means the WBS is silently a no-op).
+   *
+   * Replaces the prior pattern-matching self-test which produced false
+   * positives by checking for invented requirements (specific variable
+   * names, specific helper exports) the WBS doesn't actually need.
    */
   private async runSelfTest(
     scriptPath: string,
     projectDir: string,
   ): Promise<{ success: boolean; error?: string }> {
     try {
+      // Quick static checks first — cheap and catch the unambiguous bugs.
       const scriptContent = await readFile(scriptPath, "utf-8");
-      const { existsSync } = await import("fs");
 
-      const checks: Array<{ name: string; pass: boolean; msg: string }> = [];
-
-      // Check 1: No unresolved template placeholders
-      const placeholderMatch = scriptContent.match(/\{\{[^}]*\}\}/);
-      checks.push({
-        name: "no-placeholders",
-        pass: !placeholderMatch,
-        msg: placeholderMatch
-          ? `Unresolved placeholder: ${placeholderMatch[0]}`
-          : "OK",
-      });
-
-      // Check 2: Has required run function
-      const hasRunFn = scriptContent.includes("export async function run") ||
-                       scriptContent.includes("export function run");
-      checks.push({
-        name: "has-run-fn",
-        pass: hasRunFn,
-        msg: hasRunFn ? "OK" : "Missing 'export async function run'",
-      });
-
-      // Check 3: Expected vars are referenced in code (not just comments)
-      const codeOnly = scriptContent.split("//")[0].split("/*")[0];
-      for (const v of ["featureId", "featureTitle"]) {
-        const varPattern = new RegExp(`\\b${v}\\b`);
-        const found = varPattern.test(codeOnly);
-        checks.push({
-          name: `var-${v}`,
-          pass: found,
-          msg: found ? `OK` : `Variable '${v}' not found in code`,
-        });
-      }
-
-      // Check 4: helpers.js has joinPaths if script references it
-      const helpersPath = join(dirname(scriptPath), "helpers.js");
-      if (existsSync(helpersPath) && scriptContent.includes("./helpers")) {
-        const helpersContent = await readFile(helpersPath, "utf-8");
-        checks.push({
-          name: "helpers-joinPaths",
-          pass: helpersContent.includes("joinPaths"),
-          msg: helpersContent.includes("joinPaths") ? "OK" : "helpers.js missing joinPaths",
-        });
-      }
-
-      // Check 5: JavaScript syntax validity
-      let syntaxOk = false;
-      try {
-        new Function(scriptContent);
-        syntaxOk = true;
-      } catch (e: any) {
-        checks.push({
-          name: "syntax",
-          pass: false,
-          msg: `Syntax error: ${e.message}`,
-        });
-      }
-      if (syntaxOk) {
-        checks.push({ name: "syntax", pass: true, msg: "OK" });
-      }
-
-      // Report failures
-      for (const check of checks) {
-        if (!check.pass) {
-          console.error(`   [self-test] FAIL: ${check.name} - ${check.msg}`);
-        }
-      }
-
-      const failed = checks.filter(c => !c.pass);
-      if (failed.length > 0) {
+      // Required: an exported `run` function. Without it the runner has
+      // nothing to invoke.
+      const hasRunFn =
+        /\bexport\s+(async\s+)?function\s+run\b/.test(scriptContent) ||
+        /\bexport\s*\{\s*run\b/.test(scriptContent);
+      if (!hasRunFn) {
+        console.error(
+          `   [self-test] FAIL: missing exported 'run' function`,
+        );
         return {
           success: false,
-          error: failed.map(c => `${c.name}: ${c.msg}`).join("; "),
+          error: "WBS script must export a 'run' function",
         };
       }
 
-      console.log(`   [self-test] All ${checks.length} checks passed`);
+      // Unresolved {{placeholder}} is intentional inside templates/, but
+      // not at the script's top level. Allow placeholders only inside
+      // string literals (the script may construct template paths that
+      // contain {{prefix}} etc. — that's fine).
+      // Heuristic: split on string-literal regex and only check non-string
+      // segments. Cheaper safer version: skip this check entirely — sandbox
+      // execution will catch any unresolved-placeholder bug as a runtime
+      // error if it actually breaks anything.
+
+      // Sandbox execution: import the script and run it with a mock ctx
+      // that captures spawned children. We use a fresh module URL each
+      // time so import-cache poisoning across attempts doesn't show stale
+      // results.
+      const cacheBuster = `?selftest=${Date.now()}.${Math.random().toString(36).slice(2)}`;
+      const moduleUrl = `file://${scriptPath}${cacheBuster}`;
+      let mod: { run?: (ctx: unknown) => Promise<void> | void };
+      try {
+        mod = await import(moduleUrl);
+      } catch (e: unknown) {
+        const msg = (e as Error)?.message || String(e);
+        console.error(`   [self-test] FAIL: import error: ${msg}`);
+        return { success: false, error: `import failed: ${msg}` };
+      }
+
+      if (typeof mod.run !== "function") {
+        console.error(
+          `   [self-test] FAIL: 'run' export is not a function (got ${typeof mod.run})`,
+        );
+        return {
+          success: false,
+          error: "'run' export must be a function",
+        };
+      }
+
+      // Mock ctx: capture every spawn call. If the script reads files,
+      // we let it — it runs against the real projectDir, which is the
+      // accurate environment the real WBS execution will see.
+      const spawned: Array<{ id?: string; title?: string }> = [];
+      const ctx = {
+        projectDir,
+        spawn: async (def: unknown, opts?: unknown) => {
+          // Capture whatever shape the script passes — both single-arg
+          // (full task definition) and two-arg (template-ref + opts) forms.
+          const obj = (opts ?? def) as { id?: string; title?: string };
+          spawned.push({ id: obj?.id, title: obj?.title });
+        },
+        // Stub other commonly-used ctx fields with no-op defaults so the
+        // script doesn't crash if it touches them.
+        vars: {},
+        log: {
+          info: () => {},
+          warn: () => {},
+          error: () => {},
+          debug: () => {},
+        },
+      };
+
+      try {
+        await mod.run(ctx);
+      } catch (e: unknown) {
+        const msg = (e as Error)?.message || String(e);
+        console.error(`   [self-test] FAIL: run() threw: ${msg}`);
+        return { success: false, error: `run() threw: ${msg}` };
+      }
+
+      if (spawned.length === 0) {
+        console.error(
+          `   [self-test] FAIL: run() completed but did not spawn any children`,
+        );
+        return {
+          success: false,
+          error: "run() did not spawn any children — WBS is a silent no-op",
+        };
+      }
+
+      console.log(
+        `   [self-test] OK — run() spawned ${spawned.length} task(s)`,
+      );
       return { success: true };
-    } catch (err: any) {
-      return { success: false, error: err.message };
+    } catch (err: unknown) {
+      const msg = (err as Error)?.message || String(err);
+      return { success: false, error: msg };
     }
   }
 

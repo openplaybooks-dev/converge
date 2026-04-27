@@ -1,0 +1,88 @@
+name: default
+description: |
+  Generate game sprites and assets using Nano-banana (Gemini 2.5 Flash Image).
+  Produces character sprites, object assets, tile maps, and backgrounds ready for
+  game engine import (Godot, Unity, or raw PNG + JSON atlas).
+
+  ## Asset Types
+
+  - characters: Player and NPC sprites with animation states
+  - objects: Items, props, and structures
+  - tile_maps: Grid-based terrain tiles
+  - backgrounds: Environmental parallax layers
+
+  ## Pipeline
+
+  idea.md → manifests → locked refs → sprite sheets → animation keyframes → exported assets
+
+  ## Run Modes
+
+  Controlled by `vars.stop_after`:
+    - "sprites" (default) → stop after 04-animation-keyframes. Fast, cheap validation.
+    - "export" → run 05-export-ready. Full asset export with atlas generation.
+    - "full" → run all phases including tilemap and background generation.
+
+vars:
+  sprite_resolution: 128      # pixels per sprite frame (64, 128, 256)
+  sprites_per_row: 4         # sprites per sheet row
+  animation_states:          # configurable animation states
+    - idle
+    - walk
+  asset_types:               # which asset categories to generate
+    - characters
+    - objects
+    - tile_maps
+    - backgrounds
+  engine_targets:            # which engine formats to export
+    - godot
+    - unity
+    - raw
+  max_characters: 3          # test scope
+  max_states_per_character: 2 # test scope
+  max_objects: 5
+  max_backgrounds: 2
+  stop_after: sprites        # "sprites" | "export" | "full"
+
+run:
+  mode: oneoff
+  maxIterations: 2000
+  maxTaskAttempts: 3
+  stall:
+    maxConsecutive: 3
+    backoffMs: 60000
+
+tasks:
+  - id: 01-define-assets
+  - id: 02-character-refs
+    depends_on:
+      - 01-define-assets
+  - id: 02-object-refs
+    depends_on:
+      - 01-define-assets
+  - id: 02-background-refs
+    depends_on:
+      - 01-define-assets
+  - id: 03-sprite-sheet-gen
+    depends_on:
+      - 02-character-refs
+  - id: 03-object-sheet-gen
+    depends_on:
+      - 02-object-refs
+  - id: 04-animation-keyframes
+    depends_on:
+      - 03-sprite-sheet-gen
+  - id: 05-export-ready
+    depends_on:
+      - 04-animation-keyframes
+      - 03-object-sheet-gen
+
+checks:
+  - id: idea-exists
+    cmd: node -e "const fs=require('fs');if(!fs.existsSync('idea.md')){console.error('idea.md not found');process.exit(1)}"
+    description: User's idea file is present at project root
+  - id: sprites-manifest-exists
+    cmd: node -e "const fs=require('fs');if(!fs.existsSync('assets/sprites.json')){console.error('assets/sprites.json not found');process.exit(1)}"
+    description: Sprites manifest was generated
+  - id: at-least-one-character-ref
+    cmd: node -e "const fs=require('fs');const chars=fs.readdirSync('assets/characters');const n=chars.filter(d=>fs.existsSync('assets/characters/'+d+'/ref/ref.png')).length;if(n<1){console.error('No character refs found');process.exit(1)}else{console.log(n)}"
+    description: At least one character reference was generated

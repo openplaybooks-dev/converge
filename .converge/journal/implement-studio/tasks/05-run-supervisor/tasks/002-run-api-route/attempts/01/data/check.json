@@ -1,0 +1,20 @@
+{
+  "taskId": "05-run-supervisor/002-run-api-route",
+  "checks": [
+    {
+      "id": "routes-exist",
+      "description": "Both run routes exist",
+      "cmd": "test -f packages/converge-studio/src/app/api/run/route.ts && test -f 'packages/converge-studio/src/app/api/run/[runId]/stream/route.ts'"
+    },
+    {
+      "id": "nodejs-runtime",
+      "description": "Both routes export runtime = 'nodejs'",
+      "cmd": "grep -q \"runtime = 'nodejs'\" packages/converge-studio/src/app/api/run/route.ts && grep -q \"runtime = 'nodejs'\" 'packages/converge-studio/src/app/api/run/[runId]/stream/route.ts'"
+    },
+    {
+      "id": "typecheck",
+      "description": "Routes typecheck",
+      "cmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    }
+  ]
+}

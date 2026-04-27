@@ -1,0 +1,2 @@
+{"type":"file-exists","path":"packages/studio/src/app/layout.tsx","cmd":"test -f \"packages/studio/src/app/layout.tsx\"","id":"file-exists:test -f \"packages/studio/src/app/layout.tsx\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-26T10:08:33.416Z"}
+{"type":"check","checkId":"layout-imports-css","cmd":"grep -q 'globals.css' packages/studio/src/app/layout.tsx","description":"layout.tsx imports globals.css","id":"check:layout-imports-css","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-26T10:08:33.421Z"}

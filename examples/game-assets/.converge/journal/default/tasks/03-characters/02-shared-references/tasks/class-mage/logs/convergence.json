@@ -25,7 +25,7 @@
       },
       "result": {
         "action": "continue",
-        "durationMs": 1
+        "durationMs": 0
       }
     },
     {
@@ -38,101 +38,8 @@
       },
       "result": {
         "action": "continue",
-        "gaps": [
-          {
-            "id": "03-characters/02-shared-references/class-mage-missing-output-assets/shared/classes/mage/style-guide.md",
-            "type": "incomplete",
-            "level": "task",
-            "scope": "03-characters/02-shared-references/class-mage",
-            "severity": "high",
-            "description": "[03-characters/02-shared-references/class-mage] Task output not created: assets/shared/classes/mage/style-guide.md",
-            "source": "unit",
-            "detected": "2026-04-23T01:03:58.451Z",
-            "resolved": false,
-            "checks": [],
-            "metadata": {
-              "gapKind": "output",
-              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/playbooks/default/tasks/03-characters/02-shared-references/tasks/class-mage",
-              "taskId": "03-characters/02-shared-references/class-mage",
-              "taskTitle": "Generate mage class style guide",
-              "taskPrompt": "# Generate mage Class Style Guide\n\nCreate a comprehensive style guide and visual reference for the mage character class.\n\n## Class Details\n\n- **Class Name**: mage\n- **Characters**: [\"shadow-mage\"]\n- **Shared Attributes**: {\"armor_type\":\"robes\",\"weapon_style\":\"staff\",\"color_theme\":\"magical\",\"movement_style\":\"flowing\"}\n\n## Task\n\nGenerate style guide document and visual reference that defines:\n- Visual style and aesthetic\n- Color palette\n- Material types (armor, clothing, weapons)\n- Common design elements\n- Animation style\n\n## Style Guide Document\n\nCreate `assets/shared/classes/mage/style-guide.md`:\n\n```markdown\n# mage Class Style Guide\n\n## Overview\n[Description of class visual identity]\n\n## Color Palette\n[Primary and secondary colors]\n\n## Materials\n[Armor type, clothing, weapon materials]\n\n## Design Elements\n[Common visual elements across all mage characters]\n\n## Animation Style\n[Movement characteristics, pose style]\n\n## Characters in Class\n[\"shadow-mage\"]\n```\n\n## Visual Reference\n\nGenerate `assets/shared/classes/mage/reference.png`:\n- Representative visual showing class style\n- Key design elements highlighted\n- Color palette demonstration\n\n## Verification\n\n- Style guide document is comprehensive\n- Visual reference clearly shows class identity\n- Can be used as reference for all characters in this class",
-              "factId": "file-exists:test -f \"assets/shared/classes/mage/style-guide.md\"",
-              "awaitingUserInput": false
-            }
-          },
-          {
-            "id": "03-characters/02-shared-references/class-mage-missing-output-assets/shared/classes/mage/reference.png",
-            "type": "incomplete",
-            "level": "task",
-            "scope": "03-characters/02-shared-references/class-mage",
-            "severity": "high",
-            "description": "[03-characters/02-shared-references/class-mage] Task output not created: assets/shared/classes/mage/reference.png",
-            "source": "unit",
-            "detected": "2026-04-23T01:03:58.453Z",
-            "resolved": false,
-            "checks": [],
-            "metadata": {
-              "gapKind": "output",
-              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/playbooks/default/tasks/03-characters/02-shared-references/tasks/class-mage",
-              "taskId": "03-characters/02-shared-references/class-mage",
-              "taskTitle": "Generate mage class style guide",
-              "taskPrompt": "# Generate mage Class Style Guide\n\nCreate a comprehensive style guide and visual reference for the mage character class.\n\n## Class Details\n\n- **Class Name**: mage\n- **Characters**: [\"shadow-mage\"]\n- **Shared Attributes**: {\"armor_type\":\"robes\",\"weapon_style\":\"staff\",\"color_theme\":\"magical\",\"movement_style\":\"flowing\"}\n\n## Task\n\nGenerate style guide document and visual reference that defines:\n- Visual style and aesthetic\n- Color palette\n- Material types (armor, clothing, weapons)\n- Common design elements\n- Animation style\n\n## Style Guide Document\n\nCreate `assets/shared/classes/mage/style-guide.md`:\n\n```markdown\n# mage Class Style Guide\n\n## Overview\n[Description of class visual identity]\n\n## Color Palette\n[Primary and secondary colors]\n\n## Materials\n[Armor type, clothing, weapon materials]\n\n## Design Elements\n[Common visual elements across all mage characters]\n\n## Animation Style\n[Movement characteristics, pose style]\n\n## Characters in Class\n[\"shadow-mage\"]\n```\n\n## Visual Reference\n\nGenerate `assets/shared/classes/mage/reference.png`:\n- Representative visual showing class style\n- Key design elements highlighted\n- Color palette demonstration\n\n## Verification\n\n- Style guide document is comprehensive\n- Visual reference clearly shows class identity\n- Can be used as reference for all characters in this class",
-              "factId": "file-exists:test -f \"assets/shared/classes/mage/reference.png\"",
-              "awaitingUserInput": false
-            }
-          },
-          {
-            "id": "03-characters/02-shared-references/class-mage-check-failed-style-guide-exists",
-            "type": "incomplete",
-            "level": "task",
-            "scope": "03-characters/02-shared-references/class-mage",
-            "severity": "high",
-            "description": "[03-characters/02-shared-references/class-mage] Check failed: Style guide document exists",
-            "source": "unit",
-            "detected": "2026-04-23T01:03:58.456Z",
-            "resolved": false,
-            "checks": [],
-            "metadata": {
-              "gapKind": "check-failed",
-              "checkId": "style-guide-exists",
-              "checkCmd": "test -s assets/shared/classes/mage/style-guide.md",
-              "checkDescription": "Style guide document exists",
-              "checkOutput": "Command failed: test -s assets/shared/classes/mage/style-guide.md\n",
-              "checkExitCode": 1,
-              "taskPrompt": "# Generate mage Class Style Guide\n\nCreate a comprehensive style guide and visual reference for the mage character class.\n\n## Class Details\n\n- **Class Name**: mage\n- **Characters**: [\"shadow-mage\"]\n- **Shared Attributes**: {\"armor_type\":\"robes\",\"weapon_style\":\"staff\",\"color_theme\":\"magical\",\"movement_style\":\"flowing\"}\n\n## Task\n\nGenerate style guide document and visual reference that defines:\n- Visual style and aesthetic\n- Color palette\n- Material types (armor, clothing, weapons)\n- Common design elements\n- Animation style\n\n## Style Guide Document\n\nCreate `assets/shared/classes/mage/style-guide.md`:\n\n```markdown\n# mage Class Style Guide\n\n## Overview\n[Description of class visual identity]\n\n## Color Palette\n[Primary and secondary colors]\n\n## Materials\n[Armor type, clothing, weapon materials]\n\n## Design Elements\n[Common visual elements across all mage characters]\n\n## Animation Style\n[Movement characteristics, pose style]\n\n## Characters in Class\n[\"shadow-mage\"]\n```\n\n## Visual Reference\n\nGenerate `assets/shared/classes/mage/reference.png`:\n- Representative visual showing class style\n- Key design elements highlighted\n- Color palette demonstration\n\n## Verification\n\n- Style guide document is comprehensive\n- Visual reference clearly shows class identity\n- Can be used as reference for all characters in this class",
-              "taskId": "03-characters/02-shared-references/class-mage",
-              "taskTitle": "Generate mage class style guide",
-              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/playbooks/default/tasks/03-characters/02-shared-references/tasks/class-mage",
-              "factId": "check:style-guide-exists"
-            }
-          },
-          {
-            "id": "03-characters/02-shared-references/class-mage-check-failed-reference-exists",
-            "type": "incomplete",
-            "level": "task",
-            "scope": "03-characters/02-shared-references/class-mage",
-            "severity": "high",
-            "description": "[03-characters/02-shared-references/class-mage] Check failed: Visual reference exists",
-            "source": "unit",
-            "detected": "2026-04-23T01:03:58.458Z",
-            "resolved": false,
-            "checks": [],
-            "metadata": {
-              "gapKind": "check-failed",
-              "checkId": "reference-exists",
-              "checkCmd": "test -s assets/shared/classes/mage/reference.png",
-              "checkDescription": "Visual reference exists",
-              "checkOutput": "Command failed: test -s assets/shared/classes/mage/reference.png\n",
-              "checkExitCode": 1,
-              "taskPrompt": "# Generate mage Class Style Guide\n\nCreate a comprehensive style guide and visual reference for the mage character class.\n\n## Class Details\n\n- **Class Name**: mage\n- **Characters**: [\"shadow-mage\"]\n- **Shared Attributes**: {\"armor_type\":\"robes\",\"weapon_style\":\"staff\",\"color_theme\":\"magical\",\"movement_style\":\"flowing\"}\n\n## Task\n\nGenerate style guide document and visual reference that defines:\n- Visual style and aesthetic\n- Color palette\n- Material types (armor, clothing, weapons)\n- Common design elements\n- Animation style\n\n## Style Guide Document\n\nCreate `assets/shared/classes/mage/style-guide.md`:\n\n```markdown\n# mage Class Style Guide\n\n## Overview\n[Description of class visual identity]\n\n## Color Palette\n[Primary and secondary colors]\n\n## Materials\n[Armor type, clothing, weapon materials]\n\n## Design Elements\n[Common visual elements across all mage characters]\n\n## Animation Style\n[Movement characteristics, pose style]\n\n## Characters in Class\n[\"shadow-mage\"]\n```\n\n## Visual Reference\n\nGenerate `assets/shared/classes/mage/reference.png`:\n- Representative visual showing class style\n- Key design elements highlighted\n- Color palette demonstration\n\n## Verification\n\n- Style guide document is comprehensive\n- Visual reference clearly shows class identity\n- Can be used as reference for all characters in this class",
-              "taskId": "03-characters/02-shared-references/class-mage",
-              "taskTitle": "Generate mage class style guide",
-              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/playbooks/default/tasks/03-characters/02-shared-references/tasks/class-mage",
-              "factId": "check:reference-exists"
-            }
-          }
-        ],
-        "durationMs": 13
+        "gaps": [],
+        "durationMs": 84
       }
     },
     {
@@ -144,80 +51,6 @@
         "priority": 97,
         "applicable": "noGapsAndExecuted"
       }
-    },
-    {
-      "id": "run-executor",
-      "handler": "run-executor",
-      "status": "done",
-      "origin": "initial",
-      "data": {
-        "priority": 65
-      },
-      "result": {
-        "action": "continue",
-        "durationMs": 44
-      }
-    },
-    {
-      "id": "repair-loop",
-      "handler": "repair-loop",
-      "status": "done",
-      "origin": "initial",
-      "data": {
-        "priority": 55
-      },
-      "result": {
-        "action": "continue",
-        "durationMs": 49
-      }
-    },
-    {
-      "id": "verify",
-      "handler": "verify",
-      "status": "done",
-      "origin": "initial",
-      "data": {
-        "priority": 50
-      },
-      "result": {
-        "action": "done",
-        "success": true,
-        "reason": "All gaps resolved",
-        "gaps": [],
-        "durationMs": 63
-      }
-    },
-    {
-      "id": "check-stall",
-      "handler": "check-stall",
-      "status": "buffered",
-      "origin": "initial",
-      "data": {
-        "priority": 45
-      }
-    },
-    {
-      "id": "advance-attempt",
-      "handler": "advance-attempt",
-      "status": "buffered",
-      "origin": "initial",
-      "data": {
-        "priority": 40
-      }
-    },
-    {
-      "id": "run-strategy:task-run#1",
-      "handler": "run-strategy",
-      "status": "done",
-      "origin": "planned",
-      "data": {
-        "strategy": "task-run",
-        "priority": 55
-      },
-      "result": {
-        "action": "continue",
-        "durationMs": 79864
-      }
     }
   ],
   "edges": [
@@ -225,43 +58,19 @@
       "from": "_start",
       "to": "check-wbs-seeded",
       "iteration": 1,
-      "ts": "2026-04-23T01:03:58.445Z"
+      "ts": "2026-04-26T17:24:05.039Z"
     },
     {
       "from": "check-wbs-seeded",
       "to": "check-outputs-exist",
       "iteration": 1,
-      "ts": "2026-04-23T01:03:58.446Z"
+      "ts": "2026-04-26T17:24:05.040Z"
     },
     {
       "from": "check-outputs-exist",
       "to": "detect-gaps",
       "iteration": 1,
-      "ts": "2026-04-23T01:03:58.459Z"
-    },
-    {
-      "from": "detect-gaps",
-      "to": "run-executor",
-      "iteration": 1,
-      "ts": "2026-04-23T01:03:58.503Z"
-    },
-    {
-      "from": "run-executor",
-      "to": "repair-loop",
-      "iteration": 1,
-      "ts": "2026-04-23T01:03:58.553Z"
-    },
-    {
-      "from": "repair-loop",
-      "to": "run-strategy:task-run#1",
-      "iteration": 1,
-      "ts": "2026-04-23T01:05:18.417Z"
-    },
-    {
-      "from": "run-strategy:task-run#1",
-      "to": "verify",
-      "iteration": 1,
-      "ts": "2026-04-23T01:05:18.480Z"
+      "ts": "2026-04-26T17:24:05.124Z"
     }
   ]
 }

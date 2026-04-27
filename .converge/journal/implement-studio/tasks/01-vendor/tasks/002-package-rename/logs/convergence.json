@@ -1,0 +1,492 @@
+{
+  "iteration": 2,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-vendor/002-package-rename-check-failed-package-name",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-vendor/002-package-rename",
+            "severity": "high",
+            "description": "[01-vendor/002-package-rename] Check failed: package.json name is @converge/studio",
+            "source": "unit",
+            "detected": "2026-04-26T01:26:08.431Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "package-name",
+              "checkCmd": "node -e \"process.exit(require('./packages/converge-studio/package.json').name === '@converge/studio' ? 0 : 1)\"",
+              "checkDescription": "package.json name is @converge/studio",
+              "checkOutput": "Command failed: node -e \"process.exit(require('./packages/converge-studio/package.json').name === '@converge/studio' ? 0 : 1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Rewrite `packages/converge-studio/package.json` so the package is part of the converge workspace.\n\n**Required fields**:\n\n```jsonc\n{\n  \"name\": \"@converge/studio\",\n  \"version\": \"0.1.0\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"description\": \"Web UI for managing converge playbooks, tasks, and runs\",\n  \"scripts\": {\n    \"dev\": \"next dev -p ${PORT:-4000}\",\n    \"build\": \"next build\",\n    \"start\": \"next start -p ${PORT:-4000}\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"lint\": \"next lint\"\n  },\n  \"dependencies\": {\n    \"@converge/core\": \"workspace:*\",\n    \"@converge/project-root\": \"workspace:*\",\n    \"next\": \"^15.0.0\",\n    \"react\": \"^18.3.0\",\n    \"react-dom\": \"^18.3.0\",\n    \"chokidar\": \"^4.0.0\",\n    \"gray-matter\": \"^4.0.3\",\n    \"yaml\": \"^2.7.0\",\n    \"zod\": \"^3.24.1\",\n    \"@monaco-editor/react\": \"^4.6.0\",\n    \"uuid\": \"^11.0.3\"\n  },\n  \"devDependencies\": {\n    \"@types/node\": \"^22.0.0\",\n    \"@types/react\": \"^18.3.0\",\n    \"@types/react-dom\": \"^18.3.0\",\n    \"typescript\": \"^5.7.0\",\n    \"tailwindcss\": \"^3.4.0\",\n    \"postcss\": \"^8.4.0\",\n    \"autoprefixer\": \"^10.4.0\"\n  }\n}\n```\n\n**Merge upstream deps**: keep upstream's UI/component dependencies (Radix/shadcn/etc). **Remove** any deps tied to pruned code: `@prisma/client`, `prisma`, `next-auth`, framework SDKs (`@openclaw/*`, `crewai`, `langgraph`, `autogen`).\n\nAdjust `tsconfig.json` if needed (extends a workspace base, paths for `@converge/*`).\n\nAfter writing the file, run `pnpm install` from the repo root.\n\n**Verify**: all four manifest checks pass.",
+              "taskId": "01-vendor/002-package-rename",
+              "taskTitle": "Rename package to @converge/studio with workspace deps",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/01-vendor/tasks/002-package-rename",
+              "factId": "check:package-name"
+            }
+          },
+          {
+            "id": "01-vendor/002-package-rename-check-failed-workspace-deps",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-vendor/002-package-rename",
+            "severity": "high",
+            "description": "[01-vendor/002-package-rename] Check failed: Depends on @converge/core and @converge/project-root via workspace protocol",
+            "source": "unit",
+            "detected": "2026-04-26T01:26:08.454Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "workspace-deps",
+              "checkCmd": "node -e \"const p=require('./packages/converge-studio/package.json');const d={...p.dependencies,...p.devDependencies};process.exit(d['@converge/core']==='workspace:*'&&d['@converge/project-root']==='workspace:*'?0:1)\"",
+              "checkDescription": "Depends on @converge/core and @converge/project-root via workspace protocol",
+              "checkOutput": "Command failed: node -e \"const p=require('./packages/converge-studio/package.json');const d={...p.dependencies,...p.devDependencies};process.exit(d['@converge/core']==='workspace:*'&&d['@converge/project-root']==='workspace:*'?0:1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Rewrite `packages/converge-studio/package.json` so the package is part of the converge workspace.\n\n**Required fields**:\n\n```jsonc\n{\n  \"name\": \"@converge/studio\",\n  \"version\": \"0.1.0\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"description\": \"Web UI for managing converge playbooks, tasks, and runs\",\n  \"scripts\": {\n    \"dev\": \"next dev -p ${PORT:-4000}\",\n    \"build\": \"next build\",\n    \"start\": \"next start -p ${PORT:-4000}\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"lint\": \"next lint\"\n  },\n  \"dependencies\": {\n    \"@converge/core\": \"workspace:*\",\n    \"@converge/project-root\": \"workspace:*\",\n    \"next\": \"^15.0.0\",\n    \"react\": \"^18.3.0\",\n    \"react-dom\": \"^18.3.0\",\n    \"chokidar\": \"^4.0.0\",\n    \"gray-matter\": \"^4.0.3\",\n    \"yaml\": \"^2.7.0\",\n    \"zod\": \"^3.24.1\",\n    \"@monaco-editor/react\": \"^4.6.0\",\n    \"uuid\": \"^11.0.3\"\n  },\n  \"devDependencies\": {\n    \"@types/node\": \"^22.0.0\",\n    \"@types/react\": \"^18.3.0\",\n    \"@types/react-dom\": \"^18.3.0\",\n    \"typescript\": \"^5.7.0\",\n    \"tailwindcss\": \"^3.4.0\",\n    \"postcss\": \"^8.4.0\",\n    \"autoprefixer\": \"^10.4.0\"\n  }\n}\n```\n\n**Merge upstream deps**: keep upstream's UI/component dependencies (Radix/shadcn/etc). **Remove** any deps tied to pruned code: `@prisma/client`, `prisma`, `next-auth`, framework SDKs (`@openclaw/*`, `crewai`, `langgraph`, `autogen`).\n\nAdjust `tsconfig.json` if needed (extends a workspace base, paths for `@converge/*`).\n\nAfter writing the file, run `pnpm install` from the repo root.\n\n**Verify**: all four manifest checks pass.",
+              "taskId": "01-vendor/002-package-rename",
+              "taskTitle": "Rename package to @converge/studio with workspace deps",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/01-vendor/tasks/002-package-rename",
+              "factId": "check:workspace-deps"
+            }
+          },
+          {
+            "id": "01-vendor/002-package-rename-check-failed-type-module",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-vendor/002-package-rename",
+            "severity": "high",
+            "description": "[01-vendor/002-package-rename] Check failed: package.json has type=module",
+            "source": "unit",
+            "detected": "2026-04-26T01:26:08.477Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "type-module",
+              "checkCmd": "node -e \"process.exit(require('./packages/converge-studio/package.json').type === 'module' ? 0 : 1)\"",
+              "checkDescription": "package.json has type=module",
+              "checkOutput": "Command failed: node -e \"process.exit(require('./packages/converge-studio/package.json').type === 'module' ? 0 : 1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Rewrite `packages/converge-studio/package.json` so the package is part of the converge workspace.\n\n**Required fields**:\n\n```jsonc\n{\n  \"name\": \"@converge/studio\",\n  \"version\": \"0.1.0\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"description\": \"Web UI for managing converge playbooks, tasks, and runs\",\n  \"scripts\": {\n    \"dev\": \"next dev -p ${PORT:-4000}\",\n    \"build\": \"next build\",\n    \"start\": \"next start -p ${PORT:-4000}\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"lint\": \"next lint\"\n  },\n  \"dependencies\": {\n    \"@converge/core\": \"workspace:*\",\n    \"@converge/project-root\": \"workspace:*\",\n    \"next\": \"^15.0.0\",\n    \"react\": \"^18.3.0\",\n    \"react-dom\": \"^18.3.0\",\n    \"chokidar\": \"^4.0.0\",\n    \"gray-matter\": \"^4.0.3\",\n    \"yaml\": \"^2.7.0\",\n    \"zod\": \"^3.24.1\",\n    \"@monaco-editor/react\": \"^4.6.0\",\n    \"uuid\": \"^11.0.3\"\n  },\n  \"devDependencies\": {\n    \"@types/node\": \"^22.0.0\",\n    \"@types/react\": \"^18.3.0\",\n    \"@types/react-dom\": \"^18.3.0\",\n    \"typescript\": \"^5.7.0\",\n    \"tailwindcss\": \"^3.4.0\",\n    \"postcss\": \"^8.4.0\",\n    \"autoprefixer\": \"^10.4.0\"\n  }\n}\n```\n\n**Merge upstream deps**: keep upstream's UI/component dependencies (Radix/shadcn/etc). **Remove** any deps tied to pruned code: `@prisma/client`, `prisma`, `next-auth`, framework SDKs (`@openclaw/*`, `crewai`, `langgraph`, `autogen`).\n\nAdjust `tsconfig.json` if needed (extends a workspace base, paths for `@converge/*`).\n\nAfter writing the file, run `pnpm install` from the repo root.\n\n**Verify**: all four manifest checks pass.",
+              "taskId": "01-vendor/002-package-rename",
+              "taskTitle": "Rename package to @converge/studio with workspace deps",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/01-vendor/tasks/002-package-rename",
+              "factId": "check:type-module"
+            }
+          },
+          {
+            "id": "01-vendor/002-package-rename-check-failed-install-resolves",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-vendor/002-package-rename",
+            "severity": "high",
+            "description": "[01-vendor/002-package-rename] Check failed: pnpm install resolves the new workspace",
+            "source": "unit",
+            "detected": "2026-04-26T01:26:23.504Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "install-resolves",
+              "checkCmd": "pnpm install --frozen-lockfile=false 2>&1 | tail -3 | grep -qE 'Done|+|installed' || pnpm install 2>&1 | tail -3",
+              "checkDescription": "pnpm install resolves the new workspace",
+              "checkOutput": "grep: repetition-operator operand invalid",
+              "checkExitCode": 124,
+              "taskPrompt": "Rewrite `packages/converge-studio/package.json` so the package is part of the converge workspace.\n\n**Required fields**:\n\n```jsonc\n{\n  \"name\": \"@converge/studio\",\n  \"version\": \"0.1.0\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"description\": \"Web UI for managing converge playbooks, tasks, and runs\",\n  \"scripts\": {\n    \"dev\": \"next dev -p ${PORT:-4000}\",\n    \"build\": \"next build\",\n    \"start\": \"next start -p ${PORT:-4000}\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"lint\": \"next lint\"\n  },\n  \"dependencies\": {\n    \"@converge/core\": \"workspace:*\",\n    \"@converge/project-root\": \"workspace:*\",\n    \"next\": \"^15.0.0\",\n    \"react\": \"^18.3.0\",\n    \"react-dom\": \"^18.3.0\",\n    \"chokidar\": \"^4.0.0\",\n    \"gray-matter\": \"^4.0.3\",\n    \"yaml\": \"^2.7.0\",\n    \"zod\": \"^3.24.1\",\n    \"@monaco-editor/react\": \"^4.6.0\",\n    \"uuid\": \"^11.0.3\"\n  },\n  \"devDependencies\": {\n    \"@types/node\": \"^22.0.0\",\n    \"@types/react\": \"^18.3.0\",\n    \"@types/react-dom\": \"^18.3.0\",\n    \"typescript\": \"^5.7.0\",\n    \"tailwindcss\": \"^3.4.0\",\n    \"postcss\": \"^8.4.0\",\n    \"autoprefixer\": \"^10.4.0\"\n  }\n}\n```\n\n**Merge upstream deps**: keep upstream's UI/component dependencies (Radix/shadcn/etc). **Remove** any deps tied to pruned code: `@prisma/client`, `prisma`, `next-auth`, framework SDKs (`@openclaw/*`, `crewai`, `langgraph`, `autogen`).\n\nAdjust `tsconfig.json` if needed (extends a workspace base, paths for `@converge/*`).\n\nAfter writing the file, run `pnpm install` from the repo root.\n\n**Verify**: all four manifest checks pass.",
+              "taskId": "01-vendor/002-package-rename",
+              "taskTitle": "Rename package to @converge/studio with workspace deps",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/01-vendor/tasks/002-package-rename",
+              "factId": "check:install-resolves"
+            }
+          }
+        ],
+        "durationMs": 15209
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 15144
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-vendor/002-package-rename-check-failed-install-resolves",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-vendor/002-package-rename",
+            "severity": "high",
+            "description": "[01-vendor/002-package-rename] Check failed: pnpm install resolves the new workspace",
+            "source": "unit",
+            "detected": "2026-04-26T01:28:12.601Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "install-resolves",
+              "checkCmd": "pnpm install --frozen-lockfile=false 2>&1 | tail -3 | grep -qE 'Done|+|installed' || pnpm install 2>&1 | tail -3",
+              "checkDescription": "pnpm install resolves the new workspace",
+              "checkOutput": "grep: repetition-operator operand invalid",
+              "checkExitCode": 124,
+              "taskPrompt": "Rewrite `packages/converge-studio/package.json` so the package is part of the converge workspace.\n\n**Required fields**:\n\n```jsonc\n{\n  \"name\": \"@converge/studio\",\n  \"version\": \"0.1.0\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"description\": \"Web UI for managing converge playbooks, tasks, and runs\",\n  \"scripts\": {\n    \"dev\": \"next dev -p ${PORT:-4000}\",\n    \"build\": \"next build\",\n    \"start\": \"next start -p ${PORT:-4000}\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"lint\": \"next lint\"\n  },\n  \"dependencies\": {\n    \"@converge/core\": \"workspace:*\",\n    \"@converge/project-root\": \"workspace:*\",\n    \"next\": \"^15.0.0\",\n    \"react\": \"^18.3.0\",\n    \"react-dom\": \"^18.3.0\",\n    \"chokidar\": \"^4.0.0\",\n    \"gray-matter\": \"^4.0.3\",\n    \"yaml\": \"^2.7.0\",\n    \"zod\": \"^3.24.1\",\n    \"@monaco-editor/react\": \"^4.6.0\",\n    \"uuid\": \"^11.0.3\"\n  },\n  \"devDependencies\": {\n    \"@types/node\": \"^22.0.0\",\n    \"@types/react\": \"^18.3.0\",\n    \"@types/react-dom\": \"^18.3.0\",\n    \"typescript\": \"^5.7.0\",\n    \"tailwindcss\": \"^3.4.0\",\n    \"postcss\": \"^8.4.0\",\n    \"autoprefixer\": \"^10.4.0\"\n  }\n}\n```\n\n**Merge upstream deps**: keep upstream's UI/component dependencies (Radix/shadcn/etc). **Remove** any deps tied to pruned code: `@prisma/client`, `prisma`, `next-auth`, framework SDKs (`@openclaw/*`, `crewai`, `langgraph`, `autogen`).\n\nAdjust `tsconfig.json` if needed (extends a workspace base, paths for `@converge/*`).\n\nAfter writing the file, run `pnpm install` from the repo root.\n\n**Verify**: all four manifest checks pass.",
+              "taskId": "01-vendor/002-package-rename",
+              "taskTitle": "Rename package to @converge/studio with workspace deps",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/01-vendor/tasks/002-package-rename",
+              "factId": "check:install-resolves"
+            }
+          }
+        ],
+        "durationMs": 15239
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "run-strategy:task-run#3",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 78707
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01-vendor/002-package-rename-check-failed-install-resolves",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-vendor/002-package-rename",
+            "severity": "high",
+            "description": "[01-vendor/002-package-rename] Check failed: pnpm install resolves the new workspace",
+            "source": "unit",
+            "detected": "2026-04-26T01:28:27.846Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "install-resolves",
+              "checkCmd": "pnpm install --frozen-lockfile=false 2>&1 | tail -3 | grep -qE 'Done|+|installed' || pnpm install 2>&1 | tail -3",
+              "checkDescription": "pnpm install resolves the new workspace",
+              "checkOutput": "grep: repetition-operator operand invalid",
+              "checkExitCode": 124,
+              "taskPrompt": "Rewrite `packages/converge-studio/package.json` so the package is part of the converge workspace.\n\n**Required fields**:\n\n```jsonc\n{\n  \"name\": \"@converge/studio\",\n  \"version\": \"0.1.0\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"description\": \"Web UI for managing converge playbooks, tasks, and runs\",\n  \"scripts\": {\n    \"dev\": \"next dev -p ${PORT:-4000}\",\n    \"build\": \"next build\",\n    \"start\": \"next start -p ${PORT:-4000}\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"lint\": \"next lint\"\n  },\n  \"dependencies\": {\n    \"@converge/core\": \"workspace:*\",\n    \"@converge/project-root\": \"workspace:*\",\n    \"next\": \"^15.0.0\",\n    \"react\": \"^18.3.0\",\n    \"react-dom\": \"^18.3.0\",\n    \"chokidar\": \"^4.0.0\",\n    \"gray-matter\": \"^4.0.3\",\n    \"yaml\": \"^2.7.0\",\n    \"zod\": \"^3.24.1\",\n    \"@monaco-editor/react\": \"^4.6.0\",\n    \"uuid\": \"^11.0.3\"\n  },\n  \"devDependencies\": {\n    \"@types/node\": \"^22.0.0\",\n    \"@types/react\": \"^18.3.0\",\n    \"@types/react-dom\": \"^18.3.0\",\n    \"typescript\": \"^5.7.0\",\n    \"tailwindcss\": \"^3.4.0\",\n    \"postcss\": \"^8.4.0\",\n    \"autoprefixer\": \"^10.4.0\"\n  }\n}\n```\n\n**Merge upstream deps**: keep upstream's UI/component dependencies (Radix/shadcn/etc). **Remove** any deps tied to pruned code: `@prisma/client`, `prisma`, `next-auth`, framework SDKs (`@openclaw/*`, `crewai`, `langgraph`, `autogen`).\n\nAdjust `tsconfig.json` if needed (extends a workspace base, paths for `@converge/*`).\n\nAfter writing the file, run `pnpm install` from the repo root.\n\n**Verify**: all four manifest checks pass.",
+              "taskId": "01-vendor/002-package-rename",
+              "taskTitle": "Rename package to @converge/studio with workspace deps",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/01-vendor/tasks/002-package-rename",
+              "factId": "check:install-resolves"
+            }
+          }
+        ],
+        "durationMs": 15237
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#2",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 14947
+      }
+    },
+    {
+      "id": "run-strategy:task-run#4",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 206530
+      }
+    },
+    {
+      "id": "verify#2",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 1647
+      }
+    },
+    {
+      "id": "check-stall#2",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt#2",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T01:26:08.295Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T01:26:08.295Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T01:26:23.505Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T01:26:23.506Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T01:26:38.652Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#3",
+      "iteration": 1,
+      "ts": "2026-04-26T01:27:57.361Z"
+    },
+    {
+      "from": "run-strategy:task-run#3",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T01:28:12.602Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-26T01:28:12.603Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-26T01:28:12.606Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-26T01:28:12.607Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-26T01:28:12.608Z"
+    },
+    {
+      "from": "check-outputs-exist#2",
+      "to": "detect-gaps#2",
+      "iteration": 2,
+      "ts": "2026-04-26T01:28:27.846Z"
+    },
+    {
+      "from": "detect-gaps#2",
+      "to": "repair-loop#2",
+      "iteration": 2,
+      "ts": "2026-04-26T01:28:42.794Z"
+    },
+    {
+      "from": "repair-loop#2",
+      "to": "run-strategy:task-run#4",
+      "iteration": 2,
+      "ts": "2026-04-26T01:32:09.326Z"
+    },
+    {
+      "from": "run-strategy:task-run#4",
+      "to": "verify#2",
+      "iteration": 2,
+      "ts": "2026-04-26T01:32:10.973Z"
+    }
+  ]
+}

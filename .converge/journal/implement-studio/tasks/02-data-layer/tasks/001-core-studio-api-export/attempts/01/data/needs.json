@@ -1,0 +1,10 @@
+{
+  "taskId": "02-data-layer/001-core-studio-api-export",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/core/src/studio-api.ts",
+    "packages/core/package.json"
+  ],
+  "blocked": false
+}

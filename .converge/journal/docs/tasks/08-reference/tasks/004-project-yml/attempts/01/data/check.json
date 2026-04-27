@@ -1,0 +1,20 @@
+{
+  "taskId": "08-reference/004-project-yml",
+  "checks": [
+    {
+      "id": "page-exists",
+      "description": "page exists",
+      "cmd": "test -f docs/reference/project-yml.md"
+    },
+    {
+      "id": "documents-ai-section",
+      "description": "documents the ai/providers section",
+      "cmd": "grep -qiE 'ai|provider' docs/reference/project-yml.md"
+    },
+    {
+      "id": "documents-name-description",
+      "description": "documents name and description fields",
+      "cmd": "grep -qE '`name`|^###\\s+name' docs/reference/project-yml.md && grep -qE '`description`|^###\\s+description' docs/reference/project-yml.md"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "attemptNumber": 1,
+  "startedAt": "2026-04-26T17:41:04.425Z",
+  "projectDir": "/Users/minh/Documents/converge",
+  "playbookName": "landing-page",
+  "parentTaskDir": ".converge/playbooks/landing-page/tasks/04-build-sections",
+  "journalCtx": {
+    "epicId": "landing-page",
+    "taskId": "04-build-sections"
+  },
+  "taskMeta": {
+    "id": "04-build-sections",
+    "title": "Phase 04 — Build home-page sections (WBS-driven, per-section pipeline)"
+  },
+  "vars": {},
+  "ctxMethods": [
+    "log",
+    "ai.ask",
+    "plan.getPlanPath",
+    "artifact",
+    "spawn",
+    "spawnGoal"
+  ]
+}

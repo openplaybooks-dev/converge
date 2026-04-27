@@ -1,0 +1,313 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-ui/012-cron-scheduler-missing-output-packages/converge-studio/src/app/api/playbooks/[name]/schedule",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/012-cron-scheduler",
+            "severity": "high",
+            "description": "[04-ui/012-cron-scheduler] Task output not created: packages/converge-studio/src/app/api/playbooks/[name]/schedule",
+            "source": "unit",
+            "detected": "2026-04-26T05:41:51.822Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/012-cron-scheduler",
+              "taskId": "04-ui/012-cron-scheduler",
+              "taskTitle": "Schedule playbook runs on a cron expression",
+              "taskPrompt": "Mission Control let users schedule agent tasks on cron. The converge analog is \"schedule a playbook to run on cron.\" The schedule lives in the playbook's `playbook.yml` (under a `schedule:` key — verify the existing schema in `packages/core/` before assuming the field name; if it doesn't exist, add it to the core schema first OR persist to a sibling `playbook.schedule.yml` and have the runner read it).\n\n**This task is UI + API + adapter only.** The actual cron loop runs in the converge runner / CLI, not in the studio. The studio just edits the value. (If the runner doesn't yet honor a schedule field, that's a separate task in the `converge` core repo, out of scope here — but document the dependency in the task's prose.)\n\n**Add `src/lib/converge-adapter/schedule.ts`:**\n- `readSchedule(playbook): { cron: string | null, timezone?: string, enabled: boolean }`\n- `writeSchedule(playbook, schedule): Promise<void>` — updates the playbook YAML in place, preserving the rest of the file (use the existing YAML helpers in `converge-adapter/playbooks.ts`).\n- Validate the cron expression with a single small dependency or hand-rolled regex (`croner` is good if a dep is acceptable; otherwise `node-cron`'s validator). If validation fails, throw — the API route returns 400.\n\n**Add `src/app/api/playbooks/[name]/schedule/route.ts`:**\n- `GET` returns `{ cron, timezone, enabled }`.\n- `PUT` body `{ cron, timezone?, enabled }` validates and writes.\n\n**Add `src/components/schedule-form.tsx`** (client component, ≤ 100 LOC):\n- Cron input (text), enabled toggle, optional timezone select.\n- A \"Next 5 runs\" preview rendered client-side from the cron expression (use the same library used for validation; if hand-rolled, skip this preview).\n- Save button posts to PUT.\n\n**Wire it in:** add a \"Schedule\" tab to `src/app/playbooks/[name]/page.tsx` (the playbook detail) that mounts `<ScheduleForm playbook={name} initial={...} />`. The initial value comes from the server component fetching `GET /api/playbooks/[name]/schedule`.\n\n**Verification:**\n- Set a cron of `*/5 * * * *` on the `implement-studio` playbook via the UI. Reload the page — value persists.\n- Inspect `.converge/playbooks/implement-studio/playbook.yml` — the schedule field is present.\n- Set an invalid cron (`not a cron`) — the form shows an error, no write happens.\n\n**Out of scope:** the runner side of \"actually run it on schedule.\" If the converge runner doesn't yet honor schedules, the UI still saves the field; the runner integration is tracked separately.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/app/api/playbooks/[name]/schedule\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-ui/012-cron-scheduler-missing-output-packages/converge-studio/src/components/schedule-form.tsx",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/012-cron-scheduler",
+            "severity": "high",
+            "description": "[04-ui/012-cron-scheduler] Task output not created: packages/converge-studio/src/components/schedule-form.tsx",
+            "source": "unit",
+            "detected": "2026-04-26T05:41:51.824Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/012-cron-scheduler",
+              "taskId": "04-ui/012-cron-scheduler",
+              "taskTitle": "Schedule playbook runs on a cron expression",
+              "taskPrompt": "Mission Control let users schedule agent tasks on cron. The converge analog is \"schedule a playbook to run on cron.\" The schedule lives in the playbook's `playbook.yml` (under a `schedule:` key — verify the existing schema in `packages/core/` before assuming the field name; if it doesn't exist, add it to the core schema first OR persist to a sibling `playbook.schedule.yml` and have the runner read it).\n\n**This task is UI + API + adapter only.** The actual cron loop runs in the converge runner / CLI, not in the studio. The studio just edits the value. (If the runner doesn't yet honor a schedule field, that's a separate task in the `converge` core repo, out of scope here — but document the dependency in the task's prose.)\n\n**Add `src/lib/converge-adapter/schedule.ts`:**\n- `readSchedule(playbook): { cron: string | null, timezone?: string, enabled: boolean }`\n- `writeSchedule(playbook, schedule): Promise<void>` — updates the playbook YAML in place, preserving the rest of the file (use the existing YAML helpers in `converge-adapter/playbooks.ts`).\n- Validate the cron expression with a single small dependency or hand-rolled regex (`croner` is good if a dep is acceptable; otherwise `node-cron`'s validator). If validation fails, throw — the API route returns 400.\n\n**Add `src/app/api/playbooks/[name]/schedule/route.ts`:**\n- `GET` returns `{ cron, timezone, enabled }`.\n- `PUT` body `{ cron, timezone?, enabled }` validates and writes.\n\n**Add `src/components/schedule-form.tsx`** (client component, ≤ 100 LOC):\n- Cron input (text), enabled toggle, optional timezone select.\n- A \"Next 5 runs\" preview rendered client-side from the cron expression (use the same library used for validation; if hand-rolled, skip this preview).\n- Save button posts to PUT.\n\n**Wire it in:** add a \"Schedule\" tab to `src/app/playbooks/[name]/page.tsx` (the playbook detail) that mounts `<ScheduleForm playbook={name} initial={...} />`. The initial value comes from the server component fetching `GET /api/playbooks/[name]/schedule`.\n\n**Verification:**\n- Set a cron of `*/5 * * * *` on the `implement-studio` playbook via the UI. Reload the page — value persists.\n- Inspect `.converge/playbooks/implement-studio/playbook.yml` — the schedule field is present.\n- Set an invalid cron (`not a cron`) — the form shows an error, no write happens.\n\n**Out of scope:** the runner side of \"actually run it on schedule.\" If the converge runner doesn't yet honor schedules, the UI still saves the field; the runner integration is tracked separately.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/components/schedule-form.tsx\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-ui/012-cron-scheduler-missing-output-packages/converge-studio/src/lib/converge-adapter/schedule.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/012-cron-scheduler",
+            "severity": "high",
+            "description": "[04-ui/012-cron-scheduler] Task output not created: packages/converge-studio/src/lib/converge-adapter/schedule.ts",
+            "source": "unit",
+            "detected": "2026-04-26T05:41:51.826Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/012-cron-scheduler",
+              "taskId": "04-ui/012-cron-scheduler",
+              "taskTitle": "Schedule playbook runs on a cron expression",
+              "taskPrompt": "Mission Control let users schedule agent tasks on cron. The converge analog is \"schedule a playbook to run on cron.\" The schedule lives in the playbook's `playbook.yml` (under a `schedule:` key — verify the existing schema in `packages/core/` before assuming the field name; if it doesn't exist, add it to the core schema first OR persist to a sibling `playbook.schedule.yml` and have the runner read it).\n\n**This task is UI + API + adapter only.** The actual cron loop runs in the converge runner / CLI, not in the studio. The studio just edits the value. (If the runner doesn't yet honor a schedule field, that's a separate task in the `converge` core repo, out of scope here — but document the dependency in the task's prose.)\n\n**Add `src/lib/converge-adapter/schedule.ts`:**\n- `readSchedule(playbook): { cron: string | null, timezone?: string, enabled: boolean }`\n- `writeSchedule(playbook, schedule): Promise<void>` — updates the playbook YAML in place, preserving the rest of the file (use the existing YAML helpers in `converge-adapter/playbooks.ts`).\n- Validate the cron expression with a single small dependency or hand-rolled regex (`croner` is good if a dep is acceptable; otherwise `node-cron`'s validator). If validation fails, throw — the API route returns 400.\n\n**Add `src/app/api/playbooks/[name]/schedule/route.ts`:**\n- `GET` returns `{ cron, timezone, enabled }`.\n- `PUT` body `{ cron, timezone?, enabled }` validates and writes.\n\n**Add `src/components/schedule-form.tsx`** (client component, ≤ 100 LOC):\n- Cron input (text), enabled toggle, optional timezone select.\n- A \"Next 5 runs\" preview rendered client-side from the cron expression (use the same library used for validation; if hand-rolled, skip this preview).\n- Save button posts to PUT.\n\n**Wire it in:** add a \"Schedule\" tab to `src/app/playbooks/[name]/page.tsx` (the playbook detail) that mounts `<ScheduleForm playbook={name} initial={...} />`. The initial value comes from the server component fetching `GET /api/playbooks/[name]/schedule`.\n\n**Verification:**\n- Set a cron of `*/5 * * * *` on the `implement-studio` playbook via the UI. Reload the page — value persists.\n- Inspect `.converge/playbooks/implement-studio/playbook.yml` — the schedule field is present.\n- Set an invalid cron (`not a cron`) — the form shows an error, no write happens.\n\n**Out of scope:** the runner side of \"actually run it on schedule.\" If the converge runner doesn't yet honor schedules, the UI still saves the field; the runner integration is tracked separately.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/lib/converge-adapter/schedule.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-ui/012-cron-scheduler-check-failed-schedule-api-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/012-cron-scheduler",
+            "severity": "high",
+            "description": "[04-ui/012-cron-scheduler] Check failed: Schedule API route exists (GET + PUT)",
+            "source": "unit",
+            "detected": "2026-04-26T05:41:51.828Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "schedule-api-exists",
+              "checkCmd": "test -f 'packages/converge-studio/src/app/api/playbooks/[name]/schedule/route.ts'",
+              "checkDescription": "Schedule API route exists (GET + PUT)",
+              "checkOutput": "Command failed: test -f 'packages/converge-studio/src/app/api/playbooks/[name]/schedule/route.ts'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Mission Control let users schedule agent tasks on cron. The converge analog is \"schedule a playbook to run on cron.\" The schedule lives in the playbook's `playbook.yml` (under a `schedule:` key — verify the existing schema in `packages/core/` before assuming the field name; if it doesn't exist, add it to the core schema first OR persist to a sibling `playbook.schedule.yml` and have the runner read it).\n\n**This task is UI + API + adapter only.** The actual cron loop runs in the converge runner / CLI, not in the studio. The studio just edits the value. (If the runner doesn't yet honor a schedule field, that's a separate task in the `converge` core repo, out of scope here — but document the dependency in the task's prose.)\n\n**Add `src/lib/converge-adapter/schedule.ts`:**\n- `readSchedule(playbook): { cron: string | null, timezone?: string, enabled: boolean }`\n- `writeSchedule(playbook, schedule): Promise<void>` — updates the playbook YAML in place, preserving the rest of the file (use the existing YAML helpers in `converge-adapter/playbooks.ts`).\n- Validate the cron expression with a single small dependency or hand-rolled regex (`croner` is good if a dep is acceptable; otherwise `node-cron`'s validator). If validation fails, throw — the API route returns 400.\n\n**Add `src/app/api/playbooks/[name]/schedule/route.ts`:**\n- `GET` returns `{ cron, timezone, enabled }`.\n- `PUT` body `{ cron, timezone?, enabled }` validates and writes.\n\n**Add `src/components/schedule-form.tsx`** (client component, ≤ 100 LOC):\n- Cron input (text), enabled toggle, optional timezone select.\n- A \"Next 5 runs\" preview rendered client-side from the cron expression (use the same library used for validation; if hand-rolled, skip this preview).\n- Save button posts to PUT.\n\n**Wire it in:** add a \"Schedule\" tab to `src/app/playbooks/[name]/page.tsx` (the playbook detail) that mounts `<ScheduleForm playbook={name} initial={...} />`. The initial value comes from the server component fetching `GET /api/playbooks/[name]/schedule`.\n\n**Verification:**\n- Set a cron of `*/5 * * * *` on the `implement-studio` playbook via the UI. Reload the page — value persists.\n- Inspect `.converge/playbooks/implement-studio/playbook.yml` — the schedule field is present.\n- Set an invalid cron (`not a cron`) — the form shows an error, no write happens.\n\n**Out of scope:** the runner side of \"actually run it on schedule.\" If the converge runner doesn't yet honor schedules, the UI still saves the field; the runner integration is tracked separately.",
+              "taskId": "04-ui/012-cron-scheduler",
+              "taskTitle": "Schedule playbook runs on a cron expression",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/012-cron-scheduler",
+              "factId": "check:schedule-api-exists"
+            }
+          },
+          {
+            "id": "04-ui/012-cron-scheduler-check-failed-schedule-form-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/012-cron-scheduler",
+            "severity": "high",
+            "description": "[04-ui/012-cron-scheduler] Check failed: ScheduleForm component exists",
+            "source": "unit",
+            "detected": "2026-04-26T05:41:51.830Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "schedule-form-exists",
+              "checkCmd": "test -f packages/converge-studio/src/components/schedule-form.tsx",
+              "checkDescription": "ScheduleForm component exists",
+              "checkOutput": "Command failed: test -f packages/converge-studio/src/components/schedule-form.tsx\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Mission Control let users schedule agent tasks on cron. The converge analog is \"schedule a playbook to run on cron.\" The schedule lives in the playbook's `playbook.yml` (under a `schedule:` key — verify the existing schema in `packages/core/` before assuming the field name; if it doesn't exist, add it to the core schema first OR persist to a sibling `playbook.schedule.yml` and have the runner read it).\n\n**This task is UI + API + adapter only.** The actual cron loop runs in the converge runner / CLI, not in the studio. The studio just edits the value. (If the runner doesn't yet honor a schedule field, that's a separate task in the `converge` core repo, out of scope here — but document the dependency in the task's prose.)\n\n**Add `src/lib/converge-adapter/schedule.ts`:**\n- `readSchedule(playbook): { cron: string | null, timezone?: string, enabled: boolean }`\n- `writeSchedule(playbook, schedule): Promise<void>` — updates the playbook YAML in place, preserving the rest of the file (use the existing YAML helpers in `converge-adapter/playbooks.ts`).\n- Validate the cron expression with a single small dependency or hand-rolled regex (`croner` is good if a dep is acceptable; otherwise `node-cron`'s validator). If validation fails, throw — the API route returns 400.\n\n**Add `src/app/api/playbooks/[name]/schedule/route.ts`:**\n- `GET` returns `{ cron, timezone, enabled }`.\n- `PUT` body `{ cron, timezone?, enabled }` validates and writes.\n\n**Add `src/components/schedule-form.tsx`** (client component, ≤ 100 LOC):\n- Cron input (text), enabled toggle, optional timezone select.\n- A \"Next 5 runs\" preview rendered client-side from the cron expression (use the same library used for validation; if hand-rolled, skip this preview).\n- Save button posts to PUT.\n\n**Wire it in:** add a \"Schedule\" tab to `src/app/playbooks/[name]/page.tsx` (the playbook detail) that mounts `<ScheduleForm playbook={name} initial={...} />`. The initial value comes from the server component fetching `GET /api/playbooks/[name]/schedule`.\n\n**Verification:**\n- Set a cron of `*/5 * * * *` on the `implement-studio` playbook via the UI. Reload the page — value persists.\n- Inspect `.converge/playbooks/implement-studio/playbook.yml` — the schedule field is present.\n- Set an invalid cron (`not a cron`) — the form shows an error, no write happens.\n\n**Out of scope:** the runner side of \"actually run it on schedule.\" If the converge runner doesn't yet honor schedules, the UI still saves the field; the runner integration is tracked separately.",
+              "taskId": "04-ui/012-cron-scheduler",
+              "taskTitle": "Schedule playbook runs on a cron expression",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/012-cron-scheduler",
+              "factId": "check:schedule-form-exists"
+            }
+          },
+          {
+            "id": "04-ui/012-cron-scheduler-check-failed-adapter-helper-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/012-cron-scheduler",
+            "severity": "high",
+            "description": "[04-ui/012-cron-scheduler] Check failed: schedule helper is in the adapter, not duplicated",
+            "source": "unit",
+            "detected": "2026-04-26T05:41:51.832Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "adapter-helper-exists",
+              "checkCmd": "test -f packages/converge-studio/src/lib/converge-adapter/schedule.ts && grep -q 'readSchedule\\|writeSchedule' packages/converge-studio/src/lib/converge-adapter/schedule.ts",
+              "checkDescription": "schedule helper is in the adapter, not duplicated",
+              "checkOutput": "Command failed: test -f packages/converge-studio/src/lib/converge-adapter/schedule.ts && grep -q 'readSchedule\\|writeSchedule' packages/converge-studio/src/lib/converge-adapter/schedule.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Mission Control let users schedule agent tasks on cron. The converge analog is \"schedule a playbook to run on cron.\" The schedule lives in the playbook's `playbook.yml` (under a `schedule:` key — verify the existing schema in `packages/core/` before assuming the field name; if it doesn't exist, add it to the core schema first OR persist to a sibling `playbook.schedule.yml` and have the runner read it).\n\n**This task is UI + API + adapter only.** The actual cron loop runs in the converge runner / CLI, not in the studio. The studio just edits the value. (If the runner doesn't yet honor a schedule field, that's a separate task in the `converge` core repo, out of scope here — but document the dependency in the task's prose.)\n\n**Add `src/lib/converge-adapter/schedule.ts`:**\n- `readSchedule(playbook): { cron: string | null, timezone?: string, enabled: boolean }`\n- `writeSchedule(playbook, schedule): Promise<void>` — updates the playbook YAML in place, preserving the rest of the file (use the existing YAML helpers in `converge-adapter/playbooks.ts`).\n- Validate the cron expression with a single small dependency or hand-rolled regex (`croner` is good if a dep is acceptable; otherwise `node-cron`'s validator). If validation fails, throw — the API route returns 400.\n\n**Add `src/app/api/playbooks/[name]/schedule/route.ts`:**\n- `GET` returns `{ cron, timezone, enabled }`.\n- `PUT` body `{ cron, timezone?, enabled }` validates and writes.\n\n**Add `src/components/schedule-form.tsx`** (client component, ≤ 100 LOC):\n- Cron input (text), enabled toggle, optional timezone select.\n- A \"Next 5 runs\" preview rendered client-side from the cron expression (use the same library used for validation; if hand-rolled, skip this preview).\n- Save button posts to PUT.\n\n**Wire it in:** add a \"Schedule\" tab to `src/app/playbooks/[name]/page.tsx` (the playbook detail) that mounts `<ScheduleForm playbook={name} initial={...} />`. The initial value comes from the server component fetching `GET /api/playbooks/[name]/schedule`.\n\n**Verification:**\n- Set a cron of `*/5 * * * *` on the `implement-studio` playbook via the UI. Reload the page — value persists.\n- Inspect `.converge/playbooks/implement-studio/playbook.yml` — the schedule field is present.\n- Set an invalid cron (`not a cron`) — the form shows an error, no write happens.\n\n**Out of scope:** the runner side of \"actually run it on schedule.\" If the converge runner doesn't yet honor schedules, the UI still saves the field; the runner integration is tracked separately.",
+              "taskId": "04-ui/012-cron-scheduler",
+              "taskTitle": "Schedule playbook runs on a cron expression",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/012-cron-scheduler",
+              "factId": "check:adapter-helper-exists"
+            }
+          }
+        ],
+        "durationMs": 3942
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3869
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 3898
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#7",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 152178
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T05:41:51.819Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T05:41:51.820Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T05:41:55.762Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T05:41:55.762Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T05:41:59.632Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#7",
+      "iteration": 1,
+      "ts": "2026-04-26T05:44:31.810Z"
+    },
+    {
+      "from": "run-strategy:task-run#7",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T05:44:35.708Z"
+    }
+  ]
+}

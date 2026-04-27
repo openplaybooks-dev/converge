@@ -1,0 +1,20 @@
+{
+  "taskId": "05-build-layout/005-error-pages",
+  "checks": [
+    {
+      "id": "404-exists",
+      "description": "404.astro exists",
+      "cmd": "test -f apps/landing/src/pages/404.astro"
+    },
+    {
+      "id": "404-uses-main-layout",
+      "description": "404.astro wraps content in MainLayout",
+      "cmd": "test -f apps/landing/src/pages/404.astro && grep -qE 'MainLayout' apps/landing/src/pages/404.astro"
+    },
+    {
+      "id": "404-has-home-link",
+      "description": "404 has a back-to-home link",
+      "cmd": "test -f apps/landing/src/pages/404.astro && grep -qE 'href=\"/\"' apps/landing/src/pages/404.astro"
+    }
+  ]
+}

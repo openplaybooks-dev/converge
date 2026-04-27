@@ -1,0 +1,200 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-rebind-ui/001-rebind-shell-nav-check-failed-nav-has-converge-routes",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-rebind-ui/001-rebind-shell-nav",
+            "severity": "high",
+            "description": "[03-rebind-ui/001-rebind-shell-nav] Check failed: nav-rail has /playbooks /runs /settings links",
+            "source": "unit",
+            "detected": "2026-04-26T09:41:56.371Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "nav-has-converge-routes",
+              "checkCmd": "grep -q '/playbooks' packages/studio/src/components/layout/nav-rail.tsx && grep -q '/runs' packages/studio/src/components/layout/nav-rail.tsx && grep -q '/settings' packages/studio/src/components/layout/nav-rail.tsx",
+              "checkDescription": "nav-rail has /playbooks /runs /settings links",
+              "checkOutput": "Command failed: grep -q '/playbooks' packages/studio/src/components/layout/nav-rail.tsx && grep -q '/runs' packages/studio/src/components/layout/nav-rail.tsx && grep -q '/settings' packages/studio/src/components/layout/nav-rail.tsx\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Rebind `src/components/layout/nav-rail.tsx` and `src/components/layout/header-bar.tsx`.\n\n**nav-rail.tsx:**\n- Replace nav items list with: `[{ href: '/playbooks', label: 'Playbooks' }, { href: '/runs', label: 'Runs' }, { href: '/settings', label: 'Settings' }]`\n- Remove multi-tenant org switcher; show converge project name (`path.basename(findConvergeRoot())` or env var)\n- Replace MC's live-status hook with `useConvergeEvents()` for the pulsing-dot status\n- Remove role-based filtering (converge has no auth)\n- **Keep:** collapsible sidebar, mobile bottom-sheet, all Tailwind classes, keyboard shortcuts (adapt key bindings to converge routes)\n\n**header-bar.tsx:**\n- Wire search input to `/api/search`\n- Notifications bell → link to `/runs` (no notifications domain in MVP)\n- Connection status: green dot + \"Local\" when `useConvergeEvents().connected`, red when not\n- **Keep:** layout, latency display, digital clock, theme toggle, language switcher\n- Remove imports for: gateway-config, openclaw-doctor, fleet-status, agent-runtimes",
+              "taskId": "03-rebind-ui/001-rebind-shell-nav",
+              "taskTitle": "Rebind nav-rail and header-bar to converge nav",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/03-rebind-ui/tasks/001-rebind-shell-nav",
+              "factId": "check:nav-has-converge-routes"
+            }
+          }
+        ],
+        "durationMs": 14
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 8
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 20
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#9",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 138550
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T09:41:56.360Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T09:41:56.360Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T09:41:56.374Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T09:41:56.375Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T09:41:56.383Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#9",
+      "iteration": 1,
+      "ts": "2026-04-26T09:44:14.933Z"
+    },
+    {
+      "from": "run-strategy:task-run#9",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T09:44:14.953Z"
+    }
+  ]
+}

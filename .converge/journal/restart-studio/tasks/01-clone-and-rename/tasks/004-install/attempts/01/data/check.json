@@ -1,0 +1,10 @@
+{
+  "taskId": "01-clone-and-rename/004-install",
+  "checks": [
+    {
+      "id": "install-success",
+      "description": "packages/studio has node_modules linked or symlinked",
+      "cmd": "test -e packages/studio/node_modules || test -d node_modules/@converge/studio"
+    }
+  ]
+}

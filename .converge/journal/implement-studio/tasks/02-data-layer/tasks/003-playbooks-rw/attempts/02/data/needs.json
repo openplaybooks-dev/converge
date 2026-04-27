@@ -1,0 +1,9 @@
+{
+  "taskId": "02-data-layer/003-playbooks-rw",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/src/lib/converge-adapter/playbooks.ts"
+  ],
+  "blocked": false
+}

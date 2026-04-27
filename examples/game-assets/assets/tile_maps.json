@@ -4,6 +4,29 @@
     "name": "Grassland Terrain",
     "terrain_type": "grass",
     "tile_dimensions": [16, 16],
-    "layers": ["base grass", "detail flowers", "decoration stones"]
+    "working_resolution": 128,
+    "sheet_grid": [4, 4],
+    "art_style": "ghibli_modern_indie",
+    "palette": "Vivid hand-painted greens for grass with subtle gradient highlights, warm earth browns for soil, soft pastel flowers, painterly grey-blue stones with soft rim light.",
+    "palette_constraints": "Greens for grass blades (saturated mids with brighter highlights), mid/dark browns for soil, warm yellows and pale pinks for flowers, soft grey-blue stones. NO hard 1-pixel outlines. NO chunky pixel-art aesthetic.",
+    "layers": ["base grass", "detail flowers", "decoration stones"],
+    "tile_variants": [
+      { "id": "grass-base",       "layer": "base",       "description": "Solid grass top tile, short blades, flat earth fill below the grass band." },
+      { "id": "grass-edge-left",  "layer": "base",       "description": "Grass tile with the left edge curving down to bare earth, for a left platform corner." },
+      { "id": "grass-edge-right", "layer": "base",       "description": "Grass tile with the right edge curving down to bare earth, for a right platform corner." },
+      { "id": "grass-tall",       "layer": "base",       "description": "Grass tile with taller, denser blades and a few highlight tufts." },
+      { "id": "earth-fill",       "layer": "base",       "description": "Plain packed-earth fill tile for under-grass terrain interior." },
+      { "id": "earth-rocky",      "layer": "base",       "description": "Packed-earth fill tile with embedded small pebbles and cracks." },
+      { "id": "flower-yellow",    "layer": "detail",     "description": "Single yellow daisy on grass, four petals, dark green stem." },
+      { "id": "flower-pink",      "layer": "detail",     "description": "Cluster of three small pink wildflowers on grass, simple blob heads." },
+      { "id": "flower-white",     "layer": "detail",     "description": "Single white five-petal flower with yellow center on grass." },
+      { "id": "weed-clump",       "layer": "detail",     "description": "Small clump of taller weeds on grass, three blades fanning outward." },
+      { "id": "stone-small",      "layer": "decoration", "description": "Small grey stone resting on grass, rounded, single highlight on top-left." },
+      { "id": "stone-pair",       "layer": "decoration", "description": "Two small grey stones on grass, one slightly larger than the other." },
+      { "id": "stone-large",      "layer": "decoration", "description": "Larger grey boulder on grass, occupying the center of the tile." },
+      { "id": "log-mossy",        "layer": "decoration", "description": "Short fallen log lying horizontally on grass, mossy patches on top." },
+      { "id": "mushroom-red",     "layer": "decoration", "description": "Single red mushroom with white spots on grass." },
+      { "id": "filler-grass",     "layer": "decoration", "description": "Plain grass tile identical to grass-base, used to pad the sheet to 16 cells." }
+    ]
   }
 ]

@@ -1,0 +1,275 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "06-integrate-docs/002-sidebar-from-ia-missing-output-apps/landing/src/content.config.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-integrate-docs/002-sidebar-from-ia",
+            "severity": "high",
+            "description": "[06-integrate-docs/002-sidebar-from-ia] Task output not created: apps/landing/src/content.config.ts",
+            "source": "unit",
+            "detected": "2026-04-26T19:39:32.718Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/06-integrate-docs/tasks/002-sidebar-from-ia",
+              "taskId": "06-integrate-docs/002-sidebar-from-ia",
+              "taskTitle": "Build Starlight sidebar from docs/_ia.json + configure docsLoader to read docs/",
+              "taskPrompt": "# Sidebar from IA + docsLoader from docs/\n\nTwo changes, both about pointing Starlight at the repo's `docs/` directory.\n\n## Change 1: `apps/landing/src/content.config.ts`\n\n```ts\n// apps/landing/src/content.config.ts\nimport { defineCollection } from 'astro:content';\nimport { docsLoader } from '@astrojs/starlight/loaders';\nimport { docsSchema } from '@astrojs/starlight/schema';\n\nexport const collections = {\n  docs: defineCollection({\n    loader: docsLoader({\n      // Load from the repo's docs/ directory at the workspace root.\n      // Skip _internal/ (archive) and _*.json (data files).\n      base: '../../docs',\n      pattern: '**/*.{md,mdx}',\n      // (docsLoader's pattern auto-skips files starting with _)\n    }),\n    schema: docsSchema(),\n  }),\n};\n```\n\nThe `base: '../../docs'` is relative to `apps/landing/` (which is two\nlevels under the repo root: `apps/landing/` → `apps/` → repo root → `docs/`).\n\n## Change 2: `apps/landing/astro.config.mjs` — sidebar from `docs/_ia.json`\n\n```js\n// apps/landing/astro.config.mjs\nimport { defineConfig } from 'astro/config';\nimport { readFileSync } from 'node:fs';\n// ... other imports\n\nconst ia = JSON.parse(readFileSync(new URL('../../docs/_ia.json', import.meta.url), 'utf-8'));\n\nconst sidebar = ia.groups.map((group) => ({\n  label: group.label,\n  items: group.pages.map((p) => ({\n    label: p.title ?? p.slug,\n    slug: p.slug,\n  })),\n}));\n\nexport default defineConfig({\n  // ... site, output, adapter\n  integrations: [\n    mdx(),\n    sitemap(),\n    starlight({\n      title: 'Converge',\n      sidebar,\n      social: { github: 'https://github.com/myanlabs/converge' },\n      pagefind: true,\n    }),\n  ],\n  // ...\n});\n```\n\n## Process\n\n1. Write `src/content.config.ts` with the docsLoader pointing at `../../docs`.\n2. Update `astro.config.mjs` to read `_ia.json` and pass the converted sidebar.\n3. Run `pnpm --filter @converge/landing build`. Verify pages exist at `dist/docs/getting-started/why-converge/index.html` etc.\n\n## Banned\n\n- Copying `docs/` into `apps/landing/`. Starlight reads from the repo-root docs directly. Copying re-introduces the v1 \"what's the source of truth\" problem.\n- Editing `docs/_ia.json` from this playbook. It's owned by the `docs` playbook — read-only here.\n- Hardcoding the sidebar shape. If `_ia.json` adds a group, this should pick it up automatically on the next build.",
+              "taskInputs": [
+                "docs/_ia.json",
+                "docs"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/src/content.config.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "06-integrate-docs/002-sidebar-from-ia-check-failed-content-config-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-integrate-docs/002-sidebar-from-ia",
+            "severity": "high",
+            "description": "[06-integrate-docs/002-sidebar-from-ia] Check failed: src/content.config.ts exists",
+            "source": "unit",
+            "detected": "2026-04-26T19:39:32.722Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "content-config-exists",
+              "checkCmd": "test -f apps/landing/src/content.config.ts",
+              "checkDescription": "src/content.config.ts exists",
+              "checkOutput": "Command failed: test -f apps/landing/src/content.config.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Sidebar from IA + docsLoader from docs/\n\nTwo changes, both about pointing Starlight at the repo's `docs/` directory.\n\n## Change 1: `apps/landing/src/content.config.ts`\n\n```ts\n// apps/landing/src/content.config.ts\nimport { defineCollection } from 'astro:content';\nimport { docsLoader } from '@astrojs/starlight/loaders';\nimport { docsSchema } from '@astrojs/starlight/schema';\n\nexport const collections = {\n  docs: defineCollection({\n    loader: docsLoader({\n      // Load from the repo's docs/ directory at the workspace root.\n      // Skip _internal/ (archive) and _*.json (data files).\n      base: '../../docs',\n      pattern: '**/*.{md,mdx}',\n      // (docsLoader's pattern auto-skips files starting with _)\n    }),\n    schema: docsSchema(),\n  }),\n};\n```\n\nThe `base: '../../docs'` is relative to `apps/landing/` (which is two\nlevels under the repo root: `apps/landing/` → `apps/` → repo root → `docs/`).\n\n## Change 2: `apps/landing/astro.config.mjs` — sidebar from `docs/_ia.json`\n\n```js\n// apps/landing/astro.config.mjs\nimport { defineConfig } from 'astro/config';\nimport { readFileSync } from 'node:fs';\n// ... other imports\n\nconst ia = JSON.parse(readFileSync(new URL('../../docs/_ia.json', import.meta.url), 'utf-8'));\n\nconst sidebar = ia.groups.map((group) => ({\n  label: group.label,\n  items: group.pages.map((p) => ({\n    label: p.title ?? p.slug,\n    slug: p.slug,\n  })),\n}));\n\nexport default defineConfig({\n  // ... site, output, adapter\n  integrations: [\n    mdx(),\n    sitemap(),\n    starlight({\n      title: 'Converge',\n      sidebar,\n      social: { github: 'https://github.com/myanlabs/converge' },\n      pagefind: true,\n    }),\n  ],\n  // ...\n});\n```\n\n## Process\n\n1. Write `src/content.config.ts` with the docsLoader pointing at `../../docs`.\n2. Update `astro.config.mjs` to read `_ia.json` and pass the converted sidebar.\n3. Run `pnpm --filter @converge/landing build`. Verify pages exist at `dist/docs/getting-started/why-converge/index.html` etc.\n\n## Banned\n\n- Copying `docs/` into `apps/landing/`. Starlight reads from the repo-root docs directly. Copying re-introduces the v1 \"what's the source of truth\" problem.\n- Editing `docs/_ia.json` from this playbook. It's owned by the `docs` playbook — read-only here.\n- Hardcoding the sidebar shape. If `_ia.json` adds a group, this should pick it up automatically on the next build.",
+              "taskId": "06-integrate-docs/002-sidebar-from-ia",
+              "taskTitle": "Build Starlight sidebar from docs/_ia.json + configure docsLoader to read docs/",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/06-integrate-docs/tasks/002-sidebar-from-ia",
+              "factId": "check:content-config-exists"
+            }
+          },
+          {
+            "id": "06-integrate-docs/002-sidebar-from-ia-check-failed-docs-loader-configured",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-integrate-docs/002-sidebar-from-ia",
+            "severity": "high",
+            "description": "[06-integrate-docs/002-sidebar-from-ia] Check failed: content.config.ts uses docsLoader from Starlight",
+            "source": "unit",
+            "detected": "2026-04-26T19:39:32.724Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "docs-loader-configured",
+              "checkCmd": "test -f apps/landing/src/content.config.ts && grep -qE 'docsLoader|docsSchema' apps/landing/src/content.config.ts",
+              "checkDescription": "content.config.ts uses docsLoader from Starlight",
+              "checkOutput": "Command failed: test -f apps/landing/src/content.config.ts && grep -qE 'docsLoader|docsSchema' apps/landing/src/content.config.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Sidebar from IA + docsLoader from docs/\n\nTwo changes, both about pointing Starlight at the repo's `docs/` directory.\n\n## Change 1: `apps/landing/src/content.config.ts`\n\n```ts\n// apps/landing/src/content.config.ts\nimport { defineCollection } from 'astro:content';\nimport { docsLoader } from '@astrojs/starlight/loaders';\nimport { docsSchema } from '@astrojs/starlight/schema';\n\nexport const collections = {\n  docs: defineCollection({\n    loader: docsLoader({\n      // Load from the repo's docs/ directory at the workspace root.\n      // Skip _internal/ (archive) and _*.json (data files).\n      base: '../../docs',\n      pattern: '**/*.{md,mdx}',\n      // (docsLoader's pattern auto-skips files starting with _)\n    }),\n    schema: docsSchema(),\n  }),\n};\n```\n\nThe `base: '../../docs'` is relative to `apps/landing/` (which is two\nlevels under the repo root: `apps/landing/` → `apps/` → repo root → `docs/`).\n\n## Change 2: `apps/landing/astro.config.mjs` — sidebar from `docs/_ia.json`\n\n```js\n// apps/landing/astro.config.mjs\nimport { defineConfig } from 'astro/config';\nimport { readFileSync } from 'node:fs';\n// ... other imports\n\nconst ia = JSON.parse(readFileSync(new URL('../../docs/_ia.json', import.meta.url), 'utf-8'));\n\nconst sidebar = ia.groups.map((group) => ({\n  label: group.label,\n  items: group.pages.map((p) => ({\n    label: p.title ?? p.slug,\n    slug: p.slug,\n  })),\n}));\n\nexport default defineConfig({\n  // ... site, output, adapter\n  integrations: [\n    mdx(),\n    sitemap(),\n    starlight({\n      title: 'Converge',\n      sidebar,\n      social: { github: 'https://github.com/myanlabs/converge' },\n      pagefind: true,\n    }),\n  ],\n  // ...\n});\n```\n\n## Process\n\n1. Write `src/content.config.ts` with the docsLoader pointing at `../../docs`.\n2. Update `astro.config.mjs` to read `_ia.json` and pass the converted sidebar.\n3. Run `pnpm --filter @converge/landing build`. Verify pages exist at `dist/docs/getting-started/why-converge/index.html` etc.\n\n## Banned\n\n- Copying `docs/` into `apps/landing/`. Starlight reads from the repo-root docs directly. Copying re-introduces the v1 \"what's the source of truth\" problem.\n- Editing `docs/_ia.json` from this playbook. It's owned by the `docs` playbook — read-only here.\n- Hardcoding the sidebar shape. If `_ia.json` adds a group, this should pick it up automatically on the next build.",
+              "taskId": "06-integrate-docs/002-sidebar-from-ia",
+              "taskTitle": "Build Starlight sidebar from docs/_ia.json + configure docsLoader to read docs/",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/06-integrate-docs/tasks/002-sidebar-from-ia",
+              "factId": "check:docs-loader-configured"
+            }
+          },
+          {
+            "id": "06-integrate-docs/002-sidebar-from-ia-check-failed-sidebar-references-ia",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-integrate-docs/002-sidebar-from-ia",
+            "severity": "high",
+            "description": "[06-integrate-docs/002-sidebar-from-ia] Check failed: astro.config.mjs imports/reads docs/_ia.json",
+            "source": "unit",
+            "detected": "2026-04-26T19:39:32.727Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "sidebar-references-ia",
+              "checkCmd": "test -f apps/landing/astro.config.mjs && grep -qE 'docs/_ia\\.json|_ia\\.json' apps/landing/astro.config.mjs",
+              "checkDescription": "astro.config.mjs imports/reads docs/_ia.json",
+              "checkOutput": "Command failed: test -f apps/landing/astro.config.mjs && grep -qE 'docs/_ia\\.json|_ia\\.json' apps/landing/astro.config.mjs\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Sidebar from IA + docsLoader from docs/\n\nTwo changes, both about pointing Starlight at the repo's `docs/` directory.\n\n## Change 1: `apps/landing/src/content.config.ts`\n\n```ts\n// apps/landing/src/content.config.ts\nimport { defineCollection } from 'astro:content';\nimport { docsLoader } from '@astrojs/starlight/loaders';\nimport { docsSchema } from '@astrojs/starlight/schema';\n\nexport const collections = {\n  docs: defineCollection({\n    loader: docsLoader({\n      // Load from the repo's docs/ directory at the workspace root.\n      // Skip _internal/ (archive) and _*.json (data files).\n      base: '../../docs',\n      pattern: '**/*.{md,mdx}',\n      // (docsLoader's pattern auto-skips files starting with _)\n    }),\n    schema: docsSchema(),\n  }),\n};\n```\n\nThe `base: '../../docs'` is relative to `apps/landing/` (which is two\nlevels under the repo root: `apps/landing/` → `apps/` → repo root → `docs/`).\n\n## Change 2: `apps/landing/astro.config.mjs` — sidebar from `docs/_ia.json`\n\n```js\n// apps/landing/astro.config.mjs\nimport { defineConfig } from 'astro/config';\nimport { readFileSync } from 'node:fs';\n// ... other imports\n\nconst ia = JSON.parse(readFileSync(new URL('../../docs/_ia.json', import.meta.url), 'utf-8'));\n\nconst sidebar = ia.groups.map((group) => ({\n  label: group.label,\n  items: group.pages.map((p) => ({\n    label: p.title ?? p.slug,\n    slug: p.slug,\n  })),\n}));\n\nexport default defineConfig({\n  // ... site, output, adapter\n  integrations: [\n    mdx(),\n    sitemap(),\n    starlight({\n      title: 'Converge',\n      sidebar,\n      social: { github: 'https://github.com/myanlabs/converge' },\n      pagefind: true,\n    }),\n  ],\n  // ...\n});\n```\n\n## Process\n\n1. Write `src/content.config.ts` with the docsLoader pointing at `../../docs`.\n2. Update `astro.config.mjs` to read `_ia.json` and pass the converted sidebar.\n3. Run `pnpm --filter @converge/landing build`. Verify pages exist at `dist/docs/getting-started/why-converge/index.html` etc.\n\n## Banned\n\n- Copying `docs/` into `apps/landing/`. Starlight reads from the repo-root docs directly. Copying re-introduces the v1 \"what's the source of truth\" problem.\n- Editing `docs/_ia.json` from this playbook. It's owned by the `docs` playbook — read-only here.\n- Hardcoding the sidebar shape. If `_ia.json` adds a group, this should pick it up automatically on the next build.",
+              "taskId": "06-integrate-docs/002-sidebar-from-ia",
+              "taskTitle": "Build Starlight sidebar from docs/_ia.json + configure docsLoader to read docs/",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/06-integrate-docs/tasks/002-sidebar-from-ia",
+              "factId": "check:sidebar-references-ia"
+            }
+          }
+        ],
+        "durationMs": 18
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 11
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 82
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#89",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 28928
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T19:39:32.708Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T19:39:32.709Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T19:39:32.728Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T19:39:32.728Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T19:39:32.739Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#89",
+      "iteration": 1,
+      "ts": "2026-04-26T19:40:01.667Z"
+    },
+    {
+      "from": "run-strategy:task-run#89",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T19:40:01.751Z"
+    }
+  ]
+}

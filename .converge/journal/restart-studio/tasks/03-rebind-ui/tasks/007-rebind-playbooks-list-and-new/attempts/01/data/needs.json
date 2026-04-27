@@ -1,0 +1,10 @@
+{
+  "taskId": "03-rebind-ui/007-rebind-playbooks-list-and-new",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/studio/src/app/playbooks/page.tsx",
+    "packages/studio/src/app/playbooks/new/page.tsx"
+  ],
+  "blocked": false
+}

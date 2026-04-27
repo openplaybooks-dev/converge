@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://converge.dev/sitemap-index.xml

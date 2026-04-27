@@ -1,0 +1,31 @@
+{
+  "type": "task",
+  "id": "07-troubleshooting/001-troubleshooting-index",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T15:43:55.603Z",
+  "createdAt": "2026-04-26T07:56:18.124Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T07:56:18.124Z",
+      "completedAt": "2026-04-26T07:56:18.124Z",
+      "outcome": "failed",
+      "durationMs": 0
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-26T07:56:18.207Z",
+      "completedAt": "2026-04-26T07:57:53.349Z",
+      "outcome": "success",
+      "durationMs": 95142
+    },
+    {
+      "attempt": 3,
+      "startedAt": "2026-04-26T09:48:50.672Z",
+      "completedAt": "2026-04-26T09:48:50.990Z",
+      "outcome": "success",
+      "durationMs": 318
+    }
+  ],
+  "currentAttempt": 3
+}

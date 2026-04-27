@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-verify/002-final-build",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T10:22:04.384Z",
+  "createdAt": "2026-04-26T10:20:39.798Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T10:20:39.798Z",
+      "completedAt": "2026-04-26T10:22:04.378Z",
+      "outcome": "success",
+      "durationMs": 84580
+    }
+  ],
+  "currentAttempt": 1
+}

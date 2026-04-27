@@ -1,0 +1,40 @@
+{
+  "taskId": "04-ui/001-prune-mc-pages",
+  "checks": [
+    {
+      "id": "legacy-catchall-removed",
+      "description": "The [[...panel]] catch-all dashboard route is gone",
+      "cmd": "test ! -d 'packages/converge-studio/src/app/[[...panel]]'"
+    },
+    {
+      "id": "agent-pages-removed",
+      "description": "Agent registry / orgs / users / rbac pages removed",
+      "cmd": "test -z \"$(find packages/converge-studio/src/app -type d \\( -iname 'agents' -o -iname 'agent-registry' -o -iname 'orgs' -o -iname 'users' -o -iname 'rbac' \\) 2>/dev/null)\""
+    },
+    {
+      "id": "dashboard-panels-removed",
+      "description": "Mission Control dashboard widgets and panels removed",
+      "cmd": "test ! -d 'packages/converge-studio/src/components/dashboard' && test ! -d 'packages/converge-studio/src/components/panels' && test ! -d 'packages/converge-studio/src/components/onboarding' && test ! -d 'packages/converge-studio/src/components/modals'"
+    },
+    {
+      "id": "gateway-libs-removed",
+      "description": "Gateway/websocket/device-identity lib modules removed",
+      "cmd": "test ! -f 'packages/converge-studio/src/lib/websocket.ts' && test ! -f 'packages/converge-studio/src/lib/device-identity.ts' && test ! -f 'packages/converge-studio/src/lib/plugins.ts'"
+    },
+    {
+      "id": "gateway-api-removed",
+      "description": "Gateway/openclaw/onboarding/projects API routes removed",
+      "cmd": "test ! -d 'packages/converge-studio/src/app/api/gateways' && test ! -d 'packages/converge-studio/src/app/api/openclaw' && test ! -d 'packages/converge-studio/src/app/api/onboarding' && test ! -d 'packages/converge-studio/src/app/api/projects'"
+    },
+    {
+      "id": "no-mission-control-literal",
+      "description": "The string 'Mission Control' does not appear in src/ or messages/ (LICENSE.upstream and NOTICE may keep it)",
+      "cmd": "test -z \"$(grep -ril 'mission control' packages/converge-studio/src packages/converge-studio/messages 2>/dev/null)\""
+    },
+    {
+      "id": "build-or-typecheck-passes",
+      "description": "Studio still typechecks after deletions",
+      "cmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    }
+  ]
+}

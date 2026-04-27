@@ -1,0 +1,29 @@
+# Task Journal: 06-wiring/004-route-validation
+
+## Current attempt — `attempts/01/`
+
+| File | Purpose |
+|------|---------|
+| `NEEDS.md` | Needs spec (inputs, outputs, checks defined) |
+| `NEEDS.result.md` | Input evaluation (files found, blocked/ready) |
+| `TASK.md` | Task instructions for the AI |
+| `CHECK.md` | Check spec (ids, commands) |
+| `CHECK.result.md` | Check outcomes after execution (pass/fail, output state) |
+| `LEARN.md` | Failure analysis from previous attempt (attempt 2+) |
+| `data/needs.json` | Machine-readable needs (inputs, outputs, blocked state) |
+| `data/check.json` | Machine-readable check definitions |
+| `data/facts.json` | Facts collected during execution |
+
+## How to run / resume
+
+```bash
+pnpm converge run --step   # run next pending task
+pnpm converge run          # run all remaining tasks
+```
+
+## Verify checks manually
+
+```bash
+  bash -c 'bad=$(find packages/converge-studio/src/app -type d 2>/dev/null | awk -F/ "{ for (i=1;i<NF;i++) if (\$i ~ /^\\[\\.\\.\\./ && \$(i+1) !~ /^\\[/) { print; next } }"); test -z "$bad"'
+  bash -c 'cd packages/converge-studio && (pnpm dev > /tmp/converge-studio-routes.log 2>&1 &); pid=$!; ok=0; for i in $(seq 1 30); do sleep 1; code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4000/ || echo 000); if [ "$code" = "200" ]; then ok=1; break; fi; done; if [ $ok -eq 0 ]; then kill $pid 2>/dev/null; cat /tmp/converge-studio-routes.log; exit 1; fi; for path in /playbooks/implement-studio /runs /api/playbooks; do code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4000$path); if [ "$code" != "200" ]; then kill $pid 2>/dev/null; echo "FAIL $path -> $code"; exit 1; fi; done; sse=$(curl -s --max-time 2 -o /tmp/converge-sse.out -w "%{http_code}" http://localhost:4000/api/events || true); if [ "$sse" != "200" ] && [ "$sse" != "000" ]; then kill $pid 2>/dev/null; echo "FAIL /api/events -> $sse"; exit 1; fi; kill $pid 2>/dev/null; exit 0'
+```

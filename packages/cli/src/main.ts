@@ -35,6 +35,7 @@ import {
 } from "./commands-inspect.ts";
 import { journalCommand } from "./commands-journal.ts";
 import { migrateCommand } from "./commands-migrate.ts";
+import { studioCommand } from "./commands-studio.ts";
 import { JournalCleanup } from "@converge/core/checkpoint/cleanup.ts";
 import {
   initCommand,
@@ -637,7 +638,6 @@ async function main(): Promise<void> {
               dir: searchDir,
               plugins: pb.def.run?.mode ? undefined : undefined,
               runtime: {
-                maxIterations: pb.def.run?.maxIterations,
                 milestone: (pb.def.run as any)?.milestone,
               },
               skills:
@@ -741,8 +741,6 @@ async function main(): Promise<void> {
             "preflight",
             "analyze",
             "add",
-            "max-iterations",
-            "maxIterations",
             "max-duration",
             "maxDuration",
             "check-interval",
@@ -751,6 +749,8 @@ async function main(): Promise<void> {
             "autoFix",
             "self-plan",
             "selfPlan",
+            "skip-check-lint",
+            "skipCheckLint",
           ]);
           const vars: Record<string, string> = {};
           for (const [key, value] of Object.entries(options)) {
@@ -839,9 +839,6 @@ async function main(): Promise<void> {
             const dur = parseDuration(durOpt);
             if (dur !== undefined) cliOverrides.maxDuration = dur;
           }
-          const iterOpt = options["max-iterations"] || options.maxIterations;
-          if (iterOpt !== undefined)
-            cliOverrides.maxIterations = Number(iterOpt);
           if (options.resume !== undefined)
             cliOverrides.resume = Boolean(options.resume);
 
@@ -878,11 +875,6 @@ async function main(): Promise<void> {
             stall: playbookRunCfg?.stall,
             wbs: options.wbs || false,
             inc: options.inc || false,
-            maxIterations:
-              options["max-iterations"] ||
-              options.maxIterations ||
-              playbookRunCfg?.maxIterations ||
-              convergeConfig?.runtime?.maxIterations,
             maxDuration:
               options["max-duration"] ||
               options.maxDuration ||
@@ -890,6 +882,8 @@ async function main(): Promise<void> {
             checkInterval: options["check-interval"] || options.checkInterval,
             autoFix: options["auto-fix"] ?? options.autoFix ?? true,
             selfPlan: options["self-plan"] ?? options.selfPlan ?? true,
+            skipCheckLint:
+              options["skip-check-lint"] || options.skipCheckLint || false,
             verbose: options.verbose || options.v,
             convergeConfig,
             hookRegistry,
@@ -1208,7 +1202,6 @@ async function main(): Promise<void> {
             name: "plan",
             description: `Generate playbook: ${prompt}`,
             dir: planSearchDir,
-            runtime: { maxIterations: 10 },
           };
           console.log(`\n📋 Plan: ${planName}`);
         }
@@ -1239,7 +1232,6 @@ async function main(): Promise<void> {
               "",
               "run:",
               "  mode: oneoff",
-              "  maxIterations: 10",
               "  maxTaskAttempts: 3",
               "  resume: true",
             ].join("\n"),
@@ -1273,7 +1265,6 @@ async function main(): Promise<void> {
             unblock: false,
             wbs: false,
             inc: false,
-            maxIterations: 10,
             maxDuration: options["max-duration"] || options.maxDuration,
             checkInterval: options["check-interval"] || options.checkInterval,
             autoFix: true,
@@ -1531,7 +1522,6 @@ async function main(): Promise<void> {
           unblock: false,
           wbs: false,
           inc: false,
-          maxIterations: options["max-iterations"] || options.maxIterations || 500,
           maxDuration: options["max-duration"] || options.maxDuration,
           checkInterval: options["check-interval"] || options.checkInterval,
           autoFix: false,
@@ -1577,7 +1567,6 @@ async function main(): Promise<void> {
           unblock: false,
           wbs: false,
           inc: false,
-          maxIterations: options["max-iterations"] || options.maxIterations || 500,
           maxDuration: options["max-duration"] || options.maxDuration,
           checkInterval: options["check-interval"] || options.checkInterval,
           autoFix: false,
@@ -1586,6 +1575,18 @@ async function main(): Promise<void> {
         });
 
         clearPlaybookScope();
+        break;
+      }
+
+      case "studio": {
+        await studioCommand(
+          {
+            dev: !!options.dev,
+            port: options.port ? Number(options.port) : undefined,
+            host: options.host as string | undefined,
+          },
+          options.verbose || options.v,
+        );
         break;
       }
 

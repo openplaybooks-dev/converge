@@ -1,0 +1,297 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "09-polish/003-image-opt-missing-output-apps/landing/src/components/ui/Image.astro",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-polish/003-image-opt",
+            "severity": "high",
+            "description": "[09-polish/003-image-opt] Task output not created: apps/landing/src/components/ui/Image.astro",
+            "source": "unit",
+            "detected": "2026-04-26T20:21:44.376Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/09-polish/tasks/003-image-opt",
+              "taskId": "09-polish/003-image-opt",
+              "taskTitle": "Image.astro wrapper — AVIF/WebP, lazy, explicit dimensions",
+              "taskPrompt": "# Image wrapper\n\nWrap Astro's built-in `<Image>` so every image in the site gets optimal\ndefaults: modern format (AVIF / WebP), lazy loading, explicit dimensions\n(prevents CLS).\n\n## File\n\n```astro\n---\n// apps/landing/src/components/ui/Image.astro\nimport { Image as AstroImage } from 'astro:assets';\nimport type { ImageMetadata } from 'astro';\n\ninterface Props {\n  src:   ImageMetadata | string;\n  alt:   string;             /* required — empty string allowed for decorative */\n  width: number;\n  height: number;\n  /** 'avif' (smaller, slower decode) or 'webp' (broader support) */\n  format?: 'avif' | 'webp';\n  /** 'eager' for above-the-fold images (hero), default 'lazy' */\n  loading?: 'eager' | 'lazy';\n  class?: string;\n}\n\nconst { src, alt, width, height, format = 'avif', loading = 'lazy', class: className } = Astro.props;\n---\n\n<AstroImage\n  src={src}\n  alt={alt}\n  width={width}\n  height={height}\n  format={format}\n  loading={loading}\n  decoding=\"async\"\n  class={className}\n/>\n```\n\n## Banned\n\n- Plain `<img>` tags anywhere except `Header.astro` (small SVG icon doesn't need optimization). Always use `<Image>`.\n- Omitting `width` / `height`. Without explicit dimensions, the image causes layout shift when it loads.\n- `loading=\"eager\"` for anything below the fold. Below-the-fold images should be lazy by default.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"apps/landing/src/components/ui/Image.astro\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "09-polish/003-image-opt-check-failed-image-component-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-polish/003-image-opt",
+            "severity": "high",
+            "description": "[09-polish/003-image-opt] Check failed: Image.astro exists",
+            "source": "unit",
+            "detected": "2026-04-26T20:21:44.379Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "image-component-exists",
+              "checkCmd": "test -f apps/landing/src/components/ui/Image.astro",
+              "checkDescription": "Image.astro exists",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/ui/Image.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Image wrapper\n\nWrap Astro's built-in `<Image>` so every image in the site gets optimal\ndefaults: modern format (AVIF / WebP), lazy loading, explicit dimensions\n(prevents CLS).\n\n## File\n\n```astro\n---\n// apps/landing/src/components/ui/Image.astro\nimport { Image as AstroImage } from 'astro:assets';\nimport type { ImageMetadata } from 'astro';\n\ninterface Props {\n  src:   ImageMetadata | string;\n  alt:   string;             /* required — empty string allowed for decorative */\n  width: number;\n  height: number;\n  /** 'avif' (smaller, slower decode) or 'webp' (broader support) */\n  format?: 'avif' | 'webp';\n  /** 'eager' for above-the-fold images (hero), default 'lazy' */\n  loading?: 'eager' | 'lazy';\n  class?: string;\n}\n\nconst { src, alt, width, height, format = 'avif', loading = 'lazy', class: className } = Astro.props;\n---\n\n<AstroImage\n  src={src}\n  alt={alt}\n  width={width}\n  height={height}\n  format={format}\n  loading={loading}\n  decoding=\"async\"\n  class={className}\n/>\n```\n\n## Banned\n\n- Plain `<img>` tags anywhere except `Header.astro` (small SVG icon doesn't need optimization). Always use `<Image>`.\n- Omitting `width` / `height`. Without explicit dimensions, the image causes layout shift when it loads.\n- `loading=\"eager\"` for anything below the fold. Below-the-fold images should be lazy by default.",
+              "taskId": "09-polish/003-image-opt",
+              "taskTitle": "Image.astro wrapper — AVIF/WebP, lazy, explicit dimensions",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/09-polish/tasks/003-image-opt",
+              "factId": "check:image-component-exists"
+            }
+          },
+          {
+            "id": "09-polish/003-image-opt-check-failed-image-uses-astro-assets",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-polish/003-image-opt",
+            "severity": "high",
+            "description": "[09-polish/003-image-opt] Check failed: uses astro:assets Image component",
+            "source": "unit",
+            "detected": "2026-04-26T20:21:44.381Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "image-uses-astro-assets",
+              "checkCmd": "test -f apps/landing/src/components/ui/Image.astro && grep -qE 'astro:assets' apps/landing/src/components/ui/Image.astro",
+              "checkDescription": "uses astro:assets Image component",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/ui/Image.astro && grep -qE 'astro:assets' apps/landing/src/components/ui/Image.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Image wrapper\n\nWrap Astro's built-in `<Image>` so every image in the site gets optimal\ndefaults: modern format (AVIF / WebP), lazy loading, explicit dimensions\n(prevents CLS).\n\n## File\n\n```astro\n---\n// apps/landing/src/components/ui/Image.astro\nimport { Image as AstroImage } from 'astro:assets';\nimport type { ImageMetadata } from 'astro';\n\ninterface Props {\n  src:   ImageMetadata | string;\n  alt:   string;             /* required — empty string allowed for decorative */\n  width: number;\n  height: number;\n  /** 'avif' (smaller, slower decode) or 'webp' (broader support) */\n  format?: 'avif' | 'webp';\n  /** 'eager' for above-the-fold images (hero), default 'lazy' */\n  loading?: 'eager' | 'lazy';\n  class?: string;\n}\n\nconst { src, alt, width, height, format = 'avif', loading = 'lazy', class: className } = Astro.props;\n---\n\n<AstroImage\n  src={src}\n  alt={alt}\n  width={width}\n  height={height}\n  format={format}\n  loading={loading}\n  decoding=\"async\"\n  class={className}\n/>\n```\n\n## Banned\n\n- Plain `<img>` tags anywhere except `Header.astro` (small SVG icon doesn't need optimization). Always use `<Image>`.\n- Omitting `width` / `height`. Without explicit dimensions, the image causes layout shift when it loads.\n- `loading=\"eager\"` for anything below the fold. Below-the-fold images should be lazy by default.",
+              "taskId": "09-polish/003-image-opt",
+              "taskTitle": "Image.astro wrapper — AVIF/WebP, lazy, explicit dimensions",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/09-polish/tasks/003-image-opt",
+              "factId": "check:image-uses-astro-assets"
+            }
+          },
+          {
+            "id": "09-polish/003-image-opt-check-failed-image-defaults-to-avif-or-webp",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-polish/003-image-opt",
+            "severity": "high",
+            "description": "[09-polish/003-image-opt] Check failed: defaults format to avif or webp",
+            "source": "unit",
+            "detected": "2026-04-26T20:21:44.383Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "image-defaults-to-avif-or-webp",
+              "checkCmd": "test -f apps/landing/src/components/ui/Image.astro && grep -qE 'avif|webp' apps/landing/src/components/ui/Image.astro",
+              "checkDescription": "defaults format to avif or webp",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/ui/Image.astro && grep -qE 'avif|webp' apps/landing/src/components/ui/Image.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Image wrapper\n\nWrap Astro's built-in `<Image>` so every image in the site gets optimal\ndefaults: modern format (AVIF / WebP), lazy loading, explicit dimensions\n(prevents CLS).\n\n## File\n\n```astro\n---\n// apps/landing/src/components/ui/Image.astro\nimport { Image as AstroImage } from 'astro:assets';\nimport type { ImageMetadata } from 'astro';\n\ninterface Props {\n  src:   ImageMetadata | string;\n  alt:   string;             /* required — empty string allowed for decorative */\n  width: number;\n  height: number;\n  /** 'avif' (smaller, slower decode) or 'webp' (broader support) */\n  format?: 'avif' | 'webp';\n  /** 'eager' for above-the-fold images (hero), default 'lazy' */\n  loading?: 'eager' | 'lazy';\n  class?: string;\n}\n\nconst { src, alt, width, height, format = 'avif', loading = 'lazy', class: className } = Astro.props;\n---\n\n<AstroImage\n  src={src}\n  alt={alt}\n  width={width}\n  height={height}\n  format={format}\n  loading={loading}\n  decoding=\"async\"\n  class={className}\n/>\n```\n\n## Banned\n\n- Plain `<img>` tags anywhere except `Header.astro` (small SVG icon doesn't need optimization). Always use `<Image>`.\n- Omitting `width` / `height`. Without explicit dimensions, the image causes layout shift when it loads.\n- `loading=\"eager\"` for anything below the fold. Below-the-fold images should be lazy by default.",
+              "taskId": "09-polish/003-image-opt",
+              "taskTitle": "Image.astro wrapper — AVIF/WebP, lazy, explicit dimensions",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/09-polish/tasks/003-image-opt",
+              "factId": "check:image-defaults-to-avif-or-webp"
+            }
+          },
+          {
+            "id": "09-polish/003-image-opt-check-failed-image-defaults-to-lazy",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-polish/003-image-opt",
+            "severity": "high",
+            "description": "[09-polish/003-image-opt] Check failed: defaults loading to lazy",
+            "source": "unit",
+            "detected": "2026-04-26T20:21:44.385Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "image-defaults-to-lazy",
+              "checkCmd": "test -f apps/landing/src/components/ui/Image.astro && grep -qE \"loading.*lazy|loading=['\\\"]lazy\" apps/landing/src/components/ui/Image.astro",
+              "checkDescription": "defaults loading to lazy",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/ui/Image.astro && grep -qE \"loading.*lazy|loading=['\\\"]lazy\" apps/landing/src/components/ui/Image.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Image wrapper\n\nWrap Astro's built-in `<Image>` so every image in the site gets optimal\ndefaults: modern format (AVIF / WebP), lazy loading, explicit dimensions\n(prevents CLS).\n\n## File\n\n```astro\n---\n// apps/landing/src/components/ui/Image.astro\nimport { Image as AstroImage } from 'astro:assets';\nimport type { ImageMetadata } from 'astro';\n\ninterface Props {\n  src:   ImageMetadata | string;\n  alt:   string;             /* required — empty string allowed for decorative */\n  width: number;\n  height: number;\n  /** 'avif' (smaller, slower decode) or 'webp' (broader support) */\n  format?: 'avif' | 'webp';\n  /** 'eager' for above-the-fold images (hero), default 'lazy' */\n  loading?: 'eager' | 'lazy';\n  class?: string;\n}\n\nconst { src, alt, width, height, format = 'avif', loading = 'lazy', class: className } = Astro.props;\n---\n\n<AstroImage\n  src={src}\n  alt={alt}\n  width={width}\n  height={height}\n  format={format}\n  loading={loading}\n  decoding=\"async\"\n  class={className}\n/>\n```\n\n## Banned\n\n- Plain `<img>` tags anywhere except `Header.astro` (small SVG icon doesn't need optimization). Always use `<Image>`.\n- Omitting `width` / `height`. Without explicit dimensions, the image causes layout shift when it loads.\n- `loading=\"eager\"` for anything below the fold. Below-the-fold images should be lazy by default.",
+              "taskId": "09-polish/003-image-opt",
+              "taskTitle": "Image.astro wrapper — AVIF/WebP, lazy, explicit dimensions",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/09-polish/tasks/003-image-opt",
+              "factId": "check:image-defaults-to-lazy"
+            }
+          }
+        ],
+        "durationMs": 12
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 22
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#116",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 30736
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T20:21:44.373Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T20:21:44.373Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T20:21:44.385Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T20:21:44.385Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T20:21:44.395Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#116",
+      "iteration": 1,
+      "ts": "2026-04-26T20:22:15.131Z"
+    },
+    {
+      "from": "run-strategy:task-run#116",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T20:22:15.154Z"
+    }
+  ]
+}

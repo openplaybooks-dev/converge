@@ -1,0 +1,14 @@
+{"ts":"2026-04-26T05:41:51.819Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"check-wbs-seeded","status":"start"}
+{"ts":"2026-04-26T05:41:51.819Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"check-wbs-seeded","status":"done","result":"continue"}
+{"ts":"2026-04-26T05:41:51.820Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"check-outputs-exist","status":"start"}
+{"ts":"2026-04-26T05:41:51.820Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"check-outputs-exist","status":"done","result":"continue"}
+{"ts":"2026-04-26T05:41:51.820Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"detect-gaps","status":"start"}
+{"ts":"2026-04-26T05:41:55.762Z","iter":1,"gaps":0,"stall":0,"node":"action","handler":"detect-gaps","status":"done","result":"continue","newGaps":6}
+{"ts":"2026-04-26T05:41:55.762Z","iter":1,"gaps":6,"stall":0,"node":"action","handler":"run-executor","status":"start"}
+{"ts":"2026-04-26T05:41:55.762Z","iter":1,"gaps":6,"stall":0,"node":"action","handler":"run-executor","status":"done","result":"continue"}
+{"ts":"2026-04-26T05:41:55.763Z","iter":1,"gaps":6,"stall":0,"node":"action","handler":"repair-loop","status":"start"}
+{"ts":"2026-04-26T05:41:59.632Z","iter":1,"gaps":6,"stall":0,"node":"action","handler":"repair-loop","status":"done","result":"continue"}
+{"ts":"2026-04-26T05:41:59.632Z","iter":1,"gaps":6,"stall":0,"node":"action","handler":"run-strategy","status":"start"}
+{"ts":"2026-04-26T05:44:31.810Z","iter":1,"gaps":6,"stall":0,"node":"action","handler":"run-strategy","status":"done","result":"continue"}
+{"ts":"2026-04-26T05:44:31.810Z","iter":1,"gaps":6,"stall":0,"node":"action","handler":"verify","status":"start"}
+{"ts":"2026-04-26T05:44:35.708Z","iter":1,"gaps":6,"stall":0,"node":"action","handler":"verify","status":"done","result":"done","reason":"All gaps resolved","newGaps":0}

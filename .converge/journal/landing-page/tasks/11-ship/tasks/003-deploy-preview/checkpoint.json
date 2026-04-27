@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "11-ship/003-deploy-preview",
+  "status": "failed",
+  "lastUpdated": "2026-04-27T01:02:48.457Z",
+  "createdAt": "2026-04-27T00:55:44.626Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T00:55:44.626Z",
+      "completedAt": "2026-04-27T00:57:57.070Z",
+      "outcome": "failed",
+      "durationMs": 132444
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-27T00:57:57.308Z",
+      "completedAt": "2026-04-27T01:02:48.349Z",
+      "outcome": "failed",
+      "durationMs": 291041
+    }
+  ],
+  "currentAttempt": 2
+}

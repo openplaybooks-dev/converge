@@ -1,0 +1,23 @@
+{
+  "type": "task",
+  "id": "06-wiring",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T23:06:29.909Z",
+  "createdAt": "2026-04-26T01:19:09.344Z",
+  "progress": {
+    "totalChildren": 8,
+    "completedChildren": 8,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-package-and-next-config",
+      "002-cli-studio-command",
+      "003-e2e-verify",
+      "004-route-validation",
+      "001-package-and-next-config",
+      "002-cli-studio-command",
+      "003-e2e-verify",
+      "004-route-validation"
+    ],
+    "lastProgressUpdate": "2026-04-26T23:04:30.621Z"
+  }
+}

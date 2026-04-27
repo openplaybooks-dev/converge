@@ -1,0 +1,9 @@
+{
+  "taskId": "02-data-layer/005-sessions-and-tail",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/src/lib/converge-adapter/sessions.ts"
+  ],
+  "blocked": false
+}

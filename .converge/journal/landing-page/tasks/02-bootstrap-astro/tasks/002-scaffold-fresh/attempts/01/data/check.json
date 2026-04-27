@@ -1,0 +1,35 @@
+{
+  "taskId": "02-bootstrap-astro/002-scaffold-fresh",
+  "checks": [
+    {
+      "id": "src-pages-exists",
+      "description": "src/pages directory exists",
+      "cmd": "test -d apps/landing/src/pages"
+    },
+    {
+      "id": "index-astro-exists",
+      "description": "index.astro exists",
+      "cmd": "test -f apps/landing/src/pages/index.astro"
+    },
+    {
+      "id": "astro-config-exists",
+      "description": "astro.config.mjs exists",
+      "cmd": "test -f apps/landing/astro.config.mjs"
+    },
+    {
+      "id": "tsconfig-exists",
+      "description": "tsconfig.json exists",
+      "cmd": "test -f apps/landing/tsconfig.json"
+    },
+    {
+      "id": "no-upstream-brand",
+      "description": "no forked-theme brand strings anywhere in src/",
+      "cmd": "test -d apps/landing/src && ! grep -rIqE 'ScrewFast|AstroWind|Foxi|AstroPaper|Astroship' apps/landing/src/"
+    },
+    {
+      "id": "package-name-still-ours",
+      "description": "package.json#name is still @converge/landing (overlay didn't clobber)",
+      "cmd": "test -f apps/landing/package.json && node -e \"process.exit(require('./apps/landing/package.json').name === '@converge/landing' ? 0 : 1)\""
+    }
+  ]
+}

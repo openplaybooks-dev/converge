@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@import "./tokens.css";
+@import "./typography.css";
+@import "./animations.css";
+
+@layer base {
+  html { font-family: theme(fontFamily.sans); -webkit-font-smoothing: antialiased; }
+  body { background-color: theme(colors.bg); color: theme(colors.text); }
+  :focus-visible { outline: 2px solid theme(colors.indigo); outline-offset: 2px; }
+}

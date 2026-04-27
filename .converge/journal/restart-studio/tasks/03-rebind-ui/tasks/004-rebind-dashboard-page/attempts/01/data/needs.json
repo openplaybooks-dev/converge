@@ -1,0 +1,9 @@
+{
+  "taskId": "03-rebind-ui/004-rebind-dashboard-page",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/studio/src/components/dashboard/dashboard.tsx"
+  ],
+  "blocked": false
+}

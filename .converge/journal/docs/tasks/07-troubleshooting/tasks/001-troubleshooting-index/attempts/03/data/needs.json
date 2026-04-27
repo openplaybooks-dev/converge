@@ -1,0 +1,24 @@
+{
+  "taskId": "07-troubleshooting/001-troubleshooting-index",
+  "attemptNumber": 3,
+  "inputs": [
+    {
+      "pattern": "docs/_internal",
+      "count": 1,
+      "samples": [
+        "docs/_internal"
+      ]
+    },
+    {
+      "pattern": "skills/converge-control/troubleshooting/playbook.md",
+      "count": 1,
+      "samples": [
+        "skills/converge-control/troubleshooting/playbook.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/troubleshooting/index.md"
+  ],
+  "blocked": false
+}

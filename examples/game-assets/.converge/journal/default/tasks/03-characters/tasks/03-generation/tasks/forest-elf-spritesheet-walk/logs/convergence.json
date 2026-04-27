@@ -1,0 +1,979 @@
+{
+  "iteration": 3,
+  "stallCount": 2,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-characters/03-generation/forest-elf-spritesheet-walk-missing-output-assets/characters/forest-elf/spritesheets/walk/walk.png",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/forest-elf-spritesheet-walk",
+            "severity": "high",
+            "description": "[03-characters/03-generation/forest-elf-spritesheet-walk] Task output not created: assets/characters/forest-elf/spritesheets/walk/walk.png",
+            "source": "unit",
+            "detected": "2026-04-26T17:28:57.209Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-spritesheet-walk",
+              "taskId": "03-characters/03-generation/forest-elf-spritesheet-walk",
+              "taskTitle": "Generate Lirael walk sprite sheet",
+              "taskPrompt": "# Lirael walk Sprite Sheet\n\nRuns `scripts/generate_spritesheet.py forest-elf walk`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so character identity stays consistent across frames.\n\nOutputs land in `assets/characters/forest-elf/spritesheets/walk/`:\n- `walk.png` — the 4x4 grid sheet (4·working_resolution × 4·working_resolution)\n- `walk.prompt.txt` — the prompt sent to the model (with all 16 keyframes inline)\n- `walk.seed.txt` — the seed used\n\nFrame ordering is left-to-right, top-to-bottom (frame 1 = top-left, frame 16 = bottom-right). Keyframe poses come from `scripts/lib/keyframes.py` (the script repeats the 4-pose cycle 4× to fill 16 cells). Working resolution comes from `assets/sprites.json`. Depends on the canonical reference task (`forest-elf-02-ref`) completing first.\n\nTo debug, `cat` the prompt or re-run with a different seed: `python scripts/generate_spritesheet.py forest-elf walk --seed N`.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"assets/characters/forest-elf/spritesheets/walk/walk.png\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-characters/03-generation/forest-elf-spritesheet-walk-missing-output-assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/forest-elf-spritesheet-walk",
+            "severity": "high",
+            "description": "[03-characters/03-generation/forest-elf-spritesheet-walk] Task output not created: assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt",
+            "source": "unit",
+            "detected": "2026-04-26T17:28:57.216Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-spritesheet-walk",
+              "taskId": "03-characters/03-generation/forest-elf-spritesheet-walk",
+              "taskTitle": "Generate Lirael walk sprite sheet",
+              "taskPrompt": "# Lirael walk Sprite Sheet\n\nRuns `scripts/generate_spritesheet.py forest-elf walk`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so character identity stays consistent across frames.\n\nOutputs land in `assets/characters/forest-elf/spritesheets/walk/`:\n- `walk.png` — the 4x4 grid sheet (4·working_resolution × 4·working_resolution)\n- `walk.prompt.txt` — the prompt sent to the model (with all 16 keyframes inline)\n- `walk.seed.txt` — the seed used\n\nFrame ordering is left-to-right, top-to-bottom (frame 1 = top-left, frame 16 = bottom-right). Keyframe poses come from `scripts/lib/keyframes.py` (the script repeats the 4-pose cycle 4× to fill 16 cells). Working resolution comes from `assets/sprites.json`. Depends on the canonical reference task (`forest-elf-02-ref`) completing first.\n\nTo debug, `cat` the prompt or re-run with a different seed: `python scripts/generate_spritesheet.py forest-elf walk --seed N`.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-characters/03-generation/forest-elf-spritesheet-walk-check-failed-spritesheet-png-is-4x4-grid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/forest-elf-spritesheet-walk",
+            "severity": "high",
+            "description": "[03-characters/03-generation/forest-elf-spritesheet-walk] Check failed: Sheet is a square 4x4 grid (width == height, divisible by 4, >=256px)",
+            "source": "unit",
+            "detected": "2026-04-26T17:28:57.263Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "spritesheet-png-is-4x4-grid",
+              "checkCmd": "python -c \"from PIL import Image; im=Image.open('assets/characters/forest-elf/spritesheets/walk/walk.png'); w,h=im.size; assert w==h, f'not square: {im.size}'; assert w>=256 and w%4==0, f'expected 4x4 grid (square, side>=256, divisible by 4): {im.size}'\"\n",
+              "checkDescription": "Sheet is a square 4x4 grid (width == height, divisible by 4, >=256px)",
+              "checkOutput": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/opt/homebrew/Caskroom/miniconda/base/lib/python3.12/site-packages/PIL/Image.py\", line 3513, in open\n    fp = builtins.open(filename, \"rb\")\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: 'assets/characters/forest-elf/spritesheets/walk/walk.png'",
+              "checkExitCode": 1,
+              "taskPrompt": "# Lirael walk Sprite Sheet\n\nRuns `scripts/generate_spritesheet.py forest-elf walk`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so character identity stays consistent across frames.\n\nOutputs land in `assets/characters/forest-elf/spritesheets/walk/`:\n- `walk.png` — the 4x4 grid sheet (4·working_resolution × 4·working_resolution)\n- `walk.prompt.txt` — the prompt sent to the model (with all 16 keyframes inline)\n- `walk.seed.txt` — the seed used\n\nFrame ordering is left-to-right, top-to-bottom (frame 1 = top-left, frame 16 = bottom-right). Keyframe poses come from `scripts/lib/keyframes.py` (the script repeats the 4-pose cycle 4× to fill 16 cells). Working resolution comes from `assets/sprites.json`. Depends on the canonical reference task (`forest-elf-02-ref`) completing first.\n\nTo debug, `cat` the prompt or re-run with a different seed: `python scripts/generate_spritesheet.py forest-elf walk --seed N`.",
+              "taskId": "03-characters/03-generation/forest-elf-spritesheet-walk",
+              "taskTitle": "Generate Lirael walk sprite sheet",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-spritesheet-walk",
+              "factId": "check:spritesheet-png-is-4x4-grid"
+            }
+          },
+          {
+            "id": "03-characters/03-generation/forest-elf-spritesheet-walk-check-failed-prompt-saved",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/forest-elf-spritesheet-walk",
+            "severity": "high",
+            "description": "[03-characters/03-generation/forest-elf-spritesheet-walk] Check failed: Sibling .prompt.txt exists for debugging",
+            "source": "unit",
+            "detected": "2026-04-26T17:28:57.265Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "prompt-saved",
+              "checkCmd": "test -s assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt",
+              "checkDescription": "Sibling .prompt.txt exists for debugging",
+              "checkOutput": "Command failed: test -s assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Lirael walk Sprite Sheet\n\nRuns `scripts/generate_spritesheet.py forest-elf walk`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so character identity stays consistent across frames.\n\nOutputs land in `assets/characters/forest-elf/spritesheets/walk/`:\n- `walk.png` — the 4x4 grid sheet (4·working_resolution × 4·working_resolution)\n- `walk.prompt.txt` — the prompt sent to the model (with all 16 keyframes inline)\n- `walk.seed.txt` — the seed used\n\nFrame ordering is left-to-right, top-to-bottom (frame 1 = top-left, frame 16 = bottom-right). Keyframe poses come from `scripts/lib/keyframes.py` (the script repeats the 4-pose cycle 4× to fill 16 cells). Working resolution comes from `assets/sprites.json`. Depends on the canonical reference task (`forest-elf-02-ref`) completing first.\n\nTo debug, `cat` the prompt or re-run with a different seed: `python scripts/generate_spritesheet.py forest-elf walk --seed N`.",
+              "taskId": "03-characters/03-generation/forest-elf-spritesheet-walk",
+              "taskTitle": "Generate Lirael walk sprite sheet",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-spritesheet-walk",
+              "factId": "check:prompt-saved"
+            }
+          }
+        ],
+        "durationMs": 66
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 48
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-characters/03-generation/forest-elf-spritesheet-walk-missing-output-assets/characters/forest-elf/spritesheets/walk/walk.png",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/forest-elf-spritesheet-walk",
+            "severity": "high",
+            "description": "[03-characters/03-generation/forest-elf-spritesheet-walk] Task output not created: assets/characters/forest-elf/spritesheets/walk/walk.png",
+            "source": "unit",
+            "detected": "2026-04-26T17:29:46.353Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-spritesheet-walk",
+              "taskId": "03-characters/03-generation/forest-elf-spritesheet-walk",
+              "taskTitle": "Generate Lirael walk sprite sheet",
+              "taskPrompt": "# Lirael walk Sprite Sheet\n\nRuns `scripts/generate_spritesheet.py forest-elf walk`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so character identity stays consistent across frames.\n\nOutputs land in `assets/characters/forest-elf/spritesheets/walk/`:\n- `walk.png` — the 4x4 grid sheet (4·working_resolution × 4·working_resolution)\n- `walk.prompt.txt` — the prompt sent to the model (with all 16 keyframes inline)\n- `walk.seed.txt` — the seed used\n\nFrame ordering is left-to-right, top-to-bottom (frame 1 = top-left, frame 16 = bottom-right). Keyframe poses come from `scripts/lib/keyframes.py` (the script repeats the 4-pose cycle 4× to fill 16 cells). Working resolution comes from `assets/sprites.json`. Depends on the canonical reference task (`forest-elf-02-ref`) completing first.\n\nTo debug, `cat` the prompt or re-run with a different seed: `python scripts/generate_spritesheet.py forest-elf walk --seed N`.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"assets/characters/forest-elf/spritesheets/walk/walk.png\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-characters/03-generation/forest-elf-spritesheet-walk-missing-output-assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/forest-elf-spritesheet-walk",
+            "severity": "high",
+            "description": "[03-characters/03-generation/forest-elf-spritesheet-walk] Task output not created: assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt",
+            "source": "unit",
+            "detected": "2026-04-26T17:29:46.355Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-spritesheet-walk",
+              "taskId": "03-characters/03-generation/forest-elf-spritesheet-walk",
+              "taskTitle": "Generate Lirael walk sprite sheet",
+              "taskPrompt": "# Lirael walk Sprite Sheet\n\nRuns `scripts/generate_spritesheet.py forest-elf walk`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so character identity stays consistent across frames.\n\nOutputs land in `assets/characters/forest-elf/spritesheets/walk/`:\n- `walk.png` — the 4x4 grid sheet (4·working_resolution × 4·working_resolution)\n- `walk.prompt.txt` — the prompt sent to the model (with all 16 keyframes inline)\n- `walk.seed.txt` — the seed used\n\nFrame ordering is left-to-right, top-to-bottom (frame 1 = top-left, frame 16 = bottom-right). Keyframe poses come from `scripts/lib/keyframes.py` (the script repeats the 4-pose cycle 4× to fill 16 cells). Working resolution comes from `assets/sprites.json`. Depends on the canonical reference task (`forest-elf-02-ref`) completing first.\n\nTo debug, `cat` the prompt or re-run with a different seed: `python scripts/generate_spritesheet.py forest-elf walk --seed N`.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-characters/03-generation/forest-elf-spritesheet-walk-check-failed-spritesheet-png-is-4x4-grid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/forest-elf-spritesheet-walk",
+            "severity": "high",
+            "description": "[03-characters/03-generation/forest-elf-spritesheet-walk] Check failed: Sheet is a square 4x4 grid (width == height, divisible by 4, >=256px)",
+            "source": "unit",
+            "detected": "2026-04-26T17:29:46.400Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "spritesheet-png-is-4x4-grid",
+              "checkCmd": "python -c \"from PIL import Image; im=Image.open('assets/characters/forest-elf/spritesheets/walk/walk.png'); w,h=im.size; assert w==h, f'not square: {im.size}'; assert w>=256 and w%4==0, f'expected 4x4 grid (square, side>=256, divisible by 4): {im.size}'\"\n",
+              "checkDescription": "Sheet is a square 4x4 grid (width == height, divisible by 4, >=256px)",
+              "checkOutput": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/opt/homebrew/Caskroom/miniconda/base/lib/python3.12/site-packages/PIL/Image.py\", line 3513, in open\n    fp = builtins.open(filename, \"rb\")\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: 'assets/characters/forest-elf/spritesheets/walk/walk.png'",
+              "checkExitCode": 1,
+              "taskPrompt": "# Lirael walk Sprite Sheet\n\nRuns `scripts/generate_spritesheet.py forest-elf walk`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so character identity stays consistent across frames.\n\nOutputs land in `assets/characters/forest-elf/spritesheets/walk/`:\n- `walk.png` — the 4x4 grid sheet (4·working_resolution × 4·working_resolution)\n- `walk.prompt.txt` — the prompt sent to the model (with all 16 keyframes inline)\n- `walk.seed.txt` — the seed used\n\nFrame ordering is left-to-right, top-to-bottom (frame 1 = top-left, frame 16 = bottom-right). Keyframe poses come from `scripts/lib/keyframes.py` (the script repeats the 4-pose cycle 4× to fill 16 cells). Working resolution comes from `assets/sprites.json`. Depends on the canonical reference task (`forest-elf-02-ref`) completing first.\n\nTo debug, `cat` the prompt or re-run with a different seed: `python scripts/generate_spritesheet.py forest-elf walk --seed N`.",
+              "taskId": "03-characters/03-generation/forest-elf-spritesheet-walk",
+              "taskTitle": "Generate Lirael walk sprite sheet",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-spritesheet-walk",
+              "factId": "check:spritesheet-png-is-4x4-grid"
+            }
+          },
+          {
+            "id": "03-characters/03-generation/forest-elf-spritesheet-walk-check-failed-prompt-saved",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/forest-elf-spritesheet-walk",
+            "severity": "high",
+            "description": "[03-characters/03-generation/forest-elf-spritesheet-walk] Check failed: Sibling .prompt.txt exists for debugging",
+            "source": "unit",
+            "detected": "2026-04-26T17:29:46.428Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "prompt-saved",
+              "checkCmd": "test -s assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt",
+              "checkDescription": "Sibling .prompt.txt exists for debugging",
+              "checkOutput": "Command failed: test -s assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Lirael walk Sprite Sheet\n\nRuns `scripts/generate_spritesheet.py forest-elf walk`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so character identity stays consistent across frames.\n\nOutputs land in `assets/characters/forest-elf/spritesheets/walk/`:\n- `walk.png` — the 4x4 grid sheet (4·working_resolution × 4·working_resolution)\n- `walk.prompt.txt` — the prompt sent to the model (with all 16 keyframes inline)\n- `walk.seed.txt` — the seed used\n\nFrame ordering is left-to-right, top-to-bottom (frame 1 = top-left, frame 16 = bottom-right). Keyframe poses come from `scripts/lib/keyframes.py` (the script repeats the 4-pose cycle 4× to fill 16 cells). Working resolution comes from `assets/sprites.json`. Depends on the canonical reference task (`forest-elf-02-ref`) completing first.\n\nTo debug, `cat` the prompt or re-run with a different seed: `python scripts/generate_spritesheet.py forest-elf walk --seed N`.",
+              "taskId": "03-characters/03-generation/forest-elf-spritesheet-walk",
+              "taskTitle": "Generate Lirael walk sprite sheet",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-spritesheet-walk",
+              "factId": "check:prompt-saved"
+            }
+          }
+        ],
+        "durationMs": 78
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "run-strategy:task-run#6",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 49034
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-characters/03-generation/forest-elf-spritesheet-walk-missing-output-assets/characters/forest-elf/spritesheets/walk/walk.png",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/forest-elf-spritesheet-walk",
+            "severity": "high",
+            "description": "[03-characters/03-generation/forest-elf-spritesheet-walk] Task output not created: assets/characters/forest-elf/spritesheets/walk/walk.png",
+            "source": "unit",
+            "detected": "2026-04-26T17:29:46.437Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-spritesheet-walk",
+              "taskId": "03-characters/03-generation/forest-elf-spritesheet-walk",
+              "taskTitle": "Generate Lirael walk sprite sheet",
+              "taskPrompt": "# Lirael walk Sprite Sheet\n\nRuns `scripts/generate_spritesheet.py forest-elf walk`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so character identity stays consistent across frames.\n\nOutputs land in `assets/characters/forest-elf/spritesheets/walk/`:\n- `walk.png` — the 4x4 grid sheet (4·working_resolution × 4·working_resolution)\n- `walk.prompt.txt` — the prompt sent to the model (with all 16 keyframes inline)\n- `walk.seed.txt` — the seed used\n\nFrame ordering is left-to-right, top-to-bottom (frame 1 = top-left, frame 16 = bottom-right). Keyframe poses come from `scripts/lib/keyframes.py` (the script repeats the 4-pose cycle 4× to fill 16 cells). Working resolution comes from `assets/sprites.json`. Depends on the canonical reference task (`forest-elf-02-ref`) completing first.\n\nTo debug, `cat` the prompt or re-run with a different seed: `python scripts/generate_spritesheet.py forest-elf walk --seed N`.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"assets/characters/forest-elf/spritesheets/walk/walk.png\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-characters/03-generation/forest-elf-spritesheet-walk-missing-output-assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/forest-elf-spritesheet-walk",
+            "severity": "high",
+            "description": "[03-characters/03-generation/forest-elf-spritesheet-walk] Task output not created: assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt",
+            "source": "unit",
+            "detected": "2026-04-26T17:29:46.439Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-spritesheet-walk",
+              "taskId": "03-characters/03-generation/forest-elf-spritesheet-walk",
+              "taskTitle": "Generate Lirael walk sprite sheet",
+              "taskPrompt": "# Lirael walk Sprite Sheet\n\nRuns `scripts/generate_spritesheet.py forest-elf walk`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so character identity stays consistent across frames.\n\nOutputs land in `assets/characters/forest-elf/spritesheets/walk/`:\n- `walk.png` — the 4x4 grid sheet (4·working_resolution × 4·working_resolution)\n- `walk.prompt.txt` — the prompt sent to the model (with all 16 keyframes inline)\n- `walk.seed.txt` — the seed used\n\nFrame ordering is left-to-right, top-to-bottom (frame 1 = top-left, frame 16 = bottom-right). Keyframe poses come from `scripts/lib/keyframes.py` (the script repeats the 4-pose cycle 4× to fill 16 cells). Working resolution comes from `assets/sprites.json`. Depends on the canonical reference task (`forest-elf-02-ref`) completing first.\n\nTo debug, `cat` the prompt or re-run with a different seed: `python scripts/generate_spritesheet.py forest-elf walk --seed N`.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-characters/03-generation/forest-elf-spritesheet-walk-check-failed-spritesheet-png-is-4x4-grid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/forest-elf-spritesheet-walk",
+            "severity": "high",
+            "description": "[03-characters/03-generation/forest-elf-spritesheet-walk] Check failed: Sheet is a square 4x4 grid (width == height, divisible by 4, >=256px)",
+            "source": "unit",
+            "detected": "2026-04-26T17:29:46.492Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "spritesheet-png-is-4x4-grid",
+              "checkCmd": "python -c \"from PIL import Image; im=Image.open('assets/characters/forest-elf/spritesheets/walk/walk.png'); w,h=im.size; assert w==h, f'not square: {im.size}'; assert w>=256 and w%4==0, f'expected 4x4 grid (square, side>=256, divisible by 4): {im.size}'\"\n",
+              "checkDescription": "Sheet is a square 4x4 grid (width == height, divisible by 4, >=256px)",
+              "checkOutput": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/opt/homebrew/Caskroom/miniconda/base/lib/python3.12/site-packages/PIL/Image.py\", line 3513, in open\n    fp = builtins.open(filename, \"rb\")\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: 'assets/characters/forest-elf/spritesheets/walk/walk.png'",
+              "checkExitCode": 1,
+              "taskPrompt": "# Lirael walk Sprite Sheet\n\nRuns `scripts/generate_spritesheet.py forest-elf walk`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so character identity stays consistent across frames.\n\nOutputs land in `assets/characters/forest-elf/spritesheets/walk/`:\n- `walk.png` — the 4x4 grid sheet (4·working_resolution × 4·working_resolution)\n- `walk.prompt.txt` — the prompt sent to the model (with all 16 keyframes inline)\n- `walk.seed.txt` — the seed used\n\nFrame ordering is left-to-right, top-to-bottom (frame 1 = top-left, frame 16 = bottom-right). Keyframe poses come from `scripts/lib/keyframes.py` (the script repeats the 4-pose cycle 4× to fill 16 cells). Working resolution comes from `assets/sprites.json`. Depends on the canonical reference task (`forest-elf-02-ref`) completing first.\n\nTo debug, `cat` the prompt or re-run with a different seed: `python scripts/generate_spritesheet.py forest-elf walk --seed N`.",
+              "taskId": "03-characters/03-generation/forest-elf-spritesheet-walk",
+              "taskTitle": "Generate Lirael walk sprite sheet",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-spritesheet-walk",
+              "factId": "check:spritesheet-png-is-4x4-grid"
+            }
+          },
+          {
+            "id": "03-characters/03-generation/forest-elf-spritesheet-walk-check-failed-prompt-saved",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/forest-elf-spritesheet-walk",
+            "severity": "high",
+            "description": "[03-characters/03-generation/forest-elf-spritesheet-walk] Check failed: Sibling .prompt.txt exists for debugging",
+            "source": "unit",
+            "detected": "2026-04-26T17:29:46.496Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "prompt-saved",
+              "checkCmd": "test -s assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt",
+              "checkDescription": "Sibling .prompt.txt exists for debugging",
+              "checkOutput": "Command failed: test -s assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Lirael walk Sprite Sheet\n\nRuns `scripts/generate_spritesheet.py forest-elf walk`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so character identity stays consistent across frames.\n\nOutputs land in `assets/characters/forest-elf/spritesheets/walk/`:\n- `walk.png` — the 4x4 grid sheet (4·working_resolution × 4·working_resolution)\n- `walk.prompt.txt` — the prompt sent to the model (with all 16 keyframes inline)\n- `walk.seed.txt` — the seed used\n\nFrame ordering is left-to-right, top-to-bottom (frame 1 = top-left, frame 16 = bottom-right). Keyframe poses come from `scripts/lib/keyframes.py` (the script repeats the 4-pose cycle 4× to fill 16 cells). Working resolution comes from `assets/sprites.json`. Depends on the canonical reference task (`forest-elf-02-ref`) completing first.\n\nTo debug, `cat` the prompt or re-run with a different seed: `python scripts/generate_spritesheet.py forest-elf walk --seed N`.",
+              "taskId": "03-characters/03-generation/forest-elf-spritesheet-walk",
+              "taskTitle": "Generate Lirael walk sprite sheet",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-spritesheet-walk",
+              "factId": "check:prompt-saved"
+            }
+          }
+        ],
+        "durationMs": 65
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#2",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 51
+      }
+    },
+    {
+      "id": "run-strategy:task-run#7",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 53138
+      }
+    },
+    {
+      "id": "verify#2",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-characters/03-generation/forest-elf-spritesheet-walk-missing-output-assets/characters/forest-elf/spritesheets/walk/walk.png",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/forest-elf-spritesheet-walk",
+            "severity": "high",
+            "description": "[03-characters/03-generation/forest-elf-spritesheet-walk] Task output not created: assets/characters/forest-elf/spritesheets/walk/walk.png",
+            "source": "unit",
+            "detected": "2026-04-26T17:30:39.689Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-spritesheet-walk",
+              "taskId": "03-characters/03-generation/forest-elf-spritesheet-walk",
+              "taskTitle": "Generate Lirael walk sprite sheet",
+              "taskPrompt": "# Lirael walk Sprite Sheet\n\nRuns `scripts/generate_spritesheet.py forest-elf walk`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so character identity stays consistent across frames.\n\nOutputs land in `assets/characters/forest-elf/spritesheets/walk/`:\n- `walk.png` — the 4x4 grid sheet (4·working_resolution × 4·working_resolution)\n- `walk.prompt.txt` — the prompt sent to the model (with all 16 keyframes inline)\n- `walk.seed.txt` — the seed used\n\nFrame ordering is left-to-right, top-to-bottom (frame 1 = top-left, frame 16 = bottom-right). Keyframe poses come from `scripts/lib/keyframes.py` (the script repeats the 4-pose cycle 4× to fill 16 cells). Working resolution comes from `assets/sprites.json`. Depends on the canonical reference task (`forest-elf-02-ref`) completing first.\n\nTo debug, `cat` the prompt or re-run with a different seed: `python scripts/generate_spritesheet.py forest-elf walk --seed N`.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"assets/characters/forest-elf/spritesheets/walk/walk.png\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-characters/03-generation/forest-elf-spritesheet-walk-missing-output-assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/forest-elf-spritesheet-walk",
+            "severity": "high",
+            "description": "[03-characters/03-generation/forest-elf-spritesheet-walk] Task output not created: assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt",
+            "source": "unit",
+            "detected": "2026-04-26T17:30:39.692Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-spritesheet-walk",
+              "taskId": "03-characters/03-generation/forest-elf-spritesheet-walk",
+              "taskTitle": "Generate Lirael walk sprite sheet",
+              "taskPrompt": "# Lirael walk Sprite Sheet\n\nRuns `scripts/generate_spritesheet.py forest-elf walk`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so character identity stays consistent across frames.\n\nOutputs land in `assets/characters/forest-elf/spritesheets/walk/`:\n- `walk.png` — the 4x4 grid sheet (4·working_resolution × 4·working_resolution)\n- `walk.prompt.txt` — the prompt sent to the model (with all 16 keyframes inline)\n- `walk.seed.txt` — the seed used\n\nFrame ordering is left-to-right, top-to-bottom (frame 1 = top-left, frame 16 = bottom-right). Keyframe poses come from `scripts/lib/keyframes.py` (the script repeats the 4-pose cycle 4× to fill 16 cells). Working resolution comes from `assets/sprites.json`. Depends on the canonical reference task (`forest-elf-02-ref`) completing first.\n\nTo debug, `cat` the prompt or re-run with a different seed: `python scripts/generate_spritesheet.py forest-elf walk --seed N`.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-characters/03-generation/forest-elf-spritesheet-walk-check-failed-spritesheet-png-is-4x4-grid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/forest-elf-spritesheet-walk",
+            "severity": "high",
+            "description": "[03-characters/03-generation/forest-elf-spritesheet-walk] Check failed: Sheet is a square 4x4 grid (width == height, divisible by 4, >=256px)",
+            "source": "unit",
+            "detected": "2026-04-26T17:30:39.752Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "spritesheet-png-is-4x4-grid",
+              "checkCmd": "python -c \"from PIL import Image; im=Image.open('assets/characters/forest-elf/spritesheets/walk/walk.png'); w,h=im.size; assert w==h, f'not square: {im.size}'; assert w>=256 and w%4==0, f'expected 4x4 grid (square, side>=256, divisible by 4): {im.size}'\"\n",
+              "checkDescription": "Sheet is a square 4x4 grid (width == height, divisible by 4, >=256px)",
+              "checkOutput": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/opt/homebrew/Caskroom/miniconda/base/lib/python3.12/site-packages/PIL/Image.py\", line 3513, in open\n    fp = builtins.open(filename, \"rb\")\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: 'assets/characters/forest-elf/spritesheets/walk/walk.png'",
+              "checkExitCode": 1,
+              "taskPrompt": "# Lirael walk Sprite Sheet\n\nRuns `scripts/generate_spritesheet.py forest-elf walk`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so character identity stays consistent across frames.\n\nOutputs land in `assets/characters/forest-elf/spritesheets/walk/`:\n- `walk.png` — the 4x4 grid sheet (4·working_resolution × 4·working_resolution)\n- `walk.prompt.txt` — the prompt sent to the model (with all 16 keyframes inline)\n- `walk.seed.txt` — the seed used\n\nFrame ordering is left-to-right, top-to-bottom (frame 1 = top-left, frame 16 = bottom-right). Keyframe poses come from `scripts/lib/keyframes.py` (the script repeats the 4-pose cycle 4× to fill 16 cells). Working resolution comes from `assets/sprites.json`. Depends on the canonical reference task (`forest-elf-02-ref`) completing first.\n\nTo debug, `cat` the prompt or re-run with a different seed: `python scripts/generate_spritesheet.py forest-elf walk --seed N`.",
+              "taskId": "03-characters/03-generation/forest-elf-spritesheet-walk",
+              "taskTitle": "Generate Lirael walk sprite sheet",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-spritesheet-walk",
+              "factId": "check:spritesheet-png-is-4x4-grid"
+            }
+          },
+          {
+            "id": "03-characters/03-generation/forest-elf-spritesheet-walk-check-failed-prompt-saved",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/forest-elf-spritesheet-walk",
+            "severity": "high",
+            "description": "[03-characters/03-generation/forest-elf-spritesheet-walk] Check failed: Sibling .prompt.txt exists for debugging",
+            "source": "unit",
+            "detected": "2026-04-26T17:30:39.754Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "prompt-saved",
+              "checkCmd": "test -s assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt",
+              "checkDescription": "Sibling .prompt.txt exists for debugging",
+              "checkOutput": "Command failed: test -s assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Lirael walk Sprite Sheet\n\nRuns `scripts/generate_spritesheet.py forest-elf walk`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so character identity stays consistent across frames.\n\nOutputs land in `assets/characters/forest-elf/spritesheets/walk/`:\n- `walk.png` — the 4x4 grid sheet (4·working_resolution × 4·working_resolution)\n- `walk.prompt.txt` — the prompt sent to the model (with all 16 keyframes inline)\n- `walk.seed.txt` — the seed used\n\nFrame ordering is left-to-right, top-to-bottom (frame 1 = top-left, frame 16 = bottom-right). Keyframe poses come from `scripts/lib/keyframes.py` (the script repeats the 4-pose cycle 4× to fill 16 cells). Working resolution comes from `assets/sprites.json`. Depends on the canonical reference task (`forest-elf-02-ref`) completing first.\n\nTo debug, `cat` the prompt or re-run with a different seed: `python scripts/generate_spritesheet.py forest-elf walk --seed N`.",
+              "taskId": "03-characters/03-generation/forest-elf-spritesheet-walk",
+              "taskTitle": "Generate Lirael walk sprite sheet",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-spritesheet-walk",
+              "factId": "check:prompt-saved"
+            }
+          }
+        ],
+        "durationMs": 67
+      }
+    },
+    {
+      "id": "check-stall#2",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt#2",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-wbs-seeded#3",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#3",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps#3",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-characters/03-generation/forest-elf-spritesheet-walk-missing-output-assets/characters/forest-elf/spritesheets/walk/walk.png",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/forest-elf-spritesheet-walk",
+            "severity": "high",
+            "description": "[03-characters/03-generation/forest-elf-spritesheet-walk] Task output not created: assets/characters/forest-elf/spritesheets/walk/walk.png",
+            "source": "unit",
+            "detected": "2026-04-26T17:30:39.762Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-spritesheet-walk",
+              "taskId": "03-characters/03-generation/forest-elf-spritesheet-walk",
+              "taskTitle": "Generate Lirael walk sprite sheet",
+              "taskPrompt": "# Lirael walk Sprite Sheet\n\nRuns `scripts/generate_spritesheet.py forest-elf walk`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so character identity stays consistent across frames.\n\nOutputs land in `assets/characters/forest-elf/spritesheets/walk/`:\n- `walk.png` — the 4x4 grid sheet (4·working_resolution × 4·working_resolution)\n- `walk.prompt.txt` — the prompt sent to the model (with all 16 keyframes inline)\n- `walk.seed.txt` — the seed used\n\nFrame ordering is left-to-right, top-to-bottom (frame 1 = top-left, frame 16 = bottom-right). Keyframe poses come from `scripts/lib/keyframes.py` (the script repeats the 4-pose cycle 4× to fill 16 cells). Working resolution comes from `assets/sprites.json`. Depends on the canonical reference task (`forest-elf-02-ref`) completing first.\n\nTo debug, `cat` the prompt or re-run with a different seed: `python scripts/generate_spritesheet.py forest-elf walk --seed N`.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"assets/characters/forest-elf/spritesheets/walk/walk.png\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-characters/03-generation/forest-elf-spritesheet-walk-missing-output-assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/forest-elf-spritesheet-walk",
+            "severity": "high",
+            "description": "[03-characters/03-generation/forest-elf-spritesheet-walk] Task output not created: assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt",
+            "source": "unit",
+            "detected": "2026-04-26T17:30:39.765Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-spritesheet-walk",
+              "taskId": "03-characters/03-generation/forest-elf-spritesheet-walk",
+              "taskTitle": "Generate Lirael walk sprite sheet",
+              "taskPrompt": "# Lirael walk Sprite Sheet\n\nRuns `scripts/generate_spritesheet.py forest-elf walk`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so character identity stays consistent across frames.\n\nOutputs land in `assets/characters/forest-elf/spritesheets/walk/`:\n- `walk.png` — the 4x4 grid sheet (4·working_resolution × 4·working_resolution)\n- `walk.prompt.txt` — the prompt sent to the model (with all 16 keyframes inline)\n- `walk.seed.txt` — the seed used\n\nFrame ordering is left-to-right, top-to-bottom (frame 1 = top-left, frame 16 = bottom-right). Keyframe poses come from `scripts/lib/keyframes.py` (the script repeats the 4-pose cycle 4× to fill 16 cells). Working resolution comes from `assets/sprites.json`. Depends on the canonical reference task (`forest-elf-02-ref`) completing first.\n\nTo debug, `cat` the prompt or re-run with a different seed: `python scripts/generate_spritesheet.py forest-elf walk --seed N`.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-characters/03-generation/forest-elf-spritesheet-walk-check-failed-spritesheet-png-is-4x4-grid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/forest-elf-spritesheet-walk",
+            "severity": "high",
+            "description": "[03-characters/03-generation/forest-elf-spritesheet-walk] Check failed: Sheet is a square 4x4 grid (width == height, divisible by 4, >=256px)",
+            "source": "unit",
+            "detected": "2026-04-26T17:30:39.818Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "spritesheet-png-is-4x4-grid",
+              "checkCmd": "python -c \"from PIL import Image; im=Image.open('assets/characters/forest-elf/spritesheets/walk/walk.png'); w,h=im.size; assert w==h, f'not square: {im.size}'; assert w>=256 and w%4==0, f'expected 4x4 grid (square, side>=256, divisible by 4): {im.size}'\"\n",
+              "checkDescription": "Sheet is a square 4x4 grid (width == height, divisible by 4, >=256px)",
+              "checkOutput": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/opt/homebrew/Caskroom/miniconda/base/lib/python3.12/site-packages/PIL/Image.py\", line 3513, in open\n    fp = builtins.open(filename, \"rb\")\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: 'assets/characters/forest-elf/spritesheets/walk/walk.png'",
+              "checkExitCode": 1,
+              "taskPrompt": "# Lirael walk Sprite Sheet\n\nRuns `scripts/generate_spritesheet.py forest-elf walk`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so character identity stays consistent across frames.\n\nOutputs land in `assets/characters/forest-elf/spritesheets/walk/`:\n- `walk.png` — the 4x4 grid sheet (4·working_resolution × 4·working_resolution)\n- `walk.prompt.txt` — the prompt sent to the model (with all 16 keyframes inline)\n- `walk.seed.txt` — the seed used\n\nFrame ordering is left-to-right, top-to-bottom (frame 1 = top-left, frame 16 = bottom-right). Keyframe poses come from `scripts/lib/keyframes.py` (the script repeats the 4-pose cycle 4× to fill 16 cells). Working resolution comes from `assets/sprites.json`. Depends on the canonical reference task (`forest-elf-02-ref`) completing first.\n\nTo debug, `cat` the prompt or re-run with a different seed: `python scripts/generate_spritesheet.py forest-elf walk --seed N`.",
+              "taskId": "03-characters/03-generation/forest-elf-spritesheet-walk",
+              "taskTitle": "Generate Lirael walk sprite sheet",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-spritesheet-walk",
+              "factId": "check:spritesheet-png-is-4x4-grid"
+            }
+          },
+          {
+            "id": "03-characters/03-generation/forest-elf-spritesheet-walk-check-failed-prompt-saved",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/forest-elf-spritesheet-walk",
+            "severity": "high",
+            "description": "[03-characters/03-generation/forest-elf-spritesheet-walk] Check failed: Sibling .prompt.txt exists for debugging",
+            "source": "unit",
+            "detected": "2026-04-26T17:30:39.821Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "prompt-saved",
+              "checkCmd": "test -s assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt",
+              "checkDescription": "Sibling .prompt.txt exists for debugging",
+              "checkOutput": "Command failed: test -s assets/characters/forest-elf/spritesheets/walk/walk.prompt.txt\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Lirael walk Sprite Sheet\n\nRuns `scripts/generate_spritesheet.py forest-elf walk`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so character identity stays consistent across frames.\n\nOutputs land in `assets/characters/forest-elf/spritesheets/walk/`:\n- `walk.png` — the 4x4 grid sheet (4·working_resolution × 4·working_resolution)\n- `walk.prompt.txt` — the prompt sent to the model (with all 16 keyframes inline)\n- `walk.seed.txt` — the seed used\n\nFrame ordering is left-to-right, top-to-bottom (frame 1 = top-left, frame 16 = bottom-right). Keyframe poses come from `scripts/lib/keyframes.py` (the script repeats the 4-pose cycle 4× to fill 16 cells). Working resolution comes from `assets/sprites.json`. Depends on the canonical reference task (`forest-elf-02-ref`) completing first.\n\nTo debug, `cat` the prompt or re-run with a different seed: `python scripts/generate_spritesheet.py forest-elf walk --seed N`.",
+              "taskId": "03-characters/03-generation/forest-elf-spritesheet-walk",
+              "taskTitle": "Generate Lirael walk sprite sheet",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets/.converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-spritesheet-walk",
+              "factId": "check:prompt-saved"
+            }
+          }
+        ],
+        "durationMs": 63
+      }
+    },
+    {
+      "id": "signal-done#3",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#3",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 77
+      }
+    },
+    {
+      "id": "run-strategy:task-run#8",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 63576
+      }
+    },
+    {
+      "id": "verify#3",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 113
+      }
+    },
+    {
+      "id": "check-stall#3",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt#3",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T17:28:57.198Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T17:28:57.199Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T17:28:57.265Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T17:28:57.266Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T17:28:57.315Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#6",
+      "iteration": 1,
+      "ts": "2026-04-26T17:29:46.350Z"
+    },
+    {
+      "from": "run-strategy:task-run#6",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T17:29:46.428Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-26T17:29:46.429Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-26T17:29:46.430Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-26T17:29:46.430Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-26T17:29:46.431Z"
+    },
+    {
+      "from": "check-outputs-exist#2",
+      "to": "detect-gaps#2",
+      "iteration": 2,
+      "ts": "2026-04-26T17:29:46.496Z"
+    },
+    {
+      "from": "detect-gaps#2",
+      "to": "repair-loop#2",
+      "iteration": 2,
+      "ts": "2026-04-26T17:29:46.548Z"
+    },
+    {
+      "from": "repair-loop#2",
+      "to": "run-strategy:task-run#7",
+      "iteration": 2,
+      "ts": "2026-04-26T17:30:39.686Z"
+    },
+    {
+      "from": "run-strategy:task-run#7",
+      "to": "verify#2",
+      "iteration": 2,
+      "ts": "2026-04-26T17:30:39.755Z"
+    },
+    {
+      "from": "verify#2",
+      "to": "check-stall#2",
+      "iteration": 2,
+      "ts": "2026-04-26T17:30:39.755Z"
+    },
+    {
+      "from": "check-stall#2",
+      "to": "advance-attempt#2",
+      "iteration": 2,
+      "ts": "2026-04-26T17:30:39.756Z"
+    },
+    {
+      "from": "advance-attempt#2",
+      "to": "check-wbs-seeded#3",
+      "iteration": 3,
+      "ts": "2026-04-26T17:30:39.757Z"
+    },
+    {
+      "from": "check-wbs-seeded#3",
+      "to": "check-outputs-exist#3",
+      "iteration": 3,
+      "ts": "2026-04-26T17:30:39.758Z"
+    },
+    {
+      "from": "check-outputs-exist#3",
+      "to": "detect-gaps#3",
+      "iteration": 3,
+      "ts": "2026-04-26T17:30:39.821Z"
+    },
+    {
+      "from": "detect-gaps#3",
+      "to": "repair-loop#3",
+      "iteration": 3,
+      "ts": "2026-04-26T17:30:39.899Z"
+    },
+    {
+      "from": "repair-loop#3",
+      "to": "run-strategy:task-run#8",
+      "iteration": 3,
+      "ts": "2026-04-26T17:31:43.476Z"
+    },
+    {
+      "from": "run-strategy:task-run#8",
+      "to": "verify#3",
+      "iteration": 3,
+      "ts": "2026-04-26T17:31:43.591Z"
+    }
+  ]
+}

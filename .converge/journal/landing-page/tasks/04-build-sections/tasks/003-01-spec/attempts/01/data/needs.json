@@ -1,0 +1,45 @@
+{
+  "taskId": "04-build-sections/003-01-spec",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "apps/landing/.content/sections.json",
+      "count": 1,
+      "samples": [
+        "apps/landing/.content/sections.json"
+      ]
+    },
+    {
+      "pattern": "apps/landing/.content/brand.json",
+      "count": 1,
+      "samples": [
+        "apps/landing/.content/brand.json"
+      ]
+    },
+    {
+      "pattern": "README.md",
+      "count": 1,
+      "samples": [
+        "README.md"
+      ]
+    },
+    {
+      "pattern": "docs/concepts",
+      "count": 1,
+      "samples": [
+        "docs/concepts"
+      ]
+    },
+    {
+      "pattern": "docs/getting-started/why-converge.md",
+      "count": 1,
+      "samples": [
+        "docs/getting-started/why-converge.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/.content/sections/problem-solution/SPEC.md"
+  ],
+  "blocked": false
+}

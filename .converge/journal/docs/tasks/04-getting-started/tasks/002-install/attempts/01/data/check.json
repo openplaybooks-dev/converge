@@ -1,0 +1,30 @@
+{
+  "taskId": "04-getting-started/002-install",
+  "checks": [
+    {
+      "id": "page-exists",
+      "description": "page exists",
+      "cmd": "test -f docs/getting-started/install.md"
+    },
+    {
+      "id": "page-frontmatter",
+      "description": "title + sources frontmatter",
+      "cmd": "head -10 docs/getting-started/install.md | grep -q '^title:' && head -10 docs/getting-started/install.md | grep -q '^sources:'"
+    },
+    {
+      "id": "shows-pnpm",
+      "description": "documents pnpm install",
+      "cmd": "grep -qE 'pnpm\\s+(add|install)' docs/getting-started/install.md"
+    },
+    {
+      "id": "shows-verify-step",
+      "description": "documents how to verify install (version or help)",
+      "cmd": "grep -qE 'converge\\s+(--version|--help)' docs/getting-started/install.md"
+    },
+    {
+      "id": "shows-env-vars",
+      "description": "mentions provider API key env vars",
+      "cmd": "grep -qE 'API_KEY|ANTHROPIC|GEMINI|env' docs/getting-started/install.md"
+    }
+  ]
+}

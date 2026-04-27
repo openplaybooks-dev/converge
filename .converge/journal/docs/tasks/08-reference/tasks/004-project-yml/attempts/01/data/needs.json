@@ -1,0 +1,31 @@
+{
+  "taskId": "08-reference/004-project-yml",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "packages/core/src/storage/types.ts",
+      "count": 1,
+      "samples": [
+        "packages/core/src/storage/types.ts"
+      ]
+    },
+    {
+      "pattern": "examples/stitch-to-flutter-baby-watch-v2/.converge/project.yml",
+      "count": 1,
+      "samples": [
+        "examples/stitch-to-flutter-baby-watch-v2/.converge/project.yml"
+      ]
+    },
+    {
+      "pattern": ".converge/project.yaml",
+      "count": 1,
+      "samples": [
+        ".converge/project.yaml"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/reference/project-yml.md"
+  ],
+  "blocked": false
+}

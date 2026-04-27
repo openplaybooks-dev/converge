@@ -1,0 +1,25 @@
+{
+  "taskId": "01-vendor/003-license-notice",
+  "checks": [
+    {
+      "id": "upstream-license-preserved",
+      "description": "LICENSE.upstream is the original Mission Control LICENSE",
+      "cmd": "test -f packages/converge-studio/LICENSE.upstream && grep -qi 'MIT' packages/converge-studio/LICENSE.upstream"
+    },
+    {
+      "id": "notice-attribution",
+      "description": "NOTICE file mentions builderz-labs/mission-control and includes upstream SHA",
+      "cmd": "test -f packages/converge-studio/NOTICE && grep -qi 'mission-control' packages/converge-studio/NOTICE && grep -qE '[0-9a-f]{7,40}' packages/converge-studio/NOTICE"
+    },
+    {
+      "id": "studio-license-mit",
+      "description": "Root LICENSE is MIT",
+      "cmd": "test -f packages/converge-studio/LICENSE && grep -qi 'MIT' packages/converge-studio/LICENSE"
+    },
+    {
+      "id": "readme-mentions-fork",
+      "description": "README.md documents the fork lineage",
+      "cmd": "test -f packages/converge-studio/README.md && grep -qi 'mission-control' packages/converge-studio/README.md"
+    }
+  ]
+}

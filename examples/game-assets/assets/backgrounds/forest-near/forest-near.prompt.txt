@@ -1,0 +1,38 @@
+Generate the near parallax layer for the "Forest — Near Layer" background.
+
+ART STYLE (mandatory): Modern hand-drawn 2D game art in the spirit of Studio Ghibli and contemporary indie titles like Hollow Knight, Hades, Spiritfarer, Cuphead, and Ori and the Blind Forest. Soft painterly shading, gentle gradients, clean rounded silhouettes, expressive eyes and faces, warm storybook lighting. Characters have appealing proportions (slightly stylized: larger heads, simplified bodies) and read as friendly and inviting at first glance. Color is rich and saturated but not garish — think watercolor + ink, not pixel art. Edges are smooth (no jaggies). Subtle ambient rim light hints at depth without heavy shadows.
+
+Foreground grass tufts, close fern leaves, and a single dark painterly tree trunk on the right edge, fastest parallax. Mostly transparent so the mid and far layers show through.
+
+The output is ONE image, exactly 1920×1080 pixels. No grid, no frames, no character. Composition is designed to scroll horizontally; left and right edges should be feathered or content-matched so the layer can repeat without a visible seam.
+
+Layer guidance:
+Near layer: foreground elements, fastest parallax. High contrast, high saturation, near-silhouette darks for the closest objects. Mostly empty so the mid and far layers show through — non-foreground pixels must be a flat solid sky-blue (#7EB6FF) for downstream alpha keying.
+
+Palette discipline (mandatory):
+Saturated rich greens and warm-dark tree-trunk browns. All non-foreground pixels MUST be FULLY TRANSPARENT (alpha=0) so far/mid layers composite cleanly behind.
+
+Structured spec for reference:
+
+{
+  "task": "generate_parallax_background_layer",
+  "background": "Forest \u2014 Near Layer",
+  "parallax_layer": "near",
+  "resolution": [
+    1920,
+    1080
+  ],
+  "art_style": "modern_indie_ghibli_inspired",
+  "art_style_description": "Modern hand-drawn 2D game art in the spirit of Studio Ghibli and contemporary indie titles like Hollow Knight, Hades, Spiritfarer, Cuphead, and Ori and the Blind Forest. Soft painterly shading, gentle gradients, clean rounded silhouettes, expressive eyes and faces, warm storybook lighting. Characters have appealing proportions (slightly stylized: larger heads, simplified bodies) and read as friendly and inviting at first glance. Color is rich and saturated but not garish \u2014 think watercolor + ink, not pixel art. Edges are smooth (no jaggies). Subtle ambient rim light hints at depth without heavy shadows.",
+  "palette": "Modern saturated palette with painterly gradients (NOT a fixed 16-color limit). Use subtle color variation within each material \u2014 e.g. armor highlights pick up sky/ambient tints. Skin tones are warm and natural.",
+  "palette_constraints": "Saturated rich greens and warm-dark tree-trunk browns. All non-foreground pixels MUST be FULLY TRANSPARENT (alpha=0) so far/mid layers composite cleanly behind.",
+  "critical_instructions": [
+    "Output is ONE image at exactly 1920x1080 pixels \u2014 no grid, no frames",
+    "No characters, no UI, no text, no watermarks",
+    "Wide aspect ratio composition; horizontal scrolling will tile this layer",
+    "Edges should loop or feather cleanly so horizontal repeat doesn't show seams",
+    "Do NOT produce pixel art, 8-bit, or 16-bit retro game graphics",
+    "Do NOT use a hard-edged limited color palette, dithering, or visible chunky pixels",
+    "Do NOT use the chunky aliased outlines typical of NES/SNES sprites"
+  ]
+}

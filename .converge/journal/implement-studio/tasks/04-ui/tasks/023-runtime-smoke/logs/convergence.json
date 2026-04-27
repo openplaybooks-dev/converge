@@ -1,0 +1,221 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-ui/023-runtime-smoke-missing-output-.converge/studio-state/runtime-smoke.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/023-runtime-smoke",
+            "severity": "high",
+            "description": "[04-ui/023-runtime-smoke] Task output not created: .converge/studio-state/runtime-smoke.json",
+            "source": "unit",
+            "detected": "2026-04-26T08:14:53.822Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/023-runtime-smoke",
+              "taskId": "04-ui/023-runtime-smoke",
+              "taskTitle": "Boot dev server and verify `/` shows playbooks index",
+              "taskPrompt": "Boot `pnpm dev`, hit `/`, verify it redirects to `/playbooks` and the index renders with at least one known playbook name in the HTML.\n\n**Process:**\n\n1. Free port 4000 first: `lsof -ti :4000 2>/dev/null | xargs -r kill -9; sleep 1`.\n\n2. Boot dev server in background:\n   ```bash\n   cd packages/converge-studio\n   PORT=4000 CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge \\\n     pnpm dev > /tmp/converge-studio-smoke.log 2>&1 &\n   DEV_PID=$!\n   ```\n\n3. Wait up to 60s for `/playbooks` to return 200:\n   ```bash\n   for i in $(seq 1 60); do\n     code=$(curl -s -o /tmp/converge-studio-index.html -w '%{http_code}' \\\n       http://localhost:4000/playbooks 2>/dev/null || echo 000)\n     [ \"$code\" = \"200\" ] && break\n     sleep 1\n   done\n   ```\n\n4. Verify `/` redirects (should return 307 or 200 after follow):\n   ```bash\n   redirect_code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:4000/)\n   followed_code=$(curl -sL -o /dev/null -w '%{http_code}' http://localhost:4000/)\n   final_url=$(curl -sL -o /dev/null -w '%{url_effective}' http://localhost:4000/)\n   ```\n\n5. Verify the index has a real playbook name. Pick a known one from the project:\n   ```bash\n   grep -q 'implement-studio\\|oss-standardize' /tmp/converge-studio-index.html && hasPlaybook=true || hasPlaybook=false\n   ```\n\n6. Verify NO Mission Control content rendered:\n   ```bash\n   ! grep -qiE 'mission control|launch sequence|fleet status|dispatch a task' /tmp/converge-studio-index.html && noMc=true || noMc=false\n   ```\n\n7. Kill the dev server: `kill $DEV_PID 2>/dev/null; lsof -ti :4000 | xargs -r kill -9`.\n\n8. Write the report to `.converge/studio-state/runtime-smoke.json`:\n   ```json\n   {\n     \"timestamp\": \"<ISO>\",\n     \"rootHttpCode\": <int>,\n     \"rootFollowedHttpCode\": <int>,\n     \"rootFinalUrl\": \"<url>\",\n     \"rootRedirectsToPlaybooks\": <bool>,\n     \"playbooksIndexHas200\": <bool>,\n     \"playbooksIndexHasKnownName\": <bool>,\n     \"noMissionControlContentRendered\": <bool>,\n     \"logTail\": \"<last 30 lines of /tmp/converge-studio-smoke.log>\"\n   }\n   ```\n\n   Where `rootRedirectsToPlaybooks = (rootFollowedHttpCode === 200 && rootFinalUrl.endsWith('/playbooks'))`.\n\n**Anti-patterns to avoid (per troubleshooting #12):**\n- Do NOT `pkill -f \"node\"` or `pkill -f \"converge\"` — that will kill the runner itself.\n- Use the captured `$DEV_PID` to kill specifically.\n- Always also run `lsof -ti :4000 | xargs -r kill -9` afterwards as a belt-and-braces cleanup.\n\n**If the smoke fails:** the dev log (`/tmp/converge-studio-smoke.log`) is the source of truth. Common failures:\n- `[[...panel]]` not deleted → `/` falls through to MC dashboard. Re-check 019.\n- `src/app/page.tsx` missing or doesn't redirect → re-check 021.\n- 500 on `/playbooks` because of a dangling import → run typecheck and fix.",
+              "factId": "file-exists:test -f \".converge/studio-state/runtime-smoke.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-ui/023-runtime-smoke-check-failed-smoke-report-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/023-runtime-smoke",
+            "severity": "high",
+            "description": "[04-ui/023-runtime-smoke] Check failed: Smoke report file exists and reports root-redirect-200 = true",
+            "source": "unit",
+            "detected": "2026-04-26T08:14:53.824Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "smoke-report-exists",
+              "checkCmd": "test -f .converge/studio-state/runtime-smoke.json && node -e \"const r=JSON.parse(require('fs').readFileSync('.converge/studio-state/runtime-smoke.json','utf8'));process.exit(r.rootRedirectsToPlaybooks===true&&r.playbooksIndexHas200===true?0:1)\"",
+              "checkDescription": "Smoke report file exists and reports root-redirect-200 = true",
+              "checkOutput": "Command failed: test -f .converge/studio-state/runtime-smoke.json && node -e \"const r=JSON.parse(require('fs').readFileSync('.converge/studio-state/runtime-smoke.json','utf8'));process.exit(r.rootRedirectsToPlaybooks===true&&r.playbooksIndexHas200===true?0:1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Boot `pnpm dev`, hit `/`, verify it redirects to `/playbooks` and the index renders with at least one known playbook name in the HTML.\n\n**Process:**\n\n1. Free port 4000 first: `lsof -ti :4000 2>/dev/null | xargs -r kill -9; sleep 1`.\n\n2. Boot dev server in background:\n   ```bash\n   cd packages/converge-studio\n   PORT=4000 CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge \\\n     pnpm dev > /tmp/converge-studio-smoke.log 2>&1 &\n   DEV_PID=$!\n   ```\n\n3. Wait up to 60s for `/playbooks` to return 200:\n   ```bash\n   for i in $(seq 1 60); do\n     code=$(curl -s -o /tmp/converge-studio-index.html -w '%{http_code}' \\\n       http://localhost:4000/playbooks 2>/dev/null || echo 000)\n     [ \"$code\" = \"200\" ] && break\n     sleep 1\n   done\n   ```\n\n4. Verify `/` redirects (should return 307 or 200 after follow):\n   ```bash\n   redirect_code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:4000/)\n   followed_code=$(curl -sL -o /dev/null -w '%{http_code}' http://localhost:4000/)\n   final_url=$(curl -sL -o /dev/null -w '%{url_effective}' http://localhost:4000/)\n   ```\n\n5. Verify the index has a real playbook name. Pick a known one from the project:\n   ```bash\n   grep -q 'implement-studio\\|oss-standardize' /tmp/converge-studio-index.html && hasPlaybook=true || hasPlaybook=false\n   ```\n\n6. Verify NO Mission Control content rendered:\n   ```bash\n   ! grep -qiE 'mission control|launch sequence|fleet status|dispatch a task' /tmp/converge-studio-index.html && noMc=true || noMc=false\n   ```\n\n7. Kill the dev server: `kill $DEV_PID 2>/dev/null; lsof -ti :4000 | xargs -r kill -9`.\n\n8. Write the report to `.converge/studio-state/runtime-smoke.json`:\n   ```json\n   {\n     \"timestamp\": \"<ISO>\",\n     \"rootHttpCode\": <int>,\n     \"rootFollowedHttpCode\": <int>,\n     \"rootFinalUrl\": \"<url>\",\n     \"rootRedirectsToPlaybooks\": <bool>,\n     \"playbooksIndexHas200\": <bool>,\n     \"playbooksIndexHasKnownName\": <bool>,\n     \"noMissionControlContentRendered\": <bool>,\n     \"logTail\": \"<last 30 lines of /tmp/converge-studio-smoke.log>\"\n   }\n   ```\n\n   Where `rootRedirectsToPlaybooks = (rootFollowedHttpCode === 200 && rootFinalUrl.endsWith('/playbooks'))`.\n\n**Anti-patterns to avoid (per troubleshooting #12):**\n- Do NOT `pkill -f \"node\"` or `pkill -f \"converge\"` — that will kill the runner itself.\n- Use the captured `$DEV_PID` to kill specifically.\n- Always also run `lsof -ti :4000 | xargs -r kill -9` afterwards as a belt-and-braces cleanup.\n\n**If the smoke fails:** the dev log (`/tmp/converge-studio-smoke.log`) is the source of truth. Common failures:\n- `[[...panel]]` not deleted → `/` falls through to MC dashboard. Re-check 019.\n- `src/app/page.tsx` missing or doesn't redirect → re-check 021.\n- 500 on `/playbooks` because of a dangling import → run typecheck and fix.",
+              "taskId": "04-ui/023-runtime-smoke",
+              "taskTitle": "Boot dev server and verify `/` shows playbooks index",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/023-runtime-smoke",
+              "factId": "check:smoke-report-exists"
+            }
+          }
+        ],
+        "durationMs": 5
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 77
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#4",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 626296
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T08:14:53.819Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T08:14:53.819Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T08:14:53.824Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T08:14:53.824Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T08:14:53.828Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#4",
+      "iteration": 1,
+      "ts": "2026-04-26T08:25:20.124Z"
+    },
+    {
+      "from": "run-strategy:task-run#4",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T08:25:20.202Z"
+    }
+  ]
+}

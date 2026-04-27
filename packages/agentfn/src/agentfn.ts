@@ -25,26 +25,8 @@ async function loadProvider<T>(pkg: string): Promise<T> {
 }
 import { enhancePrompt } from "./prompting.js";
 import { ensureSkillSymlinks, cleanupSkillSymlinks } from "./skills.js";
-import { join, resolve } from "node:path";
-import { existsSync } from "node:fs";
-
-/**
- * Walk up from startDir to find the project root.
- * Prefers a directory with .claude (Claude Code project), then .converge (converge project root).
- * Falls back to null if neither found.
- */
-function findProjectRoot(startDir: string): string | null {
-  let dir = resolve(startDir);
-  let convergeRoot: string | null = null;
-  while (true) {
-    if (existsSync(join(dir, ".claude"))) return dir;
-    if (!convergeRoot && existsSync(join(dir, ".converge"))) convergeRoot = dir;
-    const parent = join(dir, "..");
-    if (parent === dir) break;
-    dir = parent;
-  }
-  return convergeRoot; // fall back to .converge root if no .claude found
-}
+import { findConvergeRoot } from "@converge/project-root";
+import { join } from "node:path";
 
 /**
  * Create a callable function backed by either Claude or Kimi.
@@ -176,10 +158,10 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
     let createdSymlinks: string[] = [];
     let symlinkTarget: string | undefined;
 
-    // Claude Code resolves skills from the directory containing .claude, not necessarily cwd.
-    // Walk up to find the existing .claude directory so junctions land where Claude Code looks.
+    // Skill junctions land at <projectRoot>/.claude/skills/, where projectRoot is
+    // the nearest ancestor (or self) containing .converge/. See @converge/project-root.
     const baseDir = opts.cwd || process.cwd();
-    const projectRoot = findProjectRoot(baseDir);
+    const projectRoot = findConvergeRoot(baseDir);
     symlinkTarget = join(projectRoot ?? baseDir, ".claude", "skills");
 
     if (opts.skillDirs && Object.keys(opts.skillDirs).length > 0) {
@@ -213,17 +195,13 @@ export function agentfn<T = string>(options?: AgentFnOptions<T>): AgentFn<T> {
         targetRoot: symlinkTarget,
       });
       createdSymlinks.push(...fromRoot);
-    } else if (useLegacySkills) {
-      // Legacy: auto-detect from .converge/ (deprecated)
-      const { _findProjectRoot } = await import("./skills.js");
-      const root = _findProjectRoot(opts.cwd);
-      if (root) {
-        const convergeSkillsDir = join(root, ".converge", "skills");
-        symlinkTarget = join(root, ".claude", "skills");
-        createdSymlinks = ensureSkillSymlinks(convergeSkillsDir, {
-          targetRoot: symlinkTarget,
-        });
-      }
+    } else if (useLegacySkills && projectRoot) {
+      // Legacy: auto-detect from <projectRoot>/.converge/skills/.
+      // symlinkTarget was already set above; reuse it.
+      const convergeSkillsDir = join(projectRoot, ".converge", "skills");
+      createdSymlinks = ensureSkillSymlinks(convergeSkillsDir, {
+        targetRoot: symlinkTarget,
+      });
     }
 
     try {

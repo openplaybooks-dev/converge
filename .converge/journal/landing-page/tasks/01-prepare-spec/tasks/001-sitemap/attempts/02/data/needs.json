@@ -1,0 +1,24 @@
+{
+  "taskId": "01-prepare-spec/001-sitemap",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "docs/_ia.json",
+      "count": 1,
+      "samples": [
+        "docs/_ia.json"
+      ]
+    },
+    {
+      "pattern": "README.md",
+      "count": 1,
+      "samples": [
+        "README.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/.content/sitemap.json"
+  ],
+  "blocked": false
+}

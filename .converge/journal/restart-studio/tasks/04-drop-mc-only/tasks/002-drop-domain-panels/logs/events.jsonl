@@ -1,0 +1,19 @@
+{"ts":"2026-04-26T10:02:04.517Z","type":"action","iter":1,"handler":"check-wbs-seeded","result":"continue","ms":0}
+{"ts":"2026-04-26T10:02:04.518Z","type":"action","iter":1,"handler":"check-outputs-exist","result":"continue","ms":0}
+{"ts":"2026-04-26T10:02:04.525Z","type":"gaps-detected","iter":1,"count":3,"kinds":["output","check-failed"],"delta":3}
+{"ts":"2026-04-26T10:02:04.525Z","type":"action","iter":1,"handler":"detect-gaps","result":"continue","ms":7}
+{"ts":"2026-04-26T10:02:04.525Z","type":"action","iter":1,"handler":"run-executor","result":"continue","ms":0}
+{"ts":"2026-04-26T10:02:04.530Z","type":"action","iter":1,"handler":"repair-loop","result":"continue","ms":4}
+{"ts":"2026-04-26T10:03:19.578Z","type":"action","iter":1,"handler":"run-strategy","result":"continue","ms":75047}
+{"ts":"2026-04-26T10:03:19.589Z","type":"action","iter":1,"handler":"verify","result":"continue","ms":10}
+{"ts":"2026-04-26T10:03:19.590Z","type":"action","iter":1,"handler":"check-stall","result":"continue","ms":0}
+{"ts":"2026-04-26T10:03:19.591Z","type":"attempt-advanced","iter":1,"to":"02"}
+{"ts":"2026-04-26T10:03:19.592Z","type":"action","iter":1,"handler":"advance-attempt","result":"continue","ms":0}
+{"ts":"2026-04-26T10:03:19.592Z","type":"action","iter":2,"handler":"check-wbs-seeded","result":"continue","ms":0}
+{"ts":"2026-04-26T10:03:19.593Z","type":"action","iter":2,"handler":"check-outputs-exist","result":"continue","ms":0}
+{"ts":"2026-04-26T10:03:19.602Z","type":"gaps-detected","iter":2,"count":2,"kinds":["output","check-failed"],"delta":0}
+{"ts":"2026-04-26T10:03:19.602Z","type":"action","iter":2,"handler":"detect-gaps","result":"continue","ms":8}
+{"ts":"2026-04-26T10:03:19.606Z","type":"action","iter":2,"handler":"repair-loop","result":"continue","ms":3}
+{"ts":"2026-04-26T10:03:46.439Z","type":"action","iter":2,"handler":"run-strategy","result":"continue","ms":26833}
+{"ts":"2026-04-26T10:03:46.451Z","type":"action","iter":2,"handler":"verify","result":"done","ms":11,"reason":"All gaps resolved"}
+{"ts":"2026-04-26T10:03:46.452Z","type":"outcome","iter":2,"result":"done","reason":"All gaps resolved"}

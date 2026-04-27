@@ -170,8 +170,6 @@ Return the list as a JSON array.`
     });
 
     // ── Level 2: Step children (from templates) ──────────────────
-    // Omit writeToPath so the engine routes spawned tasks to the journal,
-    // matching how the Level 1 parent task is spawned above.
     const steps = ['01-spec', '02-design', '03-convert', '04-connect', '05-mount'];
 
     for (const step of steps) {

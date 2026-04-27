@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "04-ui/015-empty-state-onboarding",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T07:03:01.813Z",
+  "createdAt": "2026-04-26T07:01:42.962Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T07:01:42.962Z",
+      "completedAt": "2026-04-26T07:03:01.810Z",
+      "outcome": "success",
+      "durationMs": 78848
+    }
+  ],
+  "currentAttempt": 1
+}

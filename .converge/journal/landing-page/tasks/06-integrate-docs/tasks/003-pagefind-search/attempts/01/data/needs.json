@@ -1,0 +1,17 @@
+{
+  "taskId": "06-integrate-docs/003-pagefind-search",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "apps/landing/astro.config.mjs",
+      "count": 1,
+      "samples": [
+        "apps/landing/astro.config.mjs"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/astro.config.mjs"
+  ],
+  "blocked": false
+}

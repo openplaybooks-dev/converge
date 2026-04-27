@@ -1,0 +1,250 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-ui/008-promote-playbooks-to-root-check-failed-root-page-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/008-promote-playbooks-to-root",
+            "severity": "high",
+            "description": "[04-ui/008-promote-playbooks-to-root] Check failed: src/app/page.tsx exists (i.e. / is served by the playbooks index)",
+            "source": "unit",
+            "detected": "2026-04-26T04:55:49.637Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "root-page-exists",
+              "checkCmd": "test -f packages/converge-studio/src/app/page.tsx",
+              "checkDescription": "src/app/page.tsx exists (i.e. / is served by the playbooks index)",
+              "checkOutput": "Command failed: test -f packages/converge-studio/src/app/page.tsx\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Playbook is the root entity in converge — there is no separate dashboard. The URL surface should mirror that: `/` lists playbooks, `/playbooks/[name]` is a playbook detail, `/runs` lists runs. Stripe-account-style. No dashboard layer above.\n\nToday (after task 001's prune) the playbooks UI lives under a `(studio)` route group: `src/app/(studio)/playbooks/page.tsx`. That group exists because the upstream split UI between a dashboard catch-all and a \"studio\" subtree. With the catch-all gone, the group is meaningless.\n\n**Move:**\n- `src/app/(studio)/playbooks/page.tsx` → `src/app/page.tsx` (becomes `/`).\n- `src/app/(studio)/playbooks/new/page.tsx` → `src/app/playbooks/new/page.tsx`.\n- `src/app/(studio)/playbooks/[name]/page.tsx` → `src/app/playbooks/[name]/page.tsx`.\n- `src/app/(studio)/playbooks/[name]/tasks/[...path]/page.tsx` → `src/app/playbooks/[name]/tasks/[...path]/page.tsx` (URL unchanged).\n- `src/app/(studio)/runs/page.tsx` → `src/app/runs/page.tsx`.\n- `src/app/(studio)/runs/[playbook]/[sessionId]/page.tsx` → `src/app/runs/[playbook]/[sessionId]/page.tsx` (URL unchanged).\n- Any other file under `(studio)/` moves to the equivalent root path.\n\n**After moving:**\n1. Delete the empty `src/app/(studio)/` directory.\n2. The new `src/app/page.tsx` is the playbooks index, but it should not duplicate the `/playbooks` route — leave `/playbooks` as a redirect (`export default function Page() { redirect('/') }` from `next/navigation`) OR delete it and rely solely on `/`. Pick the simpler one: delete `src/app/playbooks/page.tsx` if it would just duplicate `/`.\n3. Update every `<Link href=\"/playbooks\">` in the codebase to `href=\"/\"`. Update breadcrumb code that assumes `/playbooks` is the index.\n4. Update the navigation component (the new minimal one introduced in task 010) so `Playbooks` links to `/`.\n\n**Routing rule reminder:** Next.js disallows static segments after a catch-all. When moving the task editor page (`tasks/[...path]/`), do not introduce any sibling segments under `[...path]`. The companion API route (`api/playbooks/[name]/task-reset/[...path]`) already follows this rule — keep it that way.\n\n**Verification:**\n- `pnpm --filter @converge/studio dev` boots cleanly.\n- `curl -s http://localhost:4000/` returns 200 and the body contains the literal `Playbooks` (the page heading).\n- `curl -s http://localhost:4000/playbooks/implement-studio` returns 200 against a real on-disk playbook.\n- `curl -s http://localhost:4000/runs` returns 200.\n- No `Catch-all must be the last part of the URL` error in the dev server log.",
+              "taskId": "04-ui/008-promote-playbooks-to-root",
+              "taskTitle": "Promote playbooks UI to the URL root",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/008-promote-playbooks-to-root",
+              "factId": "check:root-page-exists"
+            }
+          },
+          {
+            "id": "04-ui/008-promote-playbooks-to-root-check-failed-studio-route-group-removed",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/008-promote-playbooks-to-root",
+            "severity": "high",
+            "description": "[04-ui/008-promote-playbooks-to-root] Check failed: The (studio) route group is gone",
+            "source": "unit",
+            "detected": "2026-04-26T04:55:49.639Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "studio-route-group-removed",
+              "checkCmd": "test ! -d 'packages/converge-studio/src/app/(studio)'",
+              "checkDescription": "The (studio) route group is gone",
+              "checkOutput": "Command failed: test ! -d 'packages/converge-studio/src/app/(studio)'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Playbook is the root entity in converge — there is no separate dashboard. The URL surface should mirror that: `/` lists playbooks, `/playbooks/[name]` is a playbook detail, `/runs` lists runs. Stripe-account-style. No dashboard layer above.\n\nToday (after task 001's prune) the playbooks UI lives under a `(studio)` route group: `src/app/(studio)/playbooks/page.tsx`. That group exists because the upstream split UI between a dashboard catch-all and a \"studio\" subtree. With the catch-all gone, the group is meaningless.\n\n**Move:**\n- `src/app/(studio)/playbooks/page.tsx` → `src/app/page.tsx` (becomes `/`).\n- `src/app/(studio)/playbooks/new/page.tsx` → `src/app/playbooks/new/page.tsx`.\n- `src/app/(studio)/playbooks/[name]/page.tsx` → `src/app/playbooks/[name]/page.tsx`.\n- `src/app/(studio)/playbooks/[name]/tasks/[...path]/page.tsx` → `src/app/playbooks/[name]/tasks/[...path]/page.tsx` (URL unchanged).\n- `src/app/(studio)/runs/page.tsx` → `src/app/runs/page.tsx`.\n- `src/app/(studio)/runs/[playbook]/[sessionId]/page.tsx` → `src/app/runs/[playbook]/[sessionId]/page.tsx` (URL unchanged).\n- Any other file under `(studio)/` moves to the equivalent root path.\n\n**After moving:**\n1. Delete the empty `src/app/(studio)/` directory.\n2. The new `src/app/page.tsx` is the playbooks index, but it should not duplicate the `/playbooks` route — leave `/playbooks` as a redirect (`export default function Page() { redirect('/') }` from `next/navigation`) OR delete it and rely solely on `/`. Pick the simpler one: delete `src/app/playbooks/page.tsx` if it would just duplicate `/`.\n3. Update every `<Link href=\"/playbooks\">` in the codebase to `href=\"/\"`. Update breadcrumb code that assumes `/playbooks` is the index.\n4. Update the navigation component (the new minimal one introduced in task 010) so `Playbooks` links to `/`.\n\n**Routing rule reminder:** Next.js disallows static segments after a catch-all. When moving the task editor page (`tasks/[...path]/`), do not introduce any sibling segments under `[...path]`. The companion API route (`api/playbooks/[name]/task-reset/[...path]`) already follows this rule — keep it that way.\n\n**Verification:**\n- `pnpm --filter @converge/studio dev` boots cleanly.\n- `curl -s http://localhost:4000/` returns 200 and the body contains the literal `Playbooks` (the page heading).\n- `curl -s http://localhost:4000/playbooks/implement-studio` returns 200 against a real on-disk playbook.\n- `curl -s http://localhost:4000/runs` returns 200.\n- No `Catch-all must be the last part of the URL` error in the dev server log.",
+              "taskId": "04-ui/008-promote-playbooks-to-root",
+              "taskTitle": "Promote playbooks UI to the URL root",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/008-promote-playbooks-to-root",
+              "factId": "check:studio-route-group-removed"
+            }
+          },
+          {
+            "id": "04-ui/008-promote-playbooks-to-root-check-failed-playbooks-routes-at-root",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/008-promote-playbooks-to-root",
+            "severity": "high",
+            "description": "[04-ui/008-promote-playbooks-to-root] Check failed: /playbooks/[name] and /runs are at the URL root",
+            "source": "unit",
+            "detected": "2026-04-26T04:55:49.642Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "playbooks-routes-at-root",
+              "checkCmd": "test -f 'packages/converge-studio/src/app/playbooks/[name]/page.tsx' && test -f 'packages/converge-studio/src/app/runs/page.tsx'",
+              "checkDescription": "/playbooks/[name] and /runs are at the URL root",
+              "checkOutput": "Command failed: test -f 'packages/converge-studio/src/app/playbooks/[name]/page.tsx' && test -f 'packages/converge-studio/src/app/runs/page.tsx'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Playbook is the root entity in converge — there is no separate dashboard. The URL surface should mirror that: `/` lists playbooks, `/playbooks/[name]` is a playbook detail, `/runs` lists runs. Stripe-account-style. No dashboard layer above.\n\nToday (after task 001's prune) the playbooks UI lives under a `(studio)` route group: `src/app/(studio)/playbooks/page.tsx`. That group exists because the upstream split UI between a dashboard catch-all and a \"studio\" subtree. With the catch-all gone, the group is meaningless.\n\n**Move:**\n- `src/app/(studio)/playbooks/page.tsx` → `src/app/page.tsx` (becomes `/`).\n- `src/app/(studio)/playbooks/new/page.tsx` → `src/app/playbooks/new/page.tsx`.\n- `src/app/(studio)/playbooks/[name]/page.tsx` → `src/app/playbooks/[name]/page.tsx`.\n- `src/app/(studio)/playbooks/[name]/tasks/[...path]/page.tsx` → `src/app/playbooks/[name]/tasks/[...path]/page.tsx` (URL unchanged).\n- `src/app/(studio)/runs/page.tsx` → `src/app/runs/page.tsx`.\n- `src/app/(studio)/runs/[playbook]/[sessionId]/page.tsx` → `src/app/runs/[playbook]/[sessionId]/page.tsx` (URL unchanged).\n- Any other file under `(studio)/` moves to the equivalent root path.\n\n**After moving:**\n1. Delete the empty `src/app/(studio)/` directory.\n2. The new `src/app/page.tsx` is the playbooks index, but it should not duplicate the `/playbooks` route — leave `/playbooks` as a redirect (`export default function Page() { redirect('/') }` from `next/navigation`) OR delete it and rely solely on `/`. Pick the simpler one: delete `src/app/playbooks/page.tsx` if it would just duplicate `/`.\n3. Update every `<Link href=\"/playbooks\">` in the codebase to `href=\"/\"`. Update breadcrumb code that assumes `/playbooks` is the index.\n4. Update the navigation component (the new minimal one introduced in task 010) so `Playbooks` links to `/`.\n\n**Routing rule reminder:** Next.js disallows static segments after a catch-all. When moving the task editor page (`tasks/[...path]/`), do not introduce any sibling segments under `[...path]`. The companion API route (`api/playbooks/[name]/task-reset/[...path]`) already follows this rule — keep it that way.\n\n**Verification:**\n- `pnpm --filter @converge/studio dev` boots cleanly.\n- `curl -s http://localhost:4000/` returns 200 and the body contains the literal `Playbooks` (the page heading).\n- `curl -s http://localhost:4000/playbooks/implement-studio` returns 200 against a real on-disk playbook.\n- `curl -s http://localhost:4000/runs` returns 200.\n- No `Catch-all must be the last part of the URL` error in the dev server log.",
+              "taskId": "04-ui/008-promote-playbooks-to-root",
+              "taskTitle": "Promote playbooks UI to the URL root",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/008-promote-playbooks-to-root",
+              "factId": "check:playbooks-routes-at-root"
+            }
+          }
+        ],
+        "durationMs": 4019
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3899
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 4146
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#2",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 293523
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T04:55:49.631Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T04:55:49.631Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T04:55:53.651Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T04:55:53.651Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T04:55:57.552Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#2",
+      "iteration": 1,
+      "ts": "2026-04-26T05:00:51.076Z"
+    },
+    {
+      "from": "run-strategy:task-run#2",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T05:00:55.222Z"
+    }
+  ]
+}

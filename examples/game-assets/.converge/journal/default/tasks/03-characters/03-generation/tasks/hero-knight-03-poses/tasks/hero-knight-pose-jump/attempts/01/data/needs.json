@@ -1,9 +1,0 @@
-{
-  "taskId": "03-characters/03-generation/hero-knight-03-poses/hero-knight-pose-jump",
-  "attemptNumber": 1,
-  "inputs": [],
-  "outputs": [
-    "assets/characters/hero-knight/variants/jump/jump.png"
-  ],
-  "blocked": false
-}

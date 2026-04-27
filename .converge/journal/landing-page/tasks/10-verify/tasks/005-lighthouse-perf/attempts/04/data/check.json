@@ -1,0 +1,10 @@
+{
+  "taskId": "10-verify/005-lighthouse-perf",
+  "checks": [
+    {
+      "id": "lighthouse-perf-95",
+      "description": "Lighthouse Performance >= 95 on /",
+      "cmd": "cd apps/landing && pnpm preview > /tmp/converge-landing-preview.log 2>&1 &\nPREVIEW_PID=$!\nsleep 5\nLH_URL=http://localhost:4321/ node .converge/playbooks/landing-page/scripts/lighthouse-gate.mjs performance 95\nRC=$?\nkill $PREVIEW_PID 2>/dev/null\nwait $PREVIEW_PID 2>/dev/null\nexit $RC\n"
+    }
+  ]
+}

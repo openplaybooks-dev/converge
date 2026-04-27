@@ -1,0 +1,19 @@
+{
+  "type": "task",
+  "id": "01-prepare-spec",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T02:00:38.291Z",
+  "createdAt": "2026-04-26T17:19:32.829Z",
+  "progress": {
+    "totalChildren": 4,
+    "completedChildren": 4,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-sitemap",
+      "002-sections-inventory",
+      "003-brand-spec",
+      "004-seo-spec"
+    ],
+    "lastProgressUpdate": "2026-04-27T02:00:38.290Z"
+  }
+}

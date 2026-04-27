@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "04-build-sections/005-comparison",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T18:45:59.266Z",
+  "createdAt": "2026-04-26T18:44:21.070Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T18:44:21.070Z",
+      "completedAt": "2026-04-26T18:45:59.237Z",
+      "outcome": "success",
+      "durationMs": 98167
+    }
+  ],
+  "currentAttempt": 1
+}

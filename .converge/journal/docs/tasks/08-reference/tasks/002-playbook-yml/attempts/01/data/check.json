@@ -1,0 +1,25 @@
+{
+  "taskId": "08-reference/002-playbook-yml",
+  "checks": [
+    {
+      "id": "page-exists",
+      "description": "page exists",
+      "cmd": "test -f docs/reference/playbook-yml.md"
+    },
+    {
+      "id": "documents-name-and-tasks",
+      "description": "documents name and tasks fields",
+      "cmd": "grep -qE '^##\\s+name|^###\\s+name' docs/reference/playbook-yml.md && grep -qE '^##\\s+tasks|^###\\s+tasks' docs/reference/playbook-yml.md"
+    },
+    {
+      "id": "documents-checks",
+      "description": "documents checks field",
+      "cmd": "grep -qE '^##\\s+checks|^###\\s+checks' docs/reference/playbook-yml.md"
+    },
+    {
+      "id": "shows-full-example",
+      "description": "shows a complete playbook.yml example",
+      "cmd": "grep -qE '^name:.+\\n.+description:' docs/reference/playbook-yml.md || grep -A20 '```yaml' docs/reference/playbook-yml.md | grep -q 'name:'"
+    }
+  ]
+}

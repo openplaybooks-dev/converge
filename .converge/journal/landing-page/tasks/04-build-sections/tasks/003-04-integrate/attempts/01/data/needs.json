@@ -1,0 +1,24 @@
+{
+  "taskId": "04-build-sections/003-04-integrate",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "apps/landing/src/components/sections/ProblemSolution.astro",
+      "count": 1,
+      "samples": [
+        "apps/landing/src/components/sections/ProblemSolution.astro"
+      ]
+    },
+    {
+      "pattern": "apps/landing/.content/sections.json",
+      "count": 1,
+      "samples": [
+        "apps/landing/.content/sections.json"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/src/pages/index.astro"
+  ],
+  "blocked": false
+}

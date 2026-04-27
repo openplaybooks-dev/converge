@@ -1,0 +1,31 @@
+{
+  "image": "forest-far.png",
+  "meta": {
+    "bg_id": "forest-far",
+    "parallax_layer": "far",
+    "rows": 1,
+    "cols": 1,
+    "frame_count": 1,
+    "frame_size": {
+      "w": 1920,
+      "h": 1080
+    },
+    "sheet_size": {
+      "w": 1920,
+      "h": 1080
+    },
+    "frame_order": "single",
+    "seed": 760350930
+  },
+  "frames": [
+    {
+      "filename": "forest-far.png",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 1920,
+        "h": 1080
+      }
+    }
+  ]
+}

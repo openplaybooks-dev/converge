@@ -1,0 +1,18 @@
+{
+  "taskId": "03-design-system/001-extract-tokens",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "apps/landing/.content/brand.json",
+      "count": 1,
+      "samples": [
+        "apps/landing/.content/brand.json"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/src/styles/tokens.json",
+    "apps/landing/src/styles/tokens.css"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,43 @@
+{
+  "type": "task",
+  "id": "06-guides",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T23:04:30.689Z",
+  "createdAt": "2026-04-26T08:46:38.641Z",
+  "progress": {
+    "totalChildren": 28,
+    "completedChildren": 28,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-articulate-your-goal",
+      "002-generate-something-repeatedly",
+      "003-research-a-topic-deeply",
+      "004-build-a-software-project",
+      "005-switch-providers",
+      "006-read-the-journal",
+      "007-customize-an-example",
+      "001-articulate-your-goal",
+      "002-generate-something-repeatedly",
+      "003-research-a-topic-deeply",
+      "004-build-a-software-project",
+      "005-switch-providers",
+      "006-read-the-journal",
+      "007-customize-an-example",
+      "001-articulate-your-goal",
+      "002-generate-something-repeatedly",
+      "003-research-a-topic-deeply",
+      "004-build-a-software-project",
+      "005-switch-providers",
+      "006-read-the-journal",
+      "007-customize-an-example",
+      "001-articulate-your-goal",
+      "002-generate-something-repeatedly",
+      "003-research-a-topic-deeply",
+      "004-build-a-software-project",
+      "005-switch-providers",
+      "006-read-the-journal",
+      "007-customize-an-example"
+    ],
+    "lastProgressUpdate": "2026-04-26T23:04:30.621Z"
+  }
+}

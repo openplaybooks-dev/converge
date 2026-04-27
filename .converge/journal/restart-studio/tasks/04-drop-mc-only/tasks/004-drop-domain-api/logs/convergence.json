@@ -1,0 +1,247 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-drop-mc-only/004-drop-domain-api-missing-output-.converge/studio-state/dropped-domain-api.txt",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-drop-mc-only/004-drop-domain-api",
+            "severity": "high",
+            "description": "[04-drop-mc-only/004-drop-domain-api] Task output not created: .converge/studio-state/dropped-domain-api.txt",
+            "source": "unit",
+            "detected": "2026-04-26T10:05:39.242Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/04-drop-mc-only/tasks/004-drop-domain-api",
+              "taskId": "04-drop-mc-only/004-drop-domain-api",
+              "taskTitle": "Drop MC-domain API routes (everything not in the converge allowlist)",
+              "taskPrompt": "```bash\ncd packages/studio/src/app/api\n# Keep the converge-native allowlist\nALLOWED=\"playbooks runs run watch events search settings\"\nfor d in */; do\n  d=${d%/}\n  case \" $ALLOWED \" in\n    *\" $d \"*) ;;\n    *) echo \"  removing: $d\"; rm -rf \"$d\" ;;\n  esac\ndone\ncd /Users/minh/Documents/converge\n\nmkdir -p .converge/studio-state\necho \"Dropped MC-domain API routes at $(date -u +%Y-%m-%dT%H:%M:%SZ)\" > .converge/studio-state/dropped-domain-api.txt\n```\n\nAfter this leaf, `src/app/api/` contains exactly: `playbooks`, `runs`, `run`, `watch`, `events`, `search`, `settings`.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \".converge/studio-state/dropped-domain-api.txt\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-drop-mc-only/004-drop-domain-api-check-failed-only-allowlist-remains",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-drop-mc-only/004-drop-domain-api",
+            "severity": "high",
+            "description": "[04-drop-mc-only/004-drop-domain-api] Check failed: src/app/api/ contains only converge-native dirs",
+            "source": "unit",
+            "detected": "2026-04-26T10:05:39.246Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "only-allowlist-remains",
+              "checkCmd": "bash -c 'cd packages/studio/src/app/api && allowed=\"playbooks runs run watch events search settings\"; for d in */; do d=${d%/}; case \" $allowed \" in *\" $d \"*) ;; *) echo \"unexpected: $d\"; exit 1 ;; esac; done'",
+              "checkDescription": "src/app/api/ contains only converge-native dirs",
+              "checkOutput": "unexpected: activities",
+              "checkExitCode": 1,
+              "taskPrompt": "```bash\ncd packages/studio/src/app/api\n# Keep the converge-native allowlist\nALLOWED=\"playbooks runs run watch events search settings\"\nfor d in */; do\n  d=${d%/}\n  case \" $ALLOWED \" in\n    *\" $d \"*) ;;\n    *) echo \"  removing: $d\"; rm -rf \"$d\" ;;\n  esac\ndone\ncd /Users/minh/Documents/converge\n\nmkdir -p .converge/studio-state\necho \"Dropped MC-domain API routes at $(date -u +%Y-%m-%dT%H:%M:%SZ)\" > .converge/studio-state/dropped-domain-api.txt\n```\n\nAfter this leaf, `src/app/api/` contains exactly: `playbooks`, `runs`, `run`, `watch`, `events`, `search`, `settings`.",
+              "taskId": "04-drop-mc-only/004-drop-domain-api",
+              "taskTitle": "Drop MC-domain API routes (everything not in the converge allowlist)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/04-drop-mc-only/tasks/004-drop-domain-api",
+              "factId": "check:only-allowlist-remains"
+            }
+          },
+          {
+            "id": "04-drop-mc-only/004-drop-domain-api-check-failed-marker-written",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-drop-mc-only/004-drop-domain-api",
+            "severity": "high",
+            "description": "[04-drop-mc-only/004-drop-domain-api] Check failed: A marker file recording the drop is written",
+            "source": "unit",
+            "detected": "2026-04-26T10:05:39.248Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "marker-written",
+              "checkCmd": "test -f .converge/studio-state/dropped-domain-api.txt",
+              "checkDescription": "A marker file recording the drop is written",
+              "checkOutput": "Command failed: test -f .converge/studio-state/dropped-domain-api.txt\n",
+              "checkExitCode": 1,
+              "taskPrompt": "```bash\ncd packages/studio/src/app/api\n# Keep the converge-native allowlist\nALLOWED=\"playbooks runs run watch events search settings\"\nfor d in */; do\n  d=${d%/}\n  case \" $ALLOWED \" in\n    *\" $d \"*) ;;\n    *) echo \"  removing: $d\"; rm -rf \"$d\" ;;\n  esac\ndone\ncd /Users/minh/Documents/converge\n\nmkdir -p .converge/studio-state\necho \"Dropped MC-domain API routes at $(date -u +%Y-%m-%dT%H:%M:%SZ)\" > .converge/studio-state/dropped-domain-api.txt\n```\n\nAfter this leaf, `src/app/api/` contains exactly: `playbooks`, `runs`, `run`, `watch`, `events`, `search`, `settings`.",
+              "taskId": "04-drop-mc-only/004-drop-domain-api",
+              "taskTitle": "Drop MC-domain API routes (everything not in the converge allowlist)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/04-drop-mc-only/tasks/004-drop-domain-api",
+              "factId": "check:marker-written"
+            }
+          }
+        ],
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 14
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#21",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 50187
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T10:05:39.238Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T10:05:39.239Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T10:05:39.248Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T10:05:39.248Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T10:05:39.257Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#21",
+      "iteration": 1,
+      "ts": "2026-04-26T10:06:29.445Z"
+    },
+    {
+      "from": "run-strategy:task-run#21",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T10:06:29.459Z"
+    }
+  ]
+}

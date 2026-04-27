@@ -1,0 +1,31 @@
+{
+  "taskId": "04-build-sections/003-02-design",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "apps/landing/.content/sections/problem-solution/SPEC.md",
+      "count": 1,
+      "samples": [
+        "apps/landing/.content/sections/problem-solution/SPEC.md"
+      ]
+    },
+    {
+      "pattern": "apps/landing/src/components/ui",
+      "count": 1,
+      "samples": [
+        "apps/landing/src/components/ui"
+      ]
+    },
+    {
+      "pattern": "apps/landing/src/components/layout",
+      "count": 1,
+      "samples": [
+        "apps/landing/src/components/layout"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/.content/sections/problem-solution/DESIGN.md"
+  ],
+  "blocked": false
+}

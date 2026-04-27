@@ -1,0 +1,200 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "02-bootstrap-astro/005-cloudflare-adapter-check-failed-output-server",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-bootstrap-astro/005-cloudflare-adapter",
+            "severity": "high",
+            "description": "[02-bootstrap-astro/005-cloudflare-adapter] Check failed: output is 'server' (Astro 6 valid value for SSR)",
+            "source": "unit",
+            "detected": "2026-04-26T17:34:42.158Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "output-server",
+              "checkCmd": "test -f apps/landing/astro.config.mjs && grep -qE \"output:\\s*['\\\"]server['\\\"]\" apps/landing/astro.config.mjs",
+              "checkDescription": "output is 'server' (Astro 6 valid value for SSR)",
+              "checkOutput": "Command failed: test -f apps/landing/astro.config.mjs && grep -qE \"output:\\s*['\\\"]server['\\\"]\" apps/landing/astro.config.mjs\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Cloudflare adapter\n\nReplace the default `astro.config.mjs` (from the minimal scaffold) with\none that:\n\n- Uses `@astrojs/cloudflare` as the adapter\n- Sets `output: 'server'` (Astro 6 — `'hybrid'` was removed)\n- Sets `site: 'https://converge.dev'` (canonical production URL)\n- Registers `tailwindcss/vite` plugin (Tailwind v4) or `@astrojs/tailwind` (v3)\n- Registers `@astrojs/mdx`, `@astrojs/sitemap` integrations\n- Leaves Starlight + RSS for later phases (06-integrate-docs and 07-integrate-blog)\n\n## File\n\n```js\n// apps/landing/astro.config.mjs\nimport { defineConfig } from 'astro/config';\nimport cloudflare from '@astrojs/cloudflare';\nimport mdx from '@astrojs/mdx';\nimport sitemap from '@astrojs/sitemap';\nimport tailwindcss from '@tailwindcss/vite';\n\nexport default defineConfig({\n  site: 'https://converge.dev',\n  output: 'server',\n  adapter: cloudflare({\n    platformProxy: { enabled: true },\n  }),\n  integrations: [\n    mdx(),\n    sitemap(),\n  ],\n  vite: {\n    plugins: [tailwindcss()],\n  },\n});\n```\n\nIf the project shipped Tailwind v3 via `@astrojs/tailwind`, replace the\n`vite.plugins` block with `tailwind()` in `integrations`.\n\n## Process\n\n1. Read `apps/landing/.content/brand.json` (only used here for sanity that the file exists; the config doesn't reference brand directly).\n2. Overwrite `apps/landing/astro.config.mjs` with the file above.\n3. Run `pnpm --filter @converge/landing build` to verify the bootstrap is clean.\n4. The build will produce `apps/landing/dist/` with a placeholder `index.html` — that's fine. Phase 04 builds the real home page.\n\n## Banned\n\n- `output: 'static'` or `output: 'hybrid'`. We need SSR for Cloudflare Pages Functions support; use `'server'`.\n- Pinning to a specific Astro version in this config. Versions live in `package.json`.\n- Adding integrations not listed above. Starlight and RSS belong to their own phases (06, 07) so the dependency graph stays clear.",
+              "taskId": "02-bootstrap-astro/005-cloudflare-adapter",
+              "taskTitle": "Configure astro.config.mjs with Cloudflare adapter + integrations",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/02-bootstrap-astro/tasks/005-cloudflare-adapter",
+              "factId": "check:output-server"
+            }
+          }
+        ],
+        "durationMs": 8850
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 7981
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 3842
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#11",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 29151
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T17:34:42.143Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T17:34:42.143Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T17:34:50.993Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T17:34:50.994Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T17:34:58.976Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#11",
+      "iteration": 1,
+      "ts": "2026-04-26T17:35:28.127Z"
+    },
+    {
+      "from": "run-strategy:task-run#11",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T17:35:31.969Z"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "taskId": "08-generate-assets/001-favicon-set",
+  "attemptNumber": 2,
+  "inputs": [
+    {
+      "pattern": "apps/landing/src/icons/converge-mark.svg",
+      "count": 1,
+      "samples": [
+        "apps/landing/src/icons/converge-mark.svg"
+      ]
+    },
+    {
+      "pattern": "apps/landing/src/.content/brand.json",
+      "count": 1,
+      "samples": [
+        "apps/landing/src/.content/brand.json"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/public/favicon.svg",
+    "apps/landing/public/apple-touch-icon.png",
+    "apps/landing/public/site.webmanifest"
+  ],
+  "blocked": false
+}

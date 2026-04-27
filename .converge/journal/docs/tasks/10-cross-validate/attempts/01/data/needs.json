@@ -1,0 +1,38 @@
+{
+  "taskId": "10-cross-validate",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "docs",
+      "count": 1,
+      "samples": [
+        "docs"
+      ]
+    },
+    {
+      "pattern": "packages",
+      "count": 1,
+      "samples": [
+        "packages"
+      ]
+    },
+    {
+      "pattern": "examples",
+      "count": 1,
+      "samples": [
+        "examples"
+      ]
+    },
+    {
+      "pattern": "skills/converge-control/troubleshooting/playbook.md",
+      "count": 1,
+      "samples": [
+        "skills/converge-control/troubleshooting/playbook.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/_validation-report.json"
+  ],
+  "blocked": false
+}

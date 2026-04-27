@@ -1,0 +1,31 @@
+{
+  "taskId": "08-reference/003-task-md",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "packages/core/src/config/task-definition.ts",
+      "count": 1,
+      "samples": [
+        "packages/core/src/config/task-definition.ts"
+      ]
+    },
+    {
+      "pattern": "packages/core/src/storage/types.ts",
+      "count": 1,
+      "samples": [
+        "packages/core/src/storage/types.ts"
+      ]
+    },
+    {
+      "pattern": ".converge/playbooks/implement-studio/tasks/02-data-layer/tasks/001-core-studio-api-export/TASK.md",
+      "count": 1,
+      "samples": [
+        ".converge/playbooks/implement-studio/tasks/02-data-layer/tasks/001-core-studio-api-export/TASK.md"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/reference/task-md.md"
+  ],
+  "blocked": false
+}

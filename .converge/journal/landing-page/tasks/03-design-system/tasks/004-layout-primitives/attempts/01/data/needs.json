@@ -1,0 +1,12 @@
+{
+  "taskId": "03-design-system/004-layout-primitives",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "apps/landing/src/components/layout/Container.astro",
+    "apps/landing/src/components/layout/Section.astro",
+    "apps/landing/src/components/layout/Grid.astro",
+    "apps/landing/src/components/layout/Spacer.astro"
+  ],
+  "blocked": false
+}

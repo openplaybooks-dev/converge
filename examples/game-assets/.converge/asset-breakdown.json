@@ -4,8 +4,13 @@
     "total_angle_refs": 12,
     "total_pose_refs": 9,
     "total_sprite_sheets": 6,
-    "total_frames": 24,
-    "estimated_time_minutes": 19
+    "total_frames": 200,
+    "total_props": 6,
+    "total_prop_states": 11,
+    "total_tilemaps": 1,
+    "total_tile_variants": 16,
+    "total_backgrounds": 3,
+    "estimated_time_minutes": 100
   },
   "characters": [
     {
@@ -121,6 +126,181 @@
         "sprite_sheets": 2,
         "total_frames": 8
       }
+    }
+  ],
+  "props": [
+    {
+      "id": "health-potion",
+      "name": "Health Potion",
+      "category": "item",
+      "states": {
+        "idle": {
+          "frames": 16,
+          "sheet": "assets/objects/health-potion/spritesheets/idle/idle.png",
+          "atlas": "assets/objects/health-potion/spritesheets/idle/idle.atlas.json"
+        },
+        "collect": {
+          "frames": 16,
+          "sheet": "assets/objects/health-potion/spritesheets/collect/collect.png",
+          "atlas": "assets/objects/health-potion/spritesheets/collect/collect.atlas.json"
+        }
+      },
+      "counts": {
+        "spritesheets": 2,
+        "total_frames": 32
+      }
+    },
+    {
+      "id": "gold-key",
+      "name": "Gold Key",
+      "category": "item",
+      "states": {
+        "idle": {
+          "frames": 16,
+          "sheet": "assets/objects/gold-key/spritesheets/idle/idle.png",
+          "atlas": "assets/objects/gold-key/spritesheets/idle/idle.atlas.json"
+        },
+        "collect": {
+          "frames": 16,
+          "sheet": "assets/objects/gold-key/spritesheets/collect/collect.png",
+          "atlas": "assets/objects/gold-key/spritesheets/collect/collect.atlas.json"
+        }
+      },
+      "counts": {
+        "spritesheets": 2,
+        "total_frames": 32
+      }
+    },
+    {
+      "id": "spike-trap",
+      "name": "Floor Spikes",
+      "category": "hazard",
+      "states": {
+        "idle": {
+          "frames": 16,
+          "sheet": "assets/objects/spike-trap/spritesheets/idle/idle.png",
+          "atlas": "assets/objects/spike-trap/spritesheets/idle/idle.atlas.json"
+        },
+        "trigger": {
+          "frames": 16,
+          "sheet": "assets/objects/spike-trap/spritesheets/trigger/trigger.png",
+          "atlas": "assets/objects/spike-trap/spritesheets/trigger/trigger.atlas.json"
+        }
+      },
+      "counts": {
+        "spritesheets": 2,
+        "total_frames": 32
+      }
+    },
+    {
+      "id": "bounce-spring",
+      "name": "Coil Spring",
+      "category": "interactive",
+      "states": {
+        "idle": {
+          "frames": 16,
+          "sheet": "assets/objects/bounce-spring/spritesheets/idle/idle.png",
+          "atlas": "assets/objects/bounce-spring/spritesheets/idle/idle.atlas.json"
+        },
+        "bounce": {
+          "frames": 16,
+          "sheet": "assets/objects/bounce-spring/spritesheets/bounce/bounce.png",
+          "atlas": "assets/objects/bounce-spring/spritesheets/bounce/bounce.atlas.json"
+        }
+      },
+      "counts": {
+        "spritesheets": 2,
+        "total_frames": 32
+      }
+    },
+    {
+      "id": "wood-ladder",
+      "name": "Wooden Ladder",
+      "category": "interactive",
+      "states": {
+        "idle": {
+          "frames": 16,
+          "sheet": "assets/objects/wood-ladder/spritesheets/idle/idle.png",
+          "atlas": "assets/objects/wood-ladder/spritesheets/idle/idle.atlas.json"
+        }
+      },
+      "counts": {
+        "spritesheets": 1,
+        "total_frames": 16
+      }
+    },
+    {
+      "id": "checkpoint-flag",
+      "name": "Checkpoint Flag",
+      "category": "interactive",
+      "states": {
+        "idle": {
+          "frames": 16,
+          "sheet": "assets/objects/checkpoint-flag/spritesheets/idle/idle.png",
+          "atlas": "assets/objects/checkpoint-flag/spritesheets/idle/idle.atlas.json"
+        },
+        "activate": {
+          "frames": 16,
+          "sheet": "assets/objects/checkpoint-flag/spritesheets/activate/activate.png",
+          "atlas": "assets/objects/checkpoint-flag/spritesheets/activate/activate.atlas.json"
+        }
+      },
+      "counts": {
+        "spritesheets": 2,
+        "total_frames": 32
+      }
+    }
+  ],
+  "tile_maps": [
+    {
+      "id": "grassland",
+      "name": "Grassland Terrain",
+      "tile_dimensions": [
+        16,
+        16
+      ],
+      "sheet_grid": [
+        4,
+        4
+      ],
+      "variant_count": 16,
+      "tilesheet": "assets/tile_maps/grassland/tilesheet/tilesheet.png",
+      "atlas": "assets/tile_maps/grassland/tilesheet/tilesheet.atlas.json"
+    }
+  ],
+  "backgrounds": [
+    {
+      "id": "forest-far",
+      "name": "Forest \u2014 Far Layer",
+      "parallax_layer": "far",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "sheet": "assets/backgrounds/forest-far/forest-far.png",
+      "atlas": "assets/backgrounds/forest-far/forest-far.atlas.json"
+    },
+    {
+      "id": "forest-mid",
+      "name": "Forest \u2014 Mid Layer",
+      "parallax_layer": "mid",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "sheet": "assets/backgrounds/forest-mid/forest-mid.png",
+      "atlas": "assets/backgrounds/forest-mid/forest-mid.atlas.json"
+    },
+    {
+      "id": "forest-near",
+      "name": "Forest \u2014 Near Layer",
+      "parallax_layer": "near",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "sheet": "assets/backgrounds/forest-near/forest-near.png",
+      "atlas": "assets/backgrounds/forest-near/forest-near.atlas.json"
     }
   ]
 }

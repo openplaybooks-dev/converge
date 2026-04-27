@@ -1,0 +1,15 @@
+{
+  "taskId": "07-integrate-blog/004-rss-feed",
+  "checks": [
+    {
+      "id": "rss-route-exists",
+      "description": "rss.xml.ts route handler exists",
+      "cmd": "test -f apps/landing/src/pages/rss.xml.ts"
+    },
+    {
+      "id": "rss-uses-astrojs-rss",
+      "description": "uses @astrojs/rss helper",
+      "cmd": "test -f apps/landing/src/pages/rss.xml.ts && grep -qE '@astrojs/rss' apps/landing/src/pages/rss.xml.ts"
+    }
+  ]
+}

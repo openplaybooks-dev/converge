@@ -1,0 +1,253 @@
+{
+  "image": "idle.png",
+  "meta": {
+    "obj_id": "gold-key",
+    "state": "idle",
+    "category": "item",
+    "rows": 2,
+    "cols": 4,
+    "frame_count": 8,
+    "frame_size": {
+      "w": 384,
+      "h": 512
+    },
+    "sheet_size": {
+      "w": 1536,
+      "h": 1024
+    },
+    "frame_order": "left-to-right, top-to-bottom",
+    "requested_cols": 4,
+    "requested_rows": 2,
+    "detected": true,
+    "aligned": true,
+    "frameRate": 6,
+    "yoyo": true,
+    "seed": 1883471416
+  },
+  "frames": [
+    {
+      "filename": "idle_000.png",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          151,
+          93,
+          348,
+          464
+        ],
+        "torso_x": 249,
+        "aligned_bbox": [
+          94,
+          136,
+          291,
+          507
+        ],
+        "shift": [
+          -57,
+          43
+        ]
+      }
+    },
+    {
+      "filename": "idle_001.png",
+      "frame": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          100,
+          91,
+          296,
+          462
+        ],
+        "torso_x": 197,
+        "aligned_bbox": [
+          95,
+          136,
+          291,
+          507
+        ],
+        "shift": [
+          -5,
+          45
+        ]
+      }
+    },
+    {
+      "filename": "idle_002.png",
+      "frame": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          42,
+          86,
+          240,
+          468
+        ],
+        "torso_x": 141,
+        "aligned_bbox": [
+          93,
+          125,
+          291,
+          507
+        ],
+        "shift": [
+          51,
+          39
+        ]
+      }
+    },
+    {
+      "filename": "idle_003.png",
+      "frame": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          28,
+          81,
+          231,
+          465
+        ],
+        "torso_x": 128,
+        "aligned_bbox": [
+          92,
+          123,
+          295,
+          507
+        ],
+        "shift": [
+          64,
+          42
+        ]
+      }
+    },
+    {
+      "filename": "idle_004.png",
+      "frame": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          149,
+          45,
+          345,
+          420
+        ],
+        "torso_x": 246,
+        "aligned_bbox": [
+          95,
+          132,
+          291,
+          507
+        ],
+        "shift": [
+          -54,
+          87
+        ]
+      }
+    },
+    {
+      "filename": "idle_005.png",
+      "frame": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          99,
+          45,
+          297,
+          419
+        ],
+        "torso_x": 196,
+        "aligned_bbox": [
+          95,
+          133,
+          293,
+          507
+        ],
+        "shift": [
+          -4,
+          88
+        ]
+      }
+    },
+    {
+      "filename": "idle_006.png",
+      "frame": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          41,
+          40,
+          239,
+          419
+        ],
+        "torso_x": 139,
+        "aligned_bbox": [
+          94,
+          128,
+          292,
+          507
+        ],
+        "shift": [
+          53,
+          88
+        ]
+      }
+    },
+    {
+      "filename": "idle_007.png",
+      "frame": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          27,
+          38,
+          228,
+          418
+        ],
+        "torso_x": 126,
+        "aligned_bbox": [
+          93,
+          127,
+          294,
+          507
+        ],
+        "shift": [
+          66,
+          89
+        ]
+      }
+    }
+  ]
+}

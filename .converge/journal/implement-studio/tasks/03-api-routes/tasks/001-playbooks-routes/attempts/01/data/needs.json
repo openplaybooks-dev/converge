@@ -1,0 +1,10 @@
+{
+  "taskId": "03-api-routes/001-playbooks-routes",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/src/app/api/playbooks/route.ts",
+    "packages/converge-studio/src/app/api/playbooks/[name]/route.ts"
+  ],
+  "blocked": false
+}

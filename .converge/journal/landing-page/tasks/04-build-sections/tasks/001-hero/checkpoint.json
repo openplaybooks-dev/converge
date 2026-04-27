@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "04-build-sections/001-hero",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T17:42:13.835Z",
+  "createdAt": "2026-04-26T17:41:04.665Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T17:41:04.665Z",
+      "completedAt": "2026-04-26T17:42:13.797Z",
+      "outcome": "success",
+      "durationMs": 69132
+    }
+  ],
+  "currentAttempt": 1
+}

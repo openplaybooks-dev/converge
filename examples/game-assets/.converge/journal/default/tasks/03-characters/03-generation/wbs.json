@@ -1,0 +1,55 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-26T17:24:06.245Z",
+  "spawnCount": 12,
+  "subtasks": [
+    {
+      "id": "hero-knight-01-spec",
+      "writeToPath": ".converge/journal/default/tasks/03-characters/03-generation/tasks/hero-knight-01-spec/TASK.md"
+    },
+    {
+      "id": "hero-knight-02-angles",
+      "writeToPath": ".converge/journal/default/tasks/03-characters/03-generation/tasks/hero-knight-02-angles/TASK.md"
+    },
+    {
+      "id": "hero-knight-spritesheet-idle",
+      "writeToPath": ".converge/journal/default/tasks/03-characters/03-generation/tasks/hero-knight-spritesheet-idle/TASK.md"
+    },
+    {
+      "id": "hero-knight-spritesheet-walk",
+      "writeToPath": ".converge/journal/default/tasks/03-characters/03-generation/tasks/hero-knight-spritesheet-walk/TASK.md"
+    },
+    {
+      "id": "forest-elf-01-spec",
+      "writeToPath": ".converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-01-spec/TASK.md"
+    },
+    {
+      "id": "forest-elf-02-angles",
+      "writeToPath": ".converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-02-angles/TASK.md"
+    },
+    {
+      "id": "forest-elf-spritesheet-idle",
+      "writeToPath": ".converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-spritesheet-idle/TASK.md"
+    },
+    {
+      "id": "forest-elf-spritesheet-walk",
+      "writeToPath": ".converge/journal/default/tasks/03-characters/03-generation/tasks/forest-elf-spritesheet-walk/TASK.md"
+    },
+    {
+      "id": "shadow-mage-01-spec",
+      "writeToPath": ".converge/journal/default/tasks/03-characters/03-generation/tasks/shadow-mage-01-spec/TASK.md"
+    },
+    {
+      "id": "shadow-mage-02-angles",
+      "writeToPath": ".converge/journal/default/tasks/03-characters/03-generation/tasks/shadow-mage-02-angles/TASK.md"
+    },
+    {
+      "id": "shadow-mage-spritesheet-idle",
+      "writeToPath": ".converge/journal/default/tasks/03-characters/03-generation/tasks/shadow-mage-spritesheet-idle/TASK.md"
+    },
+    {
+      "id": "shadow-mage-spritesheet-walk",
+      "writeToPath": ".converge/journal/default/tasks/03-characters/03-generation/tasks/shadow-mage-spritesheet-walk/TASK.md"
+    }
+  ]
+}

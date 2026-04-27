@@ -1,0 +1,11 @@
+{
+  "taskId": "04-ui/012-cron-scheduler",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/src/app/api/playbooks/[name]/schedule",
+    "packages/converge-studio/src/components/schedule-form.tsx",
+    "packages/converge-studio/src/lib/converge-adapter/schedule.ts"
+  ],
+  "blocked": false
+}

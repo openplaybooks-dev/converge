@@ -109,7 +109,7 @@ export async function prepareFeedback(
   for (const c of allChecks) {
     if (!c.cmd) continue;
     try {
-      const r = await check(c.cmd, projectDir, 15_000);
+      const r = await check(c.cmd, projectDir, 120_000);
       results.push({
         ...c,
         passed: r.ok,

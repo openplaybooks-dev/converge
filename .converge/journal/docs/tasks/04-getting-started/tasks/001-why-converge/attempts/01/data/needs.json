@@ -1,0 +1,24 @@
+{
+  "taskId": "04-getting-started/001-why-converge",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "README.md",
+      "count": 1,
+      "samples": [
+        "README.md"
+      ]
+    },
+    {
+      "pattern": "packages/core/src/index.ts",
+      "count": 1,
+      "samples": [
+        "packages/core/src/index.ts"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/getting-started/why-converge.md"
+  ],
+  "blocked": false
+}

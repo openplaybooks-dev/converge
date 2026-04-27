@@ -24,5 +24,10 @@ pnpm converge run          # run all remaining tasks
 ## Verify checks manually
 
 ```bash
-  test -s assets/characters/hero-knight/ref/angles/angles.json
+  python -c "from PIL import Image; im=Image.open('assets/characters/hero-knight/ref/source/source.png'); assert min(im.size)>=256, f'source too small: {im.size}'"
+
+  python -c "from PIL import Image; im=Image.open('assets/characters/hero-knight/ref/canonical/canonical.png'); assert min(im.size)>=64, f'canonical too small: {im.size}'"
+
+  python -c "import json; m=json.load(open('assets/characters/hero-knight/ref/manifest.json')); assert 'canonical_angle' in m and 'rotation_y' in m, f'manifest missing keys: {m}'"
+
 ```

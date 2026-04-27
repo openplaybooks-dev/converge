@@ -1,0 +1,15 @@
+{
+  "taskId": "02-data-layer/002-paths-and-root",
+  "checks": [
+    {
+      "id": "paths-module-exists",
+      "description": "paths.ts exists",
+      "cmd": "test -f packages/converge-studio/src/lib/converge-adapter/paths.ts"
+    },
+    {
+      "id": "typecheck",
+      "description": "Module typechecks",
+      "cmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    }
+  ]
+}

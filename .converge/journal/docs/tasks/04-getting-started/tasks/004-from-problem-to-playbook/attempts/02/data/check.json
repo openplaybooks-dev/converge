@@ -1,0 +1,30 @@
+{
+  "taskId": "04-getting-started/004-from-problem-to-playbook",
+  "checks": [
+    {
+      "id": "page-exists",
+      "description": "page exists",
+      "cmd": "test -f docs/getting-started/from-problem-to-playbook.md"
+    },
+    {
+      "id": "page-frontmatter",
+      "description": "title + sources frontmatter",
+      "cmd": "head -10 docs/getting-started/from-problem-to-playbook.md | grep -q '^title:' && head -10 docs/getting-started/from-problem-to-playbook.md | grep -q '^sources:'"
+    },
+    {
+      "id": "links-to-examples-gallery",
+      "description": "links to the examples gallery",
+      "cmd": "grep -qE '\\(/examples/|\\(\\.\\./examples/' docs/getting-started/from-problem-to-playbook.md"
+    },
+    {
+      "id": "shows-three-questions",
+      "description": "page asks the reader to define what 'done' looks like",
+      "cmd": "grep -qiE 'what.*done|what.*success|what.*output' docs/getting-started/from-problem-to-playbook.md"
+    },
+    {
+      "id": "word-count-ok",
+      "description": "500-1500 words",
+      "cmd": "test -f docs/getting-started/from-problem-to-playbook.md && wc -w docs/getting-started/from-problem-to-playbook.md | awk '{exit ($1>=500&&$1<=1500?0:1)}'"
+    }
+  ]
+}

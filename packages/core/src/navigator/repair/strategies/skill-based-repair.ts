@@ -418,7 +418,7 @@ async function gatherAndWriteContext(
         case "cmd": {
           const cmd = resolveTemplate(step.cmd, vars);
           if (cmd.includes("{")) break;
-          const r = await shellCheck(cmd, projectDir, 15_000);
+          const r = await shellCheck(cmd, projectDir, 120_000);
           const fn = `${step.label}.txt`;
           await writeFile(
             join(contextDir, fn),

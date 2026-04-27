@@ -95,12 +95,6 @@ export interface DiscoveryConfig {
  */
 export interface RuntimeConfig {
   /**
-   * Maximum convergence iterations per epic.
-   * Default: 100
-   */
-  maxIterations?: number;
-
-  /**
    * Maximum consecutive stalls before giving up.
    * Default: 3
    */

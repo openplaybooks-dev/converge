@@ -1,0 +1,22 @@
+---
+interface Props {
+  cols?: number | { base?: number; md?: number; lg?: number };
+  gap?: 'sm' | 'md' | 'lg';
+}
+const { cols = 1, gap = 'md' } = Astro.props;
+
+let colClass = 'grid-cols-1';
+if (typeof cols === 'object') {
+  const { base = 1, md, lg } = cols;
+  colClass = `grid-cols-${base}`;
+  if (md) colClass += ` md:grid-cols-${md}`;
+  if (lg) colClass += ` lg:grid-cols-${lg}`;
+} else {
+  colClass = `grid-cols-${cols}`;
+}
+
+const gapClasses = { sm: 'gap-4', md: 'gap-6', lg: 'gap-8' };
+---
+<div class={`grid ${colClass} ${gapClasses[gap]}`}>
+  <slot />
+</div>

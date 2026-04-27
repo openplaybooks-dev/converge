@@ -1,0 +1,20 @@
+{
+  "taskId": "08-reference/005-core-api",
+  "checks": [
+    {
+      "id": "page-exists",
+      "description": "page exists",
+      "cmd": "test -f docs/reference/core-api.md"
+    },
+    {
+      "id": "lists-exports",
+      "description": "lists at least 8 exported symbols",
+      "cmd": "test $(grep -cE '^###\\s+|`[A-Z][a-zA-Z]+`' docs/reference/core-api.md) -ge 8"
+    },
+    {
+      "id": "covers-exports-map",
+      "description": "covers the package exports map (subpaths)",
+      "cmd": "grep -qE '@converge/core|exports' docs/reference/core-api.md"
+    }
+  ]
+}

@@ -2,8 +2,9 @@
  * Gap detection — findGaps() and runCheck().
  */
 
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import * as path from "node:path";
+import YAML from "yaml";
 import {
   FactsLogger,
   FileChecks,
@@ -37,6 +38,49 @@ function hasGlobWildcards(p: string): boolean {
 }
 
 /**
+ * Re-read `outputs:` and `inputs:` from the materialized journal TASK.md.
+ * The in-memory Unit caches what TASK.md said at *task-load time*; when an
+ * operator (or another task) edits TASK.md mid-run, that cache is stale and
+ * findGaps() will report missing-output gaps for paths the spec no longer
+ * declares. Re-reading the frontmatter here keeps the gap detector honest.
+ *
+ * Returns null if no fresh frontmatter is available (legacy WBS subtasks
+ * without TASK.md, or unparseable YAML), in which case the caller should
+ * fall back to the in-memory Unit.
+ */
+function reReadOutputsAndInputsFromTaskMd(
+  projectDir: string,
+  epicId: string,
+  taskId: string,
+): { outputs?: string[]; inputs?: string[] } | null {
+  try {
+    const structure = getJournalStructure(projectDir, epicId, taskId);
+    if (!structure.task) return null;
+    const taskMdPath = path.join(structure.task, "TASK.md");
+    if (!existsSync(taskMdPath)) return null;
+    const raw = readFileSync(taskMdPath, "utf-8");
+    const m = raw.match(/^---\n([\s\S]*?)\n---/);
+    if (!m) return null;
+    const parsed = YAML.parse(m[1]);
+    if (!parsed || typeof parsed !== "object") return null;
+    const out: { outputs?: string[]; inputs?: string[] } = {};
+    if (Array.isArray(parsed.outputs)) {
+      out.outputs = parsed.outputs.filter(
+        (s: unknown): s is string => typeof s === "string",
+      );
+    }
+    if (Array.isArray(parsed.inputs)) {
+      out.inputs = parsed.inputs.filter(
+        (s: unknown): s is string => typeof s === "string",
+      );
+    }
+    return out.outputs || out.inputs ? out : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Find gaps - missing inputs/outputs, failed checks.
  */
 export async function findGaps(unit: Unit): Promise<Gap[]> {
@@ -55,6 +99,14 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
     epicId,
     unit.id,
   );
+
+  // Refresh outputs/inputs from the materialized TASK.md so mid-run edits
+  // take effect on the next gap-detection pass without needing a process
+  // restart or journal nuke. Falls back to the in-memory Unit when the
+  // materialized file is missing or unparseable.
+  const fresh = reReadOutputsAndInputsFromTaskMd(projectDir, epicId, unit.id);
+  const liveOutputs = fresh?.outputs ?? unit.outputs ?? [];
+  const liveInputs = fresh?.inputs ?? unit.inputs ?? [];
 
   // ── Plan gap: plan.md not yet generated ────────────────────────────
   if (unit.planConfig) {
@@ -116,7 +168,7 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
   }
 
   // Check inputs exist (with Facts API)
-  for (const input of unit.inputs || []) {
+  for (const input of liveInputs) {
     // Handle glob patterns (but not literal bracket paths like [id])
     if (hasGlobWildcards(input)) {
       const { glob } = await import("glob");
@@ -185,7 +237,7 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
   }
 
   // Check outputs exist with validation (Facts API)
-  for (const output of unit.outputs || []) {
+  for (const output of liveOutputs) {
     // Handle glob patterns (but not literal bracket paths like [id])
     if (hasGlobWildcards(output)) {
       const { glob } = await import("glob");
@@ -218,7 +270,7 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
             taskPrompt: await resolvePrompt(unit),
             taskAgent: resolveAgent(unit),
             taskSkill: resolveSkill(unit),
-            taskInputs: unit.inputs,
+            taskInputs: liveInputs,
             factId: fact.id,
             // User question detection
             awaitingUserInput: userQuestionDetection.awaitingUserInput,
@@ -257,7 +309,7 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
             taskPrompt: await resolvePrompt(unit),
             taskAgent: resolveAgent(unit),
             taskSkill: resolveSkill(unit),
-            taskInputs: unit.inputs,
+            taskInputs: liveInputs,
             factId: existsFact.id,
             // User question detection
             awaitingUserInput: userQuestionDetection.awaitingUserInput,

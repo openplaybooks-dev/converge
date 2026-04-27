@@ -70,17 +70,15 @@ export async function run(ctx) {
     });
 
     // ── Level 2: Step children (from templates) ──────────────────
-    const basePath = `.converge/playbooks/default/tasks/03-build-screens/tasks/${screenTaskId}`;
     const steps = ['01-spec', '02-design', '03-convert', '04-analyze', '05-split', '06-lift'];
 
     for (const step of steps) {
       const id = `${prefix}-${step}`;
       const templatePath = `${templateBase}/tasks/{{prefix}}-${step}/TASK.md`;
-      const writeToPath = `${basePath}/tasks/${id}/TASK.md`;
 
       await ctx.spawn(
         { _type: 'template-ref', path: templatePath, vars },
-        { id, writeToPath }
+        { id }
       );
     }
 

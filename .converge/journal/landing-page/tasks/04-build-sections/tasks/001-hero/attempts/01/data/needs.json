@@ -1,0 +1,31 @@
+{
+  "taskId": "04-build-sections/001-hero",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "apps/landing/.content/sections.json",
+      "count": 1,
+      "samples": [
+        "apps/landing/.content/sections.json"
+      ]
+    },
+    {
+      "pattern": "apps/landing/.content/brand.json",
+      "count": 1,
+      "samples": [
+        "apps/landing/.content/brand.json"
+      ]
+    },
+    {
+      "pattern": "apps/landing/src/styles/tokens.json",
+      "count": 1,
+      "samples": [
+        "apps/landing/src/styles/tokens.json"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/src/components/sections/Hero.astro"
+  ],
+  "blocked": false
+}

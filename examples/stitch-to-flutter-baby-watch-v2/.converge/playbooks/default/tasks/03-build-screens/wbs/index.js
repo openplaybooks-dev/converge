@@ -126,16 +126,14 @@ export async function run(ctx) {
       ? ['01-link-reference', '02-normalize-to-glossary', '03-convert', '04-analyze', '05-split', '06-lift', '07-states']
       : ['01-spec', '02-design', '03-convert', '04-analyze', '05-split', '06-lift', '07-states'];
 
-    const basePath = `.converge/playbooks/default/tasks/03-build-screens/tasks/${screenTaskId}`;
 
     for (const step of steps) {
       const id = `${prefix}-${step}`;
       const templatePath = `${templateBase}/tasks/{{prefix}}-${step}/TASK.md`;
-      const writeToPath = `${basePath}/tasks/${id}/TASK.md`;
 
       await ctx.spawn(
         { _type: 'template-ref', path: templatePath, vars },
-        { id, writeToPath }
+        { id }
       );
     }
 

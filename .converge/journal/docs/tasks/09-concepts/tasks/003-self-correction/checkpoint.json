@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "09-concepts/003-self-correction",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T09:58:11.864Z",
+  "createdAt": "2026-04-26T09:57:24.992Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T09:57:24.992Z",
+      "completedAt": "2026-04-26T09:58:11.860Z",
+      "outcome": "success",
+      "durationMs": 46868
+    }
+  ],
+  "currentAttempt": 1
+}

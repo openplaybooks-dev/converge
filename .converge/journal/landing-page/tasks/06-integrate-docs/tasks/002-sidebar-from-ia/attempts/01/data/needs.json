@@ -1,0 +1,25 @@
+{
+  "taskId": "06-integrate-docs/002-sidebar-from-ia",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "docs/_ia.json",
+      "count": 1,
+      "samples": [
+        "docs/_ia.json"
+      ]
+    },
+    {
+      "pattern": "docs",
+      "count": 1,
+      "samples": [
+        "docs"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/astro.config.mjs",
+    "apps/landing/src/content.config.ts"
+  ],
+  "blocked": false
+}

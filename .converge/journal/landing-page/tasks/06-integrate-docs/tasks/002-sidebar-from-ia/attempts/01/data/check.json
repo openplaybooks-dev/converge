@@ -1,0 +1,25 @@
+{
+  "taskId": "06-integrate-docs/002-sidebar-from-ia",
+  "checks": [
+    {
+      "id": "ia-json-exists",
+      "description": "docs/_ia.json exists (owned by docs playbook)",
+      "cmd": "test -f docs/_ia.json"
+    },
+    {
+      "id": "content-config-exists",
+      "description": "src/content.config.ts exists",
+      "cmd": "test -f apps/landing/src/content.config.ts"
+    },
+    {
+      "id": "docs-loader-configured",
+      "description": "content.config.ts uses docsLoader from Starlight",
+      "cmd": "test -f apps/landing/src/content.config.ts && grep -qE 'docsLoader|docsSchema' apps/landing/src/content.config.ts"
+    },
+    {
+      "id": "sidebar-references-ia",
+      "description": "astro.config.mjs imports/reads docs/_ia.json",
+      "cmd": "test -f apps/landing/astro.config.mjs && grep -qE 'docs/_ia\\.json|_ia\\.json' apps/landing/astro.config.mjs"
+    }
+  ]
+}

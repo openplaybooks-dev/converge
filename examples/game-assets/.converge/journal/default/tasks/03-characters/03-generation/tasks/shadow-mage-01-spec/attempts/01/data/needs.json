@@ -1,9 +1,0 @@
-{
-  "taskId": "03-characters/03-generation/shadow-mage-01-spec",
-  "attemptNumber": 1,
-  "inputs": [],
-  "outputs": [
-    "assets/characters/shadow-mage/SPEC.md"
-  ],
-  "blocked": false
-}

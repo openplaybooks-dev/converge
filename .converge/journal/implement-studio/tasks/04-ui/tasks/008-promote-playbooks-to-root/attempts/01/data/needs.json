@@ -1,0 +1,9 @@
+{
+  "taskId": "04-ui/008-promote-playbooks-to-root",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/src/app"
+  ],
+  "blocked": false
+}

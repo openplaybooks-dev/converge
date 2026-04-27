@@ -1,0 +1,25 @@
+{
+  "taskId": "03-design-system/005-iconography",
+  "checks": [
+    {
+      "id": "lucide-installed",
+      "description": "a Lucide icon package is installed",
+      "cmd": "test -f apps/landing/package.json && node -e \"const p=require('./apps/landing/package.json');const all={...p.dependencies,...p.devDependencies};process.exit((all['@iconify-json/lucide']||all['lucide-astro']||all['astro-icon'])?0:1)\""
+    },
+    {
+      "id": "converge-mark-exists",
+      "description": "converge-mark.svg exists and is valid SVG",
+      "cmd": "test -f apps/landing/src/icons/converge-mark.svg && grep -q '<svg' apps/landing/src/icons/converge-mark.svg"
+    },
+    {
+      "id": "journey-svg-exists",
+      "description": "convergence-journey.svg exists and is valid SVG",
+      "cmd": "test -f apps/landing/src/icons/convergence-journey.svg && grep -q '<svg' apps/landing/src/icons/convergence-journey.svg"
+    },
+    {
+      "id": "icon-component-exists",
+      "description": "Icon.astro wrapper exists",
+      "cmd": "test -f apps/landing/src/components/ui/Icon.astro"
+    }
+  ]
+}

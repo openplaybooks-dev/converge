@@ -1,0 +1,15 @@
+{
+  "taskId": "01-clone-and-rename/003-license-notice",
+  "checks": [
+    {
+      "id": "upstream-license-preserved",
+      "description": "LICENSE.upstream contains MIT",
+      "cmd": "test -f packages/studio/LICENSE.upstream && grep -qi 'MIT' packages/studio/LICENSE.upstream"
+    },
+    {
+      "id": "notice-attribution",
+      "description": "NOTICE attributes mission-control with the SHA",
+      "cmd": "test -f packages/studio/NOTICE && grep -qi 'mission-control' packages/studio/NOTICE && grep -q 'a020d1b7' packages/studio/NOTICE"
+    }
+  ]
+}

@@ -1,0 +1,1508 @@
+{
+  "frames": [],
+  "animations": [
+    {
+      "name": "characters/forest-elf/idle",
+      "frames": [
+        {
+          "name": "idle_000",
+          "texture": "res://assets/characters/forest-elf/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_001",
+          "texture": "res://assets/characters/forest-elf/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_002",
+          "texture": "res://assets/characters/forest-elf/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_003",
+          "texture": "res://assets/characters/forest-elf/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_004",
+          "texture": "res://assets/characters/forest-elf/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_005",
+          "texture": "res://assets/characters/forest-elf/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_006",
+          "texture": "res://assets/characters/forest-elf/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_007",
+          "texture": "res://assets/characters/forest-elf/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        }
+      ],
+      "loop": true
+    },
+    {
+      "name": "characters/forest-elf/walk",
+      "frames": [
+        {
+          "name": "walk_000",
+          "texture": "res://assets/characters/forest-elf/spritesheets/walk/walk.png",
+          "region": {
+            "x": 0,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "walk_001",
+          "texture": "res://assets/characters/forest-elf/spritesheets/walk/walk.png",
+          "region": {
+            "x": 384,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "walk_002",
+          "texture": "res://assets/characters/forest-elf/spritesheets/walk/walk.png",
+          "region": {
+            "x": 768,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "walk_003",
+          "texture": "res://assets/characters/forest-elf/spritesheets/walk/walk.png",
+          "region": {
+            "x": 1152,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "walk_004",
+          "texture": "res://assets/characters/forest-elf/spritesheets/walk/walk.png",
+          "region": {
+            "x": 0,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "walk_005",
+          "texture": "res://assets/characters/forest-elf/spritesheets/walk/walk.png",
+          "region": {
+            "x": 384,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "walk_006",
+          "texture": "res://assets/characters/forest-elf/spritesheets/walk/walk.png",
+          "region": {
+            "x": 768,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "walk_007",
+          "texture": "res://assets/characters/forest-elf/spritesheets/walk/walk.png",
+          "region": {
+            "x": 1152,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        }
+      ],
+      "loop": true
+    },
+    {
+      "name": "characters/hero-knight/idle",
+      "frames": [
+        {
+          "name": "idle_000",
+          "texture": "res://assets/characters/hero-knight/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_001",
+          "texture": "res://assets/characters/hero-knight/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_002",
+          "texture": "res://assets/characters/hero-knight/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_003",
+          "texture": "res://assets/characters/hero-knight/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_004",
+          "texture": "res://assets/characters/hero-knight/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_005",
+          "texture": "res://assets/characters/hero-knight/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_006",
+          "texture": "res://assets/characters/hero-knight/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_007",
+          "texture": "res://assets/characters/hero-knight/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        }
+      ],
+      "loop": true
+    },
+    {
+      "name": "characters/hero-knight/walk",
+      "frames": [
+        {
+          "name": "walk_000",
+          "texture": "res://assets/characters/hero-knight/spritesheets/walk/walk.png",
+          "region": {
+            "x": 0,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "walk_001",
+          "texture": "res://assets/characters/hero-knight/spritesheets/walk/walk.png",
+          "region": {
+            "x": 384,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "walk_002",
+          "texture": "res://assets/characters/hero-knight/spritesheets/walk/walk.png",
+          "region": {
+            "x": 768,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "walk_003",
+          "texture": "res://assets/characters/hero-knight/spritesheets/walk/walk.png",
+          "region": {
+            "x": 1152,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "walk_004",
+          "texture": "res://assets/characters/hero-knight/spritesheets/walk/walk.png",
+          "region": {
+            "x": 0,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "walk_005",
+          "texture": "res://assets/characters/hero-knight/spritesheets/walk/walk.png",
+          "region": {
+            "x": 384,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "walk_006",
+          "texture": "res://assets/characters/hero-knight/spritesheets/walk/walk.png",
+          "region": {
+            "x": 768,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "walk_007",
+          "texture": "res://assets/characters/hero-knight/spritesheets/walk/walk.png",
+          "region": {
+            "x": 1152,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        }
+      ],
+      "loop": true
+    },
+    {
+      "name": "objects/bounce-spring/bounce",
+      "frames": [
+        {
+          "name": "bounce_000",
+          "texture": "res://assets/objects/bounce-spring/spritesheets/bounce/bounce.png",
+          "region": {
+            "x": 0,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "bounce_001",
+          "texture": "res://assets/objects/bounce-spring/spritesheets/bounce/bounce.png",
+          "region": {
+            "x": 384,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "bounce_002",
+          "texture": "res://assets/objects/bounce-spring/spritesheets/bounce/bounce.png",
+          "region": {
+            "x": 768,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "bounce_003",
+          "texture": "res://assets/objects/bounce-spring/spritesheets/bounce/bounce.png",
+          "region": {
+            "x": 1152,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "bounce_004",
+          "texture": "res://assets/objects/bounce-spring/spritesheets/bounce/bounce.png",
+          "region": {
+            "x": 0,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "bounce_005",
+          "texture": "res://assets/objects/bounce-spring/spritesheets/bounce/bounce.png",
+          "region": {
+            "x": 384,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "bounce_006",
+          "texture": "res://assets/objects/bounce-spring/spritesheets/bounce/bounce.png",
+          "region": {
+            "x": 768,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "bounce_007",
+          "texture": "res://assets/objects/bounce-spring/spritesheets/bounce/bounce.png",
+          "region": {
+            "x": 1152,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        }
+      ],
+      "loop": true
+    },
+    {
+      "name": "objects/bounce-spring/idle",
+      "frames": [
+        {
+          "name": "idle_000",
+          "texture": "res://assets/objects/bounce-spring/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_001",
+          "texture": "res://assets/objects/bounce-spring/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_002",
+          "texture": "res://assets/objects/bounce-spring/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_003",
+          "texture": "res://assets/objects/bounce-spring/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_004",
+          "texture": "res://assets/objects/bounce-spring/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_005",
+          "texture": "res://assets/objects/bounce-spring/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_006",
+          "texture": "res://assets/objects/bounce-spring/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_007",
+          "texture": "res://assets/objects/bounce-spring/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        }
+      ],
+      "loop": true
+    },
+    {
+      "name": "objects/checkpoint-flag/activate",
+      "frames": [
+        {
+          "name": "activate_000",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/activate/activate.png",
+          "region": {
+            "x": 0,
+            "y": 0,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "activate_001",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/activate/activate.png",
+          "region": {
+            "x": 384,
+            "y": 0,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "activate_002",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/activate/activate.png",
+          "region": {
+            "x": 768,
+            "y": 0,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "activate_003",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/activate/activate.png",
+          "region": {
+            "x": 1152,
+            "y": 0,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "activate_004",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/activate/activate.png",
+          "region": {
+            "x": 0,
+            "y": 256,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "activate_005",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/activate/activate.png",
+          "region": {
+            "x": 384,
+            "y": 256,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "activate_006",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/activate/activate.png",
+          "region": {
+            "x": 768,
+            "y": 256,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "activate_007",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/activate/activate.png",
+          "region": {
+            "x": 1152,
+            "y": 256,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "activate_008",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/activate/activate.png",
+          "region": {
+            "x": 0,
+            "y": 512,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "activate_009",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/activate/activate.png",
+          "region": {
+            "x": 384,
+            "y": 512,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "activate_010",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/activate/activate.png",
+          "region": {
+            "x": 768,
+            "y": 512,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "activate_011",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/activate/activate.png",
+          "region": {
+            "x": 1152,
+            "y": 512,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "activate_012",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/activate/activate.png",
+          "region": {
+            "x": 0,
+            "y": 768,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "activate_013",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/activate/activate.png",
+          "region": {
+            "x": 384,
+            "y": 768,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "activate_014",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/activate/activate.png",
+          "region": {
+            "x": 768,
+            "y": 768,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "activate_015",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/activate/activate.png",
+          "region": {
+            "x": 1152,
+            "y": 768,
+            "w": 384,
+            "h": 256
+          }
+        }
+      ],
+      "loop": true
+    },
+    {
+      "name": "objects/checkpoint-flag/idle",
+      "frames": [
+        {
+          "name": "idle_000",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_001",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_002",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_003",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_004",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_005",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_006",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_007",
+          "texture": "res://assets/objects/checkpoint-flag/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        }
+      ],
+      "loop": true
+    },
+    {
+      "name": "objects/gold-key/collect",
+      "frames": [
+        {
+          "name": "collect_000",
+          "texture": "res://assets/objects/gold-key/spritesheets/collect/collect.png",
+          "region": {
+            "x": 0,
+            "y": 0,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "collect_001",
+          "texture": "res://assets/objects/gold-key/spritesheets/collect/collect.png",
+          "region": {
+            "x": 384,
+            "y": 0,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "collect_002",
+          "texture": "res://assets/objects/gold-key/spritesheets/collect/collect.png",
+          "region": {
+            "x": 768,
+            "y": 0,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "collect_003",
+          "texture": "res://assets/objects/gold-key/spritesheets/collect/collect.png",
+          "region": {
+            "x": 1152,
+            "y": 0,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "collect_004",
+          "texture": "res://assets/objects/gold-key/spritesheets/collect/collect.png",
+          "region": {
+            "x": 0,
+            "y": 256,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "collect_005",
+          "texture": "res://assets/objects/gold-key/spritesheets/collect/collect.png",
+          "region": {
+            "x": 384,
+            "y": 256,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "collect_006",
+          "texture": "res://assets/objects/gold-key/spritesheets/collect/collect.png",
+          "region": {
+            "x": 768,
+            "y": 256,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "collect_007",
+          "texture": "res://assets/objects/gold-key/spritesheets/collect/collect.png",
+          "region": {
+            "x": 1152,
+            "y": 256,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "collect_008",
+          "texture": "res://assets/objects/gold-key/spritesheets/collect/collect.png",
+          "region": {
+            "x": 0,
+            "y": 512,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "collect_009",
+          "texture": "res://assets/objects/gold-key/spritesheets/collect/collect.png",
+          "region": {
+            "x": 384,
+            "y": 512,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "collect_010",
+          "texture": "res://assets/objects/gold-key/spritesheets/collect/collect.png",
+          "region": {
+            "x": 768,
+            "y": 512,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "collect_011",
+          "texture": "res://assets/objects/gold-key/spritesheets/collect/collect.png",
+          "region": {
+            "x": 1152,
+            "y": 512,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "collect_012",
+          "texture": "res://assets/objects/gold-key/spritesheets/collect/collect.png",
+          "region": {
+            "x": 0,
+            "y": 768,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "collect_013",
+          "texture": "res://assets/objects/gold-key/spritesheets/collect/collect.png",
+          "region": {
+            "x": 384,
+            "y": 768,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "collect_014",
+          "texture": "res://assets/objects/gold-key/spritesheets/collect/collect.png",
+          "region": {
+            "x": 768,
+            "y": 768,
+            "w": 384,
+            "h": 256
+          }
+        },
+        {
+          "name": "collect_015",
+          "texture": "res://assets/objects/gold-key/spritesheets/collect/collect.png",
+          "region": {
+            "x": 1152,
+            "y": 768,
+            "w": 384,
+            "h": 256
+          }
+        }
+      ],
+      "loop": true
+    },
+    {
+      "name": "objects/gold-key/idle",
+      "frames": [
+        {
+          "name": "idle_000",
+          "texture": "res://assets/objects/gold-key/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_001",
+          "texture": "res://assets/objects/gold-key/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_002",
+          "texture": "res://assets/objects/gold-key/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_003",
+          "texture": "res://assets/objects/gold-key/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_004",
+          "texture": "res://assets/objects/gold-key/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_005",
+          "texture": "res://assets/objects/gold-key/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_006",
+          "texture": "res://assets/objects/gold-key/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_007",
+          "texture": "res://assets/objects/gold-key/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        }
+      ],
+      "loop": true
+    },
+    {
+      "name": "objects/health-potion/collect",
+      "frames": [
+        {
+          "name": "collect_000",
+          "texture": "res://assets/objects/health-potion/spritesheets/collect/collect.png",
+          "region": {
+            "x": 0,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "collect_001",
+          "texture": "res://assets/objects/health-potion/spritesheets/collect/collect.png",
+          "region": {
+            "x": 384,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "collect_002",
+          "texture": "res://assets/objects/health-potion/spritesheets/collect/collect.png",
+          "region": {
+            "x": 768,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "collect_003",
+          "texture": "res://assets/objects/health-potion/spritesheets/collect/collect.png",
+          "region": {
+            "x": 1152,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "collect_004",
+          "texture": "res://assets/objects/health-potion/spritesheets/collect/collect.png",
+          "region": {
+            "x": 0,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "collect_005",
+          "texture": "res://assets/objects/health-potion/spritesheets/collect/collect.png",
+          "region": {
+            "x": 384,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "collect_006",
+          "texture": "res://assets/objects/health-potion/spritesheets/collect/collect.png",
+          "region": {
+            "x": 768,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "collect_007",
+          "texture": "res://assets/objects/health-potion/spritesheets/collect/collect.png",
+          "region": {
+            "x": 1152,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        }
+      ],
+      "loop": true
+    },
+    {
+      "name": "objects/health-potion/idle",
+      "frames": [
+        {
+          "name": "idle_000",
+          "texture": "res://assets/objects/health-potion/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_001",
+          "texture": "res://assets/objects/health-potion/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_002",
+          "texture": "res://assets/objects/health-potion/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_003",
+          "texture": "res://assets/objects/health-potion/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_004",
+          "texture": "res://assets/objects/health-potion/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_005",
+          "texture": "res://assets/objects/health-potion/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_006",
+          "texture": "res://assets/objects/health-potion/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_007",
+          "texture": "res://assets/objects/health-potion/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        }
+      ],
+      "loop": true
+    },
+    {
+      "name": "objects/spike-trap/idle",
+      "frames": [
+        {
+          "name": "idle_000",
+          "texture": "res://assets/objects/spike-trap/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_001",
+          "texture": "res://assets/objects/spike-trap/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_002",
+          "texture": "res://assets/objects/spike-trap/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_003",
+          "texture": "res://assets/objects/spike-trap/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_004",
+          "texture": "res://assets/objects/spike-trap/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_005",
+          "texture": "res://assets/objects/spike-trap/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_006",
+          "texture": "res://assets/objects/spike-trap/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_007",
+          "texture": "res://assets/objects/spike-trap/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        }
+      ],
+      "loop": true
+    },
+    {
+      "name": "objects/spike-trap/trigger",
+      "frames": [
+        {
+          "name": "trigger_000",
+          "texture": "res://assets/objects/spike-trap/spritesheets/trigger/trigger.png",
+          "region": {
+            "x": 0,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "trigger_001",
+          "texture": "res://assets/objects/spike-trap/spritesheets/trigger/trigger.png",
+          "region": {
+            "x": 384,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "trigger_002",
+          "texture": "res://assets/objects/spike-trap/spritesheets/trigger/trigger.png",
+          "region": {
+            "x": 768,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "trigger_003",
+          "texture": "res://assets/objects/spike-trap/spritesheets/trigger/trigger.png",
+          "region": {
+            "x": 1152,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "trigger_004",
+          "texture": "res://assets/objects/spike-trap/spritesheets/trigger/trigger.png",
+          "region": {
+            "x": 0,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "trigger_005",
+          "texture": "res://assets/objects/spike-trap/spritesheets/trigger/trigger.png",
+          "region": {
+            "x": 384,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "trigger_006",
+          "texture": "res://assets/objects/spike-trap/spritesheets/trigger/trigger.png",
+          "region": {
+            "x": 768,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "trigger_007",
+          "texture": "res://assets/objects/spike-trap/spritesheets/trigger/trigger.png",
+          "region": {
+            "x": 1152,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        }
+      ],
+      "loop": true
+    },
+    {
+      "name": "objects/wood-ladder/idle",
+      "frames": [
+        {
+          "name": "idle_000",
+          "texture": "res://assets/objects/wood-ladder/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_001",
+          "texture": "res://assets/objects/wood-ladder/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_002",
+          "texture": "res://assets/objects/wood-ladder/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_003",
+          "texture": "res://assets/objects/wood-ladder/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 0,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_004",
+          "texture": "res://assets/objects/wood-ladder/spritesheets/idle/idle.png",
+          "region": {
+            "x": 0,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_005",
+          "texture": "res://assets/objects/wood-ladder/spritesheets/idle/idle.png",
+          "region": {
+            "x": 384,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_006",
+          "texture": "res://assets/objects/wood-ladder/spritesheets/idle/idle.png",
+          "region": {
+            "x": 768,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        },
+        {
+          "name": "idle_007",
+          "texture": "res://assets/objects/wood-ladder/spritesheets/idle/idle.png",
+          "region": {
+            "x": 1152,
+            "y": 512,
+            "w": 384,
+            "h": 512
+          }
+        }
+      ],
+      "loop": true
+    },
+    {
+      "name": "tile_maps/grassland/grassland",
+      "frames": [],
+      "loop": true
+    },
+    {
+      "name": "backgrounds/forest-far/forest-far",
+      "frames": [
+        {
+          "name": "forest-far",
+          "texture": "res://assets/backgrounds/forest-far/forest-far.png",
+          "region": {
+            "x": 0,
+            "y": 0,
+            "w": 1920,
+            "h": 1080
+          }
+        }
+      ],
+      "loop": true
+    },
+    {
+      "name": "backgrounds/forest-mid/forest-mid",
+      "frames": [
+        {
+          "name": "forest-mid",
+          "texture": "res://assets/backgrounds/forest-mid/forest-mid.png",
+          "region": {
+            "x": 0,
+            "y": 0,
+            "w": 1920,
+            "h": 1080
+          }
+        }
+      ],
+      "loop": true
+    },
+    {
+      "name": "backgrounds/forest-near/forest-near",
+      "frames": [
+        {
+          "name": "forest-near",
+          "texture": "res://assets/backgrounds/forest-near/forest-near.png",
+          "region": {
+            "x": 0,
+            "y": 0,
+            "w": 1920,
+            "h": 1080
+          }
+        }
+      ],
+      "loop": true
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "taskId": "06-guides/001-articulate-your-goal",
+  "checks": [
+    {
+      "id": "page-exists",
+      "description": "page exists",
+      "cmd": "test -f docs/guides/articulate-your-goal.md"
+    },
+    {
+      "id": "page-frontmatter",
+      "description": "title + sources frontmatter",
+      "cmd": "head -10 docs/guides/articulate-your-goal.md | grep -q '^title:' && head -10 docs/guides/articulate-your-goal.md | grep -q '^sources:'"
+    },
+    {
+      "id": "covers-three-questions",
+      "description": "covers the three articulation questions (outputs, done, verify)",
+      "cmd": "grep -qiE 'output|done|verify' docs/guides/articulate-your-goal.md"
+    },
+    {
+      "id": "links-to-examples-or-from-problem",
+      "description": "links to examples or to the from-problem-to-playbook getting-started page",
+      "cmd": "grep -qE '\\(/examples/|/getting-started/from-problem-to-playbook' docs/guides/articulate-your-goal.md"
+    },
+    {
+      "id": "word-count-ok",
+      "description": "600-1500 words",
+      "cmd": "wc -w docs/guides/articulate-your-goal.md | awk '{exit ($1>=600&&$1<=1500?0:1)}'"
+    }
+  ]
+}

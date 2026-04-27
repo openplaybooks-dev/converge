@@ -8,6 +8,7 @@ export default defineConfig({
   entry: {
     index: "src/index.ts",
     client: "src/client/index.ts",
+    "studio-api": "src/studio-api.ts",
   },
   format: ["esm"],
   dts: false,

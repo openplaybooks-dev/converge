@@ -1,0 +1,275 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "09-concepts/002-filesystem-as-plan-missing-output-docs/concepts/filesystem-as-plan.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-concepts/002-filesystem-as-plan",
+            "severity": "high",
+            "description": "[09-concepts/002-filesystem-as-plan] Task output not created: docs/concepts/filesystem-as-plan.md",
+            "source": "unit",
+            "detected": "2026-04-26T09:56:03.044Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/09-concepts/tasks/002-filesystem-as-plan",
+              "taskId": "09-concepts/002-filesystem-as-plan",
+              "taskTitle": "Write docs/concepts/filesystem-as-plan.md",
+              "taskPrompt": "# Write `docs/concepts/filesystem-as-plan.md`\n\nWhy everything is plain files. The principle behind the journal layout.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Filesystem-as-plan\"\ndescription: \"Plans, state, and history are plain files. ls and cat are your debugger.\"\nsources:\n  - .converge/journal/\n  - packages/core/src/journal/types.ts\nsidebar:\n  order: 2\n---\n```\n\n## Required structure\n\n1. **The principle.** Every artifact converge produces is a plain file:\n   playbooks (`playbook.yml`), tasks (`TASK.md`), runtime state (the journal).\n   No databases. No daemons. Just files in `.converge/`.\n\n2. **What this buys you.**\n   - **`git diff` shows what changed.** Plans, runs, failures — all in version\n     control if you choose.\n   - **`grep`, `cat`, `tail` are your debugger.** No SQL, no admin UI required.\n   - **Crash-safe by construction.** If the process dies, the next run reads\n     the same files and resumes.\n   - **No state migrations.** Schema changes are file-format changes; your\n     existing files keep working or get refactored explicitly.\n   - **Easy to fork, share, archive.** A playbook is a directory. Email it,\n     git push it, drop it on a USB stick.\n\n3. **The journal layout.** Brief tour of `.converge/journal/`:\n   ```\n   .converge/journal/\n   └── <run-id>/\n       ├── events.jsonl       # append-only event log\n       ├── checkpoint.json    # current run state for resume\n       └── <task-id>/\n           ├── LEARN.md       # accumulated failure analysis\n           └── ...\n   ```\n\n4. **The trade-off.** Filesystem-as-plan means no out-of-the-box query layer\n   (you write your own `jq` filters). For most use cases this is fine — for\n   high-volume multi-tenant scenarios you'd want a real DB. Converge\n   optimizes for \"I run my own playbooks\", not \"I host playbooks for\n   thousands of users\".\n\n5. **The `ls/cat` debug session.** Show a real one — pick a journal run,\n   show the events.jsonl tail, show the LEARN.md content. Make the case\n   concrete.\n\n## Read first\n\n- A real journal under `.converge/journal/` in the repo.\n- `packages/core/src/journal/types.ts` for canonical event shapes.\n\n## Banned\n\n- \"It's just files, problem solved\" — name the trade-off (no query layer\n  by default). Trust readers to handle nuance.\n- Pretending the journal is human-readable JSON. JSONL is line-oriented\n  but each line is dense; show realistic `jq` filters.",
+              "taskInputs": [
+                ".converge/journal",
+                "packages/core/src/journal/types.ts"
+              ],
+              "factId": "file-exists:test -f \"docs/concepts/filesystem-as-plan.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "09-concepts/002-filesystem-as-plan-check-failed-page-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-concepts/002-filesystem-as-plan",
+            "severity": "high",
+            "description": "[09-concepts/002-filesystem-as-plan] Check failed: page exists",
+            "source": "unit",
+            "detected": "2026-04-26T09:56:03.046Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "page-exists",
+              "checkCmd": "test -f docs/concepts/filesystem-as-plan.md",
+              "checkDescription": "page exists",
+              "checkOutput": "Command failed: test -f docs/concepts/filesystem-as-plan.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Write `docs/concepts/filesystem-as-plan.md`\n\nWhy everything is plain files. The principle behind the journal layout.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Filesystem-as-plan\"\ndescription: \"Plans, state, and history are plain files. ls and cat are your debugger.\"\nsources:\n  - .converge/journal/\n  - packages/core/src/journal/types.ts\nsidebar:\n  order: 2\n---\n```\n\n## Required structure\n\n1. **The principle.** Every artifact converge produces is a plain file:\n   playbooks (`playbook.yml`), tasks (`TASK.md`), runtime state (the journal).\n   No databases. No daemons. Just files in `.converge/`.\n\n2. **What this buys you.**\n   - **`git diff` shows what changed.** Plans, runs, failures — all in version\n     control if you choose.\n   - **`grep`, `cat`, `tail` are your debugger.** No SQL, no admin UI required.\n   - **Crash-safe by construction.** If the process dies, the next run reads\n     the same files and resumes.\n   - **No state migrations.** Schema changes are file-format changes; your\n     existing files keep working or get refactored explicitly.\n   - **Easy to fork, share, archive.** A playbook is a directory. Email it,\n     git push it, drop it on a USB stick.\n\n3. **The journal layout.** Brief tour of `.converge/journal/`:\n   ```\n   .converge/journal/\n   └── <run-id>/\n       ├── events.jsonl       # append-only event log\n       ├── checkpoint.json    # current run state for resume\n       └── <task-id>/\n           ├── LEARN.md       # accumulated failure analysis\n           └── ...\n   ```\n\n4. **The trade-off.** Filesystem-as-plan means no out-of-the-box query layer\n   (you write your own `jq` filters). For most use cases this is fine — for\n   high-volume multi-tenant scenarios you'd want a real DB. Converge\n   optimizes for \"I run my own playbooks\", not \"I host playbooks for\n   thousands of users\".\n\n5. **The `ls/cat` debug session.** Show a real one — pick a journal run,\n   show the events.jsonl tail, show the LEARN.md content. Make the case\n   concrete.\n\n## Read first\n\n- A real journal under `.converge/journal/` in the repo.\n- `packages/core/src/journal/types.ts` for canonical event shapes.\n\n## Banned\n\n- \"It's just files, problem solved\" — name the trade-off (no query layer\n  by default). Trust readers to handle nuance.\n- Pretending the journal is human-readable JSON. JSONL is line-oriented\n  but each line is dense; show realistic `jq` filters.",
+              "taskId": "09-concepts/002-filesystem-as-plan",
+              "taskTitle": "Write docs/concepts/filesystem-as-plan.md",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/09-concepts/tasks/002-filesystem-as-plan",
+              "factId": "check:page-exists"
+            }
+          },
+          {
+            "id": "09-concepts/002-filesystem-as-plan-check-failed-covers-journal",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-concepts/002-filesystem-as-plan",
+            "severity": "high",
+            "description": "[09-concepts/002-filesystem-as-plan] Check failed: covers the journal directory",
+            "source": "unit",
+            "detected": "2026-04-26T09:56:03.050Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "covers-journal",
+              "checkCmd": "grep -qiE '\\.converge/journal' docs/concepts/filesystem-as-plan.md",
+              "checkDescription": "covers the journal directory",
+              "checkOutput": "grep: docs/concepts/filesystem-as-plan.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Write `docs/concepts/filesystem-as-plan.md`\n\nWhy everything is plain files. The principle behind the journal layout.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Filesystem-as-plan\"\ndescription: \"Plans, state, and history are plain files. ls and cat are your debugger.\"\nsources:\n  - .converge/journal/\n  - packages/core/src/journal/types.ts\nsidebar:\n  order: 2\n---\n```\n\n## Required structure\n\n1. **The principle.** Every artifact converge produces is a plain file:\n   playbooks (`playbook.yml`), tasks (`TASK.md`), runtime state (the journal).\n   No databases. No daemons. Just files in `.converge/`.\n\n2. **What this buys you.**\n   - **`git diff` shows what changed.** Plans, runs, failures — all in version\n     control if you choose.\n   - **`grep`, `cat`, `tail` are your debugger.** No SQL, no admin UI required.\n   - **Crash-safe by construction.** If the process dies, the next run reads\n     the same files and resumes.\n   - **No state migrations.** Schema changes are file-format changes; your\n     existing files keep working or get refactored explicitly.\n   - **Easy to fork, share, archive.** A playbook is a directory. Email it,\n     git push it, drop it on a USB stick.\n\n3. **The journal layout.** Brief tour of `.converge/journal/`:\n   ```\n   .converge/journal/\n   └── <run-id>/\n       ├── events.jsonl       # append-only event log\n       ├── checkpoint.json    # current run state for resume\n       └── <task-id>/\n           ├── LEARN.md       # accumulated failure analysis\n           └── ...\n   ```\n\n4. **The trade-off.** Filesystem-as-plan means no out-of-the-box query layer\n   (you write your own `jq` filters). For most use cases this is fine — for\n   high-volume multi-tenant scenarios you'd want a real DB. Converge\n   optimizes for \"I run my own playbooks\", not \"I host playbooks for\n   thousands of users\".\n\n5. **The `ls/cat` debug session.** Show a real one — pick a journal run,\n   show the events.jsonl tail, show the LEARN.md content. Make the case\n   concrete.\n\n## Read first\n\n- A real journal under `.converge/journal/` in the repo.\n- `packages/core/src/journal/types.ts` for canonical event shapes.\n\n## Banned\n\n- \"It's just files, problem solved\" — name the trade-off (no query layer\n  by default). Trust readers to handle nuance.\n- Pretending the journal is human-readable JSON. JSONL is line-oriented\n  but each line is dense; show realistic `jq` filters.",
+              "taskId": "09-concepts/002-filesystem-as-plan",
+              "taskTitle": "Write docs/concepts/filesystem-as-plan.md",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/09-concepts/tasks/002-filesystem-as-plan",
+              "factId": "check:covers-journal"
+            }
+          },
+          {
+            "id": "09-concepts/002-filesystem-as-plan-check-failed-covers-debugging",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-concepts/002-filesystem-as-plan",
+            "severity": "high",
+            "description": "[09-concepts/002-filesystem-as-plan] Check failed: shows shell-tool debugging",
+            "source": "unit",
+            "detected": "2026-04-26T09:56:03.054Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "covers-debugging",
+              "checkCmd": "grep -qiE 'cat|grep|ls|tail|debug' docs/concepts/filesystem-as-plan.md",
+              "checkDescription": "shows shell-tool debugging",
+              "checkOutput": "grep: docs/concepts/filesystem-as-plan.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Write `docs/concepts/filesystem-as-plan.md`\n\nWhy everything is plain files. The principle behind the journal layout.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"Filesystem-as-plan\"\ndescription: \"Plans, state, and history are plain files. ls and cat are your debugger.\"\nsources:\n  - .converge/journal/\n  - packages/core/src/journal/types.ts\nsidebar:\n  order: 2\n---\n```\n\n## Required structure\n\n1. **The principle.** Every artifact converge produces is a plain file:\n   playbooks (`playbook.yml`), tasks (`TASK.md`), runtime state (the journal).\n   No databases. No daemons. Just files in `.converge/`.\n\n2. **What this buys you.**\n   - **`git diff` shows what changed.** Plans, runs, failures — all in version\n     control if you choose.\n   - **`grep`, `cat`, `tail` are your debugger.** No SQL, no admin UI required.\n   - **Crash-safe by construction.** If the process dies, the next run reads\n     the same files and resumes.\n   - **No state migrations.** Schema changes are file-format changes; your\n     existing files keep working or get refactored explicitly.\n   - **Easy to fork, share, archive.** A playbook is a directory. Email it,\n     git push it, drop it on a USB stick.\n\n3. **The journal layout.** Brief tour of `.converge/journal/`:\n   ```\n   .converge/journal/\n   └── <run-id>/\n       ├── events.jsonl       # append-only event log\n       ├── checkpoint.json    # current run state for resume\n       └── <task-id>/\n           ├── LEARN.md       # accumulated failure analysis\n           └── ...\n   ```\n\n4. **The trade-off.** Filesystem-as-plan means no out-of-the-box query layer\n   (you write your own `jq` filters). For most use cases this is fine — for\n   high-volume multi-tenant scenarios you'd want a real DB. Converge\n   optimizes for \"I run my own playbooks\", not \"I host playbooks for\n   thousands of users\".\n\n5. **The `ls/cat` debug session.** Show a real one — pick a journal run,\n   show the events.jsonl tail, show the LEARN.md content. Make the case\n   concrete.\n\n## Read first\n\n- A real journal under `.converge/journal/` in the repo.\n- `packages/core/src/journal/types.ts` for canonical event shapes.\n\n## Banned\n\n- \"It's just files, problem solved\" — name the trade-off (no query layer\n  by default). Trust readers to handle nuance.\n- Pretending the journal is human-readable JSON. JSONL is line-oriented\n  but each line is dense; show realistic `jq` filters.",
+              "taskId": "09-concepts/002-filesystem-as-plan",
+              "taskTitle": "Write docs/concepts/filesystem-as-plan.md",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/09-concepts/tasks/002-filesystem-as-plan",
+              "factId": "check:covers-debugging"
+            }
+          }
+        ],
+        "durationMs": 17
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 10
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 19
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#6",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 81490
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T09:56:03.037Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T09:56:03.037Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T09:56:03.054Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T09:56:03.054Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T09:56:03.065Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#6",
+      "iteration": 1,
+      "ts": "2026-04-26T09:57:24.556Z"
+    },
+    {
+      "from": "run-strategy:task-run#6",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T09:57:24.575Z"
+    }
+  ]
+}

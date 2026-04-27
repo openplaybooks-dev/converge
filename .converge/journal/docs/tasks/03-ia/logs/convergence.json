@@ -1,0 +1,376 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-ia-missing-output-docs/_ia.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-ia",
+            "severity": "high",
+            "description": "[03-ia] Task output not created: docs/_ia.json",
+            "source": "unit",
+            "detected": "2026-04-26T07:37:22.758Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/03-ia",
+              "taskId": "03-ia",
+              "taskTitle": "Phase 03 — Author docs/_ia.json (the canonical IA manifest)",
+              "taskPrompt": "# IA manifest\n\nSingle source of truth for the docs sidebar. The landing-page playbook\n(Starlight `/docs` route) reads this file directly. Don't duplicate IA data\nelsewhere.\n\n## File: `docs/_ia.json`\n\n```json\n{\n  \"$schema\": \"./_ia.schema.json\",\n  \"siteTitle\": \"Converge\",\n  \"groups\": [\n    {\n      \"label\": \"Getting Started\",\n      \"slug\": \"getting-started\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"getting-started/why-converge\",            \"title\": \"Why Converge\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/install\",                 \"title\": \"Install\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/your-first-playbook\",     \"title\": \"Your first playbook\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/from-problem-to-playbook\",\"title\": \"From your problem to a playbook\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/next-steps\",              \"title\": \"Next steps\" }\n      ]\n    },\n    {\n      \"label\": \"Examples\",\n      \"slug\": \"examples\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"examples/index\",   \"title\": \"Examples gallery\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/learning/*\",        \"label\": \"Learning\",        \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/software/*\",        \"label\": \"Building software\",\"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/research/*\",        \"label\": \"Research\",         \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/creative/*\",        \"label\": \"Creative + simulation\", \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/security/*\",        \"label\": \"Security\",         \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/agent-protocol/*\",  \"label\": \"Agent protocol\",   \"sort\": \"alpha\" }\n      ]\n    },\n    {\n      \"label\": \"Guides\",\n      \"slug\": \"guides\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"guides/articulate-your-goal\",        \"title\": \"Articulating a goal (non-technical)\" },\n        { \"kind\": \"page\", \"slug\": \"guides/generate-something-repeatedly\",\"title\": \"Generate something repeatedly\" },\n        { \"kind\": \"page\", \"slug\": \"guides/research-a-topic-deeply\",     \"title\": \"Research a topic deeply\" },\n        { \"kind\": \"page\", \"slug\": \"guides/build-a-software-project\",    \"title\": \"Build a software project\" },\n        { \"kind\": \"page\", \"slug\": \"guides/switch-providers\",            \"title\": \"Switch providers\" },\n        { \"kind\": \"page\", \"slug\": \"guides/read-the-journal\",            \"title\": \"Read the journal (LEARN.md & events)\" },\n        { \"kind\": \"page\", \"slug\": \"guides/customize-an-example\",        \"title\": \"Customize an example\" }\n      ]\n    },\n    {\n      \"label\": \"Troubleshooting\",\n      \"slug\": \"troubleshooting\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"troubleshooting/index\",             \"title\": \"Troubleshooting index\" },\n        { \"kind\": \"glob\", \"glob\": \"troubleshooting/*\",                 \"label\": \"Symptoms\",       \"sort\": \"numeric\" }\n      ]\n    },\n    {\n      \"label\": \"Reference\",\n      \"slug\": \"reference\",\n      \"pages\": [\n        { \"kind\": \"glob\", \"glob\": \"reference/cli/*\",       \"label\": \"CLI\",        \"sort\": \"alpha\" },\n        { \"kind\": \"page\", \"slug\": \"reference/playbook-yml\",\"title\": \"playbook.yml\" },\n        { \"kind\": \"page\", \"slug\": \"reference/task-md\",     \"title\": \"TASK.md\" },\n        { \"kind\": \"page\", \"slug\": \"reference/project-yml\", \"title\": \"project.yml\" },\n        { \"kind\": \"page\", \"slug\": \"reference/core-api\",    \"title\": \"@converge/core\" }\n      ]\n    },\n    {\n      \"label\": \"Concepts\",\n      \"slug\": \"concepts\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"concepts/gap-driven-model\",   \"title\": \"Gap-driven model\" },\n        { \"kind\": \"page\", \"slug\": \"concepts/filesystem-as-plan\", \"title\": \"Filesystem-as-plan\" },\n        { \"kind\": \"page\", \"slug\": \"concepts/self-correction\",    \"title\": \"Self-correction\" }\n      ]\n    }\n  ],\n  \"footer\": {\n    \"links\": [\n      { \"label\": \"GitHub\",   \"href\": \"https://github.com/myanlabs/converge\" },\n      { \"label\": \"Examples\", \"href\": \"https://github.com/myanlabs/converge/tree/main/examples\" }\n    ]\n  }\n}\n```\n\n## `kind` semantics\n\n- `kind: \"page\"` — single doc page at `slug`. Sidebar shows its `title`.\n- `kind: \"glob\"` — directory of pages (e.g. CLI commands, examples by\n  category, troubleshooting symptoms). Starlight's autogenerate consumes\n  the glob; sidebar label uses `label`. Children sorted by `sort` (`alpha`\n  or `numeric`).\n\n## Process\n\n1. Read `docs/_sources.json`, `docs/_cli-commands.json`, and\n   `docs/_examples.json` from `02-source-scan`.\n2. Write `docs/_ia.json` exactly as above. The six-group structure is the\n   contract; only the page lists change as the framework grows.\n3. If a future framework change adds (say) a \"Plugins\" guide, add it to the\n   Guides group; downstream phases pick it up automatically.\n\n## Why six groups (not four)\n\nThe previous IA had four groups (Getting Started, Guides, Reference,\nConcepts) and stuffed everything else under Guides. Two new top-level\nsections were added:\n\n- **Examples** — surface the 21 example playbooks. They're the fastest\n  path from \"I have a problem\" to \"I have a working playbook\" and were\n  invisible under the old IA.\n- **Troubleshooting** — broken out from Guides because it has its own\n  symptom-indexed entry pattern (people land here in distress, not from\n  reading order). Owns its own glob of per-symptom pages.\n\n## Banned\n\n- Adding a seventh top-level group without removing one. Six is the\n  contract — extra cognitive load on first-time readers is the cost of\n  every additional group.\n- Putting CLI commands as individual `page` entries. The `glob` entry handles\n  N commands without N IA edits.\n- Putting per-example pages as individual `page` entries. Same reason —\n  use the per-category globs.\n- Putting internal docs (`_internal/*`) in the sidebar. They're archived,\n  not navigable.",
+              "taskInputs": [
+                "docs/_sources.json",
+                "docs/_cli-commands.json",
+                "docs/_examples.json"
+              ],
+              "factId": "file-exists:test -f \"docs/_ia.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-ia-check-failed-ia-json-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-ia",
+            "severity": "high",
+            "description": "[03-ia] Check failed: docs/_ia.json exists and is valid JSON",
+            "source": "unit",
+            "detected": "2026-04-26T07:37:22.760Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "ia-json-exists",
+              "checkCmd": "test -f docs/_ia.json && node -e \"JSON.parse(require('fs').readFileSync('docs/_ia.json','utf8'))\"",
+              "checkDescription": "docs/_ia.json exists and is valid JSON",
+              "checkOutput": "Command failed: test -f docs/_ia.json && node -e \"JSON.parse(require('fs').readFileSync('docs/_ia.json','utf8'))\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# IA manifest\n\nSingle source of truth for the docs sidebar. The landing-page playbook\n(Starlight `/docs` route) reads this file directly. Don't duplicate IA data\nelsewhere.\n\n## File: `docs/_ia.json`\n\n```json\n{\n  \"$schema\": \"./_ia.schema.json\",\n  \"siteTitle\": \"Converge\",\n  \"groups\": [\n    {\n      \"label\": \"Getting Started\",\n      \"slug\": \"getting-started\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"getting-started/why-converge\",            \"title\": \"Why Converge\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/install\",                 \"title\": \"Install\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/your-first-playbook\",     \"title\": \"Your first playbook\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/from-problem-to-playbook\",\"title\": \"From your problem to a playbook\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/next-steps\",              \"title\": \"Next steps\" }\n      ]\n    },\n    {\n      \"label\": \"Examples\",\n      \"slug\": \"examples\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"examples/index\",   \"title\": \"Examples gallery\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/learning/*\",        \"label\": \"Learning\",        \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/software/*\",        \"label\": \"Building software\",\"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/research/*\",        \"label\": \"Research\",         \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/creative/*\",        \"label\": \"Creative + simulation\", \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/security/*\",        \"label\": \"Security\",         \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/agent-protocol/*\",  \"label\": \"Agent protocol\",   \"sort\": \"alpha\" }\n      ]\n    },\n    {\n      \"label\": \"Guides\",\n      \"slug\": \"guides\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"guides/articulate-your-goal\",        \"title\": \"Articulating a goal (non-technical)\" },\n        { \"kind\": \"page\", \"slug\": \"guides/generate-something-repeatedly\",\"title\": \"Generate something repeatedly\" },\n        { \"kind\": \"page\", \"slug\": \"guides/research-a-topic-deeply\",     \"title\": \"Research a topic deeply\" },\n        { \"kind\": \"page\", \"slug\": \"guides/build-a-software-project\",    \"title\": \"Build a software project\" },\n        { \"kind\": \"page\", \"slug\": \"guides/switch-providers\",            \"title\": \"Switch providers\" },\n        { \"kind\": \"page\", \"slug\": \"guides/read-the-journal\",            \"title\": \"Read the journal (LEARN.md & events)\" },\n        { \"kind\": \"page\", \"slug\": \"guides/customize-an-example\",        \"title\": \"Customize an example\" }\n      ]\n    },\n    {\n      \"label\": \"Troubleshooting\",\n      \"slug\": \"troubleshooting\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"troubleshooting/index\",             \"title\": \"Troubleshooting index\" },\n        { \"kind\": \"glob\", \"glob\": \"troubleshooting/*\",                 \"label\": \"Symptoms\",       \"sort\": \"numeric\" }\n      ]\n    },\n    {\n      \"label\": \"Reference\",\n      \"slug\": \"reference\",\n      \"pages\": [\n        { \"kind\": \"glob\", \"glob\": \"reference/cli/*\",       \"label\": \"CLI\",        \"sort\": \"alpha\" },\n        { \"kind\": \"page\", \"slug\": \"reference/playbook-yml\",\"title\": \"playbook.yml\" },\n        { \"kind\": \"page\", \"slug\": \"reference/task-md\",     \"title\": \"TASK.md\" },\n        { \"kind\": \"page\", \"slug\": \"reference/project-yml\", \"title\": \"project.yml\" },\n        { \"kind\": \"page\", \"slug\": \"reference/core-api\",    \"title\": \"@converge/core\" }\n      ]\n    },\n    {\n      \"label\": \"Concepts\",\n      \"slug\": \"concepts\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"concepts/gap-driven-model\",   \"title\": \"Gap-driven model\" },\n        { \"kind\": \"page\", \"slug\": \"concepts/filesystem-as-plan\", \"title\": \"Filesystem-as-plan\" },\n        { \"kind\": \"page\", \"slug\": \"concepts/self-correction\",    \"title\": \"Self-correction\" }\n      ]\n    }\n  ],\n  \"footer\": {\n    \"links\": [\n      { \"label\": \"GitHub\",   \"href\": \"https://github.com/myanlabs/converge\" },\n      { \"label\": \"Examples\", \"href\": \"https://github.com/myanlabs/converge/tree/main/examples\" }\n    ]\n  }\n}\n```\n\n## `kind` semantics\n\n- `kind: \"page\"` — single doc page at `slug`. Sidebar shows its `title`.\n- `kind: \"glob\"` — directory of pages (e.g. CLI commands, examples by\n  category, troubleshooting symptoms). Starlight's autogenerate consumes\n  the glob; sidebar label uses `label`. Children sorted by `sort` (`alpha`\n  or `numeric`).\n\n## Process\n\n1. Read `docs/_sources.json`, `docs/_cli-commands.json`, and\n   `docs/_examples.json` from `02-source-scan`.\n2. Write `docs/_ia.json` exactly as above. The six-group structure is the\n   contract; only the page lists change as the framework grows.\n3. If a future framework change adds (say) a \"Plugins\" guide, add it to the\n   Guides group; downstream phases pick it up automatically.\n\n## Why six groups (not four)\n\nThe previous IA had four groups (Getting Started, Guides, Reference,\nConcepts) and stuffed everything else under Guides. Two new top-level\nsections were added:\n\n- **Examples** — surface the 21 example playbooks. They're the fastest\n  path from \"I have a problem\" to \"I have a working playbook\" and were\n  invisible under the old IA.\n- **Troubleshooting** — broken out from Guides because it has its own\n  symptom-indexed entry pattern (people land here in distress, not from\n  reading order). Owns its own glob of per-symptom pages.\n\n## Banned\n\n- Adding a seventh top-level group without removing one. Six is the\n  contract — extra cognitive load on first-time readers is the cost of\n  every additional group.\n- Putting CLI commands as individual `page` entries. The `glob` entry handles\n  N commands without N IA edits.\n- Putting per-example pages as individual `page` entries. Same reason —\n  use the per-category globs.\n- Putting internal docs (`_internal/*`) in the sidebar. They're archived,\n  not navigable.",
+              "taskId": "03-ia",
+              "taskTitle": "Phase 03 — Author docs/_ia.json (the canonical IA manifest)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/03-ia",
+              "factId": "check:ia-json-exists"
+            }
+          },
+          {
+            "id": "03-ia-check-failed-ia-has-six-groups",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-ia",
+            "severity": "high",
+            "description": "[03-ia] Check failed: IA has the six top-level groups (Getting Started, Examples, Guides, Troubleshooting, Reference, Concepts)",
+            "source": "unit",
+            "detected": "2026-04-26T07:37:22.785Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "ia-has-six-groups",
+              "checkCmd": "node -e \"const ia=require('./docs/_ia.json');const labels=ia.groups.map(g=>g.label);const required=['Getting Started','Examples','Guides','Troubleshooting','Reference','Concepts'];process.exit(required.every(r=>labels.includes(r))?0:1)\"",
+              "checkDescription": "IA has the six top-level groups (Getting Started, Examples, Guides, Troubleshooting, Reference, Concepts)",
+              "checkOutput": "node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nError: Cannot find module './docs/_ia.json'\nRequire stack:\n- /Users/minh/Documents/converge/[eval]\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\n    at Function._load (node:internal/modules/cjs/loader:1192:37)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\n    at Module.require (node:internal/modules/cjs/loader:1463:12)\n    at require (node:internal/modules/helpers:147:16)\n    at [eval]:1:10\n    at runScriptInThisContext (node:internal/vm:209:10) {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: [ '/Users/minh/Documents/converge/[eval]' ]\n}\n\nNode.js v22.19.0",
+              "checkExitCode": 1,
+              "taskPrompt": "# IA manifest\n\nSingle source of truth for the docs sidebar. The landing-page playbook\n(Starlight `/docs` route) reads this file directly. Don't duplicate IA data\nelsewhere.\n\n## File: `docs/_ia.json`\n\n```json\n{\n  \"$schema\": \"./_ia.schema.json\",\n  \"siteTitle\": \"Converge\",\n  \"groups\": [\n    {\n      \"label\": \"Getting Started\",\n      \"slug\": \"getting-started\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"getting-started/why-converge\",            \"title\": \"Why Converge\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/install\",                 \"title\": \"Install\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/your-first-playbook\",     \"title\": \"Your first playbook\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/from-problem-to-playbook\",\"title\": \"From your problem to a playbook\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/next-steps\",              \"title\": \"Next steps\" }\n      ]\n    },\n    {\n      \"label\": \"Examples\",\n      \"slug\": \"examples\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"examples/index\",   \"title\": \"Examples gallery\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/learning/*\",        \"label\": \"Learning\",        \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/software/*\",        \"label\": \"Building software\",\"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/research/*\",        \"label\": \"Research\",         \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/creative/*\",        \"label\": \"Creative + simulation\", \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/security/*\",        \"label\": \"Security\",         \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/agent-protocol/*\",  \"label\": \"Agent protocol\",   \"sort\": \"alpha\" }\n      ]\n    },\n    {\n      \"label\": \"Guides\",\n      \"slug\": \"guides\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"guides/articulate-your-goal\",        \"title\": \"Articulating a goal (non-technical)\" },\n        { \"kind\": \"page\", \"slug\": \"guides/generate-something-repeatedly\",\"title\": \"Generate something repeatedly\" },\n        { \"kind\": \"page\", \"slug\": \"guides/research-a-topic-deeply\",     \"title\": \"Research a topic deeply\" },\n        { \"kind\": \"page\", \"slug\": \"guides/build-a-software-project\",    \"title\": \"Build a software project\" },\n        { \"kind\": \"page\", \"slug\": \"guides/switch-providers\",            \"title\": \"Switch providers\" },\n        { \"kind\": \"page\", \"slug\": \"guides/read-the-journal\",            \"title\": \"Read the journal (LEARN.md & events)\" },\n        { \"kind\": \"page\", \"slug\": \"guides/customize-an-example\",        \"title\": \"Customize an example\" }\n      ]\n    },\n    {\n      \"label\": \"Troubleshooting\",\n      \"slug\": \"troubleshooting\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"troubleshooting/index\",             \"title\": \"Troubleshooting index\" },\n        { \"kind\": \"glob\", \"glob\": \"troubleshooting/*\",                 \"label\": \"Symptoms\",       \"sort\": \"numeric\" }\n      ]\n    },\n    {\n      \"label\": \"Reference\",\n      \"slug\": \"reference\",\n      \"pages\": [\n        { \"kind\": \"glob\", \"glob\": \"reference/cli/*\",       \"label\": \"CLI\",        \"sort\": \"alpha\" },\n        { \"kind\": \"page\", \"slug\": \"reference/playbook-yml\",\"title\": \"playbook.yml\" },\n        { \"kind\": \"page\", \"slug\": \"reference/task-md\",     \"title\": \"TASK.md\" },\n        { \"kind\": \"page\", \"slug\": \"reference/project-yml\", \"title\": \"project.yml\" },\n        { \"kind\": \"page\", \"slug\": \"reference/core-api\",    \"title\": \"@converge/core\" }\n      ]\n    },\n    {\n      \"label\": \"Concepts\",\n      \"slug\": \"concepts\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"concepts/gap-driven-model\",   \"title\": \"Gap-driven model\" },\n        { \"kind\": \"page\", \"slug\": \"concepts/filesystem-as-plan\", \"title\": \"Filesystem-as-plan\" },\n        { \"kind\": \"page\", \"slug\": \"concepts/self-correction\",    \"title\": \"Self-correction\" }\n      ]\n    }\n  ],\n  \"footer\": {\n    \"links\": [\n      { \"label\": \"GitHub\",   \"href\": \"https://github.com/myanlabs/converge\" },\n      { \"label\": \"Examples\", \"href\": \"https://github.com/myanlabs/converge/tree/main/examples\" }\n    ]\n  }\n}\n```\n\n## `kind` semantics\n\n- `kind: \"page\"` — single doc page at `slug`. Sidebar shows its `title`.\n- `kind: \"glob\"` — directory of pages (e.g. CLI commands, examples by\n  category, troubleshooting symptoms). Starlight's autogenerate consumes\n  the glob; sidebar label uses `label`. Children sorted by `sort` (`alpha`\n  or `numeric`).\n\n## Process\n\n1. Read `docs/_sources.json`, `docs/_cli-commands.json`, and\n   `docs/_examples.json` from `02-source-scan`.\n2. Write `docs/_ia.json` exactly as above. The six-group structure is the\n   contract; only the page lists change as the framework grows.\n3. If a future framework change adds (say) a \"Plugins\" guide, add it to the\n   Guides group; downstream phases pick it up automatically.\n\n## Why six groups (not four)\n\nThe previous IA had four groups (Getting Started, Guides, Reference,\nConcepts) and stuffed everything else under Guides. Two new top-level\nsections were added:\n\n- **Examples** — surface the 21 example playbooks. They're the fastest\n  path from \"I have a problem\" to \"I have a working playbook\" and were\n  invisible under the old IA.\n- **Troubleshooting** — broken out from Guides because it has its own\n  symptom-indexed entry pattern (people land here in distress, not from\n  reading order). Owns its own glob of per-symptom pages.\n\n## Banned\n\n- Adding a seventh top-level group without removing one. Six is the\n  contract — extra cognitive load on first-time readers is the cost of\n  every additional group.\n- Putting CLI commands as individual `page` entries. The `glob` entry handles\n  N commands without N IA edits.\n- Putting per-example pages as individual `page` entries. Same reason —\n  use the per-category globs.\n- Putting internal docs (`_internal/*`) in the sidebar. They're archived,\n  not navigable.",
+              "taskId": "03-ia",
+              "taskTitle": "Phase 03 — Author docs/_ia.json (the canonical IA manifest)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/03-ia",
+              "factId": "check:ia-has-six-groups"
+            }
+          },
+          {
+            "id": "03-ia-check-failed-ia-getting-started-has-5-pages",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-ia",
+            "severity": "high",
+            "description": "[03-ia] Check failed: Getting Started has exactly 5 pages",
+            "source": "unit",
+            "detected": "2026-04-26T07:37:22.810Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "ia-getting-started-has-5-pages",
+              "checkCmd": "node -e \"const ia=require('./docs/_ia.json');const gs=ia.groups.find(g=>g.label==='Getting Started');process.exit(Array.isArray(gs.pages)&&gs.pages.length===5?0:1)\"",
+              "checkDescription": "Getting Started has exactly 5 pages",
+              "checkOutput": "node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nError: Cannot find module './docs/_ia.json'\nRequire stack:\n- /Users/minh/Documents/converge/[eval]\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\n    at Function._load (node:internal/modules/cjs/loader:1192:37)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\n    at Module.require (node:internal/modules/cjs/loader:1463:12)\n    at require (node:internal/modules/helpers:147:16)\n    at [eval]:1:10\n    at runScriptInThisContext (node:internal/vm:209:10) {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: [ '/Users/minh/Documents/converge/[eval]' ]\n}\n\nNode.js v22.19.0",
+              "checkExitCode": 1,
+              "taskPrompt": "# IA manifest\n\nSingle source of truth for the docs sidebar. The landing-page playbook\n(Starlight `/docs` route) reads this file directly. Don't duplicate IA data\nelsewhere.\n\n## File: `docs/_ia.json`\n\n```json\n{\n  \"$schema\": \"./_ia.schema.json\",\n  \"siteTitle\": \"Converge\",\n  \"groups\": [\n    {\n      \"label\": \"Getting Started\",\n      \"slug\": \"getting-started\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"getting-started/why-converge\",            \"title\": \"Why Converge\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/install\",                 \"title\": \"Install\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/your-first-playbook\",     \"title\": \"Your first playbook\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/from-problem-to-playbook\",\"title\": \"From your problem to a playbook\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/next-steps\",              \"title\": \"Next steps\" }\n      ]\n    },\n    {\n      \"label\": \"Examples\",\n      \"slug\": \"examples\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"examples/index\",   \"title\": \"Examples gallery\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/learning/*\",        \"label\": \"Learning\",        \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/software/*\",        \"label\": \"Building software\",\"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/research/*\",        \"label\": \"Research\",         \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/creative/*\",        \"label\": \"Creative + simulation\", \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/security/*\",        \"label\": \"Security\",         \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/agent-protocol/*\",  \"label\": \"Agent protocol\",   \"sort\": \"alpha\" }\n      ]\n    },\n    {\n      \"label\": \"Guides\",\n      \"slug\": \"guides\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"guides/articulate-your-goal\",        \"title\": \"Articulating a goal (non-technical)\" },\n        { \"kind\": \"page\", \"slug\": \"guides/generate-something-repeatedly\",\"title\": \"Generate something repeatedly\" },\n        { \"kind\": \"page\", \"slug\": \"guides/research-a-topic-deeply\",     \"title\": \"Research a topic deeply\" },\n        { \"kind\": \"page\", \"slug\": \"guides/build-a-software-project\",    \"title\": \"Build a software project\" },\n        { \"kind\": \"page\", \"slug\": \"guides/switch-providers\",            \"title\": \"Switch providers\" },\n        { \"kind\": \"page\", \"slug\": \"guides/read-the-journal\",            \"title\": \"Read the journal (LEARN.md & events)\" },\n        { \"kind\": \"page\", \"slug\": \"guides/customize-an-example\",        \"title\": \"Customize an example\" }\n      ]\n    },\n    {\n      \"label\": \"Troubleshooting\",\n      \"slug\": \"troubleshooting\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"troubleshooting/index\",             \"title\": \"Troubleshooting index\" },\n        { \"kind\": \"glob\", \"glob\": \"troubleshooting/*\",                 \"label\": \"Symptoms\",       \"sort\": \"numeric\" }\n      ]\n    },\n    {\n      \"label\": \"Reference\",\n      \"slug\": \"reference\",\n      \"pages\": [\n        { \"kind\": \"glob\", \"glob\": \"reference/cli/*\",       \"label\": \"CLI\",        \"sort\": \"alpha\" },\n        { \"kind\": \"page\", \"slug\": \"reference/playbook-yml\",\"title\": \"playbook.yml\" },\n        { \"kind\": \"page\", \"slug\": \"reference/task-md\",     \"title\": \"TASK.md\" },\n        { \"kind\": \"page\", \"slug\": \"reference/project-yml\", \"title\": \"project.yml\" },\n        { \"kind\": \"page\", \"slug\": \"reference/core-api\",    \"title\": \"@converge/core\" }\n      ]\n    },\n    {\n      \"label\": \"Concepts\",\n      \"slug\": \"concepts\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"concepts/gap-driven-model\",   \"title\": \"Gap-driven model\" },\n        { \"kind\": \"page\", \"slug\": \"concepts/filesystem-as-plan\", \"title\": \"Filesystem-as-plan\" },\n        { \"kind\": \"page\", \"slug\": \"concepts/self-correction\",    \"title\": \"Self-correction\" }\n      ]\n    }\n  ],\n  \"footer\": {\n    \"links\": [\n      { \"label\": \"GitHub\",   \"href\": \"https://github.com/myanlabs/converge\" },\n      { \"label\": \"Examples\", \"href\": \"https://github.com/myanlabs/converge/tree/main/examples\" }\n    ]\n  }\n}\n```\n\n## `kind` semantics\n\n- `kind: \"page\"` — single doc page at `slug`. Sidebar shows its `title`.\n- `kind: \"glob\"` — directory of pages (e.g. CLI commands, examples by\n  category, troubleshooting symptoms). Starlight's autogenerate consumes\n  the glob; sidebar label uses `label`. Children sorted by `sort` (`alpha`\n  or `numeric`).\n\n## Process\n\n1. Read `docs/_sources.json`, `docs/_cli-commands.json`, and\n   `docs/_examples.json` from `02-source-scan`.\n2. Write `docs/_ia.json` exactly as above. The six-group structure is the\n   contract; only the page lists change as the framework grows.\n3. If a future framework change adds (say) a \"Plugins\" guide, add it to the\n   Guides group; downstream phases pick it up automatically.\n\n## Why six groups (not four)\n\nThe previous IA had four groups (Getting Started, Guides, Reference,\nConcepts) and stuffed everything else under Guides. Two new top-level\nsections were added:\n\n- **Examples** — surface the 21 example playbooks. They're the fastest\n  path from \"I have a problem\" to \"I have a working playbook\" and were\n  invisible under the old IA.\n- **Troubleshooting** — broken out from Guides because it has its own\n  symptom-indexed entry pattern (people land here in distress, not from\n  reading order). Owns its own glob of per-symptom pages.\n\n## Banned\n\n- Adding a seventh top-level group without removing one. Six is the\n  contract — extra cognitive load on first-time readers is the cost of\n  every additional group.\n- Putting CLI commands as individual `page` entries. The `glob` entry handles\n  N commands without N IA edits.\n- Putting per-example pages as individual `page` entries. Same reason —\n  use the per-category globs.\n- Putting internal docs (`_internal/*`) in the sidebar. They're archived,\n  not navigable.",
+              "taskId": "03-ia",
+              "taskTitle": "Phase 03 — Author docs/_ia.json (the canonical IA manifest)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/03-ia",
+              "factId": "check:ia-getting-started-has-5-pages"
+            }
+          },
+          {
+            "id": "03-ia-check-failed-ia-examples-has-glob",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-ia",
+            "severity": "high",
+            "description": "[03-ia] Check failed: Examples uses a glob entry for per-example pages",
+            "source": "unit",
+            "detected": "2026-04-26T07:37:22.835Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "ia-examples-has-glob",
+              "checkCmd": "node -e \"const ia=require('./docs/_ia.json');const ex=ia.groups.find(g=>g.label==='Examples');const hasGlob=(ex.pages||[]).some(p=>p.kind==='glob'&&String(p.glob||'').startsWith('examples/'));process.exit(hasGlob?0:1)\"",
+              "checkDescription": "Examples uses a glob entry for per-example pages",
+              "checkOutput": "node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nError: Cannot find module './docs/_ia.json'\nRequire stack:\n- /Users/minh/Documents/converge/[eval]\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\n    at Function._load (node:internal/modules/cjs/loader:1192:37)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\n    at Module.require (node:internal/modules/cjs/loader:1463:12)\n    at require (node:internal/modules/helpers:147:16)\n    at [eval]:1:10\n    at runScriptInThisContext (node:internal/vm:209:10) {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: [ '/Users/minh/Documents/converge/[eval]' ]\n}\n\nNode.js v22.19.0",
+              "checkExitCode": 1,
+              "taskPrompt": "# IA manifest\n\nSingle source of truth for the docs sidebar. The landing-page playbook\n(Starlight `/docs` route) reads this file directly. Don't duplicate IA data\nelsewhere.\n\n## File: `docs/_ia.json`\n\n```json\n{\n  \"$schema\": \"./_ia.schema.json\",\n  \"siteTitle\": \"Converge\",\n  \"groups\": [\n    {\n      \"label\": \"Getting Started\",\n      \"slug\": \"getting-started\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"getting-started/why-converge\",            \"title\": \"Why Converge\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/install\",                 \"title\": \"Install\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/your-first-playbook\",     \"title\": \"Your first playbook\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/from-problem-to-playbook\",\"title\": \"From your problem to a playbook\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/next-steps\",              \"title\": \"Next steps\" }\n      ]\n    },\n    {\n      \"label\": \"Examples\",\n      \"slug\": \"examples\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"examples/index\",   \"title\": \"Examples gallery\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/learning/*\",        \"label\": \"Learning\",        \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/software/*\",        \"label\": \"Building software\",\"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/research/*\",        \"label\": \"Research\",         \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/creative/*\",        \"label\": \"Creative + simulation\", \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/security/*\",        \"label\": \"Security\",         \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/agent-protocol/*\",  \"label\": \"Agent protocol\",   \"sort\": \"alpha\" }\n      ]\n    },\n    {\n      \"label\": \"Guides\",\n      \"slug\": \"guides\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"guides/articulate-your-goal\",        \"title\": \"Articulating a goal (non-technical)\" },\n        { \"kind\": \"page\", \"slug\": \"guides/generate-something-repeatedly\",\"title\": \"Generate something repeatedly\" },\n        { \"kind\": \"page\", \"slug\": \"guides/research-a-topic-deeply\",     \"title\": \"Research a topic deeply\" },\n        { \"kind\": \"page\", \"slug\": \"guides/build-a-software-project\",    \"title\": \"Build a software project\" },\n        { \"kind\": \"page\", \"slug\": \"guides/switch-providers\",            \"title\": \"Switch providers\" },\n        { \"kind\": \"page\", \"slug\": \"guides/read-the-journal\",            \"title\": \"Read the journal (LEARN.md & events)\" },\n        { \"kind\": \"page\", \"slug\": \"guides/customize-an-example\",        \"title\": \"Customize an example\" }\n      ]\n    },\n    {\n      \"label\": \"Troubleshooting\",\n      \"slug\": \"troubleshooting\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"troubleshooting/index\",             \"title\": \"Troubleshooting index\" },\n        { \"kind\": \"glob\", \"glob\": \"troubleshooting/*\",                 \"label\": \"Symptoms\",       \"sort\": \"numeric\" }\n      ]\n    },\n    {\n      \"label\": \"Reference\",\n      \"slug\": \"reference\",\n      \"pages\": [\n        { \"kind\": \"glob\", \"glob\": \"reference/cli/*\",       \"label\": \"CLI\",        \"sort\": \"alpha\" },\n        { \"kind\": \"page\", \"slug\": \"reference/playbook-yml\",\"title\": \"playbook.yml\" },\n        { \"kind\": \"page\", \"slug\": \"reference/task-md\",     \"title\": \"TASK.md\" },\n        { \"kind\": \"page\", \"slug\": \"reference/project-yml\", \"title\": \"project.yml\" },\n        { \"kind\": \"page\", \"slug\": \"reference/core-api\",    \"title\": \"@converge/core\" }\n      ]\n    },\n    {\n      \"label\": \"Concepts\",\n      \"slug\": \"concepts\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"concepts/gap-driven-model\",   \"title\": \"Gap-driven model\" },\n        { \"kind\": \"page\", \"slug\": \"concepts/filesystem-as-plan\", \"title\": \"Filesystem-as-plan\" },\n        { \"kind\": \"page\", \"slug\": \"concepts/self-correction\",    \"title\": \"Self-correction\" }\n      ]\n    }\n  ],\n  \"footer\": {\n    \"links\": [\n      { \"label\": \"GitHub\",   \"href\": \"https://github.com/myanlabs/converge\" },\n      { \"label\": \"Examples\", \"href\": \"https://github.com/myanlabs/converge/tree/main/examples\" }\n    ]\n  }\n}\n```\n\n## `kind` semantics\n\n- `kind: \"page\"` — single doc page at `slug`. Sidebar shows its `title`.\n- `kind: \"glob\"` — directory of pages (e.g. CLI commands, examples by\n  category, troubleshooting symptoms). Starlight's autogenerate consumes\n  the glob; sidebar label uses `label`. Children sorted by `sort` (`alpha`\n  or `numeric`).\n\n## Process\n\n1. Read `docs/_sources.json`, `docs/_cli-commands.json`, and\n   `docs/_examples.json` from `02-source-scan`.\n2. Write `docs/_ia.json` exactly as above. The six-group structure is the\n   contract; only the page lists change as the framework grows.\n3. If a future framework change adds (say) a \"Plugins\" guide, add it to the\n   Guides group; downstream phases pick it up automatically.\n\n## Why six groups (not four)\n\nThe previous IA had four groups (Getting Started, Guides, Reference,\nConcepts) and stuffed everything else under Guides. Two new top-level\nsections were added:\n\n- **Examples** — surface the 21 example playbooks. They're the fastest\n  path from \"I have a problem\" to \"I have a working playbook\" and were\n  invisible under the old IA.\n- **Troubleshooting** — broken out from Guides because it has its own\n  symptom-indexed entry pattern (people land here in distress, not from\n  reading order). Owns its own glob of per-symptom pages.\n\n## Banned\n\n- Adding a seventh top-level group without removing one. Six is the\n  contract — extra cognitive load on first-time readers is the cost of\n  every additional group.\n- Putting CLI commands as individual `page` entries. The `glob` entry handles\n  N commands without N IA edits.\n- Putting per-example pages as individual `page` entries. Same reason —\n  use the per-category globs.\n- Putting internal docs (`_internal/*`) in the sidebar. They're archived,\n  not navigable.",
+              "taskId": "03-ia",
+              "taskTitle": "Phase 03 — Author docs/_ia.json (the canonical IA manifest)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/03-ia",
+              "factId": "check:ia-examples-has-glob"
+            }
+          },
+          {
+            "id": "03-ia-check-failed-ia-troubleshooting-has-glob",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-ia",
+            "severity": "high",
+            "description": "[03-ia] Check failed: Troubleshooting uses a glob entry for per-symptom pages",
+            "source": "unit",
+            "detected": "2026-04-26T07:37:22.860Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "ia-troubleshooting-has-glob",
+              "checkCmd": "node -e \"const ia=require('./docs/_ia.json');const t=ia.groups.find(g=>g.label==='Troubleshooting');const hasGlob=(t.pages||[]).some(p=>p.kind==='glob'&&String(p.glob||'').startsWith('troubleshooting/'));process.exit(hasGlob?0:1)\"",
+              "checkDescription": "Troubleshooting uses a glob entry for per-symptom pages",
+              "checkOutput": "node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nError: Cannot find module './docs/_ia.json'\nRequire stack:\n- /Users/minh/Documents/converge/[eval]\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\n    at Function._load (node:internal/modules/cjs/loader:1192:37)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\n    at Module.require (node:internal/modules/cjs/loader:1463:12)\n    at require (node:internal/modules/helpers:147:16)\n    at [eval]:1:10\n    at runScriptInThisContext (node:internal/vm:209:10) {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: [ '/Users/minh/Documents/converge/[eval]' ]\n}\n\nNode.js v22.19.0",
+              "checkExitCode": 1,
+              "taskPrompt": "# IA manifest\n\nSingle source of truth for the docs sidebar. The landing-page playbook\n(Starlight `/docs` route) reads this file directly. Don't duplicate IA data\nelsewhere.\n\n## File: `docs/_ia.json`\n\n```json\n{\n  \"$schema\": \"./_ia.schema.json\",\n  \"siteTitle\": \"Converge\",\n  \"groups\": [\n    {\n      \"label\": \"Getting Started\",\n      \"slug\": \"getting-started\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"getting-started/why-converge\",            \"title\": \"Why Converge\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/install\",                 \"title\": \"Install\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/your-first-playbook\",     \"title\": \"Your first playbook\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/from-problem-to-playbook\",\"title\": \"From your problem to a playbook\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/next-steps\",              \"title\": \"Next steps\" }\n      ]\n    },\n    {\n      \"label\": \"Examples\",\n      \"slug\": \"examples\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"examples/index\",   \"title\": \"Examples gallery\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/learning/*\",        \"label\": \"Learning\",        \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/software/*\",        \"label\": \"Building software\",\"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/research/*\",        \"label\": \"Research\",         \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/creative/*\",        \"label\": \"Creative + simulation\", \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/security/*\",        \"label\": \"Security\",         \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/agent-protocol/*\",  \"label\": \"Agent protocol\",   \"sort\": \"alpha\" }\n      ]\n    },\n    {\n      \"label\": \"Guides\",\n      \"slug\": \"guides\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"guides/articulate-your-goal\",        \"title\": \"Articulating a goal (non-technical)\" },\n        { \"kind\": \"page\", \"slug\": \"guides/generate-something-repeatedly\",\"title\": \"Generate something repeatedly\" },\n        { \"kind\": \"page\", \"slug\": \"guides/research-a-topic-deeply\",     \"title\": \"Research a topic deeply\" },\n        { \"kind\": \"page\", \"slug\": \"guides/build-a-software-project\",    \"title\": \"Build a software project\" },\n        { \"kind\": \"page\", \"slug\": \"guides/switch-providers\",            \"title\": \"Switch providers\" },\n        { \"kind\": \"page\", \"slug\": \"guides/read-the-journal\",            \"title\": \"Read the journal (LEARN.md & events)\" },\n        { \"kind\": \"page\", \"slug\": \"guides/customize-an-example\",        \"title\": \"Customize an example\" }\n      ]\n    },\n    {\n      \"label\": \"Troubleshooting\",\n      \"slug\": \"troubleshooting\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"troubleshooting/index\",             \"title\": \"Troubleshooting index\" },\n        { \"kind\": \"glob\", \"glob\": \"troubleshooting/*\",                 \"label\": \"Symptoms\",       \"sort\": \"numeric\" }\n      ]\n    },\n    {\n      \"label\": \"Reference\",\n      \"slug\": \"reference\",\n      \"pages\": [\n        { \"kind\": \"glob\", \"glob\": \"reference/cli/*\",       \"label\": \"CLI\",        \"sort\": \"alpha\" },\n        { \"kind\": \"page\", \"slug\": \"reference/playbook-yml\",\"title\": \"playbook.yml\" },\n        { \"kind\": \"page\", \"slug\": \"reference/task-md\",     \"title\": \"TASK.md\" },\n        { \"kind\": \"page\", \"slug\": \"reference/project-yml\", \"title\": \"project.yml\" },\n        { \"kind\": \"page\", \"slug\": \"reference/core-api\",    \"title\": \"@converge/core\" }\n      ]\n    },\n    {\n      \"label\": \"Concepts\",\n      \"slug\": \"concepts\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"concepts/gap-driven-model\",   \"title\": \"Gap-driven model\" },\n        { \"kind\": \"page\", \"slug\": \"concepts/filesystem-as-plan\", \"title\": \"Filesystem-as-plan\" },\n        { \"kind\": \"page\", \"slug\": \"concepts/self-correction\",    \"title\": \"Self-correction\" }\n      ]\n    }\n  ],\n  \"footer\": {\n    \"links\": [\n      { \"label\": \"GitHub\",   \"href\": \"https://github.com/myanlabs/converge\" },\n      { \"label\": \"Examples\", \"href\": \"https://github.com/myanlabs/converge/tree/main/examples\" }\n    ]\n  }\n}\n```\n\n## `kind` semantics\n\n- `kind: \"page\"` — single doc page at `slug`. Sidebar shows its `title`.\n- `kind: \"glob\"` — directory of pages (e.g. CLI commands, examples by\n  category, troubleshooting symptoms). Starlight's autogenerate consumes\n  the glob; sidebar label uses `label`. Children sorted by `sort` (`alpha`\n  or `numeric`).\n\n## Process\n\n1. Read `docs/_sources.json`, `docs/_cli-commands.json`, and\n   `docs/_examples.json` from `02-source-scan`.\n2. Write `docs/_ia.json` exactly as above. The six-group structure is the\n   contract; only the page lists change as the framework grows.\n3. If a future framework change adds (say) a \"Plugins\" guide, add it to the\n   Guides group; downstream phases pick it up automatically.\n\n## Why six groups (not four)\n\nThe previous IA had four groups (Getting Started, Guides, Reference,\nConcepts) and stuffed everything else under Guides. Two new top-level\nsections were added:\n\n- **Examples** — surface the 21 example playbooks. They're the fastest\n  path from \"I have a problem\" to \"I have a working playbook\" and were\n  invisible under the old IA.\n- **Troubleshooting** — broken out from Guides because it has its own\n  symptom-indexed entry pattern (people land here in distress, not from\n  reading order). Owns its own glob of per-symptom pages.\n\n## Banned\n\n- Adding a seventh top-level group without removing one. Six is the\n  contract — extra cognitive load on first-time readers is the cost of\n  every additional group.\n- Putting CLI commands as individual `page` entries. The `glob` entry handles\n  N commands without N IA edits.\n- Putting per-example pages as individual `page` entries. Same reason —\n  use the per-category globs.\n- Putting internal docs (`_internal/*`) in the sidebar. They're archived,\n  not navigable.",
+              "taskId": "03-ia",
+              "taskTitle": "Phase 03 — Author docs/_ia.json (the canonical IA manifest)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/03-ia",
+              "factId": "check:ia-troubleshooting-has-glob"
+            }
+          },
+          {
+            "id": "03-ia-check-failed-ia-reference-has-cli-glob",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-ia",
+            "severity": "high",
+            "description": "[03-ia] Check failed: Reference uses a glob entry for CLI commands",
+            "source": "unit",
+            "detected": "2026-04-26T07:37:22.885Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "ia-reference-has-cli-glob",
+              "checkCmd": "node -e \"const ia=require('./docs/_ia.json');const ref=ia.groups.find(g=>g.label==='Reference');const hasCliGlob=(ref.pages||[]).some(p=>p.kind==='glob'&&String(p.glob||'').startsWith('reference/cli/'));process.exit(hasCliGlob?0:1)\"",
+              "checkDescription": "Reference uses a glob entry for CLI commands",
+              "checkOutput": "node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nError: Cannot find module './docs/_ia.json'\nRequire stack:\n- /Users/minh/Documents/converge/[eval]\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\n    at Function._load (node:internal/modules/cjs/loader:1192:37)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\n    at Module.require (node:internal/modules/cjs/loader:1463:12)\n    at require (node:internal/modules/helpers:147:16)\n    at [eval]:1:10\n    at runScriptInThisContext (node:internal/vm:209:10) {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: [ '/Users/minh/Documents/converge/[eval]' ]\n}\n\nNode.js v22.19.0",
+              "checkExitCode": 1,
+              "taskPrompt": "# IA manifest\n\nSingle source of truth for the docs sidebar. The landing-page playbook\n(Starlight `/docs` route) reads this file directly. Don't duplicate IA data\nelsewhere.\n\n## File: `docs/_ia.json`\n\n```json\n{\n  \"$schema\": \"./_ia.schema.json\",\n  \"siteTitle\": \"Converge\",\n  \"groups\": [\n    {\n      \"label\": \"Getting Started\",\n      \"slug\": \"getting-started\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"getting-started/why-converge\",            \"title\": \"Why Converge\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/install\",                 \"title\": \"Install\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/your-first-playbook\",     \"title\": \"Your first playbook\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/from-problem-to-playbook\",\"title\": \"From your problem to a playbook\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/next-steps\",              \"title\": \"Next steps\" }\n      ]\n    },\n    {\n      \"label\": \"Examples\",\n      \"slug\": \"examples\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"examples/index\",   \"title\": \"Examples gallery\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/learning/*\",        \"label\": \"Learning\",        \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/software/*\",        \"label\": \"Building software\",\"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/research/*\",        \"label\": \"Research\",         \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/creative/*\",        \"label\": \"Creative + simulation\", \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/security/*\",        \"label\": \"Security\",         \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/agent-protocol/*\",  \"label\": \"Agent protocol\",   \"sort\": \"alpha\" }\n      ]\n    },\n    {\n      \"label\": \"Guides\",\n      \"slug\": \"guides\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"guides/articulate-your-goal\",        \"title\": \"Articulating a goal (non-technical)\" },\n        { \"kind\": \"page\", \"slug\": \"guides/generate-something-repeatedly\",\"title\": \"Generate something repeatedly\" },\n        { \"kind\": \"page\", \"slug\": \"guides/research-a-topic-deeply\",     \"title\": \"Research a topic deeply\" },\n        { \"kind\": \"page\", \"slug\": \"guides/build-a-software-project\",    \"title\": \"Build a software project\" },\n        { \"kind\": \"page\", \"slug\": \"guides/switch-providers\",            \"title\": \"Switch providers\" },\n        { \"kind\": \"page\", \"slug\": \"guides/read-the-journal\",            \"title\": \"Read the journal (LEARN.md & events)\" },\n        { \"kind\": \"page\", \"slug\": \"guides/customize-an-example\",        \"title\": \"Customize an example\" }\n      ]\n    },\n    {\n      \"label\": \"Troubleshooting\",\n      \"slug\": \"troubleshooting\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"troubleshooting/index\",             \"title\": \"Troubleshooting index\" },\n        { \"kind\": \"glob\", \"glob\": \"troubleshooting/*\",                 \"label\": \"Symptoms\",       \"sort\": \"numeric\" }\n      ]\n    },\n    {\n      \"label\": \"Reference\",\n      \"slug\": \"reference\",\n      \"pages\": [\n        { \"kind\": \"glob\", \"glob\": \"reference/cli/*\",       \"label\": \"CLI\",        \"sort\": \"alpha\" },\n        { \"kind\": \"page\", \"slug\": \"reference/playbook-yml\",\"title\": \"playbook.yml\" },\n        { \"kind\": \"page\", \"slug\": \"reference/task-md\",     \"title\": \"TASK.md\" },\n        { \"kind\": \"page\", \"slug\": \"reference/project-yml\", \"title\": \"project.yml\" },\n        { \"kind\": \"page\", \"slug\": \"reference/core-api\",    \"title\": \"@converge/core\" }\n      ]\n    },\n    {\n      \"label\": \"Concepts\",\n      \"slug\": \"concepts\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"concepts/gap-driven-model\",   \"title\": \"Gap-driven model\" },\n        { \"kind\": \"page\", \"slug\": \"concepts/filesystem-as-plan\", \"title\": \"Filesystem-as-plan\" },\n        { \"kind\": \"page\", \"slug\": \"concepts/self-correction\",    \"title\": \"Self-correction\" }\n      ]\n    }\n  ],\n  \"footer\": {\n    \"links\": [\n      { \"label\": \"GitHub\",   \"href\": \"https://github.com/myanlabs/converge\" },\n      { \"label\": \"Examples\", \"href\": \"https://github.com/myanlabs/converge/tree/main/examples\" }\n    ]\n  }\n}\n```\n\n## `kind` semantics\n\n- `kind: \"page\"` — single doc page at `slug`. Sidebar shows its `title`.\n- `kind: \"glob\"` — directory of pages (e.g. CLI commands, examples by\n  category, troubleshooting symptoms). Starlight's autogenerate consumes\n  the glob; sidebar label uses `label`. Children sorted by `sort` (`alpha`\n  or `numeric`).\n\n## Process\n\n1. Read `docs/_sources.json`, `docs/_cli-commands.json`, and\n   `docs/_examples.json` from `02-source-scan`.\n2. Write `docs/_ia.json` exactly as above. The six-group structure is the\n   contract; only the page lists change as the framework grows.\n3. If a future framework change adds (say) a \"Plugins\" guide, add it to the\n   Guides group; downstream phases pick it up automatically.\n\n## Why six groups (not four)\n\nThe previous IA had four groups (Getting Started, Guides, Reference,\nConcepts) and stuffed everything else under Guides. Two new top-level\nsections were added:\n\n- **Examples** — surface the 21 example playbooks. They're the fastest\n  path from \"I have a problem\" to \"I have a working playbook\" and were\n  invisible under the old IA.\n- **Troubleshooting** — broken out from Guides because it has its own\n  symptom-indexed entry pattern (people land here in distress, not from\n  reading order). Owns its own glob of per-symptom pages.\n\n## Banned\n\n- Adding a seventh top-level group without removing one. Six is the\n  contract — extra cognitive load on first-time readers is the cost of\n  every additional group.\n- Putting CLI commands as individual `page` entries. The `glob` entry handles\n  N commands without N IA edits.\n- Putting per-example pages as individual `page` entries. Same reason —\n  use the per-category globs.\n- Putting internal docs (`_internal/*`) in the sidebar. They're archived,\n  not navigable.",
+              "taskId": "03-ia",
+              "taskTitle": "Phase 03 — Author docs/_ia.json (the canonical IA manifest)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/03-ia",
+              "factId": "check:ia-reference-has-cli-glob"
+            }
+          },
+          {
+            "id": "03-ia-check-failed-ia-every-page-has-slug-or-glob",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-ia",
+            "severity": "high",
+            "description": "[03-ia] Check failed: every page entry has either slug or glob",
+            "source": "unit",
+            "detected": "2026-04-26T07:37:22.909Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "ia-every-page-has-slug-or-glob",
+              "checkCmd": "node -e \"const ia=require('./docs/_ia.json');const allPages=ia.groups.flatMap(g=>g.pages||[]);const ok=allPages.every(p=>p.slug||p.glob);process.exit(ok?0:1)\"",
+              "checkDescription": "every page entry has either slug or glob",
+              "checkOutput": "node:internal/modules/cjs/loader:1386\n  throw err;\n  ^\n\nError: Cannot find module './docs/_ia.json'\nRequire stack:\n- /Users/minh/Documents/converge/[eval]\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\n    at Function._load (node:internal/modules/cjs/loader:1192:37)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\n    at Module.require (node:internal/modules/cjs/loader:1463:12)\n    at require (node:internal/modules/helpers:147:16)\n    at [eval]:1:10\n    at runScriptInThisContext (node:internal/vm:209:10) {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: [ '/Users/minh/Documents/converge/[eval]' ]\n}\n\nNode.js v22.19.0",
+              "checkExitCode": 1,
+              "taskPrompt": "# IA manifest\n\nSingle source of truth for the docs sidebar. The landing-page playbook\n(Starlight `/docs` route) reads this file directly. Don't duplicate IA data\nelsewhere.\n\n## File: `docs/_ia.json`\n\n```json\n{\n  \"$schema\": \"./_ia.schema.json\",\n  \"siteTitle\": \"Converge\",\n  \"groups\": [\n    {\n      \"label\": \"Getting Started\",\n      \"slug\": \"getting-started\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"getting-started/why-converge\",            \"title\": \"Why Converge\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/install\",                 \"title\": \"Install\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/your-first-playbook\",     \"title\": \"Your first playbook\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/from-problem-to-playbook\",\"title\": \"From your problem to a playbook\" },\n        { \"kind\": \"page\", \"slug\": \"getting-started/next-steps\",              \"title\": \"Next steps\" }\n      ]\n    },\n    {\n      \"label\": \"Examples\",\n      \"slug\": \"examples\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"examples/index\",   \"title\": \"Examples gallery\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/learning/*\",        \"label\": \"Learning\",        \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/software/*\",        \"label\": \"Building software\",\"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/research/*\",        \"label\": \"Research\",         \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/creative/*\",        \"label\": \"Creative + simulation\", \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/security/*\",        \"label\": \"Security\",         \"sort\": \"alpha\" },\n        { \"kind\": \"glob\", \"glob\": \"examples/agent-protocol/*\",  \"label\": \"Agent protocol\",   \"sort\": \"alpha\" }\n      ]\n    },\n    {\n      \"label\": \"Guides\",\n      \"slug\": \"guides\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"guides/articulate-your-goal\",        \"title\": \"Articulating a goal (non-technical)\" },\n        { \"kind\": \"page\", \"slug\": \"guides/generate-something-repeatedly\",\"title\": \"Generate something repeatedly\" },\n        { \"kind\": \"page\", \"slug\": \"guides/research-a-topic-deeply\",     \"title\": \"Research a topic deeply\" },\n        { \"kind\": \"page\", \"slug\": \"guides/build-a-software-project\",    \"title\": \"Build a software project\" },\n        { \"kind\": \"page\", \"slug\": \"guides/switch-providers\",            \"title\": \"Switch providers\" },\n        { \"kind\": \"page\", \"slug\": \"guides/read-the-journal\",            \"title\": \"Read the journal (LEARN.md & events)\" },\n        { \"kind\": \"page\", \"slug\": \"guides/customize-an-example\",        \"title\": \"Customize an example\" }\n      ]\n    },\n    {\n      \"label\": \"Troubleshooting\",\n      \"slug\": \"troubleshooting\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"troubleshooting/index\",             \"title\": \"Troubleshooting index\" },\n        { \"kind\": \"glob\", \"glob\": \"troubleshooting/*\",                 \"label\": \"Symptoms\",       \"sort\": \"numeric\" }\n      ]\n    },\n    {\n      \"label\": \"Reference\",\n      \"slug\": \"reference\",\n      \"pages\": [\n        { \"kind\": \"glob\", \"glob\": \"reference/cli/*\",       \"label\": \"CLI\",        \"sort\": \"alpha\" },\n        { \"kind\": \"page\", \"slug\": \"reference/playbook-yml\",\"title\": \"playbook.yml\" },\n        { \"kind\": \"page\", \"slug\": \"reference/task-md\",     \"title\": \"TASK.md\" },\n        { \"kind\": \"page\", \"slug\": \"reference/project-yml\", \"title\": \"project.yml\" },\n        { \"kind\": \"page\", \"slug\": \"reference/core-api\",    \"title\": \"@converge/core\" }\n      ]\n    },\n    {\n      \"label\": \"Concepts\",\n      \"slug\": \"concepts\",\n      \"pages\": [\n        { \"kind\": \"page\", \"slug\": \"concepts/gap-driven-model\",   \"title\": \"Gap-driven model\" },\n        { \"kind\": \"page\", \"slug\": \"concepts/filesystem-as-plan\", \"title\": \"Filesystem-as-plan\" },\n        { \"kind\": \"page\", \"slug\": \"concepts/self-correction\",    \"title\": \"Self-correction\" }\n      ]\n    }\n  ],\n  \"footer\": {\n    \"links\": [\n      { \"label\": \"GitHub\",   \"href\": \"https://github.com/myanlabs/converge\" },\n      { \"label\": \"Examples\", \"href\": \"https://github.com/myanlabs/converge/tree/main/examples\" }\n    ]\n  }\n}\n```\n\n## `kind` semantics\n\n- `kind: \"page\"` — single doc page at `slug`. Sidebar shows its `title`.\n- `kind: \"glob\"` — directory of pages (e.g. CLI commands, examples by\n  category, troubleshooting symptoms). Starlight's autogenerate consumes\n  the glob; sidebar label uses `label`. Children sorted by `sort` (`alpha`\n  or `numeric`).\n\n## Process\n\n1. Read `docs/_sources.json`, `docs/_cli-commands.json`, and\n   `docs/_examples.json` from `02-source-scan`.\n2. Write `docs/_ia.json` exactly as above. The six-group structure is the\n   contract; only the page lists change as the framework grows.\n3. If a future framework change adds (say) a \"Plugins\" guide, add it to the\n   Guides group; downstream phases pick it up automatically.\n\n## Why six groups (not four)\n\nThe previous IA had four groups (Getting Started, Guides, Reference,\nConcepts) and stuffed everything else under Guides. Two new top-level\nsections were added:\n\n- **Examples** — surface the 21 example playbooks. They're the fastest\n  path from \"I have a problem\" to \"I have a working playbook\" and were\n  invisible under the old IA.\n- **Troubleshooting** — broken out from Guides because it has its own\n  symptom-indexed entry pattern (people land here in distress, not from\n  reading order). Owns its own glob of per-symptom pages.\n\n## Banned\n\n- Adding a seventh top-level group without removing one. Six is the\n  contract — extra cognitive load on first-time readers is the cost of\n  every additional group.\n- Putting CLI commands as individual `page` entries. The `glob` entry handles\n  N commands without N IA edits.\n- Putting per-example pages as individual `page` entries. Same reason —\n  use the per-category globs.\n- Putting internal docs (`_internal/*`) in the sidebar. They're archived,\n  not navigable.",
+              "taskId": "03-ia",
+              "taskTitle": "Phase 03 — Author docs/_ia.json (the canonical IA manifest)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/03-ia",
+              "factId": "check:ia-every-page-has-slug-or-glob"
+            }
+          }
+        ],
+        "durationMs": 162
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 155
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 226
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#2",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 68581
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T07:37:22.748Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T07:37:22.748Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T07:37:22.910Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T07:37:22.910Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T07:37:23.067Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#2",
+      "iteration": 1,
+      "ts": "2026-04-26T07:38:31.649Z"
+    },
+    {
+      "from": "run-strategy:task-run#2",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T07:38:31.877Z"
+    }
+  ]
+}

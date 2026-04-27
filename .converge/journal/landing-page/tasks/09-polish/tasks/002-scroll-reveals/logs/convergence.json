@@ -1,0 +1,274 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "09-polish/002-scroll-reveals-missing-output-apps/landing/src/styles/animations.css",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-polish/002-scroll-reveals",
+            "severity": "high",
+            "description": "[09-polish/002-scroll-reveals] Task output not created: apps/landing/src/styles/animations.css",
+            "source": "unit",
+            "detected": "2026-04-26T20:21:00.484Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/09-polish/tasks/002-scroll-reveals",
+              "taskId": "09-polish/002-scroll-reveals",
+              "taskTitle": "Tasteful scroll reveals (reduced-motion safe, no JS-thrash)",
+              "taskPrompt": "# Scroll reveals\n\nSubtle fade-up animation when each section enters the viewport. Use the\nnew `view-timeline` / `animation-timeline` CSS APIs (browsers shipped 2024+)\nso this is CSS-only, no IntersectionObserver JS.\n\n## File: `apps/landing/src/styles/animations.css`\n\n```css\n/* Scroll-driven reveal — CSS only, no JS */\n@layer utilities {\n  .reveal-on-scroll {\n    opacity: 0;\n    transform: translateY(20px);\n    animation: reveal-fade-up linear both;\n    animation-timeline: view();\n    animation-range: entry 0% cover 30%;\n  }\n\n  @keyframes reveal-fade-up {\n    to { opacity: 1; transform: translateY(0); }\n  }\n\n  @media (prefers-reduced-motion: reduce) {\n    .reveal-on-scroll {\n      animation: none;\n      opacity: 1;\n      transform: none;\n    }\n  }\n}\n```\n\n## Update: `apps/landing/src/styles/globals.css`\n\nAdd `@import \"./animations.css\";` after the typography import.\n\n## Update: `apps/landing/src/components/layout/Section.astro`\n\nAdd the `reveal-on-scroll` class to the `<section>` element by default.\nAdd a `noReveal` prop to opt out (useful for hero, which shouldn't fade-in\nwhen it's already in viewport on page load).\n\n```astro\n---\ninterface Props {\n  id?: string;\n  padY?: 'md' | 'lg' | 'xl';\n  bg?: 'default' | 'elev' | 'gradient';\n  noReveal?: boolean;\n}\nconst { id, padY = 'lg', bg = 'default', noReveal = false } = Astro.props;\nconst padYClass = { md: 'py-12', lg: 'py-20', xl: 'py-32' }[padY];\nconst bgClass = { default: '', elev: 'bg-bg-elev', gradient: 'bg-gradient-to-b from-bg to-bg-elev' }[bg];\nconst revealClass = noReveal ? '' : 'reveal-on-scroll';\n---\n<section id={id} class={`${padYClass} ${bgClass} ${revealClass}`}>\n  <slot />\n</section>\n```\n\n## Banned\n\n- IntersectionObserver-based reveals. CSS scroll-timeline is supported in all evergreen browsers; the JS approach pays a runtime cost for no benefit.\n- Heavy animations (slide-in-from-side, scale, rotate). The \"fade up 20px\" is intentionally subtle — anything more becomes annoying on a content-heavy page.\n- Forgetting hero. The hero should NOT have `reveal-on-scroll` (it's already in viewport on load); pass `noReveal={true}` from `Hero.astro`.",
+              "taskInputs": [
+                "apps/landing/src/components/layout/Section.astro"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/src/styles/animations.css\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "09-polish/002-scroll-reveals-check-failed-animations-css-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-polish/002-scroll-reveals",
+            "severity": "high",
+            "description": "[09-polish/002-scroll-reveals] Check failed: animations.css exists",
+            "source": "unit",
+            "detected": "2026-04-26T20:21:00.486Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "animations-css-exists",
+              "checkCmd": "test -f apps/landing/src/styles/animations.css",
+              "checkDescription": "animations.css exists",
+              "checkOutput": "Command failed: test -f apps/landing/src/styles/animations.css\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Scroll reveals\n\nSubtle fade-up animation when each section enters the viewport. Use the\nnew `view-timeline` / `animation-timeline` CSS APIs (browsers shipped 2024+)\nso this is CSS-only, no IntersectionObserver JS.\n\n## File: `apps/landing/src/styles/animations.css`\n\n```css\n/* Scroll-driven reveal — CSS only, no JS */\n@layer utilities {\n  .reveal-on-scroll {\n    opacity: 0;\n    transform: translateY(20px);\n    animation: reveal-fade-up linear both;\n    animation-timeline: view();\n    animation-range: entry 0% cover 30%;\n  }\n\n  @keyframes reveal-fade-up {\n    to { opacity: 1; transform: translateY(0); }\n  }\n\n  @media (prefers-reduced-motion: reduce) {\n    .reveal-on-scroll {\n      animation: none;\n      opacity: 1;\n      transform: none;\n    }\n  }\n}\n```\n\n## Update: `apps/landing/src/styles/globals.css`\n\nAdd `@import \"./animations.css\";` after the typography import.\n\n## Update: `apps/landing/src/components/layout/Section.astro`\n\nAdd the `reveal-on-scroll` class to the `<section>` element by default.\nAdd a `noReveal` prop to opt out (useful for hero, which shouldn't fade-in\nwhen it's already in viewport on page load).\n\n```astro\n---\ninterface Props {\n  id?: string;\n  padY?: 'md' | 'lg' | 'xl';\n  bg?: 'default' | 'elev' | 'gradient';\n  noReveal?: boolean;\n}\nconst { id, padY = 'lg', bg = 'default', noReveal = false } = Astro.props;\nconst padYClass = { md: 'py-12', lg: 'py-20', xl: 'py-32' }[padY];\nconst bgClass = { default: '', elev: 'bg-bg-elev', gradient: 'bg-gradient-to-b from-bg to-bg-elev' }[bg];\nconst revealClass = noReveal ? '' : 'reveal-on-scroll';\n---\n<section id={id} class={`${padYClass} ${bgClass} ${revealClass}`}>\n  <slot />\n</section>\n```\n\n## Banned\n\n- IntersectionObserver-based reveals. CSS scroll-timeline is supported in all evergreen browsers; the JS approach pays a runtime cost for no benefit.\n- Heavy animations (slide-in-from-side, scale, rotate). The \"fade up 20px\" is intentionally subtle — anything more becomes annoying on a content-heavy page.\n- Forgetting hero. The hero should NOT have `reveal-on-scroll` (it's already in viewport on load); pass `noReveal={true}` from `Hero.astro`.",
+              "taskId": "09-polish/002-scroll-reveals",
+              "taskTitle": "Tasteful scroll reveals (reduced-motion safe, no JS-thrash)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/09-polish/tasks/002-scroll-reveals",
+              "factId": "check:animations-css-exists"
+            }
+          },
+          {
+            "id": "09-polish/002-scroll-reveals-check-failed-section-uses-reveal-class",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-polish/002-scroll-reveals",
+            "severity": "high",
+            "description": "[09-polish/002-scroll-reveals] Check failed: Section component supports the reveal class",
+            "source": "unit",
+            "detected": "2026-04-26T20:21:00.492Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "section-uses-reveal-class",
+              "checkCmd": "test -f apps/landing/src/components/layout/Section.astro && grep -qE 'reveal-on-scroll|fade-in-up|data-reveal' apps/landing/src/components/layout/Section.astro",
+              "checkDescription": "Section component supports the reveal class",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/layout/Section.astro && grep -qE 'reveal-on-scroll|fade-in-up|data-reveal' apps/landing/src/components/layout/Section.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Scroll reveals\n\nSubtle fade-up animation when each section enters the viewport. Use the\nnew `view-timeline` / `animation-timeline` CSS APIs (browsers shipped 2024+)\nso this is CSS-only, no IntersectionObserver JS.\n\n## File: `apps/landing/src/styles/animations.css`\n\n```css\n/* Scroll-driven reveal — CSS only, no JS */\n@layer utilities {\n  .reveal-on-scroll {\n    opacity: 0;\n    transform: translateY(20px);\n    animation: reveal-fade-up linear both;\n    animation-timeline: view();\n    animation-range: entry 0% cover 30%;\n  }\n\n  @keyframes reveal-fade-up {\n    to { opacity: 1; transform: translateY(0); }\n  }\n\n  @media (prefers-reduced-motion: reduce) {\n    .reveal-on-scroll {\n      animation: none;\n      opacity: 1;\n      transform: none;\n    }\n  }\n}\n```\n\n## Update: `apps/landing/src/styles/globals.css`\n\nAdd `@import \"./animations.css\";` after the typography import.\n\n## Update: `apps/landing/src/components/layout/Section.astro`\n\nAdd the `reveal-on-scroll` class to the `<section>` element by default.\nAdd a `noReveal` prop to opt out (useful for hero, which shouldn't fade-in\nwhen it's already in viewport on page load).\n\n```astro\n---\ninterface Props {\n  id?: string;\n  padY?: 'md' | 'lg' | 'xl';\n  bg?: 'default' | 'elev' | 'gradient';\n  noReveal?: boolean;\n}\nconst { id, padY = 'lg', bg = 'default', noReveal = false } = Astro.props;\nconst padYClass = { md: 'py-12', lg: 'py-20', xl: 'py-32' }[padY];\nconst bgClass = { default: '', elev: 'bg-bg-elev', gradient: 'bg-gradient-to-b from-bg to-bg-elev' }[bg];\nconst revealClass = noReveal ? '' : 'reveal-on-scroll';\n---\n<section id={id} class={`${padYClass} ${bgClass} ${revealClass}`}>\n  <slot />\n</section>\n```\n\n## Banned\n\n- IntersectionObserver-based reveals. CSS scroll-timeline is supported in all evergreen browsers; the JS approach pays a runtime cost for no benefit.\n- Heavy animations (slide-in-from-side, scale, rotate). The \"fade up 20px\" is intentionally subtle — anything more becomes annoying on a content-heavy page.\n- Forgetting hero. The hero should NOT have `reveal-on-scroll` (it's already in viewport on load); pass `noReveal={true}` from `Hero.astro`.",
+              "taskId": "09-polish/002-scroll-reveals",
+              "taskTitle": "Tasteful scroll reveals (reduced-motion safe, no JS-thrash)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/09-polish/tasks/002-scroll-reveals",
+              "factId": "check:section-uses-reveal-class"
+            }
+          },
+          {
+            "id": "09-polish/002-scroll-reveals-check-failed-respects-reduced-motion",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-polish/002-scroll-reveals",
+            "severity": "high",
+            "description": "[09-polish/002-scroll-reveals] Check failed: animations.css respects prefers-reduced-motion",
+            "source": "unit",
+            "detected": "2026-04-26T20:21:00.494Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "respects-reduced-motion",
+              "checkCmd": "test -f apps/landing/src/styles/animations.css && grep -qE 'prefers-reduced-motion' apps/landing/src/styles/animations.css",
+              "checkDescription": "animations.css respects prefers-reduced-motion",
+              "checkOutput": "Command failed: test -f apps/landing/src/styles/animations.css && grep -qE 'prefers-reduced-motion' apps/landing/src/styles/animations.css\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Scroll reveals\n\nSubtle fade-up animation when each section enters the viewport. Use the\nnew `view-timeline` / `animation-timeline` CSS APIs (browsers shipped 2024+)\nso this is CSS-only, no IntersectionObserver JS.\n\n## File: `apps/landing/src/styles/animations.css`\n\n```css\n/* Scroll-driven reveal — CSS only, no JS */\n@layer utilities {\n  .reveal-on-scroll {\n    opacity: 0;\n    transform: translateY(20px);\n    animation: reveal-fade-up linear both;\n    animation-timeline: view();\n    animation-range: entry 0% cover 30%;\n  }\n\n  @keyframes reveal-fade-up {\n    to { opacity: 1; transform: translateY(0); }\n  }\n\n  @media (prefers-reduced-motion: reduce) {\n    .reveal-on-scroll {\n      animation: none;\n      opacity: 1;\n      transform: none;\n    }\n  }\n}\n```\n\n## Update: `apps/landing/src/styles/globals.css`\n\nAdd `@import \"./animations.css\";` after the typography import.\n\n## Update: `apps/landing/src/components/layout/Section.astro`\n\nAdd the `reveal-on-scroll` class to the `<section>` element by default.\nAdd a `noReveal` prop to opt out (useful for hero, which shouldn't fade-in\nwhen it's already in viewport on page load).\n\n```astro\n---\ninterface Props {\n  id?: string;\n  padY?: 'md' | 'lg' | 'xl';\n  bg?: 'default' | 'elev' | 'gradient';\n  noReveal?: boolean;\n}\nconst { id, padY = 'lg', bg = 'default', noReveal = false } = Astro.props;\nconst padYClass = { md: 'py-12', lg: 'py-20', xl: 'py-32' }[padY];\nconst bgClass = { default: '', elev: 'bg-bg-elev', gradient: 'bg-gradient-to-b from-bg to-bg-elev' }[bg];\nconst revealClass = noReveal ? '' : 'reveal-on-scroll';\n---\n<section id={id} class={`${padYClass} ${bgClass} ${revealClass}`}>\n  <slot />\n</section>\n```\n\n## Banned\n\n- IntersectionObserver-based reveals. CSS scroll-timeline is supported in all evergreen browsers; the JS approach pays a runtime cost for no benefit.\n- Heavy animations (slide-in-from-side, scale, rotate). The \"fade up 20px\" is intentionally subtle — anything more becomes annoying on a content-heavy page.\n- Forgetting hero. The hero should NOT have `reveal-on-scroll` (it's already in viewport on load); pass `noReveal={true}` from `Hero.astro`.",
+              "taskId": "09-polish/002-scroll-reveals",
+              "taskTitle": "Tasteful scroll reveals (reduced-motion safe, no JS-thrash)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/09-polish/tasks/002-scroll-reveals",
+              "factId": "check:respects-reduced-motion"
+            }
+          }
+        ],
+        "durationMs": 19
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 11
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 21
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#115",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 43407
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T20:21:00.474Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T20:21:00.475Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T20:21:00.494Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T20:21:00.495Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T20:21:00.506Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#115",
+      "iteration": 1,
+      "ts": "2026-04-26T20:21:43.915Z"
+    },
+    {
+      "from": "run-strategy:task-run#115",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T20:21:43.937Z"
+    }
+  ]
+}

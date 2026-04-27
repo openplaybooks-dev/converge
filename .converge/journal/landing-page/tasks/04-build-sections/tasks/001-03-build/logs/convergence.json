@@ -1,0 +1,200 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-build-sections/001-03-build-check-failed-component-uses-section-wrapper",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-build-sections/001-03-build",
+            "severity": "high",
+            "description": "[04-build-sections/001-03-build] Check failed: component uses <Section> layout primitive",
+            "source": "unit",
+            "detected": "2026-04-26T17:44:12.563Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "component-uses-section-wrapper",
+              "checkCmd": "test -f apps/landing/src/components/sections/Hero.astro && grep -qE '<Section\\s' apps/landing/src/components/sections/Hero.astro",
+              "checkDescription": "component uses <Section> layout primitive",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/sections/Hero.astro && grep -qE '<Section\\s' apps/landing/src/components/sections/Hero.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Build: Hero\n\nImplement `apps/landing/src/components/sections/Hero.astro` per `apps/landing/.content/sections/hero/DESIGN.md`. All copy must come\nfrom real source files.\n\n## Structure\n\n```astro\n---\n// apps/landing/src/components/sections/Hero.astro\nimport Section from '@/components/layout/Section.astro';\nimport Container from '@/components/layout/Container.astro';\n// ... other UI primitives\n\n// Read content. Examples by section:\n//   hero      → tagline from apps/landing/.content/brand.json\n//   feature-grid → features from README.md \"Why Converge?\" bullets\n//   comparison → matrix derived from docs/concepts/{deterministic-checks,dynamic-work-breakdown}.md\n//   faq       → trade-offs sections from docs/concepts/*.md\n//   quickstart → README.md \"## Quick Start\" code block\n---\n\n<Section id=\"hero\" padY=\"lg\">\n  <Container>\n    {/* implementation per DESIGN.md */}\n  </Container>\n</Section>\n```\n\n## Process\n\n1. Read `apps/landing/.content/sections/hero/SPEC.md` and `apps/landing/.content/sections/hero/DESIGN.md` from previous steps.\n2. Read every content source file the spec listed.\n3. Implement the component. Use brand tokens via Tailwind classes (`text-text`, `bg-bg-elev`, `text-indigo`, etc.) — never raw hex.\n4. Use existing UI primitives from `components/ui/` (Button, Card, etc.) — don't reimplement them.\n5. Run `pnpm --filter @converge/landing astro check` to verify TS validates.\n\n## Per-section content sources (recap)\n\n| Section ID | Primary source | Secondary source |\n|---|---|---|\n| hero            | `apps/landing/.content/brand.json` (tagline) | `README.md` (subhead voice) |\n| social-proof    | static counts (200+ stars, etc.) — placeholder ok | — |\n| problem-solution | `docs/concepts/dynamic-work-breakdown.md` (pre-declared-graph problem) | — |\n| feature-grid    | `README.md` \"Why Converge?\" bullets (6 items) | — |\n| comparison      | `docs/concepts/deterministic-checks.md` + `dynamic-work-breakdown.md` (contrasts) | — |\n| quickstart      | `README.md` \"## Quick Start\" block (4 commands) | — |\n| faq             | trade-offs sections of all 4 `docs/concepts/*.md` pages | `README.md` |\n| cta-banner      | `apps/landing/.content/brand.json` (tagline restated) | — |\n\n## Banned\n\n- Hardcoding any hex color. Use Tailwind classes that reference brand tokens.\n- Marketing-speak (\"revolutionary\", \"next-generation\", \"AI-native\"). Match the README's voice.\n- Re-implementing Button/Card/etc. inline. Always import from `components/ui/`.\n- Any text that doesn't trace to a source file listed in the SPEC. If the section needs new copy, write it into the SPEC first.",
+              "taskId": "04-build-sections/001-03-build",
+              "taskTitle": "Build: Hero",
+              "unitPath": "/Users/minh/Documents/converge/.converge/journal/landing-page/tasks/04-build-sections/tasks/001-03-build",
+              "factId": "check:component-uses-section-wrapper"
+            }
+          }
+        ],
+        "durationMs": 373
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 330
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 285
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#20",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 39814
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T17:44:12.536Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T17:44:12.536Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T17:44:12.910Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T17:44:12.910Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T17:44:13.241Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#20",
+      "iteration": 1,
+      "ts": "2026-04-26T17:44:53.056Z"
+    },
+    {
+      "from": "run-strategy:task-run#20",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T17:44:53.341Z"
+    }
+  ]
+}

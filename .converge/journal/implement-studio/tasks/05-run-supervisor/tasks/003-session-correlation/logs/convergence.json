@@ -1,0 +1,246 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "05-run-supervisor/003-session-correlation-missing-output-packages/converge-studio/src/lib/session-correlator.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-run-supervisor/003-session-correlation",
+            "severity": "high",
+            "description": "[05-run-supervisor/003-session-correlation] Task output not created: packages/converge-studio/src/lib/session-correlator.ts",
+            "source": "unit",
+            "detected": "2026-04-26T03:21:00.142Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/05-run-supervisor/tasks/003-session-correlation",
+              "taskId": "05-run-supervisor/003-session-correlation",
+              "taskTitle": "Correlate spawned runs to journal session directories",
+              "taskPrompt": "After `startRun`, watch `.converge/journal/<playbook>/sessions/` for the next directory created. That directory's name is the session id; attach it to the `RunHandle`.\n\n**`src/lib/session-correlator.ts`**:\n\n```ts\nimport * as fs from 'node:fs/promises';\nimport * as path from 'node:path';\nimport chokidar from 'chokidar';\nimport { sessionsDir } from './converge-adapter/index.js';\n\nexport async function attachCorrelator(opts: {\n  playbook: string;\n  startedAt: Date;\n  onDetect: (sessionId: string) => void;\n  timeoutMs?: number;\n}): Promise<void> {\n  const dir = sessionsDir(opts.playbook);\n  await fs.mkdir(dir, { recursive: true });\n  const baseline = new Set(await fs.readdir(dir).catch(() => []));\n\n  const watcher = chokidar.watch(dir, { ignoreInitial: true, depth: 0 });\n  const timeout = setTimeout(() => watcher.close(), opts.timeoutMs ?? 60_000);\n\n  watcher.on('addDir', (full) => {\n    const name = path.basename(full);\n    if (baseline.has(name)) return;\n    clearTimeout(timeout);\n    void watcher.close();\n    opts.onDetect(name);\n  });\n}\n```\n\n**Wire into `run-supervisor.ts`**: in `startRun`, immediately after the spawn, fire-and-forget:\n\n```ts\nattachCorrelator({\n  playbook,\n  startedAt: handle.startedAt,\n  onDetect: (sessionId) => {\n    handle.sessionId = sessionId;\n    handle.emitter.emit('session-detected', { sessionId });\n  },\n}).catch(() => { /* ignore — orphan run still has stdout */ });\n```\n\n**Race risk**: if two runs of the same playbook start within the same millisecond, the \"first new dir wins\" assumption may attach the wrong session id to one of them. Mitigation:\n- Hold a process-level mutex serializing same-playbook spawns with a 100ms gap, OR\n- Match the new dir's name against the session-id timestamp prefix and `startedAt` to disambiguate.\n\nFor MVP, document the limitation in the README and add a TODO to add `--session-id` support to the CLI (preassign a UUID, eliminate the race).",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/lib/session-correlator.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "05-run-supervisor/003-session-correlation-check-failed-correlator-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-run-supervisor/003-session-correlation",
+            "severity": "high",
+            "description": "[05-run-supervisor/003-session-correlation] Check failed: Correlator module exists",
+            "source": "unit",
+            "detected": "2026-04-26T03:21:00.144Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "correlator-exists",
+              "checkCmd": "test -f packages/converge-studio/src/lib/session-correlator.ts",
+              "checkDescription": "Correlator module exists",
+              "checkOutput": "Command failed: test -f packages/converge-studio/src/lib/session-correlator.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "After `startRun`, watch `.converge/journal/<playbook>/sessions/` for the next directory created. That directory's name is the session id; attach it to the `RunHandle`.\n\n**`src/lib/session-correlator.ts`**:\n\n```ts\nimport * as fs from 'node:fs/promises';\nimport * as path from 'node:path';\nimport chokidar from 'chokidar';\nimport { sessionsDir } from './converge-adapter/index.js';\n\nexport async function attachCorrelator(opts: {\n  playbook: string;\n  startedAt: Date;\n  onDetect: (sessionId: string) => void;\n  timeoutMs?: number;\n}): Promise<void> {\n  const dir = sessionsDir(opts.playbook);\n  await fs.mkdir(dir, { recursive: true });\n  const baseline = new Set(await fs.readdir(dir).catch(() => []));\n\n  const watcher = chokidar.watch(dir, { ignoreInitial: true, depth: 0 });\n  const timeout = setTimeout(() => watcher.close(), opts.timeoutMs ?? 60_000);\n\n  watcher.on('addDir', (full) => {\n    const name = path.basename(full);\n    if (baseline.has(name)) return;\n    clearTimeout(timeout);\n    void watcher.close();\n    opts.onDetect(name);\n  });\n}\n```\n\n**Wire into `run-supervisor.ts`**: in `startRun`, immediately after the spawn, fire-and-forget:\n\n```ts\nattachCorrelator({\n  playbook,\n  startedAt: handle.startedAt,\n  onDetect: (sessionId) => {\n    handle.sessionId = sessionId;\n    handle.emitter.emit('session-detected', { sessionId });\n  },\n}).catch(() => { /* ignore — orphan run still has stdout */ });\n```\n\n**Race risk**: if two runs of the same playbook start within the same millisecond, the \"first new dir wins\" assumption may attach the wrong session id to one of them. Mitigation:\n- Hold a process-level mutex serializing same-playbook spawns with a 100ms gap, OR\n- Match the new dir's name against the session-id timestamp prefix and `startedAt` to disambiguate.\n\nFor MVP, document the limitation in the README and add a TODO to add `--session-id` support to the CLI (preassign a UUID, eliminate the race).",
+              "taskId": "05-run-supervisor/003-session-correlation",
+              "taskTitle": "Correlate spawned runs to journal session directories",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/05-run-supervisor/tasks/003-session-correlation",
+              "factId": "check:correlator-exists"
+            }
+          },
+          {
+            "id": "05-run-supervisor/003-session-correlation-check-failed-integrated",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-run-supervisor/003-session-correlation",
+            "severity": "high",
+            "description": "[05-run-supervisor/003-session-correlation] Check failed: run-supervisor wires the correlator",
+            "source": "unit",
+            "detected": "2026-04-26T03:21:04.143Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "integrated",
+              "checkCmd": "grep -q 'session-correlator\\|attachCorrelator' packages/converge-studio/src/lib/run-supervisor.ts",
+              "checkDescription": "run-supervisor wires the correlator",
+              "checkOutput": "Command failed: grep -q 'session-correlator\\|attachCorrelator' packages/converge-studio/src/lib/run-supervisor.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "After `startRun`, watch `.converge/journal/<playbook>/sessions/` for the next directory created. That directory's name is the session id; attach it to the `RunHandle`.\n\n**`src/lib/session-correlator.ts`**:\n\n```ts\nimport * as fs from 'node:fs/promises';\nimport * as path from 'node:path';\nimport chokidar from 'chokidar';\nimport { sessionsDir } from './converge-adapter/index.js';\n\nexport async function attachCorrelator(opts: {\n  playbook: string;\n  startedAt: Date;\n  onDetect: (sessionId: string) => void;\n  timeoutMs?: number;\n}): Promise<void> {\n  const dir = sessionsDir(opts.playbook);\n  await fs.mkdir(dir, { recursive: true });\n  const baseline = new Set(await fs.readdir(dir).catch(() => []));\n\n  const watcher = chokidar.watch(dir, { ignoreInitial: true, depth: 0 });\n  const timeout = setTimeout(() => watcher.close(), opts.timeoutMs ?? 60_000);\n\n  watcher.on('addDir', (full) => {\n    const name = path.basename(full);\n    if (baseline.has(name)) return;\n    clearTimeout(timeout);\n    void watcher.close();\n    opts.onDetect(name);\n  });\n}\n```\n\n**Wire into `run-supervisor.ts`**: in `startRun`, immediately after the spawn, fire-and-forget:\n\n```ts\nattachCorrelator({\n  playbook,\n  startedAt: handle.startedAt,\n  onDetect: (sessionId) => {\n    handle.sessionId = sessionId;\n    handle.emitter.emit('session-detected', { sessionId });\n  },\n}).catch(() => { /* ignore — orphan run still has stdout */ });\n```\n\n**Race risk**: if two runs of the same playbook start within the same millisecond, the \"first new dir wins\" assumption may attach the wrong session id to one of them. Mitigation:\n- Hold a process-level mutex serializing same-playbook spawns with a 100ms gap, OR\n- Match the new dir's name against the session-id timestamp prefix and `startedAt` to disambiguate.\n\nFor MVP, document the limitation in the README and add a TODO to add `--session-id` support to the CLI (preassign a UUID, eliminate the race).",
+              "taskId": "05-run-supervisor/003-session-correlation",
+              "taskTitle": "Correlate spawned runs to journal session directories",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/05-run-supervisor/tasks/003-session-correlation",
+              "factId": "check:integrated"
+            }
+          }
+        ],
+        "durationMs": 4004
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3963
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 3884
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#11",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 77887
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T03:21:00.139Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T03:21:00.139Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T03:21:04.143Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T03:21:04.143Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T03:21:08.107Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#11",
+      "iteration": 1,
+      "ts": "2026-04-26T03:22:25.995Z"
+    },
+    {
+      "from": "run-strategy:task-run#11",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T03:22:29.879Z"
+    }
+  ]
+}

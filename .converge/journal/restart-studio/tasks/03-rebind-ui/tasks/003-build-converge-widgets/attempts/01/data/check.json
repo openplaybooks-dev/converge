@@ -1,0 +1,15 @@
+{
+  "taskId": "03-rebind-ui/003-build-converge-widgets",
+  "checks": [
+    {
+      "id": "all-four-widgets-exist",
+      "description": "All four converge widgets exist",
+      "cmd": "test -f packages/studio/src/components/dashboard/widgets/recent-runs-widget.tsx && test -f packages/studio/src/components/dashboard/widgets/playbook-health-widget.tsx && test -f packages/studio/src/components/dashboard/widgets/live-activity-widget.tsx && test -f packages/studio/src/components/dashboard/widgets/quick-actions-widget.tsx"
+    },
+    {
+      "id": "widgets-use-converge-data",
+      "description": "Widgets reference converge data hooks or APIs",
+      "cmd": "grep -ql 'listSessions\\|listPlaybooks\\|useConvergeEvents\\|/api/runs\\|/api/playbooks\\|/api/events' packages/studio/src/components/dashboard/widgets/recent-runs-widget.tsx packages/studio/src/components/dashboard/widgets/playbook-health-widget.tsx packages/studio/src/components/dashboard/widgets/live-activity-widget.tsx 2>/dev/null"
+    }
+  ]
+}

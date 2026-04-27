@@ -1,0 +1,9 @@
+{
+  "taskId": "05-run-supervisor/003-session-correlation",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/src/lib/session-correlator.ts"
+  ],
+  "blocked": false
+}

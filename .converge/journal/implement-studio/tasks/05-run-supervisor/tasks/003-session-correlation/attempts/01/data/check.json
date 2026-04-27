@@ -1,0 +1,20 @@
+{
+  "taskId": "05-run-supervisor/003-session-correlation",
+  "checks": [
+    {
+      "id": "correlator-exists",
+      "description": "Correlator module exists",
+      "cmd": "test -f packages/converge-studio/src/lib/session-correlator.ts"
+    },
+    {
+      "id": "typecheck",
+      "description": "Module typechecks",
+      "cmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    },
+    {
+      "id": "integrated",
+      "description": "run-supervisor wires the correlator",
+      "cmd": "grep -q 'session-correlator\\|attachCorrelator' packages/converge-studio/src/lib/run-supervisor.ts"
+    }
+  ]
+}

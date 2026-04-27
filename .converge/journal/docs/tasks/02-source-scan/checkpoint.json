@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "02-source-scan",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T07:37:22.550Z",
+  "createdAt": "2026-04-26T07:34:37.958Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T07:34:37.958Z",
+      "completedAt": "2026-04-26T07:37:22.548Z",
+      "outcome": "success",
+      "durationMs": 164590
+    }
+  ],
+  "currentAttempt": 1
+}

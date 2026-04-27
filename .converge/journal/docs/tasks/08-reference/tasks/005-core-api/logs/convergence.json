@@ -1,0 +1,275 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "08-reference/005-core-api-missing-output-docs/reference/core-api.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-reference/005-core-api",
+            "severity": "high",
+            "description": "[08-reference/005-core-api] Task output not created: docs/reference/core-api.md",
+            "source": "unit",
+            "detected": "2026-04-26T09:52:32.084Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/08-reference/tasks/005-core-api",
+              "taskId": "08-reference/005-core-api",
+              "taskTitle": "Write docs/reference/core-api.md (@converge/core public API)",
+              "taskPrompt": "# Write `docs/reference/core-api.md`\n\nReference for `@converge/core` — what users programmatically import.\n\nMost users won't read this; they interact with the framework via CLI.\nBut framework integrators (the studio, custom dashboards, third-party\ntooling) need this page.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"@converge/core\"\ndescription: \"Public API surface of @converge/core for programmatic use.\"\nsources:\n  - packages/core/src/index.ts\n  - packages/core/package.json\nsidebar:\n  order: 5\n---\n```\n\n## Required structure\n\n1. **Who this is for.** One paragraph: framework integrators, tooling\n   authors, extension developers. CLI users don't need this page.\n\n2. **Package exports map.** From `packages/core/package.json#exports`:\n   - `@converge/core` — primary entry\n   - `@converge/core/planner` — planner-only\n   - `@converge/core/client` — client-only\n   - `@converge/core/studio-api` — studio-facing surface\n   Note which subpaths are stable vs subject to change.\n\n3. **Top-level exports.** Read `packages/core/src/index.ts` and group the\n   exports semantically:\n\n   **Definition builders** — `taskDef()`, `defineProject()`, `loadPlaybook()`\n   **Runtime** — `createRuntime()`, `Runtime`, `TaskManager`, `ProjectManager`\n   **Convergence** — `ConvergenceConfig`, `ConvergenceOrchestrator`,\n   `Gap`, `GapDetector`, `Goal`, `GoalHierarchy`\n   **Hooks & registries** — `HookRegistry`, `CheckFn`, `EvalFn`, `PlanFn`,\n   `TaskFn`\n   **Discovery** — `DiscoveryScanner`\n\n   For each, one line: what it does, when you'd use it.\n\n4. **Tiny code example.** A 10-line sketch using one or two of the\n   builders to show the shape: `import { defineProject, taskDef } from\n   '@converge/core'; ...`. Make it work, not just compile.\n\n5. **Stability note.** This API is pre-1.0 — minor breaking changes\n   between minor versions. Pin exact versions for production use.\n\n## Read first\n\n- `packages/core/src/index.ts` — the canonical export list.\n- `packages/core/package.json` for the `exports` map subpaths.\n- Headlines / type definitions of the major exports — pull descriptions\n  from in-source docstrings if present.\n\n## Banned\n\n- Documenting internal exports (anything not in `index.ts`). They're not\n  public API.\n- Promising stability you can't deliver. State the pre-1.0 reality.\n- A full type signature dump. Link to the source if a reader needs the\n  exhaustive type — this page is the orientation, not the reference.",
+              "taskInputs": [
+                "packages/core/src/index.ts",
+                "packages/core/package.json"
+              ],
+              "factId": "file-exists:test -f \"docs/reference/core-api.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "08-reference/005-core-api-check-failed-page-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-reference/005-core-api",
+            "severity": "high",
+            "description": "[08-reference/005-core-api] Check failed: page exists",
+            "source": "unit",
+            "detected": "2026-04-26T09:52:32.086Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "page-exists",
+              "checkCmd": "test -f docs/reference/core-api.md",
+              "checkDescription": "page exists",
+              "checkOutput": "Command failed: test -f docs/reference/core-api.md\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Write `docs/reference/core-api.md`\n\nReference for `@converge/core` — what users programmatically import.\n\nMost users won't read this; they interact with the framework via CLI.\nBut framework integrators (the studio, custom dashboards, third-party\ntooling) need this page.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"@converge/core\"\ndescription: \"Public API surface of @converge/core for programmatic use.\"\nsources:\n  - packages/core/src/index.ts\n  - packages/core/package.json\nsidebar:\n  order: 5\n---\n```\n\n## Required structure\n\n1. **Who this is for.** One paragraph: framework integrators, tooling\n   authors, extension developers. CLI users don't need this page.\n\n2. **Package exports map.** From `packages/core/package.json#exports`:\n   - `@converge/core` — primary entry\n   - `@converge/core/planner` — planner-only\n   - `@converge/core/client` — client-only\n   - `@converge/core/studio-api` — studio-facing surface\n   Note which subpaths are stable vs subject to change.\n\n3. **Top-level exports.** Read `packages/core/src/index.ts` and group the\n   exports semantically:\n\n   **Definition builders** — `taskDef()`, `defineProject()`, `loadPlaybook()`\n   **Runtime** — `createRuntime()`, `Runtime`, `TaskManager`, `ProjectManager`\n   **Convergence** — `ConvergenceConfig`, `ConvergenceOrchestrator`,\n   `Gap`, `GapDetector`, `Goal`, `GoalHierarchy`\n   **Hooks & registries** — `HookRegistry`, `CheckFn`, `EvalFn`, `PlanFn`,\n   `TaskFn`\n   **Discovery** — `DiscoveryScanner`\n\n   For each, one line: what it does, when you'd use it.\n\n4. **Tiny code example.** A 10-line sketch using one or two of the\n   builders to show the shape: `import { defineProject, taskDef } from\n   '@converge/core'; ...`. Make it work, not just compile.\n\n5. **Stability note.** This API is pre-1.0 — minor breaking changes\n   between minor versions. Pin exact versions for production use.\n\n## Read first\n\n- `packages/core/src/index.ts` — the canonical export list.\n- `packages/core/package.json` for the `exports` map subpaths.\n- Headlines / type definitions of the major exports — pull descriptions\n  from in-source docstrings if present.\n\n## Banned\n\n- Documenting internal exports (anything not in `index.ts`). They're not\n  public API.\n- Promising stability you can't deliver. State the pre-1.0 reality.\n- A full type signature dump. Link to the source if a reader needs the\n  exhaustive type — this page is the orientation, not the reference.",
+              "taskId": "08-reference/005-core-api",
+              "taskTitle": "Write docs/reference/core-api.md (@converge/core public API)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/08-reference/tasks/005-core-api",
+              "factId": "check:page-exists"
+            }
+          },
+          {
+            "id": "08-reference/005-core-api-check-failed-lists-exports",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-reference/005-core-api",
+            "severity": "high",
+            "description": "[08-reference/005-core-api] Check failed: lists at least 8 exported symbols",
+            "source": "unit",
+            "detected": "2026-04-26T09:52:32.090Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "lists-exports",
+              "checkCmd": "test $(grep -cE '^###\\s+|`[A-Z][a-zA-Z]+`' docs/reference/core-api.md) -ge 8",
+              "checkDescription": "lists at least 8 exported symbols",
+              "checkOutput": "grep: docs/reference/core-api.md: No such file or directory\n/bin/bash: line 0: test: -ge: unary operator expected",
+              "checkExitCode": 2,
+              "taskPrompt": "# Write `docs/reference/core-api.md`\n\nReference for `@converge/core` — what users programmatically import.\n\nMost users won't read this; they interact with the framework via CLI.\nBut framework integrators (the studio, custom dashboards, third-party\ntooling) need this page.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"@converge/core\"\ndescription: \"Public API surface of @converge/core for programmatic use.\"\nsources:\n  - packages/core/src/index.ts\n  - packages/core/package.json\nsidebar:\n  order: 5\n---\n```\n\n## Required structure\n\n1. **Who this is for.** One paragraph: framework integrators, tooling\n   authors, extension developers. CLI users don't need this page.\n\n2. **Package exports map.** From `packages/core/package.json#exports`:\n   - `@converge/core` — primary entry\n   - `@converge/core/planner` — planner-only\n   - `@converge/core/client` — client-only\n   - `@converge/core/studio-api` — studio-facing surface\n   Note which subpaths are stable vs subject to change.\n\n3. **Top-level exports.** Read `packages/core/src/index.ts` and group the\n   exports semantically:\n\n   **Definition builders** — `taskDef()`, `defineProject()`, `loadPlaybook()`\n   **Runtime** — `createRuntime()`, `Runtime`, `TaskManager`, `ProjectManager`\n   **Convergence** — `ConvergenceConfig`, `ConvergenceOrchestrator`,\n   `Gap`, `GapDetector`, `Goal`, `GoalHierarchy`\n   **Hooks & registries** — `HookRegistry`, `CheckFn`, `EvalFn`, `PlanFn`,\n   `TaskFn`\n   **Discovery** — `DiscoveryScanner`\n\n   For each, one line: what it does, when you'd use it.\n\n4. **Tiny code example.** A 10-line sketch using one or two of the\n   builders to show the shape: `import { defineProject, taskDef } from\n   '@converge/core'; ...`. Make it work, not just compile.\n\n5. **Stability note.** This API is pre-1.0 — minor breaking changes\n   between minor versions. Pin exact versions for production use.\n\n## Read first\n\n- `packages/core/src/index.ts` — the canonical export list.\n- `packages/core/package.json` for the `exports` map subpaths.\n- Headlines / type definitions of the major exports — pull descriptions\n  from in-source docstrings if present.\n\n## Banned\n\n- Documenting internal exports (anything not in `index.ts`). They're not\n  public API.\n- Promising stability you can't deliver. State the pre-1.0 reality.\n- A full type signature dump. Link to the source if a reader needs the\n  exhaustive type — this page is the orientation, not the reference.",
+              "taskId": "08-reference/005-core-api",
+              "taskTitle": "Write docs/reference/core-api.md (@converge/core public API)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/08-reference/tasks/005-core-api",
+              "factId": "check:lists-exports"
+            }
+          },
+          {
+            "id": "08-reference/005-core-api-check-failed-covers-exports-map",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "08-reference/005-core-api",
+            "severity": "high",
+            "description": "[08-reference/005-core-api] Check failed: covers the package exports map (subpaths)",
+            "source": "unit",
+            "detected": "2026-04-26T09:52:32.094Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "covers-exports-map",
+              "checkCmd": "grep -qE '@converge/core|exports' docs/reference/core-api.md",
+              "checkDescription": "covers the package exports map (subpaths)",
+              "checkOutput": "grep: docs/reference/core-api.md: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "# Write `docs/reference/core-api.md`\n\nReference for `@converge/core` — what users programmatically import.\n\nMost users won't read this; they interact with the framework via CLI.\nBut framework integrators (the studio, custom dashboards, third-party\ntooling) need this page.\n\n## Required frontmatter\n\n```yaml\n---\ntitle: \"@converge/core\"\ndescription: \"Public API surface of @converge/core for programmatic use.\"\nsources:\n  - packages/core/src/index.ts\n  - packages/core/package.json\nsidebar:\n  order: 5\n---\n```\n\n## Required structure\n\n1. **Who this is for.** One paragraph: framework integrators, tooling\n   authors, extension developers. CLI users don't need this page.\n\n2. **Package exports map.** From `packages/core/package.json#exports`:\n   - `@converge/core` — primary entry\n   - `@converge/core/planner` — planner-only\n   - `@converge/core/client` — client-only\n   - `@converge/core/studio-api` — studio-facing surface\n   Note which subpaths are stable vs subject to change.\n\n3. **Top-level exports.** Read `packages/core/src/index.ts` and group the\n   exports semantically:\n\n   **Definition builders** — `taskDef()`, `defineProject()`, `loadPlaybook()`\n   **Runtime** — `createRuntime()`, `Runtime`, `TaskManager`, `ProjectManager`\n   **Convergence** — `ConvergenceConfig`, `ConvergenceOrchestrator`,\n   `Gap`, `GapDetector`, `Goal`, `GoalHierarchy`\n   **Hooks & registries** — `HookRegistry`, `CheckFn`, `EvalFn`, `PlanFn`,\n   `TaskFn`\n   **Discovery** — `DiscoveryScanner`\n\n   For each, one line: what it does, when you'd use it.\n\n4. **Tiny code example.** A 10-line sketch using one or two of the\n   builders to show the shape: `import { defineProject, taskDef } from\n   '@converge/core'; ...`. Make it work, not just compile.\n\n5. **Stability note.** This API is pre-1.0 — minor breaking changes\n   between minor versions. Pin exact versions for production use.\n\n## Read first\n\n- `packages/core/src/index.ts` — the canonical export list.\n- `packages/core/package.json` for the `exports` map subpaths.\n- Headlines / type definitions of the major exports — pull descriptions\n  from in-source docstrings if present.\n\n## Banned\n\n- Documenting internal exports (anything not in `index.ts`). They're not\n  public API.\n- Promising stability you can't deliver. State the pre-1.0 reality.\n- A full type signature dump. Link to the source if a reader needs the\n  exhaustive type — this page is the orientation, not the reference.",
+              "taskId": "08-reference/005-core-api",
+              "taskTitle": "Write docs/reference/core-api.md (@converge/core public API)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/docs/tasks/08-reference/tasks/005-core-api",
+              "factId": "check:covers-exports-map"
+            }
+          }
+        ],
+        "durationMs": 17
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 12
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 21
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#4",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 118632
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T09:52:32.077Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T09:52:32.077Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T09:52:32.094Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T09:52:32.094Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T09:52:32.106Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#4",
+      "iteration": 1,
+      "ts": "2026-04-26T09:54:30.739Z"
+    },
+    {
+      "from": "run-strategy:task-run#4",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T09:54:30.760Z"
+    }
+  ]
+}

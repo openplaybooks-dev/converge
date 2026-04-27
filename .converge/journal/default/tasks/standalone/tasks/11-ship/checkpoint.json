@@ -1,0 +1,23 @@
+{
+  "type": "task",
+  "id": "11-ship",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T23:04:30.619Z",
+  "createdAt": "2026-04-26T23:04:30.619Z",
+  "progress": {
+    "totalChildren": 8,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "001-wrangler-config",
+      "002-cloudflare-headers",
+      "003-deploy-preview",
+      "004-launch-checklist",
+      "001-wrangler-config",
+      "002-cloudflare-headers",
+      "003-deploy-preview",
+      "004-launch-checklist"
+    ],
+    "lastProgressUpdate": "2026-04-26T23:04:30.618Z"
+  }
+}

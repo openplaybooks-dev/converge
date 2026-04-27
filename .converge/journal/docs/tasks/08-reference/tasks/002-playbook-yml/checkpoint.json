@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "08-reference/002-playbook-yml",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T09:48:47.194Z",
+  "createdAt": "2026-04-26T09:47:35.513Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T09:47:35.513Z",
+      "completedAt": "2026-04-26T09:48:47.192Z",
+      "outcome": "success",
+      "durationMs": 71679
+    }
+  ],
+  "currentAttempt": 1
+}

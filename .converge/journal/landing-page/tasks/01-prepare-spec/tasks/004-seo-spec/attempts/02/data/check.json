@@ -1,0 +1,35 @@
+{
+  "taskId": "01-prepare-spec/004-seo-spec",
+  "checks": [
+    {
+      "id": "seo-json-exists",
+      "description": "seo.json exists",
+      "cmd": "test -f apps/landing/.content/seo.json"
+    },
+    {
+      "id": "seo-json-valid",
+      "description": "seo.json is valid JSON",
+      "cmd": "test -f apps/landing/.content/seo.json && node -e \"JSON.parse(require('fs').readFileSync('apps/landing/.content/seo.json','utf8'))\""
+    },
+    {
+      "id": "site-fields-present",
+      "description": "site has title, description, ogImage, canonical, locale",
+      "cmd": "test -f apps/landing/.content/seo.json && node -e \"const s=require('./apps/landing/.content/seo.json').site;['title','description','ogImage','canonical','locale'].forEach(k=>{if(!s[k])process.exit(1)});process.exit(0)\""
+    },
+    {
+      "id": "home-route-meta",
+      "description": "pages.home is defined",
+      "cmd": "test -f apps/landing/.content/seo.json && node -e \"process.exit(require('./apps/landing/.content/seo.json').pages?.home ? 0 : 1)\""
+    },
+    {
+      "id": "docs-route-meta",
+      "description": "pages.docs is defined",
+      "cmd": "test -f apps/landing/.content/seo.json && node -e \"process.exit(require('./apps/landing/.content/seo.json').pages?.docs ? 0 : 1)\""
+    },
+    {
+      "id": "blog-route-meta",
+      "description": "pages.blog is defined",
+      "cmd": "test -f apps/landing/.content/seo.json && node -e \"process.exit(require('./apps/landing/.content/seo.json').pages?.blog ? 0 : 1)\""
+    }
+  ]
+}

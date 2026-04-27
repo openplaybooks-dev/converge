@@ -1,0 +1,247 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "05-finalize/003-next-config-workspace-missing-output-packages/studio/next.config.mjs",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-finalize/003-next-config-workspace",
+            "severity": "high",
+            "description": "[05-finalize/003-next-config-workspace] Task output not created: packages/studio/next.config.mjs",
+            "source": "unit",
+            "detected": "2026-04-26T10:08:33.742Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/05-finalize/tasks/003-next-config-workspace",
+              "taskId": "05-finalize/003-next-config-workspace",
+              "taskTitle": "Configure next.config.mjs to transpile workspace packages",
+              "taskPrompt": "The MC fork ships its own `next.config.js`. Replace or augment to transpile the converge workspace packages. Write or update `packages/studio/next.config.mjs`:\n\n```js\nimport path from 'node:path';\nimport { fileURLToPath } from 'node:url';\nimport createNextIntlPlugin from 'next-intl/plugin';\n\nconst __dirname = path.dirname(fileURLToPath(import.meta.url));\nconst withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');\n\nexport default withNextIntl({\n  transpilePackages: ['@converge/core', '@converge/project-root'],\n  outputFileTracingRoot: path.join(__dirname, '../..'),\n  serverExternalPackages: ['chokidar'],\n  images: { unoptimized: true },\n});\n```\n\nIf the upstream had `next.config.js` (not `.mjs`), prefer the new `.mjs`. Delete `next.config.js` to avoid Next picking the wrong one.\n\nIf the upstream uses different next-intl wiring (different filename), adapt — the `next-intl/plugin` import is what matters.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"packages/studio/next.config.mjs\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "05-finalize/003-next-config-workspace-check-failed-next-config-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-finalize/003-next-config-workspace",
+            "severity": "high",
+            "description": "[05-finalize/003-next-config-workspace] Check failed: next.config.mjs exists",
+            "source": "unit",
+            "detected": "2026-04-26T10:08:33.745Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "next-config-exists",
+              "checkCmd": "test -f packages/studio/next.config.mjs",
+              "checkDescription": "next.config.mjs exists",
+              "checkOutput": "Command failed: test -f packages/studio/next.config.mjs\n",
+              "checkExitCode": 1,
+              "taskPrompt": "The MC fork ships its own `next.config.js`. Replace or augment to transpile the converge workspace packages. Write or update `packages/studio/next.config.mjs`:\n\n```js\nimport path from 'node:path';\nimport { fileURLToPath } from 'node:url';\nimport createNextIntlPlugin from 'next-intl/plugin';\n\nconst __dirname = path.dirname(fileURLToPath(import.meta.url));\nconst withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');\n\nexport default withNextIntl({\n  transpilePackages: ['@converge/core', '@converge/project-root'],\n  outputFileTracingRoot: path.join(__dirname, '../..'),\n  serverExternalPackages: ['chokidar'],\n  images: { unoptimized: true },\n});\n```\n\nIf the upstream had `next.config.js` (not `.mjs`), prefer the new `.mjs`. Delete `next.config.js` to avoid Next picking the wrong one.\n\nIf the upstream uses different next-intl wiring (different filename), adapt — the `next-intl/plugin` import is what matters.",
+              "taskId": "05-finalize/003-next-config-workspace",
+              "taskTitle": "Configure next.config.mjs to transpile workspace packages",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/05-finalize/tasks/003-next-config-workspace",
+              "factId": "check:next-config-exists"
+            }
+          },
+          {
+            "id": "05-finalize/003-next-config-workspace-check-failed-transpile-packages",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "05-finalize/003-next-config-workspace",
+            "severity": "high",
+            "description": "[05-finalize/003-next-config-workspace] Check failed: next.config.mjs declares transpilePackages with @converge/core",
+            "source": "unit",
+            "detected": "2026-04-26T10:08:33.749Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "transpile-packages",
+              "checkCmd": "grep -q 'transpilePackages' packages/studio/next.config.mjs && grep -q '@converge/core' packages/studio/next.config.mjs",
+              "checkDescription": "next.config.mjs declares transpilePackages with @converge/core",
+              "checkOutput": "grep: packages/studio/next.config.mjs: No such file or directory",
+              "checkExitCode": 2,
+              "taskPrompt": "The MC fork ships its own `next.config.js`. Replace or augment to transpile the converge workspace packages. Write or update `packages/studio/next.config.mjs`:\n\n```js\nimport path from 'node:path';\nimport { fileURLToPath } from 'node:url';\nimport createNextIntlPlugin from 'next-intl/plugin';\n\nconst __dirname = path.dirname(fileURLToPath(import.meta.url));\nconst withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');\n\nexport default withNextIntl({\n  transpilePackages: ['@converge/core', '@converge/project-root'],\n  outputFileTracingRoot: path.join(__dirname, '../..'),\n  serverExternalPackages: ['chokidar'],\n  images: { unoptimized: true },\n});\n```\n\nIf the upstream had `next.config.js` (not `.mjs`), prefer the new `.mjs`. Delete `next.config.js` to avoid Next picking the wrong one.\n\nIf the upstream uses different next-intl wiring (different filename), adapt — the `next-intl/plugin` import is what matters.",
+              "taskId": "05-finalize/003-next-config-workspace",
+              "taskTitle": "Configure next.config.mjs to transpile workspace packages",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/05-finalize/tasks/003-next-config-workspace",
+              "factId": "check:transpile-packages"
+            }
+          }
+        ],
+        "durationMs": 11
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 15
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#25",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 107722
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T10:08:33.739Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T10:08:33.739Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T10:08:33.750Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T10:08:33.750Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T10:08:33.757Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#25",
+      "iteration": 1,
+      "ts": "2026-04-26T10:10:21.479Z"
+    },
+    {
+      "from": "run-strategy:task-run#25",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T10:10:21.495Z"
+    }
+  ]
+}

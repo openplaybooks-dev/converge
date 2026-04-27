@@ -1,0 +1,10 @@
+{
+  "taskId": "11-ship/003-deploy-preview",
+  "checks": [
+    {
+      "id": "preview-deployed",
+      "description": "preview deploy succeeded and URL is captured",
+      "cmd": "test -f apps/landing/.preview-deploy-url && grep -qE 'pages\\.dev|workers\\.dev' apps/landing/.preview-deploy-url"
+    }
+  ]
+}

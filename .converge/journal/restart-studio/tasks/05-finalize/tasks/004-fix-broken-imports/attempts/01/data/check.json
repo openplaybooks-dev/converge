@@ -1,0 +1,15 @@
+{
+  "taskId": "05-finalize/004-fix-broken-imports",
+  "checks": [
+    {
+      "id": "typecheck-passes",
+      "description": "Studio typecheck has zero errors",
+      "cmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    },
+    {
+      "id": "fix-report-written",
+      "description": "Typecheck-fix report exists",
+      "cmd": "test -f .converge/studio-state/typecheck-fix.json"
+    }
+  ]
+}

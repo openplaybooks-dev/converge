@@ -1,0 +1,11 @@
+{
+  "taskId": "06-wiring/001-package-and-next-config",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/package.json",
+    "packages/converge-studio/next.config.mjs",
+    "packages/converge-studio/tsconfig.json"
+  ],
+  "blocked": false
+}

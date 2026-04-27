@@ -1,0 +1,7 @@
+---
+interface Props {
+  size?: string;
+}
+const { size = 'space-8' } = Astro.props;
+---
+<div class={`h-${size}`}></div>

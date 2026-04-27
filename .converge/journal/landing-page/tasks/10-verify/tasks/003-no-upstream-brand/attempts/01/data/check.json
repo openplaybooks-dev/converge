@@ -1,0 +1,10 @@
+{
+  "taskId": "10-verify/003-no-upstream-brand",
+  "checks": [
+    {
+      "id": "no-upstream-brand",
+      "description": "zero forked-theme brand strings in src/ or dist/",
+      "cmd": "node .converge/playbooks/landing-page/scripts/check-no-upstream-brand.mjs"
+    }
+  ]
+}

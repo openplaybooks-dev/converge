@@ -1,0 +1,10 @@
+{
+  "taskId": "03-rebind-ui/006-rebind-playbook-detail",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/studio/src/app/playbooks/[name]/page.tsx",
+    "packages/studio/src/components/playbook-detail-tabs.tsx"
+  ],
+  "blocked": false
+}

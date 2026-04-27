@@ -1,0 +1,41 @@
+---
+interface Props {
+  language?: 'bash' | 'typescript' | 'python' | 'yaml' | 'markdown';
+  filename?: string;
+  copyable?: boolean;
+}
+
+const { language = 'typescript', filename, copyable = true } = Astro.props;
+---
+
+<div class="rounded-lg border border-border overflow-hidden">
+  {filename && (
+    <div class="px-4 py-2 bg-bgElev border-b border-border text-textMuted text-sm">
+      {filename}
+    </div>
+  )}
+  <div class="relative">
+    <pre class="p-4 overflow-x-auto text-sm"><code class={`language-${language}`}><slot /></code></pre>
+    {copyable && (
+      <button
+        class="absolute top-2 right-2 px-2 py-1 text-xs bg-bgElev border border-border rounded text-textMuted hover:text-text transition-colors"
+        data-copy
+      >
+        Copy
+      </button>
+    )}
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('[data-copy]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const pre = btn.closest('pre');
+      if (pre) {
+        navigator.clipboard.writeText(pre.textContent ?? '');
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+      }
+    });
+  });
+</script>

@@ -248,7 +248,7 @@ export class Unit implements TaskDefinition {
       path: virtualPath ?? `<virtual:${taskDef.id}>`,
       taskDef,
       config: {
-        maxIterations: (taskDef.vars?.maxIterations as number) || 100,
+        maxIterations: 1_000_000,
       },
     });
   }

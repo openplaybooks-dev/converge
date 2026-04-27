@@ -1,0 +1,508 @@
+{
+  "iteration": 2,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-drop-mc-only/002-drop-domain-panels-missing-output-.converge/studio-state/dropped-domain-panels.txt",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-drop-mc-only/002-drop-domain-panels",
+            "severity": "high",
+            "description": "[04-drop-mc-only/002-drop-domain-panels] Task output not created: .converge/studio-state/dropped-domain-panels.txt",
+            "source": "unit",
+            "detected": "2026-04-26T10:02:04.521Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/04-drop-mc-only/tasks/002-drop-domain-panels",
+              "taskId": "04-drop-mc-only/002-drop-domain-panels",
+              "taskTitle": "Drop MC-domain panels (channels, cron-mgmt, memory, multi-gateway, etc.)",
+              "taskPrompt": "```bash\ncd packages/studio/src/components/panels\nrm -f channels-panel.tsx cron-management-panel.tsx \\\n      memory-browser-panel.tsx memory-graph.tsx \\\n      multi-gateway-panel.tsx gateway-config-panel.tsx gateway-control-panel.tsx \\\n      orchestration-bar.tsx pipeline-tab.tsx \\\n      skills-panel.tsx standup-panel.tsx \\\n      super-admin-panel.tsx user-management-panel.tsx \\\n      cost-tracker-panel.tsx integrations-panel.tsx webhook-panel.tsx \\\n      alert-rules-panel.tsx audit-trail-panel.tsx system-monitor-panel.tsx \\\n      local-agents-doc-panel.tsx office-panel.tsx documents-panel.tsx \\\n      notifications-panel.tsx nodes-panel.tsx security-audit-panel.tsx \\\n      session-details-panel.tsx settings-panel.tsx token-dashboard-panel.tsx \\\n      chat-page-panel.tsx debug-panel.tsx task-board-panel.tsx \\\n      github-sync-panel.tsx\ncd /Users/minh/Documents/converge\n\nmkdir -p .converge/studio-state\necho \"Dropped MC-domain panels at $(date -u +%Y-%m-%dT%H:%M:%SZ)\" > .converge/studio-state/dropped-domain-panels.txt\n```\n\n**Do NOT delete** widget primitives, log-viewer-panel, or activity-feed-panel — those are kept and rebound by Phase 03.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \".converge/studio-state/dropped-domain-panels.txt\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-drop-mc-only/002-drop-domain-panels-check-failed-domain-panels-gone",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-drop-mc-only/002-drop-domain-panels",
+            "severity": "high",
+            "description": "[04-drop-mc-only/002-drop-domain-panels] Check failed: A representative set of MC-domain panels are gone",
+            "source": "unit",
+            "detected": "2026-04-26T10:02:04.523Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "domain-panels-gone",
+              "checkCmd": "test ! -f packages/studio/src/components/panels/channels-panel.tsx && test ! -f packages/studio/src/components/panels/cron-management-panel.tsx && test ! -f packages/studio/src/components/panels/memory-browser-panel.tsx && test ! -f packages/studio/src/components/panels/multi-gateway-panel.tsx && test ! -f packages/studio/src/components/panels/gateway-config-panel.tsx && test ! -f packages/studio/src/components/panels/gateway-control-panel.tsx && test ! -f packages/studio/src/components/panels/orchestration-bar.tsx && test ! -f packages/studio/src/components/panels/pipeline-tab.tsx && test ! -f packages/studio/src/components/panels/skills-panel.tsx && test ! -f packages/studio/src/components/panels/standup-panel.tsx",
+              "checkDescription": "A representative set of MC-domain panels are gone",
+              "checkOutput": "Command failed: test ! -f packages/studio/src/components/panels/channels-panel.tsx && test ! -f packages/studio/src/components/panels/cron-management-panel.tsx && test ! -f packages/studio/src/components/panels/memory-browser-panel.tsx && test ! -f packages/studio/src/components/panels/multi-gateway-panel.tsx && test ! -f packages/studio/src/components/panels/gateway-config-panel.tsx && test ! -f packages/studio/src/components/panels/gateway-control-panel.tsx && test ! -f packages/studio/src/components/panels/orchestration-bar.tsx && test ! -f packages/studio/src/components/panels/pipeline-tab.tsx && test ! -f packages/studio/src/components/panels/skills-panel.tsx && test ! -f packages/studio/src/components/panels/standup-panel.tsx\n",
+              "checkExitCode": 1,
+              "taskPrompt": "```bash\ncd packages/studio/src/components/panels\nrm -f channels-panel.tsx cron-management-panel.tsx \\\n      memory-browser-panel.tsx memory-graph.tsx \\\n      multi-gateway-panel.tsx gateway-config-panel.tsx gateway-control-panel.tsx \\\n      orchestration-bar.tsx pipeline-tab.tsx \\\n      skills-panel.tsx standup-panel.tsx \\\n      super-admin-panel.tsx user-management-panel.tsx \\\n      cost-tracker-panel.tsx integrations-panel.tsx webhook-panel.tsx \\\n      alert-rules-panel.tsx audit-trail-panel.tsx system-monitor-panel.tsx \\\n      local-agents-doc-panel.tsx office-panel.tsx documents-panel.tsx \\\n      notifications-panel.tsx nodes-panel.tsx security-audit-panel.tsx \\\n      session-details-panel.tsx settings-panel.tsx token-dashboard-panel.tsx \\\n      chat-page-panel.tsx debug-panel.tsx task-board-panel.tsx \\\n      github-sync-panel.tsx\ncd /Users/minh/Documents/converge\n\nmkdir -p .converge/studio-state\necho \"Dropped MC-domain panels at $(date -u +%Y-%m-%dT%H:%M:%SZ)\" > .converge/studio-state/dropped-domain-panels.txt\n```\n\n**Do NOT delete** widget primitives, log-viewer-panel, or activity-feed-panel — those are kept and rebound by Phase 03.",
+              "taskId": "04-drop-mc-only/002-drop-domain-panels",
+              "taskTitle": "Drop MC-domain panels (channels, cron-mgmt, memory, multi-gateway, etc.)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/04-drop-mc-only/tasks/002-drop-domain-panels",
+              "factId": "check:domain-panels-gone"
+            }
+          },
+          {
+            "id": "04-drop-mc-only/002-drop-domain-panels-check-failed-marker-written",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-drop-mc-only/002-drop-domain-panels",
+            "severity": "high",
+            "description": "[04-drop-mc-only/002-drop-domain-panels] Check failed: A marker file recording the drop is written",
+            "source": "unit",
+            "detected": "2026-04-26T10:02:04.525Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "marker-written",
+              "checkCmd": "test -f .converge/studio-state/dropped-domain-panels.txt",
+              "checkDescription": "A marker file recording the drop is written",
+              "checkOutput": "Command failed: test -f .converge/studio-state/dropped-domain-panels.txt\n",
+              "checkExitCode": 1,
+              "taskPrompt": "```bash\ncd packages/studio/src/components/panels\nrm -f channels-panel.tsx cron-management-panel.tsx \\\n      memory-browser-panel.tsx memory-graph.tsx \\\n      multi-gateway-panel.tsx gateway-config-panel.tsx gateway-control-panel.tsx \\\n      orchestration-bar.tsx pipeline-tab.tsx \\\n      skills-panel.tsx standup-panel.tsx \\\n      super-admin-panel.tsx user-management-panel.tsx \\\n      cost-tracker-panel.tsx integrations-panel.tsx webhook-panel.tsx \\\n      alert-rules-panel.tsx audit-trail-panel.tsx system-monitor-panel.tsx \\\n      local-agents-doc-panel.tsx office-panel.tsx documents-panel.tsx \\\n      notifications-panel.tsx nodes-panel.tsx security-audit-panel.tsx \\\n      session-details-panel.tsx settings-panel.tsx token-dashboard-panel.tsx \\\n      chat-page-panel.tsx debug-panel.tsx task-board-panel.tsx \\\n      github-sync-panel.tsx\ncd /Users/minh/Documents/converge\n\nmkdir -p .converge/studio-state\necho \"Dropped MC-domain panels at $(date -u +%Y-%m-%dT%H:%M:%SZ)\" > .converge/studio-state/dropped-domain-panels.txt\n```\n\n**Do NOT delete** widget primitives, log-viewer-panel, or activity-feed-panel — those are kept and rebound by Phase 03.",
+              "taskId": "04-drop-mc-only/002-drop-domain-panels",
+              "taskTitle": "Drop MC-domain panels (channels, cron-mgmt, memory, multi-gateway, etc.)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/04-drop-mc-only/tasks/002-drop-domain-panels",
+              "factId": "check:marker-written"
+            }
+          }
+        ],
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 4
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-drop-mc-only/002-drop-domain-panels-missing-output-.converge/studio-state/dropped-domain-panels.txt",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-drop-mc-only/002-drop-domain-panels",
+            "severity": "high",
+            "description": "[04-drop-mc-only/002-drop-domain-panels] Task output not created: .converge/studio-state/dropped-domain-panels.txt",
+            "source": "unit",
+            "detected": "2026-04-26T10:03:19.583Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/04-drop-mc-only/tasks/002-drop-domain-panels",
+              "taskId": "04-drop-mc-only/002-drop-domain-panels",
+              "taskTitle": "Drop MC-domain panels (channels, cron-mgmt, memory, multi-gateway, etc.)",
+              "taskPrompt": "```bash\ncd packages/studio/src/components/panels\nrm -f channels-panel.tsx cron-management-panel.tsx \\\n      memory-browser-panel.tsx memory-graph.tsx \\\n      multi-gateway-panel.tsx gateway-config-panel.tsx gateway-control-panel.tsx \\\n      orchestration-bar.tsx pipeline-tab.tsx \\\n      skills-panel.tsx standup-panel.tsx \\\n      super-admin-panel.tsx user-management-panel.tsx \\\n      cost-tracker-panel.tsx integrations-panel.tsx webhook-panel.tsx \\\n      alert-rules-panel.tsx audit-trail-panel.tsx system-monitor-panel.tsx \\\n      local-agents-doc-panel.tsx office-panel.tsx documents-panel.tsx \\\n      notifications-panel.tsx nodes-panel.tsx security-audit-panel.tsx \\\n      session-details-panel.tsx settings-panel.tsx token-dashboard-panel.tsx \\\n      chat-page-panel.tsx debug-panel.tsx task-board-panel.tsx \\\n      github-sync-panel.tsx\ncd /Users/minh/Documents/converge\n\nmkdir -p .converge/studio-state\necho \"Dropped MC-domain panels at $(date -u +%Y-%m-%dT%H:%M:%SZ)\" > .converge/studio-state/dropped-domain-panels.txt\n```\n\n**Do NOT delete** widget primitives, log-viewer-panel, or activity-feed-panel — those are kept and rebound by Phase 03.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \".converge/studio-state/dropped-domain-panels.txt\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-drop-mc-only/002-drop-domain-panels-check-failed-marker-written",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-drop-mc-only/002-drop-domain-panels",
+            "severity": "high",
+            "description": "[04-drop-mc-only/002-drop-domain-panels] Check failed: A marker file recording the drop is written",
+            "source": "unit",
+            "detected": "2026-04-26T10:03:19.589Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "marker-written",
+              "checkCmd": "test -f .converge/studio-state/dropped-domain-panels.txt",
+              "checkDescription": "A marker file recording the drop is written",
+              "checkOutput": "Command failed: test -f .converge/studio-state/dropped-domain-panels.txt\n",
+              "checkExitCode": 1,
+              "taskPrompt": "```bash\ncd packages/studio/src/components/panels\nrm -f channels-panel.tsx cron-management-panel.tsx \\\n      memory-browser-panel.tsx memory-graph.tsx \\\n      multi-gateway-panel.tsx gateway-config-panel.tsx gateway-control-panel.tsx \\\n      orchestration-bar.tsx pipeline-tab.tsx \\\n      skills-panel.tsx standup-panel.tsx \\\n      super-admin-panel.tsx user-management-panel.tsx \\\n      cost-tracker-panel.tsx integrations-panel.tsx webhook-panel.tsx \\\n      alert-rules-panel.tsx audit-trail-panel.tsx system-monitor-panel.tsx \\\n      local-agents-doc-panel.tsx office-panel.tsx documents-panel.tsx \\\n      notifications-panel.tsx nodes-panel.tsx security-audit-panel.tsx \\\n      session-details-panel.tsx settings-panel.tsx token-dashboard-panel.tsx \\\n      chat-page-panel.tsx debug-panel.tsx task-board-panel.tsx \\\n      github-sync-panel.tsx\ncd /Users/minh/Documents/converge\n\nmkdir -p .converge/studio-state\necho \"Dropped MC-domain panels at $(date -u +%Y-%m-%dT%H:%M:%SZ)\" > .converge/studio-state/dropped-domain-panels.txt\n```\n\n**Do NOT delete** widget primitives, log-viewer-panel, or activity-feed-panel — those are kept and rebound by Phase 03.",
+              "taskId": "04-drop-mc-only/002-drop-domain-panels",
+              "taskTitle": "Drop MC-domain panels (channels, cron-mgmt, memory, multi-gateway, etc.)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/04-drop-mc-only/tasks/002-drop-domain-panels",
+              "factId": "check:marker-written"
+            }
+          }
+        ],
+        "durationMs": 10
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "run-strategy:task-run#18",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 75047
+      }
+    },
+    {
+      "id": "check-wbs-seeded#2",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist#2",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps#2",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-drop-mc-only/002-drop-domain-panels-missing-output-.converge/studio-state/dropped-domain-panels.txt",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-drop-mc-only/002-drop-domain-panels",
+            "severity": "high",
+            "description": "[04-drop-mc-only/002-drop-domain-panels] Task output not created: .converge/studio-state/dropped-domain-panels.txt",
+            "source": "unit",
+            "detected": "2026-04-26T10:03:19.597Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/04-drop-mc-only/tasks/002-drop-domain-panels",
+              "taskId": "04-drop-mc-only/002-drop-domain-panels",
+              "taskTitle": "Drop MC-domain panels (channels, cron-mgmt, memory, multi-gateway, etc.)",
+              "taskPrompt": "```bash\ncd packages/studio/src/components/panels\nrm -f channels-panel.tsx cron-management-panel.tsx \\\n      memory-browser-panel.tsx memory-graph.tsx \\\n      multi-gateway-panel.tsx gateway-config-panel.tsx gateway-control-panel.tsx \\\n      orchestration-bar.tsx pipeline-tab.tsx \\\n      skills-panel.tsx standup-panel.tsx \\\n      super-admin-panel.tsx user-management-panel.tsx \\\n      cost-tracker-panel.tsx integrations-panel.tsx webhook-panel.tsx \\\n      alert-rules-panel.tsx audit-trail-panel.tsx system-monitor-panel.tsx \\\n      local-agents-doc-panel.tsx office-panel.tsx documents-panel.tsx \\\n      notifications-panel.tsx nodes-panel.tsx security-audit-panel.tsx \\\n      session-details-panel.tsx settings-panel.tsx token-dashboard-panel.tsx \\\n      chat-page-panel.tsx debug-panel.tsx task-board-panel.tsx \\\n      github-sync-panel.tsx\ncd /Users/minh/Documents/converge\n\nmkdir -p .converge/studio-state\necho \"Dropped MC-domain panels at $(date -u +%Y-%m-%dT%H:%M:%SZ)\" > .converge/studio-state/dropped-domain-panels.txt\n```\n\n**Do NOT delete** widget primitives, log-viewer-panel, or activity-feed-panel — those are kept and rebound by Phase 03.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \".converge/studio-state/dropped-domain-panels.txt\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-drop-mc-only/002-drop-domain-panels-check-failed-marker-written",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-drop-mc-only/002-drop-domain-panels",
+            "severity": "high",
+            "description": "[04-drop-mc-only/002-drop-domain-panels] Check failed: A marker file recording the drop is written",
+            "source": "unit",
+            "detected": "2026-04-26T10:03:19.602Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "marker-written",
+              "checkCmd": "test -f .converge/studio-state/dropped-domain-panels.txt",
+              "checkDescription": "A marker file recording the drop is written",
+              "checkOutput": "Command failed: test -f .converge/studio-state/dropped-domain-panels.txt\n",
+              "checkExitCode": 1,
+              "taskPrompt": "```bash\ncd packages/studio/src/components/panels\nrm -f channels-panel.tsx cron-management-panel.tsx \\\n      memory-browser-panel.tsx memory-graph.tsx \\\n      multi-gateway-panel.tsx gateway-config-panel.tsx gateway-control-panel.tsx \\\n      orchestration-bar.tsx pipeline-tab.tsx \\\n      skills-panel.tsx standup-panel.tsx \\\n      super-admin-panel.tsx user-management-panel.tsx \\\n      cost-tracker-panel.tsx integrations-panel.tsx webhook-panel.tsx \\\n      alert-rules-panel.tsx audit-trail-panel.tsx system-monitor-panel.tsx \\\n      local-agents-doc-panel.tsx office-panel.tsx documents-panel.tsx \\\n      notifications-panel.tsx nodes-panel.tsx security-audit-panel.tsx \\\n      session-details-panel.tsx settings-panel.tsx token-dashboard-panel.tsx \\\n      chat-page-panel.tsx debug-panel.tsx task-board-panel.tsx \\\n      github-sync-panel.tsx\ncd /Users/minh/Documents/converge\n\nmkdir -p .converge/studio-state\necho \"Dropped MC-domain panels at $(date -u +%Y-%m-%dT%H:%M:%SZ)\" > .converge/studio-state/dropped-domain-panels.txt\n```\n\n**Do NOT delete** widget primitives, log-viewer-panel, or activity-feed-panel — those are kept and rebound by Phase 03.",
+              "taskId": "04-drop-mc-only/002-drop-domain-panels",
+              "taskTitle": "Drop MC-domain panels (channels, cron-mgmt, memory, multi-gateway, etc.)",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/04-drop-mc-only/tasks/002-drop-domain-panels",
+              "factId": "check:marker-written"
+            }
+          }
+        ],
+        "durationMs": 8
+      }
+    },
+    {
+      "id": "signal-done#2",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "repair-loop#2",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3
+      }
+    },
+    {
+      "id": "run-strategy:task-run#19",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 26833
+      }
+    },
+    {
+      "id": "verify#2",
+      "handler": "verify",
+      "status": "done",
+      "origin": "reactive",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 11
+      }
+    },
+    {
+      "id": "check-stall#2",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt#2",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "reactive",
+      "data": {
+        "priority": 40
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T10:02:04.517Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T10:02:04.518Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T10:02:04.525Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T10:02:04.525Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T10:02:04.530Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#18",
+      "iteration": 1,
+      "ts": "2026-04-26T10:03:19.578Z"
+    },
+    {
+      "from": "run-strategy:task-run#18",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T10:03:19.590Z"
+    },
+    {
+      "from": "verify",
+      "to": "check-stall",
+      "iteration": 1,
+      "ts": "2026-04-26T10:03:19.590Z"
+    },
+    {
+      "from": "check-stall",
+      "to": "advance-attempt",
+      "iteration": 1,
+      "ts": "2026-04-26T10:03:19.592Z"
+    },
+    {
+      "from": "advance-attempt",
+      "to": "check-wbs-seeded#2",
+      "iteration": 2,
+      "ts": "2026-04-26T10:03:19.592Z"
+    },
+    {
+      "from": "check-wbs-seeded#2",
+      "to": "check-outputs-exist#2",
+      "iteration": 2,
+      "ts": "2026-04-26T10:03:19.593Z"
+    },
+    {
+      "from": "check-outputs-exist#2",
+      "to": "detect-gaps#2",
+      "iteration": 2,
+      "ts": "2026-04-26T10:03:19.602Z"
+    },
+    {
+      "from": "detect-gaps#2",
+      "to": "repair-loop#2",
+      "iteration": 2,
+      "ts": "2026-04-26T10:03:19.606Z"
+    },
+    {
+      "from": "repair-loop#2",
+      "to": "run-strategy:task-run#19",
+      "iteration": 2,
+      "ts": "2026-04-26T10:03:46.439Z"
+    },
+    {
+      "from": "run-strategy:task-run#19",
+      "to": "verify#2",
+      "iteration": 2,
+      "ts": "2026-04-26T10:03:46.451Z"
+    }
+  ]
+}

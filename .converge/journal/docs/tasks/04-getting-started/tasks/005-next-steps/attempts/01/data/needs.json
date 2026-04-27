@@ -1,0 +1,17 @@
+{
+  "taskId": "04-getting-started/005-next-steps",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "docs/_ia.json",
+      "count": 1,
+      "samples": [
+        "docs/_ia.json"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/getting-started/next-steps.md"
+  ],
+  "blocked": false
+}

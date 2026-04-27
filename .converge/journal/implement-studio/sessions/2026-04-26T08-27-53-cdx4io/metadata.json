@@ -1,0 +1,23 @@
+{
+  "sessionId": "2026-04-26T08-27-53-cdx4io",
+  "projectName": "converge",
+  "startTime": "2026-04-26T08:27:53.253Z",
+  "status": "complete",
+  "config": {
+    "maxIterations": 250,
+    "maxAttemptsPerTask": 2
+  },
+  "environment": {
+    "nodeVersion": "v22.19.0",
+    "platform": "darwin"
+  },
+  "endTime": "2026-04-26T08:35:47.154Z",
+  "duration": 473901,
+  "outcomes": {
+    "totalIterations": 5,
+    "tasksCompleted": 4,
+    "tasksFailed": 0,
+    "gapsResolved": 0,
+    "convergenceAchieved": true
+  }
+}

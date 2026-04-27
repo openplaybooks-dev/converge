@@ -1,0 +1,10 @@
+{
+  "taskId": "10-verify/006-lighthouse-a11y",
+  "checks": [
+    {
+      "id": "lighthouse-a11y-95",
+      "description": "Lighthouse Accessibility >= 95 on /",
+      "cmd": "pkill -9 -f \"astro preview\" 2>/dev/null; sleep 1\ncd apps/landing && pnpm preview > /tmp/converge-landing-preview.log 2>&1 &\nPREVIEW_PID=$!\nsleep 6\nLH_URL=http://localhost:4321/ node /Users/minh/Documents/converge/.converge/playbooks/landing-page/scripts/lighthouse-gate.mjs accessibility 95\nRC=$?\npkill -9 -f \"astro preview\" 2>/dev/null\nexit $RC\n"
+    }
+  ]
+}

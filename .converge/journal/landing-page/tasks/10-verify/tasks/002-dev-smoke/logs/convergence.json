@@ -1,0 +1,200 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "10-verify/002-dev-smoke-check-failed-dev-server-curl-tagline",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "10-verify/002-dev-smoke",
+            "severity": "high",
+            "description": "[10-verify/002-dev-smoke] Check failed: dev server starts in <10s, GET / is 200, body contains the tagline",
+            "source": "unit",
+            "detected": "2026-04-26T23:18:46.216Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "dev-server-curl-tagline",
+              "checkCmd": "cd apps/landing && pnpm dev > /tmp/converge-landing-dev.log 2>&1 &\nDEV_PID=$!\nsleep 8\nRES=$(curl -s -o /tmp/converge-landing-curl.html -w \"%{http_code}\" http://localhost:4321/ || echo \"fail\")\nkill $DEV_PID 2>/dev/null\nwait $DEV_PID 2>/dev/null\ntest \"$RES\" = \"200\" && grep -q \"Define done. Converge gets there.\" /tmp/converge-landing-curl.html\n",
+              "checkDescription": "dev server starts in <10s, GET / is 200, body contains the tagline",
+              "checkOutput": "Command failed: cd apps/landing && pnpm dev > /tmp/converge-landing-dev.log 2>&1 &\nDEV_PID=$!\nsleep 8\nRES=$(curl -s -o /tmp/converge-landing-curl.html -w \"%{http_code}\" http://localhost:4321/ || echo \"fail\")\nkill $DEV_PID 2>/dev/null\nwait $DEV_PID 2>/dev/null\ntest \"$RES\" = \"200\" && grep -q \"Define done. Converge gets there.\" /tmp/converge-landing-curl.html\n\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Dev smoke\n\nSpawn the dev server, hit the home page, kill the server, verify the\nresponse. This catches a different class of bug than `build` —\nspecifically, runtime errors in SSR that don't surface in the static\nbuild.\n\n## Notes\n\n- Uses port 4321 (Astro default). If something else is using that port, the dev server will fail and the check will catch it.\n- `sleep 8` is deliberately generous — Astro cold-start can take 3-7s on slow filesystems.\n- The check kills the dev server even on failure (`kill $DEV_PID 2>/dev/null`) so it doesn't leak between attempts.\n\n## Banned\n\n- Skipping the kill step. A leaked dev server holds port 4321 and breaks the next attempt.\n- Using `--port 0` or random ports. Lighthouse + lychee + the deploy preview all assume 4321 in tooling defaults.",
+              "taskId": "10-verify/002-dev-smoke",
+              "taskTitle": "Dev server starts + curl / returns 200 + body contains canonical tagline",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/10-verify/tasks/002-dev-smoke",
+              "factId": "check:dev-server-curl-tagline"
+            }
+          }
+        ],
+        "durationMs": 8216
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 8158
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 8043
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#2",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 537985
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T23:18:37.999Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T23:18:38.000Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T23:18:46.216Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T23:18:46.217Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T23:18:54.375Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#2",
+      "iteration": 1,
+      "ts": "2026-04-26T23:27:52.360Z"
+    },
+    {
+      "from": "run-strategy:task-run#2",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T23:28:00.405Z"
+    }
+  ]
+}

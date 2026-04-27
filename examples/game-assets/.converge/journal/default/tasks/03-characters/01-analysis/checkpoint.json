@@ -2,15 +2,15 @@
   "type": "task",
   "id": "03-characters/01-analysis",
   "status": "complete",
-  "lastUpdated": "2026-04-23T00:57:46.937Z",
-  "createdAt": "2026-04-23T00:57:46.870Z",
+  "lastUpdated": "2026-04-26T17:24:05.002Z",
+  "createdAt": "2026-04-26T17:24:04.646Z",
   "attempts": [
     {
       "attempt": 1,
-      "startedAt": "2026-04-23T00:57:46.870Z",
-      "completedAt": "2026-04-23T00:57:46.935Z",
+      "startedAt": "2026-04-26T17:24:04.646Z",
+      "completedAt": "2026-04-26T17:24:04.982Z",
       "outcome": "success",
-      "durationMs": 65
+      "durationMs": 336
     }
   ],
   "currentAttempt": 1

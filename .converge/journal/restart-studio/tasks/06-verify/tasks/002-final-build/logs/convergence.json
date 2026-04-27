@@ -1,0 +1,222 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "06-verify/002-final-build-missing-output-.converge/studio-state/final-build.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-verify/002-final-build",
+            "severity": "high",
+            "description": "[06-verify/002-final-build] Task output not created: .converge/studio-state/final-build.json",
+            "source": "unit",
+            "detected": "2026-04-26T10:20:39.802Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/06-verify/tasks/002-final-build",
+              "taskId": "06-verify/002-final-build",
+              "taskTitle": "Full Next.js production build succeeds",
+              "taskPrompt": "```bash\nLOG=/tmp/studio-final-build.log\npnpm --filter @converge/studio build > \"$LOG\" 2>&1\nEXIT=$?\nmkdir -p .converge/studio-state\nnode -e \"\n  const fs = require('fs');\n  fs.writeFileSync('.converge/studio-state/final-build.json', JSON.stringify({\n    timestamp: new Date().toISOString(),\n    exitCode: $EXIT,\n    logTail: fs.readFileSync('$LOG','utf8').split('\\\\n').slice(-50).join('\\\\n')\n  }, null, 2));\n  process.exit($EXIT);\n\"\n```\n\nCommon failures (from prior session): catch-all sibling, missing 'use client', server/client hook mismatch. The log tail in the report shows what.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \".converge/studio-state/final-build.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "06-verify/002-final-build-check-failed-build-succeeded",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "06-verify/002-final-build",
+            "severity": "high",
+            "description": "[06-verify/002-final-build] Check failed: Build report shows exit 0",
+            "source": "unit",
+            "detected": "2026-04-26T10:20:39.805Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "build-succeeded",
+              "checkCmd": "test -f .converge/studio-state/final-build.json && node -e \"const r=JSON.parse(require('fs').readFileSync('.converge/studio-state/final-build.json','utf8'));process.exit(r.exitCode===0?0:1)\"",
+              "checkDescription": "Build report shows exit 0",
+              "checkOutput": "Command failed: test -f .converge/studio-state/final-build.json && node -e \"const r=JSON.parse(require('fs').readFileSync('.converge/studio-state/final-build.json','utf8'));process.exit(r.exitCode===0?0:1)\"\n",
+              "checkExitCode": 1,
+              "taskPrompt": "```bash\nLOG=/tmp/studio-final-build.log\npnpm --filter @converge/studio build > \"$LOG\" 2>&1\nEXIT=$?\nmkdir -p .converge/studio-state\nnode -e \"\n  const fs = require('fs');\n  fs.writeFileSync('.converge/studio-state/final-build.json', JSON.stringify({\n    timestamp: new Date().toISOString(),\n    exitCode: $EXIT,\n    logTail: fs.readFileSync('$LOG','utf8').split('\\\\n').slice(-50).join('\\\\n')\n  }, null, 2));\n  process.exit($EXIT);\n\"\n```\n\nCommon failures (from prior session): catch-all sibling, missing 'use client', server/client hook mismatch. The log tail in the report shows what.",
+              "taskId": "06-verify/002-final-build",
+              "taskTitle": "Full Next.js production build succeeds",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/06-verify/tasks/002-final-build",
+              "factId": "check:build-succeeded"
+            }
+          }
+        ],
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 77
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#28",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 84178
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T10:20:39.799Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T10:20:39.799Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T10:20:39.805Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T10:20:39.805Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T10:20:39.808Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#28",
+      "iteration": 1,
+      "ts": "2026-04-26T10:22:03.987Z"
+    },
+    {
+      "from": "run-strategy:task-run#28",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T10:22:04.065Z"
+    }
+  ]
+}

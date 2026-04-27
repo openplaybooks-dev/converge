@@ -1,0 +1,267 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "02-data-layer/004-tasks-rw-missing-output-packages/converge-studio/src/lib/converge-adapter/tasks.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-data-layer/004-tasks-rw",
+            "severity": "high",
+            "description": "[02-data-layer/004-tasks-rw] Task output not created: packages/converge-studio/src/lib/converge-adapter/tasks.ts",
+            "source": "unit",
+            "detected": "2026-04-26T02:18:12.751Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/02-data-layer/tasks/004-tasks-rw",
+              "taskId": "02-data-layer/004-tasks-rw",
+              "taskTitle": "Task markdown read/write + checkpoint read/reset",
+              "taskPrompt": "Implement task markdown read/write plus checkpoint operations.\n\n**`frontmatter.ts`** — thin wrapper over `gray-matter`:\n\n```ts\nimport matter from 'gray-matter';\n\nexport function parseFrontmatter(text: string): { data: Record<string, unknown>; content: string };\nexport function serializeFrontmatter(data: Record<string, unknown>, content: string): string;\n```\n\n**`tasks.ts`** — task discovery and editing:\n\n```ts\nimport * as fs from 'node:fs/promises';\nimport * as path from 'node:path';\nimport { playbookTasksDir, tasksJournalDir } from './paths.js';\nimport { parseFrontmatter, serializeFrontmatter } from './frontmatter.js';\n\nexport interface TaskSummary {\n  taskPath: string;          // relative to playbook tasks/, e.g. \"01-brand\" or \"01-brand/tasks/001-source-rename\"\n  title?: string;\n  hasChildren: boolean;      // true if it has a tasks/ subdir\n  blocking?: boolean;\n}\n\nexport interface Checkpoint { /* shape matches @converge/core CheckpointSchema */ }\n\nexport async function listTasks(playbook: string, root?: string): Promise<TaskSummary[]>;\nexport async function readTaskMd(playbook: string, taskPath: string, root?: string):\n  Promise<{ frontmatter: Record<string, unknown>; body: string }>;\nexport async function writeTaskMd(playbook: string, taskPath: string,\n  frontmatter: Record<string, unknown>, body: string, root?: string): Promise<void>;\nexport async function readCheckpoint(playbook: string, taskPath: string, root?: string): Promise<Checkpoint | null>;\nexport async function resetTask(playbook: string, taskPath: string, root?: string): Promise<void>;\n```\n\n**Implementation notes**:\n\n- `listTasks` — recursive walk of `<playbook>/tasks/`. Each directory containing a `TASK.md` is a task. Track whether it has a `tasks/` subdirectory (`hasChildren`).\n- `readTaskMd` — read `<playbook>/tasks/<taskPath>/TASK.md`, return `{ frontmatter, body }`.\n- `writeTaskMd` — atomic write of `<playbook>/tasks/<taskPath>/TASK.md` using `serializeFrontmatter`. **Document the lossy round-trip**: `gray-matter`'s YAML serializer reformats keys; comments and exact quoting are not preserved. Add a comment at the top of `frontmatter.ts` calling this out.\n- `readCheckpoint` — read `<journal>/<playbook>/tasks/<taskPath>/checkpoint.json`, JSON.parse, return null if missing.\n- `resetTask` — delete `<journal>/<playbook>/tasks/<taskPath>/checkpoint.json` (and any sibling state files like `attempts/` if present). Match what `packages/cli/src/commands-reset.ts` does — read that file before implementing to keep semantics consistent.\n\n**Reuse**: `CheckpointSchema` from `@converge/core/studio-api` for type-only import.\n\n**Manual smoke test**: with `CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge`, `readTaskMd('oss-standardize', '01-brand')` should return `frontmatter.title === 'Brand Consolidation'`.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/lib/converge-adapter/tasks.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-data-layer/004-tasks-rw-missing-output-packages/converge-studio/src/lib/converge-adapter/frontmatter.ts",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-data-layer/004-tasks-rw",
+            "severity": "high",
+            "description": "[02-data-layer/004-tasks-rw] Task output not created: packages/converge-studio/src/lib/converge-adapter/frontmatter.ts",
+            "source": "unit",
+            "detected": "2026-04-26T02:18:12.753Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/02-data-layer/tasks/004-tasks-rw",
+              "taskId": "02-data-layer/004-tasks-rw",
+              "taskTitle": "Task markdown read/write + checkpoint read/reset",
+              "taskPrompt": "Implement task markdown read/write plus checkpoint operations.\n\n**`frontmatter.ts`** — thin wrapper over `gray-matter`:\n\n```ts\nimport matter from 'gray-matter';\n\nexport function parseFrontmatter(text: string): { data: Record<string, unknown>; content: string };\nexport function serializeFrontmatter(data: Record<string, unknown>, content: string): string;\n```\n\n**`tasks.ts`** — task discovery and editing:\n\n```ts\nimport * as fs from 'node:fs/promises';\nimport * as path from 'node:path';\nimport { playbookTasksDir, tasksJournalDir } from './paths.js';\nimport { parseFrontmatter, serializeFrontmatter } from './frontmatter.js';\n\nexport interface TaskSummary {\n  taskPath: string;          // relative to playbook tasks/, e.g. \"01-brand\" or \"01-brand/tasks/001-source-rename\"\n  title?: string;\n  hasChildren: boolean;      // true if it has a tasks/ subdir\n  blocking?: boolean;\n}\n\nexport interface Checkpoint { /* shape matches @converge/core CheckpointSchema */ }\n\nexport async function listTasks(playbook: string, root?: string): Promise<TaskSummary[]>;\nexport async function readTaskMd(playbook: string, taskPath: string, root?: string):\n  Promise<{ frontmatter: Record<string, unknown>; body: string }>;\nexport async function writeTaskMd(playbook: string, taskPath: string,\n  frontmatter: Record<string, unknown>, body: string, root?: string): Promise<void>;\nexport async function readCheckpoint(playbook: string, taskPath: string, root?: string): Promise<Checkpoint | null>;\nexport async function resetTask(playbook: string, taskPath: string, root?: string): Promise<void>;\n```\n\n**Implementation notes**:\n\n- `listTasks` — recursive walk of `<playbook>/tasks/`. Each directory containing a `TASK.md` is a task. Track whether it has a `tasks/` subdirectory (`hasChildren`).\n- `readTaskMd` — read `<playbook>/tasks/<taskPath>/TASK.md`, return `{ frontmatter, body }`.\n- `writeTaskMd` — atomic write of `<playbook>/tasks/<taskPath>/TASK.md` using `serializeFrontmatter`. **Document the lossy round-trip**: `gray-matter`'s YAML serializer reformats keys; comments and exact quoting are not preserved. Add a comment at the top of `frontmatter.ts` calling this out.\n- `readCheckpoint` — read `<journal>/<playbook>/tasks/<taskPath>/checkpoint.json`, JSON.parse, return null if missing.\n- `resetTask` — delete `<journal>/<playbook>/tasks/<taskPath>/checkpoint.json` (and any sibling state files like `attempts/` if present). Match what `packages/cli/src/commands-reset.ts` does — read that file before implementing to keep semantics consistent.\n\n**Reuse**: `CheckpointSchema` from `@converge/core/studio-api` for type-only import.\n\n**Manual smoke test**: with `CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge`, `readTaskMd('oss-standardize', '01-brand')` should return `frontmatter.title === 'Brand Consolidation'`.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/lib/converge-adapter/frontmatter.ts\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-data-layer/004-tasks-rw-check-failed-tasks-module-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-data-layer/004-tasks-rw",
+            "severity": "high",
+            "description": "[02-data-layer/004-tasks-rw] Check failed: tasks.ts and frontmatter.ts exist",
+            "source": "unit",
+            "detected": "2026-04-26T02:18:12.755Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "tasks-module-exists",
+              "checkCmd": "test -f packages/converge-studio/src/lib/converge-adapter/tasks.ts && test -f packages/converge-studio/src/lib/converge-adapter/frontmatter.ts",
+              "checkDescription": "tasks.ts and frontmatter.ts exist",
+              "checkOutput": "Command failed: test -f packages/converge-studio/src/lib/converge-adapter/tasks.ts && test -f packages/converge-studio/src/lib/converge-adapter/frontmatter.ts\n",
+              "checkExitCode": 1,
+              "taskPrompt": "Implement task markdown read/write plus checkpoint operations.\n\n**`frontmatter.ts`** — thin wrapper over `gray-matter`:\n\n```ts\nimport matter from 'gray-matter';\n\nexport function parseFrontmatter(text: string): { data: Record<string, unknown>; content: string };\nexport function serializeFrontmatter(data: Record<string, unknown>, content: string): string;\n```\n\n**`tasks.ts`** — task discovery and editing:\n\n```ts\nimport * as fs from 'node:fs/promises';\nimport * as path from 'node:path';\nimport { playbookTasksDir, tasksJournalDir } from './paths.js';\nimport { parseFrontmatter, serializeFrontmatter } from './frontmatter.js';\n\nexport interface TaskSummary {\n  taskPath: string;          // relative to playbook tasks/, e.g. \"01-brand\" or \"01-brand/tasks/001-source-rename\"\n  title?: string;\n  hasChildren: boolean;      // true if it has a tasks/ subdir\n  blocking?: boolean;\n}\n\nexport interface Checkpoint { /* shape matches @converge/core CheckpointSchema */ }\n\nexport async function listTasks(playbook: string, root?: string): Promise<TaskSummary[]>;\nexport async function readTaskMd(playbook: string, taskPath: string, root?: string):\n  Promise<{ frontmatter: Record<string, unknown>; body: string }>;\nexport async function writeTaskMd(playbook: string, taskPath: string,\n  frontmatter: Record<string, unknown>, body: string, root?: string): Promise<void>;\nexport async function readCheckpoint(playbook: string, taskPath: string, root?: string): Promise<Checkpoint | null>;\nexport async function resetTask(playbook: string, taskPath: string, root?: string): Promise<void>;\n```\n\n**Implementation notes**:\n\n- `listTasks` — recursive walk of `<playbook>/tasks/`. Each directory containing a `TASK.md` is a task. Track whether it has a `tasks/` subdirectory (`hasChildren`).\n- `readTaskMd` — read `<playbook>/tasks/<taskPath>/TASK.md`, return `{ frontmatter, body }`.\n- `writeTaskMd` — atomic write of `<playbook>/tasks/<taskPath>/TASK.md` using `serializeFrontmatter`. **Document the lossy round-trip**: `gray-matter`'s YAML serializer reformats keys; comments and exact quoting are not preserved. Add a comment at the top of `frontmatter.ts` calling this out.\n- `readCheckpoint` — read `<journal>/<playbook>/tasks/<taskPath>/checkpoint.json`, JSON.parse, return null if missing.\n- `resetTask` — delete `<journal>/<playbook>/tasks/<taskPath>/checkpoint.json` (and any sibling state files like `attempts/` if present). Match what `packages/cli/src/commands-reset.ts` does — read that file before implementing to keep semantics consistent.\n\n**Reuse**: `CheckpointSchema` from `@converge/core/studio-api` for type-only import.\n\n**Manual smoke test**: with `CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge`, `readTaskMd('oss-standardize', '01-brand')` should return `frontmatter.title === 'Brand Consolidation'`.",
+              "taskId": "02-data-layer/004-tasks-rw",
+              "taskTitle": "Task markdown read/write + checkpoint read/reset",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/02-data-layer/tasks/004-tasks-rw",
+              "factId": "check:tasks-module-exists"
+            }
+          },
+          {
+            "id": "02-data-layer/004-tasks-rw-check-failed-read-real-task",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-data-layer/004-tasks-rw",
+            "severity": "high",
+            "description": "[02-data-layer/004-tasks-rw] Check failed: readTaskMd returns frontmatter for a known task",
+            "source": "unit",
+            "detected": "2026-04-26T02:18:16.822Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "read-real-task",
+              "checkCmd": "cd packages/converge-studio && CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge tsx -e \"import('./src/lib/converge-adapter/tasks.ts').then(async m=>{const t=await m.readTaskMd('oss-standardize','01-brand');process.exit(t.frontmatter.title==='Brand Consolidation'?0:1)}).catch(e=>{console.error(e);process.exit(1)})\"",
+              "checkDescription": "readTaskMd returns frontmatter for a known task",
+              "checkOutput": "Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/minh/Documents/converge/packages/converge-studio/src/lib/converge-adapter/tasks.ts' imported from /Users/minh/Documents/converge/packages/converge-studio/[eval]\n    at finalizeResolution (node:internal/modules/esm/resolve:274:11)\n    at moduleResolve (node:internal/modules/esm/resolve:859:10)\n    at defaultResolve (node:internal/modules/esm/resolve:983:11)\n    at nextResolve (node:internal/modules/esm/hooks:748:28)\n    at resolveBase (file:///opt/homebrew/lib/node_modules/tsx/dist/esm/index.mjs?1777169896769:2:3744)\n    at async resolveDirectory (file:///opt/homebrew/lib/node_modules/tsx/dist/esm/index.mjs?1777169896769:2:4237)\n    at async resolve (file:///opt/homebrew/lib/node_modules/tsx/dist/esm/index.mjs?1777169896769:2:5355)\n    at async nextResolve (node:internal/modules/esm/hooks:748:22)\n    at async Hooks.resolve (node:internal/modules/esm/hooks:240:24)\n    at async handleMessage (node:internal/modules/esm/worker:199:18) {\n  code: 'ERR_MODULE_NOT_FOUND',\n  url: 'file:///Users/minh/Documents/converge/packages/converge-studio/src/lib/converge-adapter/tasks.ts'\n}",
+              "checkExitCode": 1,
+              "taskPrompt": "Implement task markdown read/write plus checkpoint operations.\n\n**`frontmatter.ts`** — thin wrapper over `gray-matter`:\n\n```ts\nimport matter from 'gray-matter';\n\nexport function parseFrontmatter(text: string): { data: Record<string, unknown>; content: string };\nexport function serializeFrontmatter(data: Record<string, unknown>, content: string): string;\n```\n\n**`tasks.ts`** — task discovery and editing:\n\n```ts\nimport * as fs from 'node:fs/promises';\nimport * as path from 'node:path';\nimport { playbookTasksDir, tasksJournalDir } from './paths.js';\nimport { parseFrontmatter, serializeFrontmatter } from './frontmatter.js';\n\nexport interface TaskSummary {\n  taskPath: string;          // relative to playbook tasks/, e.g. \"01-brand\" or \"01-brand/tasks/001-source-rename\"\n  title?: string;\n  hasChildren: boolean;      // true if it has a tasks/ subdir\n  blocking?: boolean;\n}\n\nexport interface Checkpoint { /* shape matches @converge/core CheckpointSchema */ }\n\nexport async function listTasks(playbook: string, root?: string): Promise<TaskSummary[]>;\nexport async function readTaskMd(playbook: string, taskPath: string, root?: string):\n  Promise<{ frontmatter: Record<string, unknown>; body: string }>;\nexport async function writeTaskMd(playbook: string, taskPath: string,\n  frontmatter: Record<string, unknown>, body: string, root?: string): Promise<void>;\nexport async function readCheckpoint(playbook: string, taskPath: string, root?: string): Promise<Checkpoint | null>;\nexport async function resetTask(playbook: string, taskPath: string, root?: string): Promise<void>;\n```\n\n**Implementation notes**:\n\n- `listTasks` — recursive walk of `<playbook>/tasks/`. Each directory containing a `TASK.md` is a task. Track whether it has a `tasks/` subdirectory (`hasChildren`).\n- `readTaskMd` — read `<playbook>/tasks/<taskPath>/TASK.md`, return `{ frontmatter, body }`.\n- `writeTaskMd` — atomic write of `<playbook>/tasks/<taskPath>/TASK.md` using `serializeFrontmatter`. **Document the lossy round-trip**: `gray-matter`'s YAML serializer reformats keys; comments and exact quoting are not preserved. Add a comment at the top of `frontmatter.ts` calling this out.\n- `readCheckpoint` — read `<journal>/<playbook>/tasks/<taskPath>/checkpoint.json`, JSON.parse, return null if missing.\n- `resetTask` — delete `<journal>/<playbook>/tasks/<taskPath>/checkpoint.json` (and any sibling state files like `attempts/` if present). Match what `packages/cli/src/commands-reset.ts` does — read that file before implementing to keep semantics consistent.\n\n**Reuse**: `CheckpointSchema` from `@converge/core/studio-api` for type-only import.\n\n**Manual smoke test**: with `CONVERGE_PROJECT_ROOT=/Users/minh/Documents/converge`, `readTaskMd('oss-standardize', '01-brand')` should return `frontmatter.title === 'Brand Consolidation'`.",
+              "taskId": "02-data-layer/004-tasks-rw",
+              "taskTitle": "Task markdown read/write + checkpoint read/reset",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/02-data-layer/tasks/004-tasks-rw",
+              "factId": "check:read-real-task"
+            }
+          }
+        ],
+        "durationMs": 4074
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 4090
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 4032
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 184376
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T02:18:12.747Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T02:18:12.748Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T02:18:16.822Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T02:18:16.823Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T02:18:20.914Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-04-26T02:21:25.291Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T02:21:29.323Z"
+    }
+  ]
+}

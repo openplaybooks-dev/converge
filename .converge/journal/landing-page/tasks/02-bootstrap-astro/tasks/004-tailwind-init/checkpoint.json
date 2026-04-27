@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "02-bootstrap-astro/004-tailwind-init",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T17:34:42.001Z",
+  "createdAt": "2026-04-26T17:33:54.302Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T17:33:54.302Z",
+      "completedAt": "2026-04-26T17:34:41.976Z",
+      "outcome": "success",
+      "durationMs": 47674
+    }
+  ],
+  "currentAttempt": 1
+}

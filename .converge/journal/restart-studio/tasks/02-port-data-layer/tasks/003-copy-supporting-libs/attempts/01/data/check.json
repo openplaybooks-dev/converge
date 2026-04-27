@@ -1,0 +1,10 @@
+{
+  "taskId": "02-port-data-layer/003-copy-supporting-libs",
+  "checks": [
+    {
+      "id": "supporting-libs-present",
+      "description": "Required supporting libs exist",
+      "cmd": "for f in use-converge-events use-view-mode watcher-singleton schedule-parser run-supervisor ring-buffer session-correlator; do test -f packages/studio/src/lib/$f.ts || exit 1; done"
+    }
+  ]
+}

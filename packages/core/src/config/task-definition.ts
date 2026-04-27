@@ -374,7 +374,7 @@ export type FactsApiFn =
  *   .title('Converge App')
  *   .inputs([])
  *   .outputs(['.converge/epics/**\/*.ts'])
- *   .vars({ maxIterations: 100, projectRoot: process.cwd() })
+ *   .vars({ projectRoot: process.cwd() })
  *   .build()
  * ```
  */
@@ -382,8 +382,6 @@ export interface ProjectDefinition extends TaskDefinition {
   vars?: {
     /** Project root directory */
     projectRoot?: string;
-    /** Max convergence iterations */
-    maxIterations?: number;
     /** Project-wide configuration */
     config?: Record<string, unknown>;
     [key: string]: unknown;
@@ -428,8 +426,6 @@ export interface TaskLevelDefinition extends TaskDefinition {
     agent?: string;
     /** Prompt for AI (if leaf task) */
     prompt?: string;
-    /** Max iterations for this task */
-    maxIterations?: number;
     /** Inline checks (run after outputs generated) */
     inlineChecks?: Array<{
       id: string;
@@ -790,12 +786,6 @@ export function template(
 export interface WbsSpawnOptions {
   /** User-visible label for this spawn in the journal */
   label?: string;
-  /**
-   * Override the auto-derived write path (relative to project root).
-   * By default the task is written to `tasks/{taskId}.ts` under the
-   * parent task's folder.
-   */
-  writeToPath?: string;
   /** Timeout in ms (default 600_000) */
   timeoutMs?: number;
   // ── Fields required when target is a skill name string ──────────────
@@ -852,14 +842,23 @@ export interface WbsContext {
    *
    * @example
    * ```ts
-   * const plan = await ctx.ai.ask('Read plan.md and list assets').asJson(schema);
+   * const plan = await ctx.ai.askJson(
+   *   'Read plan.md and list assets',
+   *   schema,
+   * );
    * for (const asset of plan.assets) {
    *   await ctx.spawn(taskDef().id(asset.id).prompt(asset.prompt).build());
    * }
    * ```
    */
   ai: {
+    /** Yes/no question — resolves to a boolean. */
     ask(question: string): AskResult;
+    /**
+     * Ask the AI a question and get a typed JSON response validated
+     * against a Zod schema. Cleaner shorthand for `ask(q).asJson(schema)`.
+     */
+    askJson<T>(question: string, schema: import("zod").ZodType<T>): Promise<T>;
   };
   /**
    * Plan utilities for accessing task artifacts
@@ -878,9 +877,11 @@ export interface WbsContext {
    */
   artifact: ArtifactAPI;
   /**
-   * Spawn a child task.
-   * The `writeToPath` is auto-derived as `tasks/{taskId}.ts` relative to the
-   * parent task's folder unless overridden via opts.writeToPath.
+   * Spawn a child task. The framework writes the child's TASK.md into the
+   * journal, mirroring the playbook's nesting at
+   * `.converge/journal/<playbook>/tasks/<parent>/tasks/<child>/TASK.md`.
+   * The write path is not caller-controlled — the playbook source dir is
+   * the immutable blueprint, the journal holds all execution state.
    */
   spawn(target: WbsSpawnTarget, opts?: WbsSpawnOptions): Promise<void>;
   /**

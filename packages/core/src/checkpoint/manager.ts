@@ -5,7 +5,8 @@
  * Prevents re-execution of completed work.
  */
 
-import { writeFile, readFile, mkdir } from "fs/promises";
+import { readFile, mkdir } from "fs/promises";
+import { atomicWriteFile, atomicWriteFileSync } from "./atomic-write.ts";
 import { existsSync } from "fs";
 import path from "path";
 import { FilesystemTaskStatus } from "./filesystem-status.ts";
@@ -145,11 +146,10 @@ export class CheckpointManager {
       await mkdir(journalDir, { recursive: true });
     }
 
-    // Write checkpoint
-    await writeFile(
+    // Write checkpoint atomically — readers never see a partial JSON.
+    await atomicWriteFile(
       this.checkpointFile,
       JSON.stringify(checkpoint, null, 2),
-      "utf-8",
     );
   }
 
@@ -573,7 +573,7 @@ export class CheckpointManager {
     const allPaths = this.fsStatus.getAllCheckpointPaths(epicId, taskId);
     let updated = 0;
     if (allPaths.length > 0) {
-      const { readFileSync, writeFileSync } = await import("fs");
+      const { readFileSync } = await import("fs");
       for (const ckptPath of allPaths) {
         try {
           const checkpoint = JSON.parse(
@@ -582,10 +582,9 @@ export class CheckpointManager {
           if (checkpoint.status === "failed") {
             checkpoint.status = "complete";
             checkpoint.lastUpdated = new Date().toISOString();
-            writeFileSync(
+            atomicWriteFileSync(
               ckptPath,
               JSON.stringify(checkpoint, null, 2),
-              "utf-8",
             );
             updated++;
           }

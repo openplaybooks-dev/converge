@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "04-build-sections/006-quickstart",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T19:07:39.679Z",
+  "createdAt": "2026-04-26T19:06:20.379Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T19:06:20.379Z",
+      "completedAt": "2026-04-26T19:07:39.625Z",
+      "outcome": "success",
+      "durationMs": 79246
+    }
+  ],
+  "currentAttempt": 1
+}

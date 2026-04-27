@@ -23,6 +23,10 @@ function getEventWriter(): TaskEventWriter | null {
 /**
  * Universal run method - same for all levels.
  * Convergence loop: navigator picks one action at a time until done/bail/max-actions.
+ *
+ * Returns true on success. Returns false on failure — and stamps a global
+ * marker if the failure was specifically a repeat-failure-stall (so the
+ * outer scheduler can short-circuit further attempts on the same task).
  */
 export async function run(unit: Unit): Promise<boolean> {
   const eventWriter = getEventWriter();
@@ -64,6 +68,34 @@ export async function run(unit: Unit): Promise<boolean> {
     taskContext,
     maxActions,
   });
+
+  // Surface terminal-stall to the outer scheduler via a global marker
+  // (we can't change the boolean return type without touching every caller).
+  // The scheduler reads this immediately after `run()` returns and clears it.
+  //
+  // Prefer the navigator's explicit `terminal` flag, fall back to a reason-
+  // string regex for older bail sites that haven't been migrated yet.
+  const isTerminalStall =
+    !result.success &&
+    (result.terminal === true ||
+      (typeof result.reason === "string" &&
+        /Repeat-failure detector|stalled — repeated failures/i.test(
+          result.reason,
+        )));
+  if (isTerminalStall) {
+    // Stamp BOTH the unit's own id and the journal task id (epic/path) so
+    // the outer scheduler can match either form. Sub-task units sometimes
+    // load with a non-canonical id (the materialized TASK.md doesn't carry
+    // the original frontmatter id) — without both forms the marker silently
+    // misses and the scheduler retries the failed task instead of skipping.
+    (global as any).__CONVERGE_LAST_BAIL__ = {
+      taskId: unit.id,
+      journalTaskId: epicId ? `${epicId}/${unit.id}` : unit.id,
+      kind: "repeat-failure-stall",
+      reason: result.reason,
+      at: new Date().toISOString(),
+    };
+  }
 
   return result.success;
 }

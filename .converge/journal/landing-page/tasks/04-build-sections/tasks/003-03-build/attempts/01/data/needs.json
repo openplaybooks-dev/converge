@@ -1,0 +1,38 @@
+{
+  "taskId": "04-build-sections/003-03-build",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "apps/landing/.content/sections/problem-solution/SPEC.md",
+      "count": 1,
+      "samples": [
+        "apps/landing/.content/sections/problem-solution/SPEC.md"
+      ]
+    },
+    {
+      "pattern": "apps/landing/.content/sections/problem-solution/DESIGN.md",
+      "count": 1,
+      "samples": [
+        "apps/landing/.content/sections/problem-solution/DESIGN.md"
+      ]
+    },
+    {
+      "pattern": "README.md",
+      "count": 1,
+      "samples": [
+        "README.md"
+      ]
+    },
+    {
+      "pattern": "docs/concepts",
+      "count": 1,
+      "samples": [
+        "docs/concepts"
+      ]
+    }
+  ],
+  "outputs": [
+    "apps/landing/src/components/sections/ProblemSolution.astro"
+  ],
+  "blocked": false
+}

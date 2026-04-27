@@ -1,0 +1,30 @@
+{
+  "taskId": "03-design-system/002-typography",
+  "checks": [
+    {
+      "id": "fontsource-inter-installed",
+      "description": "Inter font package is installed",
+      "cmd": "test -f apps/landing/package.json && node -e \"const p=require('./apps/landing/package.json');const all={...p.dependencies,...p.devDependencies};process.exit(all['@fontsource-variable/inter']||all['@fontsource/inter']?0:1)\""
+    },
+    {
+      "id": "fontsource-jetbrains-installed",
+      "description": "JetBrains Mono font package is installed",
+      "cmd": "test -f apps/landing/package.json && node -e \"const p=require('./apps/landing/package.json');const all={...p.dependencies,...p.devDependencies};process.exit(all['@fontsource-variable/jetbrains-mono']||all['@fontsource/jetbrains-mono']?0:1)\""
+    },
+    {
+      "id": "typography-css-exists",
+      "description": "src/styles/typography.css exists",
+      "cmd": "test -f apps/landing/src/styles/typography.css"
+    },
+    {
+      "id": "typography-imports-fonts",
+      "description": "typography.css imports the font packages",
+      "cmd": "test -f apps/landing/src/styles/typography.css && grep -qE 'fontsource|@import.*inter' apps/landing/src/styles/typography.css"
+    },
+    {
+      "id": "globals-imports-typography",
+      "description": "globals.css imports typography.css",
+      "cmd": "test -f apps/landing/src/styles/globals.css && grep -q 'typography.css' apps/landing/src/styles/globals.css"
+    }
+  ]
+}

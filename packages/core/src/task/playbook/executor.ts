@@ -235,7 +235,6 @@ export function mergeRunConfig(
 
   return {
     mode: overrides.mode ?? base.mode ?? "oneoff",
-    maxIterations: overrides.maxIterations ?? base.maxIterations,
     maxTaskAttempts: overrides.maxTaskAttempts ?? base.maxTaskAttempts,
     maxDuration: overrides.maxDuration ?? base.maxDuration,
     resume: overrides.resume ?? base.resume,

@@ -1,0 +1,25 @@
+{
+  "type": "task",
+  "id": "08-ship",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T08:48:00.038Z",
+  "createdAt": "2026-04-26T06:32:54.051Z",
+  "progress": {
+    "totalChildren": 10,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-cloudflare-config",
+      "001-cloudflare-config",
+      "002-preview-build-verify",
+      "002-preview-build-verify",
+      "003-link-check",
+      "003-link-check",
+      "004-analytics",
+      "004-analytics",
+      "005-launch-checklist",
+      "005-launch-checklist"
+    ],
+    "lastProgressUpdate": "2026-04-26T08:48:00.035Z"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "taskId": "08-generate-assets/002-og-default",
+  "checks": [
+    {
+      "id": "og-default-exists",
+      "description": "og/default.png exists",
+      "cmd": "test -f apps/landing/public/og/default.png"
+    },
+    {
+      "id": "og-default-correct-size",
+      "description": "og/default.png is 1200×630",
+      "cmd": "test -f apps/landing/public/og/default.png && file apps/landing/public/og/default.png | grep -qE '1200 x 630|1200x630'"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "04-getting-started/003-your-first-playbook",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T09:47:34.545Z",
+  "createdAt": "2026-04-26T07:41:09.001Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T07:41:09.001Z",
+      "completedAt": "2026-04-26T07:41:56.947Z",
+      "outcome": "success",
+      "durationMs": 47946
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-26T09:47:34.208Z",
+      "completedAt": "2026-04-26T09:47:34.543Z",
+      "outcome": "success",
+      "durationMs": 335
+    }
+  ],
+  "currentAttempt": 2
+}

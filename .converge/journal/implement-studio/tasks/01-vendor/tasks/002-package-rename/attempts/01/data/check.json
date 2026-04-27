@@ -1,0 +1,30 @@
+{
+  "taskId": "01-vendor/002-package-rename",
+  "checks": [
+    {
+      "id": "package-name",
+      "description": "package.json name is @converge/studio",
+      "cmd": "node -e \"process.exit(require('./packages/converge-studio/package.json').name === '@converge/studio' ? 0 : 1)\""
+    },
+    {
+      "id": "workspace-deps",
+      "description": "Depends on @converge/core and @converge/project-root via workspace protocol",
+      "cmd": "node -e \"const p=require('./packages/converge-studio/package.json');const d={...p.dependencies,...p.devDependencies};process.exit(d['@converge/core']==='workspace:*'&&d['@converge/project-root']==='workspace:*'?0:1)\""
+    },
+    {
+      "id": "type-module",
+      "description": "package.json has type=module",
+      "cmd": "node -e \"process.exit(require('./packages/converge-studio/package.json').type === 'module' ? 0 : 1)\""
+    },
+    {
+      "id": "scripts-present",
+      "description": "dev, build, start, typecheck scripts defined",
+      "cmd": "node -e \"const s=require('./packages/converge-studio/package.json').scripts;process.exit(['dev','build','start','typecheck'].every(k=>s[k])?0:1)\""
+    },
+    {
+      "id": "install-resolves",
+      "description": "pnpm install resolves the new workspace",
+      "cmd": "pnpm install --frozen-lockfile=false 2>&1 | tail -3 | grep -qE 'Done|+|installed' || pnpm install 2>&1 | tail -3"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "taskId": "04-ui/012-cron-scheduler",
+  "checks": [
+    {
+      "id": "schedule-api-exists",
+      "description": "Schedule API route exists (GET + PUT)",
+      "cmd": "test -f 'packages/converge-studio/src/app/api/playbooks/[name]/schedule/route.ts'"
+    },
+    {
+      "id": "schedule-form-exists",
+      "description": "ScheduleForm component exists",
+      "cmd": "test -f packages/converge-studio/src/components/schedule-form.tsx"
+    },
+    {
+      "id": "adapter-helper-exists",
+      "description": "schedule helper is in the adapter, not duplicated",
+      "cmd": "test -f packages/converge-studio/src/lib/converge-adapter/schedule.ts && grep -q 'readSchedule\\|writeSchedule' packages/converge-studio/src/lib/converge-adapter/schedule.ts"
+    },
+    {
+      "id": "typecheck-passes",
+      "description": "typecheck-passes",
+      "cmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    }
+  ]
+}

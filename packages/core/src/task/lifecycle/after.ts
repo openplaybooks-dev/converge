@@ -9,7 +9,7 @@
 import { stat, writeFile, mkdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { existsSync } from "node:fs";
-import { exec } from "node:child_process";
+import { exec, spawn } from "node:child_process";
 import { promisify } from "node:util";
 import { getTaskAfterDir } from "../../journal/structure.ts";
 import { logTaskEvent } from "../../journal/writer.ts";
@@ -18,6 +18,98 @@ import type { BacklogDef, BacklogItem } from "../../backlog/types.ts";
 import { runBacklogs } from "../../backlog/backlog-runner.ts";
 
 const execAsync = promisify(exec);
+
+/**
+ * Run a check command in its own process group so background processes it
+ * spawns (e.g. `pnpm preview &`) get killed along with it. Without this,
+ * checks that spawn long-running children leak orphans across attempts —
+ * the orphans hold ports/files and cause subsequent attempts to fail.
+ *
+ * On Unix-like systems uses `detached: true` + negative-PID kill on the
+ * group. On Windows falls back to plain exec (no process-group concept).
+ */
+async function execInProcessGroup(
+  cmd: string,
+  opts: { cwd: string; timeoutMs: number; shell: string },
+): Promise<{ stdout: string; stderr: string; exitCode: number }> {
+  // Windows: exec semantics are different and there's no PG model. Fall
+  // back to the legacy exec path. Most check leaks happen on POSIX dev
+  // machines where pnpm + node forms a parent/child pair.
+  if (process.platform === "win32") {
+    try {
+      const { stdout, stderr } = await execAsync(cmd, {
+        cwd: opts.cwd,
+        timeout: opts.timeoutMs,
+        shell: opts.shell,
+      });
+      return { stdout, stderr, exitCode: 0 };
+    } catch (err: any) {
+      return {
+        stdout: err.stdout ?? "",
+        stderr: err.stderr ?? "",
+        exitCode: typeof err.code === "number" ? err.code : 1,
+      };
+    }
+  }
+
+  return new Promise((resolve) => {
+    const child = spawn(opts.shell, ["-c", cmd], {
+      cwd: opts.cwd,
+      detached: true, // become process-group leader
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    let stdout = "";
+    let stderr = "";
+    let timedOut = false;
+    let settled = false;
+
+    child.stdout?.on("data", (chunk) => {
+      stdout += chunk.toString();
+    });
+    child.stderr?.on("data", (chunk) => {
+      stderr += chunk.toString();
+    });
+
+    const killGroup = (signal: NodeJS.Signals = "SIGTERM") => {
+      if (typeof child.pid === "number") {
+        try {
+          // Negative PID → kill entire process group.
+          process.kill(-child.pid, signal);
+        } catch {
+          // Group already gone or never spawned. Best-effort.
+        }
+      }
+    };
+
+    const timer = setTimeout(() => {
+      timedOut = true;
+      killGroup("SIGTERM");
+      // SIGKILL backstop in case child traps SIGTERM and stalls.
+      setTimeout(() => killGroup("SIGKILL"), 1500).unref();
+    }, opts.timeoutMs);
+    timer.unref();
+
+    const finalize = (exitCode: number) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      // Belt-and-braces: kill any group survivors (background `&` jobs).
+      killGroup("SIGTERM");
+      setTimeout(() => killGroup("SIGKILL"), 250).unref();
+      if (timedOut) {
+        stderr += `\n[converge] check timed out after ${opts.timeoutMs}ms; process group killed`;
+      }
+      resolve({ stdout, stderr, exitCode });
+    };
+
+    child.on("error", (err) => {
+      stderr += `\n[converge] spawn error: ${err.message}`;
+      finalize(1);
+    });
+    child.on("close", (code) => finalize(code ?? 1));
+  });
+}
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                               */
@@ -128,8 +220,9 @@ export async function runAfterPhase(
   );
 
   const checkResults: CheckRunResult[] = [];
+  const declaredOutputs = meta.outputs ?? [];
   for (const check of checks) {
-    const result = await runCheck(projectDir, check);
+    const result = await runCheck(projectDir, check, declaredOutputs);
     checkResults.push(result);
     if (result.passed) {
       await logTaskEvent(
@@ -255,45 +348,85 @@ export async function readLastOutcome(
 /*  Helpers                                                             */
 /* ------------------------------------------------------------------ */
 
+/**
+ * If a check references any declared output AND none of those outputs exist
+ * yet, the check is doomed to fail for "outputs not produced" reasons rather
+ * than "predicate violated" reasons. Treat as soft-fail (passed=false but
+ * with a clear "prerequisite missing" marker) rather than running the
+ * doomed shell command.
+ *
+ * Heuristic: look for any declared output path appearing as a substring of
+ * the check command. If at least one such path is referenced and *all*
+ * referenced ones are absent, skip. If at least one referenced one exists
+ * (e.g. partial outputs), run the check normally.
+ */
+function prerequisitesMet(
+  projectDir: string,
+  cmd: string,
+  declaredOutputs: string[],
+): { ready: true } | { ready: false; missing: string[] } {
+  if (declaredOutputs.length === 0) return { ready: true };
+
+  const referenced = declaredOutputs.filter((out) => cmd.includes(out));
+  if (referenced.length === 0) return { ready: true };
+
+  const missing: string[] = [];
+  for (const rel of referenced) {
+    const abs = join(projectDir, rel);
+    if (!existsSync(abs)) missing.push(rel);
+  }
+
+  // If every referenced output is missing, skip. If even one exists, run
+  // the check — partial outputs are a real situation the predicate may want
+  // to verify.
+  if (missing.length === referenced.length) return { ready: false, missing };
+  return { ready: true };
+}
+
 async function runCheck(
   projectDir: string,
   check: CheckDef,
+  declaredOutputs: string[] = [],
 ): Promise<CheckRunResult> {
   const start = Date.now();
-  try {
-    const shell = process.platform === "win32" ? "bash" : "/bin/bash";
-    const { stdout, stderr } = await execAsync(check.cmd, {
-      cwd: projectDir,
-      timeout: 30_000,
-      shell,
-    });
-    return {
-      id: check.id,
-      description: check.description,
-      cmd: check.cmd,
-      passed: true,
-      exitCode: 0,
-      stdout: stdout.trim(),
-      stderr: stderr.trim(),
-      durationMs: Date.now() - start,
-    };
-  } catch (err: unknown) {
-    const e = err as {
-      stdout?: string;
-      stderr?: string;
-      code?: number | string;
-    };
+
+  // Gate: skip checks whose declared-output prerequisites haven't been
+  // produced yet. Reduces noise during early phases of long playbooks.
+  const prereq = prerequisitesMet(projectDir, check.cmd, declaredOutputs);
+  if (!prereq.ready) {
     return {
       id: check.id,
       description: check.description,
       cmd: check.cmd,
       passed: false,
-      exitCode: e.code ?? 1,
-      stdout: (e.stdout ?? "").trim(),
-      stderr: (e.stderr ?? "").trim(),
+      exitCode: "skipped",
+      stdout: "",
+      stderr: `prerequisite missing: ${prereq.missing.join(", ")} (declared output not yet produced)`,
       durationMs: Date.now() - start,
     };
   }
+
+  const shell = process.platform === "win32" ? "bash" : "/bin/bash";
+  // Use process-group exec so background processes (e.g. `pnpm preview &`
+  // inside lighthouse checks) get killed when the check completes. Without
+  // this, orphans hold ports across attempts and cause subsequent runs to
+  // fail with stale-state false-negatives.
+  const result = await execInProcessGroup(check.cmd, {
+    cwd: projectDir,
+    timeoutMs: 60_000, // bumped from 30s — lighthouse + preview boot can need more
+    shell,
+  });
+
+  return {
+    id: check.id,
+    description: check.description,
+    cmd: check.cmd,
+    passed: result.exitCode === 0,
+    exitCode: result.exitCode,
+    stdout: result.stdout.trim(),
+    stderr: result.stderr.trim(),
+    durationMs: Date.now() - start,
+  };
 }
 
 async function computeDiff(

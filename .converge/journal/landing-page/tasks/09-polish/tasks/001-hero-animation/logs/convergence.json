@@ -1,0 +1,275 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "09-polish/001-hero-animation-missing-output-apps/landing/src/components/animations/ConvergenceJourney.astro",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-polish/001-hero-animation",
+            "severity": "high",
+            "description": "[09-polish/001-hero-animation] Task output not created: apps/landing/src/components/animations/ConvergenceJourney.astro",
+            "source": "unit",
+            "detected": "2026-04-26T20:20:36.015Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/09-polish/tasks/001-hero-animation",
+              "taskId": "09-polish/001-hero-animation",
+              "taskTitle": "ConvergenceJourney.astro — animated SVG hero hallmark",
+              "taskPrompt": "# ConvergenceJourney\n\nThe visual hallmark. SVG animation showing a few scattered dots\n\"converging\" on a target — visualizes the framework's name. CSS-only\n(no JS) so it doesn't cost Lighthouse perf or interactivity.\n\n## Composition\n\n- ViewBox 400×160 (matches the Hero section's intended aspect)\n- 3-5 starting dots in `text-text-dim` color, scattered on the left\n- Curved paths from each dot, animating their stroke-dashoffset to \"draw\" toward a center target on the right\n- Target dot in `text-indigo`, slightly larger\n- Animation loops every ~6 seconds\n- `prefers-reduced-motion: reduce` → static SVG, no animation\n\n## File\n\n```astro\n---\n// apps/landing/src/components/animations/ConvergenceJourney.astro\n---\n\n<svg viewBox=\"0 0 400 160\" class=\"convergence-journey w-full max-w-md mx-auto\" aria-hidden=\"true\" role=\"presentation\">\n  <defs>\n    <radialGradient id=\"targetGlow\">\n      <stop offset=\"0%\" stop-color=\"#6366F1\" stop-opacity=\"0.6\" />\n      <stop offset=\"100%\" stop-color=\"#6366F1\" stop-opacity=\"0\" />\n    </radialGradient>\n  </defs>\n\n  <!-- 5 starting dots (scattered on the left) -->\n  <circle cx=\"40\"  cy=\"40\"  r=\"4\" fill=\"#64748B\" class=\"dot dot-1\" />\n  <circle cx=\"60\"  cy=\"100\" r=\"4\" fill=\"#64748B\" class=\"dot dot-2\" />\n  <circle cx=\"30\"  cy=\"80\"  r=\"4\" fill=\"#64748B\" class=\"dot dot-3\" />\n  <circle cx=\"80\"  cy=\"50\"  r=\"4\" fill=\"#64748B\" class=\"dot dot-4\" />\n  <circle cx=\"50\"  cy=\"120\" r=\"4\" fill=\"#64748B\" class=\"dot dot-5\" />\n\n  <!-- Curved paths from each starting dot to the target at (340, 80) -->\n  <path d=\"M 40 40  Q 200 20  340 80\"  stroke=\"#6366F1\" stroke-width=\"1.5\" fill=\"none\" stroke-dasharray=\"400\" stroke-dashoffset=\"400\" class=\"path path-1\" />\n  <path d=\"M 60 100 Q 200 90  340 80\"  stroke=\"#6366F1\" stroke-width=\"1.5\" fill=\"none\" stroke-dasharray=\"400\" stroke-dashoffset=\"400\" class=\"path path-2\" />\n  <path d=\"M 30 80  Q 200 50  340 80\"  stroke=\"#6366F1\" stroke-width=\"1.5\" fill=\"none\" stroke-dasharray=\"400\" stroke-dashoffset=\"400\" class=\"path path-3\" />\n  <path d=\"M 80 50  Q 200 30  340 80\"  stroke=\"#6366F1\" stroke-width=\"1.5\" fill=\"none\" stroke-dasharray=\"400\" stroke-dashoffset=\"400\" class=\"path path-4\" />\n  <path d=\"M 50 120 Q 200 110 340 80\"  stroke=\"#6366F1\" stroke-width=\"1.5\" fill=\"none\" stroke-dasharray=\"400\" stroke-dashoffset=\"400\" class=\"path path-5\" />\n\n  <!-- Target with glow -->\n  <circle cx=\"340\" cy=\"80\" r=\"20\" fill=\"url(#targetGlow)\" />\n  <circle cx=\"340\" cy=\"80\" r=\"6\" fill=\"#6366F1\" class=\"target\" />\n</svg>\n\n<style>\n  .convergence-journey { display: block; }\n\n  .path {\n    animation: draw 6s ease-in-out infinite;\n  }\n  .path-1 { animation-delay: 0s; }\n  .path-2 { animation-delay: 0.3s; }\n  .path-3 { animation-delay: 0.6s; }\n  .path-4 { animation-delay: 0.9s; }\n  .path-5 { animation-delay: 1.2s; }\n\n  .target {\n    animation: pulse 6s ease-in-out infinite;\n  }\n\n  @keyframes draw {\n    0%   { stroke-dashoffset: 400; opacity: 0.3; }\n    40%  { stroke-dashoffset: 0;   opacity: 1; }\n    70%  { stroke-dashoffset: 0;   opacity: 1; }\n    100% { stroke-dashoffset: 400; opacity: 0.3; }\n  }\n\n  @keyframes pulse {\n    0%, 100% { r: 6; }\n    50%      { r: 8; }\n  }\n\n  @media (prefers-reduced-motion: reduce) {\n    .path, .target { animation: none; }\n    .path { stroke-dashoffset: 0; opacity: 1; }\n  }\n</style>\n```\n\n## Banned\n\n- JS-driven animation. CSS-only keeps the bundle and Lighthouse-perf score safe.\n- Animation that doesn't loop. The hero is the most-viewed surface; a one-shot animation feels broken on revisit.\n- Hardcoded hex outside of inline SVG `fill`/`stroke` attributes (those are necessary because SVG elements can't reference CSS variables in older browsers without extra setup). Keep these matching the brand palette.",
+              "taskInputs": [
+                "apps/landing/src/icons/convergence-journey.svg",
+                "apps/landing/.content/brand.json"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/src/components/animations/ConvergenceJourney.astro\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "09-polish/001-hero-animation-check-failed-animation-component-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-polish/001-hero-animation",
+            "severity": "high",
+            "description": "[09-polish/001-hero-animation] Check failed: ConvergenceJourney.astro exists",
+            "source": "unit",
+            "detected": "2026-04-26T20:20:36.018Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "animation-component-exists",
+              "checkCmd": "test -f apps/landing/src/components/animations/ConvergenceJourney.astro",
+              "checkDescription": "ConvergenceJourney.astro exists",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/animations/ConvergenceJourney.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# ConvergenceJourney\n\nThe visual hallmark. SVG animation showing a few scattered dots\n\"converging\" on a target — visualizes the framework's name. CSS-only\n(no JS) so it doesn't cost Lighthouse perf or interactivity.\n\n## Composition\n\n- ViewBox 400×160 (matches the Hero section's intended aspect)\n- 3-5 starting dots in `text-text-dim` color, scattered on the left\n- Curved paths from each dot, animating their stroke-dashoffset to \"draw\" toward a center target on the right\n- Target dot in `text-indigo`, slightly larger\n- Animation loops every ~6 seconds\n- `prefers-reduced-motion: reduce` → static SVG, no animation\n\n## File\n\n```astro\n---\n// apps/landing/src/components/animations/ConvergenceJourney.astro\n---\n\n<svg viewBox=\"0 0 400 160\" class=\"convergence-journey w-full max-w-md mx-auto\" aria-hidden=\"true\" role=\"presentation\">\n  <defs>\n    <radialGradient id=\"targetGlow\">\n      <stop offset=\"0%\" stop-color=\"#6366F1\" stop-opacity=\"0.6\" />\n      <stop offset=\"100%\" stop-color=\"#6366F1\" stop-opacity=\"0\" />\n    </radialGradient>\n  </defs>\n\n  <!-- 5 starting dots (scattered on the left) -->\n  <circle cx=\"40\"  cy=\"40\"  r=\"4\" fill=\"#64748B\" class=\"dot dot-1\" />\n  <circle cx=\"60\"  cy=\"100\" r=\"4\" fill=\"#64748B\" class=\"dot dot-2\" />\n  <circle cx=\"30\"  cy=\"80\"  r=\"4\" fill=\"#64748B\" class=\"dot dot-3\" />\n  <circle cx=\"80\"  cy=\"50\"  r=\"4\" fill=\"#64748B\" class=\"dot dot-4\" />\n  <circle cx=\"50\"  cy=\"120\" r=\"4\" fill=\"#64748B\" class=\"dot dot-5\" />\n\n  <!-- Curved paths from each starting dot to the target at (340, 80) -->\n  <path d=\"M 40 40  Q 200 20  340 80\"  stroke=\"#6366F1\" stroke-width=\"1.5\" fill=\"none\" stroke-dasharray=\"400\" stroke-dashoffset=\"400\" class=\"path path-1\" />\n  <path d=\"M 60 100 Q 200 90  340 80\"  stroke=\"#6366F1\" stroke-width=\"1.5\" fill=\"none\" stroke-dasharray=\"400\" stroke-dashoffset=\"400\" class=\"path path-2\" />\n  <path d=\"M 30 80  Q 200 50  340 80\"  stroke=\"#6366F1\" stroke-width=\"1.5\" fill=\"none\" stroke-dasharray=\"400\" stroke-dashoffset=\"400\" class=\"path path-3\" />\n  <path d=\"M 80 50  Q 200 30  340 80\"  stroke=\"#6366F1\" stroke-width=\"1.5\" fill=\"none\" stroke-dasharray=\"400\" stroke-dashoffset=\"400\" class=\"path path-4\" />\n  <path d=\"M 50 120 Q 200 110 340 80\"  stroke=\"#6366F1\" stroke-width=\"1.5\" fill=\"none\" stroke-dasharray=\"400\" stroke-dashoffset=\"400\" class=\"path path-5\" />\n\n  <!-- Target with glow -->\n  <circle cx=\"340\" cy=\"80\" r=\"20\" fill=\"url(#targetGlow)\" />\n  <circle cx=\"340\" cy=\"80\" r=\"6\" fill=\"#6366F1\" class=\"target\" />\n</svg>\n\n<style>\n  .convergence-journey { display: block; }\n\n  .path {\n    animation: draw 6s ease-in-out infinite;\n  }\n  .path-1 { animation-delay: 0s; }\n  .path-2 { animation-delay: 0.3s; }\n  .path-3 { animation-delay: 0.6s; }\n  .path-4 { animation-delay: 0.9s; }\n  .path-5 { animation-delay: 1.2s; }\n\n  .target {\n    animation: pulse 6s ease-in-out infinite;\n  }\n\n  @keyframes draw {\n    0%   { stroke-dashoffset: 400; opacity: 0.3; }\n    40%  { stroke-dashoffset: 0;   opacity: 1; }\n    70%  { stroke-dashoffset: 0;   opacity: 1; }\n    100% { stroke-dashoffset: 400; opacity: 0.3; }\n  }\n\n  @keyframes pulse {\n    0%, 100% { r: 6; }\n    50%      { r: 8; }\n  }\n\n  @media (prefers-reduced-motion: reduce) {\n    .path, .target { animation: none; }\n    .path { stroke-dashoffset: 0; opacity: 1; }\n  }\n</style>\n```\n\n## Banned\n\n- JS-driven animation. CSS-only keeps the bundle and Lighthouse-perf score safe.\n- Animation that doesn't loop. The hero is the most-viewed surface; a one-shot animation feels broken on revisit.\n- Hardcoded hex outside of inline SVG `fill`/`stroke` attributes (those are necessary because SVG elements can't reference CSS variables in older browsers without extra setup). Keep these matching the brand palette.",
+              "taskId": "09-polish/001-hero-animation",
+              "taskTitle": "ConvergenceJourney.astro — animated SVG hero hallmark",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/09-polish/tasks/001-hero-animation",
+              "factId": "check:animation-component-exists"
+            }
+          },
+          {
+            "id": "09-polish/001-hero-animation-check-failed-animation-respects-reduced-motion",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-polish/001-hero-animation",
+            "severity": "high",
+            "description": "[09-polish/001-hero-animation] Check failed: respects prefers-reduced-motion",
+            "source": "unit",
+            "detected": "2026-04-26T20:20:36.022Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "animation-respects-reduced-motion",
+              "checkCmd": "test -f apps/landing/src/components/animations/ConvergenceJourney.astro && grep -qE 'prefers-reduced-motion|prefersReducedMotion' apps/landing/src/components/animations/ConvergenceJourney.astro",
+              "checkDescription": "respects prefers-reduced-motion",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/animations/ConvergenceJourney.astro && grep -qE 'prefers-reduced-motion|prefersReducedMotion' apps/landing/src/components/animations/ConvergenceJourney.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# ConvergenceJourney\n\nThe visual hallmark. SVG animation showing a few scattered dots\n\"converging\" on a target — visualizes the framework's name. CSS-only\n(no JS) so it doesn't cost Lighthouse perf or interactivity.\n\n## Composition\n\n- ViewBox 400×160 (matches the Hero section's intended aspect)\n- 3-5 starting dots in `text-text-dim` color, scattered on the left\n- Curved paths from each dot, animating their stroke-dashoffset to \"draw\" toward a center target on the right\n- Target dot in `text-indigo`, slightly larger\n- Animation loops every ~6 seconds\n- `prefers-reduced-motion: reduce` → static SVG, no animation\n\n## File\n\n```astro\n---\n// apps/landing/src/components/animations/ConvergenceJourney.astro\n---\n\n<svg viewBox=\"0 0 400 160\" class=\"convergence-journey w-full max-w-md mx-auto\" aria-hidden=\"true\" role=\"presentation\">\n  <defs>\n    <radialGradient id=\"targetGlow\">\n      <stop offset=\"0%\" stop-color=\"#6366F1\" stop-opacity=\"0.6\" />\n      <stop offset=\"100%\" stop-color=\"#6366F1\" stop-opacity=\"0\" />\n    </radialGradient>\n  </defs>\n\n  <!-- 5 starting dots (scattered on the left) -->\n  <circle cx=\"40\"  cy=\"40\"  r=\"4\" fill=\"#64748B\" class=\"dot dot-1\" />\n  <circle cx=\"60\"  cy=\"100\" r=\"4\" fill=\"#64748B\" class=\"dot dot-2\" />\n  <circle cx=\"30\"  cy=\"80\"  r=\"4\" fill=\"#64748B\" class=\"dot dot-3\" />\n  <circle cx=\"80\"  cy=\"50\"  r=\"4\" fill=\"#64748B\" class=\"dot dot-4\" />\n  <circle cx=\"50\"  cy=\"120\" r=\"4\" fill=\"#64748B\" class=\"dot dot-5\" />\n\n  <!-- Curved paths from each starting dot to the target at (340, 80) -->\n  <path d=\"M 40 40  Q 200 20  340 80\"  stroke=\"#6366F1\" stroke-width=\"1.5\" fill=\"none\" stroke-dasharray=\"400\" stroke-dashoffset=\"400\" class=\"path path-1\" />\n  <path d=\"M 60 100 Q 200 90  340 80\"  stroke=\"#6366F1\" stroke-width=\"1.5\" fill=\"none\" stroke-dasharray=\"400\" stroke-dashoffset=\"400\" class=\"path path-2\" />\n  <path d=\"M 30 80  Q 200 50  340 80\"  stroke=\"#6366F1\" stroke-width=\"1.5\" fill=\"none\" stroke-dasharray=\"400\" stroke-dashoffset=\"400\" class=\"path path-3\" />\n  <path d=\"M 80 50  Q 200 30  340 80\"  stroke=\"#6366F1\" stroke-width=\"1.5\" fill=\"none\" stroke-dasharray=\"400\" stroke-dashoffset=\"400\" class=\"path path-4\" />\n  <path d=\"M 50 120 Q 200 110 340 80\"  stroke=\"#6366F1\" stroke-width=\"1.5\" fill=\"none\" stroke-dasharray=\"400\" stroke-dashoffset=\"400\" class=\"path path-5\" />\n\n  <!-- Target with glow -->\n  <circle cx=\"340\" cy=\"80\" r=\"20\" fill=\"url(#targetGlow)\" />\n  <circle cx=\"340\" cy=\"80\" r=\"6\" fill=\"#6366F1\" class=\"target\" />\n</svg>\n\n<style>\n  .convergence-journey { display: block; }\n\n  .path {\n    animation: draw 6s ease-in-out infinite;\n  }\n  .path-1 { animation-delay: 0s; }\n  .path-2 { animation-delay: 0.3s; }\n  .path-3 { animation-delay: 0.6s; }\n  .path-4 { animation-delay: 0.9s; }\n  .path-5 { animation-delay: 1.2s; }\n\n  .target {\n    animation: pulse 6s ease-in-out infinite;\n  }\n\n  @keyframes draw {\n    0%   { stroke-dashoffset: 400; opacity: 0.3; }\n    40%  { stroke-dashoffset: 0;   opacity: 1; }\n    70%  { stroke-dashoffset: 0;   opacity: 1; }\n    100% { stroke-dashoffset: 400; opacity: 0.3; }\n  }\n\n  @keyframes pulse {\n    0%, 100% { r: 6; }\n    50%      { r: 8; }\n  }\n\n  @media (prefers-reduced-motion: reduce) {\n    .path, .target { animation: none; }\n    .path { stroke-dashoffset: 0; opacity: 1; }\n  }\n</style>\n```\n\n## Banned\n\n- JS-driven animation. CSS-only keeps the bundle and Lighthouse-perf score safe.\n- Animation that doesn't loop. The hero is the most-viewed surface; a one-shot animation feels broken on revisit.\n- Hardcoded hex outside of inline SVG `fill`/`stroke` attributes (those are necessary because SVG elements can't reference CSS variables in older browsers without extra setup). Keep these matching the brand palette.",
+              "taskId": "09-polish/001-hero-animation",
+              "taskTitle": "ConvergenceJourney.astro — animated SVG hero hallmark",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/09-polish/tasks/001-hero-animation",
+              "factId": "check:animation-respects-reduced-motion"
+            }
+          },
+          {
+            "id": "09-polish/001-hero-animation-check-failed-animation-uses-css-only",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "09-polish/001-hero-animation",
+            "severity": "high",
+            "description": "[09-polish/001-hero-animation] Check failed: animation is CSS-only (no JS) — keeps Lighthouse perf up",
+            "source": "unit",
+            "detected": "2026-04-26T20:20:36.025Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "animation-uses-css-only",
+              "checkCmd": "test -f apps/landing/src/components/animations/ConvergenceJourney.astro && ! grep -qE 'addEventListener|requestAnimationFrame|setInterval' apps/landing/src/components/animations/ConvergenceJourney.astro",
+              "checkDescription": "animation is CSS-only (no JS) — keeps Lighthouse perf up",
+              "checkOutput": "Command failed: test -f apps/landing/src/components/animations/ConvergenceJourney.astro && ! grep -qE 'addEventListener|requestAnimationFrame|setInterval' apps/landing/src/components/animations/ConvergenceJourney.astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# ConvergenceJourney\n\nThe visual hallmark. SVG animation showing a few scattered dots\n\"converging\" on a target — visualizes the framework's name. CSS-only\n(no JS) so it doesn't cost Lighthouse perf or interactivity.\n\n## Composition\n\n- ViewBox 400×160 (matches the Hero section's intended aspect)\n- 3-5 starting dots in `text-text-dim` color, scattered on the left\n- Curved paths from each dot, animating their stroke-dashoffset to \"draw\" toward a center target on the right\n- Target dot in `text-indigo`, slightly larger\n- Animation loops every ~6 seconds\n- `prefers-reduced-motion: reduce` → static SVG, no animation\n\n## File\n\n```astro\n---\n// apps/landing/src/components/animations/ConvergenceJourney.astro\n---\n\n<svg viewBox=\"0 0 400 160\" class=\"convergence-journey w-full max-w-md mx-auto\" aria-hidden=\"true\" role=\"presentation\">\n  <defs>\n    <radialGradient id=\"targetGlow\">\n      <stop offset=\"0%\" stop-color=\"#6366F1\" stop-opacity=\"0.6\" />\n      <stop offset=\"100%\" stop-color=\"#6366F1\" stop-opacity=\"0\" />\n    </radialGradient>\n  </defs>\n\n  <!-- 5 starting dots (scattered on the left) -->\n  <circle cx=\"40\"  cy=\"40\"  r=\"4\" fill=\"#64748B\" class=\"dot dot-1\" />\n  <circle cx=\"60\"  cy=\"100\" r=\"4\" fill=\"#64748B\" class=\"dot dot-2\" />\n  <circle cx=\"30\"  cy=\"80\"  r=\"4\" fill=\"#64748B\" class=\"dot dot-3\" />\n  <circle cx=\"80\"  cy=\"50\"  r=\"4\" fill=\"#64748B\" class=\"dot dot-4\" />\n  <circle cx=\"50\"  cy=\"120\" r=\"4\" fill=\"#64748B\" class=\"dot dot-5\" />\n\n  <!-- Curved paths from each starting dot to the target at (340, 80) -->\n  <path d=\"M 40 40  Q 200 20  340 80\"  stroke=\"#6366F1\" stroke-width=\"1.5\" fill=\"none\" stroke-dasharray=\"400\" stroke-dashoffset=\"400\" class=\"path path-1\" />\n  <path d=\"M 60 100 Q 200 90  340 80\"  stroke=\"#6366F1\" stroke-width=\"1.5\" fill=\"none\" stroke-dasharray=\"400\" stroke-dashoffset=\"400\" class=\"path path-2\" />\n  <path d=\"M 30 80  Q 200 50  340 80\"  stroke=\"#6366F1\" stroke-width=\"1.5\" fill=\"none\" stroke-dasharray=\"400\" stroke-dashoffset=\"400\" class=\"path path-3\" />\n  <path d=\"M 80 50  Q 200 30  340 80\"  stroke=\"#6366F1\" stroke-width=\"1.5\" fill=\"none\" stroke-dasharray=\"400\" stroke-dashoffset=\"400\" class=\"path path-4\" />\n  <path d=\"M 50 120 Q 200 110 340 80\"  stroke=\"#6366F1\" stroke-width=\"1.5\" fill=\"none\" stroke-dasharray=\"400\" stroke-dashoffset=\"400\" class=\"path path-5\" />\n\n  <!-- Target with glow -->\n  <circle cx=\"340\" cy=\"80\" r=\"20\" fill=\"url(#targetGlow)\" />\n  <circle cx=\"340\" cy=\"80\" r=\"6\" fill=\"#6366F1\" class=\"target\" />\n</svg>\n\n<style>\n  .convergence-journey { display: block; }\n\n  .path {\n    animation: draw 6s ease-in-out infinite;\n  }\n  .path-1 { animation-delay: 0s; }\n  .path-2 { animation-delay: 0.3s; }\n  .path-3 { animation-delay: 0.6s; }\n  .path-4 { animation-delay: 0.9s; }\n  .path-5 { animation-delay: 1.2s; }\n\n  .target {\n    animation: pulse 6s ease-in-out infinite;\n  }\n\n  @keyframes draw {\n    0%   { stroke-dashoffset: 400; opacity: 0.3; }\n    40%  { stroke-dashoffset: 0;   opacity: 1; }\n    70%  { stroke-dashoffset: 0;   opacity: 1; }\n    100% { stroke-dashoffset: 400; opacity: 0.3; }\n  }\n\n  @keyframes pulse {\n    0%, 100% { r: 6; }\n    50%      { r: 8; }\n  }\n\n  @media (prefers-reduced-motion: reduce) {\n    .path, .target { animation: none; }\n    .path { stroke-dashoffset: 0; opacity: 1; }\n  }\n</style>\n```\n\n## Banned\n\n- JS-driven animation. CSS-only keeps the bundle and Lighthouse-perf score safe.\n- Animation that doesn't loop. The hero is the most-viewed surface; a one-shot animation feels broken on revisit.\n- Hardcoded hex outside of inline SVG `fill`/`stroke` attributes (those are necessary because SVG elements can't reference CSS variables in older browsers without extra setup). Keep these matching the brand palette.",
+              "taskId": "09-polish/001-hero-animation",
+              "taskTitle": "ConvergenceJourney.astro — animated SVG hero hallmark",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/09-polish/tasks/001-hero-animation",
+              "factId": "check:animation-uses-css-only"
+            }
+          }
+        ],
+        "durationMs": 71
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 23
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#114",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 23900
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T20:20:35.952Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T20:20:35.953Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T20:20:36.025Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T20:20:36.026Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T20:20:36.035Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#114",
+      "iteration": 1,
+      "ts": "2026-04-26T20:20:59.937Z"
+    },
+    {
+      "from": "run-strategy:task-run#114",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T20:20:59.960Z"
+    }
+  ]
+}

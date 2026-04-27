@@ -1,0 +1,267 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "04-ui/011-logs-panel-missing-output-packages/converge-studio/src/app/runs/[playbook]/[sessionId]/logs",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/011-logs-panel",
+            "severity": "high",
+            "description": "[04-ui/011-logs-panel] Task output not created: packages/converge-studio/src/app/runs/[playbook]/[sessionId]/logs",
+            "source": "unit",
+            "detected": "2026-04-26T05:39:42.635Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/011-logs-panel",
+              "taskId": "04-ui/011-logs-panel",
+              "taskTitle": "Session events log viewer",
+              "taskPrompt": "The live session view (`006-live-session-view`) renders gantt + journal in real time. That's the \"watch a run\" use case. This task adds the \"look back at what happened\" use case: a flat, filterable, searchable table of every event the session emitted.\n\n**Reuse:** `src/lib/converge-adapter/sessions.ts` already exposes `readSession(playbook, sessionId)`. Extend (don't duplicate) it with `readSessionEvents(playbook, sessionId)` that reads the session's event log file from `.converge/journal/<playbook>/<sessionId>/events.jsonl` (or whatever the on-disk shape is — verify against an existing journal).\n\n**Add `src/app/api/runs/[playbook]/[sessionId]/logs/route.ts`** — GET returns `{ items: SessionEvent[] }`. Optional query params: `?level=error|warn|info`, `?since=<iso>`, `?limit=N` (default 500, max 5000).\n\n**Add `src/app/runs/[playbook]/[sessionId]/logs/page.tsx`** — server component that fetches the API route and renders:\n- A filter bar: level dropdown, free-text search (client-side filter over the loaded set), refresh button.\n- A virtualized table (use `<table>` with overflow-y-auto for now; reach for `react-window` only if rows exceed 1000).\n- Columns: timestamp · level · taskPath · message. Wrap long messages, don't truncate.\n- A link back to the live session view.\n\n**Add a tab/link** from `src/app/runs/[playbook]/[sessionId]/page.tsx` to `/runs/[playbook]/[sessionId]/logs` so users can pivot from the live view to the log view.\n\n**Verification:**\n- Pick a real session under `.converge/journal/` and load `/runs/<playbook>/<sessionId>/logs`. The events table shows real events.\n- Filter by level reduces the row count.\n- The API returns `{ items: [] }` (empty array, 200) for a session that has no events yet — never 500.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/app/runs/[playbook]/[sessionId]/logs\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-ui/011-logs-panel-missing-output-packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/logs",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/011-logs-panel",
+            "severity": "high",
+            "description": "[04-ui/011-logs-panel] Task output not created: packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/logs",
+            "source": "unit",
+            "detected": "2026-04-26T05:39:42.636Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/011-logs-panel",
+              "taskId": "04-ui/011-logs-panel",
+              "taskTitle": "Session events log viewer",
+              "taskPrompt": "The live session view (`006-live-session-view`) renders gantt + journal in real time. That's the \"watch a run\" use case. This task adds the \"look back at what happened\" use case: a flat, filterable, searchable table of every event the session emitted.\n\n**Reuse:** `src/lib/converge-adapter/sessions.ts` already exposes `readSession(playbook, sessionId)`. Extend (don't duplicate) it with `readSessionEvents(playbook, sessionId)` that reads the session's event log file from `.converge/journal/<playbook>/<sessionId>/events.jsonl` (or whatever the on-disk shape is — verify against an existing journal).\n\n**Add `src/app/api/runs/[playbook]/[sessionId]/logs/route.ts`** — GET returns `{ items: SessionEvent[] }`. Optional query params: `?level=error|warn|info`, `?since=<iso>`, `?limit=N` (default 500, max 5000).\n\n**Add `src/app/runs/[playbook]/[sessionId]/logs/page.tsx`** — server component that fetches the API route and renders:\n- A filter bar: level dropdown, free-text search (client-side filter over the loaded set), refresh button.\n- A virtualized table (use `<table>` with overflow-y-auto for now; reach for `react-window` only if rows exceed 1000).\n- Columns: timestamp · level · taskPath · message. Wrap long messages, don't truncate.\n- A link back to the live session view.\n\n**Add a tab/link** from `src/app/runs/[playbook]/[sessionId]/page.tsx` to `/runs/[playbook]/[sessionId]/logs` so users can pivot from the live view to the log view.\n\n**Verification:**\n- Pick a real session under `.converge/journal/` and load `/runs/<playbook>/<sessionId>/logs`. The events table shows real events.\n- Filter by level reduces the row count.\n- The API returns `{ items: [] }` (empty array, 200) for a session that has no events yet — never 500.",
+              "factId": "file-exists:test -f \"packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/logs\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-ui/011-logs-panel-check-failed-logs-page-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/011-logs-panel",
+            "severity": "high",
+            "description": "[04-ui/011-logs-panel] Check failed: Logs page exists under run detail",
+            "source": "unit",
+            "detected": "2026-04-26T05:39:42.639Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "logs-page-exists",
+              "checkCmd": "test -f 'packages/converge-studio/src/app/runs/[playbook]/[sessionId]/logs/page.tsx'",
+              "checkDescription": "Logs page exists under run detail",
+              "checkOutput": "Command failed: test -f 'packages/converge-studio/src/app/runs/[playbook]/[sessionId]/logs/page.tsx'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "The live session view (`006-live-session-view`) renders gantt + journal in real time. That's the \"watch a run\" use case. This task adds the \"look back at what happened\" use case: a flat, filterable, searchable table of every event the session emitted.\n\n**Reuse:** `src/lib/converge-adapter/sessions.ts` already exposes `readSession(playbook, sessionId)`. Extend (don't duplicate) it with `readSessionEvents(playbook, sessionId)` that reads the session's event log file from `.converge/journal/<playbook>/<sessionId>/events.jsonl` (or whatever the on-disk shape is — verify against an existing journal).\n\n**Add `src/app/api/runs/[playbook]/[sessionId]/logs/route.ts`** — GET returns `{ items: SessionEvent[] }`. Optional query params: `?level=error|warn|info`, `?since=<iso>`, `?limit=N` (default 500, max 5000).\n\n**Add `src/app/runs/[playbook]/[sessionId]/logs/page.tsx`** — server component that fetches the API route and renders:\n- A filter bar: level dropdown, free-text search (client-side filter over the loaded set), refresh button.\n- A virtualized table (use `<table>` with overflow-y-auto for now; reach for `react-window` only if rows exceed 1000).\n- Columns: timestamp · level · taskPath · message. Wrap long messages, don't truncate.\n- A link back to the live session view.\n\n**Add a tab/link** from `src/app/runs/[playbook]/[sessionId]/page.tsx` to `/runs/[playbook]/[sessionId]/logs` so users can pivot from the live view to the log view.\n\n**Verification:**\n- Pick a real session under `.converge/journal/` and load `/runs/<playbook>/<sessionId>/logs`. The events table shows real events.\n- Filter by level reduces the row count.\n- The API returns `{ items: [] }` (empty array, 200) for a session that has no events yet — never 500.",
+              "taskId": "04-ui/011-logs-panel",
+              "taskTitle": "Session events log viewer",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/011-logs-panel",
+              "factId": "check:logs-page-exists"
+            }
+          },
+          {
+            "id": "04-ui/011-logs-panel-check-failed-logs-api-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-ui/011-logs-panel",
+            "severity": "high",
+            "description": "[04-ui/011-logs-panel] Check failed: Logs API route exists and returns JSON",
+            "source": "unit",
+            "detected": "2026-04-26T05:39:42.641Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "logs-api-exists",
+              "checkCmd": "test -f 'packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/logs/route.ts'",
+              "checkDescription": "Logs API route exists and returns JSON",
+              "checkOutput": "Command failed: test -f 'packages/converge-studio/src/app/api/runs/[playbook]/[sessionId]/logs/route.ts'\n",
+              "checkExitCode": 1,
+              "taskPrompt": "The live session view (`006-live-session-view`) renders gantt + journal in real time. That's the \"watch a run\" use case. This task adds the \"look back at what happened\" use case: a flat, filterable, searchable table of every event the session emitted.\n\n**Reuse:** `src/lib/converge-adapter/sessions.ts` already exposes `readSession(playbook, sessionId)`. Extend (don't duplicate) it with `readSessionEvents(playbook, sessionId)` that reads the session's event log file from `.converge/journal/<playbook>/<sessionId>/events.jsonl` (or whatever the on-disk shape is — verify against an existing journal).\n\n**Add `src/app/api/runs/[playbook]/[sessionId]/logs/route.ts`** — GET returns `{ items: SessionEvent[] }`. Optional query params: `?level=error|warn|info`, `?since=<iso>`, `?limit=N` (default 500, max 5000).\n\n**Add `src/app/runs/[playbook]/[sessionId]/logs/page.tsx`** — server component that fetches the API route and renders:\n- A filter bar: level dropdown, free-text search (client-side filter over the loaded set), refresh button.\n- A virtualized table (use `<table>` with overflow-y-auto for now; reach for `react-window` only if rows exceed 1000).\n- Columns: timestamp · level · taskPath · message. Wrap long messages, don't truncate.\n- A link back to the live session view.\n\n**Add a tab/link** from `src/app/runs/[playbook]/[sessionId]/page.tsx` to `/runs/[playbook]/[sessionId]/logs` so users can pivot from the live view to the log view.\n\n**Verification:**\n- Pick a real session under `.converge/journal/` and load `/runs/<playbook>/<sessionId>/logs`. The events table shows real events.\n- Filter by level reduces the row count.\n- The API returns `{ items: [] }` (empty array, 200) for a session that has no events yet — never 500.",
+              "taskId": "04-ui/011-logs-panel",
+              "taskTitle": "Session events log viewer",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/implement-studio/tasks/04-ui/tasks/011-logs-panel",
+              "factId": "check:logs-api-exists"
+            }
+          }
+        ],
+        "durationMs": 3923
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 3811
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 3858
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#6",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 113437
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T05:39:42.632Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T05:39:42.632Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T05:39:46.555Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T05:39:46.556Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T05:39:50.367Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#6",
+      "iteration": 1,
+      "ts": "2026-04-26T05:41:43.806Z"
+    },
+    {
+      "from": "run-strategy:task-run#6",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T05:41:47.665Z"
+    }
+  ]
+}

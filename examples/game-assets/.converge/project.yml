@@ -5,9 +5,7 @@ description: |
 
 run:
   mode: oneoff
-env:
-  GEMINI_API_KEY: AQ.Ab8RN6LyDAM_tfVfTwlgq7-ejoFBP2mC8c32A42LTg8UPtOtvQ
-  
+
 vars:
   sprite_resolution: 128
   sprites_per_row: 4

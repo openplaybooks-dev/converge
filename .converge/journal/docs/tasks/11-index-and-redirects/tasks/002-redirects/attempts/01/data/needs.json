@@ -1,0 +1,17 @@
+{
+  "taskId": "11-index-and-redirects/002-redirects",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "docs/_internal",
+      "count": 1,
+      "samples": [
+        "docs/_internal"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/_redirects.json"
+  ],
+  "blocked": false
+}

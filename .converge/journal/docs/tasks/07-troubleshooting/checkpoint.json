@@ -1,0 +1,16 @@
+{
+  "type": "task",
+  "id": "07-troubleshooting",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T15:43:55.603Z",
+  "createdAt": "2026-04-26T07:34:28.987Z",
+  "progress": {
+    "totalChildren": 1,
+    "completedChildren": 1,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "001-troubleshooting-index"
+    ],
+    "lastProgressUpdate": "2026-04-26T15:43:55.504Z"
+  }
+}

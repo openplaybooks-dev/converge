@@ -1,0 +1,222 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "02-port-data-layer/001-copy-adapter-missing-output-packages/studio/src/lib/converge-adapter",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-port-data-layer/001-copy-adapter",
+            "severity": "high",
+            "description": "[02-port-data-layer/001-copy-adapter] Task output not created: packages/studio/src/lib/converge-adapter",
+            "source": "unit",
+            "detected": "2026-04-26T09:38:46.157Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/02-port-data-layer/tasks/001-copy-adapter",
+              "taskId": "02-port-data-layer/001-copy-adapter",
+              "taskTitle": "Copy converge-adapter (8 files) from rescue",
+              "taskPrompt": "```bash\nmkdir -p packages/studio/src/lib/converge-adapter\ncp /tmp/converge-studio-rescue/lib/converge-adapter/*.ts packages/studio/src/lib/converge-adapter/\n```",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"packages/studio/src/lib/converge-adapter\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "02-port-data-layer/001-copy-adapter-check-failed-adapter-files-present",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "02-port-data-layer/001-copy-adapter",
+            "severity": "high",
+            "description": "[02-port-data-layer/001-copy-adapter] Check failed: All 8 converge-adapter files exist",
+            "source": "unit",
+            "detected": "2026-04-26T09:38:46.159Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "adapter-files-present",
+              "checkCmd": "for f in paths playbooks tasks sessions watcher frontmatter schedule index; do test -f packages/studio/src/lib/converge-adapter/$f.ts || exit 1; done",
+              "checkDescription": "All 8 converge-adapter files exist",
+              "checkOutput": "Command failed: for f in paths playbooks tasks sessions watcher frontmatter schedule index; do test -f packages/studio/src/lib/converge-adapter/$f.ts || exit 1; done\n",
+              "checkExitCode": 1,
+              "taskPrompt": "```bash\nmkdir -p packages/studio/src/lib/converge-adapter\ncp /tmp/converge-studio-rescue/lib/converge-adapter/*.ts packages/studio/src/lib/converge-adapter/\n```",
+              "taskId": "02-port-data-layer/001-copy-adapter",
+              "taskTitle": "Copy converge-adapter (8 files) from rescue",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/restart-studio/tasks/02-port-data-layer/tasks/001-copy-adapter",
+              "factId": "check:adapter-files-present"
+            }
+          }
+        ],
+        "durationMs": 5
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 4
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 8
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#5",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 27086
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T09:38:46.154Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T09:38:46.154Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T09:38:46.159Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T09:38:46.160Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T09:38:46.164Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#5",
+      "iteration": 1,
+      "ts": "2026-04-26T09:39:13.250Z"
+    },
+    {
+      "from": "run-strategy:task-run#5",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T09:39:13.259Z"
+    }
+  ]
+}

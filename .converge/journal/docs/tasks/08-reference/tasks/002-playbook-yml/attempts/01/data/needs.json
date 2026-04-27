@@ -1,0 +1,31 @@
+{
+  "taskId": "08-reference/002-playbook-yml",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "packages/core/src/storage/types.ts",
+      "count": 1,
+      "samples": [
+        "packages/core/src/storage/types.ts"
+      ]
+    },
+    {
+      "pattern": "examples/stitch-to-flutter-baby-watch-v2/.converge/playbooks/default/playbook.yml",
+      "count": 1,
+      "samples": [
+        "examples/stitch-to-flutter-baby-watch-v2/.converge/playbooks/default/playbook.yml"
+      ]
+    },
+    {
+      "pattern": ".converge/playbooks/implement-studio/playbook.yml",
+      "count": 1,
+      "samples": [
+        ".converge/playbooks/implement-studio/playbook.yml"
+      ]
+    }
+  ],
+  "outputs": [
+    "docs/reference/playbook-yml.md"
+  ],
+  "blocked": false
+}

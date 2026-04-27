@@ -17,8 +17,8 @@ The mage class embodies mystical power and arcane mastery. Characters in this cl
 - Cyan (#00BCD4) - Energy highlights, spell glows
 
 **Accent Colors:**
-- Gold (#FFD700) - Rune details, trim
 - White (#FFFFFF) - Pure magical light
+- Gold (#FFD700) - **Use sparingly.** Reserved for glowing rune inscriptions on the staff or a single small clasp, never robe panels, sleeve trim, sashes, or hat. Target ≤5% of sprite pixels.
 
 ## Materials
 
@@ -36,7 +36,7 @@ The mage class embodies mystical power and arcane mastery. Characters in this cl
 
 **Weapon Materials:**
 - Staff: Polished wood or crystal
-- Metal accents: Silver or gold
+- Metal accents: Silver (default); gold only on rune inscriptions
 - Gemstone focus points
 - Glowing runes or inscriptions
 

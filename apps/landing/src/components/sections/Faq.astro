@@ -1,0 +1,77 @@
+---
+import Section from '../layout/Section.astro';
+import Container from '../layout/Container.astro';
+
+interface FaqItem {
+  id: string;
+  question: string;
+  answer: string;
+}
+
+const items: FaqItem[] = [
+  {
+    id: 'declare-inputs-outputs',
+    question: 'Do I have to declare inputs and outputs for every task?',
+    answer: 'Yes — a task that writes a file but doesn\'t list it under outputs: won\'t surface to downstream tasks. A task that reads a file but doesn\'t list it under inputs: won\'t have it snapshotted. The contract lives in the declaration.',
+  },
+  {
+    id: 'file-shaped-interfaces',
+    question: 'What doesn\'t fit a file-shaped interface?',
+    answer: '"What did task A think about the data" is hard to capture in a file output. Facts and ancestor summaries fill in some of this gap, but they\'re a coarser tool than explicit file references.',
+  },
+  {
+    id: 'shell-pitfalls',
+    question: 'What pitfalls come with shell-based checks?',
+    answer: 'Quoting, escaping, exit-code semantics across pipelines (pipefail is off by default in /bin/sh). The framework lints for tautologies, but careful authoring is the best defense.',
+  },
+  {
+    id: 'wbs-determinism',
+    question: 'Why does determinism matter for WBS scripts?',
+    answer: 'A WBS script that returns different results each run (because it pulls from a live API, or because file order varies) will spawn ghost children on the next run. Sort outputs and snapshot dynamic inputs to keep scripts deterministic.',
+  },
+  {
+    id: 'wbs-debugging',
+    question: 'Why is debugging WBS children harder?',
+    answer: 'When a CLI-command page fails, you debug the child task. When the WBS itself is wrong (missed a command, generated a bad slug), you debug the script. Two different surfaces with different tooling.',
+  },
+  {
+    id: 'strategy-misroute',
+    question: 'Can a strategy apply a fix it shouldn\'t?',
+    answer: 'Yes — a strategy that\'s too eager to claim failures it can\'t actually fix wastes retry budget. Each strategy needs careful canHandle filtering, and a strategy that thinks it fixed a failure but didn\'t will burn the next attempt.',
+  },
+  {
+    id: 'observable-failures',
+    question: 'What happens when a failure isn\'t observable enough to classify?',
+    answer: 'Opaque failures (a model timeout that returns no useful diagnostic, a rate limit that surfaces as a generic 5xx) bypass the repair strategy pipeline and fall straight through to retry-with-context. The strategy contract requires failures to be classifiable.',
+  },
+  {
+    id: 'complexity-cost',
+    question: 'What\'s the cost of the self-correction pipeline\'s complexity?',
+    answer: 'Eleven strategies is a lot of moving parts. Converge accepts this cost because the alternative — retry-and-hope on every failure — burns much more on long runs. The key guarantee: strategies don\'t run forever (per-task retry budget is capped).',
+  },
+];
+---
+
+<Section id="faq" padY="lg" bg="muted">
+  <Container>
+    <h2 class="text-3xl font-bold text-text text-center mb-12">Frequently asked questions</h2>
+    <div class="max-w-2xl mx-auto space-y-4">
+      {items.map((item, i) => (
+        <>
+          {i > 0 ? "\n" : null}
+          <details id={item.id} class="group bg-default border border-border rounded-lg">
+            <summary class="flex items-center justify-between cursor-pointer list-none px-6 py-4 font-medium text-text hover:text-indigo transition-colors">
+              {item.question}
+              <svg class="w-5 h-5 text-text-muted group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </summary>
+            <div class="px-6 pb-4 text-text-muted leading-relaxed">
+              {item.answer}
+            </div>
+          </details>
+        </>
+      ))}
+    </div>
+  </Container>
+</Section>

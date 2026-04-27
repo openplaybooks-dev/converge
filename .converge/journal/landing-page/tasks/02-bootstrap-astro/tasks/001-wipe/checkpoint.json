@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "02-bootstrap-astro/001-wipe",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T17:24:13.726Z",
+  "createdAt": "2026-04-26T17:24:13.355Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T17:24:13.355Z",
+      "completedAt": "2026-04-26T17:24:13.706Z",
+      "outcome": "success",
+      "durationMs": 351
+    }
+  ],
+  "currentAttempt": 1
+}

@@ -1,0 +1,25 @@
+{
+  "taskId": "04-ui/018-secrets-scan",
+  "checks": [
+    {
+      "id": "scan-lib-exists",
+      "description": "Secrets scan library exists",
+      "cmd": "test -f packages/converge-studio/src/lib/secrets-scan.ts"
+    },
+    {
+      "id": "scan-api-exists",
+      "description": "/api/playbooks/[name]/secrets-scan returns findings",
+      "cmd": "test -f 'packages/converge-studio/src/app/api/playbooks/[name]/secrets-scan/route.ts'"
+    },
+    {
+      "id": "card-component-exists",
+      "description": "SecretsScanCard component exists",
+      "cmd": "test -f packages/converge-studio/src/components/secrets-scan-card.tsx"
+    },
+    {
+      "id": "typecheck-passes",
+      "description": "typecheck-passes",
+      "cmd": "pnpm --filter @converge/studio typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    }
+  ]
+}

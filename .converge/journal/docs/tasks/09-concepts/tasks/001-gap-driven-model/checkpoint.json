@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "09-concepts/001-gap-driven-model",
+  "status": "pending",
+  "lastUpdated": "2026-04-26T15:43:55.616Z",
+  "createdAt": "2026-04-26T09:54:31.244Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T09:54:31.244Z",
+      "completedAt": "2026-04-26T09:56:02.857Z",
+      "outcome": "success",
+      "durationMs": 91613
+    }
+  ],
+  "currentAttempt": 1
+}

@@ -1,0 +1,274 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "07-integrate-blog/003-post-template-missing-output-apps/landing/src/pages/blog/[slug].astro",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-integrate-blog/003-post-template",
+            "severity": "high",
+            "description": "[07-integrate-blog/003-post-template] Task output not created: apps/landing/src/pages/blog/[slug].astro",
+            "source": "unit",
+            "detected": "2026-04-26T19:49:11.152Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/07-integrate-blog/tasks/003-post-template",
+              "taskId": "07-integrate-blog/003-post-template",
+              "taskTitle": "/blog/[slug] dynamic route — renders MDX posts",
+              "taskPrompt": "# Post template\n\nDynamic route at `/blog/[slug]` that renders one MDX post.\n\n## File\n\n```astro\n---\n// apps/landing/src/pages/blog/[slug].astro\nimport { getCollection, render } from 'astro:content';\nimport MainLayout from '@/layouts/MainLayout.astro';\n\nexport async function getStaticPaths() {\n  const posts = await getCollection('blog');\n  return posts\n    .filter((p) => !p.data.draft)\n    .map((p) => ({\n      params: { slug: p.id.replace(/\\.mdx?$/, '') },\n      props: { post: p },\n    }));\n}\n\nconst { post } = Astro.props;\nconst { Content } = await render(post);\n---\n\n<MainLayout\n  page=\"blog\"\n  title={`${post.data.title} — Converge`}\n  description={post.data.description}\n  ogImage={post.data.ogImage}\n>\n  <article class=\"max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 prose prose-invert prose-headings:font-display prose-pre:bg-bg-elev\">\n    <header class=\"not-prose mb-12\">\n      <h1 class=\"text-4xl sm:text-5xl font-display font-bold text-text leading-tight\">\n        {post.data.title}\n      </h1>\n      <p class=\"mt-4 text-text-muted text-lg\">{post.data.description}</p>\n      <p class=\"mt-6 text-sm text-text-dim\">\n        <time datetime={post.data.date.toISOString()}>\n          {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}\n        </time>\n        <span class=\"mx-2\">·</span>\n        {post.data.author}\n      </p>\n    </header>\n\n    <Content />\n\n    <footer class=\"not-prose mt-16 pt-8 border-t border-border\">\n      <a href=\"/blog\" class=\"text-indigo hover:underline\">← All posts</a>\n    </footer>\n  </article>\n</MainLayout>\n```\n\n## Process\n\n1. Write the file.\n2. Run `pnpm --filter @converge/landing build`. With no posts yet, the build won't generate any blog routes — that's expected.\n3. After 006-seed-posts runs, the build will generate `dist/blog/<slug>/index.html` for each post.\n\n## Banned\n\n- Inlining post styling. Use Tailwind's `prose` modifiers (`prose-invert prose-headings:...`) — this is what `@tailwindcss/typography` is for. If not installed, add it as a dev dep.\n- Removing the \"← All posts\" link. Posts must be navigable back to the index.",
+              "taskInputs": [
+                "apps/landing/src/content.config.ts"
+              ],
+              "factId": "file-exists:test -f \"apps/landing/src/pages/blog/[slug].astro\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "07-integrate-blog/003-post-template-check-failed-post-template-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-integrate-blog/003-post-template",
+            "severity": "high",
+            "description": "[07-integrate-blog/003-post-template] Check failed: blog/[slug].astro exists",
+            "source": "unit",
+            "detected": "2026-04-26T19:49:11.156Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "post-template-exists",
+              "checkCmd": "test -f apps/landing/src/pages/blog/[slug].astro",
+              "checkDescription": "blog/[slug].astro exists",
+              "checkOutput": "Command failed: test -f apps/landing/src/pages/blog/[slug].astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Post template\n\nDynamic route at `/blog/[slug]` that renders one MDX post.\n\n## File\n\n```astro\n---\n// apps/landing/src/pages/blog/[slug].astro\nimport { getCollection, render } from 'astro:content';\nimport MainLayout from '@/layouts/MainLayout.astro';\n\nexport async function getStaticPaths() {\n  const posts = await getCollection('blog');\n  return posts\n    .filter((p) => !p.data.draft)\n    .map((p) => ({\n      params: { slug: p.id.replace(/\\.mdx?$/, '') },\n      props: { post: p },\n    }));\n}\n\nconst { post } = Astro.props;\nconst { Content } = await render(post);\n---\n\n<MainLayout\n  page=\"blog\"\n  title={`${post.data.title} — Converge`}\n  description={post.data.description}\n  ogImage={post.data.ogImage}\n>\n  <article class=\"max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 prose prose-invert prose-headings:font-display prose-pre:bg-bg-elev\">\n    <header class=\"not-prose mb-12\">\n      <h1 class=\"text-4xl sm:text-5xl font-display font-bold text-text leading-tight\">\n        {post.data.title}\n      </h1>\n      <p class=\"mt-4 text-text-muted text-lg\">{post.data.description}</p>\n      <p class=\"mt-6 text-sm text-text-dim\">\n        <time datetime={post.data.date.toISOString()}>\n          {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}\n        </time>\n        <span class=\"mx-2\">·</span>\n        {post.data.author}\n      </p>\n    </header>\n\n    <Content />\n\n    <footer class=\"not-prose mt-16 pt-8 border-t border-border\">\n      <a href=\"/blog\" class=\"text-indigo hover:underline\">← All posts</a>\n    </footer>\n  </article>\n</MainLayout>\n```\n\n## Process\n\n1. Write the file.\n2. Run `pnpm --filter @converge/landing build`. With no posts yet, the build won't generate any blog routes — that's expected.\n3. After 006-seed-posts runs, the build will generate `dist/blog/<slug>/index.html` for each post.\n\n## Banned\n\n- Inlining post styling. Use Tailwind's `prose` modifiers (`prose-invert prose-headings:...`) — this is what `@tailwindcss/typography` is for. If not installed, add it as a dev dep.\n- Removing the \"← All posts\" link. Posts must be navigable back to the index.",
+              "taskId": "07-integrate-blog/003-post-template",
+              "taskTitle": "/blog/[slug] dynamic route — renders MDX posts",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/07-integrate-blog/tasks/003-post-template",
+              "factId": "check:post-template-exists"
+            }
+          },
+          {
+            "id": "07-integrate-blog/003-post-template-check-failed-post-uses-getStaticPaths",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-integrate-blog/003-post-template",
+            "severity": "high",
+            "description": "[07-integrate-blog/003-post-template] Check failed: uses getStaticPaths to enumerate slugs",
+            "source": "unit",
+            "detected": "2026-04-26T19:49:11.159Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "post-uses-getStaticPaths",
+              "checkCmd": "test -f apps/landing/src/pages/blog/[slug].astro && grep -qE 'getStaticPaths' apps/landing/src/pages/blog/[slug].astro",
+              "checkDescription": "uses getStaticPaths to enumerate slugs",
+              "checkOutput": "Command failed: test -f apps/landing/src/pages/blog/[slug].astro && grep -qE 'getStaticPaths' apps/landing/src/pages/blog/[slug].astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Post template\n\nDynamic route at `/blog/[slug]` that renders one MDX post.\n\n## File\n\n```astro\n---\n// apps/landing/src/pages/blog/[slug].astro\nimport { getCollection, render } from 'astro:content';\nimport MainLayout from '@/layouts/MainLayout.astro';\n\nexport async function getStaticPaths() {\n  const posts = await getCollection('blog');\n  return posts\n    .filter((p) => !p.data.draft)\n    .map((p) => ({\n      params: { slug: p.id.replace(/\\.mdx?$/, '') },\n      props: { post: p },\n    }));\n}\n\nconst { post } = Astro.props;\nconst { Content } = await render(post);\n---\n\n<MainLayout\n  page=\"blog\"\n  title={`${post.data.title} — Converge`}\n  description={post.data.description}\n  ogImage={post.data.ogImage}\n>\n  <article class=\"max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 prose prose-invert prose-headings:font-display prose-pre:bg-bg-elev\">\n    <header class=\"not-prose mb-12\">\n      <h1 class=\"text-4xl sm:text-5xl font-display font-bold text-text leading-tight\">\n        {post.data.title}\n      </h1>\n      <p class=\"mt-4 text-text-muted text-lg\">{post.data.description}</p>\n      <p class=\"mt-6 text-sm text-text-dim\">\n        <time datetime={post.data.date.toISOString()}>\n          {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}\n        </time>\n        <span class=\"mx-2\">·</span>\n        {post.data.author}\n      </p>\n    </header>\n\n    <Content />\n\n    <footer class=\"not-prose mt-16 pt-8 border-t border-border\">\n      <a href=\"/blog\" class=\"text-indigo hover:underline\">← All posts</a>\n    </footer>\n  </article>\n</MainLayout>\n```\n\n## Process\n\n1. Write the file.\n2. Run `pnpm --filter @converge/landing build`. With no posts yet, the build won't generate any blog routes — that's expected.\n3. After 006-seed-posts runs, the build will generate `dist/blog/<slug>/index.html` for each post.\n\n## Banned\n\n- Inlining post styling. Use Tailwind's `prose` modifiers (`prose-invert prose-headings:...`) — this is what `@tailwindcss/typography` is for. If not installed, add it as a dev dep.\n- Removing the \"← All posts\" link. Posts must be navigable back to the index.",
+              "taskId": "07-integrate-blog/003-post-template",
+              "taskTitle": "/blog/[slug] dynamic route — renders MDX posts",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/07-integrate-blog/tasks/003-post-template",
+              "factId": "check:post-uses-getStaticPaths"
+            }
+          },
+          {
+            "id": "07-integrate-blog/003-post-template-check-failed-post-renders-content",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "07-integrate-blog/003-post-template",
+            "severity": "high",
+            "description": "[07-integrate-blog/003-post-template] Check failed: renders post content via the entry's render() result",
+            "source": "unit",
+            "detected": "2026-04-26T19:49:11.165Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "post-renders-content",
+              "checkCmd": "test -f apps/landing/src/pages/blog/[slug].astro && grep -qE 'render\\(\\)|<Content\\s' apps/landing/src/pages/blog/[slug].astro",
+              "checkDescription": "renders post content via the entry's render() result",
+              "checkOutput": "Command failed: test -f apps/landing/src/pages/blog/[slug].astro && grep -qE 'render\\(\\)|<Content\\s' apps/landing/src/pages/blog/[slug].astro\n",
+              "checkExitCode": 1,
+              "taskPrompt": "# Post template\n\nDynamic route at `/blog/[slug]` that renders one MDX post.\n\n## File\n\n```astro\n---\n// apps/landing/src/pages/blog/[slug].astro\nimport { getCollection, render } from 'astro:content';\nimport MainLayout from '@/layouts/MainLayout.astro';\n\nexport async function getStaticPaths() {\n  const posts = await getCollection('blog');\n  return posts\n    .filter((p) => !p.data.draft)\n    .map((p) => ({\n      params: { slug: p.id.replace(/\\.mdx?$/, '') },\n      props: { post: p },\n    }));\n}\n\nconst { post } = Astro.props;\nconst { Content } = await render(post);\n---\n\n<MainLayout\n  page=\"blog\"\n  title={`${post.data.title} — Converge`}\n  description={post.data.description}\n  ogImage={post.data.ogImage}\n>\n  <article class=\"max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 prose prose-invert prose-headings:font-display prose-pre:bg-bg-elev\">\n    <header class=\"not-prose mb-12\">\n      <h1 class=\"text-4xl sm:text-5xl font-display font-bold text-text leading-tight\">\n        {post.data.title}\n      </h1>\n      <p class=\"mt-4 text-text-muted text-lg\">{post.data.description}</p>\n      <p class=\"mt-6 text-sm text-text-dim\">\n        <time datetime={post.data.date.toISOString()}>\n          {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}\n        </time>\n        <span class=\"mx-2\">·</span>\n        {post.data.author}\n      </p>\n    </header>\n\n    <Content />\n\n    <footer class=\"not-prose mt-16 pt-8 border-t border-border\">\n      <a href=\"/blog\" class=\"text-indigo hover:underline\">← All posts</a>\n    </footer>\n  </article>\n</MainLayout>\n```\n\n## Process\n\n1. Write the file.\n2. Run `pnpm --filter @converge/landing build`. With no posts yet, the build won't generate any blog routes — that's expected.\n3. After 006-seed-posts runs, the build will generate `dist/blog/<slug>/index.html` for each post.\n\n## Banned\n\n- Inlining post styling. Use Tailwind's `prose` modifiers (`prose-invert prose-headings:...`) — this is what `@tailwindcss/typography` is for. If not installed, add it as a dev dep.\n- Removing the \"← All posts\" link. Posts must be navigable back to the index.",
+              "taskId": "07-integrate-blog/003-post-template",
+              "taskTitle": "/blog/[slug] dynamic route — renders MDX posts",
+              "unitPath": "/Users/minh/Documents/converge/.converge/playbooks/landing-page/tasks/07-integrate-blog/tasks/003-post-template",
+              "factId": "check:post-renders-content"
+            }
+          }
+        ],
+        "durationMs": 39
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 18
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 21
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#97",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 27676
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-26T19:49:11.125Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-26T19:49:11.126Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-26T19:49:11.166Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-26T19:49:11.168Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-26T19:49:11.186Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#97",
+      "iteration": 1,
+      "ts": "2026-04-26T19:49:38.864Z"
+    },
+    {
+      "from": "run-strategy:task-run#97",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-26T19:49:38.886Z"
+    }
+  ]
+}

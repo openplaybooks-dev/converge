@@ -1,0 +1,32 @@
+{
+  "$schema": "../.content/schemas/sitemap.schema.json",
+  "domain": "https://converge.dev",
+  "routes": [
+    { "path": "/",                               "kind": "page",    "title": "Home",                      "priority": 1.0 },
+    { "path": "/blog",                           "kind": "page",    "title": "Blog",                      "priority": 0.7 },
+    { "path": "/blog/[slug]",                    "kind": "dynamic", "title": "Blog post",                 "priority": 0.6 },
+    { "path": "/404",                            "kind": "error",   "title": "Not found",                 "priority": 0.1 },
+    { "path": "/docs/getting-started/why-converge",             "kind": "doc", "title": "Why Converge",                        "priority": 0.8 },
+    { "path": "/docs/getting-started/install",                  "kind": "doc", "title": "Install",                             "priority": 0.8 },
+    { "path": "/docs/getting-started/your-first-playbook",     "kind": "doc", "title": "Your first playbook",                 "priority": 0.8 },
+    { "path": "/docs/getting-started/from-problem-to-playbook","kind": "doc", "title": "From your problem to a playbook",     "priority": 0.8 },
+    { "path": "/docs/getting-started/next-steps",              "kind": "doc", "title": "Next steps",                          "priority": 0.8 },
+    { "path": "/docs/examples/index",                          "kind": "doc", "title": "Examples gallery",                    "priority": 0.7 },
+    { "path": "/docs/guides/articulate-your-goal",             "kind": "doc", "title": "Articulating a goal (non-technical)", "priority": 0.8 },
+    { "path": "/docs/guides/generate-something-repeatedly",    "kind": "doc", "title": "Generate something repeatedly",       "priority": 0.8 },
+    { "path": "/docs/guides/research-a-topic-deeply",          "kind": "doc", "title": "Research a topic deeply",              "priority": 0.8 },
+    { "path": "/docs/guides/build-a-software-project",         "kind": "doc", "title": "Build a software project",             "priority": 0.8 },
+    { "path": "/docs/guides/switch-providers",                 "kind": "doc", "title": "Switch providers",                     "priority": 0.8 },
+    { "path": "/docs/guides/read-the-journal",                 "kind": "doc", "title": "Read the journal (LEARN.md & events)", "priority": 0.8 },
+    { "path": "/docs/guides/customize-an-example",             "kind": "doc", "title": "Customize an example",                 "priority": 0.8 },
+    { "path": "/docs/troubleshooting/index",                   "kind": "doc", "title": "Troubleshooting index",               "priority": 0.7 },
+    { "path": "/docs/reference/playbook-yml",                 "kind": "doc", "title": "playbook.yml",                         "priority": 0.7 },
+    { "path": "/docs/reference/task-md",                      "kind": "doc", "title": "TASK.md",                              "priority": 0.7 },
+    { "path": "/docs/reference/project-yml",                  "kind": "doc", "title": "project.yml",                          "priority": 0.7 },
+    { "path": "/docs/reference/core-api",                     "kind": "doc", "title": "@converge/core",                      "priority": 0.7 },
+    { "path": "/docs/concepts/context-interpolation",         "kind": "doc", "title": "Context interpolation",               "priority": 0.8 },
+    { "path": "/docs/concepts/deterministic-checks",           "kind": "doc", "title": "Deterministic checks",                 "priority": 0.8 },
+    { "path": "/docs/concepts/dynamic-work-breakdown",        "kind": "doc", "title": "Dynamic work-breakdown",               "priority": 0.8 },
+    { "path": "/docs/concepts/self-correction",               "kind": "doc", "title": "Strategy-based self-correction",       "priority": 0.8 }
+  ]
+}

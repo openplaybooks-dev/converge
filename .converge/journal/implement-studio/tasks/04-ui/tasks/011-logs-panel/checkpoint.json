@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "04-ui/011-logs-panel",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T05:41:51.781Z",
+  "createdAt": "2026-04-26T05:39:42.631Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T05:39:42.631Z",
+      "completedAt": "2026-04-26T05:41:51.778Z",
+      "outcome": "success",
+      "durationMs": 129147
+    }
+  ],
+  "currentAttempt": 1
+}

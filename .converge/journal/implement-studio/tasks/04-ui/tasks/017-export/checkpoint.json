@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "04-ui/017-export",
+  "status": "complete",
+  "lastUpdated": "2026-04-26T05:59:50.880Z",
+  "createdAt": "2026-04-26T05:58:19.181Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-26T05:58:19.181Z",
+      "completedAt": "2026-04-26T05:59:50.877Z",
+      "outcome": "success",
+      "durationMs": 91696
+    }
+  ],
+  "currentAttempt": 1
+}

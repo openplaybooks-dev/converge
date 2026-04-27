@@ -1,2 +1,0 @@
-{"type":"file-exists","path":"assets/characters/hero-knight/SPEC.md","cmd":"test -f \"assets/characters/hero-knight/SPEC.md\"","id":"file-exists:test -f \"assets/characters/hero-knight/SPEC.md\"","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T06:03:39.045Z"}
-{"type":"check","checkId":"spec-exists","cmd":"test -s assets/characters/hero-knight/SPEC.md","description":"Spec file exists","id":"check:spec-exists","ok":true,"output":"","exitCode":0,"collectedAt":"2026-04-23T06:03:39.047Z"}

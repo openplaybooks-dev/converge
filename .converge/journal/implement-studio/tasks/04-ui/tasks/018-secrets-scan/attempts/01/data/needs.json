@@ -1,0 +1,11 @@
+{
+  "taskId": "04-ui/018-secrets-scan",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "packages/converge-studio/src/app/api/playbooks/[name]/secrets-scan",
+    "packages/converge-studio/src/lib/secrets-scan.ts",
+    "packages/converge-studio/src/components/secrets-scan-card.tsx"
+  ],
+  "blocked": false
+}
