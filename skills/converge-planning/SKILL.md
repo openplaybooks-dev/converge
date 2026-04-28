@@ -20,8 +20,10 @@ Structured project planning for fresh or existing projects. Analyze codebase, di
 | Existing codebase + converge, need new plan | `.converge/` exists, user wants replanning | `guides/analyze.md` → then architect |
 | User described idea, need plan | User gave requirements | `guides/architect.md` |
 | Plan exists, need validation | `playbook.yml` or tasks exist | `guides/validate.md` |
-| Generate playbook from prompt | `converge plan --prompt "..."` (new playbook) | `guides/plan-new-playbook.md` |
-| Modify/extend existing playbook | `converge plan --prompt "..." --update` | `guides/plan-existing-playbook.md` |
+| Plan one node (per progressive-decomposition) | `converge plan <path> [-p "..."]` | `guides/progressive-decomposition.md` |
+| Re-plan one node in place | `converge plan <path> --update` | `guides/progressive-decomposition.md` |
+| Generate playbook from prompt (legacy) | `converge plan --prompt "..."` (new playbook) | `guides/plan-new-playbook.md` |
+| Modify/extend existing playbook (legacy) | `converge plan --prompt "..." --update` | `guides/plan-existing-playbook.md` |
 | Need artifact format reference | Creating plan manually | `preferences/plan-schema.md` |
 | Need project template | Common project type | `preferences/project-patterns.md` |
 | Need context principles reference | Designing context flow | `preferences/context-principles.md` |
