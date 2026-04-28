@@ -231,13 +231,44 @@ depth 5 costs the same per-agent as a 20-task playbook with depth 5.
 The whole framing reduces to one recursive command:
 
 ```bash
-converge plan <path>
+converge plan <path> [-p "<prompt>"] [--update]
 ```
 
 `<path>` points at either a playbook root (where `playbook.yml` lives) or
 any task directory inside it (where a `TASK.md` lives). The command does
 exactly the same thing at every level — that's what makes the protocol
 scale.
+
+The two flags cover the seeding and steering cases:
+
+- **`-p "<prompt>"`** — supply or augment the brief inline. At a fresh
+  playbook root with no `idea.md`, `-p` *is* the brief: phase 1 treats
+  the prompt string as the project context. At a task node, `-p` adds
+  intent the planner should weight ("focus on the warrior class first,"
+  "skip the export step for this run") on top of the existing scope
+  chain. Without `-p`, the planner uses only the on-disk chain.
+- **`--update`** — re-plan in place. By default, `converge plan`
+  preserves existing child TASK.md files (idempotent fill-in). With
+  `--update`, the planner is told its existing PLAN.md and child set
+  are *drafts to revise*, not facts to preserve. It can rewrite the
+  PLAN.md and modify, add, or mark-for-removal the children based on
+  the new prompt or new ancestor context. The runtime still won't
+  delete user edits silently — see the update semantics below.
+
+Three common entry points:
+
+```bash
+# 1. Fresh project, no idea.md yet.
+converge plan .converge/playbooks/default -p "platformer asset library, fantasy theme, godot+unity export"
+
+# 2. Existing project with an idea.md. Standard layered planning.
+converge plan .converge/playbooks/default
+
+# 3. Existing playbook needs a course correction.
+converge plan .converge/playbooks/default --update -p "switch art style from fantasy to cyberpunk; drop unity export"
+```
+
+All three trigger the same two-phase loop below.
 
 ### Two phases per invocation
 
@@ -316,18 +347,27 @@ playbook-root/
 
 Phase 1 of `converge plan <path>` reads, in order:
 
-1. The playbook root's brief (`idea.md`) and `playbook.yml`.
+1. The playbook root's brief (`idea.md`) and `playbook.yml`. If neither
+   exists and `-p` was passed, the prompt string substitutes for the
+   brief.
 2. The root `PLAN.md`, if it exists.
 3. For each directory along `playbook-root → ... → path`, the
    `PLAN.md` and `TASK.md` at that directory.
 4. The current node's own `TASK.md`, if it already exists (the parent's
    phase 2 wrote it before recursing in).
+5. Any `-p "<prompt>"` argument, appended as "additional intent from the
+   user for this invocation."
 
 That's the **scope packet**. It is `O(depth)` — root + ancestors + me.
 Never siblings (`tasks/04-tile-maps/`), never cousins, never any node's
 descendants. The reading rule is what makes the protocol composable: a
 planner at depth 5 has the same shape of context as a planner at depth
 1, just longer.
+
+`-p` does not let the planner cheat the reading rule — it doesn't
+unlock sibling reads or descendant traversal. It just gives the user a
+direct channel to inject intent at *this* node's planner, in the
+planner's own input.
 
 ### Two child shapes, three node states
 
@@ -361,15 +401,50 @@ Compare to the "plan the whole tree up front" approach: a single
 planning step that has to think about thousands of leaves at once. It
 doesn't fit in any context window, can't be reviewed, can't be debugged.
 
-### Idempotency and replanning
+### Idempotency and replanning: three modes
 
-`converge plan <path>` should be safe to re-run. The simplest contract:
-running it overwrites `PLAN.md` (re-analysis is cheap and explicit) but
-does *not* overwrite child `TASK.md` files that already exist — only
-fills in missing ones. To force a full replan of a subtree, the user
-deletes that subtree's `PLAN.md` and child directories, then re-runs.
-This keeps human edits to TASK.md from getting clobbered while still
-letting the planner extend an in-progress decomposition.
+`converge plan <path>` is safe to re-run. Behavior depends on flags and
+on what's already on disk:
+
+**Mode A — fresh.** Nothing at `<path>` yet (no `PLAN.md`, no child
+TASK.md files). Phase 1 plans from scratch using the brief
+(`idea.md` + `playbook.yml`, or `-p`). Phase 2 writes everything new.
+This is the typical first run.
+
+**Mode B — fill-in (default re-run).** A `PLAN.md` exists; some child
+TASK.md files exist, some don't. Phase 1 re-runs and overwrites
+`PLAN.md` (re-analysis is cheap and explicit). Phase 2 *fills missing*
+child TASK.md files and *recurses only into children that don't yet
+have a `PLAN.md`*. Existing TASK.md files are preserved as-is. Useful
+for resuming a partial decomposition without disturbing user edits.
+
+**Mode C — update (`--update`).** Phase 1 is told its existing
+`PLAN.md` and child set are *drafts to revise* in light of new context
+(typically a `-p` prompt, or freshly edited ancestor PLAN.md). Phase 2
+applies the diff:
+
+- *New* children listed in the revised PLAN.md → materialize TASK.md,
+  recurse normally.
+- *Removed* children → mark deprecated (rename to `_deprecated/` rather
+  than delete; user reviews). Never silently drop user-touched files.
+- *Modified* children whose TASK.md still matches what the previous
+  PLAN.md asked for → re-materialize with the new contract, recurse
+  with `--update`.
+- *Modified* children whose TASK.md has diverged from the previous
+  PLAN.md (i.e. a human edited it) → flagged for the user with a diff
+  summary; left untouched. The user decides whether to accept the
+  proposed update or keep their edit.
+
+The principle: **`converge plan` proposes; the user disposes.**
+`--update` lets the planner reason about changes; the runtime keeps
+human edits visible and reversible. To force a full replan that
+discards everything, the user deletes the subtree and re-runs without
+`--update`.
+
+Re-running `--update` at the root cascades: each child whose contract
+changed gets `converge plan --update` invoked recursively. Children
+whose contract didn't change are skipped. This is how a single
+prompt-edit at the root propagates only as far as it needs to.
 
 ### The skill that powers phase 1
 
@@ -391,9 +466,12 @@ skills/converge-planning/
 You are running phase 1 of `converge plan <path>`.
 
 INPUTS (already gathered for you, the scope packet):
-  - PROJECT brief and playbook.yml (root context)
+  - PROJECT brief: idea.md + playbook.yml. If the project is fresh,
+    this may be empty and a USER PROMPT (-p) substitutes for it.
   - The PLAN.md + TASK.md at every ancestor directory along the path
   - This node's own TASK.md, if its parent already wrote one
+  - Optional USER PROMPT (-p) — additional intent for this invocation
+  - MODE: "fresh" | "fill-in" | "update"
 
 OUTPUT: write PLAN.md at <path>. Decide one of:
   (a) This node is a LEAF EXECUTABLE TASK — give a one-paragraph plan
@@ -403,6 +481,10 @@ OUTPUT: write PLAN.md at <path>. Decide one of:
       give a one-line goal, a short scope sketch, and tag it as
       "executable" or "wbs". Phase 2 will materialize each child's
       TASK.md and recurse into the executable ones.
+
+If MODE is "update", the existing PLAN.md and child set are drafts to
+revise, not facts to preserve. Be explicit in the new PLAN.md about
+what changed and why, so phase 2 can compute a sensible diff.
 
 HARD RULES:
   - Do NOT plan grandchildren. Stop at one layer.
@@ -493,12 +575,18 @@ What we gain:
 `examples/game-assets` already runs. The reframing is purely about *who
 plans what, when, and what they look at while planning*. No file moves.
 
-**The user kicks it off.** From the project root with an `idea.md` and a
-fresh `.converge/playbooks/default/playbook.yml`:
+**The user kicks it off.** No `idea.md`, just an empty playbook
+scaffold:
 
 ```bash
-converge plan .converge/playbooks/default
+converge plan .converge/playbooks/default \
+  -p "platformer asset library, fantasy theme, godot+unity export, 3 starter characters"
 ```
+
+(Alternative if `idea.md` already exists: `converge plan
+.converge/playbooks/default` with no `-p`. The brief is read from
+`idea.md`. To layer extra intent on top of `idea.md`, pass `-p` as
+well — it gets appended as user intent for this invocation.)
 
 **Phase 1 at the root.** Reads `idea.md` and `playbook.yml`. There are no
 ancestors, this is the top. Writes `.converge/playbooks/default/PLAN.md`
@@ -565,6 +653,32 @@ Same files, same tree, same runtime. What changed is: every planning
 step ever made decisions about at most 6 children, with at most O(depth)
 context to read.
 
+**Course correction with `--update`.** Two weeks later the user wants
+to switch art style and drop one engine target. They run:
+
+```bash
+converge plan .converge/playbooks/default --update \
+  -p "switch art style from fantasy to cyberpunk; drop unity export"
+```
+
+Phase 1 at the root re-analyses with the prompt and rewrites root
+`PLAN.md`. Phase 2 computes a diff against the previous root plan:
+
+- `01-setup-art-style/` contract changes (style differs) → re-materialize
+  TASK.md, recurse with `--update`.
+- `06-props/`, `04-tile-maps/`, `05-backgrounds/`: scope changes
+  (cyberpunk catalog) → re-materialize, recurse with `--update`.
+- `07-export/`: no longer exports Unity → checks shrink → re-materialize.
+- `02-asset-breakdown/`, `03-characters/`: no contract change at this
+  level (catalog will change but the children are still "analyse +
+  generate") → skip recursion at this layer; the recursion they
+  themselves trigger will pick up the cyberpunk catalog naturally
+  through the new ancestor PLAN.md when their own `--update` runs.
+
+If the user had hand-edited `01-setup-art-style/TASK.md`, the runtime
+flags the proposed update as a conflict and leaves the file untouched
+until the user resolves it. No silent overwrites of human work.
+
 ## Open questions
 
 1. **Rubric for phase 1.** What's the minimum checklist that catches most
@@ -609,13 +723,20 @@ The deliverables are minimal and stack cleanly:
 2. **Build the `converge-planning` skill** at `skills/converge-planning/`:
    `SKILL.md` (the phase 1 prompt), `rubric.md` (the self-grading
    checklist), and two worked examples (asset-library, doc-site).
-3. **Implement `converge plan <path>`** in the CLI:
-   - Phase 1: gather scope packet (root → ancestors → me), invoke the
-     skill, write `PLAN.md`.
+3. **Implement `converge plan <path> [-p "<prompt>"] [--update]`** in
+   the CLI:
+   - Phase 1: gather scope packet (root → ancestors → me, plus the
+     optional `-p` prompt), invoke the skill, write `PLAN.md`. If no
+     `idea.md` exists, `-p` substitutes for the brief — that's the
+     fresh-project flow.
    - Phase 2: materialize child `TASK.md` files; for static-container
-     children, recursively invoke `converge plan` on each child path.
+     children, recursively invoke `converge plan` on each child path
+     (propagating `--update` if the parent ran with it).
    - For WBS children, just write the `wbs:` TASK.md and stop —
      recursion happens at runtime when the WBS spawns its children.
+   - `--update` mode: revise existing PLAN.md, diff against previous
+     children, re-materialize changed contracts, mark removed children
+     `_deprecated/`, flag user-edited divergences without overwriting.
 4. **Wire runtime-driven recursion.** When a WBS task expands at run
    time, the runtime auto-invokes `converge plan` on each spawned child
    path before the runner picks it up.
