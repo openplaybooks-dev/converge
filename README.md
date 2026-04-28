@@ -2,9 +2,9 @@
 
 ![Converge](./banner.svg)
 
-### Define done. Converge gets there.
+# The autonomous AI agent playbook.
 
-**A goal-driven, self-correcting framework for orchestrating long-running AI agent workflows.**
+**The agent framework that runs autonomously for hours — even days, across thousands of tasks.**
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![npm](https://img.shields.io/badge/npm-%40converge%2Fcore-cb3837.svg)](https://www.npmjs.com/package/@converge/core)
@@ -19,7 +19,7 @@
 
 Converge is an open-source, TypeScript-native framework for orchestrating long-running AI agent workflows. Instead of authoring step-by-step graphs or hand-tuned prompts, you declare what "done" looks like — the artifacts that must exist, the checks that must pass — and Converge continuously measures the gap, generates the work to close it, and self-corrects when checks fail.
 
-Think of it as SQL for agent workflows: declarative goals, deterministic verification, no glue code.
+State lives in plain files on disk. Kill the process and resume from the last checkpoint. No graph wiring. No hosted control plane.
 
 ```bash
 npm install -g @converge/core
