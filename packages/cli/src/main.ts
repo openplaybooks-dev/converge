@@ -1172,7 +1172,7 @@ async function main(): Promise<void> {
         const { mkdir: mkdirFs, writeFile: writeFileFs } =
           await import("node:fs/promises");
         const { runPlanLayer } = await import(
-          "@converge/core/planning/progressive-decomposition.ts"
+          "@converge/core/planning/progressive-decomposition/index.ts"
         );
 
         // Per docs/design/progressive-decomposition.md:
