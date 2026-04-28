@@ -1,73 +1,33 @@
 /**
  * `converge plan <path>` — progressive decomposition.
  *
- * Each invocation plans ONE layer at a node:
- *   1. Build the scope packet (root → ancestors → me) by reading files
- *      from disk. Never reads siblings or descendants.
- *   2. Call the LLM with a templated prompt + Zod schema. The LLM returns
- *      a structured plan: `{ goal, kind: leaf|container, children, ... }`.
- *   3. Write `PLAN.md` (the proposal) at the node.
- *   4. If container: write child `TASK.md` files from the plan.
- *   5. Recurse into static-container children.
+ * Each invocation plans ONE layer at a node, in two phases:
  *
- * Recursion is driven by TS, not by the agent. The LLM only writes one
- * structured plan per node; everything else is deterministic file I/O.
+ *   Phase 1 — ANALYZE
+ *     Prompt the LLM with the scope packet (root → ancestors → me) and
+ *     have it write `<nodePath>/PLAN.md`. The PLAN.md has YAML
+ *     frontmatter that lists the children (id, kind, title) plus a
+ *     markdown body describing the goal, decision, per-child contracts,
+ *     and open questions.
+ *
+ *   Phase 2 — IMPLEMENT
+ *     Prompt the LLM to read PLAN.md and materialize child TASK.md
+ *     files (and `wbs/index.js` for WBS children) under `<nodePath>`.
+ *
+ * After both phases, TS parses PLAN.md frontmatter and recursively
+ * runs the same plan-implement cycle for each static-container child.
+ *
+ * Two LLM calls per node. Recursion is in-process, sequential, driven
+ * by TS — agents do not invoke `converge plan`.
  *
  * See docs/design/progressive-decomposition.md for the protocol.
  */
 
 import { existsSync, readFileSync } from "node:fs";
-import { mkdir, writeFile, rm } from "node:fs/promises";
-import { dirname, join, relative, resolve as resolvePath } from "node:path";
-import { z } from "zod";
+import { mkdir, writeFile, rename } from "node:fs/promises";
+import { join, relative } from "node:path";
+import { parse as parseYaml } from "yaml";
 import { agentfn } from "@converge/agentfn";
-
-/* ------------------------------------------------------------------ */
-/*  Schema                                                             */
-/* ------------------------------------------------------------------ */
-
-const CheckSchema = z.object({
-  id: z.string(),
-  cmd: z.string(),
-  description: z.string().optional(),
-});
-
-const ChildSchema = z.object({
-  id: z
-    .string()
-    .regex(/^[a-z0-9][a-z0-9-]*$/, "id must be a kebab-case slug"),
-  title: z.string(),
-  kind: z.enum(["executable", "wbs", "container"]),
-  goal: z.string(),
-  scope: z.string().optional(),
-  // executable-only:
-  outputs: z.array(z.string()).optional(),
-  checks: z.array(CheckSchema).optional(),
-  body: z.string().optional(),
-  // wbs-only:
-  wbs: z
-    .object({
-      type: z.enum(["nodejs", "template", "ai"]),
-      driver: z.string(),
-      path: z.string().optional(),
-    })
-    .optional(),
-});
-
-const PlanLayerSchema = z.object({
-  goal: z.string(),
-  kind: z.enum(["leaf", "container"]),
-  // leaf-only:
-  leafPlan: z.string().optional(),
-  outputs: z.array(z.string()).optional(),
-  checks: z.array(CheckSchema).optional(),
-  // container-only:
-  children: z.array(ChildSchema).optional(),
-  openQuestions: z.array(z.string()).optional(),
-});
-
-export type PlanLayerOutput = z.infer<typeof PlanLayerSchema>;
-export type PlanChild = z.infer<typeof ChildSchema>;
 
 /* ------------------------------------------------------------------ */
 /*  Public API                                                         */
@@ -93,10 +53,12 @@ export interface PlanLayerOpts {
 }
 
 const DEFAULT_MAX_DEPTH = 8;
+const PHASE_TIMEOUT_MS = 240_000;
 
 /**
- * Plan one layer at `opts.nodePath`. Recursively plans static-container
- * children (sequentially) until all paths terminate at leaves or WBS.
+ * Plan one layer at `opts.nodePath`. Runs phase 1 (analyze → PLAN.md),
+ * then phase 2 (implement → child TASK.md / wbs.js), then recurses
+ * sequentially into static-container children.
  */
 export async function runPlanLayer(opts: PlanLayerOpts): Promise<void> {
   const depth = opts.depth ?? 0;
@@ -119,67 +81,95 @@ export async function runPlanLayer(opts: PlanLayerOpts): Promise<void> {
     `\n${indent}📋 ${rel(opts.nodePath, opts.projectDir)} [${opts.nodeKind}, ${mode}]`,
   );
 
-  // 1. Build the scope packet (root → ancestors → me).
-  const scope = readScopePacket(opts);
-
-  // 2. Build the prompt and call the LLM.
-  const prompt = buildPlanPrompt({ ...opts, mode }, scope);
   const logDir = join(opts.projectDir, ".converge", "logs", "plan");
   await mkdir(logDir, { recursive: true });
+  await mkdir(opts.nodePath, { recursive: true });
 
-  console.log(`${indent}   🧠 calling planner...`);
-  const fn = agentfn<PlanLayerOutput>({
-    prompt,
-    schema: PlanLayerSchema,
-    allowedTools: ["Read", "Glob"],
-    timeoutMs: 180_000,
+  // ── Update mode: stash the previous PLAN.md so the analyzer can diff ──
+  if (mode === "update" && existsSync(join(opts.nodePath, "PLAN.md"))) {
+    await rename(
+      join(opts.nodePath, "PLAN.md"),
+      join(opts.nodePath, "PLAN.previous.md"),
+    );
+  }
+
+  // ── Phase 1: ANALYZE ──────────────────────────────────────────────
+  console.log(`${indent}   🧠 phase 1: analyze...`);
+  const scope = readScopePacket(opts);
+  const analyzePrompt = buildAnalyzePrompt({ ...opts, mode }, scope);
+
+  const analyze = agentfn({
+    prompt: analyzePrompt,
+    allowedTools: ["Read", "Glob", "Grep", "Write"],
+    timeoutMs: PHASE_TIMEOUT_MS,
     cwd: opts.projectDir,
     logDir,
   });
-  const result = await fn();
-  const plan = result.data;
+  await analyze();
+
+  if (!existsSync(join(opts.nodePath, "PLAN.md"))) {
+    throw new Error(
+      `phase 1 did not produce ${rel(opts.nodePath, opts.projectDir)}/PLAN.md`,
+    );
+  }
+
+  const meta = parsePlanMdFrontmatter(
+    readFileSync(join(opts.nodePath, "PLAN.md"), "utf8"),
+  );
   console.log(
-    `${indent}   ✓ ${plan.kind}${
-      plan.kind === "container"
-        ? ` — ${plan.children?.length ?? 0} children`
-        : ""
+    `${indent}      → ${meta.kind}${
+      meta.kind === "container" ? ` (${meta.children?.length ?? 0} children)` : ""
     }`,
   );
 
-  // 3. Write PLAN.md.
-  await writePlanMd(opts.nodePath, plan, mode);
+  // ── Phase 2: IMPLEMENT ────────────────────────────────────────────
+  if (meta.kind === "leaf") {
+    // No children to materialize. Phase 2 is a no-op.
+    return;
+  }
 
-  // 4. If leaf: done. Parent's TASK.md is the contract; PLAN.md is the
-  //    leaf-level analysis. (We deliberately don't overwrite the parent's
-  //    TASK.md here — the user can sync from PLAN.md if they want.)
-  if (plan.kind === "leaf") return;
-
-  if (!plan.children || plan.children.length === 0) {
+  if (!meta.children || meta.children.length === 0) {
     console.log(
-      `${indent}   ⚠️  container declared but no children — nothing to materialize`,
+      `${indent}      ⚠️  container declared but PLAN.md has no children frontmatter — skipping phase 2`,
     );
     return;
   }
 
-  // 5. Write child TASK.md files.
-  for (const child of plan.children) {
-    const childDir = join(opts.nodePath, child.id);
-    await writeChildTaskMd(childDir, child, mode);
+  console.log(`${indent}   🔨 phase 2: implement (${meta.children.length} children)...`);
+  const planMdContent = readFileSync(join(opts.nodePath, "PLAN.md"), "utf8");
+  const implementPrompt = buildImplementPrompt(
+    { ...opts, mode },
+    planMdContent,
+    meta,
+  );
+
+  const implement = agentfn({
+    prompt: implementPrompt,
+    allowedTools: ["Read", "Glob", "Write", "Bash"],
+    timeoutMs: PHASE_TIMEOUT_MS,
+    cwd: opts.projectDir,
+    logDir,
+  });
+  await implement();
+
+  // Verify each declared child got a TASK.md.
+  const missing = meta.children.filter(
+    (c) => !existsSync(join(opts.nodePath, c.id, "TASK.md")),
+  );
+  if (missing.length > 0) {
+    console.log(
+      `${indent}      ⚠️  phase 2 missed children: ${missing.map((c) => c.id).join(", ")}`,
+    );
   }
 
-  // 6. In update mode, mark removed children deprecated. (Detection of
-  //    "removed" is comparing plan.children against existing child dirs.)
-  if (mode === "update") {
-    await markRemovedDeprecated(opts.nodePath, plan.children);
-  }
-
-  // 7. Recurse for static-container children. Sequential — order doesn't
-  //    matter (siblings can't read each other), but parallelism would
-  //    multiply concurrent LLM calls.
-  for (const child of plan.children.filter((c) => c.kind === "container")) {
+  // ── Recurse: static-container children only ────────────────────────
+  const containerChildren = meta.children.filter((c) => c.kind === "container");
+  for (const child of containerChildren) {
+    const childPath = join(opts.nodePath, child.id);
+    if (!existsSync(join(childPath, "TASK.md"))) continue; // phase 2 missed it
     await runPlanLayer({
       ...opts,
-      nodePath: join(opts.nodePath, child.id),
+      nodePath: childPath,
       nodeKind: "task",
       prompt: undefined, // -p does not cascade automatically
       depth: depth + 1,
@@ -204,6 +194,7 @@ interface ScopePacket {
   rootPlan?: string;
   ancestors: ScopeAncestor[];
   myTask?: string;
+  previousPlan?: string;
 }
 
 function readScopePacket(opts: PlanLayerOpts): ScopePacket {
@@ -211,28 +202,23 @@ function readScopePacket(opts: PlanLayerOpts): ScopePacket {
 
   // Project brief.
   const ideaPath = join(opts.projectDir, "idea.md");
-  if (existsSync(ideaPath)) {
-    result.brief = readFileSync(ideaPath, "utf8");
-  } else {
-    const ideaMd = join(opts.projectDir, "IDEA.md");
-    if (existsSync(ideaMd)) result.brief = readFileSync(ideaMd, "utf8");
-  }
+  const ideaMd = join(opts.projectDir, "IDEA.md");
+  if (existsSync(ideaPath)) result.brief = readFileSync(ideaPath, "utf8");
+  else if (existsSync(ideaMd)) result.brief = readFileSync(ideaMd, "utf8");
 
   // playbook.yml.
   const pbYml = join(opts.playbookRoot, "playbook.yml");
   const pbYaml = join(opts.playbookRoot, "playbook.yaml");
   if (existsSync(pbYml)) result.playbookYml = readFileSync(pbYml, "utf8");
-  else if (existsSync(pbYaml))
-    result.playbookYml = readFileSync(pbYaml, "utf8");
+  else if (existsSync(pbYaml)) result.playbookYml = readFileSync(pbYaml, "utf8");
 
-  // Root PLAN.md (if planning a task — root self-references its own plan
-  // separately as "my own").
+  // Root PLAN.md (if planning a non-root task).
   if (opts.nodePath !== opts.playbookRoot) {
     const rootPlan = join(opts.playbookRoot, "PLAN.md");
     if (existsSync(rootPlan)) result.rootPlan = readFileSync(rootPlan, "utf8");
   }
 
-  // Ancestor chain (exclude root and self).
+  // Ancestor chain (between root and self, exclusive).
   if (opts.nodePath !== opts.playbookRoot) {
     const relFromRoot = relative(opts.playbookRoot, opts.nodePath);
     const segments = relFromRoot.split(/[/\\]/);
@@ -252,25 +238,89 @@ function readScopePacket(opts: PlanLayerOpts): ScopePacket {
   const myTask = join(opts.nodePath, "TASK.md");
   if (existsSync(myTask)) result.myTask = readFileSync(myTask, "utf8");
 
+  // Previous PLAN.md (update mode).
+  const prev = join(opts.nodePath, "PLAN.previous.md");
+  if (existsSync(prev)) result.previousPlan = readFileSync(prev, "utf8");
+
   return result;
 }
 
 /* ------------------------------------------------------------------ */
-/*  Prompt template                                                    */
+/*  PLAN.md frontmatter parser                                         */
 /* ------------------------------------------------------------------ */
 
-function buildPlanPrompt(
+interface PlanMeta {
+  kind: "leaf" | "container";
+  children?: Array<{
+    id: string;
+    kind: "executable" | "wbs" | "container";
+    title?: string;
+  }>;
+}
+
+function parsePlanMdFrontmatter(content: string): PlanMeta {
+  // Frontmatter is delimited by leading '---' lines.
+  const m = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
+  if (!m) {
+    throw new Error("PLAN.md is missing required YAML frontmatter");
+  }
+  let parsed: unknown;
+  try {
+    parsed = parseYaml(m[1]);
+  } catch (e: any) {
+    throw new Error(`PLAN.md frontmatter is not valid YAML: ${e.message}`);
+  }
+  if (!parsed || typeof parsed !== "object") {
+    throw new Error("PLAN.md frontmatter must be a YAML object");
+  }
+  const raw = parsed as Record<string, unknown>;
+  const kind = raw.kind;
+  if (kind !== "leaf" && kind !== "container") {
+    throw new Error(
+      `PLAN.md frontmatter \`kind\` must be "leaf" or "container", got ${JSON.stringify(kind)}`,
+    );
+  }
+  const out: PlanMeta = { kind };
+  if (kind === "container") {
+    const children = raw.children;
+    if (!Array.isArray(children)) {
+      throw new Error('PLAN.md frontmatter `children` must be a list (container kind)');
+    }
+    out.children = [];
+    for (const c of children) {
+      if (!c || typeof c !== "object") continue;
+      const cc = c as Record<string, unknown>;
+      const id = typeof cc.id === "string" ? cc.id : undefined;
+      const ckind = cc.kind;
+      if (!id || !/^[a-z0-9][a-z0-9-]*$/.test(id)) continue;
+      if (ckind !== "executable" && ckind !== "wbs" && ckind !== "container") continue;
+      out.children.push({
+        id,
+        kind: ckind,
+        title: typeof cc.title === "string" ? cc.title : undefined,
+      });
+    }
+  }
+  return out;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Phase 1 — analyze prompt                                           */
+/* ------------------------------------------------------------------ */
+
+function buildAnalyzePrompt(
   opts: PlanLayerOpts & { mode: "fresh" | "fill-in" | "update" },
   scope: ScopePacket,
 ): string {
   const lines: string[] = [];
+  const relNode = rel(opts.nodePath, opts.projectDir);
 
   lines.push(
-    "You are running phase 1 of `converge plan` at one node — **progressive decomposition**.",
-    "Plan ONE layer only. Do NOT plan grandchildren. Do NOT read siblings or descendants.",
-    "Your output must match the JSON schema you were given.",
+    "You are running **phase 1 (ANALYZE)** of `converge plan` at one node.",
+    "**Progressive decomposition** — plan ONE layer only. Do NOT plan grandchildren.",
+    "Do NOT read siblings or any node's descendants. The scope packet below is exhaustive.",
     "",
-    `**Node**: \`${rel(opts.nodePath, opts.projectDir)}\``,
+    `**Node**: \`${relNode}\``,
     `**Kind**: ${opts.nodeKind}`,
     `**Mode**: ${opts.mode}`,
   );
@@ -280,76 +330,123 @@ function buildPlanPrompt(
   }
 
   lines.push("", "## Scope packet (root → ancestors → me)");
-
-  if (scope.brief) {
-    lines.push("", "### Project brief (idea.md)", "", scope.brief.trim());
-  }
-  if (scope.playbookYml) {
-    lines.push(
-      "",
-      "### playbook.yml",
-      "",
-      "```yaml",
-      scope.playbookYml.trim(),
-      "```",
-    );
-  }
-  if (scope.rootPlan) {
-    lines.push("", "### Root PLAN.md", "", scope.rootPlan.trim());
-  }
+  if (scope.brief) lines.push("", "### Project brief (idea.md)", "", scope.brief.trim());
+  if (scope.playbookYml)
+    lines.push("", "### playbook.yml", "", "```yaml", scope.playbookYml.trim(), "```");
+  if (scope.rootPlan) lines.push("", "### Root PLAN.md", "", scope.rootPlan.trim());
   for (const anc of scope.ancestors) {
     lines.push("", `### Ancestor: ${rel(anc.path, opts.projectDir)}`);
     if (anc.plan) lines.push("", "#### PLAN.md", "", anc.plan.trim());
     if (anc.task) lines.push("", "#### TASK.md", "", anc.task.trim());
   }
-  if (scope.myTask) {
-    lines.push("", "### My own TASK.md", "", scope.myTask.trim());
+  if (scope.myTask) lines.push("", "### My own TASK.md", "", scope.myTask.trim());
+  if (scope.previousPlan) {
+    lines.push(
+      "",
+      "### Previous PLAN.md (drafts to revise)",
+      "",
+      scope.previousPlan.trim(),
+    );
   }
 
   lines.push(
     "",
-    "## Decision",
+    "## Your task",
     "",
-    "Decide whether this node is a **leaf** (single executable task) or a",
-    "**container** (decomposes into 3-7 children).",
+    `Use the **Write** tool to create the file \`${relNode}/PLAN.md\`.`,
+    "It MUST start with YAML frontmatter that gives the layer's structural",
+    "summary, followed by markdown analysis. Use this exact shape:",
     "",
-    "If **leaf**: provide `leafPlan` (one paragraph), `outputs[]`, and",
-    "deterministic `checks[]` that gate completion.",
+    "```",
+    "---",
+    "kind: leaf | container",
+    "children:                       # required if kind=container, omit if leaf",
+    "  - id: <kebab-case-slug>       # 3-7 entries",
+    "    kind: executable | container | wbs",
+    "    title: <human title>",
+    "---",
+    "```",
     "",
-    "If **container**: provide `children[]` (3-7 entries). For each child:",
-    "- `id`: kebab-case slug — becomes the child directory name",
-    "- `title`: human title",
-    "- `kind`: `executable` | `wbs` | `container`",
-    "- `goal`: one sentence",
-    "- `scope` (optional): short sketch of what you (the parent) will pack",
-    "- For executable children: `outputs[]` and `checks[]` (and optional `body`)",
-    "- For wbs children: `wbs.type` (`nodejs`|`template`|`ai`) and `wbs.driver` (one-line description of what drives the fan-out, e.g. \"one per character in assets/sprites.json\")",
+    "## The three child kinds",
+    "",
+    "Every child is exactly one of these three:",
+    "",
+    "1. **`executable`** — an atomic task. Runtime runs it directly.",
+    "   Has `outputs` + `checks` + a body of step-by-step instructions.",
+    "   No children. No further decomposition.",
+    "",
+    "2. **`container`** — a *static* container. It decomposes into 3-7",
+    "   hand-written children at plan time. After phase 2 writes its",
+    "   TASK.md, the planner will be re-invoked recursively on its path",
+    "   to plan its layer. (No runtime fan-out.)",
+    "",
+    "3. **`wbs`** — a *dynamic* container. Its children are spawned at",
+    "   **runtime** (not plan time) by a `wbs/index.js` script that reads",
+    "   data and emits one child per item. Use this when the count and",
+    "   shape of children depend on data not known at plan time (one per",
+    "   character in `sprites.json`, one per CLI command, etc.).",
+    "",
+    "## PLAN.md body shape",
+    "",
+    "After the frontmatter, the body fills in one section per child:",
+    "",
+    "```markdown",
+    "# Goal",
+    "",
+    "<restate this node's goal in your own words>",
+    "",
+    "# Decision",
+    "",
+    "<leaf or container, with one paragraph of reasoning>",
+    "",
+    "# Children          # only for container",
+    "",
+    "## <child-id> — <title>",
+    "- **kind**: executable | container | wbs",
+    "- **goal**: <one sentence>",
+    "- **scope**: <what this node packs into the child's TASK.md>",
+    "- **outputs**: <file paths the child produces>      # executable only",
+    "- **checks**:                                        # executable only",
+    "  - <id>: `<deterministic shell cmd that returns 0>`",
+    "- **wbs**:                                           # wbs only",
+    "    type: nodejs | template | ai",
+    "    driver: <one-line description, e.g. \"one per character in sprites.json\">",
+    "- **body**: |                                        # executable only",
+    "    <step-by-step instructions for the leaf agent>",
+    "",
+    "# Open questions",
+    "",
+    "- <thing missing from your scope packet that you would need>",
+    "```",
     "",
     "## Hard rules",
-    "- Do NOT plan grandchildren. Stop at one layer.",
-    "- Do NOT read siblings or any node's descendants.",
+    "- Plan ONE layer. Do NOT enumerate grandchildren.",
     "- Prefer 3-7 children. If a single shape repeats (one per character,",
     "  one per command), use ONE `wbs` child, not N hand-written ones.",
     "- Each executable child must have at least one deterministic check.",
-    "- If something is missing from the scope packet that you'd need to",
-    "  plan well, add it to `openQuestions[]`. Do not invent.",
+    "- If something is missing from the scope packet that you'd need,",
+    "  surface it in `# Open questions`. Do NOT invent.",
+    "- The frontmatter `children` list is what TS parses to drive phase 2",
+    "  and recursion — make sure every child you describe in the body has",
+    "  a frontmatter entry, and vice versa.",
   );
 
   if (opts.mode === "update") {
     lines.push(
       "",
       "## Update mode",
-      "The existing PLAN.md and child set are drafts to revise. Be explicit",
-      "in the new plan about what changed and why. Removed children will be",
-      "renamed to `_deprecated/<id>/` by the runtime — do not delete them.",
+      "The previous PLAN.md is in the scope packet. Treat it as a draft to",
+      "revise. Be explicit about what changed and why. Removed children",
+      "will be renamed to `_deprecated/<id>/` by the runtime; new children",
+      "get materialized; modified children whose TASK.md still matches the",
+      "previous PLAN.md get re-materialized.",
     );
   } else if (opts.mode === "fill-in") {
     lines.push(
       "",
       "## Fill-in mode",
-      "PLAN.md may already exist. Re-analyse and overwrite it. Existing",
-      "child TASK.md files will be preserved by the runtime — do not assume",
-      "you are writing fresh contracts for every child.",
+      "PLAN.md may already have existed. Re-analyse from scratch. The",
+      "runtime will preserve existing child TASK.md files in phase 2.",
     );
   }
 
@@ -357,211 +454,133 @@ function buildPlanPrompt(
 }
 
 /* ------------------------------------------------------------------ */
-/*  PLAN.md writer                                                     */
+/*  Phase 2 — implement prompt                                         */
 /* ------------------------------------------------------------------ */
 
-async function writePlanMd(
-  nodePath: string,
-  plan: PlanLayerOutput,
-  mode: "fresh" | "fill-in" | "update",
-): Promise<void> {
+function buildImplementPrompt(
+  opts: PlanLayerOpts & { mode: "fresh" | "fill-in" | "update" },
+  planMdContent: string,
+  meta: PlanMeta,
+): string {
   const lines: string[] = [];
+  const relNode = rel(opts.nodePath, opts.projectDir);
 
-  // YAML frontmatter — machine-readable summary.
-  lines.push("---");
-  lines.push(`mode: ${mode}`);
-  lines.push(`kind: ${plan.kind}`);
-  lines.push(`generatedAt: ${new Date().toISOString()}`);
-  if (plan.kind === "container" && plan.children) {
-    lines.push("children:");
-    for (const c of plan.children) {
-      lines.push(`  - id: ${c.id}`);
-      lines.push(`    kind: ${c.kind}`);
-      lines.push(`    title: ${yamlScalar(c.title)}`);
-    }
-  }
-  lines.push("---");
-  lines.push("");
+  lines.push(
+    "You are running **phase 2 (IMPLEMENT)** of `converge plan` at one node.",
+    "Phase 1 wrote the analysis at the path below. Your job is to read it",
+    "and materialize the child TASK.md files (and `wbs/index.js` for WBS",
+    "children) under this node's directory. **You do not make planning",
+    "decisions** — you only translate the analysis into runtime contracts.",
+    "",
+    `**Node directory**: \`${relNode}/\``,
+    `**Mode**: ${opts.mode}`,
+    "",
+    `## PLAN.md (\`${relNode}/PLAN.md\`)`,
+    "",
+    planMdContent.trim(),
+    "",
+    "## Children to materialize",
+    "",
+  );
 
-  lines.push("# Goal", "", plan.goal.trim(), "");
-
-  if (plan.kind === "leaf") {
-    lines.push("# Decision: leaf executable", "");
-    if (plan.leafPlan) {
-      lines.push(plan.leafPlan.trim(), "");
-    }
-    if (plan.outputs?.length) {
-      lines.push("## Outputs", "");
-      for (const o of plan.outputs) lines.push(`- \`${o}\``);
-      lines.push("");
-    }
-    if (plan.checks?.length) {
-      lines.push("## Checks", "");
-      for (const c of plan.checks) {
-        lines.push(
-          `- **${c.id}**: \`${c.cmd}\`${c.description ? ` — ${c.description}` : ""}`,
-        );
-      }
-      lines.push("");
-    }
-  } else {
-    lines.push("# Decision: container", "");
-    if (plan.children?.length) {
-      lines.push(`## Children (${plan.children.length})`, "");
-      for (const c of plan.children) {
-        lines.push(`### ${c.id} — ${c.title}`);
-        lines.push(`- **kind**: ${c.kind}`);
-        lines.push(`- **goal**: ${c.goal}`);
-        if (c.scope) lines.push(`- **scope**: ${c.scope}`);
-        if (c.outputs?.length) {
-          lines.push(
-            `- **outputs**: ${c.outputs.map((o) => `\`${o}\``).join(", ")}`,
-          );
-        }
-        if (c.checks?.length) {
-          lines.push(`- **checks**:`);
-          for (const ck of c.checks) {
-            lines.push(`  - \`${ck.id}\`: \`${ck.cmd}\``);
-          }
-        }
-        if (c.wbs) {
-          lines.push(`- **wbs**: \`${c.wbs.type}\` — ${c.wbs.driver}`);
-        }
-        lines.push("");
-      }
-    }
+  for (const c of meta.children ?? []) {
+    lines.push(`- \`${c.id}\` — kind: ${c.kind}${c.title ? ` — ${c.title}` : ""}`);
   }
 
-  if (plan.openQuestions?.length) {
-    lines.push("# Open questions", "");
-    for (const q of plan.openQuestions) lines.push(`- ${q}`);
-    lines.push("");
-  }
+  lines.push(
+    "",
+    "## The three child kinds",
+    "",
+    "Each child is one of:",
+    "",
+    "1. **`executable`** — atomic task. TASK.md has `outputs` + `checks` + a body.",
+    "   Runtime runs it directly. **No** wbs/index.js, **no** further decomposition.",
+    "2. **`container`** — *static* container. TASK.md is a thin contract; its",
+    "   children are hand-written by the planner that runs on its path next.",
+    "   **No** wbs/index.js. The planner will be re-invoked recursively after",
+    "   you finish — you do nothing about its grandchildren.",
+    "3. **`wbs`** — *dynamic* container. TASK.md has a `wbs:` pointer; you",
+    "   ALSO write `wbs/index.js` that the runtime executes to spawn children",
+    "   from data.",
+    "",
+    "## Your task",
+    "",
+    `For every child listed above, use **Bash** (\`mkdir -p\`) and **Write** to create:`,
+    "",
+    `- \`${relNode}/<child-id>/TASK.md\` — for **all** children (executable, container, wbs).`,
+    `- \`${relNode}/<child-id>/wbs/index.js\` — additionally for **wbs** children.`,
+    "",
+    "## TASK.md schema",
+    "",
+    "Use the contract details from PLAN.md. The frontmatter shape:",
+    "",
+    "```yaml",
+    "---",
+    "title: <human title>",
+    "outputs:                      # executable / leaf",
+    "  - <path>",
+    "checks:                       # executable / leaf",
+    "  - id: <id>",
+    "    cmd: <deterministic shell command>",
+    "    description: <optional>",
+    "wbs:                          # wbs only",
+    "  type: nodejs | template | ai",
+    "  path: ./wbs/index.js        # for nodejs",
+    "---",
+    "",
+    "# <Title>",
+    "",
+    "**Goal**: <one sentence>",
+    "",
+    "## Scope",
+    "",
+    "<what this child receives from its parent — copy the scope sketch from PLAN.md>",
+    "",
+    "## Instructions / WBS / Decomposition",
+    "",
+    "<for executable: step-by-step body from PLAN.md>",
+    "<for wbs: short note pointing at wbs/index.js and what drives the fan-out>",
+    "<for container: \"This task decomposes further; run `converge plan` at this path.\">",
+    "```",
+    "",
+    "## wbs/index.js shape (for WBS children)",
+    "",
+    "```js",
+    "// Spawned at runtime when this WBS task expands.",
+    "// `ctx` provides .vars, .spawn, .ai, .read, etc.",
+    "export default async function wbs(ctx) {",
+    "  // 1. Read whatever drives the fan-out (the `driver` from PLAN.md).",
+    "  // 2. For each item, ctx.spawn(...) one child task with id and vars.",
+    "}",
+    "```",
+    "",
+    "## Hard rules",
+    "- Write a TASK.md for **every** child listed above. Don't skip any.",
+    "- For wbs children, also write `wbs/index.js`.",
+    "- Make the directory first (`mkdir -p`), then write the files.",
+    "- Do NOT modify or rewrite `PLAN.md` — phase 1 already finalized it.",
+    "- Do NOT recurse into grandchildren. TS will re-invoke `runPlanLayer`",
+    "  on each static-container child after you finish.",
+  );
 
-  await mkdir(nodePath, { recursive: true });
-  await writeFile(join(nodePath, "PLAN.md"), lines.join("\n"), "utf8");
-}
-
-/* ------------------------------------------------------------------ */
-/*  Child TASK.md writer                                               */
-/* ------------------------------------------------------------------ */
-
-async function writeChildTaskMd(
-  childDir: string,
-  child: PlanChild,
-  parentMode: "fresh" | "fill-in" | "update",
-): Promise<void> {
-  await mkdir(childDir, { recursive: true });
-  const taskPath = join(childDir, "TASK.md");
-
-  // Fill-in: never overwrite an existing TASK.md.
-  if (parentMode === "fill-in" && existsSync(taskPath)) return;
-
-  // Update: if the file exists, write next to it as TASK.md.proposed for
-  // the user to review, rather than silently overwriting their edits.
-  if (parentMode === "update" && existsSync(taskPath)) {
-    await writeFile(
-      join(childDir, "TASK.md.proposed"),
-      renderChildTaskMd(child),
-      "utf8",
-    );
-    return;
-  }
-
-  await writeFile(taskPath, renderChildTaskMd(child), "utf8");
-}
-
-function renderChildTaskMd(child: PlanChild): string {
-  const lines: string[] = ["---"];
-  lines.push(`title: ${yamlScalar(child.title)}`);
-  if (child.kind === "wbs" && child.wbs) {
-    lines.push("wbs:");
-    lines.push(`  type: ${child.wbs.type}`);
-    if (child.wbs.path) lines.push(`  path: ${child.wbs.path}`);
-  }
-  if (child.outputs?.length) {
-    lines.push("outputs:");
-    for (const o of child.outputs) lines.push(`  - ${o}`);
-  }
-  if (child.checks?.length) {
-    lines.push("checks:");
-    for (const c of child.checks) {
-      lines.push(`  - id: ${c.id}`);
-      lines.push(`    cmd: ${yamlScalar(c.cmd)}`);
-      if (c.description) lines.push(`    description: ${yamlScalar(c.description)}`);
-    }
-  }
-  lines.push("---");
-  lines.push("");
-  lines.push(`# ${child.title}`);
-  lines.push("");
-  lines.push(`**Goal**: ${child.goal}`);
-  lines.push("");
-  if (child.scope) {
-    lines.push("## Scope", "", child.scope.trim(), "");
-  }
-  if (child.body) {
-    lines.push(child.body.trim());
-  } else if (child.kind === "wbs" && child.wbs) {
-    lines.push("## WBS", "", `Driven by: ${child.wbs.driver}`, "");
-  } else if (child.kind === "container") {
+  if (opts.mode === "fill-in") {
     lines.push(
-      "## Decomposition",
       "",
-      "This task decomposes further. Run `converge plan` at this path to plan its layer.",
-      "",
+      "## Fill-in mode",
+      "If a child's TASK.md already exists, **leave it alone** — do not",
+      "overwrite. Only create files that don't yet exist.",
     );
-  } else {
+  } else if (opts.mode === "update") {
     lines.push(
-      "## Instructions",
       "",
-      "(The parent planner did not pack a body. Add concrete step-by-step instructions before running.)",
+      "## Update mode",
+      "If a child's TASK.md already exists, write the new contract to",
+      "`<child-id>/TASK.md.proposed` instead of overwriting. The user will",
+      "review and decide.",
     );
   }
-  return lines.join("\n") + "\n";
-}
 
-/* ------------------------------------------------------------------ */
-/*  Update mode helpers                                                */
-/* ------------------------------------------------------------------ */
-
-async function markRemovedDeprecated(
-  nodePath: string,
-  plannedChildren: PlanChild[],
-): Promise<void> {
-  const { readdir, rename } = await import("node:fs/promises");
-  const { statSync } = await import("node:fs");
-  let entries: string[];
-  try {
-    entries = await readdir(nodePath);
-  } catch {
-    return;
-  }
-  const plannedIds = new Set(plannedChildren.map((c) => c.id));
-  const deprecatedDir = join(nodePath, "_deprecated");
-  for (const entry of entries) {
-    if (entry.startsWith("_")) continue;
-    if (entry.startsWith(".")) continue;
-    if (entry === "PLAN.md" || entry === "TASK.md") continue;
-    if (entry === "TASK.md.proposed") continue;
-    if (plannedIds.has(entry)) continue;
-    const full = join(nodePath, entry);
-    let isDir = false;
-    try {
-      isDir = statSync(full).isDirectory();
-    } catch {
-      continue;
-    }
-    if (!isDir) continue;
-    // Looks like a former child directory not in the new plan — deprecate.
-    if (!existsSync(deprecatedDir)) await mkdir(deprecatedDir, { recursive: true });
-    try {
-      await rename(full, join(deprecatedDir, entry));
-      console.log(`     ↳ deprecated: ${entry} → _deprecated/${entry}`);
-    } catch (e) {
-      // best-effort
-    }
-  }
+  return lines.join("\n");
 }
 
 /* ------------------------------------------------------------------ */
@@ -574,13 +593,4 @@ function rel(p: string, projectDir: string): string {
   return p;
 }
 
-/** Quote a YAML scalar safely for our handwritten frontmatter. */
-function yamlScalar(s: string): string {
-  // Use double-quoted form, escape backslashes and double-quotes.
-  return `"${s.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
-}
-
-// Avoid unused-import lint when only `dirname` is referenced for typing.
-void dirname;
-void resolvePath;
-void rm;
+void writeFile;
