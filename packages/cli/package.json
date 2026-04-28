@@ -40,7 +40,8 @@
     "@converge/navigator": "workspace:*",
     "@converge/project-root": "workspace:*",
     "glob": "^11.1.0",
-    "yaml": "^2.8.3"
+    "yaml": "^2.8.3",
+    "zod": "^3.24.1"
   },
   "optionalDependencies": {
     "@converge/studio": "workspace:*",
