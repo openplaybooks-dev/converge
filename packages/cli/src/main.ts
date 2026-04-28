@@ -1171,7 +1171,9 @@ async function main(): Promise<void> {
       case "plan": {
         const { mkdir: mkdirFs, writeFile: writeFileFs } =
           await import("node:fs/promises");
-        const { runPlanLayer } = await import("./commands-plan.ts");
+        const { runPlanLayer } = await import(
+          "@converge/core/planning/progressive-decomposition.ts"
+        );
 
         // Per docs/design/progressive-decomposition.md:
         //   converge plan <path> [-p "<prompt>"] [--update]
