@@ -1,0 +1,24 @@
+{
+  "attemptNumber": 1,
+  "startedAt": "2026-04-27T16:17:30.878Z",
+  "projectDir": "/Users/minh/Documents/converge/examples/game-assets-video",
+  "playbookName": "default",
+  "parentTaskDir": ".converge/playbooks/default/tasks/03-shared-props",
+  "journalCtx": {
+    "epicId": "default",
+    "taskId": "03-shared-props"
+  },
+  "taskMeta": {
+    "id": "03-shared-props",
+    "title": "Shared Props (cross-scene)"
+  },
+  "vars": {},
+  "ctxMethods": [
+    "log",
+    "ai.ask",
+    "plan.getPlanPath",
+    "artifact",
+    "spawn",
+    "spawnGoal"
+  ]
+}

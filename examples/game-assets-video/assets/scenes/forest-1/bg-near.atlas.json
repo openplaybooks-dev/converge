@@ -1,0 +1,36 @@
+{
+  "image": "bg-near.png",
+  "meta": {
+    "scene_id": "forest-1",
+    "bg_layer": "near",
+    "rows": 1,
+    "cols": 1,
+    "frame_count": 1,
+    "frame_size": {
+      "w": 4096,
+      "h": 1080
+    },
+    "sheet_size": {
+      "w": 4096,
+      "h": 1080
+    },
+    "frame_order": "single",
+    "n_chunks": 5,
+    "chunk_width": 1024,
+    "transparent": true,
+    "transition_below": "mid",
+    "subject_height_tiles": 7.0,
+    "side_strip_px": 256
+  },
+  "frames": [
+    {
+      "filename": "bg-near.png",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 4096,
+        "h": 1080
+      }
+    }
+  ]
+}

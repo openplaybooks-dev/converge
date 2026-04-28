@@ -51,11 +51,20 @@ python3 scripts/generate_concept_hero_shot.py
 
 Renders one 16:9 mid-gameplay frame that demonstrates the bible. This image becomes the **secondary visual anchor** for every per-scene concept (primary anchor = visual-target.png). Saves to `assets/concept/hero-shot.png` + sidecar prompt/seed.
 
+## Note on scale
+
+Sizing across asset classes is locked **numerically** by the per-asset
+`height_tiles` / `subject_height_tiles` fields in `scenes.json` and
+`objects-shared.json`, plus a small inline scale block in each generator's
+prompt that names the canonical hero height (~1.5 tiles). No image-based
+scale ruler is generated — the model is told the numbers and asked to
+match the supplied references at the declared tile heights.
+
 ## Outputs
 
 - `assets/ART_BIBLE.md` — text spec, ~1–2 KB, fed into every per-asset prompt
 - `assets/concept/hero-shot.png` — visual demo, 16:9 ~1024 wide
-- `assets/concept/hero-shot.prompt.txt` + `.seed.txt` — sidecars
+- Sidecar `.prompt.txt` + `.seed.txt` for each
 
 ## Cost
 

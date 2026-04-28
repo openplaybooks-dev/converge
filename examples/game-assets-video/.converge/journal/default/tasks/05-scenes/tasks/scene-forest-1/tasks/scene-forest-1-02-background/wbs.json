@@ -1,0 +1,19 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-27T18:17:30.066Z",
+  "spawnCount": 3,
+  "subtasks": [
+    {
+      "id": "scene-forest-1-bg-01-far",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-1/tasks/scene-forest-1-02-background/tasks/scene-forest-1-bg-01-far/TASK.md"
+    },
+    {
+      "id": "scene-forest-1-bg-02-mid",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-1/tasks/scene-forest-1-02-background/tasks/scene-forest-1-bg-02-mid/TASK.md"
+    },
+    {
+      "id": "scene-forest-1-bg-03-near",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-1/tasks/scene-forest-1-02-background/tasks/scene-forest-1-bg-03-near/TASK.md"
+    }
+  ]
+}

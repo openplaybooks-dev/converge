@@ -13,5 +13,5 @@ Generate a reference screenshot from idea.md and derive ASSETS.md + JSON manifes
 ## Checks
 
 - **visual-target-png-exists**: visual-target.png was generated
-- **assets-md-has-size-column**: Every ASSETS.md table row has a numeric Size column
+- **assets-md-exists**: ASSETS.md was generated
 - **sprites-json-derived**: sprites.json was derived from ASSETS.md

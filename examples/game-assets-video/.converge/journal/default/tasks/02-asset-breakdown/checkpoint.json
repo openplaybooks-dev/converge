@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "02-asset-breakdown",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T16:14:40.544Z",
+  "createdAt": "2026-04-27T16:14:19.673Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T16:14:19.673Z",
+      "completedAt": "2026-04-27T16:14:40.515Z",
+      "outcome": "success",
+      "durationMs": 20842
+    }
+  ],
+  "currentAttempt": 1
+}

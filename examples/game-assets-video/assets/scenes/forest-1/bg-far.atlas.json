@@ -1,0 +1,37 @@
+{
+  "image": "bg-far.png",
+  "meta": {
+    "scene_id": "forest-1",
+    "bg_layer": "far",
+    "rows": 1,
+    "cols": 1,
+    "frame_count": 1,
+    "frame_size": {
+      "w": 4096,
+      "h": 1080
+    },
+    "sheet_size": {
+      "w": 4096,
+      "h": 1080
+    },
+    "frame_order": "single",
+    "n_segments": 5,
+    "segment_width": 1024,
+    "overlap_px": 256,
+    "tile_seamless": true,
+    "transparent": false,
+    "transition_below": null,
+    "seed": 1496794148
+  },
+  "frames": [
+    {
+      "filename": "bg-far.png",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 4096,
+        "h": 1080
+      }
+    }
+  ]
+}

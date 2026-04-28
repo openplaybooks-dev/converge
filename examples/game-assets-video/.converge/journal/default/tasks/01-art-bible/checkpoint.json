@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "01-art-bible",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T18:17:29.441Z",
+  "createdAt": "2026-04-27T16:12:53.881Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T16:12:53.881Z",
+      "completedAt": "2026-04-27T16:14:19.014Z",
+      "outcome": "success",
+      "durationMs": 85133
+    }
+  ],
+  "currentAttempt": 1
+}

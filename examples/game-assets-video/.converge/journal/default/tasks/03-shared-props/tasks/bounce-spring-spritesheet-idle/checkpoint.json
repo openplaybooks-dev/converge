@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-shared-props/bounce-spring-spritesheet-idle",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T16:18:07.585Z",
+  "createdAt": "2026-04-27T16:18:06.935Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T16:18:06.935Z",
+      "completedAt": "2026-04-27T16:18:07.565Z",
+      "outcome": "success",
+      "durationMs": 630
+    }
+  ],
+  "currentAttempt": 1
+}

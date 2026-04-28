@@ -1,0 +1,10 @@
+{
+  "taskId": "01-art-bible",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/ART_BIBLE.md",
+    "assets/concept/hero-shot.png"
+  ],
+  "blocked": false
+}

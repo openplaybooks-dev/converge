@@ -137,6 +137,19 @@ def main() -> int:
         if changed:
             registry_path.write_text(json.dumps(registry, indent=2), encoding="utf-8")
             sys.stderr.write(f"  updated REGISTRY.json scenes_using[] for {args.scene_id}\n")
+
+    # Refresh the master atlas so assets/atlas.json (and the Godot/Unity
+    # exports) always reflect on-disk scene state. Without this hook the
+    # atlas drifts stale every time a scene is added/regenerated, and the
+    # gallery + per-scene viewer show empty `categories.scenes`.
+    try:
+        import build_master_atlas  # type: ignore
+        build_master_atlas.main()
+    except SystemExit as exc:
+        if exc.code not in (0, None):
+            sys.stderr.write(f"  ⚠ master-atlas refresh exited {exc.code}\n")
+    except Exception as exc:  # noqa: BLE001
+        sys.stderr.write(f"  ⚠ master-atlas refresh failed: {exc}\n")
     return 0
 
 

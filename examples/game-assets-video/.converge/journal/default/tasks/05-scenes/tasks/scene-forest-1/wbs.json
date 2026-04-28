@@ -1,0 +1,27 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-27T18:17:29.528Z",
+  "spawnCount": 5,
+  "subtasks": [
+    {
+      "id": "scene-forest-1-01-concept",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-1/tasks/scene-forest-1-01-concept/TASK.md"
+    },
+    {
+      "id": "scene-forest-1-02-background",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-1/tasks/scene-forest-1-02-background/TASK.md"
+    },
+    {
+      "id": "scene-forest-1-03-tiles",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-1/tasks/scene-forest-1-03-tiles/TASK.md"
+    },
+    {
+      "id": "scene-forest-1-04-props",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-1/tasks/scene-forest-1-04-props/TASK.md"
+    },
+    {
+      "id": "scene-forest-1-05-manifest",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-1/tasks/scene-forest-1-05-manifest/TASK.md"
+    }
+  ]
+}

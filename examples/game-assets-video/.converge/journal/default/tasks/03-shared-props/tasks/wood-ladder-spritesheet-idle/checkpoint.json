@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-shared-props/wood-ladder-spritesheet-idle",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T16:21:46.257Z",
+  "createdAt": "2026-04-27T16:21:45.595Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T16:21:45.595Z",
+      "completedAt": "2026-04-27T16:21:46.239Z",
+      "outcome": "success",
+      "durationMs": 644
+    }
+  ],
+  "currentAttempt": 1
+}

@@ -1,0 +1,11 @@
+{
+  "taskId": "03-shared-props/bounce-spring-spritesheet-bounce",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/objects/bounce-spring/spritesheets/bounce/bounce.png",
+    "assets/objects/bounce-spring/spritesheets/bounce/bounce.atlas.json",
+    "assets/objects/bounce-spring/spritesheets/bounce/bounce.prompt.txt"
+  ],
+  "blocked": false
+}

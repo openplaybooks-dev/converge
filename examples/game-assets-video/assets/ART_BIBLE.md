@@ -1,0 +1,43 @@
+# Art Bible
+
+## Palette
+Dominant colors with hex values:
+- Sky Blue: #A4D9F0 — top portion of the sky
+- Mid-Green Foliage: #6CAB3C — main grass and bush areas
+- Knight Blue Armor: #567DD6 — primary color of the hero knight's armor
+- Earth Path: #BE9F68 — dirt path in the foreground
+- Distant Mountain: #8FA8BE — background mountains
+- Light Cloud: #F0E3CB — soft clouds in the sky
+- Knight Cape Red: #D63C3C — hero knight's cape
+
+Accent / highlight colors:
+- Potion Red: #E03C3C — liquid in the health potion
+- Gold Key: #E0A83C — metallic parts of the gold key
+- UI Health Bar Green: #60CE36 — fill color of the health bar UI
+- White Sparkle: #FFFFFF — specular highlights and magical particles
+
+## Line & shading
+- Stroke weight: Solid, dark outline, generally 2-4 pixels thick, varying organically to emphasize character silhouettes and major environmental forms.
+- Shading model: Cel shading with soft, gradual transitions within shaded areas, creating volume without being strictly flat or painterly.
+- Light direction: Consistent top-right light source, creating clear highlights on surfaces facing the light and distinct shadows.
+- Highlights: Small, bright specular spots on metallic and shiny surfaces (armor, potion, key) and broader, soft highlights on organic forms (foliage, skin).
+
+## Character proportions
+- Head/body ratio: ~1:3 to 1:3.5 — stylized, slightly oversized heads for a youthful and approachable heroic look.
+- Hands/feet: Simplified, expressive forms; visible but not hyper-detailed fingers; feet are robust and basic shapes.
+- Face: Large, expressive eyes with visible pupils and whites, small button nose, friendly smiles, and slightly pointed ears for elves.
+- Outfit detail: Moderate detail, with clear folds and material distinctions (e.g., armor plates, fabric drapes), not overly intricate or busy.
+
+## Environment & forms
+- Common shape language: Predominantly organic and rounded for natural elements (hills, trees, bushes, clouds); man-made objects (keys, shields, UI) have clear, stylized forms.
+- Tree / foliage style: Dense, billowy, and rounded canopies with distinct clumps of leaves, rendered with bright highlights and deep shadows.
+- Stone / structure style: Smooth, rounded boulders with subtle texture details; ornate but cartoonish keys and shields.
+- Atmospheric depth: Clear visual separation between foreground, mid-ground, and background layers. Distant elements (mountains) are lighter and have reduced color saturation, indicating atmospheric perspective.
+
+## Negatives (do NOT)
+- No pixel art or 8-bit/16-bit retro aesthetic; art should be smooth-edged and high-resolution.
+- No limited color palettes; utilize a broad and vibrant color range.
+- No harsh, jagged, or overly angular outlines on natural elements like trees and rocks.
+- No photorealism, complex textures, or overly gritty/grimy art styles.
+- No extreme anatomical accuracy or highly detailed musculature.
+- No excessive lens flares, chromatic aberration, or modern cinematic filters.

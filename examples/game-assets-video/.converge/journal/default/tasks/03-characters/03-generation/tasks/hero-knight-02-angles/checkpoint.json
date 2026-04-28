@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-characters/03-generation/hero-knight-02-angles",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T16:17:30.156Z",
+  "createdAt": "2026-04-27T16:17:29.384Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T16:17:29.384Z",
+      "completedAt": "2026-04-27T16:17:30.134Z",
+      "outcome": "success",
+      "durationMs": 750
+    }
+  ],
+  "currentAttempt": 1
+}

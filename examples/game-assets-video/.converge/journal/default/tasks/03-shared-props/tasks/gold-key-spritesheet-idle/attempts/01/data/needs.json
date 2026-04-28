@@ -1,0 +1,11 @@
+{
+  "taskId": "03-shared-props/gold-key-spritesheet-idle",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/objects/gold-key/spritesheets/idle/idle.png",
+    "assets/objects/gold-key/spritesheets/idle/idle.atlas.json",
+    "assets/objects/gold-key/spritesheets/idle/idle.prompt.txt"
+  ],
+  "blocked": false
+}

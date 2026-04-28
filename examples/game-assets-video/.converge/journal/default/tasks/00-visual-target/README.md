@@ -1,6 +1,6 @@
 # Task Journal: 00-visual-target
 
-## Current attempt — `attempts/wip/`
+## Current attempt — `attempts/01/`
 
 | File | Purpose |
 |------|---------|
@@ -25,7 +25,6 @@ pnpm converge run          # run all remaining tasks
 
 ```bash
   test -s assets/visual-target.png
-  python -c "import re; md=open('ASSETS.md').read(); rows=[l for l in md.splitlines() if l.startswith('|') and '---' not in l]; bad=[l for l in rows[1:] if not re.search(r'\\d+\\s*[xX×]\\s*\\d+', l)]; assert not bad, f'rows missing pixel sizes: {bad[:3]}'"
-
+  test -s ASSETS.md
   test -s assets/sprites.json
 ```

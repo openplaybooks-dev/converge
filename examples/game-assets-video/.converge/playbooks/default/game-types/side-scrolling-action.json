@@ -1,0 +1,52 @@
+{
+  "$schema": "v1",
+  "game_type": "side-scrolling-action",
+  "view": "side-2d",
+  "movement": ["walk-left", "walk-right"],
+  "no_jumping": true,
+  "art_style_keywords": ["painterly", "ghibli", "warm", "hand-painted"],
+  "anti_keywords": ["platform shelves", "floating ledges", "vertical exploration", "sky-falling pits"],
+
+  "asset_categories": {
+    "characters": {
+      "enabled": true,
+      "frames_mode": "video",
+      "default_states": ["idle", "walk", "attack"]
+    },
+    "shared_props": {
+      "enabled": true,
+      "categories": ["item", "weapon", "hazard"]
+    },
+    "tilemap": {
+      "enabled": true,
+      "style": "continuous-ground",
+      "tile_dimensions": [32, 32],
+      "working_resolution": 128,
+      "sheet_grid": [3, 3],
+      "default_variants": [
+        { "id": "grass-tall",       "layer": "ground",     "description": "Lush grass tufts on flat ground — the dominant ground texture." },
+        { "id": "grass-tufts",      "layer": "ground",     "description": "Sparser grass with patches of dirt showing through." },
+        { "id": "dirt-patch",       "layer": "ground",     "description": "Bare dirt patch — represents a worn footpath segment." },
+        { "id": "stone-tile",       "layer": "ground",     "description": "Stone path segment — single squarish stone embedded in grass." },
+        { "id": "flower-cluster",   "layer": "decoration", "description": "Cluster of small wildflowers on the grass surface." },
+        { "id": "weed-clump",       "layer": "decoration", "description": "Tall weeds or fern fronds rising from the ground." }
+      ]
+    },
+    "background": {
+      "enabled": true,
+      "layers": ["far", "mid"],
+      "transparent_layers": ["mid"],
+      "subject_height_tiles": { "far": null, "mid": 4.0 }
+    },
+    "scene_props": {
+      "enabled": true,
+      "categories": ["decoration", "interactive"]
+    }
+  },
+
+  "playbook_overrides": {
+    "scenes_inspect_use_platforms": false,
+    "world_width_tiles": 200,
+    "canvas_tiles_tall": 12
+  }
+}

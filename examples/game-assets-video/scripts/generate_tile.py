@@ -191,6 +191,18 @@ def main() -> int:
     extra_refs = []
     if args.scene_concept:
         extra_refs.append(Path(args.scene_concept))
+    # Concept-driven asset extraction: the player walks on tiles in the
+    # foreground, so the extracted near-layer crop (assets/scenes/<id>/
+    # extracted/bg-near.png) is the closest stylistic match. Attaching it
+    # as a 3rd reference locks tile texture/lighting to whatever the
+    # concept image actually showed at ground level.
+    if args.scene_id:
+        extracted_near = (
+            project_root / "assets" / "scenes" / args.scene_id
+            / "extracted" / "bg-near.png"
+        )
+        if extracted_near.exists():
+            extra_refs.append(extracted_near)
 
     backend = active_backend()
     cost = budget.cost_for_image(backend)

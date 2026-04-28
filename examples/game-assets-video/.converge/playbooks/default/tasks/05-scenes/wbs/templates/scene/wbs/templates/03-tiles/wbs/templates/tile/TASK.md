@@ -2,6 +2,8 @@
 id: "scene-{{scene_id}}-tile-{{tile_id}}"
 title: "Scene `{{scene_id}}` — tile `{{tile_id}}`"
 description: "One tile for scene `{{scene_id}}` (uses scene concept as secondary reference)."
+inputs:
+  - "assets/scenes/{{scene_id}}/concept.png"
 outputs:
   - "assets/scenes/{{scene_id}}/tilesheet/tiles/{{tile_id}}/{{tile_id}}.png"
   - "assets/scenes/{{scene_id}}/tilesheet/tiles/{{tile_id}}/{{tile_id}}.prompt.txt"

@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "01-setup-art-style",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T16:14:19.634Z",
+  "createdAt": "2026-04-27T16:14:19.085Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T16:14:19.085Z",
+      "completedAt": "2026-04-27T16:14:19.612Z",
+      "outcome": "success",
+      "durationMs": 527
+    }
+  ],
+  "currentAttempt": 1
+}

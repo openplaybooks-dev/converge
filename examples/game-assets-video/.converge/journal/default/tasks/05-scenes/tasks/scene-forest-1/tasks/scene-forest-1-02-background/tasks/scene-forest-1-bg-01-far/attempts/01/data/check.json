@@ -1,0 +1,15 @@
+{
+  "taskId": "05-scenes/scene-forest-1/scene-forest-1-02-background/scene-forest-1-bg-01-far",
+  "checks": [
+    {
+      "id": "scene-bg-png-exists",
+      "description": "Stitched background PNG exists for this layer",
+      "cmd": "test -s assets/scenes/forest-1/bg-far.png"
+    },
+    {
+      "id": "scene-bg-atlas-exists",
+      "description": "Single-frame atlas written (covers full sheet)",
+      "cmd": "test -s assets/scenes/forest-1/bg-far.atlas.json"
+    }
+  ]
+}

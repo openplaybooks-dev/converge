@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-shared-props/bounce-spring-01-spec",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T16:18:06.163Z",
+  "createdAt": "2026-04-27T16:17:30.960Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T16:17:30.960Z",
+      "completedAt": "2026-04-27T16:18:06.132Z",
+      "outcome": "success",
+      "durationMs": 35172
+    }
+  ],
+  "currentAttempt": 1
+}

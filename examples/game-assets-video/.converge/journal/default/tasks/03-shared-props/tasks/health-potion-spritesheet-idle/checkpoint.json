@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-shared-props/health-potion-spritesheet-idle",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T16:20:05.220Z",
+  "createdAt": "2026-04-27T16:20:04.549Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T16:20:04.549Z",
+      "completedAt": "2026-04-27T16:20:05.196Z",
+      "outcome": "success",
+      "durationMs": 647
+    }
+  ],
+  "currentAttempt": 1
+}

@@ -1,0 +1,75 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-27T16:17:30.878Z",
+  "spawnCount": 17,
+  "subtasks": [
+    {
+      "id": "health-potion-01-spec",
+      "writeToPath": ".converge/journal/default/tasks/03-shared-props/tasks/health-potion-01-spec/TASK.md"
+    },
+    {
+      "id": "health-potion-spritesheet-idle",
+      "writeToPath": ".converge/journal/default/tasks/03-shared-props/tasks/health-potion-spritesheet-idle/TASK.md"
+    },
+    {
+      "id": "health-potion-spritesheet-collect",
+      "writeToPath": ".converge/journal/default/tasks/03-shared-props/tasks/health-potion-spritesheet-collect/TASK.md"
+    },
+    {
+      "id": "gold-key-01-spec",
+      "writeToPath": ".converge/journal/default/tasks/03-shared-props/tasks/gold-key-01-spec/TASK.md"
+    },
+    {
+      "id": "gold-key-spritesheet-idle",
+      "writeToPath": ".converge/journal/default/tasks/03-shared-props/tasks/gold-key-spritesheet-idle/TASK.md"
+    },
+    {
+      "id": "gold-key-spritesheet-collect",
+      "writeToPath": ".converge/journal/default/tasks/03-shared-props/tasks/gold-key-spritesheet-collect/TASK.md"
+    },
+    {
+      "id": "spike-trap-01-spec",
+      "writeToPath": ".converge/journal/default/tasks/03-shared-props/tasks/spike-trap-01-spec/TASK.md"
+    },
+    {
+      "id": "spike-trap-spritesheet-idle",
+      "writeToPath": ".converge/journal/default/tasks/03-shared-props/tasks/spike-trap-spritesheet-idle/TASK.md"
+    },
+    {
+      "id": "spike-trap-spritesheet-trigger",
+      "writeToPath": ".converge/journal/default/tasks/03-shared-props/tasks/spike-trap-spritesheet-trigger/TASK.md"
+    },
+    {
+      "id": "bounce-spring-01-spec",
+      "writeToPath": ".converge/journal/default/tasks/03-shared-props/tasks/bounce-spring-01-spec/TASK.md"
+    },
+    {
+      "id": "bounce-spring-spritesheet-idle",
+      "writeToPath": ".converge/journal/default/tasks/03-shared-props/tasks/bounce-spring-spritesheet-idle/TASK.md"
+    },
+    {
+      "id": "bounce-spring-spritesheet-bounce",
+      "writeToPath": ".converge/journal/default/tasks/03-shared-props/tasks/bounce-spring-spritesheet-bounce/TASK.md"
+    },
+    {
+      "id": "wood-ladder-01-spec",
+      "writeToPath": ".converge/journal/default/tasks/03-shared-props/tasks/wood-ladder-01-spec/TASK.md"
+    },
+    {
+      "id": "wood-ladder-spritesheet-idle",
+      "writeToPath": ".converge/journal/default/tasks/03-shared-props/tasks/wood-ladder-spritesheet-idle/TASK.md"
+    },
+    {
+      "id": "checkpoint-flag-01-spec",
+      "writeToPath": ".converge/journal/default/tasks/03-shared-props/tasks/checkpoint-flag-01-spec/TASK.md"
+    },
+    {
+      "id": "checkpoint-flag-spritesheet-idle",
+      "writeToPath": ".converge/journal/default/tasks/03-shared-props/tasks/checkpoint-flag-spritesheet-idle/TASK.md"
+    },
+    {
+      "id": "checkpoint-flag-spritesheet-activate",
+      "writeToPath": ".converge/journal/default/tasks/03-shared-props/tasks/checkpoint-flag-spritesheet-activate/TASK.md"
+    }
+  ]
+}

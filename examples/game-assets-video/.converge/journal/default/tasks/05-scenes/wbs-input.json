@@ -1,0 +1,24 @@
+{
+  "attemptNumber": 1,
+  "startedAt": "2026-04-27T18:17:29.474Z",
+  "projectDir": "/Users/minh/Documents/converge/examples/game-assets-video",
+  "playbookName": "default",
+  "parentTaskDir": ".converge/playbooks/default/tasks/05-scenes",
+  "journalCtx": {
+    "epicId": "default",
+    "taskId": "05-scenes"
+  },
+  "taskMeta": {
+    "id": "05-scenes",
+    "title": "Scenes"
+  },
+  "vars": {},
+  "ctxMethods": [
+    "log",
+    "ai.ask",
+    "plan.getPlanPath",
+    "artifact",
+    "spawn",
+    "spawnGoal"
+  ]
+}

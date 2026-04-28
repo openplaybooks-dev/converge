@@ -1,0 +1,222 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-characters/01-analysis-missing-output-.converge/character-analysis.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/01-analysis",
+            "severity": "high",
+            "description": "[03-characters/01-analysis] Task output not created: .converge/character-analysis.json",
+            "source": "unit",
+            "detected": "2026-04-27T16:14:40.603Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/03-characters/01-analysis",
+              "taskId": "03-characters/01-analysis",
+              "taskTitle": "Character Analysis",
+              "taskPrompt": "# Character Analysis\n\nAnalyze all characters from sprites.json and generate design documents based on art style, breaking down structure, classes, groups, and shared attributes.\n\n## Task\n\nRun character analysis to identify:\n- Character classes (e.g., warrior, mage, archer)\n- Shared visual styles within classes\n- Common attributes and groupings\n- Design patterns across characters\n\n```bash\npython3 scripts/analyze_characters.py\n```\n\n## Output\n\nGenerates `.converge/character-analysis.json` containing:\n\n**Character Classes:**\n- Identified classes/archetypes\n- Characters belonging to each class\n- Shared visual attributes\n\n**Design Patterns:**\n- Common color palettes\n- Shared animation states\n- Style groupings\n\n**Shared References Needed:**\n- Cross-character assets (e.g., class-specific effects)\n- Shared style guides\n- Common elements\n\n## Example Output\n\n```json\n{\n  \"classes\": {\n    \"warrior\": {\n      \"characters\": [\"hero-knight\"],\n      \"shared_attributes\": {\n        \"armor_type\": \"heavy\",\n        \"weapon_style\": \"melee\",\n        \"color_theme\": \"metallic\"\n      }\n    },\n    \"mage\": {\n      \"characters\": [\"shadow-mage\"],\n      \"shared_attributes\": {\n        \"armor_type\": \"robes\",\n        \"weapon_style\": \"staff\",\n        \"color_theme\": \"magical\"\n      }\n    },\n    \"ranger\": {\n      \"characters\": [\"forest-elf\"],\n      \"shared_attributes\": {\n        \"armor_type\": \"light\",\n        \"weapon_style\": \"ranged\",\n        \"color_theme\": \"natural\"\n      }\n    }\n  },\n  \"shared_references\": [\n    {\n      \"type\": \"class_style_guide\",\n      \"class\": \"warrior\",\n      \"description\": \"Heavy armor style guide with metallic materials\"\n    },\n    {\n      \"type\": \"class_style_guide\",\n      \"class\": \"mage\",\n      \"description\": \"Flowing robes with magical effects\"\n    }\n  ]\n}\n```\n\n## Verification\n\n- Analysis file exists\n- All characters are classified\n- Shared references identified\n- Design patterns documented",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \".converge/character-analysis.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-characters/01-analysis-check-failed-analysis-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/01-analysis",
+            "severity": "high",
+            "description": "[03-characters/01-analysis] Check failed: Character analysis generated",
+            "source": "unit",
+            "detected": "2026-04-27T16:14:40.605Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "analysis-exists",
+              "checkCmd": "test -s .converge/character-analysis.json",
+              "checkDescription": "Character analysis generated",
+              "checkOutput": "",
+              "checkExitCode": 1,
+              "taskPrompt": "# Character Analysis\n\nAnalyze all characters from sprites.json and generate design documents based on art style, breaking down structure, classes, groups, and shared attributes.\n\n## Task\n\nRun character analysis to identify:\n- Character classes (e.g., warrior, mage, archer)\n- Shared visual styles within classes\n- Common attributes and groupings\n- Design patterns across characters\n\n```bash\npython3 scripts/analyze_characters.py\n```\n\n## Output\n\nGenerates `.converge/character-analysis.json` containing:\n\n**Character Classes:**\n- Identified classes/archetypes\n- Characters belonging to each class\n- Shared visual attributes\n\n**Design Patterns:**\n- Common color palettes\n- Shared animation states\n- Style groupings\n\n**Shared References Needed:**\n- Cross-character assets (e.g., class-specific effects)\n- Shared style guides\n- Common elements\n\n## Example Output\n\n```json\n{\n  \"classes\": {\n    \"warrior\": {\n      \"characters\": [\"hero-knight\"],\n      \"shared_attributes\": {\n        \"armor_type\": \"heavy\",\n        \"weapon_style\": \"melee\",\n        \"color_theme\": \"metallic\"\n      }\n    },\n    \"mage\": {\n      \"characters\": [\"shadow-mage\"],\n      \"shared_attributes\": {\n        \"armor_type\": \"robes\",\n        \"weapon_style\": \"staff\",\n        \"color_theme\": \"magical\"\n      }\n    },\n    \"ranger\": {\n      \"characters\": [\"forest-elf\"],\n      \"shared_attributes\": {\n        \"armor_type\": \"light\",\n        \"weapon_style\": \"ranged\",\n        \"color_theme\": \"natural\"\n      }\n    }\n  },\n  \"shared_references\": [\n    {\n      \"type\": \"class_style_guide\",\n      \"class\": \"warrior\",\n      \"description\": \"Heavy armor style guide with metallic materials\"\n    },\n    {\n      \"type\": \"class_style_guide\",\n      \"class\": \"mage\",\n      \"description\": \"Flowing robes with magical effects\"\n    }\n  ]\n}\n```\n\n## Verification\n\n- Analysis file exists\n- All characters are classified\n- Shared references identified\n- Design patterns documented",
+              "taskId": "03-characters/01-analysis",
+              "taskTitle": "Character Analysis",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/03-characters/01-analysis",
+              "factId": "check:analysis-exists"
+            }
+          }
+        ],
+        "durationMs": 6
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 4
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 57
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#3",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 22899
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-27T16:14:40.598Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-27T16:14:40.599Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-27T16:14:40.606Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-27T16:14:40.606Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-27T16:14:40.610Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#3",
+      "iteration": 1,
+      "ts": "2026-04-27T16:15:03.509Z"
+    },
+    {
+      "from": "run-strategy:task-run#3",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-27T16:15:03.566Z"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "attemptNumber": 1,
+  "startedAt": "2026-04-27T16:15:05.166Z",
+  "projectDir": "/Users/minh/Documents/converge/examples/game-assets-video",
+  "playbookName": "default",
+  "parentTaskDir": ".converge/playbooks/default/tasks/03-characters/03-generation",
+  "journalCtx": {
+    "epicId": "default",
+    "taskId": "03-characters/03-generation"
+  },
+  "taskMeta": {
+    "id": "03-characters/03-generation",
+    "title": "Character Generation"
+  },
+  "vars": {},
+  "ctxMethods": [
+    "log",
+    "ai.ask",
+    "plan.getPlanPath",
+    "artifact",
+    "spawn",
+    "spawnGoal"
+  ]
+}

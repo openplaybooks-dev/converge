@@ -1,9 +1,11 @@
 /**
  * Verify Action
- * 
+ *
  * Verify outputs and gaps.
  */
 
+import { existsSync, statSync } from "node:fs";
+import path from "node:path";
 import type { ActionHandler } from "../../types.ts";
 import { getEventWriter } from "../helpers/event-logging.ts";
 
@@ -11,29 +13,54 @@ export const verify: ActionHandler = async (snap) => {
   const { findGaps } = await import("../../../../task/unit/find-gaps.ts");
 
   console.log("Verifying outputs...");
-  const postGaps = await findGaps(snap.unit);
+
+  // Refresh unit from disk if TASK.md was edited mid-convergence (e.g. the
+  // AI agent fixed a broken check command). Without this, findGaps runs
+  // against the in-memory unit captured at converge() entry, so check edits
+  // never take effect and the repeat-failure detector trips on a check the
+  // user already fixed.
+  let unitForGaps = snap.unit;
+  try {
+    const taskMdPath = path.join(snap.unit.path, "TASK.md");
+    if (existsSync(taskMdPath)) {
+      const mtimeMs = statSync(taskMdPath).mtimeMs;
+      const loadedAtMs = (snap.unit as any)._loadedAtMs ?? 0;
+      if (mtimeMs > loadedAtMs) {
+        const { Unit } = await import("../../../../task/unit/unit.ts");
+        const fresh = await Unit.fromPath(taskMdPath, snap.unit.parent ?? undefined);
+        // Preserve runtime-only fields the navigator/loop populated.
+        (fresh as any).context = snap.unit.context;
+        (fresh as any)._loadedAtMs = mtimeMs;
+        unitForGaps = fresh;
+      }
+    }
+  } catch (_) {
+    // Best-effort refresh — fall back to the in-memory unit on any failure.
+  }
+
+  const postGaps = await findGaps(unitForGaps);
 
   const eventWriter = getEventWriter();
   if (eventWriter) {
     eventWriter.write({
       type: "validation_start" as any,
       level: "info",
-      outputs: snap.unit.outputs || [],
+      outputs: unitForGaps.outputs || [],
     });
 
     if (postGaps.length === 0) {
       eventWriter.write({
         type: "validation_result" as any,
         level: "info",
-        output: snap.unit.outputs?.join(", ") || "",
+        output: unitForGaps.outputs?.join(", ") || "",
         exists: true,
-        checks: (snap.unit.outputs || []).map((o) => ({ id: o, passed: true })),
+        checks: (unitForGaps.outputs || []).map((o) => ({ id: o, passed: true })),
       });
     } else {
       eventWriter.write({
         type: "validation_result" as any,
         level: "warning",
-        output: snap.unit.outputs?.join(", ") || "",
+        output: unitForGaps.outputs?.join(", ") || "",
         exists: false,
         checks: postGaps.map((g) => ({
           id: g.id,

@@ -1,0 +1,253 @@
+{
+  "image": "idle.png",
+  "meta": {
+    "obj_id": "forest-mushroom-cluster",
+    "state": "idle",
+    "category": "item",
+    "rows": 2,
+    "cols": 4,
+    "frame_count": 8,
+    "frame_size": {
+      "w": 384,
+      "h": 512
+    },
+    "sheet_size": {
+      "w": 1536,
+      "h": 1024
+    },
+    "frame_order": "left-to-right, top-to-bottom",
+    "requested_cols": 4,
+    "requested_rows": 2,
+    "detected": false,
+    "aligned": true,
+    "frameRate": 6,
+    "yoyo": true,
+    "seed": 1341781040
+  },
+  "frames": [
+    {
+      "filename": "idle_000.png",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "torso_x": 191,
+        "aligned_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "shift": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "filename": "idle_001.png",
+      "frame": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "torso_x": 191,
+        "aligned_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "shift": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "filename": "idle_002.png",
+      "frame": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "torso_x": 191,
+        "aligned_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "shift": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "filename": "idle_003.png",
+      "frame": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "torso_x": 191,
+        "aligned_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "shift": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "filename": "idle_004.png",
+      "frame": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "torso_x": 191,
+        "aligned_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "shift": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "filename": "idle_005.png",
+      "frame": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "torso_x": 191,
+        "aligned_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "shift": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "filename": "idle_006.png",
+      "frame": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "torso_x": 191,
+        "aligned_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "shift": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "filename": "idle_007.png",
+      "frame": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "anchor": {
+        "original_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "torso_x": 191,
+        "aligned_bbox": [
+          0,
+          0,
+          383,
+          511
+        ],
+        "shift": [
+          0,
+          0
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "taskId": "01-art-bible",
+  "checks": [
+    {
+      "id": "art-bible-exists",
+      "description": "ART_BIBLE.md was written",
+      "cmd": "test -s assets/ART_BIBLE.md"
+    },
+    {
+      "id": "art-bible-has-palette",
+      "description": "ART_BIBLE.md has at least one",
+      "cmd": "python -c \"import re; md=open('assets/ART_BIBLE.md').read(); assert re.search(r'#[0-9a-fA-F]{6}', md), 'no #RRGGBB hex codes in ART_BIBLE.md'\"\n"
+    },
+    {
+      "id": "hero-shot-exists",
+      "description": "concept hero-shot was generated",
+      "cmd": "test -s assets/concept/hero-shot.png"
+    }
+  ]
+}

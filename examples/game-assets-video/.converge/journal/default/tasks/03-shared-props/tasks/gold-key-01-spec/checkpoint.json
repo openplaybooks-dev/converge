@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-shared-props/gold-key-01-spec",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T16:19:24.002Z",
+  "createdAt": "2026-04-27T16:18:45.386Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T16:18:45.386Z",
+      "completedAt": "2026-04-27T16:19:23.972Z",
+      "outcome": "success",
+      "durationMs": 38586
+    }
+  ],
+  "currentAttempt": 1
+}

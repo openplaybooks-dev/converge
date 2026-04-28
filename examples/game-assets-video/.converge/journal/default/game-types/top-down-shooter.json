@@ -1,0 +1,51 @@
+{
+  "$schema": "v1",
+  "game_type": "top-down-shooter",
+  "view": "top-down-2d",
+  "movement": ["8-directional", "rotate"],
+  "art_style_keywords": ["pixel art", "high-contrast", "neon"],
+  "anti_keywords": ["side view", "parallax", "platforms"],
+
+  "asset_categories": {
+    "characters": {
+      "enabled": true,
+      "frames_mode": "video",
+      "default_states": ["idle-down", "idle-up", "idle-left", "idle-right", "shoot-down", "shoot-up", "shoot-left", "shoot-right"]
+    },
+    "shared_props": {
+      "enabled": true,
+      "categories": ["weapon", "projectile", "powerup", "obstacle"]
+    },
+    "tilemap": {
+      "enabled": true,
+      "style": "8-direction-arena",
+      "tile_dimensions": [16, 16],
+      "working_resolution": 128,
+      "sheet_grid": [3, 3],
+      "default_variants": [
+        { "id": "floor-concrete",   "layer": "base",     "description": "Concrete arena floor tile." },
+        { "id": "floor-metal",      "layer": "base",     "description": "Metal grate floor." },
+        { "id": "wall-vertical",    "layer": "wall",     "description": "Vertical wall segment." },
+        { "id": "wall-horizontal",  "layer": "wall",     "description": "Horizontal wall segment." },
+        { "id": "crate",            "layer": "cover",    "description": "Wooden crate as cover." },
+        { "id": "barrel-explosive", "layer": "cover",    "description": "Red explosive barrel." }
+      ]
+    },
+    "background": {
+      "enabled": false,
+      "layers": [],
+      "transparent_layers": []
+    },
+    "scene_props": {
+      "enabled": true,
+      "categories": ["weapon", "powerup", "obstacle"]
+    }
+  },
+
+  "playbook_overrides": {
+    "scenes_inspect_use_platforms": false,
+    "scenes_inspect_view_mode": "top-down",
+    "world_width_tiles": 60,
+    "world_height_tiles": 60
+  }
+}

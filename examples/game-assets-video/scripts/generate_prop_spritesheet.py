@@ -192,6 +192,19 @@ def main() -> int:
     extra_refs = []
     if args.scene_concept:
         extra_refs.append(Path(args.scene_concept))
+    # Concept-driven asset extraction: scene props sit on the ground in the
+    # foreground, so the extracted near-layer crop is the closest match.
+    # Attaching it as a 3rd reference makes the prop's lighting and texture
+    # match whatever the concept image actually showed at ground level.
+    if args.scene_id:
+        extracted_near = (
+            project_root / "assets" / "scenes" / args.scene_id
+            / "extracted" / "bg-near.png"
+        )
+        if extracted_near.exists():
+            extra_refs.append(extracted_near)
+
+    height_tiles = obj.get("height_tiles")  # may be None if author didn't declare
 
     # Subject string includes the description so the model has enough to
     # draw the prop without a real reference image (the base ref is just
@@ -206,6 +219,10 @@ def main() -> int:
         extra_critical.append(
             "Active states must read as DANGEROUS at a glance (sharp silhouette, warning colors)"
         )
+    # NOTE: prop scale is enforced post-process via lib.scale.lock_subject_height
+    # (called after generation, before atlas write — see end of main()). We do
+    # NOT ask the model to match a specific tile height in the prompt;
+    # instructing image-gen on pixel sizes is unreliable.
 
     playback = playback_for_state(args.state)
 

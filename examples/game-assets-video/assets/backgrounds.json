@@ -1,29 +1,12 @@
 [
   {
-    "id": "forest-far",
-    "name": "Forest — Far Layer",
-    "description": "Distant rolling forest silhouettes layered against a soft misty sky, slow parallax. Cool desaturated greens fading into warm cream-blue mist on the horizon — storybook depth, painterly atmospheric perspective.",
-    "parallax_layer": "far",
-    "resolution": [1920, 1080],
-    "art_style": "ghibli_modern_indie",
-    "palette_constraints": "Cool desaturated greens and blue-greys for distant trees, soft warm cream/pale-blue sky gradient. No hard outlines, no harsh saturation, no character-bright greens — far layer reads atmospheric and dreamy."
-  },
-  {
-    "id": "forest-mid",
-    "name": "Forest — Mid Layer",
-    "description": "Mid-ground forest band with bushy painterly trees and a winding dirt path entering from the left, medium parallax. More detail than the far layer; sky areas where it shows through must be transparent for compositing.",
-    "parallax_layer": "mid",
-    "resolution": [1920, 1080],
-    "art_style": "ghibli_modern_indie",
-    "palette_constraints": "Mid-saturation forest greens with soft painterly highlights, warm dirt browns for the path, occasional pastel pink/yellow flower accents. Sky pixels (anywhere the far layer should show through) must be FULLY TRANSPARENT (alpha=0). No flat sky-blue plate."
-  },
-  {
-    "id": "forest-near",
-    "name": "Forest — Near Layer",
-    "description": "Foreground grass tufts, close fern leaves, and a single dark painterly tree trunk on the right edge, fastest parallax. Mostly transparent so the mid and far layers show through.",
-    "parallax_layer": "near",
-    "resolution": [1920, 1080],
-    "art_style": "ghibli_modern_indie",
-    "palette_constraints": "Saturated rich greens and warm-dark tree-trunk browns. All non-foreground pixels MUST be FULLY TRANSPARENT (alpha=0) so far/mid layers composite cleanly behind."
+    "id": "forest-path",
+    "name": "Distant Mountains",
+    "description": "Distant mountains, trees, bushes, and a grassy path",
+    "resolution": [
+      1920,
+      1080
+    ],
+    "parallax_layer": "mid"
   }
 ]

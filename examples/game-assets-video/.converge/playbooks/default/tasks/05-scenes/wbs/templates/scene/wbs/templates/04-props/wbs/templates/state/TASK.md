@@ -2,6 +2,8 @@
 id: "scene-{{scene_id}}-prop-{{prop_id}}-{{state_name}}"
 title: "Scene `{{scene_id}}` — `{{prop_id}}` {{state_name}} sheet"
 description: "{{state_name}} spritesheet for scene-only prop `{{prop_id}}` in `{{scene_id}}`."
+inputs:
+  - "assets/scenes/{{scene_id}}/concept.png"
 outputs:
   - "assets/scenes/{{scene_id}}/props/{{prop_id}}/spritesheets/{{state_name}}/{{state_name}}.png"
   - "assets/scenes/{{scene_id}}/props/{{prop_id}}/spritesheets/{{state_name}}/{{state_name}}.atlas.json"

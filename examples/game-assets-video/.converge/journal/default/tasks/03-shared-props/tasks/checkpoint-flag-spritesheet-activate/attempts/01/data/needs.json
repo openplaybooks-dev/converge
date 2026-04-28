@@ -1,0 +1,11 @@
+{
+  "taskId": "03-shared-props/checkpoint-flag-spritesheet-activate",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/objects/checkpoint-flag/spritesheets/activate/activate.png",
+    "assets/objects/checkpoint-flag/spritesheets/activate/activate.atlas.json",
+    "assets/objects/checkpoint-flag/spritesheets/activate/activate.prompt.txt"
+  ],
+  "blocked": false
+}

@@ -1,5 +1,5 @@
 ---
-id: "scene-{{scene_id}}-concept"
+id: "scene-{{scene_id}}-01-concept"
 title: "Scene `{{scene_id}}` — concept + SPEC"
 description: "Render concept hero-shot for `{{scene_id}}` and derive SPEC.md."
 outputs:

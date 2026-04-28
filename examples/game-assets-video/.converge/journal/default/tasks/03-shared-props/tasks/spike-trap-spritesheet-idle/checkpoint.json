@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-shared-props/spike-trap-spritesheet-idle",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T16:20:50.897Z",
+  "createdAt": "2026-04-27T16:20:50.208Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T16:20:50.208Z",
+      "completedAt": "2026-04-27T16:20:50.879Z",
+      "outcome": "success",
+      "durationMs": 671
+    }
+  ],
+  "currentAttempt": 1
+}

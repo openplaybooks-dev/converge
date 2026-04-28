@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-shared-props/bounce-spring-spritesheet-bounce",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T16:18:06.894Z",
+  "createdAt": "2026-04-27T16:18:06.227Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T16:18:06.227Z",
+      "completedAt": "2026-04-27T16:18:06.873Z",
+      "outcome": "success",
+      "durationMs": 646
+    }
+  ],
+  "currentAttempt": 1
+}

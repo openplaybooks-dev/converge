@@ -1,7 +1,10 @@
 ---
-id: "scene-{{scene_id}}-manifest"
+id: "scene-{{scene_id}}-05-manifest"
 title: "Scene `{{scene_id}}` — manifest"
 description: "Walk on-disk outputs and emit `scene.json` + update REGISTRY scenes_using[]."
+inputs:
+  - "assets/scenes/{{scene_id}}/concept.png"
+  - "assets/scenes/{{scene_id}}/tilesheet/tilesheet.atlas.json"
 outputs:
   - "assets/scenes/{{scene_id}}/scene.json"
 checks:

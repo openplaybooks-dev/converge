@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-characters/02-shared-references/class-warrior",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T16:15:05.137Z",
+  "createdAt": "2026-04-27T16:15:04.762Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T16:15:04.762Z",
+      "completedAt": "2026-04-27T16:15:05.115Z",
+      "outcome": "success",
+      "durationMs": 353
+    }
+  ],
+  "currentAttempt": 1
+}

@@ -1,0 +1,56 @@
+{
+  "$schema": "v1",
+  "game_type": "top-down-rpg",
+  "view": "top-down-2d",
+  "movement": ["8-directional"],
+  "art_style_keywords": ["pixel art", "16-bit", "retro RPG", "tile-based"],
+  "anti_keywords": ["side view", "parallax", "horizon", "depth haze"],
+
+  "asset_categories": {
+    "characters": {
+      "enabled": true,
+      "frames_mode": "video",
+      "default_states": ["idle-down", "idle-up", "idle-left", "idle-right", "walk-down", "walk-up", "walk-left", "walk-right"]
+    },
+    "shared_props": {
+      "enabled": true,
+      "categories": ["item", "weapon", "interactive"]
+    },
+    "tilemap": {
+      "enabled": true,
+      "style": "8-direction-rpg",
+      "tile_dimensions": [16, 16],
+      "working_resolution": 128,
+      "sheet_grid": [4, 4],
+      "default_variants": [
+        { "id": "grass",            "layer": "base",     "description": "Plain grass field tile (top-down view)." },
+        { "id": "grass-flowers",    "layer": "base",     "description": "Grass with scattered flower spots." },
+        { "id": "dirt",             "layer": "base",     "description": "Plain dirt tile." },
+        { "id": "path-corner-NE",   "layer": "path",     "description": "Dirt path with grass on northeast corner — for path turning." },
+        { "id": "path-corner-NW",   "layer": "path",     "description": "Dirt path with grass on northwest corner." },
+        { "id": "path-corner-SE",   "layer": "path",     "description": "Dirt path with grass on southeast corner." },
+        { "id": "path-corner-SW",   "layer": "path",     "description": "Dirt path with grass on southwest corner." },
+        { "id": "water",            "layer": "obstacle", "description": "Water tile — impassable, with subtle wave pattern." },
+        { "id": "water-edge-grass", "layer": "obstacle", "description": "Water meeting grass — shoreline transition." },
+        { "id": "tree-stump",       "layer": "decoration","description": "Single tree stump on grass." },
+        { "id": "rock-small",       "layer": "decoration","description": "Small grey rock decoration." }
+      ]
+    },
+    "background": {
+      "enabled": false,
+      "layers": [],
+      "transparent_layers": []
+    },
+    "scene_props": {
+      "enabled": true,
+      "categories": ["interactive", "decoration"]
+    }
+  },
+
+  "playbook_overrides": {
+    "scenes_inspect_use_platforms": false,
+    "scenes_inspect_view_mode": "top-down",
+    "world_width_tiles": 80,
+    "world_height_tiles": 60
+  }
+}

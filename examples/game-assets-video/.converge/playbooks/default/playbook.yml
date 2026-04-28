@@ -79,7 +79,7 @@ vars:
   max_states_per_character: 2 # test scope
   max_objects: 5
   max_backgrounds: 2
-  stop_after: sprites        # "characters" | "sprites" | "export" | "full" — see description
+  stop_after: export         # "characters" | "sprites" | "export" | "full" — see description
   budget_cents: 1000         # hard pre-spend cap; every paid call charges before invoking the API
 
 run:
@@ -92,15 +92,22 @@ run:
 
 tasks:
   # Scene-driven pipeline (default). The shape:
-  #   00-visual-target → 01-art-bible → 02-asset-breakdown
+  #   00-classify-game → 00-visual-target → 01-art-bible → 02-asset-breakdown
   #     → 03-characters + 03-shared-props → 04-registry-build
   #     → 05-scenes (per-scene WBS: concept → bg → tiles → props → manifest)
   #     → 06-export
   #
+  # 00-classify-game writes assets/game.json (the project manifest); every
+  # downstream task reads it to decide which asset categories to produce
+  # or skip and which tilemap-style template to use.
+  #
   # 01-setup-art-style is the legacy art-style file. The new 01-art-bible
   # supersedes it (writes ART_BIBLE.md + concept hero-shot) but they coexist
   # so existing projects don't break.
+  - id: 00-classify-game
   - id: 00-visual-target
+    depends_on:
+      - 00-classify-game
   - id: 01-art-bible
     depends_on:
       - 00-visual-target

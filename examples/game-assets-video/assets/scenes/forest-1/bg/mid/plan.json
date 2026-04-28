@@ -1,0 +1,50 @@
+{
+  "scene_id": "forest-1",
+  "layer_id": "mid",
+  "target_width": 4096,
+  "target_height": 1080,
+  "chunk_width": 1024,
+  "side_strip_px": 256,
+  "transparent": true,
+  "transition_below": "far",
+  "subject_height_tiles": 3.5,
+  "chunks": [
+    {
+      "index": 0,
+      "x": 0,
+      "width": 820,
+      "role": "seed",
+      "source": "assets/scenes/forest-1/extracted/bg-mid.png"
+    },
+    {
+      "index": 1,
+      "x": 820,
+      "width": 820,
+      "role": "transition",
+      "left_seed_idx": 0,
+      "right_seed_idx": 2
+    },
+    {
+      "index": 2,
+      "x": 1640,
+      "width": 820,
+      "role": "seed",
+      "source": "assets/scenes/forest-1/extracted/bg-mid.png"
+    },
+    {
+      "index": 3,
+      "x": 2460,
+      "width": 820,
+      "role": "transition",
+      "left_seed_idx": 2,
+      "right_seed_idx": 4
+    },
+    {
+      "index": 4,
+      "x": 3280,
+      "width": 816,
+      "role": "seed",
+      "source": "assets/scenes/forest-1/extracted/bg-mid.png"
+    }
+  ]
+}

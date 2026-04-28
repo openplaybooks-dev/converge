@@ -1,0 +1,15 @@
+{
+  "taskId": "04-registry-build",
+  "checks": [
+    {
+      "id": "registry-exists",
+      "description": "REGISTRY.json was written",
+      "cmd": "test -s assets/REGISTRY.json"
+    },
+    {
+      "id": "registry-has-shape",
+      "description": "REGISTRY.json has characters[] and shared_props[]",
+      "cmd": "python -c \"import json; r=json.load(open('assets/REGISTRY.json')); assert 'characters' in r and 'shared_props' in r, 'registry missing required top-level keys'\"\n"
+    }
+  ]
+}

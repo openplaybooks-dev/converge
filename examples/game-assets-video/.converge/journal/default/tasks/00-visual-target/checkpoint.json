@@ -1,13 +1,16 @@
 {
   "type": "task",
   "id": "00-visual-target",
-  "status": "running",
-  "lastUpdated": "2026-04-27T15:44:41.704Z",
-  "createdAt": "2026-04-27T15:44:41.701Z",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T16:12:53.837Z",
+  "createdAt": "2026-04-27T16:12:53.390Z",
   "attempts": [
     {
       "attempt": 1,
-      "startedAt": "2026-04-27T15:44:41.701Z"
+      "startedAt": "2026-04-27T16:12:53.390Z",
+      "completedAt": "2026-04-27T16:12:53.811Z",
+      "outcome": "success",
+      "durationMs": 421
     }
   ],
   "currentAttempt": 1

@@ -1,0 +1,58 @@
+Draw a single game character on a pure chroma-green (#00FF00) background.
+
+ART STYLE (mandatory): Modern hand-drawn 2D game art in the spirit of Studio Ghibli and contemporary indie titles like Hollow Knight, Hades, Spiritfarer, Cuphead, and Ori and the Blind Forest. Soft painterly shading, gentle gradients, clean rounded silhouettes, expressive eyes and faces, warm storybook lighting. Characters have appealing proportions (slightly stylized: larger heads, simplified bodies) and read as friendly and inviting at first glance. Color is rich and saturated but not garish — think watercolor + ink, not pixel art. Edges are smooth (no jaggies). Subtle ambient rim light hints at depth without heavy shadows.
+
+Character: Elf Archer With Green Cloak And Bow — Elf archer with green cloak and bow
+View: Right Side View — character body rotated to rotation_y=90°, rotation_x=0° (no tilt). Standing neutral idle pose.
+
+Viewport (locked, identical across every reference and every animation frame of this character — do not deviate):
+- Orthographic camera (no perspective foreshortening), parallel projection.
+- Camera height: chest level. Look straight at the character (camera tilt / rotation_x = 0°). No high angle, no low angle, no Dutch tilt.
+- Distance / framing: full body fits in the square frame with ~10% padding on top, bottom, left, and right. Feet near the bottom edge, head near the top.
+- Character is centered horizontally. The ground line (where feet stand) is at the same Y in every frame.
+- Sprite scale stays identical across frames — do not zoom in or out, do not resize the character between frames.
+- No ground plane drawn, no shadow cast on the ground, no environment.
+
+Palette discipline:
+Modern saturated palette with painterly gradients (NOT a fixed 16-color limit). Use subtle color variation within each material — e.g. armor highlights pick up sky/ambient tints. Skin tones are warm and natural.
+
+Background is PURE FLAT CHROMA GREEN (#00FF00) across the entire canvas. Every non-character pixel is exactly #00FF00 — no gradients, no shadows, no ground plane, no sky, no environment, no texture. The character itself must NOT contain any pure-green areas; if the palette calls for greens, shift them toward yellow-green or blue-green so the chroma key downstream can isolate the background cleanly. The character's pixels are fully opaque; the green pixels will be keyed to alpha by the next stage of the pipeline.
+
+Structured spec for reference:
+
+{
+  "task": "generate_character_at_angle",
+  "instruction": "Draw a single game character sprite, full-body, at the requested viewing angle, on a pure chroma-green (#00FF00) background",
+  "character": {
+    "name": "Elf Archer With Green Cloak And Bow",
+    "description": "Elf archer with green cloak and bow"
+  },
+  "viewing_angle": {
+    "angle_name": "Right Side View",
+    "description": "Character facing right, side profile",
+    "rotation_y": 90,
+    "rotation_x": 0
+  },
+  "art_style": "modern_indie_ghibli_inspired",
+  "art_style_description": "Modern hand-drawn 2D game art in the spirit of Studio Ghibli and contemporary indie titles like Hollow Knight, Hades, Spiritfarer, Cuphead, and Ori and the Blind Forest. Soft painterly shading, gentle gradients, clean rounded silhouettes, expressive eyes and faces, warm storybook lighting. Characters have appealing proportions (slightly stylized: larger heads, simplified bodies) and read as friendly and inviting at first glance. Color is rich and saturated but not garish \u2014 think watercolor + ink, not pixel art. Edges are smooth (no jaggies). Subtle ambient rim light hints at depth without heavy shadows.",
+  "palette": "Modern saturated palette with painterly gradients (NOT a fixed 16-color limit). Use subtle color variation within each material \u2014 e.g. armor highlights pick up sky/ambient tints. Skin tones are warm and natural.",
+  "palette_constraints": "",
+  "composition": {
+    "pose": "standing_neutral_idle",
+    "view_angle": "Character facing right, side profile",
+    "framing": "full_body_centered_in_frame",
+    "character_centered": true,
+    "consistent_character_design": true
+  },
+  "background": "PURE CHROMA GREEN #00FF00 \u2014 flat, uniform, no gradients, no shadows, no environment. Will be chroma-keyed to alpha downstream.",
+  "critical_instructions": [
+    "Show character from Right Side View angle",
+    "Rotation: Y=90\u00b0, X=0\u00b0",
+    "Character must be recognizable from this angle",
+    "Maintain consistent character design",
+    "Background is PURE FLAT CHROMA GREEN (#00FF00) across the entire canvas. Every non-character pixel is exactly #00FF00 \u2014 no gradients, no shadows, no ground plane, no environment, no texture. The character does NOT contain any pure green; if the palette includes greens, shift them slightly toward yellow-green or blue-green so the chroma key can isolate the background cleanly.",
+    "Do NOT produce pixel art, 8-bit, or 16-bit retro game graphics",
+    "Do NOT use a hard-edged limited color palette, dithering, or visible chunky pixels",
+    "Do NOT use the chunky aliased outlines typical of NES/SNES sprites"
+  ]
+}

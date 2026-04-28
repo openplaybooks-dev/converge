@@ -1,50 +1,123 @@
 [
   {
     "id": "forest-1",
-    "name": "Forest Glade — opening scene",
+    "name": "Forest Glade \u2014 opening scene",
     "biome": "temperate-forest",
     "art_style": "ghibli_modern_indie",
     "description": "A grassy forest clearing at midday. Soft mist on the horizon, a winding dirt path entering from the left, fern foliage in the foreground. The hero starts here. Used as the playable opening of the platformer.",
-    "characters": ["hero-knight"],
-    "shared_props": ["health-potion", "gold-key", "spike-trap"],
+    "characters": [
+      "hero-knight"
+    ],
+    "shared_props": [
+      "health-potion",
+      "gold-key",
+      "spike-trap"
+    ],
     "background": {
-      "layers": ["far", "mid", "near"],
+      "layers": [
+        {
+          "id": "far",
+          "transparent": false,
+          "transition_below": null,
+          "subject_height_tiles": null,
+          "extracted_layer_path": "assets/scenes/forest-1/extracted/bg-far.png",
+          "use_extraction": true
+        },
+        {
+          "id": "mid",
+          "transparent": true,
+          "transition_below": "far",
+          "subject_height_tiles": 3.5,
+          "extracted_layer_path": "assets/scenes/forest-1/extracted/bg-mid.png",
+          "use_extraction": true
+        },
+        {
+          "id": "near",
+          "transparent": true,
+          "transition_below": "mid",
+          "subject_height_tiles": 7.0,
+          "extracted_layer_path": "assets/scenes/forest-1/extracted/bg-near.png",
+          "use_extraction": true
+        }
+      ],
       "target_width": 4096,
       "segment_width": 1024,
       "overlap_px": 256,
       "loop_horizontal": true,
-      "palette_constraints": "Cool desaturated greens and warm cream-blue sky for the far layer; mid-saturation forest greens with warm dirt browns for the mid layer; saturated rich greens and dark tree trunks for the near layer. Sky pixels in mid/near MUST be fully transparent (alpha=0)."
+      "transition_strip_h": 96,
+      "palette_constraints": "Cool desaturated greens and warm cream-blue sky for the far layer; mid-saturation forest greens with warm dirt browns for the mid layer; saturated rich greens and dark tree trunks for the near layer. Mid and near are rendered with a chroma-green sky (#00FF00) which the keying pipeline converts to transparency."
     },
     "tilemap": {
       "id": "grassland-forest",
       "name": "Grassland (Forest)",
       "terrain_type": "grass",
-      "tile_dimensions": [16, 16],
+      "tile_dimensions": [
+        16,
+        16
+      ],
       "working_resolution": 128,
-      "sheet_grid": [4, 4],
+      "sheet_grid": [
+        4,
+        4
+      ],
       "art_style": "ghibli_modern_indie",
       "palette_constraints": "Greens for grass blades, warm earth browns, pastel flowers, painterly grey-blue stones. No hard 1-pixel outlines.",
       "tile_variants": [
-        { "id": "grass-base",       "layer": "base",       "description": "Solid grass top tile, short blades, flat earth fill below the grass band." },
-        { "id": "grass-edge-left",  "layer": "base",       "description": "Grass tile with the left edge curving down to bare earth." },
-        { "id": "grass-edge-right", "layer": "base",       "description": "Grass tile with the right edge curving down to bare earth." },
-        { "id": "earth-fill",       "layer": "base",       "description": "Plain packed-earth fill tile." },
-        { "id": "earth-rocky",      "layer": "base",       "description": "Packed-earth fill with embedded pebbles and cracks." },
-        { "id": "flower-yellow",    "layer": "detail",     "description": "Single yellow daisy on grass." },
-        { "id": "stone-small",      "layer": "decoration", "description": "Small grey stone resting on grass." },
-        { "id": "mushroom-red",     "layer": "decoration", "description": "Single red mushroom with white spots on grass." }
+        {
+          "id": "grass-base",
+          "layer": "base",
+          "description": "Solid grass top tile, short blades, flat earth fill below the grass band."
+        },
+        {
+          "id": "grass-edge-left",
+          "layer": "base",
+          "description": "Grass tile with the left edge curving down to bare earth."
+        },
+        {
+          "id": "grass-edge-right",
+          "layer": "base",
+          "description": "Grass tile with the right edge curving down to bare earth."
+        },
+        {
+          "id": "earth-fill",
+          "layer": "base",
+          "description": "Plain packed-earth fill tile."
+        },
+        {
+          "id": "earth-rocky",
+          "layer": "base",
+          "description": "Packed-earth fill with embedded pebbles and cracks."
+        },
+        {
+          "id": "flower-yellow",
+          "layer": "detail",
+          "description": "Single yellow daisy on grass."
+        },
+        {
+          "id": "stone-small",
+          "layer": "decoration",
+          "description": "Small grey stone resting on grass."
+        },
+        {
+          "id": "mushroom-red",
+          "layer": "decoration",
+          "description": "Single red mushroom with white spots on grass."
+        }
       ]
     },
     "scene_props": [
       {
         "id": "forest-mushroom-cluster",
         "name": "Forest Mushroom Cluster",
-        "description": "A cluster of three painterly forest mushrooms with soft glow at the base — purely decorative, sits on grass.",
+        "description": "A cluster of three painterly forest mushrooms with soft glow at the base \u2014 purely decorative, sits on grass.",
         "category": "item",
         "type": "decoration",
-        "states": ["idle"],
+        "states": [
+          "idle"
+        ],
         "sprite_resolution": 64,
         "working_resolution": 128,
+        "height_tiles": 1.5,
         "art_style": "ghibli_modern_indie"
       }
     ]

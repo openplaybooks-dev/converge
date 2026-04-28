@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-shared-props/spike-trap-spritesheet-trigger",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T16:20:51.589Z",
+  "createdAt": "2026-04-27T16:20:50.935Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T16:20:50.935Z",
+      "completedAt": "2026-04-27T16:20:51.569Z",
+      "outcome": "success",
+      "durationMs": 635
+    }
+  ],
+  "currentAttempt": 1
+}

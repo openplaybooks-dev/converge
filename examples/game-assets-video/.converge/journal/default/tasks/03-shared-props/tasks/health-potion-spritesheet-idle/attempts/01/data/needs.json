@@ -1,0 +1,11 @@
+{
+  "taskId": "03-shared-props/health-potion-spritesheet-idle",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/objects/health-potion/spritesheets/idle/idle.png",
+    "assets/objects/health-potion/spritesheets/idle/idle.atlas.json",
+    "assets/objects/health-potion/spritesheets/idle/idle.prompt.txt"
+  ],
+  "blocked": false
+}

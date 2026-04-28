@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-shared-props/spike-trap-01-spec",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T16:20:50.133Z",
+  "createdAt": "2026-04-27T16:20:05.259Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T16:20:05.259Z",
+      "completedAt": "2026-04-27T16:20:50.102Z",
+      "outcome": "success",
+      "durationMs": 44843
+    }
+  ],
+  "currentAttempt": 1
+}

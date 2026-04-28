@@ -154,6 +154,10 @@
     const HERO_DISPLAY_H = TILE * 1.4;
 
     let atlas = null;
+    // Game manifest — drives game-type-aware rendering (whether to spawn
+    // floating platforms, parallax bg, etc). Loaded once at bootstrap;
+    // missing manifest falls back to platformer defaults.
+    let gameManifest = null;
     let assetsInUse = []; // [{label, status: 'real'|'fallback', detail}]
     let roster = [];      // [{id, name, idleSlice, walkSlice}]
     let activeIdx = 0;
@@ -183,9 +187,16 @@
 
     async function bootstrap() {
       atlas = await loadAtlas(ROOT);
+      try {
+        const res = await fetch(`${ROOT}/assets/game.json`, { cache: 'no-cache' });
+        gameManifest = res.ok ? await res.json() : null;
+      } catch (_) {
+        gameManifest = null;
+      }
       roster = buildRoster();
+      const gameType = gameManifest?.game_type || 'platformer (default)';
       document.getElementById('summary').textContent =
-        `${atlas._source === 'walker' ? '⚠ no master atlas — walking per-sheet' : '✓ master atlas'} · ${summarizeAtlas(atlas)} · ${roster.length} hero(es)`;
+        `${atlas._source === 'walker' ? '⚠ no master atlas — walking per-sheet' : '✓ master atlas'} · ${summarizeAtlas(atlas)} · ${roster.length} hero(es) · ${gameType}`;
       startPhaser();
     }
 
@@ -381,12 +392,15 @@
         const tile = group.create(c * TILE + TILE / 2, GROUND_Y + TILE / 2, tileKey, hasTiles ? 0 : undefined);
         tile.setDisplaySize(TILE, TILE).refreshBody();
       }
-      // Platforms.
-      const platforms = [
+      // Floating platforms — only spawn when game.json says this is a
+      // platformer. Side-scrolling-action / top-down games use continuous
+      // ground only. Default-on for backward compat with no manifest.
+      const usePlatforms = gameManifest?.playbook_overrides?.scenes_inspect_use_platforms ?? true;
+      const platforms = usePlatforms ? [
         { x: 460, y: GROUND_Y - 140, len: 4 },
         { x: 980, y: GROUND_Y - 220, len: 3 },
         { x: 1700, y: GROUND_Y - 160, len: 5 },
-      ];
+      ] : [];
       for (const p of platforms) {
         for (let c = 0; c < p.len; c++) {
           const tile = group.create(p.x + c * TILE + TILE / 2, p.y + TILE / 2, tileKey, hasTiles ? 0 : undefined);

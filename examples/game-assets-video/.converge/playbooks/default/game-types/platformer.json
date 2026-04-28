@@ -1,0 +1,53 @@
+{
+  "$schema": "v1",
+  "game_type": "platformer",
+  "view": "side-2d",
+  "movement": ["walk-left", "walk-right", "jump"],
+  "art_style_keywords": ["pixel art", "retro", "16-bit"],
+  "anti_keywords": ["3d perspective", "isometric", "first-person"],
+
+  "asset_categories": {
+    "characters": {
+      "enabled": true,
+      "frames_mode": "video",
+      "default_states": ["idle", "walk", "jump"]
+    },
+    "shared_props": {
+      "enabled": true,
+      "categories": ["item", "hazard", "interactive"]
+    },
+    "tilemap": {
+      "enabled": true,
+      "style": "platform-shelves",
+      "tile_dimensions": [16, 16],
+      "working_resolution": 128,
+      "sheet_grid": [4, 4],
+      "default_variants": [
+        { "id": "grass-base",       "layer": "base",       "description": "Solid grass top tile, short blades, flat earth fill below the grass band." },
+        { "id": "grass-edge-left",  "layer": "base",       "description": "Grass tile with the left edge curving down to bare earth, for a left platform corner." },
+        { "id": "grass-edge-right", "layer": "base",       "description": "Grass tile with the right edge curving down to bare earth, for a right platform corner." },
+        { "id": "earth-fill",       "layer": "base",       "description": "Plain packed-earth fill tile for under-grass terrain interior." },
+        { "id": "earth-rocky",      "layer": "base",       "description": "Packed-earth fill tile with embedded small pebbles and cracks." },
+        { "id": "flower-yellow",    "layer": "detail",     "description": "Single yellow daisy on grass, four petals, dark green stem." },
+        { "id": "stone-small",      "layer": "decoration", "description": "Small grey stone resting on grass, rounded, single highlight on top-left." },
+        { "id": "mushroom-red",     "layer": "decoration", "description": "Single red mushroom with white spots on grass." }
+      ]
+    },
+    "background": {
+      "enabled": true,
+      "layers": ["far", "mid", "near"],
+      "transparent_layers": ["mid", "near"],
+      "subject_height_tiles": { "far": null, "mid": 3.5, "near": 7.0 }
+    },
+    "scene_props": {
+      "enabled": true,
+      "categories": ["item", "decoration"]
+    }
+  },
+
+  "playbook_overrides": {
+    "scenes_inspect_use_platforms": true,
+    "world_width_tiles": 200,
+    "canvas_tiles_tall": 12
+  }
+}

@@ -1,0 +1,1 @@
+{"timestamp":"2026-04-27T18:19:00.636Z","eventType":"CLAUDEFN_START","level":"task","scope":"default.05-scenes/scene-forest-1/scene-forest-1-02-background/scene-forest-1-bg-01-far","message":"claudefn run_task: Scene `forest-1` — bg-far","metadata":{"phase":"run_task"}}

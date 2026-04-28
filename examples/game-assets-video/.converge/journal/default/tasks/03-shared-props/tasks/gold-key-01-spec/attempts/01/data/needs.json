@@ -1,0 +1,9 @@
+{
+  "taskId": "03-shared-props/gold-key-01-spec",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/objects/gold-key/SPEC.md"
+  ],
+  "blocked": false
+}

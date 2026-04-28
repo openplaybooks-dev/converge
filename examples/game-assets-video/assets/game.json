@@ -1,0 +1,118 @@
+{
+  "$schema": "v1",
+  "game_type": "side-scrolling-action",
+  "view": "side-2d",
+  "movement": [
+    "walk"
+  ],
+  "no_jumping": true,
+  "art_style_keywords": [
+    "2D pixel art",
+    "16-bit retro",
+    "limited 16-color palette",
+    "bright, saturated colors",
+    "muted environmental tones"
+  ],
+  "anti_keywords": [
+    "8-directional movement"
+  ],
+  "asset_categories": {
+    "characters": {
+      "enabled": true,
+      "frames_mode": "video",
+      "default_states": [
+        "idle",
+        "walk",
+        "attack"
+      ]
+    },
+    "shared_props": {
+      "enabled": true,
+      "categories": [
+        "item",
+        "weapon",
+        "hazard"
+      ]
+    },
+    "tilemap": {
+      "enabled": true,
+      "style": "continuous-ground",
+      "tile_dimensions": [
+        32,
+        32
+      ],
+      "working_resolution": 128,
+      "sheet_grid": [
+        3,
+        3
+      ],
+      "default_variants": [
+        {
+          "id": "grass-tall",
+          "layer": "ground",
+          "description": "Lush grass tufts on flat ground \u2014 the dominant ground texture."
+        },
+        {
+          "id": "grass-tufts",
+          "layer": "ground",
+          "description": "Sparser grass with patches of dirt showing through."
+        },
+        {
+          "id": "dirt-patch",
+          "layer": "ground",
+          "description": "Bare dirt patch \u2014 represents a worn footpath segment."
+        },
+        {
+          "id": "stone-tile",
+          "layer": "ground",
+          "description": "Stone path segment \u2014 single squarish stone embedded in grass."
+        },
+        {
+          "id": "flower-cluster",
+          "layer": "decoration",
+          "description": "Cluster of small wildflowers on the grass surface."
+        },
+        {
+          "id": "weed-clump",
+          "layer": "decoration",
+          "description": "Tall weeds or fern fronds rising from the ground."
+        }
+      ]
+    },
+    "background": {
+      "enabled": true,
+      "layers": [
+        "far",
+        "mid"
+      ],
+      "transparent_layers": [
+        "mid"
+      ],
+      "subject_height_tiles": {
+        "far": null,
+        "mid": 4.0
+      }
+    },
+    "scene_props": {
+      "enabled": true,
+      "categories": [
+        "decoration",
+        "interactive"
+      ]
+    }
+  },
+  "playbook_overrides": {
+    "scenes_inspect_use_platforms": false,
+    "world_width_tiles": 200,
+    "canvas_tiles_tall": 12
+  },
+  "_classifier_metadata": {
+    "source": "idea.md + visual-target.png",
+    "confidence": "medium",
+    "reasoning": "The image clearly depicts a side-view perspective with characters moving on a continuous ground, typical for side-scrolling games. The brief describes the game as a '2D pixel art action RPG' with a 'Parallax forest background,' aligning well with the characteristics of a side-scrolling action RPG.",
+    "alternatives_considered": [
+      "top-down-rpg",
+      "platformer"
+    ]
+  }
+}

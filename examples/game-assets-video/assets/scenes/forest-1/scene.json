@@ -1,0 +1,49 @@
+{
+  "id": "forest-1",
+  "name": "Forest Glade \u2014 opening scene",
+  "biome": "temperate-forest",
+  "concept": "assets/scenes/forest-1/concept.png",
+  "spec": "assets/scenes/forest-1/SPEC.md",
+  "background": {
+    "layers": [
+      {
+        "layer": "far",
+        "path": "assets/scenes/forest-1/bg-far.png",
+        "atlas": "assets/scenes/forest-1/bg-far.atlas.json",
+        "width": 1920,
+        "height": 1080
+      },
+      {
+        "layer": "mid",
+        "path": "assets/scenes/forest-1/bg-mid.png",
+        "atlas": "assets/scenes/forest-1/bg-mid.atlas.json",
+        "width": 1920,
+        "height": 1080
+      },
+      {
+        "layer": "near",
+        "path": "assets/scenes/forest-1/bg-near.png",
+        "atlas": "assets/scenes/forest-1/bg-near.atlas.json",
+        "width": 1920,
+        "height": 1080
+      }
+    ]
+  },
+  "tilemap": "assets/scenes/forest-1/tilesheet/tilesheet.atlas.json",
+  "characters": [
+    "hero-knight"
+  ],
+  "shared_props": [
+    "health-potion",
+    "gold-key",
+    "spike-trap"
+  ],
+  "scene_props": [
+    {
+      "id": "forest-mushroom-cluster",
+      "atlas_paths": [
+        "assets/scenes/forest-1/props/forest-mushroom-cluster/spritesheets/idle/idle.atlas.json"
+      ]
+    }
+  ]
+}

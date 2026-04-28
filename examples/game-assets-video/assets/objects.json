@@ -1,68 +1,44 @@
 [
   {
     "id": "health-potion",
-    "name": "Health Potion",
-    "description": "Red flask with sparkle particles, restores health when collected.",
+    "name": "Red Flask With Sparkle Particles",
+    "description": "Red flask with sparkle particles",
+    "animation_states": [
+      "idle",
+      "collect"
+    ],
     "category": "item",
-    "type": "item",
-    "states": ["idle", "collect"],
-    "sprite_resolution": 64,
-    "working_resolution": 128,
-    "art_style": "ghibli_modern_indie"
+    "working_resolution": 64
   },
   {
     "id": "gold-key",
-    "name": "Gold Key",
-    "description": "Ornate golden key with gem inset, unlocks treasure chests.",
+    "name": "Ornate Golden Key With Gem Inset",
+    "description": "Ornate golden key with gem inset",
+    "animation_states": [
+      "idle",
+      "collect"
+    ],
     "category": "item",
-    "type": "item",
-    "states": ["idle", "collect"],
-    "sprite_resolution": 64,
-    "working_resolution": 128,
-    "art_style": "ghibli_modern_indie"
+    "working_resolution": 64
   },
   {
-    "id": "spike-trap",
-    "name": "Floor Spikes",
-    "description": "Iron spikes embedded in stone block; extends and retracts. Deadly to step on while extended.",
-    "category": "hazard",
-    "type": "hazard",
-    "states": ["idle", "trigger"],
-    "sprite_resolution": 64,
-    "working_resolution": 128,
-    "art_style": "ghibli_modern_indie"
+    "id": "ui-key-slot",
+    "name": "User Interface Slot For The Gold Key",
+    "description": "User interface slot for the gold key",
+    "animation_states": [
+      "idle"
+    ],
+    "category": "item",
+    "working_resolution": 96
   },
   {
-    "id": "bounce-spring",
-    "name": "Coil Spring",
-    "description": "Metal coil spring mounted to floor plate; compresses on contact then launches upward.",
-    "category": "interactive",
-    "type": "interactive",
-    "states": ["idle", "bounce"],
-    "sprite_resolution": 64,
-    "working_resolution": 128,
-    "art_style": "ghibli_modern_indie"
-  },
-  {
-    "id": "wood-ladder",
-    "name": "Wooden Ladder",
-    "description": "Vertical wooden ladder with iron rivets, two rails and evenly spaced rungs. Static interactive prop.",
-    "category": "interactive",
-    "type": "interactive",
-    "states": ["idle"],
-    "sprite_resolution": 64,
-    "working_resolution": 128,
-    "art_style": "ghibli_modern_indie"
-  },
-  {
-    "id": "checkpoint-flag",
-    "name": "Checkpoint Flag",
-    "description": "Stone pedestal with a fabric flag on a pole; flag waves when the checkpoint activates.",
-    "category": "interactive",
-    "type": "interactive",
-    "states": ["idle", "activate"],
-    "sprite_resolution": 64,
-    "working_resolution": 128,
-    "art_style": "ghibli_modern_indie"
+    "id": "ui-health-bar",
+    "name": "Horizontal Green Health Bar",
+    "description": "Horizontal green health bar",
+    "animation_states": [
+      "idle"
+    ],
+    "category": "item",
+    "working_resolution": 250
   }
 ]

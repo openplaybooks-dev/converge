@@ -1,0 +1,189 @@
+{
+  "summary": {
+    "total_characters": 2,
+    "total_angle_refs": 8,
+    "total_pose_refs": 6,
+    "total_sprite_sheets": 4,
+    "total_frames": 80,
+    "total_props": 4,
+    "total_prop_states": 4,
+    "total_tilemaps": 1,
+    "total_tile_variants": 0,
+    "total_backgrounds": 1,
+    "estimated_time_minutes": 40
+  },
+  "characters": [
+    {
+      "id": "hero-knight",
+      "name": "Cute Armored Knight With Blue Armor",
+      "description": "Cute armored knight with blue armor, red cape, sword, and shield",
+      "palette": "",
+      "outputs": {
+        "spec": "assets/characters/hero-knight/SPEC.md",
+        "angles": [
+          "front.png",
+          "side_left.png",
+          "side_right.png",
+          "back.png"
+        ],
+        "poses": [
+          "attack.png",
+          "defend.png",
+          "jump.png"
+        ],
+        "states": {
+          "idle": {
+            "frames": 4,
+            "sheet": "assets/characters/hero-knight/states/idle/idle.png",
+            "atlas": "assets/characters/hero-knight/states/idle/atlas.json"
+          },
+          "walk": {
+            "frames": 4,
+            "sheet": "assets/characters/hero-knight/states/walk/walk.png",
+            "atlas": "assets/characters/hero-knight/states/walk/atlas.json"
+          }
+        }
+      },
+      "counts": {
+        "angle_refs": 4,
+        "pose_refs": 3,
+        "sprite_sheets": 2,
+        "total_frames": 8
+      }
+    },
+    {
+      "id": "forest-elf",
+      "name": "Elf Archer With Green Cloak And Bow",
+      "description": "Elf archer with green cloak and bow",
+      "palette": "",
+      "outputs": {
+        "spec": "assets/characters/forest-elf/SPEC.md",
+        "angles": [
+          "front.png",
+          "side_left.png",
+          "side_right.png",
+          "back.png"
+        ],
+        "poses": [
+          "attack.png",
+          "defend.png",
+          "jump.png"
+        ],
+        "states": {
+          "idle": {
+            "frames": 4,
+            "sheet": "assets/characters/forest-elf/states/idle/idle.png",
+            "atlas": "assets/characters/forest-elf/states/idle/atlas.json"
+          },
+          "walk": {
+            "frames": 4,
+            "sheet": "assets/characters/forest-elf/states/walk/walk.png",
+            "atlas": "assets/characters/forest-elf/states/walk/atlas.json"
+          }
+        }
+      },
+      "counts": {
+        "angle_refs": 4,
+        "pose_refs": 3,
+        "sprite_sheets": 2,
+        "total_frames": 8
+      }
+    }
+  ],
+  "props": [
+    {
+      "id": "health-potion",
+      "name": "Red Flask With Sparkle Particles",
+      "category": "item",
+      "states": {
+        "idle": {
+          "frames": 16,
+          "sheet": "assets/objects/health-potion/spritesheets/idle/idle.png",
+          "atlas": "assets/objects/health-potion/spritesheets/idle/idle.atlas.json"
+        }
+      },
+      "counts": {
+        "spritesheets": 1,
+        "total_frames": 16
+      }
+    },
+    {
+      "id": "gold-key",
+      "name": "Ornate Golden Key With Gem Inset",
+      "category": "item",
+      "states": {
+        "idle": {
+          "frames": 16,
+          "sheet": "assets/objects/gold-key/spritesheets/idle/idle.png",
+          "atlas": "assets/objects/gold-key/spritesheets/idle/idle.atlas.json"
+        }
+      },
+      "counts": {
+        "spritesheets": 1,
+        "total_frames": 16
+      }
+    },
+    {
+      "id": "ui-key-slot",
+      "name": "User Interface Slot For The Gold Key",
+      "category": "item",
+      "states": {
+        "idle": {
+          "frames": 16,
+          "sheet": "assets/objects/ui-key-slot/spritesheets/idle/idle.png",
+          "atlas": "assets/objects/ui-key-slot/spritesheets/idle/idle.atlas.json"
+        }
+      },
+      "counts": {
+        "spritesheets": 1,
+        "total_frames": 16
+      }
+    },
+    {
+      "id": "ui-health-bar",
+      "name": "Horizontal Green Health Bar",
+      "category": "item",
+      "states": {
+        "idle": {
+          "frames": 16,
+          "sheet": "assets/objects/ui-health-bar/spritesheets/idle/idle.png",
+          "atlas": "assets/objects/ui-health-bar/spritesheets/idle/idle.atlas.json"
+        }
+      },
+      "counts": {
+        "spritesheets": 1,
+        "total_frames": 16
+      }
+    }
+  ],
+  "tile_maps": [
+    {
+      "id": "grassland",
+      "name": "Grassy Path Terrain With Flowers And Stones",
+      "tile_dimensions": [
+        16,
+        16
+      ],
+      "sheet_grid": [
+        4,
+        4
+      ],
+      "variant_count": 0,
+      "tilesheet": "assets/tile_maps/grassland/tilesheet/tilesheet.png",
+      "atlas": "assets/tile_maps/grassland/tilesheet/tilesheet.atlas.json"
+    }
+  ],
+  "backgrounds": [
+    {
+      "id": "forest-path",
+      "name": "Distant Mountains",
+      "parallax_layer": "mid",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "sheet": "assets/backgrounds/forest-path/forest-path.png",
+      "atlas": "assets/backgrounds/forest-path/forest-path.atlas.json"
+    }
+  ]
+}

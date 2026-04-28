@@ -1,0 +1,101 @@
+Screenshot of a 2D side-scrolling video game taken mid-gameplay. Camera: orthographic, side view, character roughly centered horizontally, ground line near bottom third of screen.
+
+Game brief:
+# Game Assets Idea
+
+## Game Concept
+A 2D pixel art action RPG with 16-bit retro aesthetics. Game uses a limited 16-color palette with emphasis on bright, saturated colors for characters against muted environmental tones.
+
+## Characters
+
+### 1. Hero Knight
+- **ID**: hero-knight
+- **Name**: Sir Aldric
+- **Description**: Armored knight with blue steel armor, red cape, and sword and shield. Hero character with 8-directional movement.
+- **Palette**: 16-bit retro, blue and silver armor, red accent, limited to 16 colors
+- **States**: idle, walk
+
+### 2. Forest Elf
+- **ID**: forest-elf
+- **Name**: Lirael
+- **Description**: Nimble elf with green cloak, pointed hat, and bow. Quick movements, graceful poses.
+- **Palette**: 16-bit retro, green and brown tones, natural forest colors, limited to 16 colors
+- **States**: idle, walk
+
+### 3. Shadow Mage
+- **ID**: shadow-mage
+- **Name**: Malachar
+- **Description**: Dark robed mage with glowing purple eyes and staff. Mysterious, flowing robe animations.
+- **Palette**: 16-bit retro, dark purple and black, magical glow effects, limited to 16 colors
+- **States**: idle, walk
+
+## Objects
+
+### 1. Health Potion
+- **ID**: health-potion
+- **Type**: item
+- **Description**: Red flask with sparkle particles, restores health when collected.
+- **States**: idle, collect
+
+### 2. Gold Key
+- **ID**: gold-key
+- **Type**: item
+- **Description**: Ornate golden key with gem inset, unlocks treasure chests.
+- **States**: idle, collect
+
+## Backgrounds
+
+### 1. Forest Path
+- **ID**: forest-path
+- **Description**: Parallax forest background with distant trees, mid-ground bushes, and foreground grass details.
+- **Layer**: mid
+- **Resolution**: 1920x1080
+
+## Tile Maps
+
+### 1. Grassland Terrain
+- **ID**: grassland
+- **Terrain**: grass
+- **Tile Size**: 16x16
+- **Layers**: base grass, detail flowers, decoration stones
+
+## Technical Requirements
+
+- Sprite Resolution: 128x128 pixels per frame
+- Animation Frames per State: 4 (idle), 8 (walk) — test with 4 each
+- Engine Targets: godot, unity, raw
+- Sprites Per Row: 4
+
+## Palette Constraints
+
+All sprites must strictly adhere to a 16-color retro palette:
+- Primary: Black, White, Dark Gray, Light Gray
+- Accent 1: Red, Orange, Yellow
+- Accent 2: Green, Teal, Cyan
+- Accent 3: Blue, Purple, Magenta
+- Special: Skin tone, Brown (wood/leather)
+
+Composition rules:
+- Show the player character clearly visible in their default pose, full body, sized to about 1/8 of the screen height.
+- Place 1-3 representative enemies / NPCs at typical encounter positions (mid-screen and screen-edge).
+- Show 1-2 collectibles or pickups in their natural locations.
+- Include obstacles or interactive props if the brief mentions them.
+- Background: layered parallax (sky / distant / mid). Foreground: ground tiling visible.
+- HUD: health bar top-left, score counter top-right, optional inventory slot bottom-center. Every UI element shown at its screen position with placeholder values.
+
+ART STYLE (mandatory): Modern hand-drawn 2D game art in the spirit of Studio Ghibli and contemporary indie titles like Hollow Knight, Hades, Spiritfarer, Cuphead, and Ori and the Blind Forest. Soft painterly shading, gentle gradients, clean rounded silhouettes, expressive eyes and faces, warm storybook lighting. Characters have appealing proportions (slightly stylized: larger heads, simplified bodies) and read as friendly and inviting at first glance. Color is rich and saturated but not garish — think watercolor + ink, not pixel art. Edges are smooth (no jaggies). Subtle ambient rim light hints at depth without heavy shadows.
+
+Clean, sharp digital rendering. Game-engine output, not concept art. Every distinct object shown here will become an asset to generate downstream — don't include effects we can't produce (no volumetric light, no motion blur, no lens flare, no detailed cast shadows).
+
+This is the visual QA target. Spatial layout, scale relationships, and stylistic choices baked in here become requirements for every asset generated downstream.
+
+
+---
+
+Prompt rules (from godogen visual-target):
+- Enumerate every game object (player, each enemy type, obstacles, collectibles, projectiles, props). Every object here becomes an asset requirement; objects absent from the reference get forgotten downstream.
+- Reflect real technical constraints. Sprites are separate layers, so show them as distinct objects against the background — not composited photorealism.
+- DO NOT prompt downgraded quality (no "lowpoly", "pixel art", "retro"). Prompt clean sharp digital rendering instead.
+- Focus on the most important gameplay moment — the frame that best shows spatial layout, core mechanic, camera perspective.
+- Exclude what you won't build: volumetric lighting, motion blur, depth of field, atmospheric fog, complex reflections, lens flares, detailed cast shadows.
+- Show HUD/UI: health bar, score counter, minimap, inventory slots — every UI element with screen position.

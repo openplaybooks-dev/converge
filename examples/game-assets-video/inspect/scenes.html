@@ -16,7 +16,7 @@
       grid-template-rows: auto 1fr;
     }
     header {
-      padding: 0.75rem 1rem;
+      padding: 0.6rem 1rem;
       background: #161b22;
       border-bottom: 1px solid #30363d;
       display: flex;
@@ -35,7 +35,7 @@
     header .links a:hover { text-decoration: underline; }
     main {
       display: grid;
-      grid-template-columns: 240px 1fr 280px;
+      grid-template-columns: 220px 1fr 320px;
       overflow: hidden;
     }
     #scene-list {
@@ -58,41 +58,209 @@
     }
     .scene-row .name { font-size: 0.85rem; color: #c9d1d9; }
     .scene-row .meta { font-size: 0.7rem; color: #7d8590; margin-top: 0.15rem; }
-    .scene-row .missing { color: #d29922; font-size: 0.7rem; margin-top: 0.15rem; }
+    #stage {
+      display: grid;
+      grid-template-rows: 1fr auto;
+      overflow: hidden;
+    }
     #phaser-canvas {
       background: #7EB6FF;
       display: flex;
       align-items: center;
       justify-content: center;
+      min-height: 0;
+    }
+    #tile-palette {
+      background: #161b22;
+      border-top: 1px solid #30363d;
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      max-height: 30%;
+      overflow-y: auto;
+    }
+    #tile-palette .label {
+      font-size: 0.7rem;
+      color: #7d8590;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    #tile-strip {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+    .tile-cell {
+      width: 56px;
+      height: 70px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.15rem;
+      padding: 0.2rem;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 4px;
+      cursor: default;
+    }
+    .tile-cell canvas {
+      width: 48px;
+      height: 48px;
+      image-rendering: pixelated;
+    }
+    .tile-cell .id {
+      font-size: 0.55rem;
+      color: #8b949e;
+      text-align: center;
+      line-height: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
     }
     aside {
       background: #161b22;
       border-left: 1px solid #30363d;
-      padding: 1rem;
+      padding: 0.85rem;
       overflow-y: auto;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       line-height: 1.5;
     }
     aside h2 {
-      font-size: 0.8rem;
+      font-size: 0.72rem;
       color: #7d8590;
-      margin: 1rem 0 0.4rem;
+      margin: 0.85rem 0 0.35rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
     aside h2:first-child { margin-top: 0; }
+    aside .concept-img {
+      width: 100%;
+      border-radius: 4px;
+      border: 1px solid #30363d;
+    }
     aside ul { list-style: none; }
-    aside li { padding: 0.15rem 0; color: #c9d1d9; }
+    aside li {
+      padding: 0.1rem 0;
+      color: #c9d1d9;
+      font-size: 0.72rem;
+    }
     aside li.real { color: #56d364; }
     aside li.fallback { color: #d29922; }
     aside li .tag {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       color: #7d8590;
-      margin-left: 0.4rem;
       display: block;
-      padding-left: 1.2rem;
+      padding-left: 1.05rem;
     }
-    .empty { color: #7d8590; padding: 1rem; }
+    aside .key {
+      display: inline-block;
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 3px;
+      padding: 0.05rem 0.35rem;
+      font-size: 0.7rem;
+      color: #c9d1d9;
+    }
+    aside .desc {
+      color: #a8b2bd;
+      margin-top: 0.4rem;
+      font-size: 0.72rem;
+    }
+    aside details {
+      margin-top: 0.3rem;
+    }
+    aside details summary {
+      cursor: pointer;
+      color: #79c0ff;
+      font-size: 0.7rem;
+    }
+    aside details pre {
+      margin-top: 0.3rem;
+      padding: 0.4rem;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 3px;
+      max-height: 220px;
+      overflow: auto;
+      font-size: 0.65rem;
+      white-space: pre-wrap;
+      color: #c9d1d9;
+    }
+    aside .extracted-row {
+      display: flex;
+      gap: 0.4rem;
+      align-items: flex-start;
+      padding: 0.3rem 0;
+      border-bottom: 1px dashed #30363d;
+    }
+    aside .extracted-row:last-child { border-bottom: 0; }
+    aside .extracted-row img {
+      width: 96px;
+      height: auto;
+      border: 1px solid #30363d;
+      border-radius: 3px;
+      image-rendering: auto;
+      background: repeating-conic-gradient(#0d1117 0 25%, #1c2128 0 50%) 0/12px 12px;
+    }
+    aside .extracted-row .meta-col {
+      flex: 1;
+      font-size: 0.65rem;
+      color: #c9d1d9;
+      line-height: 1.4;
+    }
+    aside .extracted-row .meta-col .layer-name {
+      color: #79c0ff;
+      font-weight: 600;
+    }
+    aside .extracted-row .swatches {
+      display: flex;
+      gap: 2px;
+      margin-top: 0.2rem;
+    }
+    aside .extracted-row .swatches span {
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+      border: 1px solid #30363d;
+      cursor: help;
+    }
+    aside .extracted-row .density {
+      display: inline-block;
+      padding: 0.05rem 0.3rem;
+      border-radius: 3px;
+      font-size: 0.6rem;
+      color: #c9d1d9;
+      background: #21262d;
+      border: 1px solid #30363d;
+    }
+    aside .layer-row {
+      margin-top: 0.4rem;
+    }
+    aside .layer-row > .stitched {
+      width: 100%;
+      border-radius: 3px;
+      border: 1px solid #30363d;
+      image-rendering: pixelated;
+    }
+    aside .layer-row .segments {
+      display: flex;
+      gap: 0.25rem;
+      margin-top: 0.25rem;
+      overflow-x: auto;
+    }
+    aside .layer-row .segments img {
+      height: 50px;
+      border: 1px solid #30363d;
+      border-radius: 2px;
+      flex: 0 0 auto;
+      image-rendering: pixelated;
+    }
+    aside .layer-row .layer-label {
+      font-size: 0.65rem;
+      color: #8b949e;
+    }
+    .empty { color: #7d8590; padding: 0.5rem; font-size: 0.78rem; }
     code { color: #79c0ff; }
   </style>
 </head>
@@ -108,41 +276,67 @@
 
   <main>
     <div id="scene-list"><div class="empty">loading scenes.json…</div></div>
-    <div id="phaser-canvas"></div>
+
+    <div id="stage">
+      <div id="phaser-canvas"></div>
+      <div id="tile-palette">
+        <div class="label">Tilesheet variants — click to set as ground</div>
+        <div id="tile-strip"></div>
+      </div>
+    </div>
+
     <aside>
       <h2>Scene</h2>
       <div id="scene-info"><div class="empty">select a scene</div></div>
 
-      <h2>Layers in use</h2>
+      <h2>Concept</h2>
+      <div id="concept-wrap"><div class="empty">—</div></div>
+
+      <h2>Controls</h2>
+      <div><span class="key">←</span> <span class="key">→</span> walk</div>
+      <div><span class="key">Space</span> jump &nbsp; <span class="key">R</span> respawn</div>
+
+      <h2>Layers</h2>
       <ul id="asset-status"><li>—</li></ul>
 
-      <h2>How it works</h2>
-      <p style="color:#7d8590">
-        Reads <code>assets/scenes.json</code> and the master atlas. For each
-        scene, this view lays down the parallax bg layers, builds a ground
-        from the scene tilesheet (frame 0 = first variant in the manifest),
-        and stamps every <code>scene_props</code> spritesheet at ground
-        level. Missing layers fall back to a flat sky and rectangles so
-        partial scenes still preview.
-      </p>
+      <h2>Layers extracted from concept</h2>
+      <div id="extracted-layers-wrap"><div class="empty">—</div></div>
+
+      <h2>Behind the scenes</h2>
+      <div id="bg-segments-wrap"><div class="empty">—</div></div>
+
+      <h2>Per-tile sources</h2>
+      <div id="tile-sources-wrap"><div class="empty">—</div></div>
+
+      <h2>SPEC.md</h2>
+      <div id="spec-wrap"><div class="empty">—</div></div>
+
+      <h2>Prompts</h2>
+      <div id="prompts-wrap"><div class="empty">—</div></div>
     </aside>
   </main>
 
   <script type="module">
-    import { loadAtlas, slicesByCategory, summarizeAtlas } from './lib/atlas-loader.js';
+    import { loadAtlas, slicesByCategory, findSlice, summarizeAtlas } from './lib/atlas-loader.js';
     import { loadAtlasAssets, registerAnimations, sheetKey, animKey } from './lib/animations.js';
 
     const ROOT = '..';
-    const WORLD_WIDTH = 2400;
+    const WORLD_WIDTH = 3200;
     const WORLD_HEIGHT = 600;
     const TILE = 64;
     const GROUND_Y = WORLD_HEIGHT - TILE;
+    const HERO_DISPLAY_H = TILE * 1.4;
 
     let atlas = null;
     let scenes = [];
+    // Game manifest — drives game-type-aware rendering (whether to spawn
+    // floating platforms, parallax bg, etc). Loaded once at bootstrap;
+    // missing manifest falls back to platformer defaults.
+    let gameManifest = null;
     let activeSceneId = null;
     let game = null;
     let assetsInUse = [];
+    let groundTileId = null; // user-overridable via palette click
 
     async function bootstrap() {
       atlas = await loadAtlas(ROOT);
@@ -152,9 +346,18 @@
       } catch (_) {
         scenes = [];
       }
+      // Load game.json manifest (may be missing on legacy projects — we
+      // fall back to platformer defaults so old behavior is preserved).
+      try {
+        const res = await fetch(`${ROOT}/assets/game.json`, { cache: 'no-cache' });
+        gameManifest = res.ok ? await res.json() : null;
+      } catch (_) {
+        gameManifest = null;
+      }
 
+      const gameType = gameManifest?.game_type || 'platformer (default)';
       document.getElementById('summary').textContent =
-        `${atlas._source === 'walker' ? '⚠ no master atlas' : '✓ master atlas'} · ${summarizeAtlas(atlas)} · ${scenes.length} scene(s)`;
+        `${atlas._source === 'walker' ? '⚠ no master atlas' : '✓ master atlas'} · ${summarizeAtlas(atlas)} · ${scenes.length} scene(s) · ${gameType}`;
 
       renderSceneList();
 
@@ -178,25 +381,28 @@
         const hasBg = slices.some(s => s.asset_id.includes('/bg-'));
         const hasTiles = slices.some(s => s.asset_id.endsWith('/tilesheet'));
         const hasProps = slices.some(s => s.asset_id.includes('/prop/'));
+        const charIds = scene.characters || [];
+        const sharedProps = scene.shared_props || [];
 
         const row = document.createElement('div');
         row.className = 'scene-row' + (scene.id === activeSceneId ? ' active' : '');
         row.onclick = () => selectScene(scene.id);
         const status = [
-          hasBg ? 'bg' : null,
+          hasBg ? `bg×${slices.filter(s=>s.asset_id.includes('/bg-')).length}` : null,
           hasTiles ? 'tiles' : null,
           hasProps ? 'props' : null,
+          charIds.length ? `${charIds.length} char` : null,
+          sharedProps.length ? `${sharedProps.length} shared` : null,
         ].filter(Boolean).join(' · ') || 'no assets generated';
         row.innerHTML = `
           <div class="name">${escapeHtml(scene.name || scene.id)}</div>
-          <div class="meta">${escapeHtml(scene.biome || '?')} · ${status}</div>
+          <div class="meta">${escapeHtml(scene.biome || '?')}<br>${escapeHtml(status)}</div>
         `;
         el.appendChild(row);
       }
     }
 
     function sceneSlices(sceneId) {
-      // Scene slices encode the scene_id as the first segment of asset_id.
       return slicesByCategory(atlas, 'scenes')
         .filter(s => s.asset_id.split('/')[0] === sceneId);
     }
@@ -204,12 +410,10 @@
     function findBgLayer(sceneId, layerName) {
       return sceneSlices(sceneId).find(s => s.asset_id === `${sceneId}/bg-${layerName}`);
     }
-
     function findTilesheet(sceneId) {
       return sceneSlices(sceneId).find(s => s.asset_id === `${sceneId}/tilesheet`);
     }
-
-    function findPropStates(sceneId) {
+    function findScenePropStates(sceneId) {
       const props = new Map();
       for (const s of sceneSlices(sceneId)) {
         const m = s.asset_id.match(/^[^/]+\/prop\/(.+)$/);
@@ -222,8 +426,9 @@
       return props;
     }
 
-    function selectScene(sceneId) {
+    async function selectScene(sceneId) {
       activeSceneId = sceneId;
+      groundTileId = null; // reset palette override on scene change
       renderSceneList();
       assetsInUse = [];
 
@@ -235,6 +440,12 @@
 
       const scene = scenes.find(s => s.id === sceneId);
       renderSceneInfo(scene);
+      await renderSpecPreview(scene);
+      renderConceptPreview(scene);
+      await renderExtractedLayers(scene);
+      await renderBgSegments(scene);
+      await renderTileSources(scene);
+      await renderPromptsIndex(scene);
       startPhaser(scene);
     }
 
@@ -242,9 +453,304 @@
       if (!scene) return;
       document.getElementById('scene-info').innerHTML = `
         <div><strong>${escapeHtml(scene.name || scene.id)}</strong></div>
-        <div style="color:#7d8590; font-size:0.75rem">${escapeHtml(scene.biome || '')} ${scene.art_style ? '· ' + escapeHtml(scene.art_style) : ''}</div>
-        <p style="margin-top:0.5rem; color:#a8b2bd">${escapeHtml(scene.description || '')}</p>
+        <div style="color:#7d8590; font-size:0.7rem">${escapeHtml(scene.biome || '')}${scene.art_style ? ' · ' + escapeHtml(scene.art_style) : ''}</div>
+        <div class="desc">${escapeHtml(scene.description || '')}</div>
       `;
+    }
+
+    function renderConceptPreview(scene) {
+      const el = document.getElementById('concept-wrap');
+      const conceptPath = `assets/scenes/${scene.id}/concept.png`;
+      el.innerHTML = `<img class="concept-img" src="${ROOT}/${conceptPath}?t=${Date.now()}"
+        alt="concept" onerror="this.outerHTML='<div class=&quot;empty&quot;>concept.png missing</div>'">`;
+    }
+
+    /**
+     * Show the chroma-keyed per-layer PNGs that the 01b-extract stage
+     * pulled out of concept.png, plus the inferred per-asset metadata
+     * from extracted/manifest.json. This is the "concept becomes the
+     * source of truth" verification surface — the user should see, at
+     * a glance, that the model correctly recognized which pixels belong
+     * to which parallax layer and what sizes / palettes it inferred.
+     */
+    async function renderExtractedLayers(scene) {
+      const el = document.getElementById('extracted-layers-wrap');
+      if (!el) return;
+      el.innerHTML = '';
+      const sceneId = scene.id;
+
+      // 1. Try to read extracted/manifest.json. Absence is OK — many older
+      //    scenes won't have an extraction pass yet.
+      let manifest = null;
+      try {
+        const res = await fetch(
+          `${ROOT}/assets/scenes/${sceneId}/extracted/manifest.json`,
+          { cache: 'no-cache' },
+        );
+        if (res.ok) manifest = await res.json();
+      } catch (_) { /* fall through */ }
+
+      // 2. Walk each declared layer; show the extracted PNG if present.
+      //    `scene.background.layers` may be the legacy string form or the
+      //    structured object form — handle both.
+      const rawLayers = scene.background?.layers || [];
+      const layerIds = rawLayers.map((entry) =>
+        typeof entry === 'string' ? entry : entry.id);
+
+      if (layerIds.length === 0) {
+        el.innerHTML = `<div class="empty">no layers declared</div>`;
+        return;
+      }
+
+      let anyShown = false;
+      for (const layerId of layerIds) {
+        const pngPath = `assets/scenes/${sceneId}/extracted/bg-${layerId}.png`;
+        let pngExists = false;
+        try {
+          const r = await fetch(`${ROOT}/${pngPath}`, { method: 'HEAD' });
+          pngExists = r.ok;
+        } catch (_) { /* ignore */ }
+
+        const layerMeta = manifest?.layers?.[layerId];
+
+        if (!pngExists && !layerMeta) {
+          // Nothing to show for this layer.
+          continue;
+        }
+        anyShown = true;
+
+        const row = document.createElement('div');
+        row.className = 'extracted-row';
+
+        const img = document.createElement('img');
+        if (pngExists) {
+          img.src = `${ROOT}/${pngPath}?t=${Date.now()}`;
+          img.alt = `extracted bg-${layerId}`;
+          img.title = `${pngPath} — chroma-keyed slice of concept`;
+        } else {
+          img.alt = 'no PNG';
+          img.style.opacity = '0.3';
+          img.title = 'extracted PNG not yet generated';
+        }
+        row.appendChild(img);
+
+        const metaCol = document.createElement('div');
+        metaCol.className = 'meta-col';
+
+        const nameLine = document.createElement('div');
+        nameLine.innerHTML = `<span class="layer-name">bg-${escapeHtml(layerId)}</span>`;
+        if (layerMeta?.subject_height_tiles != null) {
+          nameLine.innerHTML += ` · <strong>${Number(layerMeta.subject_height_tiles).toFixed(1)}T</strong>`;
+        }
+        if (layerMeta?.feature_density) {
+          const dens = document.createElement('span');
+          dens.className = 'density';
+          dens.style.marginLeft = '0.4rem';
+          dens.textContent = layerMeta.feature_density;
+          nameLine.appendChild(dens);
+        }
+        metaCol.appendChild(nameLine);
+
+        if (layerMeta?.palette && Array.isArray(layerMeta.palette) && layerMeta.palette.length > 0) {
+          const sw = document.createElement('div');
+          sw.className = 'swatches';
+          for (const hex of layerMeta.palette.slice(0, 5)) {
+            if (typeof hex !== 'string' || !/^#[0-9a-fA-F]{6}$/.test(hex)) continue;
+            const dot = document.createElement('span');
+            dot.style.background = hex;
+            dot.title = hex;
+            sw.appendChild(dot);
+          }
+          metaCol.appendChild(sw);
+        }
+
+        if (layerMeta?.notes) {
+          const notes = document.createElement('div');
+          notes.style.cssText = 'color:#8b949e; margin-top:0.2rem; font-size:0.6rem';
+          notes.textContent = layerMeta.notes;
+          metaCol.appendChild(notes);
+        }
+
+        if (!pngExists) {
+          const warn = document.createElement('div');
+          warn.style.cssText = 'color:#d29922; margin-top:0.2rem; font-size:0.6rem';
+          warn.textContent = '⚠ extracted PNG not on disk';
+          metaCol.appendChild(warn);
+        }
+
+        row.appendChild(metaCol);
+        el.appendChild(row);
+      }
+
+      if (!anyShown) {
+        el.innerHTML = `<div class="empty">no extraction yet — run <code>scripts/extract_concept_layers.py ${sceneId}</code></div>`;
+      }
+    }
+
+    /**
+     * Show the per-segment intermediates for each parallax layer alongside
+     * the final stitched layer. Each bg layer was rendered as N image-gen
+     * calls (segments) and feather-blended into a wide PNG; this panel
+     * makes that breadcrumb visible so the seam-stitching pipeline is
+     * legible.
+     */
+    async function renderBgSegments(scene) {
+      const el = document.getElementById('bg-segments-wrap');
+      el.innerHTML = '';
+      const layers = (scene.background?.layers) || ['far', 'mid', 'near'];
+      let anyShown = false;
+      for (const layerName of layers) {
+        // scenes.json uses { id: "far", ... }; legacy form is just "far".
+        // Old code mistakenly read .layer; fall back to .id, .layer, then unknown.
+        const layer = typeof layerName === 'string'
+          ? layerName
+          : (layerName.id ?? layerName.layer ?? 'unknown');
+        const finalSrc = `${ROOT}/assets/scenes/${scene.id}/bg-${layer}.png?t=${Date.now()}`;
+        // Probe up to 6 segments per layer.
+        const segUrls = [];
+        for (let i = 0; i < 6; i++) {
+          const segPath = `assets/scenes/${scene.id}/bg-${layer}/segments/segment_${String(i).padStart(2, '0')}.png`;
+          try {
+            const res = await fetch(`${ROOT}/${segPath}`, { method: 'HEAD' });
+            if (res.ok) segUrls.push(segPath);
+            else break;
+          } catch (_) { break; }
+        }
+        if (segUrls.length === 0) {
+          // Final stitched exists but no segments? Show just the final.
+          el.insertAdjacentHTML('beforeend',
+            `<div class="layer-row"><div class="layer-label">bg-${escapeHtml(layer)} (no segments on disk)</div>
+             <img class="stitched" src="${finalSrc}" alt="bg-${layer}"
+               onerror="this.outerHTML='<div class=&quot;empty&quot;>bg-${layer}.png missing</div>'"></div>`);
+          anyShown = true;
+          continue;
+        }
+        anyShown = true;
+        let segHtml = `<div class="segments">`;
+        for (const segPath of segUrls) {
+          segHtml += `<a href="${ROOT}/${segPath}" target="_blank" title="${escapeHtml(segPath.split('/').pop())}">
+            <img src="${ROOT}/${segPath}" alt="segment"></a>`;
+        }
+        segHtml += `</div>`;
+        el.insertAdjacentHTML('beforeend', `
+          <div class="layer-row">
+            <div class="layer-label"><strong>bg-${escapeHtml(layer)}</strong> · ${segUrls.length} segment(s) → stitched</div>
+            <img class="stitched" src="${finalSrc}" alt="bg-${layer}"
+              onerror="this.outerHTML='<div class=&quot;empty&quot;>bg-${layer}.png missing</div>'">
+            ${segHtml}
+          </div>
+        `);
+      }
+      if (!anyShown) el.innerHTML = `<div class="empty">no background layers</div>`;
+    }
+
+    /**
+     * Show per-tile source PNGs that get composited into the tilesheet.
+     * Each is a separate image-gen call.
+     */
+    async function renderTileSources(scene) {
+      const el = document.getElementById('tile-sources-wrap');
+      el.innerHTML = '';
+      // Read the scene's tilesheet atlas to enumerate tile_ids.
+      const atlasPath = `assets/scenes/${scene.id}/tilesheet/tilesheet.atlas.json`;
+      let frames = [];
+      try {
+        const res = await fetch(`${ROOT}/${atlasPath}`, { cache: 'no-cache' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        frames = data.frames || [];
+      } catch (_) {
+        el.innerHTML = `<div class="empty">no tilesheet for this scene</div>`;
+        return;
+      }
+      if (frames.length === 0) {
+        el.innerHTML = `<div class="empty">tilesheet has no frames</div>`;
+        return;
+      }
+      const grid = document.createElement('div');
+      grid.style.cssText = 'display:flex; flex-wrap:wrap; gap:0.3rem; margin-top:0.3rem';
+      for (const f of frames) {
+        const tileId = f.tile_id || f.filename?.replace('.png', '') || '?';
+        const srcPath = `assets/scenes/${scene.id}/tilesheet/tiles/${tileId}/${tileId}.png`;
+        const wrap = document.createElement('a');
+        wrap.href = `${ROOT}/${srcPath}`;
+        wrap.target = '_blank';
+        wrap.title = `${tileId} (${f.layer || 'base'})`;
+        wrap.style.cssText = 'display:flex; flex-direction:column; align-items:center; gap:0.1rem; text-decoration:none; color:#8b949e; font-size:0.6rem';
+        const img = document.createElement('img');
+        img.src = `${ROOT}/${srcPath}?t=${Date.now()}`;
+        img.alt = tileId;
+        img.style.cssText = 'width:36px; height:36px; border:1px solid #30363d; border-radius:3px; image-rendering:pixelated; background:#0d1117';
+        img.onerror = () => { img.style.display = 'none'; };
+        wrap.appendChild(img);
+        const lbl = document.createElement('span');
+        lbl.textContent = tileId;
+        lbl.style.cssText = 'max-width:48px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap';
+        wrap.appendChild(lbl);
+        grid.appendChild(wrap);
+      }
+      el.appendChild(grid);
+    }
+
+    /**
+     * Index of every .prompt.txt sidecar produced for this scene — links
+     * to each so the user can read what was actually sent to the model.
+     */
+    async function renderPromptsIndex(scene) {
+      const el = document.getElementById('prompts-wrap');
+      el.innerHTML = '';
+
+      const candidates = [
+        { label: 'concept', path: `assets/scenes/${scene.id}/concept.prompt.txt` },
+        { label: 'bg-far',  path: `assets/scenes/${scene.id}/bg-far.prompt.txt` },
+        { label: 'bg-mid',  path: `assets/scenes/${scene.id}/bg-mid.prompt.txt` },
+        { label: 'bg-near', path: `assets/scenes/${scene.id}/bg-near.prompt.txt` },
+        { label: 'tilesheet', path: `assets/scenes/${scene.id}/tilesheet/tilesheet.prompt.txt` },
+      ];
+      // Add scene-prop prompts.
+      for (const sp of (scene.scene_props || [])) {
+        for (const state of (sp.states || ['idle'])) {
+          candidates.push({
+            label: `${sp.id} ${state}`,
+            path: `assets/scenes/${scene.id}/props/${sp.id}/spritesheets/${state}/${state}.prompt.txt`,
+          });
+        }
+      }
+
+      const list = [];
+      for (const c of candidates) {
+        try {
+          const res = await fetch(`${ROOT}/${c.path}`, { method: 'HEAD' });
+          if (res.ok) list.push(c);
+        } catch (_) { /* skip */ }
+      }
+      if (list.length === 0) {
+        el.innerHTML = `<div class="empty">no prompt sidecars on disk</div>`;
+        return;
+      }
+      const ul = document.createElement('ul');
+      ul.style.listStyle = 'none';
+      for (const c of list) {
+        const li = document.createElement('li');
+        li.style.cssText = 'padding:0.1rem 0; font-size:0.7rem';
+        li.innerHTML = `<a href="${ROOT}/${c.path}" target="_blank" style="color:#79c0ff; text-decoration:none">${escapeHtml(c.label)}</a>
+          <span class="tag" style="color:#7d8590">${escapeHtml(c.path)}</span>`;
+        ul.appendChild(li);
+      }
+      el.appendChild(ul);
+    }
+
+    async function renderSpecPreview(scene) {
+      const el = document.getElementById('spec-wrap');
+      const specPath = `assets/scenes/${scene.id}/SPEC.md`;
+      try {
+        const res = await fetch(`${ROOT}/${specPath}`, { cache: 'no-cache' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const md = await res.text();
+        el.innerHTML = `<details open><summary>open SPEC.md (${md.length} chars)</summary><pre>${escapeHtml(md)}</pre></details>`;
+      } catch (e) {
+        el.innerHTML = `<div class="empty">SPEC.md missing</div>`;
+      }
     }
 
     function startPhaser(scene) {
@@ -253,21 +759,52 @@
       const bgMid  = findBgLayer(sceneId, 'mid');
       const bgNear = findBgLayer(sceneId, 'near');
       const tilesheet = findTilesheet(sceneId);
-      const propStates = findPropStates(sceneId);
+      const scenePropStates = findScenePropStates(sceneId);
 
-      // Build a synthetic per-scene atlas slice so loadAtlasAssets/registerAnimations
-      // load only this scene's assets. We re-use the existing helpers by
-      // fabricating an `atlas` shape they understand.
+      // Pull the scene's referenced characters + shared_props from the master
+      // atlas so we can render them with their actual animations. These come
+      // from the registry (assets/objects/* and assets/characters/*) — NOT
+      // from the per-scene atlas walk.
+      const charIds = scene.characters || [];
+      const sharedPropIds = scene.shared_props || [];
+      const characterSlices = []; // [{id, idle, walk}]
+      for (const cid of charIds) {
+        const idle = findSlice(atlas, 'characters', cid, 'idle');
+        const walk = findSlice(atlas, 'characters', cid, 'walk');
+        if (idle || walk) characterSlices.push({ id: cid, idle, walk });
+      }
+      const sharedPropSlices = []; // [{id, idle}]
+      for (const pid of sharedPropIds) {
+        const idle = findSlice(atlas, 'objects', pid, 'idle')
+                  ?? findSlice(atlas, 'objects', pid, '');
+        if (idle) sharedPropSlices.push({ id: pid, idle });
+      }
+
+      // Build a synthetic atlas containing every slice this scene needs so
+      // loadAtlasAssets / registerAnimations preload them all. We tag each
+      // with the original category so animations.js routes correctly.
       const sceneAtlas = {
-        meta: { categories: ['scenes'], sources: { scenes: 0 } },
-        categories: { scenes: [] },
+        meta: { categories: ['scenes', 'characters', 'objects'], sources: {} },
+        categories: { scenes: [], characters: [], objects: [] },
       };
       for (const s of [bgFar, bgMid, bgNear, tilesheet]) {
         if (s) sceneAtlas.categories.scenes.push({ ...s, category: 'scenes' });
       }
-      for (const p of propStates.values()) {
+      for (const p of scenePropStates.values()) {
         if (p.idle) sceneAtlas.categories.scenes.push({ ...p.idle, category: 'scenes' });
       }
+      for (const c of characterSlices) {
+        if (c.idle) sceneAtlas.categories.characters.push({ ...c.idle, category: 'characters' });
+        if (c.walk) sceneAtlas.categories.characters.push({ ...c.walk, category: 'characters' });
+      }
+      for (const sp of sharedPropSlices) {
+        if (sp.idle) sceneAtlas.categories.objects.push({ ...sp.idle, category: 'objects' });
+      }
+
+      const ctx = {
+        scene, sceneId, bgFar, bgMid, bgNear, tilesheet,
+        scenePropStates, characterSlices, sharedPropSlices,
+      };
 
       game = new Phaser.Game({
         type: Phaser.AUTO,
@@ -288,47 +825,140 @@
           preload() {
             loadAtlasAssets(this, sceneAtlas, ROOT);
             makeRectTexture(this, '__placeholder_ground', TILE, TILE, 0x4a8c4a, 0x3a6c3a);
+            makeRectTexture(this, '__placeholder_hero', 32, 48, 0xff5555, 0x882222);
             makeRectTexture(this, '__placeholder_prop', 32, 32, 0xd2b73d, 0x8a7a1f);
           },
           create() {
             registerAnimations(this, sceneAtlas, 8, { yoyo: true });
 
             // ----- Backgrounds (parallax) -----
-            addBackgroundLayer(this, bgFar,  0.2);
-            addBackgroundLayer(this, bgMid,  0.5);
-            addBackgroundLayer(this, bgNear, 0.8);
-            if (!bgFar && !bgMid && !bgNear) {
-              recordAsset('backgrounds', 'fallback', 'flat sky-blue (no parallax)');
+            addBackgroundLayer(this, ctx.bgFar,  0.2);
+            addBackgroundLayer(this, ctx.bgMid,  0.5);
+            addBackgroundLayer(this, ctx.bgNear, 0.8);
+            if (!ctx.bgFar && !ctx.bgMid && !ctx.bgNear) {
+              recordAsset('backgrounds', 'fallback', 'flat sky-blue');
             }
 
-            // ----- Ground from tilesheet -----
+            // ----- Ground built from the tilesheet (smart variant pick) -----
             this.platforms = this.physics.add.staticGroup();
-            buildLevel(this, this.platforms, tilesheet);
+            buildLevel(this, this.platforms, ctx.tilesheet);
 
-            // ----- Scene props along the ground -----
-            let propX = 480;
-            const propStep = 200;
-            for (const [propId, slice] of [...propStates].map(([id, st]) => [id, st.idle]).filter(([, s]) => s)) {
-              addPropSprite(this, propX, GROUND_Y - 80, slice, propId);
+            // ----- Render the tile palette so the user sees every variant -----
+            renderTilePalette(this, ctx.tilesheet);
+
+            // ----- Hero (first character in scene.characters) -----
+            this.heroes = ctx.characterSlices.map((c, i) => createHeroSprite(this, c, i));
+            for (const h of this.heroes) {
+              this.physics.add.collider(h.sprite, this.platforms);
+            }
+            this.activeHeroIdx = 0;
+            if (this.heroes.length > 0) {
+              this.cameras.main.startFollow(this.heroes[0].sprite, true, 0.1, 0.1);
+            } else {
+              recordAsset('characters', 'fallback', 'no hero in this scene');
+            }
+
+            // ----- Shared props (health-potion, gold-key, etc.) -----
+            // Place them along the level at varying heights so they're visible.
+            let propX = 360;
+            const propStep = 220;
+            this.collectibles = this.physics.add.staticGroup();
+            this.hazards = this.physics.add.staticGroup();
+            for (const sp of ctx.sharedPropSlices) {
+              const cat = sp.idle?.meta?.category || sp.idle?.meta?.type || 'item';
+              const isHazard = cat === 'hazard';
+              const yOff = isHazard ? 30 : 80;
+              const group = isHazard ? this.hazards : this.collectibles;
+              addPropSprite(this, group, propX, GROUND_Y - yOff, sp.idle, sp.id, 'shared');
               propX += propStep;
             }
-            if (propStates.size === 0) {
-              recordAsset('scene_props', 'fallback', 'no props in this scene');
+
+            // ----- Scene props (forest-mushroom-cluster, etc.) -----
+            this.scenePropsGroup = this.physics.add.staticGroup();
+            for (const [propId, st] of [...ctx.scenePropStates].map(([id, s]) => [id, s.idle]).filter(([, s]) => s)) {
+              addPropSprite(this, this.scenePropsGroup, propX, GROUND_Y - 80, st, propId, 'scene');
+              propX += propStep;
+            }
+            if (ctx.scenePropStates.size === 0 && ctx.sharedPropSlices.length === 0) {
+              recordAsset('props', 'fallback', 'no props in this scene');
             }
 
-            // ----- Camera scrolls with cursor -----
+            // Bind hero overlaps for collect/respawn.
+            const hero = this.heroes[this.activeHeroIdx];
+            if (hero) {
+              this.physics.add.overlap(hero.sprite, this.collectibles, (_, p) => collect(this, p));
+              this.physics.add.overlap(hero.sprite, this.hazards, () => respawn(this));
+              this.physics.add.overlap(hero.sprite, this.scenePropsGroup, (_, p) => bounce(this, hero.sprite, p));
+            }
+            this.spawnPoint = { x: 120, y: 200 };
+
+            // ----- World + camera bounds -----
             this.cameras.main.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-            this.cameras.main.scrollX = 0;
+            this.physics.world.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+
+            // ----- Input -----
             this.cursors = this.input.keyboard.createCursorKeys();
+            this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+            this.rKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
 
             renderAssetStatus();
+
+            // Capture self for tile-palette callbacks (palette can mutate
+            // groundTileId after creation, but we can also rebuild the level
+            // on the fly).
+            this._rebuildLevel = () => {
+              this.platforms.clear(true, true);
+              buildLevel(this, this.platforms, ctx.tilesheet);
+              if (this.heroes && this.heroes.length > 0) {
+                for (const h of this.heroes) {
+                  this.physics.add.collider(h.sprite, this.platforms);
+                }
+              }
+            };
           },
           update() {
-            if (!this.cursors) return;
-            const speed = 6;
-            if (this.cursors.left.isDown) this.cameras.main.scrollX -= speed;
-            else if (this.cursors.right.isDown) this.cameras.main.scrollX += speed;
-            this.cameras.main.scrollX = Math.max(0, Math.min(WORLD_WIDTH - 960, this.cameras.main.scrollX));
+            if (!this.cursors || !this.heroes || this.heroes.length === 0) {
+              // No hero — pan the camera with arrow keys instead.
+              if (this.cursors?.left?.isDown) this.cameras.main.scrollX -= 6;
+              else if (this.cursors?.right?.isDown) this.cameras.main.scrollX += 6;
+              this.cameras.main.scrollX = Math.max(0, Math.min(WORLD_WIDTH - 960, this.cameras.main.scrollX));
+              return;
+            }
+
+            const hero = this.heroes[this.activeHeroIdx];
+            const sprite = hero.sprite;
+            const speed = 200;
+            const onFloor = sprite.body.touching.down || sprite.body.blocked.down;
+            let movingX = 0;
+            if (this.cursors.left.isDown) movingX = -1;
+            else if (this.cursors.right.isDown) movingX = 1;
+            sprite.setVelocityX(movingX * speed);
+
+            if (movingX !== 0) {
+              sprite.setFlipX(movingX < 0);
+              if (hero.walkAnim && sprite.anims.currentAnim?.key !== hero.walkAnim) {
+                sprite.play(hero.walkAnim, true);
+              }
+            } else if (hero.idleAnim && sprite.anims.currentAnim?.key !== hero.idleAnim) {
+              sprite.play(hero.idleAnim, true);
+            }
+
+            // Idle NPCs (other heroes if any).
+            for (let i = 0; i < this.heroes.length; i++) {
+              if (i === this.activeHeroIdx) continue;
+              const npc = this.heroes[i];
+              npc.sprite.setVelocityX(0);
+              if (npc.idleAnim && npc.sprite.anims.currentAnim?.key !== npc.idleAnim) {
+                npc.sprite.play(npc.idleAnim, true);
+              }
+            }
+
+            if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && onFloor) {
+              sprite.setVelocityY(-450);
+            }
+            if (Phaser.Input.Keyboard.JustDown(this.rKey)) {
+              respawn(this);
+            }
           },
         },
       });
@@ -346,46 +976,197 @@
       ts.tileScaleX = WORLD_HEIGHT / h;
       ts.tileScaleY = WORLD_HEIGHT / h;
       const layer = slice.asset_id.split('/').pop();
-      recordAsset(`bg-${layer}`, 'real', `scrollFactor=${scrollFactor} · ${w}×${h}`);
+      recordAsset(`bg-${layer}`, 'real', `parallax=${scrollFactor} · ${w}×${h}`);
     }
 
+    /**
+     * Build a multi-section ground using as many tilesheet variants as
+     * possible, instead of stamping frame 0 everywhere. Maps tile_ids by
+     * intent: edge tiles for platform corners, base tiles for middles,
+     * decoration tiles scattered between platforms.
+     */
     function buildLevel(scene, group, tileSlice) {
       const hasTiles = !!tileSlice;
       const tileKey = hasTiles ? sheetKey({ ...tileSlice, category: 'scenes' }) : '__placeholder_ground';
-      // Long ground row across the world. Use frame 0 of the tilesheet
-      // (the first tile_variant — typically grass-base).
+      const frames = tileSlice?.frames || [];
+      const tileByName = {};
+      frames.forEach((f, i) => { if (f.tile_id) tileByName[f.tile_id] = i; });
+
+      const pickByName = (preferredNames) => {
+        if (groundTileId !== null && tileByName[groundTileId] !== undefined) return tileByName[groundTileId];
+        for (const n of preferredNames) {
+          if (tileByName[n] !== undefined) return tileByName[n];
+        }
+        return 0;
+      };
+
+      // Ground row — three sections (left edge, base middle, right edge per
+      // platform). For the long ground we use only the base variant repeated.
+      const groundFrame = pickByName(['grass-base', 'grass-tall', 'earth-fill']);
+      const earthFrame  = pickByName(['earth-fill', 'earth-rocky', 'grass-base']);
       const groundCols = Math.ceil(WORLD_WIDTH / TILE);
       for (let c = 0; c < groundCols; c++) {
-        const tile = group.create(c * TILE + TILE / 2, GROUND_Y + TILE / 2, tileKey, hasTiles ? 0 : undefined);
+        const tile = group.create(c * TILE + TILE / 2, GROUND_Y + TILE / 2, tileKey, hasTiles ? groundFrame : undefined);
         tile.setDisplaySize(TILE, TILE).refreshBody();
+        // Earth row beneath the grass.
+        const earth = group.create(c * TILE + TILE / 2, GROUND_Y + TILE * 1.5, tileKey, hasTiles ? earthFrame : undefined);
+        earth.setDisplaySize(TILE, TILE).refreshBody();
       }
-      // Two floating platforms.
-      const platforms = [
-        { x: 460, y: GROUND_Y - 140, len: 4 },
-        { x: 1100, y: GROUND_Y - 200, len: 3 },
-        { x: 1800, y: GROUND_Y - 160, len: 5 },
-      ];
-      for (const p of platforms) {
-        for (let c = 0; c < p.len; c++) {
-          const tile = group.create(p.x + c * TILE + TILE / 2, p.y + TILE / 2, tileKey, hasTiles ? 0 : undefined);
-          tile.setDisplaySize(TILE, TILE).refreshBody();
+
+      // Floating platforms — only spawn when game.json says this is a
+      // platformer (or when no manifest exists, for backward compat).
+      // Side-scrolling-action and top-down games stamp continuous ground only.
+      const usePlatforms = gameManifest?.playbook_overrides?.scenes_inspect_use_platforms ?? true;
+      if (usePlatforms) {
+        const leftEdge  = pickByName(['grass-edge-left', 'grass-base']);
+        const rightEdge = pickByName(['grass-edge-right', 'grass-base']);
+        const middle    = groundFrame;
+
+        const platforms = [
+          { x: 460, y: GROUND_Y - 140, len: 4 },
+          { x: 1100, y: GROUND_Y - 220, len: 3 },
+          { x: 1800, y: GROUND_Y - 160, len: 5 },
+          { x: 2500, y: GROUND_Y - 240, len: 4 },
+        ];
+        for (const p of platforms) {
+          for (let c = 0; c < p.len; c++) {
+            let frame = middle;
+            if (hasTiles) {
+              if (c === 0) frame = leftEdge;
+              else if (c === p.len - 1) frame = rightEdge;
+            }
+            const tile = group.create(p.x + c * TILE + TILE / 2, p.y + TILE / 2, tileKey, hasTiles ? frame : undefined);
+            tile.setDisplaySize(TILE, TILE).refreshBody();
+          }
         }
       }
+
+      // Sprinkle decoration tiles (mushroom-red, flower-yellow, stone-small)
+      // ON the ground row at random-ish x positions for visual variety.
+      const decoNames = ['mushroom-red', 'flower-yellow', 'flower-pink', 'stone-small', 'weed-clump'];
+      const decoFrames = decoNames.map(n => tileByName[n]).filter(i => i !== undefined);
+      if (hasTiles && decoFrames.length > 0) {
+        for (let i = 0; i < 8; i++) {
+          const x = 200 + i * (WORLD_WIDTH - 400) / 8 + (i % 2 === 0 ? 0 : TILE / 2);
+          const f = decoFrames[i % decoFrames.length];
+          const dec = scene.add.image(x, GROUND_Y - TILE / 2, tileKey, f);
+          dec.setDisplaySize(TILE, TILE);
+          // Decoration is non-physical (overlay only).
+        }
+      }
+
+      const variantNames = frames.map(f => f.tile_id).filter(Boolean);
       recordAsset('tilesheet', hasTiles ? 'real' : 'fallback',
-        hasTiles ? `${tileSlice.sheet_path} (frame 0)` : 'green rectangles');
+        hasTiles ? `${variantNames.length} variants in use` : 'green rectangles');
     }
 
-    function addPropSprite(scene, x, y, slice, label) {
-      const enriched = { ...slice, category: 'scenes' };
+    function renderTilePalette(scene, tileSlice) {
+      const strip = document.getElementById('tile-strip');
+      strip.innerHTML = '';
+      if (!tileSlice) {
+        strip.innerHTML = `<div class="empty">no tilesheet for this scene</div>`;
+        return;
+      }
+      const frames = tileSlice.frames || [];
+      const sheetKeyName = sheetKey({ ...tileSlice, category: 'scenes' });
+      const sheetTexture = scene.textures.get(sheetKeyName);
+      const sheetSrc = sheetTexture?.getSourceImage?.();
+
+      for (const frame of frames) {
+        const cell = document.createElement('div');
+        cell.className = 'tile-cell';
+        cell.title = `${frame.tile_id} (${frame.layer || 'base'})`;
+        cell.onclick = () => {
+          groundTileId = frame.tile_id;
+          if (scene._rebuildLevel) scene._rebuildLevel();
+        };
+
+        const c = document.createElement('canvas');
+        c.width = 48; c.height = 48;
+        const cx = c.getContext('2d');
+        if (sheetSrc) {
+          cx.imageSmoothingEnabled = false;
+          cx.drawImage(
+            sheetSrc,
+            frame.frame.x, frame.frame.y, frame.frame.w, frame.frame.h,
+            0, 0, 48, 48,
+          );
+        } else {
+          cx.fillStyle = '#30363d';
+          cx.fillRect(0, 0, 48, 48);
+        }
+        cell.appendChild(c);
+
+        const id = document.createElement('div');
+        id.className = 'id';
+        id.textContent = frame.tile_id || frame.filename || '?';
+        cell.appendChild(id);
+
+        strip.appendChild(cell);
+      }
+    }
+
+    function createHeroSprite(scene, charSlice, idx) {
+      const idleSlice = charSlice.idle ? { ...charSlice.idle, category: 'characters' } : null;
+      const walkSlice = charSlice.walk ? { ...charSlice.walk, category: 'characters' } : null;
+      const slice = idleSlice || walkSlice;
+      const key = sheetKey(slice);
+      const mode = slice.mode || slice.meta?.mode || 'sheet';
+      const initialKey = mode === 'frames' ? `${key}:0` : key;
+      const startX = 140 + idx * 100;
+      const sprite = scene.physics.add.sprite(startX, 200, initialKey);
+      sprite.setCollideWorldBounds(true);
+      const heroScale = HERO_DISPLAY_H / sprite.height;
+      sprite.setScale(heroScale);
+      sprite.body.setSize(sprite.width * 0.4, sprite.height * 0.85);
+      sprite.body.setOffset(sprite.width * 0.3, sprite.height * 0.1);
+      const idleAnim = idleSlice ? animKey(idleSlice) : null;
+      const walkAnim = walkSlice ? animKey(walkSlice) : null;
+      if (idleAnim && scene.anims.exists(idleAnim)) sprite.play(idleAnim);
+      else if (walkAnim && scene.anims.exists(walkAnim)) sprite.play(walkAnim);
+      recordAsset(`hero ${charSlice.id}`, 'real',
+        `${idleSlice ? 'idle' : ''}${idleSlice && walkSlice ? ' + ' : ''}${walkSlice ? 'walk' : ''}`);
+      return { entry: charSlice, sprite, idleAnim, walkAnim };
+    }
+
+    function addPropSprite(scene, group, x, y, slice, label, kind) {
+      if (!slice) return;
+      const cat = slice.category || 'objects';
+      const enriched = { ...slice, category: cat };
       const key = sheetKey(enriched);
       const mode = enriched.mode || enriched.meta?.mode || 'sheet';
       const initialKey = mode === 'frames' ? `${key}:0` : key;
-      const sprite = scene.add.sprite(x, y, initialKey);
+      const sprite = group.create(x, y, initialKey);
       const animK = animKey(enriched);
       if (scene.anims.exists(animK)) sprite.play(animK);
-      sprite.setDisplaySize(48, 48);
+      // Scale to 56px tall so spritesheet props are clearly visible.
+      const scale = 56 / sprite.height;
+      sprite.setScale(scale).refreshBody();
       const source = slice.sheet_path || slice.frames_dir || slice.atlas_path;
-      recordAsset(`prop ${label}`, 'real', source);
+      recordAsset(`${kind} prop ${label}`, 'real', source);
+    }
+
+    function collect(scene, prop) {
+      prop.disableBody(true, true);
+      const t = scene.add.text(prop.x, prop.y, '+1', {
+        fontFamily: 'monospace', fontSize: '20px', color: '#56d364',
+      }).setOrigin(0.5);
+      scene.tweens.add({
+        targets: t, y: t.y - 40, alpha: 0, duration: 700,
+        onComplete: () => t.destroy(),
+      });
+    }
+
+    function bounce(scene, hero, prop) {
+      if (hero.body.velocity.y > -100) hero.setVelocityY(-500);
+    }
+
+    function respawn(scene) {
+      const hero = scene.heroes?.[scene.activeHeroIdx];
+      if (!hero) return;
+      hero.sprite.setVelocity(0, 0);
+      hero.sprite.setPosition(scene.spawnPoint.x, scene.spawnPoint.y);
+      scene.cameras.main.flash(150, 255, 0, 0);
     }
 
     // ----- helpers -----

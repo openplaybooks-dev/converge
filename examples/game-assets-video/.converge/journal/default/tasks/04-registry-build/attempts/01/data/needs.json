@@ -1,0 +1,9 @@
+{
+  "taskId": "04-registry-build",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/REGISTRY.json"
+  ],
+  "blocked": false
+}

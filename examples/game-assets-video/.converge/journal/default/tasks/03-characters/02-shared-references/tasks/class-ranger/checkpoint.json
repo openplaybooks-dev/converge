@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-characters/02-shared-references/class-ranger",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T16:15:04.720Z",
+  "createdAt": "2026-04-27T16:15:04.344Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T16:15:04.344Z",
+      "completedAt": "2026-04-27T16:15:04.696Z",
+      "outcome": "success",
+      "durationMs": 352
+    }
+  ],
+  "currentAttempt": 1
+}

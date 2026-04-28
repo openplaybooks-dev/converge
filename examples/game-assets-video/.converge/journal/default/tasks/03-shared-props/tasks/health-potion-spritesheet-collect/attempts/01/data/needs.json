@@ -1,0 +1,11 @@
+{
+  "taskId": "03-shared-props/health-potion-spritesheet-collect",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/objects/health-potion/spritesheets/collect/collect.png",
+    "assets/objects/health-potion/spritesheets/collect/collect.atlas.json",
+    "assets/objects/health-potion/spritesheets/collect/collect.prompt.txt"
+  ],
+  "blocked": false
+}

@@ -1,0 +1,43 @@
+{
+  "classes": {
+    "warrior": {
+      "characters": [
+        "hero-knight"
+      ],
+      "shared_attributes": {
+        "armor_type": "heavy",
+        "weapon_style": "melee",
+        "color_theme": "metallic",
+        "movement_style": "strong"
+      }
+    },
+    "ranger": {
+      "characters": [
+        "forest-elf"
+      ],
+      "shared_attributes": {
+        "armor_type": "light",
+        "weapon_style": "ranged",
+        "color_theme": "natural",
+        "movement_style": "agile"
+      }
+    }
+  },
+  "shared_references": [
+    {
+      "type": "class_style_guide",
+      "class": "warrior",
+      "description": "Warrior class visual style guide"
+    },
+    {
+      "type": "class_style_guide",
+      "class": "ranger",
+      "description": "Ranger class visual style guide"
+    }
+  ],
+  "summary": {
+    "total_characters": 2,
+    "total_classes": 2,
+    "total_shared_references": 2
+  }
+}

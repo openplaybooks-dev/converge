@@ -13,10 +13,18 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
+const PHASE = '03-characters/03-generation';
 const WBS_ROOT = '.converge/playbooks/default/tasks/03-characters/03-generation/wbs/templates';
+const ALLOWED_MODES = new Set(['characters', 'sprites', 'export', 'full']);
 
 export async function run(ctx) {
-  const { projectDir } = ctx;
+  const { projectDir, vars } = ctx;
+  const mode = vars?.stop_after ?? 'sprites';
+
+  if (!ALLOWED_MODES.has(mode)) {
+    console.log(`  Skipped (${PHASE}, stop_after=${mode})`);
+    return;
+  }
 
   const spritesPath = join(projectDir, 'assets', 'sprites.json');
   const sprites = JSON.parse(readFileSync(spritesPath, 'utf-8'));

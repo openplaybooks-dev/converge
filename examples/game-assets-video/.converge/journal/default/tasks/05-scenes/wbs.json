@@ -1,0 +1,11 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-27T18:17:29.474Z",
+  "spawnCount": 1,
+  "subtasks": [
+    {
+      "id": "scene-forest-1",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-1/TASK.md"
+    }
+  ]
+}

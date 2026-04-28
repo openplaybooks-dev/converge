@@ -2,7 +2,7 @@
 
 # 00-visual-target — Visual-target-driven planner
 
-Adapted from godogen's `visual-target.md` + `asset-planner.md`. Three sequential steps:
+Adapted from godogen's `visual-target.md` + `asset-planner.md`. Three sequential steps that anchor every downstream phase to a concrete reference image.
 
 ## 1. Generate the reference screenshot
 
@@ -22,21 +22,15 @@ python3 scripts/generate_assets_md.py
 
 Sends `idea.md` + `visual-target.png` to Gemini text and asks for a strict 5-section markdown table (Characters / Props / Backgrounds / Tile maps) with mandatory **Size** column per row. Sizes from the table populate `working_resolution` / `resolution` fields downstream.
 
-Without explicit pixel sizes, scene-builders consistently scale things wrong. The Size column is enforced by the lint check below.
+Without explicit pixel sizes, scene-builders consistently scale things wrong. The Size column is enforced by the lint check above.
 
 ## 3. Derive the JSON manifests
 
 ```bash
-python3 scripts/derive_manifests_from_assets_md.py
+python3 scripts/derive_manifests_from_assets_md.py --force
 ```
 
-Parses `ASSETS.md` into the per-category JSON manifests (`assets/sprites.json`, `objects.json`, `backgrounds.json`, `tile_maps.json`) the rest of the playbook already consumes.
-
-## Skip behavior
-
-This task is **opt-in**. If you'd rather hand-author `assets/sprites.json` directly, skip 00 and go straight to 01-setup-art-style. The downstream pipeline doesn't care which produced the manifests — it just consumes them.
-
-To opt out, remove `00-visual-target` from `playbook.yml` `tasks:` list (or set `vars.use_visual_target_planner: false` if the playbook supports the gate).
+Parses `ASSETS.md` into the per-category JSON manifests (`assets/sprites.json`, `objects.json`, `backgrounds.json`, `tile_maps.json`) the rest of the playbook consumes. `--force` because this task is mandatory and re-running should refresh the manifests rather than refuse on existing files.
 
 ## Cost
 

@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-shared-props/gold-key-spritesheet-collect",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T16:19:24.740Z",
+  "createdAt": "2026-04-27T16:19:24.075Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T16:19:24.075Z",
+      "completedAt": "2026-04-27T16:19:24.722Z",
+      "outcome": "success",
+      "durationMs": 647
+    }
+  ],
+  "currentAttempt": 1
+}

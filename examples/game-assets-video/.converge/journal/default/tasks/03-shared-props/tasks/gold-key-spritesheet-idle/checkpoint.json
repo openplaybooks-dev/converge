@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-shared-props/gold-key-spritesheet-idle",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T16:19:25.420Z",
+  "createdAt": "2026-04-27T16:19:24.784Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T16:19:24.784Z",
+      "completedAt": "2026-04-27T16:19:25.400Z",
+      "outcome": "success",
+      "durationMs": 616
+    }
+  ],
+  "currentAttempt": 1
+}

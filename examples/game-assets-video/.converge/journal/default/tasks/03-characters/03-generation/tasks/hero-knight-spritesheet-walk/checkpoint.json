@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-characters/03-generation/hero-knight-spritesheet-walk",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T16:17:30.840Z",
+  "createdAt": "2026-04-27T16:17:30.538Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T16:17:30.538Z",
+      "completedAt": "2026-04-27T16:17:30.813Z",
+      "outcome": "success",
+      "durationMs": 275
+    }
+  ],
+  "currentAttempt": 1
+}

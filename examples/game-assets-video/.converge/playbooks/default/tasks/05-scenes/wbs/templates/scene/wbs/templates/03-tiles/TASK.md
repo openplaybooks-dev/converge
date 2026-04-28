@@ -1,10 +1,12 @@
 ---
-id: "scene-{{scene_id}}-tiles"
+id: "scene-{{scene_id}}-03-tiles"
 title: "Scene `{{scene_id}}` — tilesheet"
 description: "Per-tile generation + composite tilesheet for scene `{{scene_id}}`."
 wbs:
   type: nodejs
   path: ./wbs/index.js
+inputs:
+  - "assets/scenes/{{scene_id}}/concept.png"
 tags:
   - scene
   - "{{scene_id}}"

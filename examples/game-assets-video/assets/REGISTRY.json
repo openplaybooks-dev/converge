@@ -11,7 +11,9 @@
         "assets/characters/hero-knight/spritesheets/idle/idle.atlas.json",
         "assets/characters/hero-knight/spritesheets/walk/walk.atlas.json"
       ],
-      "scenes_using": [],
+      "scenes_using": [
+        "forest-1"
+      ],
       "ref_canonical": "assets/characters/hero-knight/ref/canonical/canonical.png"
     }
   ],
@@ -55,7 +57,9 @@
         "assets/objects/gold-key/spritesheets/collect/collect.atlas.json",
         "assets/objects/gold-key/spritesheets/idle/idle.atlas.json"
       ],
-      "scenes_using": [],
+      "scenes_using": [
+        "forest-1"
+      ],
       "ref_image": "assets/objects/gold-key/spritesheets/collect/collect.png"
     },
     {
@@ -69,7 +73,9 @@
         "assets/objects/health-potion/spritesheets/collect/collect.atlas.json",
         "assets/objects/health-potion/spritesheets/idle/idle.atlas.json"
       ],
-      "scenes_using": [],
+      "scenes_using": [
+        "forest-1"
+      ],
       "ref_image": "assets/objects/health-potion/spritesheets/collect/collect.png"
     },
     {
@@ -83,7 +89,9 @@
         "assets/objects/spike-trap/spritesheets/idle/idle.atlas.json",
         "assets/objects/spike-trap/spritesheets/trigger/trigger.atlas.json"
       ],
-      "scenes_using": [],
+      "scenes_using": [
+        "forest-1"
+      ],
       "ref_image": "assets/objects/spike-trap/spritesheets/idle/idle.png"
     },
     {

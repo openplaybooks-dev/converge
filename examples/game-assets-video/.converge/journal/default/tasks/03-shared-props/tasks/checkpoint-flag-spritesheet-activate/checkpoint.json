@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-shared-props/checkpoint-flag-spritesheet-activate",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T16:18:44.675Z",
+  "createdAt": "2026-04-27T16:18:44.007Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T16:18:44.007Z",
+      "completedAt": "2026-04-27T16:18:44.653Z",
+      "outcome": "success",
+      "durationMs": 646
+    }
+  ],
+  "currentAttempt": 1
+}

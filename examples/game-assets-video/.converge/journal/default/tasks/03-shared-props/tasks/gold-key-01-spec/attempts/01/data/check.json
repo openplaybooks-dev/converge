@@ -1,0 +1,10 @@
+{
+  "taskId": "03-shared-props/gold-key-01-spec",
+  "checks": [
+    {
+      "id": "spec-exists",
+      "description": "Prop SPEC.md exists",
+      "cmd": "test -s assets/objects/gold-key/SPEC.md"
+    }
+  ]
+}

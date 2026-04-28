@@ -1,0 +1,136 @@
+Render a hero-shot demonstrating the art bible below. One mid-gameplay
+framing — character on a representative environment, central composition,
+clean background. Not a logo, not a splash screen, not a portrait — a
+single illustrative game frame that future asset generation will reference
+to stay visually consistent.
+
+ART BIBLE (mandatory — every detail must match):
+
+# Art Bible
+
+## Palette
+Dominant colors with hex values:
+- Sky Blue: #A4D9F0 — top portion of the sky
+- Mid-Green Foliage: #6CAB3C — main grass and bush areas
+- Knight Blue Armor: #567DD6 — primary color of the hero knight's armor
+- Earth Path: #BE9F68 — dirt path in the foreground
+- Distant Mountain: #8FA8BE — background mountains
+- Light Cloud: #F0E3CB — soft clouds in the sky
+- Knight Cape Red: #D63C3C — hero knight's cape
+
+Accent / highlight colors:
+- Potion Red: #E03C3C — liquid in the health potion
+- Gold Key: #E0A83C — metallic parts of the gold key
+- UI Health Bar Green: #60CE36 — fill color of the health bar UI
+- White Sparkle: #FFFFFF — specular highlights and magical particles
+
+## Line & shading
+- Stroke weight: Solid, dark outline, generally 2-4 pixels thick, varying organically to emphasize character silhouettes and major environmental forms.
+- Shading model: Cel shading with soft, gradual transitions within shaded areas, creating volume without being strictly flat or painterly.
+- Light direction: Consistent top-right light source, creating clear highlights on surfaces facing the light and distinct shadows.
+- Highlights: Small, bright specular spots on metallic and shiny surfaces (armor, potion, key) and broader, soft highlights on organic forms (foliage, skin).
+
+## Character proportions
+- Head/body ratio: ~1:3 to 1:3.5 — stylized, slightly oversized heads for a youthful and approachable heroic look.
+- Hands/feet: Simplified, expressive forms; visible but not hyper-detailed fingers; feet are robust and basic shapes.
+- Face: Large, expressive eyes with visible pupils and whites, small button nose, friendly smiles, and slightly pointed ears for elves.
+- Outfit detail: Moderate detail, with clear folds and material distinctions (e.g., armor plates, fabric drapes), not overly intricate or busy.
+
+## Environment & forms
+- Common shape language: Predominantly organic and rounded for natural elements (hills, trees, bushes, clouds); man-made objects (keys, shields, UI) have clear, stylized forms.
+- Tree / foliage style: Dense, billowy, and rounded canopies with distinct clumps of leaves, rendered with bright highlights and deep shadows.
+- Stone / structure style: Smooth, rounded boulders with subtle texture details; ornate but cartoonish keys and shields.
+- Atmospheric depth: Clear visual separation between foreground, mid-ground, and background layers. Distant elements (mountains) are lighter and have reduced color saturation, indicating atmospheric perspective.
+
+## Negatives (do NOT)
+- No pixel art or 8-bit/16-bit retro aesthetic; art should be smooth-edged and high-resolution.
+- No limited color palettes; utilize a broad and vibrant color range.
+- No harsh, jagged, or overly angular outlines on natural elements like trees and rocks.
+- No photorealism, complex textures, or overly gritty/grimy art styles.
+- No extreme anatomical accuracy or highly detailed musculature.
+- No excessive lens flares, chromatic aberration, or modern cinematic filters.
+
+GAME BRIEF (flavor only):
+
+# Game Assets Idea
+
+## Game Concept
+A 2D pixel art action RPG with 16-bit retro aesthetics. Game uses a limited 16-color palette with emphasis on bright, saturated colors for characters against muted environmental tones.
+
+## Characters
+
+### 1. Hero Knight
+- **ID**: hero-knight
+- **Name**: Sir Aldric
+- **Description**: Armored knight with blue steel armor, red cape, and sword and shield. Hero character with 8-directional movement.
+- **Palette**: 16-bit retro, blue and silver armor, red accent, limited to 16 colors
+- **States**: idle, walk
+
+### 2. Forest Elf
+- **ID**: forest-elf
+- **Name**: Lirael
+- **Description**: Nimble elf with green cloak, pointed hat, and bow. Quick movements, graceful poses.
+- **Palette**: 16-bit retro, green and brown tones, natural forest colors, limited to 16 colors
+- **States**: idle, walk
+
+### 3. Shadow Mage
+- **ID**: shadow-mage
+- **Name**: Malachar
+- **Description**: Dark robed mage with glowing purple eyes and staff. Mysterious, flowing robe animations.
+- **Palette**: 16-bit retro, dark purple and black, magical glow effects, limited to 16 colors
+- **States**: idle, walk
+
+## Objects
+
+### 1. Health Potion
+- **ID**: health-potion
+- **Type**: item
+- **Description**: Red flask with sparkle particles, restores health when collected.
+- **States**: idle, collect
+
+### 2. Gold Key
+- **ID**: gold-key
+- **Type**: item
+- **Description**: Ornate golden key with gem inset, unlocks treasure chests.
+- **States**: idle, collect
+
+## Backgrounds
+
+### 1. Forest Path
+- **ID**: forest-path
+- **Description**: Parallax forest background with distant trees, mid-ground bushes, and foreground grass details.
+- **Layer**: mid
+- **Resolution**: 1920x1080
+
+## Tile Maps
+
+### 1. Grassland Terrain
+- **ID**: grassland
+- **Terrain**: grass
+- **Tile Size**: 16x16
+- **Layers**: base grass, detail flowers, decoration stones
+
+## Technical Requirements
+
+- Sprite Resolution: 128x128 pixels per frame
+- Animation Frames per State: 4 (idle), 8 (walk) — test with 4 each
+- Engine Targets: godot, unity, raw
+- Sprites Per Row: 4
+
+## Palette Constraints
+
+All sprites must strictly adhere to a 16-color retro palette:
+- Primary: Black, White, Dark Gray, Light Gray
+- Accent 1: Red, Orange, Yellow
+- Accent 2: Green, Teal, Cyan
+- Accent 3: Blue, Purple, Magenta
+- Special: Skin tone, Brown (wood/leather)
+
+Composition rules:
+- Single character, full body, side-on or 3/4 view, centered horizontally.
+- Environment indicates the genre / setting at a glance.
+- Lighting matches the bible's described light direction and shading model.
+- Palette is restricted to the bible's listed colors (no off-palette).
+- No text, no UI, no captions, no watermarks.
+
+Aspect: 16:9. Clean digital rendering, game-engine output (not concept-art frames or border treatments). Every visible detail in this image becomes a reference target for asset generation downstream — so don't include effects we won't replicate per-asset (no lens flare, no atmospheric volumetrics, no motion blur).

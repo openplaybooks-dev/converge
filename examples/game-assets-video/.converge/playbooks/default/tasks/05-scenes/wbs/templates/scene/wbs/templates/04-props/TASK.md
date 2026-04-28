@@ -1,10 +1,12 @@
 ---
-id: "scene-{{scene_id}}-props"
+id: "scene-{{scene_id}}-04-props"
 title: "Scene `{{scene_id}}` — scene-only props"
 description: "Per-scene-prop spritesheets for `{{scene_id}}`."
 wbs:
   type: nodejs
   path: ./wbs/index.js
+inputs:
+  - "assets/scenes/{{scene_id}}/concept.png"
 tags:
   - scene
   - "{{scene_id}}"

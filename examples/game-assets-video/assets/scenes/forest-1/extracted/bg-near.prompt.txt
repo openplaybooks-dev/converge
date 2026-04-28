@@ -1,0 +1,43 @@
+You are given an existing painterly gameplay concept image. Output the
+SAME image, same dimensions, same composition, same painterly style — but
+keep ONLY the NEAR parallax layer's content, and replace
+EVERY OTHER pixel with pure chroma-green (#00FF00, RGB 0/255/0).
+
+LAYER YOU ARE EXTRACTING (NEAR):
+Foreground only — grass tufts, ground-level rocks, ferns, fallen leaves, the very nearest tree trunks the player would walk past. Bottommost band of the canvas. Highest detail, most saturated.
+
+WHAT TO ERASE (replace with #00FF00):
+ERASE: the sky above, all middle-distance trees, distant horizon content, AND the player character. Keep only the foreground grass / rocks / nearest details — the bottom band of the canvas.
+
+UNIVERSAL EXCLUSIONS (always replace with #00FF00, never kept):
+  - The PLAYER CHARACTER, hero, or any human/humanoid figure.
+  - Any character armor, weapon, cape, sword, shield, or held item.
+  - UI elements, text, labels, captions, watermarks.
+  - Any prop the player can pick up (potions, keys, coins).
+
+CRITICAL RULES:
+  1. Do NOT redraw or reinterpret the kept content. Preserve the original
+     pixels of the near layer as faithfully as possible — same
+     palette, same silhouettes, same brush strokes. We want a SURGICAL
+     CUT, not a re-imagining.
+  2. EVERY pixel that is NOT part of the near layer must be
+     #00FF00 (pure green). The output will be chroma-keyed; non-green
+     pixels appear opaque in the final layer.
+  3. If the near layer in the original is sparse, the output
+     should be MOSTLY green. A nearly-empty output with just the kept
+     band is correct.
+  4. Output the SAME ASPECT RATIO and approximately same resolution as
+     the input image.
+
+DEPTH ORDERING (top to bottom of canvas):
+  - FAR is the topmost band (sky / mountain silhouettes). Painterly,
+    desaturated, hazy. NEVER includes the player or foreground content.
+  - MID is the middle band (trees / structures at the player's depth
+    level). NEVER includes the sky above OR the immediate foreground
+    grass/rocks below.
+  - NEAR is the bottommost band (foreground grass tufts, ground rocks,
+    immediate detail). NEVER includes the trees in the middle distance.
+
+The three layers are MUTUALLY EXCLUSIVE — every non-character pixel
+belongs to exactly one of them. When you extract one, the other two
+are erased.

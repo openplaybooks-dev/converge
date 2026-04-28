@@ -348,6 +348,366 @@
       "service": "image-gemini",
       "cost_cents": 5,
       "note": "checkpoint-flag/prop-activate attempt 3"
+    },
+    {
+      "ts": "2026-04-27T16:03:14.632239+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "visual-target"
+    },
+    {
+      "ts": "2026-04-27T16:03:38.983221+00:00",
+      "service": "text-gemini",
+      "cost_cents": 5,
+      "note": "ASSETS.md generation"
+    },
+    {
+      "ts": "2026-04-27T16:13:13.197574+00:00",
+      "service": "text-gemini",
+      "cost_cents": 5,
+      "note": "ART_BIBLE.md generation"
+    },
+    {
+      "ts": "2026-04-27T16:13:35.744928+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "concept-hero-shot"
+    },
+    {
+      "ts": "2026-04-27T16:16:19.643714+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-elf/canonical-side_right"
+    },
+    {
+      "ts": "2026-04-27T16:26:57.924467+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/concept"
+    },
+    {
+      "ts": "2026-04-27T16:27:27.526405+00:00",
+      "service": "text-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/SPEC.md"
+    },
+    {
+      "ts": "2026-04-27T16:31:38.077557+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-far/seg0"
+    },
+    {
+      "ts": "2026-04-27T16:32:07.125074+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-far/seg1"
+    },
+    {
+      "ts": "2026-04-27T16:32:30.764509+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-far/seg2"
+    },
+    {
+      "ts": "2026-04-27T16:33:27.058863+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-mid/seg0"
+    },
+    {
+      "ts": "2026-04-27T16:33:53.888279+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-mid/seg1"
+    },
+    {
+      "ts": "2026-04-27T16:34:15.433399+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-mid/seg2"
+    },
+    {
+      "ts": "2026-04-27T16:35:07.998501+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-near/seg0"
+    },
+    {
+      "ts": "2026-04-27T16:35:24.971901+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-near/seg1"
+    },
+    {
+      "ts": "2026-04-27T16:35:42.704819+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-near/seg2"
+    },
+    {
+      "ts": "2026-04-27T16:37:00.376227+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-1-tilemap/earth-fill"
+    },
+    {
+      "ts": "2026-04-27T16:38:19.764939+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-1-tilemap/earth-rocky"
+    },
+    {
+      "ts": "2026-04-27T16:39:28.143803+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-1-tilemap/flower-yellow"
+    },
+    {
+      "ts": "2026-04-27T16:40:25.094718+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-1-tilemap/grass-base"
+    },
+    {
+      "ts": "2026-04-27T16:41:28.477616+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-1-tilemap/grass-edge-left"
+    },
+    {
+      "ts": "2026-04-27T16:42:31.778839+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-1-tilemap/grass-edge-right"
+    },
+    {
+      "ts": "2026-04-27T16:44:00.029751+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-1-tilemap/mushroom-red"
+    },
+    {
+      "ts": "2026-04-27T16:45:14.984149+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-1-tilemap/stone-small"
+    },
+    {
+      "ts": "2026-04-27T16:46:49.457891+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-mushroom-cluster/prop-idle attempt 1"
+    },
+    {
+      "ts": "2026-04-27T17:54:19.628765+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-far/seg0"
+    },
+    {
+      "ts": "2026-04-27T17:54:42.491429+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-far/seg1"
+    },
+    {
+      "ts": "2026-04-27T17:55:01.871569+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-far/seg2"
+    },
+    {
+      "ts": "2026-04-27T17:55:55.289899+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-mid/seg0"
+    },
+    {
+      "ts": "2026-04-27T17:56:20.552101+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-mid/seg1"
+    },
+    {
+      "ts": "2026-04-27T17:56:40.765880+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-mid/seg2"
+    },
+    {
+      "ts": "2026-04-27T17:57:34.253699+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-near/seg0"
+    },
+    {
+      "ts": "2026-04-27T17:57:57.152348+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-near/seg1"
+    },
+    {
+      "ts": "2026-04-27T17:58:29.490732+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-near/seg2"
+    },
+    {
+      "ts": "2026-04-27T18:11:23.544302+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scale_reference"
+    },
+    {
+      "ts": "2026-04-27T18:19:25.698022+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-far/seg0"
+    },
+    {
+      "ts": "2026-04-27T18:19:43.925438+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-far/seg0"
+    },
+    {
+      "ts": "2026-04-27T18:20:04.672941+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-far/seg1"
+    },
+    {
+      "ts": "2026-04-27T18:20:05.147273+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-far/seg1"
+    },
+    {
+      "ts": "2026-04-27T18:20:22.616429+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-far/seg2"
+    },
+    {
+      "ts": "2026-04-27T18:20:33.233395+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-far/seg2"
+    },
+    {
+      "ts": "2026-04-27T23:39:20.690252+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-1/far"
+    },
+    {
+      "ts": "2026-04-27T23:39:38.639791+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-1/mid"
+    },
+    {
+      "ts": "2026-04-27T23:39:54.822425+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-1/near"
+    },
+    {
+      "ts": "2026-04-27T23:40:12.434917+00:00",
+      "service": "text-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-1/manifest"
+    },
+    {
+      "ts": "2026-04-27T23:42:04.851076+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-1/far"
+    },
+    {
+      "ts": "2026-04-27T23:42:20.103485+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-1/mid"
+    },
+    {
+      "ts": "2026-04-27T23:42:40.000285+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-1/near"
+    },
+    {
+      "ts": "2026-04-27T23:42:59.397398+00:00",
+      "service": "text-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-1/manifest"
+    },
+    {
+      "ts": "2026-04-27T23:54:33.624994+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-mid/seg1"
+    },
+    {
+      "ts": "2026-04-27T23:54:57.734155+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-mid/seg2"
+    },
+    {
+      "ts": "2026-04-27T23:55:24.997462+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-near/seg1"
+    },
+    {
+      "ts": "2026-04-27T23:55:48.359081+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-near/seg2"
+    },
+    {
+      "ts": "2026-04-27T23:58:42.295425+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-far/seg1"
+    },
+    {
+      "ts": "2026-04-27T23:59:02.359564+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-far/seg2"
+    },
+    {
+      "ts": "2026-04-27T23:59:18.239744+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-far/seg3"
+    },
+    {
+      "ts": "2026-04-27T23:59:48.217970+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-far/seg4"
+    },
+    {
+      "ts": "2026-04-28T00:22:42.287487+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-near/transition-1"
+    },
+    {
+      "ts": "2026-04-28T00:23:30.476237+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-1/bg-near/transition-3"
+    },
+    {
+      "ts": "2026-04-28T00:43:13.130343+00:00",
+      "service": "text-gemini",
+      "cost_cents": 5,
+      "note": "classify-game-type"
     }
   ]
 }

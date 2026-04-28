@@ -1,0 +1,11 @@
+{
+  "taskId": "03-shared-props/spike-trap-spritesheet-trigger",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/objects/spike-trap/spritesheets/trigger/trigger.png",
+    "assets/objects/spike-trap/spritesheets/trigger/trigger.atlas.json",
+    "assets/objects/spike-trap/spritesheets/trigger/trigger.prompt.txt"
+  ],
+  "blocked": false
+}

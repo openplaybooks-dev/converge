@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-characters/03-generation/forest-elf-spritesheet-walk",
+  "status": "complete",
+  "lastUpdated": "2026-04-27T16:16:52.329Z",
+  "createdAt": "2026-04-27T16:16:52.026Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-27T16:16:52.026Z",
+      "completedAt": "2026-04-27T16:16:52.301Z",
+      "outcome": "success",
+      "durationMs": 275
+    }
+  ],
+  "currentAttempt": 1
+}

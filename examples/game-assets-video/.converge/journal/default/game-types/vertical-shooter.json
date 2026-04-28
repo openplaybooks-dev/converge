@@ -1,0 +1,43 @@
+{
+  "$schema": "v1",
+  "game_type": "vertical-shooter",
+  "view": "top-down-2d",
+  "movement": ["walk-left", "walk-right", "auto-scroll-down"],
+  "art_style_keywords": ["pixel art", "shmup", "bullet hell"],
+  "anti_keywords": ["side view", "platforms"],
+
+  "asset_categories": {
+    "characters": {
+      "enabled": true,
+      "frames_mode": "video",
+      "default_states": ["idle", "bank-left", "bank-right", "shoot"]
+    },
+    "shared_props": {
+      "enabled": true,
+      "categories": ["projectile", "enemy", "powerup"]
+    },
+    "tilemap": {
+      "enabled": false,
+      "style": null,
+      "default_variants": []
+    },
+    "background": {
+      "enabled": true,
+      "layers": ["scroll-far", "scroll-near"],
+      "transparent_layers": [],
+      "subject_height_tiles": null,
+      "scroll_axis": "vertical"
+    },
+    "scene_props": {
+      "enabled": true,
+      "categories": ["enemy", "powerup", "projectile"]
+    }
+  },
+
+  "playbook_overrides": {
+    "scenes_inspect_use_platforms": false,
+    "scenes_inspect_view_mode": "vertical-scroller",
+    "world_width_tiles": 30,
+    "world_height_tiles": 200
+  }
+}
