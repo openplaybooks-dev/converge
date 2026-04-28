@@ -6,14 +6,31 @@
 
 **The agent framework that runs autonomously for hours — even days, across thousands of tasks.**
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![npm](https://img.shields.io/badge/npm-%40converge%2Fcore-cb3837.svg)](https://www.npmjs.com/package/@converge/core)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6.svg)](https://www.typescriptlang.org/)
-[![Node](https://img.shields.io/badge/node-%E2%89%A520-339933.svg)](https://nodejs.org/)
+[![npm version](https://img.shields.io/npm/v/@converge/core?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@converge/core)
+[![npm downloads](https://img.shields.io/npm/dw/@converge/core?color=cb3837&logo=npm&label=downloads)](https://www.npmjs.com/package/@converge/core)
+[![GitHub stars](https://img.shields.io/github/stars/myanlabs/converge?logo=github&color=181717)](https://github.com/myanlabs/converge/stargazers)
+[![Last commit](https://img.shields.io/github/last-commit/myanlabs/converge?logo=github)](https://github.com/myanlabs/converge/commits/main)
+[![License: MIT](https://img.shields.io/github/license/myanlabs/converge?color=blue)](./LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Node](https://img.shields.io/node/v/@converge/core?color=339933&logo=node.js&logoColor=white)](https://nodejs.org/)
 
 [Quick Start](#quick-start) · [Architecture](#architecture) · [Examples](./examples) · [Documentation](./docs) · [Contributing](./CONTRIBUTING.md)
 
 </div>
+
+> **Status:** Pre-1.0 (`v0.1.0`) — public preview. APIs are stabilizing toward v1.0. Production playbooks are shipping today (see [examples](./examples)).
+
+<p align="center">
+  <em>Demo: terminal recording of <code>converge run</code> closing the gap loop — coming soon.</em>
+  <!--
+    TODO: replace with a terminal recording of `converge run` driving a playbook
+    to convergence. Suggested toolchain:
+      - record with vhs (https://github.com/charmbracelet/vhs) or asciinema
+      - export to GIF/SVG, commit under docs/assets/demo.gif
+    Then swap this block for:
+      <img src="./docs/assets/demo.gif" alt="Converge running a playbook" width="720" />
+  -->
+</p>
 
 ---
 
@@ -22,7 +39,17 @@ Converge is an open-source, TypeScript-native framework for orchestrating long-r
 State lives in plain files on disk. Kill the process and resume from the last checkpoint. No graph wiring. No hosted control plane.
 
 ```bash
+# npm
 npm install -g @converge/core
+
+# pnpm
+pnpm add -g @converge/core
+
+# yarn
+yarn global add @converge/core
+
+# bun
+bun add -g @converge/core
 ```
 
 ## Highlights
@@ -125,12 +152,6 @@ flowchart LR
 Everything is plain text. Every state transition is observable on disk.
 
 ## Quick Start
-
-Install the CLI:
-
-```bash
-npm install -g @converge/core
-```
 
 Initialize a playbook, plan from a goal, and run it:
 
