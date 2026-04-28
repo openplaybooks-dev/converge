@@ -18,7 +18,8 @@
  *     One LLM call per child.
  *
  * After phase 2, TS recurses into each `kind: container` child by
- * calling `runPlanLayer` again. Executable and wbs children stop the
+ * calling `runPlanLayer` again — in parallel, since each container
+ * subtree is independent. Executable and wbs children stop the
  * recursion (executable runs at runtime; wbs fans out at runtime and
  * its spawned children get re-planned then).
  *
@@ -40,7 +41,7 @@ export type { PlanLayerOpts, ChildKind, PlanMeta } from "./types.ts";
 /**
  * Plan one layer at `opts.nodePath`. Runs phase 1 (analyze → PLAN.md),
  * then phase 2 (kind-dispatched implementers → child TASK.md / wbs.js),
- * then recurses sequentially into static-container children.
+ * then recurses in parallel into static-container children.
  */
 export async function runPlanLayer(opts: PlanLayerOpts): Promise<void> {
   const depth = opts.depth ?? 0;
@@ -102,18 +103,20 @@ export async function runPlanLayer(opts: PlanLayerOpts): Promise<void> {
   );
   await implementChildren({ opts, mode, planMd, meta, logDir, indent });
 
-  // ── Recurse: static-container children only ────────────────────────
+  // ── Recurse: static-container children only (in parallel) ──────────
   const containerChildren = meta.children.filter((c) => c.kind === "container");
-  for (const child of containerChildren) {
-    const childPath = join(opts.nodePath, child.id);
-    if (!existsSync(join(childPath, "TASK.md"))) continue; // implementer missed it
-    await runPlanLayer({
-      ...opts,
-      nodePath: childPath,
-      nodeKind: "task",
-      prompt: undefined, // -p does not cascade automatically
-      depth: depth + 1,
-      maxDepth,
-    });
-  }
+  await Promise.all(
+    containerChildren.map((child) => {
+      const childPath = join(opts.nodePath, child.id);
+      if (!existsSync(join(childPath, "TASK.md"))) return; // implementer missed it
+      return runPlanLayer({
+        ...opts,
+        nodePath: childPath,
+        nodeKind: "task",
+        prompt: undefined, // -p does not cascade automatically
+        depth: depth + 1,
+        maxDepth,
+      });
+    }),
+  );
 }

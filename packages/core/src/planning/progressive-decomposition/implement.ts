@@ -9,7 +9,9 @@
  *   - container  → write a thin contract TASK.md, no execution detail
  *   - wbs        → write TASK.md + wbs/index.js fan-out script
  *
- * One LLM call per child, each with a focused prompt. Sequential.
+ * One LLM call per child, each with a focused prompt. Children are
+ * independent (different output paths, no shared state) so they run
+ * in parallel via Promise.all.
  */
 
 import { existsSync } from "node:fs";
@@ -35,22 +37,21 @@ export async function implementChildren(
   const { opts, mode, planMd, meta, logDir, indent } = args;
   if (!meta.children) return;
 
-  for (const child of meta.children) {
-    const relChild = `${rel(opts.nodePath, opts.projectDir)}/${child.id}`;
-    console.log(`${indent}      [${child.kind}] ${relChild}`);
+  await Promise.all(
+    meta.children.map((child) => {
+      const relChild = `${rel(opts.nodePath, opts.projectDir)}/${child.id}`;
+      console.log(`${indent}      [${child.kind}] ${relChild}`);
 
-    switch (child.kind) {
-      case "executable":
-        await implementExecutable({ opts, mode, planMd, child, logDir });
-        break;
-      case "container":
-        await implementContainer({ opts, mode, planMd, child, logDir });
-        break;
-      case "wbs":
-        await implementWbs({ opts, mode, planMd, child, logDir });
-        break;
-    }
-  }
+      switch (child.kind) {
+        case "executable":
+          return implementExecutable({ opts, mode, planMd, child, logDir });
+        case "container":
+          return implementContainer({ opts, mode, planMd, child, logDir });
+        case "wbs":
+          return implementWbs({ opts, mode, planMd, child, logDir });
+      }
+    }),
+  );
 
   // Verify each declared child got a TASK.md.
   const missing = meta.children.filter(
