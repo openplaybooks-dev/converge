@@ -1,0 +1,7 @@
+name: careate-a-new-playbook-to-implement-mission-contro
+description: "careate a new playbook to implement mission control for conerge, support all function like conerge cli"
+
+run:
+  mode: autonomous
+  maxTaskAttempts: 3
+  resume: true

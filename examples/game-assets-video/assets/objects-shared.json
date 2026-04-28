@@ -6,6 +6,8 @@
     "category": "item",
     "type": "item",
     "states": ["idle", "collect"],
+    "animation_type": "loop",
+    "keyframes_id": "health_potion_idle",
     "sprite_resolution": 64,
     "working_resolution": 128,
     "art_style": "ghibli_modern_indie"
@@ -17,6 +19,8 @@
     "category": "item",
     "type": "item",
     "states": ["idle", "collect"],
+    "animation_type": "loop",
+    "keyframes_id": "gold_key_idle",
     "sprite_resolution": 64,
     "working_resolution": 128,
     "art_style": "ghibli_modern_indie"
@@ -28,6 +32,8 @@
     "category": "hazard",
     "type": "hazard",
     "states": ["idle", "trigger"],
+    "animation_type": "trigger",
+    "keyframes_id": "spike_trap_trigger",
     "sprite_resolution": 64,
     "working_resolution": 128,
     "art_style": "ghibli_modern_indie"
@@ -39,6 +45,8 @@
     "category": "interactive",
     "type": "interactive",
     "states": ["idle", "bounce"],
+    "animation_type": "trigger",
+    "keyframes_id": "bounce_spring_trigger",
     "sprite_resolution": 64,
     "working_resolution": 128,
     "art_style": "ghibli_modern_indie"
@@ -50,6 +58,7 @@
     "category": "interactive",
     "type": "interactive",
     "states": ["idle"],
+    "animation_type": "static",
     "sprite_resolution": 64,
     "working_resolution": 128,
     "art_style": "ghibli_modern_indie"
@@ -61,6 +70,8 @@
     "category": "interactive",
     "type": "interactive",
     "states": ["idle", "activate"],
+    "animation_type": "trigger",
+    "keyframes_id": "activate",
     "sprite_resolution": 64,
     "working_resolution": 128,
     "art_style": "ghibli_modern_indie"

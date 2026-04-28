@@ -1,0 +1,20 @@
+{
+  "taskId": "001-plan",
+  "checks": [
+    {
+      "id": "playbook-yml-exists",
+      "description": "playbook.yml created",
+      "cmd": "test -f .converge/playbooks/careate-a-new-playbook-to-implement-mission-contro/playbook.yml"
+    },
+    {
+      "id": "has-tasks-dir",
+      "description": "Tasks directory created",
+      "cmd": "test -d .converge/playbooks/careate-a-new-playbook-to-implement-mission-contro/tasks"
+    },
+    {
+      "id": "has-task-files",
+      "description": "At least 2 TASK.md files generated",
+      "cmd": "test $(find .converge/playbooks/careate-a-new-playbook-to-implement-mission-contro/tasks -name \"TASK.md\" 2>/dev/null | wc -l) -ge 2"
+    }
+  ]
+}

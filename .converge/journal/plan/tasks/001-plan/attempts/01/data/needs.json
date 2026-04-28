@@ -1,0 +1,9 @@
+{
+  "taskId": "001-plan",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    ".converge/playbooks/careate-a-new-playbook-to-implement-mission-contro/playbook.yml"
+  ],
+  "blocked": false
+}

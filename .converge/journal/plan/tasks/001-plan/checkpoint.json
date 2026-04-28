@@ -1,0 +1,23 @@
+{
+  "type": "task",
+  "id": "001-plan",
+  "status": "interrupted",
+  "lastUpdated": "2026-04-28T09:45:59.702Z",
+  "createdAt": "2026-04-28T09:11:31.860Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-28T09:11:31.860Z",
+      "completedAt": "2026-04-28T09:15:33.941Z",
+      "outcome": "success",
+      "durationMs": 242081
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-28T09:45:49.570Z",
+      "completedAt": "2026-04-28T09:45:59.702Z",
+      "outcome": "interrupted"
+    }
+  ],
+  "currentAttempt": 2
+}

@@ -47,10 +47,12 @@ export async function run(ctx) {
   const stages = [
     { dir: '01-concept',    suffix: '01-concept' },
     { dir: '01b-extract',   suffix: '01b-extract' },
+    { dir: '02-decompose',  suffix: '02-decompose' },
     { dir: '02-background', suffix: '02-background' },
     { dir: '03-tiles',      suffix: '03-tiles' },
     { dir: '04-props',      suffix: '04-props' },
     { dir: '05-manifest',   suffix: '05-manifest' },
+    { dir: '07-preview',    suffix: '07-preview' },
   ];
 
   for (const stage of stages) {

@@ -1174,6 +1174,7 @@ async function main(): Promise<void> {
         const { runPlanLayer } = await import(
           "@converge/core/planning/progressive-decomposition/index.ts"
         );
+        const { agentfn } = await import("@converge/agentfn");
 
         // Per docs/design/progressive-decomposition.md:
         //   converge plan <path> [-p "<prompt>"] [--update]
@@ -1223,11 +1224,7 @@ async function main(): Promise<void> {
             process.exit(1);
           }
           if (!planName) {
-            planName = prompt
-              .toLowerCase()
-              .replace(/[^a-z0-9]+/g, "-")
-              .replace(/^-|-$/g, "")
-              .slice(0, 50);
+            planName = await suggestPlaybookName(prompt, agentfn);
           }
           const newPlaybookDir = join(
             planSearchDir,
@@ -1631,6 +1628,54 @@ async function main(): Promise<void> {
 // Progressive-decomposition planning lives in commands-plan.ts. The CLI
 // case "plan" delegates to runPlanLayer, which owns scope packet
 // gathering, the LLM call, and TS-driven recursion.
+
+function slugifyPrompt(prompt: string): string {
+  return prompt
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 50);
+}
+
+// Ask the LLM for a 2-5 word kebab-case playbook name. Falls back to the
+// raw slugified prompt on any failure so `converge plan` always produces
+// a usable directory name.
+async function suggestPlaybookName(
+  prompt: string,
+  agentfn: typeof import("@converge/agentfn").agentfn,
+): Promise<string> {
+  const fallback = slugifyPrompt(prompt) || "plan";
+  try {
+    const fn = agentfn({
+      timeoutMs: 60_000,
+      enableSkills: false,
+    });
+    const namingPrompt = [
+      "You name a new converge playbook from the user's intent.",
+      "Reply with ONLY a kebab-case slug, 2-5 words, lowercase a-z and",
+      "digits and hyphens, no extension, no quotes, no explanation.",
+      "Capture the noun (what is built), not the verb (build/create).",
+      "",
+      "Examples:",
+      '  intent: "create a new playbook to implement mission control for converge"',
+      "  name:   mission-control",
+      "",
+      '  intent: "build a baby-tracker mobile app with sleep and feed logs"',
+      "  name:   baby-tracker-app",
+      "",
+      `intent: "${prompt.replace(/"/g, '\\"')}"`,
+      "name:",
+    ].join("\n");
+    const result = await fn(namingPrompt);
+    const raw = String(result.raw ?? result.data ?? "").trim();
+    const match = raw.match(/[a-z0-9]+(?:-[a-z0-9]+)+/);
+    const slug = match ? match[0] : "";
+    if (slug.length >= 3 && slug.length <= 50) return slug;
+  } catch {
+    // fall through
+  }
+  return fallback;
+}
 
 // Run if executed directly (cross-platform: handles symlinks and Windows path format differences)
 import { pathToFileURL } from "node:url";

@@ -95,6 +95,55 @@ KEYFRAMES: dict[str, list[str]] = {
         "object glow steady, flag returning toward center, particles fading slightly",
         "object glow steady, flag back near center but tilted slightly LEFT — start of next cycle",
     ],
+    # ── Per-prop semantic cycles ─────────────────────────────────────────
+    # These differ from the generic "trigger" / "prop_idle" / "bounce" cycles
+    # above by anchoring EVERY frame to the same visual position/orientation
+    # so the model sees one prop in 8 states, not 8 unrelated props. This
+    # is the fix for the spike-trap-as-eight-different-stones failure.
+    #
+    # Convention: every frame opens with "SAME stone base block centered…"
+    # (or equivalent shared anchor) so the model treats the visual subject
+    # as fixed and only varies the active feature.
+    "spike_trap_trigger": [
+        "FRAME 1 of 8 — SAME flat stone base block centered in frame, lid flush with top, NO spikes visible. Ground shadow under the base. Static neutral pose, fully retracted state. The base, its position, and its proportions are the visual anchor that every other frame must preserve.",
+        "FRAME 2 of 8 — SAME stone base in the SAME position. Lid cracking open by ~10% to reveal a slim dark slot at the top. Faint glints inside the slot hint at the spike tips. NO spike emerging yet. Anchor unchanged.",
+        "FRAME 3 of 8 — SAME stone base. Three or four short metal spikes emerging vertically from the top of the base, just 1/4 of their final length. Spikes point STRAIGHT UP. Sharp silhouette starting to form. Faint upward motion lines beside the spikes.",
+        "FRAME 4 of 8 — SAME stone base. Spikes at 1/2 their final length, still vertical, evenly spaced in a row. Motion lines stronger, indicating active emergence. Base unchanged.",
+        "FRAME 5 of 8 — SAME stone base. Spikes at FULL extension, vertical, sharp tips at the top of the frame area. Maximum dangerous read. Strong motion lines + slight glow at the tips. This is the peak of the activation. Base position unchanged.",
+        "FRAME 6 of 8 — SAME stone base. Spikes still fully extended at the SAME height as frame 5, motion lines fading, danger steady. Holding pose.",
+        "FRAME 7 of 8 — SAME stone base. Spikes retracting back to ~1/2 length, vertical, short downward motion lines indicating retreat. Base unchanged.",
+        "FRAME 8 of 8 — SAME stone base. Spikes nearly fully retracted (~1/8 visible), lid almost closed again. Last vibration lines fading. Returns to frame-1 pose seamlessly on the next loop.",
+    ],
+    "bounce_spring_trigger": [
+        "FRAME 1 of 8 — SAME spring centered in frame, top plate level, coils evenly spaced at NEUTRAL full height. Fixed circular base on the ground. Soft drop shadow. Anchor pose: every frame keeps the base in the same position and the coil column aligned vertically.",
+        "FRAME 2 of 8 — SAME base in SAME position. Top plate descending ~10%; the top one or two coils have begun to compress. Coils still mostly even.",
+        "FRAME 3 of 8 — SAME base. Top plate at HALF compression height. Coils squeezed together at the top, fanning out toward the bottom. Downward motion lines beside the plate.",
+        "FRAME 4 of 8 — SAME base. Top plate at MAXIMUM compression, just above the base. Coils tightly stacked. Strong downward motion lines. This is the bottom of the cycle.",
+        "FRAME 5 of 8 — SAME base. Top plate rebounding through neutral, coils releasing. Upward motion blur on the plate. Energetic mid-rebound pose.",
+        "FRAME 6 of 8 — SAME base. Top plate at PEAK extension (~110% neutral height). Coils stretched, slightly separated. Strong upward motion lines.",
+        "FRAME 7 of 8 — SAME base. Top plate descending from peak back toward neutral, coils reseating. Light motion blur.",
+        "FRAME 8 of 8 — SAME base. Top plate at NEUTRAL height again, coils settling, closing the cycle so frame 1 reads identically.",
+    ],
+    "gold_key_idle": [
+        "FRAME 1 of 8 — ornate golden key centered in frame at neutral height, body horizontal, bow (loop) on the LEFT, teeth on the RIGHT. Soft drop shadow on the ground beneath. Gem inset visible on the bow. Anchor pose: every frame preserves this body orientation, scale, and centerline.",
+        "FRAME 2 of 8 — SAME key. Lifted ~2 px. Faint glow forming on the bow's gem.",
+        "FRAME 3 of 8 — SAME key, lifted ~4 px (mid hover). Single small sparkle particle drifting up from the teeth.",
+        "FRAME 4 of 8 — SAME key, at PEAK hover (~5 px above ground). Gem glow at maximum brightness. Sparkle particle larger and brighter.",
+        "FRAME 5 of 8 — SAME key, descending toward mid hover (~3 px). Gem glow dimming. Sparkle fading.",
+        "FRAME 6 of 8 — SAME key, near base (~1 px above ground). Glow soft. Almost settled.",
+        "FRAME 7 of 8 — SAME key, touching ground level. Glow at minimum. Drop shadow tightest.",
+        "FRAME 8 of 8 — SAME key, settling vibration completing. Glow about to begin again next loop. Reads identically to frame 1.",
+    ],
+    "health_potion_idle": [
+        "FRAME 1 of 8 — red glass potion flask centered in frame, cork stopper at the top, round body in the middle, narrow neck. Soft drop shadow. Inner liquid uniform red. Anchor pose: every frame keeps the bottle silhouette, stopper position, and body proportions identical.",
+        "FRAME 2 of 8 — SAME potion. Inner liquid showing a small swirl at the lower-right of the body — the only change. No movement of the bottle itself.",
+        "FRAME 3 of 8 — SAME potion. Swirl drifting upward to the middle of the body. Faint sparkle forming above the cork.",
+        "FRAME 4 of 8 — SAME potion. Swirl peaks near the top of the body's interior. Sparkle above the cork at max brightness, single small particle.",
+        "FRAME 5 of 8 — SAME potion. Swirl descending back toward the middle. Sparkle fading.",
+        "FRAME 6 of 8 — SAME potion. Swirl at the lower-left of the body (mirror of frame 2). Sparkle gone.",
+        "FRAME 7 of 8 — SAME potion. Swirl at the bottom of the body, settling. Inner liquid almost uniform again.",
+        "FRAME 8 of 8 — SAME potion. Inner liquid fully uniform red, ready to begin the swirl again next loop.",
+    ],
 }
 
 
@@ -108,6 +157,35 @@ def get_keyframes(state: str) -> list[str]:
             f"Known states: {sorted(KEYFRAMES.keys())}"
         )
     return KEYFRAMES[state]
+
+
+def keyframes_for_prop(
+    keyframes_id: str | None,
+    animation_type: str,
+    state: str,
+) -> list[str]:
+    """Pick the right keyframe list for a prop generation call.
+
+    Resolution order:
+      1. If `keyframes_id` is set and exists in KEYFRAMES, use it.
+         (Catalog-driven semantic cycles per prop_id, e.g.
+         "spike_trap_trigger".)
+      2. Else if `animation_type == "trigger"` and KEYFRAMES has "trigger",
+         use the generic trigger cycle.
+      3. Else if `state == "idle"` and KEYFRAMES has "prop_idle", use the
+         generic prop hover cycle.
+      4. Else fall back to get_keyframes(state) — the per-state default.
+
+    Static props short-circuit ABOVE this function: their generators emit
+    a 1-frame sheet without consulting keyframes at all.
+    """
+    if keyframes_id and keyframes_id in KEYFRAMES:
+        return KEYFRAMES[keyframes_id]
+    if animation_type == "trigger" and "trigger" in KEYFRAMES:
+        return KEYFRAMES["trigger"]
+    if state == "idle" and "prop_idle" in KEYFRAMES:
+        return KEYFRAMES["prop_idle"]
+    return get_keyframes(state)
 
 
 # State -> variant pose name. None means "use the canonical reference directly"
@@ -178,6 +256,11 @@ STATE_PLAYBACK: dict[str, dict] = {
     "trigger":   {"frameRate": 12, "yoyo": False},  # one-shot effect
     "bounce":    {"frameRate": 10, "yoyo": True},   # cyclic spring oscillation
     "activate":  {"frameRate": 8,  "yoyo": True},   # cyclic flag wave
+    # Per-prop semantic cycles
+    "spike_trap_trigger":    {"frameRate": 12, "yoyo": False},
+    "bounce_spring_trigger": {"frameRate": 10, "yoyo": False},
+    "gold_key_idle":         {"frameRate": 6,  "yoyo": True},
+    "health_potion_idle":    {"frameRate": 6,  "yoyo": True},
 }
 
 DEFAULT_PLAYBACK = {"frameRate": 8, "yoyo": False}

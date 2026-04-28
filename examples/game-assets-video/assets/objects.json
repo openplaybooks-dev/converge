@@ -8,6 +8,8 @@
       "collect"
     ],
     "category": "item",
+    "animation_type": "loop",
+    "keyframes_id": "health_potion_idle",
     "working_resolution": 64
   },
   {
@@ -19,6 +21,8 @@
       "collect"
     ],
     "category": "item",
+    "animation_type": "loop",
+    "keyframes_id": "gold_key_idle",
     "working_resolution": 64
   },
   {
@@ -28,7 +32,8 @@
     "animation_states": [
       "idle"
     ],
-    "category": "item",
+    "category": "ui",
+    "animation_type": "static",
     "working_resolution": 96
   },
   {
@@ -38,7 +43,8 @@
     "animation_states": [
       "idle"
     ],
-    "category": "item",
+    "category": "ui",
+    "animation_type": "static",
     "working_resolution": 250
   }
 ]

@@ -32,9 +32,10 @@ from pathlib import Path
 
 from lib import budget
 from lib.image_api import generate_image_with_edit, active_backend
-from lib.keyframes import KEYFRAMES, get_keyframes, playback_for_state
+from lib.keyframes import KEYFRAMES, get_keyframes, keyframes_for_prop, playback_for_state
 from lib.prompts import build_grid_prompt
 from lib.sprite import align_frames_in_sheet, detect_grid_layout, find_project_root
+from lib.style_anchor import attach_style_anchor
 
 
 # Same 4×2 grid as character sheets — see generate_spritesheet.py header
@@ -107,6 +108,71 @@ def keyframes_for_prop_state(state: str) -> list[str]:
     return get_keyframes(state)
 
 
+def load_catalog_entry(project_root: Path, obj_id: str) -> dict | None:
+    """Find the prop's entry in `assets/catalog.json`, if it exists.
+
+    Catalog is canonical for `animation_type` + `keyframes_id` once
+    01c-catalog-spec has run. Returns None if catalog absent or entry
+    missing — caller falls back to manifest fields / category defaults.
+    """
+    cat_path = project_root / "assets" / "catalog.json"
+    if not cat_path.exists():
+        return None
+    try:
+        cat = json.loads(cat_path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    for entry in cat.get("shared_props", []):
+        if entry.get("id") == obj_id:
+            return entry
+    return None
+
+
+_CATEGORY_ANIMATION_DEFAULTS = {
+    "hazard": ("trigger", None),
+    "interactive": ("trigger", "activate"),
+    "item": ("loop", "prop_idle"),
+    "decoration": ("static", None),
+    "ui": ("static", None),
+}
+
+
+def resolve_animation_intent(
+    obj: dict, catalog_entry: dict | None, state: str,
+) -> tuple[str, str | None]:
+    """Determine (animation_type, keyframes_id) for this prop.
+
+    Resolution order (first non-None wins):
+      1. catalog.json[shared_props[id]] — canonical
+      2. obj["animation_type"] / obj["keyframes_id"] — manual override
+         in objects.json
+      3. category-based defaults — hazard→trigger, item→loop,
+         decoration/ui→static
+
+    The state string influences the fallback only — for non-idle states
+    we trust whatever keyframes_id the manifest declares (or get_keyframes
+    via the keyframes_for_prop helper).
+    """
+    atype: str | None = None
+    kf: str | None = None
+    if catalog_entry:
+        atype = catalog_entry.get("animation_type")
+        kf = catalog_entry.get("keyframes_id")
+    if not atype:
+        atype = obj.get("animation_type")
+    if not kf:
+        kf = obj.get("keyframes_id")
+    if not atype:
+        category = obj.get("category", obj.get("type", "item"))
+        default_atype, default_kf = _CATEGORY_ANIMATION_DEFAULTS.get(
+            category, ("loop", "prop_idle")
+        )
+        atype = default_atype
+        if not kf:
+            kf = default_kf
+    return atype, kf
+
+
 def find_green_template(project_root: Path, working_resolution: int) -> Path:
     """Locate a green-screen template at-or-above the working resolution.
 
@@ -165,16 +231,27 @@ def main() -> int:
     palette_constraints = obj.get("palette_constraints", DEFAULT_PALETTE_CONSTRAINTS)
     art_style = obj.get("art_style")
 
-    base_keyframes = keyframes_for_prop_state(args.state)
-    if not base_keyframes:
-        raise SystemExit(f"No keyframes defined for state '{args.state}'")
-    if len(base_keyframes) != EXPECTED_FRAMES:
+    catalog_entry = load_catalog_entry(project_root, args.obj_id)
+    animation_type, keyframes_id = resolve_animation_intent(obj, catalog_entry, args.state)
+
+    if animation_type == "static":
+        return _generate_static_sheet(
+            args, obj, project_root,
+            obj_name=obj_name, obj_description=obj_description,
+            category=category, palette=palette,
+            palette_constraints=palette_constraints, art_style=art_style,
+        )
+
+    keyframes = keyframes_for_prop(keyframes_id, animation_type, args.state)
+    if not keyframes:
+        raise SystemExit(f"No keyframes resolved for prop '{args.obj_id}' state '{args.state}'")
+    if len(keyframes) != EXPECTED_FRAMES:
         raise SystemExit(
-            f"Prop state '{args.state}' has {len(base_keyframes)} keyframes but "
-            f"the {COLS}×{ROWS} sheet layout needs exactly {EXPECTED_FRAMES}. "
+            f"Prop '{args.obj_id}' state '{args.state}' resolved to {len(keyframes)} keyframes "
+            f"(keyframes_id={keyframes_id!r}, animation_type={animation_type!r}) but the "
+            f"{COLS}×{ROWS} sheet layout needs exactly {EXPECTED_FRAMES}. "
             f"Update scripts/lib/keyframes.py."
         )
-    keyframes = base_keyframes
     n = len(keyframes)
 
     base_ref_path = find_green_template(project_root, FRAME_W)
@@ -189,12 +266,12 @@ def main() -> int:
     prompt_path = out_dir / f"{args.state}.prompt.txt"
     seed_path = out_dir / f"{args.state}.seed.txt"
 
-    extra_refs = []
+    caller_refs: list[Path] = []
     if args.scene_concept:
-        extra_refs.append(Path(args.scene_concept))
+        caller_refs.append(Path(args.scene_concept))
     # Concept-driven asset extraction: scene props sit on the ground in the
     # foreground, so the extracted near-layer crop is the closest match.
-    # Attaching it as a 3rd reference makes the prop's lighting and texture
+    # Attaching it as a reference makes the prop's lighting and texture
     # match whatever the concept image actually showed at ground level.
     if args.scene_id:
         extracted_near = (
@@ -202,7 +279,12 @@ def main() -> int:
             / "extracted" / "bg-near.png"
         )
         if extracted_near.exists():
-            extra_refs.append(extracted_near)
+            caller_refs.append(extracted_near)
+    # Universal style anchor (style-sheet + scene concept) takes precedence:
+    # this is the project-wide reference that locks every prop to the same
+    # rendering style. Without it, parallel prop calls produce wildly
+    # different art (3D metal, photoreal stone, cartoon ink, painted).
+    extra_refs = attach_style_anchor(caller_refs, project_root, scene_id=args.scene_id)
 
     height_tiles = obj.get("height_tiles")  # may be None if author didn't declare
 
@@ -331,6 +413,170 @@ def main() -> int:
 
     print(
         f"  wrote {sheet_path.relative_to(project_root)} + {atlas_path.name} (seed={seed_used})",
+        file=sys.stderr,
+    )
+    return 0
+
+
+# Static sheet layout (for animation_type="static"). One frame on a
+# square canvas the model can draw at native size.
+STATIC_SHEET_W = 1024
+STATIC_SHEET_H = 1024
+STATIC_API_ASPECT = "1:1"
+
+
+def _build_static_prompt(
+    *, subject: str, palette: str, palette_constraints: str,
+    art_style: str | None, extra_critical: list[str],
+) -> str:
+    """One-frame static prop prompt. No grid, no animation cycle —
+    just the prop centered on chroma green, ready to be keyed."""
+    from lib.art_styles import get_preset
+    preset = get_preset(art_style)
+    style_desc = preset["style_description"]
+    palette_text = palette or preset["palette_guidance"]
+    negatives = preset.get("negative_directives", [])
+    negatives_block = "\n".join(f"- {n}" for n in negatives) if negatives else "- (none)"
+    extra_block = "\n".join(f"- {c}" for c in extra_critical) if extra_critical else "- (none)"
+    return f"""Single static game prop, ONE subject centered on a pure chroma-green (#00FF00) background.
+NOT an animation cycle. NOT a grid. NOT multiple frames. ONE prop, ONE pose, ONE image.
+
+Subject:
+{subject}
+
+Art style (mandatory):
+{style_desc}
+
+Palette:
+{palette_text}
+
+{palette_constraints}
+
+Composition:
+- Centered in the frame, occupying ~70% of the canvas.
+- Soft drop shadow on the ground beneath the prop.
+- Pure #00FF00 background — no gradients, no scenery, no other objects.
+- Top-left soft key light (consistent with the style-sheet anchor).
+
+Critical:
+{extra_block}
+
+Negative directives:
+{negatives_block}
+- Do NOT draw a grid, multiple cells, frame numbers, captions, or animation phases.
+- Do NOT draw any background scenery — the bg is pure chroma green only.
+"""
+
+
+def _generate_static_sheet(
+    args, obj: dict, project_root: Path, *,
+    obj_name: str, obj_description: str, category: str,
+    palette: str, palette_constraints: str, art_style: str | None,
+) -> int:
+    """Static-prop branch: 1×1 sheet, single image-gen call.
+
+    Same output shape as the 4×2 path so downstream consumers don't
+    branch — atlas declares `meta.cols=1, rows=1, frame_count=1` and
+    the PNG is `{state}.png` with a single frame rect covering the
+    full canvas.
+    """
+    if args.out_root:
+        out_dir = Path(args.out_root) / "spritesheets" / args.state
+    else:
+        out_dir = project_root / "assets" / "objects" / args.obj_id / "spritesheets" / args.state
+    out_dir.mkdir(parents=True, exist_ok=True)
+    sheet_path = out_dir / f"{args.state}.png"
+    atlas_path = out_dir / f"{args.state}.atlas.json"
+    prompt_path = out_dir / f"{args.state}.prompt.txt"
+    seed_path = out_dir / f"{args.state}.seed.txt"
+
+    caller_refs: list[Path] = []
+    if args.scene_concept:
+        caller_refs.append(Path(args.scene_concept))
+    if args.scene_id:
+        extracted_near = (
+            project_root / "assets" / "scenes" / args.scene_id
+            / "extracted" / "bg-near.png"
+        )
+        if extracted_near.exists():
+            caller_refs.append(extracted_near)
+    extra_refs = attach_style_anchor(caller_refs, project_root, scene_id=args.scene_id)
+
+    subject = f"{obj_name} ({category}) — {obj_description}"
+    extra_critical = [
+        "The subject is a small game prop, not a character — no face, no limbs unless described",
+        "Frame the prop centered with consistent scale and ground-shadow placement",
+    ]
+
+    prompt = _build_static_prompt(
+        subject=subject,
+        palette=palette,
+        palette_constraints=palette_constraints,
+        art_style=art_style,
+        extra_critical=extra_critical,
+    )
+
+    base_ref_path = find_green_template(project_root, STATIC_SHEET_W)
+    backend = active_backend()
+    cost = budget.cost_for_image(backend)
+
+    print(
+        f"[{args.obj_id}] generating {args.state} STATIC prop (1x1) at "
+        f"{STATIC_SHEET_W}x{STATIC_SHEET_H} backend={backend} cost={cost}c",
+        file=sys.stderr,
+    )
+
+    with budget.charged(
+        project_root, cost, f"image-{backend}",
+        note=f"{args.obj_id}/static-{args.state}",
+    ):
+        img_bytes, seed_used = generate_image_with_edit(
+            prompt,
+            base_ref_path,
+            extra_refs,
+            seed=args.seed,
+            aspect_ratio=STATIC_API_ASPECT,
+            resolution=(STATIC_SHEET_W, STATIC_SHEET_H),
+        )
+
+    sheet_path.write_bytes(img_bytes)
+    prompt_path.write_text(prompt, encoding="utf-8")
+    seed_path.write_text(str(seed_used), encoding="utf-8")
+
+    playback = playback_for_state(args.state)
+    atlas = {
+        "image": sheet_path.name,
+        "meta": {
+            "obj_id": args.obj_id,
+            "state": args.state,
+            "category": category,
+            "rows": 1,
+            "cols": 1,
+            "frame_count": 1,
+            "frame_size": {"w": STATIC_SHEET_W, "h": STATIC_SHEET_H},
+            "sheet_size": {"w": STATIC_SHEET_W, "h": STATIC_SHEET_H},
+            "frame_order": "single",
+            "requested_cols": 1,
+            "requested_rows": 1,
+            "detected": False,
+            "aligned": False,
+            "animation_type": "static",
+            "frameRate": playback["frameRate"],
+            "yoyo": False,
+            "seed": seed_used,
+        },
+        "frames": [
+            {
+                "filename": f"{args.state}_000.png",
+                "frame": {"x": 0, "y": 0, "w": STATIC_SHEET_W, "h": STATIC_SHEET_H},
+                "anchor": None,
+            }
+        ],
+    }
+    atlas_path.write_text(json.dumps(atlas, indent=2), encoding="utf-8")
+    print(
+        f"  wrote {sheet_path.relative_to(project_root)} + {atlas_path.name} "
+        f"(static, 1 frame, seed={seed_used})",
         file=sys.stderr,
     )
     return 0

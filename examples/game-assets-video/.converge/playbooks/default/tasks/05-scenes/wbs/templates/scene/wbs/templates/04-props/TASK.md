@@ -7,6 +7,7 @@ wbs:
   path: ./wbs/index.js
 inputs:
   - "assets/scenes/{{scene_id}}/concept.png"
+  - "assets/scenes/{{scene_id}}/scene-plan.json"
 tags:
   - scene
   - "{{scene_id}}"

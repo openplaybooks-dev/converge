@@ -13,8 +13,8 @@ checks:
     description: Prop sheet PNG exists with reasonable dimensions (>=512x256)
   - id: prop-atlas-json-matches-png
     cmd: |
-      python -c "import json; from PIL import Image; a=json.load(open('assets/objects/{{obj_id}}/spritesheets/{{state_name}}/{{state_name}}.atlas.json')); im=Image.open('assets/objects/{{obj_id}}/spritesheets/{{state_name}}/{{state_name}}.png'); m=a['meta']; assert m['cols']>=2 and m['rows']>=1, f\"grid too small: {m}\"; assert len(a['frames'])==m['cols']*m['rows'], f\"frame count != cols*rows: {m}\"; assert m['sheet_size']['w']==im.size[0] and m['sheet_size']['h']==im.size[1], f\"atlas/sheet size mismatch: atlas={m['sheet_size']} png={im.size}\""
-    description: Prop atlas JSON's grid + sheet_size match the PNG (auto-detected layout)
+      python -c "import json; from PIL import Image; a=json.load(open('assets/objects/{{obj_id}}/spritesheets/{{state_name}}/{{state_name}}.atlas.json')); im=Image.open('assets/objects/{{obj_id}}/spritesheets/{{state_name}}/{{state_name}}.png'); m=a['meta']; assert m['cols']>=1 and m['rows']>=1, f\"grid too small: {m}\"; assert len(a['frames'])==m['cols']*m['rows'], f\"frame count != cols*rows: {m}\"; assert m['sheet_size']['w']==im.size[0] and m['sheet_size']['h']==im.size[1], f\"atlas/sheet size mismatch: atlas={m['sheet_size']} png={im.size}\""
+    description: Prop atlas JSON's grid + sheet_size match the PNG (1x1 for static props, NxM for animated)
   - id: prop-prompt-saved
     cmd: test -s assets/objects/{{obj_id}}/spritesheets/{{state_name}}/{{state_name}}.prompt.txt
     description: Sibling .prompt.txt exists for debugging

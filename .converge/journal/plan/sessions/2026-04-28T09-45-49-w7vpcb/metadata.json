@@ -1,0 +1,23 @@
+{
+  "sessionId": "2026-04-28T09-45-49-w7vpcb",
+  "projectName": "converge",
+  "startTime": "2026-04-28T09:45:49.260Z",
+  "status": "cancelled",
+  "config": {
+    "maxIterations": 10,
+    "maxAttemptsPerTask": 2
+  },
+  "environment": {
+    "nodeVersion": "v22.17.1",
+    "platform": "win32"
+  },
+  "endTime": "2026-04-28T09:45:59.723Z",
+  "duration": 10463,
+  "outcomes": {
+    "totalIterations": 1,
+    "tasksCompleted": 0,
+    "tasksFailed": 0,
+    "gapsResolved": 0,
+    "convergenceAchieved": false
+  }
+}
