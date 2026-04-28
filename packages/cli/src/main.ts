@@ -258,9 +258,20 @@ function parseArgs(args: string[]): {
         options[key] = value;
       }
     } else if (arg.startsWith("-")) {
-      // Short flags
+      // Short flags. `-p` takes a value (alias of --prompt); other short
+      // flags are booleans (e.g. -v, -h, -y).
       const flag = arg.slice(1);
-      options[flag] = true;
+      if (flag === "p") {
+        const next = args[i + 1];
+        if (next !== undefined && !next.startsWith("-")) {
+          options.prompt = next;
+          i++;
+        } else {
+          options.prompt = true;
+        }
+      } else {
+        options[flag] = true;
+      }
     } else {
       positional.push(arg);
     }
@@ -297,7 +308,7 @@ PATH-BASED EXECUTION
 
 WORKFLOW
   init                        Initialize new project
-  plan <prompt>               Generate playbook from a prompt
+  plan <path>                 Plan one layer at a node (PLAN.md proposal)
   run [filter]                Execute autonomous agent loop
   reset                       Delete journal state (whole root, playbook, or task subtree)
   status [filter]             Show project status and task tree
@@ -1160,157 +1171,159 @@ async function main(): Promise<void> {
       case "plan": {
         const { mkdir: mkdirFs, writeFile: writeFileFs } =
           await import("node:fs/promises");
+        const { runPlanLayer } = await import(
+          "@converge/core/planning/progressive-decomposition/index.ts"
+        );
 
-        const prompt = options.prompt || positional[0];
-        if (!prompt) {
-          console.error("\n   ❌ Missing required --prompt");
-          console.error(
-            '   Usage: converge plan --prompt "Your plan description"',
-          );
-          console.error('      or: converge plan "Your plan description"\n');
-          process.exit(1);
-        }
-
-        const planName =
-          (options.name as string) ||
-          String(prompt)
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, "-")
-            .replace(/^-|-$/g, "")
-            .slice(0, 50);
-
+        // Per docs/design/progressive-decomposition.md:
+        //   converge plan <path> [-p "<prompt>"] [--update]
+        //
+        // <path> is a playbook root (where playbook.yml lives) or a task
+        // directory (where TASK.md lives). Without a path, fall back to
+        // prompt-mode: derive a name and scaffold a fresh playbook root,
+        // then plan there.
+        //
+        // Each invocation calls `runPlanLayer` once; that function does
+        // one shallow LLM plan call per node and recursively plans
+        // static-container children in-process. No subprocess spawn, no
+        // meta-task playbook, no agent-driven recursion.
         const planSearchDir = resolve(options.dir || ORIGINAL_CWD);
-        const planResolved = await resolveConvergeConfig(planSearchDir);
+        const promptArg =
+          typeof options.prompt === "string"
+            ? (options.prompt as string)
+            : undefined;
+        const isUpdate = !!options.update;
 
-        let planHookRegistry: HookRegistry | undefined;
-        let planConvergeConfig = planResolved?.config;
+        const firstPositional = positional[0];
+        let nodePath: string | undefined;
+        let prompt: string | undefined = promptArg;
 
-        if (planResolved) {
-          const { config, configPath } = planResolved;
-          console.log(`\n📋 Loaded config: ${configPath}`);
-          const validated = validateConvergeConfig(config, configPath);
-          planConvergeConfig = validated;
-          planHookRegistry = new HookRegistry();
-          if (validated.hooks) {
-            planHookRegistry.registerAll(validated.hooks, "user");
+        if (firstPositional) {
+          const looksLikePath =
+            firstPositional.includes("/") ||
+            firstPositional.includes("\\") ||
+            existsSync(resolve(planSearchDir, firstPositional));
+          if (looksLikePath) {
+            nodePath = resolve(planSearchDir, firstPositional);
+          } else if (!prompt) {
+            prompt = firstPositional;
           }
-          activeRegistry = planHookRegistry;
         }
 
-        if (!planConvergeConfig) {
-          planConvergeConfig = {
-            name: "plan",
-            description: `Generate playbook: ${prompt}`,
-            dir: planSearchDir,
-          };
-          console.log(`\n📋 Plan: ${planName}`);
-        }
-
-        // Write inline TASK.md — no playbook template needed
-        const planTaskDir = join(
-          planSearchDir,
-          ".converge",
-          "playbooks",
-          "plan",
-          "tasks",
-          "001-plan",
-        );
-        const planPlaybookDir = join(
-          planSearchDir,
-          ".converge",
-          "playbooks",
-          "plan",
-        );
-        if (!existsSync(planTaskDir)) {
-          await mkdirFs(planTaskDir, { recursive: true });
-
-          await writeFileFs(
-            join(planPlaybookDir, "playbook.yml"),
-            [
-              "name: plan",
-              `description: "Generate playbook: ${prompt}"`,
-              "",
-              "run:",
-              "  mode: oneoff",
-              "  maxTaskAttempts: 3",
-              "  resume: true",
-            ].join("\n"),
-            "utf8",
-          );
-
-          await writeFileFs(
-            join(planTaskDir, "TASK.md"),
-            buildPlanTaskMd(prompt, planName, !!options.update),
-            "utf8",
-          );
-        }
-
-        // Init journal + run
-        const planPlaybookName = "plan";
-        await initPlaybookJournal(planSearchDir, planPlaybookName);
-        setPlaybookScope(planPlaybookName, planSearchDir);
-        console.log(`   Mode: oneoff\n`);
-
-        const planRunStartTime = Date.now();
-        try {
-          await runAutonomousCommand({
-            dir: planConvergeConfig?.dir || options.dir,
-            filter: "001-plan",
-            force: options.force || false,
-            resume: options.resume || false,
-            restart: options.restart || false,
-            step: options.step || false,
-            dry: options.dry || false,
-            analyze: false,
-            unblock: false,
-            wbs: false,
-            inc: false,
-            maxDuration: options["max-duration"] || options.maxDuration,
-            checkInterval: options["check-interval"] || options.checkInterval,
-            autoFix: true,
-            selfPlan: false,
-            verbose: options.verbose || options.v,
-            convergeConfig: planConvergeConfig,
-            hookRegistry: planHookRegistry,
-          });
-
-          await appendTrend(planSearchDir, planPlaybookName, {
-            sessionId: `run-${new Date().toISOString()}`,
-            timestamp: new Date().toISOString(),
-            tasksTotal: 1,
-            tasksComplete: 1,
-            tasksFailed: 0,
-            totalAttempts: 1,
-            durationMs: Date.now() - planRunStartTime,
-          });
-
-          // Show next steps
-          const generatedDir = join(
+        let planName = options.name as string | undefined;
+        if (!nodePath) {
+          if (!prompt) {
+            console.error("\n   ❌ Missing <path> or --prompt");
+            console.error(
+              '   Usage: converge plan <path> [-p "<prompt>"] [--update]',
+            );
+            console.error(
+              '      or: converge plan -p "Your plan description"\n',
+            );
+            process.exit(1);
+          }
+          if (!planName) {
+            planName = prompt
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/^-|-$/g, "")
+              .slice(0, 50);
+          }
+          const newPlaybookDir = join(
             planSearchDir,
             ".converge",
             "playbooks",
             planName,
           );
-          if (existsSync(generatedDir)) {
-            console.log(
-              `\n✅ Playbook generated: .converge/playbooks/${planName}/`,
+          if (!existsSync(newPlaybookDir)) {
+            await mkdirFs(newPlaybookDir, { recursive: true });
+            await writeFileFs(
+              join(newPlaybookDir, "playbook.yml"),
+              [
+                `name: ${planName}`,
+                `description: "${prompt.replace(/"/g, '\\"')}"`,
+                "",
+                "run:",
+                "  mode: autonomous",
+                "  maxTaskAttempts: 3",
+                "  resume: true",
+              ].join("\n"),
+              "utf8",
             );
-            console.log(`\n   To run it:`);
-            console.log(`   converge .converge/playbooks/${planName}/playbook.yml run\n`);
+          }
+          nodePath = newPlaybookDir;
+        }
+
+        const hasPlaybookYml =
+          existsSync(join(nodePath, "playbook.yml")) ||
+          existsSync(join(nodePath, "playbook.yaml"));
+        const hasTaskMd = existsSync(join(nodePath, "TASK.md"));
+        if (!hasPlaybookYml && !hasTaskMd) {
+          console.error(
+            `\n   ❌ ${nodePath} is neither a playbook root (playbook.yml) nor a task directory (TASK.md).`,
+          );
+          console.error(
+            "   Pass a path to an existing node, or use -p to scaffold a fresh playbook.\n",
+          );
+          process.exit(1);
+        }
+
+        const nodeKind: "playbook-root" | "task" = hasPlaybookYml
+          ? "playbook-root"
+          : "task";
+
+        let playbookRoot = nodePath;
+        if (nodeKind === "task") {
+          let cur = nodePath;
+          while (
+            !existsSync(join(cur, "playbook.yml")) &&
+            !existsSync(join(cur, "playbook.yaml"))
+          ) {
+            const parent = dirname(cur);
+            if (parent === cur) {
+              console.error(
+                `\n   ❌ Could not find playbook.yml above ${nodePath}\n`,
+              );
+              process.exit(1);
+            }
+            cur = parent;
+          }
+          playbookRoot = cur;
+        }
+
+        console.log(`\n📋 converge plan`);
+        console.log(`   Node: ${nodePath}`);
+        console.log(`   Kind: ${nodeKind}`);
+        if (prompt) console.log(`   Prompt: ${prompt}`);
+        if (isUpdate) console.log(`   --update`);
+
+        const planStart = Date.now();
+        try {
+          await runPlanLayer({
+            nodePath,
+            nodeKind,
+            playbookRoot,
+            projectDir: planSearchDir,
+            prompt,
+            update: isUpdate,
+          });
+
+          if (existsSync(join(nodePath, "PLAN.md"))) {
+            const relNode = nodePath.startsWith(planSearchDir + "/")
+              ? nodePath.slice(planSearchDir.length + 1)
+              : nodePath;
+            const elapsed = ((Date.now() - planStart) / 1000).toFixed(1);
+            console.log(
+              `\n✅ Plan written: ${relNode}/PLAN.md (${elapsed}s)`,
+            );
+            if (nodeKind === "playbook-root") {
+              console.log(`\n   To run the playbook:`);
+              console.log(`   converge ${relNode}/playbook.yml run\n`);
+            }
           }
         } catch (err: any) {
-          await appendTrend(planSearchDir, planPlaybookName, {
-            sessionId: `run-${new Date().toISOString()}`,
-            timestamp: new Date().toISOString(),
-            tasksTotal: 1,
-            tasksComplete: 0,
-            tasksFailed: 1,
-            totalAttempts: 1,
-            durationMs: Date.now() - planRunStartTime,
-          });
+          console.error(`\n   ❌ plan failed: ${err.message}`);
           throw err;
-        } finally {
-          clearPlaybookScope();
         }
         break;
       }
@@ -1615,54 +1628,9 @@ async function main(): Promise<void> {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/*  Plan prompt builder                                                */
-/* ------------------------------------------------------------------ */
-
-function buildPlanTaskMd(
-  prompt: string,
-  name: string,
-  isUpdate = false,
-): string {
-  const guide = isUpdate ? "plan-existing-playbook" : "plan-new-playbook";
-  const verb = isUpdate ? "Update" : "Generate";
-
-  return `---
-title: "${verb} Playbook — ${prompt}"
-skills:
-  - converge-planning
-outputs:
-  - .converge/playbooks/${name}/playbook.yml
-checks:
-  - id: playbook-yml-exists
-    cmd: test -f .converge/playbooks/${name}/playbook.yml
-    description: playbook.yml created
-  - id: has-tasks-dir
-    cmd: test -d .converge/playbooks/${name}/tasks
-    description: Tasks directory created
-  - id: has-task-files
-    cmd: test $(find .converge/playbooks/${name}/tasks -name "TASK.md" 2>/dev/null | wc -l) -ge 2
-    description: At least 2 TASK.md files generated
----
-
-# ${verb} Playbook: ${prompt}
-
-You are ${isUpdate ? "updating an existing" : "generating a new"} converge playbook from a user's prompt.
-
-## Inputs
-
-- **Prompt:** "${prompt}"
-- **Playbook name:** "${name}"
-- **Mode:** ${isUpdate ? "Update existing playbook" : "Create new playbook"}
-
-## Instructions
-
-1. Load the \`converge-planning\` skill
-2. Read the guide: \`guides/${guide}.md\`
-3. Follow the guide's steps exactly — it covers scanning, planning, writing files, and verification
-4. Target output directory: \`.converge/playbooks/${name}/\`
-`;
-}
+// Progressive-decomposition planning lives in commands-plan.ts. The CLI
+// case "plan" delegates to runPlanLayer, which owns scope packet
+// gathering, the LLM call, and TS-driven recursion.
 
 // Run if executed directly (cross-platform: handles symlinks and Windows path format differences)
 import { pathToFileURL } from "node:url";

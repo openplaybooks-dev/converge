@@ -28,19 +28,55 @@ EXAMPLES
 
   plan: `
 USAGE
-  converge plan <prompt> [options]
-  converge plan --prompt="Build a REST API"
+  converge plan <path> [-p "<prompt>"] [--update]
+  converge plan -p "<prompt>" [--name=NAME]
+
+DESCRIPTION
+  Progressive decomposition. Plans one layer of a converge playbook at the
+  given <path>, then recursively plans static-container children. Phase 1
+  reads the chain (root → ancestors → me) and writes PLAN.md as a
+  proposal. Phase 2 materializes 3-7 direct child TASK.md files, then
+  invokes "converge plan" on each container child. Leaf executable
+  children and WBS children stop the recursion.
+
+  See docs/design/progressive-decomposition.md for the full protocol.
 
 OPTIONS
-  --prompt=TEXT              What to build (also accepted as first positional arg)
-  --name=NAME               Name for the generated playbook (default: derived from prompt)
-  --update                  Update an existing playbook instead of creating new
-  --dir=PATH                Project directory (default: cwd)
+  <path>                    Playbook root (where playbook.yml lives) or a
+                            task directory (where TASK.md lives). Without
+                            a path, -p scaffolds a fresh playbook root.
+  -p, --prompt=TEXT         User intent for this invocation. At a fresh
+                            root, substitutes for idea.md. At a task,
+                            adds intent on top of the on-disk chain.
+  --update                  Re-plan in place. Existing PLAN.md and child
+                            set are drafts to revise; user-edited
+                            divergences are flagged, not overwritten.
+  --name=NAME               Name for a freshly scaffolded playbook
+                            (prompt-only mode; default: derived from
+                            prompt).
+  --dir=PATH                Project directory (default: cwd).
+
+MODES
+  fresh    Nothing exists at <path> yet — plan from scratch.
+  fill-in  PLAN.md exists; re-runs preserve user edits, fill missing
+           child TASK.md files. (Default re-run behaviour.)
+  update   --update — revise PLAN.md and the child set in place.
 
 EXAMPLES
-  converge plan "Build a React dashboard with auth"
-  converge plan --prompt="REST API" --name=api-backend
-  converge plan --prompt="Add dark mode" --update
+  # Fresh project, no idea.md yet
+  converge plan .converge/playbooks/default -p "platformer asset library"
+
+  # Existing playbook, standard layered planning
+  converge plan .converge/playbooks/default
+
+  # Plan one task layer down
+  converge plan .converge/playbooks/default/tasks/03-characters
+
+  # Course-correct an existing plan
+  converge plan .converge/playbooks/default --update -p "switch to cyberpunk"
+
+  # Backwards-compat: prompt-only scaffolds a new playbook
+  converge plan -p "Build a React dashboard"
 `,
 
   run: `
