@@ -4,60 +4,143 @@
 
 ### Define done. Converge gets there.
 
+**A goal-driven, self-correcting framework for orchestrating long-running AI agent workflows.**
+
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![npm](https://img.shields.io/badge/npm-%40converge%2Fcore-cb3837.svg)](https://www.npmjs.com/package/@converge/core)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6.svg)](https://www.typescriptlang.org/)
 [![Node](https://img.shields.io/badge/node-%E2%89%A520-339933.svg)](https://nodejs.org/)
 
+[Quick Start](#quick-start) · [Architecture](#architecture) · [Examples](./examples) · [Documentation](./docs) · [Contributing](./CONTRIBUTING.md)
+
 </div>
 
-Converge is an open-source, TypeScript-native framework for orchestrating complex AI agent workflows. Instead of defining steps, graphs, or roles, you declare what "done" looks like — what files must exist, what checks must pass — and Converge continuously measures gaps, generates work to close them, and self-corrects when things fail.
+---
 
-Crash-safe by design — atomic checkpoints, resumable runs, deterministic checks.
+Converge is an open-source, TypeScript-native framework for orchestrating long-running AI agent workflows. Instead of authoring step-by-step graphs or hand-tuned prompts, you declare what "done" looks like — the artifacts that must exist, the checks that must pass — and Converge continuously measures the gap, generates the work to close it, and self-corrects when checks fail.
+
+Think of it as SQL for agent workflows: declarative goals, deterministic verification, no glue code.
 
 ```bash
 npm install -g @converge/core
 ```
+
+## Highlights
+
+- **Goal-driven** — declare outputs and checks, not steps
+- **Deterministic verification** — every check is a shell command, never an LLM judge
+- **Self-correcting** — typed failures route through ~11 named repair strategies before the agent retries
+- **Dynamic task trees** — work decomposes at runtime as the project state evolves
+- **Crash-safe** — atomic journal on disk; resume any run after a kill
+- **Multi-provider** — Claude, Gemini, Kimi, Qwen via the `agentfn` abstraction
 
 ## Why Converge?
 
-**Goal-driven, not step-driven** — Describe the finished project. Let the agent figure out the path. SQL declares the data you want, not the API calls to fetch it; converge declares the artifacts and checks that define done, not the steps to get there.
+Most agent frameworks ask you to author the *path* — chains, graphs, supervisors, role hierarchies. That works for short, well-known workflows. It breaks down when the work is open-ended, when scope emerges as you go, or when failures need surgical recovery rather than blind retries.
 
-**Deterministic checks, not AI judgement** — Verification runs as shell commands (`test`, `grep`, `npm test`). The agent has latitude in how it solves the problem; it has zero latitude on whether the predicate passes.
+Converge inverts the question.
 
-**Strategy-based self-correction** — When a check fails, the framework dispatches the failure to a pipeline of named repair strategies — fix the missing input, schedule the upstream producer, relax a buggy check, learn from the failure for the next attempt. Each kind of failure gets a targeted fix instead of blind retries.
+| Step-driven frameworks                       | Converge                                                  |
+| -------------------------------------------- | --------------------------------------------------------- |
+| You write `plan() → execute() → check()`     | You declare the artifacts and shell-based checks          |
+| An LLM-as-judge decides success              | `npm test`, `tsc --noEmit`, `grep -q` decide success      |
+| Failures retry the same prompt               | Typed failures route to repair strategies, then to agent  |
+| Static graph defined upfront                 | Task tree emerges via dynamic WBS at runtime              |
+| Crash = lost run                             | Atomic journal on disk; resume mid-flight                 |
 
-**Dynamic task spawning** — WBS scripts decompose work at runtime based on project state. Scope emerges from the problem, not from a predetermined graph.
+## Architecture
 
-**Crash-safe checkpoints** — Kill the process, restart, and Converge picks up exactly where it left off. Long-running workflows survive interruptions.
+A Converge **playbook** is a tree of `TASK.md` files on disk. The runtime executes that tree with two nested feedback loops — an outer loop that plans, and an inner loop that executes.
 
-**Multi-provider** — Claude, Gemini, Kimi, and Qwen via the `agentfn` abstraction. No vendor lock-in.
+### The task tree
 
-## How It Works
+```
+.converge/playbooks/{name}/
+├── playbook.yml              # entry: name, defaults, root task
+└── tasks/
+    └── root/
+        ├── TASK.md           # frontmatter (outputs, checks) + agent instructions
+        ├── wbs.js            # optional: spawn children at runtime
+        └── design/
+            ├── TASK.md
+            └── implementation/
+                ├── TASK.md
+                ├── server/TASK.md
+                └── tests/TASK.md
+```
+
+Each `TASK.md` declares its `outputs` (the files the task must produce), its `checks` (shell commands that must exit `0`), and a markdown body instructing the agent. Tasks nest. Dependencies resolve from disk. A `wbs.js` next to a `TASK.md` can spawn child tasks at runtime — so scope emerges from the problem, not from a graph drawn upfront.
+
+### The two-loop model
+
+#### Outer loop · Playbook Wave Loop
+
+The outer loop plans which tasks to run. A **wave** is a single full pass over the task tree.
 
 ```mermaid
 flowchart LR
-    A[Scan task tree] --> B[Pick next gap]
-    B --> C[Execute via AI agent]
-    C --> D{Checks pass?}
-    D -- Yes --> E[Mark complete]
-    D -- No --> F[Write LEARN.md]
-    F --> C
-    E --> A
+    R["RED<br/>detect gaps<br/><i>walks tree, runs all checks</i>"] --> Y["YELLOW<br/>plan tasks<br/><i>agent writes new TASK.md</i>"]
+    Y --> G["GREEN<br/>execute tree<br/><i>dispatches to inner loop</i>"]
+    G -- "gaps remain" --> R
+    G -. "0 gaps" .-> DONE(["✓ CONVERGED"])
+    G -. "stalled 3 waves" .-> FAIL(["✗ FAIL"])
 ```
 
-Converge runs a continuous loop: scan the task tree for incomplete work, pick the next gap, execute it with an AI agent following markdown instructions, and verify with shell-based checks. When a check fails, the agent writes a LEARN.md capturing what went wrong. The next attempt reads that analysis and applies targeted corrections. The loop repeats until every task passes or the budget is exhausted.
+- **RED — detect gaps.** Walk every task, run its checks. Failed checks and missing outputs form the *gap set*.
+- **YELLOW — plan tasks.** Send the gap set to a planning agent that authors new `TASK.md` files (or marks existing ones ready) to close them.
+- **GREEN — execute tree.** Dispatch each pending task to the inner loop, in dependency order.
+
+If gaps remain, the outer loop runs another wave. The playbook **converges** when a wave detects zero gaps. It **fails** if three consecutive waves make no progress.
+
+#### Inner loop · Task Self-Correction Loop
+
+The inner loop executes a single task until its checks pass. Failures don't blindly retry the agent — they route through typed repair strategies first.
+
+```mermaid
+flowchart LR
+    D["detect<br/><i>run check cmds</i>"] --> RP["repair strategies<br/><i>~11 named fixes</i>"]
+    RP -- "strategy claims gap" --> RR["re-run<br/><i>checks</i>"]
+    RP -- "no claim" --> AG["agent<br/><i>retries with LEARN.md</i>"]
+    AG --> RR
+    RR -- "gaps remain" --> D
+    RR -. "0 gaps" .-> OK(["✓ converged"])
+    AG -. "stalled ×3" .-> BAIL(["bail to wave"])
+```
+
+1. **Detect.** Run check commands. Failures become *typed gaps* — `missing-input`, `buggy-check`, `tool-env`, `dependency`, and so on.
+2. **Repair strategies.** ~11 named strategies get a chance to claim each gap *before* the agent does. A `missing-input` reschedules the producer; a `buggy-check` relaxes the predicate; a `tool-env` surfaces a setup hint.
+3. **Agent.** Only when no strategy claims the gap does it fall through to the agent — which retries with `LEARN.md` in context: the carried-forward analysis from prior attempts.
+4. **Re-run.** Re-execute checks. If gaps remain, loop. Three consecutive stalls and the task bails up to the outer wave loop.
+
+`LEARN.md` is the framework's memory. Every attempt is a directory on disk; lessons carry forward so the agent doesn't repeat the same mistake twice.
+
+### Five primitives, all on disk
+
+1. **Playbook** — `playbook.yml` plus a tree of tasks under `.converge/playbooks/{name}/tasks/`.
+2. **Task** — a `TASK.md` (frontmatter + body). Tasks nest. Dependencies resolve from paths.
+3. **WBS** — a `wbs.js` next to a `TASK.md` spawns children at runtime, materialized as real `TASK.md` files on disk.
+4. **Repair strategies** — typed failure handlers that fire before the agent does.
+5. **Journal & `LEARN.md`** — every attempt is a directory; `LEARN.md` carries lessons forward between attempts.
+
+Everything is plain text. Every state transition is observable on disk.
 
 ## Quick Start
 
+Install the CLI:
+
 ```bash
 npm install -g @converge/core
-converge init --name="my-api"
-converge plan "REST API with health check endpoint and test suite"
-converge run  # Auto-detects default playbook or the only playbook
 ```
 
-Converge generates a task tree from your description. Each task includes target files, shell-based checks, and instructions for the AI agent. Here's what a generated task looks like:
+Initialize a playbook, plan from a goal, and run it:
+
+```bash
+converge init --name="my-api"
+converge plan "REST API with health check endpoint and test suite"
+converge run
+```
+
+Converge generates a task tree from your description. Each task declares its outputs, checks, and instructions:
 
 ```markdown
 ---
@@ -78,21 +161,21 @@ Implement a GET /health endpoint that returns `{ "status": "ok" }`.
 Write unit tests covering the success case and response shape.
 ```
 
-`converge run` discovers gaps (missing files, failing checks), executes tasks, self-corrects on failure, and repeats until done.
+`converge run` discovers gaps, executes tasks, self-corrects on failure, and repeats until every check passes or the budget is exhausted.
 
 ## Use Cases
 
-**Software Development** — Full application builds where requirements flow through design, implementation, tests, and docs. Checks run linters, type checkers, and test suites at every step. Failed tests produce structured analysis; the next attempt applies targeted fixes.
+**Software development.** Full application builds where requirements flow from design through implementation, tests, and docs. Checks run linters, type checkers, and test suites at every step. Failed tests produce structured analysis; the next attempt applies targeted fixes.
 
-**Deep Research** — Multi-source literature reviews, competitive analyses, and synthesis reports. Tasks gather sources, extract findings, cross-reference, and synthesize — each step verified before the next begins.
+**Deep research.** Multi-source literature reviews, competitive analyses, synthesis reports. Tasks gather sources, extract findings, cross-reference, and synthesize — each step verified before the next begins.
 
-**Scientific Research** — Literature reviews, hypothesis formulation, experiments, and academic paper drafting. Checks enforce GRADE evidence ratings, statistical rigor, and contradiction resolution. Bayesian priors update across epochs; the loop stops when quality scores converge.
+**Scientific research.** Hypothesis formulation, experiments, academic paper drafting. Checks enforce GRADE evidence ratings, statistical rigor, and contradiction resolution. Bayesian priors update across epochs; the loop stops when quality scores converge.
 
-**Content Production** — Blog posts, documentation, marketing copy with editorial checks. Checks enforce word counts, required sections, link validity, and brand voice consistency. Playbooks encode your editorial process for repeatable execution.
+**Content production.** Editorial workflows for blogs, docs, marketing copy. Checks enforce word counts, required sections, link validity, and brand voice. Playbooks encode your editorial process for repeatable execution.
 
-**Business Automation** — Client deliverables, compliance audits, onboarding workflows. Define what the final package looks like; Converge assembles it from templates, data sources, and verification steps.
+**Business automation.** Client deliverables, compliance audits, onboarding workflows. Define the final package; Converge assembles it from templates, data sources, and verification steps.
 
-The domain doesn't matter. If you can describe what done looks like, Converge can get there.
+The domain doesn't matter. If you can describe what done looks like, Converge can get there. See [`examples/`](./examples) for ready-to-run playbooks across each of these domains.
 
 ## Development
 
@@ -100,8 +183,8 @@ Build Converge from source and run the `converge` CLI against your local checkou
 
 ### Prerequisites
 
-- **Node.js** >= 20
-- **pnpm** 10.29.3+ (specified via `packageManager` in `package.json`)
+- **Node.js** ≥ 20
+- **pnpm** 10.29.3+ (pinned via `packageManager` in `package.json`)
 
 ### Clone, install, build
 
@@ -128,7 +211,6 @@ To expose the built CLI as a `converge` command on your `$PATH`, link the `@conv
 ```bash
 pnpm build
 pnpm --filter @converge/core link --global
-
 converge --help
 ```
 
@@ -146,10 +228,13 @@ pnpm clean          # remove build artifacts
 ## Documentation
 
 - **[Getting Started](./docs/getting-started.md)** — Install, configure, and run your first workflow
-- **[Architecture & Reference](./packages/core/README.md)** — Core internals, task format, and full API
+- **[Concepts](./docs/concepts/)** — Deterministic checks, dynamic WBS, the journal, repair strategies
+- **[Architecture & Reference](./packages/core/README.md)** — Core internals, task format, full API
 - **[Why Converge?](./docs/why-converge.md)** — Problem statement and design philosophy
 - **[Architecture Decisions](./docs/adr/)** — ADRs for key design choices
+- **[Examples](./examples/)** — Ready-to-run playbooks across domains
 - **[Contributing](./CONTRIBUTING.md)** — Development setup and guidelines
+- **[Security](./SECURITY.md)** — Reporting vulnerabilities
 
 ## Acknowledgements
 
@@ -161,6 +246,6 @@ MIT — see [LICENSE](./LICENSE)
 
 <div align="center">
 
-Goal-driven. Deterministic. Self-correcting.
+**Goal-driven · Deterministic · Self-correcting**
 
 </div>
