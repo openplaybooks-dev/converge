@@ -3,6 +3,14 @@
 > Design principle for the next iteration of the Converge interface.
 >
 > Status: proposal. Branch: `claude/simplify-converge-interface-GIZtD`.
+>
+> **Scope: mental model only.** No breaking changes. A TASK.md *is* the
+> delegation contract today — `title`/`description` is the goal, `outputs` +
+> `checks` are what proves it's done, the parent's `wbs:` script writing this
+> TASK.md *is* the act of decomposition, and `vars` interpolated into the
+> template body *is* the scope packet. Nothing in this doc proposes a new
+> schema or runtime change. What we're shipping is (a) the framing in this
+> document, and (b) a **`converge-planning`** skill that operationalizes it.
 
 ## TL;DR
 
@@ -11,22 +19,30 @@ see the whole task tree: the playbook, sibling phases, parent WBS scaffolding,
 shared references generated three folders away. That's the source of two
 recurring pains:
 
-1. **Planning is hard.** Authors of new playbooks have to design the whole
+1. **Planning is hard.** Authors of new playbooks try to design the whole
    tree up front, decide what every leaf will need, and physically arrange
-   shared state so leaves can find it.
+   shared state so leaves can find it. That's combinatorial — and it's the
+   wrong job for the planner.
 2. **Debugging is hard.** When a leaf fails, the question "what context did
    this agent actually have?" requires walking up *and* across the tree.
 
-Progressive decomposition flips the model:
+Progressive decomposition flips the model — without changing the data:
 
 - **The tree is operational, not epistemic.** It exists in storage so the
   framework can schedule, persist, resume, and replay. Agents never traverse
   it.
-- **Agents see a delegation contract — nothing else.** Four fields: goal,
-  scope, checks, child contracts.
-- **Information only flows through contracts.** Parent → child = contract.
-  Child → parent = artifact + receipt. No grandparent reads, no sibling peeks,
-  no descendant lookahead.
+- **A task is its own delegation contract.** The four fields are already on
+  every TASK.md: goal (title/description), scope (vars + parent-supplied
+  body), checks (frontmatter `checks`), children (the `wbs:` script that will
+  emit them, when this task decomposes).
+- **Information only flows through contracts.** Parent → child = contract
+  (the TASK.md the parent's WBS materializes). Child → parent = artifact +
+  the implicit receipt that its `checks` passed. No grandparent reads, no
+  sibling peeks, no descendant lookahead.
+- **Planning happens one layer at a time.** A planner writing a new playbook
+  drafts only its direct children — it does *not* sketch grandchildren. Each
+  child, when it runs, will plan its own children. Recursively. This is what
+  the `converge-planning` skill enforces.
 
 In one line:
 
@@ -102,87 +118,75 @@ that already includes whatever from the strategy doc was relevant.
 The asymmetry is the point: humans (and the framework's audit views) can see
 everything. Agents can't, by design.
 
-## The delegation contract
+## A task is its own delegation contract
 
-A delegation contract has exactly four fields:
+We don't introduce a new "Contract" type. The TASK.md you write today already
+*is* the contract. Read the four fields off the existing format:
 
-| Field | What it is | Source |
-|---|---|---|
-| **Goal** | What I was asked to deliver, in my parent's words. | Written by parent. |
-| **Scope** | The packet my parent handed me — catalog refs, style decisions, references already produced upstream, locked invariants. *Not a tree pointer.* A self-contained packet. | Composed by parent from its own scope + what it adds. |
-| **Checks** | What proves I delivered. Deterministic predicates the framework runs. | Written by parent (with input from the child during decomposition negotiation, if needed). |
-| **Children** | The contracts I owe my direct children, when I decompose. | Written by me, the current node, when I decide to decompose. |
+| Contract field | Where it already lives in TASK.md |
+|---|---|
+| **Goal** | `title:` + `description:` (and the markdown body, when prose is needed). What I was asked to deliver. |
+| **Scope** | `vars` interpolated into the TASK.md when the parent's `wbs:` script materialized it, plus any catalog refs the parent embedded in the body. The packet my parent handed me. |
+| **Checks** | `outputs:` and `checks:` in the frontmatter. What proves I delivered. |
+| **Children** | The `wbs:` script (or `tasks:` list, for static fan-out). When I decompose, this is how I write contracts for my direct children. |
 
-That's it. The agent at any node sees exactly these four things. No tree
-walking, no grandparent reasoning, no sibling internals, no descendant
-details.
+That's it. Nothing new gets added; what changes is the *discipline* of how
+parents write each field. Specifically:
+
+1. **Goal**: written by the parent in its own words. Not a paste of the
+   project brief; not a paste of grandparent reasoning. "Produce X with
+   property Y."
+2. **Scope**: everything the child needs is in the `vars` and the templated
+   body. If a child needs a sibling's output, the parent threads it in after
+   the sibling completes — same way `wbs:` scripts already wait for
+   dependencies and read produced files. The new rule is just: *the parent
+   reads the file and packs it into the child's contract*, instead of
+   asking the child agent to go find it.
+3. **Checks**: deterministic predicates, as today.
+4. **Children**: when this task itself decomposes (i.e. it has a `wbs:`
+   script), the script's job is to draft 3–7 child TASK.md files — and only
+   3–7. It does *not* sketch grandchildren. Each child, when run, will write
+   its own `wbs:` if it decomposes further.
+
+Two example sketches showing the shape (these are illustrative — not new
+syntax):
 
 ```yaml
-# A contract, materialized
-goal: |
-  Produce a 4x4 spritesheet for the "walk" animation of hero-knight,
-  matching the locked viewport in the canonical reference.
-
-scope:
-  art_style:
-    palette: [...]
-    silhouette_rules: [...]
-    line_weight: 2
-  character:
-    id: hero-knight
-    canonical_ref: artifacts/hero-knight-canonical.png
-    locked_viewport: { w: 256, h: 256, anchor: feet }
-  class_style_guide:
-    armor: heavy_metallic
-    color_theme: metallic_blue
-  state_spec:
-    name: walk
-    keyframes: [contact, recoil, passing, high]
-    variant_ref: null   # resting state: edit canonical directly
-
+# leaf TASK.md — checks gate completion, body is what the parent packed
+---
+title: Walk spritesheet for hero-knight
+outputs:
+  - assets/characters/hero-knight/spritesheets/walk/walk.png
 checks:
   - id: sheet-is-4x4
-    cmd: python scripts/check_4x4.py {output_path}
+    cmd: python scripts/check_4x4.py assets/characters/hero-knight/spritesheets/walk/walk.png
   - id: viewport-locked
-    cmd: python scripts/check_viewport.py {output_path}
-  - id: palette-respected
-    cmd: python scripts/check_palette.py {output_path} {scope.art_style.palette}
+    cmd: python scripts/check_viewport.py assets/characters/hero-knight/spritesheets/walk
+---
 
-children: []   # leaf — no decomposition
+Generate the walk animation as a 4x4 spritesheet using:
+- canonical ref: assets/characters/hero-knight/ref/canonical/canonical.png
+- class style guide (warrior, metallic_blue, heavy armor): {inlined by parent}
+- palette: {inlined by parent}
+- keyframes for "walk": contact, recoil, passing, high
 ```
-
-Compare to a non-leaf contract:
 
 ```yaml
-goal: |
-  Produce a complete asset library for the platformer described in idea.md,
-  exporting to Godot, Unity, and raw atlases.
-
-scope:
-  idea: <packet from project root, freeform>
-  vars: { sprite_resolution: 128, ... }
-
+# decomposing TASK.md — `wbs:` is the children field
+---
+title: Characters
+wbs:
+  type: nodejs
+  path: ./wbs/index.js
 checks:
-  - id: master-atlas-frame-count
-    cmd: python scripts/check_master_atlas.py
-  - id: every-engine-export-present
-    cmd: python scripts/check_engine_exports.py godot unity raw
-
-children:
-  - goal: "Define art style + global catalog (characters, props, tiles, bgs)"
-    delivers: [art_style_packet, sprites.json, objects.json, tile_maps.json, backgrounds.json]
-  - goal: "Produce all character spritesheets per the catalog"
-    delivers: [assets/characters/**/*.png, assets/characters/**/*.atlas.json]
-    receives_from_sibling_0: [art_style_packet, sprites.json]
-  - goal: "Produce all tile maps per the catalog"
-    receives_from_sibling_0: [art_style_packet, tile_maps.json]
-  # ...
+  - id: every-character-has-spritesheets
+    cmd: python scripts/check_characters_complete.py
+---
 ```
 
-Critically, `receives_from_sibling_0` is *not* "go read sibling 0's outputs."
-It's a declaration that the parent must include sibling 0's outputs in the
-scope packet it hands to this child *after* sibling 0 has produced its
-artifact + receipt. Resolution happens in the parent, not in the child.
+The `wbs/index.js` reads scope (the parent's vars + any artifacts produced by
+upstream siblings) and emits 3–7 children. *That's the entire decomposition
+act.*
 
 ## Information flow rules
 
@@ -216,29 +220,133 @@ This is what makes the model scale: the size of the context an agent needs
 is `O(depth from root)`, never `O(tree size)`. A 2000-task playbook with
 depth 5 costs the same per-agent as a 20-task playbook with depth 5.
 
-## Decomposition is "write four contracts"
+## Decomposition: plan one layer, recursively
 
-When an agent decomposes, its job is purely:
+The single biggest change is in *how planning happens*. Today, a planner —
+human or LLM — sits down with the brief and tries to design the whole tree:
+phases, sub-phases, leaves, the works. That's combinatorial, hard to verify,
+and produces playbooks where deep leaves carry assumptions the planner
+guessed at three layers up.
 
-> Given my contract, draft 3–7 child contracts whose deliverables collectively
-> satisfy mine, and hand each child its scope packet.
+Under progressive decomposition, the planner's job at any node is purely:
 
-That's the entire surface. No lookahead into how children will themselves
-decompose — that's the child's problem, recursively. No siblings to consult.
-No grandparent to defer to.
+> Given my contract, draft 3–7 direct child contracts whose deliverables
+> collectively satisfy mine. Stop there.
+
+No lookahead into how children will themselves decompose — that's the child's
+problem, recursively. No siblings to consult. No grandparent to defer to.
+
+When the playbook starts running, each child task either does its own work
+(if it's a leaf) or runs the same "draft 3–7 children" exercise itself. The
+tree grows lazily, one layer per parent execution. Complex problems get
+solved by **layered simple todos**: at every level, the agent only ever sees
+a flat list of 3–7 things to figure out, *its own*.
+
+This is what `converge-planning` (next section) operationalizes.
 
 The 3–7 bound is an editorial constraint, not a hard limit. If a node would
-fan to 50 children, it should usually split first into 5 groupings of 10. The
-bound exists because:
+fan to 50 children, it should usually split first into 5 groupings of 10.
+The bound exists because:
 
 - Decomposition quality drops when a single agent has to hold 50 distinct
   child contracts in working memory.
 - Debugging contract-chain walks (below) stay shallow when fan-out is small.
 
-WBS-style runtime fan-out (one task per item in a discovered list) is a
-specific allowed exception: the parent decomposes into a fixed-shape
-"per-item" contract template plus an iterator. The framework instantiates the
-contracts; the agent doesn't have to draft 50 by hand.
+WBS-style runtime fan-out (one task per item in a discovered list) is the
+allowed exception: the parent decomposes into a *single* fixed-shape
+"per-item" contract template plus an iterator. The framework instantiates
+the contracts; the agent doesn't have to draft 50 by hand. From the
+planner's perspective, this still counts as "one child shape to think
+about," not 50.
+
+## The `converge-planning` skill
+
+This is the concrete deliverable that pairs with the framing. Today,
+planning a playbook is freeform: the user describes a goal, an LLM tries to
+imagine the whole task tree, and the result lands as a sprawling set of
+TASK.md files that the user then has to read end-to-end.
+
+`converge-planning` is a skill (in the Claude Code "skill" sense — invokable
+via `/converge-planning` or by name) that enforces layered planning. Its
+contract with the user:
+
+1. **It only ever plans one layer.** Given the current contract — at the
+   first call, that's the root contract derived from the user's brief — the
+   skill drafts 3–7 direct children. It does not write grandchildren. It
+   does not sketch leaves. It produces TASK.md files for the immediate next
+   layer and stops.
+2. **It works from scope, not from the world.** Inputs to the skill are:
+   - The current task's goal (user brief at the root; parent's contract
+     otherwise).
+   - The scope packet (vars + artifacts the parent threaded in).
+   That's it. The skill does not read sibling tasks, does not traverse the
+   tree, does not pull in arbitrary project files unless they're explicitly
+   in scope.
+3. **It outputs four-field children.** Each child the skill produces is a
+   TASK.md whose four contract fields are filled out:
+   - `title` + `description` (goal).
+   - `vars` and any inlined catalog refs the parent pre-bakes (scope).
+   - `outputs` + `checks` (deterministic verification).
+   - Either `wbs:` (this child will decompose further when run) or no `wbs:`
+     (this child is a leaf).
+4. **It is recursive by being re-invokable.** When a non-leaf child later
+   runs, *the same skill* gets called inside that child's `wbs:`, with that
+   child's contract as the new root. Same prompt, smaller problem. The
+   recursion is a property of *when* the skill is called, not of the skill's
+   internal structure.
+
+Skill structure (concrete sketch — fits the existing `skills/` layout):
+
+```
+skills/
+  converge-planning/
+    SKILL.md            # invocation contract & prompt
+    rubric.md           # checklist the planner self-applies
+    examples/
+      asset-library.md  # worked example: root → 6 children
+      doc-site.md       # worked example: section → 4 sub-sections
+```
+
+The `SKILL.md` prompt (sketch):
+
+```
+You are planning ONE layer of a Converge task tree.
+
+You will be given:
+  - GOAL: what this node was asked to deliver.
+  - SCOPE: the packet handed to this node by its parent (vars + inlined refs).
+
+Your job: draft 3–7 child TASK.md files whose deliverables collectively
+satisfy GOAL. Each child must have:
+  - title + description (the child's goal, in your words)
+  - outputs + checks (what proves it delivered)
+  - vars (the scope you are handing this child)
+  - either a `wbs:` pointer (the child will plan further when it runs) or
+    no `wbs:` (the child is a leaf and will do work directly)
+
+Hard rules:
+  - Do NOT plan grandchildren. Stop at one layer.
+  - Do NOT reference siblings. Each child's scope is self-contained — if
+    child B needs child A's output, declare a dependency and let the runtime
+    thread A's artifact into B's scope at run time.
+  - Do NOT read project files outside SCOPE. If you need something not in
+    scope, that's a contract bug to flag, not a license to wander.
+  - Prefer 3–7 children. If a single shape repeats (one per character, one
+    per command), use a `wbs:` script with a per-item template — that
+    counts as one child.
+
+Apply rubric.md to your draft before returning.
+```
+
+The rubric is a small checklist: every child has measurable checks, no
+child's `vars` references the literal string "TODO," no two children
+deliver the same artifact, etc. The skill self-grades against it before
+returning.
+
+A user planning a new playbook ends up running `/converge-planning` *once*
+to get the root layer, then `converge run` from then on — and the same
+skill fires inside each non-leaf task to plan its own next layer, just in
+time, with full context of what its parent actually packed.
 
 ## Debugging: walk the contract chain, not the tree
 
@@ -260,172 +368,154 @@ parent's contract, not its descendants.
 This is the inverse of today's debug experience, where a failing leaf
 usually triggers a tree walk to find the relevant context.
 
-## What we keep, what we lose, what we gain
+## What stays the same, what changes
 
-### Keep
+**No breaking changes.** Every existing playbook continues to run. The
+runtime, the TASK.md schema, WBS, journals, repair strategies, providers —
+all untouched. What we're shipping is *framing* + *one new skill*.
 
-- **The tree on disk.** Storage layout doesn't have to change much. WBS
-  spawning, journal, checkpoints, all preserved.
-- **Deterministic checks as the verification surface.** Checks don't move.
-- **Repair pipelines.** Navigator strategies still apply, but they now reason
-  about contracts (was the contract wrong?) instead of about prompts.
-- **Multi-provider `agentfn`.** Untouched.
+What stays the same:
 
-### Lose
+- **TASK.md schema.** Same frontmatter. `title`, `description`, `outputs`,
+  `checks`, `wbs`, `vars`, `dependencies`, `tags` — all of them.
+- **The tree on disk.** Same layout. Same journals. Same checkpoints.
+- **WBS scripts.** `wbs/index.js` still spawns children at runtime via
+  `ctx.spawn`. The semantics don't change.
+- **Deterministic checks.** The verification surface is the same.
+- **Repair pipelines, multi-provider agentfn, CLI commands.** Untouched.
 
-- **Implicit cross-tree reads.** A TASK.md today can casually reference
-  `assets/sprites.json` produced two phases ago. Under the new model, that
-  reference must be *in the scope packet* the parent handed down. If it isn't,
-  the agent cannot reach for it.
-  - This is a feature, but it's also a migration cost: existing playbooks
-    will need their scope packets explicitly populated.
-- **Free-form prompts that incidentally describe the whole project.** Goal
-  and scope are now structured. Authors can't dump the entire `idea.md` into
-  every leaf.
+What changes (in author/agent behavior, not in code):
 
-### Gain
+- **Planning is layered.** A TASK.md author — or `converge-planning` — drafts
+  only direct children. Grandchildren are the children's problem.
+- **Agents stop tree-walking.** A leaf's prompt is what its parent packed
+  into the materialized TASK.md, full stop. If something's missing, that's
+  a parent-level decomposition bug, not a "go look harder" instruction.
+- **Cross-tree reads become parent-mediated.** Today a TASK.md body might say
+  "read `assets/sprites.json` and process it." That still works
+  mechanically. The new discipline is: the parent's WBS reads
+  `assets/sprites.json` and inlines the relevant slice into the child's
+  vars, so the child doesn't have to know where it lives.
+- **Debugging is contract-first.** When a leaf fails, ask three questions in
+  order: was my contract well-formed, was my scope sufficient, was my
+  parent's decomposition coherent. *Then* (and only then) consider whether
+  it's an execution bug.
+
+What we gain:
 
 - **Bounded per-agent context.** `O(depth)`, not `O(tree)`.
-- **Plannable decomposition.** "Draft 3–7 child contracts" is a much sharper
-  task for an LLM than "design a phase." It's the same shape at every level,
-  which lets us specialize prompts, evaluate quality, and even use small
-  models for routine decomposition.
+- **Plannable decomposition.** "Draft 3–7 child TASK.md files" is a much
+  sharper task for an LLM than "design a phase tree." Same shape at every
+  level → specialized prompts, measurable quality, small-model routine
+  decomposition.
 - **Shallow debugging.** Three-frame walks instead of tree archaeology.
-- **Reusable subtrees.** A well-formed contract is portable. A
-  `produce-character-spritesheet` contract that works in `game-assets` should
-  drop into a new playbook by handing it a different scope packet.
+- **Reusable subtrees.** A well-formed TASK.md is portable. A
+  character-spritesheet task that works in `game-assets` drops into a new
+  playbook by being handed different vars.
 - **Honest planning.** Authors stop encoding information routing in the
   filesystem layout. The tree shape becomes purely about scheduling.
 
-## How this maps to Converge today
+## Worked example: game-assets, reframed in the same data model
 
-The goal is *evolutionary, not a rewrite*. Existing primitives map cleanly:
+`examples/game-assets` already runs. The reframing is purely about *who
+plans what, when, and what they look at while planning*. No file moves.
 
-| Today | Under progressive decomposition |
-|---|---|
-| `TASK.md` frontmatter `outputs`, `checks` | The `checks` field of the contract. Output paths are part of the goal/scope. |
-| `TASK.md` body (markdown prose) | The `goal` field — kept, but disciplined: it's "what I was asked," not a freeform README. |
-| `wbs:` script that spawns children | The `decompose` step that emits 3–7 child contracts (or N templated contracts in the per-item case). |
-| `vars:` interpolated into templates | Part of the scope packet. |
-| Filesystem siblings reading each other | **Removed.** Replaced by parent-mediated scope threading. |
-| `LEARN.md` repair memory | Becomes per-contract: stored next to the child's contract, scoped to that node. |
-
-Concretely, a TASK.md becomes (sketch):
-
-```markdown
----
-contract:
-  goal: |
-    Produce a 4x4 spritesheet for the "walk" animation of hero-knight.
-  scope_ref: scope.json     # written by parent; read-only to me
-  checks:
-    - id: sheet-is-4x4
-      cmd: python scripts/check_4x4.py {output_path}
-  children: []
----
-
-(Optional) Implementation notes the parent wants to leave for the agent —
-but only things in scope. Anything outside scope is a contract bug.
-```
-
-The runtime change is in *how scope is constructed*. Today, `vars` are
-threaded through templates and the rest is "agent finds it on disk." The new
-runtime has a `scope.json` per task, written atomically by the parent's
-decompose step, and a hard rule that the agent's working tools are sandboxed
-to: its own scope packet, the project's declared catalog roots, and explicit
-tool allowlists.
-
-## Worked example: game-assets, reframed
-
-Root contract:
+**Root layer.** A user runs `/converge-planning` against `idea.md`. The
+skill reads the brief and the playbook's vars, and drafts six TASK.md files
+under `.converge/playbooks/default/tasks/` — exactly the existing list:
 
 ```
-goal: Produce a platformer asset library matching idea.md, exported to Godot/Unity/raw.
-scope: { idea.md contents, vars block, engine_targets }
-checks: master-atlas integrity, engine-export presence
-children:
-  - C1: art-style + catalog
-  - C2: characters
-  - C3: tile maps
-  - C4: backgrounds
-  - C5: props
-  - C6: export
+01-setup-art-style/   (leaf — produces art-style packet + manifests)
+02-asset-breakdown/   (leaf — extends manifests)
+03-characters/        (decomposes — has wbs:)
+04-tile-maps/         (decomposes — has wbs:)
+05-backgrounds/       (decomposes — has wbs:)
+06-props/             (decomposes — has wbs:)
+07-export/            (leaf — aggregates atlases)
 ```
 
-C1 (art-style + catalog) is the only child whose contract receives raw
-`idea.md`. It produces:
+The skill stops here. It does *not* draft anything inside `03-characters/`,
+because that's not its layer.
 
-- art-style packet (palette, silhouette rules, line-weight, etc.)
-- `sprites.json`, `objects.json`, `tile_maps.json`, `backgrounds.json`
+**Layer 2: characters.** When `03-characters` runs, its `wbs:` invokes
+`converge-planning` (or a deterministic Node script — author's choice). The
+planner now has *only* the characters contract: produce all character
+spritesheets matching the catalog + art style. Its scope is the slice of
+the manifests for characters plus the art-style packet — the parent
+inlined those before invoking the planner. It drafts three children:
+`01-analysis`, `02-shared-references`, `03-generation`. It doesn't draft
+per-character pipelines yet — those are `03-generation`'s problem.
 
-…and these become *artifacts the root threads into C2–C6's scope packets*.
-C2 doesn't read `idea.md`. C2 reads its scope packet, which contains the
-art-style packet and the slice of catalog relevant to characters.
+**Layer 3: per-character generation.** When `03-characters/03-generation`
+runs, *its* `wbs:` plans again. Now the input is "produce all character
+spritesheets" with hero-knight, forest-elf, etc. in scope. The script
+(today already a deterministic JS WBS) emits per-character pipelines.
 
-C2 (characters) decomposes to:
+**Leaf.** The `hero-knight-spritesheet-walk` TASK.md gets materialized with
+its parent threading in: art-style packet, character canonical ref, class
+style guide, walk-state keyframe spec. The leaf agent reads its own
+TASK.md, runs the work, and the framework verifies its checks. It has *no
+idea* that backgrounds, tile maps, or props exist. It doesn't need to.
 
-- C2.a: per-class shared references (one contract per class)
-- C2.b: per-character pipelines
-
-C2.a's outputs become artifacts that C2 threads into each C2.b's scope
-packet. Each C2.b leaf agent doing `hero-knight-spritesheet-walk` sees:
-
-- Its goal: produce the walk spritesheet.
-- Its scope: art-style packet, hero-knight canonical ref, warrior class style
-  guide, walk state keyframe spec.
-- Its checks: 4×4, viewport locked, palette respected.
-- No children.
-
-That agent has *no idea* that backgrounds, tile maps, or props exist. It
-doesn't need to.
-
-The depth of the tree is unchanged. The depth of the *context* the agent
-holds is bounded.
+Same files, same tree, same runtime. What changed is that no single
+planning step ever had to think about more than one layer at a time.
 
 ## Open questions
 
-1. **Scope schema.** Do we standardize the shape of scope packets, or let
-   playbooks define their own? Strong argument for typed packets per
-   "domain" (asset-library, doc-site, research-report) so contracts are
-   reusable. Weak argument: lets playbook authors stay agile.
-2. **Receipt format.** What does the child's "here is metadata my parent might
-   want" look like? Free-form JSON? A typed manifest? This is the place
-   sibling-routing actually lives, so it deserves care.
-3. **WBS decomposition.** Today's WBS scripts often `Read` the file system to
-   discover units. Under the new model, that data must come through scope.
-   Practically: the parent's decompose step *is* what runs the WBS — the
-   parent's agent (or a deterministic script) inspects scope and emits N
-   child contracts. The split between "agent decomposes" and "script
-   decomposes" is unchanged; what changes is that decomposition no longer
-   reads siblings.
-4. **Catalog refs.** Some scope content is genuinely global (the art-style
-   packet, the engine-target list). Do we represent these by value (copied
-   into every child packet) or by reference (a content-addressed pointer the
-   framework resolves on read)? By-reference is cheaper but introduces a
-   "this is the only kind of tree-walk allowed" exception. Probably worth it;
-   needs a name.
-5. **CLI surface for debugging.** The contract-chain walk needs a command:
-   `converge explain <task-id>` should print *me, my contract, my parent's
-   decomposition*, and stop. Today's tree-status views stay for human audit
-   but are clearly labeled "framework view."
-6. **Migration.** Existing playbooks won't satisfy the no-cross-reads rule
-   on day one. We probably need a "loose mode" that allows current behavior
-   with a warning, plus a migration tool that infers scope packets from
-   today's implicit reads.
+1. **`converge-planning` rubric.** What's the minimum checklist that catches
+   most bad layered plans? Candidates: every child has at least one
+   deterministic check; no two children deliver the same artifact; if one
+   child shape repeats, it's a single `wbs:` not N hand-written siblings;
+   no child's vars contain unresolved placeholders. Needs to be tightened
+   against real playbooks.
+2. **When the planner is wrong.** If the user reads the drafted layer and
+   wants to override it, what's the minimum-friction loop? Probably just:
+   edit the TASK.md files and re-run. But we should make sure the skill
+   doesn't keep regenerating over user edits — easy to get wrong.
+3. **Recursive invocation.** Should a non-leaf TASK.md's `wbs:` literally
+   call the `converge-planning` skill, or should we let authors choose
+   between "skill-driven decomposition" (LLM) and "deterministic
+   decomposition" (a normal Node WBS script)? Probably both — the skill is
+   for when the planner needs to think; a deterministic script is for when
+   the children are a mechanical fan-out (one per character).
+4. **Catalog refs by value vs. by reference.** The art-style packet, engine
+   target list, etc. get inlined into every child's vars today. That's
+   fine at small scale. At large scale, a single content-addressed pointer
+   that the framework resolves on read would be cheaper. Not urgent, but
+   worth a name when we hit it.
+5. **Debug CLI.** A `converge explain <task-id>` that prints exactly *me,
+   my contract, my parent's decomposition* — three frames, stop — would
+   make the contract-chain walk a one-command operation. Today's
+   `converge status` keeps showing the framework view; the new command
+   would show the agent view.
+6. **Migration.** No migration is required — playbooks keep working. We do
+   want to *encourage* moving toward parent-mediated scope. A linter that
+   flags TASK.md bodies which read project files outside their declared
+   vars would be a gentle nudge, not a hard rule.
 
 ## Next steps
 
-1. **Spike**: take one slice of `examples/game-assets` (say, characters
-   only) and hand-rewrite it as contracts + scope packets. See whether the
-   per-leaf packet stays manageable in size.
-2. **Schema sketch**: propose a `Contract` type and `ScopePacket` type in
-   `packages/core/src/config/`. Don't ship — just see what fields fall out
-   naturally.
-3. **CLI sketch**: design `converge explain <task-id>` against the spike.
-4. **ADR**: once the spike validates the shape, lift this doc into
-   `docs/adr/` as a numbered decision record.
+No code changes required. The deliverables are:
+
+1. **Land this doc.** It's the framing — once teammates and the planner
+   itself can point to it, the discipline becomes legible.
+2. **Build the `converge-planning` skill** under `skills/converge-planning/`:
+   `SKILL.md` (the prompt above), `rubric.md` (the checklist), and a couple
+   of worked examples (asset-library, doc-site). The skill should be
+   invokable both interactively (`/converge-planning`) and from a TASK.md's
+   `wbs:` (so non-leaf tasks can plan their own next layer).
+3. **Document the discipline once.** A short page under `docs/concepts/`
+   that says: a TASK.md is its own delegation contract; planning is one
+   layer at a time; agents see one level up and one level down. Link from
+   `docs/concepts/dynamic-work-breakdown.md`.
+4. **Optional later.** A `converge explain <task-id>` debug command that
+   prints the three-frame contract chain. A linter that flags TASK.md
+   bodies which read project files outside their declared vars. Neither
+   blocks shipping the framing.
 
 ## One-line recap
 
 > The framework runs a tree; the agents run an org chart. Same data, two
 > views. Agents see exactly one level up and one level down — never more.
+> A TASK.md *is* the contract; `converge-planning` is how we plan one
+> layer at a time, recursively.
