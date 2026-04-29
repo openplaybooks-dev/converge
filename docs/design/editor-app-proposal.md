@@ -464,6 +464,14 @@ Kanban (old M1) is moved to "future" and may never ship in this app.
 - **Cycles.** The wiring step (M4) must reject cycles. We compute a topo
   sort on every save; if it fails, we surface the cycle in the inspector and
   refuse to write.
+- **YAML formatting fidelity.** M3 ships with `gray-matter` for the
+  TASK.md round-trip, which preserves the body byte-for-byte but re-emits
+  the frontmatter in `js-yaml`'s canonical form (quoting, line wrapping,
+  block scalar style all change). On a real file this produces a noisy
+  git diff every time the user saves *any* field, even unrelated ones.
+  **Follow-up M3.5:** swap to the `yaml` package's `parseDocument` API
+  so frontmatter quoting/comments are preserved. Tracked separately so
+  M4 can ship.
 - **Where does "draft a playbook" write?** `.converge/playbooks/<slug>/` in
   the resolved project root. Refuses to overwrite an existing playbook
   unless the user confirms.

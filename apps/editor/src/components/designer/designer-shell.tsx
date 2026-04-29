@@ -92,6 +92,7 @@ export function DesignerShell({
         <main className="relative flex-1">
           {view === "graph" ? (
             <PlaybookGraph
+              playbookName={playbookName}
               tasks={tasks}
               dataFlow={dataFlow}
               selectedId={selectedId}
