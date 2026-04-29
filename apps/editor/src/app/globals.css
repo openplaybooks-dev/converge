@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: oklch(0.99 0 0);
+  --color-foreground: oklch(0.18 0.02 260);
+  --color-muted: oklch(0.96 0.005 260);
+  --color-muted-foreground: oklch(0.45 0.02 260);
+  --color-card: oklch(1 0 0);
+  --color-border: oklch(0.92 0.005 260);
+  --color-primary: oklch(0.55 0.18 265);
+  --color-primary-foreground: oklch(0.99 0 0);
+  --color-accent: oklch(0.95 0.02 265);
+  --color-success: oklch(0.65 0.15 150);
+  --color-warning: oklch(0.75 0.15 80);
+  --color-danger: oklch(0.6 0.2 25);
+  --radius: 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  @theme inline {
+    --color-background: oklch(0.16 0.015 260);
+    --color-foreground: oklch(0.96 0.005 260);
+    --color-muted: oklch(0.22 0.015 260);
+    --color-muted-foreground: oklch(0.7 0.015 260);
+    --color-card: oklch(0.2 0.015 260);
+    --color-border: oklch(0.28 0.015 260);
+    --color-primary: oklch(0.7 0.18 265);
+    --color-primary-foreground: oklch(0.16 0.015 260);
+    --color-accent: oklch(0.28 0.03 265);
+  }
+}
+
+html,
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, "Noto Sans", sans-serif;
+}
+
+* {
+  border-color: var(--color-border);
+}

@@ -1,0 +1,36 @@
+{
+  "name": "@converge/editor",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Browser-based playbook editor POC for Converge.",
+  "license": "MIT",
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1 --port ${PORT:-3100}",
+    "build": "next build",
+    "start": "next start --hostname 0.0.0.0 --port ${PORT:-3100}",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@converge/core": "workspace:*",
+    "@converge/project-root": "workspace:*",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.468.0",
+    "next": "^16.1.6",
+    "react": "^19.0.1",
+    "react-dom": "^19.0.1",
+    "tailwind-merge": "^3.5.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "eslint": "^9.18.0",
+    "eslint-config-next": "^16.1.6",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.2"
+  }
+}
