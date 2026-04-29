@@ -69,13 +69,57 @@ Proposed (open to pushback):
   static + local API routes.
 - **React 19** + **TanStack Query** for journal polling/streaming.
 - **shadcn/ui + Tailwind v4** — matches `studio` so components can move across.
-- **@xyflow/react** for the tree view (already a `studio` dependency).
-- **dnd-kit** for the kanban.
+- **@xyflow/react + dagre** for the tree view (already a `studio` dependency).
+- **@dnd-kit** (`core`, `sortable`, `utilities`) for the kanban.
+- **react-hook-form + zod** for the task drawer form.
 - **A thin Gantt** rendered with SVG, not a library — see §6.3.
 
 Server side: Next.js Route Handlers calling `@converge/core` directly
 (`discoverPlaybooks`, `loadPlaybook`, `readEvents`, `SimpleLogTailer`). No
 database. The filesystem under the user's project root *is* the database.
+
+### 4.1 Reference templates and what we borrow
+
+We surveyed a few projects to avoid reinventing the shell.
+
+| Project                       | License                                         | Verdict                       |
+| ----------------------------- | ----------------------------------------------- | ----------------------------- |
+| `multica-ai/multica`          | Modified Apache-2.0 (SaaS + branding clauses)   | **Reference only — do not fork** |
+| `shadcn/ui` `next-template`   | MIT                                             | Use as scaffold base          |
+| `shadcn/ui` examples/dashboard| MIT                                             | Borrow layout primitives      |
+| `clauderic/dnd-kit` examples  | MIT                                             | Crib kanban DnD patterns      |
+| `xyflow/xyflow`               | MIT                                             | Tree/DAG view                 |
+| `frappe/gantt`                | MIT                                             | Fallback if SVG gets hairy    |
+
+`multica-ai/multica` validates the stack we already proposed (Next.js + shadcn +
+`@dnd-kit` + TanStack Query + zustand + TipTap), and its `apps/web` layout
+(`app/`, `components/`, `features/`, `platform/`) is roughly what we want. But
+its LICENSE is a *modified* Apache-2.0 with a SaaS-restriction clause and a
+"retain frontend branding" clause — incompatible with converge's MIT and not a
+clean SPDX. **We use multica as a stack reference, not a code source.** No
+files are copied; patterns can be reimplemented from scratch with MIT
+building blocks.
+
+What multica does *not* solve for us:
+- No `@xyflow/react` / DAG view — we still need to build the tree view.
+- No Gantt — we still hand-roll SVG (or fall back to `frappe-gantt`).
+- No form library — we add `react-hook-form` + `zod` for the task drawer.
+
+### 4.2 Concrete scaffold path (M0)
+
+Rather than starting from a blank `create-next-app`, M0 should:
+
+1. `pnpm dlx shadcn@latest init` inside a fresh `apps/editor` Next.js 15 app
+   (Tailwind v4, App Router, TS, no src dir reshuffle — keep `src/` per §8).
+2. `pnpm dlx shadcn@latest add button card dialog drawer dropdown-menu input
+   form select sheet tabs tooltip badge separator scroll-area sonner` — the
+   minimum surface we need across all three views.
+3. Add `@dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities @xyflow/react dagre
+   @tanstack/react-query react-hook-form zod yaml gray-matter zustand`.
+4. Wire `@converge/core` and `@converge/project-root` as workspace deps.
+
+That's the entire M0 scaffold. No code to write yet, just the right pieces in
+the right places.
 
 ## 5. Data model — what we read and write
 
@@ -188,9 +232,12 @@ Each milestone has a single, verifiable acceptance check. We do not move on
 until the previous one passes.
 
 1. **M0 — scaffold**
-   `pnpm --filter @converge/editor dev` serves `localhost:3000` with an empty
-   shell that lists discovered playbooks via `discoverPlaybooks`.
-   *Verify:* opening the page on `examples/hello-world` shows that playbook.
+   Follow the steps in §4.2. `pnpm --filter @converge/editor dev` serves
+   `localhost:3000` with an empty shell that lists discovered playbooks via
+   `discoverPlaybooks`. shadcn primitives installed, Tailwind v4 working, no
+   borrowed code from `multica` or any non-MIT source.
+   *Verify:* opening the page on `examples/hello-world` shows that playbook;
+   `pnpm --filter @converge/editor lint && tsc --noEmit` clean.
 
 2. **M1 — read-only kanban**
    Kanban shows tasks for the selected playbook with status from the journal.
