@@ -15,8 +15,11 @@
   "dependencies": {
     "@converge/core": "workspace:*",
     "@converge/project-root": "workspace:*",
+    "@xyflow/react": "^12.10.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dagre": "^0.8.5",
+    "gray-matter": "^4.0.3",
     "lucide-react": "^0.468.0",
     "next": "^16.1.6",
     "react": "^19.0.1",
@@ -25,6 +28,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.0",
+    "@types/dagre": "^0.7.52",
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",

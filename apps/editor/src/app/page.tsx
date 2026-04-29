@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { listPlaybooks } from "@/lib/core";
 import {
   Card,
@@ -45,37 +46,42 @@ export default async function HomePage() {
             const mode = src.def.run?.mode ?? "oneoff";
             return (
               <li key={`${src.builtin ? "builtin" : "project"}:${src.def.name}`}>
-                <Card className="h-full">
-                  <CardHeader>
-                    <div className="flex items-start justify-between gap-3">
-                      <CardTitle className="truncate">{src.def.name}</CardTitle>
-                      <Badge tone={src.builtin ? "muted" : "primary"}>
-                        {src.builtin ? "builtin" : "project"}
-                      </Badge>
-                    </div>
-                    {src.def.description ? (
-                      <CardDescription className="line-clamp-2">
-                        {src.def.description}
-                      </CardDescription>
-                    ) : null}
-                  </CardHeader>
-                  <CardContent>
-                    <dl className="grid grid-cols-2 gap-2 text-xs">
-                      <div>
-                        <dt className="text-[var(--color-muted-foreground)]">
-                          Tasks
-                        </dt>
-                        <dd className="font-mono">{taskCount}</dd>
+                <Link
+                  href={`/playbooks/${encodeURIComponent(src.def.name)}`}
+                  className="block h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
+                >
+                  <Card className="h-full transition-colors hover:border-[var(--color-primary)]">
+                    <CardHeader>
+                      <div className="flex items-start justify-between gap-3">
+                        <CardTitle className="truncate">{src.def.name}</CardTitle>
+                        <Badge tone={src.builtin ? "muted" : "primary"}>
+                          {src.builtin ? "builtin" : "project"}
+                        </Badge>
                       </div>
-                      <div>
-                        <dt className="text-[var(--color-muted-foreground)]">
-                          Mode
-                        </dt>
-                        <dd className="font-mono">{mode}</dd>
-                      </div>
-                    </dl>
-                  </CardContent>
-                </Card>
+                      {src.def.description ? (
+                        <CardDescription className="line-clamp-2">
+                          {src.def.description}
+                        </CardDescription>
+                      ) : null}
+                    </CardHeader>
+                    <CardContent>
+                      <dl className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <dt className="text-[var(--color-muted-foreground)]">
+                            Tasks
+                          </dt>
+                          <dd className="font-mono">{taskCount}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-[var(--color-muted-foreground)]">
+                            Mode
+                          </dt>
+                          <dd className="font-mono">{mode}</dd>
+                        </div>
+                      </dl>
+                    </CardContent>
+                  </Card>
+                </Link>
               </li>
             );
           })}

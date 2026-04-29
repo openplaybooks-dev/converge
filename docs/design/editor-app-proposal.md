@@ -305,3 +305,166 @@ A reviewer can:
 
 If those six steps work, the POC has answered its question. Anything beyond
 that is scope creep for a follow-up RFC.
+
+---
+
+## 12. Pivot: Designer-First Mode (post-M0 update)
+
+After M0 landed, the scope shifted from "viewer of an existing playbook" to
+**"Jira-style designer for authoring playbooks"**. The runtime/observer views
+(kanban, gantt-from-journal) become secondary; the primary surface is now a
+graph editor where the user wires tasks together and lets AI fill gaps.
+
+### 12.1 What changed
+
+- **Kanban is deferred.** Kanban shows runtime status; the user wants design-time
+  status. We keep kanban in the proposal as a future surface but stop blocking
+  on it.
+- **Tree / Gantt / Graph are *design* views**, not just observer views. They
+  render the playbook structure regardless of whether it has ever run.
+- **Two registries become first-class:** Tasks and Artifacts. Both are
+  side panels that stay in sync with the canvas.
+- **AI assist is part of the default flow.** "Draft from a one-liner",
+  "fill this task's outputs", "suggest dependencies".
+
+### 12.2 Data model the designer binds to
+
+Confirmed in `packages/core/src/config/task-definition.ts`:
+
+```ts
+interface TaskDefinition {
+  id: string;
+  title?: string;
+  description?: string;
+  inputs?: string[];        // file globs — required input files
+  outputs?: string[];       // file globs — expected output files
+  dependencies?: string[];  // task ids or "tag:foo"
+  blocking?: boolean;
+  checks?: CheckEntry[];
+  tags?: string[];
+  goals?: string[];
+  // …prompt, agent, skill, wbs, plan, executor — out of scope for M1
+}
+```
+
+The editor derives a third object — **artifacts** — by union-ing every glob
+across tasks:
+
+```ts
+interface EditorArtifact {
+  glob: string;             // e.g. "src/feature-x.ts"
+  producedBy: string[];     // task ids whose `outputs` include this glob
+  consumedBy: string[];     // task ids whose `inputs`  include this glob
+}
+```
+
+Artifacts are **derived, not stored**. There is no separate file for them.
+Editing an artifact is shorthand for editing the `inputs` / `outputs` of every
+task that references it.
+
+### 12.3 Two kinds of edges
+
+A directed graph between tasks has two edge sources:
+
+| Edge          | Source                                                   | Visual    |
+| ------------- | -------------------------------------------------------- | --------- |
+| **Hard dep**  | Explicit `dependencies: [taskId]`                        | Solid     |
+| **Data flow** | Output glob of A matches input glob of B (literal or globby match) | Dashed    |
+
+The designer shows both. The user can **promote a dashed edge to solid** with
+one click — the action writes a new entry to `dependencies:` in TASK.md. They
+can also **demote** by removing the dep; the dashed edge stays if the data
+flow is still implied.
+
+This is the wiring loop the user asked for: "wire tasks to tasks, inputs to
+outputs". We don't invent a new port system; we project the existing
+`inputs`/`outputs`/`dependencies` fields as ports and edges.
+
+### 12.4 UX shape (Jira-style three-pane)
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│  Playbook ▾   [Tree | Graph | Gantt]      [⌘K  Ask AI]   [Save] │
+├────────────┬────────────────────────────────────────┬────────────┤
+│ Tasks      │                                        │ Inspector  │
+│ • setup    │                                        │            │
+│ • analyze  │           CANVAS                       │  (selected │
+│ • build    │      (graph / tree / gantt)            │   task or  │
+│ • verify   │                                        │  artifact) │
+│ + new      │                                        │            │
+├────────────┤                                        │            │
+│ Artifacts  │                                        │            │
+│ • src/**   │                                        │            │
+│ • tests/** │                                        │            │
+│ • spec.md  │                                        │            │
+└────────────┴────────────────────────────────────────┴────────────┘
+```
+
+- **Left rail (top half):** task list, click → select on canvas, "+" creates
+  a new TASK.md skeleton.
+- **Left rail (bottom half):** artifact list, click → highlights the producing
+  + consuming tasks on canvas.
+- **Canvas:** view switcher between Graph / Tree / Gantt. Same selection
+  state across all three.
+- **Right inspector:** form for the selected entity. Saves write back to
+  TASK.md frontmatter (preserving body) or playbook.yml.
+- **Top bar:** Ask-AI command palette (⌘K) plus a Save button that batches
+  writes.
+
+### 12.5 AI assist — three concrete levers
+
+We don't open-end this. Three buttons, no more:
+
+1. **"Draft a playbook"** — empty-state action. Prompt: a one-liner ("ship a
+   web scraper for X"). Output: a full playbook YAML + N TASK.md files
+   written under `.converge/playbooks/<slug>/`.
+2. **"Fill this task"** — per-task action in the inspector. Given the task's
+   title/description, asks AI to suggest `inputs`, `outputs`, and `checks`.
+   User accepts/rejects field-by-field; nothing auto-saves.
+3. **"Suggest dependencies"** — global action. Given the current set of
+   tasks, asks AI which tasks should depend on which based on their
+   inputs/outputs. Returns a diff of `dependencies:` to add/remove.
+
+All three call **one server endpoint** `POST /api/ai/draft` with a
+discriminator (`{kind: "playbook" | "task" | "deps", ...}`). The endpoint
+delegates to `@converge/agentfn` (or whatever provider is configured via
+`CONVERGE_AI_PROVIDER`); no new SDK is added to the editor.
+
+### 12.6 Revised milestones (supersedes §9 from M1 onward)
+
+M0 is unchanged. From M1 onward:
+
+- **M1 — Designer skeleton (read-only).** Three-pane layout, graph view via
+  `@xyflow/react`, tasks panel, artifacts panel. Loads a playbook from disk;
+  renders nodes with input/output ports and dependency edges. No editing.
+- **M2 — Inspector form (read-only).** Click → drawer shows TASK.md
+  frontmatter + body. Form is rendered but disabled.
+- **M3 — Save path.** Form becomes editable; Save writes TASK.md frontmatter
+  back via `gray-matter` + YAML round-trip (preserves body byte-for-byte).
+- **M4 — Wiring.** Drag from a task's output port to another task's input
+  port → adds the task id to `dependencies:`. Cycle check inline.
+- **M5 — Tree view.** WBS tree with the same selection model.
+- **M6 — AI: draft a playbook** (lever #1 from §12.5).
+- **M7 — AI: fill this task** (lever #2).
+- **M8 — Gantt view** (replays journal; only useful after a run).
+- **M9 — AI: suggest dependencies** (lever #3).
+- **M10 — POC review.** Same decision as before: promote, keep, or delete.
+
+Kanban (old M1) is moved to "future" and may never ship in this app.
+
+### 12.7 Open questions added by the pivot
+
+- **Globs as ports.** `inputs: ['src/**/*.ts']` is a glob, not a single file —
+  is the "port" the glob string, or each matched file? **Decision:** the port
+  is the glob string. Two globs match if they're string-equal *or* one is a
+  prefix the other globs into; a tighter semantic match is out of scope.
+- **AI provider config.** The editor inherits `@converge/agentfn`'s
+  resolution rules (env vars, project-level config). No editor-specific
+  config UI in the POC.
+- **Cycles.** The wiring step (M4) must reject cycles. We compute a topo
+  sort on every save; if it fails, we surface the cycle in the inspector and
+  refuse to write.
+- **Where does "draft a playbook" write?** `.converge/playbooks/<slug>/` in
+  the resolved project root. Refuses to overwrite an existing playbook
+  unless the user confirms.
+
