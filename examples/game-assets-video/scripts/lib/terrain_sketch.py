@@ -80,12 +80,15 @@ def build_terrain_sketch(
     overlay = Image.new("RGBA", (api_w, api_h), (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
 
-    # Soft regions — RLE-merge contiguous same-kind cells per row into
-    # ONE filled rectangle, no outline, no X. Adjacent rows with same kind
-    # in the same column range will visually merge into a continuous
-    # region. Then Gaussian-blur the whole overlay so edges are soft and
-    # organic. The painter sees "areas of kind", not "grid of cells",
-    # which produces natural curves rather than rigid cell boundaries.
+    # Crisp position cues: per-row RLE-merged rectangles with a low-alpha
+    # FILL (the AI sees "what kind goes here") plus a high-alpha OUTLINE
+    # (the AI sees the exact footprint boundary). NO blur — positional
+    # fidelity matters more than aesthetic softness here. The prompt
+    # tells the model to paint INSIDE the outlined footprint.
+    stroke = max(1, int(round(min(cell_w, cell_h) * 0.10)))
+    fill_alpha_default = 70
+    outline_alpha_default = 220
+
     for y, row in enumerate(rows):
         if len(row) != grid_w:
             continue
@@ -100,20 +103,80 @@ def build_terrain_sketch(
             entry = legend.get(ch)
             color_hex = entry.get("color") if isinstance(entry, dict) else None
             if color_hex:
-                alpha = int(entry.get("alpha", 140)) if isinstance(entry, dict) else 140
-                color = _hex_rgba(color_hex, alpha=alpha)
+                fill_alpha = int(entry.get("fill_alpha", fill_alpha_default)) if isinstance(entry, dict) else fill_alpha_default
+                outline_alpha = int(entry.get("outline_alpha", outline_alpha_default)) if isinstance(entry, dict) else outline_alpha_default
+                fill_color = _hex_rgba(color_hex, alpha=fill_alpha)
+                outline_color = _hex_rgba(color_hex, alpha=outline_alpha)
                 px_lo = int(round(x * cell_w))
                 px_hi = int(round(x_end * cell_w))
                 px_lo = max(px_lo, skip_left_px)
                 if px_hi > skip_left_px and px_hi > px_lo:
-                    draw.rectangle([(px_lo, py_lo), (px_hi, py_hi)], fill=color)
+                    draw.rectangle(
+                        [(px_lo, py_lo), (px_hi - 1, py_hi - 1)],
+                        fill=fill_color, outline=outline_color, width=stroke,
+                    )
             x = x_end
 
-    # Gaussian blur to soften the rectangular edges into organic regions.
-    blur_radius = max(2, int(round(min(cell_w, cell_h) * 0.35)))
-    overlay = overlay.filter(ImageFilter.GaussianBlur(radius=blur_radius))
-
     return overlay
+
+
+def extract_feature_regions(terrain: dict, skip_kinds: tuple[str, ...] = ("vast",)) -> list[dict]:
+    """Flood-fill contiguous same-kind cells into discrete features.
+
+    Returns a list of {kind, char, x_lo, y_lo, x_hi, y_hi (tile coords,
+    inclusive bbox), x_lo_pct, y_lo_pct, x_hi_pct, y_hi_pct} entries.
+    Skips kinds in skip_kinds (default: vast = no feature). 4-connected
+    BFS so diagonally-touching cells are separate features.
+    """
+    grid_w, grid_h = terrain.get("grid_size") or [0, 0]
+    rows = terrain.get("rows") or []
+    legend = terrain.get("legend") or {}
+    if grid_w <= 0 or grid_h <= 0 or len(rows) != grid_h:
+        return []
+    skip_chars = {ch for ch, e in legend.items()
+                  if isinstance(e, dict) and e.get("kind") in skip_kinds}
+
+    seen = [[False] * grid_w for _ in range(grid_h)]
+    out: list[dict] = []
+    for y in range(grid_h):
+        if len(rows[y]) != grid_w:
+            continue
+        for x in range(grid_w):
+            if seen[y][x]: continue
+            ch = rows[y][x]
+            if ch in skip_chars or ch not in legend:
+                seen[y][x] = True
+                continue
+            # BFS from (x,y) over same-char 4-connected cells.
+            stack = [(x, y)]
+            x_lo, x_hi = x, x
+            y_lo, y_hi = y, y
+            while stack:
+                cx, cy = stack.pop()
+                if cx < 0 or cy < 0 or cx >= grid_w or cy >= grid_h: continue
+                if seen[cy][cx]: continue
+                if rows[cy][cx] != ch: continue
+                seen[cy][cx] = True
+                if cx < x_lo: x_lo = cx
+                if cx > x_hi: x_hi = cx
+                if cy < y_lo: y_lo = cy
+                if cy > y_hi: y_hi = cy
+                stack.append((cx + 1, cy))
+                stack.append((cx - 1, cy))
+                stack.append((cx, cy + 1))
+                stack.append((cx, cy - 1))
+            entry = legend.get(ch, {})
+            kind = entry.get("kind", "?") if isinstance(entry, dict) else "?"
+            out.append({
+                "kind": kind,
+                "char": ch,
+                "x_lo": x_lo, "y_lo": y_lo, "x_hi": x_hi, "y_hi": y_hi,
+                "x_lo_pct": round(100.0 * x_lo / grid_w, 1),
+                "x_hi_pct": round(100.0 * (x_hi + 1) / grid_w, 1),
+                "y_lo_pct": round(100.0 * y_lo / grid_h, 1),
+                "y_hi_pct": round(100.0 * (y_hi + 1) / grid_h, 1),
+            })
+    return out
 
 
 def build_legend(terrain: dict) -> str:

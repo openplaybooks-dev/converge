@@ -133,37 +133,32 @@ def build_base_canvas(
     return base, effective_anchor_w
 
 
-def _terrain_grid_block(terrain: dict | None) -> str:
-    """Render the tilemap grid as text in the prompt — authoritative
-    layout. The AI reads char-by-char and maps each cell to its canvas
-    pixel position via grid coords."""
+def _terrain_features_block(terrain: dict | None) -> str:
+    """Render the terrain as a flat list of distinct contiguous features
+    — one per pond / platform / hazard / land-band — with x% and y%
+    positions. Replaces the dense per-char text grid; this format gives
+    the painter a small, exact list of footprints to honor."""
     if not terrain or not terrain.get("rows"):
-        return "(no terrain grid)"
-    gw, gh = terrain.get("grid_size", [0, 0])
-    rows = terrain.get("rows", [])
-    legend = terrain.get("legend", {})
-
-    # Per-char legend — kind + concept_hint, formatted compactly.
-    legend_lines = []
-    for ch, entry in legend.items():
-        if not isinstance(entry, dict):
-            continue
-        kind = entry.get("kind", "?")
-        hint = entry.get("concept_hint", "")
-        legend_lines.append(f"  '{ch}' = {kind}: {hint}")
-
-    grid_block = "\n".join(rows)
-    return (
-        f"Grid dimensions: {gw} columns × {gh} rows. The grid maps onto "
-        f"the output canvas: column x ∈ [0, {gw}) corresponds to pixel "
-        f"x_px ∈ [0, output_width); row y ∈ [0, {gh}) corresponds to "
-        f"y_px ∈ [0, output_height) (top → bottom).\n\n"
-        f"Legend (each char in the grid maps to a terrain kind):\n"
-        + "\n".join(legend_lines)
-        + "\n\n"
-        f"Grid (read top-to-bottom, left-to-right; each char is one cell):\n"
-        f"```\n{grid_block}\n```"
-    )
+        return "(no terrain features)"
+    from lib.terrain_sketch import extract_feature_regions
+    regions = extract_feature_regions(terrain)
+    if not regions:
+        return "(no terrain features)"
+    # Sort by kind (so "land" bands come first as overall ground band, then
+    # waters, platforms, hazards), then by x position.
+    kind_order = {"land": 0, "water": 1, "platform": 2, "hazard": 3}
+    regions.sort(key=lambda r: (kind_order.get(r["kind"], 99), r["x_lo"]))
+    out = []
+    for r in regions:
+        rng_x_tile = f"[{r['x_lo']}..{r['x_hi']}]"
+        rng_y_tile = f"[{r['y_lo']}..{r['y_hi']}]"
+        rng_x_pct = f"{r['x_lo_pct']}-{r['x_hi_pct']}%"
+        rng_y_pct = f"{r['y_lo_pct']}-{r['y_hi_pct']}%"
+        out.append(
+            f"  - {r['kind']:<10} x_tile={rng_x_tile:<14} y_tile={rng_y_tile:<10}  "
+            f"(x={rng_x_pct:<14} y={rng_y_pct} of canvas)"
+        )
+    return "\n".join(out)
 
 
 def build_prompt(spec: dict, api_w: int, api_h: int, anchor_w: int, terrain_legend: str = "", terrain: dict | None = None) -> str:
@@ -183,8 +178,12 @@ The canvas (image #1) has two distinct parts. They serve DIFFERENT purposes and 
 **PART A — THE LEFT PAINTED REGION (the first ~{anchor_pct}% of the canvas, columns 0 to ~{anchor_w}):**
 This is the STYLE REFERENCE. It is the ONLY source of truth for: brush feel, color saturation, level of detail, rendering technique, line softness, how trees are drawn, how mountains are drawn, how foliage clumps look, how the ground band is shaded, how lighting falls. Study it. Match it EXACTLY. Do NOT add more detail than it has. Do NOT make mountains more rugged, foliage more textured, or shading more dramatic than what is shown there. If the reference looks soft, simple, hand-painted, and uncluttered, your extension MUST be equally soft, simple, hand-painted, and uncluttered. Do NOT borrow style from your training data — the only style permitted is what is shown in PART A.
 
-**PART B — THE LAYOUT HINTS (soft colored regions on the rest of the canvas):**
-This is the LAYOUT GUIDE — ONLY a layout guide. The colored regions are SOFT, BLURRY HINTS of where different terrain features should go. They are NOT shapes to copy. They are NOT design elements. They have NO crisp edges, NO straight lines, NO grid pattern, NO symbols. Treat them as a vague colored mist showing the rough zones for water / land / platforms. The painted output must have ORGANIC, IRREGULAR edges — natural curves, soft horizons, varied foliage borders — NEVER straight rectangular edges that follow the hint shapes literally. If a water hint is a rectangle, you paint a NATURAL pond with curved banks. If a land hint is a rectangle, you paint a NATURAL ground band with an undulating top edge.
+**PART B — THE LAYOUT MARKERS (colored outline boxes with semi-transparent fills, on the rest of the canvas):**
+This is the LAYOUT GUIDE — and the FOOTPRINT IS PRECISE. Each colored marker is a rectangle with a clear outline; the rectangle's footprint (x and y range) is EXACTLY where its kind of terrain feature must be painted in your output. The painter is NOT free to shift features for aesthetic reasons. Honor every footprint within ±5% of its position.
+
+Inside each footprint you have CREATIVE freedom — paint reeds and lily pads in a water footprint however you like, paint grass tufts and wood detail on a platform footprint however you like — but the OUTER BOUNDARIES of each painted feature must align with the markers. A water footprint paints as a pond whose shoreline matches the marker's rectangle; a platform footprint paints as a raised ledge whose top edge matches the marker's top row; a land footprint paints as ground whose top edge matches the marker's topmost row.
+
+The marker outline + fill colors do NOT survive into the output — paint OVER them. Only the painted features remain.
 
 # Style fidelity — non-negotiable
 
@@ -197,16 +196,14 @@ The painter / rendering style across the whole output must be IDENTICAL to PART 
 
 A viewer should NOT be able to tell where PART A ends and your painting begins. Not by style, not by detail, not by color, not by brush feel.
 
-# Naturalism — non-negotiable
+# Naturalism inside fixed footprints
 
-This is a PRODUCTION GAME MAP, not a diagram. The output must look like a real, natural landscape painted as a game backdrop:
-- NO straight rectangular edges anywhere. Ground tops undulate. Pond edges curve. Platforms are rounded shelf-like rocks or grassy mounds, not perfect rectangles.
-- NO grid pattern. NO repeating tile boundaries. NO visible cell structure.
-- NO outline or X markings of any kind in the output. NO numbers, letters, or symbols.
-- NO unnaturally regular spacing of features (e.g. ponds at exact equal intervals look fake — vary the spacing visually with surrounding rocks/foliage so they read as naturally placed).
-- Ponds blend INTO the surrounding land with reedy banks, not as floating blue rectangles.
-- Platforms / ledges are integrated into the terrain — a raised mossy boulder, a tree stump shelf, a cliff lip — NOT a plank floating in the air.
-- Transitions from one biome cue to the next are GRADUAL, no hard boundaries.
+The output must look like a real painted landscape — but with EVERY feature placed where its marker says:
+- The OUTLINE of a feature matches its marker rectangle (footprint fidelity ≥ 95%). Don't shift, don't drop, don't merge with neighbors.
+- INSIDE each footprint, the painted detail is creative and natural — soft pond banks with reeds, mossy boulder lips, undulating grass tops on the ground band. Internal detail is hand-painted style.
+- NO marker colors visible in the output. NO outlines, no rectangles, no diagrammatic lines.
+- NO unauthorized features — only paint what the marker list says. Don't invent a pond between two existing ponds; don't invent a cliff because the area looks empty.
+- Transitions BETWEEN features are gradual (e.g. land bordering water has muddy/reedy bank), but feature CENTERS are exactly where their markers point.
 
 # Anchor handoff (no seam)
 
@@ -224,18 +221,19 @@ The painted reference's right edge fades smoothly to BLACK over a gradient zone.
 
 # Skeleton legend (layout only — style comes from PART A)
 
-The visible soft regions on the canvas are blurry layout hints. The AUTHORITATIVE layout is the text grid below — read it character by character, map each char to its kind via the legend, and paint that cell's canvas region with the appropriate biome-natural feature in PART A's style.
-
 {terrain_legend}
 
-# Authoritative tilemap grid (read this to know exactly what to paint where)
+# Feature list (exact footprints — paint inside each)
 
-{_terrain_grid_block(terrain)}
+The canvas grid is {(terrain or {}).get('grid_size', [0,0])[0]} columns × {(terrain or {}).get('grid_size', [0,0])[1]} rows of concept tiles. Each contiguous block of same-kind cells is ONE feature in your painting. Below is the complete list of features to paint, with their exact x-tile / y-tile bounding boxes AND the equivalent canvas % positions:
+
+{_terrain_features_block(terrain)}
 
 When painting:
-- Adjacent same-kind cells form ONE contiguous, organically-shaped feature — not separate cells.
-- Edges between kinds are NATURAL curves (pond shorelines, ground undulations), NOT cell boundaries.
-- The visual hint regions on the canvas are deliberately blurred so you don't copy their rectangular shapes — use the text grid for precise positions and naturalize the edges.
+- For EACH feature in the list, paint that kind in its exact footprint. The painted feature's outer boundary must align with the listed x and y range.
+- Adjacent same-kind features may visually merge (e.g. two water rectangles touching at an edge become one larger pond), but the OUTER footprint of the merged feature must still cover all listed cells.
+- Painted feature INTERIORS are creative — natural curves, vegetation, brush detail in PART A's style.
+- Empty regions (vast cells, marked with the ".") become continuation of PART A's sky/atmosphere/mid-distance painting in those rows.
 
 # Canonical palette (locked across the whole image — same as PART A)
 
