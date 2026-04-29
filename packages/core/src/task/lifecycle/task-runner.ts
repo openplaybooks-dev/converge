@@ -164,6 +164,15 @@ export interface TaskExecutionResult {
   errorKind?: "transient" | "structural";
   /** Free-form classifier reason for telemetry. */
   errorReason?: string;
+  /**
+   * True when the task could not be executed because its declared `inputs:`
+   * gate was unsatisfied AND no repair strategy could unblock it. The
+   * scheduler should DEFER this task (don't increment attempt counters,
+   * don't mark failed) — the producer just hasn't run yet. The next
+   * iteration will re-check; once the producer writes its outputs, the
+   * gate clears and the task runs normally.
+   */
+  inputGateUnmet?: boolean;
 }
 
 /* ------------------------------------------------------------------ */
@@ -871,6 +880,19 @@ export async function executeTask(
       }
 
       if (!proceedToExecution) {
+        // Inputs are unmet and no repair strategy unblocked them. This is
+        // NOT a task failure — the producer just hasn't run yet. Returning
+        // `failed` here makes autonomous-run increment the structural-attempt
+        // counter, and after maxTaskAttempts (default 2) the task gets
+        // permanently terminal-failed even though the agent never ran. That
+        // wastes the retry budget on tasks the framework hasn't even tried
+        // to execute.
+        //
+        // Instead, write a "blocked" result snapshot, leave the unit's
+        // checkpoint in pending state, and return `success:false` with a
+        // distinct `inputGateUnmet` flag so the scheduler knows to defer
+        // (NOT increment the attempt counter). The next iteration will
+        // re-check; once the producer writes its outputs, the gate clears.
         const blockedStartedAt = new Date().toISOString();
         await writeResultSnapshot(
           attemptDir,
@@ -879,33 +901,6 @@ export async function executeTask(
           0,
           attemptNumber,
         );
-
-        // Write checkpoint so tree/gantt/status commands show correct failed state
-        const blockedUnitCkpt = new UnitCheckpointManager(
-          ctx.projectDir,
-          "task",
-          ctx.epicId,
-          ctx.journalTaskId,
-        );
-        await blockedUnitCkpt.completeAttempt(
-          attemptNumber,
-          "failed",
-          blockedStartedAt,
-        );
-        await blockedUnitCkpt.markFailed();
-        await checkpointMgr.markTaskFailed(ctx.journalTaskId, ctx.epicId);
-
-        // Propagate failure up the tree so parent status reflects this blocked child
-        if (preloadedUnit?.context) {
-          await rollUpCompletion(preloadedUnit, checkpointMgr);
-        } else {
-          await rollUpCompletion(
-            ctx.projectDir,
-            ctx.epicId,
-            ctx.journalTaskId,
-            checkpointMgr,
-          );
-        }
 
         // Clean up environment variables
         delete process.env.CONVERGE_TASK_ATTEMPT;
@@ -917,6 +912,7 @@ export async function executeTask(
           isWbsTask: false,
           durationMs: 0,
           isBlocking: false,
+          inputGateUnmet: true,
         };
       }
     }

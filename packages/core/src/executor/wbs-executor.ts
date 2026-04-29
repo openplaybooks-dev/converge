@@ -410,6 +410,18 @@ export class WbsExecutor {
               skipEntries.add("wbs");
             }
 
+            // Skip sibling DIRECTORIES whose root contains its own TASK.md /
+            // SKILL.md / task.ts — those are child task definitions, not
+            // supporting materials. Copying them recursively here causes the
+            // scanner to discover them as static children and race with the
+            // ctx.spawn-based instantiation. Materials (data files, prompts,
+            // images, json configs) are still copied as before.
+            const { existsSync: existsSyncFn } = await import("node:fs");
+            const isTaskDir = (dirAbs: string): boolean =>
+              existsSyncFn(join(dirAbs, "TASK.md")) ||
+              existsSyncFn(join(dirAbs, "SKILL.md")) ||
+              existsSyncFn(join(dirAbs, "task.ts"));
+
             try {
               const entries = await readdir(templateDir, {
                 withFileTypes: true,
@@ -418,9 +430,18 @@ export class WbsExecutor {
                 if (skipEntries.has(entry.name)) continue;
                 const src = join(templateDir, entry.name);
                 const dst = join(destDir, entry.name);
-                if (entry.isFile()) await copyFile(src, dst);
-                else if (entry.isDirectory())
+                if (entry.isFile()) {
+                  await copyFile(src, dst);
+                } else if (entry.isDirectory()) {
+                  if (isTaskDir(src)) {
+                    // Skip — task templates live here only so the parent's
+                    // wbs/index.js can ctx.spawn them. Letting them leak
+                    // into the journal would cause the scanner to schedule
+                    // them as siblings of the WBS-spawned instances.
+                    continue;
+                  }
                   await cp(src, dst, { recursive: true });
+                }
               }
             } catch {
               /* template dir may have no siblings */
