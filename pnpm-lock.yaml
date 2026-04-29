@@ -23,6 +23,9 @@ importers:
       '@xyflow/react':
         specifier: ^12.10.0
         version: 12.10.2(@types/react@19.2.14)(immer@11.1.4)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      chokidar:
+        specifier: ^4.0.0
+        version: 4.0.3
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1

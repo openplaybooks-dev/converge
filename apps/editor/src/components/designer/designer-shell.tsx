@@ -5,7 +5,7 @@ import { useState } from "react";
 import { PlaybookGraph } from "@/components/designer/playbook-graph";
 import { ArtifactsPanel, TasksPanel } from "@/components/designer/sidebar";
 import { Inspector, type TaskShape } from "@/components/designer/inspector";
-import type { RunState } from "@/lib/status-style";
+import { useLiveStatuses, type StatusMap } from "@/lib/use-live-statuses";
 
 function inspectorKey(task: TaskShape | undefined): string {
   if (!task) return "none";
@@ -34,7 +34,7 @@ interface Props {
   tasks: TaskShape[];
   artifacts: ArtifactShape[];
   dataFlow: { from: string; to: string; via: string }[];
-  statuses: Record<string, { state: RunState } | null>;
+  statuses: StatusMap;
 }
 
 type ViewMode = "graph" | "tree" | "gantt";
@@ -50,6 +50,11 @@ export function DesignerShell({
 }: Props) {
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const [view, setView] = useState<ViewMode>("graph");
+
+  const { statuses: liveStatuses, connection } = useLiveStatuses(
+    playbookName,
+    statuses,
+  );
 
   const selected = tasks.find((t) => t.id === selectedId);
 
@@ -69,6 +74,7 @@ export function DesignerShell({
         </div>
 
         <div className="flex items-center gap-3">
+          <LiveBadge phase={connection.phase} />
           <ViewSwitcher current={view} onChange={setView} />
           <Link
             href="/"
@@ -83,7 +89,7 @@ export function DesignerShell({
         <aside className="flex w-[260px] shrink-0 flex-col border-r border-[var(--color-border)]">
           <TasksPanel
             tasks={tasks}
-            statuses={statuses}
+            statuses={liveStatuses}
             selectedId={selectedId}
             onSelect={setSelectedId}
           />
@@ -99,7 +105,7 @@ export function DesignerShell({
               playbookName={playbookName}
               tasks={tasks}
               dataFlow={dataFlow}
-              statuses={statuses}
+              statuses={liveStatuses}
               selectedId={selectedId}
               onSelect={setSelectedId}
             />
@@ -116,6 +122,31 @@ export function DesignerShell({
         />
       </div>
     </div>
+  );
+}
+
+function LiveBadge({ phase }: { phase: "connecting" | "open" | "error" }) {
+  const presentation: Record<typeof phase, { dot: string; label: string }> = {
+    connecting: { dot: "var(--color-muted-foreground)", label: "Connecting" },
+    open: { dot: "var(--color-success)", label: "Live" },
+    error: { dot: "var(--color-danger)", label: "Reconnecting" },
+  };
+  const p = presentation[phase];
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)] px-2 py-1 text-[11px] text-[var(--color-muted-foreground)]"
+      title={`Journal stream: ${p.label.toLowerCase()}`}
+    >
+      <span
+        className={
+          phase === "open"
+            ? "h-1.5 w-1.5 animate-pulse rounded-full"
+            : "h-1.5 w-1.5 rounded-full"
+        }
+        style={{ background: p.dot }}
+      />
+      {p.label}
+    </span>
   );
 }
 

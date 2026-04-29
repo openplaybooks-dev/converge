@@ -16,6 +16,7 @@
     "@converge/core": "workspace:*",
     "@converge/project-root": "workspace:*",
     "@xyflow/react": "^12.10.0",
+    "chokidar": "^4.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dagre": "^0.8.5",
