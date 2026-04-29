@@ -476,3 +476,100 @@ Kanban (old M1) is moved to "future" and may never ship in this app.
   the resolved project root. Refuses to overwrite an existing playbook
   unless the user confirms.
 
+---
+
+## 13. Correction: Design and Run Are One Surface
+
+The previous pivot still split the world into a **designer** (graph, tree)
+and an **operational viewer** (kanban, gantt-from-journal). That framing is
+wrong. A playbook is a single living artifact — you design it, plan it,
+tweak it, run it, and edit it *while it's running*. The editor should
+reflect that, not separate it.
+
+### 13.1 The unified model
+
+There is one underlying object: the **playbook**. It has two coupled but
+independent state streams:
+
+| Stream    | Source on disk                              | Owner    |
+| --------- | ------------------------------------------- | -------- |
+| **Design**| `playbook.yml` + `tasks/**/TASK.md`         | Editor   |
+| **Run**   | `.converge/journal/<epicId>/...`            | Runner   |
+
+The editor reads from both, writes only to design. The runner reads from
+design, writes only to run state. Conflict resolution is already the
+runner's job (checkpoint reconcile in `core/checkpoint/reconcile.ts`), so
+edits during a run are safe by construction — the runner picks them up on
+its next reconcile.
+
+### 13.2 Views are lenses, not modes
+
+Graph, Tree, Gantt, and Kanban are **lenses** over the same task list.
+There is no "design mode" or "run mode" — every lens shows design fields
+*and* runtime status simultaneously:
+
+- **Graph (default).** Nodes show inputs/outputs; the node border, dot,
+  and (eventually) a pulsing animation reflect runtime status. Dependency
+  edges and data-flow edges are unchanged from §12.
+- **Tree.** WBS hierarchy, runtime status as a colored chip per node.
+- **Gantt.** Time-based, fed by `TASK_START` / `TASK_COMPLETE` journal
+  events. Tasks not yet run render as ghosted bars sized by an estimate
+  or by the last successful run's duration.
+- **Kanban.** `groupBy(status)`. Same cards as the tasks panel; the column
+  is the lens. Dragging a card here doesn't change status (status is the
+  runner's truth) but selects the task on the canvas.
+- **List.** Linear; secondary, mostly for keyboard-driven reordering.
+
+Kanban is no longer "deferred". It's just one of five lenses, each cheap
+because they all bind to the same data.
+
+### 13.3 Edits during a run
+
+The editor never needs to "lock" while the runner is active. Three rules:
+
+1. Saves write the same atomic `tmp + rename` we already do (M3). The
+   runner re-reads `TASK.md` on its own schedule, so the edit shows up
+   on the next cycle.
+2. The inspector shows a small chip per task — `running`, `complete`,
+   `failed`, etc. — read from the journal at request time and refreshed
+   over SSE.
+3. If the user tries to delete a dep that the runner is currently
+   following (rare, but possible), the runner's reconcile will skip the
+   missing dep on its next cycle. We do **not** add a confirmation dialog
+   for this; the runner already handles it.
+
+### 13.4 Live status — minimum and follow-up
+
+**Minimum (M5a, this slice).** On every page load, the server reads
+`status.json` for each declared task via `readTaskStatus()`. Nodes show
+the current status as a colored border + a small label. No live updates
+yet — refresh the page to see new state.
+
+**Follow-up (M5b).** SSE endpoint `GET /api/runs/<playbook>/events` that
+streams via `SimpleLogTailer`. The client merges incremental updates into
+the same status map without refetching the whole detail.
+
+**Follow-up (M7).** Inline run controls: a "Run" button in the header
+that spawns `converge run <name>` as a child process; a "Stop" button
+that signals it. Out of scope until M5b is solid.
+
+### 13.5 Revised milestone sequence (supersedes §12.6 from M5 on)
+
+- **M5a — Status overlay (one-shot).** Per-task status read at page
+  load; coloring on graph nodes and the tasks panel.
+- **M5b — Live tail.** SSE feed; client merges status updates without
+  reload.
+- **M3.5 — YAML fidelity.** Switch `gray-matter` for `yaml.parseDocument`
+  so saves stop reformatting unrelated frontmatter. Independent of M5;
+  schedule in parallel.
+- **M6 — AI: "Draft a playbook"** (lever #1 from §12.5). Unchanged.
+- **M7 — Inline run controls** (Start / Stop). Unchanged in scope, but
+  now cleanly composable with M5 because the lens shows the run live.
+- **M8 — Tree view, Gantt view, Kanban view.** All three become small
+  follow-ups; each is a few hundred lines because all the data is
+  already on the client.
+- **M9 — AI: "Fill this task" / "Suggest dependencies"** (levers #2 + #3).
+- **M10 — POC review.** Same decision: promote, keep, or delete.
+
+The previous "kanban deferred indefinitely" call is **rescinded**.
+

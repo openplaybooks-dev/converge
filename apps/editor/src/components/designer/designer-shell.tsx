@@ -5,6 +5,7 @@ import { useState } from "react";
 import { PlaybookGraph } from "@/components/designer/playbook-graph";
 import { ArtifactsPanel, TasksPanel } from "@/components/designer/sidebar";
 import { Inspector, type TaskShape } from "@/components/designer/inspector";
+import type { RunState } from "@/lib/status-style";
 
 function inspectorKey(task: TaskShape | undefined): string {
   if (!task) return "none";
@@ -33,6 +34,7 @@ interface Props {
   tasks: TaskShape[];
   artifacts: ArtifactShape[];
   dataFlow: { from: string; to: string; via: string }[];
+  statuses: Record<string, { state: RunState } | null>;
 }
 
 type ViewMode = "graph" | "tree" | "gantt";
@@ -44,6 +46,7 @@ export function DesignerShell({
   tasks,
   artifacts,
   dataFlow,
+  statuses,
 }: Props) {
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const [view, setView] = useState<ViewMode>("graph");
@@ -80,6 +83,7 @@ export function DesignerShell({
         <aside className="flex w-[260px] shrink-0 flex-col border-r border-[var(--color-border)]">
           <TasksPanel
             tasks={tasks}
+            statuses={statuses}
             selectedId={selectedId}
             onSelect={setSelectedId}
           />
@@ -95,6 +99,7 @@ export function DesignerShell({
               playbookName={playbookName}
               tasks={tasks}
               dataFlow={dataFlow}
+              statuses={statuses}
               selectedId={selectedId}
               onSelect={setSelectedId}
             />

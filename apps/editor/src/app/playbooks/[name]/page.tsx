@@ -21,6 +21,7 @@ export default async function PlaybookPage({
       tasks={detail.tasks}
       artifacts={detail.artifacts}
       dataFlow={detail.dataFlow}
+      statuses={detail.statuses}
     />
   );
 }

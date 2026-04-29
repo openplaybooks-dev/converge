@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { presentStatus, type RunState } from "@/lib/status-style";
 
 interface TaskShape {
   id: string;
@@ -17,10 +18,12 @@ interface ArtifactShape {
 
 export function TasksPanel({
   tasks,
+  statuses,
   selectedId,
   onSelect,
 }: {
   tasks: TaskShape[];
+  statuses: Record<string, { state: RunState } | null>;
   selectedId?: string;
   onSelect: (id: string | undefined) => void;
 }) {
@@ -42,6 +45,8 @@ export function TasksPanel({
         ) : (
           tasks.map((t) => {
             const active = t.id === selectedId;
+            const status = statuses[t.id]?.state ?? "pending";
+            const presented = presentStatus(status);
             return (
               <li key={t.id}>
                 <button
@@ -53,6 +58,11 @@ export function TasksPanel({
                   )}
                 >
                   <div className="flex w-full items-center gap-2">
+                    <span
+                      className="h-2 w-2 shrink-0 rounded-full"
+                      style={{ background: presented.color }}
+                      title={presented.label}
+                    />
                     <span className="truncate font-mono text-[11px] text-[var(--color-muted-foreground)]">
                       {t.id}
                     </span>

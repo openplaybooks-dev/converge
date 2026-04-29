@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { TaskNode } from "@/components/designer/task-node";
 import { layoutDag } from "@/lib/graph-layout";
 import { wouldCreateCycle } from "@/lib/cycles";
+import type { RunState } from "@/lib/status-style";
 
 interface TaskShape {
   id: string;
@@ -42,6 +43,7 @@ interface Props {
   playbookName: string;
   tasks: TaskShape[];
   dataFlow: DataFlow[];
+  statuses: Record<string, { state: RunState } | null>;
   selectedId?: string;
   onSelect?: (id: string | undefined) => void;
 }
@@ -50,6 +52,7 @@ export function PlaybookGraph({
   playbookName,
   tasks,
   dataFlow,
+  statuses,
   selectedId,
   onSelect,
 }: Props) {
@@ -128,11 +131,12 @@ export function PlaybookGraph({
         outputs: t.outputs,
         blocking: t.blocking,
         selected: t.id === selectedId,
+        status: statuses[t.id]?.state ?? "pending",
       },
     }));
 
     return { nodes, edges: allEdges };
-  }, [tasks, dataFlow, selectedId]);
+  }, [tasks, dataFlow, statuses, selectedId]);
 
   const writeDeps = useCallback(
     async (

@@ -8,6 +8,7 @@ import {
   type ScannedArtifact,
   type ScannedTask,
 } from "@/lib/tasks-scanner";
+import { readPlaybookStatuses, type TaskRunStatus } from "@/lib/journal";
 
 export function resolveProjectRoot(): string {
   const fromEnv = process.env.CONVERGE_ROOT;
@@ -38,17 +39,24 @@ export interface PlaybookDetail {
   tasks: ScannedTask[];
   artifacts: ScannedArtifact[];
   dataFlow: { from: string; to: string; via: string }[];
+  statuses: Record<string, TaskRunStatus | null>;
 }
 
 export async function getPlaybookDetail(
   name: string,
 ): Promise<PlaybookDetail | null> {
-  const source = await getPlaybook(name);
+  const root = resolveProjectRoot();
+  const source = await loadPlaybook(name, root);
   if (!source) return null;
 
   const tasks = await scanTasks(source.templateDir);
   const artifacts = deriveArtifacts(tasks);
   const dataFlow = deriveDataFlowEdges(tasks);
+  const statuses = await readPlaybookStatuses(
+    root,
+    source.def.name,
+    tasks.map((t) => t.id),
+  );
 
   const inputsRecord = (source.def.inputs ?? {}) as Record<
     string,
@@ -70,5 +78,6 @@ export async function getPlaybookDetail(
     tasks,
     artifacts,
     dataFlow,
+    statuses,
   };
 }

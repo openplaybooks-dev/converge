@@ -2,6 +2,7 @@
 
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { cn } from "@/lib/utils";
+import { presentStatus, type RunState } from "@/lib/status-style";
 
 export interface TaskNodeData {
   id: string;
@@ -10,31 +11,72 @@ export interface TaskNodeData {
   outputs: string[];
   blocking?: boolean;
   selected?: boolean;
+  status?: RunState;
 }
 
 export function TaskNode({ data }: NodeProps) {
   const d = data as unknown as TaskNodeData;
+  const presented = presentStatus(d.status);
+  const showStatusChip = d.status && d.status !== "pending";
+
   return (
     <div
       className={cn(
-        "min-w-[220px] max-w-[260px] rounded-lg border bg-[var(--color-card)] shadow-sm",
-        d.selected
-          ? "border-[var(--color-primary)] ring-2 ring-[var(--color-primary)]/40"
-          : "border-[var(--color-border)]",
+        "min-w-[220px] max-w-[260px] rounded-lg border bg-[var(--color-card)] shadow-sm transition-shadow",
+        d.selected ? "ring-2 ring-[var(--color-primary)]/40" : "",
+        presented.animated && "animate-pulse",
       )}
+      style={{
+        borderColor:
+          d.status && d.status !== "pending"
+            ? presented.color
+            : "var(--color-border)",
+        background:
+          d.status && d.status !== "pending"
+            ? `linear-gradient(0deg, ${presented.tint}, ${presented.tint}), var(--color-card)`
+            : undefined,
+      }}
     >
-      <div className="flex items-center justify-between gap-2 border-b border-[var(--color-border)] px-3 py-2">
+      <div
+        className="flex items-center justify-between gap-2 border-b px-3 py-2"
+        style={{
+          borderColor:
+            d.status && d.status !== "pending"
+              ? presented.color
+              : "var(--color-border)",
+        }}
+      >
         <div className="min-w-0">
-          <div className="truncate text-xs font-mono text-[var(--color-muted-foreground)]">
-            {d.id}
+          <div className="flex items-center gap-1.5">
+            <span
+              className="h-1.5 w-1.5 shrink-0 rounded-full"
+              style={{ background: presented.color }}
+              aria-label={presented.label}
+            />
+            <div className="truncate text-xs font-mono text-[var(--color-muted-foreground)]">
+              {d.id}
+            </div>
           </div>
-          <div className="truncate text-sm font-medium">{d.title}</div>
+          <div className="mt-0.5 truncate text-sm font-medium">{d.title}</div>
         </div>
-        {d.blocking ? (
-          <span className="shrink-0 rounded-full bg-[var(--color-warning)]/15 px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-warning)]">
-            blocking
-          </span>
-        ) : null}
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          {d.blocking ? (
+            <span className="rounded-full bg-[var(--color-warning)]/15 px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-warning)]">
+              blocking
+            </span>
+          ) : null}
+          {showStatusChip ? (
+            <span
+              className="rounded-full px-1.5 py-0.5 text-[10px] font-medium"
+              style={{
+                background: presented.tint,
+                color: presented.color,
+              }}
+            >
+              {presented.label}
+            </span>
+          ) : null}
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-2 px-3 py-2 text-[11px]">
