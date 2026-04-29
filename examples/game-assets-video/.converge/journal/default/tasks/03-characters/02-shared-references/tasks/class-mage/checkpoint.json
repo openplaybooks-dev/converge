@@ -2,15 +2,15 @@
   "type": "task",
   "id": "03-characters/02-shared-references/class-mage",
   "status": "complete",
-  "lastUpdated": "2026-04-27T16:15:04.308Z",
-  "createdAt": "2026-04-27T16:15:03.930Z",
+  "lastUpdated": "2026-04-28T13:10:19.722Z",
+  "createdAt": "2026-04-28T13:07:28.024Z",
   "attempts": [
     {
       "attempt": 1,
-      "startedAt": "2026-04-27T16:15:03.930Z",
-      "completedAt": "2026-04-27T16:15:04.286Z",
+      "startedAt": "2026-04-28T13:07:28.024Z",
+      "completedAt": "2026-04-28T13:10:19.699Z",
       "outcome": "success",
-      "durationMs": 356
+      "durationMs": 171675
     }
   ],
   "currentAttempt": 1

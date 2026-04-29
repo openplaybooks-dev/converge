@@ -1,0 +1,34 @@
+{
+  "image": "bg-far.png",
+  "meta": {
+    "scene_id": "forest-tutorial",
+    "layer_id": "far",
+    "transparent": true,
+    "blend_with_above": null,
+    "rows": 1,
+    "cols": 1,
+    "frame_count": 1,
+    "frame_size": {
+      "w": 3904,
+      "h": 960
+    },
+    "sheet_size": {
+      "w": 3904,
+      "h": 960
+    },
+    "frame_order": "single",
+    "seed": 421806051
+  },
+  "frames": [
+    {
+      "filename": "bg-far_000.png",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 3904,
+        "h": 960
+      },
+      "anchor": null
+    }
+  ]
+}

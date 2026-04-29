@@ -1,6 +1,6 @@
 # Task: 03-shared-props/gold-key-spritesheet-idle
 
-# Gold Key idle Sprite Sheet
+# Ornate Golden Key With Gem Inset idle Sprite Sheet
 
 Runs `scripts/generate_prop_spritesheet.py gold-key idle`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so the prop's identity stays consistent across frames.
 

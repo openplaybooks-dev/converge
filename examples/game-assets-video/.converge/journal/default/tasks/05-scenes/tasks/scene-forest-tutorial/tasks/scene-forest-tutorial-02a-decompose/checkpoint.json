@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02a-decompose",
+  "status": "complete",
+  "lastUpdated": "2026-04-28T22:23:14.964Z",
+  "createdAt": "2026-04-28T22:21:40.273Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-28T22:21:40.273Z",
+      "completedAt": "2026-04-28T22:23:14.937Z",
+      "outcome": "success",
+      "durationMs": 94664
+    }
+  ],
+  "currentAttempt": 1
+}

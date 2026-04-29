@@ -1,0 +1,58 @@
+{
+  "taskId": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02c-background/scene-forest-tutorial-02c-background-02c-bg-near/scene-forest-tutorial-02c-background-02c-bg-near-seg-07",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "assets/scenes/forest-tutorial/concept.png",
+      "count": 1,
+      "samples": [
+        "assets/scenes/forest-tutorial/concept.png"
+      ]
+    },
+    {
+      "pattern": "assets/scenes/forest-tutorial/scene-plan.json",
+      "count": 1,
+      "samples": [
+        "assets/scenes/forest-tutorial/scene-plan.json"
+      ]
+    },
+    {
+      "pattern": "assets/scenes/forest-tutorial/stage.json",
+      "count": 1,
+      "samples": [
+        "assets/scenes/forest-tutorial/stage.json"
+      ]
+    },
+    {
+      "pattern": "assets/scenes/forest-tutorial/map.silhouette.png",
+      "count": 1,
+      "samples": [
+        "assets/scenes/forest-tutorial/map.silhouette.png"
+      ]
+    },
+    {
+      "pattern": "assets/concept/style-sheet.png",
+      "count": 1,
+      "samples": [
+        "assets/concept/style-sheet.png"
+      ]
+    },
+    {
+      "pattern": "assets/scenes/forest-tutorial/bg-mid.png",
+      "count": 0,
+      "samples": []
+    },
+    {
+      "pattern": "assets/scenes/forest-tutorial/bg-near/seg-005.png",
+      "count": 1,
+      "samples": [
+        "assets/scenes/forest-tutorial/bg-near/seg-005.png"
+      ]
+    }
+  ],
+  "outputs": [
+    "assets/scenes/forest-tutorial/bg-near/seg-006.png"
+  ],
+  "blocked": true,
+  "blockedReason": "Missing required inputs: assets/scenes/forest-tutorial/bg-mid.png"
+}

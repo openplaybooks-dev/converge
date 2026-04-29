@@ -1,0 +1,24 @@
+{
+  "taskId": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02a-decompose",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "assets/scenes/forest-tutorial/concept.png",
+      "count": 1,
+      "samples": [
+        "assets/scenes/forest-tutorial/concept.png"
+      ]
+    },
+    {
+      "pattern": "assets/scenes/forest-tutorial/extracted/manifest.json",
+      "count": 1,
+      "samples": [
+        "assets/scenes/forest-tutorial/extracted/manifest.json"
+      ]
+    }
+  ],
+  "outputs": [
+    "assets/scenes/forest-tutorial/scene-plan.json"
+  ],
+  "blocked": false
+}

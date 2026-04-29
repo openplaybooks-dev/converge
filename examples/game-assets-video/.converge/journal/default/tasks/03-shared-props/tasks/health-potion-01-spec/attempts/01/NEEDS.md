@@ -2,7 +2,7 @@
 
 ## Description
 
-Red flask with sparkle particles, restores health when collected.
+Red flask with sparkle particles
 
 ## Expected Outputs
 

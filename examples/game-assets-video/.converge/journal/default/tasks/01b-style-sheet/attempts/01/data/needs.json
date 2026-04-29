@@ -1,0 +1,11 @@
+{
+  "taskId": "01b-style-sheet",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/concept/style-sheet.png",
+    "assets/concept/style-sheet.prompt.txt",
+    "assets/concept/style-sheet.seed.txt"
+  ],
+  "blocked": false
+}

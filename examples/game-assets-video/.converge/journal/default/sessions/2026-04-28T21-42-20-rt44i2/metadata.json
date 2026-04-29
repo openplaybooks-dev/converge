@@ -1,0 +1,23 @@
+{
+  "sessionId": "2026-04-28T21-42-20-rt44i2",
+  "projectName": "game-assets-video",
+  "startTime": "2026-04-28T21:42:20.012Z",
+  "status": "error",
+  "config": {
+    "maxIterations": 500,
+    "maxAttemptsPerTask": 2
+  },
+  "environment": {
+    "nodeVersion": "v22.19.0",
+    "platform": "darwin"
+  },
+  "endTime": "2026-04-28T21:44:51.945Z",
+  "duration": 151933,
+  "outcomes": {
+    "totalIterations": 7,
+    "tasksCompleted": 4,
+    "tasksFailed": 1,
+    "gapsResolved": 0,
+    "convergenceAchieved": false
+  }
+}

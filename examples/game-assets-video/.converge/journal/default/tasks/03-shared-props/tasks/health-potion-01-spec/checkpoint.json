@@ -2,15 +2,15 @@
   "type": "task",
   "id": "03-shared-props/health-potion-01-spec",
   "status": "complete",
-  "lastUpdated": "2026-04-27T16:20:03.753Z",
-  "createdAt": "2026-04-27T16:19:25.460Z",
+  "lastUpdated": "2026-04-28T13:53:39.350Z",
+  "createdAt": "2026-04-28T13:21:50.259Z",
   "attempts": [
     {
       "attempt": 1,
-      "startedAt": "2026-04-27T16:19:25.460Z",
-      "completedAt": "2026-04-27T16:20:03.719Z",
+      "startedAt": "2026-04-28T13:21:50.259Z",
+      "completedAt": "2026-04-28T13:22:32.093Z",
       "outcome": "success",
-      "durationMs": 38259
+      "durationMs": 41834
     }
   ],
   "currentAttempt": 1

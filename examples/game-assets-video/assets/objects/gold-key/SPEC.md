@@ -1,18 +1,29 @@
-# Gold Key — SPEC
+# Prop Spec: Ornate Golden Key With Gem Inset
 
-**ID**: gold-key
-**Category**: item
-**States**: idle, collect
+- **ID**: gold-key
+- **Name**: Ornate Golden Key With Gem Inset
+- **Category**: item
+
+## Description
+
+Ornate golden key with gem inset.
 
 ## Visual Identity
 
-An ornate golden key with a clear bow-shaft-bit silhouette that reads instantly at sprite scale, distinguishing it from coins or generic pickups. A single gem inset on the bow adds a focal accent against warm gold midtones with one bright highlight along the shaft, keeping the palette tight to two golds plus the gem hue — no extra colors that would compete with characters or hazards sharing the scene.
+Compact key silhouette with an ornate bow and a single gem inset, reading clearly at small sizes. Warm gold dominates the body with a saturated jewel-tone gem accent and crisp dark outline; palette stays disciplined within the project ART_BIBLE.md and avoids introducing colors outside the established game palette.
 
-## Per-State Animation Intent
+## Animation States
 
-- **idle** — The key hovers with a slow vertical bob and a subtle rotational sway, with the gem catching a soft periodic glint to draw the eye without flashing.
-- **collect** — The key pops upward briefly, brightens with a quick sparkle burst, then fades out as it despawns, selling the pickup in a single readable beat.
+- `idle` — gentle hover with a slow rotation and soft sparkle, signaling pickup affordance.
 
-## Category Behavior — item
+## Category Behavior
 
-Collected by the player on contact; the prop transitions idle → collect, awards the key to the player, and **despawns** at the end of the collect animation. The prop is not persistent and does not remain in the scene after pickup.
+- **item** — collected by player, despawns on collect.
+
+## Technical Specifications
+
+- Output directory: `assets/objects/gold-key/`
+- One sprite sheet / frame set per animation state listed above.
+- Transparent background.
+- Consistent pivot and frame size across all states.
+- Palette: follow project ART_BIBLE.md.

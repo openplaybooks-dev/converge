@@ -1,0 +1,200 @@
+        You are designing the playable layout of a 2D action-scroller scene
+        as a structured JSON blueprint. Downstream pipeline tasks read this
+        blueprint and use it to size backgrounds, generate tilemap chunks,
+        and place scene props — so it MUST be specific, concrete, and
+        self-consistent. Treat this like blocking out a Hollow Knight /
+        Celeste / Dead Cells room: every section of the map should have a
+        reason to exist, and the map should read as a sequence of beats,
+        not a flat strip.
+
+        Scene: Forest Tutorial (id: 'forest-tutorial')
+        Biome: grassland
+        Description:
+        Open grassland tutorial scene with a winding dirt path, scattered trees and rocks, and a small water pond. The player picks up a gold key and a health potion while learning movement and pickup mechanics. Includes 2-3 small jumps, a water-pit hazard you must jump over, and one optional ledge with a hidden potion.
+
+        ART / NARRATIVE SPEC (from SPEC.md, supplemental context):
+        ```
+        # Scene SPEC: forest-tutorial
+
+## Background
+- Layers: far, mid, near
+- Width: 1024px, Height: 1024px
+- Tile seamlessly: no
+- Notes:
+    - far: Depict distant, hazy blue mountains under a light blue sky with faint, wispy clouds. The colors should reflect Light Sky Blue and Distant Mountain Blue from the Art Bible.
+    - mid: Showcase closer, slightly more defined mountains and a line of denser, darker green forest trees in the middle distance. The sky should transition from Light Sky Blue to Sunset Yellow towards the horizon.
+    - near: Feature large, prominent trees with deep green foliage and brown trunks, along with substantial bushes in the foreground. The lighting should suggest a warm horizon glow from the Sunset Yellow palette.
+
+## Tilemap
+- Tile size: 16px
+- Sheet grid: 4×4
+- Variants needed: grass, grass-flowers, dirt, path-corner-NE, path-corner-NW, path-corner-SE, path-corner-SW, water, water-edge-grass, tree-stump, rock-small
+- Notes: Grass tiles should have rounded blades and bright green hues. Dirt path tiles should be warm earthen brown. All tiles should feature soft, subtle shadows beneath them to create a sense of depth, with water tiles showing a gentle wave pattern.
+
+## Scene props
+
+## Characters in this scene
+- hero-knight
+
+## Shared props referenced
+- gold-key, health-potion
+        ```
+
+        Declared in scenes.json:
+          - characters[]:   ["hero-knight"]
+          - scene_props[]:  []
+          - shared_props[]: ["gold-key", "health-potion"]
+          - bg layers:      ["far", "mid", "near"]
+
+        From scene-plan.json (per-layer art direction already done):
+        ```json
+        {
+  "layers": [
+    {
+      "id": "far",
+      "target_size": [
+        2048,
+        1152
+      ],
+      "transparent": true,
+      "blend_with_above": null,
+      "subject_height_tiles": 1.5,
+      "regions": [
+        {
+          "x_norm": [
+            0.0,
+            0.5
+          ],
+          "content": "Distant rolling grassland hills under a warm cream sky on the left side; soft hazy silhouettes of trees on the far horizon."
+        },
+        {
+          "x_norm": [
+            0.5,
+            1.0
+          ],
+          "content": "Continuation of the rolling hills on the right with a slightly taller hill profile; the sky brightens subtly toward the upper right."
+        }
+      ],
+      "palette": "warm cream sky, hazy blue-green distant hills, soft golden horizon",
+      "extend": null
+    },
+    {
+      "id": "mid",
+      "target_size": [
+        2048,
+        1152
+      ],
+      "transparent": true,
+      "blend_with_above": "far",
+      "subject_height_tiles": 3.5,
+      "regions": [
+        {
+          "x_norm": [
+            0.0,
+            0.5
+          ],
+          "content": "Mid-distance grassland with scattered trees and bushes on the left, including a small grove that frames the play area."
+        },
+        {
+          "x_norm": [
+            0.5,
+            1.0
+          ],
+          "content": "Mid-distance grassland on the right with one or two larger trees and a hint of a small water pond peeking through."
+        }
+      ],
+      "palette": "s
+        ```
+
+        Game-wide constants (HARD — do not change):
+          - view: top-down-2d
+          - tile_size_px: 16
+          - world.width_tiles: 244   (computed from gameplay duration × walk speed; do not alter)
+          - world.height_tiles: 60
+          - target chunk count: ~8 chunks (one beat per chunk roughly)
+
+        Output ONE JSON object with the following schema:
+
+        ```json
+        {
+          "scene_id": "forest-tutorial",
+          "tile_size_px": 16,
+          "world": {
+            "width_tiles":  244,
+            "height_tiles": 60
+          },
+          "elevation": [               // ground silhouette samples (y_tile = playable floor height at this x_tile)
+            { "x_tile": <int>, "y_tile": <int> }  // sample every ~15 tiles. y_tile=0 is the bottom; larger = higher ground.
+            // ... 12-32 samples covering [0, 244]; MUST vary by at least 4 tiles between min and max
+          ],
+          "beats": [                   // 8-10 narrative beats left-to-right — the gameplay rhythm.
+            {
+              "x_tile":  <int>,
+              "kind":    <"spawn" | "platform-up" | "platform-down" | "hazard" | "pickup" | "encounter" | "set-piece" | "exit">,
+              "label":   <short string — e.g. "first-jump", "key-pickup", "water-crossing">
+            }
+          ],
+          "platforms": [               // axis-aligned playable surfaces at non-floor heights — for jumps, drops, vertical interest.
+            {
+              "x_tiles":  [<int>, <int>],   // [start, end) along x
+              "y_tile":   <int>,            // top surface height (player stands on this)
+              "kind":     <"floor" | "ledge" | "elevated" | "ceiling" | "moving">,
+              "label":    <short string>
+            }
+            // MUST include at least 2 non-floor platforms unless the scene description forbids verticality.
+          ],
+          "hazards": [                 // pits, spikes, water, enemies — anything the player must avoid or fight.
+            {
+              "x_tile": <int>,
+              "kind":   <"pit" | "spikes" | "water" | "fire" | "enemy-melee" | "enemy-ranged" | "moving-hazard">,
+              "label":  <short string>
+            }
+            // MUST include at least 2 hazards unless the scene is explicitly a no-threat tutorial intro.
+          ],
+          "chunks": [                 // ~8 contiguous left-to-right chunks; must tile world.width_tiles with no gaps and no overlaps.
+            {
+              "id":             <kebab-case string>,
+              "x_tiles":        [<int>, <int>],
+              "biome_variant":  <string>,                  // e.g. "grassland-open", "grassland-path", "ruins-overgrown"
+              "ground_type":    <string>,                  // primary tile family covering the floor in this chunk
+              "elevation_range": [<int>, <int>],           // [min y_tile, max y_tile] of ground inside this chunk's x range
+              "platforms":      [<int>, ...],              // indices into top-level platforms[] that lie in this chunk's x range
+              "hazards":        [<int>, ...],              // indices into top-level hazards[] that lie in this chunk
+              "transitions":    [<string>, ...],           // transition tile descriptors (e.g. "path-corner-NW@x18", "grass-to-water@x42")
+              "scene_props":    [
+                { "id": <string>, "x_tiles": <int>, "y_tiles": <int> }
+              ],
+              "narrative":      <one or two sentences: what does the player encounter and learn in this chunk?>
+            }
+          ],
+          "background": {
+            "target_width_px":   <int>,   // = world.width_tiles * tile_size_px
+            "target_height_px":  <int>,   // = world.height_tiles * tile_size_px
+            "segment_width_px":  1024,
+            "overlap_px": {
+              "mid":  128,
+              "near": 256
+            }
+          },
+          "tilemap_chunks": [                              // one entry per chunks[]; same x_tiles boundaries
+            { "x_tiles": [<int>, <int>], "tile_set": [<tile_id>, ...] }
+          ]
+        }
+        ```
+
+        Hard rules:
+        - `world.width_tiles` MUST equal 244. Do not change this value — it was computed from gameplay duration.
+        - `world.height_tiles` MUST equal 60.
+        - Every entry in scenes.json `characters[]`, `scene_props[]`, and `shared_props[]` must appear in exactly one chunk's `scene_props[]`. None should be dropped.
+        - `chunks[].x_tiles` ranges must be contiguous and cover `[0, 244]` exactly — no gaps, no overlaps.
+        - `tilemap_chunks` must have the same x_tiles boundaries as `chunks`.
+        - `background.target_width_px` must equal 3904.
+        - `background.target_height_px` must equal 960.
+        - `elevation` samples MUST start at x_tile=0 and end at x_tile=244, sorted ascending; y_tile values must span a range of at least 4 tiles between the minimum and maximum (a flat profile is rejected).
+        - `beats` MUST tell an action-scroller arc: spawn → first-interaction → middle set-piece → climax/exit. Order ascending by x_tile.
+        - At least one `kind:"spawn"` beat at x_tile≤2 and one `kind:"exit"` beat at x_tile≥242.
+        - Pickups declared in scenes.json must appear as `kind:"pickup"` beats AND be placed in the chunk containing their x_tile.
+        - `platforms[]` must include at least 2 non-floor entries (kind in ["ledge","elevated","moving"]) unless the scene description explicitly says "no verticality".
+        - `hazards[]` must include at least 2 entries unless the scene is a "no-threat tutorial intro".
+        - Each chunk's `narrative` is one or two sentences naming concrete features the player encounters in that x range — reference the platforms / hazards / props / transitions that fall inside it.
+        - Output ONLY the JSON object. No prose outside the code fence.

@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "01c-catalog-spec",
+  "status": "complete",
+  "lastUpdated": "2026-04-28T13:50:44.446Z",
+  "createdAt": "2026-04-28T13:49:41.919Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-28T13:49:41.919Z",
+      "completedAt": "2026-04-28T13:50:44.419Z",
+      "outcome": "success",
+      "durationMs": 62500
+    }
+  ],
+  "currentAttempt": 1
+}

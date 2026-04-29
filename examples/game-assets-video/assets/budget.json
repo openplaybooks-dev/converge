@@ -2,712 +2,916 @@
   "budget_cents": 1000,
   "log": [
     {
-      "ts": "2026-04-27T11:37:32.963687+00:00",
-      "service": "video-stub",
-      "cost_cents": 0,
-      "note": "hero-knight/idle 8.0s"
-    },
-    {
-      "ts": "2026-04-27T11:48:19.353056+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "hero-knight/canonical-side_right"
-    },
-    {
-      "ts": "2026-04-27T12:19:50.789844+00:00",
-      "service": "video-stub",
-      "cost_cents": 0,
-      "note": "test-stub/idle 5.0s"
-    },
-    {
-      "ts": "2026-04-27T12:42:38.402305+00:00",
-      "service": "video-grok",
-      "cost_cents": 25,
-      "note": "hero-knight/idle 5.0s"
-    },
-    {
-      "ts": "2026-04-27T12:50:24.962057+00:00",
-      "service": "video-grok",
-      "cost_cents": 25,
-      "note": "hero-knight/idle 5.0s"
-    },
-    {
-      "ts": "2026-04-27T13:34:14.459046+00:00",
-      "service": "video-grok",
-      "cost_cents": 25,
-      "note": "hero-knight/walk 5.0s"
-    },
-    {
-      "ts": "2026-04-27T13:50:53.834403+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "grassland/grass-base"
-    },
-    {
-      "ts": "2026-04-27T13:51:09.929117+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "grassland/grass-edge-left"
-    },
-    {
-      "ts": "2026-04-27T13:51:26.981581+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "grassland/grass-edge-right"
-    },
-    {
-      "ts": "2026-04-27T13:51:50.994443+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "grassland/grass-tall"
-    },
-    {
-      "ts": "2026-04-27T13:52:10.971097+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "grassland/earth-fill"
-    },
-    {
-      "ts": "2026-04-27T13:52:29.419342+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "grassland/earth-rocky"
-    },
-    {
-      "ts": "2026-04-27T13:52:57.923829+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "grassland/flower-yellow"
-    },
-    {
-      "ts": "2026-04-27T13:53:17.373205+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "grassland/flower-pink"
-    },
-    {
-      "ts": "2026-04-27T13:53:32.781190+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "grassland/flower-white"
-    },
-    {
-      "ts": "2026-04-27T13:53:55.536522+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "grassland/weed-clump"
-    },
-    {
-      "ts": "2026-04-27T13:54:08.553280+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "grassland/stone-small"
-    },
-    {
-      "ts": "2026-04-27T13:54:25.350631+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "grassland/stone-pair"
-    },
-    {
-      "ts": "2026-04-27T13:54:41.195822+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "grassland/stone-large"
-    },
-    {
-      "ts": "2026-04-27T13:55:01.538185+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "grassland/log-mossy"
-    },
-    {
-      "ts": "2026-04-27T13:55:20.093026+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "grassland/mushroom-red"
-    },
-    {
-      "ts": "2026-04-27T13:55:45.892377+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "grassland/filler-grass"
-    },
-    {
-      "ts": "2026-04-27T13:56:54.132821+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "forest-far/background-far"
-    },
-    {
-      "ts": "2026-04-27T13:57:14.659027+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "forest-mid/background-mid"
-    },
-    {
-      "ts": "2026-04-27T13:57:37.550969+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "forest-near/background-near"
-    },
-    {
-      "ts": "2026-04-27T13:59:08.285404+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "health-potion/prop-idle attempt 1"
-    },
-    {
-      "ts": "2026-04-27T13:59:34.075461+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "health-potion/prop-idle attempt 2"
-    },
-    {
-      "ts": "2026-04-27T13:59:49.469494+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "health-potion/prop-idle attempt 3"
-    },
-    {
-      "ts": "2026-04-27T14:00:08.507904+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "health-potion/prop-collect attempt 1"
-    },
-    {
-      "ts": "2026-04-27T14:00:42.227089+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "health-potion/prop-collect attempt 2"
-    },
-    {
-      "ts": "2026-04-27T14:00:58.192322+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "health-potion/prop-collect attempt 3"
-    },
-    {
-      "ts": "2026-04-27T14:01:16.166892+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "gold-key/prop-idle attempt 1"
-    },
-    {
-      "ts": "2026-04-27T14:01:46.009678+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "gold-key/prop-idle attempt 2"
-    },
-    {
-      "ts": "2026-04-27T14:02:09.138265+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "gold-key/prop-idle attempt 3"
-    },
-    {
-      "ts": "2026-04-27T14:02:26.084467+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "gold-key/prop-collect attempt 1"
-    },
-    {
-      "ts": "2026-04-27T14:02:41.573549+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "gold-key/prop-collect attempt 2"
-    },
-    {
-      "ts": "2026-04-27T14:02:56.635913+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "gold-key/prop-collect attempt 3"
-    },
-    {
-      "ts": "2026-04-27T14:03:26.952776+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "spike-trap/prop-idle attempt 1"
-    },
-    {
-      "ts": "2026-04-27T14:03:44.808527+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "spike-trap/prop-idle attempt 2"
-    },
-    {
-      "ts": "2026-04-27T14:04:03.524600+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "spike-trap/prop-idle attempt 3"
-    },
-    {
-      "ts": "2026-04-27T14:04:25.008463+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "spike-trap/prop-trigger attempt 1"
-    },
-    {
-      "ts": "2026-04-27T14:04:43.638796+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "spike-trap/prop-trigger attempt 2"
-    },
-    {
-      "ts": "2026-04-27T14:04:59.965594+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "spike-trap/prop-trigger attempt 3"
-    },
-    {
-      "ts": "2026-04-27T14:05:28.147279+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "bounce-spring/prop-idle attempt 1"
-    },
-    {
-      "ts": "2026-04-27T14:05:52.679001+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "bounce-spring/prop-idle attempt 2"
-    },
-    {
-      "ts": "2026-04-27T14:06:10.110934+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "bounce-spring/prop-idle attempt 3"
-    },
-    {
-      "ts": "2026-04-27T14:06:37.383691+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "bounce-spring/prop-bounce attempt 1"
-    },
-    {
-      "ts": "2026-04-27T14:07:00.656646+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "bounce-spring/prop-bounce attempt 2"
-    },
-    {
-      "ts": "2026-04-27T14:07:22.003458+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "bounce-spring/prop-bounce attempt 3"
-    },
-    {
-      "ts": "2026-04-27T14:07:40.863229+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "wood-ladder/prop-idle attempt 1"
-    },
-    {
-      "ts": "2026-04-27T14:07:58.549805+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "wood-ladder/prop-idle attempt 2"
-    },
-    {
-      "ts": "2026-04-27T14:08:14.960274+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "wood-ladder/prop-idle attempt 3"
-    },
-    {
-      "ts": "2026-04-27T14:08:42.647254+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "checkpoint-flag/prop-idle attempt 1"
-    },
-    {
-      "ts": "2026-04-27T14:09:07.747613+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "checkpoint-flag/prop-idle attempt 2"
-    },
-    {
-      "ts": "2026-04-27T14:09:37.644747+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "checkpoint-flag/prop-idle attempt 3"
-    },
-    {
-      "ts": "2026-04-27T14:10:06.989797+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "checkpoint-flag/prop-activate attempt 1"
-    },
-    {
-      "ts": "2026-04-27T14:10:24.681152+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "checkpoint-flag/prop-activate attempt 2"
-    },
-    {
-      "ts": "2026-04-27T14:10:41.989363+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "checkpoint-flag/prop-activate attempt 3"
-    },
-    {
-      "ts": "2026-04-27T16:03:14.632239+00:00",
+      "ts": "2026-04-28T13:05:08.759455+00:00",
       "service": "image-gemini",
       "cost_cents": 5,
       "note": "visual-target"
     },
     {
-      "ts": "2026-04-27T16:03:38.983221+00:00",
-      "service": "text-gemini",
-      "cost_cents": 5,
-      "note": "ASSETS.md generation"
-    },
-    {
-      "ts": "2026-04-27T16:13:13.197574+00:00",
+      "ts": "2026-04-28T13:06:22.186755+00:00",
       "service": "text-gemini",
       "cost_cents": 5,
       "note": "ART_BIBLE.md generation"
     },
     {
-      "ts": "2026-04-27T16:13:35.744928+00:00",
+      "ts": "2026-04-28T13:06:50.437623+00:00",
       "service": "image-gemini",
       "cost_cents": 5,
       "note": "concept-hero-shot"
     },
     {
-      "ts": "2026-04-27T16:16:19.643714+00:00",
+      "ts": "2026-04-28T13:17:04.288037+00:00",
       "service": "image-gemini",
       "cost_cents": 5,
       "note": "forest-elf/canonical-side_right"
     },
     {
-      "ts": "2026-04-27T16:26:57.924467+00:00",
+      "ts": "2026-04-28T13:19:14.057631+00:00",
       "service": "image-gemini",
       "cost_cents": 5,
-      "note": "scene-forest-1/concept"
+      "note": "hero-knight/canonical-side_right"
     },
     {
-      "ts": "2026-04-27T16:27:27.526405+00:00",
+      "ts": "2026-04-28T13:21:13.048615+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "gold-key/prop-idle attempt 1"
+    },
+    {
+      "ts": "2026-04-28T13:23:04.072500+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "health-potion/prop-idle attempt 1"
+    },
+    {
+      "ts": "2026-04-28T13:25:13.096897+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "ui-health-bar/prop-idle attempt 1"
+    },
+    {
+      "ts": "2026-04-28T13:27:06.590008+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "ui-key-slot/prop-idle attempt 1"
+    },
+    {
+      "ts": "2026-04-28T13:34:17.404933+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-tutorial/concept"
+    },
+    {
+      "ts": "2026-04-28T13:34:44.684260+00:00",
       "service": "text-gemini",
       "cost_cents": 5,
-      "note": "scene-forest-1/SPEC.md"
+      "note": "scene-forest-tutorial/SPEC.md"
     },
     {
-      "ts": "2026-04-27T16:31:38.077557+00:00",
+      "ts": "2026-04-28T13:49:08.935524+00:00",
       "service": "image-gemini",
       "cost_cents": 5,
-      "note": "scene-forest-1/bg-far/seg0"
+      "note": "style-sheet"
     },
     {
-      "ts": "2026-04-27T16:32:07.125074+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-far/seg1"
-    },
-    {
-      "ts": "2026-04-27T16:32:30.764509+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-far/seg2"
-    },
-    {
-      "ts": "2026-04-27T16:33:27.058863+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-mid/seg0"
-    },
-    {
-      "ts": "2026-04-27T16:33:53.888279+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-mid/seg1"
-    },
-    {
-      "ts": "2026-04-27T16:34:15.433399+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-mid/seg2"
-    },
-    {
-      "ts": "2026-04-27T16:35:07.998501+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-near/seg0"
-    },
-    {
-      "ts": "2026-04-27T16:35:24.971901+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-near/seg1"
-    },
-    {
-      "ts": "2026-04-27T16:35:42.704819+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-near/seg2"
-    },
-    {
-      "ts": "2026-04-27T16:37:00.376227+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "forest-1-tilemap/earth-fill"
-    },
-    {
-      "ts": "2026-04-27T16:38:19.764939+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "forest-1-tilemap/earth-rocky"
-    },
-    {
-      "ts": "2026-04-27T16:39:28.143803+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "forest-1-tilemap/flower-yellow"
-    },
-    {
-      "ts": "2026-04-27T16:40:25.094718+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "forest-1-tilemap/grass-base"
-    },
-    {
-      "ts": "2026-04-27T16:41:28.477616+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "forest-1-tilemap/grass-edge-left"
-    },
-    {
-      "ts": "2026-04-27T16:42:31.778839+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "forest-1-tilemap/grass-edge-right"
-    },
-    {
-      "ts": "2026-04-27T16:44:00.029751+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "forest-1-tilemap/mushroom-red"
-    },
-    {
-      "ts": "2026-04-27T16:45:14.984149+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "forest-1-tilemap/stone-small"
-    },
-    {
-      "ts": "2026-04-27T16:46:49.457891+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "forest-mushroom-cluster/prop-idle attempt 1"
-    },
-    {
-      "ts": "2026-04-27T17:54:19.628765+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-far/seg0"
-    },
-    {
-      "ts": "2026-04-27T17:54:42.491429+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-far/seg1"
-    },
-    {
-      "ts": "2026-04-27T17:55:01.871569+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-far/seg2"
-    },
-    {
-      "ts": "2026-04-27T17:55:55.289899+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-mid/seg0"
-    },
-    {
-      "ts": "2026-04-27T17:56:20.552101+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-mid/seg1"
-    },
-    {
-      "ts": "2026-04-27T17:56:40.765880+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-mid/seg2"
-    },
-    {
-      "ts": "2026-04-27T17:57:34.253699+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-near/seg0"
-    },
-    {
-      "ts": "2026-04-27T17:57:57.152348+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-near/seg1"
-    },
-    {
-      "ts": "2026-04-27T17:58:29.490732+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-near/seg2"
-    },
-    {
-      "ts": "2026-04-27T18:11:23.544302+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scale_reference"
-    },
-    {
-      "ts": "2026-04-27T18:19:25.698022+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-far/seg0"
-    },
-    {
-      "ts": "2026-04-27T18:19:43.925438+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-far/seg0"
-    },
-    {
-      "ts": "2026-04-27T18:20:04.672941+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-far/seg1"
-    },
-    {
-      "ts": "2026-04-27T18:20:05.147273+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-far/seg1"
-    },
-    {
-      "ts": "2026-04-27T18:20:22.616429+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-far/seg2"
-    },
-    {
-      "ts": "2026-04-27T18:20:33.233395+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-far/seg2"
-    },
-    {
-      "ts": "2026-04-27T23:39:20.690252+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "extract-forest-1/far"
-    },
-    {
-      "ts": "2026-04-27T23:39:38.639791+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "extract-forest-1/mid"
-    },
-    {
-      "ts": "2026-04-27T23:39:54.822425+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "extract-forest-1/near"
-    },
-    {
-      "ts": "2026-04-27T23:40:12.434917+00:00",
+      "ts": "2026-04-28T13:50:14.575824+00:00",
       "service": "text-gemini",
       "cost_cents": 5,
-      "note": "extract-forest-1/manifest"
+      "note": "decompose-catalog"
     },
     {
-      "ts": "2026-04-27T23:42:04.851076+00:00",
+      "ts": "2026-04-28T14:05:12.456441+00:00",
       "service": "image-gemini",
       "cost_cents": 5,
-      "note": "extract-forest-1/far"
+      "note": "scene-forest-tutorial/concept"
     },
     {
-      "ts": "2026-04-27T23:42:20.103485+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "extract-forest-1/mid"
-    },
-    {
-      "ts": "2026-04-27T23:42:40.000285+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "extract-forest-1/near"
-    },
-    {
-      "ts": "2026-04-27T23:42:59.397398+00:00",
+      "ts": "2026-04-28T14:05:37.803555+00:00",
       "service": "text-gemini",
       "cost_cents": 5,
-      "note": "extract-forest-1/manifest"
+      "note": "scene-forest-tutorial/SPEC.md"
     },
     {
-      "ts": "2026-04-27T23:54:33.624994+00:00",
+      "ts": "2026-04-28T14:07:48.837549+00:00",
       "service": "image-gemini",
       "cost_cents": 5,
-      "note": "scene-forest-1/bg-mid/seg1"
+      "note": "extract-forest-tutorial/far"
     },
     {
-      "ts": "2026-04-27T23:54:57.734155+00:00",
+      "ts": "2026-04-28T14:08:15.066464+00:00",
       "service": "image-gemini",
       "cost_cents": 5,
-      "note": "scene-forest-1/bg-mid/seg2"
+      "note": "extract-forest-tutorial/mid"
     },
     {
-      "ts": "2026-04-27T23:55:24.997462+00:00",
+      "ts": "2026-04-28T14:08:41.551067+00:00",
       "service": "image-gemini",
       "cost_cents": 5,
-      "note": "scene-forest-1/bg-near/seg1"
+      "note": "extract-forest-tutorial/near"
     },
     {
-      "ts": "2026-04-27T23:55:48.359081+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-near/seg2"
-    },
-    {
-      "ts": "2026-04-27T23:58:42.295425+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-far/seg1"
-    },
-    {
-      "ts": "2026-04-27T23:59:02.359564+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-far/seg2"
-    },
-    {
-      "ts": "2026-04-27T23:59:18.239744+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-far/seg3"
-    },
-    {
-      "ts": "2026-04-27T23:59:48.217970+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-far/seg4"
-    },
-    {
-      "ts": "2026-04-28T00:22:42.287487+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-near/transition-1"
-    },
-    {
-      "ts": "2026-04-28T00:23:30.476237+00:00",
-      "service": "image-gemini",
-      "cost_cents": 5,
-      "note": "scene-forest-1/bg-near/transition-3"
-    },
-    {
-      "ts": "2026-04-28T00:43:13.130343+00:00",
+      "ts": "2026-04-28T14:08:58.178513+00:00",
       "service": "text-gemini",
       "cost_cents": 5,
-      "note": "classify-game-type"
+      "note": "extract-forest-tutorial/manifest"
+    },
+    {
+      "ts": "2026-04-28T14:12:31.281645+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-far"
+    },
+    {
+      "ts": "2026-04-28T14:13:37.894119+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-mid"
+    },
+    {
+      "ts": "2026-04-28T21:14:27.012588+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-tutorial/concept"
+    },
+    {
+      "ts": "2026-04-28T21:14:57.275826+00:00",
+      "service": "text-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-tutorial/SPEC.md"
+    },
+    {
+      "ts": "2026-04-28T21:15:46.362346+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-tutorial/far"
+    },
+    {
+      "ts": "2026-04-28T21:16:02.321563+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-tutorial/mid"
+    },
+    {
+      "ts": "2026-04-28T21:16:18.447052+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-tutorial/near"
+    },
+    {
+      "ts": "2026-04-28T21:16:32.101610+00:00",
+      "service": "text-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-tutorial/manifest"
+    },
+    {
+      "ts": "2026-04-28T21:42:41.975686+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-tutorial/concept"
+    },
+    {
+      "ts": "2026-04-28T21:43:13.207774+00:00",
+      "service": "text-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-tutorial/SPEC.md"
+    },
+    {
+      "ts": "2026-04-28T21:49:45.303283+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-tutorial/concept"
+    },
+    {
+      "ts": "2026-04-28T21:50:14.930906+00:00",
+      "service": "text-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-tutorial/SPEC.md"
+    },
+    {
+      "ts": "2026-04-28T21:56:03.184902+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-tutorial/concept"
+    },
+    {
+      "ts": "2026-04-28T21:56:29.736788+00:00",
+      "service": "text-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-tutorial/SPEC.md"
+    },
+    {
+      "ts": "2026-04-28T21:57:14.233649+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-tutorial/far"
+    },
+    {
+      "ts": "2026-04-28T21:59:07.108633+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-tutorial/mid"
+    },
+    {
+      "ts": "2026-04-28T22:01:01.506207+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-tutorial/near"
+    },
+    {
+      "ts": "2026-04-28T22:02:29.360232+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-tutorial/near"
+    },
+    {
+      "ts": "2026-04-28T22:03:04.106273+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-tutorial/near"
+    },
+    {
+      "ts": "2026-04-28T22:03:18.879435+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-tutorial/near"
+    },
+    {
+      "ts": "2026-04-28T22:03:41.234887+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-tutorial/near"
+    },
+    {
+      "ts": "2026-04-28T22:05:19.842669+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-tutorial/near"
+    },
+    {
+      "ts": "2026-04-28T22:05:54.684159+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-tutorial/near"
+    },
+    {
+      "ts": "2026-04-28T22:06:33.579889+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-tutorial/near"
+    },
+    {
+      "ts": "2026-04-28T22:08:40.867406+00:00",
+      "service": "text-gemini",
+      "cost_cents": 5,
+      "note": "decompose-scene-forest-tutorial"
+    },
+    {
+      "ts": "2026-04-28T22:10:02.039632+00:00",
+      "service": "text-gemini",
+      "cost_cents": 5,
+      "note": "stage-forest-tutorial"
+    },
+    {
+      "ts": "2026-04-28T22:10:42.669326+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "stage-forest-tutorial/silhouette"
+    },
+    {
+      "ts": "2026-04-28T22:13:19.794413+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-tutorial/concept"
+    },
+    {
+      "ts": "2026-04-28T22:13:48.613706+00:00",
+      "service": "text-gemini",
+      "cost_cents": 5,
+      "note": "scene-forest-tutorial/SPEC.md"
+    },
+    {
+      "ts": "2026-04-28T22:14:49.765190+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-tutorial/far"
+    },
+    {
+      "ts": "2026-04-28T22:17:10.835303+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-tutorial/mid"
+    },
+    {
+      "ts": "2026-04-28T22:18:47.102894+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-tutorial/near"
+    },
+    {
+      "ts": "2026-04-28T22:19:52.931593+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-tutorial/near"
+    },
+    {
+      "ts": "2026-04-28T22:20:31.176237+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "extract-forest-tutorial/near"
+    },
+    {
+      "ts": "2026-04-28T22:23:40.012997+00:00",
+      "service": "text-gemini",
+      "cost_cents": 5,
+      "note": "stage-forest-tutorial"
+    },
+    {
+      "ts": "2026-04-28T22:24:17.430216+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "stage-forest-tutorial/silhouette"
+    },
+    {
+      "ts": "2026-04-28T22:25:19.936651+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-far"
+    },
+    {
+      "ts": "2026-04-28T22:26:37.938190+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-mid/seg-000"
+    },
+    {
+      "ts": "2026-04-28T22:27:39.720640+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-mid/seg-001"
+    },
+    {
+      "ts": "2026-04-28T22:28:39.530873+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-mid/seg-002"
+    },
+    {
+      "ts": "2026-04-28T22:30:26.403496+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-mid/seg-003"
+    },
+    {
+      "ts": "2026-04-28T22:33:41.644018+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/seg-000"
+    },
+    {
+      "ts": "2026-04-28T22:34:43.840033+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/seg-001"
+    },
+    {
+      "ts": "2026-04-28T22:35:52.322573+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/seg-002"
+    },
+    {
+      "ts": "2026-04-28T22:37:13.574934+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/seg-003"
+    },
+    {
+      "ts": "2026-04-28T22:38:18.618413+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/seg-004"
+    },
+    {
+      "ts": "2026-04-28T22:39:16.598524+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/seg-004"
+    },
+    {
+      "ts": "2026-04-28T22:40:19.266023+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/seg-005"
+    },
+    {
+      "ts": "2026-04-28T22:40:58.648803+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/seg-005"
+    },
+    {
+      "ts": "2026-04-28T22:42:10.108349+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/seg-006"
+    },
+    {
+      "ts": "2026-04-28T22:43:32.249822+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/seg-007"
+    },
+    {
+      "ts": "2026-04-28T22:44:54.000958+00:00",
+      "service": "text-gemini",
+      "cost_cents": 5,
+      "note": "validate-forest-tutorial/bg-near"
+    },
+    {
+      "ts": "2026-04-28T23:11:54.460094+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/seg-002"
+    },
+    {
+      "ts": "2026-04-28T23:12:21.515175+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/seg-003"
+    },
+    {
+      "ts": "2026-04-28T23:12:44.194645+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/seg-004"
+    },
+    {
+      "ts": "2026-04-28T23:13:13.961412+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/seg-005"
+    },
+    {
+      "ts": "2026-04-28T23:13:37.241233+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/seg-006"
+    },
+    {
+      "ts": "2026-04-28T23:14:02.739992+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/seg-007"
+    },
+    {
+      "ts": "2026-04-28T23:14:33.675781+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/000"
+    },
+    {
+      "ts": "2026-04-28T23:14:51.190619+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/001"
+    },
+    {
+      "ts": "2026-04-28T23:15:14.878351+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/002"
+    },
+    {
+      "ts": "2026-04-28T23:15:38.273977+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/003"
+    },
+    {
+      "ts": "2026-04-28T23:16:10.553342+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/004"
+    },
+    {
+      "ts": "2026-04-28T23:16:43.046165+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/005"
+    },
+    {
+      "ts": "2026-04-28T23:16:58.059874+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/006"
+    },
+    {
+      "ts": "2026-04-28T23:17:21.750490+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/007"
+    },
+    {
+      "ts": "2026-04-28T23:17:44.094828+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/008"
+    },
+    {
+      "ts": "2026-04-28T23:17:59.586770+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/009"
+    },
+    {
+      "ts": "2026-04-28T23:18:23.661724+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/010"
+    },
+    {
+      "ts": "2026-04-28T23:18:42.283226+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/011"
+    },
+    {
+      "ts": "2026-04-28T23:19:00.057554+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/012"
+    },
+    {
+      "ts": "2026-04-28T23:19:24.047237+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/013"
+    },
+    {
+      "ts": "2026-04-28T23:20:14.613882+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/000"
+    },
+    {
+      "ts": "2026-04-28T23:20:51.342747+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/001"
+    },
+    {
+      "ts": "2026-04-28T23:21:12.332172+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/002"
+    },
+    {
+      "ts": "2026-04-28T23:21:37.621305+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/003"
+    },
+    {
+      "ts": "2026-04-28T23:21:52.846935+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/004"
+    },
+    {
+      "ts": "2026-04-28T23:22:06.793868+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/005"
+    },
+    {
+      "ts": "2026-04-28T23:22:22.404836+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/006"
+    },
+    {
+      "ts": "2026-04-28T23:24:07.156244+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/000"
+    },
+    {
+      "ts": "2026-04-28T23:24:24.424787+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/001"
+    },
+    {
+      "ts": "2026-04-28T23:24:42.818561+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/002"
+    },
+    {
+      "ts": "2026-04-28T23:25:04.924687+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/003"
+    },
+    {
+      "ts": "2026-04-28T23:25:23.761096+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/004"
+    },
+    {
+      "ts": "2026-04-28T23:25:56.838329+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/005"
+    },
+    {
+      "ts": "2026-04-28T23:26:11.472205+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-seam-forest-tutorial/bg-near/006"
+    },
+    {
+      "ts": "2026-04-28T23:39:34.685118+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-01"
+    },
+    {
+      "ts": "2026-04-28T23:39:56.495066+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-02"
+    },
+    {
+      "ts": "2026-04-28T23:40:18.994224+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-03"
+    },
+    {
+      "ts": "2026-04-28T23:40:41.208055+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-04"
+    },
+    {
+      "ts": "2026-04-28T23:41:07.637056+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-05"
+    },
+    {
+      "ts": "2026-04-28T23:41:38.331751+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-06"
+    },
+    {
+      "ts": "2026-04-28T23:42:06.833820+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-07"
+    },
+    {
+      "ts": "2026-04-28T23:53:46.916095+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-01"
+    },
+    {
+      "ts": "2026-04-28T23:54:07.390026+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-02"
+    },
+    {
+      "ts": "2026-04-28T23:54:35.062644+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-03"
+    },
+    {
+      "ts": "2026-04-28T23:54:55.258373+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-04"
+    },
+    {
+      "ts": "2026-04-28T23:55:19.155857+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-05"
+    },
+    {
+      "ts": "2026-04-28T23:55:59.519553+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-06"
+    },
+    {
+      "ts": "2026-04-28T23:56:31.411475+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-07"
+    },
+    {
+      "ts": "2026-04-29T00:16:23.187827+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-01"
+    },
+    {
+      "ts": "2026-04-29T00:16:41.463832+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-02"
+    },
+    {
+      "ts": "2026-04-29T00:17:02.304357+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-03"
+    },
+    {
+      "ts": "2026-04-29T00:17:36.938822+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-04"
+    },
+    {
+      "ts": "2026-04-29T00:17:53.846142+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-05"
+    },
+    {
+      "ts": "2026-04-29T00:18:14.064282+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-06"
+    },
+    {
+      "ts": "2026-04-29T00:18:31.225890+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-07"
+    },
+    {
+      "ts": "2026-04-29T00:21:24.015899+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-01"
+    },
+    {
+      "ts": "2026-04-29T00:21:42.145905+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-02"
+    },
+    {
+      "ts": "2026-04-29T00:21:57.506576+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-03"
+    },
+    {
+      "ts": "2026-04-29T00:22:18.108940+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-04"
+    },
+    {
+      "ts": "2026-04-29T00:26:53.403671+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-01"
+    },
+    {
+      "ts": "2026-04-29T00:27:13.929155+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-02"
+    },
+    {
+      "ts": "2026-04-29T00:27:39.258299+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-03"
+    },
+    {
+      "ts": "2026-04-29T00:28:15.079457+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-04"
+    },
+    {
+      "ts": "2026-04-29T00:28:33.130483+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-05"
+    },
+    {
+      "ts": "2026-04-29T00:28:49.674505+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-06"
+    },
+    {
+      "ts": "2026-04-29T00:29:09.130431+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-07"
+    },
+    {
+      "ts": "2026-04-29T00:29:39.731786+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-01"
+    },
+    {
+      "ts": "2026-04-29T00:30:19.802600+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-02"
+    },
+    {
+      "ts": "2026-04-29T00:30:41.267474+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-03"
+    },
+    {
+      "ts": "2026-04-29T00:31:17.237375+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-01"
+    },
+    {
+      "ts": "2026-04-29T00:31:34.314026+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-02"
+    },
+    {
+      "ts": "2026-04-29T00:31:50.655858+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-03"
+    },
+    {
+      "ts": "2026-04-29T00:32:12.334461+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-04"
+    },
+    {
+      "ts": "2026-04-29T00:33:38.410220+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-01"
+    },
+    {
+      "ts": "2026-04-29T00:35:25.894153+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-01"
+    },
+    {
+      "ts": "2026-04-29T00:35:44.238639+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-02"
+    },
+    {
+      "ts": "2026-04-29T00:36:13.212406+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-03"
+    },
+    {
+      "ts": "2026-04-29T00:36:27.391895+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-04"
+    },
+    {
+      "ts": "2026-04-29T00:36:45.794872+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-05"
+    },
+    {
+      "ts": "2026-04-29T00:37:15.280940+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-06"
+    },
+    {
+      "ts": "2026-04-29T00:37:34.241796+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-near-07"
     }
   ]
 }

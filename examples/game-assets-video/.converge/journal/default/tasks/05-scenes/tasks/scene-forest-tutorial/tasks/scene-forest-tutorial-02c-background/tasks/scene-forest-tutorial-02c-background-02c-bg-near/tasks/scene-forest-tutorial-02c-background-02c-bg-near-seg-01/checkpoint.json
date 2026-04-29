@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02c-background/scene-forest-tutorial-02c-background-02c-bg-near/scene-forest-tutorial-02c-background-02c-bg-near-seg-01",
+  "status": "complete",
+  "lastUpdated": "2026-04-28T22:34:14.320Z",
+  "createdAt": "2026-04-28T22:32:41.629Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-28T22:32:41.627Z",
+      "completedAt": "2026-04-28T22:32:41.629Z",
+      "outcome": "failed",
+      "durationMs": 2
+    },
+    {
+      "attempt": 2,
+      "startedAt": "2026-04-28T22:32:41.715Z",
+      "completedAt": "2026-04-28T22:34:14.293Z",
+      "outcome": "success",
+      "durationMs": 92578
+    }
+  ],
+  "currentAttempt": 2
+}

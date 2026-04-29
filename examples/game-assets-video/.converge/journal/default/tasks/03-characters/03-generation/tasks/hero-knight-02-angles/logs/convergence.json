@@ -38,8 +38,150 @@
       },
       "result": {
         "action": "continue",
-        "gaps": [],
-        "durationMs": 330
+        "gaps": [
+          {
+            "id": "03-characters/03-generation/hero-knight-02-angles-missing-output-assets/characters/hero-knight/ref/source/source.png",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/hero-knight-02-angles",
+            "severity": "high",
+            "description": "[03-characters/03-generation/hero-knight-02-angles] Task output not created: assets/characters/hero-knight/ref/source/source.png",
+            "source": "unit",
+            "detected": "2026-04-28T13:18:32.093Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/journal/default/tasks/03-characters/03-generation/tasks/hero-knight-02-angles",
+              "taskId": "03-characters/03-generation/hero-knight-02-angles",
+              "taskTitle": "Generate Cute Armored Knight With Blue Armor canonical reference",
+              "taskPrompt": "# Cute Armored Knight With Blue Armor Canonical Reference\n\nRuns `scripts/generate_character_angles.py hero-knight`. The script reads everything else (name, description, palette, palette_constraints, canonical_angle, source_resolution, working_resolution) from `assets/sprites.json`. Outputs land under `assets/characters/hero-knight/ref/`:\n\n- `source/source.png` (high-res original from Gemini) + sibling `source.prompt.txt` and `source.seed.txt`\n- `canonical/canonical.png` (downsized working ref) + sibling `derived-from.txt`\n- `manifest.json` — the locked-viewport contract every downstream task inherits\n\nTo debug, `cat` the prompt or re-run the script directly: `python scripts/generate_character_angles.py hero-knight --seed N`.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"assets/characters/hero-knight/ref/source/source.png\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-characters/03-generation/hero-knight-02-angles-missing-output-assets/characters/hero-knight/ref/canonical/canonical.png",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/hero-knight-02-angles",
+            "severity": "high",
+            "description": "[03-characters/03-generation/hero-knight-02-angles] Task output not created: assets/characters/hero-knight/ref/canonical/canonical.png",
+            "source": "unit",
+            "detected": "2026-04-28T13:18:32.096Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/journal/default/tasks/03-characters/03-generation/tasks/hero-knight-02-angles",
+              "taskId": "03-characters/03-generation/hero-knight-02-angles",
+              "taskTitle": "Generate Cute Armored Knight With Blue Armor canonical reference",
+              "taskPrompt": "# Cute Armored Knight With Blue Armor Canonical Reference\n\nRuns `scripts/generate_character_angles.py hero-knight`. The script reads everything else (name, description, palette, palette_constraints, canonical_angle, source_resolution, working_resolution) from `assets/sprites.json`. Outputs land under `assets/characters/hero-knight/ref/`:\n\n- `source/source.png` (high-res original from Gemini) + sibling `source.prompt.txt` and `source.seed.txt`\n- `canonical/canonical.png` (downsized working ref) + sibling `derived-from.txt`\n- `manifest.json` — the locked-viewport contract every downstream task inherits\n\nTo debug, `cat` the prompt or re-run the script directly: `python scripts/generate_character_angles.py hero-knight --seed N`.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"assets/characters/hero-knight/ref/canonical/canonical.png\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-characters/03-generation/hero-knight-02-angles-missing-output-assets/characters/hero-knight/ref/manifest.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/hero-knight-02-angles",
+            "severity": "high",
+            "description": "[03-characters/03-generation/hero-knight-02-angles] Task output not created: assets/characters/hero-knight/ref/manifest.json",
+            "source": "unit",
+            "detected": "2026-04-28T13:18:32.098Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/journal/default/tasks/03-characters/03-generation/tasks/hero-knight-02-angles",
+              "taskId": "03-characters/03-generation/hero-knight-02-angles",
+              "taskTitle": "Generate Cute Armored Knight With Blue Armor canonical reference",
+              "taskPrompt": "# Cute Armored Knight With Blue Armor Canonical Reference\n\nRuns `scripts/generate_character_angles.py hero-knight`. The script reads everything else (name, description, palette, palette_constraints, canonical_angle, source_resolution, working_resolution) from `assets/sprites.json`. Outputs land under `assets/characters/hero-knight/ref/`:\n\n- `source/source.png` (high-res original from Gemini) + sibling `source.prompt.txt` and `source.seed.txt`\n- `canonical/canonical.png` (downsized working ref) + sibling `derived-from.txt`\n- `manifest.json` — the locked-viewport contract every downstream task inherits\n\nTo debug, `cat` the prompt or re-run the script directly: `python scripts/generate_character_angles.py hero-knight --seed N`.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"assets/characters/hero-knight/ref/manifest.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-characters/03-generation/hero-knight-02-angles-check-failed-source-png-is-real",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/hero-knight-02-angles",
+            "severity": "high",
+            "description": "[03-characters/03-generation/hero-knight-02-angles] Check failed: source.png is at least 256x256 (rejects placeholder stubs)",
+            "source": "unit",
+            "detected": "2026-04-28T13:18:32.150Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "source-png-is-real",
+              "checkCmd": "python -c \"from PIL import Image; im=Image.open('assets/characters/hero-knight/ref/source/source.png'); assert min(im.size)>=256, f'source too small: {im.size}'\"\n",
+              "checkDescription": "source.png is at least 256x256 (rejects placeholder stubs)",
+              "checkOutput": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/opt/homebrew/Caskroom/miniconda/base/lib/python3.12/site-packages/PIL/Image.py\", line 3513, in open\n    fp = builtins.open(filename, \"rb\")\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: 'assets/characters/hero-knight/ref/source/source.png'",
+              "checkExitCode": 1,
+              "taskPrompt": "# Cute Armored Knight With Blue Armor Canonical Reference\n\nRuns `scripts/generate_character_angles.py hero-knight`. The script reads everything else (name, description, palette, palette_constraints, canonical_angle, source_resolution, working_resolution) from `assets/sprites.json`. Outputs land under `assets/characters/hero-knight/ref/`:\n\n- `source/source.png` (high-res original from Gemini) + sibling `source.prompt.txt` and `source.seed.txt`\n- `canonical/canonical.png` (downsized working ref) + sibling `derived-from.txt`\n- `manifest.json` — the locked-viewport contract every downstream task inherits\n\nTo debug, `cat` the prompt or re-run the script directly: `python scripts/generate_character_angles.py hero-knight --seed N`.",
+              "taskId": "03-characters/03-generation/hero-knight-02-angles",
+              "taskTitle": "Generate Cute Armored Knight With Blue Armor canonical reference",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/journal/default/tasks/03-characters/03-generation/tasks/hero-knight-02-angles",
+              "factId": "check:source-png-is-real"
+            }
+          },
+          {
+            "id": "03-characters/03-generation/hero-knight-02-angles-check-failed-canonical-png-is-real",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/hero-knight-02-angles",
+            "severity": "high",
+            "description": "[03-characters/03-generation/hero-knight-02-angles] Check failed: canonical.png is at least 64x64 (rejects placeholder stubs)",
+            "source": "unit",
+            "detected": "2026-04-28T13:18:32.194Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "canonical-png-is-real",
+              "checkCmd": "python -c \"from PIL import Image; im=Image.open('assets/characters/hero-knight/ref/canonical/canonical.png'); assert min(im.size)>=64, f'canonical too small: {im.size}'\"\n",
+              "checkDescription": "canonical.png is at least 64x64 (rejects placeholder stubs)",
+              "checkOutput": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/opt/homebrew/Caskroom/miniconda/base/lib/python3.12/site-packages/PIL/Image.py\", line 3513, in open\n    fp = builtins.open(filename, \"rb\")\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: 'assets/characters/hero-knight/ref/canonical/canonical.png'",
+              "checkExitCode": 1,
+              "taskPrompt": "# Cute Armored Knight With Blue Armor Canonical Reference\n\nRuns `scripts/generate_character_angles.py hero-knight`. The script reads everything else (name, description, palette, palette_constraints, canonical_angle, source_resolution, working_resolution) from `assets/sprites.json`. Outputs land under `assets/characters/hero-knight/ref/`:\n\n- `source/source.png` (high-res original from Gemini) + sibling `source.prompt.txt` and `source.seed.txt`\n- `canonical/canonical.png` (downsized working ref) + sibling `derived-from.txt`\n- `manifest.json` — the locked-viewport contract every downstream task inherits\n\nTo debug, `cat` the prompt or re-run the script directly: `python scripts/generate_character_angles.py hero-knight --seed N`.",
+              "taskId": "03-characters/03-generation/hero-knight-02-angles",
+              "taskTitle": "Generate Cute Armored Knight With Blue Armor canonical reference",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/journal/default/tasks/03-characters/03-generation/tasks/hero-knight-02-angles",
+              "factId": "check:canonical-png-is-real"
+            }
+          },
+          {
+            "id": "03-characters/03-generation/hero-knight-02-angles-check-failed-manifest-has-canonical-angle",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-characters/03-generation/hero-knight-02-angles",
+            "severity": "high",
+            "description": "[03-characters/03-generation/hero-knight-02-angles] Check failed: manifest.json declares the locked viewport",
+            "source": "unit",
+            "detected": "2026-04-28T13:18:32.218Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "manifest-has-canonical-angle",
+              "checkCmd": "python -c \"import json; m=json.load(open('assets/characters/hero-knight/ref/manifest.json')); assert 'canonical_angle' in m and 'rotation_y' in m, f'manifest missing keys: {m}'\"\n",
+              "checkDescription": "manifest.json declares the locked viewport",
+              "checkOutput": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: 'assets/characters/hero-knight/ref/manifest.json'",
+              "checkExitCode": 1,
+              "taskPrompt": "# Cute Armored Knight With Blue Armor Canonical Reference\n\nRuns `scripts/generate_character_angles.py hero-knight`. The script reads everything else (name, description, palette, palette_constraints, canonical_angle, source_resolution, working_resolution) from `assets/sprites.json`. Outputs land under `assets/characters/hero-knight/ref/`:\n\n- `source/source.png` (high-res original from Gemini) + sibling `source.prompt.txt` and `source.seed.txt`\n- `canonical/canonical.png` (downsized working ref) + sibling `derived-from.txt`\n- `manifest.json` — the locked-viewport contract every downstream task inherits\n\nTo debug, `cat` the prompt or re-run the script directly: `python scripts/generate_character_angles.py hero-knight --seed N`.",
+              "taskId": "03-characters/03-generation/hero-knight-02-angles",
+              "taskTitle": "Generate Cute Armored Knight With Blue Armor canonical reference",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/journal/default/tasks/03-characters/03-generation/tasks/hero-knight-02-angles",
+              "factId": "check:manifest-has-canonical-angle"
+            }
+          }
+        ],
+        "durationMs": 129
       }
     },
     {
@@ -51,6 +193,80 @@
         "priority": 97,
         "applicable": "noGapsAndExecuted"
       }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 121
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 281
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#10",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 71908
+      }
     }
   ],
   "edges": [
@@ -58,19 +274,43 @@
       "from": "_start",
       "to": "check-wbs-seeded",
       "iteration": 1,
-      "ts": "2026-04-27T16:17:29.395Z"
+      "ts": "2026-04-28T13:18:32.089Z"
     },
     {
       "from": "check-wbs-seeded",
       "to": "check-outputs-exist",
       "iteration": 1,
-      "ts": "2026-04-27T16:17:29.395Z"
+      "ts": "2026-04-28T13:18:32.089Z"
     },
     {
       "from": "check-outputs-exist",
       "to": "detect-gaps",
       "iteration": 1,
-      "ts": "2026-04-27T16:17:29.725Z"
+      "ts": "2026-04-28T13:18:32.218Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-28T13:18:32.219Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-28T13:18:32.340Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#10",
+      "iteration": 1,
+      "ts": "2026-04-28T13:19:44.249Z"
+    },
+    {
+      "from": "run-strategy:task-run#10",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-28T13:19:44.530Z"
     }
   ]
 }

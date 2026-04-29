@@ -1,32 +1,38 @@
-# Game manifest — `side-scrolling-action`
+# Game Classification — top-down-rpg
 
-        **View:** side-2d
-        **Movement:** walk
-        **Confidence:** medium
-        **Source:** idea.md + visual-target.png
+**Confidence**: 0.95
 
-        ## Reasoning
+## Reasoning
 
-        The image clearly depicts a side-view perspective with characters moving on a continuous ground, typical for side-scrolling games. The brief describes the game as a '2D pixel art action RPG' with a 'Parallax forest background,' aligning well with the characteristics of a side-scrolling action RPG.
+`idea.md` explicitly describes the hero with "8-directional movement", a tile-based grassland terrain (16x16 tiles), and a 16-bit retro pixel-art aesthetic. The cast (knight, elf, mage with idle+walk states) and collectible items (health potion, gold key) are characteristic RPG content. While `idea.md` mentions one parallax "Forest Path" background, the dominant signals classify this as **top-down-rpg**.
 
-        ## Asset categories
+## Art Style Keywords
 
-        - **Enabled:** characters, shared_props, tilemap, background, scene_props
-        - **Disabled / skipped:** (none)
-
-        ## Style keywords
-
-        - - 2D pixel art
-- 16-bit retro
+- pixel art
+- 16-bit
+- retro RPG
+- tile-based
 - limited 16-color palette
-- bright, saturated colors
-- muted environmental tones
+- saturated character colors
+- muted environment tones
 
-        ## Anti-keywords (avoid these)
+## Anti-Keywords
 
-        - - 8-directional movement
+- side view
+- parallax
+- horizon
+- depth haze
+- modern 3D
+- high-resolution
+- photorealistic
 
-        ---
+## Movement
 
-        _Edit `assets/game.json` to override any field. Re-run the playbook
-        and downstream tasks will pick up the new manifest._
+- 8-directional
+
+## Downstream Implications
+
+- **Tilemap style**: `8-direction-rpg` (not platform-shelves)
+- **Background**: disabled — top-down RPGs don't use parallax bg layers
+- **Character states**: 8 directional idle/walk states per character
+- **Inspect viewer**: top-down mode, no floating platforms

@@ -2,15 +2,15 @@
   "type": "task",
   "id": "01-art-bible",
   "status": "complete",
-  "lastUpdated": "2026-04-27T18:17:29.441Z",
-  "createdAt": "2026-04-27T16:12:53.881Z",
+  "lastUpdated": "2026-04-28T13:07:26.535Z",
+  "createdAt": "2026-04-28T13:05:48.467Z",
   "attempts": [
     {
       "attempt": 1,
-      "startedAt": "2026-04-27T16:12:53.881Z",
-      "completedAt": "2026-04-27T16:14:19.014Z",
+      "startedAt": "2026-04-28T13:05:48.467Z",
+      "completedAt": "2026-04-28T13:07:26.510Z",
       "outcome": "success",
-      "durationMs": 85133
+      "durationMs": 98043
     }
   ],
   "currentAttempt": 1

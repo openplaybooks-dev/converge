@@ -47,7 +47,7 @@
             "severity": "high",
             "description": "[03-characters/03-generation/forest-elf-01-spec] Task output not created: assets/characters/forest-elf/SPEC.md",
             "source": "unit",
-            "detected": "2026-04-27T16:15:05.264Z",
+            "detected": "2026-04-28T13:15:41.281Z",
             "resolved": false,
             "checks": [],
             "metadata": {
@@ -69,7 +69,7 @@
             "severity": "high",
             "description": "[03-characters/03-generation/forest-elf-01-spec] Check failed: Spec file exists",
             "source": "unit",
-            "detected": "2026-04-27T16:15:05.266Z",
+            "detected": "2026-04-28T13:15:41.284Z",
             "resolved": false,
             "checks": [],
             "metadata": {
@@ -139,7 +139,7 @@
         "success": true,
         "reason": "All gaps resolved",
         "gaps": [],
-        "durationMs": 9
+        "durationMs": 5
       }
     },
     {
@@ -161,7 +161,7 @@
       }
     },
     {
-      "id": "run-strategy:task-run#4",
+      "id": "run-strategy:task-run#7",
       "handler": "run-strategy",
       "status": "done",
       "origin": "planned",
@@ -171,7 +171,7 @@
       },
       "result": {
         "action": "continue",
-        "durationMs": 34950
+        "durationMs": 48575
       }
     }
   ],
@@ -180,43 +180,43 @@
       "from": "_start",
       "to": "check-wbs-seeded",
       "iteration": 1,
-      "ts": "2026-04-27T16:15:05.261Z"
+      "ts": "2026-04-28T13:15:41.278Z"
     },
     {
       "from": "check-wbs-seeded",
       "to": "check-outputs-exist",
       "iteration": 1,
-      "ts": "2026-04-27T16:15:05.261Z"
+      "ts": "2026-04-28T13:15:41.278Z"
     },
     {
       "from": "check-outputs-exist",
       "to": "detect-gaps",
       "iteration": 1,
-      "ts": "2026-04-27T16:15:05.266Z"
+      "ts": "2026-04-28T13:15:41.284Z"
     },
     {
       "from": "detect-gaps",
       "to": "run-executor",
       "iteration": 1,
-      "ts": "2026-04-27T16:15:05.267Z"
+      "ts": "2026-04-28T13:15:41.285Z"
     },
     {
       "from": "run-executor",
       "to": "repair-loop",
       "iteration": 1,
-      "ts": "2026-04-27T16:15:05.271Z"
+      "ts": "2026-04-28T13:15:41.289Z"
     },
     {
       "from": "repair-loop",
-      "to": "run-strategy:task-run#4",
+      "to": "run-strategy:task-run#7",
       "iteration": 1,
-      "ts": "2026-04-27T16:15:40.221Z"
+      "ts": "2026-04-28T13:16:29.864Z"
     },
     {
-      "from": "run-strategy:task-run#4",
+      "from": "run-strategy:task-run#7",
       "to": "verify",
       "iteration": 1,
-      "ts": "2026-04-27T16:15:40.231Z"
+      "ts": "2026-04-28T13:16:29.870Z"
     }
   ]
 }

@@ -1,0 +1,34 @@
+ONE wide FAR-DISTANCE BACKDROP for a 2D game scene — the sky and distant landscape only. Single image, no grid, no segments.
+
+Role of this layer:
+This is the **back wall** of the scene. Everything else (mid-distance silhouettes, foreground props, characters) will be composited on top of this image. It must read as the most distant plane — what the player sees on the horizon.
+
+If a `map.silhouette.png` reference is provided, treat it as the binding macro layout: match its horizon line, its biome bands, and its overall mood. Your output is the high-detail far-backdrop version of that same map's distant geometry.
+
+Scene context:
+- Biome: grassland
+- Description: Open grassland tutorial scene with a winding dirt path, scattered trees and rocks, and a small water pond. The player picks up a gold key and a health potion while learning movement and pickup mechanics. Includes 2-3 small jumps, a water-pit hazard you must jump over, and one optional ledge with a hidden potion.
+
+Composition (top-to-bottom, conceptually):
+- Top ~50%: sky. Soft gradient appropriate to the time-of-day / biome.
+- Middle ~30%: most-distant geometry (e.g. mountain range, distant cityscape, sea horizon, far cliff face). Heavy atmospheric perspective — desaturated, hazy, low contrast.
+- Bottom ~20%: a faint silhouette horizon line of the most-distant objects (e.g. distant tree-line for grassland, distant building roofline for urban, distant dune line for desert). Still hazy and far-recede.
+
+Region hints (left-to-right):
+  - x range [0.0, 0.5]: Distant rolling grassland hills under a warm cream sky on the left side; soft hazy silhouettes of trees on the far horizon.
+  - x range [0.5, 1.0]: Continuation of the rolling hills on the right with a slightly taller hill profile; the sky brightens subtly toward the upper right.
+
+Palette: warm cream sky, hazy blue-green distant hills, soft golden horizon
+
+Layer fill rule (CRITICAL):
+- The whole canvas must be filled with this far-landscape content. Sky AT THE TOP, distant landscape AT THE MIDDLE, faint horizon line AT THE BOTTOM.
+- NO transparency, NO chroma green, NO white gaps. RGB output, fully opaque.
+- NO foreground or mid-distance objects. NO close trees, NO bushes, NO grass, NO rocks, NO path, NO water bodies the player can walk into. Those belong to mid/near layers.
+- NO characters, no UI, no text.
+
+Style:
+- The supplied style-sheet anchor + scene concept image define the rendering style. Match line weight, palette, and shading. Do NOT invent a different style.
+- Edges (left and right) must be soft/featureless so the layer can be tiled horizontally. Avoid hard discontinuities at the canvas edges.
+- Atmospheric perspective is the dominant cue — distant elements are desaturated and lighter, never crisp.
+
+Target size: 2048x1152 px (API native: 1536x1024; resize after).

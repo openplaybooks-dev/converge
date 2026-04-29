@@ -11,3 +11,12 @@ tasks:
 checks:
   - id: output-exists
     cmd: test -f output.txt
+
+  # AI-pattern feedback check.
+  # The user only writes a plain-English assertion in `check:`. The framework
+  # builds the prompt, invokes the AI provider configured in .converge/project.yaml,
+  # and parses {pass, feedback} from the model. Failure feedback flows into the
+  # repair/correction loop just like a failed bash check would.
+  - id: friendly-greeting
+    type: ai
+    check: output.txt exists in the project root and contains a friendly English greeting (e.g. "hello", "hi", "hey").

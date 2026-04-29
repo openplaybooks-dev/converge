@@ -1,7 +1,7 @@
 ---
 id: gold-key-01-spec
-title: Validate Gold Key prop specification
-description: "Ornate golden key with gem inset, unlocks treasure chests."
+title: Validate Ornate Golden Key With Gem Inset prop specification
+description: Ornate golden key with gem inset
 tags:
   - prop
   - spec
@@ -14,23 +14,23 @@ checks:
     cmd: test -s assets/objects/gold-key/SPEC.md
 vars:
   obj_id: gold-key
-  obj_name: Gold Key
-  obj_description: "Ornate golden key with gem inset, unlocks treasure chests."
+  obj_name: Ornate Golden Key With Gem Inset
+  obj_description: Ornate golden key with gem inset
   obj_category: item
-  states: "[\"idle\",\"collect\"]"
+  states: "[\"idle\"]"
 ---
 
-# Validate Gold Key Specification
+# Validate Ornate Golden Key With Gem Inset Specification
 
 Ensure the prop / hazard / interactive specification is complete and ready for generation.
 
 ## Prop Details
 
 - **ID**: gold-key
-- **Name**: Gold Key
+- **Name**: Ornate Golden Key With Gem Inset
 - **Category**: item
-- **Description**: Ornate golden key with gem inset, unlocks treasure chests.
-- **States**: ["idle","collect"]
+- **Description**: Ornate golden key with gem inset
+- **States**: ["idle"]
 
 ## Task
 

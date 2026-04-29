@@ -1,0 +1,25 @@
+{
+  "layers": {
+    "far": {
+      "subject_height_tiles": 1.5,
+      "palette": [],
+      "feature_density": "unknown",
+      "notes": ""
+    },
+    "mid": {
+      "subject_height_tiles": 3.5,
+      "palette": [],
+      "feature_density": "unknown",
+      "notes": ""
+    },
+    "near": {
+      "subject_height_tiles": 6.0,
+      "palette": [],
+      "feature_density": "unknown",
+      "notes": ""
+    }
+  },
+  "tiles_visible": [],
+  "scene_props_visible": [],
+  "_parse_failed": true
+}

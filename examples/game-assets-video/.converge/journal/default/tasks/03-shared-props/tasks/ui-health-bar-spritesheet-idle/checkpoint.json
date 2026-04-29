@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-shared-props/ui-health-bar-spritesheet-idle",
+  "status": "complete",
+  "lastUpdated": "2026-04-28T13:25:51.291Z",
+  "createdAt": "2026-04-28T13:24:30.678Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-28T13:24:30.678Z",
+      "completedAt": "2026-04-28T13:25:51.259Z",
+      "outcome": "success",
+      "durationMs": 80581
+    }
+  ],
+  "currentAttempt": 1
+}

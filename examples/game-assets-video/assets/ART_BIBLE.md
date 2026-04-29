@@ -2,42 +2,45 @@
 
 ## Palette
 Dominant colors with hex values:
-- Sky Blue: #A4D9F0 — top portion of the sky
-- Mid-Green Foliage: #6CAB3C — main grass and bush areas
-- Knight Blue Armor: #567DD6 — primary color of the hero knight's armor
-- Earth Path: #BE9F68 — dirt path in the foreground
-- Distant Mountain: #8FA8BE — background mountains
-- Light Cloud: #F0E3CB — soft clouds in the sky
-- Knight Cape Red: #D63C3C — hero knight's cape
+- Light Sky Blue: #AAD1F1 — top sky
+- Sunset Yellow: #F3D9A1 — horizon sky
+- Dirt Path Brown: #A58052 — foreground path
+- Bright Grass Green: #76B44F — foreground grass
+- Deep Forest Green: #44772D — tree foliage
+- Distant Mountain Blue: #92A6B2 — background mountains
+- Steel Blue: #5F8CA8 — knight armor
+- Shadow Purple: #4F3260 — mage robe
 
 Accent / highlight colors:
-- Potion Red: #E03C3C — liquid in the health potion
-- Gold Key: #E0A83C — metallic parts of the gold key
-- UI Health Bar Green: #60CE36 — fill color of the health bar UI
-- White Sparkle: #FFFFFF — specular highlights and magical particles
+- Vibrant Red: #E03E3E — knight cape, potion liquid
+- Potion Glow Yellow: #FDFFA6 — potion sparkles
+- Magic Purple Glow: #C372F7 — mage eyes, staff gem
+- Leather Brown: #876041 — knight shield, belt
 
 ## Line & shading
-- Stroke weight: Solid, dark outline, generally 2-4 pixels thick, varying organically to emphasize character silhouettes and major environmental forms.
-- Shading model: Cel shading with soft, gradual transitions within shaded areas, creating volume without being strictly flat or painterly.
-- Light direction: Consistent top-right light source, creating clear highlights on surfaces facing the light and distinct shadows.
-- Highlights: Small, bright specular spots on metallic and shiny surfaces (armor, potion, key) and broader, soft highlights on organic forms (foliage, skin).
+- Stroke weight: Soft 1-2px outline that thickens at silhouette breaks for important characters and objects, with lighter internal lines.
+- Shading model: Cel shading with soft, subtle gradients for larger areas (sky, mountains, tree canopy) and simple, clean shadows for characters and objects, typically with a smooth internal gradient.
+- Light direction: Above-front-right, single key light, creating soft shadows towards the left and rear.
+- Highlights: Small, clean specular spots on reflective surfaces (armor, potion), focused glows for magical elements (mage eyes, staff), and subtle rim lighting on character edges from the main light source.
 
 ## Character proportions
-- Head/body ratio: ~1:3 to 1:3.5 — stylized, slightly oversized heads for a youthful and approachable heroic look.
-- Hands/feet: Simplified, expressive forms; visible but not hyper-detailed fingers; feet are robust and basic shapes.
-- Face: Large, expressive eyes with visible pupils and whites, small button nose, friendly smiles, and slightly pointed ears for elves.
-- Outfit detail: Moderate detail, with clear folds and material distinctions (e.g., armor plates, fabric drapes), not overly intricate or busy.
+- Head/body ratio: ~1:3 — chibi-leaning, larger heads, but still capable-looking.
+- Hands/feet: Simplified, rounded, mitten-like for hands (no individual fingers visible). Feet are sturdy, rounded shapes, obscured by armor/robes.
+- Face: Small dot eyes (knight), simple curved eyebrows, small, friendly smile. Mage has glowing, pupil-less purple eyes. Faces are rounded with soft chins.
+- Outfit detail: Moderately detailed. Visible armor plates, cloth folds, weapon textures. Functional but not overly intricate or busy, maintaining a clean read.
 
 ## Environment & forms
-- Common shape language: Predominantly organic and rounded for natural elements (hills, trees, bushes, clouds); man-made objects (keys, shields, UI) have clear, stylized forms.
-- Tree / foliage style: Dense, billowy, and rounded canopies with distinct clumps of leaves, rendered with bright highlights and deep shadows.
-- Stone / structure style: Smooth, rounded boulders with subtle texture details; ornate but cartoonish keys and shields.
-- Atmospheric depth: Clear visual separation between foreground, mid-ground, and background layers. Distant elements (mountains) are lighter and have reduced color saturation, indicating atmospheric perspective.
+- Common shape language: Organic and rounded forms dominate, especially for natural elements (trees, bushes, rocks). Characters also feature soft curves and rounded edges.
+- Tree / foliage style: Lush, clumpy, and rounded canopies with visible leaf clusters. Tree trunks are sturdy and naturally textured. Bushes are similar, with soft, undulating forms.
+- Stone / structure style: Smooth, rounded boulders and rocks, suggesting natural erosion, with subtle textural variations and highlights.
+- Atmospheric depth: Pronounced atmospheric perspective. Distant elements (mountains, trees) are desaturated, lighter, and cooler in hue, creating a clear sense of depth and haze fade.
 
 ## Negatives (do NOT)
-- No pixel art or 8-bit/16-bit retro aesthetic; art should be smooth-edged and high-resolution.
-- No limited color palettes; utilize a broad and vibrant color range.
-- No harsh, jagged, or overly angular outlines on natural elements like trees and rocks.
-- No photorealism, complex textures, or overly gritty/grimy art styles.
-- No extreme anatomical accuracy or highly detailed musculature.
-- No excessive lens flares, chromatic aberration, or modern cinematic filters.
+- No pixel art / 8-bit aesthetic — assets must have smooth edges and anti-aliasing.
+- No jagged, sharp, or strictly geometric forms for natural elements.
+- No photorealism, gritty textures, or overly dark/grungy art styles.
+- No excessive use of heavy outlines or overly thick strokes, maintain a clean linework.
+- No chromatic aberration, lens flares, or post-processing filters.
+- No overly complex lighting or shading schemes; keep shadows and highlights clean and readable.
+- No UI elements (e.g., health bars, buttons, text overlays) to be included in asset generation.
+- No neon glow or saturated rim lighting from external sources (mage's internal glow is an exception).

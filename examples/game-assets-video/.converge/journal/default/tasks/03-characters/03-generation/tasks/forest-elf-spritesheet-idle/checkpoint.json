@@ -2,15 +2,15 @@
   "type": "task",
   "id": "03-characters/03-generation/forest-elf-spritesheet-idle",
   "status": "complete",
-  "lastUpdated": "2026-04-27T16:16:51.993Z",
-  "createdAt": "2026-04-27T16:16:51.695Z",
+  "lastUpdated": "2026-04-28T13:17:41.521Z",
+  "createdAt": "2026-04-28T13:17:41.227Z",
   "attempts": [
     {
       "attempt": 1,
-      "startedAt": "2026-04-27T16:16:51.695Z",
-      "completedAt": "2026-04-27T16:16:51.969Z",
+      "startedAt": "2026-04-28T13:17:41.227Z",
+      "completedAt": "2026-04-28T13:17:41.496Z",
       "outcome": "success",
-      "durationMs": 274
+      "durationMs": 269
     }
   ],
   "currentAttempt": 1

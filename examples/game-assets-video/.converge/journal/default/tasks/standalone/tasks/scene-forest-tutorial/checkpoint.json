@@ -1,0 +1,30 @@
+{
+  "type": "task",
+  "id": "scene-forest-tutorial",
+  "status": "pending",
+  "lastUpdated": "2026-04-28T13:53:29.084Z",
+  "createdAt": "2026-04-28T13:53:29.082Z",
+  "progress": {
+    "totalChildren": 15,
+    "completedChildren": 3,
+    "failedChildren": 1,
+    "childIds": [
+      "scene-forest-tutorial-01-concept",
+      "scene-forest-tutorial-01b-extract",
+      "scene-forest-tutorial-02-background",
+      "scene-forest-tutorial-02-decompose",
+      "scene-forest-tutorial-03-tiles",
+      "scene-forest-tutorial-04-props",
+      "scene-forest-tutorial-05-manifest",
+      "scene-forest-tutorial-07-preview",
+      "scene-forest-tutorial-01-concept",
+      "scene-forest-tutorial-01b-extract",
+      "scene-forest-tutorial-02-background",
+      "scene-forest-tutorial-02-decompose",
+      "scene-forest-tutorial-03-tiles",
+      "scene-forest-tutorial-04-props",
+      "scene-forest-tutorial-05-manifest"
+    ],
+    "lastProgressUpdate": "2026-04-28T13:53:29.081Z"
+  }
+}

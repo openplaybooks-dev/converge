@@ -1,0 +1,15 @@
+{
+  "taskId": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02c-background/scene-forest-tutorial-02c-background-02c-bg-near/scene-forest-tutorial-02c-background-02c-bg-near-seg-08",
+  "checks": [
+    {
+      "id": "bg-near-seg-png-exists",
+      "description": "bg-near segment PNG written",
+      "cmd": "test -s assets/scenes/forest-tutorial/bg-near/seg-007.png"
+    },
+    {
+      "id": "bg-near-seg-content-in-bottom-strip",
+      "description": "segment has foreground strip in the bottom; top is transparent",
+      "cmd": "python -c \"\nfrom PIL import Image\nimport numpy as np\na = np.array(Image.open('assets/scenes/forest-tutorial/bg-near/seg-007.png').convert('RGBA'))\nalpha = a[:, :, 3]\nh, _ = alpha.shape\ntotal = alpha.size\ntotal_opaque = (alpha == 255).sum()\nratio = total_opaque / total\nassert 0.10 < ratio < 0.65, f'bg-near segment opacity {ratio:.2%} outside [10%, 65%]'\nbot_opaque = (alpha[h//2:] == 255).sum()\nbottom_share = bot_opaque / max(total_opaque, 1)\nassert bottom_share > 0.65, f'segment content should concentrate in the bottom half; got {bottom_share:.2%}'\ntop30_opaque = (alpha[:int(h*0.30)] == 255).mean()\nassert top30_opaque < 0.15, f'top 30% should be mostly transparent; got {top30_opaque:.2%} opaque'\n\"\n"
+    }
+  ]
+}

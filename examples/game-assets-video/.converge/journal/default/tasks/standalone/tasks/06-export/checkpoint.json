@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-export",
+  "status": "pending",
+  "lastUpdated": "2026-04-28T14:07:18.440Z",
+  "createdAt": "2026-04-28T13:53:29.082Z",
+  "progress": {
+    "totalChildren": 2,
+    "completedChildren": 2,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "build-master-atlas",
+      "build-master-atlas"
+    ],
+    "lastProgressUpdate": "2026-04-28T14:07:18.438Z"
+  }
+}

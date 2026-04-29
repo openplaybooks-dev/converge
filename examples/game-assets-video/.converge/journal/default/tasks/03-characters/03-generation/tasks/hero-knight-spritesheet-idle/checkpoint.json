@@ -2,15 +2,15 @@
   "type": "task",
   "id": "03-characters/03-generation/hero-knight-spritesheet-idle",
   "status": "complete",
-  "lastUpdated": "2026-04-27T16:17:30.489Z",
-  "createdAt": "2026-04-27T16:17:30.193Z",
+  "lastUpdated": "2026-04-28T13:19:45.341Z",
+  "createdAt": "2026-04-28T13:19:45.051Z",
   "attempts": [
     {
       "attempt": 1,
-      "startedAt": "2026-04-27T16:17:30.193Z",
-      "completedAt": "2026-04-27T16:17:30.465Z",
+      "startedAt": "2026-04-28T13:19:45.051Z",
+      "completedAt": "2026-04-28T13:19:45.320Z",
       "outcome": "success",
-      "durationMs": 272
+      "durationMs": 269
     }
   ],
   "currentAttempt": 1

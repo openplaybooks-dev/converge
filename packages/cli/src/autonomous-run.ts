@@ -511,6 +511,141 @@ function formatAgeBetween(newerMs: number, olderMs: number): string {
 }
 
 /**
+ * Stale-template detection — when the source TASK.md under
+ * `.converge/playbooks/<playbook>/...` was edited *after* the journal
+ * copy was materialized, re-materialize the journal copy so the user's
+ * edits actually take effect on the next attempt.
+ *
+ * Without this, editing a source TASK.md mid-run is silently ignored:
+ * the runner reads the journal-materialized copy, which is the snapshot
+ * taken at first attempt time. Forces the operator to nuke the journal
+ * subtree manually — the most common confusion in this codebase.
+ *
+ * Scope: top-level playbook tasks where source ↔ journal mapping is
+ * deterministic. WBS-spawned children whose template-ref path is
+ * recoverable from `.spawn-source` sidecars are also covered. Anything
+ * else gets a warning so the user knows to reset manually.
+ */
+export async function rematerializeStaleTemplates(
+  projectDir: string,
+): Promise<{ rematerialized: number; warnings: number }> {
+  const journalEpicsDir = getEpicsDir(projectDir);
+  if (!existsSync(journalEpicsDir)) return { rematerialized: 0, warnings: 0 };
+
+  let rematerialized = 0;
+  let warnings = 0;
+
+  const epicEntries = await readdir(journalEpicsDir, { withFileTypes: true });
+  for (const epicEntry of epicEntries) {
+    if (!epicEntry.isDirectory()) continue;
+    const epicId = epicEntry.name;
+    const epicDir = path.join(journalEpicsDir, epicId);
+
+    const checkpointPaths = await collectCheckpointsRecursive(epicDir);
+    for (const ckptPath of checkpointPaths) {
+      const taskJournalDir = path.dirname(ckptPath);
+      const journalTaskMd = path.join(taskJournalDir, "TASK.md");
+      if (!existsSync(journalTaskMd)) continue;
+
+      // Resolve the source TASK.md path. Two layouts:
+      //   1. Top-level playbook tasks: source path mirrors the journal path
+      //      (.../playbooks/<epic>/tasks/<id>/TASK.md).
+      //   2. WBS-spawned tasks: the WBS that created this task may have
+      //      written a `.spawn-source` sidecar pointing at the source
+      //      template; if present, use it.
+      const spawnSource = path.join(taskJournalDir, ".spawn-source");
+      let sourceTaskMd: string | null = null;
+      if (existsSync(spawnSource)) {
+        try {
+          const raw = (await readFile(spawnSource, "utf-8")).trim();
+          if (raw) sourceTaskMd = path.resolve(projectDir, raw);
+        } catch {
+          /* ignore */
+        }
+      }
+      if (!sourceTaskMd) {
+        // Try the deterministic top-level mapping.
+        const rel = path
+          .relative(epicDir, taskJournalDir)
+          .replace(/\\/g, "/");
+        if (!rel || rel === "." || rel.includes("/tasks/")) {
+          // Likely a WBS-spawned child (has .../tasks/.../tasks/...).
+          // Skip silently — those need .spawn-source to track.
+          continue;
+        }
+        // rel is like "tasks/01-foo" → playbook source is at
+        // .converge/playbooks/<epic>/tasks/01-foo/TASK.md
+        const candidate = path.join(
+          projectDir,
+          ".converge",
+          "playbooks",
+          epicId,
+          rel,
+          "TASK.md",
+        );
+        if (!existsSync(candidate)) continue;
+        sourceTaskMd = candidate;
+      }
+      if (!existsSync(sourceTaskMd)) continue;
+
+      try {
+        const [srcStat, journalStat] = await Promise.all([
+          stat(sourceTaskMd),
+          stat(journalTaskMd),
+        ]);
+        // Source must be newer than journal copy by more than the slack window.
+        if (srcStat.mtimeMs <= journalStat.mtimeMs + 2000) continue;
+
+        // Re-materialize the journal copy with the same Mustache substitution
+        // the original spawn would have used. We don't have the original
+        // vars here for WBS-spawned tasks — limit re-materialization to
+        // top-level tasks (no `{{var}}` placeholders by convention) for now;
+        // for spawn-sourced tasks emit a warning so the operator resets manually.
+        const srcContent = await readFile(sourceTaskMd, "utf-8");
+        const hasPlaceholders = /\{\{\w+\}\}/.test(srcContent);
+        if (hasPlaceholders && spawnSource) {
+          // We have a sidecar but it didn't carry vars — bail with a warning.
+          console.log(
+            `   ⚠ Stale spawn template (${path.relative(projectDir, sourceTaskMd)} edited after journal copy); reset the task manually if you want the edits applied.`,
+          );
+          warnings++;
+          continue;
+        }
+        if (hasPlaceholders) {
+          // Top-level path with placeholders means the playbook's normal
+          // install-time substitution already happened. We can't recover
+          // those vars cleanly; warn and skip.
+          console.log(
+            `   ⚠ Stale template at ${path.relative(projectDir, sourceTaskMd)} contains {{vars}} we can't substitute on resume; reset the task manually.`,
+          );
+          warnings++;
+          continue;
+        }
+
+        // Plain copy — write the source content over the journal TASK.md.
+        const { writeFile } = await import("node:fs/promises");
+        await writeFile(journalTaskMd, srcContent, "utf-8");
+        rematerialized++;
+        console.log(
+          `   ↻ Re-materialized: ${path.relative(projectDir, journalTaskMd)} (source edited ${formatAgeBetween(srcStat.mtimeMs, journalStat.mtimeMs)} after journal copy)`,
+        );
+      } catch {
+        /* ignore individual failures */
+      }
+    }
+  }
+
+  if (rematerialized > 0 || warnings > 0) {
+    const parts: string[] = [];
+    if (rematerialized > 0) parts.push(`${rematerialized} re-materialized`);
+    if (warnings > 0) parts.push(`${warnings} warning(s)`);
+    console.log(`\n⚡ Stale-template scan: ${parts.join(", ")}\n`);
+  }
+
+  return { rematerialized, warnings };
+}
+
+/**
  * Reset ALL non-complete tasks to pending (--restart mode).
  * Scans all checkpoints recursively and resets status + attempt records for stuck tasks.
  */
@@ -869,7 +1004,8 @@ interface RunContext {
   gapsResolved: number;
 
   // ── Task execution tracking ───────────────────────────────
-  taskAttempts: Map<string, number>; // taskId → attempt count
+  taskAttempts: Map<string, number>;          // taskId → STRUCTURAL attempt count (counts toward maxTaskAttempts)
+  taskTransientAttempts: Map<string, number>; // taskId → transient attempt count (separate budget, generous)
   consecutiveFailures: number;        // consecutive exhausted failures → halt
   consecutiveSelections: number;     // same task selected → infinite loop detection
   lastSelectedTaskId: string | null;
@@ -922,9 +1058,14 @@ async function stateInit(ctx: RunContext): Promise<RunState> {
   // On --resume, re-check completed tasks whose source TASK.md was edited
   // after the checkpoint was written. Without this, the runner trusts a
   // stale completion and the user's edits are silently ignored.
+  // ALSO re-materialize the journal TASK.md from source when source has
+  // changed since the journal was written. The runner reads the journal
+  // copy, so stale journal copies were the most common cause of "I edited
+  // the source but my changes don't take effect".
   if (config.resume) {
+    const stale = await rematerializeStaleTemplates(config.projectDir);
     const rechecked = await recheckEditedCompletedTasks(config.projectDir);
-    if (rechecked > 0) await ctx.tree.reload();
+    if (rechecked > 0 || stale.rematerialized > 0) await ctx.tree.reload();
   }
 
   // Handle stuck tasks from previous session
@@ -1109,6 +1250,24 @@ async function stateSelect(ctx: RunContext): Promise<RunState> {
   console.log(`▶  Next task: ${ctx.selectedNode.relPath}`);
   console.log(`   Epic: ${ctx.selectedNode.epicId}  Task: ${ctx.selectedNode.taskId}`);
 
+  // Mirror the same transition into the optional NDJSON event stream so
+  // babysitters can subscribe without grepping prose console output.
+  try {
+    const { emitRunEvent } = await import("./run-event-stream.ts");
+    emitRunEvent("run.iteration", {
+      n: ctx.iteration,
+      progress: { completed: completedCount, total: totalCount },
+    });
+    emitRunEvent("task.start", {
+      taskId: ctx.selectedNode.journalTaskId,
+      relPath: ctx.selectedNode.relPath,
+      epicId: ctx.selectedNode.epicId,
+      attempt: currentAttempt,
+    });
+  } catch {
+    /* event stream is best-effort */
+  }
+
   await sessionLogger.logTaskSelected(
     ctx.selectedNode.journalTaskId,
     ctx.selectedNode.epicId,
@@ -1193,6 +1352,32 @@ async function stateCommit(ctx: RunContext): Promise<RunState> {
     return "CHECK";
   }
 
+  // ── Fabrication gate ──────────────────────────────────────────────
+  // Even on a "successful" attempt, scan the agent's tool-use log for
+  // markers that indicate it hand-rolled a fallback instead of running
+  // the declared script. Fabricated output passes file-existence checks
+  // but contaminates downstream tasks. Override success → failure when
+  // markers are found.
+  if (execResult.success && !execResult.isWbsTask && selectedNode!.treeNode?.unit?.path) {
+    try {
+      const { scanForFabrication, formatFabricationReport } = await import(
+        "./fabrication-scanner.ts"
+      );
+      const journalDir = path.dirname(selectedNode!.treeNode.unit.path);
+      const scan = await scanForFabrication(journalDir);
+      if (scan.fabricated) {
+        console.log("");
+        console.log(formatFabricationReport(scan));
+        console.log("");
+        execResult.success = false;
+        execResult.errorKind = "structural";
+        execResult.errorReason = `fabrication detected: ${scan.findings.map((f) => f.marker).join(", ")}`;
+      }
+    } catch {
+      /* scanner is best-effort; don't block on its own bug */
+    }
+  }
+
   if (execResult.success) {
     if (execResult.isWbsTask) {
       console.log(` — waiting for subtasks`);
@@ -1227,12 +1412,61 @@ async function stateCommit(ctx: RunContext): Promise<RunState> {
       return "DONE";
     }
   } else {
-    const attempts = (ctx.taskAttempts.get(selectedNode!.journalTaskId) ?? 0) + 1;
-    ctx.taskAttempts.set(selectedNode!.journalTaskId, attempts);
+    // Classify the failure and route it to the right counter. Transient
+    // failures (529 / network / env-not-loaded) get a generous separate
+    // budget so the runner doesn't burn its structural attempts on
+    // problems the next attempt is likely to fix on its own.
+    const journalTaskId = selectedNode!.journalTaskId;
+    let kind: "transient" | "structural" = "structural";
+    let reason = "default — could not classify";
+    try {
+      const { classifyTaskFailure } = await import("./error-classification.ts");
+      const journalDir = selectedNode!.treeNode?.unit?.path
+        ? path.dirname(selectedNode!.treeNode.unit.path)
+        : null;
+      const classified = journalDir
+        ? await classifyTaskFailure(journalDir)
+        : null;
+      if (classified) {
+        kind = classified.kind;
+        reason = classified.reason;
+      }
+    } catch {
+      /* fall through with default */
+    }
+
+    let attempts: number;
+    const MAX_TRANSIENT = Math.max(ctx.maxTaskAttempts * 3, 6);
+    if (kind === "transient") {
+      const t = (ctx.taskTransientAttempts.get(journalTaskId) ?? 0) + 1;
+      ctx.taskTransientAttempts.set(journalTaskId, t);
+      // Use the structural counter unchanged for the gate below — but
+      // for the console line we report the transient counter.
+      attempts = ctx.taskAttempts.get(journalTaskId) ?? 0;
+      console.log(
+        `   ↻ Transient failure (${reason}) — transient attempt ${t}/${MAX_TRANSIENT}, structural counter unchanged`,
+      );
+      if (t >= MAX_TRANSIENT) {
+        // Promote to structural after enough transient retries — at this
+        // point "transient" has stopped being the right label.
+        kind = "structural";
+        reason = `promoted from transient after ${t} retries`;
+      }
+    }
+    if (kind === "structural") {
+      attempts = (ctx.taskAttempts.get(journalTaskId) ?? 0) + 1;
+      ctx.taskAttempts.set(journalTaskId, attempts);
+      console.log(
+        `   ⨯ Structural failure (${reason}) — structural attempt ${attempts}/${ctx.maxTaskAttempts}`,
+      );
+    } else {
+      attempts = ctx.taskAttempts.get(journalTaskId) ?? 0;
+    }
 
     if (execResult.resetSiblings?.length) {
       for (const sid of execResult.resetSiblings) {
         ctx.taskAttempts.delete(sid);
+        ctx.taskTransientAttempts.delete(sid);
       }
     }
 
@@ -1404,6 +1638,7 @@ export async function autonomousRun(
     tasksFailed: 0,
     gapsResolved: 0,
     taskAttempts: new Map(),
+    taskTransientAttempts: new Map(),
     consecutiveFailures: 0,
     consecutiveSelections: 0,
     lastSelectedTaskId: null,

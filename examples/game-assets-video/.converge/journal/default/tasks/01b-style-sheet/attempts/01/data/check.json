@@ -1,0 +1,15 @@
+{
+  "taskId": "01b-style-sheet",
+  "checks": [
+    {
+      "id": "style-sheet-exists",
+      "description": "assets/concept/style-sheet.png was generated",
+      "cmd": "test -s assets/concept/style-sheet.png"
+    },
+    {
+      "id": "style-sheet-has-min-size",
+      "description": "style-sheet.png is at least 1024x512 (matches generator's 1536x1024 native output)",
+      "cmd": "python -c \"from PIL import Image; im=Image.open('assets/concept/style-sheet.png'); w,h=im.size; assert w>=1024 and h>=512, f'style-sheet too small: {im.size}'\"\n"
+    }
+  ]
+}

@@ -1,118 +1,58 @@
 {
   "$schema": "v1",
-  "game_type": "side-scrolling-action",
-  "view": "side-2d",
-  "movement": [
-    "walk"
-  ],
-  "no_jumping": true,
-  "art_style_keywords": [
-    "2D pixel art",
-    "16-bit retro",
-    "limited 16-color palette",
-    "bright, saturated colors",
-    "muted environmental tones"
-  ],
-  "anti_keywords": [
-    "8-directional movement"
-  ],
+  "game_type": "top-down-rpg",
+  "confidence": 0.95,
+  "reasoning": "idea.md explicitly describes the hero with '8-directional movement', a tile-based grassland terrain (16x16 tiles), and a 16-bit retro pixel-art aesthetic. These are defining characteristics of a top-down RPG. While idea.md mentions a parallax 'Forest Path' background, the dominant signals (8-dir movement, tile maps, RPG-style cast of knight/elf/mage with idle+walk states, and item collectibles) classify this as top-down-rpg.",
+  "view": "top-down-2d",
+  "movement": ["8-directional"],
+  "art_style_keywords": ["pixel art", "16-bit", "retro RPG", "tile-based", "limited 16-color palette", "saturated character colors", "muted environment tones"],
+  "anti_keywords": ["side view", "parallax", "horizon", "depth haze", "modern 3D", "high-resolution", "photorealistic"],
+
   "asset_categories": {
     "characters": {
       "enabled": true,
       "frames_mode": "video",
-      "default_states": [
-        "idle",
-        "walk",
-        "attack"
-      ]
+      "default_states": ["idle-down", "idle-up", "idle-left", "idle-right", "walk-down", "walk-up", "walk-left", "walk-right"]
     },
     "shared_props": {
       "enabled": true,
-      "categories": [
-        "item",
-        "weapon",
-        "hazard"
-      ]
+      "categories": ["item", "weapon", "interactive"]
     },
     "tilemap": {
       "enabled": true,
-      "style": "continuous-ground",
-      "tile_dimensions": [
-        32,
-        32
-      ],
+      "style": "8-direction-rpg",
+      "tile_dimensions": [16, 16],
       "working_resolution": 128,
-      "sheet_grid": [
-        3,
-        3
-      ],
+      "sheet_grid": [4, 4],
       "default_variants": [
-        {
-          "id": "grass-tall",
-          "layer": "ground",
-          "description": "Lush grass tufts on flat ground \u2014 the dominant ground texture."
-        },
-        {
-          "id": "grass-tufts",
-          "layer": "ground",
-          "description": "Sparser grass with patches of dirt showing through."
-        },
-        {
-          "id": "dirt-patch",
-          "layer": "ground",
-          "description": "Bare dirt patch \u2014 represents a worn footpath segment."
-        },
-        {
-          "id": "stone-tile",
-          "layer": "ground",
-          "description": "Stone path segment \u2014 single squarish stone embedded in grass."
-        },
-        {
-          "id": "flower-cluster",
-          "layer": "decoration",
-          "description": "Cluster of small wildflowers on the grass surface."
-        },
-        {
-          "id": "weed-clump",
-          "layer": "decoration",
-          "description": "Tall weeds or fern fronds rising from the ground."
-        }
+        { "id": "grass",            "layer": "base",     "description": "Plain grass field tile (top-down view)." },
+        { "id": "grass-flowers",    "layer": "base",     "description": "Grass with scattered flower spots." },
+        { "id": "dirt",             "layer": "base",     "description": "Plain dirt tile." },
+        { "id": "path-corner-NE",   "layer": "path",     "description": "Dirt path with grass on northeast corner — for path turning." },
+        { "id": "path-corner-NW",   "layer": "path",     "description": "Dirt path with grass on northwest corner." },
+        { "id": "path-corner-SE",   "layer": "path",     "description": "Dirt path with grass on southeast corner." },
+        { "id": "path-corner-SW",   "layer": "path",     "description": "Dirt path with grass on southwest corner." },
+        { "id": "water",            "layer": "obstacle", "description": "Water tile — impassable, with subtle wave pattern." },
+        { "id": "water-edge-grass", "layer": "obstacle", "description": "Water meeting grass — shoreline transition." },
+        { "id": "tree-stump",       "layer": "decoration","description": "Single tree stump on grass." },
+        { "id": "rock-small",       "layer": "decoration","description": "Small grey rock decoration." }
       ]
     },
     "background": {
-      "enabled": true,
-      "layers": [
-        "far",
-        "mid"
-      ],
-      "transparent_layers": [
-        "mid"
-      ],
-      "subject_height_tiles": {
-        "far": null,
-        "mid": 4.0
-      }
+      "enabled": false,
+      "layers": [],
+      "transparent_layers": []
     },
     "scene_props": {
       "enabled": true,
-      "categories": [
-        "decoration",
-        "interactive"
-      ]
+      "categories": ["interactive", "decoration"]
     }
   },
+
   "playbook_overrides": {
     "scenes_inspect_use_platforms": false,
-    "world_width_tiles": 200,
-    "canvas_tiles_tall": 12
-  },
-  "_classifier_metadata": {
-    "source": "idea.md + visual-target.png",
-    "confidence": "medium",
-    "reasoning": "The image clearly depicts a side-view perspective with characters moving on a continuous ground, typical for side-scrolling games. The brief describes the game as a '2D pixel art action RPG' with a 'Parallax forest background,' aligning well with the characteristics of a side-scrolling action RPG.",
-    "alternatives_considered": [
-      "top-down-rpg",
-      "platformer"
-    ]
+    "scenes_inspect_view_mode": "top-down",
+    "world_width_tiles": 80,
+    "world_height_tiles": 60
   }
 }

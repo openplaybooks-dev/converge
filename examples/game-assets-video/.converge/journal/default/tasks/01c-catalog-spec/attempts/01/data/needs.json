@@ -1,0 +1,9 @@
+{
+  "taskId": "01c-catalog-spec",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/catalog.json"
+  ],
+  "blocked": false
+}

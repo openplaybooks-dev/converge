@@ -1,7 +1,7 @@
 ---
 id: health-potion-spritesheet-idle
-title: Generate Health Potion idle sprite sheet
-description: Idle animation sprite sheet for Health Potion
+title: Generate Red Flask With Sparkle Particles idle sprite sheet
+description: Idle animation sprite sheet for Red Flask With Sparkle Particles
 tags:
   - prop
   - item
@@ -15,22 +15,22 @@ checks:
     description: "Prop sheet PNG exists with reasonable dimensions (>=512x256)"
     cmd: "python -c \"from PIL import Image; im=Image.open('assets/objects/health-potion/spritesheets/idle/idle.png'); w,h=im.size; assert w>=512 and h>=256, f'sheet too small: {im.size}'\"\n"
   - id: prop-atlas-json-matches-png
-    description: "Prop atlas JSON's grid + sheet_size match the PNG (auto-detected layout)"
-    cmd: "python -c \"import json; from PIL import Image; a=json.load(open('assets/objects/health-potion/spritesheets/idle/idle.atlas.json')); im=Image.open('assets/objects/health-potion/spritesheets/idle/idle.png'); m=a['meta']; assert m['cols']>=2 and m['rows']>=1, f\\\"grid too small: {m}\\\"; assert len(a['frames'])==m['cols']*m['rows'], f\\\"frame count != cols*rows: {m}\\\"; assert m['sheet_size']['w']==im.size[0] and m['sheet_size']['h']==im.size[1], f\\\"atlas/sheet size mismatch: atlas={m['sheet_size']} png={im.size}\\\"\"\n"
+    description: "Prop atlas JSON's grid + sheet_size match the PNG (1x1 for static props, NxM for animated)"
+    cmd: "python -c \"import json; from PIL import Image; a=json.load(open('assets/objects/health-potion/spritesheets/idle/idle.atlas.json')); im=Image.open('assets/objects/health-potion/spritesheets/idle/idle.png'); m=a['meta']; assert m['cols']>=1 and m['rows']>=1, f\\\"grid too small: {m}\\\"; assert len(a['frames'])==m['cols']*m['rows'], f\\\"frame count != cols*rows: {m}\\\"; assert m['sheet_size']['w']==im.size[0] and m['sheet_size']['h']==im.size[1], f\\\"atlas/sheet size mismatch: atlas={m['sheet_size']} png={im.size}\\\"\"\n"
   - id: prop-prompt-saved
     description: Sibling .prompt.txt exists for debugging
     cmd: test -s assets/objects/health-potion/spritesheets/idle/idle.prompt.txt
 vars:
   obj_id: health-potion
-  obj_name: Health Potion
-  obj_description: "Red flask with sparkle particles, restores health when collected."
+  obj_name: Red Flask With Sparkle Particles
+  obj_description: Red flask with sparkle particles
   obj_category: item
-  states: "[\"idle\",\"collect\"]"
+  states: "[\"idle\"]"
   state_name: idle
-  state_description: Idle animation sprite sheet for Health Potion
+  state_description: Idle animation sprite sheet for Red Flask With Sparkle Particles
 ---
 
-# Health Potion idle Sprite Sheet
+# Red Flask With Sparkle Particles idle Sprite Sheet
 
 Runs `scripts/generate_prop_spritesheet.py health-potion idle`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so the prop's identity stays consistent across frames.
 

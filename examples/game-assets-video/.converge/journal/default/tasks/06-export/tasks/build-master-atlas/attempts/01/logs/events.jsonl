@@ -1,0 +1,3 @@
+{"type":"task_start","taskId":"06-export/build-master-atlas","taskName":"Build master atlas (raw + Godot + Unity)","attempt":1,"inputs":[],"outputs":[],"timestamp":"2026-04-28T13:48:26.772Z","level":"critical"}
+{"type":"ai_reasoning","text":"Starting convergence loop for task: Build master atlas (raw + Godot + Unity)","context":{"taskId":"06-export/build-master-atlas","maxIterations":1000000,"isWbs":false,"hasInputs":false,"hasOutputs":false},"timestamp":"2026-04-28T13:48:26.772Z","level":"info"}
+{"type":"task_complete","taskId":"06-export/build-master-atlas","duration":26,"outputs":[],"success":true,"timestamp":"2026-04-28T13:48:26.798Z","level":"critical"}

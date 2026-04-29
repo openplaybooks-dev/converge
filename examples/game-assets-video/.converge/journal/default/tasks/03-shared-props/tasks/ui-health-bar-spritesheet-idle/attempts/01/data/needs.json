@@ -1,0 +1,11 @@
+{
+  "taskId": "03-shared-props/ui-health-bar-spritesheet-idle",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/objects/ui-health-bar/spritesheets/idle/idle.png",
+    "assets/objects/ui-health-bar/spritesheets/idle/idle.atlas.json",
+    "assets/objects/ui-health-bar/spritesheets/idle/idle.prompt.txt"
+  ],
+  "blocked": false
+}

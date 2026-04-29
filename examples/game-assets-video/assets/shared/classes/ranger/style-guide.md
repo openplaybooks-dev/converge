@@ -1,89 +1,34 @@
-# Ranger Class Style Guide
+# ranger Class Style Guide
 
 ## Overview
-
-The ranger class embodies the spirit of the wilderness - agile, precise, and in harmony with nature. Rangers are masters of ranged combat, moving swiftly through any terrain with grace and purpose. Their visual identity reflects their connection to the natural world through earthy tones, practical light armor, and elegant weapon designs.
+The ranger class embodies woodland agility and quiet, watchful precision. Visually defined by hooded leather garb, longbow in hand, and a poised half-crouch read that suggests motion at any moment. Silhouettes are slim and angular — narrow shoulders, lean limbs, never bulky. Designs read as alert and self-reliant at first glance, contrasting the grounded weight of warriors and the arcane drape of mages. Hand-drawn 2D in the project's painterly style: soft shading, clean rounded silhouettes, warm storybook lighting with subtle rim light along the bow arm and hood.
 
 ## Color Palette
-
-**Primary Colors:**
-- Forest Green (#2d5016, #4a7c2c)
-- Earth Brown (#5c4033, #8b6f47)
-- Moss Green (#6b8e23, #8fbc8f)
-
-**Secondary Colors:**
-- Leather Tan (#d2b48c, #c19a6b)
-- Stone Gray (#708090, #a9a9a9)
-- Natural Wood (#8b7355, #a0826d)
-
-**Accent Colors:**
-- Deep Leaf (#1a3d0f)
-- Sunlit Gold (#daa520) - **Use sparingly.** Reserved for tiny highlights only — arrowhead glints, bowstring sheen, a single buckle. Never armor, cloak trim, or large surfaces. Target ≤3% of sprite pixels. Never use #FFD700 (canonical gold) — too saturated for this palette.
+- **Primary**: Forest green (#2F5234), moss green (#4A6B3A) — hooded cloak and tunic body.
+- **Secondary**: Warm bark brown (#5A3820), deep umber (#3A2412) — leather armor pieces, belt, boots, quiver.
+- **Accent (natural)**: Pale leaf green (#9DBF7A), goldenrod (#C7A14A) — fletching, embroidery, drawstring detail.
+- **Neutrals**: Bone white (#E8DCC8), slate grey (#5C5C5C) — undershirt, arrowheads, bowstring.
+- Constraint: 16-color palette per project rules. Earth tones dominate; the brightest accent is fletching or a single goldenrod cord — used sparingly.
 
 ## Materials
-
-**Armor Type:** Light
-- Supple leather armor with minimal metal components
-- Reinforced cloth and hide in natural tones
-- Flexible materials that allow full range of motion
-- Weathered, practical appearance
-
-**Clothing:**
-- Layered tunics and cloaks in earth tones
-- Hooded capes for stealth and weather protection
-- Practical belts and straps for equipment
-- Natural fiber materials (linen, cotton, leather)
-
-**Weapon Materials:**
-- Bows crafted from aged wood with natural grain
-- Arrows with feathered fletching
-- Minimal metal accents in bronze or weathered steel
-- Leather wrappings on grips
+- **Armor type**: light — supple leather chest plate over a quilted tunic. Vambraces on the bow arm only. No metal plate. Cloth and hide read as worn-in, with painterly grain texture.
+- **Clothing**: hooded cloak in moss green; inner tunic visible at neckline and hem. Cross-body strap holding a quiver of arrows. Soft leather boots, knee-high.
+- **Weapon style**: ranged — longbow of bent yew or ash, slightly taller than the character's torso. Bowstring rendered as a single clean line. Quiver at the back or hip with 4–6 visible arrow shafts and goldenrod fletching.
+- **Trinkets**: feather token at the cloak clasp, small leather pouch at the belt, optional bone-bead drawstring.
 
 ## Design Elements
-
-**Common Visual Elements:**
-- Leaf and vine motifs in armor detailing
-- Asymmetrical designs suggesting natural growth
-- Practical pouches and quivers
-- Flowing capes and scarves
-- Minimal ornamentation - function over form
-- Weathered, travel-worn appearance
-- Natural textures (wood grain, leather, fabric weave)
-
-**Silhouette:**
-- Lean and athletic build
-- Emphasis on mobility and agility
-- Streamlined profile without bulk
-- Dynamic, ready-to-move posture
+- **Hood**: drawn forward but shallower than the mage's — eyes and lower face remain visible, casting only a soft brow shadow.
+- **Bow posture**: longbow held in the dominant hand at rest, lower limb angled toward the ground; bow remains visible in silhouette at all times.
+- **Quiver**: signature class identifier. Arrows always visible above the shoulder line.
+- **Cloak hem**: terminates above the boot, lightly tattered, swept slightly behind to read as forward motion.
+- **Lean stance**: weight on one leg, opposite foot forward — never planted square. Reads as ready to move.
+- **Asymmetry**: vambrace on bow arm only; quiver strap crosses one shoulder.
 
 ## Animation Style
-
-**Movement Characteristics:**
-- Fluid, graceful motion
-- Light footfalls suggesting stealth
-- Quick, precise actions
-- Natural, organic movement flow
-- Minimal wasted motion
-- Cat-like agility and balance
-
-**Pose Style:**
-- Alert, aware stance
-- Weight often on balls of feet
-- Bow drawn with perfect form
-- Crouched or ready positions
-- Connection to environment (touching trees, kneeling)
-
-**Combat Animation:**
-- Swift draw and release
-- Evasive rolls and sidesteps
-- Backflips and acrobatic dodges
-- Smooth transitions between movement and shooting
+- **Idle**: slight weight shift between legs (1–2 px). Cloak hem ripples in a low, intermittent draft. Bowstring reads steady; subtle head turn-and-return implies scanning.
+- **Walk**: agile, light-footed stride — toes contact ground first, knees bent. Cloak sways with the gait. Bow held steady in dominant hand, free hand swings naturally counter-rhythm.
+- **Pose style**: low, forward-leaning, slightly crouched. Avoids tall vertical poses. Movements emphasize limb articulation and quick recoveries over flowing cloth.
+- **Frame counts**: 4 frames idle, 8 frames walk (per project tech spec).
 
 ## Characters in Class
-
-- forest-elf
-
-## Reference Notes
-
-This style guide should be applied consistently across all ranger characters while allowing for individual character variations. The core identity - natural, agile, ranged - must remain clear in every design.
+- forest-elf — moss-green cloak, leather vambrace, longbow with goldenrod fletching; the canonical exemplar of the class.

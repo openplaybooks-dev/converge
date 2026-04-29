@@ -1,9 +1,0 @@
-{
-  "taskId": "03-shared-props/bounce-spring-01-spec",
-  "attemptNumber": 1,
-  "inputs": [],
-  "outputs": [
-    "assets/objects/bounce-spring/SPEC.md"
-  ],
-  "blocked": false
-}

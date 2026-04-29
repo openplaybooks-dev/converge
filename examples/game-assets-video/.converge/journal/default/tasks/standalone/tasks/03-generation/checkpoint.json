@@ -1,0 +1,23 @@
+{
+  "type": "task",
+  "id": "03-generation",
+  "status": "pending",
+  "lastUpdated": "2026-04-28T14:07:18.440Z",
+  "createdAt": "2026-04-28T13:53:29.082Z",
+  "progress": {
+    "totalChildren": 8,
+    "completedChildren": 8,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "forest-elf-01-spec",
+      "forest-elf-02-angles",
+      "forest-elf-spritesheet-idle",
+      "forest-elf-spritesheet-walk",
+      "hero-knight-01-spec",
+      "hero-knight-02-angles",
+      "hero-knight-spritesheet-idle",
+      "hero-knight-spritesheet-walk"
+    ],
+    "lastProgressUpdate": "2026-04-28T14:07:18.438Z"
+  }
+}

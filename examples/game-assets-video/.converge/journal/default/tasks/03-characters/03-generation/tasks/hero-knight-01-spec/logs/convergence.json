@@ -47,7 +47,7 @@
             "severity": "high",
             "description": "[03-characters/03-generation/hero-knight-01-spec] Task output not created: assets/characters/hero-knight/SPEC.md",
             "source": "unit",
-            "detected": "2026-04-27T16:16:52.393Z",
+            "detected": "2026-04-28T13:17:41.945Z",
             "resolved": false,
             "checks": [],
             "metadata": {
@@ -69,7 +69,7 @@
             "severity": "high",
             "description": "[03-characters/03-generation/hero-knight-01-spec] Check failed: Spec file exists",
             "source": "unit",
-            "detected": "2026-04-27T16:16:52.397Z",
+            "detected": "2026-04-28T13:17:41.948Z",
             "resolved": false,
             "checks": [],
             "metadata": {
@@ -123,7 +123,7 @@
       },
       "result": {
         "action": "continue",
-        "durationMs": 4
+        "durationMs": 5
       }
     },
     {
@@ -139,7 +139,7 @@
         "success": true,
         "reason": "All gaps resolved",
         "gaps": [],
-        "durationMs": 6
+        "durationMs": 8
       }
     },
     {
@@ -161,7 +161,7 @@
       }
     },
     {
-      "id": "run-strategy:task-run#6",
+      "id": "run-strategy:task-run#9",
       "handler": "run-strategy",
       "status": "done",
       "origin": "planned",
@@ -171,7 +171,7 @@
       },
       "result": {
         "action": "continue",
-        "durationMs": 36586
+        "durationMs": 49732
       }
     }
   ],
@@ -180,43 +180,43 @@
       "from": "_start",
       "to": "check-wbs-seeded",
       "iteration": 1,
-      "ts": "2026-04-27T16:16:52.389Z"
+      "ts": "2026-04-28T13:17:41.940Z"
     },
     {
       "from": "check-wbs-seeded",
       "to": "check-outputs-exist",
       "iteration": 1,
-      "ts": "2026-04-27T16:16:52.389Z"
+      "ts": "2026-04-28T13:17:41.941Z"
     },
     {
       "from": "check-outputs-exist",
       "to": "detect-gaps",
       "iteration": 1,
-      "ts": "2026-04-27T16:16:52.397Z"
+      "ts": "2026-04-28T13:17:41.948Z"
     },
     {
       "from": "detect-gaps",
       "to": "run-executor",
       "iteration": 1,
-      "ts": "2026-04-27T16:16:52.397Z"
+      "ts": "2026-04-28T13:17:41.949Z"
     },
     {
       "from": "run-executor",
       "to": "repair-loop",
       "iteration": 1,
-      "ts": "2026-04-27T16:16:52.402Z"
+      "ts": "2026-04-28T13:17:41.954Z"
     },
     {
       "from": "repair-loop",
-      "to": "run-strategy:task-run#6",
+      "to": "run-strategy:task-run#9",
       "iteration": 1,
-      "ts": "2026-04-27T16:17:28.988Z"
+      "ts": "2026-04-28T13:18:31.686Z"
     },
     {
-      "from": "run-strategy:task-run#6",
+      "from": "run-strategy:task-run#9",
       "to": "verify",
       "iteration": 1,
-      "ts": "2026-04-27T16:17:28.995Z"
+      "ts": "2026-04-28T13:18:31.695Z"
     }
   ]
 }

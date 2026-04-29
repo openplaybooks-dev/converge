@@ -1,0 +1,17 @@
+{
+  "taskId": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-01b-extract/scene-forest-tutorial-01b-extract-01b1-far",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "assets/scenes/forest-tutorial/concept.png",
+      "count": 1,
+      "samples": [
+        "assets/scenes/forest-tutorial/concept.png"
+      ]
+    }
+  ],
+  "outputs": [
+    "assets/scenes/forest-tutorial/extracted/bg-far.png"
+  ],
+  "blocked": false
+}

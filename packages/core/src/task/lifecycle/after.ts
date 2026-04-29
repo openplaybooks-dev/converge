@@ -16,6 +16,7 @@ import { logTaskEvent } from "../../journal/writer.ts";
 import type { InputSnapshot, InputFile } from "./before.ts";
 import type { BacklogDef, BacklogItem } from "../../backlog/types.ts";
 import { runBacklogs } from "../../backlog/backlog-runner.ts";
+import { runAiCheck, loadProjectAIConfig } from "../checks/ai-check.ts";
 
 const execAsync = promisify(exec);
 
@@ -117,14 +118,26 @@ async function execInProcessGroup(
 
 export interface CheckDef {
   id: string;
-  cmd: string;
   description: string;
+  /** Bash command for type:"cmd" checks (default). */
+  cmd?: string;
+  /** Discriminator. Defaults to "cmd" when absent. */
+  type?: "cmd" | "ai";
+  /** Plain-English assertion the AI judge verifies; required for type:"ai". */
+  check?: string;
+  /** Optional AI provider override; defaults to project ai: config. */
+  agent?: string;
+  /** Optional AI model override. */
+  model?: string;
+  /** Optional per-check timeout (ms). */
+  timeoutMs?: number;
 }
 
 export interface CheckRunResult {
   id: string;
   description: string;
-  cmd: string;
+  /** The executed bash command for type:"cmd" checks; absent for type:"ai". */
+  cmd?: string;
   passed: boolean;
   exitCode: number | string;
   stdout: string;
@@ -389,6 +402,59 @@ async function runCheck(
   declaredOutputs: string[] = [],
 ): Promise<CheckRunResult> {
   const start = Date.now();
+
+  if (check.type === "ai") {
+    if (!check.check) {
+      return {
+        id: check.id,
+        description: check.description,
+        passed: false,
+        exitCode: 1,
+        stdout: "",
+        stderr: `AI check "${check.id}" is missing required "check" field`,
+        durationMs: Date.now() - start,
+      };
+    }
+    const aiConfig = await loadProjectAIConfig(projectDir);
+    const aiResult = await runAiCheck(
+      {
+        id: check.id,
+        description: check.description,
+        check: check.check,
+        agent: check.agent,
+        model: check.model,
+        timeoutMs: check.timeoutMs,
+      },
+      {
+        projectDir,
+        taskId: check.id,
+        description: check.description,
+        outputs: declaredOutputs,
+      },
+      aiConfig,
+    );
+    return {
+      id: check.id,
+      description: check.description,
+      passed: aiResult.pass,
+      exitCode: aiResult.pass ? 0 : 1,
+      stdout: aiResult.feedback,
+      stderr: "",
+      durationMs: aiResult.durationMs,
+    };
+  }
+
+  if (!check.cmd) {
+    return {
+      id: check.id,
+      description: check.description,
+      passed: false,
+      exitCode: 1,
+      stdout: "",
+      stderr: `check "${check.id}" has neither "cmd" nor "type: ai" + "check"`,
+      durationMs: Date.now() - start,
+    };
+  }
 
   // Gate: skip checks whose declared-output prerequisites haven't been
   // produced yet. Reduces noise during early phases of long playbooks.

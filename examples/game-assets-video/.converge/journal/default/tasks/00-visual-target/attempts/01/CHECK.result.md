@@ -1,12 +1,12 @@
 # RESULT.md — Attempt 1
 
 **Outcome**: ✅ SUCCESS
-**Duration**: 129ms
-**Completed**: 2026-04-27T16:12:53.802Z
+**Duration**: 2m 18s
+**Completed**: 2026-04-28T13:05:48.371Z
 
 ## Outputs
 
-- `assets/visual-target.png` — ✓ produced (1.6 MB)
+- `assets/visual-target.png` — ✓ produced (1.3 MB)
 - `ASSETS.md` — ✓ produced (1.4 KB)
 - `assets/sprites.json` — ✓ produced (630 B)
 

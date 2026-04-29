@@ -1,0 +1,58 @@
+ONE SEGMENT of a wide FOREGROUND EDGE LAYER for a 2D game scene. Single image, no grid, no animation.
+
+Role of this layer:
+The foreground plane — the closest visual element to the camera. The player walks across or in front of it. Examples by biome: grass strip with flowers, dirt path, sand strip, stone-tiled floor, snow strip with footprints.
+
+If a `map.silhouette.png` reference is provided, treat it as the binding macro layout. The silhouette covers the WHOLE map left-to-right and shows the elevation profile of the playable ground. Your segment covers the x-range below — look at the silhouette's ground line INSIDE that x-range and ensure your foreground edge matches its slope, height, and biome variant. The painted near layer must frame the same playable terrain the silhouette implies.
+
+Scene context:
+- Biome: grassland
+- Description: Open grassland tutorial scene with a winding dirt path, scattered trees and rocks, and a small water pond. The player picks up a gold key and a health potion while learning movement and pickup mechanics. Includes 2-3 small jumps, a water-pit hazard you must jump over, and one optional ledge with a hidden potion.
+- World: 244 tiles wide × 60 tiles tall
+
+This segment:
+- Segment index: 1 of 8
+- Map x-range covered (normalized): [0.0, 0.123]
+- Render target: 1536x1024 px (covers exactly this x-range of the wide map)
+
+Section: player-start → first-small-rise (kind: spawn → platform-up)
+Region hints from scene-plan covering this x-range:
+  - x_norm overlap with [0.0, 0.123]: Foreground grass tufts, a winding dirt path entering from the left, and a small rock cluster framing the path edge.
+
+Stage chunks (from stage.json) covering this x-range:
+  - chunk 'spawn-point' (x_tiles [0, 30], ground=grass, floor y=14..16): The player character spawns in an open grassy area, ready to begin their journey and learn basic movement.
+  - chunk 'initial-path-and-pickup' (x_tiles [30, 60], ground=dirt, floor y=13..16): Players walk along a dirt path, encounter a small puddle, and find their first health potion, learning pickup mechanics.
+
+Elevation profile across this segment (each (x_tile, y_tile) sample is a ground-floor height — your foreground silhouette MUST follow this curve):
+  - samples (x_tile, y_tile): (0,14), (15,14), (30,16)
+  - y range across segment: 14..16
+
+Platforms in this segment's x range (each platform is a real walkable surface — your foreground content must visually frame these without occluding their tops):
+  - (no platforms in this segment range)
+
+Hazards in this segment's x range (each hazard occupies real space in the playable area — render its base in the foreground strip so the player sees what to avoid):
+  - (no hazards in this segment range)
+
+Beats (gameplay rhythm — pickups should be visible as foreground elements when their x_tile lands in this segment) inside this x-range:
+  - x_tile=0 spawn: player-start
+  - x_tile=30 platform-up: first-small-rise
+
+Composition:
+- The bottom 30-45% of the canvas is the foreground content (ground texture + low foreground props like rocks, foliage, edge-of-pond, tufts of grass).
+- The foreground silhouette MUST follow the elevation profile listed above — the ground line is NOT flat; it rises and falls to match the (x_tile, y_tile) samples and to leave room for the platforms / hazards.
+- The remaining 55-70% above is pure chroma green (#00FF00). Far + mid layers show through.
+- Optional: a thin band at the very top (5-10%) may contain hanging foreground silhouettes (tree canopy edge, vine drape, cave-mouth shadow) — only when scene-plan explicitly mentions them.
+
+First segment — no left-seam anchor. The leftmost edge should be soft / featureless so the segment can also start a horizontally-tiling sequence.
+
+Palette: vivid foreground grass, warm dirt path browns, accent flower colors
+
+Layer fill rule (CRITICAL):
+- The bottom strip is foreground content. Above it is EXACTLY #00FF00 (pure chroma green).
+- NO blue sky, NO clouds, NO mid-distance silhouettes, NO horizon line. Those belong to far/mid layers.
+- Within the foreground strip, content is rich and detailed (this is what the player sees up close). Use the scene's full near-palette saturation.
+- NO characters, NO interactive pickups (potions, keys), NO UI. Static ground props only.
+
+Style:
+- Follow the style-sheet anchor + scene concept image. Match line weight and shading.
+- Highest level of detail of any layer (closest to camera).

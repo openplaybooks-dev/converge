@@ -28,6 +28,201 @@ def _linear_alpha_ramp(width: int) -> np.ndarray:
     return np.linspace(0.0, 1.0, num=width, dtype=np.float32)
 
 
+def _min_cost_seam(left: np.ndarray, right: np.ndarray) -> np.ndarray:
+    """Find a min-cost monotone vertical seam through the overlap region.
+
+    Returns a 1-D array of length H giving the column index (in [0, W)) at
+    which to switch from `left` to `right` for each row. The seam is
+    8-connected: row r's column may differ from row r-1's by at most 1.
+    Used by `paste_with_seam_cut` to choose where to cut between two
+    overlapping images so the seam follows low-difference content (sky,
+    flat ground) rather than slicing through high-detail features.
+    """
+    # Cost = squared RGB difference per overlap pixel. Lower = more
+    # similar = better seam location.
+    if left.shape != right.shape:
+        raise ValueError(f"shape mismatch {left.shape} vs {right.shape}")
+    h, w, _ = left.shape
+    if w == 0:
+        return np.zeros(h, dtype=np.int32)
+    diff = (left[..., :3].astype(np.float32) - right[..., :3].astype(np.float32))
+    cost = (diff * diff).sum(axis=-1)  # H × W
+
+    # Dynamic-programming pass: for each row, the min cumulative cost to
+    # reach each column from the top, allowing column changes of ±1.
+    accum = np.empty_like(cost, dtype=np.float32)
+    accum[0] = cost[0]
+    backtrack = np.zeros_like(cost, dtype=np.int8)
+    for r in range(1, h):
+        # For each column c in row r: take the min of (r-1, c-1), (r-1, c), (r-1, c+1)
+        prev = accum[r - 1]
+        left_n = np.empty_like(prev)
+        left_n[0] = np.inf
+        left_n[1:] = prev[:-1]
+        right_n = np.empty_like(prev)
+        right_n[-1] = np.inf
+        right_n[:-1] = prev[1:]
+        stacked = np.stack([left_n, prev, right_n], axis=0)  # 3 × W
+        choice = np.argmin(stacked, axis=0)  # 0 = up-left, 1 = up, 2 = up-right
+        best = stacked[choice, np.arange(w)]
+        accum[r] = cost[r] + best
+        backtrack[r] = choice - 1  # -1, 0, +1
+
+    # Trace back the min-cost seam from the bottom row.
+    seam = np.empty(h, dtype=np.int32)
+    seam[-1] = int(np.argmin(accum[-1]))
+    for r in range(h - 2, -1, -1):
+        seam[r] = max(0, min(w - 1, seam[r + 1] - int(backtrack[r + 1, seam[r + 1]])))
+    return seam
+
+
+def paste_with_seam_cut(
+    canvas: Image.Image,
+    segment: Image.Image,
+    paste_x: int,
+    overlap_px: int,
+    *,
+    feather_px: int = 4,
+) -> None:
+    """Paste `segment` onto `canvas` using a content-aware vertical seam.
+
+    Better than `paste_with_feather` for OPAQUE layers (bg-far) — the
+    seam follows low-cost content (sky, flat horizon) rather than blending
+    every column linearly. Avoids the seam smear that linear blending
+    leaves on opaque imagery.
+
+    For each row in the overlap region, finds the column where the two
+    images differ least, and uses that column as the seam. A small
+    `feather_px` band around the chosen seam column linearly blends the
+    two so the cut isn't a hard line.
+
+    Falls back to `paste_with_feather` (linear blend) when the segment
+    has any transparency in the overlap — seam-cut on RGBA produces
+    visible holes where alpha differs.
+    """
+    seg_w, seg_h = segment.size
+    canvas_w, canvas_h = canvas.size
+    if seg_h != canvas_h:
+        raise ValueError(f"segment height {seg_h} != canvas height {canvas_h}")
+    if paste_x + seg_w > canvas_w:
+        raise ValueError(f"paste at x={paste_x} + segment {seg_w} > canvas {canvas_w}")
+
+    overlap_px = max(0, min(overlap_px, seg_w))
+
+    seg_arr = np.array(segment.convert("RGBA"), dtype=np.float32)
+    canvas_arr = np.array(canvas.convert("RGBA"), dtype=np.float32)
+
+    if overlap_px <= 0:
+        canvas_arr[:, paste_x:paste_x + seg_w, :] = seg_arr
+        canvas_arr = np.clip(canvas_arr, 0, 255).astype(np.uint8)
+        canvas.paste(Image.fromarray(canvas_arr, mode="RGBA"))
+        return
+
+    existing = canvas_arr[:, paste_x:paste_x + overlap_px, :]
+    incoming = seg_arr[:, :overlap_px, :]
+
+    # Seam-cut works best on solid RGB. If either side has substantial
+    # transparency in the overlap, fall back to linear feather.
+    has_transparency = (existing[..., 3] < 250).any() or (incoming[..., 3] < 250).any()
+    if has_transparency:
+        paste_with_feather(canvas, segment, paste_x, overlap_px)
+        return
+
+    seam_cols = _min_cost_seam(existing, incoming)
+    h = canvas_h
+    w = overlap_px
+    feather = max(0, min(feather_px, w // 4))
+
+    # Build a per-pixel ramp: 0 = use existing (left), 1 = use incoming (right).
+    ramp = np.zeros((h, w), dtype=np.float32)
+    cols = np.arange(w)[None, :]  # 1 × W
+    seam_col = seam_cols[:, None]  # H × 1
+    if feather <= 0:
+        ramp[:] = (cols >= seam_col).astype(np.float32)
+    else:
+        # Linear ramp across [seam-feather, seam+feather].
+        rel = (cols - seam_col).astype(np.float32) / float(feather)
+        ramp = np.clip(0.5 + 0.5 * rel, 0.0, 1.0)
+    ramp = ramp[..., None]  # H × W × 1
+
+    blended = existing * (1.0 - ramp) + incoming * ramp
+    canvas_arr[:, paste_x:paste_x + overlap_px, :] = blended
+
+    if seg_w > overlap_px:
+        canvas_arr[:, paste_x + overlap_px:paste_x + seg_w, :] = seg_arr[:, overlap_px:, :]
+
+    canvas_arr = np.clip(canvas_arr, 0, 255).astype(np.uint8)
+    canvas.paste(Image.fromarray(canvas_arr, mode="RGBA"))
+
+
+def paste_segments_with_voids(
+    segments: list[Image.Image],
+    target_w: int,
+    target_h: int,
+    overlap_px: int,
+    void_px: int,
+) -> tuple[Image.Image, list[int]]:
+    """Place segments side-by-side on a wide canvas with overlap, then carve
+    a chroma-green void in the middle of each overlap region.
+
+    Each adjacent pair of segments overlaps by `overlap_px`. The middle
+    `void_px` of that overlap is replaced by pure #00FF00 (RGB 0,255,0)
+    so the inpainting pass has a clearly-defined region to fill.
+
+    Returns (canvas, void_centers_x). `canvas` is RGBA at (target_w, target_h).
+    `void_centers_x` is the x-coordinate of each void's centerline; the
+    inpainter uses these to crop windows centered on each seam.
+
+    The segments must already be the right per-segment width (target_w
+    expanded by overlap allowance: per_seg_w = (target_w + overlap*(N-1)) / N).
+    """
+    if not segments:
+        raise ValueError("no segments")
+    n = len(segments)
+    if void_px > overlap_px:
+        raise ValueError(f"void_px ({void_px}) must be <= overlap_px ({overlap_px})")
+
+    # Resize segments to a common per-seg width.
+    per_seg_w = (target_w + overlap_px * (n - 1)) // n
+    resized: list[Image.Image] = []
+    for s in segments:
+        if s.size != (per_seg_w, target_h):
+            s = s.resize((per_seg_w, target_h), Image.LANCZOS)
+        resized.append(s.convert("RGBA"))
+
+    # Composite onto wide canvas. Where adjacent segments overlap, take
+    # the LEFT half of the overlap from segment N and the RIGHT half from
+    # segment N+1. The middle `void_px` is then carved out in a separate
+    # pass below — that's where the inpainter writes.
+    canvas_arr = np.zeros((target_h, target_w, 4), dtype=np.uint8)
+    void_centers: list[int] = []
+    x = 0
+    for i, im in enumerate(resized):
+        seg_arr = np.array(im, dtype=np.uint8)
+        if i == 0:
+            # First segment: copy in full from x=0 to x=per_seg_w.
+            canvas_arr[:, x:x + per_seg_w, :] = seg_arr
+        else:
+            # Subsequent segments overlap the previous by overlap_px.
+            # Cutover line: the middle of the overlap region (where the
+            # void will be carved). Left of that line stays from prev;
+            # right comes from this segment.
+            cutover_x = x + overlap_px // 2
+            seg_to_canvas_offset = x  # canvas[seg_to_canvas_offset + j] = seg[j]
+            # Right half of the overlap + the rest of the segment.
+            right_start_in_seg = cutover_x - seg_to_canvas_offset
+            canvas_arr[:, cutover_x:x + per_seg_w, :] = seg_arr[:, right_start_in_seg:, :]
+            # Carve the void. The middle `void_px` straddles cutover_x.
+            void_lo = cutover_x - void_px // 2
+            void_hi = cutover_x + (void_px - void_px // 2)
+            canvas_arr[:, void_lo:void_hi, :3] = [0, 255, 0]
+            canvas_arr[:, void_lo:void_hi, 3] = 255
+            void_centers.append(cutover_x)
+        x += per_seg_w - overlap_px
+
+    return Image.fromarray(canvas_arr, mode="RGBA"), void_centers
+
+
 def paste_with_feather(
     canvas: Image.Image,
     segment: Image.Image,

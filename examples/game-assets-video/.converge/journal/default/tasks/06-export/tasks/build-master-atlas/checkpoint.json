@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "06-export/build-master-atlas",
+  "status": "complete",
+  "lastUpdated": "2026-04-28T13:48:27.105Z",
+  "createdAt": "2026-04-28T13:48:26.762Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-28T13:48:26.762Z",
+      "completedAt": "2026-04-28T13:48:27.083Z",
+      "outcome": "success",
+      "durationMs": 321
+    }
+  ],
+  "currentAttempt": 1
+}

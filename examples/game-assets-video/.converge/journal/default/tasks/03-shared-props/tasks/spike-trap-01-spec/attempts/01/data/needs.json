@@ -1,9 +1,0 @@
-{
-  "taskId": "03-shared-props/spike-trap-01-spec",
-  "attemptNumber": 1,
-  "inputs": [],
-  "outputs": [
-    "assets/objects/spike-trap/SPEC.md"
-  ],
-  "blocked": false
-}

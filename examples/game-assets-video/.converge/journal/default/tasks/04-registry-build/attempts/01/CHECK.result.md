@@ -1,12 +1,12 @@
 # RESULT.md — Attempt 1
 
 **Outcome**: ✅ SUCCESS
-**Duration**: 81ms
-**Completed**: 2026-04-27T16:21:46.685Z
+**Duration**: 39s
+**Completed**: 2026-04-28T13:28:14.384Z
 
 ## Outputs
 
-- `assets/REGISTRY.json` — ✓ produced (2.8 KB)
+- `assets/REGISTRY.json` — ✓ produced (1.3 KB)
 
 ## Check Results — ✅ all passed
 

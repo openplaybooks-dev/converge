@@ -1,0 +1,48 @@
+      Render a wide LOW-RESOLUTION SILHOUETTE THUMBNAIL of an entire 2D action-scroller map.
+      This image is the master reference every downstream task reads for big-picture
+      layout — it does NOT need fine detail. It must read clearly at small size and
+      accurately reflect the elevation profile and biome bands listed below.
+
+      Scene: Forest Tutorial (id: 'forest-tutorial')
+      Biome: grassland
+      Description:
+      Open grassland tutorial scene with a winding dirt path, scattered trees and rocks, and a small water pond. The player picks up a gold key and a health potion while learning movement and pickup mechanics. Includes 2-3 small jumps, a water-pit hazard you must jump over, and one optional ledge with a hidden potion.
+
+      World: 244 tiles wide × 60 tiles tall.
+
+      Elevation profile (ground silhouette samples; (x_tile, y_tile) pairs):
+      (0,14), (15,14), (30,16), (45,15), (60,13), (75,14), (90,14), (105,16), (120,18), (135,16), (150,15), (165,17), (180,15), (195,14), (210,13), (225,14), (244,14)
+
+      Beats along x (gameplay rhythm — annotate visually if you can):
+- x_tile=0 spawn: player-start
+- x_tile=30 platform-up: first-small-rise
+- x_tile=50 pickup: health-potion-learn
+- x_tile=80 hazard: water-pit-crossing
+- x_tile=110 platform-up: first-jump-challenge
+- x_tile=150 platform-up: optional-ledge-access
+- x_tile=160 pickup: key-pickup
+- x_tile=200 platform-down: final-descent
+- x_tile=244 exit: scene-exit
+
+      Chunks left-to-right (biome variants):
+- chunk spawn-point x_tiles=[0, 30] ground=grass: The player character spawns in an open grassy area, ready to begin their journey and learn basic movement.
+- chunk initial-path-and-pickup x_tiles=[30, 60] ground=dirt: Players walk along a dirt path, encounter a small puddle, and find their first health potion, learning pickup mechanics.
+- chunk water-pit-challenge x_tiles=[60, 90] ground=water: A significant water pit blocks the path, requiring the player to jump over it, introducing basic hazard avoidance.
+- chunk first-jump-introduction x_tiles=[90, 120] ground=grass: Players encounter an elevated block, using it to practice small jumps and navigate vertical terrain.
+- chunk winding-path-segment x_tiles=[120, 150] ground=dirt: The dirt path continues to wind, offering a brief period of exploration before the next set of challenges.
+- chunk optional-ledge-and-key x_tiles=[150, 180] ground=grass: An optional jump leads to a higher ledge where the player can discover a valuable gold key, encouraging exploration.
+- chunk descent-towards-exit x_tiles=[180, 210] ground=grass: The path gently descends through an open grassy area, with scattered tree stumps and rocks, signaling the approaching end of the tutorial.
+- chunk scene-exit x_tiles=[210, 244] ground=grass: The final stretch of grassland leads to the exit, concluding the forest tutorial scene.
+
+      Composition rules:
+      - Aspect: WIDE — 16:9 or wider, the whole map left-to-right in one frame.
+      - Bottom 35-50% of the canvas is the ground silhouette. Follow the elevation
+        profile faithfully: where y_tile is higher, the silhouette is taller;
+        where lower, shorter. The silhouette should rise and fall, NOT be a flat strip.
+      - Top 50-65% is sky / far background — soft cool gradient with biome-tinted
+        horizon. Distant mountain or treeline silhouette in the upper-mid third.
+      - Use 3-5 flat colors max. NO fine detail. NO characters. NO UI. NO text.
+      - Match the palette and mood of the supplied visual-target reference image.
+
+      Style: silhouette poster art. Think Hollow Knight key-art elevation poster, or
+      a level-design block-in pass. Clean, readable, low-frequency.

@@ -38,8 +38,81 @@
       },
       "result": {
         "action": "continue",
-        "gaps": [],
-        "durationMs": 78
+        "gaps": [
+          {
+            "id": "04-registry-build-missing-output-assets/REGISTRY.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-registry-build",
+            "severity": "high",
+            "description": "[04-registry-build] Task output not created: assets/REGISTRY.json",
+            "source": "unit",
+            "detected": "2026-04-28T13:27:34.860Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/04-registry-build",
+              "taskId": "04-registry-build",
+              "taskTitle": "Asset Registry",
+              "taskPrompt": "# 04-registry-build — Asset Registry\n\nThe registry is the **smart inventory** scenes consult to decide whether to reuse a shared asset or generate a new one. It's auto-built from disk so there's no manual upkeep — re-running the script is always safe.\n\n## Run\n\n```bash\npython3 scripts/build_registry.py\n```\n\n## What it produces\n\n`assets/REGISTRY.json`:\n\n```json\n{\n  \"characters\": [\n    {\n      \"id\": \"hero-knight\",\n      \"type\": \"character\",\n      \"ref_canonical\": \"assets/characters/hero-knight/ref/canonical/canonical.png\",\n      \"states\": [\"idle\", \"walk\"],\n      \"atlas_paths\": [...],\n      \"scenes_using\": [\"forest-tutorial\", \"dungeon-1\"]\n    }\n  ],\n  \"shared_props\": [\n    {\n      \"id\": \"health-potion\",\n      \"type\": \"shared_prop\",\n      \"ref_image\": \"assets/objects-shared/health-potion/spritesheets/idle/idle.png\",\n      \"states\": [\"idle\", \"collect\"],\n      \"atlas_paths\": [...],\n      \"scenes_using\": [\"forest-tutorial\"]\n    }\n  ]\n}\n```\n\n## scenes_using[]\n\nThis list is populated later by `build_scene_manifest.py` (Phase 5 per scene). Every time a scene's manifest is built and references a registry asset, the script appends the scene id to that asset's `scenes_using[]`. This script preserves any existing markings when re-run.\n\n## Cost\n\nFree — pure file-system walk + JSON write.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"assets/REGISTRY.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "04-registry-build-check-failed-registry-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-registry-build",
+            "severity": "high",
+            "description": "[04-registry-build] Check failed: REGISTRY.json was written",
+            "source": "unit",
+            "detected": "2026-04-28T13:27:34.862Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "registry-exists",
+              "checkCmd": "test -s assets/REGISTRY.json",
+              "checkDescription": "REGISTRY.json was written",
+              "checkOutput": "",
+              "checkExitCode": 1,
+              "taskPrompt": "# 04-registry-build — Asset Registry\n\nThe registry is the **smart inventory** scenes consult to decide whether to reuse a shared asset or generate a new one. It's auto-built from disk so there's no manual upkeep — re-running the script is always safe.\n\n## Run\n\n```bash\npython3 scripts/build_registry.py\n```\n\n## What it produces\n\n`assets/REGISTRY.json`:\n\n```json\n{\n  \"characters\": [\n    {\n      \"id\": \"hero-knight\",\n      \"type\": \"character\",\n      \"ref_canonical\": \"assets/characters/hero-knight/ref/canonical/canonical.png\",\n      \"states\": [\"idle\", \"walk\"],\n      \"atlas_paths\": [...],\n      \"scenes_using\": [\"forest-tutorial\", \"dungeon-1\"]\n    }\n  ],\n  \"shared_props\": [\n    {\n      \"id\": \"health-potion\",\n      \"type\": \"shared_prop\",\n      \"ref_image\": \"assets/objects-shared/health-potion/spritesheets/idle/idle.png\",\n      \"states\": [\"idle\", \"collect\"],\n      \"atlas_paths\": [...],\n      \"scenes_using\": [\"forest-tutorial\"]\n    }\n  ]\n}\n```\n\n## scenes_using[]\n\nThis list is populated later by `build_scene_manifest.py` (Phase 5 per scene). Every time a scene's manifest is built and references a registry asset, the script appends the scene id to that asset's `scenes_using[]`. This script preserves any existing markings when re-run.\n\n## Cost\n\nFree — pure file-system walk + JSON write.",
+              "taskId": "04-registry-build",
+              "taskTitle": "Asset Registry",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/04-registry-build",
+              "factId": "check:registry-exists"
+            }
+          },
+          {
+            "id": "04-registry-build-check-failed-registry-has-shape",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "04-registry-build",
+            "severity": "high",
+            "description": "[04-registry-build] Check failed: REGISTRY.json has characters[] and shared_props[]",
+            "source": "unit",
+            "detected": "2026-04-28T13:27:34.884Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "registry-has-shape",
+              "checkCmd": "python -c \"import json; r=json.load(open('assets/REGISTRY.json')); assert 'characters' in r and 'shared_props' in r, 'registry missing required top-level keys'\"\n",
+              "checkDescription": "REGISTRY.json has characters[] and shared_props[]",
+              "checkOutput": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: 'assets/REGISTRY.json'",
+              "checkExitCode": 1,
+              "taskPrompt": "# 04-registry-build — Asset Registry\n\nThe registry is the **smart inventory** scenes consult to decide whether to reuse a shared asset or generate a new one. It's auto-built from disk so there's no manual upkeep — re-running the script is always safe.\n\n## Run\n\n```bash\npython3 scripts/build_registry.py\n```\n\n## What it produces\n\n`assets/REGISTRY.json`:\n\n```json\n{\n  \"characters\": [\n    {\n      \"id\": \"hero-knight\",\n      \"type\": \"character\",\n      \"ref_canonical\": \"assets/characters/hero-knight/ref/canonical/canonical.png\",\n      \"states\": [\"idle\", \"walk\"],\n      \"atlas_paths\": [...],\n      \"scenes_using\": [\"forest-tutorial\", \"dungeon-1\"]\n    }\n  ],\n  \"shared_props\": [\n    {\n      \"id\": \"health-potion\",\n      \"type\": \"shared_prop\",\n      \"ref_image\": \"assets/objects-shared/health-potion/spritesheets/idle/idle.png\",\n      \"states\": [\"idle\", \"collect\"],\n      \"atlas_paths\": [...],\n      \"scenes_using\": [\"forest-tutorial\"]\n    }\n  ]\n}\n```\n\n## scenes_using[]\n\nThis list is populated later by `build_scene_manifest.py` (Phase 5 per scene). Every time a scene's manifest is built and references a registry asset, the script appends the scene id to that asset's `scenes_using[]`. This script preserves any existing markings when re-run.\n\n## Cost\n\nFree — pure file-system walk + JSON write.",
+              "taskId": "04-registry-build",
+              "taskTitle": "Asset Registry",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/04-registry-build",
+              "factId": "check:registry-has-shape"
+            }
+          }
+        ],
+        "durationMs": 26
       }
     },
     {
@@ -51,6 +124,80 @@
         "priority": 97,
         "applicable": "noGapsAndExecuted"
       }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 24
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 87
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#19",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 39083
+      }
     }
   ],
   "edges": [
@@ -58,19 +205,43 @@
       "from": "_start",
       "to": "check-wbs-seeded",
       "iteration": 1,
-      "ts": "2026-04-27T16:21:46.305Z"
+      "ts": "2026-04-28T13:27:34.857Z"
     },
     {
       "from": "check-wbs-seeded",
       "to": "check-outputs-exist",
       "iteration": 1,
-      "ts": "2026-04-27T16:21:46.305Z"
+      "ts": "2026-04-28T13:27:34.857Z"
     },
     {
       "from": "check-outputs-exist",
       "to": "detect-gaps",
       "iteration": 1,
-      "ts": "2026-04-27T16:21:46.384Z"
+      "ts": "2026-04-28T13:27:34.884Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-28T13:27:34.884Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-28T13:27:34.910Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#19",
+      "iteration": 1,
+      "ts": "2026-04-28T13:28:13.994Z"
+    },
+    {
+      "from": "run-strategy:task-run#19",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-28T13:28:14.081Z"
     }
   ]
 }

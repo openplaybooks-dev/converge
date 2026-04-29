@@ -367,6 +367,19 @@ export class WbsExecutor {
             (target as any)._type === "template-ref"
           ) {
             const ref = target as TemplateRef;
+
+            // Drop a .spawn-source sidecar next to TASK.md so future
+            // resumes can detect when the source template was edited
+            // after spawn time and re-materialize this journal copy.
+            try {
+              const { writeFile: wf } = await import("node:fs/promises");
+              const { dirname: dn, join: jn } = await import("node:path");
+              const sidecarDir = dn(join(this.projectDir, writeToPath));
+              const sidecarPath = jn(sidecarDir, ".spawn-source");
+              await wf(sidecarPath, ref.path, "utf-8");
+            } catch {
+              /* sidecar is best-effort */
+            }
             const {
               resolve: resolvePath,
               dirname: dirnamePath,

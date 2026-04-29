@@ -1,6 +1,6 @@
 # Task: 03-shared-props/health-potion-spritesheet-idle
 
-# Health Potion idle Sprite Sheet
+# Red Flask With Sparkle Particles idle Sprite Sheet
 
 Runs `scripts/generate_prop_spritesheet.py health-potion idle`. **One image-gen call** draws a 4x4 grid (16 frames) on one canvas, so the prop's identity stays consistent across frames.
 

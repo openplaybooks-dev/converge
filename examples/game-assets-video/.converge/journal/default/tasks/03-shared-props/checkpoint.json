@@ -2,31 +2,22 @@
   "type": "task",
   "id": "03-shared-props",
   "status": "complete",
-  "lastUpdated": "2026-04-27T18:17:29.347Z",
-  "createdAt": "2026-04-27T16:17:30.904Z",
+  "lastUpdated": "2026-04-28T22:32:41.395Z",
+  "createdAt": "2026-04-28T13:19:45.752Z",
   "progress": {
-    "totalChildren": 17,
-    "completedChildren": 17,
+    "totalChildren": 8,
+    "completedChildren": 8,
     "failedChildren": 0,
     "childTaskIds": [
-      "bounce-spring-01-spec",
-      "bounce-spring-spritesheet-bounce",
-      "bounce-spring-spritesheet-idle",
-      "checkpoint-flag-01-spec",
-      "checkpoint-flag-spritesheet-activate",
-      "checkpoint-flag-spritesheet-idle",
       "gold-key-01-spec",
-      "gold-key-spritesheet-collect",
       "gold-key-spritesheet-idle",
       "health-potion-01-spec",
-      "health-potion-spritesheet-collect",
       "health-potion-spritesheet-idle",
-      "spike-trap-01-spec",
-      "spike-trap-spritesheet-idle",
-      "spike-trap-spritesheet-trigger",
-      "wood-ladder-01-spec",
-      "wood-ladder-spritesheet-idle"
+      "ui-health-bar-01-spec",
+      "ui-health-bar-spritesheet-idle",
+      "ui-key-slot-01-spec",
+      "ui-key-slot-spritesheet-idle"
     ],
-    "lastProgressUpdate": "2026-04-27T18:17:29.345Z"
+    "lastProgressUpdate": "2026-04-28T22:32:41.390Z"
   }
 }

@@ -2,8 +2,8 @@
   "type": "task",
   "id": "03-characters/03-generation",
   "status": "complete",
-  "lastUpdated": "2026-04-27T18:17:29.347Z",
-  "createdAt": "2026-04-27T16:15:05.199Z",
+  "lastUpdated": "2026-04-28T22:32:41.397Z",
+  "createdAt": "2026-04-28T13:15:41.219Z",
   "progress": {
     "totalChildren": 8,
     "completedChildren": 8,
@@ -18,6 +18,6 @@
       "hero-knight-spritesheet-idle",
       "hero-knight-spritesheet-walk"
     ],
-    "lastProgressUpdate": "2026-04-27T18:17:29.345Z"
+    "lastProgressUpdate": "2026-04-28T22:32:41.390Z"
   }
 }

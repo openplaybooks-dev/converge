@@ -1,0 +1,10 @@
+{
+  "taskId": "06-export/build-master-atlas",
+  "checks": [
+    {
+      "id": "master-atlas-or-skipped",
+      "description": "Master atlas is fresh in export/full modes; cleanly skipped otherwise",
+      "cmd": "python -c \"\nimport json, sys\nmode = 'sprites' or 'sprites'\nif mode in ('export', 'full'):\n    a = json.load(open('assets/atlas.json'))\n    n = sum(len(s['frames']) for slices in a['categories'].values() for s in slices)\n    assert n > 0, 'master atlas has zero frames'\n    print(f'master atlas OK ({n} frames)')\nelse:\n    print(f'skipped (stop_after={mode}) — atlas maintained by scene manifests')\n\"\n"
+    }
+  ]
+}

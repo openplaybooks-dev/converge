@@ -2,15 +2,15 @@
   "type": "task",
   "id": "03-shared-props/gold-key-spritesheet-idle",
   "status": "complete",
-  "lastUpdated": "2026-04-27T16:19:25.420Z",
-  "createdAt": "2026-04-27T16:19:24.784Z",
+  "lastUpdated": "2026-04-28T13:53:39.342Z",
+  "createdAt": "2026-04-28T13:20:44.259Z",
   "attempts": [
     {
       "attempt": 1,
-      "startedAt": "2026-04-27T16:19:24.784Z",
-      "completedAt": "2026-04-27T16:19:25.400Z",
+      "startedAt": "2026-04-28T13:20:44.259Z",
+      "completedAt": "2026-04-28T13:21:50.173Z",
       "outcome": "success",
-      "durationMs": 616
+      "durationMs": 65914
     }
   ],
   "currentAttempt": 1

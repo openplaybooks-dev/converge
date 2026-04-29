@@ -1,0 +1,13 @@
+name: default
+description: Simplest possible playbook — creates a file and verifies it exists
+
+run:
+  mode: oneoff
+  maxTaskAttempts: 3
+
+tasks:
+  - id: create-file
+
+checks:
+  - id: output-exists
+    cmd: test -f output.txt

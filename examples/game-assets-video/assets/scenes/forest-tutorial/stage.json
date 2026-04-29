@@ -1,0 +1,446 @@
+{
+  "scene_id": "forest-tutorial",
+  "tile_size_px": 16,
+  "world": {
+    "width_tiles": 244,
+    "height_tiles": 60
+  },
+  "elevation": [
+    {
+      "x_tile": 0,
+      "y_tile": 14
+    },
+    {
+      "x_tile": 15,
+      "y_tile": 14
+    },
+    {
+      "x_tile": 30,
+      "y_tile": 16
+    },
+    {
+      "x_tile": 45,
+      "y_tile": 15
+    },
+    {
+      "x_tile": 60,
+      "y_tile": 13
+    },
+    {
+      "x_tile": 75,
+      "y_tile": 14
+    },
+    {
+      "x_tile": 90,
+      "y_tile": 14
+    },
+    {
+      "x_tile": 105,
+      "y_tile": 16
+    },
+    {
+      "x_tile": 120,
+      "y_tile": 18
+    },
+    {
+      "x_tile": 135,
+      "y_tile": 16
+    },
+    {
+      "x_tile": 150,
+      "y_tile": 15
+    },
+    {
+      "x_tile": 165,
+      "y_tile": 17
+    },
+    {
+      "x_tile": 180,
+      "y_tile": 15
+    },
+    {
+      "x_tile": 195,
+      "y_tile": 14
+    },
+    {
+      "x_tile": 210,
+      "y_tile": 13
+    },
+    {
+      "x_tile": 225,
+      "y_tile": 14
+    },
+    {
+      "x_tile": 244,
+      "y_tile": 14
+    }
+  ],
+  "beats": [
+    {
+      "x_tile": 0,
+      "kind": "spawn",
+      "label": "player-start"
+    },
+    {
+      "x_tile": 30,
+      "kind": "platform-up",
+      "label": "first-small-rise"
+    },
+    {
+      "x_tile": 50,
+      "kind": "pickup",
+      "label": "health-potion-learn"
+    },
+    {
+      "x_tile": 80,
+      "kind": "hazard",
+      "label": "water-pit-crossing"
+    },
+    {
+      "x_tile": 110,
+      "kind": "platform-up",
+      "label": "first-jump-challenge"
+    },
+    {
+      "x_tile": 150,
+      "kind": "platform-up",
+      "label": "optional-ledge-access"
+    },
+    {
+      "x_tile": 160,
+      "kind": "pickup",
+      "label": "key-pickup"
+    },
+    {
+      "x_tile": 200,
+      "kind": "platform-down",
+      "label": "final-descent"
+    },
+    {
+      "x_tile": 244,
+      "kind": "exit",
+      "label": "scene-exit"
+    }
+  ],
+  "platforms": [
+    {
+      "x_tiles": [
+        108,
+        112
+      ],
+      "y_tile": 18,
+      "kind": "elevated",
+      "label": "first-jump-block"
+    },
+    {
+      "x_tiles": [
+        155,
+        165
+      ],
+      "y_tile": 22,
+      "kind": "ledge",
+      "label": "optional-potion-ledge"
+    }
+  ],
+  "hazards": [
+    {
+      "x_tile": 75,
+      "kind": "water",
+      "label": "main-water-pit"
+    },
+    {
+      "x_tile": 45,
+      "kind": "water",
+      "label": "puddle-obstacle"
+    }
+  ],
+  "chunks": [
+    {
+      "id": "spawn-point",
+      "x_tiles": [
+        0,
+        30
+      ],
+      "biome_variant": "grassland-open",
+      "ground_type": "grass",
+      "elevation_range": [
+        14,
+        16
+      ],
+      "platforms": [],
+      "hazards": [],
+      "transitions": [],
+      "scene_props": [
+        {
+          "id": "hero-knight",
+          "x_tiles": 2,
+          "y_tiles": 15
+        }
+      ],
+      "narrative": "The player character spawns in an open grassy area, ready to begin their journey and learn basic movement."
+    },
+    {
+      "id": "initial-path-and-pickup",
+      "x_tiles": [
+        30,
+        60
+      ],
+      "biome_variant": "grassland-path",
+      "ground_type": "dirt",
+      "elevation_range": [
+        13,
+        16
+      ],
+      "platforms": [],
+      "hazards": [
+        1
+      ],
+      "transitions": [
+        "grass-to-dirt@x30",
+        "path-corner-NE@x40"
+      ],
+      "scene_props": [
+        {
+          "id": "health-potion",
+          "x_tiles": 50,
+          "y_tiles": 14
+        }
+      ],
+      "narrative": "Players walk along a dirt path, encounter a small puddle, and find their first health potion, learning pickup mechanics."
+    },
+    {
+      "id": "water-pit-challenge",
+      "x_tiles": [
+        60,
+        90
+      ],
+      "biome_variant": "grassland-wetland",
+      "ground_type": "water",
+      "elevation_range": [
+        13,
+        14
+      ],
+      "platforms": [],
+      "hazards": [
+        0
+      ],
+      "transitions": [
+        "dirt-to-water@x75",
+        "water-to-dirt@x90"
+      ],
+      "scene_props": [],
+      "narrative": "A significant water pit blocks the path, requiring the player to jump over it, introducing basic hazard avoidance."
+    },
+    {
+      "id": "first-jump-introduction",
+      "x_tiles": [
+        90,
+        120
+      ],
+      "biome_variant": "grassland-elevated",
+      "ground_type": "grass",
+      "elevation_range": [
+        14,
+        18
+      ],
+      "platforms": [
+        0
+      ],
+      "hazards": [],
+      "transitions": [],
+      "scene_props": [],
+      "narrative": "Players encounter an elevated block, using it to practice small jumps and navigate vertical terrain."
+    },
+    {
+      "id": "winding-path-segment",
+      "x_tiles": [
+        120,
+        150
+      ],
+      "biome_variant": "grassland-path",
+      "ground_type": "dirt",
+      "elevation_range": [
+        15,
+        18
+      ],
+      "platforms": [],
+      "hazards": [],
+      "transitions": [
+        "path-corner-SW@x130"
+      ],
+      "scene_props": [],
+      "narrative": "The dirt path continues to wind, offering a brief period of exploration before the next set of challenges."
+    },
+    {
+      "id": "optional-ledge-and-key",
+      "x_tiles": [
+        150,
+        180
+      ],
+      "biome_variant": "grassland-elevated",
+      "ground_type": "grass",
+      "elevation_range": [
+        15,
+        17
+      ],
+      "platforms": [
+        1
+      ],
+      "hazards": [],
+      "transitions": [
+        "grass-flowers@x170"
+      ],
+      "scene_props": [
+        {
+          "id": "gold-key",
+          "x_tiles": 160,
+          "y_tiles": 23
+        }
+      ],
+      "narrative": "An optional jump leads to a higher ledge where the player can discover a valuable gold key, encouraging exploration."
+    },
+    {
+      "id": "descent-towards-exit",
+      "x_tiles": [
+        180,
+        210
+      ],
+      "biome_variant": "grassland-open",
+      "ground_type": "grass",
+      "elevation_range": [
+        13,
+        15
+      ],
+      "platforms": [],
+      "hazards": [],
+      "transitions": [
+        "tree-stump@x190"
+      ],
+      "scene_props": [],
+      "narrative": "The path gently descends through an open grassy area, with scattered tree stumps and rocks, signaling the approaching end of the tutorial."
+    },
+    {
+      "id": "scene-exit",
+      "x_tiles": [
+        210,
+        244
+      ],
+      "biome_variant": "grassland-exit",
+      "ground_type": "grass",
+      "elevation_range": [
+        13,
+        14
+      ],
+      "platforms": [],
+      "hazards": [],
+      "transitions": [],
+      "scene_props": [],
+      "narrative": "The final stretch of grassland leads to the exit, concluding the forest tutorial scene."
+    }
+  ],
+  "background": {
+    "target_width_px": 3904,
+    "target_height_px": 960,
+    "segment_width_px": 1024,
+    "overlap_px": {
+      "mid": 128,
+      "near": 256
+    }
+  },
+  "tilemap_chunks": [
+    {
+      "x_tiles": [
+        0,
+        30
+      ],
+      "tile_set": [
+        "grass",
+        "grass-flowers",
+        "rock-small"
+      ]
+    },
+    {
+      "x_tiles": [
+        30,
+        60
+      ],
+      "tile_set": [
+        "dirt",
+        "path-corner-NE",
+        "grass",
+        "water",
+        "water-edge-grass"
+      ]
+    },
+    {
+      "x_tiles": [
+        60,
+        90
+      ],
+      "tile_set": [
+        "dirt",
+        "water",
+        "water-edge-grass",
+        "grass"
+      ]
+    },
+    {
+      "x_tiles": [
+        90,
+        120
+      ],
+      "tile_set": [
+        "grass",
+        "dirt",
+        "rock-small"
+      ]
+    },
+    {
+      "x_tiles": [
+        120,
+        150
+      ],
+      "tile_set": [
+        "dirt",
+        "path-corner-SW",
+        "grass",
+        "rock-small"
+      ]
+    },
+    {
+      "x_tiles": [
+        150,
+        180
+      ],
+      "tile_set": [
+        "grass",
+        "grass-flowers",
+        "dirt",
+        "tree-stump"
+      ]
+    },
+    {
+      "x_tiles": [
+        180,
+        210
+      ],
+      "tile_set": [
+        "grass",
+        "dirt",
+        "tree-stump",
+        "grass-flowers"
+      ]
+    },
+    {
+      "x_tiles": [
+        210,
+        244
+      ],
+      "tile_set": [
+        "grass",
+        "grass-flowers",
+        "rock-small"
+      ]
+    }
+  ]
+}

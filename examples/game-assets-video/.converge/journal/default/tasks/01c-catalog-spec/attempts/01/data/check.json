@@ -1,0 +1,15 @@
+{
+  "taskId": "01c-catalog-spec",
+  "checks": [
+    {
+      "id": "catalog-exists",
+      "description": "assets/catalog.json was written",
+      "cmd": "test -s assets/catalog.json"
+    },
+    {
+      "id": "catalog-props-have-animation-type",
+      "description": "Every shared prop in catalog has animation_type set to static / loop / trigger",
+      "cmd": "python -c \"\nimport json\ncat = json.load(open('assets/catalog.json'))\nvalid = {'static','loop','trigger'}\nfor p in cat.get('shared_props', []):\n    atype = p.get('animation_type')\n    assert atype in valid, f'prop {p.get(\\\"id\\\")!r}: animation_type {atype!r} not in {valid}'\n\"\n"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "type": "task",
+  "id": "scene-forest-tutorial-02-background",
+  "status": "pending",
+  "lastUpdated": "2026-04-28T13:53:29.084Z",
+  "createdAt": "2026-04-28T13:53:29.082Z",
+  "progress": {
+    "totalChildren": 4,
+    "completedChildren": 0,
+    "failedChildren": 1,
+    "childIds": [
+      "scene-forest-tutorial-bg-01-far",
+      "scene-forest-tutorial-bg-02-mid",
+      "scene-forest-tutorial-bg-03-near",
+      "scene-forest-tutorial-bg-01-far"
+    ],
+    "lastProgressUpdate": "2026-04-28T13:53:29.081Z"
+  }
+}

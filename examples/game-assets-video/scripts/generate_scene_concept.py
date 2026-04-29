@@ -49,31 +49,62 @@ def load_scene(project_root: Path, scene_id: str) -> dict:
     raise SystemExit(f"scene '{scene_id}' not found in {scenes_path}")
 
 
-def build_concept_prompt(scene: dict, art_bible: str) -> str:
+def build_concept_prompt(
+    scene: dict, art_bible: str, ref_labels: list[str]
+) -> str:
     biome = scene.get("biome", "")
-    chars = scene.get("characters", [])
-    bg = scene.get("background", {})
+    refs_block = "\n".join(
+        f"  {i+1}. {label}" for i, label in enumerate(ref_labels)
+    )
     return textwrap.dedent(f"""\
-        Render a wide gameplay-frame concept of the scene below. This image is the **per-scene anchor** that downstream asset generators (background segments, tiles, props) will use as a reference to match palette, lighting, and depth. Output one cohesive image, not a montage.
+        Role: You are an environment concept artist. Produce ONE empty-stage
+        establishing shot of the scene below. This image is the **per-scene
+        environment anchor** consumed by downstream generators (background
+        segments, tiles, props) as a reference for palette, lighting, and
+        parallax depth. It is NOT a gameplay screenshot.
+
+        Reference images attached to this prompt (ordered):
+        {refs_block}
+
+        Reference #1 is the **binding visual target** for the entire game.
+        Match its palette, line weight, shading model, level of detail, and
+        overall mood as closely as possible — the scene must look like it
+        comes from the same game shown in reference #1. The other references
+        are secondary anchors for style and proportion. The art bible below
+        is supplemental text; when it conflicts with the visual target,
+        the visual target wins.
 
         SCENE: {scene.get('name', scene.get('id', ''))}
         BIOME: {biome}
         DESCRIPTION: {scene.get('description', '').strip()}
 
-        ART BIBLE (mandatory — every detail must match):
+        ART BIBLE (supplemental — visual target wins on conflicts):
 
         {art_bible.strip()}
 
         Composition rules:
-        - Wide horizontal framing (16:9). Camera at character height. Mid-gameplay framing — character visible, environment visible, foreground/mid/background depth all readable.
-        - Show the parallax depth structure: far layer (cool, hazy), mid layer (mid distance trees / silhouettes), near layer (foreground props that the player would walk past).
-        - Include placeholder hints of typical {biome} props at scene-appropriate density. The actual props are generated separately and don't need to match this image pixel-perfect; they need to match the *style*.
-        - Lighting matches the bible's stated key-light direction.
+        - Wide horizontal framing (16:9). Camera at character height.
+        - Show the parallax depth structure: far layer (cool, hazy), mid layer
+          (mid-distance trees / silhouettes), near layer (foreground props the
+          player would walk past).
+        - Include only static environment props ({biome}-appropriate trees,
+          rocks, foliage, water, terrain). No interactive items, pickups, or
+          UI placeholders — those are generated separately.
+        - Lighting matches the visual target's apparent key-light direction
+          (cross-check the art bible).
         - No text, no UI, no captions, no watermarks.
 
-        Hero character hint: {", ".join(chars) if chars else "(generic player silhouette)"}.
+        ABSOLUTELY NO CHARACTERS:
+        - No hero, no NPCs, no enemies, no creatures, no humanoid figures.
+        - No silhouettes, no blockouts, no placeholder mannequins.
+        - The gameplay area must be visibly empty — characters are composited
+          on top later. Treat this like an unoccupied film set.
+        - If reference #1 contains a character, render the same environment
+          but omit the character. Do not draw a stand-in.
 
-        Style note: this image will be sliced and referenced. Don't include extreme effects (no lens flare, no motion blur, no atmospheric volumetrics). Keep edges crisp and palette tight.
+        Style note: this image will be sliced and referenced. Don't include
+        extreme effects (no lens flare, no motion blur, no atmospheric
+        volumetrics). Keep edges crisp and palette tight.
     """).strip()
 
 
@@ -148,6 +179,27 @@ def main() -> int:
 
     art_bible = bible_path.read_text(encoding="utf-8")
 
+    # Secondary refs: include any of these that already exist on disk. The
+    # visual-target is always reference #1 (the binding contract). Style-sheet
+    # adds palette + line-weight anchors; hero-shot adds composition feel.
+    secondary_candidates = [
+        (project_root / "assets" / "concept" / "style-sheet.png",
+         "assets/concept/style-sheet.png — six-pose style anchor (palette, line weight, shading)"),
+        (project_root / "assets" / "concept" / "hero-shot.png",
+         "assets/concept/hero-shot.png — art bible's demo composition (mood, framing)"),
+    ]
+    secondary_refs: list[Path] = []
+    secondary_labels: list[str] = []
+    for path, label in secondary_candidates:
+        if path.exists():
+            secondary_refs.append(path)
+            secondary_labels.append(label)
+
+    ref_labels = [
+        "assets/visual-target.png — BINDING visual target for the whole game",
+        *secondary_labels,
+    ]
+
     out_dir = project_root / "assets" / "scenes" / args.scene_id
     out_dir.mkdir(parents=True, exist_ok=True)
     png_path = out_dir / "concept.png"
@@ -159,17 +211,18 @@ def main() -> int:
     img_cost = budget.cost_for_image(backend)
 
     # 1. Image
-    concept_prompt = build_concept_prompt(scene, art_bible)
+    concept_prompt = build_concept_prompt(scene, art_bible, ref_labels)
     prompt_path.write_text(concept_prompt, encoding="utf-8")
     print(
-        f"[scene-concept:{args.scene_id}] image  backend={backend} cost={img_cost}¢",
+        f"[scene-concept:{args.scene_id}] image  backend={backend} cost={img_cost}¢ "
+        f"refs={1 + len(secondary_refs)}",
         file=sys.stderr,
     )
     with budget.charged(project_root, img_cost, f"image-{backend}", note=f"scene-{args.scene_id}/concept"):
         img_bytes, seed_used = generate_image_with_edit(
             concept_prompt,
             visual_target,
-            [],  # could include hero-shot too — keep at 1 ref for v1
+            secondary_refs,
             seed=args.seed,
             aspect_ratio=CONCEPT_ASPECT,
             resolution=CONCEPT_SIZE,

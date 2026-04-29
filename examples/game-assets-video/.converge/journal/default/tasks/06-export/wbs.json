@@ -1,0 +1,11 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-28T13:48:26.705Z",
+  "spawnCount": 1,
+  "subtasks": [
+    {
+      "id": "build-master-atlas",
+      "writeToPath": ".converge/journal/default/tasks/06-export/tasks/build-master-atlas/TASK.md"
+    }
+  ]
+}

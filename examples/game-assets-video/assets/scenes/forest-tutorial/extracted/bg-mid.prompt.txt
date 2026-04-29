@@ -1,0 +1,71 @@
+You are decomposing a 2D action-scroller concept painting into parallax
+layers. The concept is ONE painting where nearer layers occlude farther
+ones; your job is amodal completion — repaint the MID layer as a
+COMPLETE standalone image, as if the nearer layers were lifted away
+and you could see the mid layer in full. Do NOT band-slice the canvas.
+Do NOT leave holes inside the mid content. Do NOT keep nearer-layer
+content just because it falls inside this layer's typical canvas band.
+
+LAYER YOU ARE EXTRACTING (MID) — defined by visual depth cues, NOT canvas position:
+The MID-DISTANCE plane. Defined by mid-saturation painterly silhouettes:
+tree clumps with visible canopy mass but no individual leaves; hill
+ridges; mid-distance structures. Soft contrast, atmospheric softening
+but less than far. NOT the back wall (do not include sky); NOT
+foreground (do not include the immediate ground the player walks on or
+individual leaves).
+
+DOES NOT BELONG TO MID (mark with the fill rule below):
+The sky and far horizon (atmospheric, hazy → that's far). The immediate
+ground texture / individual leaves / foreground rocks (crisp, saturated
+→ that's near). Keep ONLY the mid-distance silhouette band — tree
+clumps and hill ridges between the back wall and the foreground.
+
+UNIVERSAL EXCLUSIONS (always remove, regardless of layer):
+  - The PLAYER CHARACTER, hero, or any human/humanoid figure.
+  - Any character armor, weapon, cape, sword, shield, or held item.
+  - UI elements, text, labels, captions, watermarks.
+  - Any pickup (potions, keys, coins).
+
+PRODUCTION TASK (read carefully):
+  1. AMODAL COMPLETION: paint the mid layer as one continuous painting
+     that fills the canvas where this layer's content belongs. Where
+     nearer-layer content currently occludes the mid layer, INFER and
+     PAINT what is behind. Match the original's palette, brush style,
+     and lighting. Do NOT introduce a new visual style.
+  2. FILL RULE for non-mid regions:
+     Replace any region that is NOT mid-distance silhouette content
+     with PURE #00FF00 (RGB 0,255,0). This includes the sky above the
+     silhouette band AND the foreground area below it AND the gaps
+     BETWEEN tree clumps. The keyer converts #00FF00 to alpha=0 after
+     this step, producing a transparent RGBA layer. No green gradients,
+     no soft green halos, no faint green tint inside mid-distance
+     content.
+  3. Output SAME dimensions and SAME aspect ratio as the input.
+  4. Match the input's painterly style exactly — same line weight, same
+     palette saturation curve, same brush feel.
+
+ANTI-PATTERNS (DO NOT DO):
+  - Do NOT produce a horizontal band-slice of the original canvas. Your
+    output must be a complete painting of the mid layer, not "rows 0..N
+    of the original with rows N..bottom replaced by green."
+  - Do NOT include nearer-layer content because it was painted at the
+    same height as this layer in the original. Depth cues — not Y
+    position — decide what belongs.
+  - Do NOT leave large green holes in the middle of mid content. The
+    layer is continuous; complete it. Green only fills the regions
+    that genuinely contain no mid-distance silhouette.
+  - Do NOT redraw or stylize. Preserve the original silhouettes and
+    palette where they are visible.
+
+DEPTH CUES (use these to decide what belongs to which layer):
+  - FAR layer: strong atmospheric perspective. Desaturated, blue-shifted,
+    low-contrast, hazy edges. Distance objects: sky, distant mountain or
+    cliff silhouettes, far horizon tree-line as a single hazy band.
+  - MID layer: mid-distance silhouettes. Mid-saturation, painterly, soft
+    contrast. Tree clumps and hill ridges with visible canopy mass but
+    no individual leaf detail. THIS IS WHAT YOU PAINT.
+  - NEAR layer: foreground detail. Full saturation, sharp edges, highest
+    contrast, individual leaves / grass blades / pebbles visible. The
+    plane the player walks on.
+
+Output ONE image, same dimensions as the input, painterly style matched.

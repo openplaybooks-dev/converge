@@ -1,9 +1,0 @@
-{
-  "taskId": "03-shared-props/checkpoint-flag-01-spec",
-  "attemptNumber": 1,
-  "inputs": [],
-  "outputs": [
-    "assets/objects/checkpoint-flag/SPEC.md"
-  ],
-  "blocked": false
-}

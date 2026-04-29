@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-scenes",
+  "status": "pending",
+  "lastUpdated": "2026-04-28T13:53:29.084Z",
+  "createdAt": "2026-04-28T13:53:29.082Z",
+  "progress": {
+    "totalChildren": 2,
+    "completedChildren": 0,
+    "failedChildren": 0,
+    "childIds": [
+      "scene-forest-tutorial",
+      "scene-forest-tutorial"
+    ],
+    "lastProgressUpdate": "2026-04-28T13:53:29.081Z"
+  }
+}

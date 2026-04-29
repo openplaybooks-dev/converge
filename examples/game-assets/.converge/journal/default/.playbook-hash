@@ -1,6 +1,6 @@
 {
-  "hash": "ca3c303a4a9d59bf98c58345b7369fdaa438662b766aea8428996a98f316057b",
-  "timestamp": "2026-04-26T17:24:03.543Z",
+  "hash": "34600017dfcc2afa4368cff14ade9235b419fbc61e158ff3d9d400647e530a22",
+  "timestamp": "2026-04-28T13:47:28.121Z",
   "files": [
     "README.md",
     "playbook.yml",
@@ -24,6 +24,20 @@
     "tasks/03-characters/03-generation/wbs/templates/character/04-spritesheets/TASK.md",
     "tasks/03-characters/03-generation/wbs/templates/character/04-spritesheets/wbs/index.js",
     "tasks/03-characters/03-generation/wbs/templates/character/04-spritesheets/wbs/templates/state/TASK.md",
-    "tasks/03-characters/TASK.md"
+    "tasks/03-characters/TASK.md",
+    "tasks/04-tile-maps/TASK.md",
+    "tasks/04-tile-maps/wbs/index.js",
+    "tasks/04-tile-maps/wbs/templates/composite/TASK.md",
+    "tasks/04-tile-maps/wbs/templates/tile/TASK.md",
+    "tasks/05-backgrounds/TASK.md",
+    "tasks/05-backgrounds/wbs/index.js",
+    "tasks/05-backgrounds/wbs/templates/background/TASK.md",
+    "tasks/06-props/TASK.md",
+    "tasks/06-props/wbs/index.js",
+    "tasks/06-props/wbs/templates/prop/01-spec/TASK.md",
+    "tasks/06-props/wbs/templates/prop/02-spritesheets/state/TASK.md",
+    "tasks/07-export/TASK.md",
+    "tasks/07-export/wbs/index.js",
+    "tasks/07-export/wbs/templates/build-master-atlas/TASK.md"
   ]
 }

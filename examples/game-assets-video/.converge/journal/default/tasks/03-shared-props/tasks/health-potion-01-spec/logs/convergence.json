@@ -47,15 +47,15 @@
             "severity": "high",
             "description": "[03-shared-props/health-potion-01-spec] Task output not created: assets/objects/health-potion/SPEC.md",
             "source": "unit",
-            "detected": "2026-04-27T16:19:25.475Z",
+            "detected": "2026-04-28T13:21:50.272Z",
             "resolved": false,
             "checks": [],
             "metadata": {
               "gapKind": "output",
               "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/journal/default/tasks/03-shared-props/tasks/health-potion-01-spec",
               "taskId": "03-shared-props/health-potion-01-spec",
-              "taskTitle": "Validate Health Potion prop specification",
-              "taskPrompt": "# Validate Health Potion Specification\n\nEnsure the prop / hazard / interactive specification is complete and ready for generation.\n\n## Prop Details\n\n- **ID**: health-potion\n- **Name**: Health Potion\n- **Category**: item\n- **Description**: Red flask with sparkle particles, restores health when collected.\n- **States**: [\"idle\",\"collect\"]\n\n## Task\n\nWrite `assets/objects/health-potion/SPEC.md` summarizing the prop:\n\n- One short paragraph on visual identity (silhouette, colors, palette discipline).\n- Per-state animation intent (one sentence each), drawn from the keyframes table.\n- Notes on category-specific behavior:\n  - **item** — collected by player, despawns on collect.\n  - **hazard** — damages player while in active state.\n  - **interactive** — triggered by player action; persistent.\n\n## Verification\n\n- `assets/objects/health-potion/SPEC.md` exists and is non-empty.",
+              "taskTitle": "Validate Red Flask With Sparkle Particles prop specification",
+              "taskPrompt": "# Validate Red Flask With Sparkle Particles Specification\n\nEnsure the prop / hazard / interactive specification is complete and ready for generation.\n\n## Prop Details\n\n- **ID**: health-potion\n- **Name**: Red Flask With Sparkle Particles\n- **Category**: item\n- **Description**: Red flask with sparkle particles\n- **States**: [\"idle\"]\n\n## Task\n\nWrite `assets/objects/health-potion/SPEC.md` summarizing the prop:\n\n- One short paragraph on visual identity (silhouette, colors, palette discipline).\n- Per-state animation intent (one sentence each), drawn from the keyframes table.\n- Notes on category-specific behavior:\n  - **item** — collected by player, despawns on collect.\n  - **hazard** — damages player while in active state.\n  - **interactive** — triggered by player action; persistent.\n\n## Verification\n\n- `assets/objects/health-potion/SPEC.md` exists and is non-empty.",
               "taskInputs": [],
               "factId": "file-exists:test -f \"assets/objects/health-potion/SPEC.md\"",
               "awaitingUserInput": false
@@ -69,7 +69,7 @@
             "severity": "high",
             "description": "[03-shared-props/health-potion-01-spec] Check failed: Prop SPEC.md exists",
             "source": "unit",
-            "detected": "2026-04-27T16:19:25.477Z",
+            "detected": "2026-04-28T13:21:50.273Z",
             "resolved": false,
             "checks": [],
             "metadata": {
@@ -79,9 +79,9 @@
               "checkDescription": "Prop SPEC.md exists",
               "checkOutput": "",
               "checkExitCode": 1,
-              "taskPrompt": "# Validate Health Potion Specification\n\nEnsure the prop / hazard / interactive specification is complete and ready for generation.\n\n## Prop Details\n\n- **ID**: health-potion\n- **Name**: Health Potion\n- **Category**: item\n- **Description**: Red flask with sparkle particles, restores health when collected.\n- **States**: [\"idle\",\"collect\"]\n\n## Task\n\nWrite `assets/objects/health-potion/SPEC.md` summarizing the prop:\n\n- One short paragraph on visual identity (silhouette, colors, palette discipline).\n- Per-state animation intent (one sentence each), drawn from the keyframes table.\n- Notes on category-specific behavior:\n  - **item** — collected by player, despawns on collect.\n  - **hazard** — damages player while in active state.\n  - **interactive** — triggered by player action; persistent.\n\n## Verification\n\n- `assets/objects/health-potion/SPEC.md` exists and is non-empty.",
+              "taskPrompt": "# Validate Red Flask With Sparkle Particles Specification\n\nEnsure the prop / hazard / interactive specification is complete and ready for generation.\n\n## Prop Details\n\n- **ID**: health-potion\n- **Name**: Red Flask With Sparkle Particles\n- **Category**: item\n- **Description**: Red flask with sparkle particles\n- **States**: [\"idle\"]\n\n## Task\n\nWrite `assets/objects/health-potion/SPEC.md` summarizing the prop:\n\n- One short paragraph on visual identity (silhouette, colors, palette discipline).\n- Per-state animation intent (one sentence each), drawn from the keyframes table.\n- Notes on category-specific behavior:\n  - **item** — collected by player, despawns on collect.\n  - **hazard** — damages player while in active state.\n  - **interactive** — triggered by player action; persistent.\n\n## Verification\n\n- `assets/objects/health-potion/SPEC.md` exists and is non-empty.",
               "taskId": "03-shared-props/health-potion-01-spec",
-              "taskTitle": "Validate Health Potion prop specification",
+              "taskTitle": "Validate Red Flask With Sparkle Particles prop specification",
               "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/journal/default/tasks/03-shared-props/tasks/health-potion-01-spec",
               "factId": "check:spec-exists"
             }
@@ -139,7 +139,7 @@
         "success": true,
         "reason": "All gaps resolved",
         "gaps": [],
-        "durationMs": 16
+        "durationMs": 8
       }
     },
     {
@@ -161,7 +161,7 @@
       }
     },
     {
-      "id": "run-strategy:task-run#10",
+      "id": "run-strategy:task-run#13",
       "handler": "run-strategy",
       "status": "done",
       "origin": "planned",
@@ -171,7 +171,7 @@
       },
       "result": {
         "action": "continue",
-        "durationMs": 37923
+        "durationMs": 41508
       }
     }
   ],
@@ -180,43 +180,43 @@
       "from": "_start",
       "to": "check-wbs-seeded",
       "iteration": 1,
-      "ts": "2026-04-27T16:19:25.471Z"
+      "ts": "2026-04-28T13:21:50.269Z"
     },
     {
       "from": "check-wbs-seeded",
       "to": "check-outputs-exist",
       "iteration": 1,
-      "ts": "2026-04-27T16:19:25.472Z"
+      "ts": "2026-04-28T13:21:50.269Z"
     },
     {
       "from": "check-outputs-exist",
       "to": "detect-gaps",
       "iteration": 1,
-      "ts": "2026-04-27T16:19:25.477Z"
+      "ts": "2026-04-28T13:21:50.274Z"
     },
     {
       "from": "detect-gaps",
       "to": "run-executor",
       "iteration": 1,
-      "ts": "2026-04-27T16:19:25.478Z"
+      "ts": "2026-04-28T13:21:50.274Z"
     },
     {
       "from": "run-executor",
       "to": "repair-loop",
       "iteration": 1,
-      "ts": "2026-04-27T16:19:25.481Z"
+      "ts": "2026-04-28T13:21:50.277Z"
     },
     {
       "from": "repair-loop",
-      "to": "run-strategy:task-run#10",
+      "to": "run-strategy:task-run#13",
       "iteration": 1,
-      "ts": "2026-04-27T16:20:03.405Z"
+      "ts": "2026-04-28T13:22:31.785Z"
     },
     {
-      "from": "run-strategy:task-run#10",
+      "from": "run-strategy:task-run#13",
       "to": "verify",
       "iteration": 1,
-      "ts": "2026-04-27T16:20:03.421Z"
+      "ts": "2026-04-28T13:22:31.794Z"
     }
   ]
 }

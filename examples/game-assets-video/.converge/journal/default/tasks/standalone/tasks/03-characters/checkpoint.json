@@ -1,0 +1,21 @@
+{
+  "type": "task",
+  "id": "03-characters",
+  "status": "pending",
+  "lastUpdated": "2026-04-28T14:07:18.440Z",
+  "createdAt": "2026-04-28T13:53:29.082Z",
+  "progress": {
+    "totalChildren": 6,
+    "completedChildren": 6,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "01-analysis",
+      "01-analysis",
+      "02-shared-references",
+      "02-shared-references",
+      "03-generation",
+      "03-generation"
+    ],
+    "lastProgressUpdate": "2026-04-28T14:07:18.438Z"
+  }
+}

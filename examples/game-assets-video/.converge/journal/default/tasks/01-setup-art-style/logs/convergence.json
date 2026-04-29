@@ -39,7 +39,7 @@
       "result": {
         "action": "continue",
         "gaps": [],
-        "durationMs": 242
+        "durationMs": 239
       }
     },
     {
@@ -58,19 +58,19 @@
       "from": "_start",
       "to": "check-wbs-seeded",
       "iteration": 1,
-      "ts": "2026-04-27T16:14:19.098Z"
+      "ts": "2026-04-28T13:07:26.590Z"
     },
     {
       "from": "check-wbs-seeded",
       "to": "check-outputs-exist",
       "iteration": 1,
-      "ts": "2026-04-27T16:14:19.098Z"
+      "ts": "2026-04-28T13:07:26.590Z"
     },
     {
       "from": "check-outputs-exist",
       "to": "detect-gaps",
       "iteration": 1,
-      "ts": "2026-04-27T16:14:19.340Z"
+      "ts": "2026-04-28T13:07:26.829Z"
     }
   ]
 }

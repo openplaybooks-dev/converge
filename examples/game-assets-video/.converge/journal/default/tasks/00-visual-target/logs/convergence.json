@@ -38,8 +38,103 @@
       },
       "result": {
         "action": "continue",
-        "gaps": [],
-        "durationMs": 124
+        "gaps": [
+          {
+            "id": "00-visual-target-missing-output-assets/visual-target.png",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "00-visual-target",
+            "severity": "high",
+            "description": "[00-visual-target] Task output not created: assets/visual-target.png",
+            "source": "unit",
+            "detected": "2026-04-28T13:03:30.104Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/00-visual-target",
+              "taskId": "00-visual-target",
+              "taskTitle": "Visual Target Planner",
+              "taskPrompt": "# 00-visual-target — Visual-target-driven planner\n\nAdapted from godogen's `visual-target.md` + `asset-planner.md`. Three sequential steps that anchor every downstream phase to a concrete reference image.\n\n## 1. Generate the reference screenshot\n\n```bash\npython3 scripts/generate_visual_target.py\n```\n\nReads `idea.md`, builds a \"screenshot of an in-game frame\" prompt enumerating every game object (player, enemies, props, HUD), excluding effects we won't actually build, and renders via Gemini image-gen. Writes `assets/visual-target.png` + sidecar prompt + seed.\n\nThe screenshot is the visual QA target — every distinct object visible here becomes an asset requirement downstream. Objects absent from the reference get forgotten.\n\n## 2. Derive ASSETS.md\n\n```bash\npython3 scripts/generate_assets_md.py\n```\n\nSends `idea.md` + `visual-target.png` to Gemini text and asks for a strict 5-section markdown table (Characters / Props / Backgrounds / Tile maps) with mandatory **Size** column per row. Sizes from the table populate `working_resolution` / `resolution` fields downstream.\n\nWithout explicit pixel sizes, scene-builders consistently scale things wrong. The Size column is enforced by the lint check above.\n\n## 3. Derive the JSON manifests\n\n```bash\npython3 scripts/derive_manifests_from_assets_md.py --force\n```\n\nParses `ASSETS.md` into the per-category JSON manifests (`assets/sprites.json`, `objects.json`, `backgrounds.json`, `tile_maps.json`) the rest of the playbook consumes. `--force` because this task is mandatory and re-running should refresh the manifests rather than refuse on existing files.\n\n## Cost\n\n- Step 1: 1× image-gen call (gemini ≈ 5¢, openai ≈ 4¢)\n- Step 2: 1× text+image call (charged at image rate as a conservative proxy)\n- Step 3: free (local parsing)\n\nTotal: ~10¢ on Gemini, ~8¢ on OpenAI.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"assets/visual-target.png\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "00-visual-target-missing-output-assets/sprites.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "00-visual-target",
+            "severity": "high",
+            "description": "[00-visual-target] Task output not created: assets/sprites.json",
+            "source": "unit",
+            "detected": "2026-04-28T13:03:30.108Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/00-visual-target",
+              "taskId": "00-visual-target",
+              "taskTitle": "Visual Target Planner",
+              "taskPrompt": "# 00-visual-target — Visual-target-driven planner\n\nAdapted from godogen's `visual-target.md` + `asset-planner.md`. Three sequential steps that anchor every downstream phase to a concrete reference image.\n\n## 1. Generate the reference screenshot\n\n```bash\npython3 scripts/generate_visual_target.py\n```\n\nReads `idea.md`, builds a \"screenshot of an in-game frame\" prompt enumerating every game object (player, enemies, props, HUD), excluding effects we won't actually build, and renders via Gemini image-gen. Writes `assets/visual-target.png` + sidecar prompt + seed.\n\nThe screenshot is the visual QA target — every distinct object visible here becomes an asset requirement downstream. Objects absent from the reference get forgotten.\n\n## 2. Derive ASSETS.md\n\n```bash\npython3 scripts/generate_assets_md.py\n```\n\nSends `idea.md` + `visual-target.png` to Gemini text and asks for a strict 5-section markdown table (Characters / Props / Backgrounds / Tile maps) with mandatory **Size** column per row. Sizes from the table populate `working_resolution` / `resolution` fields downstream.\n\nWithout explicit pixel sizes, scene-builders consistently scale things wrong. The Size column is enforced by the lint check above.\n\n## 3. Derive the JSON manifests\n\n```bash\npython3 scripts/derive_manifests_from_assets_md.py --force\n```\n\nParses `ASSETS.md` into the per-category JSON manifests (`assets/sprites.json`, `objects.json`, `backgrounds.json`, `tile_maps.json`) the rest of the playbook consumes. `--force` because this task is mandatory and re-running should refresh the manifests rather than refuse on existing files.\n\n## Cost\n\n- Step 1: 1× image-gen call (gemini ≈ 5¢, openai ≈ 4¢)\n- Step 2: 1× text+image call (charged at image rate as a conservative proxy)\n- Step 3: free (local parsing)\n\nTotal: ~10¢ on Gemini, ~8¢ on OpenAI.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"assets/sprites.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "00-visual-target-check-failed-visual-target-png-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "00-visual-target",
+            "severity": "high",
+            "description": "[00-visual-target] Check failed: visual-target.png was generated",
+            "source": "unit",
+            "detected": "2026-04-28T13:03:30.110Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "visual-target-png-exists",
+              "checkCmd": "test -s assets/visual-target.png",
+              "checkDescription": "visual-target.png was generated",
+              "checkOutput": "",
+              "checkExitCode": 1,
+              "taskPrompt": "# 00-visual-target — Visual-target-driven planner\n\nAdapted from godogen's `visual-target.md` + `asset-planner.md`. Three sequential steps that anchor every downstream phase to a concrete reference image.\n\n## 1. Generate the reference screenshot\n\n```bash\npython3 scripts/generate_visual_target.py\n```\n\nReads `idea.md`, builds a \"screenshot of an in-game frame\" prompt enumerating every game object (player, enemies, props, HUD), excluding effects we won't actually build, and renders via Gemini image-gen. Writes `assets/visual-target.png` + sidecar prompt + seed.\n\nThe screenshot is the visual QA target — every distinct object visible here becomes an asset requirement downstream. Objects absent from the reference get forgotten.\n\n## 2. Derive ASSETS.md\n\n```bash\npython3 scripts/generate_assets_md.py\n```\n\nSends `idea.md` + `visual-target.png` to Gemini text and asks for a strict 5-section markdown table (Characters / Props / Backgrounds / Tile maps) with mandatory **Size** column per row. Sizes from the table populate `working_resolution` / `resolution` fields downstream.\n\nWithout explicit pixel sizes, scene-builders consistently scale things wrong. The Size column is enforced by the lint check above.\n\n## 3. Derive the JSON manifests\n\n```bash\npython3 scripts/derive_manifests_from_assets_md.py --force\n```\n\nParses `ASSETS.md` into the per-category JSON manifests (`assets/sprites.json`, `objects.json`, `backgrounds.json`, `tile_maps.json`) the rest of the playbook consumes. `--force` because this task is mandatory and re-running should refresh the manifests rather than refuse on existing files.\n\n## Cost\n\n- Step 1: 1× image-gen call (gemini ≈ 5¢, openai ≈ 4¢)\n- Step 2: 1× text+image call (charged at image rate as a conservative proxy)\n- Step 3: free (local parsing)\n\nTotal: ~10¢ on Gemini, ~8¢ on OpenAI.",
+              "taskId": "00-visual-target",
+              "taskTitle": "Visual Target Planner",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/00-visual-target",
+              "factId": "check:visual-target-png-exists"
+            }
+          },
+          {
+            "id": "00-visual-target-check-failed-sprites-json-derived",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "00-visual-target",
+            "severity": "high",
+            "description": "[00-visual-target] Check failed: sprites.json was derived from ASSETS.md",
+            "source": "unit",
+            "detected": "2026-04-28T13:03:30.115Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "sprites-json-derived",
+              "checkCmd": "test -s assets/sprites.json",
+              "checkDescription": "sprites.json was derived from ASSETS.md",
+              "checkOutput": "",
+              "checkExitCode": 1,
+              "taskPrompt": "# 00-visual-target — Visual-target-driven planner\n\nAdapted from godogen's `visual-target.md` + `asset-planner.md`. Three sequential steps that anchor every downstream phase to a concrete reference image.\n\n## 1. Generate the reference screenshot\n\n```bash\npython3 scripts/generate_visual_target.py\n```\n\nReads `idea.md`, builds a \"screenshot of an in-game frame\" prompt enumerating every game object (player, enemies, props, HUD), excluding effects we won't actually build, and renders via Gemini image-gen. Writes `assets/visual-target.png` + sidecar prompt + seed.\n\nThe screenshot is the visual QA target — every distinct object visible here becomes an asset requirement downstream. Objects absent from the reference get forgotten.\n\n## 2. Derive ASSETS.md\n\n```bash\npython3 scripts/generate_assets_md.py\n```\n\nSends `idea.md` + `visual-target.png` to Gemini text and asks for a strict 5-section markdown table (Characters / Props / Backgrounds / Tile maps) with mandatory **Size** column per row. Sizes from the table populate `working_resolution` / `resolution` fields downstream.\n\nWithout explicit pixel sizes, scene-builders consistently scale things wrong. The Size column is enforced by the lint check above.\n\n## 3. Derive the JSON manifests\n\n```bash\npython3 scripts/derive_manifests_from_assets_md.py --force\n```\n\nParses `ASSETS.md` into the per-category JSON manifests (`assets/sprites.json`, `objects.json`, `backgrounds.json`, `tile_maps.json`) the rest of the playbook consumes. `--force` because this task is mandatory and re-running should refresh the manifests rather than refuse on existing files.\n\n## Cost\n\n- Step 1: 1× image-gen call (gemini ≈ 5¢, openai ≈ 4¢)\n- Step 2: 1× text+image call (charged at image rate as a conservative proxy)\n- Step 3: free (local parsing)\n\nTotal: ~10¢ on Gemini, ~8¢ on OpenAI.",
+              "taskId": "00-visual-target",
+              "taskTitle": "Visual Target Planner",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/00-visual-target",
+              "factId": "check:sprites-json-derived"
+            }
+          }
+        ],
+        "durationMs": 14
       }
     },
     {
@@ -51,6 +146,80 @@
         "priority": 97,
         "applicable": "noGapsAndExecuted"
       }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 7
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 116
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#2",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 137850
+      }
     }
   ],
   "edges": [
@@ -58,19 +227,43 @@
       "from": "_start",
       "to": "check-wbs-seeded",
       "iteration": 1,
-      "ts": "2026-04-27T16:12:53.404Z"
+      "ts": "2026-04-28T13:03:30.100Z"
     },
     {
       "from": "check-wbs-seeded",
       "to": "check-outputs-exist",
       "iteration": 1,
-      "ts": "2026-04-27T16:12:53.404Z"
+      "ts": "2026-04-28T13:03:30.101Z"
     },
     {
       "from": "check-outputs-exist",
       "to": "detect-gaps",
       "iteration": 1,
-      "ts": "2026-04-27T16:12:53.530Z"
+      "ts": "2026-04-28T13:03:30.115Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-28T13:03:30.116Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-28T13:03:30.123Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#2",
+      "iteration": 1,
+      "ts": "2026-04-28T13:05:47.973Z"
+    },
+    {
+      "from": "run-strategy:task-run#2",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-28T13:05:48.090Z"
     }
   ]
 }

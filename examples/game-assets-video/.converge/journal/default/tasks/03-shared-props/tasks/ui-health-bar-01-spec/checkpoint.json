@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "03-shared-props/ui-health-bar-01-spec",
+  "status": "complete",
+  "lastUpdated": "2026-04-28T13:24:30.613Z",
+  "createdAt": "2026-04-28T13:23:47.582Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-28T13:23:47.582Z",
+      "completedAt": "2026-04-28T13:24:30.565Z",
+      "outcome": "success",
+      "durationMs": 42983
+    }
+  ],
+  "currentAttempt": 1
+}

@@ -1,0 +1,10 @@
+{
+  "taskId": "00-classify-game",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/game.json",
+    "assets/game.notes.md"
+  ],
+  "blocked": false
+}

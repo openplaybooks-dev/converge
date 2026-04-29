@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-01-concept",
+  "status": "complete",
+  "lastUpdated": "2026-04-28T22:14:24.560Z",
+  "createdAt": "2026-04-28T22:13:00.505Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-28T22:13:00.505Z",
+      "completedAt": "2026-04-28T22:14:24.531Z",
+      "outcome": "success",
+      "durationMs": 84026
+    }
+  ],
+  "currentAttempt": 1
+}

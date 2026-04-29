@@ -23,6 +23,7 @@
 
 import { agentfn } from "@converge/agentfn";
 import { rel } from "./scope.ts";
+import { taskMdSchemaBlock } from "./task-md-schema.ts";
 import type { PlanLayerOpts, PlanMode } from "./types.ts";
 import { PHASE_TIMEOUT_MS } from "./types.ts";
 
@@ -81,30 +82,7 @@ function buildWbsPrompt(args: ImplementWbsArgs): string {
     "",
     "## TASK.md schema",
     "",
-    "```yaml",
-    "---",
-    "title: <human title from PLAN.md>",
-    "wbs:",
-    "  type: nodejs",
-    "  path: ./wbs/index.js",
-    "---",
-    "",
-    "# <Title>",
-    "",
-    "**Goal**: <one sentence from PLAN.md>",
-    "",
-    "## Scope",
-    "",
-    "<copy `scope` from PLAN.md verbatim>",
-    "",
-    "## Fan-out",
-    "",
-    "Driven by: <copy `wbs.driver` from PLAN.md verbatim>",
-    "",
-    "At runtime, `wbs/index.js` reads the driver, names children",
-    "deterministically, and calls `ctx.spawn(...)` per item. Each spawned",
-    "child gets its own TASK.md materialized into the journal.",
-    "```",
+    taskMdSchemaBlock("wbs"),
     "",
     "## wbs/index.js shape",
     "",
@@ -171,13 +149,21 @@ function buildWbsPrompt(args: ImplementWbsArgs): string {
     "## Hard rules",
     "- Write **both** files above. Make the `wbs/` directory first",
     "  (`mkdir -p`).",
-    "- The TASK.md frontmatter is `title:` and `wbs:` only. **Do NOT**",
-    "  add `outputs:` or `checks:` — those apply per spawned child, not",
-    "  to the wbs task itself.",
+    "- TASK.md frontmatter: `id`, `title`, `description`, `wbs:`,",
+    "  `tags` always. Add `dependencies` and `inputs` whenever PLAN.md",
+    "  lists them. **Do NOT** add `outputs:` or `checks:` — those",
+    "  apply per spawned child, not to the wbs task itself.",
+    "- The body MUST include `## Per-spawn child shape` — a concrete",
+    "  list of the `id`, `title`, and `vars` keys each `ctx.spawn`",
+    "  emits. The keys MUST match what `wbs/index.js` actually packs",
+    "  into `ctx.spawn(...).vars`. These two sources of truth must",
+    "  agree — if you add a var to one, add it to the other.",
     "- The wbs/index.js must be ESM (`export default async function`),",
     "  not CommonJS (`module.exports`).",
     "- Do NOT enumerate the spawned children's TASK.md content here —",
     "  that's runtime's job when the wbs expands.",
+    "- `description` is one paragraph (high-level). `goal` is one",
+    "  sentence. Do not duplicate verbatim.",
   );
 
   if (mode === "fill-in") {

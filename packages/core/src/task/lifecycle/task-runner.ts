@@ -147,6 +147,23 @@ export interface TaskExecutionResult {
   isBlocking: boolean;
   /** Sibling task IDs that were reset to pending by on-fail config */
   resetSiblings?: string[];
+  /**
+   * Classification of the failure cause.
+   *
+   * - "transient": API rate limit, network blip, missing env var that
+   *   another attempt will likely re-discover (the agent loads .env and
+   *   retries on its own). The autonomous runner does NOT count these
+   *   against `maxStructuralAttempts` — they get a separate, generous
+   *   `maxTransientRetries` budget.
+   * - "structural": script bug, contract violation, an output the agent
+   *   couldn't produce. Counts against `maxStructuralAttempts`.
+   *
+   * Populated only when `success === false`. Undefined for success or
+   * when the runner couldn't classify.
+   */
+  errorKind?: "transient" | "structural";
+  /** Free-form classifier reason for telemetry. */
+  errorReason?: string;
 }
 
 /* ------------------------------------------------------------------ */

@@ -1,4 +1,4 @@
-# Forest Elf — Character Specification
+# Character Spec: Elf Archer With Green Cloak And Bow
 
 - **ID**: forest-elf
 - **Name**: Elf Archer With Green Cloak And Bow
@@ -9,23 +9,23 @@ Elf archer with green cloak and bow.
 
 ## Visual Style Guidelines
 
-- Slender elven silhouette with pointed ears
-- Hooded green cloak as the dominant garment, draping to mid-thigh
-- Longbow carried in one hand; quiver visible on the back
-- Earthy forest palette: mossy greens, warm browns, muted golds, soft skin tones
-- Style consistent with the rest of the project's character set (matches hero-knight scale and proportions)
+- Slender elven silhouette with pointed ears.
+- Hooded green cloak as the dominant silhouette feature.
+- Wooden longbow held in the off-hand; quiver visible on the back.
+- Earthy, forest-aligned palette: mossy greens, warm browns, muted leather tones.
+- Style consistent with the project ART_BIBLE.md.
 
 ## Animation Requirements
 
-Animation states:
+States to be produced:
 
-- **idle** — relaxed standing pose, bow held at side, subtle breathing/cloak sway
-- **walk** — looped walk cycle, cloak trailing motion, bow steady in lead hand
+- `idle` — relaxed stance, subtle breathing/sway, bow held low.
+- `walk` — looped walk cycle, cloak drifts with motion.
 
 ## Technical Specifications
 
 - Output directory: `assets/characters/forest-elf/`
-- Spritesheets per animation state under `spritesheets/`
-- Reference frames under `ref/`
-- Videos (if any) under `videos/`
-- Frame size and sheet layout: match existing project conventions used for `hero-knight`
+- One sprite sheet / frame set per animation state listed above.
+- Transparent background.
+- Consistent pivot and frame size across all states.
+- Palette: follow project ART_BIBLE.md (no per-character override specified).

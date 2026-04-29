@@ -1,9 +1,9 @@
-Draw a 4-column × 2-row sprite sheet (8 frames) for Health Potion (item) — Red flask with sparkle particles, restores health when collected.'s idle animation cycle. The output is ONE image of 8 SEPARATE small drawings tiled in a grid — NOT one large drawing.
+Draw a 4-column × 2-row sprite sheet (8 frames) for Red Flask With Sparkle Particles (item) — Red flask with sparkle particles's idle animation cycle. The output is ONE image of 8 SEPARATE small drawings tiled in a grid — NOT one large drawing.
 
 ART STYLE (mandatory, applies to every cell): Modern hand-drawn 2D game art in the spirit of Studio Ghibli and contemporary indie titles like Hollow Knight, Hades, Spiritfarer, Cuphead, and Ori and the Blind Forest. Soft painterly shading, gentle gradients, clean rounded silhouettes, expressive eyes and faces, warm storybook lighting. Characters have appealing proportions (slightly stylized: larger heads, simplified bodies) and read as friendly and inviting at first glance. Color is rich and saturated but not garish — think watercolor + ink, not pixel art. Edges are smooth (no jaggies). Subtle ambient rim light hints at depth without heavy shadows.
 
 
-Canvas: exactly 1536×1024 pixels, mentally divided into a 4-column × 2-row grid of 8 independent cells. Each cell is exactly 384×512 pixels. Each cell contains its OWN small drawing of Health Potion (item) — Red flask with sparkle particles, restores health when collected. in a different pose. The subject in each cell is sized to fit within that cell with margin — do NOT draw one large Health Potion (item) — Red flask with sparkle particles, restores health when collected. that spans the whole canvas.
+Canvas: exactly 1536×1024 pixels, mentally divided into a 4-column × 2-row grid of 8 independent cells. Each cell is exactly 384×512 pixels. Each cell contains its OWN small drawing of Red Flask With Sparkle Particles (item) — Red flask with sparkle particles in a different pose. The subject in each cell is sized to fit within that cell with margin — do NOT draw one large Red Flask With Sparkle Particles (item) — Red flask with sparkle particles that spans the whole canvas.
 
 Cell coordinates (origin top-left, x→right, y→down):
 - Rows: row 1 at y=0, row 2 at y=512
@@ -45,7 +45,7 @@ Structured spec for reference:
 
 {
   "task": "generate_animation_spritesheet",
-  "subject": "Health Potion (item) \u2014 Red flask with sparkle particles, restores health when collected.",
+  "subject": "Red Flask With Sparkle Particles (item) \u2014 Red flask with sparkle particles",
   "state": "idle",
   "layout": {
     "type": "4x2_grid",

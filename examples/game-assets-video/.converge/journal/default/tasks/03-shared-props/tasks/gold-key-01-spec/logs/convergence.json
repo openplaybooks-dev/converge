@@ -47,15 +47,15 @@
             "severity": "high",
             "description": "[03-shared-props/gold-key-01-spec] Task output not created: assets/objects/gold-key/SPEC.md",
             "source": "unit",
-            "detected": "2026-04-27T16:18:45.401Z",
+            "detected": "2026-04-28T13:19:45.821Z",
             "resolved": false,
             "checks": [],
             "metadata": {
               "gapKind": "output",
               "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/journal/default/tasks/03-shared-props/tasks/gold-key-01-spec",
               "taskId": "03-shared-props/gold-key-01-spec",
-              "taskTitle": "Validate Gold Key prop specification",
-              "taskPrompt": "# Validate Gold Key Specification\n\nEnsure the prop / hazard / interactive specification is complete and ready for generation.\n\n## Prop Details\n\n- **ID**: gold-key\n- **Name**: Gold Key\n- **Category**: item\n- **Description**: Ornate golden key with gem inset, unlocks treasure chests.\n- **States**: [\"idle\",\"collect\"]\n\n## Task\n\nWrite `assets/objects/gold-key/SPEC.md` summarizing the prop:\n\n- One short paragraph on visual identity (silhouette, colors, palette discipline).\n- Per-state animation intent (one sentence each), drawn from the keyframes table.\n- Notes on category-specific behavior:\n  - **item** — collected by player, despawns on collect.\n  - **hazard** — damages player while in active state.\n  - **interactive** — triggered by player action; persistent.\n\n## Verification\n\n- `assets/objects/gold-key/SPEC.md` exists and is non-empty.",
+              "taskTitle": "Validate Ornate Golden Key With Gem Inset prop specification",
+              "taskPrompt": "# Validate Ornate Golden Key With Gem Inset Specification\n\nEnsure the prop / hazard / interactive specification is complete and ready for generation.\n\n## Prop Details\n\n- **ID**: gold-key\n- **Name**: Ornate Golden Key With Gem Inset\n- **Category**: item\n- **Description**: Ornate golden key with gem inset\n- **States**: [\"idle\"]\n\n## Task\n\nWrite `assets/objects/gold-key/SPEC.md` summarizing the prop:\n\n- One short paragraph on visual identity (silhouette, colors, palette discipline).\n- Per-state animation intent (one sentence each), drawn from the keyframes table.\n- Notes on category-specific behavior:\n  - **item** — collected by player, despawns on collect.\n  - **hazard** — damages player while in active state.\n  - **interactive** — triggered by player action; persistent.\n\n## Verification\n\n- `assets/objects/gold-key/SPEC.md` exists and is non-empty.",
               "taskInputs": [],
               "factId": "file-exists:test -f \"assets/objects/gold-key/SPEC.md\"",
               "awaitingUserInput": false
@@ -69,7 +69,7 @@
             "severity": "high",
             "description": "[03-shared-props/gold-key-01-spec] Check failed: Prop SPEC.md exists",
             "source": "unit",
-            "detected": "2026-04-27T16:18:45.403Z",
+            "detected": "2026-04-28T13:19:45.824Z",
             "resolved": false,
             "checks": [],
             "metadata": {
@@ -79,9 +79,9 @@
               "checkDescription": "Prop SPEC.md exists",
               "checkOutput": "",
               "checkExitCode": 1,
-              "taskPrompt": "# Validate Gold Key Specification\n\nEnsure the prop / hazard / interactive specification is complete and ready for generation.\n\n## Prop Details\n\n- **ID**: gold-key\n- **Name**: Gold Key\n- **Category**: item\n- **Description**: Ornate golden key with gem inset, unlocks treasure chests.\n- **States**: [\"idle\",\"collect\"]\n\n## Task\n\nWrite `assets/objects/gold-key/SPEC.md` summarizing the prop:\n\n- One short paragraph on visual identity (silhouette, colors, palette discipline).\n- Per-state animation intent (one sentence each), drawn from the keyframes table.\n- Notes on category-specific behavior:\n  - **item** — collected by player, despawns on collect.\n  - **hazard** — damages player while in active state.\n  - **interactive** — triggered by player action; persistent.\n\n## Verification\n\n- `assets/objects/gold-key/SPEC.md` exists and is non-empty.",
+              "taskPrompt": "# Validate Ornate Golden Key With Gem Inset Specification\n\nEnsure the prop / hazard / interactive specification is complete and ready for generation.\n\n## Prop Details\n\n- **ID**: gold-key\n- **Name**: Ornate Golden Key With Gem Inset\n- **Category**: item\n- **Description**: Ornate golden key with gem inset\n- **States**: [\"idle\"]\n\n## Task\n\nWrite `assets/objects/gold-key/SPEC.md` summarizing the prop:\n\n- One short paragraph on visual identity (silhouette, colors, palette discipline).\n- Per-state animation intent (one sentence each), drawn from the keyframes table.\n- Notes on category-specific behavior:\n  - **item** — collected by player, despawns on collect.\n  - **hazard** — damages player while in active state.\n  - **interactive** — triggered by player action; persistent.\n\n## Verification\n\n- `assets/objects/gold-key/SPEC.md` exists and is non-empty.",
               "taskId": "03-shared-props/gold-key-01-spec",
-              "taskTitle": "Validate Gold Key prop specification",
+              "taskTitle": "Validate Ornate Golden Key With Gem Inset prop specification",
               "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/journal/default/tasks/03-shared-props/tasks/gold-key-01-spec",
               "factId": "check:spec-exists"
             }
@@ -123,7 +123,7 @@
       },
       "result": {
         "action": "continue",
-        "durationMs": 4
+        "durationMs": 3
       }
     },
     {
@@ -139,7 +139,7 @@
         "success": true,
         "reason": "All gaps resolved",
         "gaps": [],
-        "durationMs": 9
+        "durationMs": 29
       }
     },
     {
@@ -161,7 +161,7 @@
       }
     },
     {
-      "id": "run-strategy:task-run#9",
+      "id": "run-strategy:task-run#11",
       "handler": "run-strategy",
       "status": "done",
       "origin": "planned",
@@ -171,7 +171,7 @@
       },
       "result": {
         "action": "continue",
-        "durationMs": 38263
+        "durationMs": 58019
       }
     }
   ],
@@ -180,43 +180,43 @@
       "from": "_start",
       "to": "check-wbs-seeded",
       "iteration": 1,
-      "ts": "2026-04-27T16:18:45.397Z"
+      "ts": "2026-04-28T13:19:45.817Z"
     },
     {
       "from": "check-wbs-seeded",
       "to": "check-outputs-exist",
       "iteration": 1,
-      "ts": "2026-04-27T16:18:45.397Z"
+      "ts": "2026-04-28T13:19:45.818Z"
     },
     {
       "from": "check-outputs-exist",
       "to": "detect-gaps",
       "iteration": 1,
-      "ts": "2026-04-27T16:18:45.403Z"
+      "ts": "2026-04-28T13:19:45.824Z"
     },
     {
       "from": "detect-gaps",
       "to": "run-executor",
       "iteration": 1,
-      "ts": "2026-04-27T16:18:45.404Z"
+      "ts": "2026-04-28T13:19:45.824Z"
     },
     {
       "from": "run-executor",
       "to": "repair-loop",
       "iteration": 1,
-      "ts": "2026-04-27T16:18:45.408Z"
+      "ts": "2026-04-28T13:19:45.827Z"
     },
     {
       "from": "repair-loop",
-      "to": "run-strategy:task-run#9",
+      "to": "run-strategy:task-run#11",
       "iteration": 1,
-      "ts": "2026-04-27T16:19:23.671Z"
+      "ts": "2026-04-28T13:20:43.848Z"
     },
     {
-      "from": "run-strategy:task-run#9",
+      "from": "run-strategy:task-run#11",
       "to": "verify",
       "iteration": 1,
-      "ts": "2026-04-27T16:19:23.680Z"
+      "ts": "2026-04-28T13:20:43.878Z"
     }
   ]
 }

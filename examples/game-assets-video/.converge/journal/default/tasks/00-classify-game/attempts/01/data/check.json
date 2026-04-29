@@ -1,0 +1,15 @@
+{
+  "taskId": "00-classify-game",
+  "checks": [
+    {
+      "id": "game-json-exists",
+      "description": "assets/game.json was written",
+      "cmd": "test -s assets/game.json"
+    },
+    {
+      "id": "game-type-valid",
+      "description": "game.json declares a recognized game_type and has asset_categories",
+      "cmd": "python -c \"\nimport json\ng = json.load(open('assets/game.json'))\ngt = g.get('game_type')\nvalid = {'platformer','side-scrolling-action','top-down-rpg','top-down-shooter','vertical-shooter'}\nassert gt in valid, f'unknown game_type {gt!r}'\nassert (g.get('asset_categories') or {}), 'asset_categories missing'\n\"\n"
+    }
+  ]
+}

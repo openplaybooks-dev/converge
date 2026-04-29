@@ -1,0 +1,31 @@
+{
+  "type": "task",
+  "id": "03-shared-props",
+  "status": "pending",
+  "lastUpdated": "2026-04-28T14:07:18.440Z",
+  "createdAt": "2026-04-28T13:53:29.082Z",
+  "progress": {
+    "totalChildren": 16,
+    "completedChildren": 16,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "gold-key-01-spec",
+      "gold-key-01-spec",
+      "gold-key-spritesheet-idle",
+      "gold-key-spritesheet-idle",
+      "health-potion-01-spec",
+      "health-potion-01-spec",
+      "health-potion-spritesheet-idle",
+      "health-potion-spritesheet-idle",
+      "ui-health-bar-01-spec",
+      "ui-health-bar-01-spec",
+      "ui-health-bar-spritesheet-idle",
+      "ui-health-bar-spritesheet-idle",
+      "ui-key-slot-01-spec",
+      "ui-key-slot-01-spec",
+      "ui-key-slot-spritesheet-idle",
+      "ui-key-slot-spritesheet-idle"
+    ],
+    "lastProgressUpdate": "2026-04-28T14:07:18.438Z"
+  }
+}

@@ -1,11 +1,11 @@
 {
   "seeded": true,
-  "seededAt": "2026-04-27T18:17:29.474Z",
+  "seededAt": "2026-04-28T22:13:00.343Z",
   "spawnCount": 1,
   "subtasks": [
     {
-      "id": "scene-forest-1",
-      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-1/TASK.md"
+      "id": "scene-forest-tutorial",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/TASK.md"
     }
   ]
 }

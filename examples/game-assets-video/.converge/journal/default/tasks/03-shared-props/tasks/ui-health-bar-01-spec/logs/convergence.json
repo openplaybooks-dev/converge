@@ -1,0 +1,222 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "03-shared-props/ui-health-bar-01-spec-missing-output-assets/objects/ui-health-bar/SPEC.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-shared-props/ui-health-bar-01-spec",
+            "severity": "high",
+            "description": "[03-shared-props/ui-health-bar-01-spec] Task output not created: assets/objects/ui-health-bar/SPEC.md",
+            "source": "unit",
+            "detected": "2026-04-28T13:23:47.597Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/journal/default/tasks/03-shared-props/tasks/ui-health-bar-01-spec",
+              "taskId": "03-shared-props/ui-health-bar-01-spec",
+              "taskTitle": "Validate Horizontal Green Health Bar prop specification",
+              "taskPrompt": "# Validate Horizontal Green Health Bar Specification\n\nEnsure the prop / hazard / interactive specification is complete and ready for generation.\n\n## Prop Details\n\n- **ID**: ui-health-bar\n- **Name**: Horizontal Green Health Bar\n- **Category**: item\n- **Description**: Horizontal green health bar\n- **States**: [\"idle\"]\n\n## Task\n\nWrite `assets/objects/ui-health-bar/SPEC.md` summarizing the prop:\n\n- One short paragraph on visual identity (silhouette, colors, palette discipline).\n- Per-state animation intent (one sentence each), drawn from the keyframes table.\n- Notes on category-specific behavior:\n  - **item** — collected by player, despawns on collect.\n  - **hazard** — damages player while in active state.\n  - **interactive** — triggered by player action; persistent.\n\n## Verification\n\n- `assets/objects/ui-health-bar/SPEC.md` exists and is non-empty.",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"assets/objects/ui-health-bar/SPEC.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "03-shared-props/ui-health-bar-01-spec-check-failed-spec-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "03-shared-props/ui-health-bar-01-spec",
+            "severity": "high",
+            "description": "[03-shared-props/ui-health-bar-01-spec] Check failed: Prop SPEC.md exists",
+            "source": "unit",
+            "detected": "2026-04-28T13:23:47.599Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "spec-exists",
+              "checkCmd": "test -s assets/objects/ui-health-bar/SPEC.md",
+              "checkDescription": "Prop SPEC.md exists",
+              "checkOutput": "",
+              "checkExitCode": 1,
+              "taskPrompt": "# Validate Horizontal Green Health Bar Specification\n\nEnsure the prop / hazard / interactive specification is complete and ready for generation.\n\n## Prop Details\n\n- **ID**: ui-health-bar\n- **Name**: Horizontal Green Health Bar\n- **Category**: item\n- **Description**: Horizontal green health bar\n- **States**: [\"idle\"]\n\n## Task\n\nWrite `assets/objects/ui-health-bar/SPEC.md` summarizing the prop:\n\n- One short paragraph on visual identity (silhouette, colors, palette discipline).\n- Per-state animation intent (one sentence each), drawn from the keyframes table.\n- Notes on category-specific behavior:\n  - **item** — collected by player, despawns on collect.\n  - **hazard** — damages player while in active state.\n  - **interactive** — triggered by player action; persistent.\n\n## Verification\n\n- `assets/objects/ui-health-bar/SPEC.md` exists and is non-empty.",
+              "taskId": "03-shared-props/ui-health-bar-01-spec",
+              "taskTitle": "Validate Horizontal Green Health Bar prop specification",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/journal/default/tasks/03-shared-props/tasks/ui-health-bar-01-spec",
+              "factId": "check:spec-exists"
+            }
+          }
+        ],
+        "durationMs": 5
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 2
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 9
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#15",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 42657
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-28T13:23:47.594Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-28T13:23:47.594Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-28T13:23:47.599Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-28T13:23:47.599Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-28T13:23:47.602Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#15",
+      "iteration": 1,
+      "ts": "2026-04-28T13:24:30.259Z"
+    },
+    {
+      "from": "run-strategy:task-run#15",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-28T13:24:30.269Z"
+    }
+  ]
+}

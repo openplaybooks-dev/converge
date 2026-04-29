@@ -47,7 +47,7 @@
             "severity": "high",
             "description": "[03-characters/03-generation/forest-elf-02-angles] Task output not created: assets/characters/forest-elf/ref/source/source.png",
             "source": "unit",
-            "detected": "2026-04-27T16:15:40.617Z",
+            "detected": "2026-04-28T13:16:30.268Z",
             "resolved": false,
             "checks": [],
             "metadata": {
@@ -69,7 +69,7 @@
             "severity": "high",
             "description": "[03-characters/03-generation/forest-elf-02-angles] Task output not created: assets/characters/forest-elf/ref/canonical/canonical.png",
             "source": "unit",
-            "detected": "2026-04-27T16:15:40.620Z",
+            "detected": "2026-04-28T13:16:30.271Z",
             "resolved": false,
             "checks": [],
             "metadata": {
@@ -91,7 +91,7 @@
             "severity": "high",
             "description": "[03-characters/03-generation/forest-elf-02-angles] Task output not created: assets/characters/forest-elf/ref/manifest.json",
             "source": "unit",
-            "detected": "2026-04-27T16:15:40.622Z",
+            "detected": "2026-04-28T13:16:30.273Z",
             "resolved": false,
             "checks": [],
             "metadata": {
@@ -113,7 +113,7 @@
             "severity": "high",
             "description": "[03-characters/03-generation/forest-elf-02-angles] Check failed: source.png is at least 256x256 (rejects placeholder stubs)",
             "source": "unit",
-            "detected": "2026-04-27T16:15:40.672Z",
+            "detected": "2026-04-28T13:16:30.324Z",
             "resolved": false,
             "checks": [],
             "metadata": {
@@ -138,7 +138,7 @@
             "severity": "high",
             "description": "[03-characters/03-generation/forest-elf-02-angles] Check failed: canonical.png is at least 64x64 (rejects placeholder stubs)",
             "source": "unit",
-            "detected": "2026-04-27T16:15:40.715Z",
+            "detected": "2026-04-28T13:16:30.366Z",
             "resolved": false,
             "checks": [],
             "metadata": {
@@ -163,7 +163,7 @@
             "severity": "high",
             "description": "[03-characters/03-generation/forest-elf-02-angles] Check failed: manifest.json declares the locked viewport",
             "source": "unit",
-            "detected": "2026-04-27T16:15:40.736Z",
+            "detected": "2026-04-28T13:16:30.387Z",
             "resolved": false,
             "checks": [],
             "metadata": {
@@ -181,7 +181,7 @@
             }
           }
         ],
-        "durationMs": 122
+        "durationMs": 124
       }
     },
     {
@@ -217,7 +217,7 @@
       },
       "result": {
         "action": "continue",
-        "durationMs": 112
+        "durationMs": 117
       }
     },
     {
@@ -233,7 +233,7 @@
         "success": true,
         "reason": "All gaps resolved",
         "gaps": [],
-        "durationMs": 294
+        "durationMs": 291
       }
     },
     {
@@ -255,7 +255,7 @@
       }
     },
     {
-      "id": "run-strategy:task-run#5",
+      "id": "run-strategy:task-run#8",
       "handler": "run-strategy",
       "status": "done",
       "origin": "planned",
@@ -265,7 +265,7 @@
       },
       "result": {
         "action": "continue",
-        "durationMs": 70062
+        "durationMs": 69934
       }
     }
   ],
@@ -274,43 +274,43 @@
       "from": "_start",
       "to": "check-wbs-seeded",
       "iteration": 1,
-      "ts": "2026-04-27T16:15:40.613Z"
+      "ts": "2026-04-28T13:16:30.263Z"
     },
     {
       "from": "check-wbs-seeded",
       "to": "check-outputs-exist",
       "iteration": 1,
-      "ts": "2026-04-27T16:15:40.614Z"
+      "ts": "2026-04-28T13:16:30.263Z"
     },
     {
       "from": "check-outputs-exist",
       "to": "detect-gaps",
       "iteration": 1,
-      "ts": "2026-04-27T16:15:40.737Z"
+      "ts": "2026-04-28T13:16:30.388Z"
     },
     {
       "from": "detect-gaps",
       "to": "run-executor",
       "iteration": 1,
-      "ts": "2026-04-27T16:15:40.737Z"
+      "ts": "2026-04-28T13:16:30.388Z"
     },
     {
       "from": "run-executor",
       "to": "repair-loop",
       "iteration": 1,
-      "ts": "2026-04-27T16:15:40.849Z"
+      "ts": "2026-04-28T13:16:30.506Z"
     },
     {
       "from": "repair-loop",
-      "to": "run-strategy:task-run#5",
+      "to": "run-strategy:task-run#8",
       "iteration": 1,
-      "ts": "2026-04-27T16:16:50.911Z"
+      "ts": "2026-04-28T13:17:40.441Z"
     },
     {
-      "from": "run-strategy:task-run#5",
+      "from": "run-strategy:task-run#8",
       "to": "verify",
       "iteration": 1,
-      "ts": "2026-04-27T16:16:51.206Z"
+      "ts": "2026-04-28T13:17:40.732Z"
     }
   ]
 }

@@ -1,0 +1,11 @@
+{
+  "taskId": "03-shared-props/ui-key-slot-spritesheet-idle",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/objects/ui-key-slot/spritesheets/idle/idle.png",
+    "assets/objects/ui-key-slot/spritesheets/idle/idle.atlas.json",
+    "assets/objects/ui-key-slot/spritesheets/idle/idle.prompt.txt"
+  ],
+  "blocked": false
+}

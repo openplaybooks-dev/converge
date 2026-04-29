@@ -1,7 +1,7 @@
 {
   "attemptNumber": 1,
-  "startedAt": "2026-04-27T16:15:05.166Z",
-  "completedAt": "2026-04-27T16:15:05.198Z",
+  "startedAt": "2026-04-28T13:15:41.192Z",
+  "completedAt": "2026-04-28T13:15:41.218Z",
   "spawnedTasks": [
     {
       "id": "hero-knight-01-spec",
@@ -39,5 +39,5 @@
   "spawnedGoals": [],
   "status": "success",
   "spawnCount": 8,
-  "durationMs": 32
+  "durationMs": 26
 }

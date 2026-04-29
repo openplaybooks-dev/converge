@@ -47,7 +47,7 @@
             "severity": "high",
             "description": "[01-art-bible] Task output not created: assets/ART_BIBLE.md",
             "source": "unit",
-            "detected": "2026-04-27T16:12:53.897Z",
+            "detected": "2026-04-28T13:05:48.481Z",
             "resolved": false,
             "checks": [],
             "metadata": {
@@ -55,7 +55,7 @@
               "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/01-art-bible",
               "taskId": "01-art-bible",
               "taskTitle": "Art Bible",
-              "taskPrompt": "# 01-art-bible — Art Bible & Concept Hero-Shot\n\nThe bible is the **structured visual contract** every downstream asset prompt inherits. Without it each asset is a one-shot interpretation of a string-level \"art_style\" preset, and assets drift visually. With it, generators have multiple anchor points (visual-target screenshot + ART_BIBLE.md text + concept hero-shot image) and outputs stay coherent.\n\nTwo sequential steps:\n\n## 1. Derive ART_BIBLE.md\n\n```bash\npython3 scripts/generate_art_bible.py\n```\n\nSends `idea.md` + `assets/visual-target.png` to Gemini text and asks for a strict markdown spec:\n- Palette (5–8 dominant colors with #RRGGBB hex)\n- Line / shading rules\n- Character proportions\n- Environment & form language\n- Negatives (specific things to avoid)\n\nSampled hex values come **from the visual-target image** (no invented colors). The mandatory `#RRGGBB` format is enforced by the lint check below.\n\n## 2. Generate concept hero-shot\n\n```bash\npython3 scripts/generate_concept_hero_shot.py\n```\n\nRenders one 16:9 mid-gameplay frame that demonstrates the bible. This image becomes the **secondary visual anchor** for every per-scene concept (primary anchor = visual-target.png). Saves to `assets/concept/hero-shot.png` + sidecar prompt/seed.\n\n## Outputs\n\n- `assets/ART_BIBLE.md` — text spec, ~1–2 KB, fed into every per-asset prompt\n- `assets/concept/hero-shot.png` — visual demo, 16:9 ~1024 wide\n- `assets/concept/hero-shot.prompt.txt` + `.seed.txt` — sidecars\n\n## Cost\n\n- Step 1: 1 text-out call (~5¢ proxy via budget gate)\n- Step 2: 1 image-gen call (~5¢ Gemini)\n\nTotal: ~10¢.",
+              "taskPrompt": "# 01-art-bible — Art Bible & Concept Hero-Shot\n\nThe bible is the **structured visual contract** every downstream asset prompt inherits. Without it each asset is a one-shot interpretation of a string-level \"art_style\" preset, and assets drift visually. With it, generators have multiple anchor points (visual-target screenshot + ART_BIBLE.md text + concept hero-shot image) and outputs stay coherent.\n\nTwo sequential steps:\n\n## 1. Derive ART_BIBLE.md\n\n```bash\npython3 scripts/generate_art_bible.py\n```\n\nSends `idea.md` + `assets/visual-target.png` to Gemini text and asks for a strict markdown spec:\n- Palette (5–8 dominant colors with #RRGGBB hex)\n- Line / shading rules\n- Character proportions\n- Environment & form language\n- Negatives (specific things to avoid)\n\nSampled hex values come **from the visual-target image** (no invented colors). The mandatory `#RRGGBB` format is enforced by the lint check below.\n\n## 2. Generate concept hero-shot\n\n```bash\npython3 scripts/generate_concept_hero_shot.py\n```\n\nRenders one 16:9 mid-gameplay frame that demonstrates the bible. This image becomes the **secondary visual anchor** for every per-scene concept (primary anchor = visual-target.png). Saves to `assets/concept/hero-shot.png` + sidecar prompt/seed.\n\n## Note on scale\n\nSizing across asset classes is locked **numerically** by the per-asset\n`height_tiles` / `subject_height_tiles` fields in `scenes.json` and\n`objects-shared.json`, plus a small inline scale block in each generator's\nprompt that names the canonical hero height (~1.5 tiles). No image-based\nscale ruler is generated — the model is told the numbers and asked to\nmatch the supplied references at the declared tile heights.\n\n## Outputs\n\n- `assets/ART_BIBLE.md` — text spec, ~1–2 KB, fed into every per-asset prompt\n- `assets/concept/hero-shot.png` — visual demo, 16:9 ~1024 wide\n- Sidecar `.prompt.txt` + `.seed.txt` for each\n\n## Cost\n\n- Step 1: 1 text-out call (~5¢ proxy via budget gate)\n- Step 2: 1 image-gen call (~5¢ Gemini)\n\nTotal: ~10¢.",
               "taskInputs": [],
               "factId": "file-exists:test -f \"assets/ART_BIBLE.md\"",
               "awaitingUserInput": false
@@ -69,7 +69,7 @@
             "severity": "high",
             "description": "[01-art-bible] Task output not created: assets/concept/hero-shot.png",
             "source": "unit",
-            "detected": "2026-04-27T16:12:53.900Z",
+            "detected": "2026-04-28T13:05:48.484Z",
             "resolved": false,
             "checks": [],
             "metadata": {
@@ -77,7 +77,7 @@
               "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/01-art-bible",
               "taskId": "01-art-bible",
               "taskTitle": "Art Bible",
-              "taskPrompt": "# 01-art-bible — Art Bible & Concept Hero-Shot\n\nThe bible is the **structured visual contract** every downstream asset prompt inherits. Without it each asset is a one-shot interpretation of a string-level \"art_style\" preset, and assets drift visually. With it, generators have multiple anchor points (visual-target screenshot + ART_BIBLE.md text + concept hero-shot image) and outputs stay coherent.\n\nTwo sequential steps:\n\n## 1. Derive ART_BIBLE.md\n\n```bash\npython3 scripts/generate_art_bible.py\n```\n\nSends `idea.md` + `assets/visual-target.png` to Gemini text and asks for a strict markdown spec:\n- Palette (5–8 dominant colors with #RRGGBB hex)\n- Line / shading rules\n- Character proportions\n- Environment & form language\n- Negatives (specific things to avoid)\n\nSampled hex values come **from the visual-target image** (no invented colors). The mandatory `#RRGGBB` format is enforced by the lint check below.\n\n## 2. Generate concept hero-shot\n\n```bash\npython3 scripts/generate_concept_hero_shot.py\n```\n\nRenders one 16:9 mid-gameplay frame that demonstrates the bible. This image becomes the **secondary visual anchor** for every per-scene concept (primary anchor = visual-target.png). Saves to `assets/concept/hero-shot.png` + sidecar prompt/seed.\n\n## Outputs\n\n- `assets/ART_BIBLE.md` — text spec, ~1–2 KB, fed into every per-asset prompt\n- `assets/concept/hero-shot.png` — visual demo, 16:9 ~1024 wide\n- `assets/concept/hero-shot.prompt.txt` + `.seed.txt` — sidecars\n\n## Cost\n\n- Step 1: 1 text-out call (~5¢ proxy via budget gate)\n- Step 2: 1 image-gen call (~5¢ Gemini)\n\nTotal: ~10¢.",
+              "taskPrompt": "# 01-art-bible — Art Bible & Concept Hero-Shot\n\nThe bible is the **structured visual contract** every downstream asset prompt inherits. Without it each asset is a one-shot interpretation of a string-level \"art_style\" preset, and assets drift visually. With it, generators have multiple anchor points (visual-target screenshot + ART_BIBLE.md text + concept hero-shot image) and outputs stay coherent.\n\nTwo sequential steps:\n\n## 1. Derive ART_BIBLE.md\n\n```bash\npython3 scripts/generate_art_bible.py\n```\n\nSends `idea.md` + `assets/visual-target.png` to Gemini text and asks for a strict markdown spec:\n- Palette (5–8 dominant colors with #RRGGBB hex)\n- Line / shading rules\n- Character proportions\n- Environment & form language\n- Negatives (specific things to avoid)\n\nSampled hex values come **from the visual-target image** (no invented colors). The mandatory `#RRGGBB` format is enforced by the lint check below.\n\n## 2. Generate concept hero-shot\n\n```bash\npython3 scripts/generate_concept_hero_shot.py\n```\n\nRenders one 16:9 mid-gameplay frame that demonstrates the bible. This image becomes the **secondary visual anchor** for every per-scene concept (primary anchor = visual-target.png). Saves to `assets/concept/hero-shot.png` + sidecar prompt/seed.\n\n## Note on scale\n\nSizing across asset classes is locked **numerically** by the per-asset\n`height_tiles` / `subject_height_tiles` fields in `scenes.json` and\n`objects-shared.json`, plus a small inline scale block in each generator's\nprompt that names the canonical hero height (~1.5 tiles). No image-based\nscale ruler is generated — the model is told the numbers and asked to\nmatch the supplied references at the declared tile heights.\n\n## Outputs\n\n- `assets/ART_BIBLE.md` — text spec, ~1–2 KB, fed into every per-asset prompt\n- `assets/concept/hero-shot.png` — visual demo, 16:9 ~1024 wide\n- Sidecar `.prompt.txt` + `.seed.txt` for each\n\n## Cost\n\n- Step 1: 1 text-out call (~5¢ proxy via budget gate)\n- Step 2: 1 image-gen call (~5¢ Gemini)\n\nTotal: ~10¢.",
               "taskInputs": [],
               "factId": "file-exists:test -f \"assets/concept/hero-shot.png\"",
               "awaitingUserInput": false
@@ -91,7 +91,7 @@
             "severity": "high",
             "description": "[01-art-bible] Check failed: ART_BIBLE.md was written",
             "source": "unit",
-            "detected": "2026-04-27T16:12:53.903Z",
+            "detected": "2026-04-28T13:05:48.486Z",
             "resolved": false,
             "checks": [],
             "metadata": {
@@ -101,7 +101,7 @@
               "checkDescription": "ART_BIBLE.md was written",
               "checkOutput": "",
               "checkExitCode": 1,
-              "taskPrompt": "# 01-art-bible — Art Bible & Concept Hero-Shot\n\nThe bible is the **structured visual contract** every downstream asset prompt inherits. Without it each asset is a one-shot interpretation of a string-level \"art_style\" preset, and assets drift visually. With it, generators have multiple anchor points (visual-target screenshot + ART_BIBLE.md text + concept hero-shot image) and outputs stay coherent.\n\nTwo sequential steps:\n\n## 1. Derive ART_BIBLE.md\n\n```bash\npython3 scripts/generate_art_bible.py\n```\n\nSends `idea.md` + `assets/visual-target.png` to Gemini text and asks for a strict markdown spec:\n- Palette (5–8 dominant colors with #RRGGBB hex)\n- Line / shading rules\n- Character proportions\n- Environment & form language\n- Negatives (specific things to avoid)\n\nSampled hex values come **from the visual-target image** (no invented colors). The mandatory `#RRGGBB` format is enforced by the lint check below.\n\n## 2. Generate concept hero-shot\n\n```bash\npython3 scripts/generate_concept_hero_shot.py\n```\n\nRenders one 16:9 mid-gameplay frame that demonstrates the bible. This image becomes the **secondary visual anchor** for every per-scene concept (primary anchor = visual-target.png). Saves to `assets/concept/hero-shot.png` + sidecar prompt/seed.\n\n## Outputs\n\n- `assets/ART_BIBLE.md` — text spec, ~1–2 KB, fed into every per-asset prompt\n- `assets/concept/hero-shot.png` — visual demo, 16:9 ~1024 wide\n- `assets/concept/hero-shot.prompt.txt` + `.seed.txt` — sidecars\n\n## Cost\n\n- Step 1: 1 text-out call (~5¢ proxy via budget gate)\n- Step 2: 1 image-gen call (~5¢ Gemini)\n\nTotal: ~10¢.",
+              "taskPrompt": "# 01-art-bible — Art Bible & Concept Hero-Shot\n\nThe bible is the **structured visual contract** every downstream asset prompt inherits. Without it each asset is a one-shot interpretation of a string-level \"art_style\" preset, and assets drift visually. With it, generators have multiple anchor points (visual-target screenshot + ART_BIBLE.md text + concept hero-shot image) and outputs stay coherent.\n\nTwo sequential steps:\n\n## 1. Derive ART_BIBLE.md\n\n```bash\npython3 scripts/generate_art_bible.py\n```\n\nSends `idea.md` + `assets/visual-target.png` to Gemini text and asks for a strict markdown spec:\n- Palette (5–8 dominant colors with #RRGGBB hex)\n- Line / shading rules\n- Character proportions\n- Environment & form language\n- Negatives (specific things to avoid)\n\nSampled hex values come **from the visual-target image** (no invented colors). The mandatory `#RRGGBB` format is enforced by the lint check below.\n\n## 2. Generate concept hero-shot\n\n```bash\npython3 scripts/generate_concept_hero_shot.py\n```\n\nRenders one 16:9 mid-gameplay frame that demonstrates the bible. This image becomes the **secondary visual anchor** for every per-scene concept (primary anchor = visual-target.png). Saves to `assets/concept/hero-shot.png` + sidecar prompt/seed.\n\n## Note on scale\n\nSizing across asset classes is locked **numerically** by the per-asset\n`height_tiles` / `subject_height_tiles` fields in `scenes.json` and\n`objects-shared.json`, plus a small inline scale block in each generator's\nprompt that names the canonical hero height (~1.5 tiles). No image-based\nscale ruler is generated — the model is told the numbers and asked to\nmatch the supplied references at the declared tile heights.\n\n## Outputs\n\n- `assets/ART_BIBLE.md` — text spec, ~1–2 KB, fed into every per-asset prompt\n- `assets/concept/hero-shot.png` — visual demo, 16:9 ~1024 wide\n- Sidecar `.prompt.txt` + `.seed.txt` for each\n\n## Cost\n\n- Step 1: 1 text-out call (~5¢ proxy via budget gate)\n- Step 2: 1 image-gen call (~5¢ Gemini)\n\nTotal: ~10¢.",
               "taskId": "01-art-bible",
               "taskTitle": "Art Bible",
               "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/01-art-bible",
@@ -116,7 +116,7 @@
             "severity": "high",
             "description": "[01-art-bible] Check failed: ART_BIBLE.md has at least one",
             "source": "unit",
-            "detected": "2026-04-27T16:12:53.927Z",
+            "detected": "2026-04-28T13:05:48.510Z",
             "resolved": false,
             "checks": [],
             "metadata": {
@@ -126,7 +126,7 @@
               "checkDescription": "ART_BIBLE.md has at least one",
               "checkOutput": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: 'assets/ART_BIBLE.md'",
               "checkExitCode": 1,
-              "taskPrompt": "# 01-art-bible — Art Bible & Concept Hero-Shot\n\nThe bible is the **structured visual contract** every downstream asset prompt inherits. Without it each asset is a one-shot interpretation of a string-level \"art_style\" preset, and assets drift visually. With it, generators have multiple anchor points (visual-target screenshot + ART_BIBLE.md text + concept hero-shot image) and outputs stay coherent.\n\nTwo sequential steps:\n\n## 1. Derive ART_BIBLE.md\n\n```bash\npython3 scripts/generate_art_bible.py\n```\n\nSends `idea.md` + `assets/visual-target.png` to Gemini text and asks for a strict markdown spec:\n- Palette (5–8 dominant colors with #RRGGBB hex)\n- Line / shading rules\n- Character proportions\n- Environment & form language\n- Negatives (specific things to avoid)\n\nSampled hex values come **from the visual-target image** (no invented colors). The mandatory `#RRGGBB` format is enforced by the lint check below.\n\n## 2. Generate concept hero-shot\n\n```bash\npython3 scripts/generate_concept_hero_shot.py\n```\n\nRenders one 16:9 mid-gameplay frame that demonstrates the bible. This image becomes the **secondary visual anchor** for every per-scene concept (primary anchor = visual-target.png). Saves to `assets/concept/hero-shot.png` + sidecar prompt/seed.\n\n## Outputs\n\n- `assets/ART_BIBLE.md` — text spec, ~1–2 KB, fed into every per-asset prompt\n- `assets/concept/hero-shot.png` — visual demo, 16:9 ~1024 wide\n- `assets/concept/hero-shot.prompt.txt` + `.seed.txt` — sidecars\n\n## Cost\n\n- Step 1: 1 text-out call (~5¢ proxy via budget gate)\n- Step 2: 1 image-gen call (~5¢ Gemini)\n\nTotal: ~10¢.",
+              "taskPrompt": "# 01-art-bible — Art Bible & Concept Hero-Shot\n\nThe bible is the **structured visual contract** every downstream asset prompt inherits. Without it each asset is a one-shot interpretation of a string-level \"art_style\" preset, and assets drift visually. With it, generators have multiple anchor points (visual-target screenshot + ART_BIBLE.md text + concept hero-shot image) and outputs stay coherent.\n\nTwo sequential steps:\n\n## 1. Derive ART_BIBLE.md\n\n```bash\npython3 scripts/generate_art_bible.py\n```\n\nSends `idea.md` + `assets/visual-target.png` to Gemini text and asks for a strict markdown spec:\n- Palette (5–8 dominant colors with #RRGGBB hex)\n- Line / shading rules\n- Character proportions\n- Environment & form language\n- Negatives (specific things to avoid)\n\nSampled hex values come **from the visual-target image** (no invented colors). The mandatory `#RRGGBB` format is enforced by the lint check below.\n\n## 2. Generate concept hero-shot\n\n```bash\npython3 scripts/generate_concept_hero_shot.py\n```\n\nRenders one 16:9 mid-gameplay frame that demonstrates the bible. This image becomes the **secondary visual anchor** for every per-scene concept (primary anchor = visual-target.png). Saves to `assets/concept/hero-shot.png` + sidecar prompt/seed.\n\n## Note on scale\n\nSizing across asset classes is locked **numerically** by the per-asset\n`height_tiles` / `subject_height_tiles` fields in `scenes.json` and\n`objects-shared.json`, plus a small inline scale block in each generator's\nprompt that names the canonical hero height (~1.5 tiles). No image-based\nscale ruler is generated — the model is told the numbers and asked to\nmatch the supplied references at the declared tile heights.\n\n## Outputs\n\n- `assets/ART_BIBLE.md` — text spec, ~1–2 KB, fed into every per-asset prompt\n- `assets/concept/hero-shot.png` — visual demo, 16:9 ~1024 wide\n- Sidecar `.prompt.txt` + `.seed.txt` for each\n\n## Cost\n\n- Step 1: 1 text-out call (~5¢ proxy via budget gate)\n- Step 2: 1 image-gen call (~5¢ Gemini)\n\nTotal: ~10¢.",
               "taskId": "01-art-bible",
               "taskTitle": "Art Bible",
               "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/01-art-bible",
@@ -141,7 +141,7 @@
             "severity": "high",
             "description": "[01-art-bible] Check failed: concept hero-shot was generated",
             "source": "unit",
-            "detected": "2026-04-27T16:12:53.929Z",
+            "detected": "2026-04-28T13:05:48.512Z",
             "resolved": false,
             "checks": [],
             "metadata": {
@@ -151,7 +151,7 @@
               "checkDescription": "concept hero-shot was generated",
               "checkOutput": "",
               "checkExitCode": 1,
-              "taskPrompt": "# 01-art-bible — Art Bible & Concept Hero-Shot\n\nThe bible is the **structured visual contract** every downstream asset prompt inherits. Without it each asset is a one-shot interpretation of a string-level \"art_style\" preset, and assets drift visually. With it, generators have multiple anchor points (visual-target screenshot + ART_BIBLE.md text + concept hero-shot image) and outputs stay coherent.\n\nTwo sequential steps:\n\n## 1. Derive ART_BIBLE.md\n\n```bash\npython3 scripts/generate_art_bible.py\n```\n\nSends `idea.md` + `assets/visual-target.png` to Gemini text and asks for a strict markdown spec:\n- Palette (5–8 dominant colors with #RRGGBB hex)\n- Line / shading rules\n- Character proportions\n- Environment & form language\n- Negatives (specific things to avoid)\n\nSampled hex values come **from the visual-target image** (no invented colors). The mandatory `#RRGGBB` format is enforced by the lint check below.\n\n## 2. Generate concept hero-shot\n\n```bash\npython3 scripts/generate_concept_hero_shot.py\n```\n\nRenders one 16:9 mid-gameplay frame that demonstrates the bible. This image becomes the **secondary visual anchor** for every per-scene concept (primary anchor = visual-target.png). Saves to `assets/concept/hero-shot.png` + sidecar prompt/seed.\n\n## Outputs\n\n- `assets/ART_BIBLE.md` — text spec, ~1–2 KB, fed into every per-asset prompt\n- `assets/concept/hero-shot.png` — visual demo, 16:9 ~1024 wide\n- `assets/concept/hero-shot.prompt.txt` + `.seed.txt` — sidecars\n\n## Cost\n\n- Step 1: 1 text-out call (~5¢ proxy via budget gate)\n- Step 2: 1 image-gen call (~5¢ Gemini)\n\nTotal: ~10¢.",
+              "taskPrompt": "# 01-art-bible — Art Bible & Concept Hero-Shot\n\nThe bible is the **structured visual contract** every downstream asset prompt inherits. Without it each asset is a one-shot interpretation of a string-level \"art_style\" preset, and assets drift visually. With it, generators have multiple anchor points (visual-target screenshot + ART_BIBLE.md text + concept hero-shot image) and outputs stay coherent.\n\nTwo sequential steps:\n\n## 1. Derive ART_BIBLE.md\n\n```bash\npython3 scripts/generate_art_bible.py\n```\n\nSends `idea.md` + `assets/visual-target.png` to Gemini text and asks for a strict markdown spec:\n- Palette (5–8 dominant colors with #RRGGBB hex)\n- Line / shading rules\n- Character proportions\n- Environment & form language\n- Negatives (specific things to avoid)\n\nSampled hex values come **from the visual-target image** (no invented colors). The mandatory `#RRGGBB` format is enforced by the lint check below.\n\n## 2. Generate concept hero-shot\n\n```bash\npython3 scripts/generate_concept_hero_shot.py\n```\n\nRenders one 16:9 mid-gameplay frame that demonstrates the bible. This image becomes the **secondary visual anchor** for every per-scene concept (primary anchor = visual-target.png). Saves to `assets/concept/hero-shot.png` + sidecar prompt/seed.\n\n## Note on scale\n\nSizing across asset classes is locked **numerically** by the per-asset\n`height_tiles` / `subject_height_tiles` fields in `scenes.json` and\n`objects-shared.json`, plus a small inline scale block in each generator's\nprompt that names the canonical hero height (~1.5 tiles). No image-based\nscale ruler is generated — the model is told the numbers and asked to\nmatch the supplied references at the declared tile heights.\n\n## Outputs\n\n- `assets/ART_BIBLE.md` — text spec, ~1–2 KB, fed into every per-asset prompt\n- `assets/concept/hero-shot.png` — visual demo, 16:9 ~1024 wide\n- Sidecar `.prompt.txt` + `.seed.txt` for each\n\n## Cost\n\n- Step 1: 1 text-out call (~5¢ proxy via budget gate)\n- Step 2: 1 image-gen call (~5¢ Gemini)\n\nTotal: ~10¢.",
               "taskId": "01-art-bible",
               "taskTitle": "Art Bible",
               "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/01-art-bible",
@@ -159,7 +159,7 @@
             }
           }
         ],
-        "durationMs": 36
+        "durationMs": 34
       }
     },
     {
@@ -182,7 +182,7 @@
       },
       "result": {
         "action": "continue",
-        "durationMs": 1
+        "durationMs": 0
       }
     },
     {
@@ -195,7 +195,7 @@
       },
       "result": {
         "action": "continue",
-        "durationMs": 28
+        "durationMs": 25
       }
     },
     {
@@ -211,7 +211,7 @@
         "success": true,
         "reason": "All gaps resolved",
         "gaps": [],
-        "durationMs": 97
+        "durationMs": 81
       }
     },
     {
@@ -233,7 +233,7 @@
       }
     },
     {
-      "id": "run-strategy:task-run#1",
+      "id": "run-strategy:task-run#3",
       "handler": "run-strategy",
       "status": "done",
       "origin": "planned",
@@ -243,7 +243,7 @@
       },
       "result": {
         "action": "continue",
-        "durationMs": 84638
+        "durationMs": 97578
       }
     }
   ],
@@ -252,43 +252,43 @@
       "from": "_start",
       "to": "check-wbs-seeded",
       "iteration": 1,
-      "ts": "2026-04-27T16:12:53.893Z"
+      "ts": "2026-04-28T13:05:48.477Z"
     },
     {
       "from": "check-wbs-seeded",
       "to": "check-outputs-exist",
       "iteration": 1,
-      "ts": "2026-04-27T16:12:53.893Z"
+      "ts": "2026-04-28T13:05:48.477Z"
     },
     {
       "from": "check-outputs-exist",
       "to": "detect-gaps",
       "iteration": 1,
-      "ts": "2026-04-27T16:12:53.930Z"
+      "ts": "2026-04-28T13:05:48.512Z"
     },
     {
       "from": "detect-gaps",
       "to": "run-executor",
       "iteration": 1,
-      "ts": "2026-04-27T16:12:53.931Z"
+      "ts": "2026-04-28T13:05:48.513Z"
     },
     {
       "from": "run-executor",
       "to": "repair-loop",
       "iteration": 1,
-      "ts": "2026-04-27T16:12:53.959Z"
+      "ts": "2026-04-28T13:05:48.538Z"
     },
     {
       "from": "repair-loop",
-      "to": "run-strategy:task-run#1",
+      "to": "run-strategy:task-run#3",
       "iteration": 1,
-      "ts": "2026-04-27T16:14:18.597Z"
+      "ts": "2026-04-28T13:07:26.117Z"
     },
     {
-      "from": "run-strategy:task-run#1",
+      "from": "run-strategy:task-run#3",
       "to": "verify",
       "iteration": 1,
-      "ts": "2026-04-27T16:14:18.694Z"
+      "ts": "2026-04-28T13:07:26.199Z"
     }
   ]
 }

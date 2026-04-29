@@ -1,16 +1,16 @@
 # Task: 03-shared-props/health-potion-01-spec
 
-# Validate Health Potion Specification
+# Validate Red Flask With Sparkle Particles Specification
 
 Ensure the prop / hazard / interactive specification is complete and ready for generation.
 
 ## Prop Details
 
 - **ID**: health-potion
-- **Name**: Health Potion
+- **Name**: Red Flask With Sparkle Particles
 - **Category**: item
-- **Description**: Red flask with sparkle particles, restores health when collected.
-- **States**: ["idle","collect"]
+- **Description**: Red flask with sparkle particles
+- **States**: ["idle"]
 
 ## Task
 

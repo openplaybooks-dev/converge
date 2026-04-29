@@ -1,15 +1,15 @@
 {
   "attemptNumber": 1,
-  "startedAt": "2026-04-27T18:17:29.474Z",
-  "completedAt": "2026-04-27T18:17:29.486Z",
+  "startedAt": "2026-04-28T22:13:00.343Z",
+  "completedAt": "2026-04-28T22:13:00.368Z",
   "spawnedTasks": [
     {
-      "id": "scene-forest-1",
-      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-1/TASK.md"
+      "id": "scene-forest-tutorial",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/TASK.md"
     }
   ],
   "spawnedGoals": [],
   "status": "success",
   "spawnCount": 1,
-  "durationMs": 12
+  "durationMs": 25
 }

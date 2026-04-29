@@ -1,0 +1,14 @@
+{
+  "sessionId": "2026-04-28T22-13-00-73cy1m",
+  "projectName": "game-assets-video",
+  "startTime": "2026-04-28T22:13:00.211Z",
+  "status": "running",
+  "config": {
+    "maxIterations": 500,
+    "maxAttemptsPerTask": 2
+  },
+  "environment": {
+    "nodeVersion": "v22.19.0",
+    "platform": "darwin"
+  }
+}

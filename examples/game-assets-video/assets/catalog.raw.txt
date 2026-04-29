@@ -1,0 +1,81 @@
+```json
+{
+  "art_style": {
+    "id": "16-bit-retro-pixel-art",
+    "palette_swatch": "#000000,#FFFFFF,#FF0000,#008000,#0000FF,#FFD700,#A52A2A"
+  },
+  "characters": [
+    {
+      "id": "hero-knight",
+      "name": "Cute Armored Knight With Blue Armor",
+      "states": [
+        "idle",
+        "walk"
+      ]
+    },
+    {
+      "id": "forest-elf",
+      "name": "Elf Archer With Green Cloak And Bow",
+      "states": [
+        "idle",
+        "walk"
+      ]
+    }
+  ],
+  "shared_props": [
+    {
+      "id": "health-potion",
+      "name": "Red Flask With Sparkle Particles",
+      "category": "item",
+      "animation_type": "loop",
+      "keyframes_id": "health_potion_idle",
+      "states": [
+        "idle",
+        "collect"
+      ],
+      "description": "Red flask with sparkle particles, restores health when collected."
+    },
+    {
+      "id": "gold-key",
+      "name": "Ornate Golden Key With Gem Inset",
+      "category": "item",
+      "animation_type": "loop",
+      "keyframes_id": "gold_key_idle",
+      "states": [
+        "idle",
+        "collect"
+      ],
+      "description": "Ornate golden key with gem inset, unlocks treasure chests."
+    },
+    {
+      "id": "ui-key-slot",
+      "name": "User Interface Slot For The Gold Key",
+      "category": "item",
+      "animation_type": "static",
+      "keyframes_id": "prop_idle",
+      "states": [
+        "idle"
+      ],
+      "description": "User interface slot for the gold key."
+    },
+    {
+      "id": "ui-health-bar",
+      "name": "Horizontal Green Health Bar",
+      "category": "item",
+      "animation_type": "static",
+      "keyframes_id": "prop_idle",
+      "states": [
+        "idle"
+      ],
+      "description": "Horizontal green health bar."
+    }
+  ],
+  "tile_families": [
+    "grass",
+    "dirt",
+    "stone",
+    "flowers",
+    "wood"
+  ]
+}
+```

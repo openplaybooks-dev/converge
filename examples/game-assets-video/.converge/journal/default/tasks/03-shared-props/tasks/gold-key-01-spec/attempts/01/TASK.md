@@ -1,16 +1,16 @@
 # Task: 03-shared-props/gold-key-01-spec
 
-# Validate Gold Key Specification
+# Validate Ornate Golden Key With Gem Inset Specification
 
 Ensure the prop / hazard / interactive specification is complete and ready for generation.
 
 ## Prop Details
 
 - **ID**: gold-key
-- **Name**: Gold Key
+- **Name**: Ornate Golden Key With Gem Inset
 - **Category**: item
-- **Description**: Ornate golden key with gem inset, unlocks treasure chests.
-- **States**: ["idle","collect"]
+- **Description**: Ornate golden key with gem inset
+- **States**: ["idle"]
 
 ## Task
 

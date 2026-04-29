@@ -1,0 +1,9 @@
+{
+  "taskId": "03-shared-props/ui-health-bar-01-spec",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/objects/ui-health-bar/SPEC.md"
+  ],
+  "blocked": false
+}

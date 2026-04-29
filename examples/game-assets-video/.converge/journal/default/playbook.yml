@@ -111,6 +111,12 @@ tasks:
   - id: 01-art-bible
     depends_on:
       - 00-visual-target
+  - id: 01b-style-sheet
+    depends_on:
+      - 01-art-bible
+  - id: 01c-catalog-spec
+    depends_on:
+      - 01b-style-sheet
   - id: 01-setup-art-style
   - id: 02-asset-breakdown
     depends_on:
@@ -122,6 +128,8 @@ tasks:
     depends_on:
       - 02-asset-breakdown
       - 01-art-bible
+      - 01b-style-sheet
+      - 01c-catalog-spec
   - id: 04-registry-build
     depends_on:
       - 03-characters
@@ -179,6 +187,42 @@ checks:
   - id: at-least-one-character-ref
     cmd: node -e "const fs=require('fs');if(!fs.existsSync('assets/characters')){process.exit(0)}const chars=fs.readdirSync('assets/characters');const n=chars.filter(d=>fs.existsSync('assets/characters/'+d+'/ref/canonical/canonical.png')).length;if(n<1){console.error('No character canonical refs found');process.exit(1)}else{console.log(n)}"
     description: At least one character canonical reference was generated
+  - id: style-sheet-exists-when-any-prop-generated
+    cmd: |
+      node -e "const fs=require('fs');if(!fs.existsSync('assets/objects')){process.exit(0)}if(!fs.existsSync('assets/concept/style-sheet.png')){console.error('style-sheet.png missing — run 01b-style-sheet before generating any prop/tile/bg');process.exit(1)}"
+    description: Universal style anchor exists whenever any downstream asset has been generated
+  - id: catalog-props-have-animation-type-when-present
+    cmd: |
+      python -c "
+      import json, os
+      p = 'assets/catalog.json'
+      if not os.path.exists(p): raise SystemExit(0)
+      cat = json.load(open(p))
+      valid = {'static','loop','trigger'}
+      for prop in cat.get('shared_props', []):
+          atype = prop.get('animation_type')
+          assert atype in valid, f'prop {prop.get(\"id\")!r}: animation_type {atype!r} not in {valid}'
+      "
+    description: Every prop in catalog.json declares animation_type ∈ {static, loop, trigger}
+  - id: static-prop-sheet-is-1x1
+    cmd: |
+      python -c "
+      import json
+      from pathlib import Path
+      objs_path = Path('assets/objects-shared.json')
+      if not objs_path.exists(): objs_path = Path('assets/objects.json')
+      if not objs_path.exists(): raise SystemExit(0)
+      objs = json.load(open(objs_path))
+      static_ids = {o['id'] for o in objs if o.get('animation_type') == 'static'}
+      for atlas in Path('assets/objects').rglob('*.atlas.json'):
+          obj_id = atlas.parts[2]  # assets/objects/<obj_id>/...
+          if obj_id not in static_ids: continue
+          a = json.load(open(atlas))
+          m = a['meta']
+          assert m['cols'] == 1 and m['rows'] == 1, f'{atlas}: static prop must have 1x1 sheet, got {m[\"cols\"]}x{m[\"rows\"]}'
+          assert m['frame_count'] == 1, f'{atlas}: static prop must have 1 frame, got {m[\"frame_count\"]}'
+      "
+    description: Static-typed props produce a 1×1 single-frame sheet (no wasted 8-frame grid)
   # The next four checks short-circuit cleanly when their category is absent
   # (skipped by stop_after gating), so they're safe to run in any mode.
   - id: tilesheets-match-atlas-when-present
@@ -237,6 +281,42 @@ checks:
           assert m['sheet_size']['w'] == im.size[0] and m['sheet_size']['h'] == im.size[1], f'{atlas}: size mismatch atlas={m[\"sheet_size\"]} png={im.size}'
       "
     description: Every prop spritesheet atlas matches its PNG dimensions and frame count (any cols×rows layout, fallback handles model variance)
+  - id: scene-composite-preview-exists-when-present
+    cmd: |
+      python -c "
+      from pathlib import Path
+      root = Path('assets/scenes')
+      if not root.exists(): raise SystemExit(0)
+      for sd in root.iterdir():
+          if not sd.is_dir(): continue
+          if not (sd / 'scene.json').exists(): continue
+          p = sd / 'preview.png'
+          assert p.exists() and p.stat().st_size > 1024, f'missing preview: {p}'
+      "
+    description: Every scene with a manifest has a composited preview.png for visual QA
+  - id: bg-transparent-layers-have-alpha-when-present
+    cmd: |
+      python -c "
+      import json
+      from pathlib import Path
+      from PIL import Image
+      root = Path('assets/scenes')
+      if not root.exists(): raise SystemExit(0)
+      for sd in root.iterdir():
+          if not sd.is_dir(): continue
+          plan_path = sd / 'scene-plan.json'
+          if not plan_path.exists(): continue
+          plan = json.load(open(plan_path))
+          for layer in (plan.get('bg') or {}).get('layers') or []:
+              if not layer.get('transparent'): continue
+              png = sd / f\"bg-{layer['id']}.png\"
+              if not png.exists(): continue
+              im = Image.open(png)
+              assert im.mode == 'RGBA', f'{png}: not RGBA (mode={im.mode})'
+              lo, hi = im.split()[3].getextrema()
+              assert lo < 250, f'{png}: alpha channel has no transparency (lo={lo}, hi={hi})'
+      "
+    description: Layers declared transparent in scene-plan.json have real alpha
   - id: master-atlas-aggregates-all-sheets-when-present
     cmd: |
       python -c "

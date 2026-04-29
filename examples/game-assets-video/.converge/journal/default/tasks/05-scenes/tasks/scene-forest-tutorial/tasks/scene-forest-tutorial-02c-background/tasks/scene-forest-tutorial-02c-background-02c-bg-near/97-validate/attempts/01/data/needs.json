@@ -1,0 +1,47 @@
+{
+  "taskId": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02c-background/scene-forest-tutorial-02c-background-02c-bg-near/97-validate",
+  "attemptNumber": 1,
+  "inputs": [
+    {
+      "pattern": "assets/scenes/forest-tutorial/stage.json",
+      "count": 1,
+      "samples": [
+        "assets/scenes/forest-tutorial/stage.json"
+      ]
+    },
+    {
+      "pattern": "assets/scenes/forest-tutorial/concept.png",
+      "count": 1,
+      "samples": [
+        "assets/scenes/forest-tutorial/concept.png"
+      ]
+    },
+    {
+      "pattern": "assets/scenes/forest-tutorial/map.silhouette.png",
+      "count": 1,
+      "samples": [
+        "assets/scenes/forest-tutorial/map.silhouette.png"
+      ]
+    },
+    {
+      "pattern": "assets/scenes/forest-tutorial/bg-near/seg-*.png",
+      "count": 15,
+      "samples": [
+        "assets/scenes/forest-tutorial/bg-near/seg-002.right-edge.png",
+        "assets/scenes/forest-tutorial/bg-near/seg-003.png",
+        "assets/scenes/forest-tutorial/bg-near/seg-003.right-edge.png",
+        "assets/scenes/forest-tutorial/bg-near/seg-004.png",
+        "assets/scenes/forest-tutorial/bg-near/seg-004.right-edge.png",
+        "assets/scenes/forest-tutorial/bg-near/seg-005.png",
+        "assets/scenes/forest-tutorial/bg-near/seg-005.right-edge.png",
+        "assets/scenes/forest-tutorial/bg-near/seg-006.png",
+        "assets/scenes/forest-tutorial/bg-near/seg-006.right-edge.png",
+        "assets/scenes/forest-tutorial/bg-near/seg-007.png"
+      ]
+    }
+  ],
+  "outputs": [
+    "assets/scenes/forest-tutorial/bg-near.critique.json"
+  ],
+  "blocked": false
+}

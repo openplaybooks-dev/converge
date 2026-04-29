@@ -1,0 +1,247 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "01c-catalog-spec-missing-output-assets/catalog.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01c-catalog-spec",
+            "severity": "high",
+            "description": "[01c-catalog-spec] Task output not created: assets/catalog.json",
+            "source": "unit",
+            "detected": "2026-04-28T13:49:41.935Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/01c-catalog-spec",
+              "taskId": "01c-catalog-spec",
+              "taskTitle": "Asset Catalog",
+              "taskPrompt": "# 01c-catalog-spec — Asset Catalog\n\nThe canonical declaration of every prop's animation behavior. Downstream\nprop generators read `assets/catalog.json` instead of inferring intent\nfrom heuristics — so a static prop (ladder, sign post, UI element) is\ngenerated as a 1-frame sheet, a cyclic prop (potion shimmer) gets the\nright 8-frame loop cycle, and a trigger prop (spike trap, bounce\nspring) gets a coherent state-machine cycle anchored to one position.\n\nWithout this catalog, every prop got an 8-frame \"idle\" cycle regardless\nof whether it animated semantically. That produced spike-trap sheets\nwhere 8 unrelated stones replaced an animation, and ladder sheets with\n8 near-identical wasted frames.\n\n## How it works\n\n```bash\npython3 scripts/decompose_catalog.py\n```\n\n1. Reads `idea.md`, `assets/game.json`, `assets/sprites.json`, and\n   `assets/objects.json` (or `objects-shared.json`).\n2. Calls Gemini text-out with the brief + existing manifests asking for\n   one structured JSON catalog (animation_type per prop, keyframes_id\n   per prop, tile families per game biome).\n3. Validates the response (every prop has `animation_type ∈ {static,\n   loop, trigger}`; `keyframes_id` is a known cycle).\n4. Writes `assets/catalog.json` plus `assets/catalog.raw.txt` (debug\n   sidecar with the raw model response).\n\n## Re-running\n\n`assets/catalog.json` is treated as canonical once produced. The script\nshort-circuits if the file exists; pass `--force` to regenerate. Editing\n`catalog.json` after generation always wins — every downstream prop\ntask re-reads it.\n\n## Cost\n\n- 1 text-out call (~5¢ on Gemini)\n\n## Outputs\n\n- `assets/catalog.json` — canonical catalog read by every prop generator\n- `assets/catalog.raw.txt` — raw model response (debug sidecar)",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"assets/catalog.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "01c-catalog-spec-check-failed-catalog-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01c-catalog-spec",
+            "severity": "high",
+            "description": "[01c-catalog-spec] Check failed: assets/catalog.json was written",
+            "source": "unit",
+            "detected": "2026-04-28T13:49:41.937Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "catalog-exists",
+              "checkCmd": "test -s assets/catalog.json",
+              "checkDescription": "assets/catalog.json was written",
+              "checkOutput": "",
+              "checkExitCode": 1,
+              "taskPrompt": "# 01c-catalog-spec — Asset Catalog\n\nThe canonical declaration of every prop's animation behavior. Downstream\nprop generators read `assets/catalog.json` instead of inferring intent\nfrom heuristics — so a static prop (ladder, sign post, UI element) is\ngenerated as a 1-frame sheet, a cyclic prop (potion shimmer) gets the\nright 8-frame loop cycle, and a trigger prop (spike trap, bounce\nspring) gets a coherent state-machine cycle anchored to one position.\n\nWithout this catalog, every prop got an 8-frame \"idle\" cycle regardless\nof whether it animated semantically. That produced spike-trap sheets\nwhere 8 unrelated stones replaced an animation, and ladder sheets with\n8 near-identical wasted frames.\n\n## How it works\n\n```bash\npython3 scripts/decompose_catalog.py\n```\n\n1. Reads `idea.md`, `assets/game.json`, `assets/sprites.json`, and\n   `assets/objects.json` (or `objects-shared.json`).\n2. Calls Gemini text-out with the brief + existing manifests asking for\n   one structured JSON catalog (animation_type per prop, keyframes_id\n   per prop, tile families per game biome).\n3. Validates the response (every prop has `animation_type ∈ {static,\n   loop, trigger}`; `keyframes_id` is a known cycle).\n4. Writes `assets/catalog.json` plus `assets/catalog.raw.txt` (debug\n   sidecar with the raw model response).\n\n## Re-running\n\n`assets/catalog.json` is treated as canonical once produced. The script\nshort-circuits if the file exists; pass `--force` to regenerate. Editing\n`catalog.json` after generation always wins — every downstream prop\ntask re-reads it.\n\n## Cost\n\n- 1 text-out call (~5¢ on Gemini)\n\n## Outputs\n\n- `assets/catalog.json` — canonical catalog read by every prop generator\n- `assets/catalog.raw.txt` — raw model response (debug sidecar)",
+              "taskId": "01c-catalog-spec",
+              "taskTitle": "Asset Catalog",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/01c-catalog-spec",
+              "factId": "check:catalog-exists"
+            }
+          },
+          {
+            "id": "01c-catalog-spec-check-failed-catalog-props-have-animation-type",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01c-catalog-spec",
+            "severity": "high",
+            "description": "[01c-catalog-spec] Check failed: Every shared prop in catalog has animation_type set to static / loop / trigger",
+            "source": "unit",
+            "detected": "2026-04-28T13:49:41.961Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "catalog-props-have-animation-type",
+              "checkCmd": "python -c \"\nimport json\ncat = json.load(open('assets/catalog.json'))\nvalid = {'static','loop','trigger'}\nfor p in cat.get('shared_props', []):\n    atype = p.get('animation_type')\n    assert atype in valid, f'prop {p.get(\\\"id\\\")!r}: animation_type {atype!r} not in {valid}'\n\"\n",
+              "checkDescription": "Every shared prop in catalog has animation_type set to static / loop / trigger",
+              "checkOutput": "Traceback (most recent call last):\n  File \"<string>\", line 3, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: 'assets/catalog.json'",
+              "checkExitCode": 1,
+              "taskPrompt": "# 01c-catalog-spec — Asset Catalog\n\nThe canonical declaration of every prop's animation behavior. Downstream\nprop generators read `assets/catalog.json` instead of inferring intent\nfrom heuristics — so a static prop (ladder, sign post, UI element) is\ngenerated as a 1-frame sheet, a cyclic prop (potion shimmer) gets the\nright 8-frame loop cycle, and a trigger prop (spike trap, bounce\nspring) gets a coherent state-machine cycle anchored to one position.\n\nWithout this catalog, every prop got an 8-frame \"idle\" cycle regardless\nof whether it animated semantically. That produced spike-trap sheets\nwhere 8 unrelated stones replaced an animation, and ladder sheets with\n8 near-identical wasted frames.\n\n## How it works\n\n```bash\npython3 scripts/decompose_catalog.py\n```\n\n1. Reads `idea.md`, `assets/game.json`, `assets/sprites.json`, and\n   `assets/objects.json` (or `objects-shared.json`).\n2. Calls Gemini text-out with the brief + existing manifests asking for\n   one structured JSON catalog (animation_type per prop, keyframes_id\n   per prop, tile families per game biome).\n3. Validates the response (every prop has `animation_type ∈ {static,\n   loop, trigger}`; `keyframes_id` is a known cycle).\n4. Writes `assets/catalog.json` plus `assets/catalog.raw.txt` (debug\n   sidecar with the raw model response).\n\n## Re-running\n\n`assets/catalog.json` is treated as canonical once produced. The script\nshort-circuits if the file exists; pass `--force` to regenerate. Editing\n`catalog.json` after generation always wins — every downstream prop\ntask re-reads it.\n\n## Cost\n\n- 1 text-out call (~5¢ on Gemini)\n\n## Outputs\n\n- `assets/catalog.json` — canonical catalog read by every prop generator\n- `assets/catalog.raw.txt` — raw model response (debug sidecar)",
+              "taskId": "01c-catalog-spec",
+              "taskTitle": "Asset Catalog",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/01c-catalog-spec",
+              "factId": "check:catalog-props-have-animation-type"
+            }
+          }
+        ],
+        "durationMs": 30
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 25
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 77
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#5",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 62025
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-28T13:49:41.931Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-28T13:49:41.931Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-28T13:49:41.961Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-28T13:49:41.961Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-28T13:49:41.987Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#5",
+      "iteration": 1,
+      "ts": "2026-04-28T13:50:44.012Z"
+    },
+    {
+      "from": "run-strategy:task-run#5",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-28T13:50:44.090Z"
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+{
+  "bg": {
+    "layers": [
+      {
+        "id": "far",
+        "target_size": [2048, 1152],
+        "transparent": true,
+        "blend_with_above": null,
+        "subject_height_tiles": 1.5,
+        "regions": [
+          {
+            "x_norm": [0.0, 0.5],
+            "content": "Distant rolling grassland hills under a warm cream sky on the left side; soft hazy silhouettes of trees on the far horizon."
+          },
+          {
+            "x_norm": [0.5, 1.0],
+            "content": "Continuation of the rolling hills on the right with a slightly taller hill profile; the sky brightens subtly toward the upper right."
+          }
+        ],
+        "palette": "warm cream sky, hazy blue-green distant hills, soft golden horizon",
+        "extend": null
+      },
+      {
+        "id": "mid",
+        "target_size": [2048, 1152],
+        "transparent": true,
+        "blend_with_above": "far",
+        "subject_height_tiles": 3.5,
+        "regions": [
+          {
+            "x_norm": [0.0, 0.5],
+            "content": "Mid-distance grassland with scattered trees and bushes on the left, including a small grove that frames the play area."
+          },
+          {
+            "x_norm": [0.5, 1.0],
+            "content": "Mid-distance grassland on the right with one or two larger trees and a hint of a small water pond peeking through."
+          }
+        ],
+        "palette": "saturated grass-green, leafy mid-tone trees, muted earth shadows",
+        "extend": null
+      },
+      {
+        "id": "near",
+        "target_size": [2048, 1152],
+        "transparent": true,
+        "blend_with_above": "mid",
+        "subject_height_tiles": 6.0,
+        "regions": [
+          {
+            "x_norm": [0.0, 0.5],
+            "content": "Foreground grass tufts, a winding dirt path entering from the left, and a small rock cluster framing the path edge."
+          },
+          {
+            "x_norm": [0.5, 1.0],
+            "content": "Foreground grass with a tree stump on the right, the dirt path winding off-screen, and scattered flower spots near the bottom edge."
+          }
+        ],
+        "palette": "vivid foreground grass, warm dirt path browns, accent flower colors",
+        "extend": null
+      }
+    ]
+  },
+  "tilesheet": {
+    "grid": [4, 4],
+    "tile_size_px": 128,
+    "shared_palette": "vivid grass-green, warm dirt brown, cool water blue, neutral grey rock — top-down view consistent across all tiles",
+    "tiles": [
+      {
+        "id": "grass",
+        "cell": [0, 0],
+        "neighbors": {"top": "sky", "bottom": "earth", "left": "grass", "right": "grass-flowers"},
+        "edges": "Uniform grass texture across all four edges so it tiles seamlessly with itself and other grass-base tiles.",
+        "description": "Plain grass field tile (top-down view) with subtle blade variation."
+      },
+      {
+        "id": "grass-flowers",
+        "cell": [0, 1],
+        "neighbors": {"top": "sky", "bottom": "earth", "left": "grass", "right": "grass"},
+        "edges": "Edges match plain grass exactly so flowers sit interior to the cell; no flowers cross the tile border.",
+        "description": "Grass with scattered flower spots, otherwise identical to plain grass at the edges."
+      },
+      {
+        "id": "dirt",
+        "cell": [0, 2],
+        "neighbors": {"top": "earth", "bottom": "earth", "left": "dirt", "right": "dirt"},
+        "edges": "Uniform packed-dirt texture on all four edges so it tiles seamlessly with itself and abuts path-corner tiles cleanly.",
+        "description": "Plain dirt tile, top-down view."
+      },
+      {
+        "id": "path-corner-NE",
+        "cell": [0, 3],
+        "neighbors": {"top": "grass", "bottom": "dirt", "left": "dirt", "right": "grass"},
+        "edges": "Top and right edges are grass; bottom and left edges are dirt — the dirt forms a quarter-arc cornering northeast.",
+        "description": "Dirt path with grass on the northeast corner — for a path turning toward the northeast."
+      },
+      {
+        "id": "path-corner-NW",
+        "cell": [1, 0],
+        "neighbors": {"top": "grass", "bottom": "dirt", "left": "grass", "right": "dirt"},
+        "edges": "Top and left edges are grass; bottom and right edges are dirt — the dirt forms a quarter-arc cornering northwest.",
+        "description": "Dirt path with grass on the northwest corner."
+      },
+      {
+        "id": "path-corner-SE",
+        "cell": [1, 1],
+        "neighbors": {"top": "dirt", "bottom": "grass", "left": "dirt", "right": "grass"},
+        "edges": "Bottom and right edges are grass; top and left edges are dirt — the dirt forms a quarter-arc cornering southeast.",
+        "description": "Dirt path with grass on the southeast corner."
+      },
+      {
+        "id": "path-corner-SW",
+        "cell": [1, 2],
+        "neighbors": {"top": "dirt", "bottom": "grass", "left": "grass", "right": "dirt"},
+        "edges": "Bottom and left edges are grass; top and right edges are dirt — the dirt forms a quarter-arc cornering southwest.",
+        "description": "Dirt path with grass on the southwest corner."
+      },
+      {
+        "id": "water",
+        "cell": [1, 3],
+        "neighbors": {"top": "water", "bottom": "water", "left": "water", "right": "water-edge-grass"},
+        "edges": "All four edges are uniform water texture so it tiles with itself; the subtle wave pattern is interior.",
+        "description": "Water tile — impassable, with subtle wave pattern."
+      },
+      {
+        "id": "water-edge-grass",
+        "cell": [2, 0],
+        "neighbors": {"top": "grass", "bottom": "water", "left": "water", "right": "grass"},
+        "edges": "Top and right edges are grass; bottom and left edges are water — the shoreline runs diagonally so water meets grass cleanly.",
+        "description": "Water meeting grass — shoreline transition tile."
+      },
+      {
+        "id": "tree-stump",
+        "cell": [2, 1],
+        "neighbors": {"top": "grass", "bottom": "grass", "left": "grass", "right": "grass"},
+        "edges": "All four edges match plain grass; the tree stump is centered interior to the tile and does not cross the border.",
+        "description": "Single tree stump on grass — decoration sitting on a plain grass background."
+      },
+      {
+        "id": "rock-small",
+        "cell": [2, 2],
+        "neighbors": {"top": "grass", "bottom": "grass", "left": "grass", "right": "grass"},
+        "edges": "All four edges match plain grass; the small grey rock is centered interior to the tile.",
+        "description": "Small grey rock decoration sitting on plain grass."
+      }
+    ]
+  },
+  "scene_props": []
+}

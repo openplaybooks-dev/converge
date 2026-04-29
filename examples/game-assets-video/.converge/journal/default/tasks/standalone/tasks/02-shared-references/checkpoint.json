@@ -1,0 +1,24 @@
+{
+  "type": "task",
+  "id": "02-shared-references",
+  "status": "pending",
+  "lastUpdated": "2026-04-28T14:07:18.440Z",
+  "createdAt": "2026-04-28T13:53:29.081Z",
+  "progress": {
+    "totalChildren": 9,
+    "completedChildren": 9,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "class-mage",
+      "class-ranger",
+      "class-warrior",
+      "class-mage",
+      "class-ranger",
+      "class-warrior",
+      "class-mage",
+      "class-ranger",
+      "class-warrior"
+    ],
+    "lastProgressUpdate": "2026-04-28T14:07:18.438Z"
+  }
+}

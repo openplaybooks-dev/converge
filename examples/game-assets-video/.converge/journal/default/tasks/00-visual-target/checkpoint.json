@@ -2,15 +2,15 @@
   "type": "task",
   "id": "00-visual-target",
   "status": "complete",
-  "lastUpdated": "2026-04-27T16:12:53.837Z",
-  "createdAt": "2026-04-27T16:12:53.390Z",
+  "lastUpdated": "2026-04-28T13:05:48.416Z",
+  "createdAt": "2026-04-28T13:03:30.088Z",
   "attempts": [
     {
       "attempt": 1,
-      "startedAt": "2026-04-27T16:12:53.390Z",
-      "completedAt": "2026-04-27T16:12:53.811Z",
+      "startedAt": "2026-04-28T13:03:30.088Z",
+      "completedAt": "2026-04-28T13:05:48.394Z",
       "outcome": "success",
-      "durationMs": 421
+      "durationMs": 138306
     }
   ],
   "currentAttempt": 1

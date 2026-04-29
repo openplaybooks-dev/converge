@@ -1,0 +1,59 @@
+ONE SEGMENT of a wide FOREGROUND EDGE LAYER for a 2D game scene. Single image, no grid, no animation.
+
+Role of this layer:
+The foreground plane — the closest visual element to the camera. The player walks across or in front of it. Examples by biome: grass strip with flowers, dirt path, sand strip, stone-tiled floor, snow strip with footprints.
+
+If a `map.silhouette.png` reference is provided, treat it as the binding macro layout. The silhouette covers the WHOLE map left-to-right and shows the elevation profile of the playable ground. Your segment covers the x-range below — look at the silhouette's ground line INSIDE that x-range and ensure your foreground edge matches its slope, height, and biome variant. The painted near layer must frame the same playable terrain the silhouette implies.
+
+Scene context:
+- Biome: grassland
+- Description: Open grassland tutorial scene with a winding dirt path, scattered trees and rocks, and a small water pond. The player picks up a gold key and a health potion while learning movement and pickup mechanics. Includes 2-3 small jumps, a water-pit hazard you must jump over, and one optional ledge with a hidden potion.
+- World: 244 tiles wide × 60 tiles tall
+
+This segment:
+- Segment index: 7 of 8
+- Map x-range covered (normalized): [0.656, 0.82]
+- Render target: 1536x1024 px (covers exactly this x-range of the wide map)
+
+Section: key-pickup → final-descent (kind: pickup → platform-down)
+Region hints from scene-plan covering this x-range:
+  - x_norm overlap with [0.656, 0.82]: Foreground grass with a tree stump on the right, the dirt path winding off-screen, and scattered flower spots near the bottom edge.
+
+Stage chunks (from stage.json) covering this x-range:
+  - chunk 'optional-ledge-and-key' (x_tiles [150, 180], ground=grass, floor y=15..17): An optional jump leads to a higher ledge where the player can discover a valuable gold key, encouraging exploration.
+  - chunk 'descent-towards-exit' (x_tiles [180, 210], ground=grass, floor y=13..15): The path gently descends through an open grassy area, with scattered tree stumps and rocks, signaling the approaching end of the tutorial.
+
+Elevation profile across this segment (each (x_tile, y_tile) sample is a ground-floor height — your foreground silhouette MUST follow this curve):
+  - samples (x_tile, y_tile): (165,17), (180,15), (195,14)
+  - y range across segment: 14..17
+
+Platforms in this segment's x range (each platform is a real walkable surface — your foreground content must visually frame these without occluding their tops):
+  - ledge platform x_tiles=[155, 165], top y_tile=22: optional-potion-ledge
+
+Hazards in this segment's x range (each hazard occupies real space in the playable area — render its base in the foreground strip so the player sees what to avoid):
+  - (no hazards in this segment range)
+
+Beats (gameplay rhythm — pickups should be visible as foreground elements when their x_tile lands in this segment) inside this x-range:
+  - x_tile=160 pickup: key-pickup
+  - x_tile=200 platform-down: final-descent
+
+Composition:
+- The bottom 30-45% of the canvas is the foreground content (ground texture + low foreground props like rocks, foliage, edge-of-pond, tufts of grass).
+- The foreground silhouette MUST follow the elevation profile listed above — the ground line is NOT flat; it rises and falls to match the (x_tile, y_tile) samples and to leave room for the platforms / hazards.
+- The remaining 55-70% above is pure chroma green (#00FF00). Far + mid layers show through.
+- Optional: a thin band at the very top (5-10%) may contain hanging foreground silhouettes (tree canopy edge, vine drape, cave-mouth shadow) — only when scene-plan explicitly mentions them.
+
+SEAM ANCHOR (CRITICAL):
+The PREVIOUS segment to the LEFT of this one is supplied as a reference image. Match its right-edge content seamlessly: the leftmost ~10% of THIS segment must continue the foreground strip from the right edge of the previous segment — same ground texture, same palette, same level of detail, no visible seam, no repeating a prop the previous segment already showed at its right edge.
+
+Palette: vivid foreground grass, warm dirt path browns, accent flower colors
+
+Layer fill rule (CRITICAL):
+- The bottom strip is foreground content. Above it is EXACTLY #00FF00 (pure chroma green).
+- NO blue sky, NO clouds, NO mid-distance silhouettes, NO horizon line. Those belong to far/mid layers.
+- Within the foreground strip, content is rich and detailed (this is what the player sees up close). Use the scene's full near-palette saturation.
+- NO characters, NO interactive pickups (potions, keys), NO UI. Static ground props only.
+
+Style:
+- Follow the style-sheet anchor + scene concept image. Match line weight and shading.
+- Highest level of detail of any layer (closest to camera).

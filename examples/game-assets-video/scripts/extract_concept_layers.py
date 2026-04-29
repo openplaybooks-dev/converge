@@ -90,107 +90,279 @@ def normalize_layer_cfg(entry: str | dict) -> dict:
 
 
 # ── Layer-extraction prompt ────────────────────────────────────────────────
+#
+# Framing (from production matte/decomposition pipelines): we are doing
+# AMODAL COMPLETION, not masking. The concept image is one painting where
+# nearer layers occlude farther ones. To get a clean parallax layer we
+# ask the model to repaint that layer as a complete standalone image —
+# inferring what it would look like if the nearer layers were lifted away
+# — and only chroma-key the regions that are GENUINELY empty in that
+# layer (sky/air for mid+near; nothing for far, since far fills the
+# canvas as the back wall).
+#
+# Selection language uses depth cues (atmospheric perspective, contrast,
+# saturation, edge sharpness, parallax scroll speed) instead of canvas
+# position — positional rules ("upper half") teach the model to
+# band-slice, which produces transparent holes and includes whatever is
+# at the right band height regardless of depth.
+#
+# References:
+#   - Outpaint-and-Remove decomposition (arXiv 2511.20996): inpaint the
+#     background where the layer used to be, outpaint the layer's
+#     occluded portions so it stands alone.
+#   - Pix2gestalt amodal completion (arXiv 2312.15540): "draw what would
+#     be there if the closer layers were lifted away."
+#   - Gemini 2.5 Flash Image prompting guide: per-layer single-pass
+#     calls, exact #00FF00 chromakey instruction, negative anti-band-
+#     slicing instruction.
 
-LAYER_PROMPT_TEMPLATE = """\
-You are given an existing painterly gameplay concept image. Output the
-SAME image, same dimensions, same composition, same painterly style — but
-keep ONLY the {LAYER_NAME_UPPER} parallax layer's content, and replace
-EVERY OTHER pixel with pure chroma-green (#00FF00, RGB 0/255/0).
+# Two distinct prompt shapes. Far is the back wall — fully opaque RGB,
+# zero chroma-key, zero transparency, zero mention of green. Mid + near
+# are silhouette/foreground layers — they use #00FF00 fill outside layer
+# content so the keyer can convert that to alpha after.
 
-LAYER YOU ARE EXTRACTING ({LAYER_NAME_UPPER}):
+FAR_PROMPT_TEMPLATE = """\
+You are decomposing a 2D action-scroller concept painting into parallax
+layers. The concept is ONE painting where nearer layers occlude farther
+ones. Your job is amodal completion — repaint the FAR layer as a
+COMPLETE, FULLY-OPAQUE standalone landscape, as if the mid and near
+layers were lifted away and you could see the entire back wall in full.
+
+THE FAR LAYER IS THE BACK WALL:
+  - It fills the ENTIRE canvas, edge to edge, top to bottom.
+  - It is FULLY OPAQUE — solid painted color in every pixel.
+  - It has NO transparent regions. NO holes. NO chroma-key.
+  - There is no green of any kind in the output. No #00FF00, no
+    chroma-key fills, no marker colors. Output is ordinary RGB.
+
+LAYER DEFINITION (FAR) — defined by visual depth cues, NOT canvas position:
 {LAYER_DEFINITION}
 
-WHAT TO ERASE (replace with #00FF00):
+DOES NOT BELONG TO FAR (when you see it in the concept, INFER what is
+behind it and paint that — do NOT keep it in your output):
 {LAYER_EXCLUSIONS}
 
-UNIVERSAL EXCLUSIONS (always replace with #00FF00, never kept):
+UNIVERSAL EXCLUSIONS (when present, infer what is behind and paint that):
   - The PLAYER CHARACTER, hero, or any human/humanoid figure.
   - Any character armor, weapon, cape, sword, shield, or held item.
   - UI elements, text, labels, captions, watermarks.
-  - Any prop the player can pick up (potions, keys, coins).
+  - Any pickup (potions, keys, coins).
 
-CRITICAL RULES:
-  1. Do NOT redraw or reinterpret the kept content. Preserve the original
-     pixels of the {LAYER_NAME} layer as faithfully as possible — same
-     palette, same silhouettes, same brush strokes. We want a SURGICAL
-     CUT, not a re-imagining.
-  2. EVERY pixel that is NOT part of the {LAYER_NAME} layer must be
-     #00FF00 (pure green). The output will be chroma-keyed; non-green
-     pixels appear opaque in the final layer.
-  3. If the {LAYER_NAME} layer in the original is sparse, the output
-     should be MOSTLY green. A nearly-empty output with just the kept
-     band is correct.
-  4. Output the SAME ASPECT RATIO and approximately same resolution as
-     the input image.
+PRODUCTION TASK:
+  1. AMODAL COMPLETION: paint the far layer as one continuous landscape
+     that fills the canvas. Where mid/near content currently occludes
+     the far layer, INFER and PAINT the distant landscape that would be
+     visible without the occluder (continuing the sky, the horizon line,
+     and the distant mountain or treeline silhouettes through that
+     region). Match the original's palette, brush style, and lighting.
+  2. Output SAME dimensions and SAME aspect ratio as the input.
+  3. Match the input's painterly style exactly — same line weight, same
+     palette saturation curve, same brush feel.
 
-DEPTH ORDERING (top to bottom of canvas):
-  - FAR is the topmost band (sky / mountain silhouettes). Painterly,
-    desaturated, hazy. NEVER includes the player or foreground content.
-  - MID is the middle band (trees / structures at the player's depth
-    level). NEVER includes the sky above OR the immediate foreground
-    grass/rocks below.
-  - NEAR is the bottommost band (foreground grass tufts, ground rocks,
-    immediate detail). NEVER includes the trees in the middle distance.
+ANTI-PATTERNS (DO NOT DO):
+  - Do NOT produce a horizontal band-slice of the original canvas. Your
+    output must be a complete painting of the far layer, not "rows 0..N
+    of the original with rows N..bottom blanked out."
+  - Do NOT include mid or near content because it was painted at the
+    same height as the far layer in the original. Atmospheric perspective
+    and contrast — not Y position — decide what belongs.
+  - Do NOT leave any transparent regions or holes. The far layer is the
+    BACK WALL and must be completely painted edge to edge.
+  - Do NOT introduce any green pixels of any kind. No #00FF00, no chroma
+    key, no marker fills.
+  - Do NOT redraw or stylize. Preserve the original far-layer silhouettes
+    and palette where they are visible; infer plausible matching content
+    where they were occluded.
 
-The three layers are MUTUALLY EXCLUSIVE — every non-character pixel
-belongs to exactly one of them. When you extract one, the other two
-are erased.
+DEPTH CUES (only the FAR row applies to this output, but the others are
+listed so you know what to EXCLUDE):
+  - FAR layer: strong atmospheric perspective. Desaturated, blue-shifted,
+    low-contrast, hazy edges. Distance objects: sky, distant mountain or
+    cliff silhouettes, far horizon tree-line as a single hazy band. Would
+    scroll at 20–40% camera speed. THIS IS WHAT YOU PAINT.
+  - MID layer: mid-distance silhouettes. Mid-saturation, painterly, soft
+    contrast. Tree clumps and hill ridges with visible canopy mass but no
+    individual leaf detail. Would scroll at 40–70% camera speed. EXCLUDE.
+  - NEAR layer: foreground detail. Full saturation, sharp edges, highest
+    contrast, individual leaves / grass blades / pebbles visible. EXCLUDE.
+
+Output ONE fully-opaque RGB image, same dimensions as the input,
+painterly style matched, no transparency, no green.
+"""
+
+KEYED_PROMPT_TEMPLATE = """\
+You are decomposing a 2D action-scroller concept painting into parallax
+layers. The concept is ONE painting where nearer layers occlude farther
+ones; your job is amodal completion — repaint the {LAYER_NAME_UPPER} layer
+as a COMPLETE standalone image, as if the nearer layers were lifted away
+and you could see the {LAYER_NAME} layer in full. Do NOT band-slice the
+canvas. Do NOT leave holes inside the {LAYER_NAME} content. Do NOT keep
+nearer-layer content just because it falls inside this layer's typical
+canvas band.
+
+LAYER YOU ARE EXTRACTING ({LAYER_NAME_UPPER}) — defined by visual depth cues, NOT canvas position:
+{LAYER_DEFINITION}
+
+DOES NOT BELONG TO {LAYER_NAME_UPPER} (mark with the fill rule below):
+{LAYER_EXCLUSIONS}
+
+UNIVERSAL EXCLUSIONS (always remove, regardless of layer):
+  - The PLAYER CHARACTER, hero, or any human/humanoid figure.
+  - Any character armor, weapon, cape, sword, shield, or held item.
+  - UI elements, text, labels, captions, watermarks.
+  - Any pickup (potions, keys, coins).
+
+PRODUCTION TASK (read carefully):
+  1. AMODAL COMPLETION: paint the {LAYER_NAME} layer as one continuous
+     painting that fills the canvas where this layer's content belongs.
+     Where nearer-layer content currently occludes the {LAYER_NAME}
+     layer, INFER and PAINT what is behind. Match the original's palette,
+     brush style, and lighting. Do NOT introduce a new visual style.
+  2. FILL RULE for non-{LAYER_NAME} regions:
+{LAYER_FILL_RULE}
+  3. Output SAME dimensions and SAME aspect ratio as the input.
+  4. Match the input's painterly style exactly — same line weight, same
+     palette saturation curve, same brush feel.
+
+ANTI-PATTERNS (DO NOT DO):
+  - Do NOT produce a horizontal band-slice of the original canvas. Your
+    output must be a complete painting of the {LAYER_NAME} layer, not
+    "rows 0..N of the original with rows N..bottom replaced by green."
+  - Do NOT include nearer-layer content because it was painted at the
+    same height as this layer in the original. Depth cues — not Y
+    position — decide what belongs.
+  - Do NOT leave large green holes in the middle of {LAYER_NAME} content.
+    The layer is continuous; complete it. Green only fills the regions
+    that genuinely contain no {LAYER_NAME} content.
+  - Do NOT redraw or stylize. Preserve the original silhouettes and
+    palette where they are visible.
+
+DEPTH CUES (use these to decide what belongs to which layer):
+  - FAR layer: strong atmospheric perspective. Desaturated, blue-shifted,
+    low-contrast, hazy edges. Distance objects: sky, distant mountain or
+    cliff silhouettes, far horizon tree-line as a single hazy band. Would
+    scroll at 20–40% camera speed.
+  - MID layer: mid-distance silhouettes. Mid-saturation, painterly, soft
+    contrast. Tree clumps and hill ridges with visible canopy mass but no
+    individual leaf detail. Would scroll at 40–70% camera speed.
+  - NEAR layer: foreground detail. Full saturation, sharp edges, highest
+    contrast, individual leaves / grass blades / pebbles visible. The
+    plane the player walks on. Would scroll at 100% camera speed.
+
+Output ONE image, same dimensions as the input, painterly style matched.
 """
 
 LAYER_DEFINITIONS = {
     "far": (
-        "Sky, clouds, distant mountain or hill silhouettes, far-distance tree "
-        "lines / cityscape silhouettes that read as 'horizon haze'. Anything "
-        "blurry and desaturated. Top portion of the canvas only — typically "
-        "the upper third or upper half."
+        "The MOST DISTANT plane. Defined by atmospheric perspective: "
+        "desaturated, blue-shifted, low-contrast, hazy edges. Sky, distant "
+        "mountains, far horizon line, distant tree-line as a single low-"
+        "contrast band. The far layer is the BACK WALL — it fills the canvas "
+        "edge-to-edge. There is NO 'transparent' part of the far layer; "
+        "even sky is opaque painted color. If you see crisp edges or full "
+        "saturation, that pixel does NOT belong to far."
     ),
     "mid": (
-        "Middle-depth trees, bushes, structures — the band between the sky "
-        "and the player's walking ground. Full saturation, readable shape, "
-        "but NOT the closest detail. Vertically: the middle band of the "
-        "canvas, sitting on top of the foreground but in front of the sky."
+        "The MID-DISTANCE plane. Defined by mid-saturation painterly "
+        "silhouettes: tree clumps with visible canopy mass but no individual "
+        "leaves; hill ridges; mid-distance structures. Soft contrast, "
+        "atmospheric softening but less than far. NOT the back wall (do not "
+        "include sky); NOT foreground (do not include the immediate ground "
+        "the player walks on or individual leaves)."
     ),
     "near": (
-        "Foreground only — grass tufts, ground-level rocks, ferns, fallen "
-        "leaves, the very nearest tree trunks the player would walk past. "
-        "Bottommost band of the canvas. Highest detail, most saturated."
+        "The FOREGROUND plane. Defined by full saturation, sharp edges, "
+        "highest contrast, individual leaf / grass blade / pebble detail. "
+        "The plane the player walks on or in front of: ground texture, "
+        "foreground rocks, fern fronds, foreground tree trunk bases, "
+        "edge-of-water. NOT mid-distance silhouettes; NOT sky."
     ),
 }
 
 LAYER_EXCLUSIONS = {
     "far": (
-        "ERASE: any tree the player can walk past, any grass on the ground, "
-        "any rock or prop in the foreground, the player character, the dirt "
-        "path, near or middle-distance foliage. Keep only sky and the most "
-        "distant horizon silhouettes."
+        "Anything with sharp edges, full saturation, or fine detail — those "
+        "are mid or near. Specifically: foreground tree trunks, individual "
+        "leaves, ground texture, grass blades, foreground rocks, dirt path, "
+        "mid-distance tree clumps with visible canopy mass. If a tree shows "
+        "any leaf detail, it is NOT far."
     ),
     "mid": (
-        "ERASE: the sky / horizon above (that's the FAR layer), the "
-        "foreground grass / rocks / ferns below (that's the NEAR layer), "
-        "and the player character. Keep only middle-distance trees / bushes "
-        "and the band where they meet the ground."
+        "The sky and far horizon (atmospheric, hazy → that's far). The "
+        "immediate ground texture / individual leaves / foreground rocks "
+        "(crisp, saturated → that's near). Keep ONLY the mid-distance "
+        "silhouette band — tree clumps and hill ridges between the back "
+        "wall and the foreground."
     ),
     "near": (
-        "ERASE: the sky above, all middle-distance trees, distant horizon "
-        "content, AND the player character. Keep only the foreground grass "
-        "/ rocks / nearest details — the bottom band of the canvas."
+        "Sky, distant mountains, mid-distance tree clumps. Keep ONLY "
+        "the foreground plane content — ground texture, the immediate "
+        "leaves / rocks / tufts the player would walk through, the base "
+        "of any foreground tree trunk that is right at camera distance."
+    ),
+}
+
+# How to fill non-layer regions, per chroma-keyed layer. MID and NEAR
+# use #00FF00 so they can be chroma-keyed to alpha after. FAR is NOT in
+# this dict — far has its own dedicated FAR_PROMPT_TEMPLATE that does
+# not mention green/chroma/transparency anywhere.
+LAYER_FILL_RULES = {
+    "mid": (
+        "     Replace any region that is NOT mid-distance silhouette content\n"
+        "     with PURE #00FF00 (RGB 0,255,0). This includes the sky above\n"
+        "     the silhouette band AND the foreground area below it AND the\n"
+        "     gaps BETWEEN tree clumps. The keyer converts #00FF00 to alpha=0\n"
+        "     after this step, producing a transparent RGBA layer. No green\n"
+        "     gradients, no soft green halos, no faint green tint inside\n"
+        "     mid-distance content."
+    ),
+    "near": (
+        "     Replace any region that is NOT foreground content with PURE\n"
+        "     #00FF00 (RGB 0,255,0). The foreground content sits in the lower\n"
+        "     ~30-45% of the canvas; everything above is #00FF00. The keyer\n"
+        "     converts #00FF00 to alpha=0 after this step. No green gradients,\n"
+        "     no soft halos, no faint green tint inside foreground content."
     ),
 }
 
 
 def build_layer_extraction_prompt(layer_id: str) -> str:
-    return LAYER_PROMPT_TEMPLATE.format(
+    """Build the prompt for one layer.
+
+    `far` uses a dedicated template that contains NO mention of green,
+    chroma-key, or transparency — far is the back wall and must be a
+    fully-opaque RGB image. The script's caller (`extract_layer`) also
+    skips the chroma-key step for far so the output stays solid.
+
+    `mid` and `near` use the chroma-keyed template that fills non-layer
+    regions with #00FF00; the caller runs `chroma_green_to_alpha` on the
+    result to produce a transparent RGBA layer.
+    """
+    definition = LAYER_DEFINITIONS.get(
+        layer_id,
+        f"Custom layer '{layer_id}'. Use the scene's overall art "
+        "style to decide which pixels belong here.",
+    )
+    exclusions = LAYER_EXCLUSIONS.get(
+        layer_id,
+        "ERASE everything not part of the named layer.",
+    )
+    if layer_id == "far":
+        return FAR_PROMPT_TEMPLATE.format(
+            LAYER_DEFINITION=definition,
+            LAYER_EXCLUSIONS=exclusions,
+        )
+    return KEYED_PROMPT_TEMPLATE.format(
         LAYER_NAME=layer_id,
         LAYER_NAME_UPPER=layer_id.upper(),
-        LAYER_DEFINITION=LAYER_DEFINITIONS.get(
+        LAYER_DEFINITION=definition,
+        LAYER_FILL_RULE=LAYER_FILL_RULES.get(
             layer_id,
-            f"Custom layer '{layer_id}'. Use the scene's overall art "
-            "style to decide which pixels belong here.",
+            "     Replace any region that is NOT this layer's content with\n"
+            "     PURE #00FF00 (RGB 0,255,0). The keyer converts that to\n"
+            "     alpha=0.",
         ),
-        LAYER_EXCLUSIONS=LAYER_EXCLUSIONS.get(
-            layer_id,
-            "ERASE everything not part of the named layer.",
-        ),
+        LAYER_EXCLUSIONS=exclusions,
     )
 
 
@@ -320,7 +492,16 @@ def extract_one_layer(
     if raw.size != (target_w, target_h):
         raw = raw.resize((target_w, target_h), Image.LANCZOS)
 
-    keyed = stitch.chroma_green_to_alpha(raw)
+    # FAR is the back wall — fully opaque, no chroma-key. The prompt tells
+    # the model to paint a complete distant-landscape image with no green
+    # regions, so chroma-keying would punch holes in legitimate sky.
+    # MID + NEAR use #00FF00 outside layer content; key those to alpha.
+    if layer_id == "far":
+        keyed = raw
+        keyed_alpha_note = "fully opaque (no chroma-key applied)"
+    else:
+        keyed = stitch.chroma_green_to_alpha(raw)
+        keyed_alpha_note = "alpha-keyed"
 
     out_png = out_dir / f"bg-{layer_id}.png"
     out_prompt = out_dir / f"bg-{layer_id}.prompt.txt"
@@ -331,7 +512,7 @@ def extract_one_layer(
     out_seed.write_text(str(seed_used), encoding="utf-8")
     sys.stderr.write(
         f"  wrote {out_png.relative_to(project_root)} "
-        f"({keyed.size[0]}×{keyed.size[1]}, alpha-keyed, seed={seed_used})\n"
+        f"({keyed.size[0]}×{keyed.size[1]}, {keyed_alpha_note}, seed={seed_used})\n"
     )
     return out_png
 

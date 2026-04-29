@@ -1,0 +1,14 @@
+{
+  "sessionId": "2026-04-28T21-49-24-nibbpy",
+  "projectName": "game-assets-video",
+  "startTime": "2026-04-28T21:49:24.113Z",
+  "status": "running",
+  "config": {
+    "maxIterations": 500,
+    "maxAttemptsPerTask": 2
+  },
+  "environment": {
+    "nodeVersion": "v22.19.0",
+    "platform": "darwin"
+  }
+}

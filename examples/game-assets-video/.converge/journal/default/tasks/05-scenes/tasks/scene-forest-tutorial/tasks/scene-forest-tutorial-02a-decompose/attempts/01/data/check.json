@@ -1,0 +1,15 @@
+{
+  "taskId": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02a-decompose",
+  "checks": [
+    {
+      "id": "scene-plan-exists",
+      "description": "scene-plan.json was written",
+      "cmd": "test -s assets/scenes/forest-tutorial/scene-plan.json"
+    },
+    {
+      "id": "scene-plan-has-layers-and-tiles",
+      "description": "scene-plan has bg.layers (each with regions) and tilesheet.tiles",
+      "cmd": "python -c \"\nimport json\np = json.load(open('assets/scenes/forest-tutorial/scene-plan.json'))\nlayers = (p.get('bg') or {}).get('layers') or []\nassert layers, 'scene-plan.bg.layers empty'\nfor l in layers:\n    regs = l.get('regions') or []\n    assert regs, f'layer {l.get(\\\"id\\\")!r} has no regions'\ntiles = (p.get('tilesheet') or {}).get('tiles') or []\nassert tiles, 'scene-plan.tilesheet.tiles empty'\n\"\n"
+    }
+  ]
+}

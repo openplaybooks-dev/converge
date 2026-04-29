@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "00-classify-game",
+  "status": "complete",
+  "lastUpdated": "2026-04-28T13:03:30.042Z",
+  "createdAt": "2026-04-28T13:02:28.369Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-28T13:02:28.369Z",
+      "completedAt": "2026-04-28T13:03:30.017Z",
+      "outcome": "success",
+      "durationMs": 61648
+    }
+  ],
+  "currentAttempt": 1
+}

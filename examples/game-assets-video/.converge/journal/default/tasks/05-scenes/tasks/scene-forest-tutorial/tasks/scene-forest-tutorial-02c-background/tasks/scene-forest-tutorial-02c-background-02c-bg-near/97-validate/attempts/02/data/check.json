@@ -1,0 +1,15 @@
+{
+  "taskId": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02c-background/scene-forest-tutorial-02c-background-02c-bg-near/97-validate",
+  "checks": [
+    {
+      "id": "bg-near-critique-written",
+      "description": "critique JSON was written",
+      "cmd": "test -s assets/scenes/forest-tutorial/bg-near.critique.json"
+    },
+    {
+      "id": "bg-near-validator-no-high-severity",
+      "description": "no segment was flagged with severity=high (low-severity issues are accepted)",
+      "cmd": "python -c \"\nimport json\nc = json.load(open('assets/scenes/forest-tutorial/bg-near.critique.json'))\nsegs = c.get('segments') or []\nhigh = [s for s in segs if s.get('decision') == 'fix' and s.get('severity') == 'high']\nif high:\n    tags = [(s.get('index'), s.get('issues')) for s in high]\n    raise AssertionError(f'{len(high)} segment(s) flagged with severity=high: {tags}')\n\"\n"
+    }
+  ]
+}

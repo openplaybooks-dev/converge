@@ -1,0 +1,24 @@
+{
+  "attemptNumber": 1,
+  "startedAt": "2026-04-28T13:48:26.705Z",
+  "projectDir": "/Users/minh/Documents/converge/examples/game-assets-video",
+  "playbookName": "default",
+  "parentTaskDir": ".converge/playbooks/default/tasks/06-export",
+  "journalCtx": {
+    "epicId": "default",
+    "taskId": "06-export"
+  },
+  "taskMeta": {
+    "id": "06-export",
+    "title": "Master Atlas Export"
+  },
+  "vars": {},
+  "ctxMethods": [
+    "log",
+    "ai.ask",
+    "plan.getPlanPath",
+    "artifact",
+    "spawn",
+    "spawnGoal"
+  ]
+}

@@ -38,56 +38,8 @@
       },
       "result": {
         "action": "continue",
-        "gaps": [
-          {
-            "id": "02-asset-breakdown-missing-output-.converge/asset-breakdown.json",
-            "type": "incomplete",
-            "level": "task",
-            "scope": "02-asset-breakdown",
-            "severity": "high",
-            "description": "[02-asset-breakdown] Task output not created: .converge/asset-breakdown.json",
-            "source": "unit",
-            "detected": "2026-04-27T16:14:19.688Z",
-            "resolved": false,
-            "checks": [],
-            "metadata": {
-              "gapKind": "output",
-              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/02-asset-breakdown",
-              "taskId": "02-asset-breakdown",
-              "taskTitle": "Asset Breakdown",
-              "taskPrompt": "# Asset Breakdown\n\nGenerate a comprehensive breakdown of all assets that will be generated across all asset types.\n\n## Task\n\nRun the asset breakdown script to analyze all asset definitions:\n\n```bash\npython3 scripts/generate_asset_breakdown.py\n```\n\n## Output\n\nGenerates `.converge/asset-breakdown.json` containing:\n\n**Summary:**\n- Total characters\n- Total angle references\n- Total pose variations\n- Total sprite sheets\n- Total frames\n- Estimated generation time\n\n**Per-Character Details:**\n- Spec document path\n- 4 angle references (front, side_left, side_right, back)\n- 3 pose variations (attack, defend, jump)\n- N sprite sheets with frame counts\n- Atlas JSON paths\n\n## Example Output\n\n```json\n{\n  \"summary\": {\n    \"total_characters\": 3,\n    \"total_angle_refs\": 12,\n    \"total_pose_refs\": 9,\n    \"total_sprite_sheets\": 6,\n    \"total_frames\": 24,\n    \"estimated_time_minutes\": 19\n  },\n  \"characters\": [\n    {\n      \"id\": \"hero-knight\",\n      \"name\": \"Sir Aldric\",\n      \"outputs\": {\n        \"spec\": \"assets/characters/hero-knight/SPEC.md\",\n        \"angles\": [\"front.png\", \"side_left.png\", \"side_right.png\", \"back.png\"],\n        \"poses\": [\"attack.png\", \"defend.png\", \"jump.png\"],\n        \"states\": {\n          \"idle\": {\n            \"frames\": 4,\n            \"sheet\": \"assets/characters/hero-knight/states/idle/idle.png\",\n            \"atlas\": \"assets/characters/hero-knight/states/idle/atlas.json\"\n          }\n        }\n      },\n      \"counts\": {\n        \"angle_refs\": 4,\n        \"pose_refs\": 3,\n        \"sprite_sheets\": 2,\n        \"total_frames\": 8\n      }\n    }\n  ]\n}\n```\n\n## Verification\n\n- Breakdown file exists at `.converge/asset-breakdown.json`\n- Summary contains accurate counts\n- All characters from sprites.json are included\n- Output paths are correct\n\n## Usage\n\nReview the breakdown to understand:\n- What assets will be generated\n- How many tasks will be spawned\n- Estimated time for generation\n- Complete inventory of outputs",
-              "taskInputs": [],
-              "factId": "file-exists:test -f \".converge/asset-breakdown.json\"",
-              "awaitingUserInput": false
-            }
-          },
-          {
-            "id": "02-asset-breakdown-check-failed-breakdown-exists",
-            "type": "incomplete",
-            "level": "task",
-            "scope": "02-asset-breakdown",
-            "severity": "high",
-            "description": "[02-asset-breakdown] Check failed: Asset breakdown generated",
-            "source": "unit",
-            "detected": "2026-04-27T16:14:19.691Z",
-            "resolved": false,
-            "checks": [],
-            "metadata": {
-              "gapKind": "check-failed",
-              "checkId": "breakdown-exists",
-              "checkCmd": "test -s .converge/asset-breakdown.json",
-              "checkDescription": "Asset breakdown generated",
-              "checkOutput": "",
-              "checkExitCode": 1,
-              "taskPrompt": "# Asset Breakdown\n\nGenerate a comprehensive breakdown of all assets that will be generated across all asset types.\n\n## Task\n\nRun the asset breakdown script to analyze all asset definitions:\n\n```bash\npython3 scripts/generate_asset_breakdown.py\n```\n\n## Output\n\nGenerates `.converge/asset-breakdown.json` containing:\n\n**Summary:**\n- Total characters\n- Total angle references\n- Total pose variations\n- Total sprite sheets\n- Total frames\n- Estimated generation time\n\n**Per-Character Details:**\n- Spec document path\n- 4 angle references (front, side_left, side_right, back)\n- 3 pose variations (attack, defend, jump)\n- N sprite sheets with frame counts\n- Atlas JSON paths\n\n## Example Output\n\n```json\n{\n  \"summary\": {\n    \"total_characters\": 3,\n    \"total_angle_refs\": 12,\n    \"total_pose_refs\": 9,\n    \"total_sprite_sheets\": 6,\n    \"total_frames\": 24,\n    \"estimated_time_minutes\": 19\n  },\n  \"characters\": [\n    {\n      \"id\": \"hero-knight\",\n      \"name\": \"Sir Aldric\",\n      \"outputs\": {\n        \"spec\": \"assets/characters/hero-knight/SPEC.md\",\n        \"angles\": [\"front.png\", \"side_left.png\", \"side_right.png\", \"back.png\"],\n        \"poses\": [\"attack.png\", \"defend.png\", \"jump.png\"],\n        \"states\": {\n          \"idle\": {\n            \"frames\": 4,\n            \"sheet\": \"assets/characters/hero-knight/states/idle/idle.png\",\n            \"atlas\": \"assets/characters/hero-knight/states/idle/atlas.json\"\n          }\n        }\n      },\n      \"counts\": {\n        \"angle_refs\": 4,\n        \"pose_refs\": 3,\n        \"sprite_sheets\": 2,\n        \"total_frames\": 8\n      }\n    }\n  ]\n}\n```\n\n## Verification\n\n- Breakdown file exists at `.converge/asset-breakdown.json`\n- Summary contains accurate counts\n- All characters from sprites.json are included\n- Output paths are correct\n\n## Usage\n\nReview the breakdown to understand:\n- What assets will be generated\n- How many tasks will be spawned\n- Estimated time for generation\n- Complete inventory of outputs",
-              "taskId": "02-asset-breakdown",
-              "taskTitle": "Asset Breakdown",
-              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/02-asset-breakdown",
-              "factId": "check:breakdown-exists"
-            }
-          }
-        ],
-        "durationMs": 7
+        "gaps": [],
+        "durationMs": 69
       }
     },
     {
@@ -99,80 +51,6 @@
         "priority": 97,
         "applicable": "noGapsAndExecuted"
       }
-    },
-    {
-      "id": "run-executor",
-      "handler": "run-executor",
-      "status": "done",
-      "origin": "initial",
-      "data": {
-        "priority": 65
-      },
-      "result": {
-        "action": "continue",
-        "durationMs": 1
-      }
-    },
-    {
-      "id": "repair-loop",
-      "handler": "repair-loop",
-      "status": "done",
-      "origin": "initial",
-      "data": {
-        "priority": 55
-      },
-      "result": {
-        "action": "continue",
-        "durationMs": 4
-      }
-    },
-    {
-      "id": "verify",
-      "handler": "verify",
-      "status": "done",
-      "origin": "initial",
-      "data": {
-        "priority": 50
-      },
-      "result": {
-        "action": "done",
-        "success": true,
-        "reason": "All gaps resolved",
-        "gaps": [],
-        "durationMs": 60
-      }
-    },
-    {
-      "id": "check-stall",
-      "handler": "check-stall",
-      "status": "buffered",
-      "origin": "initial",
-      "data": {
-        "priority": 45
-      }
-    },
-    {
-      "id": "advance-attempt",
-      "handler": "advance-attempt",
-      "status": "buffered",
-      "origin": "initial",
-      "data": {
-        "priority": 40
-      }
-    },
-    {
-      "id": "run-strategy:task-run#2",
-      "handler": "run-strategy",
-      "status": "done",
-      "origin": "planned",
-      "data": {
-        "strategy": "task-run",
-        "priority": 55
-      },
-      "result": {
-        "action": "continue",
-        "durationMs": 20470
-      }
     }
   ],
   "edges": [
@@ -180,43 +58,19 @@
       "from": "_start",
       "to": "check-wbs-seeded",
       "iteration": 1,
-      "ts": "2026-04-27T16:14:19.683Z"
+      "ts": "2026-04-28T13:07:27.193Z"
     },
     {
       "from": "check-wbs-seeded",
       "to": "check-outputs-exist",
       "iteration": 1,
-      "ts": "2026-04-27T16:14:19.683Z"
+      "ts": "2026-04-28T13:07:27.193Z"
     },
     {
       "from": "check-outputs-exist",
       "to": "detect-gaps",
       "iteration": 1,
-      "ts": "2026-04-27T16:14:19.691Z"
-    },
-    {
-      "from": "detect-gaps",
-      "to": "run-executor",
-      "iteration": 1,
-      "ts": "2026-04-27T16:14:19.692Z"
-    },
-    {
-      "from": "run-executor",
-      "to": "repair-loop",
-      "iteration": 1,
-      "ts": "2026-04-27T16:14:19.696Z"
-    },
-    {
-      "from": "repair-loop",
-      "to": "run-strategy:task-run#2",
-      "iteration": 1,
-      "ts": "2026-04-27T16:14:40.166Z"
-    },
-    {
-      "from": "run-strategy:task-run#2",
-      "to": "verify",
-      "iteration": 1,
-      "ts": "2026-04-27T16:14:40.227Z"
+      "ts": "2026-04-28T13:07:27.262Z"
     }
   ]
 }

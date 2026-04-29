@@ -1,7 +1,7 @@
 ---
 id: health-potion-01-spec
-title: Validate Health Potion prop specification
-description: "Red flask with sparkle particles, restores health when collected."
+title: Validate Red Flask With Sparkle Particles prop specification
+description: Red flask with sparkle particles
 tags:
   - prop
   - spec
@@ -14,23 +14,23 @@ checks:
     cmd: test -s assets/objects/health-potion/SPEC.md
 vars:
   obj_id: health-potion
-  obj_name: Health Potion
-  obj_description: "Red flask with sparkle particles, restores health when collected."
+  obj_name: Red Flask With Sparkle Particles
+  obj_description: Red flask with sparkle particles
   obj_category: item
-  states: "[\"idle\",\"collect\"]"
+  states: "[\"idle\"]"
 ---
 
-# Validate Health Potion Specification
+# Validate Red Flask With Sparkle Particles Specification
 
 Ensure the prop / hazard / interactive specification is complete and ready for generation.
 
 ## Prop Details
 
 - **ID**: health-potion
-- **Name**: Health Potion
+- **Name**: Red Flask With Sparkle Particles
 - **Category**: item
-- **Description**: Red flask with sparkle particles, restores health when collected.
-- **States**: ["idle","collect"]
+- **Description**: Red flask with sparkle particles
+- **States**: ["idle"]
 
 ## Task
 

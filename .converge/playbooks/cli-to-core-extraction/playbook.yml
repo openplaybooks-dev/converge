@@ -1,0 +1,49 @@
+name: cli-to-core-extraction
+description: Extract orchestration logic from packages/cli into packages/core so @converge/core exposes a programmatic API (runAutonomous, runPlaybook). 4 sub-tiers; ~4k lines moved; CLI becomes a thin UI layer.
+
+run:
+  mode: oneoff
+  maxIterations: 80
+  maxTaskAttempts: 3
+  maxDuration: 4h
+  resume: true
+  stall:
+    maxConsecutive: 3
+    backoffMs: 30000
+
+checks:
+  - id: core-typecheck
+    cmd: "cd packages/core && pnpm typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    description: Zero TypeScript errors in @converge/core
+
+  - id: cli-typecheck
+    cmd: "cd packages/cli && pnpm typecheck 2>&1 | grep -c 'error TS' | xargs test 0 -eq"
+    description: Zero TypeScript errors in @converge/cli
+
+  - id: cli-builds
+    cmd: "pnpm -F @converge/cli build 2>&1 | tail -5"
+    description: CLI compiles against the new core surface
+
+  - id: cli-smoke
+    cmd: "node packages/cli/dist/index.js --help >/dev/null 2>&1"
+    description: converge --help runs without error
+
+  - id: core-no-console
+    cmd: "test -z \"$(find packages/core/src/runner packages/core/src/planning packages/core/src/locks packages/core/src/checkpoint/reconcile.ts -type f 2>/dev/null | xargs grep -l 'console\\.' 2>/dev/null)\""
+    description: Moved orchestration code in core never calls console.* (logger contract)
+
+  - id: core-no-process-exit
+    cmd: "test -z \"$(find packages/core/src/runner packages/core/src/planning packages/core/src/locks packages/core/src/checkpoint/reconcile.ts -type f 2>/dev/null | xargs grep -l 'process\\.exit' 2>/dev/null)\""
+    description: Moved orchestration code in core never calls process.exit (returns/throws instead)
+
+  - id: core-no-chalk
+    cmd: "test -z \"$(find packages/core/src/runner packages/core/src/planning packages/core/src/locks packages/core/src/checkpoint/reconcile.ts -type f 2>/dev/null | xargs grep -l 'chalk' 2>/dev/null)\""
+    description: Moved orchestration code in core has no chalk/ANSI dependency
+
+  - id: core-no-global-back-channels
+    cmd: "test -z \"$(grep -rln '__CONVERGE_LAST_BAIL__\\|__CONVERGE_CURRENT_TASK__' packages/core/src 2>/dev/null)\""
+    description: No (global as any).__CONVERGE_*__ back-channels in core
+
+  - id: cli-does-not-own-runner
+    cmd: "! test -f packages/cli/src/autonomous-run.ts && ! test -f packages/cli/src/next-task.ts && ! test -f packages/cli/src/reconcile.ts && ! test -f packages/cli/src/playbook-lock.ts"
+    description: CLI no longer owns the orchestration loop, task selection, reconciliation, or playbook lock

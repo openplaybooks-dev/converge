@@ -87,18 +87,109 @@ function sanitizeCheckCmd(cmd: string): string {
 }
 
 /**
+ * Strip YAML frontmatter from an agent definition file. Returns the
+ * markdown body (the system prompt), trimmed.
+ */
+function stripFrontmatter(raw: string): string {
+  const m = raw.match(/^---\n[\s\S]*?\n---\n?([\s\S]*)$/);
+  return (m ? m[1] : raw).trim();
+}
+
+/**
+ * Read a custom agent's system prompt from `.converge/agents/<name>.md`.
+ *
+ * Mirrors Claude Code's `.claude/agents/` convention: the file is a
+ * Markdown document with optional YAML frontmatter; the body is the
+ * system prompt. When a TASK.md declares `agent: <name>` and a matching
+ * file exists, the body is prepended to the task's own prompt at attempt
+ * time so the agent's standing instructions are honored.
+ *
+ * Lets playbooks centralize cross-task discipline (e.g. "you are a
+ * paid-API operator, do not hand-roll output") in a single file instead
+ * of duplicating the same preamble in every TASK.md.
+ *
+ * Lookup order:
+ *   1. <projectDir>/.converge/agents/<name>.md       (project scope)
+ *   2. <projectDir>/.converge/agents/<name>/AGENT.md (project scope, dir form)
+ *
+ * Returns undefined when no file matches; callers fall back to the
+ * task's own prompt.
+ */
+async function resolveAgentSystemPrompt(
+  unit: Unit,
+  agentName: string,
+): Promise<string | undefined> {
+  if (!agentName || typeof agentName !== "string") return undefined;
+  try {
+    const { readFile } = await import("node:fs/promises");
+    const { existsSync } = await import("node:fs");
+    const pathMod = await import("node:path");
+    let dir = unit.path ? pathMod.dirname(unit.path) : "";
+    let projectDir: string | null = null;
+    while (dir) {
+      if (existsSync(pathMod.join(dir, ".converge"))) {
+        projectDir = dir;
+        break;
+      }
+      const parent = pathMod.dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
+    }
+    if (!projectDir) return undefined;
+    const safe = agentName.replace(/[^a-zA-Z0-9_\-]/g, "");
+    const candidates = [
+      pathMod.join(projectDir, ".converge", "agents", `${safe}.md`),
+      pathMod.join(projectDir, ".converge", "agents", safe, "AGENT.md"),
+    ];
+    for (const c of candidates) {
+      if (existsSync(c)) {
+        const raw = await readFile(c, "utf-8");
+        return stripFrontmatter(raw);
+      }
+    }
+  } catch {
+    /* best-effort */
+  }
+  return undefined;
+}
+
+/**
  * Resolve prompt (supports callbacks and backward compat).
+ *
+ * When the unit declares `agent: <name>` in frontmatter or vars and a
+ * matching `.converge/agents/<name>.md` file exists, the agent's system
+ * prompt body is prepended to the resolved prompt. This mirrors Claude
+ * Code's `.claude/agents/` subagent convention.
+ *
+ * The existing semantics of `unit.agent` (naming the runtime agent type
+ * for navigator dispatch) are preserved — file-backed standing
+ * instructions are an additive layer on top.
  */
 export async function resolvePrompt(unit: Unit): Promise<string | undefined> {
+  let basePrompt: string | undefined;
   if (unit.prompt) {
     if (typeof unit.prompt === "function") {
       const ctx = createTaskContext(unit);
-      return await unit.prompt(ctx);
+      basePrompt = await unit.prompt(ctx);
+    } else {
+      basePrompt = unit.prompt;
     }
-    return unit.prompt;
+  } else {
+    // Backward compat: fall back to vars.prompt
+    basePrompt = unit.vars?.prompt as string | undefined;
   }
-  // Backward compat: fall back to vars.prompt
-  return unit.vars?.prompt as string | undefined;
+
+  const agentName =
+    unit.agent ?? (unit.vars?.agent as string | undefined);
+  if (agentName) {
+    const preamble = await resolveAgentSystemPrompt(unit, agentName);
+    if (preamble) {
+      return basePrompt
+        ? `${preamble}\n\n---\n\n${basePrompt}`
+        : preamble;
+    }
+  }
+  return basePrompt;
 }
 
 /**

@@ -1,0 +1,9 @@
+{
+  "taskId": "03-shared-props/ui-key-slot-01-spec",
+  "attemptNumber": 1,
+  "inputs": [],
+  "outputs": [
+    "assets/objects/ui-key-slot/SPEC.md"
+  ],
+  "blocked": false
+}

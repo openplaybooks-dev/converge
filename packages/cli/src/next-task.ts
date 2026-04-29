@@ -1094,6 +1094,42 @@ export async function getTaskStates(
           console.log(
             `  ↻ Auto-completed parent: ${parentJournalTaskId} (${currentCompletedSubtasks}/${spawnCount} children done)`,
           );
+          try {
+            const { emitRunEvent } = await import("./run-event-stream.ts");
+            emitRunEvent("parent.auto-complete", {
+              taskId: parentJournalTaskId,
+              childCount: spawnCount,
+            });
+          } catch {
+            /* event stream is best-effort */
+          }
+
+          // Fire cohort:complete so cross-cutting validators can run after
+          // a group of related tasks finishes. Pass child IDs + intersection
+          // of tags so a hook can opt in to specific cohorts (e.g. only
+          // segment cohorts under a layer parent, only tile cohorts, etc.).
+          try {
+            const childIds = children.map((c) => c.journalTaskId);
+            // Compute shared tags = intersection of every child's tag set.
+            let shared: Set<string> | null = null;
+            for (const c of children) {
+              const tags = new Set<string>(c.tags ?? []);
+              if (shared === null) shared = tags;
+              else for (const t of [...shared]) if (!tags.has(t)) shared.delete(t);
+            }
+            const sharedTags = shared ? [...shared] : [];
+            const { globalHookRegistry } = await import(
+              "@converge/core/hooks/registry.ts"
+            );
+            await globalHookRegistry.fire("cohort:complete", {
+              parentJournalTaskId,
+              epicId,
+              childJournalTaskIds: childIds,
+              sharedTags,
+            });
+          } catch {
+            /* hooks are best-effort — don't block the auto-complete */
+          }
 
           // Persist to global checkpoint
           pendingWrites.push(
@@ -1705,7 +1741,65 @@ export async function findNextTask(
     completed.has(n.journalTaskId),
   ).length;
 
-  const next = tree.find((n) => !isDone(n));
+  // ── Pre-flight dependency-graph check ────────────────────────────
+  // For every task, if it declares `inputs:`, we must not dispatch it
+  // until each input either exists on disk OR its producer is complete.
+  // Index outputs → producer journalTaskId so we can resolve a missing
+  // file to "the task that's supposed to write it".
+  const { existsSync: fileExists } = await import("node:fs");
+  const { join: joinPath } = await import("node:path");
+  const { glob: globAsync } = await import("glob");
+  const producerIndex = new Map<string, string>(); // declared output → producer journalTaskId
+  for (const n of tree) {
+    if (!Array.isArray(n.outputs)) continue;
+    for (const out of n.outputs) {
+      if (typeof out !== "string") continue;
+      if (!producerIndex.has(out)) producerIndex.set(out, n.journalTaskId);
+    }
+  }
+
+  const hasGlobChars = (p: string) => /[*?{}]/.test(p);
+  const inputResolved = async (input: string): Promise<boolean> => {
+    if (hasGlobChars(input)) {
+      try {
+        const matches = await globAsync(input, { cwd: projectDir });
+        return matches.length > 0;
+      } catch {
+        return false;
+      }
+    }
+    return fileExists(joinPath(projectDir, input));
+  };
+  const inputsSatisfied = async (n: TaskNode): Promise<boolean> => {
+    if (!Array.isArray(n.inputs) || n.inputs.length === 0) return true;
+    for (const input of n.inputs) {
+      if (typeof input !== "string") continue;
+      if (await inputResolved(input)) continue;
+      const producer = producerIndex.get(input);
+      // No producer + missing on disk = fundamentally unmet input.
+      // The runner's gap detector still reports it; the scheduler just
+      // skips this task in favor of one whose inputs are ready.
+      if (!producer) return false;
+      if (!completed.has(producer)) return false;
+    }
+    return true;
+  };
+
+  // First-pass: pick the first task that is not done AND has all
+  // inputs satisfied. Falls back to the original "first not done"
+  // behavior so a task with truly unmet inputs (no producer anywhere)
+  // still gets scheduled — the existing gap pipeline handles those.
+  let next: TaskNode | undefined;
+  for (const n of tree) {
+    if (isDone(n)) continue;
+    if (await inputsSatisfied(n)) {
+      next = n;
+      break;
+    }
+  }
+  if (!next) {
+    next = tree.find((n) => !isDone(n));
+  }
   if (!next) return null;
 
   return {

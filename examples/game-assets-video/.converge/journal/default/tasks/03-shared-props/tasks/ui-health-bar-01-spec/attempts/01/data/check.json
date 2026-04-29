@@ -1,0 +1,10 @@
+{
+  "taskId": "03-shared-props/ui-health-bar-01-spec",
+  "checks": [
+    {
+      "id": "spec-exists",
+      "description": "Prop SPEC.md exists",
+      "cmd": "test -s assets/objects/ui-health-bar/SPEC.md"
+    }
+  ]
+}

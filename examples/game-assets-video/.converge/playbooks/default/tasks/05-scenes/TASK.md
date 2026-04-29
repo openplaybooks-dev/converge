@@ -6,6 +6,8 @@ wbs:
   path: ./wbs/index.js
 dependencies:
   - "04-registry-build"
+inputs:
+  - "assets/scenes.json"
 tags:
   - scenes
   - generation

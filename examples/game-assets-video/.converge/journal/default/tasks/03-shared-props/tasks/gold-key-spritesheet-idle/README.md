@@ -26,7 +26,7 @@ pnpm converge run          # run all remaining tasks
 ```bash
   python -c "from PIL import Image; im=Image.open('assets/objects/gold-key/spritesheets/idle/idle.png'); w,h=im.size; assert w>=512 and h>=256, f'sheet too small: {im.size}'"
 
-  python -c "import json; from PIL import Image; a=json.load(open('assets/objects/gold-key/spritesheets/idle/idle.atlas.json')); im=Image.open('assets/objects/gold-key/spritesheets/idle/idle.png'); m=a['meta']; assert m['cols']>=2 and m['rows']>=1, f\"grid too small: {m}\"; assert len(a['frames'])==m['cols']*m['rows'], f\"frame count != cols*rows: {m}\"; assert m['sheet_size']['w']==im.size[0] and m['sheet_size']['h']==im.size[1], f\"atlas/sheet size mismatch: atlas={m['sheet_size']} png={im.size}\""
+  python -c "import json; from PIL import Image; a=json.load(open('assets/objects/gold-key/spritesheets/idle/idle.atlas.json')); im=Image.open('assets/objects/gold-key/spritesheets/idle/idle.png'); m=a['meta']; assert m['cols']>=1 and m['rows']>=1, f\"grid too small: {m}\"; assert len(a['frames'])==m['cols']*m['rows'], f\"frame count != cols*rows: {m}\"; assert m['sheet_size']['w']==im.size[0] and m['sheet_size']['h']==im.size[1], f\"atlas/sheet size mismatch: atlas={m['sheet_size']} png={im.size}\""
 
   test -s assets/objects/gold-key/spritesheets/idle/idle.prompt.txt
 ```

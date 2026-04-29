@@ -2,7 +2,7 @@
 
 ## Description
 
-Ornate golden key with gem inset, unlocks treasure chests.
+Ornate golden key with gem inset
 
 ## Expected Outputs
 

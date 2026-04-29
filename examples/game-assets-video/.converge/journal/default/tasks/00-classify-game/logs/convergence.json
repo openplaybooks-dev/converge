@@ -1,0 +1,269 @@
+{
+  "iteration": 1,
+  "stallCount": 0,
+  "nodes": [
+    {
+      "id": "check-wbs-seeded",
+      "handler": "check-wbs-seeded",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 100
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "check-outputs-exist",
+      "handler": "check-outputs-exist",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 99
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 0
+      }
+    },
+    {
+      "id": "detect-gaps",
+      "handler": "detect-gaps",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 98
+      },
+      "result": {
+        "action": "continue",
+        "gaps": [
+          {
+            "id": "00-classify-game-missing-output-assets/game.json",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "00-classify-game",
+            "severity": "high",
+            "description": "[00-classify-game] Task output not created: assets/game.json",
+            "source": "unit",
+            "detected": "2026-04-28T13:02:28.385Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/00-classify-game",
+              "taskId": "00-classify-game",
+              "taskTitle": "Classify Game Type",
+              "taskPrompt": "# 00-classify-game — Game-type manifest\n\nThe **first** task in the playbook. Every subsequent task reads `assets/game.json` to decide:\n\n- which asset categories to produce vs skip\n- which tilemap variant template to use (platform-shelves vs continuous-ground vs 8-direction-rpg)\n- how many parallax bg layers, if any\n- whether the inspect viewer should render floating platforms or a continuous ground\n\nWithout this manifest the playbook would have to assume a \"platformer\" template, which produces wrong assets for top-down RPGs, side-scrolling action games, shmups, etc.\n\n## How it works\n\n```bash\npython3 scripts/classify_game_type.py\n```\n\n1. Reads `idea.md` (mandatory) and `assets/visual-target.png` (optional, used as additional context if it already exists from a prior run).\n2. Calls Gemini text-out asking the model to classify the game into one of the supported types and emit a JSON block with `game_type`, `confidence`, `reasoning`, `art_style_keywords`, `anti_keywords`, `movement`.\n3. Loads the matching template from `.converge/playbooks/default/game-types/<type>.json`.\n4. Merges the AI's project-specific fields into the template.\n5. Writes `assets/game.json` (machine-readable manifest) and `assets/game.notes.md` (human-readable summary).\n\n## Supported game types\n\n- `platformer` — side view, jumping between platforms, vertical exploration\n- `side-scrolling-action` — side view, continuous flat ground, combat-focused (no jumping)\n- `top-down-rpg` — top-down camera, 8-directional movement, tile-based, NO parallax\n- `top-down-shooter` — top-down arena combat with walls and cover\n- `vertical-shooter` — vertical auto-scroll shmup\n\n## Override / opt out\n\nIf you want to skip the classifier and hand-author `assets/game.json` directly, just write the file before this task runs. The script bails early if `assets/game.json` already exists; pass `--force` to re-classify. Editing `assets/game.json` after this task ran always wins — every downstream task re-reads it.\n\n## Cost\n\n- 1 text-out call (~5¢ on Gemini)\n\n## Outputs\n\n- `assets/game.json` — machine-readable, drives downstream tasks\n- `assets/game.notes.md` — human-readable summary with reasoning + keywords\n- `assets/game.classifier.raw.txt` — raw model response (debug sidecar)",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"assets/game.json\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "00-classify-game-missing-output-assets/game.notes.md",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "00-classify-game",
+            "severity": "high",
+            "description": "[00-classify-game] Task output not created: assets/game.notes.md",
+            "source": "unit",
+            "detected": "2026-04-28T13:02:28.388Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/00-classify-game",
+              "taskId": "00-classify-game",
+              "taskTitle": "Classify Game Type",
+              "taskPrompt": "# 00-classify-game — Game-type manifest\n\nThe **first** task in the playbook. Every subsequent task reads `assets/game.json` to decide:\n\n- which asset categories to produce vs skip\n- which tilemap variant template to use (platform-shelves vs continuous-ground vs 8-direction-rpg)\n- how many parallax bg layers, if any\n- whether the inspect viewer should render floating platforms or a continuous ground\n\nWithout this manifest the playbook would have to assume a \"platformer\" template, which produces wrong assets for top-down RPGs, side-scrolling action games, shmups, etc.\n\n## How it works\n\n```bash\npython3 scripts/classify_game_type.py\n```\n\n1. Reads `idea.md` (mandatory) and `assets/visual-target.png` (optional, used as additional context if it already exists from a prior run).\n2. Calls Gemini text-out asking the model to classify the game into one of the supported types and emit a JSON block with `game_type`, `confidence`, `reasoning`, `art_style_keywords`, `anti_keywords`, `movement`.\n3. Loads the matching template from `.converge/playbooks/default/game-types/<type>.json`.\n4. Merges the AI's project-specific fields into the template.\n5. Writes `assets/game.json` (machine-readable manifest) and `assets/game.notes.md` (human-readable summary).\n\n## Supported game types\n\n- `platformer` — side view, jumping between platforms, vertical exploration\n- `side-scrolling-action` — side view, continuous flat ground, combat-focused (no jumping)\n- `top-down-rpg` — top-down camera, 8-directional movement, tile-based, NO parallax\n- `top-down-shooter` — top-down arena combat with walls and cover\n- `vertical-shooter` — vertical auto-scroll shmup\n\n## Override / opt out\n\nIf you want to skip the classifier and hand-author `assets/game.json` directly, just write the file before this task runs. The script bails early if `assets/game.json` already exists; pass `--force` to re-classify. Editing `assets/game.json` after this task ran always wins — every downstream task re-reads it.\n\n## Cost\n\n- 1 text-out call (~5¢ on Gemini)\n\n## Outputs\n\n- `assets/game.json` — machine-readable, drives downstream tasks\n- `assets/game.notes.md` — human-readable summary with reasoning + keywords\n- `assets/game.classifier.raw.txt` — raw model response (debug sidecar)",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \"assets/game.notes.md\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "00-classify-game-check-failed-game-json-exists",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "00-classify-game",
+            "severity": "high",
+            "description": "[00-classify-game] Check failed: assets/game.json was written",
+            "source": "unit",
+            "detected": "2026-04-28T13:02:28.390Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "game-json-exists",
+              "checkCmd": "test -s assets/game.json",
+              "checkDescription": "assets/game.json was written",
+              "checkOutput": "",
+              "checkExitCode": 1,
+              "taskPrompt": "# 00-classify-game — Game-type manifest\n\nThe **first** task in the playbook. Every subsequent task reads `assets/game.json` to decide:\n\n- which asset categories to produce vs skip\n- which tilemap variant template to use (platform-shelves vs continuous-ground vs 8-direction-rpg)\n- how many parallax bg layers, if any\n- whether the inspect viewer should render floating platforms or a continuous ground\n\nWithout this manifest the playbook would have to assume a \"platformer\" template, which produces wrong assets for top-down RPGs, side-scrolling action games, shmups, etc.\n\n## How it works\n\n```bash\npython3 scripts/classify_game_type.py\n```\n\n1. Reads `idea.md` (mandatory) and `assets/visual-target.png` (optional, used as additional context if it already exists from a prior run).\n2. Calls Gemini text-out asking the model to classify the game into one of the supported types and emit a JSON block with `game_type`, `confidence`, `reasoning`, `art_style_keywords`, `anti_keywords`, `movement`.\n3. Loads the matching template from `.converge/playbooks/default/game-types/<type>.json`.\n4. Merges the AI's project-specific fields into the template.\n5. Writes `assets/game.json` (machine-readable manifest) and `assets/game.notes.md` (human-readable summary).\n\n## Supported game types\n\n- `platformer` — side view, jumping between platforms, vertical exploration\n- `side-scrolling-action` — side view, continuous flat ground, combat-focused (no jumping)\n- `top-down-rpg` — top-down camera, 8-directional movement, tile-based, NO parallax\n- `top-down-shooter` — top-down arena combat with walls and cover\n- `vertical-shooter` — vertical auto-scroll shmup\n\n## Override / opt out\n\nIf you want to skip the classifier and hand-author `assets/game.json` directly, just write the file before this task runs. The script bails early if `assets/game.json` already exists; pass `--force` to re-classify. Editing `assets/game.json` after this task ran always wins — every downstream task re-reads it.\n\n## Cost\n\n- 1 text-out call (~5¢ on Gemini)\n\n## Outputs\n\n- `assets/game.json` — machine-readable, drives downstream tasks\n- `assets/game.notes.md` — human-readable summary with reasoning + keywords\n- `assets/game.classifier.raw.txt` — raw model response (debug sidecar)",
+              "taskId": "00-classify-game",
+              "taskTitle": "Classify Game Type",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/00-classify-game",
+              "factId": "check:game-json-exists"
+            }
+          },
+          {
+            "id": "00-classify-game-check-failed-game-type-valid",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "00-classify-game",
+            "severity": "high",
+            "description": "[00-classify-game] Check failed: game.json declares a recognized game_type and has asset_categories",
+            "source": "unit",
+            "detected": "2026-04-28T13:02:28.413Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "game-type-valid",
+              "checkCmd": "python -c \"\nimport json\ng = json.load(open('assets/game.json'))\ngt = g.get('game_type')\nvalid = {'platformer','side-scrolling-action','top-down-rpg','top-down-shooter','vertical-shooter'}\nassert gt in valid, f'unknown game_type {gt!r}'\nassert (g.get('asset_categories') or {}), 'asset_categories missing'\n\"\n",
+              "checkDescription": "game.json declares a recognized game_type and has asset_categories",
+              "checkOutput": "Traceback (most recent call last):\n  File \"<string>\", line 3, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: 'assets/game.json'",
+              "checkExitCode": 1,
+              "taskPrompt": "# 00-classify-game — Game-type manifest\n\nThe **first** task in the playbook. Every subsequent task reads `assets/game.json` to decide:\n\n- which asset categories to produce vs skip\n- which tilemap variant template to use (platform-shelves vs continuous-ground vs 8-direction-rpg)\n- how many parallax bg layers, if any\n- whether the inspect viewer should render floating platforms or a continuous ground\n\nWithout this manifest the playbook would have to assume a \"platformer\" template, which produces wrong assets for top-down RPGs, side-scrolling action games, shmups, etc.\n\n## How it works\n\n```bash\npython3 scripts/classify_game_type.py\n```\n\n1. Reads `idea.md` (mandatory) and `assets/visual-target.png` (optional, used as additional context if it already exists from a prior run).\n2. Calls Gemini text-out asking the model to classify the game into one of the supported types and emit a JSON block with `game_type`, `confidence`, `reasoning`, `art_style_keywords`, `anti_keywords`, `movement`.\n3. Loads the matching template from `.converge/playbooks/default/game-types/<type>.json`.\n4. Merges the AI's project-specific fields into the template.\n5. Writes `assets/game.json` (machine-readable manifest) and `assets/game.notes.md` (human-readable summary).\n\n## Supported game types\n\n- `platformer` — side view, jumping between platforms, vertical exploration\n- `side-scrolling-action` — side view, continuous flat ground, combat-focused (no jumping)\n- `top-down-rpg` — top-down camera, 8-directional movement, tile-based, NO parallax\n- `top-down-shooter` — top-down arena combat with walls and cover\n- `vertical-shooter` — vertical auto-scroll shmup\n\n## Override / opt out\n\nIf you want to skip the classifier and hand-author `assets/game.json` directly, just write the file before this task runs. The script bails early if `assets/game.json` already exists; pass `--force` to re-classify. Editing `assets/game.json` after this task ran always wins — every downstream task re-reads it.\n\n## Cost\n\n- 1 text-out call (~5¢ on Gemini)\n\n## Outputs\n\n- `assets/game.json` — machine-readable, drives downstream tasks\n- `assets/game.notes.md` — human-readable summary with reasoning + keywords\n- `assets/game.classifier.raw.txt` — raw model response (debug sidecar)",
+              "taskId": "00-classify-game",
+              "taskTitle": "Classify Game Type",
+              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/playbooks/default/tasks/00-classify-game",
+              "factId": "check:game-type-valid"
+            }
+          }
+        ],
+        "durationMs": 32
+      }
+    },
+    {
+      "id": "signal-done",
+      "handler": "signal-done",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 97,
+        "applicable": "noGapsAndExecuted"
+      }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 26
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 79
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 61168
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "_start",
+      "to": "check-wbs-seeded",
+      "iteration": 1,
+      "ts": "2026-04-28T13:02:28.381Z"
+    },
+    {
+      "from": "check-wbs-seeded",
+      "to": "check-outputs-exist",
+      "iteration": 1,
+      "ts": "2026-04-28T13:02:28.381Z"
+    },
+    {
+      "from": "check-outputs-exist",
+      "to": "detect-gaps",
+      "iteration": 1,
+      "ts": "2026-04-28T13:02:28.414Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-28T13:02:28.415Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-28T13:02:28.441Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-04-28T13:03:29.609Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-28T13:03:29.689Z"
+    }
+  ]
+}
