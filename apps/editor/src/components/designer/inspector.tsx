@@ -1,6 +1,13 @@
 "use client";
 
-interface TaskShape {
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { TagInput } from "@/components/designer/tag-input";
+
+export interface TaskShape {
   id: string;
   title?: string;
   description?: string;
@@ -14,13 +21,101 @@ interface TaskShape {
   body: string;
 }
 
-export function Inspector({ task }: { task?: TaskShape }) {
-  if (!task) {
+interface Draft {
+  title: string;
+  description: string;
+  inputs: string[];
+  outputs: string[];
+  dependencies: string[];
+  tags: string[];
+  blocking: boolean;
+}
+
+function toDraft(t: TaskShape): Draft {
+  return {
+    title: t.title ?? "",
+    description: t.description ?? "",
+    inputs: [...t.inputs],
+    outputs: [...t.outputs],
+    dependencies: [...t.dependencies],
+    tags: [...t.tags],
+    blocking: t.blocking ?? false,
+  };
+}
+
+function arraysEqual(a: string[], b: string[]) {
+  if (a.length !== b.length) return false;
+  return a.every((v, i) => v === b[i]);
+}
+
+function isDirty(draft: Draft, original: TaskShape): boolean {
+  return (
+    draft.title !== (original.title ?? "") ||
+    draft.description !== (original.description ?? "") ||
+    !arraysEqual(draft.inputs, original.inputs) ||
+    !arraysEqual(draft.outputs, original.outputs) ||
+    !arraysEqual(draft.dependencies, original.dependencies) ||
+    !arraysEqual(draft.tags, original.tags) ||
+    draft.blocking !== (original.blocking ?? false)
+  );
+}
+
+interface Props {
+  task?: TaskShape;
+  playbookName: string;
+  taskIds: string[];
+}
+
+export function Inspector({ task, playbookName, taskIds }: Props) {
+  const router = useRouter();
+  const [draft, setDraft] = useState<Draft | null>(
+    task ? toDraft(task) : null,
+  );
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (!task || !draft) {
     return (
-      <aside className="flex w-[320px] shrink-0 items-center justify-center border-l border-[var(--color-border)] p-6 text-sm text-[var(--color-muted-foreground)]">
+      <aside className="flex w-[360px] shrink-0 items-center justify-center border-l border-[var(--color-border)] p-6 text-sm text-[var(--color-muted-foreground)]">
         Select a task to inspect.
       </aside>
     );
+  }
+
+  const dirty = isDirty(draft, task);
+  const depSuggestions = taskIds.filter((id) => id !== task.id);
+
+  async function save() {
+    if (!draft || !task) return;
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch(
+        `/api/playbooks/${encodeURIComponent(playbookName)}/tasks/${encodeURIComponent(task.id)}`,
+        {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            title: draft.title,
+            description: draft.description,
+            inputs: draft.inputs,
+            outputs: draft.outputs,
+            dependencies: draft.dependencies,
+            tags: draft.tags,
+            blocking: draft.blocking ? true : null,
+          }),
+        },
+      );
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message ?? `HTTP ${res.status}`);
+      }
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -30,7 +125,7 @@ export function Inspector({ task }: { task?: TaskShape }) {
           {task.id}
         </div>
         <h2 className="text-base font-semibold leading-tight">
-          {task.title ?? task.id}
+          {draft.title || task.id}
         </h2>
         <div className="font-mono text-[10px] text-[var(--color-muted-foreground)]">
           {task.filePath}
@@ -38,56 +133,75 @@ export function Inspector({ task }: { task?: TaskShape }) {
       </header>
 
       <div className="flex-1 space-y-5 overflow-auto px-5 py-4 text-sm">
-        {task.description ? (
-          <p className="text-[var(--color-muted-foreground)]">
-            {task.description}
-          </p>
-        ) : null}
+        <Field label="Title">
+          <Input
+            value={draft.title}
+            onChange={(e) => setDraft({ ...draft, title: e.target.value })}
+          />
+        </Field>
+
+        <Field label="Description">
+          <Textarea
+            value={draft.description}
+            onChange={(e) =>
+              setDraft({ ...draft, description: e.target.value })
+            }
+            rows={3}
+          />
+        </Field>
 
         <Field label="Dependencies">
-          {task.dependencies.length === 0 ? (
-            <Empty />
-          ) : (
-            <ul className="flex flex-wrap gap-1">
-              {task.dependencies.map((d) => (
-                <li
-                  key={d}
-                  className="rounded-md border border-[var(--color-border)] bg-[var(--color-muted)] px-1.5 py-0.5 font-mono text-[11px]"
-                >
-                  {d}
-                </li>
-              ))}
-            </ul>
-          )}
+          <TagInput
+            values={draft.dependencies}
+            onChange={(v) => setDraft({ ...draft, dependencies: v })}
+            placeholder="task-id or tag:foo"
+            suggestions={depSuggestions}
+          />
         </Field>
 
         <Field label="Inputs">
-          <GlobList values={task.inputs} />
+          <TagInput
+            values={draft.inputs}
+            onChange={(v) => setDraft({ ...draft, inputs: v })}
+            placeholder="src/**/*.ts"
+          />
         </Field>
 
         <Field label="Outputs">
-          <GlobList values={task.outputs} />
+          <TagInput
+            values={draft.outputs}
+            onChange={(v) => setDraft({ ...draft, outputs: v })}
+            placeholder=".converge/artifacts/foo.md"
+          />
         </Field>
 
-        {task.tags.length > 0 ? (
-          <Field label="Tags">
-            <ul className="flex flex-wrap gap-1">
-              {task.tags.map((t) => (
-                <li
-                  key={t}
-                  className="rounded-full bg-[var(--color-accent)] px-2 py-0.5 text-[11px]"
-                >
-                  {t}
-                </li>
-              ))}
-            </ul>
-          </Field>
-        ) : null}
+        <Field label="Tags">
+          <TagInput
+            values={draft.tags}
+            onChange={(v) => setDraft({ ...draft, tags: v })}
+            placeholder="design, milestone:v1"
+            monospace={false}
+          />
+        </Field>
 
-        <Field label={`Checks (${task.checks.length})`}>
-          {task.checks.length === 0 ? (
-            <Empty />
-          ) : (
+        <Field label="Blocking">
+          <label className="inline-flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={draft.blocking}
+              onChange={(e) =>
+                setDraft({ ...draft, blocking: e.target.checked })
+              }
+              className="h-4 w-4 accent-[var(--color-primary)]"
+            />
+            <span className="text-[var(--color-muted-foreground)]">
+              Block dependents on failure
+            </span>
+          </label>
+        </Field>
+
+        {task.checks.length > 0 ? (
+          <Field label={`Checks (${task.checks.length})`}>
             <ul className="flex flex-col gap-1.5">
               {task.checks.map((c) => (
                 <li
@@ -108,9 +222,37 @@ export function Inspector({ task }: { task?: TaskShape }) {
                 </li>
               ))}
             </ul>
-          )}
-        </Field>
+            <p className="mt-1 text-[11px] text-[var(--color-muted-foreground)]">
+              Checks are not yet editable in the inspector.
+            </p>
+          </Field>
+        ) : null}
       </div>
+
+      <footer className="flex items-center justify-between gap-2 border-t border-[var(--color-border)] px-5 py-3">
+        <span className="text-[11px] text-[var(--color-muted-foreground)]">
+          {error ? (
+            <span className="text-[var(--color-danger)]">{error}</span>
+          ) : dirty ? (
+            "Unsaved changes"
+          ) : (
+            "Saved"
+          )}
+        </span>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={!dirty || saving}
+            onClick={() => setDraft(toDraft(task))}
+          >
+            Reset
+          </Button>
+          <Button size="sm" disabled={!dirty || saving} onClick={save}>
+            {saving ? "Saving…" : "Save"}
+          </Button>
+        </div>
+      </footer>
     </aside>
   );
 }
@@ -130,24 +272,4 @@ function Field({
       {children}
     </div>
   );
-}
-
-function GlobList({ values }: { values: string[] }) {
-  if (values.length === 0) return <Empty />;
-  return (
-    <ul className="flex flex-col gap-0.5">
-      {values.map((v) => (
-        <li
-          key={v}
-          className="truncate rounded bg-[var(--color-muted)] px-1.5 py-0.5 font-mono text-[11px]"
-        >
-          {v}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function Empty() {
-  return <span className="text-[var(--color-muted-foreground)]/60">—</span>;
 }

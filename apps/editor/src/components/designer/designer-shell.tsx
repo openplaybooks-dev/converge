@@ -4,20 +4,20 @@ import Link from "next/link";
 import { useState } from "react";
 import { PlaybookGraph } from "@/components/designer/playbook-graph";
 import { ArtifactsPanel, TasksPanel } from "@/components/designer/sidebar";
-import { Inspector } from "@/components/designer/inspector";
+import { Inspector, type TaskShape } from "@/components/designer/inspector";
 
-interface TaskShape {
-  id: string;
-  title?: string;
-  description?: string;
-  inputs: string[];
-  outputs: string[];
-  dependencies: string[];
-  tags: string[];
-  blocking?: boolean;
-  checks: { id: string; cmd?: string; description?: string }[];
-  filePath: string;
-  body: string;
+function inspectorKey(task: TaskShape | undefined): string {
+  if (!task) return "none";
+  return [
+    task.id,
+    task.title ?? "",
+    task.description ?? "",
+    task.inputs.join("|"),
+    task.outputs.join("|"),
+    task.dependencies.join("|"),
+    task.tags.join("|"),
+    task.blocking ? "1" : "0",
+  ].join("");
 }
 
 interface ArtifactShape {
@@ -102,7 +102,12 @@ export function DesignerShell({
           )}
         </main>
 
-        <Inspector task={selected} />
+        <Inspector
+          key={inspectorKey(selected)}
+          task={selected}
+          playbookName={playbookName}
+          taskIds={tasks.map((t) => t.id)}
+        />
       </div>
     </div>
   );
