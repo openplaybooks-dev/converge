@@ -143,8 +143,28 @@ function parseChecks(raw: unknown): PlaybookCheck[] | undefined {
   for (const item of raw) {
     if (!item || typeof item !== "object") continue;
     const obj = item as Record<string, unknown>;
-    if (obj.id && obj.cmd) {
-      checks.push({ id: String(obj.id), cmd: String(obj.cmd) });
+    if (!obj.id) continue;
+    const id = String(obj.id);
+    const type = obj.type === "ai" ? "ai" : "cmd";
+
+    if (type === "ai") {
+      if (!obj.check || typeof obj.check !== "string") {
+        throw new Error(
+          `Playbook check "${id}" has type: ai but is missing required "check:" field (the natural-language assertion).`,
+        );
+      }
+      if (obj.cmd) {
+        throw new Error(
+          `Playbook check "${id}" sets both "cmd" and "type: ai". Use one or the other.`,
+        );
+      }
+      const entry: PlaybookCheck = { id, type: "ai", check: String(obj.check) };
+      if (obj.agent) entry.agent = String(obj.agent);
+      if (obj.model) entry.model = String(obj.model);
+      if (obj.timeoutMs !== undefined) entry.timeoutMs = Number(obj.timeoutMs);
+      checks.push(entry);
+    } else if (obj.cmd) {
+      checks.push({ id, cmd: String(obj.cmd) });
     }
   }
   return checks.length > 0 ? checks : undefined;

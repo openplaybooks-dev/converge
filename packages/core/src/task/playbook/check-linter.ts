@@ -33,7 +33,8 @@ const execAsync = promisify(exec);
 export interface CheckLintResult {
   taskId: string;
   checkId: string;
-  cmd: string;
+  /** The bash command if this is a cmd-check; absent for type:"ai" checks. */
+  cmd?: string;
   /**
    * - `ok` — check fails on empty control (correctly distinguishes absent from valid output).
    * - `tautology` — check passes BOTH on empty control AND positive control.
@@ -109,6 +110,26 @@ async function lintOneCheck(
   check: CheckDef,
   outputs: string[],
 ): Promise<CheckLintResult> {
+  // AI checks cannot be sandbox-tested (they require an LLM call); skip.
+  if (check.type === "ai") {
+    return {
+      taskId,
+      checkId: check.id,
+      status: "unverified",
+      detail: "AI check — skipped speculative dry-run (LLM not invoked at lint time)",
+    };
+  }
+
+  // Defensive: a cmd check missing its cmd is a parse-time bug; surface it.
+  if (!check.cmd) {
+    return {
+      taskId,
+      checkId: check.id,
+      status: "syntax-error",
+      detail: "check has no cmd and no type: ai",
+    };
+  }
+
   // 1. Skip dangerous commands — we will not run them speculatively.
   if (isDangerous(check.cmd)) {
     return {

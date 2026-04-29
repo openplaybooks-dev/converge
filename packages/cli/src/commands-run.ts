@@ -88,6 +88,16 @@ export interface AutoRunOptions extends CommonOptions {
 
   /** Skip the pre-flight check linter (fail-open). */
   skipCheckLint?: boolean;
+
+  /** Abort if cost preflight estimate exceeds vars.budget_cents. Default false (warn only). */
+  budgetStrict?: boolean;
+
+  /**
+   * Optional path to an NDJSON file. When set, the runner emits one line
+   * per state transition (iteration, task start/complete, gap, escalation)
+   * so babysitters don't have to grep prose logs. Path is opened append.
+   */
+  eventsFile?: string;
 }
 
 /* ------------------------------------------------------------------ */
@@ -110,6 +120,41 @@ export async function runAutonomousCommand(
     }
 
     const projectDir = options.dir || process.cwd();
+
+    // ── Optional NDJSON event stream (--events <path>) ────────────────
+    // Emits structured events for babysitter consumption. No-op when the
+    // flag is absent.
+    let runEventStream: import("./run-event-stream.ts").RunEventStream | null = null;
+    if (options.eventsFile && !options.dry) {
+      const { RunEventStream, setRunEventStream } = await import(
+        "./run-event-stream.ts"
+      );
+      runEventStream = new RunEventStream(options.eventsFile);
+      setRunEventStream(runEventStream);
+      runEventStream.emit("run.start", {
+        playbook:
+          options.playbook?.def.name ??
+          options.convergeConfig?.runtime?.playbook ??
+          "default",
+        caps: {
+          maxIterations:
+            options.playbook?.def.run?.maxIterations ?? undefined,
+          maxTaskAttempts:
+            options.playbook?.def.run?.maxTaskAttempts ?? undefined,
+        },
+        mode: options.mode,
+        resume: !!options.resume,
+      });
+      const closeStream = () => {
+        runEventStream?.emit("run.end", {});
+        runEventStream?.close();
+      };
+      process.on("exit", closeStream);
+      process.on("SIGINT", () => {
+        closeStream();
+        process.exit(130);
+      });
+    }
 
     // ── Guard: block if previous session exited dirty (skip for --dry) ──
     if (!options.dry) {
@@ -228,6 +273,41 @@ export async function runAutonomousCommand(
     if (!options.skipCheckLint && !options.dry) {
       const aborted = await runCheckLint(taskTree);
       if (aborted) process.exit(1);
+    }
+
+    // ── Pre-flight input contract validation ──────────────────────────
+    // Every task's declared `inputs:` must be satisfied by an existing
+    // file or some other task's `outputs:`. Catches the "WBS script
+    // reads a file nobody produces" failure mode before any API spend.
+    if (!options.skipCheckLint && !options.dry) {
+      const aborted = await runInputContractValidation(taskTree, projectDir);
+      if (aborted) process.exit(1);
+    }
+
+    // ── Cost preflight ─────────────────────────────────────────────────
+    // Sum each task's declared `cost_cents` (single) and `cost_cents_each`
+    // (per child) against `vars.budget_cents`. A non-blocking warning by
+    // default; aborts when --budget-strict is set.
+    if (!options.dry) {
+      try {
+        const { estimateRunCost, formatCostReport } = await import(
+          "./cost-preflight.ts"
+        );
+        const budgetCents =
+          (options.playbook?.def.vars as Record<string, unknown> | undefined)?.budget_cents as
+            | number
+            | undefined;
+        const report = await estimateRunCost(taskTree, budgetCents);
+        if (report.lines.length > 0 || report.exceedsBudget) {
+          console.log(formatCostReport(report));
+        }
+        if (report.exceedsBudget && (options as { budgetStrict?: boolean }).budgetStrict) {
+          console.error("\n❌ Aborting: --budget-strict was set and the estimate exceeds budget.");
+          process.exit(1);
+        }
+      } catch (err) {
+        console.warn(`⚠️  Cost preflight failed: ${(err as Error).message}`);
+      }
     }
     const states = await getTaskStates(projectDir, tree, { skipAutoComplete: true });
     const completedIds = states.completed;
@@ -1051,6 +1131,25 @@ async function runCheckLint(taskTree: TaskTree): Promise<boolean> {
     );
     console.log(
       "   or pass --skip-check-lint to run anyway (not recommended).",
+    );
+    return true;
+  }
+  return false;
+}
+
+async function runInputContractValidation(
+  taskTree: TaskTree,
+  projectDir: string,
+): Promise<boolean> {
+  const { validateInputContracts, formatInputContractReport } = await import(
+    "@converge/core/task/playbook/input-contract.ts"
+  );
+  const report = await validateInputContracts(taskTree, projectDir);
+  console.log(formatInputContractReport(report));
+  if (report.hasErrors) {
+    console.log("");
+    console.log(
+      "   Pass --skip-check-lint to run anyway (the runner will try gap resolution at runtime).",
     );
     return true;
   }

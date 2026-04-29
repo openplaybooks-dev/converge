@@ -433,6 +433,11 @@ export async function mapTaskMdToTaskDefinition(
     id: c.id,
     cmd: c.cmd,
     description: c.description,
+    type: c.type,
+    check: c.check,
+    agent: c.agent,
+    model: c.model,
+    timeoutMs: c.timeoutMs,
   }));
 
   const taskDef: TaskDefinition = {

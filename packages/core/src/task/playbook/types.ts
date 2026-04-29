@@ -108,7 +108,18 @@ export interface PlaybookRunConfig {
  */
 export interface PlaybookCheck {
   id: string;
-  cmd: string;
+  /** Bash command for type:"cmd" checks (default). */
+  cmd?: string;
+  /** Discriminator. Defaults to "cmd" when absent. */
+  type?: "cmd" | "ai";
+  /** Plain-English assertion the AI judge verifies; required for type:"ai". */
+  check?: string;
+  /** Optional AI provider override. */
+  agent?: string;
+  /** Optional AI model override. */
+  model?: string;
+  /** Optional per-check timeout (ms). */
+  timeoutMs?: number;
 }
 
 /* ------------------------------------------------------------------ */

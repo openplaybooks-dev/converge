@@ -8,7 +8,7 @@
  * Gap kind: 'wbs-script-error'
  */
 
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join, dirname, relative } from "node:path";
 import { glob } from "glob";
@@ -19,6 +19,11 @@ import type {
   StrategyOutcome,
 } from "../types.ts";
 import { runAgent, getAgentLogDir } from "../agent-runner.ts";
+import {
+  computeSignature,
+  lookup as repairMemoryLookup,
+  record as repairMemoryRecord,
+} from "../repair-memory.ts";
 
 export class WbsScriptRepairStrategy implements FixStrategy {
   readonly name = "wbs-script-repair";
@@ -117,6 +122,52 @@ export class WbsScriptRepairStrategy implements FixStrategy {
     const errorStack = (gap.metadata?.errorStack as string) ?? "";
     const attemptNumber = (gap.metadata?.attemptNumber as number) ?? 1;
 
+    // ── Repair-memory short-circuit ─────────────────────────────────
+    // If we've already fixed the same (script, error-tail) signature
+    // in this playbook, replay the captured patch instead of paying
+    // for an AI round trip. The signature is intentionally coarse —
+    // siblings hitting the same root cause hash to the same key.
+    const playbookName = (journalCtx?.epicId as string) || "default";
+    const signature = computeSignature(resolvedScriptPath, errorMessage);
+    const remembered = repairMemoryLookup(
+      projectDir,
+      playbookName,
+      signature,
+    );
+    if (
+      remembered &&
+      remembered.lastSucceeded &&
+      remembered.patch?.type === "file-replace"
+    ) {
+      const patchTarget = join(projectDir, remembered.patch.path);
+      try {
+        await writeFile(patchTarget, remembered.patch.content, "utf-8");
+        console.log(
+          `   [wbs-script-repair] 🧠 replayed cached fix (signature=${signature}, occurrences=${remembered.occurrences})`,
+        );
+        repairMemoryRecord(projectDir, playbookName, {
+          ...remembered,
+          lastSucceeded: true,
+        });
+        const testResult = await this.runSelfTest(patchTarget, projectDir);
+        if (testResult.success) {
+          console.log(`   [wbs-script-repair] cached fix self-test passed`);
+          return {
+            success: true,
+            reason: `WBS script repaired from memory (${signature})`,
+            retryMode: "full",
+          };
+        }
+        console.log(
+          `   [wbs-script-repair] cached fix self-test failed (${testResult.error}) — falling through to AI repair`,
+        );
+      } catch (err: any) {
+        console.log(
+          `   [wbs-script-repair] cached fix replay failed (${err.message}) — falling through to AI repair`,
+        );
+      }
+    }
+
     // Build AI prompt
     const prompt = this.buildPrompt({
       scriptPath: resolvedScriptPath,
@@ -163,9 +214,36 @@ export class WbsScriptRepairStrategy implements FixStrategy {
       const testResult = await this.runSelfTest(resolvedScriptPath, projectDir);
       if (!testResult.success) {
         console.error(`   [wbs-script-repair] Self-test failed: ${testResult.error}`);
+        repairMemoryRecord(projectDir, playbookName, {
+          signature,
+          strategy: this.name,
+          lastSucceeded: false,
+          note: `self-test failed: ${testResult.error}`,
+        });
         return { success: false, reason: `Self-test failed: ${testResult.error}` };
       }
       console.log(`   [wbs-script-repair] Self-test passed`);
+
+      // Capture the post-fix script as a replayable patch for next time.
+      try {
+        const fixedContent = await readFile(resolvedScriptPath, "utf-8");
+        repairMemoryRecord(projectDir, playbookName, {
+          signature,
+          strategy: this.name,
+          lastSucceeded: true,
+          note: `error-tail: ${errorMessage.slice(-120)}`,
+          patch: {
+            type: "file-replace",
+            path: relative(projectDir, resolvedScriptPath),
+            content: fixedContent,
+          },
+        });
+        console.log(
+          `   [wbs-script-repair] 💾 cached fix (signature=${signature})`,
+        );
+      } catch {
+        /* memory is best-effort — never fail the repair on a bad write */
+      }
     }
 
     return {

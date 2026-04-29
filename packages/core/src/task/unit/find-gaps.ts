@@ -25,6 +25,7 @@ import {
 } from "./resolve.ts";
 import { detectUserQuestion } from "../../navigator/repair/helpers/detect-user-question.ts";
 import { getJournalStructure } from "../../journal/structure.ts";
+import { runAiCheck, loadProjectAIConfig } from "../checks/ai-check.ts";
 
 /**
  * Detect whether a path contains actual glob wildcards vs literal brackets.
@@ -80,96 +81,14 @@ function reReadOutputsAndInputsFromTaskMd(
   }
 }
 
-/**
- * Find gaps - missing inputs/outputs, failed checks.
- */
-export async function findGaps(unit: Unit): Promise<Gap[]> {
-  const gaps: Gap[] = [];
-  const projectDir = getProjectRoot(unit);
-  const epicId = getEpicId(unit);
-  const factsLogger = new FactsLogger(
-    projectDir,
-    epicId,
-    unit.context?.fullTaskId ?? unit.id,
-  );
-
-  // Detect if task is awaiting user input (asked a question)
-  const userQuestionDetection = await detectUserQuestion(
-    projectDir,
-    epicId,
-    unit.id,
-  );
-
-  // Refresh outputs/inputs from the materialized TASK.md so mid-run edits
-  // take effect on the next gap-detection pass without needing a process
-  // restart or journal nuke. Falls back to the in-memory Unit when the
-  // materialized file is missing or unparseable.
-  const fresh = reReadOutputsAndInputsFromTaskMd(projectDir, epicId, unit.id);
-  const liveOutputs = fresh?.outputs ?? unit.outputs ?? [];
-  const liveInputs = fresh?.inputs ?? unit.inputs ?? [];
-
-  // ── Plan gap: plan.md not yet generated ────────────────────────────
-  if (unit.planConfig) {
-    const structure = getJournalStructure(projectDir, epicId, unit.id);
-    const planPath = path.join(structure.task!, "plan.md");
-    if (!existsSync(planPath)) {
-      gaps.push({
-        id: `${unit.id}-plan-missing`,
-        type: "incomplete",
-        level: "task",
-        scope: unit.id,
-        severity: "high",
-        description: `[${unit.id}] Generating plan`,
-        source: "unit",
-        detected: new Date().toISOString(),
-        resolved: false,
-        checks: [],
-        metadata: {
-          gapKind: GapKind.plan,
-          unitPath: unit.path,
-          taskId: unit.id,
-          taskTitle: unit.title,
-        },
-      });
-      // Return early — plan must be generated before checking outputs/WBS
-      return gaps;
-    }
-  }
-
-  // ── WBS gap: subtasks not yet seeded ───────────────────────────────
-  // Skip if wbsAfter=true — WBS runs after execution, not before
-  if (unit.wbsFn && !unit.wbsAfter) {
-    const structure = getJournalStructure(projectDir, epicId, unit.id);
-    const wbsJsonPath = path.join(structure.task!, "wbs.json");
-    if (!existsSync(wbsJsonPath)) {
-      gaps.push({
-        id: `${unit.id}-wbs-not-seeded`,
-        type: "incomplete",
-        level: "task",
-        scope: unit.id,
-        severity: "high",
-        description: `[${unit.id}] WBS subtasks not yet seeded`,
-        source: "unit",
-        detected: new Date().toISOString(),
-        resolved: false,
-        checks: [],
-        metadata: {
-          gapKind: GapKind.wbs,
-          unitPath: unit.path,
-          taskId: unit.id,
-          taskTitle: unit.title,
-        },
-      });
-    }
-    // WBS parent delegates output production to children — skip output/check
-    // validation here. The rollup logic handles parent completion after all
-    // children finish.
-    return gaps;
-  }
-
-  // Check inputs exist (with Facts API)
-  for (const input of liveInputs) {
-    // Handle glob patterns (but not literal bracket paths like [id])
+async function checkInputs(
+  inputs: string[],
+  projectDir: string,
+  unit: Unit,
+  factsLogger: FactsLogger,
+  gaps: Gap[],
+): Promise<void> {
+  for (const input of inputs) {
     if (hasGlobWildcards(input)) {
       const { glob } = await import("glob");
       const matches = await glob(input, { cwd: projectDir });
@@ -234,6 +153,100 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
         });
       }
     }
+  }
+}
+
+/**
+ * Find gaps - missing inputs/outputs, failed checks.
+ */
+export async function findGaps(unit: Unit): Promise<Gap[]> {
+  const gaps: Gap[] = [];
+  const projectDir = getProjectRoot(unit);
+  const epicId = getEpicId(unit);
+  const factsLogger = new FactsLogger(
+    projectDir,
+    epicId,
+    unit.context?.fullTaskId ?? unit.id,
+  );
+
+  // Detect if task is awaiting user input (asked a question)
+  const userQuestionDetection = await detectUserQuestion(
+    projectDir,
+    epicId,
+    unit.id,
+  );
+
+  // Refresh outputs/inputs from the materialized TASK.md so mid-run edits
+  // take effect on the next gap-detection pass without needing a process
+  // restart or journal nuke. Falls back to the in-memory Unit when the
+  // materialized file is missing or unparseable.
+  const fresh = reReadOutputsAndInputsFromTaskMd(projectDir, epicId, unit.id);
+  const liveOutputs = fresh?.outputs ?? unit.outputs ?? [];
+  const liveInputs = fresh?.inputs ?? unit.inputs ?? [];
+
+  // ── Plan gap: plan.md not yet generated ────────────────────────────
+  if (unit.planConfig) {
+    const structure = getJournalStructure(projectDir, epicId, unit.id);
+    const planPath = path.join(structure.task!, "plan.md");
+    if (!existsSync(planPath)) {
+      gaps.push({
+        id: `${unit.id}-plan-missing`,
+        type: "incomplete",
+        level: "task",
+        scope: unit.id,
+        severity: "high",
+        description: `[${unit.id}] Generating plan`,
+        source: "unit",
+        detected: new Date().toISOString(),
+        resolved: false,
+        checks: [],
+        metadata: {
+          gapKind: GapKind.plan,
+          unitPath: unit.path,
+          taskId: unit.id,
+          taskTitle: unit.title,
+        },
+      });
+      // Return early — plan must be generated before checking outputs/WBS
+      return gaps;
+    }
+  }
+
+  // Check declared inputs exist before any branch — including the WBS branch.
+  // A WBS script that reads e.g. assets/scenes.json should declare it in
+  // `inputs:` so the gap surfaces here (and triggers dependency resolution)
+  // instead of inside the script's own try/catch where attribution is poor.
+  await checkInputs(liveInputs, projectDir, unit, factsLogger, gaps);
+
+  // ── WBS gap: subtasks not yet seeded ───────────────────────────────
+  // Skip if wbsAfter=true — WBS runs after execution, not before
+  if (unit.wbsFn && !unit.wbsAfter) {
+    const structure = getJournalStructure(projectDir, epicId, unit.id);
+    const wbsJsonPath = path.join(structure.task!, "wbs.json");
+    if (!existsSync(wbsJsonPath)) {
+      gaps.push({
+        id: `${unit.id}-wbs-not-seeded`,
+        type: "incomplete",
+        level: "task",
+        scope: unit.id,
+        severity: "high",
+        description: `[${unit.id}] WBS subtasks not yet seeded`,
+        source: "unit",
+        detected: new Date().toISOString(),
+        resolved: false,
+        checks: [],
+        metadata: {
+          gapKind: GapKind.wbs,
+          unitPath: unit.path,
+          taskId: unit.id,
+          taskTitle: unit.title,
+        },
+      });
+    }
+    // WBS parent delegates output production to children — skip output/check
+    // validation here. The rollup logic handles parent completion after all
+    // children finish.
+    return gaps;
   }
 
   // Check outputs exist with validation (Facts API)
@@ -414,13 +427,82 @@ export async function findGaps(unit: Unit): Promise<Gap[]> {
  */
 export async function runCheck(
   unit: Unit,
-  check: { id: string; cmd?: string; description?: string },
+  check: {
+    id: string;
+    cmd?: string;
+    description?: string;
+    type?: "cmd" | "ai";
+    check?: string;
+    agent?: string;
+    model?: string;
+    timeoutMs?: number;
+  },
 ): Promise<CheckResult> {
+  const projectDir = getProjectRoot(unit);
+
+  if (check.type === "ai") {
+    if (!check.check) {
+      return { passed: true, gaps: [] };
+    }
+    const aiConfig = await loadProjectAIConfig(projectDir);
+    const aiResult = await runAiCheck(
+      {
+        id: check.id,
+        description: check.description,
+        check: check.check,
+        agent: check.agent,
+        model: check.model,
+        timeoutMs: check.timeoutMs,
+      },
+      {
+        projectDir,
+        taskId: unit.id,
+        description: unit.title,
+        taskPrompt: await resolvePrompt(unit),
+        outputs: unit.outputs,
+      },
+      aiConfig,
+    );
+    if (aiResult.pass) {
+      return { passed: true, gaps: [] };
+    }
+    return {
+      passed: false,
+      gaps: [
+        {
+          id: `${unit.id}-check-failed-${check.id}`,
+          type: "incomplete",
+          level: "task",
+          scope: unit.id,
+          severity: "high",
+          description: `[${unit.id}] AI check failed: ${check.description || check.id}`,
+          source: "unit",
+          detected: new Date().toISOString(),
+          resolved: false,
+          checks: [],
+          metadata: {
+            gapKind: GapKind.checkFailed,
+            checkId: check.id,
+            checkType: "ai",
+            checkAssertion: check.check,
+            checkDescription: check.description,
+            checkOutput: aiResult.feedback,
+            taskPrompt: await resolvePrompt(unit),
+            taskAgent: resolveAgent(unit),
+            taskSkill: resolveSkill(unit),
+            taskId: unit.id,
+            taskTitle: unit.title,
+            unitPath: unit.path,
+          },
+        },
+      ],
+    };
+  }
+
   if (!check.cmd) {
     return { passed: true, gaps: [] };
   }
 
-  const projectDir = getProjectRoot(unit);
   const epicId = getEpicId(unit);
   const factsLogger = new FactsLogger(
     projectDir,

@@ -413,15 +413,36 @@ export function parseChecks(raw: unknown): CheckDef[] | undefined {
   if (!Array.isArray(raw)) return undefined;
   const results: CheckDef[] = [];
   for (const item of raw) {
-    if (item && typeof item === "object") {
-      const c = item as Record<string, unknown>;
-      if (c.id && c.cmd) {
-        results.push({
-          id: String(c.id),
-          cmd: String(c.cmd),
-          description: c.description ? String(c.description) : String(c.id),
-        });
+    if (!item || typeof item !== "object") continue;
+    const c = item as Record<string, unknown>;
+    if (!c.id) continue;
+    const id = String(c.id);
+    const description = c.description ? String(c.description) : id;
+    const type = c.type === "ai" ? "ai" : "cmd";
+
+    if (type === "ai") {
+      if (!c.check || typeof c.check !== "string") {
+        throw new Error(
+          `Check "${id}" has type: ai but is missing required "check:" field (the natural-language assertion).`,
+        );
       }
+      if (c.cmd) {
+        throw new Error(
+          `Check "${id}" sets both "cmd" and "type: ai". Use one or the other.`,
+        );
+      }
+      const entry: CheckDef = {
+        id,
+        description,
+        type: "ai",
+        check: String(c.check),
+      };
+      if (c.agent) entry.agent = String(c.agent);
+      if (c.model) entry.model = String(c.model);
+      if (c.timeoutMs !== undefined) entry.timeoutMs = Number(c.timeoutMs);
+      results.push(entry);
+    } else if (c.cmd) {
+      results.push({ id, cmd: String(c.cmd), description });
     }
   }
   return results.length > 0 ? results : undefined;

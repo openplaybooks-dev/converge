@@ -73,7 +73,15 @@ export type HookEvent =
   // ── Lifecycle phases ────────────────────────────────────��─────────
   | "task:lifecycle-before" // Before phase completed (inputs snapshotted, context built)
   | "task:lifecycle-after" // After phase completed (checks run, diff captured)
-  | "task:correction-attempt"; // Inner correction loop attempt completed
+  | "task:correction-attempt" // Inner correction loop attempt completed
+
+  // ── Cohort lifecycle ───────────────────────────────────────────────
+  | "cohort:complete"; // A set of related tasks all completed (e.g. all
+                       // segment-NN children under a parent). Fires once
+                       // per cohort, with the parent's journalTaskId in the
+                       // payload. Lets cross-cutting validators run after a
+                       // group of tasks finishes — caught style coherence
+                       // across siblings, layout coherence across layers.
 
 /* ------------------------------------------------------------------ */
 /*  Typed Payloads Per Event                                          */
@@ -178,6 +186,15 @@ export interface HookPayloads {
     errorClass: string;
     resolved: boolean;
     durationMs: number;
+  };
+  "cohort:complete": {
+    /** The parent task whose children just finished. */
+    parentJournalTaskId: string;
+    epicId: string;
+    /** journalTaskId of every direct child that completed. */
+    childJournalTaskIds: string[];
+    /** Tags shared across the cohort (intersection of children's tags). */
+    sharedTags: string[];
   };
 }
 

@@ -762,6 +762,8 @@ async function main(): Promise<void> {
             "selfPlan",
             "skip-check-lint",
             "skipCheckLint",
+            "events",
+            "eventsFile",
           ]);
           const vars: Record<string, string> = {};
           for (const [key, value] of Object.entries(options)) {
@@ -895,6 +897,7 @@ async function main(): Promise<void> {
             selfPlan: options["self-plan"] ?? options.selfPlan ?? true,
             skipCheckLint:
               options["skip-check-lint"] || options.skipCheckLint || false,
+            eventsFile: options.events || options.eventsFile,
             verbose: options.verbose || options.v,
             convergeConfig,
             hookRegistry,
