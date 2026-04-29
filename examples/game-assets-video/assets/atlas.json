@@ -1,0 +1,1232 @@
+{
+  "meta": {
+    "categories": [
+      "characters",
+      "objects",
+      "tile_maps",
+      "backgrounds",
+      "scenes"
+    ],
+    "sources": {
+      "characters": 0,
+      "objects": 4,
+      "tile_maps": 0,
+      "backgrounds": 0,
+      "scenes": 2
+    }
+  },
+  "categories": {
+    "characters": [],
+    "objects": [
+      {
+        "asset_id": "gold-key",
+        "state": "idle",
+        "atlas_path": "assets/objects/gold-key/spritesheets/idle/idle.atlas.json",
+        "mode": "sheet",
+        "meta": {
+          "obj_id": "gold-key",
+          "state": "idle",
+          "category": "item",
+          "rows": 2,
+          "cols": 4,
+          "frame_count": 8,
+          "frame_size": {
+            "w": 384,
+            "h": 512
+          },
+          "sheet_size": {
+            "w": 1536,
+            "h": 1024
+          },
+          "frame_order": "left-to-right, top-to-bottom",
+          "requested_cols": 4,
+          "requested_rows": 2,
+          "detected": false,
+          "aligned": true,
+          "frameRate": 6,
+          "yoyo": true,
+          "seed": 672790910
+        },
+        "frames": [
+          {
+            "filename": "idle_000.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_001.png",
+            "frame": {
+              "x": 384,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_002.png",
+            "frame": {
+              "x": 768,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_003.png",
+            "frame": {
+              "x": 1152,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_004.png",
+            "frame": {
+              "x": 0,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_005.png",
+            "frame": {
+              "x": 384,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_006.png",
+            "frame": {
+              "x": 768,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_007.png",
+            "frame": {
+              "x": 1152,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          }
+        ],
+        "sheet_path": "assets/objects/gold-key/spritesheets/idle/idle.png"
+      },
+      {
+        "asset_id": "health-potion",
+        "state": "idle",
+        "atlas_path": "assets/objects/health-potion/spritesheets/idle/idle.atlas.json",
+        "mode": "sheet",
+        "meta": {
+          "obj_id": "health-potion",
+          "state": "idle",
+          "category": "item",
+          "rows": 2,
+          "cols": 4,
+          "frame_count": 8,
+          "frame_size": {
+            "w": 384,
+            "h": 512
+          },
+          "sheet_size": {
+            "w": 1536,
+            "h": 1024
+          },
+          "frame_order": "left-to-right, top-to-bottom",
+          "requested_cols": 4,
+          "requested_rows": 2,
+          "detected": false,
+          "aligned": true,
+          "frameRate": 6,
+          "yoyo": true,
+          "seed": 11315260
+        },
+        "frames": [
+          {
+            "filename": "idle_000.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_001.png",
+            "frame": {
+              "x": 384,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_002.png",
+            "frame": {
+              "x": 768,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_003.png",
+            "frame": {
+              "x": 1152,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_004.png",
+            "frame": {
+              "x": 0,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_005.png",
+            "frame": {
+              "x": 384,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_006.png",
+            "frame": {
+              "x": 768,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_007.png",
+            "frame": {
+              "x": 1152,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          }
+        ],
+        "sheet_path": "assets/objects/health-potion/spritesheets/idle/idle.png"
+      },
+      {
+        "asset_id": "ui-health-bar",
+        "state": "idle",
+        "atlas_path": "assets/objects/ui-health-bar/spritesheets/idle/idle.atlas.json",
+        "mode": "sheet",
+        "meta": {
+          "obj_id": "ui-health-bar",
+          "state": "idle",
+          "category": "item",
+          "rows": 2,
+          "cols": 4,
+          "frame_count": 8,
+          "frame_size": {
+            "w": 384,
+            "h": 512
+          },
+          "sheet_size": {
+            "w": 1536,
+            "h": 1024
+          },
+          "frame_order": "left-to-right, top-to-bottom",
+          "requested_cols": 4,
+          "requested_rows": 2,
+          "detected": false,
+          "aligned": true,
+          "frameRate": 6,
+          "yoyo": true,
+          "seed": 477654482
+        },
+        "frames": [
+          {
+            "filename": "idle_000.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_001.png",
+            "frame": {
+              "x": 384,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_002.png",
+            "frame": {
+              "x": 768,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_003.png",
+            "frame": {
+              "x": 1152,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_004.png",
+            "frame": {
+              "x": 0,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_005.png",
+            "frame": {
+              "x": 384,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_006.png",
+            "frame": {
+              "x": 768,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_007.png",
+            "frame": {
+              "x": 1152,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          }
+        ],
+        "sheet_path": "assets/objects/ui-health-bar/spritesheets/idle/idle.png"
+      },
+      {
+        "asset_id": "ui-key-slot",
+        "state": "idle",
+        "atlas_path": "assets/objects/ui-key-slot/spritesheets/idle/idle.atlas.json",
+        "mode": "sheet",
+        "meta": {
+          "obj_id": "ui-key-slot",
+          "state": "idle",
+          "category": "item",
+          "rows": 2,
+          "cols": 4,
+          "frame_count": 8,
+          "frame_size": {
+            "w": 384,
+            "h": 512
+          },
+          "sheet_size": {
+            "w": 1536,
+            "h": 1024
+          },
+          "frame_order": "left-to-right, top-to-bottom",
+          "requested_cols": 4,
+          "requested_rows": 2,
+          "detected": false,
+          "aligned": true,
+          "frameRate": 6,
+          "yoyo": true,
+          "seed": 160228035
+        },
+        "frames": [
+          {
+            "filename": "idle_000.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_001.png",
+            "frame": {
+              "x": 384,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_002.png",
+            "frame": {
+              "x": 768,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_003.png",
+            "frame": {
+              "x": 1152,
+              "y": 0,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_004.png",
+            "frame": {
+              "x": 0,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_005.png",
+            "frame": {
+              "x": 384,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_006.png",
+            "frame": {
+              "x": 768,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "filename": "idle_007.png",
+            "frame": {
+              "x": 1152,
+              "y": 512,
+              "w": 384,
+              "h": 512
+            },
+            "anchor": {
+              "original_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "torso_x": 191,
+              "aligned_bbox": [
+                0,
+                0,
+                383,
+                511
+              ],
+              "shift": [
+                0,
+                0
+              ]
+            }
+          }
+        ],
+        "sheet_path": "assets/objects/ui-key-slot/spritesheets/idle/idle.png"
+      }
+    ],
+    "tile_maps": [],
+    "backgrounds": [],
+    "scenes": [
+      {
+        "asset_id": "forest-tutorial/bg-far",
+        "state": "",
+        "atlas_path": "assets/scenes/forest-tutorial/bg-far/final.atlas.json",
+        "mode": "sheet",
+        "meta": {
+          "scene_id": "forest-tutorial",
+          "layer_id": "far",
+          "transparent": true,
+          "blend_with_above": null,
+          "rows": 1,
+          "cols": 1,
+          "frame_count": 1,
+          "frame_size": {
+            "w": 3904,
+            "h": 960
+          },
+          "sheet_size": {
+            "w": 3904,
+            "h": 960
+          },
+          "frame_order": "single",
+          "seed": 421806051
+        },
+        "frames": [
+          {
+            "filename": "bg-far_000.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 3904,
+              "h": 960
+            },
+            "anchor": null
+          }
+        ],
+        "sheet_path": "assets/scenes/forest-tutorial/bg-far/bg-far.png"
+      },
+      {
+        "asset_id": "forest-tutorial/tilesheet",
+        "state": "",
+        "atlas_path": "assets/scenes/forest-tutorial/tilesheet/tilesheet.atlas.json",
+        "mode": "sheet",
+        "meta": {
+          "scene_id": "forest-tutorial",
+          "rows": 4,
+          "cols": 4,
+          "frame_count": 11,
+          "frame_size": {
+            "w": 256,
+            "h": 256
+          },
+          "sheet_size": {
+            "w": 1024,
+            "h": 1024
+          },
+          "in_game_tile_size": {
+            "w": 128,
+            "h": 128
+          },
+          "frame_order": "row-major, top-left first",
+          "seed": 969013457
+        },
+        "frames": [
+          {
+            "filename": "grass.png",
+            "frame": {
+              "x": 0,
+              "y": 0,
+              "w": 256,
+              "h": 256
+            },
+            "tile_id": "grass"
+          },
+          {
+            "filename": "grass-flowers.png",
+            "frame": {
+              "x": 256,
+              "y": 0,
+              "w": 256,
+              "h": 256
+            },
+            "tile_id": "grass-flowers"
+          },
+          {
+            "filename": "dirt.png",
+            "frame": {
+              "x": 512,
+              "y": 0,
+              "w": 256,
+              "h": 256
+            },
+            "tile_id": "dirt"
+          },
+          {
+            "filename": "path-corner-NE.png",
+            "frame": {
+              "x": 768,
+              "y": 0,
+              "w": 256,
+              "h": 256
+            },
+            "tile_id": "path-corner-NE"
+          },
+          {
+            "filename": "path-corner-NW.png",
+            "frame": {
+              "x": 0,
+              "y": 256,
+              "w": 256,
+              "h": 256
+            },
+            "tile_id": "path-corner-NW"
+          },
+          {
+            "filename": "path-corner-SE.png",
+            "frame": {
+              "x": 256,
+              "y": 256,
+              "w": 256,
+              "h": 256
+            },
+            "tile_id": "path-corner-SE"
+          },
+          {
+            "filename": "path-corner-SW.png",
+            "frame": {
+              "x": 512,
+              "y": 256,
+              "w": 256,
+              "h": 256
+            },
+            "tile_id": "path-corner-SW"
+          },
+          {
+            "filename": "water.png",
+            "frame": {
+              "x": 768,
+              "y": 256,
+              "w": 256,
+              "h": 256
+            },
+            "tile_id": "water"
+          },
+          {
+            "filename": "water-edge-grass.png",
+            "frame": {
+              "x": 0,
+              "y": 512,
+              "w": 256,
+              "h": 256
+            },
+            "tile_id": "water-edge-grass"
+          },
+          {
+            "filename": "tree-stump.png",
+            "frame": {
+              "x": 256,
+              "y": 512,
+              "w": 256,
+              "h": 256
+            },
+            "tile_id": "tree-stump"
+          },
+          {
+            "filename": "rock-small.png",
+            "frame": {
+              "x": 512,
+              "y": 512,
+              "w": 256,
+              "h": 256
+            },
+            "tile_id": "rock-small"
+          }
+        ],
+        "sheet_path": "assets/scenes/forest-tutorial/tilesheet/tilesheet.png"
+      }
+    ]
+  }
+}

@@ -6,18 +6,18 @@ inputs:
   - "assets/scenes/{{scene_id}}/stage.json"
   - "assets/scenes/{{scene_id}}/concept.png"
   - "assets/scenes/{{scene_id}}/map.silhouette.png"
-  - "assets/scenes/{{scene_id}}/bg-near/seg-*.png"
+  - "assets/scenes/{{scene_id}}/bg-near/segments/seg-*.png"
 outputs:
-  - "assets/scenes/{{scene_id}}/bg-near.critique.json"
+  - "assets/scenes/{{scene_id}}/bg-near/critique/critique.json"
 checks:
   - id: bg-near-critique-written
-    cmd: test -s assets/scenes/{{scene_id}}/bg-near.critique.json
+    cmd: test -s assets/scenes/{{scene_id}}/bg-near/critique/critique.json
     description: critique JSON was written
   - id: bg-near-validator-no-high-severity
     cmd: |
       python -c "
       import json
-      c = json.load(open('assets/scenes/{{scene_id}}/bg-near.critique.json'))
+      c = json.load(open('assets/scenes/{{scene_id}}/bg-near/critique/critique.json'))
       segs = c.get('segments') or []
       high = [s for s in segs if s.get('decision') == 'fix' and s.get('severity') == 'high']
       if high:

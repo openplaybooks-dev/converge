@@ -1,0 +1,33 @@
+ONE square tilesheet for a 2D game scene `forest-tutorial`. Single image, drawn as a 4×4 grid.
+Each cell is one terrain tile. The tiles share ONE palette and ONE rendering style — same brush, same line weight, same shading model.
+
+Grid: 4 rows × 4 cols. In-game tile size: 128×128 px.
+Shared palette: vivid grass-green, warm dirt brown, cool water blue, neutral grey rock — top-down view consistent across all tiles
+
+Tiles (in row-major order, top-left first):
+  - cell [row=0, col=0] grass: Plain grass field tile (top-down view) with subtle blade variation. [edges: Uniform grass texture across all four edges so it tiles seamlessly with itself and other grass-base tiles.; neighbors: top=sky bottom=earth left=grass right=grass-flowers]
+  - cell [row=0, col=1] grass-flowers: Grass with scattered flower spots, otherwise identical to plain grass at the edges. [edges: Edges match plain grass exactly so flowers sit interior to the cell; no flowers cross the tile border.; neighbors: top=sky bottom=earth left=grass right=grass]
+  - cell [row=0, col=2] dirt: Plain dirt tile, top-down view. [edges: Uniform packed-dirt texture on all four edges so it tiles seamlessly with itself and abuts path-corner tiles cleanly.; neighbors: top=earth bottom=earth left=dirt right=dirt]
+  - cell [row=0, col=3] path-corner-NE: Dirt path with grass on the northeast corner — for a path turning toward the northeast. [edges: Top and right edges are grass; bottom and left edges are dirt — the dirt forms a quarter-arc cornering northeast.; neighbors: top=grass bottom=dirt left=dirt right=grass]
+  - cell [row=1, col=0] path-corner-NW: Dirt path with grass on the northwest corner. [edges: Top and left edges are grass; bottom and right edges are dirt — the dirt forms a quarter-arc cornering northwest.; neighbors: top=grass bottom=dirt left=grass right=dirt]
+  - cell [row=1, col=1] path-corner-SE: Dirt path with grass on the southeast corner. [edges: Bottom and right edges are grass; top and left edges are dirt — the dirt forms a quarter-arc cornering southeast.; neighbors: top=dirt bottom=grass left=dirt right=grass]
+  - cell [row=1, col=2] path-corner-SW: Dirt path with grass on the southwest corner. [edges: Bottom and left edges are grass; top and right edges are dirt — the dirt forms a quarter-arc cornering southwest.; neighbors: top=dirt bottom=grass left=grass right=dirt]
+  - cell [row=1, col=3] water: Water tile — impassable, with subtle wave pattern. [edges: All four edges are uniform water texture so it tiles with itself; the subtle wave pattern is interior.; neighbors: top=water bottom=water left=water right=water-edge-grass]
+  - cell [row=2, col=0] water-edge-grass: Water meeting grass — shoreline transition tile. [edges: Top and right edges are grass; bottom and left edges are water — the shoreline runs diagonally so water meets grass cleanly.; neighbors: top=grass bottom=water left=water right=grass]
+  - cell [row=2, col=1] tree-stump: Single tree stump on grass — decoration sitting on a plain grass background. [edges: All four edges match plain grass; the tree stump is centered interior to the tile and does not cross the border.; neighbors: top=grass bottom=grass left=grass right=grass]
+  - cell [row=2, col=2] rock-small: Small grey rock decoration sitting on plain grass. [edges: All four edges match plain grass; the small grey rock is centered interior to the tile.; neighbors: top=grass bottom=grass left=grass right=grass]
+
+CRITICAL TILEABILITY RULES:
+- Each tile is drawn edge-to-edge inside its cell — no margins, no border.
+- Tiles in the same row that abut each other MUST have matching content at their shared edge:
+  the right edge of cell [r, c] must visually connect to the left edge of cell [r, c+1].
+- Vertical adjacency follows the same rule for top↔bottom edges.
+- Tiles meant to be standalone (mushroom, flower, decoration) sit centered on their base
+  terrain (e.g., grass) so they tile cleanly even when placed in any base cell context.
+- Use the supplied style-sheet anchor + scene concept image as the rendering style — match
+  line weight, palette, and shading exactly. Do NOT vary style between cells.
+
+DO NOT:
+- Do not draw frame numbers, labels, captions, watermarks, grid lines, or annotations.
+- Do not invent additional tiles outside the 16 cells specified.
+- Do not vary the rendering style between cells — the whole sheet is one rendering job.

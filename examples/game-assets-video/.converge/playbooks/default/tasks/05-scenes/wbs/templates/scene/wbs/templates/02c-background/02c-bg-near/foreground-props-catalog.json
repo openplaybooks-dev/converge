@@ -1,0 +1,87 @@
+{
+  "_doc": "Biome-keyed catalog for bg-near foreground decorative props. Used by 01-spec to pick kind names and by 02-svg to validate them. Add new biomes by appending entries; do not edit TASK.md prose for kind lists.",
+
+  "size_classes": {
+    "tiny":     {"width_px": [32, 48],  "height_px": [32, 48],  "placement": "base touches baseline; clusters of 2-3"},
+    "small":    {"width_px": [48, 80],  "height_px": [48, 80],  "placement": "base touches baseline"},
+    "medium":   {"width_px": [64, 128], "height_px": [64, 96],  "placement": "base touches baseline"},
+    "large":    {"width_px": [96, 200], "height_px": [96, 160], "placement": "base touches baseline"},
+    "overhang": {"width_px": [96, 240], "height_px": [48, 128], "placement": "TOP at y=0..40, hangs down from canvas top"}
+  },
+
+  "fixed_size_kinds": {
+    "_doc": "Game-mechanic markers — sizes encode gameplay footprint, not aesthetic.",
+    "hazard-marker": {"width_px": 96,                      "height_px": 48, "placement": "base on baseline; spans the hazard's tile footprint (~6 tiles wide default)"},
+    "platform-base": {"width_px": "stage.platforms[].x_tiles span * tile_size_px", "height_px": 32, "placement": "top at baseline"},
+    "ground-fill":   {"width_px": "canvas width", "height_px": "from baseline to canvas bottom", "placement": "first content element after chroma-bg"},
+    "chroma-bg":     {"width_px": "canvas width", "height_px": "canvas height", "placement": "first element"}
+  },
+
+  "biome_kinds": {
+    "_doc": "Per-biome menu of decorative prop kind names. The 01-spec agent picks 3-8 entries per chunk that fit the chunk's biome_variant + ground_type. Names are passed verbatim as `data-kind` in the SVG and as hints to the paint model.",
+    "forest": {
+      "tiny":     ["flowers", "pebbles", "mushrooms", "berries"],
+      "small":    ["grass-tuft", "dirt-clod", "fern", "moss-patch"],
+      "medium":   ["rock", "log", "boulder"],
+      "large":    ["tree-stump", "fallen-tree", "old-stump"],
+      "overhang": ["leaf-overhang", "vine", "branch", "spider-web"]
+    },
+    "desert": {
+      "tiny":     ["pebbles", "sand-tuft", "dry-flowers", "tracks"],
+      "small":    ["cactus-small", "dry-bush", "bone-small", "scorpion-burrow"],
+      "medium":   ["cactus", "sand-dune-small", "rock-red", "tumbleweed"],
+      "large":    ["sand-dune", "boulder-red", "cactus-large", "skull"],
+      "overhang": ["dry-vine", "rope", "weathered-banner"]
+    },
+    "snow": {
+      "tiny":     ["paw-prints", "snowflakes", "frozen-berries", "ice-shards"],
+      "small":    ["snowdrift-small", "snowball", "icicle-cluster", "frozen-grass"],
+      "medium":   ["snowdrift", "frozen-log", "ice-block", "snowman-base"],
+      "large":    ["snow-bank", "evergreen-stump", "frozen-rock", "ice-formation"],
+      "overhang": ["icicle", "frozen-vine", "snow-laden-branch"]
+    },
+    "swamp": {
+      "tiny":     ["mushrooms", "moss", "lily-pad-small", "frog"],
+      "small":    ["reeds", "cattail", "mossy-stone", "mud-puddle"],
+      "medium":   ["mossy-log", "lily-pad", "swamp-rock", "rotting-stump"],
+      "large":    ["fallen-tree-mossy", "mangrove-root", "swamp-mound"],
+      "overhang": ["hanging-moss", "vine-curtain", "willow-branch"]
+    },
+    "cave": {
+      "tiny":     ["pebbles", "crystals-small", "bones-small", "drips"],
+      "small":    ["mushroom-cave", "rubble", "rock-shard", "moss-clump"],
+      "medium":   ["stalagmite", "rubble-pile", "crystal-cluster", "rock-formation"],
+      "large":    ["large-stalagmite", "boulder", "skeleton", "ore-vein"],
+      "overhang": ["stalactite", "root-system", "spider-web-large"]
+    },
+    "urban": {
+      "tiny":     ["trash", "leaves-fallen", "graffiti-tag", "footprints"],
+      "small":    ["trash-can", "fire-hydrant", "traffic-cone", "puddle"],
+      "medium":   ["bench", "manhole", "newspaper-stand", "mailbox"],
+      "large":    ["dumpster", "vending-machine", "phone-booth", "broken-car-part"],
+      "overhang": ["awning", "banner", "wires", "broken-pipe"]
+    },
+    "scifi": {
+      "tiny":     ["debris", "sparks", "screws", "fragments"],
+      "small":    ["cable-coil", "vent-grate", "panel-fragment", "scorch-mark"],
+      "medium":   ["debris-pile", "broken-panel", "console-fragment", "barrel"],
+      "large":    ["broken-machine", "crashed-pod", "reactor-fragment", "container"],
+      "overhang": ["conduit", "broken-pipe", "hanging-wires", "ceiling-panel"]
+    },
+    "underwater": {
+      "tiny":     ["bubbles", "shells", "tiny-fish", "sand-sparkle"],
+      "small":    ["coral-small", "anemone", "starfish", "rock-shell"],
+      "medium":   ["coral", "kelp-base", "rock-coral", "sunken-debris"],
+      "large":    ["coral-formation", "shipwreck-fragment", "boulder-coral"],
+      "overhang": ["kelp", "seaweed", "broken-mast"]
+    },
+    "generic": {
+      "_doc": "Fallback when biome_variant doesn't match a known catalog. Use ONLY when no other biome fits.",
+      "tiny":     ["pebbles", "tuft", "small-debris"],
+      "small":    ["clump", "small-rock", "low-prop"],
+      "medium":   ["rock", "stump", "container"],
+      "large":    ["large-rock", "old-stump", "boulder"],
+      "overhang": ["overhang", "hanging-prop"]
+    }
+  }
+}

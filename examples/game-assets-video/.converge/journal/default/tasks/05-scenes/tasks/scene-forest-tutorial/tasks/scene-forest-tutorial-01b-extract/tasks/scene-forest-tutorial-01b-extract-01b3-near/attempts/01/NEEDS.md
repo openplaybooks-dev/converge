@@ -16,5 +16,5 @@ Extract the NEAR parallax layer as a chroma-keyed RGBA image. Near is the foregr
 ## Checks
 
 - **bg-near-extracted-exists**: bg-near extraction PNG was written
-- **bg-near-extracted-irregular-alpha**: bg-near has per-pixel irregular alpha and majority transparent area (foreground only in bottom strip)
+- **bg-near-extracted-irregular-shape**: bg-near is a real model pass (irregular silhouette, not a band slice) and majority chroma green (foreground content only in the bottom strip)
 - **bg-near-extracted-no-band-marker**: prompt sidecar is a real model pass

@@ -1,0 +1,23 @@
+{
+  "seeded": true,
+  "seededAt": "2026-04-29T04:53:12.529Z",
+  "spawnCount": 4,
+  "subtasks": [
+    {
+      "id": "scene-forest-tutorial-02c-background-02a-bg-far",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/tasks/scene-forest-tutorial-02c-background/tasks/scene-forest-tutorial-02c-background-02a-bg-far/TASK.md"
+    },
+    {
+      "id": "scene-forest-tutorial-02c-background-02b-bg-mid",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/tasks/scene-forest-tutorial-02c-background/tasks/scene-forest-tutorial-02c-background-02b-bg-mid/TASK.md"
+    },
+    {
+      "id": "scene-forest-tutorial-02c-background-02c-bg-near",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/tasks/scene-forest-tutorial-02c-background/tasks/scene-forest-tutorial-02c-background-02c-bg-near/TASK.md"
+    },
+    {
+      "id": "scene-forest-tutorial-02c-background-97-validate-composition",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/tasks/scene-forest-tutorial-02c-background/tasks/scene-forest-tutorial-02c-background-97-validate-composition/TASK.md"
+    }
+  ]
+}

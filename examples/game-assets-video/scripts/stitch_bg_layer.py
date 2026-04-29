@@ -61,6 +61,10 @@ def main() -> int:
     ap.add_argument("layer")
     ap.add_argument("--overlap-px", type=int, default=None,
                     help="Pixels of overlap between adjacent segments (default per layer).")
+    ap.add_argument("--no-inpaint", action="store_true",
+                    help="Skip the AI seam-inpaint pass and feather-blend only. Use when "
+                         "per-chunk paint already pre-aligns seams (e.g. the SVG-skeleton "
+                         "+ inpaint-on-paint flow used by bg-near).")
     args = ap.parse_args()
 
     project_root = find_project_root(Path.cwd())
@@ -124,7 +128,7 @@ def main() -> int:
     out_png = layer_dir / "final.png"
     atlas_path = layer_dir / "final.atlas.json"
 
-    if args.layer == "far":
+    if args.layer == "far" or args.no_inpaint:
         canvas = Image.new("RGBA", (target_w, target_h), (0, 0, 0, 0))
         x = 0
         for i, im in enumerate(resized):

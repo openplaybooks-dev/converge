@@ -1,0 +1,20 @@
+{
+  "image": "final.png",
+  "frame_count": 1,
+  "meta": {
+    "mode": "sheet",
+    "cols": 1,
+    "rows": 1,
+    "frame_w": 3904,
+    "frame_h": 960
+  },
+  "frames": [
+    {
+      "x": 0,
+      "y": 0,
+      "w": 3904,
+      "h": 960,
+      "duration_ms": 0
+    }
+  ]
+}

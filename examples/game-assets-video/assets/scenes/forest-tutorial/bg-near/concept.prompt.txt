@@ -1,0 +1,81 @@
+You are given a partially-painted canvas (image #1). EXTEND the existing painting rightward to fill the chroma-green area.
+
+# What's already on the canvas (image #1)
+
+- Canvas size: 1536x154 px, aspect 10.00:1.
+- The LEFTMOST 154 px (columns 0 to 153, ~10.0% of width) is ALREADY PAINTED at FULL CANVAS HEIGHT — this is the bg-near visual reference (sky / mountains / mid foliage / foreground ground band, all in the canonical palette). It defines the style, palette, brushwork, AND the layout (sky on top, painted bg-near band on bottom).
+- The remaining region (columns 154 to 1535) is solid chroma green #00FF00, with a TILEMAP GRID of colored outline+X markers describing terrain features (see legend below).
+
+# Your job
+
+EXTEND the painted scene rightward into the chroma area. The output must look like ONE continuous painted scene from x=0 to x=1535, NOT two halves with a seam:
+
+  - Match the anchor's layout exactly: same sky/mountain/mid horizon position, same ground band height, same palette, same brushwork.
+  - Replace each terrain marker with painted scenery that VISUALLY READS as that marker's kind in this biome (see legend).
+  - The seam at x=154 must be invisible — palette, foliage density, ground level, and atmospheric tones flow continuously from the anchor into your extension.
+
+# Output technical contract
+
+- Output one image at EXACTLY 1536x154 px. Do not crop, resize, or letterbox.
+- The output represents the ENTIRE scene canvas of 9600x960 px (tile range 0-600 horizontally). Relative x positions in the chunk plan map to fractional positions across the output width.
+- LEFT ANCHOR REGION (columns 0 to 153): keep the existing painted content as-is. Do not erase, recolor, or restyle it.
+- EXTENSION REGION (columns 154 to 1535): replace the chroma + outline+X markers with painted continuation. NO chroma green AND NO outline/X colors should remain anywhere in the final output (except in cells whose legend color is "(no fill — chroma stays)" — those keep chroma green).
+- Do NOT paint: text, UI, characters, gameplay icons.
+
+# Terrain schematic (colored outline + X per tile cell)
+
+The extension region of the canvas has a TILEMAP GRID drawn on top of the chroma. Each cell is shown as a colored OUTLINE BOX with a diagonal X through it. The cell's color identifies its kind; the outline + X are pure schematic markers (NOT painted content). Replace each cell with painted scenery that VISUALLY READS as that kind in this biome.
+
+Legend (cell char -> outline color -> what to paint there):
+
+  - '.' kind=vast       color=(no fill — chroma stays)  -> leave as chroma green; nothing painted here (sky / behind-the-scene void)
+  - '#' kind=land       color=#5B3B1C  -> paint as solid foreground earth — grass/foliage on top, dirt body below
+  - '~' kind=water      color=#3A6FAA  -> paint as wetland / pond edge — reeds, lily pads, soft mud bank, no foliage on top
+  - '=' kind=platform   color=#7A6F5A  -> paint as a raised wood/grass-topped lip the player can land on; clean top edge
+  - '^' kind=hazard     color=#A03A3A  -> paint as harsh thorny growth or jagged rock — hostile feature
+
+Match each cell's footprint: the painted scenery for a cell should occupy the same tile rectangle as the marker. Adjacent same-kind cells form contiguous painted features (e.g. a 5-tile-wide water span paints as ONE pond, not 5 ponds). Cells whose color is "(no fill — chroma stays)" must remain solid chroma green — paint nothing in those cells.
+
+# Canonical palette (locked across the whole image)
+
+  - ground_fill: #6FAA3E
+  - ground_stroke: #3A5C24
+  - foliage_fill: #2E5530
+  - foliage_stroke: #1A3A1C
+  - wood: #5B3B1C
+  - rock: #7A6F5A
+  - accent_flower: #E8C547
+  - chroma: #00FF00
+
+# Ground horizon
+
+The ground horizon is implicit in the terrain grid — the top edge of the painted band must follow the topmost row of land cells (visible as the brown outline+X cluster's upper boundary in the schematic). Land cells = land/foliage; vast cells (chroma) = sky / behind-the-scene void.
+
+# Per-chunk biome rhythm (left -> right; spatial layout comes from the visible anchor + sketch)
+
+  - c0: biome=grassland-open, ground=grass
+  - c1: biome=grassland-path, ground=dirt
+  - c2: biome=grassland-wetland, ground=dirt-mud
+  - c3: biome=grassland-elevated, ground=grass-rocky
+  - c4: biome=grassland-path, ground=grass-dirt-mix
+  - c5: biome=grassland-elevated, ground=grass-stone
+  - c6: biome=grassland-elevated, ground=grass
+  - c7: biome=grassland-exit, ground=grass
+  - c8: biome=grassland-open, ground=grass
+  - c9: biome=grassland-path, ground=dirt
+  - c10: biome=grassland-wetland, ground=dirt-mud
+  - c11: biome=grassland-elevated, ground=grass-rocky
+  - c12: biome=grassland-path, ground=grass-dirt-mix
+  - c13: biome=grassland-elevated, ground=grass-stone
+  - c14: biome=grassland-elevated, ground=grass
+  - c15: biome=grassland-exit, ground=grass
+
+# Continuity rules
+
+- Same palette throughout — no biome shift, no lighting shift across the strip.
+- Lighting: soft top-down / upper-left, matches the anchor.
+- No vertical seams between chunks; transitions happen smoothly inside chunks.
+
+# Acceptance
+
+Top half follows the anchor's sky/mid layout; bottom half is a continuous painted forest foreground following the terrain grid; palette matches canonical hexes; per-chunk biome cues visible without breaking palette continuity; whole scene reads as one coherent painted strip end-to-end (no visible seam at the anchor boundary, no obvious repetition).

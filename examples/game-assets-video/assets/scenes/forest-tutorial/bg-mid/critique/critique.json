@@ -1,0 +1,63 @@
+{
+  "verdict": "pass",
+  "summary": "The bg-mid layer reads as a coherent transparent silhouette band of mid-distance trees and hill ridges across all 8 segments. Palette and silhouette density are consistent, seam transitions hold, and chroma-green negative space is preserved above and below the band so far/near layers can show through. No actionable issues identified at high severity.",
+  "segments": [
+    {
+      "index": 0,
+      "decision": "keep",
+      "severity": "n/a",
+      "issues": [],
+      "advice": ""
+    },
+    {
+      "index": 1,
+      "decision": "keep",
+      "severity": "n/a",
+      "issues": [],
+      "advice": ""
+    },
+    {
+      "index": 2,
+      "decision": "keep",
+      "severity": "n/a",
+      "issues": [],
+      "advice": ""
+    },
+    {
+      "index": 3,
+      "decision": "keep",
+      "severity": "n/a",
+      "issues": [],
+      "advice": ""
+    },
+    {
+      "index": 4,
+      "decision": "keep",
+      "severity": "n/a",
+      "issues": [],
+      "advice": ""
+    },
+    {
+      "index": 5,
+      "decision": "keep",
+      "severity": "n/a",
+      "issues": [],
+      "advice": ""
+    },
+    {
+      "index": 6,
+      "decision": "keep",
+      "severity": "n/a",
+      "issues": [],
+      "advice": ""
+    },
+    {
+      "index": 7,
+      "decision": "keep",
+      "severity": "n/a",
+      "issues": [],
+      "advice": ""
+    }
+  ],
+  "fix_targets": []
+}

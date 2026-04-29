@@ -50,15 +50,19 @@ export async function run(ctx) {
   // Order across siblings is enforced by `inputs:` gates on each child:
   // bg-mid declares bg-far.png as input, bg-near declares bg-mid.png.
   const stages = [
-    { dir: '01-concept',     suffix: '01-concept' },
-    { dir: '01b-extract',    suffix: '01b-extract' },
-    { dir: '02a-decompose',  suffix: '02a-decompose' },
-    { dir: '02b-stage',      suffix: '02b-stage' },
-    { dir: '02c-background', suffix: '02c-background' },
-    { dir: '03-tiles',       suffix: '03-tiles' },
-    { dir: '04-props',       suffix: '04-props' },
-    { dir: '05-manifest',    suffix: '05-manifest' },
-    { dir: '07-preview',     suffix: '07-preview' },
+    { dir: '01-concept',       suffix: '01-concept' },
+    { dir: '01b-extract',      suffix: '01b-extract' },
+    { dir: '02a-decompose',    suffix: '02a-decompose' },
+    { dir: '02b-stage',        suffix: '02b-stage' },
+    // 02bb-scene-design: scene-level design brief (DESIGN.md). Runs after
+    // stage.json + scene-plan.json + extracted images exist; produces the
+    // canonical art-direction document every downstream layer reads.
+    { dir: '02bb-scene-design', suffix: '02bb-scene-design' },
+    { dir: '02c-background',   suffix: '02c-background' },
+    { dir: '03-tiles',         suffix: '03-tiles' },
+    { dir: '04-props',         suffix: '04-props' },
+    { dir: '05-manifest',      suffix: '05-manifest' },
+    { dir: '07-preview',       suffix: '07-preview' },
   ];
 
   // Helper: lazy-load fs/path; install a child template (TASK.md only)

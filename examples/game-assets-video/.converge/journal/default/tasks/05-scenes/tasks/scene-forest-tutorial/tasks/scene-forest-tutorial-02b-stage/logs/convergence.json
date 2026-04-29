@@ -38,163 +38,8 @@
       },
       "result": {
         "action": "continue",
-        "gaps": [
-          {
-            "id": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage-missing-output-assets/scenes/forest-tutorial/stage.json",
-            "type": "incomplete",
-            "level": "task",
-            "scope": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage",
-            "severity": "high",
-            "description": "[05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage] Task output not created: assets/scenes/forest-tutorial/stage.json",
-            "source": "unit",
-            "detected": "2026-04-28T22:23:15.067Z",
-            "resolved": false,
-            "checks": [],
-            "metadata": {
-              "gapKind": "output",
-              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/tasks/scene-forest-tutorial-02b-stage",
-              "taskId": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage",
-              "taskTitle": "Scene `forest-tutorial` — stage blueprint",
-              "taskPrompt": "# Scene `forest-tutorial` — stage blueprint\n\n## Role\n\nYou are a **paid-API operator**. Run the script and report its real result. Do **NOT** hand-author the JSON — the script's whole point is to use the model's understanding of the scene description and biome to design a coherent playable layout that other tasks downstream consume.\n\n## What this produces\n\n`assets/scenes/forest-tutorial/stage.json` — the **blueprint everyone downstream reads**. It defines:\n\n- `world.width_tiles` × `world.height_tiles` — the playable area, in tile units. This is the source of truth for canvas dimensions across the rest of the pipeline.\n- `chunks[]` — the scene split into contiguous left-to-right sections. Each chunk has its own `ground_type` (which tile family covers the floor), narrative (used to prompt per-segment background generation later), and `scene_props[]` (which collectibles/decorations live in this chunk and at what tile coords).\n- `background.{target_width_px, target_height_px, segment_width_px, overlap_px}` — derived from world dimensions × tile size; consumed by `02c-background` to compute segment count.\n- `tilemap_chunks[]` — per-chunk tile-set hints, consumed by `03-tiles` to spawn the right tile variants.\n\n## Why this exists\n\nWithout a stage blueprint:\n- Background segment count is computed from an arbitrary `target_size`, not from \"this scene is N tiles wide\".\n- Tilemap layout is an undifferentiated grid rather than per-chunk biome variants.\n- Scene props (key, potion, etc.) have no declared (x_tiles, y_tiles) — they get composited at random.\n\nThis task fixes the planning gap: it commits the scene's playable layout to disk before any pixels are generated.\n\n## Run\n\n```bash\npython scripts/generate_stage.py forest-tutorial\n```\n\nThe script reads `scene-plan.json` (which already has the per-layer art direction), `SPEC.md` (the scene's narrative spec), `scenes.json[forest-tutorial]` (declared characters / shared props / bg layer config), and `game.json` (tile size, view mode, world size hints). It calls Gemini text-out once with a structured prompt: \"design this scene's playable area as N chunks\". Output is one JSON object.\n\nThe post-execution check `stage-json-has-required-shape` rejects any output where chunks don't tile the world width cleanly (no gaps, no overlaps) or the world dimensions are missing.\n\n## What to do if the script fails\n\n1. Load `.env` (`set -a && . ./.env && set +a`) and re-run.\n2. If the model returned malformed JSON, the script saves the raw text to `stage.raw.txt` and exits non-zero. Re-run; the model usually self-corrects on a second attempt.\n3. If still failing, surface the exact error and exit. Do not patch around it locally.",
-              "taskInputs": [
-                "assets/scenes/forest-tutorial/scene-plan.json",
-                "assets/scenes/forest-tutorial/SPEC.md",
-                "assets/scenes.json",
-                "assets/game.json"
-              ],
-              "factId": "file-exists:test -f \"assets/scenes/forest-tutorial/stage.json\"",
-              "awaitingUserInput": false
-            }
-          },
-          {
-            "id": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage-missing-output-assets/scenes/forest-tutorial/map.silhouette.png",
-            "type": "incomplete",
-            "level": "task",
-            "scope": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage",
-            "severity": "high",
-            "description": "[05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage] Task output not created: assets/scenes/forest-tutorial/map.silhouette.png",
-            "source": "unit",
-            "detected": "2026-04-28T22:23:15.069Z",
-            "resolved": false,
-            "checks": [],
-            "metadata": {
-              "gapKind": "output",
-              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/tasks/scene-forest-tutorial-02b-stage",
-              "taskId": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage",
-              "taskTitle": "Scene `forest-tutorial` — stage blueprint",
-              "taskPrompt": "# Scene `forest-tutorial` — stage blueprint\n\n## Role\n\nYou are a **paid-API operator**. Run the script and report its real result. Do **NOT** hand-author the JSON — the script's whole point is to use the model's understanding of the scene description and biome to design a coherent playable layout that other tasks downstream consume.\n\n## What this produces\n\n`assets/scenes/forest-tutorial/stage.json` — the **blueprint everyone downstream reads**. It defines:\n\n- `world.width_tiles` × `world.height_tiles` — the playable area, in tile units. This is the source of truth for canvas dimensions across the rest of the pipeline.\n- `chunks[]` — the scene split into contiguous left-to-right sections. Each chunk has its own `ground_type` (which tile family covers the floor), narrative (used to prompt per-segment background generation later), and `scene_props[]` (which collectibles/decorations live in this chunk and at what tile coords).\n- `background.{target_width_px, target_height_px, segment_width_px, overlap_px}` — derived from world dimensions × tile size; consumed by `02c-background` to compute segment count.\n- `tilemap_chunks[]` — per-chunk tile-set hints, consumed by `03-tiles` to spawn the right tile variants.\n\n## Why this exists\n\nWithout a stage blueprint:\n- Background segment count is computed from an arbitrary `target_size`, not from \"this scene is N tiles wide\".\n- Tilemap layout is an undifferentiated grid rather than per-chunk biome variants.\n- Scene props (key, potion, etc.) have no declared (x_tiles, y_tiles) — they get composited at random.\n\nThis task fixes the planning gap: it commits the scene's playable layout to disk before any pixels are generated.\n\n## Run\n\n```bash\npython scripts/generate_stage.py forest-tutorial\n```\n\nThe script reads `scene-plan.json` (which already has the per-layer art direction), `SPEC.md` (the scene's narrative spec), `scenes.json[forest-tutorial]` (declared characters / shared props / bg layer config), and `game.json` (tile size, view mode, world size hints). It calls Gemini text-out once with a structured prompt: \"design this scene's playable area as N chunks\". Output is one JSON object.\n\nThe post-execution check `stage-json-has-required-shape` rejects any output where chunks don't tile the world width cleanly (no gaps, no overlaps) or the world dimensions are missing.\n\n## What to do if the script fails\n\n1. Load `.env` (`set -a && . ./.env && set +a`) and re-run.\n2. If the model returned malformed JSON, the script saves the raw text to `stage.raw.txt` and exits non-zero. Re-run; the model usually self-corrects on a second attempt.\n3. If still failing, surface the exact error and exit. Do not patch around it locally.",
-              "taskInputs": [
-                "assets/scenes/forest-tutorial/scene-plan.json",
-                "assets/scenes/forest-tutorial/SPEC.md",
-                "assets/scenes.json",
-                "assets/game.json"
-              ],
-              "factId": "file-exists:test -f \"assets/scenes/forest-tutorial/map.silhouette.png\"",
-              "awaitingUserInput": false
-            }
-          },
-          {
-            "id": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage-check-failed-stage-json-exists",
-            "type": "incomplete",
-            "level": "task",
-            "scope": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage",
-            "severity": "high",
-            "description": "[05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage] Check failed: stage.json was written",
-            "source": "unit",
-            "detected": "2026-04-28T22:23:15.071Z",
-            "resolved": false,
-            "checks": [],
-            "metadata": {
-              "gapKind": "check-failed",
-              "checkId": "stage-json-exists",
-              "checkCmd": "test -s assets/scenes/forest-tutorial/stage.json",
-              "checkDescription": "stage.json was written",
-              "checkOutput": "",
-              "checkExitCode": 1,
-              "taskPrompt": "# Scene `forest-tutorial` — stage blueprint\n\n## Role\n\nYou are a **paid-API operator**. Run the script and report its real result. Do **NOT** hand-author the JSON — the script's whole point is to use the model's understanding of the scene description and biome to design a coherent playable layout that other tasks downstream consume.\n\n## What this produces\n\n`assets/scenes/forest-tutorial/stage.json` — the **blueprint everyone downstream reads**. It defines:\n\n- `world.width_tiles` × `world.height_tiles` — the playable area, in tile units. This is the source of truth for canvas dimensions across the rest of the pipeline.\n- `chunks[]` — the scene split into contiguous left-to-right sections. Each chunk has its own `ground_type` (which tile family covers the floor), narrative (used to prompt per-segment background generation later), and `scene_props[]` (which collectibles/decorations live in this chunk and at what tile coords).\n- `background.{target_width_px, target_height_px, segment_width_px, overlap_px}` — derived from world dimensions × tile size; consumed by `02c-background` to compute segment count.\n- `tilemap_chunks[]` — per-chunk tile-set hints, consumed by `03-tiles` to spawn the right tile variants.\n\n## Why this exists\n\nWithout a stage blueprint:\n- Background segment count is computed from an arbitrary `target_size`, not from \"this scene is N tiles wide\".\n- Tilemap layout is an undifferentiated grid rather than per-chunk biome variants.\n- Scene props (key, potion, etc.) have no declared (x_tiles, y_tiles) — they get composited at random.\n\nThis task fixes the planning gap: it commits the scene's playable layout to disk before any pixels are generated.\n\n## Run\n\n```bash\npython scripts/generate_stage.py forest-tutorial\n```\n\nThe script reads `scene-plan.json` (which already has the per-layer art direction), `SPEC.md` (the scene's narrative spec), `scenes.json[forest-tutorial]` (declared characters / shared props / bg layer config), and `game.json` (tile size, view mode, world size hints). It calls Gemini text-out once with a structured prompt: \"design this scene's playable area as N chunks\". Output is one JSON object.\n\nThe post-execution check `stage-json-has-required-shape` rejects any output where chunks don't tile the world width cleanly (no gaps, no overlaps) or the world dimensions are missing.\n\n## What to do if the script fails\n\n1. Load `.env` (`set -a && . ./.env && set +a`) and re-run.\n2. If the model returned malformed JSON, the script saves the raw text to `stage.raw.txt` and exits non-zero. Re-run; the model usually self-corrects on a second attempt.\n3. If still failing, surface the exact error and exit. Do not patch around it locally.",
-              "taskId": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage",
-              "taskTitle": "Scene `forest-tutorial` — stage blueprint",
-              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/tasks/scene-forest-tutorial-02b-stage",
-              "factId": "check:stage-json-exists"
-            }
-          },
-          {
-            "id": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage-check-failed-stage-silhouette-exists",
-            "type": "incomplete",
-            "level": "task",
-            "scope": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage",
-            "severity": "high",
-            "description": "[05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage] Check failed: map.silhouette.png was rendered",
-            "source": "unit",
-            "detected": "2026-04-28T22:23:15.072Z",
-            "resolved": false,
-            "checks": [],
-            "metadata": {
-              "gapKind": "check-failed",
-              "checkId": "stage-silhouette-exists",
-              "checkCmd": "test -s assets/scenes/forest-tutorial/map.silhouette.png",
-              "checkDescription": "map.silhouette.png was rendered",
-              "checkOutput": "",
-              "checkExitCode": 1,
-              "taskPrompt": "# Scene `forest-tutorial` — stage blueprint\n\n## Role\n\nYou are a **paid-API operator**. Run the script and report its real result. Do **NOT** hand-author the JSON — the script's whole point is to use the model's understanding of the scene description and biome to design a coherent playable layout that other tasks downstream consume.\n\n## What this produces\n\n`assets/scenes/forest-tutorial/stage.json` — the **blueprint everyone downstream reads**. It defines:\n\n- `world.width_tiles` × `world.height_tiles` — the playable area, in tile units. This is the source of truth for canvas dimensions across the rest of the pipeline.\n- `chunks[]` — the scene split into contiguous left-to-right sections. Each chunk has its own `ground_type` (which tile family covers the floor), narrative (used to prompt per-segment background generation later), and `scene_props[]` (which collectibles/decorations live in this chunk and at what tile coords).\n- `background.{target_width_px, target_height_px, segment_width_px, overlap_px}` — derived from world dimensions × tile size; consumed by `02c-background` to compute segment count.\n- `tilemap_chunks[]` — per-chunk tile-set hints, consumed by `03-tiles` to spawn the right tile variants.\n\n## Why this exists\n\nWithout a stage blueprint:\n- Background segment count is computed from an arbitrary `target_size`, not from \"this scene is N tiles wide\".\n- Tilemap layout is an undifferentiated grid rather than per-chunk biome variants.\n- Scene props (key, potion, etc.) have no declared (x_tiles, y_tiles) — they get composited at random.\n\nThis task fixes the planning gap: it commits the scene's playable layout to disk before any pixels are generated.\n\n## Run\n\n```bash\npython scripts/generate_stage.py forest-tutorial\n```\n\nThe script reads `scene-plan.json` (which already has the per-layer art direction), `SPEC.md` (the scene's narrative spec), `scenes.json[forest-tutorial]` (declared characters / shared props / bg layer config), and `game.json` (tile size, view mode, world size hints). It calls Gemini text-out once with a structured prompt: \"design this scene's playable area as N chunks\". Output is one JSON object.\n\nThe post-execution check `stage-json-has-required-shape` rejects any output where chunks don't tile the world width cleanly (no gaps, no overlaps) or the world dimensions are missing.\n\n## What to do if the script fails\n\n1. Load `.env` (`set -a && . ./.env && set +a`) and re-run.\n2. If the model returned malformed JSON, the script saves the raw text to `stage.raw.txt` and exits non-zero. Re-run; the model usually self-corrects on a second attempt.\n3. If still failing, surface the exact error and exit. Do not patch around it locally.",
-              "taskId": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage",
-              "taskTitle": "Scene `forest-tutorial` — stage blueprint",
-              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/tasks/scene-forest-tutorial-02b-stage",
-              "factId": "check:stage-silhouette-exists"
-            }
-          },
-          {
-            "id": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage-check-failed-stage-json-has-required-shape",
-            "type": "incomplete",
-            "level": "task",
-            "scope": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage",
-            "severity": "high",
-            "description": "[05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage] Check failed: stage.json schema is valid — world, chunks, elevation, beats, platforms, hazards, background sizing",
-            "source": "unit",
-            "detected": "2026-04-28T22:23:15.094Z",
-            "resolved": false,
-            "checks": [],
-            "metadata": {
-              "gapKind": "check-failed",
-              "checkId": "stage-json-has-required-shape",
-              "checkCmd": "python -c \"\nimport json\ns = json.load(open('assets/scenes/forest-tutorial/stage.json'))\nassert s.get('scene_id') == 'forest-tutorial', f'scene_id mismatch'\nworld = s.get('world') or {}\nw_tiles = world.get('width_tiles')\nh_tiles = world.get('height_tiles')\nassert isinstance(w_tiles, int) and w_tiles > 0, f'world.width_tiles invalid: {w_tiles}'\nassert isinstance(h_tiles, int) and h_tiles > 0, f'world.height_tiles invalid: {h_tiles}'\nchunks = s.get('chunks') or []\nassert len(chunks) >= 3, f'must have >= 3 chunks for an action-scroller layout; got {len(chunks)}'\ncur = 0\nfor ch in chunks:\n    xr = ch.get('x_tiles') or []\n    assert len(xr) == 2 and xr[0] == cur, f'chunk {ch.get(\\\"id\\\")} x_tiles {xr} does not start at {cur}'\n    assert xr[1] > xr[0], f'chunk {ch.get(\\\"id\\\")} x_tiles {xr} is empty or reversed'\n    cur = xr[1]\nassert cur == w_tiles, f'chunks span {cur} tiles but world.width_tiles is {w_tiles}'\nbg = s.get('background') or {}\nassert isinstance(bg.get('target_width_px'), int), 'background.target_width_px missing'\nassert isinstance(bg.get('target_height_px'), int), 'background.target_height_px missing'\nelev = s.get('elevation') or []\nassert len(elev) >= 8, f'elevation must have >= 8 samples; got {len(elev)}'\nassert elev[0].get('x_tile') == 0, f'first elevation sample must be at x_tile=0'\nassert elev[-1].get('x_tile') == w_tiles, f'last elevation sample must be at x_tile={w_tiles}'\nys = [e.get('y_tile') for e in elev if isinstance(e.get('y_tile'), int)]\nassert len(set(ys)) > 1, 'elevation must vary across the map'\nassert (max(ys) - min(ys)) >= 4, f'elevation spread must be at least 4 tiles (max-min); got {max(ys) - min(ys)}'\nbeats = s.get('beats') or []\nassert len(beats) >= 4, f'beats must have >= 4 entries (spawn → first → middle → exit); got {len(beats)}'\nkinds = [b.get('kind') for b in beats]\nassert 'spawn' in kinds, 'beats must include a spawn'\nassert 'exit' in kinds, 'beats must include an exit'\nplatforms = s.get('platforms') or []\nhazards = s.get('hazards') or []\n# The strict floors here match the prompt's hard rules; very long\n# 'tutorial-intro' scenes that genuinely have no threats can pass\n# platforms=2/hazards=0 by setting scene.gameplay.scene_kind='tutorial-intro'.\nkind = (((__import__('json').load(open('assets/scenes.json')) or [{}])[0]).get('gameplay') or {}).get('scene_kind') if False else None\nassert len(platforms) >= 2, f'must have >= 2 non-trivial platforms (ledge/elevated); got {len(platforms)}'\nassert len(hazards) >= 1, f'must have >= 1 hazard for action-scroller rhythm; got {len(hazards)}'\n\"\n",
-              "checkDescription": "stage.json schema is valid — world, chunks, elevation, beats, platforms, hazards, background sizing",
-              "checkOutput": "Traceback (most recent call last):\n  File \"<string>\", line 3, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: 'assets/scenes/forest-tutorial/stage.json'",
-              "checkExitCode": 1,
-              "taskPrompt": "# Scene `forest-tutorial` — stage blueprint\n\n## Role\n\nYou are a **paid-API operator**. Run the script and report its real result. Do **NOT** hand-author the JSON — the script's whole point is to use the model's understanding of the scene description and biome to design a coherent playable layout that other tasks downstream consume.\n\n## What this produces\n\n`assets/scenes/forest-tutorial/stage.json` — the **blueprint everyone downstream reads**. It defines:\n\n- `world.width_tiles` × `world.height_tiles` — the playable area, in tile units. This is the source of truth for canvas dimensions across the rest of the pipeline.\n- `chunks[]` — the scene split into contiguous left-to-right sections. Each chunk has its own `ground_type` (which tile family covers the floor), narrative (used to prompt per-segment background generation later), and `scene_props[]` (which collectibles/decorations live in this chunk and at what tile coords).\n- `background.{target_width_px, target_height_px, segment_width_px, overlap_px}` — derived from world dimensions × tile size; consumed by `02c-background` to compute segment count.\n- `tilemap_chunks[]` — per-chunk tile-set hints, consumed by `03-tiles` to spawn the right tile variants.\n\n## Why this exists\n\nWithout a stage blueprint:\n- Background segment count is computed from an arbitrary `target_size`, not from \"this scene is N tiles wide\".\n- Tilemap layout is an undifferentiated grid rather than per-chunk biome variants.\n- Scene props (key, potion, etc.) have no declared (x_tiles, y_tiles) — they get composited at random.\n\nThis task fixes the planning gap: it commits the scene's playable layout to disk before any pixels are generated.\n\n## Run\n\n```bash\npython scripts/generate_stage.py forest-tutorial\n```\n\nThe script reads `scene-plan.json` (which already has the per-layer art direction), `SPEC.md` (the scene's narrative spec), `scenes.json[forest-tutorial]` (declared characters / shared props / bg layer config), and `game.json` (tile size, view mode, world size hints). It calls Gemini text-out once with a structured prompt: \"design this scene's playable area as N chunks\". Output is one JSON object.\n\nThe post-execution check `stage-json-has-required-shape` rejects any output where chunks don't tile the world width cleanly (no gaps, no overlaps) or the world dimensions are missing.\n\n## What to do if the script fails\n\n1. Load `.env` (`set -a && . ./.env && set +a`) and re-run.\n2. If the model returned malformed JSON, the script saves the raw text to `stage.raw.txt` and exits non-zero. Re-run; the model usually self-corrects on a second attempt.\n3. If still failing, surface the exact error and exit. Do not patch around it locally.",
-              "taskId": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage",
-              "taskTitle": "Scene `forest-tutorial` — stage blueprint",
-              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/tasks/scene-forest-tutorial-02b-stage",
-              "factId": "check:stage-json-has-required-shape"
-            }
-          },
-          {
-            "id": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage-check-failed-stage-silhouette-not-tiny",
-            "type": "incomplete",
-            "level": "task",
-            "scope": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage",
-            "severity": "high",
-            "description": "[05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage] Check failed: silhouette PNG is wide and large enough to be useful as a downstream reference",
-            "source": "unit",
-            "detected": "2026-04-28T22:23:15.137Z",
-            "resolved": false,
-            "checks": [],
-            "metadata": {
-              "gapKind": "check-failed",
-              "checkId": "stage-silhouette-not-tiny",
-              "checkCmd": "python -c \"\nfrom PIL import Image\nw, h = Image.open('assets/scenes/forest-tutorial/map.silhouette.png').size\nassert w >= 1024 and h >= 256, f'silhouette too small: {w}x{h} (expected >= 1024x256)'\nassert w / max(h, 1) >= 2.5, f'silhouette must be wide; got aspect {w}/{h} = {w/max(h,1):.2f}'\n\"\n",
-              "checkDescription": "silhouette PNG is wide and large enough to be useful as a downstream reference",
-              "checkOutput": "Traceback (most recent call last):\n  File \"<string>\", line 3, in <module>\n  File \"/opt/homebrew/Caskroom/miniconda/base/lib/python3.12/site-packages/PIL/Image.py\", line 3513, in open\n    fp = builtins.open(filename, \"rb\")\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: 'assets/scenes/forest-tutorial/map.silhouette.png'",
-              "checkExitCode": 1,
-              "taskPrompt": "# Scene `forest-tutorial` — stage blueprint\n\n## Role\n\nYou are a **paid-API operator**. Run the script and report its real result. Do **NOT** hand-author the JSON — the script's whole point is to use the model's understanding of the scene description and biome to design a coherent playable layout that other tasks downstream consume.\n\n## What this produces\n\n`assets/scenes/forest-tutorial/stage.json` — the **blueprint everyone downstream reads**. It defines:\n\n- `world.width_tiles` × `world.height_tiles` — the playable area, in tile units. This is the source of truth for canvas dimensions across the rest of the pipeline.\n- `chunks[]` — the scene split into contiguous left-to-right sections. Each chunk has its own `ground_type` (which tile family covers the floor), narrative (used to prompt per-segment background generation later), and `scene_props[]` (which collectibles/decorations live in this chunk and at what tile coords).\n- `background.{target_width_px, target_height_px, segment_width_px, overlap_px}` — derived from world dimensions × tile size; consumed by `02c-background` to compute segment count.\n- `tilemap_chunks[]` — per-chunk tile-set hints, consumed by `03-tiles` to spawn the right tile variants.\n\n## Why this exists\n\nWithout a stage blueprint:\n- Background segment count is computed from an arbitrary `target_size`, not from \"this scene is N tiles wide\".\n- Tilemap layout is an undifferentiated grid rather than per-chunk biome variants.\n- Scene props (key, potion, etc.) have no declared (x_tiles, y_tiles) — they get composited at random.\n\nThis task fixes the planning gap: it commits the scene's playable layout to disk before any pixels are generated.\n\n## Run\n\n```bash\npython scripts/generate_stage.py forest-tutorial\n```\n\nThe script reads `scene-plan.json` (which already has the per-layer art direction), `SPEC.md` (the scene's narrative spec), `scenes.json[forest-tutorial]` (declared characters / shared props / bg layer config), and `game.json` (tile size, view mode, world size hints). It calls Gemini text-out once with a structured prompt: \"design this scene's playable area as N chunks\". Output is one JSON object.\n\nThe post-execution check `stage-json-has-required-shape` rejects any output where chunks don't tile the world width cleanly (no gaps, no overlaps) or the world dimensions are missing.\n\n## What to do if the script fails\n\n1. Load `.env` (`set -a && . ./.env && set +a`) and re-run.\n2. If the model returned malformed JSON, the script saves the raw text to `stage.raw.txt` and exits non-zero. Re-run; the model usually self-corrects on a second attempt.\n3. If still failing, surface the exact error and exit. Do not patch around it locally.",
-              "taskId": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage",
-              "taskTitle": "Scene `forest-tutorial` — stage blueprint",
-              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/tasks/scene-forest-tutorial-02b-stage",
-              "factId": "check:stage-silhouette-not-tiny"
-            }
-          }
-        ],
-        "durationMs": 81
+        "gaps": [],
+        "durationMs": 3046
       }
     },
     {
@@ -206,80 +51,6 @@
         "priority": 97,
         "applicable": "noGapsAndExecuted"
       }
-    },
-    {
-      "id": "run-executor",
-      "handler": "run-executor",
-      "status": "done",
-      "origin": "initial",
-      "data": {
-        "priority": 65
-      },
-      "result": {
-        "action": "continue",
-        "durationMs": 0
-      }
-    },
-    {
-      "id": "repair-loop",
-      "handler": "repair-loop",
-      "status": "done",
-      "origin": "initial",
-      "data": {
-        "priority": 55
-      },
-      "result": {
-        "action": "continue",
-        "durationMs": 80
-      }
-    },
-    {
-      "id": "verify",
-      "handler": "verify",
-      "status": "done",
-      "origin": "initial",
-      "data": {
-        "priority": 50
-      },
-      "result": {
-        "action": "done",
-        "success": true,
-        "reason": "All gaps resolved",
-        "gaps": [],
-        "durationMs": 196
-      }
-    },
-    {
-      "id": "check-stall",
-      "handler": "check-stall",
-      "status": "buffered",
-      "origin": "initial",
-      "data": {
-        "priority": 45
-      }
-    },
-    {
-      "id": "advance-attempt",
-      "handler": "advance-attempt",
-      "status": "buffered",
-      "origin": "initial",
-      "data": {
-        "priority": 40
-      }
-    },
-    {
-      "id": "run-strategy:task-run#7",
-      "handler": "run-strategy",
-      "status": "done",
-      "origin": "planned",
-      "data": {
-        "strategy": "task-run",
-        "priority": 55
-      },
-      "result": {
-        "action": "continue",
-        "durationMs": 99711
-      }
     }
   ],
   "edges": [
@@ -287,43 +58,19 @@
       "from": "_start",
       "to": "check-wbs-seeded",
       "iteration": 1,
-      "ts": "2026-04-28T22:23:15.056Z"
+      "ts": "2026-04-29T04:53:08.487Z"
     },
     {
       "from": "check-wbs-seeded",
       "to": "check-outputs-exist",
       "iteration": 1,
-      "ts": "2026-04-28T22:23:15.056Z"
+      "ts": "2026-04-29T04:53:08.490Z"
     },
     {
       "from": "check-outputs-exist",
       "to": "detect-gaps",
       "iteration": 1,
-      "ts": "2026-04-28T22:23:15.137Z"
-    },
-    {
-      "from": "detect-gaps",
-      "to": "run-executor",
-      "iteration": 1,
-      "ts": "2026-04-28T22:23:15.137Z"
-    },
-    {
-      "from": "run-executor",
-      "to": "repair-loop",
-      "iteration": 1,
-      "ts": "2026-04-28T22:23:15.218Z"
-    },
-    {
-      "from": "repair-loop",
-      "to": "run-strategy:task-run#7",
-      "iteration": 1,
-      "ts": "2026-04-28T22:24:54.930Z"
-    },
-    {
-      "from": "run-strategy:task-run#7",
-      "to": "verify",
-      "iteration": 1,
-      "ts": "2026-04-28T22:24:55.127Z"
+      "ts": "2026-04-29T04:53:11.545Z"
     }
   ]
 }

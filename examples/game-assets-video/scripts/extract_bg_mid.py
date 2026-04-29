@@ -27,6 +27,7 @@ import io
 import sys
 from pathlib import Path
 
+import numpy as np
 from PIL import Image
 
 from lib import budget, stitch
@@ -132,6 +133,26 @@ irregular organic horizon, bottom half solid mid-distance painting.
 """
 
 
+def _enforce_bottom_fill(arr: np.ndarray) -> np.ndarray:
+    chroma = (arr[:, :, 0] < 60) & (arr[:, :, 1] > 180) & (arr[:, :, 2] < 60)
+    h, w = chroma.shape
+    for x in range(w):
+        painted = np.where(~chroma[:, x])[0]
+        if painted.size == 0:
+            continue
+        last = painted[-1]
+        if last < h - 1:
+            arr[last + 1 :, x, :3] = arr[last, x, :3]
+            chroma[last + 1 :, x] = False
+    empty_cols = np.where(np.all(chroma, axis=0))[0]
+    filled_cols = np.where(~np.all(chroma, axis=0))[0]
+    if empty_cols.size and filled_cols.size:
+        for x in empty_cols:
+            src = filled_cols[np.argmin(np.abs(filled_cols - x))]
+            arr[h // 2 :, x, :3] = arr[h // 2 :, src, :3]
+    return arr
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("scene_id")
@@ -188,17 +209,18 @@ def main() -> int:
     if raw.size != (target_w, target_h):
         raw = raw.resize((target_w, target_h), Image.LANCZOS)
 
-    # Keep the chroma-green screen end-to-end: save fully-opaque RGBA
-    # with #00FF00 representing transparent zones as RGB content.
-    # Chroma keying is deferred to composition time so segments stitch
-    # cleanly across seams without alpha-classification heuristics.
-    pixels = raw.load()
-    w, h = raw.size
-    for y in range(h):
-        for x in range(w):
-            r, g, b, _ = pixels[x, y]
-            pixels[x, y] = (r, g, b, 255)
-    raw.save(out_png, format="PNG")
+    # Green-screen RGBA: fully-opaque alpha, #00FF00 marks "show-through"
+    # zones as RGB content. Chroma keying is deferred to composition time
+    # so segments stitch cleanly across seams.
+    #
+    # Stacking enforcement: the model often returns a silhouette band
+    # with chroma above AND below. The mid layer's contract is that it
+    # covers everything from the horizon down — no chroma at the canvas
+    # floor. Extend each column's lowest painted pixel through any
+    # chroma below it.
+    arr = _enforce_bottom_fill(np.array(raw))
+    arr[:, :, 3] = 255
+    Image.fromarray(arr, "RGBA").save(out_png, format="PNG")
     out_prompt.write_text(MID_PROMPT, encoding="utf-8")
     out_seed.write_text(str(seed_used), encoding="utf-8")
 

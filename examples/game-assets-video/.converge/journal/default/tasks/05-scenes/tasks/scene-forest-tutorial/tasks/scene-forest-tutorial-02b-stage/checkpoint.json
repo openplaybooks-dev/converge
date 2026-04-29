@@ -2,15 +2,15 @@
   "type": "task",
   "id": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02b-stage",
   "status": "complete",
-  "lastUpdated": "2026-04-28T22:24:55.535Z",
-  "createdAt": "2026-04-28T22:23:15.045Z",
+  "lastUpdated": "2026-04-29T04:53:12.379Z",
+  "createdAt": "2026-04-29T04:53:08.368Z",
   "attempts": [
     {
       "attempt": 1,
-      "startedAt": "2026-04-28T22:23:15.045Z",
-      "completedAt": "2026-04-28T22:24:55.512Z",
+      "startedAt": "2026-04-29T04:53:08.368Z",
+      "completedAt": "2026-04-29T04:53:12.173Z",
       "outcome": "success",
-      "durationMs": 100467
+      "durationMs": 3805
     }
   ],
   "currentAttempt": 1

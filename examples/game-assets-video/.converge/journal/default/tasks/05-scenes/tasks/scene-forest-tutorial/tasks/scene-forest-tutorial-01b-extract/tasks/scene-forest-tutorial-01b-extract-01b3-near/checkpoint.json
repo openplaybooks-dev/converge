@@ -2,15 +2,15 @@
   "type": "task",
   "id": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-01b-extract/scene-forest-tutorial-01b-extract-01b3-near",
   "status": "complete",
-  "lastUpdated": "2026-04-28T22:21:00.770Z",
-  "createdAt": "2026-04-28T22:18:23.247Z",
+  "lastUpdated": "2026-04-29T04:53:03.619Z",
+  "createdAt": "2026-04-29T04:53:01.555Z",
   "attempts": [
     {
       "attempt": 1,
-      "startedAt": "2026-04-28T22:18:23.247Z",
-      "completedAt": "2026-04-28T22:21:00.742Z",
+      "startedAt": "2026-04-29T04:53:01.555Z",
+      "completedAt": "2026-04-29T04:53:03.424Z",
       "outcome": "success",
-      "durationMs": 157495
+      "durationMs": 1869
     }
   ],
   "currentAttempt": 1

@@ -1,0 +1,15 @@
+{
+  "taskId": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02c-background/scene-forest-tutorial-02c-background-97-validate-composition",
+  "checks": [
+    {
+      "id": "bg-composition-critique-written",
+      "description": "cross-layer critique JSON was written",
+      "cmd": "test -s assets/scenes/forest-tutorial/bg-composition.critique.json"
+    },
+    {
+      "id": "bg-composition-no-high-severity",
+      "description": "no layer was flagged with severity=high (low-severity issues are accepted)",
+      "cmd": "python -c \"\nimport json\nc = json.load(open('assets/scenes/forest-tutorial/bg-composition.critique.json'))\nlayers = c.get('layers') or []\nhigh = [l for l in layers if l.get('decision') == 'fix' and l.get('severity') == 'high']\nif high:\n    tags = [(l.get('layer'), l.get('issues')) for l in high]\n    raise AssertionError(f'{len(high)} layer(s) flagged with severity=high: {tags}')\n\"\n"
+    }
+  ]
+}

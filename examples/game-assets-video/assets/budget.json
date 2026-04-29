@@ -1,5 +1,5 @@
 {
-  "budget_cents": 1000,
+  "budget_cents": 2000,
   "log": [
     {
       "ts": "2026-04-28T13:05:08.759455+00:00",
@@ -912,6 +912,360 @@
       "service": "image-gemini",
       "cost_cents": 5,
       "note": "inpaint-merge-near-07"
+    },
+    {
+      "ts": "2026-04-29T02:41:34.559309+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/tilesheet"
+    },
+    {
+      "ts": "2026-04-29T04:01:57.540714+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-far"
+    },
+    {
+      "ts": "2026-04-29T04:55:43.149792+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-mid/seg-000"
+    },
+    {
+      "ts": "2026-04-29T04:59:27.133579+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-mid/seg-001"
+    },
+    {
+      "ts": "2026-04-29T05:01:29.494063+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-mid/seg-002"
+    },
+    {
+      "ts": "2026-04-29T05:04:39.095656+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-mid/seg-003"
+    },
+    {
+      "ts": "2026-04-29T05:06:27.318361+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-mid/seg-004"
+    },
+    {
+      "ts": "2026-04-29T05:08:52.758735+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-mid/seg-005"
+    },
+    {
+      "ts": "2026-04-29T05:11:09.797642+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-mid/seg-006"
+    },
+    {
+      "ts": "2026-04-29T05:13:21.011765+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-mid/seg-007"
+    },
+    {
+      "ts": "2026-04-29T06:01:46.587321+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-mid-01"
+    },
+    {
+      "ts": "2026-04-29T06:02:20.790638+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-mid-02"
+    },
+    {
+      "ts": "2026-04-29T06:02:38.596317+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-mid-03"
+    },
+    {
+      "ts": "2026-04-29T06:02:57.175296+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-mid-04"
+    },
+    {
+      "ts": "2026-04-29T06:03:31.713895+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-mid-05"
+    },
+    {
+      "ts": "2026-04-29T06:04:02.111995+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-mid-06"
+    },
+    {
+      "ts": "2026-04-29T06:04:24.702046+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "inpaint-merge-mid-07"
+    },
+    {
+      "ts": "2026-04-29T06:37:53.275358+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/chunk-0"
+    },
+    {
+      "ts": "2026-04-29T06:38:17.505096+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/chunk-0"
+    },
+    {
+      "ts": "2026-04-29T06:39:43.062987+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/chunk-0"
+    },
+    {
+      "ts": "2026-04-29T07:03:44.761776+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/chunk-0"
+    },
+    {
+      "ts": "2026-04-29T07:04:42.287381+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/chunk-0"
+    },
+    {
+      "ts": "2026-04-29T07:07:04.333924+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/chunk-1"
+    },
+    {
+      "ts": "2026-04-29T07:07:35.078001+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/chunk-1"
+    },
+    {
+      "ts": "2026-04-29T07:08:16.680344+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/chunk-1"
+    },
+    {
+      "ts": "2026-04-29T07:09:47.880990+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/chunk-1"
+    },
+    {
+      "ts": "2026-04-29T07:12:57.591593+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/chunk-1"
+    },
+    {
+      "ts": "2026-04-29T07:25:34.938199+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/chunk-2"
+    },
+    {
+      "ts": "2026-04-29T07:26:29.556070+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/chunk-2"
+    },
+    {
+      "ts": "2026-04-29T07:26:43.311812+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/chunk-2"
+    },
+    {
+      "ts": "2026-04-29T07:35:20.454415+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/chunk-3"
+    },
+    {
+      "ts": "2026-04-29T07:37:15.320228+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/chunk-3"
+    },
+    {
+      "ts": "2026-04-29T07:37:22.353714+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/chunk-3"
+    },
+    {
+      "ts": "2026-04-29T07:38:14.986430+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/chunk-3"
+    },
+    {
+      "ts": "2026-04-29T07:42:52.878403+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/chunk-3"
+    },
+    {
+      "ts": "2026-04-29T07:44:43.367711+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/chunk-4"
+    },
+    {
+      "ts": "2026-04-29T07:46:04.742345+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/chunk-4"
+    },
+    {
+      "ts": "2026-04-29T09:14:02.476638+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/concept tile 1/2"
+    },
+    {
+      "ts": "2026-04-29T09:14:25.832703+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/concept tile 2/2"
+    },
+    {
+      "ts": "2026-04-29T09:16:37.555669+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/concept tile 1/2"
+    },
+    {
+      "ts": "2026-04-29T09:16:59.188303+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/concept tile 2/2"
+    },
+    {
+      "ts": "2026-04-29T09:18:47.431651+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/concept"
+    },
+    {
+      "ts": "2026-04-29T09:23:24.833825+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-long-test/bg-near/concept"
+    },
+    {
+      "ts": "2026-04-29T09:24:01.623658+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-long-test/bg-near/concept"
+    },
+    {
+      "ts": "2026-04-29T09:24:53.024758+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-long-test/bg-near/concept"
+    },
+    {
+      "ts": "2026-04-29T09:26:43.117881+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/concept"
+    },
+    {
+      "ts": "2026-04-29T09:29:14.785435+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/concept"
+    },
+    {
+      "ts": "2026-04-29T09:34:14.890987+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/concept"
+    },
+    {
+      "ts": "2026-04-29T09:39:11.485853+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/concept"
+    },
+    {
+      "ts": "2026-04-29T09:41:08.820385+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/concept"
+    },
+    {
+      "ts": "2026-04-29T09:45:39.827339+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/concept"
+    },
+    {
+      "ts": "2026-04-29T09:46:54.896442+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/concept"
+    },
+    {
+      "ts": "2026-04-29T10:00:41.508491+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/concept"
+    },
+    {
+      "ts": "2026-04-29T10:07:28.223402+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/concept"
+    },
+    {
+      "ts": "2026-04-29T10:30:03.071199+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/concept"
+    },
+    {
+      "ts": "2026-04-29T10:38:46.689495+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/concept"
+    },
+    {
+      "ts": "2026-04-29T10:43:36.958499+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/concept"
+    },
+    {
+      "ts": "2026-04-29T10:45:06.959660+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/concept"
+    },
+    {
+      "ts": "2026-04-29T11:01:19.356149+00:00",
+      "service": "image-gemini",
+      "cost_cents": 5,
+      "note": "forest-tutorial/bg-near/concept"
     }
   ]
 }

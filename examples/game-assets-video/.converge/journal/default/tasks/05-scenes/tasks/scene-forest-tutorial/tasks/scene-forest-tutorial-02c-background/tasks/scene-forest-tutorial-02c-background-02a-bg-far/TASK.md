@@ -15,18 +15,18 @@ inputs:
   - assets/concept/style-sheet.png
   - assets/visual-target.png
 outputs:
-  - assets/scenes/forest-tutorial/bg-far.png
-  - assets/scenes/forest-tutorial/bg-far.atlas.json
+  - assets/scenes/forest-tutorial/bg-far/final.png
+  - assets/scenes/forest-tutorial/bg-far/final.atlas.json
 checks:
   - id: bg-far-png-exists
     description: bg-far.png exists
-    cmd: test -s assets/scenes/forest-tutorial/bg-far.png
+    cmd: test -s assets/scenes/forest-tutorial/bg-far/final.png
   - id: bg-far-atlas-exists
     description: bg-far.atlas.json exists
-    cmd: test -s assets/scenes/forest-tutorial/bg-far.atlas.json
+    cmd: test -s assets/scenes/forest-tutorial/bg-far/final.atlas.json
   - id: bg-far-is-fully-opaque
     description: bg-far is the back wall — must be fully opaque
-    cmd: "python -c \"\nfrom PIL import Image\nimport numpy as np\na = np.array(Image.open('assets/scenes/forest-tutorial/bg-far.png').convert('RGBA'))\nalpha = a[:, :, 3]\ntotal = alpha.size\nopaque = (alpha == 255).sum()\nratio = opaque / total\nassert ratio > 0.95, f'bg-far must be fully opaque (>95% alpha=255); got {ratio:.2%} — looks like a chroma-keyed slice, not a real backdrop'\n\"\n"
+    cmd: "python -c \"\nfrom PIL import Image\nimport numpy as np\na = np.array(Image.open('assets/scenes/forest-tutorial/bg-far/final.png').convert('RGBA'))\nalpha = a[:, :, 3]\ntotal = alpha.size\nopaque = (alpha == 255).sum()\nratio = opaque / total\nassert ratio > 0.95, f'bg-far must be fully opaque (>95% alpha=255); got {ratio:.2%} — looks like a chroma-keyed slice, not a real backdrop'\n\"\n"
 vars:
   scene_id: forest-tutorial
 ---
@@ -72,8 +72,8 @@ Note: the far layer **does not** use `extracted/bg-far.png`. That slice is conta
 
 ## Outputs
 
-- `assets/scenes/forest-tutorial/bg-far.png` — fully opaque RGBA PNG
-- `assets/scenes/forest-tutorial/bg-far.atlas.json`
+- `assets/scenes/forest-tutorial/bg-far/final.png` — fully opaque RGBA PNG
+- `assets/scenes/forest-tutorial/bg-far/final.atlas.json`
 - `assets/scenes/forest-tutorial/bg-far.prompt.txt`
 - `assets/scenes/forest-tutorial/bg-far.seed.txt`
 

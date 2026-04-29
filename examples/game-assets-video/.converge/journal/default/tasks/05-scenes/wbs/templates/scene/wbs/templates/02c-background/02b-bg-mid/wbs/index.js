@@ -138,8 +138,8 @@ export async function run(ctx) {
       section_kind: sec.kind,
       // For segment 0 point prev at bg-far.png so the gate always resolves.
       prev_input_path: i > 0
-        ? `assets/scenes/${sceneId}/bg-mid/seg-${String(i - 1).padStart(3, '0')}.png`
-        : `assets/scenes/${sceneId}/bg-far.png`,
+        ? `assets/scenes/${sceneId}/bg-mid/segments/seg-${String(i - 1).padStart(3, '0')}.png`
+        : `assets/scenes/${sceneId}/bg-far/final.png`,
     };
     await ctx.spawn(
       { _type: 'template-ref', path: SEGMENT_TEMPLATE, vars: segVars },

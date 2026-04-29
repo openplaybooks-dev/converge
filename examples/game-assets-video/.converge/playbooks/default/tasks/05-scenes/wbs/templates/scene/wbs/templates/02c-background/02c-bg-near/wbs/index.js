@@ -1,156 +1,67 @@
 /**
- * bg-near segmentation WBS. Mirrors bg-mid/wbs/index.js but with the near
- * layer's heavier overlap (256px default).
+ * bg-near WBS — text-spec → visual-spec hierarchy.
  *
- * Section-driven by default — beats from stage.json define section
- * boundaries. Falls back to width-based when beats don't bracket the map.
+ * The bg-near layer is now produced through a TWO-STAGE design pipeline:
+ *
+ *   00-scene-md  — agent reads scene-level DESIGN.md + stage.json + scene
+ *                  narrative + extracted/bg-near.png + biome catalog and writes
+ *                  bg-near/SPEC.md (the design brief specific to this layer).
+ *                  No API call.
+ *
+ *   01-scene-svg — agent reads bg-near/SPEC.md and writes
+ *                  bg-near/scene-skeleton.svg (the visual concept covering the
+ *                  whole scene at full canvas dims). No API call.
+ *
+ * The painted PNG step (chunked image-edit) has been removed for now — the
+ * SVG concept is the deliverable until the painting pipeline is redesigned.
+ *
+ * Self-test compatibility: the framework runs run() with empty vars to verify
+ * the script doesn't throw; we derive scene_id from taskMeta.id when vars is
+ * missing, and bail gracefully if neither is available.
  */
 
-import { readFileSync } from 'node:fs';
-import { join, resolve, dirname } from 'node:path';
-import { writeFile, mkdir } from 'node:fs/promises';
-
-const DEFAULT_SEGMENT_WIDTH = 1024;
-const DEFAULT_OVERLAP_PX = 256;
-const MIN_BEATS_FOR_SECTION_DRIVEN = 3;
-const SEGMENT_TEMPLATE = '.converge/playbooks/default/tasks/05-scenes/wbs/templates/scene/wbs/templates/02c-background/02c-bg-near/wbs/templates/segment/TASK.md';
-
-function computeSegmentCount(targetW, segmentW, overlap) {
-  const stride = segmentW - overlap;
-  if (stride <= 0) return 1;
-  return Math.max(1, Math.ceil((targetW - overlap) / stride));
-}
-
-function sectionsFromBeats(stage) {
-  const wTiles = stage?.world?.width_tiles;
-  if (!Number.isInteger(wTiles) || wTiles <= 0) return null;
-  const beats = (stage?.beats || []).filter(
-    (b) => Number.isInteger(b?.x_tile) && b.x_tile >= 0 && b.x_tile <= wTiles,
-  );
-  if (beats.length < MIN_BEATS_FOR_SECTION_DRIVEN) return null;
-  beats.sort((a, b) => a.x_tile - b.x_tile);
-  if (beats[0].x_tile > Math.floor(wTiles * 0.10)) return null;
-  if (beats[beats.length - 1].x_tile < Math.ceil(wTiles * 0.90)) return null;
-  const sections = [];
-  for (let i = 0; i < beats.length - 1; i++) {
-    const a = beats[i];
-    const b = beats[i + 1];
-    sections.push({
-      x_lo: a.x_tile / wTiles,
-      x_hi: b.x_tile / wTiles,
-      label: `${a.label} → ${b.label}`,
-      kind: `${a.kind} → ${b.kind}`,
-    });
-  }
-  const valid = sections.filter((s) => s.x_hi > s.x_lo);
-  return valid.length > 0 ? valid : null;
-}
-
-function sectionsFromWidth(count) {
-  const out = [];
-  for (let i = 0; i < count; i++) {
-    out.push({
-      x_lo: i / count,
-      x_hi: (i + 1) / count,
-      label: `slice-${String(i + 1).padStart(2, '0')}`,
-      kind: 'width-fallback',
-    });
-  }
-  return out;
-}
+const TPL_ROOT =
+  '.converge/playbooks/default/tasks/05-scenes/wbs/templates/scene/wbs/templates/02c-background/02c-bg-near';
+const TPL_SCENE_MD   = `${TPL_ROOT}/00-scene-md/TASK.md`;
+const TPL_SCENE_JSON = `${TPL_ROOT}/01-scene-json/TASK.md`;
 
 export async function run(ctx) {
-  const { vars, projectDir } = ctx;
-  const sceneId = vars.scene_id;
+  const { vars, taskMeta } = ctx;
+  // Resolve scene_id from vars first; fall back to deriving it from taskMeta.id
+  // (the framework's self-test invokes run() with empty vars).
+  let sceneId = vars && vars.scene_id;
+  if (!sceneId && taskMeta && typeof taskMeta.id === 'string') {
+    const m = taskMeta.id.match(/[\\/]scene-([^\\/]+?)(?:[\\/]|-02c-)/);
+    if (m) sceneId = m[1];
+  }
   if (!sceneId) {
-    console.log('  ⚠️  scene_id missing from vars — skipping');
+    console.log('  ⚠️  scene_id not provided (self-test or stub run) — skipping');
     return;
   }
 
-  const stagePath = resolve(projectDir, 'assets', 'scenes', sceneId, 'stage.json');
-  let stage;
-  try {
-    stage = JSON.parse(readFileSync(stagePath, 'utf-8'));
-  } catch (err) {
-    throw new Error(`bg-near WBS: cannot read ${stagePath}: ${err.message}. Run scene/02b-stage first.`);
-  }
-  const bg = stage.background || {};
-  const targetW = bg.target_width_px;
-  if (!Number.isInteger(targetW) || targetW <= 0) {
-    throw new Error(`bg-near WBS: stage.json background.target_width_px invalid: ${targetW}`);
-  }
-  const segmentW = bg.segment_width_px || DEFAULT_SEGMENT_WIDTH;
-  const overlap = (bg.overlap_px && bg.overlap_px.near) || DEFAULT_OVERLAP_PX;
-
-  let sections = sectionsFromBeats(stage);
-  let mode = 'beats';
-  if (!sections) {
-    const widthCount = computeSegmentCount(targetW, segmentW, overlap);
-    sections = sectionsFromWidth(widthCount);
-    mode = 'width';
-  }
-  const count = sections.length;
-
-  const worldWTiles = (stage.world && stage.world.width_tiles) || '?';
-  console.log(
-    `  bg-near: world=${worldWTiles}t target_w=${targetW}px overlap=${overlap} mode=${mode} → ${count} section(s)`
+  // ── 1. bg-near design brief (Markdown) ─────────────────────────────
+  const sceneMdId = `scene-${sceneId}-02c-background-02c-bg-near-00-scene-md`;
+  await ctx.spawn(
+    {
+      _type: 'template-ref',
+      path: TPL_SCENE_MD,
+      vars: { scene_id: sceneId },
+    },
+    { id: sceneMdId },
   );
+  console.log(`    ✓ ${sceneMdId} (bg-near SPEC.md)`);
 
-  for (let i = 0; i < count; i++) {
-    const sec = sections[i];
-    const ordinal = String(i + 1).padStart(2, '0');
-    const segId = `scene-${sceneId}-02c-background-02c-bg-near-seg-${ordinal}`;
-    const segVars = {
-      scene_id: sceneId,
-      layer: 'near',
-      seg_index: String(i),
-      seg_ordinal: ordinal,
-      seg_count: String(count),
-      seg_index_padded: String(i).padStart(3, '0'),
-      seg_prev_padded: i > 0 ? String(i - 1).padStart(3, '0') : '',
-      seg_x_lo_norm: sec.x_lo.toFixed(4),
-      seg_x_hi_norm: sec.x_hi.toFixed(4),
-      section_label: sec.label,
-      section_kind: sec.kind,
-      prev_input_path: i > 0
-        ? `assets/scenes/${sceneId}/bg-near/segments/seg-${String(i - 1).padStart(3, '0')}.png`
-        : `assets/scenes/${sceneId}/bg-mid/final.png`,
-    };
-    await ctx.spawn(
-      { _type: 'template-ref', path: SEGMENT_TEMPLATE, vars: segVars },
-      { id: segId }
-    );
-    console.log(
-      `    ✓ ${segId} x=[${sec.x_lo.toFixed(3)},${sec.x_hi.toFixed(3)}] "${sec.label}"` +
-        `${i > 0 ? ` (after seg-${String(i - 1).padStart(3, '0')})` : ''}`,
-    );
-  }
-
-  // Install the static validate + stitch children.
-  const parentJournalDir = resolve(
-    projectDir,
-    '.converge/journal/default/tasks/05-scenes/tasks',
-    `scene-${sceneId}`,
-    'tasks',
-    `scene-${sceneId}-02c-background`,
-    'tasks',
-    `scene-${sceneId}-02c-background-02c-bg-near`,
+  // ── 2. Whole-scene visual spec (JSON) ──────────────────────────────
+  // Authoritative structured visual spec: palette, ground polyline,
+  // per-chunk prop instances, leave-room zones. Replaces the earlier SVG.
+  const sceneJsonId = `scene-${sceneId}-02c-background-02c-bg-near-01-scene-json`;
+  await ctx.spawn(
+    {
+      _type: 'template-ref',
+      path: TPL_SCENE_JSON,
+      vars: { scene_id: sceneId },
+    },
+    { id: sceneJsonId },
   );
-  const STATIC_CHILDREN = ['97-validate', '99-stitch'];
-  for (const child of STATIC_CHILDREN) {
-    const src = resolve(
-      projectDir,
-      `.converge/playbooks/default/tasks/05-scenes/wbs/templates/scene/wbs/templates/02c-background/02c-bg-near/${child}/TASK.md`,
-    );
-    const dest = join(parentJournalDir, child, 'TASK.md');
-    let raw = readFileSync(src, 'utf-8');
-    raw = raw.replace(/\{\{(\w+)\}\}/g, (_m, key) => {
-      if (key === 'scene_id') return sceneId;
-      if (key === 'seg_count') return String(count);
-      return _m;
-    });
-    await mkdir(dirname(dest), { recursive: true });
-    await writeFile(dest, raw, 'utf-8');
-    console.log(`    ↳ static child ${child} installed`);
-  }
+  console.log(`    ✓ ${sceneJsonId} (scene-spec.json)`);
 }

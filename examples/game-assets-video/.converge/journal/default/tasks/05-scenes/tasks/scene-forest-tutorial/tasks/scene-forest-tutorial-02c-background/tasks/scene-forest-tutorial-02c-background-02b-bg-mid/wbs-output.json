@@ -1,0 +1,43 @@
+{
+  "attemptNumber": 1,
+  "startedAt": "2026-04-29T04:53:16.014Z",
+  "completedAt": "2026-04-29T04:53:16.125Z",
+  "spawnedTasks": [
+    {
+      "id": "scene-forest-tutorial-02c-background-02b-bg-mid-seg-01",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/tasks/scene-forest-tutorial-02c-background/tasks/scene-forest-tutorial-02c-background-02b-bg-mid/tasks/scene-forest-tutorial-02c-background-02b-bg-mid-seg-01/TASK.md"
+    },
+    {
+      "id": "scene-forest-tutorial-02c-background-02b-bg-mid-seg-02",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/tasks/scene-forest-tutorial-02c-background/tasks/scene-forest-tutorial-02c-background-02b-bg-mid/tasks/scene-forest-tutorial-02c-background-02b-bg-mid-seg-02/TASK.md"
+    },
+    {
+      "id": "scene-forest-tutorial-02c-background-02b-bg-mid-seg-03",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/tasks/scene-forest-tutorial-02c-background/tasks/scene-forest-tutorial-02c-background-02b-bg-mid/tasks/scene-forest-tutorial-02c-background-02b-bg-mid-seg-03/TASK.md"
+    },
+    {
+      "id": "scene-forest-tutorial-02c-background-02b-bg-mid-seg-04",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/tasks/scene-forest-tutorial-02c-background/tasks/scene-forest-tutorial-02c-background-02b-bg-mid/tasks/scene-forest-tutorial-02c-background-02b-bg-mid-seg-04/TASK.md"
+    },
+    {
+      "id": "scene-forest-tutorial-02c-background-02b-bg-mid-seg-05",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/tasks/scene-forest-tutorial-02c-background/tasks/scene-forest-tutorial-02c-background-02b-bg-mid/tasks/scene-forest-tutorial-02c-background-02b-bg-mid-seg-05/TASK.md"
+    },
+    {
+      "id": "scene-forest-tutorial-02c-background-02b-bg-mid-seg-06",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/tasks/scene-forest-tutorial-02c-background/tasks/scene-forest-tutorial-02c-background-02b-bg-mid/tasks/scene-forest-tutorial-02c-background-02b-bg-mid-seg-06/TASK.md"
+    },
+    {
+      "id": "scene-forest-tutorial-02c-background-02b-bg-mid-seg-07",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/tasks/scene-forest-tutorial-02c-background/tasks/scene-forest-tutorial-02c-background-02b-bg-mid/tasks/scene-forest-tutorial-02c-background-02b-bg-mid-seg-07/TASK.md"
+    },
+    {
+      "id": "scene-forest-tutorial-02c-background-02b-bg-mid-seg-08",
+      "writeToPath": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/tasks/scene-forest-tutorial-02c-background/tasks/scene-forest-tutorial-02c-background-02b-bg-mid/tasks/scene-forest-tutorial-02c-background-02b-bg-mid-seg-08/TASK.md"
+    }
+  ],
+  "spawnedGoals": [],
+  "status": "success",
+  "spawnCount": 8,
+  "durationMs": 110
+}

@@ -2,11 +2,11 @@
   "type": "task",
   "id": "05-scenes/scene-forest-tutorial",
   "status": "seeded",
-  "lastUpdated": "2026-04-28T22:32:41.397Z",
-  "createdAt": "2026-04-28T22:13:00.440Z",
+  "lastUpdated": "2026-04-29T08:01:38.615Z",
+  "createdAt": "2026-04-29T04:52:52.615Z",
   "progress": {
     "totalChildren": 9,
-    "completedChildren": 3,
+    "completedChildren": 4,
     "failedChildren": 0,
     "childTaskIds": [
       "scene-forest-tutorial-01-concept",
@@ -19,6 +19,6 @@
       "scene-forest-tutorial-05-manifest",
       "scene-forest-tutorial-07-preview"
     ],
-    "lastProgressUpdate": "2026-04-28T22:32:41.390Z"
+    "lastProgressUpdate": "2026-04-29T08:01:38.609Z"
   }
 }

@@ -1,13 +1,13 @@
 # RESULT.md — Attempt 1
 
 **Outcome**: ✅ SUCCESS
-**Duration**: 1m 7s
-**Completed**: 2026-04-28T22:26:02.721Z
+**Duration**: 2s
+**Completed**: 2026-04-29T04:53:15.579Z
 
 ## Outputs
 
-- `assets/scenes/forest-tutorial/bg-far.png` — ✓ produced (2.1 MB)
-- `assets/scenes/forest-tutorial/bg-far.atlas.json` — ✓ produced (560 B)
+- `assets/scenes/forest-tutorial/bg-far/final.png` — ✓ produced (2.0 MB)
+- `assets/scenes/forest-tutorial/bg-far/final.atlas.json` — ✓ produced (591 B)
 
 ## Check Results — ✅ all passed
 

@@ -1,0 +1,17 @@
+{
+  "type": "task",
+  "id": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02c-background/scene-forest-tutorial-02c-background-02b-bg-mid/scene-forest-tutorial-02c-background-02b-bg-mid-seg-03",
+  "status": "complete",
+  "lastUpdated": "2026-04-29T05:02:23.198Z",
+  "createdAt": "2026-04-29T05:00:15.106Z",
+  "attempts": [
+    {
+      "attempt": 1,
+      "startedAt": "2026-04-29T05:00:15.106Z",
+      "completedAt": "2026-04-29T05:02:22.972Z",
+      "outcome": "success",
+      "durationMs": 127866
+    }
+  ],
+  "currentAttempt": 1
+}

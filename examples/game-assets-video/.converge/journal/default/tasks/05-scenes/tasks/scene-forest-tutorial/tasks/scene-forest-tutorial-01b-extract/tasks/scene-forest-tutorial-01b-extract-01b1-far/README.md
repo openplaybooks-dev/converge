@@ -44,7 +44,9 @@ assert pure_green == 0, f'bg-far has {pure_green} pure-green pixels — far must
 
   python -c "
 t = open('assets/scenes/forest-tutorial/extracted/bg-far.prompt.txt').read().lower()
-bad = [m for m in ('band-extraction', 'band extraction', 'fallback', 'local fallback', 'rows ') if m in t]
+# Detect the FALLBACK PATH marker only, not legitimate negative instructions
+# in the real prompt (which says 'Do NOT produce... rows 0..N...').
+bad = [m for m in ('FALLBACK PATH', 'BAND-EXTRACTION FALLBACK', 'local-fallback writer') if m in t.upper() or m.lower() in t]
 assert not bad, f'far prompt sidecar contains fallback markers: {bad}'
 "
 

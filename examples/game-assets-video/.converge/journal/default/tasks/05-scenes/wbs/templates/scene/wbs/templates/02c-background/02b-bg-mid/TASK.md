@@ -8,7 +8,7 @@ wbs:
 inputs:
   - "assets/scenes/{{scene_id}}/scene-plan.json"
   - "assets/scenes/{{scene_id}}/stage.json"
-  - "assets/scenes/{{scene_id}}/bg-far.png"
+  - "assets/scenes/{{scene_id}}/bg-far/final.png"
 tags:
   - scene
   - "{{scene_id}}"

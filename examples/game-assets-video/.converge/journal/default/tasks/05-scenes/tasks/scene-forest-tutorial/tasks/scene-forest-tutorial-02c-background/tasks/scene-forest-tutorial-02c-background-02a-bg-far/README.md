@@ -24,12 +24,12 @@ pnpm converge run          # run all remaining tasks
 ## Verify checks manually
 
 ```bash
-  test -s assets/scenes/forest-tutorial/bg-far.png
-  test -s assets/scenes/forest-tutorial/bg-far.atlas.json
+  test -s assets/scenes/forest-tutorial/bg-far/final.png
+  test -s assets/scenes/forest-tutorial/bg-far/final.atlas.json
   python -c "
 from PIL import Image
 import numpy as np
-a = np.array(Image.open('assets/scenes/forest-tutorial/bg-far.png').convert('RGBA'))
+a = np.array(Image.open('assets/scenes/forest-tutorial/bg-far/final.png').convert('RGBA'))
 alpha = a[:, :, 3]
 total = alpha.size
 opaque = (alpha == 255).sum()

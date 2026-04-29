@@ -24,7 +24,7 @@ checks:
     cmd: "python -c \"\nfrom PIL import Image\nimport numpy as np\nrgb = np.array(Image.open('assets/scenes/forest-tutorial/extracted/bg-far.png').convert('RGB'))\nr, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]\npure_green = ((r < 30) & (g > 220) & (b < 30)).sum()\nassert pure_green == 0, f'bg-far has {pure_green} pure-green pixels — far must contain no chroma-key markers'\n\"\n"
   - id: bg-far-extracted-no-band-marker
     description: prompt sidecar is a real model pass (not a hand-rolled band slice)
-    cmd: "python -c \"\nt = open('assets/scenes/forest-tutorial/extracted/bg-far.prompt.txt').read().lower()\nbad = [m for m in ('band-extraction', 'band extraction', 'local fallback', 'fallback writer') if m in t]\nassert not bad, f'far prompt sidecar contains fallback markers: {bad}'\n\"\n"
+    cmd: "python -c \"\nt = open('assets/scenes/forest-tutorial/extracted/bg-far.prompt.txt').read().lower()\n# Detect the FALLBACK PATH marker only, not legitimate negative instructions\n# in the real prompt (which says 'Do NOT produce... rows 0..N...').\nbad = [m for m in ('FALLBACK PATH', 'BAND-EXTRACTION FALLBACK', 'local-fallback writer') if m in t.upper() or m.lower() in t]\nassert not bad, f'far prompt sidecar contains fallback markers: {bad}'\n\"\n"
 vars:
   cost_cents: 5
   scene_id: forest-tutorial

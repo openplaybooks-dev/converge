@@ -12,7 +12,7 @@
       },
       "result": {
         "action": "continue",
-        "durationMs": 0
+        "durationMs": 1
       }
     },
     {
@@ -25,7 +25,7 @@
       },
       "result": {
         "action": "continue",
-        "durationMs": 0
+        "durationMs": 599
       }
     },
     {
@@ -38,8 +38,100 @@
       },
       "result": {
         "action": "continue",
-        "gaps": [],
-        "durationMs": 239
+        "gaps": [
+          {
+            "id": "01-setup-art-style-missing-output-.templates/green_128x128.png",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-setup-art-style",
+            "severity": "high",
+            "description": "[01-setup-art-style] Task output not created: .templates/green_128x128.png",
+            "source": "unit",
+            "detected": "2026-04-29T02:27:42.704Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "D:\\converge\\examples\\game-assets-video\\.converge\\playbooks\\default\\tasks\\01-setup-art-style",
+              "taskId": "01-setup-art-style",
+              "taskTitle": "Setup Art Style",
+              "taskPrompt": "# Setup Art Style\r\n\r\nPrepare the project for asset generation by validating configuration and creating necessary templates.\r\n\r\n## Tasks\r\n\r\n### 1. Validate sprites.json\r\n\r\nEnsure `assets/sprites.json` exists and contains valid character definitions:\r\n\r\n```json\r\n[\r\n  {\r\n    \"id\": \"character-id\",\r\n    \"name\": \"Character Name\",\r\n    \"description\": \"Character description\",\r\n    \"palette\": \"Art style and color palette\",\r\n    \"animation_states\": [\"idle\", \"walk\"]\r\n  }\r\n]\r\n```\r\n\r\n### 2. Create Green Screen Templates\r\n\r\nGenerate green screen templates for consistent image generation:\r\n\r\n```bash\r\npython3 scripts/create_green_template.py\r\n```\r\n\r\nThis creates:\r\n- `.templates/green_128x128.png`\r\n- `.templates/green_256x256.png`\r\n- `.templates/green_512x512.png`\r\n\r\n### 3. Initialize budget\r\n\r\n```bash\r\npython3 scripts/budget_status.py --set {{budget_cents}}\r\n```\r\n\r\nCreates `assets/budget.json` with a hard pre-spend cap. Every paid generator (`generate_character_angles.py`, `generate_video_clip.py`, etc.) calls `lib.budget.check_and_charge` before invoking the API and exits non-zero if the spend would exceed the cap.\r\n\r\nInspect at any time: `python3 scripts/budget_status.py`.\r\n\r\n### 4. Validate Environment\r\n\r\nEnsure required environment variables are set:\r\n- `GEMINI_API_KEY` - For image generation\r\n\r\n### 4. Validate Scripts\r\n\r\nEnsure all required scripts exist:\r\n- `scripts/generate_character_angles.py`\r\n- `scripts/generate_secondary_refs.py`\r\n- `scripts/generate_frames_individual.py`\r\n- `scripts/create_green_template.py`\r\n\r\n## Verification\r\n\r\n- sprites.json is valid JSON with at least one character\r\n- Green screen templates generated successfully\r\n- GEMINI_API_KEY is set\r\n- All required scripts are executable",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \".templates/green_128x128.png\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "01-setup-art-style-missing-output-.templates/green_256x256.png",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-setup-art-style",
+            "severity": "high",
+            "description": "[01-setup-art-style] Task output not created: .templates/green_256x256.png",
+            "source": "unit",
+            "detected": "2026-04-29T02:27:42.739Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "D:\\converge\\examples\\game-assets-video\\.converge\\playbooks\\default\\tasks\\01-setup-art-style",
+              "taskId": "01-setup-art-style",
+              "taskTitle": "Setup Art Style",
+              "taskPrompt": "# Setup Art Style\r\n\r\nPrepare the project for asset generation by validating configuration and creating necessary templates.\r\n\r\n## Tasks\r\n\r\n### 1. Validate sprites.json\r\n\r\nEnsure `assets/sprites.json` exists and contains valid character definitions:\r\n\r\n```json\r\n[\r\n  {\r\n    \"id\": \"character-id\",\r\n    \"name\": \"Character Name\",\r\n    \"description\": \"Character description\",\r\n    \"palette\": \"Art style and color palette\",\r\n    \"animation_states\": [\"idle\", \"walk\"]\r\n  }\r\n]\r\n```\r\n\r\n### 2. Create Green Screen Templates\r\n\r\nGenerate green screen templates for consistent image generation:\r\n\r\n```bash\r\npython3 scripts/create_green_template.py\r\n```\r\n\r\nThis creates:\r\n- `.templates/green_128x128.png`\r\n- `.templates/green_256x256.png`\r\n- `.templates/green_512x512.png`\r\n\r\n### 3. Initialize budget\r\n\r\n```bash\r\npython3 scripts/budget_status.py --set {{budget_cents}}\r\n```\r\n\r\nCreates `assets/budget.json` with a hard pre-spend cap. Every paid generator (`generate_character_angles.py`, `generate_video_clip.py`, etc.) calls `lib.budget.check_and_charge` before invoking the API and exits non-zero if the spend would exceed the cap.\r\n\r\nInspect at any time: `python3 scripts/budget_status.py`.\r\n\r\n### 4. Validate Environment\r\n\r\nEnsure required environment variables are set:\r\n- `GEMINI_API_KEY` - For image generation\r\n\r\n### 4. Validate Scripts\r\n\r\nEnsure all required scripts exist:\r\n- `scripts/generate_character_angles.py`\r\n- `scripts/generate_secondary_refs.py`\r\n- `scripts/generate_frames_individual.py`\r\n- `scripts/create_green_template.py`\r\n\r\n## Verification\r\n\r\n- sprites.json is valid JSON with at least one character\r\n- Green screen templates generated successfully\r\n- GEMINI_API_KEY is set\r\n- All required scripts are executable",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \".templates/green_256x256.png\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "01-setup-art-style-missing-output-.templates/green_512x512.png",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-setup-art-style",
+            "severity": "high",
+            "description": "[01-setup-art-style] Task output not created: .templates/green_512x512.png",
+            "source": "unit",
+            "detected": "2026-04-29T02:27:42.775Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "output",
+              "unitPath": "D:\\converge\\examples\\game-assets-video\\.converge\\playbooks\\default\\tasks\\01-setup-art-style",
+              "taskId": "01-setup-art-style",
+              "taskTitle": "Setup Art Style",
+              "taskPrompt": "# Setup Art Style\r\n\r\nPrepare the project for asset generation by validating configuration and creating necessary templates.\r\n\r\n## Tasks\r\n\r\n### 1. Validate sprites.json\r\n\r\nEnsure `assets/sprites.json` exists and contains valid character definitions:\r\n\r\n```json\r\n[\r\n  {\r\n    \"id\": \"character-id\",\r\n    \"name\": \"Character Name\",\r\n    \"description\": \"Character description\",\r\n    \"palette\": \"Art style and color palette\",\r\n    \"animation_states\": [\"idle\", \"walk\"]\r\n  }\r\n]\r\n```\r\n\r\n### 2. Create Green Screen Templates\r\n\r\nGenerate green screen templates for consistent image generation:\r\n\r\n```bash\r\npython3 scripts/create_green_template.py\r\n```\r\n\r\nThis creates:\r\n- `.templates/green_128x128.png`\r\n- `.templates/green_256x256.png`\r\n- `.templates/green_512x512.png`\r\n\r\n### 3. Initialize budget\r\n\r\n```bash\r\npython3 scripts/budget_status.py --set {{budget_cents}}\r\n```\r\n\r\nCreates `assets/budget.json` with a hard pre-spend cap. Every paid generator (`generate_character_angles.py`, `generate_video_clip.py`, etc.) calls `lib.budget.check_and_charge` before invoking the API and exits non-zero if the spend would exceed the cap.\r\n\r\nInspect at any time: `python3 scripts/budget_status.py`.\r\n\r\n### 4. Validate Environment\r\n\r\nEnsure required environment variables are set:\r\n- `GEMINI_API_KEY` - For image generation\r\n\r\n### 4. Validate Scripts\r\n\r\nEnsure all required scripts exist:\r\n- `scripts/generate_character_angles.py`\r\n- `scripts/generate_secondary_refs.py`\r\n- `scripts/generate_frames_individual.py`\r\n- `scripts/create_green_template.py`\r\n\r\n## Verification\r\n\r\n- sprites.json is valid JSON with at least one character\r\n- Green screen templates generated successfully\r\n- GEMINI_API_KEY is set\r\n- All required scripts are executable",
+              "taskInputs": [],
+              "factId": "file-exists:test -f \".templates/green_512x512.png\"",
+              "awaitingUserInput": false
+            }
+          },
+          {
+            "id": "01-setup-art-style-check-failed-templates-exist",
+            "type": "incomplete",
+            "level": "task",
+            "scope": "01-setup-art-style",
+            "severity": "high",
+            "description": "[01-setup-art-style] Check failed: Green screen templates exist",
+            "source": "unit",
+            "detected": "2026-04-29T02:27:42.986Z",
+            "resolved": false,
+            "checks": [],
+            "metadata": {
+              "gapKind": "check-failed",
+              "checkId": "templates-exist",
+              "checkCmd": "test -f .templates/green_128x128.png && test -f .templates/green_256x256.png",
+              "checkDescription": "Green screen templates exist",
+              "checkOutput": "",
+              "checkExitCode": 1,
+              "taskPrompt": "# Setup Art Style\r\n\r\nPrepare the project for asset generation by validating configuration and creating necessary templates.\r\n\r\n## Tasks\r\n\r\n### 1. Validate sprites.json\r\n\r\nEnsure `assets/sprites.json` exists and contains valid character definitions:\r\n\r\n```json\r\n[\r\n  {\r\n    \"id\": \"character-id\",\r\n    \"name\": \"Character Name\",\r\n    \"description\": \"Character description\",\r\n    \"palette\": \"Art style and color palette\",\r\n    \"animation_states\": [\"idle\", \"walk\"]\r\n  }\r\n]\r\n```\r\n\r\n### 2. Create Green Screen Templates\r\n\r\nGenerate green screen templates for consistent image generation:\r\n\r\n```bash\r\npython3 scripts/create_green_template.py\r\n```\r\n\r\nThis creates:\r\n- `.templates/green_128x128.png`\r\n- `.templates/green_256x256.png`\r\n- `.templates/green_512x512.png`\r\n\r\n### 3. Initialize budget\r\n\r\n```bash\r\npython3 scripts/budget_status.py --set {{budget_cents}}\r\n```\r\n\r\nCreates `assets/budget.json` with a hard pre-spend cap. Every paid generator (`generate_character_angles.py`, `generate_video_clip.py`, etc.) calls `lib.budget.check_and_charge` before invoking the API and exits non-zero if the spend would exceed the cap.\r\n\r\nInspect at any time: `python3 scripts/budget_status.py`.\r\n\r\n### 4. Validate Environment\r\n\r\nEnsure required environment variables are set:\r\n- `GEMINI_API_KEY` - For image generation\r\n\r\n### 4. Validate Scripts\r\n\r\nEnsure all required scripts exist:\r\n- `scripts/generate_character_angles.py`\r\n- `scripts/generate_secondary_refs.py`\r\n- `scripts/generate_frames_individual.py`\r\n- `scripts/create_green_template.py`\r\n\r\n## Verification\r\n\r\n- sprites.json is valid JSON with at least one character\r\n- Green screen templates generated successfully\r\n- GEMINI_API_KEY is set\r\n- All required scripts are executable",
+              "taskId": "01-setup-art-style",
+              "taskTitle": "Setup Art Style",
+              "unitPath": "D:\\converge\\examples\\game-assets-video\\.converge\\playbooks\\default\\tasks\\01-setup-art-style",
+              "factId": "check:templates-exist"
+            }
+          }
+        ],
+        "durationMs": 690
       }
     },
     {
@@ -51,6 +143,80 @@
         "priority": 97,
         "applicable": "noGapsAndExecuted"
       }
+    },
+    {
+      "id": "run-executor",
+      "handler": "run-executor",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 65
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 1
+      }
+    },
+    {
+      "id": "repair-loop",
+      "handler": "repair-loop",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 137
+      }
+    },
+    {
+      "id": "verify",
+      "handler": "verify",
+      "status": "done",
+      "origin": "initial",
+      "data": {
+        "priority": 50
+      },
+      "result": {
+        "action": "done",
+        "success": true,
+        "reason": "All gaps resolved",
+        "gaps": [],
+        "durationMs": 1764
+      }
+    },
+    {
+      "id": "check-stall",
+      "handler": "check-stall",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 45
+      }
+    },
+    {
+      "id": "advance-attempt",
+      "handler": "advance-attempt",
+      "status": "buffered",
+      "origin": "initial",
+      "data": {
+        "priority": 40
+      }
+    },
+    {
+      "id": "run-strategy:task-run#1",
+      "handler": "run-strategy",
+      "status": "done",
+      "origin": "planned",
+      "data": {
+        "strategy": "task-run",
+        "priority": 55
+      },
+      "result": {
+        "action": "continue",
+        "durationMs": 52012
+      }
     }
   ],
   "edges": [
@@ -58,19 +224,43 @@
       "from": "_start",
       "to": "check-wbs-seeded",
       "iteration": 1,
-      "ts": "2026-04-28T13:07:26.590Z"
+      "ts": "2026-04-29T02:27:41.687Z"
     },
     {
       "from": "check-wbs-seeded",
       "to": "check-outputs-exist",
       "iteration": 1,
-      "ts": "2026-04-28T13:07:26.590Z"
+      "ts": "2026-04-29T02:27:42.294Z"
     },
     {
       "from": "check-outputs-exist",
       "to": "detect-gaps",
       "iteration": 1,
-      "ts": "2026-04-28T13:07:26.829Z"
+      "ts": "2026-04-29T02:27:42.987Z"
+    },
+    {
+      "from": "detect-gaps",
+      "to": "run-executor",
+      "iteration": 1,
+      "ts": "2026-04-29T02:27:42.992Z"
+    },
+    {
+      "from": "run-executor",
+      "to": "repair-loop",
+      "iteration": 1,
+      "ts": "2026-04-29T02:27:43.132Z"
+    },
+    {
+      "from": "repair-loop",
+      "to": "run-strategy:task-run#1",
+      "iteration": 1,
+      "ts": "2026-04-29T02:28:35.147Z"
+    },
+    {
+      "from": "run-strategy:task-run#1",
+      "to": "verify",
+      "iteration": 1,
+      "ts": "2026-04-29T02:28:36.914Z"
     }
   ]
 }

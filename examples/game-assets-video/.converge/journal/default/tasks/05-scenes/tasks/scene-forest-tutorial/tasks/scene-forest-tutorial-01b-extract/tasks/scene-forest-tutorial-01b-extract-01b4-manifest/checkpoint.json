@@ -2,15 +2,15 @@
   "type": "task",
   "id": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-01b-extract/scene-forest-tutorial-01b-extract-01b4-manifest",
   "status": "complete",
-  "lastUpdated": "2026-04-28T22:21:40.200Z",
-  "createdAt": "2026-04-28T22:21:00.862Z",
+  "lastUpdated": "2026-04-29T04:53:05.695Z",
+  "createdAt": "2026-04-29T04:53:03.974Z",
   "attempts": [
     {
       "attempt": 1,
-      "startedAt": "2026-04-28T22:21:00.862Z",
-      "completedAt": "2026-04-28T22:21:40.176Z",
+      "startedAt": "2026-04-29T04:53:03.974Z",
+      "completedAt": "2026-04-29T04:53:05.491Z",
       "outcome": "success",
-      "durationMs": 39314
+      "durationMs": 1517
     }
   ],
   "currentAttempt": 1

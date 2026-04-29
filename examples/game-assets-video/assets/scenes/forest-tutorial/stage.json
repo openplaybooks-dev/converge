@@ -2,7 +2,7 @@
   "scene_id": "forest-tutorial",
   "tile_size_px": 16,
   "world": {
-    "width_tiles": 244,
+    "width_tiles": 600,
     "height_tiles": 60
   },
   "elevation": [
@@ -73,6 +73,74 @@
     {
       "x_tile": 244,
       "y_tile": 14
+    },
+    {
+      "x_tile": 259,
+      "y_tile": 14
+    },
+    {
+      "x_tile": 274,
+      "y_tile": 16
+    },
+    {
+      "x_tile": 289,
+      "y_tile": 15
+    },
+    {
+      "x_tile": 304,
+      "y_tile": 13
+    },
+    {
+      "x_tile": 319,
+      "y_tile": 14
+    },
+    {
+      "x_tile": 334,
+      "y_tile": 14
+    },
+    {
+      "x_tile": 349,
+      "y_tile": 16
+    },
+    {
+      "x_tile": 364,
+      "y_tile": 18
+    },
+    {
+      "x_tile": 379,
+      "y_tile": 16
+    },
+    {
+      "x_tile": 394,
+      "y_tile": 15
+    },
+    {
+      "x_tile": 409,
+      "y_tile": 17
+    },
+    {
+      "x_tile": 424,
+      "y_tile": 15
+    },
+    {
+      "x_tile": 439,
+      "y_tile": 14
+    },
+    {
+      "x_tile": 454,
+      "y_tile": 13
+    },
+    {
+      "x_tile": 469,
+      "y_tile": 14
+    },
+    {
+      "x_tile": 488,
+      "y_tile": 14
+    },
+    {
+      "x_tile": 600,
+      "y_tile": 14
     }
   ],
   "beats": [
@@ -140,6 +208,24 @@
       "y_tile": 22,
       "kind": "ledge",
       "label": "optional-potion-ledge"
+    },
+    {
+      "x_tiles": [
+        352,
+        356
+      ],
+      "y_tile": 18,
+      "kind": "elevated",
+      "label": "first-jump-block-r1"
+    },
+    {
+      "x_tiles": [
+        399,
+        409
+      ],
+      "y_tile": 22,
+      "kind": "ledge",
+      "label": "optional-potion-ledge-r1"
     }
   ],
   "hazards": [
@@ -152,6 +238,16 @@
       "x_tile": 45,
       "kind": "water",
       "label": "puddle-obstacle"
+    },
+    {
+      "x_tile": 319,
+      "kind": "water",
+      "label": "main-water-pit-r1"
+    },
+    {
+      "x_tile": 289,
+      "kind": "water",
+      "label": "puddle-obstacle-r1"
     }
   ],
   "chunks": [
@@ -339,7 +435,7 @@
     }
   ],
   "background": {
-    "target_width_px": 3904,
+    "target_width_px": 9600,
     "target_height_px": 960,
     "segment_width_px": 1024,
     "overlap_px": {

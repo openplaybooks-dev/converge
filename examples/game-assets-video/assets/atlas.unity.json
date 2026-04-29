@@ -1,0 +1,624 @@
+{
+  "sprites": [
+    {
+      "name": "gold-key/idle/idle_000",
+      "texture": "assets/objects/gold-key/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/idle/idle_001",
+      "texture": "assets/objects/gold-key/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/idle/idle_002",
+      "texture": "assets/objects/gold-key/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/idle/idle_003",
+      "texture": "assets/objects/gold-key/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/idle/idle_004",
+      "texture": "assets/objects/gold-key/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/idle/idle_005",
+      "texture": "assets/objects/gold-key/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/idle/idle_006",
+      "texture": "assets/objects/gold-key/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "gold-key/idle/idle_007",
+      "texture": "assets/objects/gold-key/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/idle/idle_000",
+      "texture": "assets/objects/health-potion/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/idle/idle_001",
+      "texture": "assets/objects/health-potion/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/idle/idle_002",
+      "texture": "assets/objects/health-potion/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/idle/idle_003",
+      "texture": "assets/objects/health-potion/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/idle/idle_004",
+      "texture": "assets/objects/health-potion/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/idle/idle_005",
+      "texture": "assets/objects/health-potion/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/idle/idle_006",
+      "texture": "assets/objects/health-potion/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "health-potion/idle/idle_007",
+      "texture": "assets/objects/health-potion/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "ui-health-bar/idle/idle_000",
+      "texture": "assets/objects/ui-health-bar/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "ui-health-bar/idle/idle_001",
+      "texture": "assets/objects/ui-health-bar/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "ui-health-bar/idle/idle_002",
+      "texture": "assets/objects/ui-health-bar/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "ui-health-bar/idle/idle_003",
+      "texture": "assets/objects/ui-health-bar/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "ui-health-bar/idle/idle_004",
+      "texture": "assets/objects/ui-health-bar/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "ui-health-bar/idle/idle_005",
+      "texture": "assets/objects/ui-health-bar/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "ui-health-bar/idle/idle_006",
+      "texture": "assets/objects/ui-health-bar/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "ui-health-bar/idle/idle_007",
+      "texture": "assets/objects/ui-health-bar/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "ui-key-slot/idle/idle_000",
+      "texture": "assets/objects/ui-key-slot/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "ui-key-slot/idle/idle_001",
+      "texture": "assets/objects/ui-key-slot/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 384,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "ui-key-slot/idle/idle_002",
+      "texture": "assets/objects/ui-key-slot/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 768,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "ui-key-slot/idle/idle_003",
+      "texture": "assets/objects/ui-key-slot/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 1152,
+        "y": 0,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "ui-key-slot/idle/idle_004",
+      "texture": "assets/objects/ui-key-slot/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 0,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "ui-key-slot/idle/idle_005",
+      "texture": "assets/objects/ui-key-slot/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 384,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "ui-key-slot/idle/idle_006",
+      "texture": "assets/objects/ui-key-slot/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 768,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "ui-key-slot/idle/idle_007",
+      "texture": "assets/objects/ui-key-slot/spritesheets/idle/idle.png",
+      "rect": {
+        "x": 1152,
+        "y": 512,
+        "w": 384,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-tutorial/bg-far/sheet/bg-far_000",
+      "texture": "assets/scenes/forest-tutorial/bg-far/bg-far.png",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 3904,
+        "h": 960
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-tutorial/tilesheet/sheet/grass",
+      "texture": "assets/scenes/forest-tutorial/tilesheet/tilesheet.png",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-tutorial/tilesheet/sheet/grass-flowers",
+      "texture": "assets/scenes/forest-tutorial/tilesheet/tilesheet.png",
+      "rect": {
+        "x": 256,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-tutorial/tilesheet/sheet/dirt",
+      "texture": "assets/scenes/forest-tutorial/tilesheet/tilesheet.png",
+      "rect": {
+        "x": 512,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-tutorial/tilesheet/sheet/path-corner-NE",
+      "texture": "assets/scenes/forest-tutorial/tilesheet/tilesheet.png",
+      "rect": {
+        "x": 768,
+        "y": 0,
+        "w": 256,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-tutorial/tilesheet/sheet/path-corner-NW",
+      "texture": "assets/scenes/forest-tutorial/tilesheet/tilesheet.png",
+      "rect": {
+        "x": 0,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-tutorial/tilesheet/sheet/path-corner-SE",
+      "texture": "assets/scenes/forest-tutorial/tilesheet/tilesheet.png",
+      "rect": {
+        "x": 256,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-tutorial/tilesheet/sheet/path-corner-SW",
+      "texture": "assets/scenes/forest-tutorial/tilesheet/tilesheet.png",
+      "rect": {
+        "x": 512,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-tutorial/tilesheet/sheet/water",
+      "texture": "assets/scenes/forest-tutorial/tilesheet/tilesheet.png",
+      "rect": {
+        "x": 768,
+        "y": 256,
+        "w": 256,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-tutorial/tilesheet/sheet/water-edge-grass",
+      "texture": "assets/scenes/forest-tutorial/tilesheet/tilesheet.png",
+      "rect": {
+        "x": 0,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-tutorial/tilesheet/sheet/tree-stump",
+      "texture": "assets/scenes/forest-tutorial/tilesheet/tilesheet.png",
+      "rect": {
+        "x": 256,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    {
+      "name": "forest-tutorial/tilesheet/sheet/rock-small",
+      "texture": "assets/scenes/forest-tutorial/tilesheet/tilesheet.png",
+      "rect": {
+        "x": 512,
+        "y": 512,
+        "w": 256,
+        "h": 256
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    }
+  ],
+  "meta": {
+    "spriteResolution": 0,
+    "format": "SpriteAtlas"
+  }
+}

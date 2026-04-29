@@ -1,0 +1,69 @@
+ONE SEGMENT of a wide MID-DISTANCE LAYER for a 2D game scene. Single image, no grid, no animation.
+
+THE STACKING MODEL (read this first — it determines the fill rule):
+- FAR is the back wall: fully opaque, fills the entire canvas.
+- MID sits on top of FAR. It covers the BOTTOM HALF of the canvas
+  with solid mid-distance content (no transparent gaps), and is
+  fully transparent in the top half so FAR shows through above the
+  mid horizon.
+- NEAR sits on top of MID. It covers the bottom ~30-45% completely.
+- Each layer covers its own depth band AND everything below it.
+  The closer layer hides the farther layer's bottom edge in the
+  composite, so do NOT leave a transparent strip at the bottom of
+  this segment — near will cover it.
+
+Role of this layer:
+Mid-distance silhouette mass — tree clumps, hill ridges, distant
+foliage — that sit between the back wall (bg-far) and the foreground
+(bg-near). The bottom half of the canvas is solid mid content; the
+top half is chroma-keyed so far shows through.
+
+If a `map.silhouette.png` reference is provided, treat it as the binding macro layout. The silhouette covers the WHOLE map left-to-right; your segment covers the x-range below. Look at the silhouette's content INSIDE that x-range and produce the high-detail mid-distance version of it.
+
+Scene context:
+- Biome: grassland
+- Description: Open grassland tutorial scene with a winding dirt path, scattered trees and rocks, and a small water pond. The player picks up a gold key and a health potion while learning movement and pickup mechanics. Includes 2-3 small jumps, a water-pit hazard you must jump over, and one optional ledge with a hidden potion.
+
+This segment:
+- Segment index: 5 of 8
+- Map x-range covered (normalized): [0.451, 0.615]
+- Render target: 1536x1024 px (covers exactly this x-range of the wide map)
+
+Section: first-jump-challenge → optional-ledge-access (kind: platform-up → platform-up)
+Region hints from scene-plan covering this x-range:
+  - x_norm overlap with [0.451, 0.615]: Mid-distance grassland with scattered trees and bushes on the left, including a small grove that frames the play area.
+  - x_norm overlap with [0.451, 0.615]: Mid-distance grassland on the right with one or two larger trees and a hint of a small water pond peeking through.
+
+Stage chunks (from stage.json) covering this x-range:
+  - chunk 'first-jump-introduction' (x_tiles [90, 120], ground=grass, floor y=14..18): Players encounter an elevated block, using it to practice small jumps and navigate vertical terrain.
+  - chunk 'winding-path-segment' (x_tiles [120, 150], ground=dirt, floor y=15..18): The dirt path continues to wind, offering a brief period of exploration before the next set of challenges.
+  - chunk 'optional-ledge-and-key' (x_tiles [150, 180], ground=grass, floor y=15..17): An optional jump leads to a higher ledge where the player can discover a valuable gold key, encouraging exploration.
+
+Elevation profile across this segment (the mid horizon should sit ABOVE this ground line — the bottom half of your output is solid mid content covering down to the canvas bottom; near will visually frame the actual playable ground later):
+  - samples (x_tile, y_tile): (120,18), (135,16), (150,15)
+  - y range across segment: 15..18
+
+Beats (gameplay rhythm) inside this x-range:
+  - x_tile=110 platform-up: first-jump-challenge
+  - x_tile=150 platform-up: optional-ledge-access
+
+Composition:
+- TOP HALF (~40-55% of canvas): pure chroma green (#00FF00). FAR shows through here.
+- The boundary between chroma and mid content is an irregular organic silhouette — tree canopies poking up at varied heights, hill ridges rising and falling. NOT a flat horizontal line. The transition zone (rows containing BOTH chroma and content) spans at least 20% of canvas height.
+- BOTTOM HALF (~45-60% of canvas): solid mid-distance content. NO chroma gaps. Filled edge-to-edge down to the canvas bottom.
+- Gaps BETWEEN tree clumps in the upper canopy region ARE chroma green (so far shows through narrow gaps).
+
+SEAM ANCHOR (CRITICAL):
+One of the supplied reference images is the RIGHT-EDGE STRIP of the previous segment (the rightmost ~12% of the previous segment, NOT the whole image). Treat it as the exact pixels your output's leftmost ~12% must continue. Match the silhouette outlines, tree positions, palette, and lighting at the seam down to the pixel. NO hard discontinuity. Do NOT include the strip's content as the central feature of your segment — it only describes the very-left boundary.
+
+Palette: saturated grass-green, leafy mid-tone trees, muted earth shadows
+
+Layer fill rule (CRITICAL):
+- TOP HALF: pure #00FF00 above the irregular mid horizon. The keyer converts #00FF00 to alpha=0.
+- BOTTOM HALF: SOLID mid-distance painting. No chroma green at the bottom of the canvas; do not "leave room" for near.
+- NO blue sky, NO clouds, NO faint green tints in non-content areas. Pure flat #00FF00 for chroma.
+- NO horizon-line landscape with atmospheric haze (that's far). NO sharp individual leaves / grass blades / foreground props (that's near). NO characters.
+
+Style:
+- Follow the style-sheet anchor + scene concept image. Match line weight and shading.
+- Atmospheric perspective: less hazy than far, more solid than near. Mid-saturation.

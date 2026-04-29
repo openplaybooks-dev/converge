@@ -38,113 +38,8 @@
       },
       "result": {
         "action": "continue",
-        "gaps": [
-          {
-            "id": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-01b-extract/scene-forest-tutorial-01b-extract-01b3-near-missing-output-assets/scenes/forest-tutorial/extracted/bg-near.png",
-            "type": "incomplete",
-            "level": "task",
-            "scope": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-01b-extract/scene-forest-tutorial-01b-extract-01b3-near",
-            "severity": "high",
-            "description": "[05-scenes/scene-forest-tutorial/scene-forest-tutorial-01b-extract/scene-forest-tutorial-01b-extract-01b3-near] Task output not created: assets/scenes/forest-tutorial/extracted/bg-near.png",
-            "source": "unit",
-            "detected": "2026-04-28T22:18:23.267Z",
-            "resolved": false,
-            "checks": [],
-            "metadata": {
-              "gapKind": "output",
-              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/tasks/scene-forest-tutorial-01b-extract/tasks/scene-forest-tutorial-01b-extract-01b3-near",
-              "taskId": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-01b-extract/scene-forest-tutorial-01b-extract-01b3-near",
-              "taskTitle": "Scene `forest-tutorial` — extract bg-near (foreground edge)",
-              "taskPrompt": "# Scene `forest-tutorial` — bg-near extraction\n\n## Run\n\n```bash\npython scripts/extract_bg_near.py forest-tutorial\n```\n\nThe script's prompt (`NEAR_PROMPT` in `scripts/extract_bg_near.py`) instructs the model to amodal-complete the foreground edge — ground texture, foreground rocks, fern fronds, foreground tree trunk bases — and fill non-near regions (top of canvas) with `#00FF00`. The script then chroma-keys green pixels to alpha.\n\nReferences passed to the model:\n- The scene concept (base).\n- The style sheet (universal style anchor).\n- `bg-mid.png` (sibling-above — palette / lighting anchor at the layer seam).\n\n## Fitness contract\n\n- Per-pixel irregular alpha.\n- More than 30% transparent (foreground sits in lower 30-45% of canvas; everything above is keyed out).\n- Prompt sidecar is the real script's prompt.\n\n## Why bg-mid must finish first\n\nThis task declares `extracted/bg-mid.png` as an input. The runner blocks until mid is on disk so the model can use it as a sibling-above reference for palette continuity at the layer seam.",
-              "taskAgent": "paid-api-operator",
-              "taskInputs": [
-                "assets/scenes/forest-tutorial/concept.png",
-                "assets/scenes/forest-tutorial/extracted/bg-mid.png"
-              ],
-              "factId": "file-exists:test -f \"assets/scenes/forest-tutorial/extracted/bg-near.png\"",
-              "awaitingUserInput": false
-            }
-          },
-          {
-            "id": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-01b-extract/scene-forest-tutorial-01b-extract-01b3-near-check-failed-bg-near-extracted-exists",
-            "type": "incomplete",
-            "level": "task",
-            "scope": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-01b-extract/scene-forest-tutorial-01b-extract-01b3-near",
-            "severity": "high",
-            "description": "[05-scenes/scene-forest-tutorial/scene-forest-tutorial-01b-extract/scene-forest-tutorial-01b-extract-01b3-near] Check failed: bg-near extraction PNG was written",
-            "source": "unit",
-            "detected": "2026-04-28T22:18:23.269Z",
-            "resolved": false,
-            "checks": [],
-            "metadata": {
-              "gapKind": "check-failed",
-              "checkId": "bg-near-extracted-exists",
-              "checkCmd": "test -s assets/scenes/forest-tutorial/extracted/bg-near.png",
-              "checkDescription": "bg-near extraction PNG was written",
-              "checkOutput": "",
-              "checkExitCode": 1,
-              "taskPrompt": "# Scene `forest-tutorial` — bg-near extraction\n\n## Run\n\n```bash\npython scripts/extract_bg_near.py forest-tutorial\n```\n\nThe script's prompt (`NEAR_PROMPT` in `scripts/extract_bg_near.py`) instructs the model to amodal-complete the foreground edge — ground texture, foreground rocks, fern fronds, foreground tree trunk bases — and fill non-near regions (top of canvas) with `#00FF00`. The script then chroma-keys green pixels to alpha.\n\nReferences passed to the model:\n- The scene concept (base).\n- The style sheet (universal style anchor).\n- `bg-mid.png` (sibling-above — palette / lighting anchor at the layer seam).\n\n## Fitness contract\n\n- Per-pixel irregular alpha.\n- More than 30% transparent (foreground sits in lower 30-45% of canvas; everything above is keyed out).\n- Prompt sidecar is the real script's prompt.\n\n## Why bg-mid must finish first\n\nThis task declares `extracted/bg-mid.png` as an input. The runner blocks until mid is on disk so the model can use it as a sibling-above reference for palette continuity at the layer seam.",
-              "taskAgent": "paid-api-operator",
-              "taskId": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-01b-extract/scene-forest-tutorial-01b-extract-01b3-near",
-              "taskTitle": "Scene `forest-tutorial` — extract bg-near (foreground edge)",
-              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/tasks/scene-forest-tutorial-01b-extract/tasks/scene-forest-tutorial-01b-extract-01b3-near",
-              "factId": "check:bg-near-extracted-exists"
-            }
-          },
-          {
-            "id": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-01b-extract/scene-forest-tutorial-01b-extract-01b3-near-check-failed-bg-near-extracted-irregular-alpha",
-            "type": "incomplete",
-            "level": "task",
-            "scope": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-01b-extract/scene-forest-tutorial-01b-extract-01b3-near",
-            "severity": "high",
-            "description": "[05-scenes/scene-forest-tutorial/scene-forest-tutorial-01b-extract/scene-forest-tutorial-01b-extract-01b3-near] Check failed: bg-near has per-pixel irregular alpha and majority transparent area (foreground only in bottom strip)",
-            "source": "unit",
-            "detected": "2026-04-28T22:18:23.443Z",
-            "resolved": false,
-            "checks": [],
-            "metadata": {
-              "gapKind": "check-failed",
-              "checkId": "bg-near-extracted-irregular-alpha",
-              "checkCmd": "python -c \"\nfrom PIL import Image\nimport numpy as np\na = np.array(Image.open('assets/scenes/forest-tutorial/extracted/bg-near.png').convert('RGBA'))[:, :, 3]\nh, _ = a.shape\nrow_solid = ((a == 0).all(axis=1) | (a == 255).all(axis=1)).sum()\nassert row_solid / h <= 0.70, f'{row_solid}/{h} solid rows — looks like a band slice, not a real extraction'\n# Near should be majority transparent (foreground only in bottom strip).\ntransparent = (a == 0).sum() / a.size\nassert transparent > 0.30, f'bg-near has only {transparent:.1%} transparent pixels — foreground should occupy <70% of the canvas'\n\"\n",
-              "checkDescription": "bg-near has per-pixel irregular alpha and majority transparent area (foreground only in bottom strip)",
-              "checkOutput": "Traceback (most recent call last):\n  File \"<string>\", line 4, in <module>\n  File \"/opt/homebrew/Caskroom/miniconda/base/lib/python3.12/site-packages/PIL/Image.py\", line 3513, in open\n    fp = builtins.open(filename, \"rb\")\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: 'assets/scenes/forest-tutorial/extracted/bg-near.png'",
-              "checkExitCode": 1,
-              "taskPrompt": "# Scene `forest-tutorial` — bg-near extraction\n\n## Run\n\n```bash\npython scripts/extract_bg_near.py forest-tutorial\n```\n\nThe script's prompt (`NEAR_PROMPT` in `scripts/extract_bg_near.py`) instructs the model to amodal-complete the foreground edge — ground texture, foreground rocks, fern fronds, foreground tree trunk bases — and fill non-near regions (top of canvas) with `#00FF00`. The script then chroma-keys green pixels to alpha.\n\nReferences passed to the model:\n- The scene concept (base).\n- The style sheet (universal style anchor).\n- `bg-mid.png` (sibling-above — palette / lighting anchor at the layer seam).\n\n## Fitness contract\n\n- Per-pixel irregular alpha.\n- More than 30% transparent (foreground sits in lower 30-45% of canvas; everything above is keyed out).\n- Prompt sidecar is the real script's prompt.\n\n## Why bg-mid must finish first\n\nThis task declares `extracted/bg-mid.png` as an input. The runner blocks until mid is on disk so the model can use it as a sibling-above reference for palette continuity at the layer seam.",
-              "taskAgent": "paid-api-operator",
-              "taskId": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-01b-extract/scene-forest-tutorial-01b-extract-01b3-near",
-              "taskTitle": "Scene `forest-tutorial` — extract bg-near (foreground edge)",
-              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/tasks/scene-forest-tutorial-01b-extract/tasks/scene-forest-tutorial-01b-extract-01b3-near",
-              "factId": "check:bg-near-extracted-irregular-alpha"
-            }
-          },
-          {
-            "id": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-01b-extract/scene-forest-tutorial-01b-extract-01b3-near-check-failed-bg-near-extracted-no-band-marker",
-            "type": "incomplete",
-            "level": "task",
-            "scope": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-01b-extract/scene-forest-tutorial-01b-extract-01b3-near",
-            "severity": "high",
-            "description": "[05-scenes/scene-forest-tutorial/scene-forest-tutorial-01b-extract/scene-forest-tutorial-01b-extract-01b3-near] Check failed: prompt sidecar is a real model pass",
-            "source": "unit",
-            "detected": "2026-04-28T22:18:23.466Z",
-            "resolved": false,
-            "checks": [],
-            "metadata": {
-              "gapKind": "check-failed",
-              "checkId": "bg-near-extracted-no-band-marker",
-              "checkCmd": "python -c \"\nt = open('assets/scenes/forest-tutorial/extracted/bg-near.prompt.txt').read().lower()\nbad = [m for m in ('band-extraction', 'band extraction', 'fallback', 'local fallback', 'rows ') if m in t]\nassert not bad, f'near prompt sidecar contains fallback markers: {bad}'\n\"\n",
-              "checkDescription": "prompt sidecar is a real model pass",
-              "checkOutput": "Traceback (most recent call last):\n  File \"<string>\", line 2, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: 'assets/scenes/forest-tutorial/extracted/bg-near.prompt.txt'",
-              "checkExitCode": 1,
-              "taskPrompt": "# Scene `forest-tutorial` — bg-near extraction\n\n## Run\n\n```bash\npython scripts/extract_bg_near.py forest-tutorial\n```\n\nThe script's prompt (`NEAR_PROMPT` in `scripts/extract_bg_near.py`) instructs the model to amodal-complete the foreground edge — ground texture, foreground rocks, fern fronds, foreground tree trunk bases — and fill non-near regions (top of canvas) with `#00FF00`. The script then chroma-keys green pixels to alpha.\n\nReferences passed to the model:\n- The scene concept (base).\n- The style sheet (universal style anchor).\n- `bg-mid.png` (sibling-above — palette / lighting anchor at the layer seam).\n\n## Fitness contract\n\n- Per-pixel irregular alpha.\n- More than 30% transparent (foreground sits in lower 30-45% of canvas; everything above is keyed out).\n- Prompt sidecar is the real script's prompt.\n\n## Why bg-mid must finish first\n\nThis task declares `extracted/bg-mid.png` as an input. The runner blocks until mid is on disk so the model can use it as a sibling-above reference for palette continuity at the layer seam.",
-              "taskAgent": "paid-api-operator",
-              "taskId": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-01b-extract/scene-forest-tutorial-01b-extract-01b3-near",
-              "taskTitle": "Scene `forest-tutorial` — extract bg-near (foreground edge)",
-              "unitPath": "/Users/minh/Documents/converge/examples/game-assets-video/.converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial/tasks/scene-forest-tutorial-01b-extract/tasks/scene-forest-tutorial-01b-extract-01b3-near",
-              "factId": "check:bg-near-extracted-no-band-marker"
-            }
-          }
-        ],
-        "durationMs": 209
+        "gaps": [],
+        "durationMs": 1121
       }
     },
     {
@@ -156,80 +51,6 @@
         "priority": 97,
         "applicable": "noGapsAndExecuted"
       }
-    },
-    {
-      "id": "run-executor",
-      "handler": "run-executor",
-      "status": "done",
-      "origin": "initial",
-      "data": {
-        "priority": 65
-      },
-      "result": {
-        "action": "continue",
-        "durationMs": 1
-      }
-    },
-    {
-      "id": "repair-loop",
-      "handler": "repair-loop",
-      "status": "done",
-      "origin": "initial",
-      "data": {
-        "priority": 55
-      },
-      "result": {
-        "action": "continue",
-        "durationMs": 197
-      }
-    },
-    {
-      "id": "verify",
-      "handler": "verify",
-      "status": "done",
-      "origin": "initial",
-      "data": {
-        "priority": 50
-      },
-      "result": {
-        "action": "done",
-        "success": true,
-        "reason": "All gaps resolved",
-        "gaps": [],
-        "durationMs": 257
-      }
-    },
-    {
-      "id": "check-stall",
-      "handler": "check-stall",
-      "status": "buffered",
-      "origin": "initial",
-      "data": {
-        "priority": 45
-      }
-    },
-    {
-      "id": "advance-attempt",
-      "handler": "advance-attempt",
-      "status": "buffered",
-      "origin": "initial",
-      "data": {
-        "priority": 40
-      }
-    },
-    {
-      "id": "run-strategy:task-run#4",
-      "handler": "run-strategy",
-      "status": "done",
-      "origin": "planned",
-      "data": {
-        "strategy": "task-run",
-        "priority": 55
-      },
-      "result": {
-        "action": "continue",
-        "durationMs": 156330
-      }
     }
   ],
   "edges": [
@@ -237,43 +58,19 @@
       "from": "_start",
       "to": "check-wbs-seeded",
       "iteration": 1,
-      "ts": "2026-04-28T22:18:23.256Z"
+      "ts": "2026-04-29T04:53:01.704Z"
     },
     {
       "from": "check-wbs-seeded",
       "to": "check-outputs-exist",
       "iteration": 1,
-      "ts": "2026-04-28T22:18:23.257Z"
+      "ts": "2026-04-29T04:53:01.707Z"
     },
     {
       "from": "check-outputs-exist",
       "to": "detect-gaps",
       "iteration": 1,
-      "ts": "2026-04-28T22:18:23.466Z"
-    },
-    {
-      "from": "detect-gaps",
-      "to": "run-executor",
-      "iteration": 1,
-      "ts": "2026-04-28T22:18:23.467Z"
-    },
-    {
-      "from": "run-executor",
-      "to": "repair-loop",
-      "iteration": 1,
-      "ts": "2026-04-28T22:18:23.664Z"
-    },
-    {
-      "from": "repair-loop",
-      "to": "run-strategy:task-run#4",
-      "iteration": 1,
-      "ts": "2026-04-28T22:20:59.995Z"
-    },
-    {
-      "from": "run-strategy:task-run#4",
-      "to": "verify",
-      "iteration": 1,
-      "ts": "2026-04-28T22:21:00.254Z"
+      "ts": "2026-04-29T04:53:02.836Z"
     }
   ]
 }

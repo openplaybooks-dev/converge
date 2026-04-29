@@ -1,7 +1,7 @@
 {
   "attemptNumber": 1,
-  "startedAt": "2026-04-28T22:14:24.609Z",
-  "completedAt": "2026-04-28T22:14:24.618Z",
+  "startedAt": "2026-04-29T04:52:55.507Z",
+  "completedAt": "2026-04-29T04:52:55.592Z",
   "spawnedTasks": [
     {
       "id": "scene-forest-tutorial-01b-extract-01b1-far",
@@ -23,5 +23,5 @@
   "spawnedGoals": [],
   "status": "success",
   "spawnCount": 4,
-  "durationMs": 9
+  "durationMs": 84
 }

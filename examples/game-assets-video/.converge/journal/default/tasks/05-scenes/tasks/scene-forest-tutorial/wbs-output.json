@@ -1,7 +1,7 @@
 {
   "attemptNumber": 1,
-  "startedAt": "2026-04-28T22:13:00.411Z",
-  "completedAt": "2026-04-28T22:13:00.439Z",
+  "startedAt": "2026-04-29T04:52:52.457Z",
+  "completedAt": "2026-04-29T04:52:52.614Z",
   "spawnedTasks": [
     {
       "id": "scene-forest-tutorial-01-concept",
@@ -43,5 +43,5 @@
   "spawnedGoals": [],
   "status": "success",
   "spawnCount": 9,
-  "durationMs": 28
+  "durationMs": 156
 }

@@ -1,19 +1,30 @@
 /**
- * bg-near segmentation WBS. Mirrors bg-mid/wbs/index.js but with the near
- * layer's heavier overlap (256px default).
+ * bg-near WBS — fans out one CHUNK CONTAINER per stage section.
  *
- * Section-driven by default — beats from stage.json define section
- * boundaries. Falls back to width-based when beats don't bracket the map.
+ * Each chunk is itself a WBS subtree (spec → svg → render → paint).
+ * Chunks are serialized via the inputs: gate on the previous chunk's
+ * paint output (segments/seg-(N-1).png), so the runner walks the chain
+ * left-to-right naturally. Chunk 0's prev-input falls back to
+ * bg-mid/final.png so the gate always resolves.
+ *
+ * Sections come from stage.beats[] (beat-driven). Falls back to
+ * width-based slicing when beats don't bracket the map. The same
+ * algorithm is duplicated inside the chunk's spec sub-task so chunk
+ * indices line up.
  */
 
 import { readFileSync } from 'node:fs';
-import { join, resolve, dirname } from 'node:path';
-import { writeFile, mkdir } from 'node:fs/promises';
 
 const DEFAULT_SEGMENT_WIDTH = 1024;
 const DEFAULT_OVERLAP_PX = 256;
+const INPAINT_STRIP_PX = 192;
 const MIN_BEATS_FOR_SECTION_DRIVEN = 3;
-const SEGMENT_TEMPLATE = '.converge/playbooks/default/tasks/05-scenes/wbs/templates/scene/wbs/templates/02c-background/02c-bg-near/wbs/templates/segment/TASK.md';
+
+const TPL_ROOT =
+  '.converge/playbooks/default/tasks/05-scenes/wbs/templates/scene/wbs/templates/02c-background/02c-bg-near';
+const TPL_CHUNK_CONTAINER = `${TPL_ROOT}/wbs/templates/chunk/TASK.md`;
+const TPL_VALIDATE = `${TPL_ROOT}/97-validate/TASK.md`;
+const TPL_STITCH   = `${TPL_ROOT}/99-stitch/TASK.md`;
 
 function computeSegmentCount(targetW, segmentW, overlap) {
   const stride = segmentW - overlap;
@@ -36,24 +47,31 @@ function sectionsFromBeats(stage) {
     const a = beats[i];
     const b = beats[i + 1];
     sections.push({
+      x_lo_tile: a.x_tile,
+      x_hi_tile: b.x_tile,
       x_lo: a.x_tile / wTiles,
       x_hi: b.x_tile / wTiles,
       label: `${a.label} → ${b.label}`,
-      kind: `${a.kind} → ${b.kind}`,
+      kind:  `${a.kind} → ${b.kind}`,
     });
   }
   const valid = sections.filter((s) => s.x_hi > s.x_lo);
   return valid.length > 0 ? valid : null;
 }
 
-function sectionsFromWidth(count) {
+function sectionsFromWidth(stage, count) {
+  const wTiles = stage?.world?.width_tiles || count;
   const out = [];
   for (let i = 0; i < count; i++) {
+    const x_lo_tile = Math.round((i / count) * wTiles);
+    const x_hi_tile = Math.round(((i + 1) / count) * wTiles);
     out.push({
+      x_lo_tile,
+      x_hi_tile,
       x_lo: i / count,
       x_hi: (i + 1) / count,
       label: `slice-${String(i + 1).padStart(2, '0')}`,
-      kind: 'width-fallback',
+      kind:  'width-fallback',
     });
   }
   return out;
@@ -86,71 +104,87 @@ export async function run(ctx) {
   let mode = 'beats';
   if (!sections) {
     const widthCount = computeSegmentCount(targetW, segmentW, overlap);
-    sections = sectionsFromWidth(widthCount);
+    sections = sectionsFromWidth(stage, widthCount);
     mode = 'width';
   }
   const count = sections.length;
 
   const worldWTiles = (stage.world && stage.world.width_tiles) || '?';
   console.log(
-    `  bg-near: world=${worldWTiles}t target_w=${targetW}px overlap=${overlap} mode=${mode} → ${count} section(s)`
+    `  bg-near: world=${worldWTiles}t target_w=${targetW}px overlap=${overlap} mode=${mode} → ${count} chunk(s)`
   );
 
+  // Spawn one chunk container per section. Each container has its own
+  // wbs: declaration; the runner will descend into it and run the four
+  // sub-tasks (spec → svg → render → paint).
   for (let i = 0; i < count; i++) {
     const sec = sections[i];
     const ordinal = String(i + 1).padStart(2, '0');
-    const segId = `scene-${sceneId}-02c-background-02c-bg-near-seg-${ordinal}`;
-    const segVars = {
+    const padded = String(i).padStart(3, '0');
+    const prevPadded = i > 0 ? String(i - 1).padStart(3, '0') : '';
+    const chunkId = `scene-${sceneId}-02c-background-02c-bg-near-chunk-${ordinal}`;
+    const chunkVars = {
       scene_id: sceneId,
-      layer: 'near',
-      seg_index: String(i),
-      seg_ordinal: ordinal,
-      seg_count: String(count),
-      seg_index_padded: String(i).padStart(3, '0'),
-      seg_prev_padded: i > 0 ? String(i - 1).padStart(3, '0') : '',
-      seg_x_lo_norm: sec.x_lo.toFixed(4),
-      seg_x_hi_norm: sec.x_hi.toFixed(4),
+      chunk_index: String(i),
+      chunk_ordinal: ordinal,
+      chunk_count: String(count),
+      chunk_index_padded: padded,
+      chunk_prev_padded: prevPadded,
+      chunk_x_lo_tile: String(sec.x_lo_tile),
+      chunk_x_hi_tile: String(sec.x_hi_tile),
+      chunk_x_lo_norm: sec.x_lo.toFixed(4),
+      chunk_x_hi_norm: sec.x_hi.toFixed(4),
       section_label: sec.label,
       section_kind: sec.kind,
+      overlap_px: String(overlap),
+      inpaint_strip_px: String(INPAINT_STRIP_PX),
+      // Chunk 0's prev gate falls back to bg-mid so the runner doesn't deadlock.
       prev_input_path: i > 0
-        ? `assets/scenes/${sceneId}/bg-near/seg-${String(i - 1).padStart(3, '0')}.png`
-        : `assets/scenes/${sceneId}/bg-mid.png`,
+        ? `assets/scenes/${sceneId}/bg-near/segments/seg-${prevPadded}.png`
+        : `assets/scenes/${sceneId}/bg-mid/final.png`,
     };
     await ctx.spawn(
-      { _type: 'template-ref', path: SEGMENT_TEMPLATE, vars: segVars },
-      { id: segId }
+      { _type: 'template-ref', path: TPL_CHUNK_CONTAINER, vars: chunkVars },
+      { id: chunkId },
     );
     console.log(
-      `    ✓ ${segId} x=[${sec.x_lo.toFixed(3)},${sec.x_hi.toFixed(3)}] "${sec.label}"` +
-        `${i > 0 ? ` (after seg-${String(i - 1).padStart(3, '0')})` : ''}`,
+      `    ✓ ${chunkId} x=[${sec.x_lo.toFixed(3)},${sec.x_hi.toFixed(3)}] "${sec.label}"` +
+        `${i > 0 ? ` (after chunk-${prevPadded})` : ''}`,
     );
   }
 
-  // Install the static validate + stitch children.
-  const parentJournalDir = resolve(
-    projectDir,
-    '.converge/journal/default/tasks/05-scenes/tasks',
-    `scene-${sceneId}`,
-    'tasks',
-    `scene-${sceneId}-02c-background`,
-    'tasks',
-    `scene-${sceneId}-02c-background-02c-bg-near`,
+  // Spawn 97-validate and 99-stitch via ctx.spawn instead of writing to a
+  // hand-computed journal path. The runner's materializer handles vars +
+  // path placement; this also keeps the chain ordered correctly because
+  // the validator/stitcher tasks come after the chunks via inputs gates,
+  // not via container-execution order.
+  const validateId = `scene-${sceneId}-02c-background-02c-bg-near-97-validate`;
+  await ctx.spawn(
+    {
+      _type: 'template-ref',
+      path: TPL_VALIDATE,
+      vars: {
+        scene_id: sceneId,
+        chunk_count: String(count),
+        seg_count: String(count),
+      },
+    },
+    { id: validateId },
   );
-  const STATIC_CHILDREN = ['97-validate', '99-stitch'];
-  for (const child of STATIC_CHILDREN) {
-    const src = resolve(
-      projectDir,
-      `.converge/playbooks/default/tasks/05-scenes/wbs/templates/scene/wbs/templates/02c-background/02c-bg-near/${child}/TASK.md`,
-    );
-    const dest = join(parentJournalDir, child, 'TASK.md');
-    let raw = readFileSync(src, 'utf-8');
-    raw = raw.replace(/\{\{(\w+)\}\}/g, (_m, key) => {
-      if (key === 'scene_id') return sceneId;
-      if (key === 'seg_count') return String(count);
-      return _m;
-    });
-    await mkdir(dirname(dest), { recursive: true });
-    await writeFile(dest, raw, 'utf-8');
-    console.log(`    ↳ static child ${child} installed`);
-  }
+  console.log(`    ✓ ${validateId} (validate)`);
+
+  const stitchId = `scene-${sceneId}-02c-background-02c-bg-near-99-stitch`;
+  await ctx.spawn(
+    {
+      _type: 'template-ref',
+      path: TPL_STITCH,
+      vars: {
+        scene_id: sceneId,
+        chunk_count: String(count),
+        seg_count: String(count),
+      },
+    },
+    { id: stitchId },
+  );
+  console.log(`    ✓ ${stitchId} (stitch)`);
 }

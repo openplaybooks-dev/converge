@@ -1,8 +1,8 @@
 # RESULT.md — Attempt 1
 
 **Outcome**: ✅ SUCCESS
-**Duration**: 2m 37s
-**Completed**: 2026-04-28T22:21:00.726Z
+**Duration**: 1s
+**Completed**: 2026-04-29T04:53:03.337Z
 
 ## Outputs
 
@@ -11,5 +11,5 @@
 ## Check Results — ✅ all passed
 
 - ✓ **bg-near-extracted-exists**: bg-near extraction PNG was written
-- ✓ **bg-near-extracted-irregular-alpha**: bg-near has per-pixel irregular alpha and majority transparent area (foreground only in bottom strip)
+- ✓ **bg-near-extracted-irregular-shape**: bg-near is a real model pass (irregular silhouette, not a band slice) and majority chroma green (foreground content only in the bottom strip)
 - ✓ **bg-near-extracted-no-band-marker**: prompt sidecar is a real model pass

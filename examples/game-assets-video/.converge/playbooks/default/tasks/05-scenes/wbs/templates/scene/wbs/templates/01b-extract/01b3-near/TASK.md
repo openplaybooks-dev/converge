@@ -36,7 +36,7 @@ checks:
     cmd: |
       python -c "
       t = open('assets/scenes/{{scene_id}}/extracted/bg-near.prompt.txt').read().lower()
-      bad = [m for m in ('band-extraction', 'band extraction', 'fallback', 'local fallback', 'rows ') if m in t]
+      bad = [m for m in ('FALLBACK PATH', 'BAND-EXTRACTION FALLBACK', 'local-fallback writer') if m in t.upper() or m.lower() in t]
       assert not bad, f'near prompt sidecar contains fallback markers: {bad}'
       "
     description: prompt sidecar is a real model pass

@@ -1,9 +1,9 @@
 {
   "attemptNumber": 1,
-  "startedAt": "2026-04-28T22:13:00.411Z",
-  "projectDir": "/Users/minh/Documents/converge/examples/game-assets-video",
+  "startedAt": "2026-04-29T04:52:52.457Z",
+  "projectDir": "D:\\converge\\examples\\game-assets-video",
   "playbookName": "default",
-  "parentTaskDir": ".converge/journal/default/tasks/05-scenes/tasks/scene-forest-tutorial",
+  "parentTaskDir": ".converge\\journal\\default\\tasks\\05-scenes\\tasks\\scene-forest-tutorial",
   "journalCtx": {
     "epicId": "default",
     "taskId": "05-scenes/scene-forest-tutorial"

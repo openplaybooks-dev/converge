@@ -1,0 +1,25 @@
+{
+  "type": "task",
+  "id": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-02c-background/scene-forest-tutorial-02c-background-02b-bg-mid",
+  "status": "complete",
+  "lastUpdated": "2026-04-29T08:01:38.615Z",
+  "createdAt": "2026-04-29T04:53:16.127Z",
+  "progress": {
+    "totalChildren": 10,
+    "completedChildren": 10,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "97-validate",
+      "99-stitch",
+      "scene-forest-tutorial-02c-background-02b-bg-mid-seg-01",
+      "scene-forest-tutorial-02c-background-02b-bg-mid-seg-02",
+      "scene-forest-tutorial-02c-background-02b-bg-mid-seg-03",
+      "scene-forest-tutorial-02c-background-02b-bg-mid-seg-04",
+      "scene-forest-tutorial-02c-background-02b-bg-mid-seg-05",
+      "scene-forest-tutorial-02c-background-02b-bg-mid-seg-06",
+      "scene-forest-tutorial-02c-background-02b-bg-mid-seg-07",
+      "scene-forest-tutorial-02c-background-02b-bg-mid-seg-08"
+    ],
+    "lastProgressUpdate": "2026-04-29T08:01:38.609Z"
+  }
+}

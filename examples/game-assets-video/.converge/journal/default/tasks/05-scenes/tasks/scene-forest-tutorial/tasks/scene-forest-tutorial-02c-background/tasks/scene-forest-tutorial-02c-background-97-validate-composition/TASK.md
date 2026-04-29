@@ -12,9 +12,9 @@ inputs:
   - assets/scenes/forest-tutorial/stage.json
   - assets/scenes/forest-tutorial/concept.png
   - assets/scenes/forest-tutorial/map.silhouette.png
-  - assets/scenes/forest-tutorial/bg-far.png
-  - assets/scenes/forest-tutorial/bg-mid.png
-  - assets/scenes/forest-tutorial/bg-near.png
+  - assets/scenes/forest-tutorial/bg-far/final.png
+  - assets/scenes/forest-tutorial/bg-mid/final.png
+  - assets/scenes/forest-tutorial/bg-far/final.png
 outputs:
   - assets/scenes/forest-tutorial/bg-composition.critique.json
   - assets/scenes/forest-tutorial/bg-composition.preview.png

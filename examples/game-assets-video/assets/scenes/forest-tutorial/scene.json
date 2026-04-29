@@ -1,0 +1,19 @@
+{
+  "id": "forest-tutorial",
+  "name": "Forest Tutorial",
+  "biome": "grassland",
+  "concept": "assets\\scenes\\forest-tutorial\\concept.png",
+  "spec": "assets\\scenes\\forest-tutorial\\SPEC.md",
+  "background": {
+    "layers": []
+  },
+  "tilemap": "assets\\scenes\\forest-tutorial\\tilesheet\\tilesheet.atlas.json",
+  "characters": [
+    "hero-knight"
+  ],
+  "shared_props": [
+    "gold-key",
+    "health-potion"
+  ],
+  "scene_props": []
+}

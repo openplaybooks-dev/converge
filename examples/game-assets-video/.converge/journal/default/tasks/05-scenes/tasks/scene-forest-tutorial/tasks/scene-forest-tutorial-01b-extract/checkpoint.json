@@ -2,6 +2,18 @@
   "type": "task",
   "id": "05-scenes/scene-forest-tutorial/scene-forest-tutorial-01b-extract",
   "status": "complete",
-  "lastUpdated": "2026-04-28T22:32:41.444Z",
-  "createdAt": "2026-04-28T22:14:24.618Z"
+  "lastUpdated": "2026-04-29T08:01:38.615Z",
+  "createdAt": "2026-04-29T04:52:55.597Z",
+  "progress": {
+    "totalChildren": 4,
+    "completedChildren": 4,
+    "failedChildren": 0,
+    "childTaskIds": [
+      "scene-forest-tutorial-01b-extract-01b1-far",
+      "scene-forest-tutorial-01b-extract-01b2-mid",
+      "scene-forest-tutorial-01b-extract-01b3-near",
+      "scene-forest-tutorial-01b-extract-01b4-manifest"
+    ],
+    "lastProgressUpdate": "2026-04-29T08:01:38.609Z"
+  }
 }

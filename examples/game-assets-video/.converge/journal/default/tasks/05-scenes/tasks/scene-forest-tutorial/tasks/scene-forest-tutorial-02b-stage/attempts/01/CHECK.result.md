@@ -1,12 +1,12 @@
 # RESULT.md — Attempt 1
 
 **Outcome**: ✅ SUCCESS
-**Duration**: 1m 40s
-**Completed**: 2026-04-28T22:24:55.501Z
+**Duration**: 3s
+**Completed**: 2026-04-29T04:53:12.096Z
 
 ## Outputs
 
-- `assets/scenes/forest-tutorial/stage.json` — ✓ produced (8.0 KB)
+- `assets/scenes/forest-tutorial/stage.json` — ✓ produced (8.5 KB)
 - `assets/scenes/forest-tutorial/map.silhouette.png` — ✓ produced (591.3 KB)
 
 ## Check Results — ✅ all passed

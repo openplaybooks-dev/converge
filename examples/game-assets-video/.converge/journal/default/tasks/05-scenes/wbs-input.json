@@ -1,9 +1,9 @@
 {
   "attemptNumber": 1,
-  "startedAt": "2026-04-28T22:13:00.343Z",
-  "projectDir": "/Users/minh/Documents/converge/examples/game-assets-video",
+  "startedAt": "2026-04-29T04:52:52.048Z",
+  "projectDir": "D:\\converge\\examples\\game-assets-video",
   "playbookName": "default",
-  "parentTaskDir": ".converge/playbooks/default/tasks/05-scenes",
+  "parentTaskDir": ".converge\\playbooks\\default\\tasks\\05-scenes",
   "journalCtx": {
     "epicId": "default",
     "taskId": "05-scenes"

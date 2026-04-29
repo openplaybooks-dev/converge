@@ -41,8 +41,8 @@ Note: the far layer **does not** use `extracted/bg-far.png`. That slice is conta
 
 ## Outputs
 
-- `assets/scenes/forest-tutorial/bg-far.png` — fully opaque RGBA PNG
-- `assets/scenes/forest-tutorial/bg-far.atlas.json`
+- `assets/scenes/forest-tutorial/bg-far/final.png` — fully opaque RGBA PNG
+- `assets/scenes/forest-tutorial/bg-far/final.atlas.json`
 - `assets/scenes/forest-tutorial/bg-far.prompt.txt`
 - `assets/scenes/forest-tutorial/bg-far.seed.txt`
 

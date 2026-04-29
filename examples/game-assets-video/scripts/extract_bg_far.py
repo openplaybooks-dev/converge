@@ -85,8 +85,8 @@ PRODUCTION TASK:
 
 ANTI-PATTERNS (DO NOT DO):
   - Do NOT produce a horizontal band-slice of the original canvas. Your
-    output must be a complete painting of the far layer, not "rows 0..N
-    of the original with rows N..bottom blanked out."
+    output must be a complete painting of the far layer, not the upper
+    portion of the original with the lower portion blanked out.
   - Do NOT include mid or near content because it was painted at the
     same height as the far layer in the original. Atmospheric
     perspective and contrast — not Y position — decide what belongs.

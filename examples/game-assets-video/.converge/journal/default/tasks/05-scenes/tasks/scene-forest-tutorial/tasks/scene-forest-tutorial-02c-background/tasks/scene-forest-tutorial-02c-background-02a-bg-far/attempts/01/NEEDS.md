@@ -15,8 +15,8 @@ Distant landscape: sky → mountains → horizon line. Fully opaque, fills the c
 
 ## Expected Outputs
 
-- `assets/scenes/forest-tutorial/bg-far.png`
-- `assets/scenes/forest-tutorial/bg-far.atlas.json`
+- `assets/scenes/forest-tutorial/bg-far/final.png`
+- `assets/scenes/forest-tutorial/bg-far/final.atlas.json`
 
 ## Checks
 

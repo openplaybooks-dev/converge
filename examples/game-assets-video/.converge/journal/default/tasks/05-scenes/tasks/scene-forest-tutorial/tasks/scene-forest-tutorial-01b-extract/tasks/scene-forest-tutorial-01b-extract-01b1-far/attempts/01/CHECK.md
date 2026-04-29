@@ -34,7 +34,9 @@ assert pure_green == 0, f'bg-far has {pure_green} pure-green pixels — far must
 **Description**: prompt sidecar is a real model pass (not a hand-rolled band slice)
 **Command**: `python -c "
 t = open('assets/scenes/forest-tutorial/extracted/bg-far.prompt.txt').read().lower()
-bad = [m for m in ('band-extraction', 'band extraction', 'local fallback', 'fallback writer') if m in t]
+# Detect the FALLBACK PATH marker only, not legitimate negative instructions
+# in the real prompt (which says 'Do NOT produce... rows 0..N...').
+bad = [m for m in ('FALLBACK PATH', 'BAND-EXTRACTION FALLBACK', 'local-fallback writer') if m in t.upper() or m.lower() in t]
 assert not bad, f'far prompt sidecar contains fallback markers: {bad}'
 "
 `

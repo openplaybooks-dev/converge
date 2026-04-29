@@ -19,7 +19,7 @@
     {
       "id": "bg-far-extracted-no-band-marker",
       "description": "prompt sidecar is a real model pass (not a hand-rolled band slice)",
-      "cmd": "python -c \"\nt = open('assets/scenes/forest-tutorial/extracted/bg-far.prompt.txt').read().lower()\nbad = [m for m in ('band-extraction', 'band extraction', 'fallback', 'local fallback', 'rows ') if m in t]\nassert not bad, f'far prompt sidecar contains fallback markers: {bad}'\n\"\n"
+      "cmd": "python -c \"\nt = open('assets/scenes/forest-tutorial/extracted/bg-far.prompt.txt').read().lower()\n# Detect the FALLBACK PATH marker only, not legitimate negative instructions\n# in the real prompt (which says 'Do NOT produce... rows 0..N...').\nbad = [m for m in ('FALLBACK PATH', 'BAND-EXTRACTION FALLBACK', 'local-fallback writer') if m in t.upper() or m.lower() in t]\nassert not bad, f'far prompt sidecar contains fallback markers: {bad}'\n\"\n"
     }
   ]
 }
