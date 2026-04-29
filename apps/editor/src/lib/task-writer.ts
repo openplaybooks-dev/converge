@@ -1,9 +1,12 @@
 import "server-only";
 import { readFile, writeFile, rename } from "node:fs/promises";
 import { join, resolve, sep } from "node:path";
-import matter from "gray-matter";
 import { scanTasks, type ScannedTask } from "@/lib/tasks-scanner";
 import { resolveProjectRoot } from "@/lib/core";
+import {
+  applyFrontmatterPatch,
+  type FrontmatterPatch,
+} from "@/lib/frontmatter";
 import { loadPlaybook } from "@converge/core/studio-api";
 
 export interface TaskPatch {
@@ -86,42 +89,21 @@ export function validatePatch(input: unknown): TaskPatch {
   return out;
 }
 
-function applyPatch(
-  data: Record<string, unknown>,
-  patch: TaskPatch,
-): Record<string, unknown> {
-  const next = { ...data };
-
-  function setOrDelete<K extends keyof TaskPatch>(
-    key: K,
-    frontmatterKey: string,
-  ) {
-    if (!(key in patch)) return;
-    const value = patch[key];
-    if (value === undefined || value === null) {
-      delete next[frontmatterKey];
-      return;
-    }
-    if (Array.isArray(value) && value.length === 0) {
-      delete next[frontmatterKey];
-      return;
-    }
-    if (typeof value === "string" && value.length === 0) {
-      delete next[frontmatterKey];
-      return;
-    }
-    next[frontmatterKey] = value;
-  }
-
-  setOrDelete("title", "title");
-  setOrDelete("description", "description");
-  setOrDelete("inputs", "inputs");
-  setOrDelete("outputs", "outputs");
-  setOrDelete("dependencies", "dependencies");
-  setOrDelete("tags", "tags");
-  setOrDelete("blocking", "blocking");
-
-  return next;
+/**
+ * Project the typed TaskPatch onto the loose FrontmatterPatch shape the
+ * frontmatter helper takes. Only keys actually present on the patch are
+ * forwarded; everything else stays untouched in the file.
+ */
+function toFrontmatterPatch(patch: TaskPatch): FrontmatterPatch {
+  const out: FrontmatterPatch = {};
+  if ("title" in patch) out.title = patch.title;
+  if ("description" in patch) out.description = patch.description;
+  if ("inputs" in patch) out.inputs = patch.inputs;
+  if ("outputs" in patch) out.outputs = patch.outputs;
+  if ("dependencies" in patch) out.dependencies = patch.dependencies;
+  if ("tags" in patch) out.tags = patch.tags;
+  if ("blocking" in patch) out.blocking = patch.blocking;
+  return out;
 }
 
 async function findTaskFile(
@@ -158,11 +140,7 @@ export async function writeTaskPatch(
   ensureInside(source.templateDir, absPath);
 
   const raw = await readFile(absPath, "utf8");
-  const parsed = matter(raw);
-  const nextData = applyPatch(parsed.data, patch);
-
-  // Always preserve the original body byte-for-byte.
-  const nextRaw = matter.stringify(parsed.content, nextData);
+  const nextRaw = applyFrontmatterPatch(raw, toFrontmatterPatch(patch));
 
   const tmpPath = `${absPath}.tmp-${process.pid}-${Date.now()}`;
   await writeFile(tmpPath, nextRaw, "utf8");

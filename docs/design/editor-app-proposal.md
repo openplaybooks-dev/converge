@@ -464,14 +464,15 @@ Kanban (old M1) is moved to "future" and may never ship in this app.
 - **Cycles.** The wiring step (M4) must reject cycles. We compute a topo
   sort on every save; if it fails, we surface the cycle in the inspector and
   refuse to write.
-- **YAML formatting fidelity.** M3 ships with `gray-matter` for the
-  TASK.md round-trip, which preserves the body byte-for-byte but re-emits
-  the frontmatter in `js-yaml`'s canonical form (quoting, line wrapping,
-  block scalar style all change). On a real file this produces a noisy
-  git diff every time the user saves *any* field, even unrelated ones.
-  **Follow-up M3.5:** swap to the `yaml` package's `parseDocument` API
-  so frontmatter quoting/comments are preserved. Tracked separately so
-  M4 can ship.
+- **YAML formatting fidelity.** ~~Follow-up M3.5~~ **Resolved.** Saves
+  now go through `yaml.parseDocument` and mutate the document in place
+  (`src/lib/frontmatter.ts`); only keys the user touched re-emit, the
+  rest are preserved byte-for-byte (quoting, comments, key order,
+  blank-line-before-body). Verified on `landing-page/01-prepare-spec`:
+  changing `title` + adding one input + adding `tags` produces a 5-line
+  diff; the unrelated `outputs:`, `blocking:`, and body are untouched.
+  Reads still go through `gray-matter` (only the write path needed
+  swapping).
 - **Where does "draft a playbook" write?** `.converge/playbooks/<slug>/` in
   the resolved project root. Refuses to overwrite an existing playbook
   unless the user confirms.
@@ -559,7 +560,7 @@ that signals it. Out of scope until M5b is solid.
   load; coloring on graph nodes and the tasks panel.
 - **M5b — Live tail.** SSE feed; client merges status updates without
   reload.
-- **M3.5 — YAML fidelity.** Switch `gray-matter` for `yaml.parseDocument`
+- **M3.5 — YAML fidelity.** *(Done.)* Switched `gray-matter` for `yaml.parseDocument`
   so saves stop reformatting unrelated frontmatter. Independent of M5;
   schedule in parallel.
 - **M6 — AI: "Draft a playbook"** (lever #1 from §12.5). Unchanged.
