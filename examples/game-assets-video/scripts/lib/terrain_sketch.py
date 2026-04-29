@@ -34,7 +34,7 @@ water span renders as one rect, not five.
 
 from __future__ import annotations
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 
 
 def _hex_rgba(h: str, alpha: int = 255) -> tuple[int, int, int, int]:
@@ -80,46 +80,38 @@ def build_terrain_sketch(
     overlay = Image.new("RGBA", (api_w, api_h), (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
 
-    # Stroke width scales with cell size but stays >= 1 px so the marker
-    # is visible even at narrow API canvases.
-    stroke = max(1, int(round(min(cell_w, cell_h) * 0.10)))
-
-    # Per-cell outline + diagonal-X. NOT run-length merged — every grid
-    # cell gets its own bordered box so the painter sees the tilemap
-    # structure clearly (and can choose to vary detail per cell).
+    # Soft regions — RLE-merge contiguous same-kind cells per row into
+    # ONE filled rectangle, no outline, no X. Adjacent rows with same kind
+    # in the same column range will visually merge into a continuous
+    # region. Then Gaussian-blur the whole overlay so edges are soft and
+    # organic. The painter sees "areas of kind", not "grid of cells",
+    # which produces natural curves rather than rigid cell boundaries.
     for y, row in enumerate(rows):
         if len(row) != grid_w:
             continue
         py_lo = int(round(y * cell_h))
         py_hi = int(round((y + 1) * cell_h))
-        for x, ch in enumerate(row):
+        x = 0
+        while x < grid_w:
+            ch = row[x]
+            x_end = x + 1
+            while x_end < grid_w and row[x_end] == ch:
+                x_end += 1
             entry = legend.get(ch)
-            if not isinstance(entry, dict):
-                continue
-            color_hex = entry.get("color")
-            if not color_hex:
-                continue  # null-color = vast / chroma-stays — skip drawing
-            alpha = int(entry.get("alpha", 220))
-            color = _hex_rgba(color_hex, alpha=alpha)
+            color_hex = entry.get("color") if isinstance(entry, dict) else None
+            if color_hex:
+                alpha = int(entry.get("alpha", 140)) if isinstance(entry, dict) else 140
+                color = _hex_rgba(color_hex, alpha=alpha)
+                px_lo = int(round(x * cell_w))
+                px_hi = int(round(x_end * cell_w))
+                px_lo = max(px_lo, skip_left_px)
+                if px_hi > skip_left_px and px_hi > px_lo:
+                    draw.rectangle([(px_lo, py_lo), (px_hi, py_hi)], fill=color)
+            x = x_end
 
-            px_lo = int(round(x * cell_w))
-            px_hi = int(round((x + 1) * cell_w))
-            if px_hi <= skip_left_px or px_hi <= px_lo:
-                continue
-            px_lo_clip = max(px_lo, skip_left_px)
-
-            # Outline box.
-            draw.rectangle(
-                [(px_lo_clip, py_lo), (px_hi - 1, py_hi - 1)],
-                outline=color, width=stroke,
-            )
-            # Diagonal X (two crossing lines). Skip drawing the X if the
-            # cell is too tiny to read it.
-            if px_hi - px_lo_clip >= 4 and py_hi - py_lo >= 4:
-                draw.line([(px_lo_clip, py_lo), (px_hi - 1, py_hi - 1)],
-                          fill=color, width=stroke)
-                draw.line([(px_hi - 1, py_lo), (px_lo_clip, py_hi - 1)],
-                          fill=color, width=stroke)
+    # Gaussian blur to soften the rectangular edges into organic regions.
+    blur_radius = max(2, int(round(min(cell_w, cell_h) * 0.35)))
+    overlay = overlay.filter(ImageFilter.GaussianBlur(radius=blur_radius))
 
     return overlay
 

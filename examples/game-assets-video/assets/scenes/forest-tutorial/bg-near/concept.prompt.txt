@@ -1,42 +1,94 @@
-You are given a partially-painted canvas (image #1). EXTEND the existing painting rightward to fill the chroma-green area.
+You are TILING the painted reference (the LEFT region of image #1) rightward across the whole canvas, using the colored skeleton grid as a layout guide. The output must look like the SAME ARTIST drew the entire 1536x154 canvas in ONE pass with the SAME brushes, palette, and style — every part of the output must be visually indistinguishable in technique from the leftmost painted region.
 
-# What's already on the canvas (image #1)
+# Two roles, two different things to copy
 
-- Canvas size: 1536x154 px, aspect 10.00:1.
-- The LEFTMOST 154 px (columns 0 to 153, ~10.0% of width) is ALREADY PAINTED at FULL CANVAS HEIGHT — this is the bg-near visual reference (sky / mountains / mid foliage / foreground ground band, all in the canonical palette). It defines the style, palette, brushwork, AND the layout (sky on top, painted bg-near band on bottom).
-- The remaining region (columns 154 to 1535) is solid chroma green #00FF00, with a TILEMAP GRID of colored outline+X markers describing terrain features (see legend below).
+The canvas (image #1) has two distinct parts. They serve DIFFERENT purposes and you must treat them differently:
 
-# Your job
+**PART A — THE LEFT PAINTED REGION (the first ~7.6% of the canvas, columns 0 to ~116):**
+This is the STYLE REFERENCE. It is the ONLY source of truth for: brush feel, color saturation, level of detail, rendering technique, line softness, how trees are drawn, how mountains are drawn, how foliage clumps look, how the ground band is shaded, how lighting falls. Study it. Match it EXACTLY. Do NOT add more detail than it has. Do NOT make mountains more rugged, foliage more textured, or shading more dramatic than what is shown there. If the reference looks soft, simple, hand-painted, and uncluttered, your extension MUST be equally soft, simple, hand-painted, and uncluttered. Do NOT borrow style from your training data — the only style permitted is what is shown in PART A.
 
-EXTEND the painted scene rightward into the chroma area. The output must look like ONE continuous painted scene from x=0 to x=1535, NOT two halves with a seam:
+**PART B — THE LAYOUT HINTS (soft colored regions on the rest of the canvas):**
+This is the LAYOUT GUIDE — ONLY a layout guide. The colored regions are SOFT, BLURRY HINTS of where different terrain features should go. They are NOT shapes to copy. They are NOT design elements. They have NO crisp edges, NO straight lines, NO grid pattern, NO symbols. Treat them as a vague colored mist showing the rough zones for water / land / platforms. The painted output must have ORGANIC, IRREGULAR edges — natural curves, soft horizons, varied foliage borders — NEVER straight rectangular edges that follow the hint shapes literally. If a water hint is a rectangle, you paint a NATURAL pond with curved banks. If a land hint is a rectangle, you paint a NATURAL ground band with an undulating top edge.
 
-  - Match the anchor's layout exactly: same sky/mountain/mid horizon position, same ground band height, same palette, same brushwork.
-  - Replace each terrain marker with painted scenery that VISUALLY READS as that marker's kind in this biome (see legend).
-  - The seam at x=154 must be invisible — palette, foliage density, ground level, and atmospheric tones flow continuously from the anchor into your extension.
+# Style fidelity — non-negotiable
+
+The painter / rendering style across the whole output must be IDENTICAL to PART A:
+- Same color saturation and value range as PART A — if PART A looks pastel, the extension is pastel; if PART A looks rich and warm, the extension matches that exact saturation.
+- Same level of detail and complexity as PART A. Do NOT add more rocks, more bushes, more grass blades, more cloud detail, more mountain ridges than PART A shows.
+- Same brush technique. PART A's edges look soft? Yours must look soft. PART A's foliage clumps as round shapes? Yours must too.
+- Same horizon line height as PART A's mountain band, same atmospheric haze level, same lighting direction (soft top-down / upper-left).
+- Same TYPE of trees, mountains, ground material, and foliage as PART A. If PART A shows broadleaf trees, do not introduce conifers. If PART A's ground is grassy soil, do not switch to rocky terrain.
+
+A viewer should NOT be able to tell where PART A ends and your painting begins. Not by style, not by detail, not by color, not by brush feel.
+
+# Naturalism — non-negotiable
+
+This is a PRODUCTION GAME MAP, not a diagram. The output must look like a real, natural landscape painted as a game backdrop:
+- NO straight rectangular edges anywhere. Ground tops undulate. Pond edges curve. Platforms are rounded shelf-like rocks or grassy mounds, not perfect rectangles.
+- NO grid pattern. NO repeating tile boundaries. NO visible cell structure.
+- NO outline or X markings of any kind in the output. NO numbers, letters, or symbols.
+- NO unnaturally regular spacing of features (e.g. ponds at exact equal intervals look fake — vary the spacing visually with surrounding rocks/foliage so they read as naturally placed).
+- Ponds blend INTO the surrounding land with reedy banks, not as floating blue rectangles.
+- Platforms / ledges are integrated into the terrain — a raised mossy boulder, a tree stump shelf, a cliff lip — NOT a plank floating in the air.
+- Transitions from one biome cue to the next are GRADUAL, no hard boundaries.
+
+# Anchor handoff (no seam)
+
+The painted reference's right edge fades smoothly to BLACK over a gradient zone. Paint OVER the gradient with continuation — do not preserve the fade. The output must show ZERO vertical line, seam, or compositional break anywhere.
 
 # Output technical contract
 
 - Output one image at EXACTLY 1536x154 px. Do not crop, resize, or letterbox.
-- The output represents the ENTIRE scene canvas of 9600x960 px (tile range 0-600 horizontally). Relative x positions in the chunk plan map to fractional positions across the output width.
-- LEFT ANCHOR REGION (columns 0 to 153): keep the existing painted content as-is. Do not erase, recolor, or restyle it.
-- EXTENSION REGION (columns 154 to 1535): replace the chroma + outline+X markers with painted continuation. NO chroma green AND NO outline/X colors should remain anywhere in the final output (except in cells whose legend color is "(no fill — chroma stays)" — those keep chroma green).
-- Do NOT paint: text, UI, characters, gameplay icons.
+- The output represents the ENTIRE scene canvas of 9600x960 px (tile range 0-600 horizontally).
+- LEFT REFERENCE REGION (cols 0 to ~116): preserve the painted content as-is.
+- EXTENSION REGION (cols ~116 to 1535): replace the black background + soft colored markers with painted continuation IN THE EXACT STYLE OF PART A. The soft hint markers must NOT remain visible as colors in the output — paint over them. The black background is just an empty placeholder canvas — paint over it too.
+- The output is a SINGLE FULLY-PAINTED background image containing all background layers combined (sky / mountains / mid-foliage / foreground bg-near band), exactly like PART A but extended across the full canvas. NO black should remain anywhere in the final output. NO transparent areas, NO chroma keys.
+- VAST cells in the grid become SKY / atmosphere / mid-distance painted scenery (whatever PART A shows in those vertical rows) — they are NOT empty; they ARE the painted upper portion of the scene.
+- Do NOT paint: text, UI, characters, gameplay icons, or anything not present in PART A.
 
-# Terrain schematic (colored outline + X per tile cell)
+# Skeleton legend (layout only — style comes from PART A)
 
-The extension region of the canvas has a TILEMAP GRID drawn on top of the chroma. Each cell is shown as a colored OUTLINE BOX with a diagonal X through it. The cell's color identifies its kind; the outline + X are pure schematic markers (NOT painted content). Replace each cell with painted scenery that VISUALLY READS as that kind in this biome.
+The visible soft regions on the canvas are blurry layout hints. The AUTHORITATIVE layout is the text grid below — read it character by character, map each char to its kind via the legend, and paint that cell's canvas region with the appropriate biome-natural feature in PART A's style.
 
-Legend (cell char -> outline color -> what to paint there):
-
-  - '.' kind=vast       color=(no fill — chroma stays)  -> leave as chroma green; nothing painted here (sky / behind-the-scene void)
+  - '.' kind=vast       color=(no fill — chroma stays)  -> paint as sky / atmosphere / mid-distance scenery — continuation of PART A's upper region (mountains, haze, soft clouds). NOT empty; this IS the painted background.
   - '#' kind=land       color=#5B3B1C  -> paint as solid foreground earth — grass/foliage on top, dirt body below
   - '~' kind=water      color=#3A6FAA  -> paint as wetland / pond edge — reeds, lily pads, soft mud bank, no foliage on top
   - '=' kind=platform   color=#7A6F5A  -> paint as a raised wood/grass-topped lip the player can land on; clean top edge
   - '^' kind=hazard     color=#A03A3A  -> paint as harsh thorny growth or jagged rock — hostile feature
 
-Match each cell's footprint: the painted scenery for a cell should occupy the same tile rectangle as the marker. Adjacent same-kind cells form contiguous painted features (e.g. a 5-tile-wide water span paints as ONE pond, not 5 ponds). Cells whose color is "(no fill — chroma stays)" must remain solid chroma green — paint nothing in those cells.
+# Authoritative tilemap grid (read this to know exactly what to paint where)
 
-# Canonical palette (locked across the whole image)
+Grid dimensions: 120 columns × 12 rows. The grid maps onto the output canvas: column x ∈ [0, 120) corresponds to pixel x_px ∈ [0, output_width); row y ∈ [0, 12) corresponds to y_px ∈ [0, output_height) (top → bottom).
+
+Legend (each char in the grid maps to a terrain kind):
+  '.' = vast: paint as sky / atmosphere / mid-distance scenery — continuation of PART A's upper region (mountains, haze, soft clouds). NOT empty; this IS the painted background.
+  '#' = land: paint as solid foreground earth — grass/foliage on top, dirt body below
+  '~' = water: paint as wetland / pond edge — reeds, lily pads, soft mud bank, no foliage on top
+  '=' = platform: paint as a raised wood/grass-topped lip the player can land on; clean top edge
+  '^' = hazard: paint as harsh thorny growth or jagged rock — hostile feature
+
+Grid (read top-to-bottom, left-to-right; each char is one cell):
+```
+........................................................................................................................
+........................................................................................................................
+........................................................................................................................
+........................................................................................................................
+........................................................................................................................
+........................................................................................................................
+........................................................................................................................
+.........................................................................................................====...........
+..................................................====.....................====.....................###############.....
+...............##########...............#########################~~~~~#########################~~~~~####################
+##############################~~~~~##############################~~~~~#########################~~~~~####################
+##############################~~~~~##############################~~~~~#########################~~~~~####################
+```
+
+When painting:
+- Adjacent same-kind cells form ONE contiguous, organically-shaped feature — not separate cells.
+- Edges between kinds are NATURAL curves (pond shorelines, ground undulations), NOT cell boundaries.
+- The visual hint regions on the canvas are deliberately blurred so you don't copy their rectangular shapes — use the text grid for precise positions and naturalize the edges.
+
+# Canonical palette (locked across the whole image — same as PART A)
 
   - ground_fill: #6FAA3E
   - ground_stroke: #3A5C24
@@ -47,35 +99,13 @@ Match each cell's footprint: the painted scenery for a cell should occupy the sa
   - accent_flower: #E8C547
   - chroma: #00FF00
 
-# Ground horizon
+# Layout cues from terrain grid
 
-The ground horizon is implicit in the terrain grid — the top edge of the painted band must follow the topmost row of land cells (visible as the brown outline+X cluster's upper boundary in the schematic). Land cells = land/foliage; vast cells (chroma) = sky / behind-the-scene void.
-
-# Per-chunk biome rhythm (left -> right; spatial layout comes from the visible anchor + sketch)
-
-  - c0: biome=grassland-open, ground=grass
-  - c1: biome=grassland-path, ground=dirt
-  - c2: biome=grassland-wetland, ground=dirt-mud
-  - c3: biome=grassland-elevated, ground=grass-rocky
-  - c4: biome=grassland-path, ground=grass-dirt-mix
-  - c5: biome=grassland-elevated, ground=grass-stone
-  - c6: biome=grassland-elevated, ground=grass
-  - c7: biome=grassland-exit, ground=grass
-  - c8: biome=grassland-open, ground=grass
-  - c9: biome=grassland-path, ground=dirt
-  - c10: biome=grassland-wetland, ground=dirt-mud
-  - c11: biome=grassland-elevated, ground=grass-rocky
-  - c12: biome=grassland-path, ground=grass-dirt-mix
-  - c13: biome=grassland-elevated, ground=grass-stone
-  - c14: biome=grassland-elevated, ground=grass
-  - c15: biome=grassland-exit, ground=grass
-
-# Continuity rules
-
-- Same palette throughout — no biome shift, no lighting shift across the strip.
-- Lighting: soft top-down / upper-left, matches the anchor.
-- No vertical seams between chunks; transitions happen smoothly inside chunks.
+- The ground horizon is the topmost row of land cells. Match the painted band's upper edge to that row.
+- Vast cells = the upper portion of the scene; paint them as SKY / mountains / atmospheric mid-distance matching PART A's upper region.
+- Water cells form ponds / wetland bands at the marked footprint.
+- Platform cells are raised wood/grass-topped lips above the local ground.
 
 # Acceptance
 
-Top half follows the anchor's sky/mid layout; bottom half is a continuous painted forest foreground following the terrain grid; palette matches canonical hexes; per-chunk biome cues visible without breaking palette continuity; whole scene reads as one coherent painted strip end-to-end (no visible seam at the anchor boundary, no obvious repetition).
+The whole strip looks like ONE painting by ONE artist using ONE brush and ONE palette. A SINGLE FULLY-PAINTED background combining all layers. No seam at the anchor boundary. No style shift between PART A and the extension. No new motifs, textures, or detail levels introduced beyond what PART A demonstrates. The skeleton has been painted over completely — no marker colors visible. NO black anywhere in the output. NO transparent or empty areas.

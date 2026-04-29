@@ -46,10 +46,15 @@ SHORT_SIDE_WARN = 96
 
 # Anchor right-edge alpha fade — fraction of anchor width that fades from
 # fully opaque to fully transparent. Eliminates the visible seam between
-# the painted anchor and the AI-extended chroma area: instead of seeing
-# a hard "painted | chroma" boundary, the model sees a gradient that it
-# can naturally extend rightward.
+# the painted anchor and the AI-extended void: instead of seeing a hard
+# "painted | void" boundary, the model sees a gradient that it can
+# naturally extend rightward.
 ANCHOR_FADE_FRAC = 0.25
+
+# Base canvas color — pure black. Vast/void cells in the terrain schematic
+# remain this color in the AI output; painter fills land/water/etc. cells
+# with biome scenery.
+BASE_BG_COLOR = (0, 0, 0, 255)
 
 
 def load_json(path: Path) -> dict:
@@ -62,48 +67,23 @@ def _palette_lines(palette: dict) -> str:
     return "\n".join(f"  - {role}: {hexv}" for role, hexv in palette.items())
 
 
-def _chunks_compact(chunks: list[dict]) -> str:
-    """Run-length-collapsed list of chunks by biome+ground. Spatial layout
-    comes from the visible anchor + terrain sketch, not the prompt."""
-    if not chunks:
-        return "(no chunks)"
-    runs: list[tuple[int, int, str, str]] = []
-    for c in chunks:
-        i = c["chunk_index"]
-        bio = c.get("biome_variant", "?")
-        gnd = c.get("ground_type", "?")
-        if runs and runs[-1][2] == bio and runs[-1][3] == gnd:
-            runs[-1] = (runs[-1][0], i, bio, gnd)
-        else:
-            runs.append((i, i, bio, gnd))
-    out = []
-    for lo, hi, bio, gnd in runs:
-        rng = f"c{lo}" if lo == hi else f"c{lo}-c{hi}"
-        out.append(f"  - {rng}: biome={bio}, ground={gnd}")
-    return "\n".join(out)
-
-
 def build_base_canvas(
     api_w: int,
     api_h: int,
-    chroma_hex: str,
+    chroma_hex: str,  # kept for API compat; base is now black
     concept_path: Path,
     terrain_block: dict | None = None,
     src_w: int | None = None,
     src_h: int | None = None,
     tile_size_px: int | None = None,
 ) -> tuple[Image.Image, int]:
-    """Compose the base canvas: full-chroma background, painted concept
+    """Compose the base canvas: full-black background, painted concept
     anchor scaled to full canvas height pasted at the LEFT, and (if a
     terrain block is provided) the tilemap sketch composited over the
-    chroma area to the right of the anchor.
+    black area to the right of the anchor.
 
     Returns (base_image, anchor_width_px)."""
-    def _hex(h: str) -> tuple[int, int, int, int]:
-        h = h.lstrip("#")
-        return (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16), 255)
-
-    base = Image.new("RGBA", (api_w, api_h), _hex(chroma_hex))
+    base = Image.new("RGBA", (api_w, api_h), BASE_BG_COLOR)
 
     concept = Image.open(concept_path).convert("RGBA")
     # Scale FULL concept to canvas FULL height, preserving aspect.
@@ -153,70 +133,124 @@ def build_base_canvas(
     return base, effective_anchor_w
 
 
-def build_prompt(spec: dict, api_w: int, api_h: int, anchor_w: int, terrain_legend: str = "") -> str:
+def _terrain_grid_block(terrain: dict | None) -> str:
+    """Render the tilemap grid as text in the prompt — authoritative
+    layout. The AI reads char-by-char and maps each cell to its canvas
+    pixel position via grid coords."""
+    if not terrain or not terrain.get("rows"):
+        return "(no terrain grid)"
+    gw, gh = terrain.get("grid_size", [0, 0])
+    rows = terrain.get("rows", [])
+    legend = terrain.get("legend", {})
+
+    # Per-char legend — kind + concept_hint, formatted compactly.
+    legend_lines = []
+    for ch, entry in legend.items():
+        if not isinstance(entry, dict):
+            continue
+        kind = entry.get("kind", "?")
+        hint = entry.get("concept_hint", "")
+        legend_lines.append(f"  '{ch}' = {kind}: {hint}")
+
+    grid_block = "\n".join(rows)
+    return (
+        f"Grid dimensions: {gw} columns × {gh} rows. The grid maps onto "
+        f"the output canvas: column x ∈ [0, {gw}) corresponds to pixel "
+        f"x_px ∈ [0, output_width); row y ∈ [0, {gh}) corresponds to "
+        f"y_px ∈ [0, output_height) (top → bottom).\n\n"
+        f"Legend (each char in the grid maps to a terrain kind):\n"
+        + "\n".join(legend_lines)
+        + "\n\n"
+        f"Grid (read top-to-bottom, left-to-right; each char is one cell):\n"
+        f"```\n{grid_block}\n```"
+    )
+
+
+def build_prompt(spec: dict, api_w: int, api_h: int, anchor_w: int, terrain_legend: str = "", terrain: dict | None = None) -> str:
     canvas = spec["canvas"]
     palette = spec["palette"]
-    chroma = palette.get("chroma", "#00FF00")
     canvas_w = int(canvas["width_px"])
     canvas_h = int(canvas["height_px"])
     canvas_aspect = canvas_w / canvas_h
     anchor_pct = round(100.0 * anchor_w / api_w, 1)
 
-    return f"""You are given a partially-painted canvas (image #1). EXTEND the existing painting rightward to fill the chroma-green area.
+    return f"""You are TILING the painted reference (the LEFT region of image #1) rightward across the whole canvas, using the colored skeleton grid as a layout guide. The output must look like the SAME ARTIST drew the entire {api_w}x{api_h} canvas in ONE pass with the SAME brushes, palette, and style — every part of the output must be visually indistinguishable in technique from the leftmost painted region.
 
-# What's already on the canvas (image #1)
+# Two roles, two different things to copy
 
-- Canvas size: {api_w}x{api_h} px, aspect {canvas_aspect:.2f}:1.
-- The LEFTMOST {anchor_w} px (columns 0 to {anchor_w - 1}, ~{anchor_pct}% of width) is ALREADY PAINTED at FULL CANVAS HEIGHT — this is the bg-near visual reference (sky / mountains / mid foliage / foreground ground band, all in the canonical palette). It defines the style, palette, brushwork, AND the layout (sky on top, painted bg-near band on bottom).
-- The remaining region (columns {anchor_w} to {api_w - 1}) is solid chroma green {chroma}, with a TILEMAP GRID of colored outline+X markers describing terrain features (see legend below).
+The canvas (image #1) has two distinct parts. They serve DIFFERENT purposes and you must treat them differently:
 
-# Your job
+**PART A — THE LEFT PAINTED REGION (the first ~{anchor_pct}% of the canvas, columns 0 to ~{anchor_w}):**
+This is the STYLE REFERENCE. It is the ONLY source of truth for: brush feel, color saturation, level of detail, rendering technique, line softness, how trees are drawn, how mountains are drawn, how foliage clumps look, how the ground band is shaded, how lighting falls. Study it. Match it EXACTLY. Do NOT add more detail than it has. Do NOT make mountains more rugged, foliage more textured, or shading more dramatic than what is shown there. If the reference looks soft, simple, hand-painted, and uncluttered, your extension MUST be equally soft, simple, hand-painted, and uncluttered. Do NOT borrow style from your training data — the only style permitted is what is shown in PART A.
 
-EXTEND the painted scene rightward into the chroma area. The output must look like ONE continuous painted scene from x=0 to x={api_w - 1}, NOT two halves with a seam:
+**PART B — THE LAYOUT HINTS (soft colored regions on the rest of the canvas):**
+This is the LAYOUT GUIDE — ONLY a layout guide. The colored regions are SOFT, BLURRY HINTS of where different terrain features should go. They are NOT shapes to copy. They are NOT design elements. They have NO crisp edges, NO straight lines, NO grid pattern, NO symbols. Treat them as a vague colored mist showing the rough zones for water / land / platforms. The painted output must have ORGANIC, IRREGULAR edges — natural curves, soft horizons, varied foliage borders — NEVER straight rectangular edges that follow the hint shapes literally. If a water hint is a rectangle, you paint a NATURAL pond with curved banks. If a land hint is a rectangle, you paint a NATURAL ground band with an undulating top edge.
 
-  - Match the anchor's layout exactly: same sky/mountain/mid horizon position, same ground band height, same palette, same brushwork.
-  - Replace each terrain marker with painted scenery that VISUALLY READS as that marker's kind in this biome (see legend).
-  - The seam at x={anchor_w} must be invisible — palette, foliage density, ground level, and atmospheric tones flow continuously from the anchor into your extension.
+# Style fidelity — non-negotiable
+
+The painter / rendering style across the whole output must be IDENTICAL to PART A:
+- Same color saturation and value range as PART A — if PART A looks pastel, the extension is pastel; if PART A looks rich and warm, the extension matches that exact saturation.
+- Same level of detail and complexity as PART A. Do NOT add more rocks, more bushes, more grass blades, more cloud detail, more mountain ridges than PART A shows.
+- Same brush technique. PART A's edges look soft? Yours must look soft. PART A's foliage clumps as round shapes? Yours must too.
+- Same horizon line height as PART A's mountain band, same atmospheric haze level, same lighting direction (soft top-down / upper-left).
+- Same TYPE of trees, mountains, ground material, and foliage as PART A. If PART A shows broadleaf trees, do not introduce conifers. If PART A's ground is grassy soil, do not switch to rocky terrain.
+
+A viewer should NOT be able to tell where PART A ends and your painting begins. Not by style, not by detail, not by color, not by brush feel.
+
+# Naturalism — non-negotiable
+
+This is a PRODUCTION GAME MAP, not a diagram. The output must look like a real, natural landscape painted as a game backdrop:
+- NO straight rectangular edges anywhere. Ground tops undulate. Pond edges curve. Platforms are rounded shelf-like rocks or grassy mounds, not perfect rectangles.
+- NO grid pattern. NO repeating tile boundaries. NO visible cell structure.
+- NO outline or X markings of any kind in the output. NO numbers, letters, or symbols.
+- NO unnaturally regular spacing of features (e.g. ponds at exact equal intervals look fake — vary the spacing visually with surrounding rocks/foliage so they read as naturally placed).
+- Ponds blend INTO the surrounding land with reedy banks, not as floating blue rectangles.
+- Platforms / ledges are integrated into the terrain — a raised mossy boulder, a tree stump shelf, a cliff lip — NOT a plank floating in the air.
+- Transitions from one biome cue to the next are GRADUAL, no hard boundaries.
+
+# Anchor handoff (no seam)
+
+The painted reference's right edge fades smoothly to BLACK over a gradient zone. Paint OVER the gradient with continuation — do not preserve the fade. The output must show ZERO vertical line, seam, or compositional break anywhere.
 
 # Output technical contract
 
 - Output one image at EXACTLY {api_w}x{api_h} px. Do not crop, resize, or letterbox.
-- The output represents the ENTIRE scene canvas of {canvas_w}x{canvas_h} px (tile range 0-{canvas_w // canvas['tile_size_px']} horizontally). Relative x positions in the chunk plan map to fractional positions across the output width.
-- LEFT ANCHOR REGION (columns 0 to {anchor_w - 1}): keep the existing painted content as-is. Do not erase, recolor, or restyle it.
-- EXTENSION REGION (columns {anchor_w} to {api_w - 1}): replace the chroma + outline+X markers with painted continuation. NO chroma green AND NO outline/X colors should remain anywhere in the final output (except in cells whose legend color is "(no fill — chroma stays)" — those keep chroma green).
-- Do NOT paint: text, UI, characters, gameplay icons.
+- The output represents the ENTIRE scene canvas of {canvas_w}x{canvas_h} px (tile range 0-{canvas_w // canvas['tile_size_px']} horizontally).
+- LEFT REFERENCE REGION (cols 0 to ~{anchor_w}): preserve the painted content as-is.
+- EXTENSION REGION (cols ~{anchor_w} to {api_w - 1}): replace the black background + soft colored markers with painted continuation IN THE EXACT STYLE OF PART A. The soft hint markers must NOT remain visible as colors in the output — paint over them. The black background is just an empty placeholder canvas — paint over it too.
+- The output is a SINGLE FULLY-PAINTED background image containing all background layers combined (sky / mountains / mid-foliage / foreground bg-near band), exactly like PART A but extended across the full canvas. NO black should remain anywhere in the final output. NO transparent areas, NO chroma keys.
+- VAST cells in the grid become SKY / atmosphere / mid-distance painted scenery (whatever PART A shows in those vertical rows) — they are NOT empty; they ARE the painted upper portion of the scene.
+- Do NOT paint: text, UI, characters, gameplay icons, or anything not present in PART A.
 
-# Terrain schematic (colored outline + X per tile cell)
+# Skeleton legend (layout only — style comes from PART A)
 
-The extension region of the canvas has a TILEMAP GRID drawn on top of the chroma. Each cell is shown as a colored OUTLINE BOX with a diagonal X through it. The cell's color identifies its kind; the outline + X are pure schematic markers (NOT painted content). Replace each cell with painted scenery that VISUALLY READS as that kind in this biome.
-
-Legend (cell char -> outline color -> what to paint there):
+The visible soft regions on the canvas are blurry layout hints. The AUTHORITATIVE layout is the text grid below — read it character by character, map each char to its kind via the legend, and paint that cell's canvas region with the appropriate biome-natural feature in PART A's style.
 
 {terrain_legend}
 
-Match each cell's footprint: the painted scenery for a cell should occupy the same tile rectangle as the marker. Adjacent same-kind cells form contiguous painted features (e.g. a 5-tile-wide water span paints as ONE pond, not 5 ponds). Cells whose color is "(no fill — chroma stays)" must remain solid chroma green — paint nothing in those cells.
+# Authoritative tilemap grid (read this to know exactly what to paint where)
 
-# Canonical palette (locked across the whole image)
+{_terrain_grid_block(terrain)}
+
+When painting:
+- Adjacent same-kind cells form ONE contiguous, organically-shaped feature — not separate cells.
+- Edges between kinds are NATURAL curves (pond shorelines, ground undulations), NOT cell boundaries.
+- The visual hint regions on the canvas are deliberately blurred so you don't copy their rectangular shapes — use the text grid for precise positions and naturalize the edges.
+
+# Canonical palette (locked across the whole image — same as PART A)
 
 {_palette_lines(palette)}
 
-# Ground horizon
+# Layout cues from terrain grid
 
-The ground horizon is implicit in the terrain grid — the top edge of the painted band must follow the topmost row of land cells (visible as the brown outline+X cluster's upper boundary in the schematic). Land cells = land/foliage; vast cells (chroma) = sky / behind-the-scene void.
-
-# Per-chunk biome rhythm (left -> right; spatial layout comes from the visible anchor + sketch)
-
-{_chunks_compact(spec.get('chunks', []))}
-
-# Continuity rules
-
-- Same palette throughout — no biome shift, no lighting shift across the strip.
-- Lighting: soft top-down / upper-left, matches the anchor.
-- No vertical seams between chunks; transitions happen smoothly inside chunks.
+- The ground horizon is the topmost row of land cells. Match the painted band's upper edge to that row.
+- Vast cells = the upper portion of the scene; paint them as SKY / mountains / atmospheric mid-distance matching PART A's upper region.
+- Water cells form ponds / wetland bands at the marked footprint.
+- Platform cells are raised wood/grass-topped lips above the local ground.
 
 # Acceptance
 
-Top half follows the anchor's sky/mid layout; bottom half is a continuous painted forest foreground following the terrain grid; palette matches canonical hexes; per-chunk biome cues visible without breaking palette continuity; whole scene reads as one coherent painted strip end-to-end (no visible seam at the anchor boundary, no obvious repetition)."""
+The whole strip looks like ONE painting by ONE artist using ONE brush and ONE palette. A SINGLE FULLY-PAINTED background combining all layers. No seam at the anchor boundary. No style shift between PART A and the extension. No new motifs, textures, or detail levels introduced beyond what PART A demonstrates. The skeleton has been painted over completely — no marker colors visible. NO black anywhere in the output. NO transparent or empty areas."""
 
 
 def plan_dims(canvas_w: int, canvas_h: int, long_side: int) -> tuple[int, int]:
@@ -293,7 +327,7 @@ def main() -> int:
 
     from lib.terrain_sketch import build_legend
     terrain_legend = build_legend(terrain) if terrain else "(no terrain in this scene)"
-    prompt = build_prompt(spec, api_w, api_h, anchor_w, terrain_legend)
+    prompt = build_prompt(spec, api_w, api_h, anchor_w, terrain_legend, terrain=terrain)
 
     if terrain and terrain.get("rows"):
         gw, gh = terrain.get("grid_size", [0, 0])
