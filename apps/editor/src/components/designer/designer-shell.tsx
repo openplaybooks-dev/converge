@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { useState } from "react";
 import { PlaybookGraph } from "@/components/designer/playbook-graph";
+import { LensTree } from "@/components/designer/lens-tree";
+import { LensGantt } from "@/components/designer/lens-gantt";
+import { LensKanban } from "@/components/designer/lens-kanban";
 import { ArtifactsPanel, TasksPanel } from "@/components/designer/sidebar";
 import { Inspector, type TaskShape } from "@/components/designer/inspector";
 import { useLiveStatuses, type StatusMap } from "@/lib/use-live-statuses";
@@ -37,7 +40,7 @@ interface Props {
   statuses: StatusMap;
 }
 
-type ViewMode = "graph" | "tree" | "gantt";
+type ViewMode = "graph" | "tree" | "gantt" | "kanban";
 
 export function DesignerShell({
   playbookName,
@@ -109,8 +112,27 @@ export function DesignerShell({
               selectedId={selectedId}
               onSelect={setSelectedId}
             />
+          ) : view === "tree" ? (
+            <LensTree
+              tasks={tasks}
+              statuses={liveStatuses}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+            />
+          ) : view === "gantt" ? (
+            <LensGantt
+              tasks={tasks}
+              statuses={liveStatuses}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+            />
           ) : (
-            <ComingSoon mode={view} />
+            <LensKanban
+              tasks={tasks}
+              statuses={liveStatuses}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+            />
           )}
         </main>
 
@@ -161,6 +183,7 @@ function ViewSwitcher({
     { id: "graph", label: "Graph" },
     { id: "tree", label: "Tree" },
     { id: "gantt", label: "Gantt" },
+    { id: "kanban", label: "Kanban" },
   ];
   return (
     <div className="inline-flex rounded-md border border-[var(--color-border)] p-0.5 text-xs">
@@ -185,13 +208,3 @@ function ViewSwitcher({
   );
 }
 
-function ComingSoon({ mode }: { mode: ViewMode }) {
-  return (
-    <div className="flex h-full w-full items-center justify-center text-sm text-[var(--color-muted-foreground)]">
-      <div className="rounded-lg border border-dashed border-[var(--color-border)] px-6 py-4 text-center">
-        <div className="font-medium capitalize">{mode} view</div>
-        <div className="mt-1 text-xs">Not built yet — see proposal §12.6.</div>
-      </div>
-    </div>
-  );
-}
