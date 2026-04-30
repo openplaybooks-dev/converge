@@ -19,7 +19,7 @@ checks:
     cmd: test -s packages/core/tests/unit/hash/task.test.ts
     description: Test file exists and is non-empty.
   - id: tests-fail
-    cmd: cd packages/core && pnpm test -- tests/unit/hash 2>&1; test $? -ne 0
+    cmd: test -e packages/core/tests/unit/hash && cd packages/core && ! pnpm test -- tests/unit/hash
     description: Tests fail (RED).
   - id: tests-have-assertions
     cmd: grep -cE 'expect\(|assert' packages/core/tests/unit/hash/task.test.ts | awk '$1+0 < 8 { exit 1 }'

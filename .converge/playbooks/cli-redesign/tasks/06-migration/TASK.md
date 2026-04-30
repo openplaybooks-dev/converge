@@ -38,7 +38,7 @@ outputs:
 
 checks:
   - id: typecheck
-    cmd: pnpm -r typecheck
+    cmd: test -f package.json && pnpm -r typecheck
     description: Typecheck passes.
   - id: every-migration-row-tested
     cmd: cd packages/cli && pnpm test -- tests/integration/migration-redirects.test.ts

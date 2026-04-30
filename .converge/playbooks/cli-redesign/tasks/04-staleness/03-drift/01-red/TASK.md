@@ -16,7 +16,7 @@ checks:
     cmd: test -s packages/cli/tests/integration/drift.test.ts
     description: Test exists.
   - id: test-fails
-    cmd: cd packages/cli && pnpm test -- tests/integration/drift.test.ts 2>&1; test $? -ne 0
+    cmd: test -e packages/cli/tests/integration/drift.test.ts && cd packages/cli && ! pnpm test -- tests/integration/drift.test.ts
     description: Test fails (RED) — drift predicate is still stubbed.
 
 tags:

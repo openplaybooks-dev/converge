@@ -28,7 +28,7 @@ outputs:
 
 checks:
   - id: typecheck
-    cmd: pnpm -r typecheck
+    cmd: test -f package.json && pnpm -r typecheck
     description: Whole-monorepo typecheck passes (no broken imports from new modules).
   - id: tests-green
     cmd: cd packages/core && pnpm test -- tests/unit/select tests/unit/manifest tests/unit/hash

@@ -1,14 +1,14 @@
 ---
 title: "Why Converge"
-description: "Define what 'done' looks like. Converge closes the gap. Filesystem-native, multi-provider, TypeScript."
+description: "Agent harnessing and orchestration for complex, repeatable, verifiable AI workflows. Filesystem-native, multi-provider, TypeScript."
 sidebar:
   order: 1
 ---
-Converge describes what done looks like and closes the gap.
+Converge is the harness and orchestration runtime for autonomous AI agent playbooks — long-running workflows that need to be complex, repeatable, and verifiable.
 
-Most agent frameworks ask you to define *how*: a graph of nodes, a sequence of steps, a set of roles. You spend days wiring the machine before it runs. Converge asks you to define done — the target state — and handles the rest. Like SQL, like Terraform, like every tool that survived the distance between "instructions" and "result."
+Most agent frameworks ask you to author the *path*: a graph of nodes, a sequence of steps, a set of roles. You spend days wiring the machine before it runs. Converge inverts that. You author tasks as plain files on disk; the runtime composes the graph, runs the work, verifies every step with shell commands, and repairs typed failures before falling back to the agent.
 
-We built this after watching AI agents flail. They generate, they fail, they retry blind. The loop without a target is just noise. Converge gives the loop a target: measure the gap, close the gap, verify, repeat.
+We built this after watching AI agents flail. They generate, they fail, they retry blind. The loop without a target is just noise. Converge gives every task a target — the artifacts that must exist, the checks that must pass — and drives the loop until it converges.
 
 A six-line TASK.md says it all:
 
@@ -35,5 +35,9 @@ What you get from that framing:
 - **TypeScript-native.** Programmatic API, full type coverage, ships with `taskDef()`, `project()`, `createRuntime()`.
 
 This is not a graph runtime. It's not a chatbot framework. It's not a multi-agent collaboration toolkit. If you need step-by-step orchestration with prewired roles, look elsewhere. If you know what done looks like and want to get there, Converge is built for that.
+
+## Design lineage
+
+Converge draws from ideas that predate AI agents: SQL's declarative data retrieval, Terraform's desired-state infrastructure, and control theory's feedback loops. The convergence model applies those proven patterns to AI orchestration — measure the distance to done, generate work to close it, verify, correct, repeat. The vocabulary of the runtime — projects, tasks, dependencies, manifests — is borrowed from a generation of tools that turned ad-hoc scripts into version-controlled engineering. None of these analogies are perfect for agent work, but the shape of the problem is the same: a graph of work to be done, an explicit definition of *done* per node, and a runtime that resolves the graph deterministically.
 
 Continue to [Install](./install).

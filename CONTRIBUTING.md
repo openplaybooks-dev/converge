@@ -30,6 +30,35 @@ pnpm build
 pnpm test
 ```
 
+### Using the CLI locally
+
+From the repo root, run the CLI directly against source (no global install):
+
+```bash
+pnpm converge --help
+pnpm converge init my-project
+pnpm converge run
+```
+
+To expose the built CLI as a `converge` command on your `$PATH`, link the `@converge/core` package globally:
+
+```bash
+pnpm build
+pnpm --filter @converge/core link --global
+converge --help
+```
+
+Run `pnpm --filter @converge/core unlink --global` to remove the link.
+
+### Common tasks
+
+```bash
+pnpm test           # run all tests
+pnpm typecheck      # type-check the monorepo
+pnpm build          # rebuild after source changes
+pnpm clean          # remove build artifacts
+```
+
 ## Project Structure
 
 Converge is a pnpm monorepo with the following packages:

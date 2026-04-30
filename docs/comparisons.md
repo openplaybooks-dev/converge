@@ -11,11 +11,11 @@ How Converge compares to other AI agent orchestration frameworks.
 
 ## Core Paradigm Comparison
 
-### Converge — Gap-Driven Convergence
+### Converge — Autonomous playbooks
 
-Converge inverts the typical orchestration model. Instead of defining *how* to get work done (steps, graphs, roles), you define *what done looks like* — target states, checks, and goals. The framework continuously measures the gap between current state and target state, generates tasks to close those gaps, and iterates until convergence.
+Converge inverts the typical orchestration model. Instead of authoring the *path* (steps, graphs, roles), you author **tasks** — each one declaring its outputs and shell-command checks. The runtime composes the graph, executes work in dependency order, verifies every step deterministically, and repairs typed failures through named strategies before falling back to the agent.
 
-The closest analogy is SQL or Terraform: declare the desired end state, and the engine figures out the execution plan.
+The shape will feel familiar: a playbook is a project, a task is a node, dependencies form a DAG. Outputs and the journal live on disk as plain files you can `git diff`, so the same playbook produces the same shape of result on every run — for hours or days at a time.
 
 ### LangChain / LangGraph — Graph-Based Orchestration
 

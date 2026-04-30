@@ -31,7 +31,7 @@ outputs:
 
 checks:
   - id: typecheck
-    cmd: pnpm -r typecheck
+    cmd: test -f package.json && pnpm -r typecheck
     description: Typecheck passes.
   - id: state-modified-body
     cmd: cd packages/cli && pnpm test -- tests/integration/state-modified.test.ts -t 'body'

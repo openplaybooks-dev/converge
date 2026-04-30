@@ -29,6 +29,8 @@ These pages stack. Read top to bottom on a first pass; jump in if you know what 
 
 6. **[Task execution context](./06-attempt-folder)** — each task run lives in its own directory the agent can read, write, and look back across. Prior attempts are preserved by default; the agent can read them to learn from earlier mistakes without inventing a state-passing protocol.
 
+7. **[dbt shaped Converge](./07-dbt-shaped-converge)** — the engineering decision behind the v2 CLI surface. Why dbt was the reference point, which concepts were adopted, where the analogy stops working, and the open questions still under review.
+
 ## What this section is not
 
 - **Not API docs.** Use [Reference](../reference/) for schema and CLI specifics.

@@ -22,8 +22,7 @@ checks:
     description: Both test files exist and are non-empty.
   - id: tests-fail
     cmd: |
-      cd packages/core && pnpm test -- tests/unit/select 2>&1 | tee /tmp/red.log; \
-      test "${PIPESTATUS[0]}" -ne 0
+      test -e packages/core/tests/unit/select && cd packages/core && ! pnpm test -- tests/unit/select
     description: Tests fail (RED) — implementation does not yet exist.
   - id: tests-have-assertions
     cmd: |

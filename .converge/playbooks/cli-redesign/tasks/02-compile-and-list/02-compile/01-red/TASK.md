@@ -15,7 +15,7 @@ checks:
     cmd: test -s packages/cli/tests/integration/compile.test.ts
     description: Test file exists.
   - id: test-fails
-    cmd: cd packages/cli && pnpm test -- tests/integration/compile.test.ts 2>&1; test $? -ne 0
+    cmd: test -e packages/cli/tests/integration/compile.test.ts && cd packages/cli && ! pnpm test -- tests/integration/compile.test.ts
     description: Test fails (RED) — compile command not yet implemented.
   - id: tests-have-assertions
     cmd: grep -cE 'expect\(' packages/cli/tests/integration/compile.test.ts | awk '$1+0 < 4 { exit 1 }'

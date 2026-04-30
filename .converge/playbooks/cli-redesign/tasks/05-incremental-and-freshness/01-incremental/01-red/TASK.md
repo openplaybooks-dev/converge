@@ -20,7 +20,7 @@ checks:
     description: Both test files exist.
   - id: tests-fail
     cmd: |
-      cd packages/core && pnpm test -- tests/unit/task/incremental.test.ts 2>&1; test $? -ne 0
+      test -e packages/core/tests/unit/task/incremental.test.ts && cd packages/core && ! pnpm test -- tests/unit/task/incremental.test.ts
     description: Tests fail (RED).
 
 tags:

@@ -28,13 +28,11 @@ checks:
     description: All tests from 01-red now pass (GREEN).
   - id: api-exposed
     cmd: |
-      node -e "const m=require('./packages/core/dist/select/index.js');
-      if(typeof m.parseSelector!=='function')process.exit(1);
-      if(typeof m.resolveSelection!=='function')process.exit(1);"
+      npx tsx -e "import { parseSelector, resolveSelection } from './packages/core/src/select/index.ts'; if(typeof parseSelector!=='function'||typeof resolveSelection!=='function') process.exit(1)"
     description: parseSelector and resolveSelection are the public API.
   - id: no-test-file-changes
     cmd: |
-      git diff --name-only HEAD -- packages/core/tests/unit/select/ | wc -l | awk '$1+0 > 0 { exit 1 }'
+      test -d .git && git diff --name-only HEAD -- packages/core/tests/unit/select/ | wc -l | awk '$1+0 > 0 { exit 1 }'
     description: Test files were not edited during the green phase (no moving the goalposts).
 
 tags:

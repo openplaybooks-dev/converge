@@ -20,14 +20,14 @@ inputs:
 outputs:
   - "packages/cli/src/commands-compile.ts"
   - "packages/cli/src/commands-list.ts"
-  - "packages/cli/tests/fixtures/minimal-playbook/.converge/playbooks/default/playbook.yml"
+  - "packages/cli/tests/fixtures/minimal-playbook/playbook.yml"
   - "packages/cli/tests/integration/compile.test.ts"
   - "packages/cli/tests/integration/list.test.ts"
   - "packages/cli/tests/integration/compile-seed.test.ts"
 
 checks:
   - id: typecheck
-    cmd: pnpm -r typecheck
+    cmd: test -f package.json && pnpm -r typecheck
     description: Typecheck passes.
   - id: cli-builds
     cmd: pnpm --filter @converge/cli build && test -x packages/cli/dist/index.js

@@ -30,7 +30,7 @@ outputs:
 
 checks:
   - id: typecheck
-    cmd: pnpm -r typecheck
+    cmd: test -f package.json && pnpm -r typecheck
     description: Typecheck passes.
   - id: incremental-skips-prior-work
     cmd: cd packages/cli && pnpm test -- tests/integration/incremental.test.ts -t 'second run is a no-op for unchanged inputs'
@@ -46,9 +46,10 @@ checks:
     description: "source freshness reports pass/warn/error per source."
   - id: source-freshness-exit-codes
     cmd: |
-      cd packages/cli/tests/fixtures/minimal-playbook
-      ../../../dist/index.js source freshness --select 'name:fresh-source'
-      ../../../dist/index.js source freshness --select 'name:stale-source'; test $? -ne 0
+      test -d packages/cli/tests/fixtures/minimal-playbook && \
+      cd packages/cli/tests/fixtures/minimal-playbook && \
+      ../../../dist/index.js source freshness --select 'name:fresh-source' && \
+      ! ../../../dist/index.js source freshness --select 'name:stale-source'
     description: source freshness exits 0 on all-pass and non-zero when any source is in error state.
 
 tags:

@@ -24,7 +24,7 @@ checks:
     cmd: cd packages/cli && pnpm test
     description: No CLI test regressed.
   - id: no-test-edits
-    cmd: git diff --name-only HEAD -- packages/cli/tests/integration/no-auto-revalidate.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
+    cmd: test -d .git && git diff --name-only HEAD -- packages/cli/tests/integration/no-auto-revalidate.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
     description: Test was not edited.
 
 tags:

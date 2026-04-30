@@ -1,0 +1,5 @@
+---
+tags:
+  - trivial
+---
+# trivial-task

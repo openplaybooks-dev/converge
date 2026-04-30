@@ -23,7 +23,7 @@ checks:
     description: Test confirms `run --resume` does NOT auto-re-run mtime-edited completions.
   - id: function-removed
     cmd: |
-      ! grep -q 'recheckEditedCompletedTasks' packages/cli/src/autonomous-run.ts
+      test -f packages/cli/src/autonomous-run.ts && ! grep -q 'recheckEditedCompletedTasks' packages/cli/src/autonomous-run.ts
     description: The function is no longer referenced from autonomous-run.ts.
 
 tags:

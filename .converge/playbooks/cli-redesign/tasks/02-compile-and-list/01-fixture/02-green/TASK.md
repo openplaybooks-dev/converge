@@ -10,18 +10,16 @@ dependencies:
 
 outputs:
   - "packages/cli/tests/fixtures/minimal-playbook/.converge/project.yaml"
-  - "packages/cli/tests/fixtures/minimal-playbook/.converge/playbooks/default/playbook.yml"
-  - "packages/cli/tests/fixtures/minimal-playbook/.converge/playbooks/default/tasks/trivial-task/TASK.md"
-  - "packages/cli/tests/fixtures/minimal-playbook/.converge/playbooks/default/tasks/dependent-task/TASK.md"
-  - "packages/cli/tests/fixtures/minimal-playbook/.converge/playbooks/default/tasks/unseeded-wbs/TASK.md"
-  - "packages/cli/tests/fixtures/minimal-playbook/.converge/playbooks/default/tasks/unseeded-wbs/wbs/index.js"
+  - "packages/cli/tests/fixtures/minimal-playbook/playbook.yml"
+  - "packages/cli/tests/fixtures/minimal-playbook/unseeded-wbs/TASK.md"
+  - "packages/cli/tests/fixtures/minimal-playbook/unseeded-wbs/wbs/index.js"
 
 checks:
   - id: smoke-passes
     cmd: cd packages/cli && pnpm test -- tests/integration/_fixture-smoke.test.ts
     description: Smoke test passes (GREEN).
   - id: no-smoke-edits
-    cmd: git diff --name-only HEAD -- packages/cli/tests/integration/_fixture-smoke.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
+    cmd: test -d .git && git diff --name-only HEAD -- packages/cli/tests/integration/_fixture-smoke.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
     description: Smoke test was not edited during green.
 
 tags:

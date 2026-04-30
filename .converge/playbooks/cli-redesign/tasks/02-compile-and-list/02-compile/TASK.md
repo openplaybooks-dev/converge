@@ -14,7 +14,7 @@ inputs:
   - "packages/core/src/select/index.ts"
   - "packages/core/src/manifest/index.ts"
   - "packages/core/src/hash/index.ts"
-  - "packages/cli/tests/fixtures/minimal-playbook/.converge/playbooks/default/playbook.yml"
+  - "packages/cli/tests/fixtures/minimal-playbook/playbook.yml"
 
 outputs:
   - "packages/cli/src/commands-compile.ts"
@@ -22,7 +22,7 @@ outputs:
 
 checks:
   - id: cli-builds
-    cmd: pnpm --filter @converge/cli build
+    cmd: test -f packages/cli/package.json && pnpm --filter @converge/cli build
     description: CLI builds.
   - id: tests-green
     cmd: cd packages/cli && pnpm test -- tests/integration/compile.test.ts

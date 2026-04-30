@@ -16,7 +16,7 @@ checks:
     cmd: test -s packages/core/tests/unit/manifest/run-results.test.ts
     description: Test exists.
   - id: test-fails
-    cmd: cd packages/core && pnpm test -- tests/unit/manifest/run-results.test.ts 2>&1; test $? -ne 0
+    cmd: test -e packages/core/tests/unit/manifest/run-results.test.ts && cd packages/core && ! pnpm test -- tests/unit/manifest/run-results.test.ts
     description: Test fails (RED).
 
 tags:

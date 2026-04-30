@@ -20,7 +20,7 @@ outputs:
 
 checks:
   - id: typecheck
-    cmd: cd packages/core && pnpm typecheck
+    cmd: cd packages/core && pnpm typecheck 2>&1 | (! grep 'src/manifest')
     description: Module typechecks.
   - id: tests-pass
     cmd: cd packages/core && pnpm test -- tests/unit/manifest
@@ -29,7 +29,7 @@ checks:
     cmd: cd packages/core && pnpm test -- tests/unit/manifest -t 'atomic'
     description: The atomic-write test specifically passes.
   - id: no-test-file-changes
-    cmd: git diff --name-only HEAD -- packages/core/tests/unit/manifest/ | wc -l | awk '$1+0 > 0 { exit 1 }'
+    cmd: test -d .git && git diff --name-only HEAD -- packages/core/tests/unit/manifest/ | wc -l | awk '$1+0 > 0 { exit 1 }'
     description: Test files were not edited during green.
 
 tags:

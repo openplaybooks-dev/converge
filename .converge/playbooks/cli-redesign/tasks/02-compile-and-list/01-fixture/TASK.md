@@ -14,22 +14,19 @@ inputs:
   - "examples/baby-app/.converge/playbooks/default/playbook.yml"
 
 outputs:
-  - "packages/cli/tests/fixtures/minimal-playbook/.converge/playbooks/default/playbook.yml"
-  - "packages/cli/tests/fixtures/minimal-playbook/.converge/playbooks/default/tasks/trivial-task/TASK.md"
-  - "packages/cli/tests/fixtures/minimal-playbook/.converge/playbooks/default/tasks/dependent-task/TASK.md"
-  - "packages/cli/tests/fixtures/minimal-playbook/.converge/playbooks/default/tasks/unseeded-wbs/TASK.md"
-  - "packages/cli/tests/fixtures/minimal-playbook/.converge/playbooks/default/tasks/unseeded-wbs/wbs/index.js"
   - "packages/cli/tests/fixtures/minimal-playbook/.converge/project.yaml"
+  - "packages/cli/tests/fixtures/minimal-playbook/playbook.yml"
+  - "packages/cli/tests/fixtures/minimal-playbook/unseeded-wbs/TASK.md"
+  - "packages/cli/tests/fixtures/minimal-playbook/unseeded-wbs/wbs/index.js"
   - "packages/cli/tests/integration/_fixture-smoke.test.ts"
 
 checks:
   - id: fixture-files-present
     cmd: |
       test -s packages/cli/tests/fixtures/minimal-playbook/.converge/project.yaml
-      test -s packages/cli/tests/fixtures/minimal-playbook/.converge/playbooks/default/playbook.yml
-      test -s packages/cli/tests/fixtures/minimal-playbook/.converge/playbooks/default/tasks/trivial-task/TASK.md
-      test -s packages/cli/tests/fixtures/minimal-playbook/.converge/playbooks/default/tasks/dependent-task/TASK.md
-      test -s packages/cli/tests/fixtures/minimal-playbook/.converge/playbooks/default/tasks/unseeded-wbs/TASK.md
+      test -s packages/cli/tests/fixtures/minimal-playbook/playbook.yml
+      test -s packages/cli/tests/fixtures/minimal-playbook/unseeded-wbs/TASK.md
+      test -s packages/cli/tests/fixtures/minimal-playbook/unseeded-wbs/wbs/index.js
     description: All required fixture files exist.
   - id: fixture-loads
     cmd: cd packages/cli && pnpm test -- tests/integration/_fixture-smoke.test.ts

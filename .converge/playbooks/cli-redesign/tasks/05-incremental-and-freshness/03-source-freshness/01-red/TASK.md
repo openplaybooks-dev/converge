@@ -18,7 +18,7 @@ checks:
       test -s packages/cli/tests/integration/source-freshness.test.ts
     description: Both tests exist.
   - id: tests-fail
-    cmd: cd packages/core && pnpm test -- tests/unit/freshness 2>&1; test $? -ne 0
+    cmd: test -e packages/core/tests/unit/freshness && cd packages/core && ! pnpm test -- tests/unit/freshness
     description: Tests fail (RED).
 
 tags:

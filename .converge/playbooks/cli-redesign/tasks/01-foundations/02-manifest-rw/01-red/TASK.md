@@ -22,7 +22,7 @@ checks:
       test -s packages/core/tests/unit/manifest/reader.test.ts
     description: Both test files exist and are non-empty.
   - id: tests-fail
-    cmd: cd packages/core && pnpm test -- tests/unit/manifest 2>&1 | tee /tmp/red.log; test "${PIPESTATUS[0]}" -ne 0
+    cmd: test -e packages/core/tests/unit/manifest && cd packages/core && ! pnpm test -- tests/unit/manifest
     description: Tests fail (RED).
   - id: tests-have-assertions
     cmd: |

@@ -20,7 +20,7 @@ checks:
     description: Both test files exist.
   - id: tests-fail
     cmd: |
-      cd packages/core && pnpm test -- tests/unit/select/state-resolver.test.ts 2>&1; test $? -ne 0
+      test -e packages/core/tests/unit/select/state-resolver.test.ts && cd packages/core && ! pnpm test -- tests/unit/select/state-resolver.test.ts
     description: Tests fail (RED) — resolver doesn't exist yet.
   - id: assertions-cover-all-seven
     cmd: |

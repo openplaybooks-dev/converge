@@ -1,13 +1,13 @@
 ---
 title: "Documentation"
-description: "Learn how to use Converge for goal-driven AI workflows"
+description: "Agent harnessing and orchestration for complex, repeatable, verifiable AI workflows."
 ---
 
 # Converge documentation
 
-> Define done. Converge gets there.
+> Autonomous AI agent playbooks — for workflows that need to be complex, repeatable, and verifiable.
 
-Converge is a TypeScript framework for AI workflows that runs goal-driven instead of step-driven. You declare what "done" looks like; Converge closes the gap.
+Converge is a TypeScript framework for authoring **autonomous playbooks**: long-running AI agent projects whose tasks form a graph, whose outputs and checks live on disk, and whose every step verifies with shell commands instead of an LLM judge.
 
 This directory is the canonical documentation. Every page is plain markdown — readable on GitHub, in your editor, or via the published Starlight site.
 

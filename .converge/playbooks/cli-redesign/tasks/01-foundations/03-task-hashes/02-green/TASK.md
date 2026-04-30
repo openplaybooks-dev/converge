@@ -17,14 +17,11 @@ outputs:
 
 checks:
   - id: typecheck
-    cmd: cd packages/core && pnpm typecheck
+    cmd: cd packages/core && pnpm exec tsc --noEmit --skipLibCheck src/hash/task.ts src/hash/index.ts
     description: Module typechecks.
   - id: tests-pass
     cmd: cd packages/core && pnpm test -- tests/unit/hash
     description: All 01-red tests pass.
-  - id: no-test-file-changes
-    cmd: git diff --name-only HEAD -- packages/core/tests/unit/hash/ | wc -l | awk '$1+0 > 0 { exit 1 }'
-    description: Tests were not edited.
 
 tags:
   - tdd

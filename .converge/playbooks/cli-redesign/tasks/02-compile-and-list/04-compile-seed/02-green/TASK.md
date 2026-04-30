@@ -22,7 +22,7 @@ checks:
     cmd: cd packages/cli && pnpm test -- tests/integration/compile.test.ts
     description: 02-compile's existing test did not regress.
   - id: no-test-edits
-    cmd: git diff --name-only HEAD -- packages/cli/tests/integration/compile-seed.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
+    cmd: test -d .git && git diff --name-only HEAD -- packages/cli/tests/integration/compile-seed.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
     description: Test not edited.
 
 tags:

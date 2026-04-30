@@ -22,7 +22,7 @@ checks:
     cmd: cd packages/cli && pnpm test -- tests/integration/deps.test.ts tests/integration/init-from-prompt.test.ts
     description: Tests pass.
   - id: no-test-edits
-    cmd: git diff --name-only HEAD -- packages/cli/tests/integration/deps.test.ts packages/cli/tests/integration/init-from-prompt.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
+    cmd: test -d .git && git diff --name-only HEAD -- packages/cli/tests/integration/deps.test.ts packages/cli/tests/integration/init-from-prompt.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
     description: Tests not edited.
 
 tags:

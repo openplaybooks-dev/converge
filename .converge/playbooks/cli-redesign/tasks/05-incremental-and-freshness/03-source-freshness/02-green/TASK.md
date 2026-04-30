@@ -17,8 +17,8 @@ outputs:
   - "packages/core/src/freshness/types.ts"
   - "packages/core/src/freshness/index.ts"
   - "packages/cli/src/commands-source.ts"
-  - "packages/cli/tests/fixtures/minimal-playbook/.converge/playbooks/default/tasks/fresh-source/TASK.md"
-  - "packages/cli/tests/fixtures/minimal-playbook/.converge/playbooks/default/tasks/stale-source/TASK.md"
+  - "packages/cli/tests/fixtures/minimal-playbook/fresh-source/TASK.md"
+  - "packages/cli/tests/fixtures/minimal-playbook/stale-source/TASK.md"
 
 checks:
   - id: tests-pass
@@ -31,7 +31,7 @@ checks:
     description: source command routed.
   - id: no-test-edits
     cmd: |
-      git diff --name-only HEAD -- packages/core/tests/unit/freshness/ packages/cli/tests/integration/source-freshness.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
+      test -d .git && git diff --name-only HEAD -- packages/core/tests/unit/freshness/ packages/cli/tests/integration/source-freshness.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
     description: Tests not edited.
 
 tags:

@@ -22,7 +22,7 @@ outputs:
 
 checks:
   - id: typecheck
-    cmd: pnpm -r typecheck
+    cmd: test -f package.json && pnpm -r typecheck
     description: Typechecks.
   - id: unit-tests-green
     cmd: cd packages/core && pnpm test -- tests/unit/freshness

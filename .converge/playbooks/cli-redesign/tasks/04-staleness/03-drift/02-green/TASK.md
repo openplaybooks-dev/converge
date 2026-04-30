@@ -24,7 +24,7 @@ checks:
     cmd: cd packages/cli && pnpm test -- tests/integration/state-modified.test.ts
     description: The other ladder methods still pass.
   - id: no-test-edits
-    cmd: git diff --name-only HEAD -- packages/cli/tests/integration/drift.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
+    cmd: test -d .git && git diff --name-only HEAD -- packages/cli/tests/integration/drift.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
     description: Test not edited.
 
 tags:

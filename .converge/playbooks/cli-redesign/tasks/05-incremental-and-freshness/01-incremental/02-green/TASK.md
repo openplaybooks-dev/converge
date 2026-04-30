@@ -15,11 +15,11 @@ inputs:
 
 outputs:
   - "packages/core/src/task/incremental.ts"
-  - "packages/cli/tests/fixtures/minimal-playbook/.converge/playbooks/default/tasks/incremental-task/TASK.md"
+  - "packages/cli/tests/fixtures/minimal-playbook/incremental-task/TASK.md"
 
 checks:
   - id: typecheck
-    cmd: pnpm -r typecheck
+    cmd: test -f package.json && pnpm -r typecheck
     description: Typechecks.
   - id: tests-pass
     cmd: |
@@ -28,8 +28,8 @@ checks:
     description: Both unit and integration tests pass.
   - id: no-test-edits
     cmd: |
-      git diff --name-only HEAD -- packages/core/tests/unit/task/incremental.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
-      git diff --name-only HEAD -- packages/cli/tests/integration/incremental.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
+      test -d .git && git diff --name-only HEAD -- packages/core/tests/unit/task/incremental.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
+      test -d .git && git diff --name-only HEAD -- packages/cli/tests/integration/incremental.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
     description: Tests not edited.
 
 tags:

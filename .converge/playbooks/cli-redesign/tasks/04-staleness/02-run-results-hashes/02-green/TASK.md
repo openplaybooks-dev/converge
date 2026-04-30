@@ -18,7 +18,7 @@ outputs:
 
 checks:
   - id: typecheck
-    cmd: pnpm -r typecheck
+    cmd: test -f package.json && pnpm -r typecheck
     description: Typechecks.
   - id: unit-passes
     cmd: cd packages/core && pnpm test -- tests/unit/manifest/run-results.test.ts
@@ -27,7 +27,7 @@ checks:
     cmd: cd packages/cli && pnpm test -- tests/integration/run-select.test.ts
     description: Existing run integration test still passes (no regression).
   - id: no-test-edits
-    cmd: git diff --name-only HEAD -- packages/core/tests/unit/manifest/run-results.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
+    cmd: test -d .git && git diff --name-only HEAD -- packages/core/tests/unit/manifest/run-results.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
     description: Test not edited.
 
 tags:

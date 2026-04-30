@@ -15,7 +15,7 @@ checks:
     cmd: test -s packages/cli/tests/integration/list.test.ts
     description: Test exists.
   - id: test-fails
-    cmd: cd packages/cli && pnpm test -- tests/integration/list.test.ts 2>&1; test $? -ne 0
+    cmd: test -e packages/cli/tests/integration/list.test.ts && cd packages/cli && ! pnpm test -- tests/integration/list.test.ts
     description: Test fails (RED).
   - id: tests-have-assertions
     cmd: grep -cE 'expect\(' packages/cli/tests/integration/list.test.ts | awk '$1+0 < 5 { exit 1 }'

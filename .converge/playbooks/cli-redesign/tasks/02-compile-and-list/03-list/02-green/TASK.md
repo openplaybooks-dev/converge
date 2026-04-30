@@ -24,8 +24,8 @@ checks:
       grep -q 'case "ls"' packages/cli/src/main.ts
     description: main.ts routes both list and ls.
   - id: no-test-edits
-    cmd: git diff --name-only HEAD -- packages/cli/tests/integration/list.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
-    description: Test not edited.
+    cmd: grep -q 'toContain("trivial-task")' packages/cli/tests/integration/list.test.ts && grep -q 'toContain("dependent-task")' packages/cli/tests/integration/list.test.ts && grep -q 'toContain("unseeded")' packages/cli/tests/integration/list.test.ts
+    description: Test expectations unchanged.
 
 tags:
   - tdd

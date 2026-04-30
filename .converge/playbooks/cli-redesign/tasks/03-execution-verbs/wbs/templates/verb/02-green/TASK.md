@@ -16,10 +16,10 @@ outputs:
 
 checks:
   - id: typecheck
-    cmd: pnpm -r typecheck
+    cmd: test -f package.json && pnpm -r typecheck
     description: Typecheck passes.
   - id: cli-builds
-    cmd: pnpm --filter @converge/cli build
+    cmd: test -f packages/cli/package.json && pnpm --filter @converge/cli build
     description: CLI builds.
   - id: test-passes
     cmd: cd packages/cli && pnpm test -- {{test_file}}
@@ -28,7 +28,7 @@ checks:
     cmd: grep -q 'case "{{verb}}"' packages/cli/src/main.ts
     description: main.ts routes {{verb}} to the new command.
   - id: no-test-edits
-    cmd: git diff --name-only HEAD -- packages/cli/{{test_file}} | wc -l | awk '$1+0 > 0 { exit 1 }'
+    cmd: test -d .git && git diff --name-only HEAD -- packages/cli/{{test_file}} | wc -l | awk '$1+0 > 0 { exit 1 }'
     description: Test was not edited during green.
   - id: no-other-tests-regressed
     cmd: cd packages/cli && pnpm test

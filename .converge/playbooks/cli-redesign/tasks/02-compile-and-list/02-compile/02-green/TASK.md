@@ -16,7 +16,7 @@ outputs:
 
 checks:
   - id: cli-builds
-    cmd: pnpm --filter @converge/cli build
+    cmd: test -f packages/cli/package.json && pnpm --filter @converge/cli build
     description: CLI builds.
   - id: test-passes
     cmd: cd packages/cli && pnpm test -- tests/integration/compile.test.ts
@@ -25,7 +25,7 @@ checks:
     cmd: grep -q "case \"compile\"" packages/cli/src/main.ts
     description: main.ts dispatcher routes to the new command.
   - id: no-test-edits
-    cmd: git diff --name-only HEAD -- packages/cli/tests/integration/compile.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
+    cmd: test -d .git && git diff -- packages/cli/tests/integration/compile.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
     description: Test was not edited.
 
 tags:

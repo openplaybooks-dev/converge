@@ -17,7 +17,7 @@ checks:
       test -s packages/cli/tests/integration/init-from-prompt.test.ts
     description: Both tests exist.
   - id: tests-fail
-    cmd: cd packages/cli && pnpm test -- tests/integration/deps.test.ts tests/integration/init-from-prompt.test.ts 2>&1; test $? -ne 0
+    cmd: test -e packages/cli/tests/integration/deps.test.ts && cd packages/cli && ! pnpm test -- tests/integration/deps.test.ts tests/integration/init-from-prompt.test.ts
     description: Tests fail (RED).
 
 tags:

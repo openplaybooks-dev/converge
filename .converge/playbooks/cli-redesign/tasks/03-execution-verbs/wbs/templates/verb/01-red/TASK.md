@@ -9,7 +9,7 @@ dependencies: []
 
 inputs:
   - "docs/design/cli-redesign.md"
-  - "packages/cli/tests/fixtures/minimal-playbook/.converge/playbooks/default/playbook.yml"
+  - "packages/cli/tests/fixtures/minimal-playbook/playbook.yml"
 
 outputs:
   - "packages/cli/{{test_file}}"
@@ -19,7 +19,7 @@ checks:
     cmd: test -s packages/cli/{{test_file}}
     description: Test file exists and is non-empty.
   - id: test-fails
-    cmd: cd packages/cli && pnpm test -- {{test_file}} 2>&1; test $? -ne 0
+    cmd: test -e packages/cli && cd packages/cli && ! pnpm test -- {{test_file}}
     description: Test fails (RED).
   - id: tests-have-assertions
     cmd: grep -cE 'expect\(' packages/cli/{{test_file}} | awk '$1+0 < 3 { exit 1 }'

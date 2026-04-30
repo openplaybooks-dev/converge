@@ -16,7 +16,7 @@ checks:
     cmd: test -s packages/cli/tests/integration/_fixture-smoke.test.ts
     description: Test file exists.
   - id: test-fails
-    cmd: cd packages/cli && pnpm test -- tests/integration/_fixture-smoke.test.ts 2>&1; test $? -ne 0
+    cmd: test -e packages/cli/tests/integration/_fixture-smoke.test.ts && cd packages/cli && ! pnpm test -- tests/integration/_fixture-smoke.test.ts
     description: Test fails (RED) — fixture doesn't exist yet.
 
 tags:

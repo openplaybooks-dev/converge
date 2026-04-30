@@ -19,7 +19,7 @@ inputs:
   - "docs/design/cli-redesign.md"
   - "packages/cli/src/commands-compile.ts"
   - "packages/cli/src/commands-list.ts"
-  - "packages/cli/tests/fixtures/minimal-playbook/.converge/playbooks/default/playbook.yml"
+  - "packages/cli/tests/fixtures/minimal-playbook/playbook.yml"
   - "packages/core/src/select/index.ts"
   - "packages/core/src/manifest/index.ts"
 
@@ -37,7 +37,7 @@ outputs:
 
 checks:
   - id: typecheck
-    cmd: pnpm -r typecheck
+    cmd: test -f package.json && pnpm -r typecheck
     description: Typecheck passes.
   - id: cli-builds
     cmd: pnpm --filter @converge/cli build && test -x packages/cli/dist/index.js
@@ -69,9 +69,10 @@ checks:
     description: "retry exits non-zero with 'no prior run' message when target/run_results.json is absent."
   - id: clean-respects-select
     cmd: |
-      cd packages/cli/tests/fixtures/minimal-playbook
-      ../../../dist/index.js run --select 'tag:trivial' --max-duration=10000
-      ../../../dist/index.js clean --select 'tag:trivial'
+      test -d packages/cli/tests/fixtures/minimal-playbook && \
+      cd packages/cli/tests/fixtures/minimal-playbook && \
+      ../../../dist/index.js run --select 'tag:trivial' --max-duration=10000 && \
+      ../../../dist/index.js clean --select 'tag:trivial' && \
       test ! -d .converge/journal/default/tasks/trivial-task
     description: "clean --select <expr> removes journal state for matching tasks."
   - id: integration-tests-green

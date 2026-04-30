@@ -23,6 +23,8 @@ import { existsSync } from "node:fs";
 import { runAutonomousCommand } from "./commands-run.ts";
 import { metricsCommand } from "./commands-metrics.ts";
 import { treeCommand } from "./commands-tree.ts";
+import { compileCommand } from "./commands-compile.ts";
+import { listCommand } from "./commands-list.ts";
 import { resetCommand } from "./commands-reset.ts";
 import { ganttCommand } from "./commands-gantt.ts";
 import { graphCommand } from "./commands-graph.ts";
@@ -1588,6 +1590,24 @@ async function main(): Promise<void> {
         });
 
         clearPlaybookScope();
+        break;
+      }
+
+      case "list":
+      case "ls": {
+        await listCommand({
+          dir: options.dir || process.cwd(),
+          select: options.select as string | undefined,
+        });
+        break;
+      }
+
+      case "compile": {
+        await compileCommand({
+          dir: options.dir || ORIGINAL_CWD,
+          seed: options.seed || false,
+          select: options.select as string | undefined,
+        });
         break;
       }
 

@@ -28,8 +28,8 @@ checks:
     description: Integration test passes.
   - id: no-test-edits
     cmd: |
-      git diff --name-only HEAD -- packages/core/tests/unit/select/state-resolver.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
-      git diff --name-only HEAD -- packages/cli/tests/integration/state-modified.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
+      test -d .git && git diff --name-only HEAD -- packages/core/tests/unit/select/state-resolver.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
+      test -d .git && git diff --name-only HEAD -- packages/cli/tests/integration/state-modified.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
     description: Tests not edited.
 
 tags:
