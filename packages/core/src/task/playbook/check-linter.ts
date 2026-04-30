@@ -190,6 +190,12 @@ async function lintOneCheck(
   try {
     for (const out of outputs) {
       const target = join(positiveSandbox, out);
+      // A trailing slash means "this output is a directory" (e.g. "assets/foo/").
+      // mkdir it and move on — writeFile would fail with ENOENT on dir-shaped paths.
+      if (out.endsWith("/")) {
+        await mkdir(target, { recursive: true });
+        continue;
+      }
       await mkdir(dirname(target), { recursive: true });
       // Use a richer placeholder so word-count, line-count, and basic
       // grep-pattern checks still distinguish "real content" from "empty."
