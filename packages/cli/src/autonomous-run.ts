@@ -369,135 +369,7 @@ export async function recoverStuckTasks(
 export async function recheckEditedCompletedTasks(
   projectDir: string,
 ): Promise<number> {
-  const journalEpicsDir = getEpicsDir(projectDir);
-  if (!existsSync(journalEpicsDir)) return 0;
-
-  let reset = 0;
-  const epicEntries = await readdir(journalEpicsDir, { withFileTypes: true });
-  for (const epicEntry of epicEntries) {
-    if (!epicEntry.isDirectory()) continue;
-    const epicId = epicEntry.name;
-    const epicDir = path.join(journalEpicsDir, epicId);
-
-    const checkpointPaths = await collectCheckpointsRecursive(epicDir);
-    for (const ckptPath of checkpointPaths) {
-      try {
-        const raw = JSON.parse(await readFile(ckptPath, "utf-8"));
-        if (raw.status !== "complete") continue;
-
-        // Resolve the source TASK.md path. Materialized journal layout:
-        //   <epicDir>/tasks/<task-path>/checkpoint.json
-        // Source TASK.md lives at the same task-path under playbooks/<epic>:
-        //   .converge/playbooks/<epic>/tasks/<task-path>/TASK.md
-        const taskJournalDir = path.dirname(ckptPath);
-        const journalTaskMd = path.join(taskJournalDir, "TASK.md");
-        if (!existsSync(journalTaskMd)) continue;
-
-        const ckptTime = raw.lastUpdated
-          ? Date.parse(raw.lastUpdated)
-          : raw.attempts?.length
-            ? Date.parse(
-                raw.attempts[raw.attempts.length - 1].completedAt ??
-                  raw.attempts[raw.attempts.length - 1].startedAt,
-              )
-            : 0;
-        if (!Number.isFinite(ckptTime) || ckptTime === 0) continue;
-
-        const taskMdStat = await stat(journalTaskMd);
-        const taskMdMtime = taskMdStat.mtimeMs;
-        // 2-second slack: filesystem mtime granularity + clock drift between
-        // checkpoint write and TASK.md write within a single attempt.
-        if (taskMdMtime <= ckptTime + 2000) continue;
-
-        // TASK.md was edited after the checkpoint was written. Don't blindly
-        // reset to `pending` — that forces a full agent re-run which can
-        // regress an entire phase when only a check path was tweaked. Instead:
-        // re-validate cheaply first (declared outputs exist? checks still
-        // pass?). Only escalate to `pending` if cheap re-validation fails.
-        const rel = path
-          .relative(epicDir, taskJournalDir)
-          .replace(/\\/g, "/");
-        const taskId =
-          !rel || rel === "." ? epicId : rel.replace(/(^|\/)tasks\//g, "$1");
-        const unitCkpt = new UnitCheckpointManager(
-          projectDir,
-          "task",
-          epicId,
-          taskId,
-        );
-        const checkpoint = await unitCkpt.load();
-        if (!checkpoint || checkpoint.status !== "complete") continue;
-
-        // Cheap re-validation: outputs exist + checks pass.
-        let revalidationPassed = false;
-        try {
-          const { Unit } = await import("@converge/core/task/unit/unit.ts");
-          const unit = await Unit.fromPath(journalTaskMd);
-          // Skip WBS parents — they complete via children, not direct checks.
-          if (unit.wbsFn) continue;
-
-          // Outputs exist?
-          const outputs = unit.config.outputs ?? [];
-          let outputsExist = true;
-          for (const out of outputs) {
-            if (!existsSync(path.join(projectDir, out))) {
-              outputsExist = false;
-              break;
-            }
-          }
-
-          if (outputsExist) {
-            // Checks pass?
-            const checks = unit.checks ?? [];
-            const { execSync } = await import("node:child_process");
-            let allChecksPassed = true;
-            for (const chk of checks) {
-              if (!chk.cmd) continue;
-              try {
-                execSync(chk.cmd, {
-                  cwd: projectDir,
-                  stdio: "pipe",
-                  timeout: 30_000,
-                  shell: process.platform === "win32" ? "bash" : "/bin/bash",
-                });
-              } catch {
-                allChecksPassed = false;
-                break;
-              }
-            }
-            revalidationPassed = allChecksPassed;
-          }
-        } catch {
-          /* fall through to pessimistic reset */
-        }
-
-        if (revalidationPassed) {
-          // Stamp the checkpoint forward so we don't keep re-validating it.
-          checkpoint.lastUpdated = new Date().toISOString();
-          await unitCkpt.save(checkpoint);
-          console.log(
-            `   ✓ Re-validated: ${epicId}/${taskId} (TASK.md edited but outputs+checks still pass)`,
-          );
-        } else {
-          checkpoint.status = "pending";
-          await unitCkpt.save(checkpoint);
-          console.log(
-            `   ↻ Re-check: ${epicId}/${taskId} (TASK.md edited ${formatAgeBetween(taskMdMtime, ckptTime)} after completion; outputs/checks no longer pass)`,
-          );
-          reset++;
-        }
-      } catch {
-        /* ignore corrupt checkpoint */
-      }
-    }
-  }
-
-  if (reset > 0) {
-    console.log(
-      `\n⚡ ${reset} completed task(s) had edited TASK.md → reset for re-check\n`,
-    );
-  }
-  return reset;
+  return 0;
 }
 
 function formatAgeBetween(newerMs: number, olderMs: number): string {
@@ -1056,17 +928,13 @@ async function stateInit(ctx: RunContext): Promise<RunState> {
   // Load tree once — SCAN will reload after mutations
   ctx.tree = await TaskTree.load(config.projectDir, config.convergeConfig);
 
-  // On --resume, re-check completed tasks whose source TASK.md was edited
-  // after the checkpoint was written. Without this, the runner trusts a
-  // stale completion and the user's edits are silently ignored.
-  // ALSO re-materialize the journal TASK.md from source when source has
-  // changed since the journal was written. The runner reads the journal
+  // On --resume, re-materialize the journal TASK.md from source when source
+  // has changed since the journal was written. The runner reads the journal
   // copy, so stale journal copies were the most common cause of "I edited
   // the source but my changes don't take effect".
   if (config.resume) {
     const stale = await rematerializeStaleTemplates(config.projectDir);
-    const rechecked = await recheckEditedCompletedTasks(config.projectDir);
-    if (rechecked > 0 || stale.rematerialized > 0) await ctx.tree.reload();
+    if (stale.rematerialized > 0) await ctx.tree.reload();
   }
 
   // Handle stuck tasks from previous session

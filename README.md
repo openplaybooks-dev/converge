@@ -4,6 +4,8 @@
 
 # Autonomous AI agent playbooks.
 
+*Run AI agent work like you run a software project.*
+
 **Agent harnessing and orchestration for complex, repeatable, verifiable workflows.**
 
 [![npm version](https://img.shields.io/npm/v/@converge/core?color=cb3837&logo=npm&label=npm)](https://www.npmjs.com/package/@converge/core)
@@ -15,7 +17,7 @@
 
 </div>
 
-> **Status:** `v0.1.0` · public preview. Pre-1.0, no users yet. The runtime is real and 22+ runnable example playbooks span software, research, security, and creative work — see [examples](./examples). CLI ergonomics are in active development; API surface stabilizes toward v1.0.
+> **Status:** `v0.1.0` · public preview. The runtime ships and 22+ runnable example playbooks span software, research, security, and creative work — see [examples](./examples). CLI ergonomics are in active development; the API surface stabilizes toward v1.0.
 
 ---
 
@@ -45,13 +47,15 @@ $ converge run
 8/8 tasks. 1 auto-repair. report.md written to ./out/
 ```
 
-You write the goal. The runtime plans the tasks, executes them in dependency order, verifies every step with shell-command checks, and self-corrects when anything fails. No graph wiring, no hand-tuned prompts, no babysitting.
+You write the goal. The runtime plans the tasks, executes them in dependency order, verifies every step with shell-command checks, and self-corrects when anything fails.
+
+**No graph wiring. No hand-tuned prompts. No babysitting.**
 
 ## What is Converge?
 
 A Converge **playbook** is an AI project: a tree of tasks on disk, each one declaring what it produces and the shell commands that check whether it's done. You write the playbook (or clone one from [examples](./examples)). The runtime composes the tasks into a graph, runs each in dependency order, verifies the outputs, and self-corrects when checks fail — for hours or days, across thousands of tasks, resumable from any kill.
 
-The result: long-running AI work becomes a version-controlled project, not a prompt you babysit.
+> **Long-running AI work becomes a version-controlled project, not a prompt you babysit.**
 
 A playbook on disk:
 
@@ -85,20 +89,22 @@ Each wave detects gaps, plans tasks to close them, and executes — looping unti
 
 ## Highlights
 
-- **Autonomous** — runs for hours or days without supervision; resumes from any kill
-- **Verifiable** — every check is a shell command, never an LLM judge
-- **Repeatable** — same playbook, same shape of result; outputs and journal are version-controlled
-- **Self-correcting** — typed failures auto-repair through named strategies before retrying the agent
-- **Adaptive** — the task graph grows at runtime as scope emerges
-- **Multi-provider** — Claude, Gemini, Kimi, Qwen behind one `agentfn` abstraction
+- **Runs for hours, days, thousands of tasks.** Crash-safe checkpoints; resume from any kill.
+- **Every check is a shell command.** No LLM-as-judge, no vibes.
+- **Same playbook, same shape of result.** Outputs and journal are version-controlled.
+- **Failures auto-repair.** Typed strategies fire before the agent retries.
+- **The task graph grows at runtime.** Scope emerges with the work.
+- **One abstraction, four providers.** Claude, Gemini, Kimi, Qwen.
 
-## Who is this for?
+## What problems does Converge solve?
 
-**Engineers building agent workflows.** You want a project structure and a runtime that treats agent work like software. You care about dependencies, version control, deterministic checks, and a journal you can `cat`. You're tired of one-shot prompts and frameworks that ask you to wire a graph by hand.
+**Long-running, multi-stage AI work that has to actually finish.** When the work is fifty tasks, or two hundred, or a pipeline that runs for hours, the runtime has to survive partial failures — a stuck check on task 23 can't kill task 47. Tasks form a graph, not a chain. The framework repairs typed failures before retrying the agent, checkpoints every step to disk, and resumes from any kill.
 
-**AI facilitators and operators.** You run other people's playbooks, tune prompts, debug long runs, and recommend tooling to your team. You care about cost predictability, observability, multi-provider portability, and the ability to kill a run and resume from disk. The journal at `.converge/journal/` is your dashboard.
+**Structured outputs that have to be verifiable.** Real artifacts come with real predicates. A code change passes `tsc`, `eslint`, and the test suite. A research report has citations that resolve. A security finding ships a reproducible PoC. Every check is a shell command — not an LLM judging itself.
 
-**Domain experts — researchers, marketers, content teams.** You don't write code, but you have a process: a literature review, a campaign launch, a quarterly compliance audit. Converge lets you encode that process once as a playbook (or start from a template), then run it whenever you need the same shape of result. The agent does the work; the playbook is the recipe.
+> **"Done" is a deterministic question, not a vibe.**
+
+**Repeatable processes that change shape based on input.** The same playbook runs three layers deep on a hard question and one layer deep on a simple one. An asset pipeline spawns one task per scene. A research loop runs another epoch only if the quality score hasn't plateaued. The task graph grows at runtime, so the playbook is one file but the runs are problem-shaped.
 
 ## What you can build
 
@@ -132,6 +138,19 @@ Every example below is a real, runnable playbook in [`examples/`](./examples/) �
 - **[`evolutionary-optimization`](./examples/evolutionary-optimization/)** — search over a fitness landscape; useful for prompt tuning, hyperparameter sweeps, copy testing.
 
 [Browse all 22 examples →](./examples/)
+
+## Converge builds Converge
+
+Significant parts of this repo were built by Converge running playbooks against itself. The `.converge/playbooks/` directory in this repository contains the receipts:
+
+- **`cli-redesign`** — 63 tasks. The v2 CLI surface (`--select` DSL, `compile`, `target/manifest.json`, the three-state dynamic-DAG manifest) is being implemented by Converge from a design doc.
+- **`landing-page`** — 65 tasks. The Astro landing site at `apps/landing/` was scaffolded and built by a playbook.
+- **`oss-standardize`** — 38 tasks. Brand consolidation, documentation, and OSS-readiness work.
+- **`self-improvement-loop`** — 10 tasks, run mode `loop`. Continuously improves the framework toward top-tier OSS quality.
+- **`docs`** — re-runnable. Re-generates `docs/` from source whenever framework code changes.
+- **`cli-to-core-extraction`** — 4 tiers, ~4k lines moved. Refactored orchestration out of `packages/cli` into `packages/core`.
+
+> **The dogfood is the proof.** Every playbook above ran against this codebase, produced a checkpointed journal, and survived crashes and resumes. If the runtime didn't work, this README would be hand-typed.
 
 ## Quick Start
 

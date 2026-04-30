@@ -191,7 +191,9 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     if (existsSync(projectTaskChildrenDir) && readdirSync(projectTaskChildrenDir).length > 0) {
       return true;
     }
-    // Check .converge/playbooks/<name>/tasks/<taskName>/ for child dirs with TASK.md
+    // Check .converge/playbooks/<name>/tasks/<taskName>/ — but only during
+    // --seed to avoid stale artifacts from a prior run confusing the frontier.
+    if (!options.seed) return false;
     const playbookTaskDir = join(playbookTasksDir, taskName);
     if (!existsSync(playbookTaskDir)) return false;
     const entries = readdirSync(playbookTaskDir, { withFileTypes: true });
