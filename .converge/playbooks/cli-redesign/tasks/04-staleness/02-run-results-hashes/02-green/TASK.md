@@ -1,0 +1,47 @@
+---
+id: 02-green
+title: Green — implement run-results writer
+description: |
+  Implement packages/core/src/manifest/run-results.ts. Wire into the
+  task-completion hot path of commands-run.ts (and downstream:
+  build, retry consume the same writer). Make 01-red green.
+
+dependencies:
+  - 01-red
+
+inputs:
+  - "packages/core/tests/unit/manifest/run-results.test.ts"
+
+outputs:
+  - "packages/core/src/manifest/run-results.ts"
+  - "packages/cli/src/commands-run.ts"
+
+checks:
+  - id: typecheck
+    cmd: pnpm -r typecheck
+    description: Typechecks.
+  - id: unit-passes
+    cmd: cd packages/core && pnpm test -- tests/unit/manifest/run-results.test.ts
+    description: Unit test passes.
+  - id: run-passes
+    cmd: cd packages/cli && pnpm test -- tests/integration/run-select.test.ts
+    description: Existing run integration test still passes (no regression).
+  - id: no-test-edits
+    cmd: git diff --name-only HEAD -- packages/core/tests/unit/manifest/run-results.test.ts | wc -l | awk '$1+0 > 0 { exit 1 }'
+    description: Test not edited.
+
+tags:
+  - tdd
+  - green
+---
+
+# Green — implement and wire
+
+`run-results.ts` exports `writeRunResults`, `readRunResults`, and a
+`hashOutputs(projectDir, outputPaths)` helper. Atomic write (same
+temp+rename pattern as writeManifest).
+
+Wire into the task-completion path: when a task transitions to complete
+in commands-run.ts, append a result entry with computed output_hashes.
+
+Refactor while green.
